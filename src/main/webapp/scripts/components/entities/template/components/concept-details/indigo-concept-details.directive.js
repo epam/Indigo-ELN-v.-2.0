@@ -20,23 +20,51 @@
         };
 
         /* @ngInject */
-        function IndigoConceptDetailsController($state, $q, Principal, Dictionary, Users, notifyService) {
+        function IndigoConceptDetailsController($scope, $state, $q, Dictionary, notifyService, Users) {
             var vm = this;
             var deferred;
-
+            var userPromise;
             vm.experiment = vm.experiment || {};
             vm.model = vm.model || {};
 
             vm.onLinkedExperimentClick = onLinkedExperimentClick;
             vm.onAddLinkedExperiment = onAddLinkedExperiment;
             vm.getExperiments = getExperiments;
+            vm.updateIds = updateIds;
 
             init();
 
             function init() {
-                Users.get().then(function(dictionary) {
+                userPromise = Users.get().then(function(dictionary) {
                     vm.users = dictionary.words;
                 });
+
+                bindEvents();
+            }
+
+            function bindEvents() {
+                $scope.$watch('vm.model.conceptDetails.experimentCreator', function() {
+                    userPromise.then(function() {
+                        vm.experimentCreator = _.find(vm.users, {id: vm.model.conceptDetails.experimentCreator});
+                    });
+                });
+
+                $scope.$watch('vm.model.conceptDetails.coAuthors', function() {
+                    userPromise.then(function() {
+                        vm.coAuthors = Users.getUsersById(vm.model.conceptDetails.coAuthors);
+                    });
+
+                });
+
+                $scope.$watch('vm.model.conceptDetails.designers', function() {
+                    userPromise.then(function() {
+                        vm.designers = Users.getUsersById(vm.model.conceptDetails.designers);
+                    });
+                });
+            }
+
+            function updateIds(property, selectedValues) {
+                vm.model.conceptDetails[property] = _.map(selectedValues, 'id');
             }
 
             function onLinkedExperimentClick(tag) {

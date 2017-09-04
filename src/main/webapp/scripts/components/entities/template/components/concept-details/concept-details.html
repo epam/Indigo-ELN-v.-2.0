@@ -26,16 +26,19 @@
                                indigo-label-vertical="true"
                                indigo-readonly="vm.isReadonly"
                                indigo-items="vm.users"
-                               indigo-model="vm.model.conceptDetails.coAuthors"
+                               indigo-model="vm.coAuthors"
+                               indigo-change="vm.updateIds('coAuthors', vm.coAuthors)"
+                               indigo-remove="vm.updateIds('coAuthors', vm.coAuthors)"
                                indigo-multiple="true"
                 ></indigo-select>
-                <!--Experiment Creator field is hidden for current release; to make it visible, remove ng-if-->
+                <!--Experiment Creator field is hidden for current release; to make it visible, remove ng-if and add
+                attributes: indigo-change, indigo-remove -->
                 <indigo-select ng-if="false"
                                indigo-label="Experiment Creator (Author)"
                                indigo-label-vertical="true"
                                indigo-readonly="vm.isReadonly"
                                indigo-items="vm.users"
-                               indigo-model="vm.model.conceptDetails.experimentCreator"
+                               indigo-model="vm.experimentCreator"
                 ></indigo-select>
             </div>
             <div class="col-xs-6">
@@ -55,7 +58,9 @@
                                indigo-label-vertical="true"
                                indigo-readonly="vm.isReadonly"
                                indigo-items="vm.users"
-                               indigo-model="vm.model.conceptDetails.designers"
+                               indigo-model="vm.designers"
+                               indigo-change="vm.updateIds('designers', vm.designers)"
+                               indigo-remove="vm.updateIds('designers', vm.designers)"
                                indigo-multiple="true"
                 ></indigo-select>
             </div>

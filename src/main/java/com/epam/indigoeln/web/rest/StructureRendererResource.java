@@ -21,7 +21,7 @@ public class StructureRendererResource {
     /**
      * POST /molecule/image -> get molecule's graphical representation
      */
-    @ApiOperation(value = "Returns molecule's graphical representation.", produces = "application/json")
+    @ApiOperation(value = "Returns molecule's graphical representation.")
     @RequestMapping(value = "/{type}/image", method = RequestMethod.POST)
     public ResponseEntity<RendererResult> getMoleculeImagePOST(
             @ApiParam("Representation type.") @PathVariable String type,

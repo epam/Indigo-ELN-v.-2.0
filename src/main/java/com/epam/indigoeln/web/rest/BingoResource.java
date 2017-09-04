@@ -33,7 +33,7 @@ public class BingoResource {
     /**
      * GET /molecule/:id -> get structure of molecule
      */
-    @ApiOperation(value = "Returns the structure of molecule.", produces = "application/json")
+    @ApiOperation(value = "Returns the structure of molecule.")
     @RequestMapping(value = "/molecule/{id}", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> getMolecule(
             @ApiParam("Identifier of the molecule.") @PathVariable String id
@@ -47,7 +47,7 @@ public class BingoResource {
     /**
      * POST /molecule/ -> create new molecule
      */
-    @ApiOperation(value = "Creates a new molecule.", produces = MediaType.TEXT_PLAIN_VALUE)
+    @ApiOperation(value = "Creates a new molecule.")
     @RequestMapping(value = "/molecule/", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
     @SuppressWarnings("unchecked")
     public ResponseEntity<String> addMolecule(
@@ -67,7 +67,7 @@ public class BingoResource {
     /**
      * PUT /molecule/:id -> update molecule
      */
-    @ApiOperation(value = "Updates the molecule.", produces = MediaType.TEXT_PLAIN_VALUE)
+    @ApiOperation(value = "Updates the molecule.")
     @RequestMapping(value = "/molecule/{id}", method = RequestMethod.PUT, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> updateMolecule(
             @ApiParam("Id of the molecule to update.") @PathVariable String id,
@@ -91,7 +91,7 @@ public class BingoResource {
     /**
      * GET /molecule/empty -> checks if molecule is empty
      */
-    @ApiOperation(value = "Checks if molecule is empty.", produces = "application/json")
+    @ApiOperation(value = "Checks if molecule is empty.")
     @RequestMapping(value = "/molecule/empty", method = RequestMethod.POST)
     public ResponseEntity<Object> isEmptyMolecule(
             @ApiParam("Reaction to check.") @RequestBody String molecule
@@ -109,7 +109,7 @@ public class BingoResource {
     /**
      * DELETE /molecule/:id -> delete molecule
      */
-    @ApiOperation(value = "Deletes the molecule.", produces = "application/json")
+    @ApiOperation(value = "Deletes the molecule.")
     @RequestMapping(value = "/molecule/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteTemplate(
             @ApiParam("Id of the molecule to delete.") @PathVariable String id
@@ -123,7 +123,7 @@ public class BingoResource {
     /**
      * GET /reaction/:id -> get reaction structure
      */
-    @ApiOperation(value = "Returns structure of the reaction.", produces = "application/json")
+    @ApiOperation(value = "Returns structure of the reaction.")
     @RequestMapping(value = "/reaction/{id}", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> getReaction(
             @ApiParam("Id of the reaction.") @PathVariable String id
@@ -137,7 +137,7 @@ public class BingoResource {
     /**
      * POST /reaction/ -> create new reaction
      */
-    @ApiOperation(value = "Creates new reaction.", produces = MediaType.TEXT_PLAIN_VALUE)
+    @ApiOperation(value = "Creates new reaction.")
     @RequestMapping(value = "/reaction/", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> addReaction(
             @ApiParam("Reaction to create.") @RequestBody String reaction
@@ -156,7 +156,7 @@ public class BingoResource {
     /**
      * PUT /reaction/:id -> update existing reaction
      */
-    @ApiOperation(value = "Updates the reaction.", produces = MediaType.TEXT_PLAIN_VALUE)
+    @ApiOperation(value = "Updates the reaction.")
     @RequestMapping(value = "/reaction/{id}", method = RequestMethod.PUT, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> updateReaction(
             @ApiParam("Id of the reaction to update.") @PathVariable String id,
@@ -179,7 +179,7 @@ public class BingoResource {
     /**
      * GET /reaction/:id/empty -> checks if reaction is empty
      */
-    @ApiOperation(value = "Checks if reaction is empty.", produces = "application/json")
+    @ApiOperation(value = "Checks if reaction is empty.")
     @RequestMapping(value = "/reaction/empty", method = RequestMethod.POST)
     public ResponseEntity<Object> isEmptyReaction(
             @ApiParam("Reaction to check.") @RequestBody String reaction
@@ -197,7 +197,7 @@ public class BingoResource {
     /**
      * DELETE /reaction/:id -> delete reaction
      */
-    @ApiOperation(value = "Deletes the reaction.", produces = "application/json")
+    @ApiOperation(value = "Deletes the reaction.")
     @RequestMapping(value = "/reaction/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteReaction(
             @ApiParam("Id of the reaction to delete.") @PathVariable String id
@@ -211,7 +211,7 @@ public class BingoResource {
     /**
      * POST /molecule/search/exact?options=:options -> exact search molecule
      */
-    @ApiOperation(value = "Searches for exact molecule.", produces = "application/json")
+    @ApiOperation(value = "Searches for exact molecule.")
     @RequestMapping(value = "/molecule/search/exact", method = RequestMethod.POST)
     public ResponseEntity<List<String>> searchMoleculeExact(
             @ApiParam("Molecule structure to search for.") @RequestBody String structure,
@@ -223,7 +223,7 @@ public class BingoResource {
     /**
      * POST /molecule/search/substructure?options=:options -> substructure search molecule
      */
-    @ApiOperation(value = "Searches for molecule by substructure.", produces = "application/json")
+    @ApiOperation(value = "Searches for molecule by substructure.")
     @RequestMapping(value = "/molecule/search/substructure", method = RequestMethod.POST)
     public ResponseEntity<List<String>> searchMoleculeSubstructure(
             @ApiParam("Molecule substructure to search for.") @RequestBody String structure,
@@ -234,7 +234,7 @@ public class BingoResource {
     /**
      * POST /molecule/search/similarity?min=:min&max=:max&options=:options -> similarity search molecule
      */
-    @ApiOperation(value = "Searches for molecule by similarity.", produces = "application/json")
+    @ApiOperation(value = "Searches for molecule by similarity.")
     @RequestMapping(value = "/molecule/search/similarity", method = RequestMethod.POST)
     public ResponseEntity<List<String>> searchMoleculeSimilarity(
             @ApiParam("Molecule substructure to search for.") @RequestBody String structure,
@@ -248,7 +248,7 @@ public class BingoResource {
     /**
      * POST /molecule/search/molformula?options=:options ->  search molecule by formula
      */
-    @ApiOperation(value = "Searches for molecule by formula.", produces = "application/json")
+    @ApiOperation(value = "Searches for molecule by formula.")
     @RequestMapping(value = "/molecule/search/molformula", method = RequestMethod.POST)
     public ResponseEntity<List<String>> searchMoleculeByMolFormula(
             @ApiParam("Molecule formula to search for.") @RequestBody String formula,
@@ -260,7 +260,7 @@ public class BingoResource {
     /**
      * POST /reaction/search/exact?options=:options -> exact search reaction
      */
-    @ApiOperation(value = "Searches for exact reaction.", produces = "application/json")
+    @ApiOperation(value = "Searches for exact reaction.")
     @RequestMapping(value = "/reaction/search/exact", method = RequestMethod.POST)
     public ResponseEntity<List<String>> searchReactionExact(
             @ApiParam("Reaction structure to search for.") @RequestBody String structure,
@@ -272,7 +272,7 @@ public class BingoResource {
     /**
      * POST /reaction/search/substructure?options=:options -> substructure search reaction
      */
-    @ApiOperation(value = "Searches for reaction by substructure.", produces = "application/json")
+    @ApiOperation(value = "Searches for reaction by substructure.")
     @RequestMapping(value = "/reaction/search/substructure", method = RequestMethod.POST)
     public ResponseEntity<List<String>> searchReactionSubstructure(
             @ApiParam("Reaction substructure to search for.") @RequestBody String structure,
@@ -283,7 +283,7 @@ public class BingoResource {
     /**
      * POST /reaction/search/similarity?min=:min&max=:max&options=:options -> similarity search reaction
      */
-    @ApiOperation(value = "Searches for reaction by similarity.", produces = "application/json")
+    @ApiOperation(value = "Searches for reaction by similarity.")
     @RequestMapping(value = "/reaction/search/similarity", method = RequestMethod.POST)
     public ResponseEntity<List<String>> searchReactionSimilarity(
             @ApiParam("Reaction substructure to search for.") @RequestBody String structure,
@@ -297,7 +297,7 @@ public class BingoResource {
     /**
      * POST /reaction/search/molformula?options=:options ->  search reaction by formula
      */
-    @ApiOperation(value = "Searches for reaction by formula.", produces = "application/json")
+    @ApiOperation(value = "Searches for reaction by formula.")
     @RequestMapping(value = "/reaction/search/molformula", method = RequestMethod.POST)
     public ResponseEntity<List<String>> searchReactionByMolFormula(
             @ApiParam("Reaction formula to search for.") @RequestBody String formula,

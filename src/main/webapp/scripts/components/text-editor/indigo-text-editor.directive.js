@@ -13,8 +13,7 @@
                 onChanged: '&'
             },
             restrict: 'E',
-            template: '<textarea name={{::indigoName}} class="form-control" ng-model="indigoModel"' +
-            ' data-autosave="editor-content" autofocus></textarea>',
+            templateUrl: 'scripts/components/text-editor/indigo-text-editor.html',
             replace: true,
             link: link
         };
@@ -44,12 +43,12 @@
             function bindEvents() {
                 $scope.$watch('indigoModel', function(value) {
                     if (value !== editor.getValue()) {
-                        editor.setValue(value);
+                        editor.setValue(value || '');
                     }
                 });
 
                 var editorListener = editor.on('valuechanged', function() {
-                    if (($scope.indigoModel || '') !== editor.getValue()) {
+                    if (angular.isDefined($scope.indigoModel) && $scope.indigoModel !== editor.getValue()) {
                         $timeout(function() {
                             $scope.indigoModel = editor.getValue();
                             $scope.onChanged({text: $scope.indigoModel});

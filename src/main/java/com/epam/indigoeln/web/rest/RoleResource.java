@@ -41,7 +41,7 @@ public class RoleResource {
     /**
      * GET  /roles -> Returns all roles
      */
-    @ApiOperation(value = "Returns all roles.", produces = "application/json")
+    @ApiOperation(value = "Returns all roles.")
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<RoleDTO>> getAllRoles() throws URISyntaxException {
@@ -57,7 +57,7 @@ public class RoleResource {
     /**
      * GET  /roles/:id -> Returns specified role.
      */
-    @ApiOperation(value = "Returns specified role.", produces = "application/json")
+    @ApiOperation(value = "Returns specified role.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RoleDTO> getRole(
@@ -71,7 +71,7 @@ public class RoleResource {
     /**
      * POST  /roles -> Creates a new role.
      */
-    @ApiOperation(value = "Creates a new role.", produces = "application/json")
+    @ApiOperation(value = "Creates a new role.")
     @RequestMapping(method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -89,7 +89,7 @@ public class RoleResource {
     /**
      * PUT  /roles -> Updates an existing role.
      */
-    @ApiOperation(value = "Updates existing role.", produces = "application/json")
+    @ApiOperation(value = "Updates existing role.")
     @RequestMapping(method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -106,7 +106,7 @@ public class RoleResource {
     /**
      * DELETE  /roles/:id -> Removes role with specified id
      */
-    @ApiOperation(value = "Deletes role.", produces = "application/json")
+    @ApiOperation(value = "Deletes role.")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteRole(
             @ApiParam("Role id to delete") @PathVariable String id

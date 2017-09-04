@@ -25,14 +25,17 @@
                                indigo-label-vertical="true"
                                indigo-readonly="vm.isReadonly"
                                indigo-items="vm.users"
-                               indigo-model="vm.model.reactionDetails.coAuthors"
+                               indigo-model="vm.coAuthors"
+                               indigo-change="vm.updateIds('coAuthors', vm.coAuthors)"
+                               indigo-remove="vm.updateIds('coAuthors', vm.coAuthors)"
                                indigo-multiple="true"
                 ></indigo-select>
-                <!--Experiment Creator field is hidden for current release; to make it visible, remove ng-if -->
+                <!--Experiment Creator field is hidden for current release; to make it visible, remove ng-if and add
+                attributes: indigo-change, indigo-remove -->
                 <indigo-select ng-if="false"
                                indigo-label="Experiment Creator (Author)"
                                indigo-label-vertical="true"
-                               indigo-model="vm.model.reactionDetails.experimentCreator"
+                               indigo-model="vm.experimentCreator"
                                indigo-readonly="vm.isReadonly"
                                indigo-items="vm.users"
                 ></indigo-select>
@@ -76,7 +79,9 @@
                                indigo-label-vertical="true"
                                indigo-readonly="vm.isReadonly"
                                indigo-items="vm.users"
-                               indigo-model="vm.model.reactionDetails.batchOwner"
+                               indigo-model="vm.batchOwner"
+                               indigo-change="vm.updateIds('batchOwner', vm.batchOwner)"
+                               indigo-remove="vm.updateIds('batchOwner', vm.batchOwner)"
                                indigo-multiple="true"
                 ></indigo-select>
             </div>

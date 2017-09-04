@@ -7,7 +7,6 @@ import com.epam.indigoeln.core.service.dictionary.DictionaryService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.DictionaryDTO;
 import com.epam.indigoeln.web.rest.dto.ExperimentDictionaryDTO;
-import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
 import io.swagger.annotations.Api;
@@ -42,9 +41,6 @@ public class DictionaryResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryResource.class);
 
     @Autowired
-    private CustomDtoMapper dtoMapper;
-
-    @Autowired
     private DictionaryService dictionaryService;
 
     @Autowired
@@ -53,7 +49,7 @@ public class DictionaryResource {
     /**
      * GET /dictionaries/experiments -> get experiments dictionary
      */
-    @ApiOperation(value = "Returns experiments dictionary.", produces = "application/json")
+    @ApiOperation(value = "Returns experiments dictionary.")
     @RequestMapping(value = "/experiments", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ExperimentDictionaryDTO> getExperiments() {
         LOGGER.debug("REST request to get dictionary for experiments");
@@ -64,7 +60,7 @@ public class DictionaryResource {
     /**
      * GET /dictionaries/users -> get users dictionary
      */
-    @ApiOperation(value = "Returns users dictionary.", produces = "application/json")
+    @ApiOperation(value = "Returns users dictionary.")
     @RequestMapping(value = "/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DictionaryDTO> getUsers() {
         LOGGER.debug("REST request to get dictionary for users");
@@ -85,7 +81,7 @@ public class DictionaryResource {
     /**
      * GET /dictionaries -> get all dictionaries
      */
-    @ApiOperation(value = "Returns all dictionaries.", produces = "application/json")
+    @ApiOperation(value = "Returns all dictionaries.")
     @RequestMapping(value = "/all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<DictionaryDTO>> getDictionaries() {
         LOGGER.debug("REST request to get all dictionaries");
@@ -95,7 +91,7 @@ public class DictionaryResource {
     /**
      * GET /dictionaries/:id -> get dictionary by id
      */
-    @ApiOperation(value = "Returns dictionary by it's id.", produces = "application/json")
+    @ApiOperation(value = "Returns dictionary by it's id.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DictionaryDTO> getDictionary(
             @ApiParam("Identifier of the dictionary.") @PathVariable String id
@@ -109,7 +105,7 @@ public class DictionaryResource {
     /**
      * GET /dictionaries/byName/:name -> get dictionary by name
      */
-    @ApiOperation(value = "Returns dictionary by it's name.", produces = "application/json")
+    @ApiOperation(value = "Returns dictionary by it's name.")
     @RequestMapping(value = "/byName/{name}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DictionaryDTO> getDictionaryByName(
             @ApiParam("Name of the dictionary.") @PathVariable String name
@@ -125,7 +121,7 @@ public class DictionaryResource {
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Returns all found dictionaries (with paging).", produces = "application/json")
+    @ApiOperation(value = "Returns all found dictionaries (with paging).")
     public ResponseEntity<List<DictionaryDTO>> getAllDictionaries(
             @ApiParam("Page number.") @RequestParam(value = "page") Integer pageno,
             @ApiParam("Page size.") @RequestParam(value = "size") Integer size,
@@ -134,14 +130,13 @@ public class DictionaryResource {
         LOGGER.debug("REST request to get all dictionaries");
         Page<DictionaryDTO> page = dictionaryService.getAllDictionaries(new PageRequest(pageno, size), search);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING);
-        return new ResponseEntity<>(page.getContent().stream()
-                .collect(Collectors.toCollection(LinkedList::new)), headers, HttpStatus.OK);
+        return new ResponseEntity<>(new LinkedList<>(page.getContent()), headers, HttpStatus.OK);
     }
 
     /**
      * POST /dictionaries -> create new dictionary
      */
-    @ApiOperation(value = "Creates new dictionary.", produces = "application/json")
+    @ApiOperation(value = "Creates new dictionary.")
     @RequestMapping(method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -158,7 +153,7 @@ public class DictionaryResource {
     /**
      * PUT  /dictionaries -> Updates an existing dictionary.
      */
-    @ApiOperation(value = "Updates dictionary.", produces = "application/json")
+    @ApiOperation(value = "Updates dictionary.")
     @RequestMapping(method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -174,7 +169,7 @@ public class DictionaryResource {
     /**
      * DELETE  /dictionaries/:id -> Removes dictionary with specified id
      */
-    @ApiOperation(value = "Deletes dictionary.", produces = "application/json")
+    @ApiOperation(value = "Deletes dictionary.")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteDictionary(
             @ApiParam("Id of the dictionary to delete.") @PathVariable String id

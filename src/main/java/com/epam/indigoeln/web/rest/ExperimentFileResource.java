@@ -4,6 +4,7 @@ import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.service.file.FileService;
 import com.epam.indigoeln.core.service.user.UserService;
+import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.FileDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
@@ -55,13 +56,15 @@ public class ExperimentFileResource {
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Returns all experiment files (with paging).", produces = "application/json")
+    @ApiOperation(value = "Returns all experiment files.")
     public ResponseEntity<List<FileDTO>> getAllFiles(
-            @ApiParam("Identifier of the experiment to get files for.") @RequestParam String experimentId)
-            throws URISyntaxException {
-        LOGGER.debug("REST request to get files's metadata for experiment: {}", experimentId);
-        Page<GridFSDBFile> page = fileService.getAllFilesByExperimentId(experimentId);
-        String urlParameter = "experimentId=" + experimentId;
+            @ApiParam("Project id") @RequestParam String experimentId,
+            @ApiParam("Notebook id") @RequestParam String notebookId,
+            @ApiParam("Experiment id") @RequestParam String projectId)throws URISyntaxException {
+        String fullId = SequenceIdUtil.buildFullId(projectId, notebookId, experimentId);
+        LOGGER.debug("REST request to get files's metadata for experiment: {}", fullId);
+        Page<GridFSDBFile> page = fileService.getAllFilesByExperimentId(fullId);
+        String urlParameter = "projectId=" + projectId + "&notebookId=" + notebookId + "&experimentId=" + experimentId;
 
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING + "?" + urlParameter);
         List<FileDTO> fileDTOs = page.getContent().stream().map(FileDTO::new).collect(Collectors.toList());
@@ -72,7 +75,7 @@ public class ExperimentFileResource {
     /**
      * GET  /experiment_files/:id -> Returns file with specified id
      */
-    @ApiOperation(value = "Returns experiment file by it's id.", produces = "application/json")
+    @ApiOperation(value = "Returns experiment file by it's id.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<InputStreamResource> getFile(
@@ -88,7 +91,7 @@ public class ExperimentFileResource {
     /**
      * POST  /experiment_files?experimentId -> Saves file for specified experiment
      */
-    @ApiOperation(value = "Creates new file for the experiment.", produces = "application/json")
+    @ApiOperation(value = "Creates new file for the experiment.")
     @RequestMapping(method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<FileDTO> saveFile(
@@ -112,7 +115,7 @@ public class ExperimentFileResource {
     /**
      * DELETE  /experiment_files/:id -> Removes file with specified id
      */
-    @ApiOperation(value = "Removes experiment file.", produces = "application/json")
+    @ApiOperation(value = "Removes experiment file.")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteFile(
             @ApiParam("Experiment file id.") @PathVariable("id") String id

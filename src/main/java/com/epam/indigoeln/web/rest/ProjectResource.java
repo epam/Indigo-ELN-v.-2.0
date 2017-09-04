@@ -45,7 +45,7 @@ public class ProjectResource {
      * GET  /projects -> Returns all projects for <b>current user</b>
      * for tree representation according to his User permissions
      */
-    @ApiOperation(value = "Returns all projects for current user for tree representation according to his permissions.", produces = "application/json")
+    @ApiOperation(value = "Returns all projects for current user for tree representation according to his permissions.")
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TreeNodeDTO>> getAllProjectsByPermissions() {
@@ -58,7 +58,7 @@ public class ProjectResource {
     /**
      * GET  /projects/all -> Returns all projects without checking for User permissions
      */
-    @ApiOperation(value = "Returns all projects for current user for tree representation.", produces = "application/json")
+    @ApiOperation(value = "Returns all projects for current user for tree representation.")
     @RequestMapping(value = "/all",method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TreeNodeDTO>> getAllProjects() {
@@ -70,7 +70,7 @@ public class ProjectResource {
     /**
      * GET  /projects/permissions/user-removable -> Returns true if user can be removed from project without problems
      */
-    @ApiOperation(value = "Returns true if user can be removed from project without problems.", produces = "application/json")
+    @ApiOperation(value = "Returns true if user can be removed from project without problems.")
     @RequestMapping(value = "/permissions/user-removable", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> isUserRemovable(
@@ -85,7 +85,7 @@ public class ProjectResource {
     /**
      * GET /notebooks/sub-creations -> Returns all notebooks available for experiment creation
      */
-    @ApiOperation(value = "Returns all projects available for notebook creation.", produces = "application/json")
+    @ApiOperation(value = "Returns all projects available for notebook creation.")
     @RequestMapping(value = "/sub-creations",method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ShortEntityDTO>> getProjectsForNotebookCreation() {
@@ -97,7 +97,7 @@ public class ProjectResource {
     /**
      * GET  /projects/:id -> Returns project with specified id according to User permissions
      */
-    @ApiOperation(value = "Returns project by it's id according to permissions.", produces = "application/json")
+    @ApiOperation(value = "Returns project by it's id according to permissions.")
     @RequestMapping(value = PATH_ID, method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProjectDTO> getProject(
@@ -112,7 +112,7 @@ public class ProjectResource {
     /**
      * POST  /projects -> Creates project with OWNER's permissions for current User
      */
-    @ApiOperation(value = "Creates project with OWNER's permissions for current user.", produces = "application/json")
+    @ApiOperation(value = "Creates project with OWNER's permissions for current user.")
     @RequestMapping(method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -129,7 +129,7 @@ public class ProjectResource {
     /**
      * PUT  /projects -> Updates project according to User permissions
      */
-    @ApiOperation(value = "Updates project according to permissions.", produces = "application/json")
+    @ApiOperation(value = "Updates project according to permissions.")
     @RequestMapping(method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -146,7 +146,7 @@ public class ProjectResource {
     /**
      * DELETE  /projects/:id -> Removes project with specified id
      */
-    @ApiOperation(value = "Removes project.", produces = "application/json")
+    @ApiOperation(value = "Removes project.")
     @RequestMapping(value = PATH_ID, method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteProject(
             @ApiParam("Project id") @PathVariable String id

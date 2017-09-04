@@ -3,7 +3,7 @@ angular
     .factory('unitService', unitService);
 
 /* @ngInject */
-function unitService($uibModal, CalculationService, RegistrationUtil, $rootScope) {
+function unitService($uibModal, CalculationService, RegistrationUtil) {
     return {
         processColumns: processColumns
     };
@@ -34,7 +34,6 @@ function unitService($uibModal, CalculationService, RegistrationUtil, $rootScope
                     CalculationService.calculateProductBatch({
                         row: row, column: id
                     });
-                    setDirty();
                 }
             });
         });
@@ -61,13 +60,8 @@ function unitService($uibModal, CalculationService, RegistrationUtil, $rootScope
         });
     }
 
-    function setDirty() {
-        $rootScope.$broadcast('SET_UNIT');
-    }
-
     function setUnit(name, item) {
         item.unit = name;
-        setDirty();
     }
 
     function toUnitNameAction(unit) {
