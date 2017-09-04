@@ -117,8 +117,8 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                 content.streamObjects("linkedExperiments").map(m -> m.getString("text")).toList(),
                 content.getString("codeAndName", "name"),
                 content.getString("keywords"),
-                userRepository.findAll(content.streamStrings("coAuthors").toList()).stream().map(User::getFullName).collect(Collectors.toList()),
-                userRepository.findAll(content.streamStrings("designers").toList()).stream().map(User::getFullName).collect(Collectors.toList())
+                userRepository.findAll(content.streamStrings("designers").toList()).stream().map(User::getFullName).collect(Collectors.toList()),
+                userRepository.findAll(content.streamStrings("coAuthors").toList()).stream().map(User::getFullName).collect(Collectors.toList())
         ))));
     }
 
