@@ -173,7 +173,7 @@
         }
 
         function toggleDirty(isDirty) {
-            vm.isEntityChanged = !!isDirty
+            vm.isEntityChanged = !!isDirty;
             EntitiesBrowser.changeDirtyTab($stateParams, vm.isEntityChanged);
         }
 
@@ -187,9 +187,6 @@
             if (!vm.isEntityChanged) {
                 return $q.resolve();
             }
-
-            // TODO: remove - dropped base
-            initComponents(vm.experiment);
 
             vm.loading = getSaveService(_.extend({}, vm.experiment))
                 .then(function(result) {

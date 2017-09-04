@@ -11,7 +11,6 @@
                         Structure size:
                     </div>
                     <div class="col-xs-10">
-                        <!--TODO testOptions.value???-->
                         <slider ng-model="vm.structureSize" min="0.3" step="0.01" max="4"
                                 value="testOptions.value"></slider>
                     </div>
@@ -19,12 +18,10 @@
             </div>
         </div>
 
-        <!--TODO isVisible???-->
         <indigo-compound-summary model="vm.model"
                                  batches="vm.batches"
                                  batches-trigger="vm.batchesTrigger"
                                  experiment-name="vm.experiment.name"
-                                 on-show-structure="vm.showStructure(isVisible)"
                                  structure-size="vm.structureSize"
                                  is-readonly="vm.isReadonly"
                                  selected-batch="vm.selectedBatch"

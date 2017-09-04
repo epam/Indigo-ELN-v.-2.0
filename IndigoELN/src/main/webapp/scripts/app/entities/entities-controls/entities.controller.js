@@ -31,7 +31,6 @@
             autorecoveryCache.remove(tab.params);
         }
 
-        // TODO: need to inject service by name but app does't have root elem
         function getService(kind) {
             var service;
             switch (kind) {
