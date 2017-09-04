@@ -71,7 +71,7 @@
                             <div style="background-image: url('data:image/svg+xml;base64,{{exp.reactionImage}}')" class="reaction-image"> </div>
                         </td>
                         <td class="table-list__item dash-exp-name"  title="{{exp.name}}">  <div class="ellipsis" ng-bind="exp.name"> </div>  </td>
-                        <td class="table-list__item" ng-bind="exp.author.firstName"></td>
+                        <td class="table-list__item" ng-bind="exp.author.firstName + ' ' + exp.author.lastName"></td>
                         <td class="table-list__item">
                             <ul>
                                 <li ng-repeat="user in exp.coAuthors track by $index" ng-bind="user"></li>
