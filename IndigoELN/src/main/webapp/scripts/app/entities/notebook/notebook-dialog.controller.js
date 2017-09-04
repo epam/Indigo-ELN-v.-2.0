@@ -7,7 +7,7 @@
     function NotebookDialogController($scope, $rootScope, $state, Notebook, notifyService, PermissionManagement, modalHelper,
                                       ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils,
                                       autorecoveryHelper, notebookSummaryExperiments, $q, EntitiesCache,
-                                      autorecoveryCache, confirmationModal) {
+                                      autorecoveryCache, confirmationModal, entityHelper) {
         var vm = this;
         var identity = pageInfo.identity;
         var isContentEditor = pageInfo.isContentEditor;
@@ -50,7 +50,6 @@
 
             EntitiesBrowser.setSaveCurrentEntity(save);
 
-
             bindEvents();
         }
 
@@ -60,7 +59,6 @@
             if (!restoredEntity) {
                 pageInfo.notebook.author = pageInfo.notebook.author || identity;
                 pageInfo.notebook.accessList = pageInfo.notebook.accessList || PermissionManagement.getAuthorAccessList(identity);
-                EntitiesCache.put($stateParams, pageInfo.notebook);
                 vm.notebook = pageInfo.notebook;
             } else if (restoredEntity.version === pageInfo.notebook.version) {
                 vm.notebook = restoredEntity;
@@ -99,20 +97,7 @@
         function bindEvents() {
             $scope.$on('entity-updated', function(event, data) {
                 vm.loading.then(function() {
-                    if (_.isEqual($stateParams, data.entity) && data.version > vm.notebook.version) {
-                        if (isChanged) {
-                            confirmationModal
-                                .openEntityVersionsConflictConfirm(entityTitle)
-                                .then(refresh, function() {
-                                    vm.notebook.version = data.version;
-                                });
-
-                            return;
-                        }
-                        refresh().then(function() {
-                            notifyService.info(entityTitle + ' has been changed by another user and reloaded');
-                        });
-                    }
+                    entityHelper.checkVersion($stateParams, data, vm.notebook, entityTitle, isChanged, refresh);
                 });
             });
 
@@ -256,6 +241,7 @@
 
             if (isChanged) {
                 $scope.createNotebookForm.$setDirty();
+                EntitiesCache.put($stateParams, vm.notebook);
             } else {
                 $scope.createNotebookForm.$setPristine();
             }
@@ -275,7 +261,6 @@
                 vm.notebook = response;
                 originalNotebook = angular.copy(vm.notebook);
                 autorecoveryCache.hide($stateParams);
-                EntitiesCache.put($stateParams, vm.notebook);
             });
 
             return vm.loading;
@@ -304,7 +289,6 @@
                         autorecoveryCache.remove($stateParams);
                         vm.notebook.version = result.version;
                         originalNotebook = angular.copy(vm.notebook);
-                        EntitiesCache.put($stateParams, vm.notebook);
                         EntitiesBrowser.setCurrentTabTitle(vm.notebook.name, $stateParams);
                         $rootScope.$broadcast('notebook-changed', {
                             projectId: vm.projectId,
