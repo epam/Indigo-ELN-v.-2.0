@@ -466,7 +466,6 @@
                         row.residualSolvents = result;
                     }
                 });
-                EntitiesBrowser.setCurrentFormDirty();
             });
         }
 
@@ -479,7 +478,6 @@
                         row.solubility = result;
                     }
                 });
-                EntitiesBrowser.setCurrentFormDirty();
             });
         }
 
@@ -490,7 +488,6 @@
                         row.handlingPrecautions = result;
                     }
                 });
-                EntitiesBrowser.setCurrentFormDirty();
             };
             var data = rows.length === 1 ? rows[0].handlingPrecautions : {};
             InfoEditor.editHandlingPrecautions(data || {}, callback);
@@ -499,7 +496,7 @@
         function editStorageInstructions(rows) {
             var callback = function(result) {
                 _.each(rows, function(row) {
-                    if (!RegistrationUtil.isRegistered(row)){
+                    if (!RegistrationUtil.isRegistered(row)) {
                         row.storageInstructions = result;
                     }
                 });
@@ -511,7 +508,6 @@
         function editPurity(row) {
             InfoEditor.editPurity(row.purity, function(result) {
                 row.purity = result;
-                EntitiesBrowser.setCurrentFormDirty();
             });
         }
 
@@ -522,14 +518,12 @@
                         row.purity = angular.copy(result);
                     }
                 });
-                EntitiesBrowser.setCurrentFormDirty();
             });
         }
 
         function editMeltingPoint(row) {
             InfoEditor.editMeltingPoint(row.meltingPoint, function(result) {
                 row.meltingPoint = result;
-                EntitiesBrowser.setCurrentFormDirty();
             });
         }
 
@@ -540,14 +534,12 @@
                         row.meltingPoint = angular.copy(result);
                     }
                 });
-                EntitiesBrowser.setCurrentFormDirty();
             });
         }
 
         function editExternalSupplier(row) {
             InfoEditor.editExternalSupplier(row.externalSupplier, function(result) {
                 row.externalSupplier = result;
-                EntitiesBrowser.setCurrentFormDirty();
             });
         }
 
@@ -558,14 +550,12 @@
                         row.externalSupplier = angular.copy(result);
                     }
                 });
-                EntitiesBrowser.setCurrentFormDirty();
             });
         }
 
         function editHealthHazards(row) {
             InfoEditor.editHealthHazards(row.healthHazards, function(result) {
                 row.healthHazards = result;
-                EntitiesBrowser.setCurrentFormDirty();
             });
         }
 
@@ -576,7 +566,6 @@
                         row.healthHazards = angular.copy(result);
                     }
                 });
-                EntitiesBrowser.setCurrentFormDirty();
             });
         }
 
@@ -612,7 +601,6 @@
         function addNewBatch() {
             vm.batchOperation = ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
         }
-
 
         function successAddedBatches(batches) {
             if (batches.length) {

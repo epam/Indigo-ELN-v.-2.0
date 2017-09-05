@@ -44,7 +44,6 @@
 
                 vm.isEditable = isEditable;
                 vm.toggleEditable = toggleEditable;
-                vm.unitChange = unitChange;
                 vm.isEmpty = isEmpty;
                 vm.closeThis = closeThis;
 
@@ -108,10 +107,6 @@
                 }
                 vm.setClosePrevious({callback: null});
                 vm.close();
-            }
-
-            function unitChange() {
-                EntitiesBrowser.setCurrentFormDirty();
             }
 
             function updatePopover() {

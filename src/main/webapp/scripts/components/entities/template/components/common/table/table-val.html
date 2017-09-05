@@ -83,7 +83,7 @@
                     </button>
                     <ul class="dropdown-menu" uib-dropdown-menu>
                         <li ng-repeat="unit in vm.indigoColumn.units track by unit.name">
-                            <a ng-click="vm.unitChange(); unit.onClick(vm.indigoRow[vm.indigoColumn.id]);"
+                            <a ng-click="unit.onClick(vm.indigoRow[vm.indigoColumn.id]);"
                                ng-bind="unit.name"></a>
                         </li>
                     </ul>
