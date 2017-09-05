@@ -31,7 +31,6 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, CacheFactory) {
         setCurrentEntity: setCurrentEntity,
         getCurrentEntity: getCurrentEntity,
         setCurrentForm: setCurrentForm,
-        setCurrentFormDirty: setCurrentFormDirty,
         getCurrentForm: getCurrentForm,
         goToTab: goToTab,
         saveEntity: saveEntity,
@@ -97,12 +96,6 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, CacheFactory) {
 
     function setCurrentForm(form) {
         curForm = form;
-    }
-
-    function setCurrentFormDirty() {
-        if (curForm) {
-            curForm.$setDirty();
-        }
     }
 
     function getCurrentForm() {
