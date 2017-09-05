@@ -155,7 +155,7 @@
                     }
                 },
                 {
-                    id: 'totalMoles',
+                    id: 'mol',
                     name: 'Total Moles',
                     type: 'unit',
                     width: '150px',

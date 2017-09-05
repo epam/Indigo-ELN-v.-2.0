@@ -41,12 +41,16 @@
             }
         }
 
-        function resetMolInfo(row) {
-            row.formula = null;
-            row.molWeight = null;
+        function getColumn(batch) {
+            return batch.totalWeight.entered ? 'totalWeight' : 'mol';
+        }
+
+        function resetMolInfo(batch) {
+            batch.formula = null;
+            batch.molWeight = null;
 
             return CalculationService.calculateProductBatch({
-                row: row, column: 'totalWeight'
+                row: batch, column: getColumn(batch)
             });
         }
 
@@ -55,10 +59,8 @@
             batch.molWeight = batch.molWeight || {};
             batch.molWeight.value = molInfo.molecularWeight;
 
-            CalculationService.recalculateStoich();
-
             return CalculationService.calculateProductBatch({
-                row: batch, column: 'totalWeight'
+                row: batch, column: getColumn(batch)
             });
         }
 

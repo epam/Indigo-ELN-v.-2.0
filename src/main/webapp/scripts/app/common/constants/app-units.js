@@ -1,28 +1,17 @@
 angular
     .module('indigoeln')
     .constant('appUnits', {
-        grams:
-            ['mg', 'g', 'kg'],
-        liters:
-            ['ml', 'ul', 'l'],
-        moles:
-            ['mmol', 'umol', 'mol'],
-        density:
-            ['g/mL'],
-        molarity:
-            ['M', 'mM'],
-        rxnValues:
-            [{name: 'REACTANT'}, {name: 'REAGENT'}, {name: 'SOLVENT'}],
-        rxnRoleReactant:
-            {name: 'REACTANT'},
-        rxnRoleSolvent:
-            {name: 'SOLVENT'},
-        compoundProtectionValues:
-            [{name: 'NONE - None'}, {name: 'ST1 - Standard' + ' 1'}, {name: 'ST2 - Standard 2'}],
-        loadFactorUnits:
-            ['mmol/g'],
-        defaultSaltCode:
-            {name: '00 - Parent Structure', value: '0', regValue: '00'},
+        grams: ['mg', 'g', 'kg'],
+        liters: ['ml', 'ul', 'l'],
+        moles: ['mmol', 'umol', 'mol'],
+        density: ['g/mL'],
+        molarity: ['M', 'mM'],
+        rxnValues: [{name: 'REACTANT'}, {name: 'REAGENT'}, {name: 'SOLVENT'}],
+        rxnRoleReactant: {name: 'REACTANT'},
+        rxnRoleSolvent: {name: 'SOLVENT'},
+        compoundProtectionValues: [{name: 'NONE - None'}, {name: 'ST1 - Standard 1'}, {name: 'ST2 - Standard 2'}],
+        loadFactorUnits: ['mmol/g'],
+        defaultSaltCode: {name: '00 - Parent Structure', value: '0', regValue: '00'},
         saltCodeValues: [
             {name: '00 - Parent Structure', value: '0', regValue: '00'},
             {name: '01 - HYDROCHLORIDE', value: '1', regValue: '01'},
@@ -42,6 +31,8 @@ angular
             volume: {value: 0, unit: 'mL', entered: false},
             density: {value: 0, unit: 'g/mL', entered: false},
             molarity: {value: 0, unit: 'M', entered: false},
+            // mol is stoich, totalMoles is batch
+            // mol copy to theoMoles
             mol: {value: 0, unit: 'mmol', entered: false},
             loadFactor: {value: 0, unit: '', entered: false},
             theoWeight: {value: 0, unit: '', entered: false},
