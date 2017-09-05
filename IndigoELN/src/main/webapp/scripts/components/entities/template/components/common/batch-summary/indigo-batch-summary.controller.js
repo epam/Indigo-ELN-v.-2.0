@@ -462,28 +462,33 @@
 
             InfoEditor.editResidualSolvents(data).then(function(result) {
                 _.forEach(rows, function(row) {
-                    row.residualSolvents = result;
+                    if (!RegistrationUtil.isRegistered(row)) {
+                        row.residualSolvents = result;
+                    }
                 });
                 EntitiesBrowser.setCurrentFormDirty();
             });
         }
 
         function editSolubility(rows) {
-            var callback = function(result) {
+            var data = rows.length === 1 ? rows[0].solubility : {};
+
+            InfoEditor.editSolubility(data, function(result) {
                 _.each(rows, function(row) {
-                    row.solubility = result;
+                    if (!RegistrationUtil.isRegistered(row)) {
+                        row.solubility = result;
+                    }
                 });
                 EntitiesBrowser.setCurrentFormDirty();
-            };
-            if (rows.length === 1) {
-                InfoEditor.editSolubility(rows[0].solubility, callback);
-            }
+            });
         }
 
         function editHandlingPrecautions(rows) {
             var callback = function(result) {
                 _.each(rows, function(row) {
-                    row.handlingPrecautions = result;
+                    if (!RegistrationUtil.isRegistered(row)) {
+                        row.handlingPrecautions = result;
+                    }
                 });
                 EntitiesBrowser.setCurrentFormDirty();
             };
@@ -494,7 +499,9 @@
         function editStorageInstructions(rows) {
             var callback = function(result) {
                 _.each(rows, function(row) {
-                    row.storageInstructions = result;
+                    if (!RegistrationUtil.isRegistered(row)){
+                        row.storageInstructions = result;
+                    }
                 });
             };
             var data = rows.length === 1 ? rows[0].storageInstructions : {};
