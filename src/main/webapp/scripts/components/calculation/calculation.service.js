@@ -217,7 +217,7 @@ function calculationService($rootScope, $http, $q, AppValues,
         var defaultBatch = AppValues.getDefaultBatch();
 
         _.each(values, function(value) {
-            batch[value] = defaultBatch[value];
+            batch[value] = angular.copy(defaultBatch[value]);
         });
     }
 
