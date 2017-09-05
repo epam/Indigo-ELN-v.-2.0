@@ -21,7 +21,7 @@
         /* @ngInject */
         function indigoEntitiesControlsController($state, EntitiesBrowser, modalHelper, ProjectsForSubCreation, appRoles) {
             var vm = this;
-            
+
             vm.CONTENT_EDITOR = appRoles.CONTENT_EDITOR;
             vm.PROJECT_CREATOR = appRoles.PROJECT_CREATOR;
             vm.NOTEBOOK_CREATOR = appRoles.NOTEBOOK_CREATOR;
