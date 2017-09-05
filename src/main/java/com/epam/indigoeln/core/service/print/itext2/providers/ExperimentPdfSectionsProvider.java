@@ -331,7 +331,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                 LogoUtils.loadDefaultLogo(),
                 Instant.now(),
                 experiment.getAuthor().getFullName(),
-                notebook.getName() + "-" + experiment.getName(),
+                notebook.getName() + "-" + experiment.getFullName(),
                 project.getName(),
                 experiment.getStatus().toString(),
                 title1.orElse(title2.orElse(""))
