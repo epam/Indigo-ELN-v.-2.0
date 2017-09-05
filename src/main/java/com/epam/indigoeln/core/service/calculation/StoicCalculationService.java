@@ -4,7 +4,6 @@ import com.epam.indigoeln.core.chemistry.ProductCalculator;
 import com.epam.indigoeln.core.chemistry.StoichCalculator;
 import com.epam.indigoeln.core.chemistry.domain.*;
 import com.epam.indigoeln.core.chemistry.experiment.datamodel.batch.BatchType;
-import com.epam.indigoeln.core.chemistry.experiment.datamodel.batch.BatchTypeFactory;
 import com.epam.indigoeln.web.rest.dto.calculation.BasicBatchModel;
 import com.epam.indigoeln.web.rest.dto.calculation.ProductTableDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.StoicTableDTO;
@@ -300,6 +299,7 @@ public class StoicCalculationService {
         ProductCalculator productCalculator = new ProductCalculator();
         BasicBatchModel rawBatch = productTableDTO.getProductBatch();
         ProductBatchModel productBatch = createProductBatchModelForCalculation(rawBatch);
+        productBatch.setBatchType(BatchType.ACTUAL_PRODUCT);
         String changedField = productTableDTO.getChangedField();
         productCalculator.calculateProductBatch(productBatch, rawBatch, changedField);
 
@@ -311,6 +311,7 @@ public class StoicCalculationService {
     public BasicBatchModel recalculateBatchAmounts(ProductTableDTO productTableDTO) {
         BasicBatchModel rawBatch = productTableDTO.getProductBatch();
         ProductBatchModel productBatch = createProductBatchModelForCalculation(rawBatch);
+        productBatch.setBatchType(BatchType.ACTUAL_PRODUCT);
         productBatch.recalcAmounts();
 
         BasicBatchModel convertedBatch = prepareBatchModelForResponse(productBatch, rawBatch);
