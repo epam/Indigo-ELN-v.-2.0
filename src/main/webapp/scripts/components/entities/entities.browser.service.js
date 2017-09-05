@@ -170,12 +170,12 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, CacheFactory) {
         _.forEach(tabsToSave, function(tab) {
             delete tab.dirty;
         });
-        tabCache.put(storageKey, angular.toJson(tabsToSave));
+        tabCache.put(storageKey, tabsToSave);
     }
 
     function restoreTabs(user) {
         var storageKey = user.id + '.current-tabs';
-        var restoredTabs = angular.fromJson(tabCache.get(storageKey));
+        var restoredTabs = tabCache.get(storageKey);
         restored = true;
         _.forEach(restoredTabs, function(tab, tabKey) {
             if (!tabs[user.id][tabKey]) {
@@ -245,7 +245,7 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, CacheFactory) {
     }
 
     function removeTabFromCache(storageKey, tabKey) {
-        var tabs = angular.fromJson(tabCache.get(storageKey));
+        var tabs = tabCache.get(storageKey);
 
         tabs = _.omit(tabs, tabKey);
         tabCache.put(storageKey, tabs);
