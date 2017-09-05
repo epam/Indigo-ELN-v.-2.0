@@ -35,7 +35,7 @@
         <indigo-table ng-if="!vm.showSummary"
                       indigo-id="product-detail-table"
                       indigo-columns="vm.productTableColumns"
-                      is-readonly="vm.isReadonly"
+                      is-readonly="vm.isReadonly || vm.selectedBatch.registrationStatus"
                       indigo-rows="vm.detailTable"
                       selected-batch="vm.selectedBatch"
                       selected-batch-trigger="vm.selectedBatchTrigger"
