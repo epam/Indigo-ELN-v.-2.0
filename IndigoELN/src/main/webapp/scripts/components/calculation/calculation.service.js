@@ -199,9 +199,14 @@ function calculationService($rootScope, $http, $q, AppValues,
         return $http.put('api/calculations/product/calculate/batch', requestData).then(function(result) {
             result.data.yield = Math.round(result.data.yield);
             _.extend(data.row, result.data);
+
+            data.row.theoWeight.value = calculateTheoWeight(data.row);
         });
     }
 
+    function calculateTheoWeight(batch) {
+        return batch.molWeight.value * batch.theoMoles.value;
+    }
     function setEntered(data) {
         var simpleValues = ['molWeight', 'saltEq', 'stoicPurity', 'eq'];
         if (_.isObject(data.row[data.column])) {
@@ -217,7 +222,7 @@ function calculationService($rootScope, $http, $q, AppValues,
         var defaultBatch = AppValues.getDefaultBatch();
 
         _.each(values, function(value) {
-            batch[value] = defaultBatch[value];
+            batch[value] = angular.copy(defaultBatch[value]);
         });
     }
 
