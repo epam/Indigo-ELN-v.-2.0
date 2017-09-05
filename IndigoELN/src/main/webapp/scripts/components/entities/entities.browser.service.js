@@ -3,7 +3,7 @@ angular
     .factory('EntitiesBrowser', entitiesBrowser);
 
 /* @ngInject */
-function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService) {
+function entitiesBrowser($q, $state, Principal, TabKeyUtils, CacheFactory) {
     var tabs = {};
     var activeTab = {};
     var entityActions;
@@ -15,6 +15,10 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
     var resolvePrincipal = function(func) {
         return Principal.identity().then(func);
     };
+
+    var tabCache = CacheFactory.createCache('tabCache', {
+        storageMode: 'localStorage'
+    });
 
     return {
         getTabs: getTabs,
@@ -166,12 +170,12 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
         _.forEach(tabsToSave, function(tab) {
             delete tab.dirty;
         });
-        localStorageService.set(storageKey, angular.toJson(tabsToSave));
+        tabCache.put(storageKey, angular.toJson(tabsToSave));
     }
 
     function restoreTabs(user) {
         var storageKey = user.id + '.current-tabs';
-        var restoredTabs = angular.fromJson(localStorageService.get(storageKey));
+        var restoredTabs = angular.fromJson(tabCache.get(storageKey));
         restored = true;
         _.forEach(restoredTabs, function(tab, tabKey) {
             if (!tabs[user.id][tabKey]) {
@@ -224,6 +228,7 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
         var positionForClose = _.indexOf(keys, tabKey);
         var curPosition = _.indexOf(keys, activeTab.tabKey);
         var nextKey;
+        var storageKey = userId + '.current-tabs';
         if (curPosition === positionForClose) {
             nextKey = keys[positionForClose - 1] || keys[positionForClose + 1];
         } else {
@@ -235,6 +240,14 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
         } else {
             $state.go('experiment');
         }
+        removeTabFromCache(storageKey, tabKey);
         saveTabs();
+    }
+
+    function removeTabFromCache(storageKey, tabKey) {
+        var tabs = angular.fromJson(tabCache.get(storageKey));
+
+        tabs = _.omit(tabs, tabKey);
+        tabCache.put(storageKey, tabs);
     }
 }
