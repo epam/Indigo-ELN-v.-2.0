@@ -222,6 +222,7 @@
         function reopenExperiment() {
             vm.loading = ExperimentUtil
                 .reopenExperiment(vm.experiment, params)
+                .then(getExperiment)
                 .then(updateExperiment);
         }
 
