@@ -59,6 +59,31 @@ public class ITextPrintService {
         Notebook notebook = findChecked(notebookRepository, notebookFullId, NOTEBOOK);
         Experiment experiment = findChecked(experimentRepository, experimentFullId, EXPERIMENT);
 
+        checkAccess(experiment, user, notebook);
+
+        ExperimentPdfSectionsProvider provider = new ExperimentPdfSectionsProvider(project, notebook, experiment, fileRepository, printRequest, userRepository);
+        PdfGenerator pdfGenerator = new PdfGenerator(provider);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        pdfGenerator.generate(byteArrayOutputStream);
+        return byteArrayOutputStream.toByteArray();
+    }
+
+    public byte[] generateExperimentPdf(String projectId, String notebookId, Experiment experiment, PrintRequest printRequest, User user) {
+        String notebookFullId = SequenceIdUtil.buildFullId(projectId, notebookId);
+
+        Project project = findChecked(projectRepository, projectId, PROJECT);
+        Notebook notebook = findChecked(notebookRepository, notebookFullId, NOTEBOOK);
+
+        checkAccess(experiment, user, notebook);
+
+        ExperimentPdfSectionsProvider provider = new ExperimentPdfSectionsProvider(project, notebook, experiment, fileRepository, printRequest, userRepository);
+        PdfGenerator pdfGenerator = new PdfGenerator(provider);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        pdfGenerator.generate(byteArrayOutputStream);
+        return byteArrayOutputStream.toByteArray();
+    }
+
+    private void checkAccess(Experiment experiment, User user, Notebook notebook) {
         if (!PermissionUtil.isContentEditor(user)) {
             if (notebook == null) {
                 throw EntityNotFoundException.createWithNotebookChildId(experiment.getId());
@@ -70,12 +95,6 @@ public class ITextPrintService {
                 throw OperationDeniedException.createExperimentReadOperation(experiment.getId());
             }
         }
-
-        ExperimentPdfSectionsProvider provider = new ExperimentPdfSectionsProvider(project, notebook, experiment, fileRepository, printRequest, userRepository);
-        PdfGenerator pdfGenerator = new PdfGenerator(provider);
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        pdfGenerator.generate(byteArrayOutputStream);
-        return byteArrayOutputStream.toByteArray();
     }
 
     public byte[] generateNotebookPdf(String projectId, String notebookId, PrintRequest printRequest, User user) {
