@@ -438,7 +438,8 @@
                 }, {
                     id: 'comments',
                     name: 'Batch Comments',
-                    type: 'input'
+                    type: 'input',
+                    bulkAssignment: true
                 }, {
                     id: '$$batchType',
                     name: 'Intermediate/Test Compound',
