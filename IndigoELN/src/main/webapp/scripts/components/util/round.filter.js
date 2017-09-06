@@ -12,24 +12,34 @@ angular.module('indigoeln')
 
             if (column && row) {
                 if (isMolColumn(column)) {
-                    var numOfDigits = getPrecisionForMol(column, row);
-                    precision = numOfDigits > MAX_PRECISION ? DEFAULT_PRECISION : numOfDigits;
-
-                    if (isUnitChanged(targetUnit)) {
-                        var numDigitsBeforeDot = String(value).indexOf('.');
-                        var correctPrecision = numDigitsBeforeDot > precision ? precision : precision - numDigitsBeforeDot;
-                        precision = isNumberStartsWithZero(value) ? precision : correctPrecision;
-                    }
+                    precision = getCorrectPrecisionForMol(value, column, row, targetUnit);
                 }
 
                 if (isWeightColumn(column)) {
-                    var numOfDigits = getNumberSignificantFigures(row['mol'].value);
-                    precision = numOfDigits > MAX_PRECISION ? DEFAULT_PRECISION : numOfDigits;
+                    precision = getCorrectPrecisionForWeight(row);
                 }
             }
 
             return fixedNumber(value, precision);
         };
+
+        function getCorrectPrecisionForWeight(row) {
+            var numOfDigits = getNumberSignificantFigures(row['mol'].value);
+            return numOfDigits > MAX_PRECISION ? DEFAULT_PRECISION : numOfDigits;
+        }
+
+        function getCorrectPrecisionForMol(value, column, row, targetUnit) {
+            var numOfDigits = getPrecisionForMol(column, row);
+            var precision = numOfDigits > MAX_PRECISION ? DEFAULT_PRECISION : numOfDigits;
+
+            if (isUnitChanged(targetUnit)) {
+                var numDigitsBeforeDot = String(value).indexOf('.');
+                var correctPrecision = numDigitsBeforeDot > precision ? precision : precision - numDigitsBeforeDot;
+                precision = isNumberStartsWithZero(value) ? precision : correctPrecision;
+            }
+
+            return precision;
+        }
 
         function fixedNumber(value, precision) {
             var roundNumber = +Number(value).toFixed(precision);
