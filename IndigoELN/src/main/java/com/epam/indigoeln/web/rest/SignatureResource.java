@@ -13,6 +13,7 @@ import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.core.util.WebSocketUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.print.PrintRequest;
+import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,6 +52,8 @@ public class SignatureResource {
     private ObjectMapper objectMapper;
     @Autowired
     private ITextPrintService iTextPrintService;
+    @Autowired
+    private CustomDtoMapper dtoMapper;
 
     @ApiOperation(value = "Returns reasons.")
     @RequestMapping(value = "/reason", method = RequestMethod.GET,
@@ -92,7 +95,9 @@ public class SignatureResource {
             @ApiParam("Print params.") PrintRequest printRequest) throws IOException {
 
         User user = userService.getUserWithAuthorities();
-        byte[] bytes = iTextPrintService.generateExperimentPdf(projectId, notebookId, experimentId, printRequest, user);
+        ExperimentDTO experimentDto = experimentService.getExperiment(projectId, notebookId, experimentId, user);
+        experimentDto.setStatus(ExperimentStatus.COMPLETED);
+        byte[] bytes = iTextPrintService.generateExperimentPdf(projectId, notebookId, dtoMapper.convertFromDTO(experimentDto), printRequest, user);
         String result = signatureService.uploadDocument(templateId, fileName, bytes);
 
         // extract uploaded document id
@@ -102,7 +107,6 @@ public class SignatureResource {
             throw DocumentUploadException.createFailedUploading(experimentId);
         }
 
-        ExperimentDTO experimentDto = experimentService.getExperiment(projectId, notebookId, experimentId, user);
         experimentDto.setDocumentId(documentId);
         experimentDto.setStatus(ExperimentStatus.SUBMITTED);
         experimentDto.setSubmittedBy(user);
@@ -124,7 +128,7 @@ public class SignatureResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getDocumentInfo(
             @ApiParam("Document id.") String documentId
-        ) {
+    ) {
         return ResponseEntity.ok(signatureService.getDocumentInfo(documentId));
     }
 
@@ -133,7 +137,7 @@ public class SignatureResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SignatureService.Document>> getDocumentsInfo(
             @ApiParam("Documents ids.") List<String> documentIds
-        ) throws IOException {
+    ) throws IOException {
         return ResponseEntity.ok(signatureService.getDocumentsByIds(documentIds));
     }
 
@@ -149,7 +153,7 @@ public class SignatureResource {
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<InputStreamResource> downloadDocument(
             @ApiParam("Document id.") String documentId
-        ) throws IOException {
+    ) throws IOException {
 
         final String info = signatureService.getDocumentInfo(documentId);
         if (!StringUtils.isBlank(info)) {
