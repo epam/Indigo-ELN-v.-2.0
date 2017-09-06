@@ -10,7 +10,7 @@
                 <div class="row-inline">
                     <span class="txt-larger">Experiment Members:</span>
                     <button type="submit" ui-sref="entities.experiment-detail.permissions()"
-                            class="btn btn-default btn-small" ng-disabled="!vm.isEditAllowed">
+                            class="btn btn-default btn-small" ng-disabled="!vm.isComponentsEditAllowed">
                         <span class="fa fa-pencil"></span>
                         <span class="m-l5">Edit</span>
                     </button>
@@ -32,7 +32,7 @@
 
     <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="vm.save()">
         <indigo-components template="vm.experiment.template.templateContent"
-                           is-readonly="!vm.isEditAllowed"
+                           is-readonly="!vm.isComponentsEditAllowed"
                            model="vm.experiment.components"
                            experiment-form="experimentForm"
                            experiment="vm.experiment"
@@ -58,11 +58,14 @@
             <ul uib-dropdown-menu role="menu" aria-labelledby="single-button">
                 <li role="menuitem"><a><span>Status: </span><strong ng-bind="vm.experiment.status"></strong></a></li>
                 <li class="divider"></li>
-                <li role="menuitem" ng-if="vm.isStatusOpen" ng-click="vm.completeExperiment()"><a>Complete
+                <li role="menuitem" ng-if="vm.isComponentsEditAllowed"
+                    ng-click="vm.completeExperiment()"><a>Complete
                     Experiment</a></li>
-                <li role="menuitem" ng-if="vm.isStatusOpen" ng-click="vm.completeExperimentAndSign()"><a>Complete &
+                <li role="menuitem" ng-if="vm.isComponentsEditAllowed"
+                    ng-click="vm.completeExperimentAndSign()"><a>Complete &
                     Sign </a></li>
-                <li role="menuitem" ng-if="vm.isStatusSubmitFail" ng-click="vm.reopenExperiment()"><a>Reopen Experiment
+                <li role="menuitem" ng-if="vm.isEditAllowed && vm.isStatusSubmitFail"
+                    ng-click="vm.reopenExperiment()"><a>Reopen Experiment
                     for Edit</a></li>
                 <li role="menuitem" ng-click="vm.repeatExperiment()"><a>Repeat Experiment</a></li>
                 <li role="menuitem"><a ng-click="vm.printExperiment()">Print Experiment</a></li>
@@ -86,11 +89,11 @@
         </div>
 
         <button type="submit" form="experimentForm"
-                ng-disabled="!vm.isEditAllowed || experimentForm.$invalid || !vm.isEntityChanged"
+                ng-disabled="!vm.isComponentsEditAllowed || experimentForm.$invalid || !vm.isEntityChanged"
                 class="btn btn-primary">
             <span class="fa fa-save"></span><span class="m-l5"> Save</span>
         </button>
-        <button class="btn btn-default" ng-click="vm.refresh()" ng-disabled="!vm.isEditAllowed || !vm.isEntityChanged">
+        <button class="btn btn-default" ng-click="vm.refresh()" ng-disabled="!vm.isComponentsEditAllowed || !vm.isEntityChanged">
             <span class="fa fa-refresh"></span><span class="m-l5">Reset</span>
         </button>
         <button class="btn btn-default" ng-click="window.history.back()">
