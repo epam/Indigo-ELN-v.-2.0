@@ -138,8 +138,6 @@
                     unitItems: grams,
                     onClose: function(data) {
                         CalculationService.setEntered(data);
-                        var tw = data.row.totalWeight;
-                        tw.value = Math.abs(parseInt(tw.value, 10));
                         CalculationService.calculateProductBatch(data);
                     }
                 },
