@@ -60,8 +60,7 @@
 
         function analyzeRxn() {
             getMissingReactionReactantsInStoic(vm.infoReactants).then(function(batchesToSearch) {
-                var schemeReactants = _.get(vm.model.reaction, 'infoReactants');
-                if (batchesToSearch.length) {
+                if (batchesToSearch && batchesToSearch.length) {
                     $uibModal.open({
                         animation: true,
                         size: 'lg',
@@ -79,7 +78,7 @@
                                     return batchCopy;
                                 });
 
-                                return reactants.length ? reactants : schemeReactants;
+                                return reactants.length ? reactants : vm.infoReactants;
                             },
                             onStoichRowsChanged: function() {
                                 return updateReactants;
@@ -585,7 +584,6 @@
 
         function bindEvents() {
             $scope.$watch('vm.infoProducts', getReactionProductsAndReactants, true);
-            $scope.$watch('vm.infoReactants', updateReactants);
 
             $scope.$watch('vm.model.stoichTable', function(stoichTable) {
                 _.each(stoichTable.products, function(batch) {
@@ -633,11 +631,13 @@
         }
 
         function getReactantsWithMolfile(stoichReactants) {
-            return _.filter(stoichReactants, isReactant);
+            return _.filter(stoichReactants, function(item) {
+                return item.structure && item.structure.molfile && isReactant(item);
+            });
         }
 
         function isReactant(item) {
-            return item.structure && item.structure.molfile && item.rxnRole.name === 'REACTANT';
+            return item.rxnRole.name === 'REACTANT';
         }
 
         function isReactantAlreadyInStoic(responces) {
@@ -648,7 +648,7 @@
             var reactantsToSearch = [];
             var stoicReactants = getReactantsWithMolfile(getStoicReactants());
 
-            if (stoicReactants.length !== reactantsInfo.length) {
+            if (_.isEmpty(reactantsInfo) || stoicReactants.length !== reactantsInfo.length) {
                 return $q.resolve(reactantsInfo);
             }
 
