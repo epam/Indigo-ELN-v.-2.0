@@ -163,7 +163,8 @@
         }
 
         function setReadOnly() {
-            vm.isEditAllowed = isContentEditor || (hasEditAuthority && hasEditPermission && vm.isStatusOpen);
+            vm.isEditAllowed = isContentEditor || (hasEditAuthority && hasEditPermission);
+            vm.isComponentsEditAllowed = vm.isStatusOpen && vm.isEditAllowed;
         }
 
         function toggleDirty(isDirty) {
@@ -258,7 +259,8 @@
 
         function postInitExperiment(experiment) {
             updateOriginal(experiment);
-            updateStatuses();
+            initPermissions();
+            FileUploaderCash.setFiles([]);
             autorecoveryCache.hide($stateParams);
         }
 
