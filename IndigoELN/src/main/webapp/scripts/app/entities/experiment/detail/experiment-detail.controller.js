@@ -73,7 +73,7 @@
 
         /**
          * Check the cached entity with responsed entity and show confirm modal if enities have conflicts
-         * @param experiment
+         * @param { Object } experiment entity
          * @param { Boolean } withoutCheckVersion is flag which need only understand by update registration status
          * of batches by WS.
          * @return {Promise} resolve return the entity
@@ -162,11 +162,6 @@
             });
         }
 
-        function setStatus(status) {
-            vm.experiment.status = status;
-            updateStatuses();
-        }
-
         function setReadOnly() {
             vm.isEditAllowed = isContentEditor || (hasEditAuthority && hasEditPermission && vm.isStatusOpen);
         }
@@ -207,16 +202,22 @@
         }
 
         function completeExperiment() {
-            vm.loading = ExperimentUtil
-                .completeExperiment(vm.experiment, params, vm.notebook.name)
-                .then(updateExperiment);
+            vm.loading = save()
+                .then(function() {
+                    return ExperimentUtil
+                        .completeExperiment(vm.experiment, params, vm.notebook.name)
+                        .then(updateExperiment);
+                });
         }
 
         function completeExperimentAndSign() {
-            vm.loading = ExperimentUtil
-                .completeExperimentAndSign(vm.experiment, params, vm.notebook.name, entityTitle)
-                .then(getExperiment)
-                .then(updateExperiment);
+            vm.loading = save()
+                .then(function() {
+                    return ExperimentUtil
+                        .completeExperimentAndSign(vm.experiment, params, vm.notebook.name, entityTitle)
+                        .then(getExperiment)
+                        .then(updateExperiment);
+                });
         }
 
         function reopenExperiment() {
@@ -330,13 +331,13 @@
 
             $scope.$on('access-list-changed', function() {
                 vm.experiment.accessList = PermissionManagement.getAccessList();
+                originalExperiment.accessList = angular.copy(vm.experiment.accessList);
             });
 
             $scope.$on('experiment-status-changed', function(event, experiments) {
                 var experimentStatus = experiments[vm.experiment.fullId];
                 if (experimentStatus) {
-                    setStatus(experimentStatus);
-                    setReadOnly();
+                    refresh();
                 }
             });
 
