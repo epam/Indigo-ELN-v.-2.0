@@ -75,6 +75,9 @@
         }
 
         function onChangedStructure(structure) {
+            if (!structure.molfile) {
+                vm.model.reaction = structure;
+            }
             vm.loading = CalculationService.getReactionProductsAndReactants(structure.molfile).then(function(response) {
                 return vm.model.reaction.molfile === structure.molfile ? $q.reject() : updateReaction(response, structure);
             });
