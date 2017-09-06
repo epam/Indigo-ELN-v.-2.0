@@ -4,15 +4,17 @@ angular
         searchQuery: '',
         advancedSearch: {
             therapeuticArea: {
-                name: 'Therapeutic Area',
-                field: 'therapeuticArea',
-                condition: {name: 'contains'},
+                name: 'Therapeutic Area', field: 'therapeuticArea', searchType: 'select', condition: {name: 'contains'},
                 $$conditionList: [
                     {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
                 ]
             },
             projectCode: {
-                name: 'Project Code', field: 'projectCode', condition: {name: 'contains'}, $$conditionList: [
+                name: 'Project Code',
+                field: 'projectCode',
+                searchType: 'select',
+                condition: {name: 'contains'},
+                $$conditionList: [
                     {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
                 ]
             },

@@ -5,7 +5,7 @@
 
     /* @ngInject */
     function SearchPanelController($scope, SearchService, $state, $stateParams, SearchUtilService, pageInfo,
-                                   EntitiesCache, printModal) {
+                                   EntitiesCache, printModal, Dictionary) {
         var OWN_ENTITY = 'OWN_ENTITY';
         var USERS_ENTITIES = 'USERS_ENTITIES';
         var CACHE_STATE_KEY = $state.$current.data.tab.state;
@@ -67,6 +67,7 @@
             vm.state = {};
             vm.clearStructureTrigger = 0;
             vm.state.model = SearchUtilService.getStoredModel();
+            getPropertyForSelectSearch();
             vm.state.$$isCollapsed = SearchUtilService.getStoredOptions().isCollapsed;
             vm.state.selectedItemsFlags = {};
             vm.state.selectedEntitiesFlags = {};
@@ -76,6 +77,18 @@
             vm.state.domainModel = '';
             vm.state.searchResults = [];
             vm.state.searchResultsPaged = [];
+        }
+
+        function getPropertyForSelectSearch() {
+            _.forEach(vm.state.model.restrictions.advancedSearch, function(data) {
+                if (data.searchType === 'select') {
+                    Dictionary.get({
+                        id: data.field
+                    }, function(dictionary) {
+                        vm.state.model.restrictions.advancedSearch[data.field].searchConditions = dictionary.words;
+                    });
+                }
+            });
         }
 
         function clear() {
