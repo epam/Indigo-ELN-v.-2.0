@@ -4,7 +4,7 @@ angular
 
 /* @ngInject */
 function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, PermissionManagement, SignatureTemplates,
-                        SignatureDocument, componentsUtils) {
+                        SignatureDocument, componentsUtils, notifyService) {
     return {
         versionExperiment: versionExperiment,
         repeatExperiment: repeatExperiment,
@@ -78,7 +78,11 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
             projectId: params.projectId,
             notebookId: params.notebookId,
             experimentId: params.experimentId
-        }, experiment.version).$promise;
+        }, experiment.version)
+            .$promise
+            .catch(function(error) {
+                notifyService.error(error.data.message);
+            });
     }
 
     function completeExperiment(experiment, params, notebookName) {
