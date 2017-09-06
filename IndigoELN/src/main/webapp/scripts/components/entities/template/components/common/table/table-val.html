@@ -39,7 +39,7 @@
             <span ng-if="vm.indigoColumn.type == 'select' && !vm.isEmpty(vm.indigoRow[vm.indigoColumn.id], vm.indigoColumn)"
                   ng-class="{'entered-value': vm.indigoRow[vm.indigoColumn.id].entered}">{{vm.indigoRow[vm.indigoColumn.id].description ?  vm.indigoRow[vm.indigoColumn.id].name + ' - ' +  vm.indigoRow[vm.indigoColumn.id].description : vm.indigoRow[vm.indigoColumn.id].name}}</span>
             <span ng-if="vm.indigoColumn.type == 'unit'"
-                  ng-class="{'entered-value': vm.indigoRow[vm.indigoColumn.id].entered}">{{vm.indigoRow[vm.indigoColumn.id].value | unit:vm.indigoRow[vm.indigoColumn.id].unit | round:vm.indigoColumn.sigDigits:vm.indigoColumn:vm.indigoRow}} {{vm.indigoRow[vm.indigoColumn.id].unit}}</span>
+                  ng-class="{'entered-value': vm.indigoRow[vm.indigoColumn.id].entered}">{{vm.indigoRow[vm.indigoColumn.id].value | unit:vm.indigoRow[vm.indigoColumn.id].unit | round:vm.indigoColumn.sigDigits:vm.indigoColumn:vm.indigoRow:vm.indigoRow[vm.indigoColumn.id].unit}} {{vm.indigoRow[vm.indigoColumn.id].unit}}</span>
             <span ng-if="vm.indigoColumn.type == 'scalar'"
                   ng-class="{'entered-value': vm.indigoRow[vm.indigoColumn.id].entered}">{{vm.indigoRow[vm.indigoColumn.id].value | round:vm.indigoColumn.sigDigits:vm.indigoColumn:vm.indigoRow}}</span>
         </a>

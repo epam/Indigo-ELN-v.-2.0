@@ -1,79 +1,99 @@
 angular.module('indigoeln')
-    .filter('round', function(StoichTableCache, CalculationService) {
-        var DEFAULT_SIG_DIGITS = 3;
+    .filter('round', function(StoichTableCache, CalculationService, UnitsConverter) {
+        var DEFAULT_PRECISION = 3;
+        var MAX_PRECISION = 10;
 
-        return function(value, sigDigits, column, row) {
-            var significantDigits = sigDigits;
-            if (column && row) {
-                significantDigits = getSigDigitsForMol(column, row);
+        return function(value, sigDigits, column, row, targetUnit) {
+            if (!value) {
+                return value;
             }
 
-            return +toStringWithSignificantDigits(+value, significantDigits || DEFAULT_SIG_DIGITS);
+            var precision = sigDigits || DEFAULT_PRECISION;
+
+            if (column && row) {
+                if (isMolColumn(column)) {
+                    precision = getCorrectPrecisionForMol(value, column, row, targetUnit);
+                }
+
+                if (isWeightColumn(column)) {
+                    precision = getCorrectPrecisionForWeight(row);
+                }
+            }
+
+            return fixedNumber(value, precision);
         };
 
-        /**
-         * This method gets number, desired accuracy of the number and converts a number with a given accuracy
-         * @param value
-         * @param sigDigits
-         * @returns {*}
-         */
-
-        function toStringWithSignificantDigits(value, sigDigits) {
-            var delta = 0;
-            if (isFractionalNumber(value) && !isNumberStartsWithZero(value)) {
-                delta = (value + '').indexOf('.');
-            }
-
-            sigDigits += delta;
-            if (value === 0) {
-                return value.toFixed(sigDigits - 1);
-            }
-            // makes little sense for 0
-            var numDigits = Math.ceil(Math.log10(Math.abs(value)));
-            var rounded = Math.round(value * Math.pow(10, sigDigits - numDigits)) * Math.pow(10, numDigits - sigDigits);
-            var fixNumber = fixNumberToGivenAccuracy(sigDigits, numDigits);
-
-            return rounded.toFixed(Math.max(fixNumber ? sigDigits : sigDigits - numDigits, 0));
+        function getCorrectPrecisionForWeight(row) {
+            var numOfDigits = getNumberSignificantFigures(row['mol'].value);
+            return numOfDigits > MAX_PRECISION ? DEFAULT_PRECISION : numOfDigits;
         }
 
-        function getSigDigitsForMol(column, row) {
-            var sigDigitsForMol = DEFAULT_SIG_DIGITS;
+        function getCorrectPrecisionForMol(value, column, row, targetUnit) {
+            var numOfDigits = getPrecisionForMol(column, row);
+            var precision = numOfDigits > MAX_PRECISION ? DEFAULT_PRECISION : numOfDigits;
+
+            if (isUnitChanged(targetUnit)) {
+                var numDigitsBeforeDot = String(value).indexOf('.');
+                var correctPrecision = numDigitsBeforeDot > precision ? precision : precision - numDigitsBeforeDot;
+                precision = isNumberStartsWithZero(value) ? precision : correctPrecision;
+            }
+
+            return precision;
+        }
+
+        function fixedNumber(value, precision) {
+            var roundNumber = +Number(value).toFixed(precision);
+
+            while (roundNumber === 0) {
+                precision++;
+                roundNumber = +Number(value).toFixed(precision);
+            }
+
+            return roundNumber;
+        }
+
+        function isUnitChanged(targetUnit) {
+            if (targetUnit) {
+                var baseUnit = getBaseUnit(targetUnit);
+                return baseUnit && baseUnit !== targetUnit;
+            }
+        }
+
+        function getBaseUnit(targetUnit) {
+            return _.get(UnitsConverter.table[targetUnit], 'indigoBase');
+        }
+
+        function isMolColumn(column) {
+            return column.id === 'mol';
+        }
+
+        function isWeightColumn(column) {
+            return column.name === 'Weight';
+        }
+
+        function getPrecisionForMol(column, row) {
+            var sigDigitsForMol = DEFAULT_PRECISION;
             var sourceBatch = row;
             // round for mol depends on entered weight/volume precision
             if (column.id === 'mol' && column.isIntended) {
                 sourceBatch = CalculationService.findLimiting(StoichTableCache.getStoicTable());
             }
 
-            if (column.id !== 'molWeight') {
-                var weightOrVolume = angular.copy(sourceBatch.weight || sourceBatch.volume);
-                if (weightOrVolume && weightOrVolume.value && weightOrVolume.entered) {
-                    sigDigitsForMol = getNumberSignificantFigures(weightOrVolume.value);
-                }
+            var weightOrVolume = angular.copy(sourceBatch.weight || sourceBatch.volume);
+            if (weightOrVolume && weightOrVolume.value) {
+                sigDigitsForMol = getNumberSignificantFigures(weightOrVolume.value);
             }
 
             return sigDigitsForMol;
         }
 
-        /**
-         * This method gets value of Weight or Volume and returns length of a number
-         * @param digits
-         * @returns {Number}
-         */
         function getNumberSignificantFigures(digits) {
-            var sigFigNumber = _.toString(parseInt(digits.toString().replace(/[^\d]/g, ''), 10));
+            var sigFigNumber = _.toString(digits.toString().replace(/[^\d]/g, ''));
 
             return sigFigNumber.length;
         }
 
-        function isFractionalNumber(value) {
-            return (value + '').indexOf('.') >= 0;
-        }
-
         function isNumberStartsWithZero(value) {
             return (value + '').startsWith('0.');
-        }
-
-        function fixNumberToGivenAccuracy(sigDigits, numDigits) {
-            return sigDigits + numDigits > 0;
         }
     });
