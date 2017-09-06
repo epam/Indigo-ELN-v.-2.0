@@ -202,20 +202,22 @@
         }
 
         function completeExperiment() {
-            vm.loading = save().then(function() {
-                return ExperimentUtil
-                    .completeExperiment(vm.experiment, params, vm.notebook.name)
-                    .then(updateExperiment);
-            });
+            vm.loading = save()
+                .then(function() {
+                    return ExperimentUtil
+                        .completeExperiment(vm.experiment, params, vm.notebook.name)
+                        .then(updateExperiment);
+                });
         }
 
         function completeExperimentAndSign() {
-            vm.loading = save().then(function() {
-                ExperimentUtil
-                    .completeExperimentAndSign(vm.experiment, params, vm.notebook.name, entityTitle)
-                    .then(getExperiment)
-                    .then(updateExperiment);
-            });
+            vm.loading = save()
+                .then(function() {
+                    return ExperimentUtil
+                        .completeExperimentAndSign(vm.experiment, params, vm.notebook.name, entityTitle)
+                        .then(getExperiment)
+                        .then(updateExperiment);
+                });
         }
 
         function reopenExperiment() {
