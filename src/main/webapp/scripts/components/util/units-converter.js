@@ -60,7 +60,7 @@
                 throw new Error('Incompatible units; cannot convert from "' + this.currentUnit + '" to "' + this.targetUnit + '"');
             }
 
-            return this.value * (current.multiplier / target.multiplier);
+            return (this.value / target.multiplier) * current.multiplier;
         };
         unitConverter.prototype.toString = function() {
             return this.val() + ' ' + this.targetUnit;
@@ -94,6 +94,7 @@
         };
 
         return {
+            table: table,
             convert: function(value, unit) {
                 return new unitConverter(value, unit);
             }
