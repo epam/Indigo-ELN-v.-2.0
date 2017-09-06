@@ -38,9 +38,9 @@
                                     </div>
                                     <div class="col-xs-3">
                                         <form ng-submit="vm.search()">
-                                            <indigo-input ng-if="!obj.searchType"
+                                            <indigo-input ng-if="!obj.isSelect"
                                                           indigo-model="obj.value"></indigo-input>
-                                            <indigo-select ng-if="obj.searchType === 'select'"
+                                            <indigo-select ng-if="obj.isSelect"
                                                            indigo-items="obj.searchConditions"
                                                            indigo-model="obj.selectedValue"></indigo-select>
                                         </form>

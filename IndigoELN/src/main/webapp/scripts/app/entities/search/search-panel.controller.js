@@ -67,7 +67,6 @@
             vm.state = {};
             vm.clearStructureTrigger = 0;
             vm.state.model = SearchUtilService.getStoredModel();
-            getPropertyForSelectSearch();
             vm.state.$$isCollapsed = SearchUtilService.getStoredOptions().isCollapsed;
             vm.state.selectedItemsFlags = {};
             vm.state.selectedEntitiesFlags = {};
@@ -77,14 +76,16 @@
             vm.state.domainModel = '';
             vm.state.searchResults = [];
             vm.state.searchResultsPaged = [];
+
+            initDropdownInfoForSelectSearch();
         }
 
-        function getPropertyForSelectSearch() {
+        function initDropdownInfoForSelectSearch() {
             _.forEach(vm.state.model.restrictions.advancedSearch, function(data) {
-                if (data.searchType === 'select') {
+                if (data.isSelect) {
                     Dictionary.get({
                         id: data.field
-                    }, function(dictionary) {
+                    }).$promise.then(function(dictionary) {
                         vm.state.model.restrictions.advancedSearch[data.field].searchConditions = dictionary.words;
                     });
                 }

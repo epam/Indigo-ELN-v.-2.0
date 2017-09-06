@@ -4,7 +4,7 @@ angular
         searchQuery: '',
         advancedSearch: {
             therapeuticArea: {
-                name: 'Therapeutic Area', field: 'therapeuticArea', searchType: 'select', condition: {name: 'contains'},
+                name: 'Therapeutic Area', field: 'therapeuticArea', isSelect: true, condition: {name: 'contains'},
                 $$conditionList: [
                     {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
                 ]
@@ -12,7 +12,7 @@ angular
             projectCode: {
                 name: 'Project Code',
                 field: 'projectCode',
-                searchType: 'select',
+                isSelect: true,
                 condition: {name: 'contains'},
                 $$conditionList: [
                     {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
