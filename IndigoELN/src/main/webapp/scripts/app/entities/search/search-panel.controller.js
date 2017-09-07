@@ -5,7 +5,7 @@
 
     /* @ngInject */
     function SearchPanelController($scope, SearchService, $state, $stateParams, SearchUtilService, pageInfo,
-                                   EntitiesCache, printModal) {
+                                   EntitiesCache, printModal, Dictionary) {
         var OWN_ENTITY = 'OWN_ENTITY';
         var USERS_ENTITIES = 'USERS_ENTITIES';
         var CACHE_STATE_KEY = $state.$current.data.tab.state;
@@ -76,6 +76,20 @@
             vm.state.domainModel = '';
             vm.state.searchResults = [];
             vm.state.searchResultsPaged = [];
+
+            initDropdownInfoForSelectSearch();
+        }
+
+        function initDropdownInfoForSelectSearch() {
+            _.forEach(vm.state.model.restrictions.advancedSearch, function(data) {
+                if (data.isSelect) {
+                    Dictionary.get({
+                        id: data.field
+                    }).$promise.then(function(dictionary) {
+                        vm.state.model.restrictions.advancedSearch[data.field].searchConditions = dictionary.words;
+                    });
+                }
+            });
         }
 
         function clear() {
