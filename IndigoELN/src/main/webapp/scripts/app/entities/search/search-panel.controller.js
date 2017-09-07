@@ -95,6 +95,10 @@
         function clear() {
             vm.clearStructureTrigger = !vm.clearStructureTrigger;
             vm.state.model = SearchUtilService.getStoredModel(true);
+            vm.state.searchResults = [];
+            vm.state.searchResultsPaged = [];
+
+            initDropdownInfoForSelectSearch();
         }
 
         function isAdvancedSearchFilled() {
