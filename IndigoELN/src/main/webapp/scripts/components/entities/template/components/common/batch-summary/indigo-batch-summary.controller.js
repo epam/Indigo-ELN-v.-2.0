@@ -107,7 +107,7 @@
                     }
                 },
                 {
-                    id: 'select',
+                    id: '$$select',
                     name: 'Select',
                     type: 'boolean',
                     noDirty: true,
@@ -619,18 +619,18 @@
 
         function getCheckedBatches() {
             return _.filter(vm.batches, function(batch) {
-                return batch.select;
+                return batch.$$select;
             });
         }
 
         function isHasCheckedRows() {
             return !!_.find(getProductBatches(), function(item) {
-                return item.select;
+                return item.$$select;
             });
         }
 
         function deleteBatches() {
-            vm.onRemoveBatches({batches: _.filter(vm.batches, {select: true})});
+            vm.onRemoveBatches({batches: _.filter(vm.batches, {$$select: true})});
         }
 
         function importSDFile() {
