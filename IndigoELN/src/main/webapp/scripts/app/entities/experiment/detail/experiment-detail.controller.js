@@ -188,7 +188,7 @@
 
             vm.loading = getSaveService(_.extend({}, vm.experiment))
                 .then(function(result) {
-                    vm.experiment = result;
+                    _.merge(vm.experiment, result);
                     updateOriginal(vm.experiment);
                 }, function() {
                     notifyService.error('Experiment is not saved due to server error!');

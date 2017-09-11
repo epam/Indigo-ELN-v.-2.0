@@ -24,7 +24,7 @@
                     name: 'Nbk Batch #'
                 },
                 {
-                    id: 'select',
+                    id: '$$select',
                     name: 'Select',
                     type: 'boolean',
                     noDirty: true,
@@ -33,7 +33,7 @@
                             name: 'Select All',
                             action: function() {
                                 _.each(getBatches(), function(row) {
-                                    row.select = true;
+                                    row.$$select = true;
                                 });
                             }
                         },
@@ -41,7 +41,7 @@
                             name: 'Deselect All',
                             action: function() {
                                 _.each(getBatches(), function(row) {
-                                    row.select = false;
+                                    row.$$select = false;
                                 });
                             }
                         }
@@ -120,13 +120,13 @@
 
         function getCheckedBatches() {
             return _.filter(vm.batches, function(batch) {
-                return batch.select;
+                return batch.$$select;
             });
         }
 
         function isHasCheckedRows() {
             return !!_.find(getBatches(), function(item) {
-                return item.select;
+                return item.$$select;
             });
         }
 
