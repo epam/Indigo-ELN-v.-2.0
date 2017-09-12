@@ -116,7 +116,7 @@
                             name: 'Select All',
                             action: function() {
                                 _.each(getProductBatches(), function(row) {
-                                    row.select = true;
+                                    row.$$select = true;
                                 });
                             }
                         },
@@ -124,7 +124,7 @@
                             name: 'Deselect All',
                             action: function() {
                                 _.each(getProductBatches(), function(row) {
-                                    row.select = false;
+                                    row.$$select = false;
                                 });
                             }
                         }
