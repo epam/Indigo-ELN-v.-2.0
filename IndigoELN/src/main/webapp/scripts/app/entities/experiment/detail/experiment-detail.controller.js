@@ -39,7 +39,7 @@
 
                 initExperiment(response.experiment).then(function(experiment) {
                     updateOriginal(response.experiment);
-                    EntitiesBrowser.setCurrentTabTitle(vm.notebook.name + '-' + experiment.fullName, $stateParams);
+                    updateCurrentTabTitle();
                     initPermissions();
                     FileUploaderCash.setFiles([]);
 
@@ -238,7 +238,12 @@
             vm.loading = ExperimentUtil
                 .versionExperiment(vm.experiment, params)
                 .then(getExperiment)
-                .then(updateExperiment);
+                .then(updateExperiment)
+                .then(updateCurrentTabTitle);
+        }
+
+        function updateCurrentTabTitle() {
+            EntitiesBrowser.setCurrentTabTitle(vm.notebook.name + '-' + vm.experiment.fullName, $stateParams);
         }
 
         function printExperiment() {
