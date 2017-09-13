@@ -28,7 +28,8 @@ angular.module('indigoeln', [
     'config',
     'angular-cache',
     'indigoeln.autorecovery',
-    'cgNotify'
+    'cgNotify',
+    'smoothScroll'
 ])
     .run(function($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle, EntitiesBrowser) {
         $.mCustomScrollbar.defaults.advanced.autoScrollOnFocus = false;

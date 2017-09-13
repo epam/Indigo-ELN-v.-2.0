@@ -1,98 +1,36 @@
-<div class="wrapper-list-experiment" indigo-scroller="y" indigo-scroller-theme="light">
+<div class="wrapper-list-experiment">
     <ul class="sidebar-menu animated">
-        <li ng-class="{'open': vm.myBookmarks.projects.length}"
+        <li ng-class="{'open': !vm.bookmarksIsCollapsed}"
             class="sidebar-menu__section">
-            <a ng-click="vm.toggleBookmarksProjects(vm.myBookmarks)"
+            <a ng-click="vm.toggleMyProjects()"
                class="sidebar-menu__link-section">
                 <span class="fa fa-angle-down arrow"></span>
                 <span class="fa fa-bookmark"></span>
                 <span>My Bookmarks</span>
             </a>
-            <ul class="sidebar-menu__sub-menu animated" ng-if="vm.myBookmarks.projects.length">
-                <li ng-repeat="project in vm.myBookmarks.projects track by $index"
-                    ng-click="vm.toggleBookmarksNotebooks(project); $event.stopPropagation();"
-                    ng-class="{'active': project.fullId == vm.activeMenuItem}"
-                    class="sidebar-menu__sub-menu-item">
-                    <a>{{project.name}}</a>
-                    <ul class="sidebar-menu__sub-menu animated" ng-if="project.children.length && project.isOpen">
-                        <li ng-repeat="notebook in project.children track by $index"
-                            ng-click="notebook.projectId = project.id; vm.toggleBookmarksExperiments(notebook, project); $event.stopPropagation();"
-                            ng-class="{'active': notebook.fullId == vm.activeMenuItem}"
-                            class="sidebar-menu__sub-menu-item">
-                            <a class="link-name">{{notebook.name}}</a>
-                            <ul class="sidebar-menu__sub-menu animated" ng-if="notebook.children.length && notebook.isOpen">
-                                <li ng-repeat="experiment in notebook.children track by $index" 
-                                    ng-class="{'active': experiment.fullId == vm.activeMenuItem}"
-                                    ng-click="vm.onExperimentClick(experiment, notebook, project); $event.stopPropagation();"
-                                    class="sidebar-menu__sub-menu-item">
-                                    <a ng-mouseenter="vm.experimentEnter(experiment, notebook, project)"
-                                       ng-mouseleave="vm.experimentLeave()"
-                                       class="link-experiment"
-                                    >
-                                        <span uib-popover-template="vm.POPOVER_TEMPLATE" popover-placement="right" popover-class="sidebar-popover-basis" popover-is-open="vm.isOpen(experiment)" popover-append-to-body="true">{{experiment.name}}</span>
-                                        <span class="experiment-status"
-                                            ng-class="{'fa fa-check': experiment.status == 'Completed',
-                                                      'fa fa-file-text-o': experiment.status == 'Signing',
-                                                      'fa fa-pencil-square-o': experiment.status == 'Signed',
-                                                      'fa fa-paper-plane': experiment.status == 'Submitted',
-                                                      'fa fa-archive': experiment.status == 'Archived',
-                                                      'fa fa-minus-circle': experiment.status == 'Submit_Fail',
-                                                      'fa fa-file-o': experiment.status == 'Open'}"></span>
-
-                                    </a>
-
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
+            <entity-tree ng-if="!vm.bookmarksIsCollapsed"
+                         selected-full-id="vm.selectedFullId"
+                         on-select-node="vm.onSelectNode(node.original.fullId)"
+                         is-all="false">
+            </entity-tree>
         </li>
         <li indigo-has-authority="{{vm.CONTENT_EDITOR}}"
-            ng-class="{'open': vm.allProjects.projects.length}"
+            ng-class="{'open': !vm.allProjectIsCollapsed}"
             class="sidebar-menu__section">
-            <a ng-click="vm.toggleMyprojects(vm.allProjects, true); $event.stopPropagation();"
+            <a ng-click="vm.toggleProjects(); $event.stopPropagation();"
                class="sidebar-menu__link-section">
-                <span class="fa fa-angle-down arrow"></span>
+                <span class="fa arrow"
+                      ng-class="{'fa-angle-down': !vm.allProjectIsCollapsed,
+                      'fa-angle-right': vm.allProjectIsCollapsed}">
+                </span>
                 <span class="fa fa-sitemap"></span>
                 <span>All Projects</span>
             </a>
-            <ul class="sidebar-menu__sub-menu animated" ng-if="vm.allProjects.projects.length">
-                <li ng-repeat="project in vm.allProjects.projects track by $index"
-                    ng-click="vm.toggleMyprojectsNotebooks(project, true); $event.stopPropagation();"
-                    ng-class="{'active': project.fullId == vm.activeMenuItem}"
-                    class="sidebar-menu__sub-menu-item">
-                    <a class="type-of-experiment">{{project.name}}</a>
-                    <ul class="sidebar-menu__sub-menu animated" ng-if="project.children.length && project.isOpen">
-                        <li ng-repeat="notebook in project.children track by $index"
-                            ng-click="notebook.projectId = project.id; vm.toggleMyprojectsExperiments(notebook, project, true); $event.stopPropagation();"
-                            ng-class="{'active': notebook.fullId == avm.ctiveMenuItem}"
-                            class="sidebar-menu__sub-menu-item">
-                            <a class="link-name">{{notebook.name}}</a>
-                            <ul class="sidebar-menu__sub-menu animated" ng-if="notebook.children.length && notebook.isOpen">
-                                <li ng-repeat="experiment in notebook.children track by $index"
-                                    ng-click="vm.onExperimentClick(experiment, notebook, project); $event.stopPropagation();"
-                                    ng-class="{'active': experiment.fullId == vm.activeMenuItem}"
-                                    class="sidebar-menu__sub-menu-item">
-                                    <a ng-mouseenter="vm.experimentEnter(experiment, notebook, project)"
-                                       ng-mouseleave="vm.experimentLeave()"
-                                       class="link-experiment">
-                                        <span uib-popover-template="vm.POPOVER_TEMPLATE" popover-class="sidebar-popover-basis" popover-placement="right" popover-is-open="vm.isOpen(experiment)" popover-append-to-body="true">{{experiment.name}}</span>
-                                        <span class="experiment-status"
-                                            ng-class="{'fa fa-check': experiment.status == 'Completed',
-                                                      'fa fa-file-text-o': experiment.status == 'Signing',
-                                                      'fa fa-pencil-square-o': experiment.status == 'Signed',
-                                                      'fa fa-paper-plane': experiment.status == 'Submitted',
-                                                      'fa fa-archive': experiment.status == 'Archived',
-                                                      'fa fa-minus-circle': experiment.status == 'Submit_Fail',
-                                                      'fa fa-file-o': experiment.status == 'Open'}"></span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
+            <entity-tree ng-if="!vm.allProjectIsCollapsed"
+                         selected-full-id="vm.selectedFullId"
+                         on-select-node="vm.onSelectNode(node)"
+                         is-all="true">
+            </entity-tree>
         </li>
         <li indigo-has-any-authority="{{vm.ADMINISTRATION_AUTHORITIES}}"
             ng-class="{'open': vm.adminToggled}"
@@ -106,27 +44,23 @@
             <ul class="sidebar-menu__sub-menu animated" ng-if="vm.adminToggled">
                 <li indigo-has-authority="{{vm.USER_EDITOR}}"
                     ng-class="{'active': vm.$state.includes('entities.user-management')}"
-                    ng-click="vm.toggleUsersAndRoles(); $event.stopPropagation();"
                     class="sidebar-menu__sub-menu-item">
-                    <a class="type-of-experiment ">Users</a>
+                    <a class="type-of-experiment" ui-sref="entities.user-management">Users</a>
                 </li>
                 <li indigo-has-authority="{{vm.ROLE_EDITOR}}"
                     ng-class="{'active': vm.$state.includes('entities.role-management')}"
-                    ng-click="vm.toggleAuthorities(); $event.stopPropagation();"
                     class="sidebar-menu__sub-menu-item">
-                    <a class="type-of-experiment">Roles</a>
+                    <a class="type-of-experiment" ui-sref="entities.role-management">Roles</a>
                 </li>
                 <li indigo-has-authority="{{vm.TEMPLATE_EDITOR}}"
                     ng-class="{'active': vm.$state.includes('entities.template')}"
-                    ng-click="vm.toggleTemplates(); $event.stopPropagation();"
                     class="sidebar-menu__sub-menu-item">
-                    <a class="type-of-experiment">Templates</a>
+                    <a class="type-of-experiment" ui-sref="entities.template">Templates</a>
                 </li>
                 <li indigo-has-authority="{{vm.DICTIONARY_EDITOR}}"
                     ng-class="{'active': vm.$state.includes('entities.dictionary-management')}"
-                    ng-click="vm.toggleDictionaries(); $event.stopPropagation();"
                     class="sidebar-menu__sub-menu-item">
-                    <a class="type-of-experiment">Dictionaries</a>
+                    <a class="type-of-experiment" ui-sref="entities.dictionary-management">Dictionaries</a>
                 </li>
             </ul>
         </li>

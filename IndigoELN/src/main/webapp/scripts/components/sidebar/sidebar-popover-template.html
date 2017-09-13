@@ -1,22 +1,29 @@
 <div class="sidebar-popover">
-  <div class="sidebar-popover-number m-b5">Experiment {{notebook.name}}-{{experiment.name}}</div>
-  <div class="sidebar-popover-content">
-    <div>
-      <span class="bold" ng-bind="experiment.components.reactionDetails.title">
-      </span>
-      <span>
-        <span ng-bind="experiment.components.reactionDetails.therapeuticArea.name"></span>
-      </span>
+    <div class="sidebar-popover-number m-b5">Experiment
+        {{node.parent.name}}-{{vm.experimentsCollection[node.original.fullId].fullName}}
     </div>
-    <div>
-      <span class="bold">Creation Date:</span><span ng-bind="experiment.creationDate  | date:'MMM dd yyyy'"></span>
+    <div class="sidebar-popover-content">
+        <div>
+      <span class="bold"
+            ng-bind="vm.experimentsCollection[node.original.fullId].components.reactionDetails.title">
+      </span>
+            <span>
+        <span ng-bind="vm.experimentsCollection[node.original.fullId].components.reactionDetails.therapeuticArea.name"></span>
+      </span>
+        </div>
+        <div>
+            <span class="bold">Creation Date:</span><span
+                ng-bind="vm.experimentsCollection[node.original.fullId].creationDate  | date:'MMM dd yyyy'"></span>
+        </div>
+        <span>
+      <span class="bold">Author:</span><span
+                ng-bind="vm.experimentsCollection[node.original.fullId].author.firstName"></span>
+    </span>
+        <span>
+      <span class="bold">Status:</span> <span ng-bind="vm.experimentsCollection[node.original.fullId].status"></span>
+    </span>
+        <img ng-if="!!vm.experimentsCollection[node.original.fullId].components.reaction.image"
+             class="sidebar-popover-sheme" ng-src="data:image/svg+xml;base64,{{experiment.components.reaction.image}}"
+             alt="Reaction Scheme">
     </div>
-    <span>
-      <span class="bold">Author:</span><span ng-bind="experiment.author.firstName"></span>
-    </span>
-    <span>
-      <span class="bold">Status:</span> <span ng-bind="experiment.status"></span>
-    </span>
-    <img ng-if = "!!experiment.components.reaction.image" class="sidebar-popover-sheme" ng-src="data:image/svg+xml;base64,{{experiment.components.reaction.image}}" alt="ReactionSheme">
-  </div>
 </div>

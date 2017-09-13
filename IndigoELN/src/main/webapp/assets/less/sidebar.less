@@ -13,9 +13,21 @@
 }
 
 .sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+  height: ~"calc(100vh - @{navbar-height})";
 
   &__section {
     .box-shadow(inset 0 -1px #3d3d3d);
+    background-color: #424242;
+
+    entity-tree {
+      height: ~"calc(100% - 49px)";
+      display: flex;
+      flex-direction: column;
+    }
+
 
     a {
       color: @sidebar-link-color;
@@ -32,6 +44,8 @@
     &.open {
       background-color: @sidebar-item-open-bg;
       box-shadow: none;
+      flex-grow: 1;
+      height: 0;
     }
   }
 

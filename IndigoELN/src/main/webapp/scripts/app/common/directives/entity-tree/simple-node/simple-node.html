@@ -1,0 +1,41 @@
+<li ng-class="{'active': node.original.fullId === vm.selectedFullId}"
+    id="{{::vm.elementId + '_' + node.original.fullId}}"
+    class="simple-node">
+    <!--ng-click="vm.toggle(node); $event.stopPropagation();"-->
+    <span class="name-wrapper">
+         <!--<span class="fa arrow"-->
+               <!--ng-if="node.children"-->
+               <!--ng-click="vm.toggle(node);"-->
+               <!--ng-class="{'fa-angle-down': !node.isCollapsed,-->
+                              <!--'fa-angle-right': node.isCollapsed}">-->
+            <!--</span>-->
+        <a class="type-of-experiment"
+           ui-sref="{{::vm.getSref(node)}}"
+           ng-click="vm.toggle(node);$event.stopPropagation();"
+           ng-switch="node.params.length">
+            <span ng-bind="node.name"
+                  ng-switch-when="3"
+                  ng-mouseenter="vm.getPopoverExperiment(node);"
+                  ng-mouseleave="vm.popoverExperiment = null"
+                  uib-popover-template="'scripts/components/sidebar/sidebar-popover-template.html'"
+                  popover-class="sidebar-popover-basis"
+                  popover-placement="right"
+                  popover-is-open="vm.popoverExperiment === node && node.params.length === 3"
+                  popover-append-to-body="true">
+            </span>
+            <span ng-switch-default ng-bind="node.name"></span>
+            <span class="experiment-status"
+                  ng-if="node.original.status"
+                  ng-class="{'fa fa-check': node.original.status === 'Completed',
+                              'fa fa-file-text-o': node.original.status === 'Signing',
+                              'fa fa-pencil-square-o': node.original.status === 'Signed',
+                              'fa fa-paper-plane': node.original.status === 'Submitted',
+                              'fa fa-archive': node.original.status === 'Archived',
+                              'fa fa-minus-circle': node.original.status === 'Submit_Fail',
+                              'fa fa-file-o': node.original.status === 'Open'}">
+            </span>
+        </a>
+    </span>
+
+    <ng-transclude></ng-transclude>
+</li>
