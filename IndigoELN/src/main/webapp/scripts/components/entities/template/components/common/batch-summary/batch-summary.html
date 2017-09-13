@@ -62,7 +62,7 @@
                         <span class="m-l5">Import</span>
                     </button>
                     <button type="button" class="btn btn-info btn-small" ng-click="vm.exportSDFile()"
-                            ng-disabled="vm.isReadonly || !vm.isHasCheckedRows()">
+                            ng-disabled="!vm.isHasCheckedRows()">
                         <span class="fa fa-cloud-upload"></span>
                         <span class="m-l5">Export</span>
                     </button>

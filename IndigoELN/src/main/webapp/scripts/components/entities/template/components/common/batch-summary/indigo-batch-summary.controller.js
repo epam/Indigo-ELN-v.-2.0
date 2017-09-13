@@ -110,6 +110,7 @@
                     id: '$$select',
                     name: 'Select',
                     type: 'boolean',
+                    noDisablable: true,
                     noDirty: true,
                     actions: [
                         {

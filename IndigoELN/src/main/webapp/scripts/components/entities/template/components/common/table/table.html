@@ -62,12 +62,12 @@
                     <div class="btn-group btn-group-sm btn-group-justified product-header-item" uib-dropdown
                          dropdown-append-to-body
                          ng-if="column.actions.length">
-                        <a href class="btn btn-transparent" uib-dropdown-toggle ng-disabled="vm.isReadonly">
+                        <a href class="btn btn-transparent" uib-dropdown-toggle ng-disabled="vm.isReadonly && !column.noDisablable">
                             <span>{{column.name}} <span class="caret"></span></span>
                         </a>
                         <ul uib-dropdown-menu class="no-draggable">
                             <li ng-repeat="action in column.actions track by $index" class="no-draggable">
-                                <a href="" ng-click="vm.isReadonly || action.action(column.id)" class="no-draggable"
+                                <a href="" ng-click="vm.isReadonly && !column.noDisablable || action.action(column.id)" class="no-draggable"
                                    ng-disabled="vm.isReadonly">{{action.name}}</a>
                             </li>
                         </ul>
