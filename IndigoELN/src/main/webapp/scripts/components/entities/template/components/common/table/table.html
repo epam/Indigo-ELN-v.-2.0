@@ -69,7 +69,8 @@
                         </a>
                         <ul uib-dropdown-menu class="no-draggable">
                             <li ng-repeat="action in column.actions track by $index" class="no-draggable">
-                                <a href="" ng-click="vm.isReadonly && !column.noDisablable  || action.action(column.id)"
+                                <a href=""
+                                   ng-click="(vm.isReadonly && !column.noDisablable) || action.action(column.id)"
                                    class="no-draggable">{{action.name}}</a>
                             </li>
                         </ul>
@@ -94,8 +95,7 @@
                                       toggle-editable-column="vm.toggleEditable(column.id, $parent.$index)"
                                       close="vm.toggleEditable(null, null, null)"
                                       is-editable-column="vm.isEditable(column.id, $parent.$index)"
-                                      is-readonly="vm.isReadonly || row.registrationStatus"
-                                      disablable-checkbox="vm.isReadonly ? !column.noDisablable : false">
+                                      is-readonly="column.noDisablable ? false :  vm.isReadonly || !!row.registrationStatus">
                     </indigo-table-val>
                 </td>
             </tr>

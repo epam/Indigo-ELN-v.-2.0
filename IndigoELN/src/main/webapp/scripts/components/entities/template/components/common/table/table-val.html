@@ -55,7 +55,7 @@
                              is-dirty="vm.indigoColumn.noDirty"
                              indigo-change="vm.indigoColumn.onChange({model: vm.indigoRow[vm.indigoColumn.id], row: vm.indigoRow, column: vm.indigoColumn.id})"
                              indigo-click="vm.indigoColumn.onClick({model: vm.indigoRow[vm.indigoColumn.id], row: vm.indigoRow, column: vm.indigoColumn.id})"
-                             indigo-disabled="vm.disablableCheckbox"></indigo-checkbox>
+                             indigo-disabled="vm.isReadonly"></indigo-checkbox>
         </div>
     </div>
     <div id="myTableVal" ng-if="vm.isEditable()" click-outside="vm.closeThis()"

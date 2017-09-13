@@ -18,8 +18,7 @@
                 toggleEditableColumn: '&',
                 setClosePrevious: '&',
                 close: '&',
-                isReadonly: '=',
-                disablableCheckbox: '='
+                isReadonly: '='
             },
             link: link,
             templateUrl: 'scripts/components/entities/template/components/common/table/table-val.html'

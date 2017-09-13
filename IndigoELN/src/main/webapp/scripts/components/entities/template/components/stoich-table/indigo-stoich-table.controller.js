@@ -232,7 +232,6 @@
                     id: 'limiting',
                     name: 'Limiting',
                     type: 'boolean',
-                    noDisabalable: false,
                     onClick: function(data) {
                         CalculationService.setEntered(data);
                         CalculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
