@@ -4,7 +4,7 @@
         .factory('entityTreeService', entityTreeService);
 
     /* @ngInject */
-    function entityTreeService(AllProjects, Project, AllNotebooks, Notebook, AllExperiments, Experiment, $q) {
+    function entityTreeService(AllProjects, $injector, AllNotebooks, AllExperiments, $q) {
         var allProjectsList = {};
         var allProjectsMap = {};
         var allNodesByFullId = {};
@@ -16,18 +16,88 @@
         var experimentsMap = {};
 
         return {
+            updateExperiment: updateExperiment,
+            addNotebook: addNotebook,
+            updateNotebook: updateNotebook,
+            updateProject: updateProject,
+            addProject: addProject,
             getProjects: getProjects,
             getNotebooks: getNotebooks,
             getExperiments: getExperiments,
-            allNodesByFullId: allNodesByFullId
+            updateStatus: updateStatus,
+            allNodesByFullId: allNodesByFullId,
+            getFullIdFromParams: getFullIdFromParams
         };
+
+        function updateStatus(fullId, status) {
+            var node = allNodesByFullId[fullId];
+            if (node) {
+                node.original.status = status;
+            }
+        }
+
+        function updateExperiment(experiment) {
+            var nodeExperiment = allNodesByFullId[experiment.fullId];
+            var path = _.split(experiment.fullId, '-');
+            var parent = allNodesByFullId[path[0] + '-' + path[1]];
+
+            if (!nodeExperiment && !parent) {
+                return;
+            }
+
+            var builtNode = buildNode(experiment, parent);
+
+            if (nodeExperiment) {
+                mergeNode(allNodesByFullId[builtNode.original.fullId], builtNode);
+            } else {
+                addEntity(builtNode, parent, allExperimentsMap, experimentsMap);
+            }
+        }
+
+        function updateProject(project) {
+            updateEntity(buildNode(project, undefined), project.id, allProjectsMap, projectsMap);
+        }
+
+        function addNotebook(notebook) {
+            var project = allProjectsList[notebook.parentId];
+            if (project) {
+                var builtNode = buildNode(notebook, project);
+                addEntity(builtNode, notebook.parentId, allNotebooksMap, notebooksMap);
+            }
+        }
+
+        function updateNotebook(notebook) {
+            var project = allNodesByFullId[notebook.parentId];
+            var builtNode = buildNode(notebook, project);
+            mergeNode(allNodesByFullId[builtNode.original.fullId], builtNode);
+        }
+
+        function addProject(project) {
+            var builtNode = buildNode(project, undefined);
+            addEntity(builtNode, builtNode.id, allProjectsMap, projectsMap, allProjectsList, projectsList);
+        }
+
+        function updateEntity(node, id, allMap, map) {
+            mergeNode(allMap[id], node);
+            mergeNode(map[id], node);
+        }
+
+        function addEntity(node, id, allMap, map, allList, list) {
+            allMap[id] = node;
+            map[id] = node;
+
+            if (allList && list) {
+                allList.push(node);
+                list.push(node);
+            }
+        }
 
         function getProjects(isAll) {
             var list = isAll ? allProjectsList : projectsList;
             var map = isAll ? allProjectsMap : projectsMap;
 
             if (_.isEmpty(list)) {
-                return (isAll ? AllProjects : Project).query()
+                return (isAll ? AllProjects : $injector.get('Project')).query()
                     .$promise
                     .then(function(projects) {
                         list = updateTree(projects, map);
@@ -57,7 +127,7 @@
             } else {
                 pMap = projectsMap;
                 nMap = notebooksMap;
-                service = Notebook;
+                service = $injector.get('Notebook');
             }
 
             if (_.isEmpty(nMap[projectId])) {
@@ -81,7 +151,7 @@
             var path = projectId + '_' + notebookId;
             if (_.isEmpty(eMap[path])) {
                 return getEntities(
-                    isAll ? AllExperiments : Experiment,
+                    isAll ? AllExperiments : $injector.get('Experiment'),
                     {
                         projectId: projectId,
                         notebookId: notebookId
@@ -124,7 +194,7 @@
         }
 
         function buildNode(node, parent) {
-            return {
+            var builtNode = {
                 id: node.id,
                 name: node.name,
                 params: _.concat([], ((parent && parent.params) || []), node.id),
@@ -134,12 +204,26 @@
                 isCollapsed: true,
                 original: node
             };
+
+            if (allNodesByFullId[node.fullId]) {
+                mergeNode(allNodesByFullId[node.fullId], builtNode);
+            } else {
+                allNodesByFullId[node.fullId] = builtNode;
+            }
+
+            return allNodesByFullId[node.fullId];
         }
 
         function mergeNode(targetNode, fromNode) {
             targetNode.accessList = fromNode.accessList;
             targetNode.original = fromNode.original;
             targetNode.name = fromNode.name;
+        }
+
+        function getFullIdFromParams(toParams) {
+            return _.compact([toParams.projectId, toParams.notebookId, toParams.experimentId])
+                .join('-')
+                .toString();
         }
     }
 })();

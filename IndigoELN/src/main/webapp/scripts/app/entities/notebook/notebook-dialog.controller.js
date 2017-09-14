@@ -202,9 +202,6 @@
         function onSaveSuccess(result) {
             EntitiesBrowser.close(TabKeyUtils.getTabKeyFromParams($stateParams));
             $timeout(function() {
-                $rootScope.$broadcast('notebook-created', {
-                    id: result.id, projectId: vm.projectId
-                });
                 $state.go('entities.notebook-detail', {
                     projectId: vm.projectId, notebookId: result.id
                 });
@@ -290,10 +287,6 @@
                         vm.notebook.version = result.version;
                         originalNotebook = angular.copy(vm.notebook);
                         EntitiesBrowser.setCurrentTabTitle(vm.notebook.name, $stateParams);
-                        $rootScope.$broadcast('notebook-changed', {
-                            projectId: vm.projectId,
-                            notebook: vm.notebook
-                        });
                     }, onSaveError);
 
                 return vm.loading;

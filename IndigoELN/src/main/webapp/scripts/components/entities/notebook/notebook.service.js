@@ -3,7 +3,7 @@ angular
     .factory('Notebook', notebook);
 
 /* @ngInject */
-function notebook($resource, PermissionManagement) {
+function notebook($resource, PermissionManagement, entityTreeService) {
     return $resource('api/projects/:projectId/notebooks/:notebookId', {
         projectId: '@projectId'
     }, {
@@ -27,6 +27,13 @@ function notebook($resource, PermissionManagement) {
                 data = transformRequest(data);
 
                 return angular.toJson(data);
+            },
+            interceptor: {
+                response: function(response) {
+                    entityTreeService.addNotebook(response.data);
+
+                    return response.data;
+                }
             }
         },
         update: {
@@ -36,6 +43,13 @@ function notebook($resource, PermissionManagement) {
                 data = transformRequest(data);
 
                 return angular.toJson(data);
+            },
+            interceptor: {
+                response: function(response) {
+                    entityTreeService.updateNotebook(response.data);
+
+                    return response.data;
+                }
             }
         },
         delete: {

@@ -33,7 +33,6 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
                 notebookId: params.notebookId,
                 name: result.name
             });
-            $rootScope.$broadcast('experiment-updated', experiment);
         }).$promise;
     }
 

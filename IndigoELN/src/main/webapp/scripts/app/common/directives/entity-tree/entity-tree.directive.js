@@ -122,7 +122,7 @@
             vm.popoverExperiment = node;
 
             if (!vm.experimentsCollection[node.original.fullId]) {
-                Experiment.get(getParams(node)).$promise.then(function(experiment) {
+                Experiment.get(getParams(node.params)).$promise.then(function(experiment) {
                     vm.experimentsCollection[node.original.fullId] = experiment;
                 });
             }
@@ -130,12 +130,12 @@
 
         function getSref(node) {
             if (isProject(node)) {
-                return 'entities.project-detail(' + angular.toJson(getParams(node)) + ')';
+                return 'entities.project-detail(' + angular.toJson(getParams(node.params)) + ')';
             } else if (isNotebook(node)) {
-                return 'entities.notebook-detail(' + angular.toJson(getParams(node)) + ')';
+                return 'entities.notebook-detail(' + angular.toJson(getParams(node.params)) + ')';
             }
 
-            return 'entities.experiment-detail(' + angular.toJson(getParams(node)) + ')';
+            return 'entities.experiment-detail(' + angular.toJson(getParams(node.params)) + ')';
         }
 
         function isProject(node) {
@@ -172,11 +172,11 @@
             node.isCollapsed = !node.isCollapsed;
         }
 
-        function getParams(node) {
+        function getParams(params) {
             return {
-                projectId: node.params[0],
-                notebookId: node.params[1],
-                experimentId: node.params[2]
+                projectId: params[0],
+                notebookId: params[1],
+                experimentId: params[2]
             };
         }
     }
