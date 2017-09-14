@@ -4,8 +4,9 @@
         .controller('IndigoCompoundSummaryController', IndigoCompoundSummaryController);
 
     /* @ngInject */
-    function IndigoCompoundSummaryController($scope, $log, ProductBatchSummaryOperations) {
+    function IndigoCompoundSummaryController($scope, $log, ProductBatchSummaryOperations, AppValues, CalculationService) {
         var vm = this;
+        var saltCodeValues = AppValues.getSaltCodeValues();
 
         init();
 
@@ -72,6 +73,35 @@
                     name: 'Structure Comments',
                     type: 'input',
                     bulkAssignment: true
+                },
+                {
+                    id: 'saltCode',
+                    name: 'Salt Code',
+                    type: 'select',
+                    showDefault: true,
+                    values: function() {
+                        return saltCodeValues;
+                    },
+                    onClose: function(data) {
+                        CalculationService.setEntered(data);
+                        recalculateSalt(data.row);
+                        if (data.model.value === 0) {
+                            data.row.saltEq.value = 0;
+                        }
+                    }
+                },
+                {
+                    id: 'saltEq',
+                    name: 'Salt EQ',
+                    type: 'scalar',
+                    bulkAssignment: true,
+                    checkEnabled: function(o) {
+                        return (o.saltCode && o.saltCode.value > 0);
+                    },
+                    onClose: function(data) {
+                        CalculationService.setEntered(data);
+                        recalculateSalt(data.row);
+                    }
                 }
             ];
 
@@ -88,6 +118,12 @@
             vm.isBatchLoading = false;
 
             bindEvents();
+        }
+
+        function recalculateSalt(reagent) {
+            CalculationService.recalculateSalt(reagent).then(function() {
+                CalculationService.recalculateStoich();
+            });
         }
 
         function duplicateBatches() {
