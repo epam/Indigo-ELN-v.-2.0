@@ -1,0 +1,17 @@
+entity-tree {
+  font: @sidebar-link-size @sidebar-link-family;
+
+  ul {
+    padding-left: 15px;
+  }
+
+  > ul {
+    overflow-y: auto;
+
+    > .simple-node {
+      padding-left: 35px;
+    }
+  }
+}
+
+@import "simple-node/simple-node";
