@@ -4,9 +4,9 @@
             class="sidebar-menu__section">
             <a ng-click="vm.toggleMyProjects()"
                class="sidebar-menu__link-section">
-                <span class="fa fa-angle-down arrow"></span>
                 <span class="fa fa-bookmark"></span>
-                <span>My Bookmarks</span>
+                <span class="link-section__name">My Bookmarks</span>
+                <span class="fa arrow fa-angle-{{vm.bookmarksIsCollapsed ? 'right' : 'down'}}"></span>
             </a>
             <entity-tree ng-if="!vm.bookmarksIsCollapsed"
                          selected-full-id="vm.selectedFullId"
@@ -19,12 +19,9 @@
             class="sidebar-menu__section">
             <a ng-click="vm.toggleProjects(); $event.stopPropagation();"
                class="sidebar-menu__link-section">
-                <span class="fa arrow"
-                      ng-class="{'fa-angle-down': !vm.allProjectIsCollapsed,
-                      'fa-angle-right': vm.allProjectIsCollapsed}">
-                </span>
                 <span class="fa fa-sitemap"></span>
-                <span>All Projects</span>
+                <span class="link-section__name">All Projects</span>
+                <span class="fa arrow fa-angle-{{vm.allProjectIsCollapsed ? 'right' : 'down'}}"></span>
             </a>
             <entity-tree ng-if="!vm.allProjectIsCollapsed"
                          selected-full-id="vm.selectedFullId"
@@ -37,9 +34,9 @@
             class="sidebar-menu__section">
             <a ng-click="vm.toggleAdministration()"
                class="sidebar-menu__link-section">
-                <span class="fa fa-angle-down arrow"></span>
                 <span class="fa fa-cogs"></span>
-                <span>Administration</span>
+                <span class="link-section__name">Administration</span>
+                <span class="fa arrow fa-angle-{{vm.adminToggled ? 'down' : 'right'}}"></span>
             </a>
             <ul class="sidebar-menu__sub-menu animated" ng-if="vm.adminToggled">
                 <li indigo-has-authority="{{vm.USER_EDITOR}}"

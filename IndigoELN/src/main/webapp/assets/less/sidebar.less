@@ -31,7 +31,9 @@
 
     a {
       color: @sidebar-link-color;
-      display: block;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       letter-spacing: .15px;
       padding: @sidebar-link-pad;
 
@@ -58,16 +60,21 @@
       background-color: @sidebar-link-first-hover-bg;
     }
     .arrow {
-      float: right;
       font-size: 12px;
-      margin: 6px 0 0;
       min-width: 0;
+      flex-grow: 0;
     }
 
     .fa {
       font-size: @sidebar-link-first-icon-size;
-      margin-right: 6px;
       min-width: @sidebar-link-first-icon-width;
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+    }
+
+    .link-section__name {
+      flex-grow: 3;
     }
   }
 
