@@ -1,14 +1,7 @@
 <li ng-class="{'active': node.original.fullId === vm.selectedFullId}"
     id="{{::vm.elementId + '_' + node.original.fullId}}"
     class="simple-node">
-    <!--ng-click="vm.toggle(node); $event.stopPropagation();"-->
     <span class="name-wrapper">
-         <!--<span class="fa arrow"-->
-               <!--ng-if="node.children"-->
-               <!--ng-click="vm.toggle(node);"-->
-               <!--ng-class="{'fa-angle-down': !node.isCollapsed,-->
-                              <!--'fa-angle-right': node.isCollapsed}">-->
-            <!--</span>-->
         <a class="type-of-experiment"
            ui-sref="{{::vm.getSref(node)}}"
            ng-click="vm.toggle(node);$event.stopPropagation();"
@@ -24,15 +17,15 @@
                   popover-append-to-body="true">
             </span>
             <span ng-switch-default ng-bind="node.name"></span>
-            <span class="experiment-status"
+            <span class="experiment-status fa"
                   ng-if="node.original.status"
-                  ng-class="{'fa fa-check': node.original.status === 'Completed',
-                              'fa fa-file-text-o': node.original.status === 'Signing',
-                              'fa fa-pencil-square-o': node.original.status === 'Signed',
-                              'fa fa-paper-plane': node.original.status === 'Submitted',
-                              'fa fa-archive': node.original.status === 'Archived',
-                              'fa fa-minus-circle': node.original.status === 'Submit_Fail',
-                              'fa fa-file-o': node.original.status === 'Open'}">
+                  ng-class="{'fa-check': node.original.status === 'Completed',
+                              'fa-file-text-o': node.original.status === 'Signing',
+                              'fa-pencil-square-o': node.original.status === 'Signed',
+                              'fa-paper-plane': node.original.status === 'Submitted',
+                              'fa-archive': node.original.status === 'Archived',
+                              'fa-minus-circle': node.original.status === 'Submit_Fail',
+                              'fa-file-o': node.original.status === 'Open'}">
             </span>
         </a>
     </span>

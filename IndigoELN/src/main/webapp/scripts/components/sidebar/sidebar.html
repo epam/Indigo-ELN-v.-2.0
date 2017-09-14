@@ -40,22 +40,22 @@
             </a>
             <ul class="sidebar-menu__sub-menu animated" ng-if="vm.adminToggled">
                 <li indigo-has-authority="{{vm.USER_EDITOR}}"
-                    ng-class="{'active': vm.$state.includes('entities.user-management')}"
+                    ui-sref-active="active"
                     class="sidebar-menu__sub-menu-item">
                     <a class="type-of-experiment" ui-sref="entities.user-management">Users</a>
                 </li>
                 <li indigo-has-authority="{{vm.ROLE_EDITOR}}"
-                    ng-class="{'active': vm.$state.includes('entities.role-management')}"
+                    ui-sref-active="active"
                     class="sidebar-menu__sub-menu-item">
                     <a class="type-of-experiment" ui-sref="entities.role-management">Roles</a>
                 </li>
                 <li indigo-has-authority="{{vm.TEMPLATE_EDITOR}}"
-                    ng-class="{'active': vm.$state.includes('entities.template')}"
+                    ui-sref-active="active"
                     class="sidebar-menu__sub-menu-item">
                     <a class="type-of-experiment" ui-sref="entities.template">Templates</a>
                 </li>
                 <li indigo-has-authority="{{vm.DICTIONARY_EDITOR}}"
-                    ng-class="{'active': vm.$state.includes('entities.dictionary-management')}"
+                    ui-sref-active="active"
                     class="sidebar-menu__sub-menu-item">
                     <a class="type-of-experiment" ui-sref="entities.dictionary-management">Dictionaries</a>
                 </li>
