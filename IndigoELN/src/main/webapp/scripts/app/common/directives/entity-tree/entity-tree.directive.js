@@ -82,9 +82,15 @@
                 });
         }
 
+        function updateTree(projects) {
+            if (vm.tree !== projects) {
+                vm.tree = projects;
+            }
+        }
+
         function loadProject(path) {
             return entityTreeService.getProjects(vm.isAll).then(function(projects) {
-                vm.tree = projects;
+                updateTree(projects);
 
                 if (path) {
                     return findNodeById(projects, path[0]) || $q.reject();

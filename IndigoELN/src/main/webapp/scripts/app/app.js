@@ -154,21 +154,6 @@ angular.module('indigoeln', [
                     controllerAs: 'vm'
                 }
             }
-        }).state('sidebar', {
-            abstract: true,
-            parent: 'navbar',
-            views: {
-                'sidebar@app_page': {
-                    templateUrl: 'scripts/components/sidebar/sidebar.html',
-                    controller: 'SidebarController',
-                    controllerAs: 'vm'
-                }
-            },
-            params: {
-                projectId: null,
-                notebookId: null,
-                experimentId: null
-            }
         });
         $httpProvider.interceptors.push('errorHandlerInterceptor');
         $httpProvider.interceptors.push('notificationInterceptor');
