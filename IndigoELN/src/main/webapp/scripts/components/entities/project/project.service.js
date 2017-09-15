@@ -3,7 +3,7 @@ angular
     .factory('Project', project);
 
 /* @ngInject */
-function project($resource, FileUploaderCash, PermissionManagement) {
+function project($resource, FileUploaderCash, PermissionManagement, entityTreeService) {
     function transformRequest(data) {
         data = _.extend({}, data);
         data.tags = _.map(data.tags, 'text');
@@ -51,6 +51,13 @@ function project($resource, FileUploaderCash, PermissionManagement) {
                 data = transformRequest(data);
 
                 return angular.toJson(data);
+            },
+            interceptor: {
+                response: function(response) {
+                    entityTreeService.addNotebook(response.data);
+
+                    return response.data;
+                }
             }
         },
         update: {
@@ -66,6 +73,13 @@ function project($resource, FileUploaderCash, PermissionManagement) {
                 transformResponse(data);
 
                 return data;
+            },
+            interceptor: {
+                response: function(response) {
+                    entityTreeService.updateNotebook(response.data);
+
+                    return response.data;
+                }
             }
         },
         delete: {

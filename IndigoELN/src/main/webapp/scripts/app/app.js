@@ -28,7 +28,8 @@ angular.module('indigoeln', [
     'config',
     'angular-cache',
     'indigoeln.autorecovery',
-    'cgNotify'
+    'cgNotify',
+    'duScroll'
 ])
     .run(function($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle, EntitiesBrowser) {
         $.mCustomScrollbar.defaults.advanced.autoScrollOnFocus = false;
@@ -162,6 +163,11 @@ angular.module('indigoeln', [
                     controller: 'SidebarController',
                     controllerAs: 'vm'
                 }
+            },
+            params: {
+                projectId: null,
+                notebookId: null,
+                experimentId: null
             }
         });
         $httpProvider.interceptors.push('errorHandlerInterceptor');

@@ -1,0 +1,34 @@
+<li ng-class="{'active': node.original.fullId === vm.selectedFullId}"
+    class="simple-node">
+    <span class="name-wrapper">
+        <a class="type-of-experiment"
+           id="{{::vm.elementId + '_' + node.original.fullId}}"
+           ui-sref="{{::vm.getSref(node)}}"
+           ng-click="vm.toggle(node);$event.stopPropagation();"
+           ng-switch="node.params.length">
+            <span ng-bind="node.name"
+                  ng-switch-when="3"
+                  ng-mouseenter="vm.getPopoverExperiment(node);"
+                  ng-mouseleave="vm.popoverExperiment = null"
+                  uib-popover-template="'scripts/components/sidebar/sidebar-popover-template.html'"
+                  popover-class="sidebar-popover-basis"
+                  popover-placement="right"
+                  popover-is-open="vm.popoverExperiment === node && node.params.length === 3"
+                  popover-append-to-body="true">
+            </span>
+            <span ng-switch-default ng-bind="node.name"></span>
+            <span class="experiment-status fa"
+                  ng-if="node.original.status"
+                  ng-class="{'fa-check': node.original.status === 'Completed',
+                              'fa-file-text-o': node.original.status === 'Signing',
+                              'fa-pencil-square-o': node.original.status === 'Signed',
+                              'fa-paper-plane': node.original.status === 'Submitted',
+                              'fa-archive': node.original.status === 'Archived',
+                              'fa-minus-circle': node.original.status === 'Submit_Fail',
+                              'fa-file-o': node.original.status === 'Open'}">
+            </span>
+        </a>
+    </span>
+
+    <ng-transclude></ng-transclude>
+</li>

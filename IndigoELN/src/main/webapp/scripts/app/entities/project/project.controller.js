@@ -206,10 +206,6 @@
         }
 
         function onUpdateSuccess(result) {
-            $rootScope.$broadcast('project-created', {
-                id: result.id
-            });
-
             $state.go('entities.project-detail', {
                 projectId: result.id
             });
@@ -218,9 +214,6 @@
         function onSaveSuccess(result) {
             EntitiesBrowser.close(TabKeyUtils.getTabKeyFromParams($stateParams));
             $timeout(function() {
-                $rootScope.$broadcast('project-created', {
-                    id: result.id
-                });
                 $state.go('entities.project-detail', {
                     projectId: result.id
                 });

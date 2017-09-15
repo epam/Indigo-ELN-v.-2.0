@@ -3,7 +3,15 @@ angular
     .factory('Experiment', experiment);
 
 /* @ngInject */
-function experiment($resource, PermissionManagement, $rootScope) {
+function experiment($resource, PermissionManagement, entityTreeService) {
+    var interceptor = {
+        response: function(response) {
+            entityTreeService.updateExperiment(response.data);
+
+            return response.data;
+        }
+    };
+
     return $resource('api/projects/:projectId/notebooks/:notebookId/experiments/:experimentId',
         {
             projectId: '@projectId',
@@ -24,7 +32,8 @@ function experiment($resource, PermissionManagement, $rootScope) {
             },
             get: {
                 method: 'GET',
-                transformResponse: transformResponse
+                transformResponse: transformResponse,
+                interceptor: interceptor
             },
             save: {
                 method: 'POST',
@@ -33,11 +42,13 @@ function experiment($resource, PermissionManagement, $rootScope) {
 
                     return angular.toJson(data);
                 },
-                transformResponse: transformResponse
+                transformResponse: transformResponse,
+                interceptor: interceptor
             },
             version: {
                 method: 'POST',
-                url: 'api/projects/:projectId/notebooks/:notebookId/experiments/:experimentId/version'
+                url: 'api/projects/:projectId/notebooks/:notebookId/experiments/:experimentId/version',
+                interceptor: interceptor
             },
             update: {
                 method: 'PUT',
@@ -47,7 +58,8 @@ function experiment($resource, PermissionManagement, $rootScope) {
 
                     return angular.toJson(data);
                 },
-                transformResponse: transformResponse
+                transformResponse: transformResponse,
+                interceptor: interceptor
             },
             delete: {
                 method: 'DELETE'
@@ -58,7 +70,8 @@ function experiment($resource, PermissionManagement, $rootScope) {
             },
             reopen: {
                 method: 'PUT',
-                url: 'api/projects/:projectId/notebooks/:notebookId/experiments/:experimentId/reopen'
+                url: 'api/projects/:projectId/notebooks/:notebookId/experiments/:experimentId/reopen',
+                interceptor: interceptor
             }
         });
 
@@ -98,7 +111,6 @@ function experiment($resource, PermissionManagement, $rootScope) {
         data = angular.fromJson(data);
         data = toModel(data);
         data.creationDate = moment(data.creationDate).toISOString();
-        $rootScope.$broadcast('experiment-updated', data);
 
         return data;
     }

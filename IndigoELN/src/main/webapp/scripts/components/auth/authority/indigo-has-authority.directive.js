@@ -7,25 +7,21 @@
     function indigoHasAuthority(Principal) {
         return {
             restrict: 'A',
-            link: function($scope, $element, $attrs) {
-                var authority = $attrs.indigoHasAuthority.replace(/\s+/g, '');
+            link: {
+                pre: function($scope, $element, $attrs) {
+                    var authorities = $attrs.indigoHasAuthority.replace(/\s+/g, '').split(',');
 
-                if (authority.length > 0) {
-                    defineVisibility(true);
-                }
-
-                function setVisible() {
-                    $element.removeClass('hidden');
-                }
-
-                function defineVisibility(reset) {
-                    if (reset) {
-                        setVisible();
+                    if (authorities.length > 0) {
+                        defineVisibility(true);
                     }
 
-                    Principal.hasAuthority(authority).then(function(result) {
-                        $element.toggleClass('hidden', !result);
-                    });
+                    function defineVisibility() {
+                        Principal.hasAnyAuthority(authorities).then(function(isAvailable) {
+                            if (!isAvailable) {
+                                $element.remove();
+                            }
+                        });
+                    }
                 }
             }
         };

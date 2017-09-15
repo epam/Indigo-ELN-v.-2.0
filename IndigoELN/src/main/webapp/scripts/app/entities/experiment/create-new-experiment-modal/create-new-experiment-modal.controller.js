@@ -95,8 +95,6 @@
                 id: result.id
             };
             onSaveSuccess.isSaving = false;
-            // Update sidebar tree
-            $rootScope.$broadcast('experiment-created', experiment);
             $uibModalInstance.close(experiment);
         }
 

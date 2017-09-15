@@ -13,13 +13,27 @@
 }
 
 .sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+  height: ~"calc(100vh - @{navbar-height})";
 
   &__section {
     .box-shadow(inset 0 -1px #3d3d3d);
+    background-color: #424242;
+
+    entity-tree {
+      height: ~"calc(100% - 49px)";
+      display: flex;
+      flex-direction: column;
+    }
+
 
     a {
       color: @sidebar-link-color;
-      display: block;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       letter-spacing: .15px;
       padding: @sidebar-link-pad;
 
@@ -32,6 +46,13 @@
     &.open {
       background-color: @sidebar-item-open-bg;
       box-shadow: none;
+      flex-grow: 1;
+      height: 0;
+
+      .admin-panel {
+        height: ~"calc(100% - 49px)";
+        overflow-y: auto;
+      }
     }
   }
 
@@ -44,16 +65,21 @@
       background-color: @sidebar-link-first-hover-bg;
     }
     .arrow {
-      float: right;
       font-size: 12px;
-      margin: 6px 0 0;
       min-width: 0;
+      flex-grow: 0;
     }
 
     .fa {
       font-size: @sidebar-link-first-icon-size;
-      margin-right: 6px;
       min-width: @sidebar-link-first-icon-width;
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+    }
+
+    .link-section__name {
+      flex-grow: 3;
     }
   }
 

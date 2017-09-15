@@ -1,0 +1,29 @@
+entity-tree {
+  .simple-node {
+    display: flex;
+    flex-direction: column;
+
+    &.active {
+      > .name-wrapper {
+        a {
+          color: @white;
+        }
+      }
+    }
+
+    .type-of-experiment {
+      display: flex;
+      flex-grow: 1;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .experiment-status {
+      font-size: 15px;
+    }
+
+    .name-wrapper {
+      display: flex;
+    }
+  }
+}

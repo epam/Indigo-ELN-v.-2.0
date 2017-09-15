@@ -46,7 +46,8 @@
     "stomp-websocket": "2.3.4",
     "malihu-custom-scrollbar-plugin": "3.1.5",
     "angular-cache": "4.6.0",
-    "angular-notify": "2.5.1"
+    "angular-notify": "2.5.1",
+    "angular-scroll": "^1.0.2"
   },
   "overrides": {
     "bootstrap": {
