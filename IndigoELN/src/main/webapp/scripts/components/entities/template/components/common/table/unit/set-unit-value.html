@@ -14,7 +14,7 @@
                 </button>
                 <ul class="dropdown-menu" uib-dropdown-menu>
                     <li ng-repeat="unitName in vm.unitNames track by unitName">
-                        <a ng-click="vm.setUnit(unitName)" ng-bind="vm.unitName"></a>
+                        <a ng-click="vm.setUnit(unitName)" ng-bind="unitName"></a>
                     </li>
                 </ul>
             </div>

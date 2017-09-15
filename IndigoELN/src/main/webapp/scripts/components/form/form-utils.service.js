@@ -115,6 +115,9 @@ function formUtils($timeout) {
         }
         if (tAttrs.indigoType) {
             $element.attr('type', '{{indigoType}}');
+            if (tAttrs.indigoType === 'number') {
+                $element.attr('step', _.isUndefined(tAttrs.step) ? 'any' :  tAttrs.step);
+            }
         }
         if (tAttrs.indigoDisabled) {
             $element.attr('ng-disabled', 'indigoDisabled');
