@@ -24,7 +24,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     function exportSDFile(exportBatches) {
         var batches = exportBatches || ProductBatchSummaryCache.getProductBatchSummary();
         var selectedBatches = _.filter(batches, function(item) {
-            return item.select;
+            return item.$$select;
         });
 
         sdExportService.exportItems(selectedBatches).then(function(data) {
