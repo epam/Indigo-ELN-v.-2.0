@@ -158,6 +158,20 @@
                                       indigo-label-vertical="true"
                                       indigo-readonly="vm.isEditDisabled">
                     </indigo-text-area>
+                    <indigo-select indigo-label="Salt Code & Name"
+                                   indigo-label-vertical="true"
+                                   indigo-items="vm.saltCodeValues"
+                                   indigo-model="vm.selectedBatch.saltCode"
+                                   indigo-change="vm.recalculateSalt(vm.selectedBatch)"
+                                   indigo-readonly="vm.isEditDisabled"
+                    ></indigo-select>
+                    <indigo-input indigo-label="Salt Equivalent"
+                                  indigo-model="vm.selectedBatch.saltEq.value"
+                                  indigo-change="vm.recalculateSalt(vm.selectedBatch)"
+                                  indigo-type="number"
+                                  indigo-label-vertical="true"
+                                  indigo-readonly="vm.isEditDisabled || !vm.canEditSaltEq()"
+                    ></indigo-input>
                 </div>
             </div>
         </div>

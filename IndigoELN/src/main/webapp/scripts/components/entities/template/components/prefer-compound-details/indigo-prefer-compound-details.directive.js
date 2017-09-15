@@ -31,7 +31,7 @@
         };
 
         /* @ngInject */
-        function indigoPreferredCompoundDetailsController($scope, EntitiesBrowser, ProductBatchSummaryOperations) {
+        function indigoPreferredCompoundDetailsController($scope, EntitiesBrowser, ProductBatchSummaryOperations, AppValues) {
             var vm = this;
 
             init();
@@ -42,11 +42,13 @@
                 vm.showStructure = false;
                 vm.showSummary = false;
                 vm.notebookId = EntitiesBrowser.getActiveTab().$$title;
+                vm.saltCodeValues = AppValues.getSaltCodeValues();
                 vm.selectControl = {};
                 vm.importSDFile = importSDFile;
                 vm.exportSDFile = exportSDFile;
 
                 vm.selectBatch = selectBatch;
+                vm.canEditSaltEq = canEditSaltEq;
                 vm.addNewBatch = addNewBatch;
                 vm.deleteBatch = deleteBatch;
                 vm.duplicateBatch = duplicateBatch;
@@ -54,6 +56,11 @@
                 vm.isBatchLoading = false;
 
                 bindEvents();
+            }
+
+            function canEditSaltEq() {
+                var o = vm.selectedBatch;
+                return o && o.saltCode && o.saltCode.value !== 0;
             }
 
             function selectBatch(batch) {
