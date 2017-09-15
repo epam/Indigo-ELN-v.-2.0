@@ -1,7 +1,14 @@
 (function() {
     angular
         .module('indigoeln')
-        .controller('SidebarController', SidebarController);
+        .directive('sidebar', function() {
+            return {
+                templateUrl: 'scripts/components/sidebar/sidebar.html',
+                controller: SidebarController,
+                bindToController: true,
+                controllerAs: 'vm'
+            };
+        });
 
     function SidebarController($scope, $state, $stateParams, sidebarCache, entityTreeService) {
         var vm = this;

@@ -3,6 +3,6 @@ angular.module('indigoeln')
         $stateProvider
             .state('entity', {
                 abstract: true,
-                parent: 'sidebar'
+                parent: 'navbar'
             });
     });

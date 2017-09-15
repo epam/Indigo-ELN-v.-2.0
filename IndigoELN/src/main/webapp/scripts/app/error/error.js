@@ -2,7 +2,7 @@ angular.module('indigoeln')
     .config(function($stateProvider) {
         $stateProvider
             .state('error', {
-                parent: 'sidebar',
+                parent: 'navbar',
                 url: '/error',
                 data: {
                     authorities: [],
@@ -16,7 +16,7 @@ angular.module('indigoeln')
                 resolve: {}
             })
             .state('accessdenied', {
-                parent: 'sidebar',
+                parent: 'navbar',
                 url: '/accessdenied',
                 data: {
                     authorities: []
