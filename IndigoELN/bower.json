@@ -47,7 +47,7 @@
     "malihu-custom-scrollbar-plugin": "3.1.5",
     "angular-cache": "4.6.0",
     "angular-notify": "2.5.1",
-    "ngSmoothScroll": "^2.0.0"
+    "angular-scroll": "^1.0.2"
   },
   "overrides": {
     "bootstrap": {

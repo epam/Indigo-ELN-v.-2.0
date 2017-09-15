@@ -1,4 +1,4 @@
-<ul class="sidebar-menu__sub-menu animated" ng-if="vm.tree.length" id="{{vm.elementId}}">
+<ul class="sidebar-menu__sub-menu animated" ng-if="vm.tree.length">
     <simple-node ng-repeat="node in vm.tree track by (node.id + node.name)">
         <ul class="sidebar-menu__sub-menu animated" ng-if="!node.isCollapsed">
             <simple-node ng-repeat="node in node.children track by (node.id + node.name)">

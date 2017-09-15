@@ -15,6 +15,8 @@
                 link: {
                     pre: function($scope, $element, $attr, vm) {
                         vm.elementId = 'entity-tree-' + $scope.$id;
+                        $element.attr('id', vm.elementId);
+                        vm.$element = $element;
                     }
                 }
             };
@@ -46,7 +48,7 @@
                 checkParents(vm.selectedFullId).then(function() {
                     $timeout(function() {
                         scrollService.scrollTo('#' + vm.elementId + '_' + vm.selectedFullId, {
-                            containerId: vm.elementId,
+                            container: vm.$element,
                             offset: 200
                         });
                     });

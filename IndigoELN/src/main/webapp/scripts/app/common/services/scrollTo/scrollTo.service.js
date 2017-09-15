@@ -3,19 +3,19 @@ angular
     .factory('scrollService', scrollService);
 
 /* @ngInject */
-function scrollService(smoothScroll) {
-    var defaultOptions = {
-        duration: 300,
-        easing: 'easeInQuad',
-        offset: 0
+function scrollService() {
+    return {
+        scrollTo: scrollTo
     };
 
-    return {
-        scrollTo: function(selector, options) {
-            var element = angular.element(selector);
-            if (element.length) {
-                smoothScroll(angular.element(selector)[0], _.extend({}, defaultOptions, options));
+    function scrollTo(selector, options) {
+        var parent = options.container;
+        if (parent) {
+            var target = parent.find(selector);
+            if (target) {
+                var offset = (parent.height() / 2) - target.height();
+                parent.scrollToElement(target, offset, 0);
             }
         }
-    };
+    }
 }

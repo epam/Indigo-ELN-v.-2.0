@@ -1,8 +1,8 @@
 <li ng-class="{'active': node.original.fullId === vm.selectedFullId}"
-    id="{{::vm.elementId + '_' + node.original.fullId}}"
     class="simple-node">
     <span class="name-wrapper">
         <a class="type-of-experiment"
+           id="{{::vm.elementId + '_' + node.original.fullId}}"
            ui-sref="{{::vm.getSref(node)}}"
            ng-click="vm.toggle(node);$event.stopPropagation();"
            ng-switch="node.params.length">

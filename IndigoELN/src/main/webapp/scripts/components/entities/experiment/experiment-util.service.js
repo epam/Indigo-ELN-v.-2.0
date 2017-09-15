@@ -3,7 +3,7 @@ angular
     .factory('ExperimentUtil', experimentUtil);
 
 /* @ngInject */
-function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, PermissionManagement, SignatureTemplates,
+function experimentUtil($state, $uibModal, $q, Experiment, PermissionManagement, SignatureTemplates,
                         SignatureDocument, componentsUtils, notifyService) {
     return {
         versionExperiment: versionExperiment,
@@ -22,16 +22,6 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
                 experimentId: result.id,
                 notebookId: params.notebookId,
                 projectId: params.projectId
-            });
-            $rootScope.$broadcast('experiment-created', {
-                projectId: params.projectId,
-                notebookId: params.notebookId,
-                id: result.id
-            });
-            $rootScope.$broadcast('experiment-version-created', {
-                projectId: params.projectId,
-                notebookId: params.notebookId,
-                name: result.name
             });
         }).$promise;
     }
@@ -63,11 +53,6 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
                 experimentId: result.id,
                 notebookId: params.notebookId,
                 projectId: params.projectId
-            });
-            $rootScope.$broadcast('experiment-created', {
-                projectId: params.projectId,
-                notebookId: params.notebookId,
-                id: result.id
             });
         }).$promise;
     }

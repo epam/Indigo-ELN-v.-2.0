@@ -38,7 +38,7 @@
                 <span class="link-section__name">Administration</span>
                 <span class="fa arrow fa-angle-{{vm.adminToggled ? 'down' : 'right'}}"></span>
             </a>
-            <ul class="sidebar-menu__sub-menu animated" ng-if="vm.adminToggled">
+            <ul class="sidebar-menu__sub-menu animated admin-panel" ng-if="vm.adminToggled">
                 <li indigo-has-authority="{{vm.USER_EDITOR}}"
                     ui-sref-active="active"
                     class="sidebar-menu__sub-menu-item">
