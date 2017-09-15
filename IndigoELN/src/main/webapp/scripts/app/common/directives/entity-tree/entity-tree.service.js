@@ -217,7 +217,7 @@
         function mergeNode(targetNode, fromNode) {
             targetNode.accessList = fromNode.accessList;
             targetNode.original = fromNode.original;
-            targetNode.name = fromNode.name;
+            targetNode.name = fromNode.original.fullName || fromNode.name;
         }
 
         function getFullIdFromParams(toParams) {

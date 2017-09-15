@@ -24,7 +24,6 @@ angular.module('indigoeln', [
     'monospaced.elastic',
     'ui.bootstrap-slider',
     'LocalStorageModule',
-    'angular-click-outside',
     'config',
     'angular-cache',
     'indigoeln.autorecovery',
