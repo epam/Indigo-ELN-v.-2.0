@@ -182,11 +182,7 @@
         }
 
         function onRowSelect($event, row) {
-            var target = $($event.target);
-            if ($attrs.indigoTabSupport) {
-                initTabSupport($event.currentTarget);
-            }
-            if (target.is('button,span,ul,a,li,input')) {
+            if (angular.element($event.target).is('button,span,ul,a,li,input')) {
                 return;
             }
             vm.onSelectRow({row: !_.isEqual(vm.selectedBatch, row) ? row : null});
@@ -203,30 +199,6 @@
             }
         });
 
-        function initTabSupport(tar) {
-            var $tar = $(tar);
-            var $input = $tar.find('input').focus();
-            if (!$input.attr('tab-initiated')) {
-                $input.on('keydown', function(e) {
-                    if (e.keyCode !== 9) {
-                        return;
-                    }
-                    // tab key
-                    var $next = $tar.nextAll('[col-read-only="false"]').filter(function() {
-                        return angular.element(this).find('[toggleEditable]')[0];
-                    }).eq(0);
-
-                    var toggle = $next.find('[toggleEditable]')[0];
-
-                    if (toggle) {
-                        $timeout(function() {
-                            angular.element(toggle).triggerHandler('click');
-                            initTabSupport($next);
-                        });
-                    }
-                }).attr('tab-initiated', true);
-            }
-        }
 
         function onPageChanged() {
             updateRowsForDisplay(vm.rowsForDisplay);
