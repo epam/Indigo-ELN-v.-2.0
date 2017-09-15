@@ -3,7 +3,7 @@
         .module('indigoeln')
         .controller('SidebarController', SidebarController);
 
-    function SidebarController($scope, $state, sidebarCache, entityTreeService) {
+    function SidebarController($scope, $state, $stateParams, sidebarCache, entityTreeService) {
         var vm = this;
 
         vm.CONTENT_EDITOR = 'CONTENT_EDITOR';
@@ -26,9 +26,8 @@
         function init() {
             vm.allProjectIsCollapsed = sidebarCache.get('allProjectIsCollapsed');
             vm.bookmarksIsCollapsed = sidebarCache.get('bookmarksIsCollapsed');
-
-            vm.selectedFullId = sidebarCache.get('selectedFullId');
             vm.adminToggled = sidebarCache.get('adminToggled');
+            vm.selectedFullId = entityTreeService.getFullIdFromParams($stateParams);
 
             bindEvents();
         }
@@ -36,7 +35,6 @@
         function onSelectNode(fullId) {
             if (vm.selectedFullId !== fullId) {
                 vm.selectedFullId = fullId;
-                sidebarCache.put('selectedFullId', fullId);
             }
         }
 

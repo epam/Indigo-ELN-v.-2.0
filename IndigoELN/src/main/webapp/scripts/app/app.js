@@ -166,7 +166,8 @@ angular.module('indigoeln', [
             },
             params: {
                 projectId: null,
-
+                notebookId: null,
+                experimentId: null
             }
         });
         $httpProvider.interceptors.push('errorHandlerInterceptor');
