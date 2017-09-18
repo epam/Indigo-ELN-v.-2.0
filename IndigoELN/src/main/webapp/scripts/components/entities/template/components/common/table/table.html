@@ -79,18 +79,16 @@
             </tr>
             </thead>
             <tbody>
-            <tr ng-if="vm.rowsForDisplay.length"
-                ng-repeat="row in vm.rowsForDisplay | limitTo : vm.pagination.pageSize : vm.limit - vm.pagination.pageSize"
+            <tr ng-repeat="row in vm.rowsForDisplay | limitTo : vm.pagination.pageSize : vm.limit - vm.pagination.pageSize track by $id(row)"
                 ng-class="{'success': vm.selectedBatch === row}">
                 <td ng-repeat="column in vm.indigoColumns track by $index"
-                    class="text-center readonly-{{!vm.indigoEditable(row, $index, columnId)}}"
+                    class="text-center"
                     ng-click="vm.onRowSelect($event, row)"
                     ng-show="column.isVisible"
-                    ng-style="column.id!=='show-hide-columns'?{'min-width': '150px'}:{'min-width': '56px'}"
-                    col-read-only="{{vm.isColumnReadonly(column, $parent.$index)}}">
-                    <indigo-table-val indigo-column="column"
+                    style="min-width: 150px">
+                    <indigo-table-val model="row[column.id]"
+                                      indigo-column="column"
                                       indigo-row="row"
-                                      indigo-row-index="$parent.$index"
                                       set-close-previous="vm.setClosePrevious(callback)"
                                       toggle-editable-column="vm.toggleEditable(column.id, $parent.$index)"
                                       close="vm.toggleEditable(null, null, null)"

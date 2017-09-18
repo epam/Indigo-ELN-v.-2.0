@@ -247,13 +247,12 @@
             {
                 id: 'registrationDate',
                 name: 'Registration Date',
-                format: function(val) {
-                    return val ? $filter('date')(val, 'MMM DD, YYYY HH:mm:ss z') : null;
-                }
+                type: 'date'
             },
             {
                 id: 'registrationStatus',
                 name: 'Registration Status',
+                type: 'registrationStatus',
                 mark: function(batch) {
                     return batch.registrationStatus ? ('batch-status status-' + batch.registrationStatus.toLowerCase()) : '';
                 }

@@ -4,16 +4,16 @@
         .directive('indigoTableVal', indigoTableVal);
 
     /* @ngInject */
-    function indigoTableVal($sce, roundFilter, notifyService, $timeout, EntitiesBrowser, UnitsConverter) {
+    function indigoTableVal($sce, roundFilter, notifyService, $timeout, UnitsConverter) {
         return {
             restrict: 'E',
             controller: IndigoTableValController,
             controllerAs: 'vm',
             bindToController: true,
             scope: {
+                model: '=',
                 indigoColumn: '=',
                 indigoRow: '=',
-                indigoRowIndex: '=',
                 isEditableColumn: '&',
                 toggleEditableColumn: '&',
                 setClosePrevious: '&',
