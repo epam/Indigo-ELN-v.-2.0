@@ -2,15 +2,12 @@ package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.service.print.HtmlWrapper;
 import com.epam.indigoeln.core.service.print.ITextPrintService;
-import com.epam.indigoeln.core.service.print.PhantomJsService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.core.service.util.TempFileUtil;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.print.PrintRequest;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
-import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -20,14 +17,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.websocket.server.PathParam;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.Map;
 
 @Api
 @RestController
@@ -38,20 +36,10 @@ public class PrintResource {
             "<table width=\"100%\" border=\"0\"><tr><td>HeaderPageEvent</td><td align=\"right\">Some title</td></tr></table>";
 
     @Autowired
-    private PhantomJsService phantomJsService;
-    @Autowired
     private ITextPrintService iTextPrintService;
 
     @Autowired
     private UserService userService;
-
-    @RequestMapping(method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map> createPdf(
-            @ApiParam("HTML printout") @RequestBody HtmlWrapper wrapper) throws FileNotFoundException {
-        String fileName = phantomJsService.createPdf(wrapper);
-        return ResponseEntity.ok(ImmutableMap.of("fileName", fileName));
-    }
 
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
