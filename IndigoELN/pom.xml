@@ -174,13 +174,8 @@
             </exclusions>
         </dependency>
 
-        <!-- PhantomJS -->
+        <!-- Guava -->
 
-        <dependency>
-            <groupId>com.codeborne</groupId>
-            <artifactId>phantomjsdriver</artifactId>
-            <version>1.4.1</version>
-        </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -188,21 +183,12 @@
         </dependency>
 
         <!-- iText PDF -->
+
         <dependency>
             <groupId>com.lowagie</groupId>
             <artifactId>itext</artifactId>
             <version>${itext.version}</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>com.itextpdf</groupId>-->
-            <!--<artifactId>itext-pdfa</artifactId>-->
-            <!--<version>${itext.version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>com.itextpdf.tool</groupId>-->
-            <!--<artifactId>xmlworker</artifactId>-->
-            <!--<version>${itext.version}</version>-->
-        <!--</dependency>-->
 
         <!-- Apache Commons -->
 
