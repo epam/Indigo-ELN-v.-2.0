@@ -42,8 +42,24 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, CacheFactory) {
         addTab: addTab,
         getTabByParams: getTabByParams,
         saveTabs: saveTabs,
-        restoreTabs: restoreTabs
+        restoreTabs: restoreTabs,
+        setExperimentTab: setExperimentTab,
+        getExperimentTab: getExperimentTab
     };
+
+    function setExperimentTab(index, experimentFullId) {
+        return resolvePrincipal(function(user) {
+            var storageKey = user.id + '.' + experimentFullId + '.current-exp-tab';
+            tabCache.put(storageKey, index);
+        });
+    }
+
+    function getExperimentTab(experimentFullId) {
+        return resolvePrincipal(function(user) {
+            var storageKey = user.id + '.' + experimentFullId + '.current-exp-tab';
+            return tabCache.get(storageKey);
+        });
+    }
 
     function getUserId(user) {
         var id = user.id;

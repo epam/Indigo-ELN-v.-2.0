@@ -71,7 +71,7 @@
         }
 
         /* @ngInject */
-        function indigoComponentsController($scope, ProductBatchSummaryOperations, ProductBatchSummaryCache) {
+        function indigoComponentsController($scope, ProductBatchSummaryOperations, ProductBatchSummaryCache, EntitiesBrowser) {
             var vm = this;
             var precursors;
 
@@ -92,7 +92,23 @@
                 vm.onRemoveBatches = onRemoveBatches;
                 vm.onPrecursorsChanged = onPrecursorsChanged;
                 vm.onChangedComponent = onChangedComponent;
+                vm.setActive = setActive;
                 bindEvents();
+
+                $timeout(function() {
+                EntitiesBrowser.getExperimentTab(vm.experiment.fullId).then(function(index) {
+                    setActive(index);
+                });
+                }, 500);
+            }
+
+            function setActive(index) {
+                vm.sel = [];
+                for(var i=0; i < vm.template.length; i++) {
+                    vm.sel.push(false);
+                }
+                vm.sel[index] = true;
+                EntitiesBrowser.setExperimentTab(index, vm.experiment.fullId);
             }
 
             function onChangedComponent(componentId) {
