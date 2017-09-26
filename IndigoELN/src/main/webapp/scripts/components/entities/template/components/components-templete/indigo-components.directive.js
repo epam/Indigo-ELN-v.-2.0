@@ -97,7 +97,7 @@
 
                 $timeout(function() {
                 EntitiesBrowser.getExperimentTab(vm.experiment.fullId).then(function(index) {
-                    setActive(index);
+                    setActive(index ? index : 0);
                 });
                 }, 500);
             }
