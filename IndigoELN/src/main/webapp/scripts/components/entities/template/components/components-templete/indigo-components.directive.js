@@ -86,6 +86,7 @@
                 vm.batchOperation = null;
                 vm.reactants = null;
                 vm.reactantsTrigger = 0;
+                vm.activeTabIndex = 0;
 
                 vm.onAddedBatch = onAddedBatch;
                 vm.onSelectBatch = onSelectBatch;
@@ -93,22 +94,13 @@
                 vm.onPrecursorsChanged = onPrecursorsChanged;
                 vm.onChangedComponent = onChangedComponent;
                 vm.setActive = setActive;
-                bindEvents();
 
-                $timeout(function() {
-                EntitiesBrowser.getExperimentTab(vm.experiment.fullId).then(function(index) {
-                    setActive(index ? index : 0);
-                });
-                }, 500);
+                bindEvents();
             }
 
             function setActive(index) {
-                vm.sel = [];
-                for(var i=0; i < vm.template.length; i++) {
-                    vm.sel.push(false);
-                }
-                vm.sel[index] = true;
-                EntitiesBrowser.setExperimentTab(index, vm.experiment.fullId);
+                vm.activeTabIndex = index;
+                EntitiesBrowser.setExperimentTab(vm.activeTabIndex, vm.experiment.fullId);
             }
 
             function onChangedComponent(componentId) {
@@ -131,6 +123,7 @@
 
             function bindEvents() {
                 $scope.$watch('vm.model', updateModel);
+                $scope.$watch('vm.experiment', updateActiveTab);
 
                 $scope.$on('stoic-table-recalculated', function(event, data) {
                     if (data.actualProducts.length === vm.batches.length) {
@@ -140,6 +133,16 @@
                         });
                     }
                 });
+            }
+
+            function updateActiveTab() {
+                if (vm.experiment) {
+                    EntitiesBrowser.getExperimentTab(vm.experiment.fullId).then(function(index) {
+                        $timeout(function() {
+                            vm.activeTabIndex = index || 0;
+                        });
+                    });
+                }
             }
 
             function updateSelectedBatch() {

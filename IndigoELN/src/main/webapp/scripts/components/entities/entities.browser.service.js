@@ -17,7 +17,12 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, CacheFactory) {
     };
 
     var tabCache = CacheFactory.createCache('tabCache', {
-        storageMode: 'localStorage'
+        storageMode: 'localStorage',
+        // a week
+        maxAge: 60 * 60 * 1000 * 24 * 7,
+        deleteOnExpire: 'aggressive',
+        // 10 minutes
+        recycleFreq: 60 * 10000
     });
 
     return {
@@ -47,17 +52,19 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, CacheFactory) {
         getExperimentTab: getExperimentTab
     };
 
+    function getExperimentTabById(user, experimentFullId) {
+        return user.id + '.' + experimentFullId + '.current-exp-tab';
+    }
+
     function setExperimentTab(index, experimentFullId) {
-        return resolvePrincipal(function(user) {
-            var storageKey = user.id + '.' + experimentFullId + '.current-exp-tab';
-            tabCache.put(storageKey, index);
+        return resolvePrincipal().then(function(user) {
+            tabCache.put(getExperimentTabById(user, experimentFullId), index);
         });
     }
 
     function getExperimentTab(experimentFullId) {
-        return resolvePrincipal(function(user) {
-            var storageKey = user.id + '.' + experimentFullId + '.current-exp-tab';
-            return tabCache.get(storageKey);
+        return resolvePrincipal().then(function(user) {
+            return tabCache.get(getExperimentTabById(user, experimentFullId));
         });
     }
 
