@@ -71,7 +71,7 @@
         }
 
         /* @ngInject */
-        function indigoComponentsController($scope, ProductBatchSummaryOperations, ProductBatchSummaryCache) {
+        function indigoComponentsController($scope, ProductBatchSummaryOperations, ProductBatchSummaryCache, EntitiesBrowser) {
             var vm = this;
             var precursors;
 
@@ -86,13 +86,21 @@
                 vm.batchOperation = null;
                 vm.reactants = null;
                 vm.reactantsTrigger = 0;
+                vm.activeTabIndex = 0;
 
                 vm.onAddedBatch = onAddedBatch;
                 vm.onSelectBatch = onSelectBatch;
                 vm.onRemoveBatches = onRemoveBatches;
                 vm.onPrecursorsChanged = onPrecursorsChanged;
                 vm.onChangedComponent = onChangedComponent;
+                vm.setActive = setActive;
+
                 bindEvents();
+            }
+
+            function setActive(index) {
+                vm.activeTabIndex = index;
+                EntitiesBrowser.setExperimentTab(vm.activeTabIndex, vm.experiment.fullId);
             }
 
             function onChangedComponent(componentId) {
@@ -115,6 +123,7 @@
 
             function bindEvents() {
                 $scope.$watch('vm.model', updateModel);
+                $scope.$watch('vm.experiment', updateActiveTab);
 
                 $scope.$on('stoic-table-recalculated', function(event, data) {
                     if (data.actualProducts.length === vm.batches.length) {
@@ -124,6 +133,16 @@
                         });
                     }
                 });
+            }
+
+            function updateActiveTab() {
+                if (vm.experiment) {
+                    EntitiesBrowser.getExperimentTab(vm.experiment.fullId).then(function(index) {
+                        $timeout(function() {
+                            vm.activeTabIndex = index || 0;
+                        });
+                    });
+                }
             }
 
             function updateSelectedBatch() {

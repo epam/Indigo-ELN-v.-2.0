@@ -6,7 +6,7 @@
     "angular": "1.4.8",
     "angular-mocks": "1.4.8",
     "angular-animate": "1.4.8",
-    "angular-bootstrap": "0.14.3",
+    "angular-bootstrap": "^2.5.0",
     "angular-bootstrap-checkbox": "0.4.0",
     "angular-bootstrap-slider": "0.1.26",
     "angular-busy": "4.1.3",
