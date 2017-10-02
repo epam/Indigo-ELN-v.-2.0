@@ -4,34 +4,38 @@
         .controller('PermissionManagementController', PermissionManagementController);
 
     /* @ngInject */
-    function PermissionManagementController($rootScope, $scope, $uibModalInstance, PermissionManagement, users, permissions, notifyService, AlertModal) {
+    function PermissionManagementController($scope, $uibModalInstance, PermissionManagement, users, permissions, notifyService, AlertModal) {
         var vm = this;
-
-        vm.accessList = PermissionManagement.getAccessList();
-        vm.permissions = permissions;
-        vm.entity = PermissionManagement.getEntity();
-        vm.entityId = PermissionManagement.getEntityId();
-        vm.parentId = PermissionManagement.getParentId();
-        vm.author = PermissionManagement.getAuthor();
-        vm.users = filterUsers(users);
-
-        vm.addMember = addMember;
-        vm.removeMember = removeMember;
-        vm.isAuthor = isAuthor;
-        vm.show = show;
-        vm.saveOldPermission = saveOldPermission;
-        vm.checkAuthority = checkAuthority;
-        vm.ok = ok;
-        vm.clear = clear;
 
         init();
 
         function init() {
-            var unsubscribe = $scope.$watch('vm.selectedMembers', function(user) {
+            vm.accessList = PermissionManagement.getAccessList();
+            vm.permissions = permissions;
+            vm.entity = PermissionManagement.getEntity();
+            vm.entityId = PermissionManagement.getEntityId();
+            vm.parentId = PermissionManagement.getParentId();
+            vm.author = PermissionManagement.getAuthor();
+
+            if (vm.author) {
+                vm.users = filterUsers(users);
+            }
+
+            vm.addMember = addMember;
+            vm.removeMember = removeMember;
+            vm.isAuthor = isAuthor;
+            vm.show = show;
+            vm.saveOldPermission = saveOldPermission;
+            vm.checkAuthority = checkAuthority;
+            vm.ok = ok;
+            vm.clear = clear;
+
+            bindEvents();
+        }
+
+        function bindEvents() {
+            $scope.$watch('vm.selectedMembers', function(user) {
                 vm.addMember(user);
-            });
-            $scope.$on('$destroy', function() {
-                unsubscribe();
             });
         }
 
@@ -103,15 +107,12 @@
             $uibModalInstance.dismiss('cancel');
         }
 
-        function filterUsers(users) {
-            return _.filter(users, function(user) {
-                if (user.id !== vm.author.id && PermissionManagement.hasAuthorityForPermission({
-                    user: user
-                }, vm.permissions[0].id)) {
-                    return true;
-                }
-
-                return false;
+        function filterUsers(nonFilteredUsers) {
+            return _.filter(nonFilteredUsers, function(user) {
+                return user.id !== vm.author.id && PermissionManagement.hasAuthorityForPermission(
+                        {user: user},
+                        vm.permissions[0].id
+                    );
             });
         }
     }

@@ -15,25 +15,17 @@ function auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService, 
     };
 
 
-    function login(credentials, callback) {
-        var cb = callback || angular.noop;
-        var deferred = $q.defer();
-
-        AuthServerProvider.login(credentials).then(function(data) {
+    function login(credentials) {
+        return AuthServerProvider.login(credentials).then(function(data) {
             // retrieve the logged account information
-            Principal.identity(true).then(function() {
-                deferred.resolve(data);
+            return Principal.identity(true).then(function() {
+                return data;
             });
-
-            return cb();
         }).catch(function(err) {
-            this.logout();
-            deferred.reject(err);
+            logout();
 
-            return cb(err);
-        }.bind(this));
-
-        return deferred.promise;
+            return $q.reject(err);
+        });
     }
 
     function prolong() {

@@ -5,7 +5,7 @@ angular
 /* @ngInject */
 function principal($q, Account) {
     var _identity;
-    var deferred;
+    var identityPromise;
     var _authenticated = false;
 
     return {
@@ -63,39 +63,39 @@ function principal($q, Account) {
         });
     }
 
-    function authenticate(identity) {
-        _identity = identity;
-        _authenticated = identity !== null;
+    function authenticate(userIdentity) {
+        _identity = userIdentity;
+        _authenticated = userIdentity !== null;
     }
 
     function identity(force) {
         if (force === true) {
             _identity = undefined;
-            deferred = null;
+            identityPromise = null;
         }
         // check and see if we have retrieved the identity data from the server.
         // if we have, reuse it by immediately resolving
 
-        if (!deferred) {
-            deferred = $q.defer();
-        } else {
-            return deferred.promise;
+        if (identityPromise) {
+            return identityPromise;
         }
 
         // retrieve the identity data from the server, update the identity object, and then resolve.
-        Account.get().$promise
+        identityPromise = Account.get().$promise
             .then(function(account) {
                 _identity = account.data;
                 _authenticated = true;
-                deferred.resolve(_identity);
+
+                return _identity;
             })
             .catch(function() {
                 _identity = null;
                 _authenticated = false;
-                deferred.resolve(_identity);
+
+                return _identity;
             });
 
-        return deferred.promise;
+        return identityPromise;
     }
 
     function getIdentity() {

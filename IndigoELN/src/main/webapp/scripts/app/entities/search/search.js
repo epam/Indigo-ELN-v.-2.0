@@ -22,18 +22,16 @@ angular.module('indigoeln')
                 },
                 resolve: {
                     pageInfo: function($q, Principal, Users) {
-                        var deferred = $q.defer();
-                        $q.all([
+                        return $q.all([
                             Users.get(),
                             Principal.identity()
                         ]).then(function(results) {
-                            deferred.resolve({
+                            return {
                                 users: results[0],
                                 identity: results[1]
-                            });
+                            };
                         });
 
-                        return deferred.promise;
                     }
                 }
             });

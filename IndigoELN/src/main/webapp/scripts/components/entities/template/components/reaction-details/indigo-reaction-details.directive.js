@@ -21,7 +21,7 @@
         /* @ngInject */
         function indigoReactionDetailsController($scope, $state, $q, Dictionary, notifyService, Users) {
             var vm = this;
-            var deferred;
+            var promiseLoadExperiments;
             var userPromise;
 
             vm.model = vm.model || {};
@@ -86,43 +86,35 @@
             }
 
             function onAddLinkedExperiment(tag) {
-                var _deferred = $q.defer();
-                loadExperiments().then(function(experiments) {
-                    _deferred.resolve(_.isObject(_.find(experiments, function(experiment) {
+                return loadExperiments().then(function(experiments) {
+                    return _.isObject(_.find(experiments, function(experiment) {
                         return experiment.name === tag.text;
-                    })));
+                    }));
                 });
-
-                return _deferred.promise;
             }
 
             function getExperiments(query) {
-                var _deferred = $q.defer();
-                loadExperiments().then(function(experiments) {
-                    var filtered = _.chain(experiments).filter(function(experiment) {
+                return loadExperiments().then(function(experiments) {
+                    return _.chain(experiments).filter(function(experiment) {
                         return experiment.name.startsWith(query);
                     }).map(function(experiment) {
                         return experiment.name;
                     }).value();
-                    _deferred.resolve(filtered);
                 });
-
-                return _deferred.promise;
             }
 
             function loadExperiments() {
-                if (deferred) {
-                    return deferred.promise;
+                if (promiseLoadExperiments) {
+                    return promiseLoadExperiments;
                 }
 
-                deferred = $q.defer();
-                Dictionary.get({
+                promiseLoadExperiments = Dictionary.get({
                     id: 'experiments'
-                }, function(dictionary) {
-                    deferred.resolve(dictionary.words);
+                }).promise.then(function(dictionary) {
+                    return dictionary.words;
                 });
 
-                return deferred.promise;
+                return promiseLoadExperiments;
             }
         }
     }

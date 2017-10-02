@@ -216,31 +216,31 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
     }
 
     function isUserRemovableFromAccessList(member) {
-        var agent;
-        var params;
-        var deferred = $q.defer();
         if (_entity === 'Experiment' || !_entityId) {
-            deferred.resolve(true);
-
-            return deferred.promise;
+            return $q.resolve(true);
         }
+
         if (_entity === 'Project') {
-            agent = UserRemovableFromProject;
-            params = {
-                projectId: _entityId, userId: member.user.id
-            };
+            return UserRemovableFromProject.get({
+                projectId: _entityId,
+                userId: member.user.id
+            })
+                .$promise
+                .then(success);
         } else if (_entity === 'Notebook') {
-            agent = UserRemovableFromNotebook;
-            params = {
-                projectId: _parentId, notebookId: _entityId, userId: member.user.id
-            };
-        }
-        if (agent) {
-            agent.get(params).$promise.then(function(result) {
-                deferred.resolve(result.isUserRemovable);
-            });
+            return UserRemovableFromNotebook.get({
+                projectId: _parentId,
+                notebookId: _entityId,
+                userId: member.user.id
+            })
+                .$promise
+                .then(success);
         }
 
-        return deferred.promise;
+        return $q.reject();
+    }
+
+    function success(result) {
+        return result.isUserRemovable;
     }
 }

@@ -22,16 +22,13 @@ angular.module('indigoeln')
                 },
                 resolve: {
                     pageInfo: function($q, Role) {
-                        var deferred = $q.defer();
-                        $q.all([
+                        return $q.all([
                             Role.query().$promise
                         ]).then(function(results) {
-                            deferred.resolve({
+                            return {
                                 roles: results[0]
-                            });
+                            };
                         });
-
-                        return deferred.promise;
                     }
                 }
             })

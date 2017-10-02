@@ -22,7 +22,7 @@
         /* @ngInject */
         function IndigoConceptDetailsController($scope, $state, $q, Dictionary, notifyService, Users) {
             var vm = this;
-            var deferred;
+            var loadExperimentsPromise;
             var userPromise;
             vm.experiment = vm.experiment || {};
             vm.model = vm.model || {};
@@ -85,40 +85,37 @@
             }
 
             function onAddLinkedExperiment(tag) {
-                var _deferred = $q.defer();
-
-                loadExperiments().then(function(experiments) {
-                    _deferred.resolve(_.isObject(_.find(experiments, function(experiment) {
+                return loadExperiments().then(function(experiments) {
+                    return _.isObject(_.find(experiments, function(experiment) {
                         return experiment.name === tag.text;
-                    })));
+                    }));
                 });
-                return _deferred.promise;
             }
 
             function loadExperiments() {
-                if (deferred) {
-                    return deferred.promise;
+                if (loadExperimentsPromise) {
+                    return loadExperimentsPromise.promise;
                 }
 
-                deferred = $q.defer();
-                Dictionary.get({id: 'experiments'}, function(dictionary) {
-                    deferred.resolve(dictionary.words);
+                loadExperimentsPromise = Dictionary.get({id: 'experiments'}, function(dictionary) {
+                    loadExperimentsPromise.resolve(dictionary.words);
                 });
 
-                return deferred.promise;
+                return loadExperimentsPromise;
             }
 
             function getExperiments(query) {
-                var _deferred = $q.defer();
-                loadExperiments().then(function(experiments) {
-                    var filtered = _.chain(experiments).filter(function(experiment) {
-                        return experiment.name.startsWith(query);
-                    }).map(function(experiment) {
-                        return experiment.name;
-                    }).value();
-                    _deferred.resolve(filtered);
+                return loadExperiments().then(function(experiments) {
+                    return _
+                        .chain(experiments)
+                        .filter(function(experiment) {
+                            return experiment.name.startsWith(query);
+                        })
+                        .map(function(experiment) {
+                            return experiment.name;
+                        })
+                        .value();
                 });
-                return _deferred.promise;
             }
         }
     }

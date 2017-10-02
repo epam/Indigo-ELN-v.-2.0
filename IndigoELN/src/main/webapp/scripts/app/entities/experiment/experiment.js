@@ -114,23 +114,17 @@ angular.module('indigoeln')
                 },
                 resolve: {
                     pageInfo: function($q, $stateParams, Experiment, Notebook, Project) {
-                        var deferred = $q.defer();
-                        $q.all([
-                            // EntitiesBrowser.getCurrentEntity($stateParams),
-                            // EntitiesBrowser.getNotebookFromCache($stateParams),
-                            // EntitiesBrowser.getProjectFromCache($stateParams)
+                        return $q.all([
                             Experiment.get($stateParams).$promise,
                             Notebook.get($stateParams).$promise,
                             Project.get($stateParams).$promise
                         ]).then(function(results) {
-                            deferred.resolve({
+                            return {
                                 experiment: results[0],
                                 notebook: results[1],
                                 project: results[2]
-                            });
+                            };
                         });
-
-                        return deferred.promise;
                     }
                 }
             });

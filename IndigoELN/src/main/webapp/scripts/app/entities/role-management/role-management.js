@@ -23,20 +23,17 @@ angular
                 },
                 resolve: {
                     pageInfo: function($q, Role, AccountRole, Auth) {
-                        var deferred = $q.defer();
-                        $q.all([
+                        return $q.all([
                             Role.query().$promise,
                             AccountRole.query().$promise,
                             Auth.getAuthorities()
                         ]).then(function(results) {
-                            deferred.resolve({
+                            return {
                                 roles: results[0],
                                 accountRoles: results[1],
                                 authorities: results[2].data
-                            });
+                            };
                         });
-
-                        return deferred.promise;
                     }
                 }
             })
