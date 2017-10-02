@@ -41,14 +41,13 @@ angular.module('indigoeln')
                 },
                 resolve: {
                     pageInfo: function($q, $stateParams, Principal) {
-                        var deferred = $q.defer();
-                        $q.all([
+                        return $q.all([
                             Principal.identity(),
                             Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                             Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
                             Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')
                         ]).then(function(results) {
-                            deferred.resolve({
+                            return {
                                 notebook: {
                                     description: '',
                                     name: ''
@@ -59,10 +58,8 @@ angular.module('indigoeln')
                                 hasCreateChildAuthority: results[3],
                                 experiments: {},
                                 projectId: $stateParams.parentId
-                            });
+                            };
                         });
-
-                        return deferred.promise;
                     }
                 }
             })

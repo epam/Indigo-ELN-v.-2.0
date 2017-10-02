@@ -68,16 +68,13 @@ function StructureSchemeController($scope, $q, $http, $uibModal, notifyService, 
     }
 
     function isEmptyStructure(structure) {
-        var deferred = $q.defer();
-        $http({
+        return $http({
             url: 'api/bingodb/' + vm.structureType + '/empty',
             method: 'POST',
             data: structure
-        }).success(function(result) {
-            deferred.resolve(result.empty);
+        }).then(function(result) {
+            return result.empty;
         });
-
-        return deferred.promise;
     }
 
     function updateModelRestriction(data) {
