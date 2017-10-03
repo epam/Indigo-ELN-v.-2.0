@@ -33,14 +33,14 @@
             <span ng-switch-when="true" ng-switch="!vm.model.readonly">
                   <a ng-switch-when="true" ng-if="vm.indigoColumn.type && vm.indigoColumn.type !== 'image' &&
                 vm.indigoColumn.type !== 'boolean' && vm.indigoColumn.type !== 'string'"
-                     ng-click="vm.isReadonly || vm.toggleEditable()">&mdash;</a>
+                     ng-click="vm.isReadonly || vm.startEdit()">&mdash;</a>
                 <a ng-switch-when="false" class="not-editable"></a>
             </span>
 
             <a ng-switch-when="false"
                ng-if="vm.indigoColumn.type &&
                vm.indigoColumn.type !== 'image' && vm.indigoColumn.type !== 'boolean'"
-               ng-click="vm.isReadonly || vm.toggleEditable()"
+               ng-click="vm.isReadonly || vm.startEdit()"
                ng-switch="vm.indigoColumn.type">
                 <span ng-switch-when="input" ng-if="!vm.indigoColumn.hasStructurePopover"
                       ng-class="{'entered-value': vm.model.entered}" ng-bind="vm.model"></span>
@@ -110,7 +110,7 @@
                     indigo-change="vm.indigoColumn.onChange({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id,})"
                     indigo-click="vm.indigoColumn.onClick({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
                     indigo-model="vm.model"
-                    indigo-items="vm.indigoColumn.values(vm.indigoRow)" indigo-classes="form-group-sm"></indigo-select>
+                    indigo-items="vm.indigoColumn.values" indigo-classes="form-group-sm"></indigo-select>
         </div>
         <div ng-if="vm.indigoColumn.type == 'select' && vm.indigoColumn.dictionary">
             <indigo-select ng-if="!vm.indigoColumn.hasCustomItemProp"

@@ -4,26 +4,39 @@
         .controller('IndigoCompoundSummaryController', IndigoCompoundSummaryController);
 
     /* @ngInject */
-    function IndigoCompoundSummaryController($scope, $log, ProductBatchSummaryOperations, AppValues, CalculationService) {
+    function IndigoCompoundSummaryController($scope, ProductBatchSummaryOperations, batchHelper) {
         var vm = this;
-        var saltCodeValues = AppValues.getSaltCodeValues();
 
         init();
 
         function init() {
             vm.model = vm.model || {};
-            vm.columns = [
-                {
-                    id: 'structure',
-                    name: 'Structure',
-                    type: 'image',
-                    isVisible: false,
-                    width: vm.structureSize
-                },
-                {
-                    id: 'nbkBatch',
-                    name: 'Nbk Batch #'
-                },
+            vm.columns = getDefaultColumns();
+
+            vm.onRowSelected = onRowSelected;
+            vm.deleteBatches = deleteBatches;
+            vm.addNewBatch = addNewBatch;
+            vm.duplicateBatches = duplicateBatches;
+            vm.registerVC = registerVC;
+            vm.importSDFile = importSDFile;
+            vm.exportSDFile = exportSDFile;
+            vm.isHasCheckedRows = isHasCheckedRows;
+            vm.vnv = vnv;
+            vm.onBatchOperationChanged = onBatchOperationChanged;
+            vm.isBatchLoading = false;
+            vm.onClose = onClose;
+
+            bindEvents();
+        }
+
+        function onClose(column, data) {
+            batchHelper.close(column, data);
+        }
+
+        function getDefaultColumns() {
+            return [
+                batchHelper.columns.structure,
+                batchHelper.columns.nbkBatch,
                 {
                     id: '$$select',
                     name: 'Select',
@@ -49,81 +62,14 @@
                         }
                     ]
                 },
-                {
-                    id: 'virtualCompoundId', name: ' Virtual Compound ID', type: 'input'
-                },
-                {
-                    id: 'molWeight', name: 'Mol Wgt', type: 'scalar'
-                },
-                {
-                    id: 'formula', name: 'Mol Formula', type: 'input', readonly: true
-                },
-                {
-                    id: 'stereoisomer',
-                    name: 'Stereoisomer',
-                    type: 'select',
-                    dictionary: 'Stereoisomer Code',
-                    values: function() {
-                        return null;
-                    },
-                    width: '350px'
-                },
-                {
-                    id: 'structureComments',
-                    name: 'Structure Comments',
-                    type: 'input',
-                    bulkAssignment: true
-                },
-                {
-                    id: 'saltCode',
-                    name: 'Salt Code',
-                    type: 'select',
-                    showDefault: true,
-                    values: function() {
-                        return saltCodeValues;
-                    },
-                    onClose: function(data) {
-                        CalculationService.setEntered(data);
-                        recalculateSalt(data.row);
-                        if (data.model.value === 0) {
-                            data.row.saltEq.value = 0;
-                        }
-                    }
-                },
-                {
-                    id: 'saltEq',
-                    name: 'Salt EQ',
-                    type: 'scalar',
-                    bulkAssignment: true,
-                    checkEnabled: function(o) {
-                        return (o.saltCode && o.saltCode.value > 0);
-                    },
-                    onClose: function(data) {
-                        CalculationService.setEntered(data);
-                        recalculateSalt(data.row);
-                    }
-                }
+                batchHelper.columns.virtualCompoundId,
+                batchHelper.columns.molWeight,
+                batchHelper.columns.formula,
+                batchHelper.columns.stereoisomer,
+                batchHelper.columns.structureComments,
+                batchHelper.columns.saltCode,
+                batchHelper.columns.saltEq
             ];
-
-            vm.onRowSelected = onRowSelected;
-            vm.deleteBatches = deleteBatches;
-            vm.addNewBatch = addNewBatch;
-            vm.duplicateBatches = duplicateBatches;
-            vm.registerVC = registerVC;
-            vm.importSDFile = importSDFile;
-            vm.exportSDFile = exportSDFile;
-            vm.isHasCheckedRows = isHasCheckedRows;
-            vm.vnv = vnv;
-            vm.onBatchOperationChanged = onBatchOperationChanged;
-            vm.isBatchLoading = false;
-
-            bindEvents();
-        }
-
-        function recalculateSalt(reagent) {
-            CalculationService.recalculateSalt(reagent).then(function() {
-                CalculationService.recalculateStoich();
-            });
         }
 
         function duplicateBatches() {
@@ -188,7 +134,6 @@
         }
 
         function vnv() {
-            $log.debug('VnV');
         }
 
         function onBatchOperationChanged(completed) {

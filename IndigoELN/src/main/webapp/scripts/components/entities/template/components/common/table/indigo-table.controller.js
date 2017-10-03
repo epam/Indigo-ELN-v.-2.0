@@ -9,7 +9,6 @@
         var vm = this;
         var originalColumnIdsAndFlags;
         var editableCell = null;
-        var closePrev;
         var searchColumns;
         var user;
 
@@ -30,15 +29,14 @@
             inputService.processColumns(vm.indigoColumns, vm.indigoRows);
             scalarService.processColumns(vm.indigoColumns, vm.indigoRows);
 
-            vm.setClosePrevious = setClosePrevious;
-            vm.toggleEditable = toggleEditable;
-            vm.isColumnReadonly = isColumnReadonly;
+            vm.startEdit = startEdit;
             vm.isEditable = isEditable;
             vm.searchDebounce = _.debounce(search, 300);
             vm.onRowSelect = onRowSelect;
             vm.onPageChanged = onPageChanged;
             vm.saveInLocalStorage = saveInLocalStorage;
             vm.resetColumns = resetColumns;
+            vm.onClose = onClose;
 
             getUser();
             bindEvents();
@@ -105,14 +103,11 @@
                 });
         }
 
-        function setClosePrevious(_closePrev) {
-            closePrev = _closePrev;
+        function onClose(column, data) {
+            vm.onCloseCell({column: column, data: data});
         }
 
-        function toggleEditable(columnId, rowIndex) {
-            if (closePrev) {
-                closePrev();
-            }
+        function startEdit(columnId, rowIndex) {
             editableCell = columnId + '-' + rowIndex;
         }
 
@@ -123,17 +118,12 @@
 
             if (vm.indigoEditable) {
                 var row = vm.indigoRows[rowIndex];
-                var editable = vm.indigoEditable(row, columnId);
-                if (!editable) {
+                if (!vm.indigoEditable(row, columnId)) {
                     return false;
                 }
             }
 
             return editableCell === (columnId + '-' + rowIndex);
-        }
-
-        function isColumnReadonly(col, rowId) {
-            return col.readonly === true || isEditable(col.id, rowId);
         }
 
         function getRate(str, query, rate) {

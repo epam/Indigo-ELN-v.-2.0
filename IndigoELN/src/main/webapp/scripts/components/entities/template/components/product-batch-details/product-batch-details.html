@@ -40,7 +40,8 @@
                       selected-batch="vm.selectedBatch"
                       selected-batch-trigger="vm.selectedBatchTrigger"
                       on-changed="vm.onChange()"
-                      class="my-table-wrapper table-batch-details">
+                      class="my-table-wrapper table-batch-details"
+                      on-close-cell="vm.onClose(column, data)">
 
             <div class="action-panel m-b20">
                 <div class="action-panel__left">
@@ -76,7 +77,8 @@
                             <span class="fa fa-floppy-o"></span>
                             <span class="m-l5">Register</span>
                         </button>
-                        <indigo-inline-loader promise="vm.batchOperation" class="product-batch-details__loader" on-status-changed="vm.onBatchOperationChanged(completed)"></indigo-inline-loader>
+                        <indigo-inline-loader promise="vm.batchOperation" class="product-batch-details__loader"
+                                              on-status-changed="vm.onBatchOperationChanged(completed)"></indigo-inline-loader>
                         <div class="product-batch-details__radio">
                             <input type="radio"
                                    name="batchDetailsRadio"
