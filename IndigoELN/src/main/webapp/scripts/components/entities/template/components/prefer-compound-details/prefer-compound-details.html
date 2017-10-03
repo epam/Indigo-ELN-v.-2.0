@@ -83,12 +83,7 @@
                             </button>
                         </div>
                         <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-info btn-small"
-                                    ng-disabled="vm.isReadonly"
-                                    ng-click="vm.addNewBatch()">
-                                <span class="fa fa-plus"></span>
-                                <span class="m-l5">Add</span>
-                            </button>
+                            <add-new-batch></add-new-batch>
                             <button type="button" class="btn btn-info btn-small" ng-click="vm.deleteBatch()"
                                     ng-disabled="vm.isEditDisabled">
                                 <span class="fa fa-trash"></span>

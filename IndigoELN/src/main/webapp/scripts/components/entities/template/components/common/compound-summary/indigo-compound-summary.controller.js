@@ -15,7 +15,6 @@
 
             vm.onRowSelected = onRowSelected;
             vm.deleteBatches = deleteBatches;
-            vm.addNewBatch = addNewBatch;
             vm.duplicateBatches = duplicateBatches;
             vm.registerVC = registerVC;
             vm.importSDFile = importSDFile;
@@ -77,10 +76,6 @@
                 .then(successAddedBatches);
         }
 
-        function addNewBatch() {
-            vm.batchOperation = ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
-        }
-
         function onRowSelected(row) {
             vm.onSelectBatch({batch: row});
         }
@@ -93,12 +88,6 @@
                 vm.onChanged();
                 vm.onRowSelected(_.last(batches));
             }
-        }
-
-        function successAddedBatch(batch) {
-            vm.onAddedBatch({batch: batch});
-            vm.onChanged();
-            vm.onRowSelected(batch);
         }
 
         function getCheckedBatches() {

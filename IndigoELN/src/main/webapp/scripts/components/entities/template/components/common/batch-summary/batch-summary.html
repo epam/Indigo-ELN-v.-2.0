@@ -17,12 +17,7 @@
         <div class="col-lg-8 m-bt-lg">
             <span class="txt-small bold m-r5">Batches:</span>
             <div class="btn-group">
-                <button type="button" class="btn btn-info btn-small"
-                        ng-disabled="vm.isReadonly"
-                        ng-click="vm.addNewBatch()">
-                    <span class="fa fa-plus"></span>
-                    <span class="m-l5">Add</span>
-                </button>
+                <add-new-batch></add-new-batch>
                 <button type="button" class="btn btn-info btn-small"
                         ng-disabled="vm.isReadonly || !vm.isHasCheckedRows()"
                         ng-click="vm.duplicateBatches()">

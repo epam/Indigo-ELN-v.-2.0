@@ -1,8 +1,6 @@
 <div class="row m-b20">
-    <div class="col-xs-4" ng-if="vm.indigoLabel">
-        {{vm.indigoLabel}}
-    </div>
-    <div ng-class="{'col-xs-8 text-right':vm.indigoLabel, 'col-xs-12 text-right':!vm.indigoLabel}"
+    <div class="col-xs-4" ng-if="vm.indigoLabel" ng-bind="vm.indigoLabel"></div>
+    <div ng-class="{'col-xs-8 text-right': vm.indigoLabel, 'col-xs-12 text-right': !vm.indigoLabel}"
          class="is-hidden">
         <div ng-if="vm.rowsForDisplay.length < vm.indigoRows.length" class="search-info">
             <strong>{{vm.rowsForDisplay.length}}</strong> of {{vm.indigoRows.length}} are shown

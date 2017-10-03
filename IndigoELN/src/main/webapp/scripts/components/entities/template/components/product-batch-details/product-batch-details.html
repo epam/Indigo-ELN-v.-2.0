@@ -46,12 +46,8 @@
             <div class="action-panel m-b20">
                 <div class="action-panel__left">
                     <span class="txt-small bold m-r5">Batches:</span>
-
                     <div class="btn-group">
-                        <button type="button" class="btn btn-info btn-small" ng-click="vm.addNewBatch()">
-                            <span class="fa fa-plus"></span>
-                            <span class="m-l5">Add</span>
-                        </button>
+                        <add-new-batch></add-new-batch>
                         <button type="button" class="btn btn-info btn-small"
                                 ng-disabled="vm.isEditDisabled"
                                 ng-click="vm.duplicateBatch()">

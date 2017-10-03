@@ -19,7 +19,6 @@
             vm.saltCodeValues = AppValues.getSaltCodeValues();
             vm.model = vm.model || {};
             vm.selectBatch = selectBatch;
-            vm.addNewBatch = addNewBatch;
             vm.duplicateBatch = duplicateBatch;
             vm.deleteBatch = deleteBatch;
             vm.isIntendedSynced = isIntendedSynced;
@@ -54,10 +53,6 @@
 
         function checkEditDisabled() {
             return vm.isReadonly || !vm.selectedBatch || !vm.selectedBatch.nbkBatch || vm.selectedBatch.registrationStatus;
-        }
-
-        function addNewBatch() {
-            vm.batchOperation = ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
         }
 
         function successAddedBatch(batch) {
