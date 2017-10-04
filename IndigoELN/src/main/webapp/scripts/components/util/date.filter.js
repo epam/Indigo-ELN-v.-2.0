@@ -2,18 +2,13 @@ angular
     .module('indigoeln')
     .config(function($provide) {
         $provide.decorator('dateFilter', function($delegate) {
-            var tzName;
+            var userTimeZone = moment.tz.guess();
 
-            return function() {
+            return function(date, dateFormat) {
                 var format = 'MMM DD, YYYY HH:mm:ss z';
-                if (arguments[1] === format) {
-                    if (!tzName) {
-                        tzName = jstz.determine().name();
-                    }
 
-                    return moment.tz(arguments[0],
-                        tzName // moment.tz.guess()
-                    ).format(format);
+                if (dateFormat === format) {
+                    return moment.tz(date, userTimeZone).format(format);
                 }
 
                 return $delegate.apply(this, arguments);

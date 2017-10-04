@@ -26,7 +26,7 @@
         /* @ngInject */
         function compile(tElement, tAttrs) {
             formUtils.doVertical(tAttrs, tElement);
-            tElement.find('input').attr('timezone', jstz.determine().name());
+            tElement.find('input').attr('timezone', moment.tz.guess());
 
             return {
                 post: function(scope, iElement, iAttrs, formCtrl) {

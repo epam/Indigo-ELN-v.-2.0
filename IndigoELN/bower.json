@@ -63,12 +63,6 @@
         "jquery-ui.js",
         "themes/base/jquery-ui.css"
       ]
-    },
-    "ui-select": {
-      "main": [
-        "../../vendors/ui-select/select.js",
-        "dist/select.css"
-      ]
     }
   },
   "resolutions": {

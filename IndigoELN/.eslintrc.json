@@ -78,6 +78,7 @@
     "beforeEach": false,
     "angularDragula": false,
     "Simditor": false,
-    "moment": false
+    "moment": false,
+    "require": false
   }
 }
