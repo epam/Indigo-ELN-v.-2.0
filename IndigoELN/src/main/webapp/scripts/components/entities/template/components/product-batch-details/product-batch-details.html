@@ -47,19 +47,21 @@
                 <div class="action-panel__left">
                     <span class="txt-small bold m-r5">Batches:</span>
                     <div class="btn-group">
-                        <add-new-batch></add-new-batch>
+                        <add-new-batch batch-operation="vm.batchOperation"
+                                       on-added-batch="vm.onAddedBatch({batch: batch})"
+                                       on-select-batch="vm.onSelectBatch({batch: batch})"
+                                       is-readonly="vm.isReadonly">
+                        </add-new-batch>
                         <button type="button" class="btn btn-info btn-small"
                                 ng-disabled="vm.isEditDisabled"
                                 ng-click="vm.duplicateBatch()">
                             <span class="fa fa-clone"></span>
                             <span class="m-l5">Duplicate</span>
                         </button>
-                        <button type="button" class="btn btn-info btn-small"
-                                ng-disabled="vm.isEditDisabled"
-                                ng-click="vm.deleteBatch()">
-                            <span class="fa fa-trash"></span>
-                            <span class="m-l5">Delete</span>
-                        </button>
+                        <delete-batches is-readonly="vm.isEditDisabled"
+                                        delete-batch="vm.selectedBatch"
+                                        on-remove-batches="vm.onRemoveBatches({batches: batches})">
+                        </delete-batches>
                         <button type="button" class="btn btn-info btn-small"
                                 ng-disabled="vm.isReadonly || vm.isIntendedSynced()"
                                 ng-click="vm.syncWithIntendedProducts()">

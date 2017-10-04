@@ -20,7 +20,6 @@
             vm.model = vm.model || {};
             vm.selectBatch = selectBatch;
             vm.duplicateBatch = duplicateBatch;
-            vm.deleteBatch = deleteBatch;
             vm.isIntendedSynced = isIntendedSynced;
             vm.syncWithIntendedProducts = syncWithIntendedProducts;
             vm.registerBatch = registerBatch;
@@ -63,10 +62,6 @@
 
         function duplicateBatch() {
             vm.batchOperation = ProductBatchSummaryOperations.duplicateBatch(vm.selectedBatch).then(successAddedBatch);
-        }
-
-        function deleteBatch() {
-            vm.onRemoveBatches({batches: [vm.selectedBatch]});
         }
 
         function isIntendedSynced() {

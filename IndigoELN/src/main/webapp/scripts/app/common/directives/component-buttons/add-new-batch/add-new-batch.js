@@ -8,17 +8,16 @@
         return {
             restrict: 'E',
             replace: true,
-            scope: {},
-            require: ['addNewBatch', '^indigoComponents'],
+            scope: {
+                batchOperation: '=',
+                isReadonly: '=',
+                onAddedBatch: '&',
+                onSelectBatch: '&'
+            },
             templateUrl: 'scripts/app/common/directives/component-buttons/add-new-batch/add-new-batch.html',
             controller: addNewBatchController,
             controllerAs: 'vm',
-            bindToController: true,
-            link: function($scope, $element, $attr, controllers) {
-                var vm = controllers[0];
-
-                vm.ComponentsCtrl = controllers[1];
-            }
+            bindToController: true
         };
     }
 
@@ -34,12 +33,12 @@
         }
 
         function addNewBatch() {
-            vm.ComponentsCtrl.batchOperation = ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
+            vm.batchOperation = ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
         }
 
         function successAddedBatch(batch) {
-            vm.ComponentsCtrl.onAddedBatch(batch);
-            vm.ComponentsCtrl.onSelectBatch(batch);
+            vm.onAddedBatch({batch: batch});
+            vm.onSelectBatch({batch: batch});
         }
     }
 })();

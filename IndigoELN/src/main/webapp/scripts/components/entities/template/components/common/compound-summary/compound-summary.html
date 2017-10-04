@@ -28,12 +28,15 @@
                     </button>
                 </div>
                 <div class="btn-group" role="group">
-                    <add-new-batch></add-new-batch>
-                    <button type="button" class="btn btn-info btn-small" ng-click="vm.deleteBatches()"
-                            ng-disabled="vm.isReadonly || !vm.isHasCheckedRows()">
-                        <span class="fa fa-trash"></span>
-                        <span class="m-l5">Delete</span>
-                    </button>
+                    <add-new-batch batch-operation="vm.batchOperation"
+                                   on-added-batch="vm.onAddedBatch({batch: batch})"
+                                   on-select-batch="vm.onSelectBatch({batch: batch})"
+                                   is-readonly="vm.isReadonly">
+                    </add-new-batch>
+                    <delete-batches is-readonly="vm.isReadonly || !vm.isHasCheckedRows()"
+                                    batches="vm.batches"
+                                    on-remove-batches="vm.onRemoveBatches({batches: batches})">
+                    </delete-batches>
                     <button type="button" class="btn btn-info btn-small" ng-click="vm.duplicateBatches()"
                             ng-disabled="vm.isReadonly || !vm.isHasCheckedRows()">
                         <span class="fa fa-trash"></span>

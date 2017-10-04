@@ -31,7 +31,6 @@
             vm.isEditable = isEditable;
             vm.isIntendedSynced = isIntendedSynced;
             vm.importSDFile = importSDFile;
-            vm.deleteBatches = deleteBatches;
             vm.isHasCheckedRows = isHasCheckedRows;
             vm.duplicateBatches = duplicateBatches;
             vm.exportSDFile = exportSDFile;
@@ -448,10 +447,6 @@
             return !!_.find(getProductBatches(), function(item) {
                 return item.$$select;
             });
-        }
-
-        function deleteBatches() {
-            vm.onRemoveBatches({batches: _.filter(vm.batches, {$$select: true})});
         }
 
         function importSDFile() {
