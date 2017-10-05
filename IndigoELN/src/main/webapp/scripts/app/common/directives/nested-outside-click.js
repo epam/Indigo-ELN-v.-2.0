@@ -1,0 +1,30 @@
+(function() {
+    angular
+        .module('indigoeln')
+        .directive('nestedOutsideClick', nestedOutsideClick);
+
+    nestedOutsideClick.$inject = ['$parse', '$document', '$timeout'];
+
+    function nestedOutsideClick($parse, $document, $timeout) {
+        return {
+            link: function($scope, $element, attr) {
+                var expression = $parse(attr.nestedOutsideClick);
+                $timeout(function() {
+                    $document.on('click', function(event) {
+                        if ($element !== event.target && !includes($element[0].children, event.target)) {
+                            $scope.$apply(function() {
+                                expression($scope, {$event: event});
+                            });
+                        }
+                    });
+                });
+            }
+        };
+
+        function includes(children, target) {
+            return _.some(children, function(child) {
+                return child === target || (child.children && child.children.length && includes(child.children, target));
+            });
+        }
+    }
+})();

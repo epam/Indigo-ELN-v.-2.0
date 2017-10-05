@@ -51,7 +51,7 @@ function selectService($uibModal, RegistrationUtil) {
                     .concat([_.extend({}, setSelectValueAction, {
                         name: 'Set value for ' + column.name,
                         title: column.name,
-                        values: column.values(),
+                        values: column.values,
                         rows: rows,
                         dictionary: column.dictionary
                     })]);

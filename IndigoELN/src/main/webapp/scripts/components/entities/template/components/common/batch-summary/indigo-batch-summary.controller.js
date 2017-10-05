@@ -4,22 +4,13 @@
         .controller('IndigoBatchSummaryController', IndigoBatchSummaryController);
 
     /* @ngInject */
-    function IndigoBatchSummaryController($scope, CalculationService, AppValues, InfoEditor, RegistrationUtil, $uibModal,
-                                          EntitiesBrowser, RegistrationService, ProductBatchSummaryOperations, $filter) {
+    function IndigoBatchSummaryController($scope, InfoEditor, RegistrationUtil, $uibModal, RegistrationService,
+                                          ProductBatchSummaryOperations, batchHelper) {
         var vm = this;
-        var grams = AppValues.getGrams();
-        var liters = AppValues.getLiters();
-        var moles = AppValues.getMoles();
-        var saltCodeValues = AppValues.getSaltCodeValues();
-        var compoundProtectionValues = AppValues.getCompoundProtectionValues();
-        var compounds = [{
-            name: 'Intermediate'
-        }, {
-            name: 'Test Compound'
-        }];
-        var setSelectSourceValueAction = {
-            action: openProductBatchSummaryModal
-        };
+        var compounds = [
+            {name: 'Intermediate'},
+            {name: 'Test Compound'}
+        ];
 
         init();
 
@@ -40,26 +31,19 @@
             vm.isEditable = isEditable;
             vm.isIntendedSynced = isIntendedSynced;
             vm.importSDFile = importSDFile;
-            vm.deleteBatches = deleteBatches;
             vm.isHasCheckedRows = isHasCheckedRows;
-            vm.addNewBatch = addNewBatch;
             vm.duplicateBatches = duplicateBatches;
             vm.exportSDFile = exportSDFile;
             vm.registerBatches = registerBatches;
             vm.isBatchLoading = false;
             vm.onBatchOperationChanged = onBatchOperationChanged;
+            vm.onClose = onClose;
 
             bindEvents();
         }
 
         function getProductBatches() {
             return vm.batches;
-        }
-
-        function recalculateSalt(reagent) {
-            CalculationService.recalculateSalt(reagent).then(function() {
-                CalculationService.recalculateStoich();
-            });
         }
 
         function openProductBatchSummaryModal() {
@@ -81,32 +65,18 @@
                         row.sourceDetail = result.sourceDetail;
                     }
                 });
-            }, function() {
-
             });
+        }
+
+        function onClose(column, data) {
+            batchHelper.close(column, data);
         }
 
         function getDefaultColumns() {
             return [
-                {
-                    id: 'structure',
-                    name: 'Structure',
-                    type: 'image',
-                    isVisible: false,
-                    width: vm.structureSize
-                },
-                {
-                    id: 'nbkBatch',
-                    name: 'Nbk Batch #'
-                },
-                {
-                    id: 'registrationStatus',
-                    name: 'Registration Status',
-                    type: 'registrationStatus',
-                    mark: function(batch) {
-                        return batch.registrationStatus ? ('batch-status status-' + batch.registrationStatus.toLowerCase()) : '';
-                    }
-                },
+                batchHelper.columns.structure,
+                batchHelper.columns.nbkBatch,
+                batchHelper.columns.registrationStatus,
                 {
                     id: '$$select',
                     name: 'Select',
@@ -132,98 +102,15 @@
                         }
                     ]
                 },
-                {
-                    id: 'totalWeight',
-                    name: 'Total Weight',
-                    type: 'unit',
-                    width: '150px',
-                    unitItems: grams,
-                    onClose: function(data) {
-                        CalculationService.setEntered(data);
-                        CalculationService.calculateProductBatch(data);
-                    }
-                },
-                {
-                    id: 'totalVolume',
-                    name: 'Total Volume',
-                    type: 'unit',
-                    width: '150px',
-                    unitItems: liters,
-                    onClose: function(data) {
-                        CalculationService.setEntered(data);
-                        CalculationService.calculateProductBatch(data);
-                    }
-                },
-                {
-                    id: 'mol',
-                    name: 'Total Moles',
-                    type: 'unit',
-                    width: '150px',
-                    unitItems: moles,
-                    onClose: function(data) {
-                        CalculationService.setEntered(data);
-                        CalculationService.calculateProductBatch(data);
-                    }
-                },
-                {
-                    id: 'theoWeight',
-                    name: 'Theo. Wgt.',
-                    type: 'unit',
-                    unitItems: grams,
-                    width: '150px',
-                    hideSetValue: true,
-                    readonly: true
-                },
-                {
-                    id: 'theoMoles',
-                    name: 'Theo. Moles',
-                    width: '150px',
-                    type: 'unit',
-                    unitItems: moles,
-                    hideSetValue: true,
-                    readonly: true
-                },
-                {
-                    id: 'yield', name: '%Yield', readonly: true
-                },
-                {
-                    id: 'compoundState',
-                    name: 'Compound State',
-                    type: 'select',
-                    dictionary: 'Compound State',
-                    values: function() {
-                        return null;
-                    }
-                },
-                {
-                    id: 'saltCode',
-                    name: 'Salt Code',
-                    type: 'select',
-                    showDefault: true,
-                    values: function() {
-                        return saltCodeValues;
-                    },
-                    onClose: function(data) {
-                        CalculationService.setEntered(data);
-                        recalculateSalt(data.row);
-                        if (data.model.value === 0) {
-                            data.row.saltEq.value = 0;
-                        }
-                    }
-                },
-                {
-                    id: 'saltEq',
-                    name: 'Salt EQ',
-                    type: 'scalar',
-                    bulkAssignment: true,
-                    checkEnabled: function(o) {
-                        return (o.saltCode && o.saltCode.value > 0);
-                    },
-                    onClose: function(data) {
-                        CalculationService.setEntered(data);
-                        recalculateSalt(data.row);
-                    }
-                },
+                batchHelper.columns.totalWeight,
+                batchHelper.columns.totalVolume,
+                batchHelper.columns.mol,
+                batchHelper.columns.theoWeight,
+                batchHelper.columns.theoMoles,
+                batchHelper.columns.yield,
+                batchHelper.columns.compoundState,
+                batchHelper.columns.saltCode,
+                batchHelper.columns.saltEq,
                 {
                     id: '$$purity',
                     realId: 'purity',
@@ -258,46 +145,22 @@
                         }
                     }]
                 },
-                {
-                    id: 'molWeight',
-                    name: 'Mol Wgt',
-                    type: 'scalar'
-                },
-                {
-                    id: 'formula',
-                    name: 'Mol Formula',
-                    type: 'input',
-                    readonly: true
-                },
-                {
-                    id: 'conversationalBatchNumber',
-                    name: 'Conversational Batch #'
-                },
-                {
-                    id: 'virtualCompoundId',
-                    name: 'Virtual Compound Id'
-                },
-                {
-                    id: 'stereoisomer',
-                    name: 'Stereoisomer Code',
-                    type: 'select',
-                    dictionary: 'Stereoisomer Code',
-                    hasCustomItemProp: true,
-                    values: function() {
-                        return null;
-                    },
-                    width: '350px'
-                },
+                batchHelper.columns.molWeight,
+                batchHelper.columns.formula,
+                batchHelper.columns.conversationalBatchNumber,
+                batchHelper.columns.virtualCompoundId,
+                batchHelper.columns.stereoisomer,
                 {
                     id: 'source',
                     name: 'Source',
                     type: 'select',
                     dictionary: 'Source',
                     hideSelectValue: true,
-                    actions: [_.extend({}, setSelectSourceValueAction, {
+                    actions: [{
                         name: 'Set value for Source',
-                        title: 'Source'
-                    })]
+                        title: 'Source',
+                        action: openProductBatchSummaryModal
+                    }]
                 },
                 {
                     id: 'sourceDetail',
@@ -305,10 +168,11 @@
                     type: 'select',
                     dictionary: 'Source Details',
                     hideSelectValue: true,
-                    actions: [_.extend({}, setSelectSourceValueAction, {
+                    actions: [{
                         name: 'Set value for Source Detail',
-                        title: 'Source Detail'
-                    })]
+                        title: 'Source Detail',
+                        action: openProductBatchSummaryModal
+                    }]
                 },
                 {
                     id: '$$externalSupplier',
@@ -327,12 +191,7 @@
                         }
                     }]
                 },
-                {
-                    id: 'precursors',
-                    name: 'Precursor/Reactant IDs',
-                    type: 'input',
-                    readonly: true
-                },
+                batchHelper.columns.precursors,
                 {
                     id: '$$healthHazards',
                     realId: 'healthHazards',
@@ -351,25 +210,10 @@
                     }]
 
                 },
+                batchHelper.columns.compoundProtection,
+                batchHelper.columns.structureComments,
+                batchHelper.columns.registrationDate,
                 {
-                    id: 'compoundProtection',
-                    name: 'Compound Protection',
-                    type: 'select',
-                    values: function() {
-                        return compoundProtectionValues;
-                    }
-                },
-                {
-                    id: 'structureComments',
-                    name: 'Structure Comments',
-                    type: 'input',
-                    bulkAssignment: true
-                },
-                {
-                    id: 'registrationDate',
-                    name: 'Registration Date',
-                    type: 'date'
-                }, {
                     id: '$$residualSolvents',
                     realId: 'residualSolvents',
                     name: 'Residual Solvents',
@@ -385,7 +229,8 @@
                             editResidualSolvents(getProductBatches());
                         }
                     }]
-                }, {
+                },
+                {
                     id: '$$solubility',
                     realId: 'solubility',
                     name: 'Solubility in Solvents',
@@ -401,7 +246,8 @@
                             editSolubility(getProductBatches());
                         }
                     }]
-                }, {
+                },
+                {
                     id: '$$storageInstructions',
                     realId: 'storageInstructions',
                     name: 'Storage Instructions',
@@ -417,7 +263,8 @@
                             editStorageInstructions(getProductBatches());
                         }
                     }]
-                }, {
+                },
+                {
                     id: '$$handlingPrecautions',
                     realId: 'handlingPrecautions',
                     name: 'Handling Precautions',
@@ -433,26 +280,9 @@
                             editHandlingPrecautions(getProductBatches());
                         }
                     }]
-                }, {
-                    id: 'comments',
-                    name: 'Batch Comments',
-                    type: 'input',
-                    bulkAssignment: true
-                }, {
-                    id: '$$batchType',
-                    name: 'Intermediate/Test Compound',
-                    type: 'select',
-                    values: function() {
-                        return compounds;
-                    },
-                    onClose: function(data) {
-                        var r = data.row;
-                        if (!r.$$batchType) {
-                            return;
-                        }
-                        r.batchType = r.$$batchType.name;
-                    }
-                }
+                },
+                batchHelper.columns.comments,
+                batchHelper.columns.$$batchType
             ];
         }
 
@@ -597,10 +427,6 @@
                 .then(successAddedBatches);
         }
 
-        function addNewBatch() {
-            vm.batchOperation = ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
-        }
-
         function successAddedBatches(batches) {
             if (batches.length) {
                 _.forEach(batches, function(batch) {
@@ -609,12 +435,6 @@
                 vm.onChanged();
                 vm.onRowSelected(_.last(batches));
             }
-        }
-
-        function successAddedBatch(batch) {
-            vm.onAddedBatch({batch: batch});
-            vm.onRowSelected(batch);
-            vm.onChanged();
         }
 
         function getCheckedBatches() {
@@ -627,10 +447,6 @@
             return !!_.find(getProductBatches(), function(item) {
                 return item.$$select;
             });
-        }
-
-        function deleteBatches() {
-            vm.onRemoveBatches({batches: _.filter(vm.batches, {$$select: true})});
         }
 
         function importSDFile() {
@@ -671,23 +487,15 @@
             }, true);
 
             $scope.$watch('vm.isHasRegService', function(val) {
-                _.find(vm.columns, {
-                    id: 'conversationalBatchNumber'
-                }).isVisible = val;
-                _.find(vm.columns, {
-                    id: 'registrationDate'
-                }).isVisible = val;
-                _.find(vm.columns, {
-                    id: 'registrationStatus'
-                }).isVisible = val;
+                _.find(vm.columns, {id: 'conversationalBatchNumber'}).isVisible = val;
+                _.find(vm.columns, {id: 'registrationDate'}).isVisible = val;
+                _.find(vm.columns, {id: 'registrationStatus'}).isVisible = val;
             });
 
             $scope.$watch(function() {
                 return vm.showStructuresColumn.isVisible;
             }, function(val) {
-                vm.onShowStructure({
-                    isVisible: val
-                });
+                vm.onShowStructure({isVisible: val});
             });
 
             $scope.$watch('vm.structureSize', function(newVal) {

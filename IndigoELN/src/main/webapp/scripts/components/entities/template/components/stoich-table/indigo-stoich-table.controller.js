@@ -241,9 +241,7 @@
                     id: 'rxnRole',
                     name: 'Rxn Role',
                     type: 'select',
-                    values: function() {
-                        return rxnValues;
-                    }
+                    values: rxnValues
                 },
                 {
                     id: 'density',
@@ -271,9 +269,7 @@
                     id: 'saltCode',
                     name: 'Salt Code',
                     type: 'select',
-                    values: function() {
-                        return saltCodeValues;
-                    },
+                    values: saltCodeValues,
                     onClose: function(data) {
                         if (data.model.value === 0) {
                             data.row.saltEq.value = 0;
@@ -286,7 +282,7 @@
                     name: 'Salt EQ',
                     type: 'scalar',
                     checkEnabled: function(o) {
-                        return (o.saltCode && o.saltCode.value > 0);
+                        return o.saltCode && o.saltCode.value > 0;
                     }
                 },
                 {
@@ -341,9 +337,7 @@
                     id: 'saltCode',
                     name: 'Salt Code',
                     type: 'select',
-                    values: function() {
-                        return saltCodeValues;
-                    },
+                    values: saltCodeValues,
                     showDefault: true,
                     onClose: function(data) {
                         CalculationService.setEntered(data);
@@ -359,7 +353,7 @@
                     name: 'Salt EQ',
                     type: 'scalar',
                     checkEnabled: function(o) {
-                        return (o.saltCode && o.saltCode.value > 0);
+                        return o.saltCode && o.saltCode.value > 0;
                     },
                     onClose: function(data) {
                         CalculationService.setEntered(data);

@@ -49,7 +49,6 @@
 
                 vm.selectBatch = selectBatch;
                 vm.canEditSaltEq = canEditSaltEq;
-                vm.addNewBatch = addNewBatch;
                 vm.deleteBatch = deleteBatch;
                 vm.duplicateBatch = duplicateBatch;
                 vm.onBatchOperationChanged = onBatchOperationChanged;
@@ -69,10 +68,6 @@
 
             function checkEditDisabled() {
                 return vm.isReadonly || !vm.selectedBatch || !vm.selectedBatch.nbkBatch || vm.selectedBatch.registrationStatus;
-            }
-
-            function addNewBatch() {
-                vm.batchOperation = ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
             }
 
             function successAddedBatch(batch) {

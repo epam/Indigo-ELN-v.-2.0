@@ -22,7 +22,8 @@
                 indigoSearchColumns: '=',
                 onSelectRow: '&',
                 onRemoveBatches: '&',
-                onChanged: '&'
+                onChanged: '&',
+                onCloseCell: '&'
             },
             controller: 'IndigoTableController',
             controllerAs: 'vm',

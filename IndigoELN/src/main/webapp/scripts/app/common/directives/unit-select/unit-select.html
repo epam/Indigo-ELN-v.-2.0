@@ -1,0 +1,19 @@
+<div class="btn-group-sm"
+     uib-dropdown
+     dropdown-append-to-body="true"
+     is-open="vm.isOpen">
+
+    <button type="button" class="btn btn-info"
+            aria-haspopup="true"
+            aria-expanded="false"
+            uib-dropdown-toggle>
+        {{vm.unit}} <span class="caret"></span>
+    </button>
+
+    <ul class="dropdown-menu" uib-dropdown-menu role="menu">
+        <li ng-repeat="unit in vm.units track by unit.name"
+            ng-click="vm.onChange({unit: unit}); vm.isOpen = false;">
+            <a ng-bind="unit.name"></a>
+        </li>
+    </ul>
+</div>

@@ -14,11 +14,10 @@
                 model: '=',
                 indigoColumn: '=',
                 indigoRow: '=',
+                isReadonly: '=',
                 isEditableColumn: '&',
-                toggleEditableColumn: '&',
-                setClosePrevious: '&',
-                close: '&',
-                isReadonly: '='
+                onStartEdit: '&',
+                onClose: '&'
             },
             link: link,
             templateUrl: 'scripts/components/entities/template/components/common/table/table-val.html'
@@ -43,22 +42,21 @@
                 }];
 
                 vm.isEditable = isEditable;
-                vm.toggleEditable = toggleEditable;
+                vm.startEdit = startEdit;
                 vm.isEmpty = isEmpty;
                 vm.closeThis = closeThis;
 
                 bindEvents();
             }
 
-            function toggleEditable() {
-                vm.toggleEditableColumn();
-                vm.setClosePrevious({callback: closeThis});
+            function startEdit() {
+                vm.onStartEdit();
                 $timeout(function() {
                     $element.find('input').on('keypress', function(e) {
                         if (e.keyCode === 13) {
                             e.preventDefault();
                             if (vm.isEditable()) {
-                                vm.toggleEditable();
+                                vm.startEdit();
                                 vm.closeThis();
                             }
                         }
@@ -94,7 +92,7 @@
                     }
                 }
                 if (col.type === 'input' && val === '') {
-                    vm.indigoRow[col.id] = val = undefined;
+                    vm.indigoRow[col.id] = undefined;
                 }
                 if (col.onClose && isChanged) {
                     col.onClose({
@@ -105,8 +103,14 @@
                     });
                     isChanged = false;
                 }
-                vm.setClosePrevious({callback: null});
-                vm.close();
+                vm.onClose({
+                    data: {
+                        model: vm.indigoRow[col.id],
+                        row: vm.indigoRow,
+                        column: col.id,
+                        oldVal: oldVal
+                    }
+                });
             }
 
             function updatePopover() {
