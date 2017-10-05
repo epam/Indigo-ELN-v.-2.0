@@ -320,11 +320,13 @@
             });
 
             $scope.$watch('vm.experiment', function(newEntity) {
-                var isDirty = autorecoveryHelper.isEntityDirty(originalExperiment, newEntity);
-                toggleDirty(isDirty);
-                updateRecovery(newEntity, isDirty);
-                if (newEntity) {
-                    EntitiesBrowser.setCurrentEntity(newEntity);
+                if (vm.isStatusOpen && vm.isEditAllowed) {
+                    var isDirty = autorecoveryHelper.isEntityDirty(originalExperiment, newEntity);
+                    toggleDirty(isDirty);
+                    updateRecovery(newEntity, isDirty);
+                    if (newEntity) {
+                        EntitiesBrowser.setCurrentEntity(newEntity);
+                    }
                 }
             }, true);
 
