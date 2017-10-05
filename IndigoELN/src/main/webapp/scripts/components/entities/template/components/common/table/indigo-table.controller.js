@@ -104,6 +104,7 @@
         }
 
         function onClose(column, data) {
+            editableCell = null;
             vm.onCloseCell({column: column, data: data});
         }
 
