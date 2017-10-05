@@ -86,10 +86,10 @@
                 <indigo-table-val model="row[column.id]"
                                   indigo-column="column"
                                   indigo-row="row"
-                                  on-start-edit="vm.startEdit(column.id, $parent.$index)"
+                                  on-start-edit="vm.startEdit($id)"
                                   on-close="vm.onClose(column, data)"
-                                  is-editable-column="vm.isEditable(column.id, $parent.$index, row[column.id])"
-                                  is-readonly="column.noDisablable ? false :  vm.isReadonly || !!row.registrationStatus">
+                                  is-editing="$id === vm.editingCellId"
+                                  is-readonly="column.readonly || column.noDisablable ? false : vm.isReadonly || !!row.registrationStatus">
                 </indigo-table-val>
             </td>
         </tr>

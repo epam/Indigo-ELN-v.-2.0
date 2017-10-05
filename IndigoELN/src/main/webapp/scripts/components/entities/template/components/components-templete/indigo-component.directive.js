@@ -18,6 +18,7 @@
             ' on-added-batch="vm.ComponentsCtrl.onAddedBatch(batch)"' +
             ' batches-trigger="vm.ComponentsCtrl.batchesTrigger"' +
             ' selected-batch="vm.ComponentsCtrl.selectedBatch"' +
+            ' is-exist-stoich-table="::!!vm.ComponentsCtrl.model.stoichTable"' +
             ' selected-batch-trigger="vm.ComponentsCtrl.selectedBatchTrigger"' +
             ' on-select-batch="vm.ComponentsCtrl.onSelectBatch(batch)"' +
             ' on-remove-batches="vm.ComponentsCtrl.onRemoveBatches(batches)"' +
@@ -35,7 +36,7 @@
             scope: {
                 component: '='
             },
-            link: link,
+            link: {pre: link},
             controller: indigoComponentController,
             controllerAs: 'vm',
             bindToController: true

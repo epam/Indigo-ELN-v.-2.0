@@ -8,7 +8,6 @@
                                    inputService, scalarService, Principal, $timeout, $filter) {
         var vm = this;
         var originalColumnIdsAndFlags;
-        var editableCell = null;
         var searchColumns;
         var user;
 
@@ -30,7 +29,6 @@
             scalarService.processColumns(vm.indigoColumns, vm.indigoRows);
 
             vm.startEdit = startEdit;
-            vm.isEditable = isEditable;
             vm.searchDebounce = _.debounce(search, 300);
             vm.onRowSelect = onRowSelect;
             vm.onPageChanged = onPageChanged;
@@ -104,27 +102,12 @@
         }
 
         function onClose(column, data) {
-            editableCell = null;
+            vm.editingCellId = null;
             vm.onCloseCell({column: column, data: data});
         }
 
-        function startEdit(columnId, rowIndex) {
-            editableCell = columnId + '-' + rowIndex;
-        }
-
-        function isEditable(columnId, rowIndex) {
-            if (columnId === null || rowIndex === null || vm.isReadonly) {
-                return false;
-            }
-
-            if (vm.indigoEditable) {
-                var row = vm.indigoRows[rowIndex];
-                if (!vm.indigoEditable(row, columnId)) {
-                    return false;
-                }
-            }
-
-            return editableCell === (columnId + '-' + rowIndex);
+        function startEdit(id) {
+            vm.editingCellId = id;
         }
 
         function getRate(str, query, rate) {
@@ -189,7 +172,6 @@
                 return $(handle).is('div') || $(handle).is('td');
             }
         });
-
 
         function onPageChanged() {
             updateRowsForDisplay(vm.rowsForDisplay);

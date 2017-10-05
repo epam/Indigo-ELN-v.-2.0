@@ -12,10 +12,10 @@
             controllerAs: 'vm',
             bindToController: true,
             scope: {
-                model: '=',
                 batches: '=',
                 selectedBatch: '=',
                 batchOperation: '=',
+                isExistStoichTable: '=',
                 selectedBatchTrigger: '&',
                 experiment: '=',
                 isReadonly: '=',

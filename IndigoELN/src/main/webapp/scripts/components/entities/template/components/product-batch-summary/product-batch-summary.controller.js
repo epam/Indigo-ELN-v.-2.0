@@ -7,7 +7,6 @@
     function ProductBatchSummaryController() {
         var vm = this;
 
-        vm.model = vm.model || {};
         vm.structureSize = 0.3;
 
         vm.showStructure = showStructure;

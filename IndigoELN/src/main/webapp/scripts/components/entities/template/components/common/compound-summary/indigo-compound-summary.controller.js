@@ -12,7 +12,6 @@
         function init() {
             vm.model = vm.model || {};
             vm.columns = getDefaultColumns();
-
             vm.onRowSelected = onRowSelected;
             vm.deleteBatches = deleteBatches;
             vm.duplicateBatches = duplicateBatches;

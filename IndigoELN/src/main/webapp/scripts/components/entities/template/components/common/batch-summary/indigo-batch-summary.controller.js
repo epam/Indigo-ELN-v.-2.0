@@ -28,7 +28,6 @@
 
             vm.onRowSelected = onRowSelected;
             vm.syncWithIntendedProducts = syncWithIntendedProducts;
-            vm.isEditable = isEditable;
             vm.isIntendedSynced = isIntendedSynced;
             vm.importSDFile = importSDFile;
             vm.isHasCheckedRows = isHasCheckedRows;
@@ -191,7 +190,7 @@
                         }
                     }]
                 },
-                batchHelper.columns.precursors,
+                getPrecursorColumn(),
                 {
                     id: '$$healthHazards',
                     realId: 'healthHazards',
@@ -284,6 +283,10 @@
                 batchHelper.columns.comments,
                 batchHelper.columns.$$batchType
             ];
+        }
+
+        function getPrecursorColumn() {
+            return _.extend({}, batchHelper.columns.precursors, {readonly: vm.isExistStoichTable});
         }
 
         function editResidualSolvents(rows) {
@@ -401,15 +404,6 @@
         function syncWithIntendedProducts() {
             vm.batchOperation = ProductBatchSummaryOperations.syncWithIntendedProducts()
                 .then(successAddedBatches);
-        }
-
-        function isEditable(row, columnId) {
-            var rowResult = !(RegistrationUtil.isRegistered(row));
-            if (rowResult && columnId === 'precursors' && vm.stoichTable) {
-                return false;
-            }
-
-            return rowResult;
         }
 
         function onRowSelected(row) {

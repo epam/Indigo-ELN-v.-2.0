@@ -13,7 +13,6 @@
                 indigoColumns: '=',
                 indigoRows: '=',
                 isReadonly: '=',
-                indigoEditable: '=',
                 selectedBatch: '=',
                 selectedBatchTrigger: '=',
                 indigoDraggableRows: '=',

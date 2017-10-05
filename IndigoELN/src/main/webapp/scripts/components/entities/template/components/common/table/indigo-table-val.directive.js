@@ -3,8 +3,7 @@
         .module('indigoeln')
         .directive('indigoTableVal', indigoTableVal);
 
-    /* @ngInject */
-    function indigoTableVal($sce, roundFilter, notifyService, $timeout, UnitsConverter) {
+    function indigoTableVal() {
         return {
             restrict: 'E',
             controller: IndigoTableValController,
@@ -15,141 +14,105 @@
                 indigoColumn: '=',
                 indigoRow: '=',
                 isReadonly: '=',
-                isEditableColumn: '&',
+                isEditing: '=',
                 onStartEdit: '&',
                 onClose: '&'
             },
-            link: link,
             templateUrl: 'scripts/components/entities/template/components/common/table/table-val.html'
         };
+    }
 
-        function link($scope, $element, $attrs, controller) {
-            var vm = controller;
-            var oldVal;
-            var isChanged;
+    IndigoTableValController.$inject = ['$scope', 'UnitsConverter', 'roundFilter', 'notifyService'];
 
-            init();
+    function IndigoTableValController($scope, UnitsConverter, roundFilter, notifyService) {
+        var vm = this;
+        var oldVal;
+        var isChanged;
 
-            function init() {
-                vm.unitParsers = [function(viewValue) {
-                    return +UnitsConverter.convert(viewValue, vm.indigoRow[vm.indigoColumn.id].unit).val();
-                }];
+        init();
 
-                vm.unitFormatters = [function(modelValue) {
-                    return +roundFilter(UnitsConverter.convert(modelValue)
-                        .as(vm.indigoRow[vm.indigoColumn.id].unit)
-                        .val(), vm.indigoRow[vm.indigoColumn.id].sigDigits, vm.indigoColumn, vm.indigoRow);
-                }];
+        function init() {
+            vm.unitParsers = [function(viewValue) {
+                return +UnitsConverter.convert(viewValue, vm.model.unit).val();
+            }];
 
-                vm.isEditable = isEditable;
-                vm.startEdit = startEdit;
-                vm.isEmpty = isEmpty;
-                vm.closeThis = closeThis;
+            vm.unitFormatters = [function(modelValue) {
+                return +roundFilter(UnitsConverter.convert(modelValue)
+                    .as(vm.model.unit)
+                    .val(), vm.model.sigDigits, vm.indigoColumn, vm.indigoRow);
+            }];
 
-                bindEvents();
-            }
+            vm.isEdit = isEdit;
+            vm.isEmpty = isEmpty;
+            vm.closeThis = closeThis;
 
-            function startEdit() {
-                vm.onStartEdit();
-                $timeout(function() {
-                    $element.find('input').on('keypress', function(e) {
-                        if (e.keyCode === 13) {
-                            e.preventDefault();
-                            if (vm.isEditable()) {
-                                vm.startEdit();
-                                vm.closeThis();
-                            }
-                        }
-                    });
-                }, 0);
-            }
-
-            function isEditable() {
-                var enabled = true;
-                if (vm.indigoColumn.checkEnabled) {
-                    enabled = vm.indigoColumn.checkEnabled(vm.indigoRow, vm.indigoColumn.id);
-                }
-
-                return enabled && vm.isEditableColumn();
-            }
-
-            function isEmpty(obj, col) {
-                if (obj && col.showDefault) {
-                    return false;
-                }
-
-                return _.isEmpty(obj) || obj.value === '0' || obj.value === 0;
-            }
-
-            function closeThis() {
-                var col = vm.indigoColumn;
-                var val = vm.indigoRow[col.id];
-                if ((col.type === 'scalar' || col.type === 'unit') && isChanged) {
-                    var absv = Math.abs(val.value);
-                    if (absv !== val.value) {
-                        val.value = absv;
-                        notifyService.error('Total Amount made must more than zero.');
-                    }
-                }
-                if (col.type === 'input' && val === '') {
-                    vm.indigoRow[col.id] = undefined;
-                }
-                if (col.onClose && isChanged) {
-                    col.onClose({
-                        model: vm.indigoRow[col.id],
-                        row: vm.indigoRow,
-                        column: col.id,
-                        oldVal: oldVal
-                    });
-                    isChanged = false;
-                }
-                vm.onClose({
-                    data: {
-                        model: vm.indigoRow[col.id],
-                        row: vm.indigoRow,
-                        column: col.id,
-                        oldVal: oldVal
-                    }
-                });
-            }
-
-            function updatePopover() {
-                vm.popoverTitle = vm.indigoRow[vm.indigoColumn.id];
-                var image = vm.indigoRow.structure ? vm.indigoRow.structure.image : '';
-                vm.popoverTemplate = $sce.trustAsHtml('<div><img class="img-fill" ' +
-                    'src="data:image/svg+xml;base64,' + image + '" alt="Image is unavailable."></div>');
-            }
-
-            function bindEvents() {
-                if (vm.indigoColumn.hasStructurePopover) {
-                    $scope.$watch(function() {
-                        return vm.indigoRow[vm.indigoColumn.id];
-                    }, updatePopover);
-                    $scope.$watch(function() {
-                        return vm.indigoRow.structure ? vm.indigoRow.structure.image : null;
-                    }, updatePopover);
-                }
-
-                if (vm.indigoColumn.onClose) {
-                    $scope.$watch(function() {
-                        return _.isObject(vm.indigoRow[vm.indigoColumn.id]) ?
-                        vm.indigoRow[vm.indigoColumn.id].value || vm.indigoRow[vm.indigoColumn.id].name :
-                            vm.indigoRow[vm.indigoColumn.id];
-                    }, function(newVal, prevVal) {
-                        var col = vm.indigoColumn;
-                        oldVal = prevVal;
-                        isChanged = !_.isEqual(newVal, prevVal) && vm.isEditable();
-                        if (isChanged && col.onChange) {
-                            col.onChange({
-                                row: vm.indigoRow, model: vm.indigoRow[col.id], oldVal: oldVal
-                            });
-                        }
-                    }, true);
-                }
-            }
+            bindEvents();
         }
 
-        function IndigoTableValController() {
+        function isEdit() {
+            if (vm.indigoColumn.checkEnabled) {
+                return vm.indigoColumn.checkEnabled(vm.indigoRow, vm.indigoColumn.id);
+            }
+
+            return true;
+        }
+
+        function isEmpty(obj, col) {
+            if (obj && col.showDefault) {
+                return false;
+            }
+
+            return _.isEmpty(obj) || obj.value === '0' || obj.value === 0;
+        }
+
+        function closeThis() {
+            var col = vm.indigoColumn;
+            var val = vm.indigoRow[col.id];
+            if ((col.type === 'scalar' || col.type === 'unit') && isChanged) {
+                var absv = Math.abs(val.value);
+                if (absv !== val.value) {
+                    val.value = absv;
+                    notifyService.error('Total Amount made must more than zero.');
+                }
+            }
+            if (col.type === 'input' && val === '') {
+                vm.indigoRow[col.id] = undefined;
+            }
+
+            if (col.onClose && isChanged) {
+                col.onClose({
+                    model: vm.indigoRow[col.id],
+                    row: vm.indigoRow,
+                    column: col.id,
+                    oldVal: oldVal
+                });
+                isChanged = false;
+            }
+            vm.onClose({
+                data: {
+                    model: vm.indigoRow[col.id],
+                    row: vm.indigoRow,
+                    column: col.id,
+                    oldVal: oldVal
+                }
+            });
+        }
+
+        function bindEvents() {
+            if (vm.indigoColumn.onClose) {
+                $scope.$watch(function() {
+                    return _.isObject(vm.model) ? vm.model.value || vm.model.name : vm.model;
+                }, function(newVal, prevVal) {
+                    var col = vm.indigoColumn;
+                    oldVal = prevVal;
+                    isChanged = !_.isEqual(newVal, prevVal) && vm.isEdit();
+                    if (isChanged && col.onChange) {
+                        col.onChange({
+                            row: vm.indigoRow, model: vm.indigoRow[col.id], oldVal: oldVal
+                        });
+                    }
+                }, true);
+            }
         }
     }
 })();

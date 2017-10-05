@@ -10,14 +10,20 @@
             link: function($scope, $element, attr) {
                 var expression = $parse(attr.nestedOutsideClick);
                 $timeout(function() {
-                    $document.on('click', function(event) {
-                        if ($element !== event.target && !includes($element[0].children, event.target)) {
-                            $scope.$apply(function() {
-                                expression($scope, {$event: event});
-                            });
-                        }
-                    });
+                    $document.on('click', handler);
                 });
+
+                $scope.$on('destroy', function() {
+                    $document.off('click', handler);
+                });
+
+                function handler(event) {
+                    if ($element !== event.target && !includes($element[0].children, event.target)) {
+                        $scope.$apply(function() {
+                            expression($scope, {$event: event});
+                        });
+                    }
+                }
             }
         };
 

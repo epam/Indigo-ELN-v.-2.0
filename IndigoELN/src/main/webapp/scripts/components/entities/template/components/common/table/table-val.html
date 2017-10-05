@@ -1,5 +1,5 @@
-<div ng-switch="!vm.isEditable()">
-    <div ng-switch-when="true"
+<div ng-switch="vm.isEditing && !vm.isReadonly && vm.isEdit()">
+    <div ng-switch-when="false"
          ng-switch="vm.indigoColumn.type">
         <span ng-switch-when="undefined" ng-bind="vm.model"></span>
         <span ng-switch-when="registrationStatus" ng-bind="vm.model" class="batch-status status-{{vm.model}}"></span>
@@ -33,21 +33,21 @@
             <span ng-switch-when="true" ng-switch="!vm.model.readonly">
                   <a ng-switch-when="true" ng-if="vm.indigoColumn.type && vm.indigoColumn.type !== 'image' &&
                 vm.indigoColumn.type !== 'boolean' && vm.indigoColumn.type !== 'string'"
-                     ng-click="vm.isReadonly || vm.startEdit()">&mdash;</a>
+                     ng-click="vm.isReadonly || vm.onStartEdit()">&mdash;</a>
                 <a ng-switch-when="false" class="not-editable"></a>
             </span>
 
             <a ng-switch-when="false"
                ng-if="vm.indigoColumn.type &&
                vm.indigoColumn.type !== 'image' && vm.indigoColumn.type !== 'boolean'"
-               ng-click="vm.isReadonly || vm.startEdit()"
+               ng-click="vm.isReadonly || vm.onStartEdit()"
                ng-switch="vm.indigoColumn.type">
                 <span ng-switch-when="input" ng-if="!vm.indigoColumn.hasStructurePopover"
                       ng-class="{'entered-value': vm.model.entered}" ng-bind="vm.model"></span>
                 <span ng-switch-when="input" ng-if="vm.indigoColumn.hasStructurePopover"
-                      uib-popover-html="vm.popoverTemplate"
-                      popover-title="{{vm.popoverTitle}}"
-                      popover-trigger="mouseenter"
+                      uib-popover-template="'scripts/components/entities/template/components/common/table/image-popover.html'"
+                      popover-title="{{vm.model}}"
+                      popover-trigger="'mouseenter'"
                       popover-placement="top-right"
                       popover-append-to-body="true"
                       ng-class="{'entered-value': vm.model.entered}"
@@ -64,7 +64,7 @@
             </a>
         </div>
     </div>
-    <div ng-switch-when="false" nested-outside-click="vm.closeThis()">
+    <div ng-switch-when="true" nested-outside-click="vm.closeThis()">
         <div ng-if="!vm.indigoColumn.type" ng-bind="vm.model"></div>
         <div ng-if="vm.indigoColumn.type === 'boolean'">
             <indigo-checkbox
@@ -81,7 +81,8 @@
                           indigo-click="vm.indigoColumn.onClick({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
                           indigo-change="vm.indigoColumn.onChange({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
                           indigo-parsers="vm.unitParsers" indigo-formatters="vm.unitFormatters"
-                          indigo-type="number">
+                          indigo-type="number"
+                          press-enter="vm.closeThis()">
                 <unit-select unit="vm.model.unit"
                              units="vm.indigoColumn.units"
                              on-change="vm.model.unit = unit.name; vm.closeThis()">
@@ -94,11 +95,13 @@
                           indigo-readonly="vm.indigoColumn.readonly || vm.model.readonly"
                           indigo-click="vm.indigoColumn.onClick({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
                           indigo-change="vm.indigoColumn.onChange({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
-                          indigo-parsers="vm.unitParsers" indigo-formatters="vm.unitFormatters">
+                          indigo-parsers="vm.unitParsers" indigo-formatters="vm.unitFormatters"
+                          press-enter="vm.closeThis()">
             </indigo-input>
         </div>
         <div ng-if="vm.indigoColumn.type === 'select' && !vm.indigoColumn.dictionary">
             <indigo-select
+                    ng-click="$event.stopPropagation();"
                     indigo-change="vm.indigoColumn.onChange({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id,})"
                     indigo-click="vm.indigoColumn.onClick({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
                     indigo-model="vm.model"
@@ -106,6 +109,7 @@
         </div>
         <div ng-if="vm.indigoColumn.type === 'select' && vm.indigoColumn.dictionary">
             <indigo-select ng-if="!vm.indigoColumn.hasCustomItemProp"
+                           ng-click="$event.stopPropagation();"
                            indigo-change="vm.indigoColumn.onChange({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id,})"
                            indigo-click="vm.indigoColumn.onClick({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
                            indigo-model="vm.model"
@@ -113,6 +117,7 @@
                            indigo-classes="form-group-sm">
             </indigo-select>
             <indigo-select ng-if="vm.indigoColumn.hasCustomItemProp"
+                           ng-click="$event.stopPropagation();"
                            indigo-change="vm.indigoColumn.onChange({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id,})"
                            indigo-click="vm.indigoColumn.onClick({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
                            indigo-model="vm.model"
@@ -125,7 +130,9 @@
             <indigo-input indigo-model="vm.model" indigo-classes="form-group-sm"
                           indigo-type="text"
                           indigo-click="vm.indigoColumn.onClick(vm.model)"
-                          indigo-change="vm.indigoColumn.onChange(vm.model)"></indigo-input>
+                          indigo-change="vm.indigoColumn.onChange(vm.model)"
+                          press-enter="vm.closeThis()">
+            </indigo-input>
             <ul ng-if="vm.indigoColumn.hasPopup" class="grid-popup shown-{{!!vm.indigoRow.$$popItems.length}}">
                 <li ng-repeat="popitem in vm.indigoRow.$$popItems track by $index "
                     ng-click="vm.indigoColumn.popItemClick(vm.indigoRow, popitem.item)" class="popitem">
