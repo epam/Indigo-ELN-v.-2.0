@@ -7,7 +7,7 @@
     function ExperimentDetailController($scope, $state, $stateParams, Experiment, ExperimentUtil,
                                         PermissionManagement, FileUploaderCash, EntitiesBrowser, autorecoveryHelper,
                                         notifyService, EntitiesCache, $q, Principal, Notebook, Components,
-                                        componentsUtils, autorecoveryCache, confirmationModal, entityHelper) {
+                                        autorecoveryCache, confirmationModal, entityHelper) {
         var vm = this;
         var tabName;
         var params;
@@ -25,7 +25,6 @@
             vm.stateData = $state.current.data;
             vm.isCollapsed = true;
             vm.loading = getPageInfo().then(function(response) {
-                initComponents(response.experiment);
                 tabName = getExperimentName(response.notebook, response.experiment);
                 params = {
                     projectId: response.projectId,
@@ -110,13 +109,6 @@
 
         function updateOriginal(newEntity) {
             originalExperiment = angular.copy(newEntity);
-        }
-
-        function initComponents(experiment) {
-            componentsUtils.initComponents(
-                experiment.components,
-                experiment.template.templateContent
-            );
         }
 
         function onRestore(storeData, lastVersion) {

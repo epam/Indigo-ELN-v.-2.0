@@ -4,7 +4,7 @@
         .controller('CreateNewExperimentModalController', CreateNewExperimentModalController);
 
     /* @ngInject */
-    function CreateNewExperimentModalController($scope, $rootScope, $uibModalInstance, Experiment, Principal, $q,
+    function CreateNewExperimentModalController($scope, componentsUtils, $uibModalInstance, Experiment, Principal, $q,
                                                 localStorageService, fullNotebookId, NotebooksForSubCreation, Template) {
         var vm = this;
         var userId;
@@ -18,7 +18,11 @@
             vm.selectedNotebook = '';
             vm.selectedTemplate = '';
             vm.experiment = {
-                name: null, experimentNumber: null, template: null, id: null
+                name: null,
+                experimentNumber: null,
+                template: null,
+                id: null,
+                components: {}
             };
 
             vm.ok = save;
@@ -78,10 +82,20 @@
             vm.experiment = _.extend(vm.experiment, {
                 template: vm.selectedTemplate
             });
+
+            initComponents(vm.experiment);
+
             Experiment.save({
                 notebookId: vm.selectedNotebook.id,
                 projectId: vm.selectedNotebook.parentId
             }, vm.experiment, onSaveSuccess, onSaveError);
+        }
+
+        function initComponents(experiment) {
+            componentsUtils.initComponents(
+                experiment.components,
+                experiment.template.templateContent
+            );
         }
 
         function cancelPressed() {
