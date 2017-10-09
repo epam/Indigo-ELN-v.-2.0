@@ -17,7 +17,7 @@
         </div>
 
         <div class="btn-group btn-group-sm m-l10" uib-dropdown dropdown-append-to-body
-             ng-if="!vm.indigoHideColumnSettings">
+             ng-if="::!vm.indigoHideColumnSettings">
             <div id="show-hide-button" class="btn btn-info"
                  uib-dropdown-toggle
                  ng-disabled="disabled"
@@ -45,30 +45,29 @@
         </div>
     </div>
 </div>
-<span class="transclude"></span>
+<ng-transclude></ng-transclude>
 <div class="table-responsive" indigo-scroller="x">
     <table class="table table-striped product">
         <thead>
         <tr>
-            <th ng-repeat="column in vm.indigoColumns track by $index" ng-show="column.isVisible">
+            <th ng-repeat="column in vm.indigoColumns track by $index" ng-show="column.isVisible"
+                ng-switch="::!column.actions.length">
                 <div class="btn-group btn-group-sm btn-group-justified product-header-item"
-                     ng-if="!column.actions.length && column.id!=='show-hide-columns'">
-                    <a href class="btn btn-transparent" ng-disabled="vm.isReadonly">
-                        {{column.name}}
-                    </a>
+                     ng-switch-when="true">
+                    <a class="btn btn-transparent" ng-disabled="vm.isReadonly" ng-bind="::column.name"></a>
                 </div>
-                <div class="btn-group btn-group-sm btn-group-justified product-header-item" uib-dropdown
+                <div class="btn-group btn-group-sm btn-group-justified product-header-item"
+                     uib-dropdown
                      dropdown-append-to-body
-                     ng-if="column.actions.length">
-                    <a href class="btn btn-transparent" uib-dropdown-toggle
-                       ng-disabled="vm.isReadonly && !column.noDisablable">
-                        <span>{{column.name}} <span class="caret"></span></span>
+                     ng-switch-when="false">
+                    <a class="btn btn-transparent" uib-dropdown-toggle
+                       ng-disabled="vm.isReadonly && !column.noDisableable">
+                        <span ng-bind="::column.name"></span><span class="caret"></span>
                     </a>
                     <ul uib-dropdown-menu class="no-draggable">
                         <li ng-repeat="action in column.actions track by $index" class="no-draggable">
-                            <a href=""
-                               ng-click="(vm.isReadonly && !column.noDisablable) || action.action(column.id)"
-                               class="no-draggable">{{action.name}}</a>
+                            <a ng-click="(vm.isReadonly && !column.noDisableable) || action.action(column.id)"
+                               class="no-draggable" ng-bind="::action.name"></a>
                         </li>
                     </ul>
                 </div>
@@ -76,28 +75,27 @@
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="row in vm.rowsForDisplay | limitTo : vm.pagination.pageSize : vm.limit - vm.pagination.pageSize track by $id(row)"
-            ng-class="{'success': vm.selectedBatch === row}">
-            <td ng-repeat="column in vm.indigoColumns track by $index"
-                class="text-center"
-                ng-click="vm.onRowSelect($event, row)"
-                ng-show="column.isVisible"
-                style="min-width: 150px">
-                <indigo-table-val model="row[column.id]"
-                                  indigo-column="column"
-                                  indigo-row="row"
-                                  on-start-edit="vm.startEdit($id)"
-                                  on-close="vm.onClose(column, data)"
-                                  is-editing="$id === vm.editingCellId"
-                                  is-readonly="column.readonly || column.noDisablable ? false : vm.isReadonly || !!row.registrationStatus">
-                </indigo-table-val>
-            </td>
-        </tr>
-        <tr ng-if="!vm.rowsForDisplay.length">
-            <td colspan={{vm.indigoColumns.length}} class="text-muted text-center">
-                <h3 class="m-50">empty</h3>
-            </td>
-        </tr>
+            <tr ng-repeat="row in vm.rowsForDisplay | limitTo : vm.pagination.pageSize : vm.limit - vm.pagination.pageSize track by $id(row)"
+                ng-class="{'success': vm.selectedBatch === row}">
+                <td ng-repeat="column in vm.indigoColumns track by $index"
+                    class="text-center"
+                    ng-click="vm.onRowSelect($event, row)"
+                    ng-show="column.isVisible"
+                    style="min-width: 150px">
+                    <indigo-table-val column="::column"
+                                      row="::row"
+                                      on-start-edit="vm.startEdit($id)"
+                                      on-close="vm.onClose(column, data)"
+                                      is-editing="$id === vm.editingCellId"
+                                      is-readonly="column.readonly || column.noDisableable ? false : vm.isReadonly || !!row.registrationStatus">
+                    </indigo-table-val>
+                </td>
+            </tr>
+            <tr ng-if="!vm.rowsForDisplay.length">
+                <td colspan={{vm.indigoColumns.length}} class="text-muted text-center">
+                    <h3 class="m-50">empty</h3>
+                </td>
+            </tr>
         </tbody>
     </table>
 </div>

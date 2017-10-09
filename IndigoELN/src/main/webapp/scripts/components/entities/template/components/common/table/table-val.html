@@ -1,141 +1,126 @@
-<div ng-switch="vm.isEditing && !vm.isReadonly && vm.isEdit()">
+<div ng-switch="vm.isEditing && !vm.isReadonly && vm.isCheckEnabled">
     <div ng-switch-when="false"
-         ng-switch="vm.indigoColumn.type">
-        <span ng-switch-when="undefined" ng-bind="vm.model"></span>
-        <span ng-switch-when="registrationStatus" ng-bind="vm.model" class="batch-status status-{{vm.model}}"></span>
-        <span ng-switch-when="date" ng-if="vm.model" ng-bind="vm.model | date: 'MMM DD, YYYY HH:mm:ss z'"></span>
-        <span ng-switch-when="html" ng-bind-html="vm.model"></span>
-        <span ng-switch-when="primitive" ng-if="!vm.isEmpty(vm.model, vm.indigoColumn)"
-              ng-bind="vm.model | round:vm.indigoColumn.sigDigits:vm.indigoColumn:vm.indigoRow">
+         ng-switch="::vm.column.type">
+        <span ng-switch-when="undefined" ng-bind="vm.row[vm.column.id]"></span>
+        <span ng-switch-when="registrationStatus" ng-bind="vm.row[vm.column.id]"
+              class="batch-status status-{{vm.row[vm.column.id]}}"></span>
+        <span ng-switch-when="date" ng-if="vm.row[vm.column.id]"
+              ng-bind="vm.row[vm.column.id] | date: 'MMM DD, YYYY HH:mm:ss z'"></span>
+        <span ng-switch-when="primitive" ng-if="!vm.isEmpty(vm.row[vm.column.id], vm.column)"
+              ng-bind="vm.row[vm.column.id] | round: vm.column.sigDigits:vm.column:vm.row">
         </span>
-        <div ng-switch-when="image" ng-if="vm.model.image"
-             ng-style="{'width': vm.indigoColumn.width}">
+        <div ng-switch-when="image"
+             ng-style="{width: vm.column.width}">
             <img class="img-fill"
-                 ng-src="data:image/svg+xml;base64,{{vm.model.image}}"
+                 ng-src="data:image/svg+xml;base64,{{vm.row[vm.column.id].image}}"
                  alt="Image is unavailable.">
         </div>
         <div ng-switch-when="boolean"
-             ng-class="{'entered-value': vm.model.entered}">
-            <indigo-checkbox indigo-model="vm.model"
-                             indigo-change="vm.indigoColumn.onChange({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
-                             indigo-click="vm.indigoColumn.onClick({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
-                             indigo-disabled="vm.isReadonly"></indigo-checkbox>
+             ng-class="{'entered-value': vm.row[vm.column.id].entered}">
+            <simple-checkbox></simple-checkbox>
         </div>
-        <a ng-switch-when="string" ng-if="!vm.model.readonly"
+        <a ng-switch-when="string" ng-if="!vm.row[vm.column.id].readonly"
            ng-class="{disabled: vm.isReadonly}"
-           ng-click="vm.isReadonly || vm.indigoColumn.onClick({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
-           ng-bind="vm.indigoRow[vm.indigoColumn.realId].asString || '&mdash;'">
+           ng-click="vm.isReadonly || vm.column.onClick({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
+           ng-bind="vm.row[vm.column.realId].asString || '&mdash;'">
         </a>
 
         <div ng-switch-default
-             ng-switch="vm.isEmpty(vm.model, vm.indigoColumn)">
+             ng-switch="vm.isEmpty(vm.row[vm.column.id], vm.column)">
 
-            <span ng-switch-when="true" ng-switch="!vm.model.readonly">
-                  <a ng-switch-when="true" ng-if="vm.indigoColumn.type && vm.indigoColumn.type !== 'image' &&
-                vm.indigoColumn.type !== 'boolean' && vm.indigoColumn.type !== 'string'"
+            <span ng-switch-when="true" ng-switch="!vm.row[vm.column.id].readonly">
+                  <a ng-switch-when="true"
+                     ng-if="vm.column.type && vm.column.type !== 'image' && vm.column.type !== 'boolean' && vm.column.type !== 'string'"
                      ng-click="vm.isReadonly || vm.onStartEdit()">&mdash;</a>
                 <a ng-switch-when="false" class="not-editable"></a>
             </span>
 
             <a ng-switch-when="false"
-               ng-if="vm.indigoColumn.type &&
-               vm.indigoColumn.type !== 'image' && vm.indigoColumn.type !== 'boolean'"
+               ng-if="vm.column.type && vm.column.type !== 'image' && vm.column.type !== 'boolean'"
                ng-click="vm.isReadonly || vm.onStartEdit()"
-               ng-switch="vm.indigoColumn.type">
-                <span ng-switch-when="input" ng-if="!vm.indigoColumn.hasStructurePopover"
-                      ng-class="{'entered-value': vm.model.entered}" ng-bind="vm.model"></span>
-                <span ng-switch-when="input" ng-if="vm.indigoColumn.hasStructurePopover"
+               ng-switch="::vm.column.type">
+                <span ng-switch-when="input" ng-if="!vm.column.hasStructurePopover"
+                      ng-class="{'entered-value': vm.row[vm.column.id].entered}" ng-bind="vm.row[vm.column.id]"></span>
+                <span ng-switch-when="input" ng-if="vm.column.hasStructurePopover"
                       uib-popover-template="'scripts/components/entities/template/components/common/table/image-popover.html'"
-                      popover-title="{{vm.model}}"
+                      popover-title="{{vm.row[vm.column.id]}}"
                       popover-trigger="'mouseenter'"
                       popover-placement="top-right"
                       popover-append-to-body="true"
-                      ng-class="{'entered-value': vm.model.entered}"
-                      ng-bind="vm.model"></span>
+                      ng-class="{'entered-value': vm.row[vm.column.id].entered}"
+                      ng-bind="vm.row[vm.column.id]"></span>
                 <span ng-switch-when="select"
-                      ng-class="{'entered-value': vm.model.entered}"
-                      ng-bind="vm.model.description ?  vm.model.name + ' - ' +  vm.model.description : vm.model.name"></span>
+                      ng-class="{'entered-value': vm.row[vm.column.id].entered}"
+                      ng-bind="vm.row[vm.column.id].description ?  vm.row[vm.column.id].name + ' - ' +  vm.row[vm.column.id].description : vm.row[vm.column.id].name"></span>
                 <span ng-switch-when="unit"
-                      ng-class="{'entered-value': vm.model.entered}"
-                      ng-bind="(vm.model.value | unit:vm.model.unit | round:vm.indigoColumn.sigDigits:vm.indigoColumn:vm.indigoRow:vm.model.unit) + ' ' + vm.model.unit"></span>
+                      ng-class="{'entered-value': vm.row[vm.column.id].entered}"
+                      ng-bind="(vm.row[vm.column.id].value | unit:vm.row[vm.column.id].unit | round:vm.column.sigDigits:vm.column:vm.row:vm.row[vm.column.id].unit) + ' ' + vm.row[vm.column.id].unit"></span>
                 <span ng-switch-when="scalar"
-                      ng-class="{'entered-value': vm.model.entered}"
-                      ng-bind="vm.model.value | round:vm.indigoColumn.sigDigits:vm.indigoColumn:vm.indigoRow"></span>
+                      ng-class="{'entered-value': vm.row[vm.column.id].entered}"
+                      ng-bind="vm.row[vm.column.id].value | round:vm.column.sigDigits:vm.column:vm.row"></span>
             </a>
         </div>
     </div>
     <div ng-switch-when="true" nested-outside-click="vm.closeThis()">
-        <div ng-if="!vm.indigoColumn.type" ng-bind="vm.model"></div>
-        <div ng-if="vm.indigoColumn.type === 'boolean'">
-            <indigo-checkbox
-                    indigo-classes="table-val-boolean"
-                    indigo-model="vm.model"
-                    indigo-change="vm.indigoColumn.onChange({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
-                    indigo-click="vm.indigoColumn.onClick({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
-            ></indigo-checkbox>
-        </div>
-        <div ng-if="vm.indigoColumn.type === 'unit'">
-            <indigo-input indigo-model="vm.model.value" indigo-input-group="append"
+        <div ng-if="vm.column.type === 'unit'">
+            <indigo-input indigo-model="vm.row[vm.column.id].value" indigo-input-group="append"
                           indigo-input-size="sm"
-                          indigo-readonly="vm.indigoColumn.readonly || vm.model.readonly"
-                          indigo-click="vm.indigoColumn.onClick({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
-                          indigo-change="vm.indigoColumn.onChange({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
+                          indigo-readonly="vm.column.readonly || vm.row[vm.column.id].readonly"
+                          indigo-click="vm.column.onClick({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
+                          indigo-change="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
                           indigo-parsers="vm.unitParsers" indigo-formatters="vm.unitFormatters"
                           indigo-type="number"
                           press-enter="vm.closeThis()">
-                <unit-select unit="vm.model.unit"
-                             units="vm.indigoColumn.units"
-                             on-change="vm.model.unit = unit.name; vm.closeThis()">
+                <unit-select unit="vm.row[vm.column.id].unit"
+                             units="vm.column.units"
+                             on-change="vm.row[vm.column.id].unit = unit.name; vm.closeThis()">
                 </unit-select>
             </indigo-input>
         </div>
-        <div ng-if="vm.indigoColumn.type === 'scalar'">
-            <indigo-input indigo-model="vm.model.value"
+        <div ng-if="vm.column.type === 'scalar'">
+            <indigo-input indigo-model="vm.row[vm.column.id].value"
                           indigo-type="number"
-                          indigo-readonly="vm.indigoColumn.readonly || vm.model.readonly"
-                          indigo-click="vm.indigoColumn.onClick({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
-                          indigo-change="vm.indigoColumn.onChange({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
+                          indigo-readonly="vm.column.readonly || vm.row[vm.column.id].readonly"
+                          indigo-click="vm.column.onClick({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
+                          indigo-change="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
                           indigo-parsers="vm.unitParsers" indigo-formatters="vm.unitFormatters"
                           press-enter="vm.closeThis()">
             </indigo-input>
         </div>
-        <div ng-if="vm.indigoColumn.type === 'select' && !vm.indigoColumn.dictionary">
+        <div ng-if="vm.column.type === 'select' && !vm.column.dictionary">
             <indigo-select
                     ng-click="$event.stopPropagation();"
-                    indigo-change="vm.indigoColumn.onChange({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id,})"
-                    indigo-click="vm.indigoColumn.onClick({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
-                    indigo-model="vm.model"
-                    indigo-items="vm.indigoColumn.values" indigo-classes="form-group-sm"></indigo-select>
+                    indigo-change="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id,})"
+                    indigo-model="vm.row[vm.column.id]"
+                    indigo-items="vm.column.values" indigo-classes="form-group-sm"></indigo-select>
         </div>
-        <div ng-if="vm.indigoColumn.type === 'select' && vm.indigoColumn.dictionary">
-            <indigo-select ng-if="!vm.indigoColumn.hasCustomItemProp"
+        <div ng-if="vm.column.type === 'select' && vm.column.dictionary">
+            <indigo-select ng-if="!vm.column.hasCustomItemProp"
                            ng-click="$event.stopPropagation();"
-                           indigo-change="vm.indigoColumn.onChange({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id,})"
-                           indigo-click="vm.indigoColumn.onClick({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
-                           indigo-model="vm.model"
-                           indigo-dictionary="{{vm.indigoColumn.dictionary}}"
+                           indigo-change="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id,})"
+                           indigo-model="vm.row[vm.column.id]"
+                           indigo-dictionary="{{vm.column.dictionary}}"
                            indigo-classes="form-group-sm">
             </indigo-select>
-            <indigo-select ng-if="vm.indigoColumn.hasCustomItemProp"
+            <indigo-select ng-if="vm.column.hasCustomItemProp"
                            ng-click="$event.stopPropagation();"
-                           indigo-change="vm.indigoColumn.onChange({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id,})"
-                           indigo-click="vm.indigoColumn.onClick({model: vm.model, row: vm.indigoRow, column: vm.indigoColumn.id})"
-                           indigo-model="vm.model"
+                           indigo-change="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id,})"
+                           indigo-model="vm.row[vm.column.id]"
                            indigo-item-prop="name,description"
-                           indigo-dictionary="{{vm.indigoColumn.dictionary}}"
+                           indigo-dictionary="{{vm.column.dictionary}}"
                            indigo-classes="form-group-sm">
             </indigo-select>
         </div>
-        <div ng-if="vm.indigoColumn.type === 'input'" class="cell-has-popup-{{vm.indigoColumn.hasPopup}}">
-            <indigo-input indigo-model="vm.model" indigo-classes="form-group-sm"
+        <div ng-if="vm.column.type === 'input'" class="cell-has-popup-{{vm.column.hasPopup}}">
+            <indigo-input indigo-model="vm.row[vm.column.id]" indigo-classes="form-group-sm"
                           indigo-type="text"
-                          indigo-click="vm.indigoColumn.onClick(vm.model)"
-                          indigo-change="vm.indigoColumn.onChange(vm.model)"
+                          indigo-click="vm.column.onClick(vm.row[vm.column.id])"
+                          indigo-change="vm.column.onChange(vm.row[vm.column.id])"
                           press-enter="vm.closeThis()">
             </indigo-input>
-            <ul ng-if="vm.indigoColumn.hasPopup" class="grid-popup shown-{{!!vm.indigoRow.$$popItems.length}}">
-                <li ng-repeat="popitem in vm.indigoRow.$$popItems track by $index "
-                    ng-click="vm.indigoColumn.popItemClick(vm.indigoRow, popitem.item)" class="popitem">
+            <ul ng-if="vm.column.hasPopup" class="grid-popup shown-{{!!vm.row.$$popItems.length}}">
+                <li ng-repeat="popitem in vm.row.$$popItems track by $index "
+                    ng-click="vm.column.popItemClick(vm.row, popitem.item)" class="popitem">
                     {{popitem.title}}
                 </li>
             </ul>
