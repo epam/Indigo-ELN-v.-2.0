@@ -7,7 +7,7 @@
     function addNewBatchDirective() {
         return {
             restrict: 'E',
-            scope: false,
+            scope: {model: '='},
             templateUrl: 'scripts/components/entities/template/components/common/table/simple-checkbox/simple-checkbox.html'
         };
     }

@@ -1,19 +1,17 @@
 (function() {
     angular
         .module('indigoeln')
-        .directive('indigoTableVal', indigoTableVal);
+        .directive('editableCell', editableCell);
 
-    indigoTableVal.$inject = [];
+    editableCell.$inject = [];
 
-    function indigoTableVal() {
+    function editableCell() {
         return {
             restrict: 'E',
-            controller: IndigoTableValController,
+            controller: editableCellController,
             controllerAs: 'vm',
             bindToController: true,
             scope: {
-                column: '=',
-                row: '=',
                 isReadonly: '=',
                 isEditing: '=',
                 onStartEdit: '&',
@@ -23,9 +21,9 @@
         };
     }
 
-    IndigoTableValController.$inject = ['$scope', 'UnitsConverter', 'roundFilter', 'notifyService'];
+    editableCellController.$inject = ['$scope', 'UnitsConverter', 'roundFilter', 'notifyService'];
 
-    function IndigoTableValController($scope, UnitsConverter, roundFilter, notifyService) {
+    function editableCellController($scope, UnitsConverter, roundFilter, notifyService) {
         var vm = this;
         var oldVal;
         var isChanged;
@@ -33,6 +31,9 @@
         init();
 
         function init() {
+            vm.column = $scope.$parent.column;
+            vm.row = $scope.$parent.$parent.row;
+
             vm.isCheckEnabled = true;
 
             vm.unitParsers = [function(viewValue) {
@@ -49,15 +50,6 @@
             vm.closeThis = closeThis;
 
             bindEvents();
-
-            var unbind = $scope.$watch('vm.column.checkEnabled', function() {
-                if (vm.column.checkEnabled) {
-                    $scope.$watch('vm.column.checkEnabled(vm.row)', function() {
-                        vm.isCheckEnabled = vm.column.checkEnabled(vm.row);
-                    });
-                    unbind();
-                }
-            });
         }
 
         function isEmpty(obj, col) {
@@ -116,6 +108,14 @@
                     }
                 }, true);
             }
+
+            $scope.$watch('::vm.column.checkEnabled', function() {
+                if (vm.column.checkEnabled) {
+                    $scope.$watch('vm.column.checkEnabled(vm.row)', function() {
+                        vm.isCheckEnabled = vm.column.checkEnabled(vm.row);
+                    });
+                }
+            });
         }
     }
 })();

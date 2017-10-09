@@ -82,13 +82,7 @@
                     ng-click="vm.onRowSelect($event, row)"
                     ng-show="column.isVisible"
                     style="min-width: 150px">
-                    <indigo-table-val column="::column"
-                                      row="::row"
-                                      on-start-edit="vm.startEdit($id)"
-                                      on-close="vm.onClose(column, data)"
-                                      is-editing="$id === vm.editingCellId"
-                                      is-readonly="column.readonly || column.noDisableable ? false : vm.isReadonly || !!row.registrationStatus">
-                    </indigo-table-val>
+                    <cell-typer></cell-typer>
                 </td>
             </tr>
             <tr ng-if="!vm.rowsForDisplay.length">
