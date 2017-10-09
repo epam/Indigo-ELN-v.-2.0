@@ -80,7 +80,7 @@
                     id: '$$select',
                     name: 'Select',
                     type: 'boolean',
-                    noDisablable: true,
+                    noDisableable: true,
                     noDirty: true,
                     actions: [
                         {

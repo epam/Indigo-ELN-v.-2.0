@@ -43,12 +43,6 @@
                 $tr.attr('dragula', '"my-table-columns"');
                 $tr.attr('dragula-model', 'vm.indigoColumns');
             }
-
-            return {
-                post: function(scope, element, attrs, ctrl, transclude) {
-                    element.find('.transclude').replaceWith(transclude());
-                }
-            };
         }
     }
 })();

@@ -74,13 +74,24 @@
             });
         }
 
+        function updateImage(structure) {
+            if (structure.image !== vm.model.reaction.image) {
+                vm.model.reaction.image = structure.image;
+            }
+        }
+
         function onChangedStructure(structure) {
             if (!structure.molfile) {
                 vm.model.reaction = structure;
             }
-            vm.loading = CalculationService.getReactionProductsAndReactants(structure.molfile).then(function(response) {
-                return vm.model.reaction.molfile === structure.molfile ? $q.reject() : updateReaction(response, structure);
-            });
+            updateImage(structure);
+
+            if (structure.molfile !== vm.model.reaction.molfile) {
+                vm.loading = CalculationService.getReactionProductsAndReactants(structure.molfile)
+                    .then(function(response) {
+                        return updateReaction(response, structure);
+                    });
+            }
 
             return vm.loading;
         }
