@@ -13,12 +13,12 @@
                     $document.on('click', handler);
                 });
 
-                $scope.$on('destroy', function() {
+                $scope.$on('$destroy', function() {
                     $document.off('click', handler);
                 });
 
                 function handler(event) {
-                    if ($element !== event.target && !includes($element[0].children, event.target)) {
+                    if ($element[0] !== event.target && !includes($element[0].children, event.target)) {
                         $scope.$apply(function() {
                             expression($scope, {$event: event});
                         });
