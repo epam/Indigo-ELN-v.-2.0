@@ -1,7 +1,7 @@
 <div class="row m-b20">
-    <div class="col-xs-4" ng-if="vm.indigoLabel" ng-bind="vm.indigoLabel"></div>
+    <div class="col-xs-4" ng-if="::vm.indigoLabel" ng-bind="::vm.indigoLabel"></div>
     <div ng-class="{'col-xs-8 text-right': vm.indigoLabel, 'col-xs-12 text-right': !vm.indigoLabel}"
-         class="is-hidden">
+         ng-if="!vm.isHideColumnSettings">
         <div ng-if="vm.rowsForDisplay.length < vm.indigoRows.length" class="search-info">
             <strong>{{vm.rowsForDisplay.length}}</strong> of {{vm.indigoRows.length}} are shown
         </div>
@@ -27,7 +27,7 @@
     <table class="table table-striped product">
         <thead>
         <tr>
-            <th ng-repeat="column in vm.indigoColumns track by $index" ng-show="column.isVisible"
+            <th ng-repeat="column in vm.indigoColumns track by column.id" ng-show="column.isVisible"
                 ng-switch="::!column.actions.length">
                 <div class="btn-group btn-group-sm btn-group-justified product-header-item"
                      ng-switch-when="true">
@@ -35,13 +35,14 @@
                 </div>
                 <div class="btn-group btn-group-sm btn-group-justified product-header-item"
                      uib-dropdown
-                     dropdown-append-to-body
                      ng-switch-when="false">
-                    <a class="btn btn-transparent" uib-dropdown-toggle
+                    <a class="btn btn-transparent"
+                       uib-dropdown-toggle
                        ng-disabled="vm.isReadonly && !column.noDisableable">
-                        <span ng-bind="::column.name"></span><span class="caret"></span>
+                        <span ng-bind="column.name"></span><span class="caret"></span>
                     </a>
-                    <ul uib-dropdown-menu class="no-draggable">
+                    <ul uib-dropdown-menu class="no-draggable"
+                        role="menu">
                         <li ng-repeat="action in column.actions track by $index" class="no-draggable">
                             <a ng-click="(vm.isReadonly && !column.noDisableable) || action.action(column.id)"
                                class="no-draggable" ng-bind="::action.name"></a>

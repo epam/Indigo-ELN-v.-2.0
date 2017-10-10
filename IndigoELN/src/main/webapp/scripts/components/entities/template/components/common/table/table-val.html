@@ -10,7 +10,7 @@
 
         <a ng-switch-when="false"
            ng-click="vm.isReadonly || vm.onStartEdit()"
-           ng-switch="::vm.column.type">
+           ng-switch="vm.column.type">
                 <span ng-switch-when="input"
                       ng-switch="::!vm.column.hasStructurePopover">
                 <span ng-switch-when="true"
@@ -38,7 +38,7 @@
     </div>
 
     <div ng-switch-when="true" nested-outside-click="vm.closeThis()"
-         ng-switch="::vm.column.type">
+         ng-switch="vm.column.type">
         <div ng-switch-when="unit">
             <indigo-input indigo-model="vm.row[vm.column.id].value" indigo-input-group="append"
                           indigo-input-size="sm"
