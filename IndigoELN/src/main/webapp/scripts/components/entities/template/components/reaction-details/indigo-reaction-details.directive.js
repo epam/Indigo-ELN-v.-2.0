@@ -110,7 +110,7 @@
 
                 promiseLoadExperiments = Dictionary.get({
                     id: 'experiments'
-                }).promise.then(function(dictionary) {
+                }).$promise.then(function(dictionary) {
                     return dictionary.words;
                 });
 
