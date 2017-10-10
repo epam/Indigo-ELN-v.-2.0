@@ -1,0 +1,29 @@
+<div class="btn-group btn-group-sm m-l10"
+     uib-dropdown
+     auto-close="disabled"
+     is-open="vm.isOpen">
+    <div class="btn btn-info"
+         uib-dropdown-toggle
+         ng-disabled="disabled"
+         uib-tooltip="Column settings">
+        <span class="fa fa-columns no-draggable" aria-hidden="true"></span> &nbsp;<span> Columns</span>
+    </div>
+    <ul uib-dropdown-menu
+        role="menu"
+        class="dropdown-menu-right"
+        ng-if="vm.isOpen"
+        nested-outside-click="vm.isOpen = false">
+        <li role="menuitem">
+            <button type="button" class="btn btn-default btn-small m-t5"
+                    ng-click="vm.resetColumns()">Set default columns set
+            </button>
+        </li>
+        <li ng-repeat="column in vm.columns track by $index"
+            role="menuitem">
+            <indigo-checkbox indigo-label="{{::column.name}}"
+                             indigo-model="column.isVisible"
+                             indigo-change="vm.saveInLocalStorage()">
+            </indigo-checkbox>
+        </li>
+    </ul>
+</div>

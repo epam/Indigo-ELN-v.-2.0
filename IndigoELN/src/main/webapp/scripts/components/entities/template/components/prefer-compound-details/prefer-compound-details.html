@@ -36,37 +36,7 @@
         ></indigo-compound-summary>
 
             <div class="row m-b20">
-                <div class="col-xs-12 text-right">
-                    <div class="search-field">
-                        <span class="fa fa-search"></span>
-                        <input type="search" class="uui-search" placeholder="Search" ng-change="search()"
-                               press-enter="$event.preventDefault()" ng-model="searchText">
-                    </div>
-                    <div class="btn-group btn-group-sm m-l10" uib-dropdown dropdown-append-to-body ng-if="!myHideColumnSettings">
-                        <div id="show-hide-button" class="btn btn-info"
-                             uib-dropdown-toggle
-                             ng-disabled="disabled"
-                             uib-tooltip="Column settings">
-                            <span class="fa fa-columns no-draggable" aria-hidden="true"></span> &nbsp;<span> Columns</span>
-                        </div>
-                        <ul uib-dropdown-menu role="menu"
-                            indigo-scroller="y"
-                            indigo-scroller-theme="indigo-thick" class="show-hide-columns dropdown-menu-right">
-                            <li role="menuitem"
-                                ng-click="$event.stopPropagation();">
-                                <button type="button" class="btn btn-default btn-small m-t5"
-                                        ng-click="resetColumns()">Set default columns set
-                                </button>
-                            </li>
-                            <li ng-repeat="column in myColumns | filter : {id:'!show-hide-columns'}"
-                                role="menuitem"
-                                ng-click="$event.stopPropagation();">
-                                <indigo-checkbox indigo-label="{{column.name}}" indigo-model="column.isVisible"
-                                                 indigo-change="saveInLocalStorage();"></indigo-checkbox>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+
             </div>
             <div class="row m-b20 ng-scope"  ng-if="!vm.showSummary">
                 <div class="col-sm-7 m-bt-sm">
