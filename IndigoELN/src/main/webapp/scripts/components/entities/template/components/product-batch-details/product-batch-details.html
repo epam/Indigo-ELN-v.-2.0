@@ -126,30 +126,26 @@
                                indigo-model="vm.selectedBatch.regStatus"
                                indigo-readonly="vm.isEditDisabled"
                 ></indigo-select>
-                <indigo-input indigo-label="Conversational Batch number"
-                              indigo-model="vm.selectedBatch.conversationalBatchNumber"
-                              indigo-label-vertical="true"
-                              indigo-readonly="true"
-                ></indigo-input>
-                <indigo-input indigo-label="Virtual Compound Id"
-                              indigo-model="vm.selectedBatch.virtualCompoundId"
-                              indigo-label-vertical="true"
-                              indigo-readonly="vm.isEditDisabled"
-                ></indigo-input>
+                <simple-input label="Conversational Batch number"
+                              model="vm.selectedBatch.conversationalBatchNumber"
+                              is-readonly="true"
+                ></simple-input>
+                <simple-input label="Virtual Compound Id"
+                              model="vm.selectedBatch.virtualCompoundId"
+                              is-readonly="vm.isEditDisabled"
+                ></simple-input>
                 <indigo-select indigo-label="Source"
                                indigo-label-vertical="true"
                                indigo-model="vm.selectedBatch.source"
                                indigo-dictionary="Source"
                                indigo-readonly="vm.isEditDisabled"
                 ></indigo-select>
-                <!--Source detail block-->
                 <indigo-select indigo-label="Source Detail"
                                indigo-label-vertical="true"
                                indigo-model="vm.selectedBatch.sourceDetail"
                                indigo-dictionary="Source Details"
                                indigo-readonly="vm.isEditDisabled"
                 ></indigo-select>
-                <!--End block-->
                 <indigo-select indigo-label="Stereoisomer Code"
                                indigo-label-vertical="true"
                                indigo-dictionary="Stereoisomer Code"

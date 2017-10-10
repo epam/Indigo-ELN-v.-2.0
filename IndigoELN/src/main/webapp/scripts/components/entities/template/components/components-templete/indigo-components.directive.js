@@ -3,75 +3,34 @@
         .module('indigoeln')
         .directive('indigoComponents', indigoComponents);
 
-    /* @ngInject */
+    indigoComponents.$inject = ['$timeout'];
+
     function indigoComponents($timeout) {
-        var scrollCache = {};
+        IndigoComponentsController.$inject = [
+            '$scope',
+            'ProductBatchSummaryOperations',
+            'ProductBatchSummaryCache',
+            'EntitiesBrowser'
+        ];
 
         return {
             restrict: 'E',
-            replace: true,
             scope: {
                 template: '=',
                 isReadonly: '=',
                 model: '=',
                 experiment: '=',
-                experimentForm: '=',
                 saveExperimentFn: '&',
                 onChanged: '&'
             },
-            link: link,
             templateUrl: 'scripts/components/entities/template/components/components-templete/components.html',
             bindToController: true,
             controllerAs: 'vm',
-            controller: indigoComponentsController
+            controller: IndigoComponentsController
         };
 
-        /* @ngInject */
-        function link(scope, element) {
-            if (!scope.experiment) {
-                return;
-            }
-            var id = scope.experiment.fullId;
-            var tc;
-            var preventFirstScroll;
-            $timeout(function() {
-                var stimeout;
-                var nostore;
-                tc = element.find('.tab-content');
-
-                if (scrollCache[id]) {
-                    setTimeout(function() {
-                        nostore = true;
-                        tc[0].scrollTop = scrollCache[id];
-                    }, 100);
-                }
-
-                tc.on('scroll', function() {
-                    // will close some dropdowns EPMLSOPELN-437
-                    element.trigger('click');
-                    if (nostore) {
-                        nostore = false;
-
-                        return;
-                    }
-                    if (!preventFirstScroll) {
-                        scrollCache[id] = this.scrollTop;
-                    } else {
-                        nostore = true;
-                        tc[0].scrollTop = scrollCache[id] || 0;
-                    }
-                    clearTimeout(stimeout);
-                    stimeout = setTimeout(function() {
-                        preventFirstScroll = true;
-                    }, 300);
-                    preventFirstScroll = false;
-                    nostore = false;
-                });
-            }, 100);
-        }
-
-        /* @ngInject */
-        function indigoComponentsController($scope, ProductBatchSummaryOperations, ProductBatchSummaryCache, EntitiesBrowser) {
+        function IndigoComponentsController($scope, ProductBatchSummaryOperations, ProductBatchSummaryCache,
+                                            EntitiesBrowser) {
             var vm = this;
             var precursors;
 
