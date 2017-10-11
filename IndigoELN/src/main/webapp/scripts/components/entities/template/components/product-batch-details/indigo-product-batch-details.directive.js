@@ -14,7 +14,6 @@
                 model: '=',
                 batches: '=',
                 experiment: '=',
-                experimentForm: '=',
                 selectedBatch: '=',
                 selectedBatchTrigger: '=',
                 reactants: '=',

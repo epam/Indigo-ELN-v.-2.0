@@ -5,9 +5,10 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-xs-6">
-                <indigo-input indigo-label="Experiment Subject / Title" indigo-label-vertical="true"
-                              indigo-model="vm.model.reactionDetails.title"
-                              indigo-readonly="vm.isReadonly"></indigo-input>
+                <simple-input label="Experiment Subject / Title"
+                              model="vm.model.reactionDetails.title"
+                              is-readonly="vm.isReadonly">
+                </simple-input>
                 <indigo-select indigo-label="Therapeutic Area"
                                indigo-dictionary="Therapeutic Area"
                                indigo-model="vm.model.reactionDetails.therapeuticArea"
@@ -18,9 +19,10 @@
                                indigo-model="vm.model.reactionDetails.codeAndName"
                                indigo-label-vertical="true"
                                indigo-readonly="vm.isReadonly"></indigo-select>
-                <indigo-input indigo-label="Batch Creator" indigo-label-vertical="true"
-                              indigo-model="vm.experiment.author.fullName"
-                              indigo-readonly="true"></indigo-input>
+                <simple-input label="Batch Creator"
+                              model="vm.experiment.author.fullName"
+                              is-readonly="true">
+                </simple-input>
                 <indigo-select indigo-label="Co-authors"
                                indigo-label-vertical="true"
                                indigo-readonly="vm.isReadonly"
@@ -72,9 +74,10 @@
                                   indigo-source="vm.getExperiments"
                                   indigo-placeholder="11112222-0003, 11112222-0005"
                                   indigo-classes="linkedExperiments"></indigo-tag-input>
-                <indigo-input indigo-label="Project Alias Name" indigo-label-vertical="true"
-                              indigo-model="vm.model.reactionDetails.projectAliasName"
-                              indigo-readonly="vm.isReadonly"></indigo-input>
+                <simple-input label="Project Alias Name"
+                              model="vm.model.reactionDetails.projectAliasName"
+                              is-readonly="vm.isReadonly">
+                </simple-input>
                 <indigo-select indigo-label="Batch Owner"
                                indigo-label-vertical="true"
                                indigo-readonly="vm.isReadonly"
