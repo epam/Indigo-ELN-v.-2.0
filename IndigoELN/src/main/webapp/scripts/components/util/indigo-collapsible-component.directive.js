@@ -43,7 +43,7 @@
                     var $element = $(iElement);
                     var $heading = $element.find('.panel-heading:first');
                     var componentId = $element.parents('.my-component:first').attr('indigo-component-id');
-                    var collapsedComponents = angular.fromJson(EntitiesCache.getByName(user.id + '.collapsed-components'));
+                    var collapsedComponents = JSON.parse(EntitiesCache.getByName(user.id + '.collapsed-components'));
                     var entityId = compactIds($state.params);
                     if (collapsedComponents && collapsedComponents[entityId]) {
                         isCollapsed = collapsedComponents[entityId][componentId];
@@ -67,11 +67,11 @@
                             $icon.removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
                         }
                         isCollapsed = !isCollapsed;
-                        collapsedComponents = angular.fromJson(EntitiesCache.getByName(user.id + '.collapsed-components'));
+                        collapsedComponents = JSON.parse(EntitiesCache.getByName(user.id + '.collapsed-components'));
                         collapsedComponents = collapsedComponents || {};
                         collapsedComponents[entityId] = collapsedComponents[entityId] || {};
                         collapsedComponents[entityId][componentId] = isCollapsed;
-                        EntitiesCache.putByName(user.id + '.collapsed-components', angular.toJson(collapsedComponents));
+                        EntitiesCache.putByName(user.id + '.collapsed-components', JSON.stringify(collapsedComponents));
                     });
                 });
         }

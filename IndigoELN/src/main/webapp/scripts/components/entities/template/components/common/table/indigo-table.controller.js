@@ -59,7 +59,7 @@
         }
 
         function updateColumns() {
-            var columnIdsAndFlags = angular.fromJson(EntitiesCache.getByName(user.id + '.' + vm.indigoId + '.columns'));
+            var columnIdsAndFlags = JSON.parse(EntitiesCache.getByName(user.id + '.' + vm.indigoId + '.columns'));
             if (!columnIdsAndFlags) {
                 vm.saveInLocalStorage();
             }
@@ -78,7 +78,7 @@
         }
 
         function saveInLocalStorage() {
-            EntitiesCache.putByName(user.id + '.' + vm.indigoId + '.columns', angular.toJson(getColumnsProps(vm.indigoColumns)));
+            EntitiesCache.putByName(user.id + '.' + vm.indigoId + '.columns', JSON.stringify(getColumnsProps(vm.indigoColumns)));
         }
 
         function resetColumns() {
