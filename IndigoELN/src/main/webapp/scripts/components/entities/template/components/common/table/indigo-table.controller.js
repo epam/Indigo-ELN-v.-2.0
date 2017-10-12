@@ -59,7 +59,7 @@
         }
 
         function updateColumns() {
-            var columnIdsAndFlags = JSON.parse(simpleLocalCache.getByKey(user.id + '.' + vm.indigoId + '.columns'));
+            var columnIdsAndFlags = simpleLocalCache.getByKey(user.id + '.' + vm.indigoId + '.columns');
             if (!columnIdsAndFlags) {
                 vm.saveInLocalStorage();
             }
@@ -78,7 +78,7 @@
         }
 
         function saveInLocalStorage() {
-            simpleLocalCache.putByKey(user.id + '.' + vm.indigoId + '.columns', JSON.stringify(getColumnsProps(vm.indigoColumns)));
+            simpleLocalCache.putByKey(user.id + '.' + vm.indigoId + '.columns', getColumnsProps(vm.indigoColumns));
         }
 
         function resetColumns() {

@@ -43,7 +43,7 @@
                     var $element = $(iElement);
                     var $heading = $element.find('.panel-heading:first');
                     var componentId = $element.parents('.my-component:first').attr('indigo-component-id');
-                    var collapsedComponents = JSON.parse(simpleLocalCache.getByKey(user.id + '.collapsed-components'));
+                    var collapsedComponents = simpleLocalCache.getByKey(user.id + '.collapsed-components');
                     var entityId = compactIds($state.params);
                     if (collapsedComponents && collapsedComponents[entityId]) {
                         isCollapsed = collapsedComponents[entityId][componentId];
@@ -67,11 +67,11 @@
                             $icon.removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
                         }
                         isCollapsed = !isCollapsed;
-                        collapsedComponents = JSON.parse(simpleLocalCache.getByKey(user.id + '.collapsed-components'));
+                        collapsedComponents = simpleLocalCache.getByKey(user.id + '.collapsed-components');
                         collapsedComponents = collapsedComponents || {};
                         collapsedComponents[entityId] = collapsedComponents[entityId] || {};
                         collapsedComponents[entityId][componentId] = isCollapsed;
-                        simpleLocalCache.putByName(user.id + '.collapsed-components', JSON.stringify(collapsedComponents));
+                        simpleLocalCache.putByName(user.id + '.collapsed-components', collapsedComponents);
                     });
                 });
         }
