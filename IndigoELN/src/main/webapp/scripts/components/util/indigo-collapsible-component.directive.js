@@ -11,7 +11,7 @@
         };
 
         /* @ngInject */
-        function link(scope, iElement, attrs) {
+        function link(scope, iElement) {
             var extractParams = function(obj) {
                 return {
                     projectId: obj.projectId,
