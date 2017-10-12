@@ -2,8 +2,8 @@
     angular.module('indigoeln')
         .factory('simpleLocalCache', simpleLocalCache);
 
-    sidebarCache.$inject = ['CacheFactory', 'Principal'];
-    function sidebarCache(CacheFactory) {
+    simpleLocalCache.$inject = ['CacheFactory', 'Principal'];
+    function simpleLocalCache(CacheFactory) {
         var cache = CacheFactory('simpleLocalCache', {
             storageMode: 'localStorage'
         });
