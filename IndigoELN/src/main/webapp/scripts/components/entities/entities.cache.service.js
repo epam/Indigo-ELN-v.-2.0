@@ -4,7 +4,15 @@ angular
 
 /* @ngInject */
 function entitiesCacheFactory(CacheFactory, TabKeyUtils) {
-    var entitiesCache = CacheFactory('entitiesCache');
+    var aDay = 86400000;
+    var aMinute = 3600;
+
+    var entitiesCache = CacheFactory('entitiesCache', {
+        storageMode: 'localStorage',
+        maxAge: aDay * 7,
+        deleteOnExpire: 'aggressive',
+        recycleFreq: aMinute * 5
+    });
 
     return {
         put: put,

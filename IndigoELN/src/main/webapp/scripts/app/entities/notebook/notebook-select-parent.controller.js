@@ -4,7 +4,7 @@
         .controller('NotebookSelectParentController', NotebookSelectParentController);
 
     /* @ngInject */
-    function NotebookSelectParentController($scope, $uibModalInstance, parents, Principal, localStorageService) {
+    function NotebookSelectParentController($scope, $uibModalInstance, parents, Principal, EntitiesCache) {
         var vm = this;
         vm.parents = parents;
         vm.selectedParent = '';
@@ -27,7 +27,7 @@
             Principal.identity()
                 .then(function(user) {
                     var pkey = user.id + '.' + 'lastSelectedProjectId';
-                    var pval = localStorageService.get(pkey);
+                    var pval = EntitiesCache.getByName(pkey);
                     if (pval) {
                         vm.selectedParent = parents.filter(function(p) {
                             return p.id === pval;
@@ -35,7 +35,7 @@
                     }
                     var unsubscribe = $scope.$watchGroup(['selectedParent'], function() {
                         if (vm.selectedParent) {
-                            localStorageService.set(pkey, vm.selectedParent.id);
+                            EntitiesCache.putByName(pkey, vm.selectedParent.id);
                         }
                     });
                     $scope.$on('$destroy', function() {

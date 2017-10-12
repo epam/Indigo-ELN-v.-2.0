@@ -4,14 +4,14 @@
         .directive('indigoCollapsibleComponent', indigoCollapsibleComponent);
 
     /* @ngInject */
-    function indigoCollapsibleComponent($state, localStorageService, Principal) {
+    function indigoCollapsibleComponent($state, EntitiesCache, Principal) {
         return {
             restrict: 'A',
             link: link
         };
 
         /* @ngInject */
-        function link(scope, iElement) {
+        function link(scope, iElement, attrs) {
             var extractParams = function(obj) {
                 return {
                     projectId: obj.projectId,
@@ -43,7 +43,7 @@
                     var $element = $(iElement);
                     var $heading = $element.find('.panel-heading:first');
                     var componentId = $element.parents('.my-component:first').attr('indigo-component-id');
-                    var collapsedComponents = JSON.parse(localStorageService.get(user.id + '.collapsed-components'));
+                    var collapsedComponents = angular.fromJson(EntitiesCache.getByName(user.id + '.collapsed-components'));
                     var entityId = compactIds($state.params);
                     if (collapsedComponents && collapsedComponents[entityId]) {
                         isCollapsed = collapsedComponents[entityId][componentId];
@@ -67,11 +67,11 @@
                             $icon.removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
                         }
                         isCollapsed = !isCollapsed;
-                        collapsedComponents = JSON.parse(localStorageService.get(user.id + '.collapsed-components'));
+                        collapsedComponents = angular.fromJson(EntitiesCache.getByName(user.id + '.collapsed-components'));
                         collapsedComponents = collapsedComponents || {};
                         collapsedComponents[entityId] = collapsedComponents[entityId] || {};
                         collapsedComponents[entityId][componentId] = isCollapsed;
-                        localStorageService.set(user.id + '.collapsed-components', JSON.stringify(collapsedComponents));
+                        EntitiesCache.putByName(user.id + '.collapsed-components', angular.toJson(collapsedComponents));
                     });
                 });
         }
