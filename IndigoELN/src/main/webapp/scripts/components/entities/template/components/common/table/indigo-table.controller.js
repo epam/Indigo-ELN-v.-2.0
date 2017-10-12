@@ -4,8 +4,7 @@
         .controller('IndigoTableController', IndigoTableController);
 
     /* @ngInject */
-    function IndigoTableController($scope, dragulaService, simpleLocalCache, $attrs, unitService, selectService,
-                                   inputService, scalarService, Principal, $timeout, $filter) {
+    function IndigoTableController($scope, dragulaService, simpleLocalCache, $attrs, Principal, $timeout, $filter) {
         var vm = this;
         var originalColumnIdsAndFlags;
         var searchColumns;
@@ -23,10 +22,9 @@
             };
             updateRowsForDisplay(vm.indigoRows);
 
-            unitService.processColumns(vm.indigoColumns, vm.indigoRows);
-            selectService.processColumns(vm.indigoColumns, vm.indigoRows);
-            inputService.processColumns(vm.indigoColumns, vm.indigoRows);
-            scalarService.processColumns(vm.indigoColumns, vm.indigoRows);
+            // selectService.processColumns(vm.indigoColumns, vm.indigoRows);
+            // inputService.processColumns(vm.indigoColumns, vm.indigoRows);
+            // scalarService.processColumns(vm.indigoColumns, vm.indigoRows);
 
             vm.startEdit = startEdit;
             vm.searchDebounce = _.debounce(search, 300);

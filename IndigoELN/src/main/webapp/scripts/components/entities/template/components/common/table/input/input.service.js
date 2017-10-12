@@ -4,16 +4,19 @@ angular
 
 /* @ngInject */
 function inputService($uibModal, RegistrationUtil) {
-    var setInputValueAction = {
-        action: action
-    };
-
     return {
-        processColumns: processColumns
+        getActions: function(name) {
+            return [{
+                name: 'Set value for ' + name,
+                title: name,
+                action: function(rows, column) {
+                    action(rows, name, column.id);
+                }
+            }];
+        }
     };
 
-    function action(id) {
-        var that = this;
+    function action(rows, title, columnId) {
         $uibModal.open({
             templateUrl: 'scripts/components/entities/template/components/common/table/input/set-input-value.html',
             controller: 'SetInputValueController',
@@ -21,30 +24,15 @@ function inputService($uibModal, RegistrationUtil) {
             size: 'sm',
             resolve: {
                 name: function() {
-                    return that.title;
+                    return title;
                 }
             }
         }).result.then(function(result) {
-            _.each(that.rows, function(row) {
+            _.each(rows, function(row) {
                 if (!RegistrationUtil.isRegistered(row)) {
-                    row[id] = result;
+                    row[columnId] = result;
                 }
             });
-        }, function() {
-
-        });
-    }
-
-    function processColumns(columns, rows) {
-        _.each(columns, function(column) {
-            if (column.type === 'input' && column.bulkAssignment) {
-                column.actions = (column.actions || [])
-                    .concat([_.extend({}, setInputValueAction, {
-                        name: 'Set value for ' + column.name,
-                        title: column.name,
-                        rows: rows
-                    })]);
-            }
         });
     }
 }
