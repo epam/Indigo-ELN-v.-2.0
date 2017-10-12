@@ -4,7 +4,7 @@
 
     sidebarCache.$inject = ['CacheFactory', 'Principal'];
     function sidebarCache(CacheFactory) {
-        var cache = CacheFactory('sidebarCache', {
+        var cache = CacheFactory('simpleLocalCache', {
             storageMode: 'localStorage'
         });
 
