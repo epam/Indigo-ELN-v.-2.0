@@ -5,7 +5,7 @@
 
     /* @ngInject */
     function CreateNewExperimentModalController($scope, componentsUtils, $uibModalInstance, Experiment, Principal, $q,
-                                                EntitiesCache, fullNotebookId, NotebooksForSubCreation, Template) {
+                                                simpleLocalCache, fullNotebookId, NotebooksForSubCreation, Template) {
         var vm = this;
         var userId;
         var lastSelectedTemplateIdKey = '.lastSelectedTemplateId';
@@ -50,19 +50,19 @@
             $scope.$watch('vm.selectedTemplate', function() {
                 // EPMLSOPELN-415 Remember last selected parent and template
                 if (vm.selectedTemplate) {
-                    EntitiesCache.putByName(userId + lastSelectedTemplateIdKey, vm.selectedTemplate.id);
+                    simpleLocalCache.putByKey(userId + lastSelectedTemplateIdKey, vm.selectedTemplate.id);
                 }
             });
 
             $scope.$watch('vm.selectedNotebook', function() {
                 if (vm.selectedNotebook) {
-                    EntitiesCache.putByName(userId + lastSelectedExperimentIdKey, vm.selectedNotebook.id);
+                    simpleLocalCache.putByKey(userId + lastSelectedExperimentIdKey, vm.selectedNotebook.id);
                 }
             });
         }
 
         function selectNotebookById() {
-            var lastNotebookId = vm.fullNotebookId || EntitiesCache.getByName(userId + lastSelectedTemplateIdKey);
+            var lastNotebookId = vm.fullNotebookId || simpleLocalCache.getByKey(userId + lastSelectedTemplateIdKey);
 
             if (lastNotebookId) {
                 vm.selectedNotebook = _.find(vm.notebooks, {fullId: lastNotebookId});
@@ -70,7 +70,7 @@
         }
 
         function selectTemplateById() {
-            var lastSelectedTemplateId = EntitiesCache.getByName(userId + lastSelectedTemplateIdKey);
+            var lastSelectedTemplateId = simpleLocalCache.getByKey(userId + lastSelectedTemplateIdKey);
 
             if (lastSelectedTemplateId) {
                 vm.selectedTemplate = _.find(vm.templates, {id: lastSelectedTemplateId});

@@ -4,7 +4,7 @@
         .controller('IndigoTableController', IndigoTableController);
 
     /* @ngInject */
-    function IndigoTableController($scope, dragulaService, EntitiesCache, $attrs, unitService, selectService,
+    function IndigoTableController($scope, dragulaService, simpleLocalCache, $attrs, unitService, selectService,
                                    inputService, scalarService, Principal, $timeout, $filter) {
         var vm = this;
         var originalColumnIdsAndFlags;
@@ -59,7 +59,7 @@
         }
 
         function updateColumns() {
-            var columnIdsAndFlags = JSON.parse(EntitiesCache.getByName(user.id + '.' + vm.indigoId + '.columns'));
+            var columnIdsAndFlags = JSON.parse(simpleLocalCache.getByKey(user.id + '.' + vm.indigoId + '.columns'));
             if (!columnIdsAndFlags) {
                 vm.saveInLocalStorage();
             }
@@ -78,11 +78,11 @@
         }
 
         function saveInLocalStorage() {
-            EntitiesCache.putByName(user.id + '.' + vm.indigoId + '.columns', JSON.stringify(getColumnsProps(vm.indigoColumns)));
+            simpleLocalCache.putByKey(user.id + '.' + vm.indigoId + '.columns', JSON.stringify(getColumnsProps(vm.indigoColumns)));
         }
 
         function resetColumns() {
-            EntitiesCache.removeByKey(user.id + '.' + vm.indigoId + '.columns');
+            simpleLocalCache.removeByKey(user.id + '.' + vm.indigoId + '.columns');
             updateColumns();
         }
 

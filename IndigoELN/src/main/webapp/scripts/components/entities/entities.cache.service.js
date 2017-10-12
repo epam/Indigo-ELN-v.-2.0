@@ -4,9 +4,7 @@ angular
 
 /* @ngInject */
 function entitiesCacheFactory(CacheFactory, TabKeyUtils) {
-    var entitiesCache = CacheFactory('entitiesCache', {
-        storageMode: 'localStorage'
-    });
+    var entitiesCache = CacheFactory('entitiesCache');
 
     return {
         put: put,
