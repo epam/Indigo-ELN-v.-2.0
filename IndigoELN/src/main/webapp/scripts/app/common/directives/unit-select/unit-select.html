@@ -11,9 +11,9 @@
     </button>
 
     <ul class="dropdown-menu" uib-dropdown-menu role="menu">
-        <li ng-repeat="unit in vm.units track by unit.name"
+        <li ng-repeat="unit in vm.units track by unit"
             ng-click="vm.onChange({unit: unit}); vm.isOpen = false;">
-            <a ng-bind="unit.name"></a>
+            <a ng-bind="unit"></a>
         </li>
     </ul>
 </div>

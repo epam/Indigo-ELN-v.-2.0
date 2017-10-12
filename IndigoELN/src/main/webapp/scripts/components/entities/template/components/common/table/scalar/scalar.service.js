@@ -4,16 +4,11 @@ angular
 
 /* @ngInject */
 function scalarService($uibModal, RegistrationUtil, CalculationService) {
-    var setScalarValueAction = {
+    return {
         action: action
     };
 
-    return {
-        processColumns: processColumns
-    };
-
-    function action(id) {
-        var that = this;
+    function action(rows, title, column) {
         $uibModal.open({
             templateUrl: 'scripts/components/entities/template/components/common/table/scalar/set-scalar-value.html',
             controller: 'SetScalarValueController',
@@ -21,40 +16,25 @@ function scalarService($uibModal, RegistrationUtil, CalculationService) {
             size: 'sm',
             resolve: {
                 name: function() {
-                    return that.title;
+                    return title;
                 }
             }
         }).result.then(function(result) {
-            _.each(that.rows, function(row) {
+            _.each(rows, function(row) {
                 if (!RegistrationUtil.isRegistered(row)) {
-                    row[id].value = result;
-                    row[id].entered = true;
-                    if (id === 'saltEq') {
+                    row[column.id].value = result;
+                    row[column.id].entered = true;
+                    if (column.id === 'saltEq') {
                         recalculateSalt(row);
                     }
                 }
             });
-        }, function() {
-
         });
     }
 
     function recalculateSalt(reagent) {
         CalculationService.recalculateSalt(reagent).then(function() {
             CalculationService.recalculateStoich();
-        });
-    }
-
-    function processColumns(columns, rows) {
-        _.each(columns, function(column) {
-            if (column.type === 'scalar' && column.bulkAssignment) {
-                column.actions = (column.actions || [])
-                    .concat([_.extend({}, setScalarValueAction, {
-                        name: 'Set value for ' + column.name,
-                        title: column.name,
-                        rows: rows
-                    })]);
-            }
         });
     }
 }

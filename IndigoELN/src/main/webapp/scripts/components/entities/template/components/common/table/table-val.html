@@ -49,8 +49,8 @@
                           indigo-type="number"
                           press-enter="vm.closeThis()">
                 <unit-select unit="vm.row[vm.column.id].unit"
-                             units="vm.column.units"
-                             on-change="vm.row[vm.column.id].unit = unit.name; vm.closeThis()">
+                             units="vm.column.unitItems"
+                             on-change="vm.row[vm.column.id].unit = unit; vm.closeThis()">
                 </unit-select>
             </indigo-input>
         </div>

@@ -4,16 +4,21 @@ angular
 
 /* @ngInject */
 function selectService($uibModal, RegistrationUtil) {
-    var setSelectValueAction = {
-        action: action
-    };
-
     return {
-        processColumns: processColumns
+        getActions: function(name, values, dictionary) {
+            return [{
+                name: 'Set value for ' + name,
+                title: name,
+                values: values,
+                dictionary: dictionary,
+                action: function(rows, column) {
+                    action(rows, name, column.id, dictionary, values);
+                }
+            }];
+        }
     };
 
-    function action(id) {
-        var that = this;
+    function action(rows, title, columnId, dictionary, values) {
         $uibModal.open({
             templateUrl: 'scripts/components/entities/template/components/common/table/select/set-select-value.html',
             controller: 'SetSelectValueController',
@@ -21,41 +26,24 @@ function selectService($uibModal, RegistrationUtil) {
             size: 'sm',
             resolve: {
                 id: function() {
-                  return id;
+                    return columnId;
                 },
                 name: function() {
-                    return that.title;
+                    return title;
                 },
                 values: function() {
-                    return that.values;
+                    return values;
                 },
                 dictionary: function() {
-                    return that.dictionary;
+                    return dictionary;
                 }
             }
         }).result.then(function(result) {
-            _.each(that.rows, function(row) {
+            _.each(rows, function(row) {
                 if (!RegistrationUtil.isRegistered(row)) {
-                    row[id] = result;
+                    row[columnId] = result;
                 }
             });
-        }, function() {
-
-        });
-    }
-
-    function processColumns(columns, rows) {
-        _.each(columns, function(column) {
-            if (column.type === 'select' && !column.hideSelectValue) {
-                column.actions = (column.actions || [])
-                    .concat([_.extend({}, setSelectValueAction, {
-                        name: 'Set value for ' + column.name,
-                        title: column.name,
-                        values: column.values,
-                        rows: rows,
-                        dictionary: column.dictionary
-                    })]);
-            }
         });
     }
 }

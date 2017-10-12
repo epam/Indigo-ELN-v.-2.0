@@ -44,7 +44,7 @@
                     <ul uib-dropdown-menu class="no-draggable"
                         role="menu">
                         <li ng-repeat="action in column.actions track by $index" class="no-draggable">
-                            <a ng-click="(vm.isReadonly && !column.noDisableable) || action.action(column.id)"
+                            <a ng-click="(vm.isReadonly && !column.noDisableable) || action.action(vm.indigoRows, column)"
                                class="no-draggable" ng-bind="::action.name"></a>
                         </li>
                     </ul>

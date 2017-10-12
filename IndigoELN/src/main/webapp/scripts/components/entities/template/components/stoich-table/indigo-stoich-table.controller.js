@@ -1,22 +1,17 @@
 (function() {
     angular
         .module('indigoeln')
-        .controller('indigoStoichTableController', indigoStoichTableController);
+        .controller('IndigoStoichTableController', IndigoStoichTableController);
 
-    /* @ngInject */
-    function indigoStoichTableController($scope, $rootScope, $q, $uibModal, $timeout, AppValues,
-                                         AlertModal, notifyService, Dictionary, CalculationService, SearchService,
-                                         RegistrationService, dialogService, StoichTableCache, stoichHelper, sdImportHelperService) {
+    IndigoStoichTableController.$inject = [
+        '$scope', '$rootScope', '$q', '$uibModal', 'AppValues', 'stoichColumnActions', 'AlertModal', 'notifyService',
+        'CalculationService', 'StoichTableCache', 'stoichReactantsColumns', 'stoichProductColumns'
+    ];
+
+    function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, AppValues, stoichColumnActions,
+                                         AlertModal, notifyService, CalculationService, StoichTableCache,
+                                         stoichReactantsColumns, stoichProductColumns) {
         var vm = this;
-        var grams = AppValues.getGrams();
-        var liters = AppValues.getLiters();
-        var moles = AppValues.getMoles();
-        var density = AppValues.getDensity();
-        var molarity = AppValues.getMolarity();
-        var rxnValues = AppValues.getRxnValues();
-        var saltCodeValues = AppValues.getSaltCodeValues();
-        var loadFactorUnits = AppValues.getLoadFactorUnits();
-        var ftimeout;
 
         vm.model = vm.model || {};
 
@@ -121,293 +116,88 @@
         }
 
         function init() {
-            bindEvents();
-
             vm.reactantsColumns = [
-                {
-                    id: 'compoundId',
-                    name: 'Compound ID',
-                    type: 'input',
-                    hasStructurePopover: true,
-                    onClose: function(data) {
-                        var row = data.row;
-                        var compoundId = data.model;
-                        fetchBatchByCompoundId(compoundId, row);
-                    }
-                },
-                {
-                    id: 'casNumber',
-                    name: 'CAS Number',
-                    type: 'input'
-                },
-                {
-                    id: 'chemicalName',
-                    name: 'Chemical Name',
-                    type: 'input'
-                },
-                {
-                    id: 'fullNbkBatch',
-                    name: 'Nbk Batch #',
-                    type: 'input',
-                    hasStructurePopover: true,
-                    hasPopup: true,
-                    popItemClick: function(row, item) {
-                        row.fullNbkBatch = item.details.fullNbkBatch;
-                        populateFetchedBatch(row, item.details);
-                    },
-                    onChange: function(data) {
-                        var row = data.row;
-                        if (row) {
-                            if (!row.$$fullNbkBatchOld && row.fullNbkImmutablePart) {
-                                row.$$fullNbkBatchOld = data.oldVal;
-                            }
-                            var nbkBatch = data.model;
-                            row.$$popItems = null;
-                            row.$$populatedBatch = false;
-                            fetchBatchByNbkNumber(nbkBatch, function(result) {
-                                if (result[0]) {
-                                    row.$$popItems = result.map(function(r) {
-                                        return {
-                                            item: r,
-                                            title: r.details.fullNbkBatch
-                                        };
-                                    });
-                                } else {
-                                    alertWrongFormat();
-                                }
-                            });
-                        }
-                    },
-                    onClose: function(data) {
-                        var row = data.row;
-                        var nbkBatch = data.model;
-                        if (!row.$$populatedBatch) {
-                            if (row.fullNbkBatch) {
-                                fetchBatchByNbkNumber(nbkBatch, function(result) {
-                                    var pb = result[0];
-                                    if (pb && pb.details.fullNbkBatch === row.fullNbkBatch) {
-                                        populateFetchedBatch(row, pb.details);
-                                    } else {
-                                        alertWrongFormat();
-                                        row.fullNbkBatch = row.$$fullNbkBatchOld;
-                                    }
-                                });
-                            } else {
-                                alertWrongFormat();
-                                row.fullNbkBatch = row.$$fullNbkBatchOld;
-                            }
-                        }
-                    }
-                },
-                {
-                    id: 'molWeight',
-                    name: 'Mol Weight',
-                    type: 'scalar'
-                },
-                {
-                    id: 'weight',
-                    name: 'Weight',
-                    type: 'unit',
-                    unitItems: grams
-                },
-                {
-                    id: 'volume',
-                    name: 'Volume',
-                    type: 'unit',
-                    unitItems: liters
-                },
-                {
-                    id: 'mol',
-                    name: 'Mol',
-                    type: 'unit',
-                    unitItems: moles
-                },
-                {
-                    id: 'eq',
-                    name: 'EQ',
-                    type: 'scalar',
-                    sigDigits: 2
-                },
-                {
-                    id: 'limiting',
-                    name: 'Limiting',
-                    type: 'boolean',
-                    onClick: function(data) {
-                        CalculationService.setEntered(data);
-                        CalculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
-                    }
-                },
-                {
-                    id: 'rxnRole',
-                    name: 'Rxn Role',
-                    type: 'select',
-                    values: rxnValues
-                },
-                {
-                    id: 'density',
-                    name: 'Density',
-                    type: 'unit',
-                    unitItems: density
-                },
-                {
-                    id: 'molarity',
-                    name: 'Molarity',
-                    type: 'unit',
-                    unitItems: molarity
-                },
-                {
-                    id: 'stoicPurity',
-                    name: 'Purity',
-                    type: 'scalar'
-                },
-                {
-                    id: 'formula',
-                    name: 'Mol Formula',
-                    type: 'input'
-                },
-                {
-                    id: 'saltCode',
-                    name: 'Salt Code',
-                    type: 'select',
-                    values: saltCodeValues,
-                    onClose: function(data) {
-                        if (data.model.value === 0) {
-                            data.row.saltEq.value = 0;
-                        }
-                    },
-                    showDefault: true
-                },
-                {
-                    id: 'saltEq',
-                    name: 'Salt EQ',
-                    type: 'scalar',
-                    checkEnabled: function(o) {
-                        return o.saltCode && o.saltCode.value > 0;
-                    }
-                },
-                {
-                    id: 'loadFactor',
-                    name: 'Load Factor',
-                    type: 'unit',
-                    unitItems: loadFactorUnits
-                },
-                {
-                    id: 'hazardComments',
-                    name: 'Hazard Comments',
-                    type: 'input'
-                },
-                {
-                    id: 'comments',
-                    name: 'Comments',
-                    type: 'input'
-                }
+                getCompoundId(),
+                stoichReactantsColumns.casNumber,
+                stoichReactantsColumns.chemicalName,
+                stoichReactantsColumns.fullNbkBatch,
+                addOnClose(stoichReactantsColumns.molWeight),
+                addOnClose(stoichReactantsColumns.weight),
+                addOnClose(stoichReactantsColumns.volume),
+                addOnClose(stoichReactantsColumns.mol),
+                addOnClose(stoichReactantsColumns.eq),
+                getLimiting(),
+                getRxnRoleColumn(),
+                addOnClose(stoichReactantsColumns.density),
+                addOnClose(stoichReactantsColumns.molarity),
+                addOnClose(stoichReactantsColumns.stoicPurity),
+                stoichReactantsColumns.formula,
+                stoichReactantsColumns.saltCode,
+                stoichReactantsColumns.saltEq,
+                addOnClose(stoichReactantsColumns.loadFactor),
+                stoichReactantsColumns.hazardComments,
+                stoichReactantsColumns.comments
             ];
 
             vm.productsColumns = [
-                {
-                    id: 'chemicalName', name: 'Chemical Name', type: 'input', hasStructurePopover: true
-                },
-                {
-                    id: 'formula', name: 'Formula'
-                },
-                {
-                    id: 'molWeight', name: 'Mol.Wt.', type: 'scalar', readonly: true
-                },
-                {
-                    id: 'exactMass',
-                    name: 'Exact Mass',
-                    type: 'primitive'
-                },
-                {
-                    id: 'weight',
-                    name: 'Theo. Wgt.',
-                    type: 'unit',
-                    unitItems: grams,
-                    readonly: true
-                },
-                {
-                    id: 'mol',
-                    name: 'Theo. Moles',
-                    type: 'unit',
-                    unitItems: moles,
-                    isIntended: true,
-                    readonly: true
-                },
-                {
-                    id: 'saltCode',
-                    name: 'Salt Code',
-                    type: 'select',
-                    values: saltCodeValues,
-                    showDefault: true,
-                    onClose: function(data) {
-                        CalculationService.setEntered(data);
-                        recalculateSalt(data.row);
-                        if (data.model.value === 0) {
-                            data.row.saltEq.value = 0;
-                        }
-                    }
-
-                },
-                {
-                    id: 'saltEq',
-                    name: 'Salt EQ',
-                    type: 'scalar',
-                    checkEnabled: function(o) {
-                        return o.saltCode && o.saltCode.value > 0;
-                    },
-                    onClose: function(data) {
-                        CalculationService.setEntered(data);
-                        recalculateSalt(data.row);
-                    }
-                },
-                {
-                    id: 'hazardComments',
-                    name: 'Hazard Comments'
-                },
-                {
-                    id: 'eq',
-                    name: 'EQ',
-                    type: 'scalar'
-                }
+                stoichProductColumns.chemicalName,
+                stoichProductColumns.formula,
+                stoichProductColumns.molWeight,
+                stoichProductColumns.exactMass,
+                stoichProductColumns.weight,
+                stoichProductColumns.mol,
+                stoichProductColumns.saltCode,
+                stoichProductColumns.saltEq,
+                stoichProductColumns.hazardComments,
+                stoichProductColumns.eq
             ];
 
-            _.each(vm.reactantsColumns, function(column, i) {
-                var columnsToRecalculateStoic = ['molWeight', 'weight', 'volume', 'density', 'mol', 'eq',
-                    'rxnRole', 'molarity', 'stoicPurity', 'loadFactor'];
-                var columnsToRecalculateSalt = ['saltCode', 'saltEq'];
+            bindEvents();
+        }
 
-                if (_.includes(columnsToRecalculateStoic, column.id)) {
-                    vm.reactantsColumns[i] = _.extend(column, {
-                        onClose: function(data) {
-                            CalculationService.setEntered(data);
-                            if (column.id === 'rxnRole') {
-                                onRxnRoleChange(data);
-                            }
-                            CalculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
-                        }
-                    });
-                } else if (_.includes(columnsToRecalculateSalt, column.id)) {
-                    vm.reactantsColumns[i] = _.extend(column, {
-                        onClose: function(data) {
-                            CalculationService.setEntered(data);
-                            recalculateSalt(data.row);
-                            if (data.row.saltCode.value === 0) {
-                                data.row.saltEq.value = 0;
-                            }
-                        }
-                    });
+        function addOnClose(column) {
+            return _.extend({}, column, {
+                onClose: function(data) {
+                    CalculationService.setEntered(data);
+                    CalculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
                 }
             });
         }
 
-        function populateFetchedBatch(row, source) {
-            var cleanedBatch = stoichHelper.cleanReactant(source);
-            row.$$populatedBatch = true;
-            _.extend(row, cleanedBatch);
-            row.rxnRole = row.rxnRole || AppValues.getRxnRoleReactant();
-            row.weight = null;
-            row.volume = null;
-            CalculationService.recalculateStoich();
+        function getRxnRoleColumn() {
+            return _.extend({}, stoichReactantsColumns.rxnRole, {
+                onClose: function(data) {
+                    CalculationService.setEntered(data);
+                    onRxnRoleChange(data);
+                    CalculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
+                }
+            });
+        }
+
+        function getLimiting() {
+            return _.extend({}, stoichReactantsColumns.limiting, {
+                onClick: function(data) {
+                    CalculationService.setEntered(data);
+                    CalculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
+                }
+            });
+        }
+
+        function getCompoundId() {
+            return _.extend({}, stoichReactantsColumns.compoundId, {
+                onClose: function(data) {
+                    var row = data.row;
+                    var compoundId = data.model;
+                    stoichColumnActions.fetchBatchByCompoundId(compoundId, row)
+                        .then(function() {
+                            vm.onPrecursorsChanged({precursors: getPrecursors()});
+                        }, alertCompoundWrongFormat);
+                }
+            });
+        }
+
+        function alertCompoundWrongFormat() {
+            notifyService.error('Compound does not exist or in the wrong format');
         }
 
         function getStoicTable() {
@@ -438,95 +228,6 @@
             vm.onChanged();
         }
 
-        function fetchBatchByNbkNumber(nbkBatch, success) {
-            var searchRequest = {
-                advancedSearch: [{
-                    condition: 'contains', field: 'fullNbkBatch', name: 'NBK batch #', value: nbkBatch
-                }],
-                databases: ['Indigo ELN']
-            };
-            $timeout.cancel(ftimeout);
-            ftimeout = $timeout(function() {
-                SearchService.search(searchRequest, function(result) {
-                    success(result.slice(0, 5));
-                });
-            }, 500);
-        }
-
-        function convertCompoundsToBatches(compounds) {
-            return Dictionary.all().$promise
-                .then(function(dicts) {
-                    return _.map(compounds, function(c) {
-                        return {
-                            chemicalName: c.chemicalName,
-                            compoundId: c.compoundNo,
-                            conversationalBatchNumber: c.conversationalBatchNo,
-                            fullNbkBatch: c.batchNo,
-                            casNumber: c.casNo,
-                            structure: {
-                                structureType: 'molecule',
-                                molfile: c.structure
-                            },
-                            formula: c.formula,
-                            stereoisomer: sdImportHelperService.getWord('Stereoisomer Code', 'name', c.stereoisomerCode, dicts),
-                            saltCode: _.find(saltCodeValues, function(sc) {
-                                return sc.regValue === c.saltCode;
-                            }),
-                            saltEq: {
-                                value: c.saltEquivs, entered: false
-                            },
-                            comments: c.comment
-                        };
-                    });
-                })
-                .then(function(result) {
-                    return $q.all(_.map(result, function(item) {
-                        return $q.all([
-                            CalculationService.getMoleculeInfo(item).then(function(molInfo) {
-                                item.formula = molInfo.molecularFormula;
-                                item.molWeight = item.molWeight || {};
-                                item.molWeight.value = molInfo.molecularWeight;
-                            }),
-                            CalculationService.getImageForStructure(item.structure.molfile, 'molecule')
-                                .then(function(image) {
-                                    item.structure.image = image;
-                                })
-                        ]);
-                    })).then(function() {
-                        return result;
-                    });
-                });
-        }
-
-        function alertCompoundWrongFormat() {
-            notifyService.error('Compound does not exist or in the wrong format');
-        }
-
-        function fetchBatchByCompoundId(compoundId, row) {
-            var searchRequest = {
-                compoundNo: compoundId
-            };
-            RegistrationService.compounds(searchRequest, function(result) {
-                result = result.slice(0, 20);
-                convertCompoundsToBatches(result).then(function(batches) {
-                    if (batches.length === 1) {
-                        populateFetchedBatch(row, batches[0]);
-                    } else if (batches.length > 1) {
-                        dialogService.structureValidation(batches, compoundId, function(selectedBatch) {
-                            populateFetchedBatch(row, selectedBatch);
-                            vm.onPrecursorsChanged({precursors: getPrecursors()});
-                        });
-                    } else {
-                        alertCompoundWrongFormat();
-                    }
-                });
-            });
-        }
-
-        function alertWrongFormat() {
-            notifyService.error('Notebook batch number does not exist or in the wrong format- format should be "nbk. number-exp. number-batch number"');
-        }
-
         function onRxnRoleChange(data) {
             var SOLVENT = AppValues.getRxnRoleSolvent().name;
             if (data.model.name === SOLVENT) {
@@ -537,14 +238,6 @@
                 CalculationService.resetValuesToDefault(['volume', 'molarity'], data.row);
                 CalculationService.setValuesEditable(['weight', 'mol', 'eq', 'density'], data.row);
             }
-        }
-
-        function recalculateSalt(reagent) {
-            CalculationService.recalculateSalt(reagent).then(function() {
-                CalculationService.recalculateAmounts({
-                    row: reagent
-                });
-            });
         }
 
         function getStructureImagesForIntendedProducts() {
@@ -580,13 +273,16 @@
             $scope.$watch('vm.infoProducts', getReactionProductsAndReactants, true);
 
             $scope.$watch('vm.model.stoichTable', function(stoichTable) {
-                _.each(stoichTable.products, function(batch) {
+                StoichTableCache.setStoicTable(stoichTable);
+            });
+
+            $scope.$watch('vm.model.stoichTable.products', function(products) {
+                _.each(products, function(batch) {
                     if (!batch.$$batchHash) {
                         batch.$$batchHash = batch.formula + batch.exactMass;
                     }
                 });
-                vm.onChangedProducts({products: stoichTable.products});
-                StoichTableCache.setStoicTable(stoichTable);
+                vm.onChangedProducts({products: products});
             }, true);
 
             $scope.$on('stoich-rows-changed', function(event, data) {

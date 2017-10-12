@@ -5,11 +5,25 @@ angular
 /* @ngInject */
 function unitService($uibModal, CalculationService, RegistrationUtil) {
     return {
-        processColumns: processColumns
+        getActions: function(name, unitItems) {
+            var actions = [{
+                name: 'Set value for ' + name,
+                title: name,
+                units: unitItems,
+                action: function(rows, column) {
+                    unitAction(rows, name, column, unitItems);
+                }
+            }];
+            _.map(unitItems, function(unit) {
+                actions.push(toUnitAction(unit));
+            });
+
+            return actions;
+        }
     };
 
-    function unitAction(id) {
-        var that = this;
+    function unitAction(rows, title, column, units) {
+        var id = column.id;
 
         return $uibModal.open({
             templateUrl: 'scripts/components/entities/template/components/common/table/unit/set-unit-value.html',
@@ -18,14 +32,14 @@ function unitService($uibModal, CalculationService, RegistrationUtil) {
             size: 'sm',
             resolve: {
                 name: function() {
-                    return that.title;
+                    return title;
                 },
                 unitNames: function() {
-                    return that.units;
+                    return units;
                 }
             }
         }).result.then(function(result) {
-            _.each(that.rows, function(row) {
+            _.each(rows, function(row) {
                 if (!RegistrationUtil.isRegistered(row)) {
                     row[id] = row[id] || {};
                     row[id].value = result.value;
@@ -39,44 +53,16 @@ function unitService($uibModal, CalculationService, RegistrationUtil) {
         });
     }
 
-    function processColumns(columns, rows) {
-        _.each(columns, function(column) {
-            if (column.type === 'unit') {
-                column.units = _.map(column.unitItems, toUnitNameAction);
-                var setValueAction = [];
-                if (!column.hideSetValue) {
-                    setValueAction.push({
-                        name: 'Set value for ' + column.name,
-                        title: column.name,
-                        units: column.unitItems,
-                        rows: rows,
-                        action: unitAction
-                    });
-                }
-                column.actions = (column.actions || [])
-                    .concat(setValueAction)
-                    .concat(_.map(column.unitItems, toUnitAction.bind(null, rows)));
-            }
-        });
-    }
-
     function setUnit(name, item) {
         item.unit = name;
     }
 
-    function toUnitNameAction(unit) {
-        return {
-            name: unit,
-            onClick: setUnit.bind(null, unit)
-        };
-    }
-
-    function toUnitAction(rows, unit) {
+    function toUnitAction(unit) {
         return {
             name: 'Set Unit ' + unit,
-            action: function(id) {
+            action: function(rows, column) {
                 _.each(rows, function(row) {
-                    setUnit(unit, row[id]);
+                    setUnit(unit, row[column.id]);
                 });
             }
         };
