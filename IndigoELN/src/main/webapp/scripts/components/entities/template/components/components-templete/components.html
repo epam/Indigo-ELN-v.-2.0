@@ -3,11 +3,14 @@
                 active="vm.activeTabIndex">
         <uib-tab heading="{{tab.name}}"
                  ng-click="vm.setActive($index)"
-                 ng-repeat="tab in vm.template track by tab.name">
-            <indigo-component class="my-component"
-                              ng-repeat="component in tab.components track by component.id"
-                              component="component">
-            </indigo-component>
+                 ng-repeat="tab in vm.template track by tab.name" ng-init="vm.wasOpen[$index] = false">
+            <div ng-if="vm.wasOpen[$index] || vm.activeTabIndex === $index"
+                 ng-init="vm.wasOpen[vm.activeTabIndex] = true">
+                <indigo-component class="my-component"
+                                  ng-repeat="component in tab.components track by component.id"
+                                  component="component">
+                </indigo-component>
+            </div>
         </uib-tab>
     </uib-tabset>
 </fieldset>

@@ -3,9 +3,9 @@
         .module('indigoeln')
         .directive('indigoComponents', indigoComponents);
 
-    indigoComponents.$inject = ['$timeout'];
+    indigoComponents.$inject = [];
 
-    function indigoComponents($timeout) {
+    function indigoComponents() {
         IndigoComponentsController.$inject = [
             '$scope',
             'ProductBatchSummaryOperations',
@@ -38,6 +38,7 @@
 
             function init() {
                 precursors = '';
+                vm.wasOpen = {};
                 vm.batches = null;
                 vm.batchesTrigger = 0;
                 vm.selectedBatch = null;
@@ -97,9 +98,7 @@
             function updateActiveTab() {
                 if (vm.experiment) {
                     EntitiesBrowser.getExperimentTab(vm.experiment.fullId).then(function(index) {
-                        $timeout(function() {
-                            vm.activeTabIndex = index || 0;
-                        });
+                        vm.activeTabIndex = index || 0;
                     });
                 }
             }
