@@ -14,8 +14,8 @@
             var toggledClass = $attrs.indigoToggleClassChild;
             $element.bind('click', function(e) {
                 e.stopPropagation();
-                var child = $element.find('ul')[0];
-                $(child).toggleClass(toggledClass);
+                var child = $element.find('ul').first();
+                child.toggleClass(toggledClass);
             });
         }
     }

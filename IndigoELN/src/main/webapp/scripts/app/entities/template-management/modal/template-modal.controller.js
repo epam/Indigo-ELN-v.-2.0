@@ -5,7 +5,7 @@
 
     /* @ngInject */
     function TemplateModalController($scope, $stateParams, Template, notifyService, $state, dragulaService,
-                                     Components, pageInfo, EntitiesBrowser, TabKeyUtils) {
+                                     Components, pageInfo, EntitiesBrowser, TabKeyUtils, $interval) {
         var vm = this;
 
         vm.components = _.values(Components);
@@ -31,32 +31,28 @@
                 }
             });
 
-
             // dragula autoscroller
             var lastIndex;
             var up = true;
             var interval;
             $scope.$on('components.out', function(e, el) {
-                var $el = $(el),
-                    $cont = $el.parents('[scroller]').eq(0),
-                    top = $cont.scrollTop();
-                interval = setInterval(function() {
+                var $el = angular.element(el);
+                var $cont = $el.parents('[scroller]').eq(0);
+                var top = $cont.scrollTop();
+
+                interval = $interval(function() {
                     top += up ? -3 : 3;
                     $cont.scrollTop(top).attr('scrollTop', top);
                 }, 10);
             });
 
-            $scope.$on('components.over', function() {
-                clearInterval(interval);
-            });
-
-            $scope.$on('components.dragend', function() {
-                clearInterval(interval);
-            });
+            $scope.$on('$destroy', cancelInterval);
+            $scope.$on('components.over', cancelInterval);
+            $scope.$on('components.dragend', cancelInterval);
 
             $scope.$on('components.shadow', function(e, el) {
-                var $el = $(el),
-                    index = $el.index();
+                var $el = angular.element(el);
+                var index = $el.index();
                 if (!lastIndex) {
                     lastIndex = index;
                 } else {
@@ -66,6 +62,10 @@
             });
 
             sortComponents();
+
+            function cancelInterval() {
+                $interval.cancel(interval);
+            }
         }
 
         function save() {

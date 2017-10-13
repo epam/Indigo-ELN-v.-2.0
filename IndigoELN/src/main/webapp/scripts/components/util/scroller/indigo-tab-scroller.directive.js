@@ -11,9 +11,8 @@
         };
 
         /* @ngInject */
-        function link(scope, iElement) {
+        function link(scope, $element) {
             $timeout(function() {
-                var $element = $(iElement);
                 $element.mCustomScrollbar({
                     axis: 'x',
                     theme: 'indigo',

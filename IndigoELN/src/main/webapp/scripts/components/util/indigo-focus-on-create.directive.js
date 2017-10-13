@@ -10,10 +10,9 @@
         };
 
         /* @ngInject */
-        function link(scope, element) {
-            var $this = $(element),
-                $cont = $this.parents('[scroller]').eq(0),
-                top = $this.position().top + $this.outerHeight(true);
+        function link(scope, $element) {
+            var $cont = $element.parents('[scroller]').eq(0);
+            var top = $element.position().top + $element.outerHeight(true);
 
             $cont.animate({
                 scrollTop: top

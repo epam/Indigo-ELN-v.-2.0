@@ -167,7 +167,7 @@
         });
         dragulaService.options($scope, 'my-table-rows', {
             moves: function(el, container, handle) {
-                return $(handle).is('div') || $(handle).is('td');
+                return angular.element(handle).is('div') || angular.element(handle).is('td');
             }
         });
 

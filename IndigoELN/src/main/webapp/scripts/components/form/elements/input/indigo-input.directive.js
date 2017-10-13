@@ -41,7 +41,7 @@
             formUtils.doVertical(tAttrs, tElement);
             var $input = tElement.find('input');
             if (tAttrs.indigoInputGroup) {
-                var elementIg = $('<div class="input-group"/>');
+                var elementIg = angular.element('<div class="input-group"/>');
                 if (tAttrs.indigoInputSize) {
                     elementIg.addClass('input-group-' + tAttrs.indigoInputSize);
                 }
