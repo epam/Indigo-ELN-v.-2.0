@@ -4,7 +4,7 @@
         .controller('LoginController', LoginController);
 
     /* @ngInject */
-    function LoginController($state, Auth, Principal) {
+    function LoginController($state, Auth) {
         var vm = this;
 
         vm.user = {};
@@ -24,10 +24,8 @@
                 rememberMe: vm.rememberMe
             }).then(function() {
                 vm.authenticationError = false;
-                Principal.identity(true).then(function() {
-                    $state.go('experiment');
-                    vm.loading = false;
-                });
+                $state.go('experiment');
+                vm.loading = false;
             }).catch(function(e) {
                 if (e.status === 401) {
                     vm.authenticationError = true;

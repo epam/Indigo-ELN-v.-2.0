@@ -6,15 +6,25 @@
     </div>
     <a class="logo" href="#"></a>
     <div class="uui-header-tools">
-        <form class="navbar-form">
-            <div class="search-field search-field-main" ng-class="{'active': vm.focused}">
-                <span class="fa fa-search" ng-mousedown="vm.search()"></span>
-                <input type="search" class="uui-search" ng-keyup="vm.onSearchKeyup($event)" placeholder="Search" ng-model="vm.query" ng-focus="vm.focused = true" ng-blur="vm.focused = false">
+        <form class="navbar-form" ng-submit="vm.search()">
+            <div class="search-field search-field-main" ng-class="{active: vm.focused}">
+                <span class="fa fa-search" ng-click="vm.search()"></span>
+                <input type="search"
+                       class="uui-search"
+                       placeholder="Search"
+                       ng-model="vm.query"
+                       ng-focus="vm.focused = true"
+                       ng-blur="vm.focused = false">
             </div>
         </form>
         <div class="profile dropdown">
-            <a class="profile-photo dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                <img src="https://static.cdn.epam.com/avatar/1eda3986b9f9f37556c2553a1cb96c1a.jpg" alt="" class="full-img">
+            <a class="profile-photo dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+               aria-expanded="false" ng-switch="!!vm.user.image">
+                <img ng-switch-when="true"
+                     ng-src="data:image/svg+xml;base64,{{vm.user.image}}"
+                     alt="Profile photo"
+                     class="full-img">
+                <i ng-switch-default class="fa fa-user" aria-hidden="true"></i>
             </a>
             <ul class="dropdown-menu dropdown-menu-right">
                 <li class="current-user" ng-bind="vm.user.login"></li>
