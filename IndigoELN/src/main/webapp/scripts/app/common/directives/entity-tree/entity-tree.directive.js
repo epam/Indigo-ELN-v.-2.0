@@ -1,6 +1,6 @@
 (function() {
     angular
-        .module('indigoeln')
+        .module('indigoeln.entityTree')
         .directive('entityTree', function() {
             return {
                 scope: {

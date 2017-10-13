@@ -7,6 +7,8 @@ function principal($q, Account) {
     var _identity;
     var identityPromise;
     var _authenticated = false;
+    var userChangeListenersIds = 0;
+    var userChangeListeners = {};
 
     return {
         isIdentityResolved: isIdentityResolved,
@@ -16,9 +18,25 @@ function principal($q, Account) {
         hasAuthorityIdentitySafe: hasAuthorityIdentitySafe,
         authenticate: authenticate,
         identity: identity,
-        getIdentity: getIdentity
+        getIdentity: getIdentity,
+        addUserChangeListener: addUserChangeListener
     };
 
+    function addUserChangeListener(clbk) {
+        var id = userChangeListenersIds++;
+        userChangeListeners[id] = clbk;
+
+        return function() {
+            userChangeListeners[id] = undefined;
+        };
+    }
+
+    function callUserChangeListeners(user) {
+        var id = user ? user.id : user;
+        _.forEach(userChangeListeners, function(clbk) {
+            clbk(id);
+        });
+    }
 
     function isIdentityResolved() {
         return !_.isUndefined(_identity);
@@ -66,10 +84,12 @@ function principal($q, Account) {
     function authenticate(userIdentity) {
         _identity = userIdentity;
         _authenticated = userIdentity !== null;
+
+        return _identity;
     }
 
-    function identity(force) {
-        if (force === true) {
+    function identity(isNeedUpdate) {
+        if (isNeedUpdate) {
             _identity = undefined;
             identityPromise = null;
         }
@@ -83,17 +103,11 @@ function principal($q, Account) {
         // retrieve the identity data from the server, update the identity object, and then resolve.
         identityPromise = Account.get().$promise
             .then(function(account) {
-                _identity = account.data;
-                _authenticated = true;
-
-                return _identity;
+                return authenticate(account.data);
+            }, function() {
+                return authenticate(null);
             })
-            .catch(function() {
-                _identity = null;
-                _authenticated = false;
-
-                return _identity;
-            });
+            .finally(callUserChangeListeners);
 
         return identityPromise;
     }

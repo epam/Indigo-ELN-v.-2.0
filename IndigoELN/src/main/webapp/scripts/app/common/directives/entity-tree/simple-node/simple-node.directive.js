@@ -1,5 +1,5 @@
 angular
-    .module('indigoeln')
+    .module('indigoeln.entityTree')
     .directive('simpleNode', function() {
         return {
             replace: true,

@@ -1,6 +1,6 @@
 (function() {
     angular
-        .module('indigoeln')
+        .module('indigoeln.entityTree')
         .factory('entityTreeService', entityTreeService);
 
     /* @ngInject */
@@ -26,8 +26,21 @@
             getExperiments: getExperiments,
             updateStatus: updateStatus,
             allNodesByFullId: allNodesByFullId,
-            getFullIdFromParams: getFullIdFromParams
+            getFullIdFromParams: getFullIdFromParams,
+            clearAll: clearAll
         };
+
+        function clearAll() {
+            allProjectsList = {};
+            allProjectsMap = {};
+            allNodesByFullId = {};
+            projectsList = {};
+            projectsMap = {};
+            allNotebooksMap = {};
+            notebooksMap = {};
+            allExperimentsMap = {};
+            experimentsMap = {};
+        }
 
         function updateStatus(fullId, status) {
             var node = allNodesByFullId[fullId];
