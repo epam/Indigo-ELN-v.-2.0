@@ -23,7 +23,6 @@ angular.module('indigoeln', [
     'ui.checkbox',
     'monospaced.elastic',
     'ui.bootstrap-slider',
-    'LocalStorageModule',
     'config',
     'angular-cache',
     'indigoeln.autorecovery',
