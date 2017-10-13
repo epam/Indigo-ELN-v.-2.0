@@ -1,7 +1,18 @@
 (function() {
     angular
         .module('indigoeln')
-        .controller('NavbarController', NavbarController);
+        .directive('navbar', function() {
+            return {
+                restrict: 'E',
+                controller: NavbarController,
+                controllerAs: 'vm',
+                templateUrl: 'scripts/components/navbar/navbar.html',
+                bindToController: true,
+                scope: {
+                    onToggleSidebar: '&'
+                }
+            };
+        });
 
     /* @ngInject */
     function NavbarController($scope, $state, Principal, Auth, EntitiesCache) {

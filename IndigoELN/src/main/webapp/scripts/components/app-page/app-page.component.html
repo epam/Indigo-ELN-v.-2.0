@@ -1,7 +1,8 @@
-<header ui-view="navbar" class="uui-header" ng-cloak ng-init="isOpen = true"></header>
-<div id="page-wrapper" ng-class="{open: isOpen}" class="main-container">
-    <aside id="sidebar-wrapper" ng-cloak class="uui-side"
-         msd-wheel="vm.onMouseWheel($event, $delta, $deltaX, $deltaY)">
+<header class="uui-header" ng-cloak>
+    <navbar on-toggle-sidebar="vm.toggleSidebar()"></navbar>
+</header>
+<div id="page-wrapper" ng-class="{open: vm.isOpen}" class="main-container">
+    <aside id="sidebar-wrapper" ng-cloak class="uui-side">
         <sidebar></sidebar>
     </aside>
     <div id="content-wrapper">

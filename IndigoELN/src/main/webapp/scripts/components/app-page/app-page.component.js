@@ -2,6 +2,7 @@ angular
     .module('indigoeln')
     .directive('appPage', function() {
         return {
+            scope: true,
             restrict: 'E',
             controller: appPageController,
             controllerAs: 'vm',
@@ -10,7 +11,9 @@ angular
         };
     });
 
-function appPageController($rootScope, $scope, $cookieStore, $window, WSService, $timeout) {
+appPageController.$inject = ['$rootScope', '$scope', '$cookies', '$window', 'WSService', '$timeout'];
+
+function appPageController($rootScope, $scope, $cookies, $window, WSService, $timeout) {
     var vm = this;
     var mobileViewWidth = 992;
     var updateToggle;
@@ -20,23 +23,17 @@ function appPageController($rootScope, $scope, $cookieStore, $window, WSService,
     init();
 
     function init() {
+        vm.isOpen = true;
         windowElement = angular.element($window);
-        vm.onMouseWheel = onMouseWheel;
         updateToggle = createDebounce();
-        updateToggle();
+
+        vm.toggleSidebar = toggleSidebar;
         bindEvents();
     }
 
-    function onMouseWheel($event) {
-        var prevent = function() {
-            $event.stopPropagation();
-            $event.preventDefault();
-            $event.returnValue = false;
-
-            return false;
-        };
-
-        return prevent();
+    function toggleSidebar() {
+        vm.isOpen = !vm.isOpen;
+        $cookies.put('toggle', vm.isOpen);
     }
 
     function bindSubscribes() {
@@ -70,15 +67,15 @@ function appPageController($rootScope, $scope, $cookieStore, $window, WSService,
         return _.debounce(function() {
             $timeout(function() {
                 if (windowElement.width() >= mobileViewWidth) {
-                    if (!_.isUndefined($cookieStore.get('toggle'))) {
-                        vm.toggle = $cookieStore.get('toggle');
+                    if (!_.isUndefined($cookies.get('toggle'))) {
+                        vm.isOpen = $cookies.get('toggle');
                     } else {
-                        vm.toggle = true;
+                        vm.isOpen = true;
                     }
                 } else {
-                    vm.toggle = false;
+                    vm.isOpen = false;
                 }
             });
-        });
+        }, 100);
     }
 }

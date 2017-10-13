@@ -3,6 +3,7 @@
         .module('indigoeln')
         .directive('sidebar', function() {
             return {
+                scope: true,
                 templateUrl: 'scripts/components/sidebar/sidebar.html',
                 controller: SidebarController,
                 bindToController: true,
