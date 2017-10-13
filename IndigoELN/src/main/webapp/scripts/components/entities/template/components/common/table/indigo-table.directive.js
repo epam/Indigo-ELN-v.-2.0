@@ -32,14 +32,14 @@
         };
 
         /* @ngInject */
-        function compile(tElement, tAttrs) {
+        function compile($element, tAttrs) {
             if (tAttrs.indigoDraggableRows) {
-                var $tBody = $(tElement.find('tbody'));
+                var $tBody = $element.find('tbody');
                 $tBody.attr('dragula', '"my-table-rows"');
                 $tBody.attr('dragula-model', 'vm.indigoRows');
             }
             if (tAttrs.indigoDraggableColumns) {
-                var $tr = $(tElement.find('thead tr'));
+                var $tr = $element.find('thead tr');
                 $tr.attr('dragula', '"my-table-columns"');
                 $tr.attr('dragula-model', 'vm.indigoColumns');
             }

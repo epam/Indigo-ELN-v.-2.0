@@ -11,7 +11,7 @@
         };
 
         /* @ngInject */
-        function link(scope, iElement) {
+        function link(scope, $element) {
             var extractParams = function(obj) {
                 return {
                     projectId: obj.projectId,
@@ -40,7 +40,6 @@
             Principal.identity()
                 .then(function(user) {
                     var isCollapsed = false;
-                    var $element = $(iElement);
                     var $heading = $element.find('.panel-heading:first');
                     var componentId = $element.parents('.my-component:first').attr('indigo-component-id');
                     var collapsedComponents = simpleLocalCache.getByKey(user.id + '.collapsed-components');
@@ -50,7 +49,7 @@
                     }
                     var $collapsible = $heading.next();
                     var iconStyle = !isCollapsed ? 'glyphicon-chevron-up' : 'glyphicon-chevron-down';
-                    var $button = $('<span class="pull-right clickable"><i class="glyphicon ' + iconStyle + '"></i></span>');
+                    var $button = angular.element('<span class="pull-right clickable"><i class="glyphicon ' + iconStyle + '"></i></span>');
                     var $icon = $button.find('i');
                     $heading.prepend($button);
                     if (isCollapsed) {

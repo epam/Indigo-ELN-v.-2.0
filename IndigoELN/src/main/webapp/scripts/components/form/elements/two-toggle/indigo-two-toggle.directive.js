@@ -22,15 +22,13 @@
         };
 
         /* @ngInject */
-        function compile(tElement, tAttrs) {
-            formUtils.doVertical(tAttrs, tElement);
+        function compile($element, tAttrs) {
+            formUtils.doVertical(tAttrs, $element);
             if (tAttrs.indigoLabelVertical) {
-                $('<br/>').insertAfter(tElement.find('label').first());
+                angular.element('<br/>').insertAfter($element.find('label').first());
             }
 
-            var active = 'active';
-
-            return active;
+            return 'active';
         }
     }
 })();
