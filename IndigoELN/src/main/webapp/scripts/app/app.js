@@ -139,16 +139,6 @@ angular.module('indigoeln', [
                     return Principal.identity();
                 }
             }
-        }).state('navbar', {
-            abstract: true,
-            parent: 'app_page',
-            views: {
-                'navbar@app_page': {
-                    templateUrl: 'scripts/components/navbar/navbar.html',
-                    controller: 'NavbarController',
-                    controllerAs: 'vm'
-                }
-            }
         });
         $httpProvider.interceptors.push('errorHandlerInterceptor');
         $httpProvider.interceptors.push('notificationInterceptor');
