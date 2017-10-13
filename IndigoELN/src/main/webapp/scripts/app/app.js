@@ -19,7 +19,6 @@ angular.module('indigoeln', [
     'ui.select',
     'ngSanitize',
     'datePicker',
-    'monospaced.mousewheel',
     'ui.checkbox',
     'monospaced.elastic',
     'ui.bootstrap-slider',
