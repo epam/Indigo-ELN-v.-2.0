@@ -71,7 +71,7 @@
                         collapsedComponents = collapsedComponents || {};
                         collapsedComponents[entityId] = collapsedComponents[entityId] || {};
                         collapsedComponents[entityId][componentId] = isCollapsed;
-                        simpleLocalCache.putByName(user.id + '.collapsed-components', collapsedComponents);
+                        simpleLocalCache.putByKey(user.id + '.collapsed-components', collapsedComponents);
                     });
                 });
         }
