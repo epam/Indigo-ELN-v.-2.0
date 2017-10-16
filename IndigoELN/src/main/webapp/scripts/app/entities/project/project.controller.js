@@ -26,7 +26,7 @@
             vm.stateData = $state.current.data;
             vm.isBtnSaveActive = false;
 
-            initEntity().then(function() {
+            vm.loading = initEntity().then(function() {
                 originalProject = angular.copy(pageInfo.project);
                 EntitiesBrowser.setCurrentTabTitle(vm.project.name, $stateParams);
                 initPermissions();
@@ -46,7 +46,6 @@
         }
 
         function initEntity() {
-            vm.loading = $q.when();
             var restoredEntity = EntitiesCache.get($stateParams);
 
             if (!restoredEntity) {

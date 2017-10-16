@@ -24,7 +24,7 @@
             vm.stateData = $state.current.data;
             entityTitle = pageInfo.notebook.name;
 
-            initEntity().then(function() {
+            vm.loading = initEntity().then(function() {
                 originalNotebook = angular.copy(pageInfo.notebook);
                 EntitiesBrowser.setCurrentTabTitle(pageInfo.notebook.name, $stateParams);
                 initPermissions();
@@ -35,7 +35,6 @@
             vm.isBtnSaveActive = false;
             vm.isSummary = false;
             vm.hasError = false;
-            vm.loading = $q.when();
             vm.isEditAllowed = true;
             vm.isCreateChildAllowed = true;
 

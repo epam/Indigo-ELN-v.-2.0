@@ -1,4 +1,4 @@
-<div class="notebooks" ng-class="{'notebook-create': !vm.notebook.id}" cg-busy="{promise:vm.loading, minDuration:700}">
+<div class="notebooks" ng-class="{'notebook-create': !vm.notebook.id}" cg-busy="{promise:vm.loading}">
     <autorecovery kind="{{vm.stateData.tab.kind}}"
                   name="{{vm.notebook.name}}"
                   on-restore="vm.onRestore(recoveryData)">
