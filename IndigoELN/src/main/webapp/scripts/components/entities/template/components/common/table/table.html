@@ -57,10 +57,10 @@
         <tbody>
         <tr ng-repeat="row in vm.rowsForDisplay track by $id(row)"
             ng-class="{'success': vm.selectedBatch === row}">
-            <td ng-repeat="column in vm.indigoColumns track by $index"
+            <td ng-repeat="column in vm.indigoColumns track by column.id"
                 class="text-center"
                 ng-click="vm.onRowSelect($event, row)"
-                ng-show="column.isVisible"
+                ng-if="column.isVisible"
                 style="min-width: 150px">
                 <cell-typer></cell-typer>
             </td>
