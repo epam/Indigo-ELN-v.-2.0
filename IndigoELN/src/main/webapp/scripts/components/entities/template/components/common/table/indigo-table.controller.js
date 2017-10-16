@@ -135,8 +135,8 @@
             return $filter('orderBy')(filtered, '$$rate', true);
         }
 
-        function search(queryString) {
-            var query = queryString.trim().toLowerCase();
+        function search() {
+            var query = vm.searchText.trim().toLowerCase();
 
             if (!vm.indigoRows) {
                 return;
@@ -204,9 +204,8 @@
         }
 
         function bindEvents() {
-            $scope.$watch('vm.indigoRows.length', function() {
-                search(vm.searchText);
-            });
+            $scope.$watch('vm.indigoRows.length', vm.searchDebounce);
+            $scope.$watch('vm.indigoRows', vm.searchDebounce);
         }
     }
 })();
