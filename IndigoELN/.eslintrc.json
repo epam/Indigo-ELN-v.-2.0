@@ -79,6 +79,8 @@
     "angularDragula": false,
     "Simditor": false,
     "moment": false,
-    "require": false
+    "require": false,
+    "Stomp": false,
+    "SockJS": false
   }
 }

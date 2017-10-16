@@ -5,7 +5,9 @@ angular
 /* @ngInject */
 function wsService($window, $cookies, $http, $q, $log) {
     var stompClient = null;
-    var connected = $q.defer();
+    var connectionPromise = null;
+    var loc = $window.location;
+    var url = '//' + loc.host + loc.pathname + 'websocket';
 
     return {
         disconnect: disconnect,
@@ -16,55 +18,53 @@ function wsService($window, $cookies, $http, $q, $log) {
         if (stompClient !== null) {
             stompClient.disconnect();
             stompClient = null;
-            connected = $q.defer();
+            connectionPromise = null;
         }
     }
 
     function subscribe(destination) {
-        var defer = $q.defer();
-        connect();
-        connected.promise.then(function(mode) {
-            if (mode === 'success') {
+        return connect().then(
+            function() {
                 var listener = $q.defer();
                 var subscriber = stompClient.subscribe('/topic/' + destination, function(data) {
-                    listener.notify(JSON.parse(data.body));
+                    listener.notify(angular.fromJson(data.body));
                 });
-                listener.unSubscribe = function() {
-                    subscriber.unsubscribe();
+
+                return {
+                    unSubscribe: function() {
+                        subscriber.unsubscribe();
+                    },
+                    onServerEvent: function(callback) {
+                        listener.promise.then(null, null, callback);
+                    }
                 };
-                listener.onServerEvent = function(callback) {
-                    listener.promise.then(null, null, callback);
-                };
-                defer.resolve(listener);
-            } else {
-                defer.resolve({
+            },
+            function() {
+                return {
                     unSubscribe: function() {
                         $log.debug('Stubbed websockets mode');
                     },
                     onServerEvent: function() {
                         $log.debug('Stubbed websockets mode');
                     }
-                });
-            }
-        }, null, null);
-
-        return defer.promise;
+                };
+            });
     }
 
     function connect() {
         if (!stompClient) {
+            var connection = $q.defer();
+            connectionPromise = connection.promise;
+
             // building absolute path so that websocket doesn't fail when deploying with a context path
-            var loc = $window.location;
-            var url = '//' + loc.host + loc.pathname + 'websocket';
             var socket = new SockJS(url);
             stompClient = Stomp.over(socket);
             var headers = {};
             headers['X-CSRF-TOKEN'] = $cookies.get($http.defaults.xsrfCookieName);
-            stompClient.connect(headers, function() {
-                connected.resolve('success');
-            }, function() {
-                connected.resolve('stub');
-            });
+
+            stompClient.connect(headers, connection.resolve, connection.reject);
         }
+
+        return connectionPromise;
     }
 }
