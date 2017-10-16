@@ -1,7 +1,14 @@
 (function() {
     angular
         .module('indigoeln')
-        .controller('ExperimentDetailController', ExperimentDetailController);
+        .directive('experimentDetail', function() {
+            return {
+                scope: true,
+                templateUrl: 'scripts/app/entities/experiment/experiment-detail/experiment-detail.html',
+                controller: ExperimentDetailController,
+                controllerAs: 'vm'
+            };
+        });
 
     /* @ngInject */
     function ExperimentDetailController($scope, $state, $stateParams, Experiment, ExperimentUtil,
@@ -24,29 +31,34 @@
             updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
             vm.stateData = $state.current.data;
             vm.isCollapsed = true;
-            vm.loading = getPageInfo().then(function(response) {
-                tabName = getExperimentName(response.notebook, response.experiment);
-                params = {
-                    projectId: response.projectId,
-                    notebookId: response.notebookId,
-                    experimentId: response.experimentId
-                };
-                isContentEditor = response.isContentEditor;
-                hasEditAuthority = response.hasEditAuthority;
-                vm.notebook = response.notebook;
-                entityTitle = response.notebook.name + ' ' + response.experiment.name;
+            vm.deferLoading = $q.defer();
+            vm.isInit = false;
+            vm.loading = $q.all([
+                vm.deferLoading.promise,
+                getPageInfo().then(function(response) {
+                    tabName = getExperimentName(response.notebook, response.experiment);
+                    params = {
+                        projectId: response.projectId,
+                        notebookId: response.notebookId,
+                        experimentId: response.experimentId
+                    };
+                    isContentEditor = response.isContentEditor;
+                    hasEditAuthority = response.hasEditAuthority;
+                    vm.notebook = response.notebook;
+                    entityTitle = response.notebook.name + ' ' + response.experiment.name;
 
-                initExperiment(response.experiment).then(function(experiment) {
-                    updateOriginal(response.experiment);
-                    updateCurrentTabTitle();
-                    initPermissions();
-                    FileUploaderCash.setFiles([]);
+                    return initExperiment(response.experiment).then(function(experiment) {
+                        updateOriginal(response.experiment);
+                        updateCurrentTabTitle();
+                        initPermissions();
+                        FileUploaderCash.setFiles([]);
 
-                    if (experiment.version > 1 || !experiment.lastVersion) {
-                        tabName += ' v' + experiment.version;
-                    }
-                });
-            });
+                        if (experiment.version > 1 || !experiment.lastVersion) {
+                            tabName += ' v' + experiment.version;
+                        }
+                    });
+                })
+            ]);
 
             vm.save = save;
             vm.completeExperiment = completeExperiment;
