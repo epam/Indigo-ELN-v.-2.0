@@ -2,8 +2,8 @@
     <div class="col-xs-4" ng-if="::vm.indigoLabel" ng-bind="::vm.indigoLabel"></div>
     <div ng-class="{'col-xs-8 text-right': vm.indigoLabel, 'col-xs-12 text-right': !vm.indigoLabel}"
          ng-if="!vm.isHideColumnSettings">
-        <div ng-if="vm.rowsForDisplay.length < vm.indigoRows.length" class="search-info">
-            <strong>{{vm.rowsForDisplay.length}}</strong> of {{vm.indigoRows.length}} are shown
+        <div ng-if="vm.totalFilteredRowsLength.length < vm.indigoRows.length" class="search-info">
+            <strong>{{vm.totalFilteredRowsLength.length}}</strong> of {{vm.indigoRows.length}} are shown
         </div>
         <div class="search-field">
             <span class="fa fa-search"></span>
@@ -22,7 +22,9 @@
         </columns-settings>
     </div>
 </div>
+
 <ng-transclude></ng-transclude>
+
 <div class="table-responsive" indigo-scroller="x">
     <table class="table table-striped product">
         <thead>
@@ -53,7 +55,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="row in vm.rowsForDisplay | limitTo : vm.pagination.pageSize : vm.limit - vm.pagination.pageSize track by $id(row)"
+        <tr ng-repeat="row in vm.rowsForDisplay track by $id(row)"
             ng-class="{'success': vm.selectedBatch === row}">
             <td ng-repeat="column in vm.indigoColumns track by $index"
                 class="text-center"
@@ -71,15 +73,15 @@
         </tbody>
     </table>
 </div>
-<div class="row" ng-if="vm.pagination.pageSize < vm.rowsForDisplay.length">
+<div class="row" ng-if="vm.pagination.pageSize < vm.totalFilteredRowsLength.length">
     <div class="col-xs-12 text-center">
-        <uib-pagination class="pagination-sm"
-                        total-items="vm.rowsForDisplay.length"
-                        ng-change="vm.onPageChanged()"
-                        ng-model="vm.pagination.page"
-                        items-per-page="vm.pagination.pageSize"
-                        boundary-link-numbers="true"
-                        rotate="false">
-        </uib-pagination>
+        <div uib-pagination class="pagination-sm"
+             total-items="vm.totalFilteredRowsLength"
+             ng-change="vm.onPageChanged()"
+             ng-model="vm.pagination.page"
+             items-per-page="vm.pagination.pageSize"
+             boundary-link-numbers="true"
+             rotate="false">
+        </div>
     </div>
 </div>

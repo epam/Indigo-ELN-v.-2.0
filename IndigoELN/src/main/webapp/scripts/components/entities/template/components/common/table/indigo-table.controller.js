@@ -16,15 +16,13 @@
             originalColumnIdsAndFlags = getColumnsProps(vm.indigoColumns);
             searchColumns = vm.indigoSearchColumns || ['id', 'nbkBatch'];
             vm.searchText = '';
+            vm.filteredRows = vm.indigoRows;
             vm.pagination = {
                 page: 1,
                 pageSize: 10
             };
-            updateRowsForDisplay(vm.indigoRows);
 
-            // selectService.processColumns(vm.indigoColumns, vm.indigoRows);
-            // inputService.processColumns(vm.indigoColumns, vm.indigoRows);
-            // scalarService.processColumns(vm.indigoColumns, vm.indigoRows);
+            updateRowsForDisplay();
 
             vm.startEdit = startEdit;
             vm.searchDebounce = _.debounce(search, 300);
@@ -145,12 +143,14 @@
             }
 
             if (!query) {
-                updateRowsForDisplay(vm.indigoRows);
+                vm.filteredRows = vm.indigoRows;
+                updateRowsForDisplay();
 
                 return;
             }
+            vm.filteredRows = filterRowsByQuery(query);
 
-            updateRowsForDisplay(filterRowsByQuery(query));
+            updateRowsForDisplay();
         }
 
         function onRowSelect($event, row) {
@@ -172,31 +172,30 @@
         });
 
         function onPageChanged() {
-            updateRowsForDisplay(vm.rowsForDisplay);
+            updateRowsForDisplay();
         }
 
         function getSkipItems() {
             return (vm.pagination.page - 1) * vm.pagination.pageSize;
         }
 
-        function updateRowsForDisplay(rows) {
-            if (!rows || rows.length === 0) {
-                vm.limit = 0;
+        function updateRowsForDisplay() {
+            if (!vm.filteredRows || vm.filteredRows.length === 0) {
                 vm.rowsForDisplay = null;
 
                 return;
             }
 
-            var skip = getSkipItems(rows);
+            var skip = getSkipItems(vm.filteredRows);
 
-            if (skip >= rows.length) {
-                updateCurrentPage(rows);
+            if (skip >= vm.filteredRows.length) {
+                updateCurrentPage(vm.filteredRows);
                 skip = getSkipItems();
             }
 
             $timeout(function() {
-                vm.limit = skip + vm.pagination.pageSize;
-                vm.rowsForDisplay = rows;
+                vm.totalFilteredRowsLength = vm.filteredRows.length;
+                vm.rowsForDisplay = $filter('limitTo')(vm.filteredRows, vm.pagination.pageSize, skip);
             });
         }
 
@@ -205,7 +204,7 @@
         }
 
         function bindEvents() {
-            $scope.$watchCollection('vm.indigoRows', function() {
+            $scope.$watch('vm.indigoRows.length', function() {
                 search(vm.searchText);
             });
         }
