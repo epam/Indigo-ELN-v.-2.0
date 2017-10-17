@@ -7,7 +7,7 @@
             <div ng-if="vm.wasOpen[$index] || vm.activeTabIndex === $index"
                  ng-init="vm.wasOpen[vm.activeTabIndex] = true"
                  class="tab-components"
-                 custom-scroll="{{vm.activeTabIndex}}">
+                 custom-scroll="{{vm.userId + vm.experiment.fullId + $index + 'customScroll' + '.scrollPos'}}">
                 <indigo-component class="my-component"
                                   ng-repeat="component in tab.components track by component.id"
                                   component="component">

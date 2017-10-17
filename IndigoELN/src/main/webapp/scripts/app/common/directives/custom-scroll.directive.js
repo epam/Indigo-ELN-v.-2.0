@@ -3,29 +3,39 @@
         .module('indigoeln')
         .directive('customScroll', customScroll);
 
-    /* @ngInject */
-    function customScroll($state, Principal, simpleLocalCache, $timeout) {
+    customScroll.$inject = ['simpleLocalCache', '$timeout'];
+
+    function customScroll(simpleLocalCache, $timeout) {
         return {
             restrict: 'A',
-            link: link
+            scope: {
+                customScroll: '@'
+            },
+            link: link,
+            controller: angular.noop,
+            controllerAs: 'vm',
+            bindToController: true
         };
 
-        /* @ngInject */
-        function link($scope, $element, attributes) {
-            Principal.identity()
-                .then(function(user) {
-                    var currentTab = attributes["customScroll"];
-                    var key = user.id + "." + $state.params.projectId + '-' + $state.params.notebookId + '-' + $state.params.experimentId + '.' + currentTab + '.scrollPos';
-                    var scrollLocation = simpleLocalCache.getByKey(key) || 0;
+        function link($scope, $element, $attributes, vm) {
+            var scrollLocation = simpleLocalCache.getByKey(vm.customScroll) || 0;
+            var el = $element[0];
+            var scrollPosition = 0;
 
-                    $timeout(function () {
-                        $element.scrollTop(scrollLocation);
-                    });
-
-                    $element.on('scroll', function() {
-                        simpleLocalCache.putByKey(key, $element[0].scrollTop);
-                    });
+            $timeout(function() {
+                $element.scrollTop(scrollLocation);
+                angular.getTestability($element).whenStable(function() {
+                    $element.scrollTop(scrollLocation);
                 });
+            });
+
+            $element.on('scroll', function() {
+                scrollPosition = el.scrollTop;
+            });
+
+            $scope.$on('$destroy', function() {
+                simpleLocalCache.putByKey(vm.customScroll, scrollPosition);
+            });
         }
     }
 })();
