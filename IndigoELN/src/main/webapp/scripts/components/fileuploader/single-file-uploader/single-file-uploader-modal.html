@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <h5 class="modal-title">Upload file</h5>
+    <h5 class="modal-title" i-translate="UPLOAD_FILE"></h5>
 </div>
 <div class="modal-body">
     <div>
@@ -10,7 +10,7 @@
                            nv-file-select=""
                            uploader="vm.uploader"
                            class="my-drop-zone-input"/>
-                    <div class="semi-b my-drop-zone-file">Drop file here</div>
+                    <div class="semi-b my-drop-zone-file" i-translate="DROP_FILE_HERE"></div>
                 </div>
             </div>
             <div>
@@ -18,8 +18,8 @@
                     <thead>
                     <tr>
                         <th class="w-50">Name</th>
-                        <th ng-show="vm.uploader.isHTML5">Size</th>
-                        <th ng-show="vm.uploader.isHTML5">Progress</th>
+                        <th ng-show="vm.uploader.isHTML5" i-translate="SIZE"></th>
+                        <th ng-show="vm.uploader.isHTML5" i-translate="PROGRESS"></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -41,6 +41,6 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" type="button" ng-click="vm.cancel()">
-        <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
+        <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
     </button>
 </div>

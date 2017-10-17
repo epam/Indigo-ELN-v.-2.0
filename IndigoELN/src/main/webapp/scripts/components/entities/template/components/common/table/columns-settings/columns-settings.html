@@ -6,7 +6,8 @@
          uib-dropdown-toggle
          ng-disabled="disabled"
          uib-tooltip="Column settings">
-        <span class="fa fa-columns no-draggable" aria-hidden="true"></span> &nbsp;<span> Columns</span>
+        <span class="fa fa-columns no-draggable" aria-hidden="true"></span> &nbsp;
+        <span i-translate="COLUMNS"></span>
     </div>
     <ul uib-dropdown-menu
         role="menu"
@@ -15,7 +16,7 @@
         nested-outside-click="vm.isOpen = false">
         <li role="menuitem">
             <button type="button" class="btn btn-default btn-small m-t5"
-                    ng-click="vm.resetColumns()">Set default columns set
+                    ng-click="vm.resetColumns()" i-translate="SET_DEFAULT_COLUMNS_SET">
             </button>
         </li>
         <li ng-repeat="column in vm.columns track by column.id"

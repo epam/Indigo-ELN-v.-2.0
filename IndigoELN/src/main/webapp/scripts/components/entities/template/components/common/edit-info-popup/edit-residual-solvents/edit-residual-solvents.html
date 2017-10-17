@@ -1,15 +1,15 @@
 <div class="modal-header">
-    <h5 class="modal-title">Edit Residual Solvents Information</h5>
+    <h5 class="modal-title" i-translate="EDIT_RESIDUAL_SOLVENTS_INFORMATION"></h5>
 </div>
 <div class="modal-body">
-    <p class="m-b20"><span class="semi-b">Please add residual solvents</span></p>
+    <p class="m-b20"><span class="semi-b" i-translate="PLEASE_ADD_RESIDUAL_SOLVENTS"></span></p>
     <div ng-if="vm.solvents.length">
         <table class="table table-striped" id="search-result-table">
             <thead class="search-table-head">
                 <tr>
-                    <th>Solvent Name</th>
-                    <th># EQ. of Solvent</th>
-                    <th>Comment</th>
+                    <th i-translate="SOLVENT_NAME"></th>
+                    <th i-translate="EQ_OF_SOLVENT"></th>
+                    <th i-translate="COMMENT"></th>
                     <th class="edit-residual-solvents__header"></th>
                 </tr>
             </thead>
@@ -34,22 +34,22 @@
                 type="button"
                 ng-click="vm.addSolvent()">
             <span class="fa fa-plus"></span>
-            <span class="m-l5">Add residual solvent</span>
+            <span class="m-l5" i-translate="ADD_RESIDUAL_SOLVENT"></span>
         </button>
         <button class="btn btn-danger"
                 type="button"
                 ng-if="vm.solvents.length"
                 ng-click="vm.removeAll()">
             <span class="fa fa-trash"></span>
-            <span class="m-l5">Remove all</span>
+            <span class="m-l5" i-translate="REMOVE_ALL"></span>
         </button>
     </div>
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" type="button" ng-click="vm.cancel()">
-        <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
+        <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
     </button>
     <button class="btn btn-primary" type="button" ng-click="vm.save()">
-        <span class="fa fa-save"></span><span class="m-l5">Save</span>
+        <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
     </button>
 </div>

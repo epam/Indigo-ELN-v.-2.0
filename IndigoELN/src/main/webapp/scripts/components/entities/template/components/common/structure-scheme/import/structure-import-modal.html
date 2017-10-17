@@ -1,10 +1,10 @@
 <div>
     <div class="modal-header">
-        <h5 class="modal-title">Import Structure</h5>
+        <h5 class="modal-title" i-translate="IMPORT_STRUCTURE"></h5>
     </div>
     <div class="modal-body">
         <div class="form-group">
-            <label>Select File:</label>
+            <label i-translate="SELECT_FILE" i-end=":"></label>
             <input type="file" indigo-file-reader="showContent($fileContent)" />
         </div>
         <div >
@@ -16,8 +16,8 @@
     </div>
     <div class="modal-footer">
         <button class="btn btn-default" type="button" ng-click="vm.cancel()">
-            <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
+            <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
         </button>
-        <button class="btn btn-primary" type="button" ng-click="vm.import()">Import</button>
+        <button class="btn btn-primary" type="button" ng-click="vm.import()" i-translate="IMPORT"></button>
     </div>
 </div>
