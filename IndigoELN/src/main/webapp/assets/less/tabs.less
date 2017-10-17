@@ -122,7 +122,7 @@
     padding: @pad-space;
 
     height: ~"calc(100vh - 330px)";
-    overflow-y: auto;
+    overflow-y: hidden;
     overflow-x: hidden;
 
   }
@@ -177,4 +177,9 @@
         visibility: visible;
         height: auto;
     }
+}
+
+.tab-components {
+  overflow-y: auto;
+  height: ~"calc(100vh - 330px)";
 }

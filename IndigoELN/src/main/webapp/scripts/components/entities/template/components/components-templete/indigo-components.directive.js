@@ -3,14 +3,13 @@
         .module('indigoeln')
         .directive('indigoComponents', indigoComponents);
 
-    indigoComponents.$inject = [];
-
     function indigoComponents() {
         IndigoComponentsController.$inject = [
             '$scope',
             'ProductBatchSummaryOperations',
             'ProductBatchSummaryCache',
-            'EntitiesBrowser'
+            'EntitiesBrowser',
+            'Principal'
         ];
 
         return {
@@ -30,7 +29,7 @@
         };
 
         function IndigoComponentsController($scope, ProductBatchSummaryOperations, ProductBatchSummaryCache,
-                                            EntitiesBrowser) {
+                                            EntitiesBrowser, Principal) {
             var vm = this;
             var precursors;
 
@@ -54,6 +53,7 @@
                 vm.onPrecursorsChanged = onPrecursorsChanged;
                 vm.onChangedComponent = onChangedComponent;
                 vm.setActive = setActive;
+                vm.userId = _.get(Principal.getIdentity(), 'id');
 
                 bindEvents();
             }
