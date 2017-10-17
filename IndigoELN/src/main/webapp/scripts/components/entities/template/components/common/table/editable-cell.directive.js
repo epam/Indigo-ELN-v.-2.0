@@ -100,7 +100,7 @@
                 }, function(newVal, prevVal) {
                     var col = vm.column;
                     oldVal = prevVal;
-                    isChanged = !_.isEqual(newVal, prevVal) && vm.isEdit();
+                    isChanged = !_.isEqual(newVal, prevVal) && vm.isEditing && !vm.isReadonly && vm.isCheckEnabled;
                     if (isChanged && col.onChange) {
                         col.onChange({
                             row: vm.row, model: vm.row[col.id], oldVal: oldVal

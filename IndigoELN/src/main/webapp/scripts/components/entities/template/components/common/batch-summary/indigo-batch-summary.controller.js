@@ -162,7 +162,7 @@
                     batch.$$healthHazards = batch.healthHazards ? batch.healthHazards.asString : null;
                     batch.$$batchType = getBatchType(batch);
                 });
-            }, true);
+            });
 
             $scope.$watch('vm.isHasRegService', function(val) {
                 _.find(vm.columns, {id: 'conversationalBatchNumber'}).isVisible = val;
