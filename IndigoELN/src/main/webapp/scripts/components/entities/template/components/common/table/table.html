@@ -3,7 +3,7 @@
     <div ng-class="{'col-xs-8 text-right': vm.indigoLabel, 'col-xs-12 text-right': !vm.indigoLabel}"
          ng-if="!vm.isHideColumnSettings">
         <div ng-if="vm.totalFilteredRowsLength.length < vm.indigoRows.length" class="search-info">
-            <strong>{{vm.totalFilteredRowsLength.length}}</strong> of {{vm.indigoRows.length}} are shown
+            <strong ng-bind="vm.totalFilteredRowsLength.length"></strong> of <span ng-bind="vm.indigoRows.length"></span> are shown
         </div>
         <div class="search-field">
             <span class="fa fa-search"></span>

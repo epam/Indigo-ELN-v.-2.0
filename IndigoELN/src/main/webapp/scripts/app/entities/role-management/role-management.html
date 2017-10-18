@@ -74,7 +74,7 @@
                             </tr>
                         <tbody>
                             <tr ng-repeat="role in vm.roles track by role.id">
-                                <td><div class="role-name" uib-tooltip="{{role.name}}">{{role.name}}</div></td>
+                                <td><div class="role-name" uib-tooltip="{{role.name}}" ng-bind="role.name"></div></td>
                             </tr>
                         </tbody>
                     </table>

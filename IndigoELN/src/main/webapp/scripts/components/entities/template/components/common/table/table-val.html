@@ -101,7 +101,6 @@
             <ul ng-if="vm.column.hasPopup" class="grid-popup shown-{{!!vm.row.$$popItems.length}}">
                 <li ng-repeat="popitem in vm.row.$$popItems track by $index "
                     ng-click="vm.column.popItemClick(vm.row, popitem.item)" class="popitem">
-                    {{popitem.title}}
                 </li>
             </ul>
         </div>

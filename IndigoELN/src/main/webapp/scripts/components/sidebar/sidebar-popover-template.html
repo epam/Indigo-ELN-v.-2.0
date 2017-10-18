@@ -1,6 +1,7 @@
 <div class="sidebar-popover">
     <div class="sidebar-popover-number m-b5"><span i-translate="EXPERIMENT"></span>
-        {{node.parent.name}}-{{vm.experimentsCollection[node.original.fullId].fullName}}
+        <span ng-bind="node.parent.name"></span>-
+        <span ng-bind="vm.experimentsCollection[node.original.fullId].fullName"></span>
     </div>
     <div class="sidebar-popover-content">
         <div>

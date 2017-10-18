@@ -12,12 +12,9 @@
             scope: {
                 indigoLabel: '@',
                 indigoModel: '=',
-                indigoLabelVertical: '=',
-                indigoClasses: '@',
                 indigoNoElastic: '=',
                 indigoInputGroup: '@',
                 indigoReadonly: '=',
-                indigoRowsNum: '=',
                 indigoTooltip: '=',
                 indigoTrim: '='
             },
@@ -27,19 +24,6 @@
 
         /* @ngInject */
         function compile(tElement, tAttrs) {
-            if (tAttrs.indigoInputGroup) {
-                var inputGroup = tElement.find('textarea').wrap('<div class="input-group"/>').parent();
-                var element = '<div class="input-group-btn text-area__align" ng-transclude/>';
-                if (tAttrs.indigoInputGroup === 'append') {
-                    inputGroup.append(element);
-                } else if (tAttrs.indigoInputGroup === 'prepend') {
-                    inputGroup.prepend(element);
-                }
-            }
-            if (tAttrs.indigoRowsNum) {
-                tElement.find('textarea').attr('rows', tAttrs.indigoRowsNum);
-            }
-            formUtils.doVertical(tAttrs, tElement);
             formUtils.addDirectivesByAttrs(tAttrs, tElement.find('textarea'));
 
             if (tAttrs.indigoTrim) {

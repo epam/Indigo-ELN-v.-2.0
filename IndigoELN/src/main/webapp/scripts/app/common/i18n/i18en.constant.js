@@ -259,6 +259,8 @@
             ACTIVATED: 'Activated',
             ARE_YOU_SURE_YOU_WANT_TO_DELETE_THIS_USER: 'Are you sure you want to delete this User?',
             ERROR_PAGE: 'Error Page!',
-            YOU_ARE_NOT_AUTHORIZED_TO_ACCESS_THE_PAGE: 'You are not authorized to access the page.'
+            YOU_ARE_NOT_AUTHORIZED_TO_ACCESS_THE_PAGE: 'You are not authorized to access the page.',
+            PROJECT_SELECTION: 'Project selection',
+            PROJECT_NAME: 'Project name'
         });
 })();

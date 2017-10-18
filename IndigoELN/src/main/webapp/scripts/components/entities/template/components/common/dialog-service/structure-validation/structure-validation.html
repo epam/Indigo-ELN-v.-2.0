@@ -43,35 +43,35 @@
                 <div class="col-xs-6">
                     <p i-translate="CHEMICAL_NAME" i-end=":"></p></div>
                 <div class="col-xs-6">
-                    <p>{{vm.selectedBatch.chemicalName}}</p>
+                    <p ng-bind="vm.selectedBatch.chemicalName"></p>
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-6">
                     <p i-translate="COMPOUND_ID" i-end=":"></p></div>
                 <div class="col-xs-6">
-                    <p>{{vm.selectedBatch.compoundId}}</p>
+                    <p ng-bind="vm.selectedBatch.compoundId"></p>
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-6">
                     <p i-translate="CONV_BATCH" i-end=":"></p></div>
                 <div class="col-xs-6">
-                    <p>{{vm.selectedBatch.conversationalBatchNumber}}</p>
+                    <p ng-bind="vm.selectedBatch.conversationalBatchNumber"></p>
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-6">
                     <p i-translate="BATCH_MOL_WT_CALCD" i-end=":"></p></div>
                 <div class="col-xs-6">
-                    <p>{{vm.selectedBatch.molWeight.value | round}}</p>
+                    <p ng-bind="vm.selectedBatch.molWeight.value | round"></p>
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-6">
                     <p i-translate="MOLECULAR_FORMULA_BATCH_MOL_WT_CALCD" i-end=":"></p></div>
                 <div class="col-xs-6">
-                    <p>{{vm.selectedBatch.formula}}</p>
+                    <p ng-bind="vm.selectedBatch.formula"></p>
                 </div>
             </div>
             <div class="row">
@@ -87,7 +87,7 @@
                     <p i-translate="SALT_EQ" i-end=":"></p>
                 </div>
                 <div class="col-xs-6">
-                    <p>{{vm.selectedBatch.saltEq.value}}</p>
+                    <p ng-bind="vm.selectedBatch.saltEq.value"></p>
                 </div>
             </div>
         </div>

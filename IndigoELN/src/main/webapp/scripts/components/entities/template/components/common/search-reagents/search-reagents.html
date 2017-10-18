@@ -23,7 +23,7 @@
                     </span>
                 </div>
                 <div class="clearfix m-b20">
-                    <span class="semi-b">{{vm.myReagentList.length}} reagents in my list</span>
+                    <span class="semi-b"><span ng-bind="vm.myReagentList.length"></span> reagents in my list</span>
                 </div>
                 <div class="m-b20">
                     <indigo-search-result-table indigo-table-content="vm.myReagentList"
@@ -129,7 +129,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3">
-                                        <label class="control-label" i-translate="CHEMICAL_NAME" i-end=":"></label></div>
+                                        <label class="control-label" i-translate="CHEMICAL_NAME" i-end=":"></label>
+                                    </div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionChemicalName"
                                                        indigo-model="vm.model.restrictions.advancedSearch.chemicalName.condition"></indigo-select>
@@ -141,7 +142,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3">
-                                        <label class="control-label" i-translate="EXTERNAL_NUMBER" i-end=":"></label></div>
+                                        <label class="control-label" i-translate="EXTERNAL_NUMBER" i-end=":"></label>
+                                    </div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
                                                        indigo-model="vm.model.restrictions.advancedSearch.externalNumber.condition"></indigo-select>
@@ -153,14 +155,16 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3">
-                                        <label class="control-label" i-translate="COMPOUND_STATE" i-end=":"></label></div>
+                                        <label class="control-label" i-translate="COMPOUND_STATE" i-end=":"></label>
+                                    </div>
                                     <div class="col-xs-6">
                                         <indigo-select indigo-dictionary="Compound State"
                                                        indigo-model="vm.model.restrictions.advancedSearch.compoundState.value"></indigo-select>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">{{vm.model.restrictions.advancedSearch.comments.name}}:</label>
+                                    <div class="col-xs-3"><label class="control-label"><span
+                                            ng-bind="vm.model.restrictions.advancedSearch.comments.name"></span>:</label>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
@@ -173,7 +177,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3">
-                                        <label class="control-label" i-translate="BATCH_HAZARD_COMMENT" i-end=":"></label></div>
+                                        <label class="control-label" i-translate="BATCH_HAZARD_COMMENT"
+                                               i-end=":"></label></div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
                                                        indigo-model="vm.model.restrictions.advancedSearch.hazardComments.condition"></indigo-select>
@@ -251,9 +256,9 @@
                         <span class="semi-b"
                               ng-if="!vm.model.restrictions.structure.image && vm.model.advancedSummary.length">&quot;
                             <span ng-repeat="restriction in vm.model.advancedSummary track by $index">
-                                {{restriction.name}}: <span ng-if="restriction.condition.name">
-                                                {{restriction.condition.name}}</span>
-                                {{restriction.value.name || restriction.value}}
+                                <span ng-bind="restriction.name"></span>: <span ng-if="restriction.condition.name"
+                                                                                ng-bind="restriction.condition.name"></span>
+                                <span ng-bind="restriction.value.name || restriction.value"></span>
                                 <span ng-if="!$last">AND </span></span>&quot;</span>
                         <span class="semi-b" ng-if="!vm.model.restrictions.structure.image &&
                                                         !vm.model.advancedSummary.length && vm.model.restrictions.searchQuery">
@@ -311,7 +316,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3">
-                                        <label class="control-label" i-translate="MOLECULAR_FORMULA" i-end=":"></label></div>
+                                        <label class="control-label" i-translate="MOLECULAR_FORMULA" i-end=":"></label>
+                                    </div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
                                                        indigo-model="vm.model.restrictions.advancedSearch.formula.condition"></indigo-select>
@@ -323,7 +329,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3">
-                                        <label class="control-label" i-translate="MOLECULAR_WEIGHT" i-end=":"></label></div>
+                                        <label class="control-label" i-translate="MOLECULAR_WEIGHT" i-end=":"></label>
+                                    </div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionNumber"
                                                        indigo-model="vm.model.restrictions.advancedSearch.molWeight.condition"></indigo-select>
@@ -335,7 +342,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3">
-                                        <label class="control-label" i-translate="CHEMICAL_NAME" i-end=":"></label></div>
+                                        <label class="control-label" i-translate="CHEMICAL_NAME" i-end=":"></label>
+                                    </div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionChemicalName"
                                                        indigo-model="vm.model.restrictions.advancedSearch.chemicalName.condition"></indigo-select>
@@ -347,7 +355,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3">
-                                        <label class="control-label" i-translate="EXTERNAL_NUMBER" i-end=":"></label></div>
+                                        <label class="control-label" i-translate="EXTERNAL_NUMBER" i-end=":"></label>
+                                    </div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
                                                        indigo-model="vm.model.restrictions.advancedSearch.externalNumber.condition"></indigo-select>
@@ -359,7 +368,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3">
-                                        <label class="control-label" i-translate="COMPOUND_STATE" i-end=":"></label></div>
+                                        <label class="control-label" i-translate="COMPOUND_STATE" i-end=":"></label>
+                                    </div>
                                     <div class="col-xs-6">
                                         <indigo-select indigo-dictionary="Compound State"
                                                        indigo-model="vm.model.restrictions.advancedSearch.compoundState.value"></indigo-select>
@@ -367,7 +377,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3">
-                                        <label class="control-label" i-translate="BATCH_COMMENT" i-end=":"></label></div>
+                                        <label class="control-label" i-translate="BATCH_COMMENT" i-end=":"></label>
+                                    </div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
                                                        indigo-model="vm.model.restrictions.advancedSearch.comments.condition"></indigo-select>
@@ -379,7 +390,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3">
-                                        <label class="control-label" i-translate="BATCH_HAZARD_COMMENT" i-end=":"></label></div>
+                                        <label class="control-label" i-translate="BATCH_HAZARD_COMMENT"
+                                               i-end=":"></label></div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
                                                        indigo-model="vm.model.restrictions.advancedSearch.hazardComments.condition"></indigo-select>
@@ -410,7 +422,8 @@
                                 structure</a></div>
                         <div uib-collapse="isReDrawStructureCollapsed" class="collapse-content">
                             <div class="row">
-                                <div class="col-xs-2"><label class="control-label" i-translate="SIMILARITY_CRITERIA"></label></div>
+                                <div class="col-xs-2"><label class="control-label"
+                                                             i-translate="SIMILARITY_CRITERIA"></label></div>
                                 <div class="col-xs-4">
                                     <indigo-select indigo-items="vm.conditionSimilarity"
                                                    indigo-model="vm.model.restrictions.structure.similarityCriteria"></indigo-select>
@@ -447,7 +460,7 @@
                                 i-translate="SEARCH">
                         </button>
                         <span class="semi-b search-result-table-label" ng-show="!vm.loading">
-                            {{vm.searchResults.length}} results found</span>
+                            <span ng-bind="vm.searchResults.length"></span> results found</span>
 
                     </div>
                     <div class="clearfix m-b20">
@@ -461,7 +474,8 @@
                     <div class="btn-group pull-right">
                         <button class="btn btn-info" type="button" ng-click="vm.addToMyReagentList()"
                                 ng-disabled="!vm.selectedItems.length">
-                            <span class="fa fa-plus"></span><span class="m-l5" i-translate="ADD_TO_MY_REAGENT_LIST"></span>
+                            <span class="fa fa-plus"></span><span class="m-l5"
+                                                                  i-translate="ADD_TO_MY_REAGENT_LIST"></span>
                         </button>
                         <button class="btn btn-info" type="button" ng-click="vm.addToStoichTable(vm.searchResults)"
                                 ng-disabled="!vm.selectedItems.length">

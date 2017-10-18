@@ -26,10 +26,9 @@
                 <hr>
                 <ul id="triple-list" class="list-triple members">
                     <li class="members list-triple-members"
-                        ng-repeat="member in vm.notebook.accessList track by $index">
-                        {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView
-                        + ')' }}
-                    </li>
+                        ng-repeat="member in vm.notebook.accessList track by $index"
+                        ng-bind="'- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView
+                        + ')'"></li>
                 </ul>
             </div>
         </div>
@@ -84,7 +83,7 @@
                                         <tbody class="main-table__body">
                                         <tr class="table-list" ng-repeat="exp in vm.experiments track by $index">
                                             <td class="table-list__item"><a
-                                                    ng-click="vm.goToExp(exp)">{{exp.fullName}}</a></td>
+                                                    ng-click="vm.goToExp(exp)" ng-bind="exp.fullName"></a></td>
                                             <td class="table-list__item">
                                                 <p>
                                                     <span i-translate="CREATION_DATE"></span>: <span ng-bind="exp.creationDate |
