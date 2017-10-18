@@ -285,7 +285,11 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     function getLatestNbkBatch() {
         var batches = ProductBatchSummaryCache.getProductBatchSummary();
 
-        return batches && batches.length > 0 && batches[batches.length - 1].nbkBatch ? batches[batches.length - 1].nbkBatch : 0;
+        return isLatestBatchExist(batches) ? batches[batches.length - 1].nbkBatch : 0;
+    }
+
+    function isLatestBatchExist(batches) {
+        return batches && batches.length > 0 && batches[batches.length - 1].nbkBatch;
     }
 
     function saveMolecule(mol) {
