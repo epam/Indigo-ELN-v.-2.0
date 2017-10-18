@@ -1,0 +1,209 @@
+(function() {
+    angular
+        .module('indigoeln.Components')
+        .controller('IndigoTableController', IndigoTableController);
+
+    /* @ngInject */
+    function IndigoTableController($scope, dragulaService, simpleLocalCache, $attrs, Principal, $timeout, $filter) {
+        var vm = this;
+        var originalColumnIdsAndFlags;
+        var searchColumns;
+        var user;
+
+        init();
+
+        function init() {
+            originalColumnIdsAndFlags = getColumnsProps(vm.indigoColumns);
+            searchColumns = vm.indigoSearchColumns || ['id', 'nbkBatch'];
+            vm.searchText = '';
+            vm.filteredRows = vm.indigoRows;
+            vm.pagination = {
+                page: 1,
+                pageSize: 10
+            };
+
+            updateRowsForDisplay();
+
+            vm.startEdit = startEdit;
+            vm.searchDebounce = _.debounce(search, 300);
+            vm.onRowSelect = onRowSelect;
+            vm.onPageChanged = onPageChanged;
+            vm.saveInLocalStorage = saveInLocalStorage;
+            vm.resetColumns = resetColumns;
+            vm.onClose = onClose;
+
+            getUser();
+            bindEvents();
+        }
+
+        function getColumnsProps(indigoColumns) {
+            return _.map(indigoColumns, function(column) {
+                column.isVisible = _.isUndefined(column.isVisible) ? true : column.isVisible;
+
+                return {
+                    id: column.id, isVisible: column.isVisible
+                };
+            });
+        }
+
+        function getSortedColumns(columnIdsAndFlags) {
+            return _.sortBy(vm.indigoColumns, function(column) {
+                return _.findIndex(columnIdsAndFlags, function(item) {
+                    return item.id === column.id;
+                });
+            });
+        }
+
+        function updateColumns() {
+            var columnIdsAndFlags = simpleLocalCache.getByKey(user.id + '.' + vm.indigoId + '.columns');
+            if (!columnIdsAndFlags) {
+                vm.saveInLocalStorage();
+            }
+            columnIdsAndFlags = columnIdsAndFlags || originalColumnIdsAndFlags;
+
+            vm.indigoColumns = _.map(getSortedColumns(columnIdsAndFlags), function(column) {
+                var index = _.findIndex(columnIdsAndFlags, function(item) {
+                    return item.id === column.id;
+                });
+                if (index > -1) {
+                    column.isVisible = columnIdsAndFlags[index].isVisible;
+                }
+
+                return column;
+            });
+        }
+
+        function saveInLocalStorage() {
+            simpleLocalCache.putByKey(user.id + '.' + vm.indigoId + '.columns', getColumnsProps(vm.indigoColumns));
+        }
+
+        function resetColumns() {
+            simpleLocalCache.removeByKey(user.id + '.' + vm.indigoId + '.columns');
+            updateColumns();
+        }
+
+        function getUser() {
+            Principal
+                .identity()
+                .then(function(userIdentity) {
+                    user = userIdentity;
+                    updateColumns(user);
+
+                    if ($attrs.indigoDraggableColumns) {
+                        $scope.$watch('vm.indigoColumns', vm.saveInLocalStorage);
+                    }
+                });
+        }
+
+        function onClose(column, data) {
+            vm.editingCellId = null;
+            vm.onCloseCell({column: column, data: data});
+        }
+
+        function startEdit(id) {
+            vm.editingCellId = id;
+        }
+
+        function getRate(str, query, rate) {
+            if (str.indexOf(query) === 0) {
+                return 10;
+            } else if (str.indexOf(query) > 0) {
+                return 1;
+            }
+
+            return rate;
+        }
+
+        function filterRowsByQuery(query) {
+            var filtered = [];
+            _.forEach(vm.indigoRows, function(row) {
+                var rate = 0;
+                _.forEach(searchColumns, function(column) {
+                    if (!row[column]) {
+                        return;
+                    }
+                    rate += getRate(row[column].toString().toLowerCase(), query, rate);
+                });
+                row.$$rate = rate;
+                if (rate > 0) {
+                    filtered.push(row);
+                }
+            });
+
+            return $filter('orderBy')(filtered, '$$rate', true);
+        }
+
+        function search() {
+            var query = vm.searchText.trim().toLowerCase();
+
+            if (!vm.indigoRows) {
+                return;
+            }
+
+            if (!query) {
+                vm.filteredRows = vm.indigoRows;
+                updateRowsForDisplay();
+
+                return;
+            }
+            vm.filteredRows = filterRowsByQuery(query);
+
+            updateRowsForDisplay();
+        }
+
+        function onRowSelect($event, row) {
+            if (angular.element($event.target).is('button,span,ul,a,li,input')) {
+                return;
+            }
+            vm.onSelectRow({row: !_.isEqual(vm.selectedBatch, row) ? row : null});
+        }
+
+        dragulaService.options($scope, 'my-table-columns', {
+            moves: function(el, container, handle) {
+                return !handle.classList.contains('no-draggable');
+            }
+        });
+        dragulaService.options($scope, 'my-table-rows', {
+            moves: function(el, container, handle) {
+                return angular.element(handle).is('div') || angular.element(handle).is('td');
+            }
+        });
+
+        function onPageChanged() {
+            updateRowsForDisplay();
+        }
+
+        function getSkipItems() {
+            return (vm.pagination.page - 1) * vm.pagination.pageSize;
+        }
+
+        function updateRowsForDisplay() {
+            if (!vm.filteredRows || vm.filteredRows.length === 0) {
+                vm.rowsForDisplay = null;
+
+                return;
+            }
+
+            var skip = getSkipItems(vm.filteredRows);
+
+            if (skip >= vm.filteredRows.length) {
+                updateCurrentPage(vm.filteredRows);
+                skip = getSkipItems();
+            }
+
+            $timeout(function() {
+                vm.totalFilteredRowsLength = vm.filteredRows.length;
+                vm.rowsForDisplay = $filter('limitTo')(vm.filteredRows, vm.pagination.pageSize, skip);
+            });
+        }
+
+        function updateCurrentPage(rows) {
+            vm.pagination.page = _.ceil(rows.length / vm.pagination.pageSize);
+        }
+
+        function bindEvents() {
+            $scope.$watch('vm.indigoRows.length', vm.searchDebounce);
+            $scope.$watch('vm.indigoRows', vm.searchDebounce);
+        }
+    }
+})();
