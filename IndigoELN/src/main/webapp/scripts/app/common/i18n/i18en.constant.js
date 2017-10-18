@@ -3,7 +3,7 @@
         .module('indigoeln')
         .constant('i18en', {
             MY_BOOKMARKS: 'My Bookmarks',
-            ALL_PROJ_CTS: 'All Projects',
+            ALL_PROJECTS: 'All Projects',
             ADMINISTRATION: 'Administration',
             USERS: 'Users',
             ROLES: 'Roles',
