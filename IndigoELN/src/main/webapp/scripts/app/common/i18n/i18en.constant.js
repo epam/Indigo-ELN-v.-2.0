@@ -11,7 +11,7 @@
             DICTIONARIES: 'Dictionaries',
             CLOSE: 'Close',
             YES: 'Yes',
-            No: 'No',
+            NO: 'No',
             ATTACHMENTS: 'Attachments',
             STRUCTURE: 'Structure',
             REACTANT_STRUCTURE_SEARCH: 'Reactant Structure Search',
@@ -190,7 +190,7 @@
             VERSION_EXPERIMENT: 'Version Experiment',
             COMPLETE_EXPERIMENT: 'Complete Experiment',
             COMPLETE_SIGN: 'Complete & Sign',
-            REOPEN_EXPERIMENT__FOR_EDIT: 'Reopen Experiment for Edit',
+            REOPEN_EXPERIMENT_FOR_EDIT: 'Reopen Experiment for Edit',
             RESUBMIT_FOR_SIGNATURE: 'Resubmit for Signature',
             VIEW_RECORD_SUBMITTED_FOR_SIGNATURE: 'View Record Submitted for Signature',
             VIEW_RECORD_ARCHIEVED: 'View Record Archieved',
@@ -261,6 +261,7 @@
             ERROR_PAGE: 'Error Page!',
             YOU_ARE_NOT_AUTHORIZED_TO_ACCESS_THE_PAGE: 'You are not authorized to access the page.',
             PROJECT_SELECTION: 'Project selection',
-            PROJECT_NAME: 'Project name'
+            PROJECT_NAME: 'Project name',
+            NOTEBOOK_BATCH_N: 'Notebook Batch #:'
         });
 })();

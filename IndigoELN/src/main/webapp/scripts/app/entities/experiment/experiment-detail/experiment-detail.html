@@ -64,14 +64,14 @@
                 <li role="menuitem" ng-if="vm.isComponentsEditAllowed"
                     ng-click="vm.completeExperimentAndSign()"><a i-translate="COMPLETE_SIGN"> </a></li>
                 <li role="menuitem" ng-if="vm.isEditAllowed && vm.isStatusSubmitFail"
-                    ng-click="vm.reopenExperiment()"><a i-translate="_SIGN"></a></li>
+                    ng-click="vm.reopenExperiment()"><a i-translate="REOPEN_EXPERIMENT_FOR_EDIT"></a></li>
                 <li role="menuitem" ng-click="vm.repeatExperiment()"><a i-translate="REPEAT_EXPERIMENT"></a></li>
                 <li role="menuitem"><a ng-click="vm.printExperiment()" i-translate="PRINT_EXPERIMENT"></a></li>
                 <li role="menuitem"
                     ng-if="vm.experiment.lastVersion && !vm.isStatusOpen"
                     ng-click="vm.versionExperiment()"><a i-translate="VERSION_EXPERIMENT"></a></li>
                 <li role="menuitem" ng-if="vm.isStatusSubmitFail" ng-click="vm.completeExperimentAndSign()">
-                    <a href="#" i-translate="REOPEN_EXPERIMENT__FOR_EDIT"></a></li>
+                    <a href="#" i-translate="RESUBMIT_FOR_SIGNATURE"></a></li>
                 <li role="menuitem"
                     ng-if="vm.isStatusSubmitFail || vm.isStatusSubmitted || vm.isStatusSigning || vm.isStatusSigned">
                     <a href="api/signature/document/content?documentId={{vm.experiment.documentId}}" target="_blank"
