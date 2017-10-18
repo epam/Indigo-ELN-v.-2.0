@@ -2,10 +2,10 @@
     <div class="search-table-head search-table-row">
         <div class="t-item t-head"></div>
         <div class="t-item t-head"></div>
-        <div class="t-item t-head">Mol. Wt.</div>
-        <div class="t-item t-head">Molecular Formula</div>
-        <div class="t-item t-head">Chemical Name</div>
-        <div class="t-item t-head">Compound ID</div>
+        <div class="t-item t-head" i-translate="MOL_WT"></div>
+        <div class="t-item t-head" i-translate="MOLECULAR_FORMULA"></div>
+        <div class="t-item t-head" i-translate="CHEMICAL_NAME"></div>
+        <div class="t-item t-head" i-translate="COMPOUND_ID"></div>
     </div>
     <div class="search-table-body">
         <div ng-repeat="item in indigoTableContent | filter : indigoTableFilter as filteredTableContent track by $index"
@@ -23,77 +23,82 @@
                                      indigo-change="onSelectItems(filteredTableContent)"></indigo-checkbox>
                     <indigo-checkbox ng-if="indigoSingleItemPerTab"
                                      class="checkbox-inline" indigo-model="item.$$isSelected"
-                                     indigo-change="selectSingleItemtPerTab(indigoTab, item, $parent.$index, $index, !item.$$isSelected)" ></indigo-checkbox>
+                                     indigo-change="selectSingleItemtPerTab(indigoTab, item, $parent.$index, $index, !item.$$isSelected)"></indigo-checkbox>
                 </div>
                 <div class="t-item">{{item.molWeight.value | round}}</div>
                 <div class="t-item">{{item.formula}}</div>
                 <div class="t-item">{{item.chemicalName}}</div>
                 <div class="t-item">{{item.compoundId}}</div>
                 <div class="search-table-popup" ng-if="item.structure.image && item.$$isCollapsed">
-                    <img uib-popover-html="item.$$popoverTemplate" class="search-table-img" popover-title="{{item.fullNbkBatch}}" popover-trigger="'mouseenter'" popover-placement="left" ng-src="data:image/svg+xml;base64,{{item.structure.image}}" alt="Image is unavailable.">
+                    <img uib-popover-html="item.$$popoverTemplate" class="search-table-img"
+                         popover-title="{{item.fullNbkBatch}}" popover-trigger="'mouseenter'" popover-placement="left"
+                         ng-src="data:image/svg+xml;base64,{{item.structure.image}}" alt="Image is unavailable.">
                 </div>
             </div>
             <div uib-collapse="item.$$isCollapsed" class="search-table-row-details">
                 <div class="row" ng-if="!item.$$isCollapsed">
                     <div class="col-xs-6">
                         <div class="m-b20">
-                            <span class="semi-b">Reagent Information</span>
+                            <span class="semi-b" i-translate="REAGENT_INFORMATION"></span>
                             <button class="btn btn-default btn-small m-l5" type="button" ng-if="indigoEditableInfo"
                                     ng-click="editInfo(item)" ng-disabled="isEditMode">
-                                <span class="fa fa-pencil"></span><span class="m-l5">Edit</span>
+                                <span class="fa fa-pencil"></span><span class="m-l5" i-translate="EDIT"></span>
                             </button>
                         </div>
                         <div>
                             <div class="row">
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <label class="control-label">Compound ID:</label>
+                                    <label class="control-label" i-translate="COMPOUND_ID" i-end=":"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <indigo-input ng-if="isEditMode" indigo-readonly="true" indigo-model="item.compoundId"></indigo-input>
+                                    <indigo-input ng-if="isEditMode" indigo-readonly="true"
+                                                  indigo-model="item.compoundId"></indigo-input>
                                     <p ng-if="!isEditMode">{{item.compoundId}}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <label class="control-label">Batch Number:</label>
+                                    <label class="control-label" i-translate="BATCH_NUMBER" i-end=":"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <indigo-input ng-if="isEditMode" indigo-readonly="true" indigo-model="item.fullNbkBatch"></indigo-input>
+                                    <indigo-input ng-if="isEditMode" indigo-readonly="true"
+                                                  indigo-model="item.fullNbkBatch"></indigo-input>
                                     <p ng-if="!isEditMode">{{item.fullNbkBatch}}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <label class="control-label">Molecular Formula:</label>
+                                    <label class="control-label" i-translate="MOLECULAR_FORMULA" i-end=":"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <indigo-input ng-if="isEditMode" indigo-readonly="true" indigo-model="item.formula"></indigo-input>
+                                    <indigo-input ng-if="isEditMode" indigo-readonly="true"
+                                                  indigo-model="item.formula"></indigo-input>
                                     <p ng-if="!isEditMode">{{item.formula}}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <label class="control-label">Molecular Weight:</label>
+                                    <label class="control-label" i-translate="MOLECULAR_WEIGHT" i-end=":"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <indigo-input ng-if="isEditMode" indigo-readonly="true" indigo-model="item.molWeight.value | round"></indigo-input>
+                                    <indigo-input ng-if="isEditMode" indigo-readonly="true"
+                                                  indigo-model="item.molWeight.value | round"></indigo-input>
                                     <p ng-if="!isEditMode">{{item.molWeight.value | round}}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <label class="control-label">
-                                        Reagent Type:</label>
+                                    <label class="control-label" i-translate="REAGENT_TYPE" i-end=":"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <indigo-select ng-if="isEditMode" indigo-items="rxnValues" indigo-model="item.rxnRole"></indigo-select>
+                                    <indigo-select ng-if="isEditMode" indigo-items="rxnValues"
+                                                   indigo-model="item.rxnRole"></indigo-select>
                                     <p ng-if="!isEditMode">{{item.rxnRole.name}}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <label class="control-label">
-                                        Chemical Name:</label>
+                                    <label class="control-label" i-translate="CHEMICAL_NAME" i-end=":"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
                                     <indigo-input ng-if="isEditMode" indigo-model="item.chemicalName"></indigo-input>
@@ -102,28 +107,29 @@
                             </div>
                             <div class="row">
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <label class="control-label">
-                                        Salt Code:</label>
+                                    <label class="control-label" i-translate="SALT_CODE" i-end=":"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <indigo-select ng-if="isEditMode" indigo-items="saltCodeValues" indigo-change="recalculateSalt(item)" indigo-model="item.saltCode"></indigo-select>
+                                    <indigo-select ng-if="isEditMode" indigo-items="saltCodeValues"
+                                                   indigo-change="recalculateSalt(item)"
+                                                   indigo-model="item.saltCode"></indigo-select>
                                     <p ng-if="!isEditMode">{{item.saltCode.name}}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <label class="control-label">
-                                        Salt EQ:</label>
+                                    <label class="control-label" i-translate="SALT_EQ" i-end=":"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <indigo-input ng-if="isEditMode" indigo-type="number" indigo-change="recalculateSalt(item)" indigo-model="item.saltEq.value"></indigo-input>
+                                    <indigo-input ng-if="isEditMode" indigo-type="number"
+                                                  indigo-change="recalculateSalt(item)"
+                                                  indigo-model="item.saltEq.value"></indigo-input>
                                     <p ng-if="!isEditMode">{{item.saltEq.value}}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <label class="control-label">
-                                        External #:</label>
+                                    <label class="control-label" i-translate="EXTERNAL_N" i-end=":"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
                                     <indigo-input ng-if="isEditMode" indigo-model="item.externalNumber"></indigo-input>
@@ -136,14 +142,14 @@
                                         Compound State:</label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <indigo-select ng-if="isEditMode" indigo-dictionary="Compound State" indigo-model="item.compoundState"></indigo-select>
+                                    <indigo-select ng-if="isEditMode" indigo-dictionary="Compound State"
+                                                   indigo-model="item.compoundState"></indigo-select>
                                     <p ng-if="!isEditMode">{{item.compoundState.name}}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <label class="control-label">
-                                        Batch Comment:</label>
+                                    <label class="control-label" i-translate="BATCH_COMMENT"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
                                     <indigo-input ng-if="isEditMode" indigo-model="item.comments"></indigo-input>
@@ -152,8 +158,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <label class="control-label">
-                                        Batch&nbsp;Hazard&nbsp;Comment</label>
+                                    <label class="control-label" i-translate="BATCH_HAZARD_COMMENT"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
                                     <indigo-input ng-if="isEditMode" indigo-model="item.hazardComments"></indigo-input>
@@ -162,8 +167,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-xs-6">
-                                    <label class="control-label">CAS Number:
-                                    </label>
+                                    <label class="control-label" i-translate="CAS_NUMBER"></label>
                                 </div>
                                 <div class="col-xs-6">
                                     <indigo-input ng-if="isEditMode" indigo-model="item.casNumber"></indigo-input>
@@ -172,18 +176,22 @@
                             </div>
                             <div class="btn-group" ng-if="isEditMode">
                                 <button class="btn btn-primary" type="button" ng-click="finishEdit()"
-                                        ng-disabled="false"><span class="fa fa-save"></span><span class="m-l5">Save</span>
+                                        ng-disabled="false"><span class="fa fa-save"></span>
+                                    <span class="m-l5" i-translate="SAVE"></span>
                                 </button>
                                 <button class="btn btn-default" type="button" ng-click="cancelEdit($index)"
-                                        ng-disabled="false"><span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
+                                        ng-disabled="false"><span class="fa fa-ban"></span>
+                                    <span class="m-l5" i-translate="CANCEL"></span>
                                 </button>
                             </div>
                         </div>
                     </div>
                     <div class="col-xs-6">
-                        <span class="semi-b">Structure</span>
+                        <span class="semi-b" i-translate="STRUCTURE"></span>
                         <div>
-                            <img class="img-responsive search-result-table__img-structure" ng-if="item.structure.image" ng-src="data:image/svg+xml;base64,{{item.structure.image}}" alt="Image is unavailable.">
+                            <img class="img-responsive search-result-table__img-structure" ng-if="item.structure.image"
+                                 ng-src="data:image/svg+xml;base64,{{item.structure.image}}"
+                                 alt="Image is unavailable.">
                         </div>
                     </div>
                 </div>

@@ -1,7 +1,5 @@
 <div class="panel panel-info component" indigo-collapsible-component>
-    <div class="panel-heading">
-        Stoichiometry Table
-    </div>
+    <div class="panel-heading" i-translate="STOICHIOMETRY_TABLE"></div>
     <div class="panel-body collapsible">
         <indigo-table indigo-id="reactants"
                       indigo-columns="vm.reactantsColumns"
@@ -19,31 +17,31 @@
                         <button type="button" ng-click="vm.searchReagents(0)" class="btn btn-info btn-small"
                                 ng-disabled="vm.isReadonly">
                             <span class="fa fa-list"></span>
-                            <span class="m-l5">My Reagent List</span>
+                            <span class="m-l5" i-translate="MY_REAGENT_LIST"></span>
                         </button>
                         <button type="button" ng-click="vm.searchReagents(1)" class="btn btn-info btn-small"
                                 ng-disabled="vm.isReadonly">
                             <span class="fa fa-search"></span>
-                            <span class="m-l5">Search DBs</span>
+                            <span class="m-l5" i-translate="SEARCH_DBS"></span>
                         </button>
                         <button type="button" class="btn btn-info btn-small" disabled>
                             <span class="fa fa-search"></span>
-                            <span class="m-l5">MSDS Search</span>
+                            <span class="m-l5" i-translate="MSDS_SEARCH"></span>
                         </button>
                         <button type="button" class="btn btn-info btn-small" ng-disabled="vm.isReadonly"
                                 ng-click="vm.appendRow()">
                             <span class="fa fa-plus"></span>
-                            <span class="m-l5">Add</span>
+                            <span class="m-l5" i-translate="ADD"></span>
                         </button>
                         <button type="button" class="btn btn-info btn-small"
                                 ng-disabled="vm.isReadonly || !vm.selectedRow" ng-click="vm.clear()">
                             <span class="fa fa-eraser"></span>
-                            <span class="m-l5">Clear</span>
+                            <span class="m-l5" i-translate="CLEAR"></span>
                         </button>
                         <button type="button" class="btn btn-info btn-small"
                                 ng-disabled="vm.isReadonly || !vm.selectedRow" ng-click="vm.removeRow()">
                             <span class="fa fa-trash"></span>
-                            <span class="m-l5">Delete</span>
+                            <span class="m-l5" i-translate="DELETE"></span>
                         </button>
                     </div>
                 </div>
@@ -53,12 +51,12 @@
                                 ng-disabled="vm.isReadonly || !vm.model.stoichTable.products"
                                 class="btn btn-info btn-small">
                             <span class="fa fa-line-chart"></span>
-                            <span class="m-l5">Analyze Rxn</span>
+                            <span class="m-l5" i-translate="ANALYZE_RXN"></span>
                         </button>
                         <button type="button" class="btn btn-info btn-small" ng-click="vm.createRxn()"
                                 ng-disabled="vm.isReadonly || vm.noReactantsInStoic()">
                             <span class="fa fa-plus"></span>
-                            <span class="m-l5">Create Rxn</span>
+                            <span class="m-l5" i-translate="CREATE_RXN"></span>
                         </button>
                     </div>
                 </div>

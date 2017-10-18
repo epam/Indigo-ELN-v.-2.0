@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <h5 class="modal-title">Purity % Information</h5>
+    <h5 class="modal-title" i-translate="PURITY_INFORMATION"></h5>
 </div>
 <div class="modal-body">
     <div class="m-b20">
@@ -12,42 +12,44 @@
     <div class="long-content-popup">
         <table class="table" id="search-result-table">
             <thead class="search-table-head">
-                <tr>
-                    <th class="w-20">Purity Determined By</th>
-                    <th class="w-15">Operator</th>
-                    <th class="w-15">Purity%</th>
-                    <th>Purity Comments</th>
-                </tr>
+            <tr>
+                <th class="w-20" i-translate="PURITY_DETERMINED_BY"></th>
+                <th class="w-15" i-translate="OPERATOR"></th>
+                <th class="w-15" i-translate="PURITY" i-end="%"></th>
+                <th i-translate="PURITY_COMMENTS"></th>
+            </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="item in vm.dictionary.words track by item.name"
-                    ng-init="vm.purity.data[$index].determinedBy = item.name">
-                    <td ng-bind="vm.purity.data[$index].determinedBy"></td>
-                    <td><indigo-select indigo-items="vm.operatorSelect"
-                                       indigo-readonly="vm.isInknownPurity()"
-                                       indigo-model="vm.purity.data[$index].operator">
-                    </indigo-select></td>
-                    <td>
-                        <indigo-input indigo-model="vm.purity.data[$index].value"
-                                      indigo-readonly="vm.isInknownPurity()"
-                                      indigo-type="number">
-                        </indigo-input>
-                    </td>
-                    <td>
-                        <indigo-input indigo-model="vm.purity.data[$index].comments"
-                                      indigo-readonly="vm.isInknownPurity()">
-                        </indigo-input>
-                    </td>
-                </tr>
+            <tr ng-repeat="item in vm.dictionary.words track by item.name"
+                ng-init="vm.purity.data[$index].determinedBy = item.name">
+                <td ng-bind="vm.purity.data[$index].determinedBy"></td>
+                <td>
+                    <indigo-select indigo-items="vm.operatorSelect"
+                                   indigo-readonly="vm.isInknownPurity()"
+                                   indigo-model="vm.purity.data[$index].operator">
+                    </indigo-select>
+                </td>
+                <td>
+                    <indigo-input indigo-model="vm.purity.data[$index].value"
+                                  indigo-readonly="vm.isInknownPurity()"
+                                  indigo-type="number">
+                    </indigo-input>
+                </td>
+                <td>
+                    <indigo-input indigo-model="vm.purity.data[$index].comments"
+                                  indigo-readonly="vm.isInknownPurity()">
+                    </indigo-input>
+                </td>
+            </tr>
             </tbody>
         </table>
     </div>
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" type="button" ng-click="vm.cancel()">
-        <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
+        <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
     </button>
     <button class="btn btn-primary" type="button" ng-click="vm.save()">
-        <span class="fa fa-save"></span><span class="m-l5">Save</span>
+        <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
     </button>
 </div>

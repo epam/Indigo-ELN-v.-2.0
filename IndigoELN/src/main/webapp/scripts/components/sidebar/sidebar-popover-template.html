@@ -1,5 +1,5 @@
 <div class="sidebar-popover">
-    <div class="sidebar-popover-number m-b5">Experiment
+    <div class="sidebar-popover-number m-b5"><span i-translate="EXPERIMENT"></span>
         {{node.parent.name}}-{{vm.experimentsCollection[node.original.fullId].fullName}}
     </div>
     <div class="sidebar-popover-content">
@@ -12,15 +12,16 @@
       </span>
         </div>
         <div>
-            <span class="bold">Creation Date:</span><span
+            <span class="bold"><span i-translate="CREATION_DATE"></span>:</span><span
                 ng-bind="vm.experimentsCollection[node.original.fullId].creationDate  | date:'MMM dd yyyy'"></span>
         </div>
         <span>
-      <span class="bold">Author:</span><span
+      <span class="bold"><span i-translate="AUTHOR"></span>:</span><span
                 ng-bind="vm.experimentsCollection[node.original.fullId].author.firstName"></span>
     </span>
         <span>
-      <span class="bold">Status:</span> <span ng-bind="vm.experimentsCollection[node.original.fullId].status"></span>
+      <span class="bold"><span i-translate="STATUS"></span>:</span> <span
+                ng-bind="vm.experimentsCollection[node.original.fullId].status"></span>
     </span>
         <img ng-if="!!vm.experimentsCollection[node.original.fullId].components.reaction.image"
              class="sidebar-popover-sheme" ng-src="data:image/svg+xml;base64,{{experiment.components.reaction.image}}"

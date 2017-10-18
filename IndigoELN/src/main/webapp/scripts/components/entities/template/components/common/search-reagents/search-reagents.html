@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <h5 class="modal-title">Lookup Reagents</h5>
+    <h5 class="modal-title" i-translate="LOOKUP_REAGENTS"></h5>
 </div>
 <div class="modal-body modal-body-search">
     <uib-tabset active="activeForm" class="inner-tabs">
@@ -12,10 +12,13 @@
                         <button class="btn btn-info btn-can-loading"
                                 ng-class="{'btn-loading': vm.loading}"
                                 ng-click="vm.searchMyReagents(vm.myReagents.searchQuery)"
-                                type="button">Search
+                                type="button"
+                                i-translate="SEARCH">
                         </button>
-                        <button class="btn btn-info" ng-click="vm.clearMyReagentsSearchQuery()"
-                                type="button">Clear
+                        <button class="btn btn-info"
+                                ng-click="vm.clearMyReagentsSearchQuery()"
+                                type="button"
+                                i-translate="CLEAR">
                         </button>
                     </span>
                 </div>
@@ -32,16 +35,16 @@
                             type="button"
                             ng-click="vm.removeFromMyReagentList()"
                             ng-disabled="false">
-                        <span class="fa fa-trash"></span><span class="m-l5">Remove from My List</span>
+                        <span class="fa fa-trash"></span><span class="m-l5" i-translate="REMOVE_FROM_MY_LIST"></span>
                     </button>
                     <button class="btn btn-info"
                             type="button"
                             ng-click="vm.addToStoichTable(vm.myReagentList)"
                             ng-disabled="false">
-                        <span class="fa fa-plus"></span><span class="m-l5">Add to Stoich. Table</span>
+                        <span class="fa fa-plus"></span><span class="m-l5" i-translate="ADD_TO_STOICH_TABLE"></span>
                     </button>
                     <button class="btn btn-default" type="button" ng-click="vm.cancel()">
-                        <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
+                        <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
                     </button>
                 </div>
             </div>
@@ -68,15 +71,13 @@
                                     </a>
                                 </div>
                             </div>
-                            <div class="search-hint">If you search a molecular formula, add spaces between each element:
-                                C8 H9 Br, C2 H5 OH
-                            </div>
+                            <div class="search-hint" i-translate="IF_YOU_SEARCH_A_MOLECULAR_FORMULA"></div>
                         </div>
                         <div uib-collapse="$$isCollapsed" class="collapse-content">
                             <div ng-show="!vm.isSearchResultFound">
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">
-                                        {{vm.model.restrictions.advancedSearch.compoundId.name}}:</label>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" i-translate="COMPOUND_ID" i-end=":"></label>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
@@ -88,8 +89,8 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">
-                                        {{vm.model.restrictions.advancedSearch.fullNbkBatch.name}}:</label>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" i-translate="NBK_BATCH" i-end=":"></label>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
@@ -101,7 +102,8 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">{{vm.model.restrictions.advancedSearch.formula.name}}:</label>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" i-translate="MOLECULAR_FORMULA" i-end=":"></label>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
@@ -113,7 +115,8 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">{{vm.model.restrictions.advancedSearch.molWeight.name}}:</label>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" i-translate="MOLECULAR_WEIGHT" i-end=":"></label>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionNumber"
@@ -125,8 +128,8 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">
-                                        {{vm.model.restrictions.advancedSearch.chemicalName.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" i-translate="CHEMICAL_NAME" i-end=":"></label></div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionChemicalName"
                                                        indigo-model="vm.model.restrictions.advancedSearch.chemicalName.condition"></indigo-select>
@@ -137,8 +140,8 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">
-                                        {{vm.model.restrictions.advancedSearch.externalNumber.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" i-translate="EXTERNAL_NUMBER" i-end=":"></label></div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
                                                        indigo-model="vm.model.restrictions.advancedSearch.externalNumber.condition"></indigo-select>
@@ -149,8 +152,8 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">
-                                        {{vm.model.restrictions.advancedSearch.compoundState.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" i-translate="COMPOUND_STATE" i-end=":"></label></div>
                                     <div class="col-xs-6">
                                         <indigo-select indigo-dictionary="Compound State"
                                                        indigo-model="vm.model.restrictions.advancedSearch.compoundState.value"></indigo-select>
@@ -169,8 +172,8 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">
-                                        {{vm.model.restrictions.advancedSearch.hazardComments.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" i-translate="BATCH_HAZARD_COMMENT" i-end=":"></label></div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
                                                        indigo-model="vm.model.restrictions.advancedSearch.hazardComments.condition"></indigo-select>
@@ -181,8 +184,8 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">
-                                        {{vm.model.restrictions.advancedSearch.casNumber.name}}:</label>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" i-translate="CAS_NUMBER" i-end=":"></label>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
@@ -278,14 +281,13 @@
                                         </a>
                                     </div>
                                 </div>
-                                <div class="search-hint">If you search a molecular formula, add spaces between each
-                                    element: C8 H9 Br, C2 H5 OH
+                                <div class="search-hint" i-translate="IF_YOU_SEARCH_A_MOLECULAR_FORMULA">
                                 </div>
                             </div>
                             <div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">
-                                        {{vm.model.restrictions.advancedSearch.compoundId.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" i-translate="COMPOUND_ID" i-end=":"></label></div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
                                                        indigo-model="vm.model.restrictions.advancedSearch.compoundId.condition"></indigo-select>
@@ -296,8 +298,8 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">
-                                        {{vm.model.restrictions.advancedSearch.fullNbkBatch.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" i-translate="NBK_BATCH" i-end=":"></label></div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
                                                        indigo-model="vm.model.restrictions.advancedSearch.fullNbkBatch.condition"></indigo-select>
@@ -308,8 +310,8 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">
-                                        {{vm.model.restrictions.advancedSearch.formula.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" i-translate="MOLECULAR_FORMULA" i-end=":"></label></div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
                                                        indigo-model="vm.model.restrictions.advancedSearch.formula.condition"></indigo-select>
@@ -320,8 +322,8 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">
-                                        {{vm.model.restrictions.advancedSearch.molWeight.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" i-translate="MOLECULAR_WEIGHT" i-end=":"></label></div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionNumber"
                                                        indigo-model="vm.model.restrictions.advancedSearch.molWeight.condition"></indigo-select>
@@ -332,8 +334,8 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">
-                                        {{vm.model.restrictions.advancedSearch.chemicalName.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" i-translate="CHEMICAL_NAME" i-end=":"></label></div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionChemicalName"
                                                        indigo-model="vm.model.restrictions.advancedSearch.chemicalName.condition"></indigo-select>
@@ -344,8 +346,8 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">
-                                        {{vm.model.restrictions.advancedSearch.externalNumber.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" i-translate="EXTERNAL_NUMBER" i-end=":"></label></div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
                                                        indigo-model="vm.model.restrictions.advancedSearch.externalNumber.condition"></indigo-select>
@@ -356,16 +358,16 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">
-                                        {{vm.model.restrictions.advancedSearch.compoundState.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" i-translate="COMPOUND_STATE" i-end=":"></label></div>
                                     <div class="col-xs-6">
                                         <indigo-select indigo-dictionary="Compound State"
                                                        indigo-model="vm.model.restrictions.advancedSearch.compoundState.value"></indigo-select>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">
-                                        {{vm.model.restrictions.advancedSearch.comments.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" i-translate="BATCH_COMMENT" i-end=":"></label></div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
                                                        indigo-model="vm.model.restrictions.advancedSearch.comments.condition"></indigo-select>
@@ -376,8 +378,8 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">
-                                        {{vm.model.restrictions.advancedSearch.hazardComments.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" i-translate="BATCH_HAZARD_COMMENT" i-end=":"></label></div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
                                                        indigo-model="vm.model.restrictions.advancedSearch.hazardComments.condition"></indigo-select>
@@ -388,8 +390,8 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">
-                                        {{vm.model.restrictions.advancedSearch.casNumber.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <label class="control-label" i-translate="CAS_NUMBER" i-end=":"></label></div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="vm.conditionText"
                                                        indigo-model="vm.model.restrictions.advancedSearch.casNumber.condition"></indigo-select>
@@ -408,13 +410,14 @@
                                 structure</a></div>
                         <div uib-collapse="isReDrawStructureCollapsed" class="collapse-content">
                             <div class="row">
-                                <div class="col-xs-2"><label class="control-label">Similarity criteria</label></div>
+                                <div class="col-xs-2"><label class="control-label" i-translate="SIMILARITY_CRITERIA"></label></div>
                                 <div class="col-xs-4">
                                     <indigo-select indigo-items="vm.conditionSimilarity"
                                                    indigo-model="vm.model.restrictions.structure.similarityCriteria"></indigo-select>
                                 </div>
                                 <div ng-if="vm.model.restrictions.structure.similarityCriteria.name == 'similarity'">
-                                    <indigo-input class="col-xs-2 search-reagents__criteria-input" indigo-name="similarityValue"
+                                    <indigo-input class="col-xs-2 search-reagents__criteria-input"
+                                                  indigo-name="similarityValue"
                                                   indigo-validation-pattern="/^\d{1,2}(?!\d)|100$/"
                                                   indigo-validation-max-length="3"
                                                   indigo-validation-required="true"
@@ -440,7 +443,8 @@
                                 type="button"
                                 ng-click="vm.search()"
                                 ng-disabled="!vm.model.restrictions.structure.image && !vm.isAdvancedSearchFilled() &&
-                                                            !vm.model.restrictions.searchQuery">Search
+                                                            !vm.model.restrictions.searchQuery"
+                                i-translate="SEARCH">
                         </button>
                         <span class="semi-b search-result-table-label" ng-show="!vm.loading">
                             {{vm.searchResults.length}} results found</span>
@@ -457,14 +461,14 @@
                     <div class="btn-group pull-right">
                         <button class="btn btn-info" type="button" ng-click="vm.addToMyReagentList()"
                                 ng-disabled="!vm.selectedItems.length">
-                            <span class="fa fa-plus"></span><span class="m-l5">Add to My Reagent List</span>
+                            <span class="fa fa-plus"></span><span class="m-l5" i-translate="ADD_TO_MY_REAGENT_LIST"></span>
                         </button>
                         <button class="btn btn-info" type="button" ng-click="vm.addToStoichTable(vm.searchResults)"
                                 ng-disabled="!vm.selectedItems.length">
-                            <span class="fa fa-plus"></span><span class="m-l5">Add to Stoich. Table</span>
+                            <span class="fa fa-plus"></span><span class="m-l5" i-translate="ADD_TO_STOICH_TABLE"></span>
                         </button>
                         <button class="btn btn-default" type="button" ng-click="vm.cancel()">
-                            <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
+                            <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
                         </button>
                     </div>
                 </div>

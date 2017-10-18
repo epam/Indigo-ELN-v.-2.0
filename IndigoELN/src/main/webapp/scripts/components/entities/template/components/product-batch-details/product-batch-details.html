@@ -1,10 +1,9 @@
 <div class="panel panel-info component" indigo-collapsible-component>
-    <div class="panel-heading">
-        Product Batch Details
-    </div>
+    <div class="panel-heading" i-translate="PRODUCT_BATCH_DETAILS"></div>
     <div class="panel-body collapsible">
         <div class="form-inline form-batch-details">
-            <label>Notebook Batch #: <span ng-bind="vm.selectedBatch.fullNbkImmutablePart"></span></label>
+            <label><span i-translate="NOTEBOOK_BATCH_N"></span>: <span
+                    ng-bind="vm.selectedBatch.fullNbkImmutablePart"></span></label>
             <indigo-select
                     indigo-model="vm.selectedBatch"
                     indigo-items="vm.batches"
@@ -43,7 +42,7 @@
 
             <div class="action-panel m-b20">
                 <div class="action-panel__left">
-                    <span class="txt-small bold m-r5">Batches:</span>
+                    <span class="txt-small bold m-r5"><span i-translate="BATCHES"></span>:</span>
                     <div class="btn-group">
                         <add-new-batch batch-operation="vm.batchOperation"
                                        on-added-batch="vm.onAddedBatch({batch: batch})"
@@ -54,7 +53,7 @@
                                 ng-disabled="vm.isEditDisabled"
                                 ng-click="vm.duplicateBatch()">
                             <span class="fa fa-clone"></span>
-                            <span class="m-l5">Duplicate</span>
+                            <span class="m-l5" i-translate="DUPLICATE"></span>
                         </button>
                         <delete-batches is-readonly="vm.isEditDisabled"
                                         delete-batch="vm.selectedBatch"
@@ -64,14 +63,14 @@
                                 ng-disabled="vm.isReadonly || vm.isIntendedSynced()"
                                 ng-click="vm.syncWithIntendedProducts()">
                             <span class="fa fa-refresh"></span>
-                            <span class="m-l5">Sync</span>
+                            <span class="m-l5" i-translate="SYNC"></span>
                         </button>
-                        <button type="button" class="btn btn-info btn-small" disabled>VnV</button>
+                        <button type="button" class="btn btn-info btn-small" disabled i-translate="VNV"></button>
                         <button type="button" class="btn btn-info btn-small"
                                 ng-disabled="vm.isEditDisabled"
                                 ng-click="vm.registerBatch()">
                             <span class="fa fa-floppy-o"></span>
-                            <span class="m-l5">Register</span>
+                            <span class="m-l5" i-translate="REGISTER"></span>
                         </button>
                         <indigo-inline-loader promise="vm.batchOperation" class="product-batch-details__loader"
                                               on-status-changed="vm.onBatchOperationChanged(completed)"></indigo-inline-loader>
@@ -84,7 +83,7 @@
                                    ng-checked="vm.selectedBatch.batchType == 'Intermediate'"
                                    class="product-batch-details__input">
                             <label for="batchDetailsRadioIntermediate"
-                                   class="product-batch-details__label">Intermediate</label>
+                                   class="product-batch-details__label" i-translate="INTERMEDIATE"></label>
                         </div>
                         <div class="product-batch-details__radio">
                             <input type="radio"
@@ -95,24 +94,24 @@
                                    ng-checked="vm.selectedBatch.batchType =='Test Compound'"
                                    class="product-batch-details__input">
                             <label for="batchDetailsRadioTest"
-                                   class="product-batch-details__label">Test Compound</label>
+                                   class="product-batch-details__label" i-translate="TEST_COMPOUND"></label>
                         </div>
                     </div>
                 </div>
                 <div class="action-panel__right">
-                    <span class="txt-small bold m-r5">SD File:</span>
+                    <span class="txt-small bold m-r5"> <span i-translate="SD_FILE"></span>:</span>
 
                     <div class="btn-group">
                         <button type="button"
                                 class="btn btn-info btn-small  btn-can-loading {{(vm.importLoading) ? 'btn-loading' : ''}}"
                                 ng-click="vm.importSDFile()" ng-disabled="vm.isReadonly || vm.isBatchLoading">
                             <span class="fa fa-cloud-download"></span>
-                            <span class="m-l5">Import</span>
+                            <span class="m-l5" i-translate="IMPORT"></span>
                         </button>
                         <button type="button" class="btn btn-info btn-small" ng-click="vm.exportSDFile()"
                                 ng-disabled="vm.isEditDisabled">
                             <span class="fa fa-cloud-upload"></span>
-                            <span class="m-l5">Export</span>
+                            <span class="m-l5" i-translate="EXPORT"></span>
                         </button>
                     </div>
                 </div>
@@ -200,8 +199,7 @@
                               indigo-readonly="true"
                               indigo-tooltip="vm.selectedBatch.purity.asString">
                     <button class="btn btn-info" type="button" ng-click="vm.editPurity()"
-                            ng-disabled="vm.isEditDisabled">
-                        Edit
+                            ng-disabled="vm.isEditDisabled" i-translate="EDIT">
                     </button>
                 </indigo-input>
                 <indigo-input indigo-label="Melting Point"
@@ -212,7 +210,7 @@
                               indigo-tooltip="vm.selectedBatch.meltingPoint.asString"
                 >
                     <button class="btn btn-info" type="button" ng-click="vm.editMeltingPoint()"
-                            ng-disabled="vm.isEditDisabled">Edit
+                            ng-disabled="vm.isEditDisabled" i-translate="EDIT">
                     </button>
                 </indigo-input>
                 <indigo-input indigo-label="Residual Solvents"
@@ -223,7 +221,7 @@
                               indigo-tooltip="vm.selectedBatch.residualSolvents.asString"
                 >
                     <button class="btn btn-info" ng-click="vm.editResidualSolvents()" type="button"
-                            ng-disabled="vm.isEditDisabled">Edit
+                            ng-disabled="vm.isEditDisabled"  i-translate="EDIT">
                     </button>
                 </indigo-input>
                 <indigo-input indigo-label="Solubility in Solvents"
@@ -234,8 +232,7 @@
                               indigo-tooltip="vm.selectedBatch.solubility.asString"
                 >
                     <button class="btn btn-info" ng-click="vm.editSolubility()" type="button"
-                            ng-disabled="vm.isEditDisabled">
-                        Edit
+                            ng-disabled="vm.isEditDisabled" i-translate="EDIT">
                     </button>
                 </indigo-input>
                 <indigo-input indigo-label="External Supplier"
@@ -246,7 +243,7 @@
                               indigo-tooltip="vm.selectedBatch.externalSupplier.asString"
                 >
                     <button class="btn btn-info" ng-click="vm.editExternalSupplier()" type="button"
-                            ng-disabled="vm.isEditDisabled">Edit
+                            ng-disabled="vm.isEditDisabled" i-translate="EDIT">
                     </button>
                 </indigo-input>
             </div>
@@ -265,7 +262,7 @@
                               indigo-tooltip="vm.selectedBatch.healthHazards.asString"
                 >
                     <button class="btn btn-info" type="button" ng-click="vm.editHealthHazards()"
-                            ng-disabled="vm.isEditDisabled">Edit
+                            ng-disabled="vm.isEditDisabled" i-translate="EDIT">
                     </button>
                 </indigo-input>
                 <indigo-input indigo-label="Handling Precautions"
@@ -276,7 +273,7 @@
                               indigo-tooltip="vm.selectedBatch.handlingPrecautions.asString"
                 >
                     <button class="btn btn-info" type="button" ng-click="vm.editHandlingPrecautions()"
-                            ng-disabled="vm.isEditDisabled">Edit
+                            ng-disabled="vm.isEditDisabled" i-translate="EDIT">
                     </button>
                 </indigo-input>
                 <indigo-input indigo-label="Storage Instructions"
@@ -287,7 +284,7 @@
                               indigo-tooltip="vm.selectedBatch.storageInstructions.asString"
                 >
                     <button class="btn btn-info" type="button" ng-click="vm.editStorageInstructions()"
-                            ng-disabled="vm.isEditDisabled">Edit
+                            ng-disabled="vm.isEditDisabled" i-translate="EDIT">
                     </button>
                 </indigo-input>
                 <indigo-text-area indigo-label="Batch Comments"

@@ -1,16 +1,16 @@
 <div class="modal-header">
-    <h5 class="modal-title">Edit Solubility in Solvents Information</h5>
+    <h5 class="modal-title" i-translate="EDIT_SOLUBILITY_IN_SOLVENTS_INFORMATION"></h5>
 </div>
 <div class="modal-body">
-    <p class="m-b20"><span class="semi-b">Please add solvent to set up solubility</span></p>
+    <p class="m-b20"><span class="semi-b" i-translate="PLEASE_ADD_SOLVENT_TO_SET_UP_SOLUBILITY"></span></p>
     <div ng-if="vm.solubility.data.length">
         <table class="table table-striped" id="search-result-table">
             <thead class="search-table-head">
             <tr>
-                <th class="w-20">Solvent Name</th>
-                <th class="w-20">Solubility Type</th>
-                <th>Solubility Value</th>
-                <th class="w-25">Comment</th>
+                <th class="w-20" i-translate="SOLVENT_NAME"></th>
+                <th class="w-20" i-translate="SOLUBILITY_TYPE"></th>
+                <th i-translate="SOLUBILITY_VALUE"></th>
+                <th class="w-25" i-translate="COMMENT"></th>
                 <th class="w-5"></th>
             </tr>
             </thead>
@@ -54,22 +54,22 @@
                 type="button"
                 ng-click="vm.addSolvent()">
             <span class="fa fa-plus"></span>
-            <span class="m-l5">Add solvent</span>
+            <span class="m-l5" i-translate="ADD_SOLVENT"></span>
         </button>
         <button class="btn btn-danger"
                 type="button"
                 ng-if="vm.solubility.data.length"
                 ng-click="vm.removeAll()">
             <span class="fa fa-trash"></span>
-            <span class="m-l5">Remove all</span>
+            <span class="m-l5" i-translate="REMOVE_ALL"></span>
         </button>
     </div>
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" type="button" ng-click="vm.cancel()">
-        <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
+        <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
     </button>
     <button class="btn btn-primary" type="button" ng-click="vm.save()">
-        <span class="fa fa-save"></span><span class="m-l5">Save</span>
+        <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
     </button>
 </div>

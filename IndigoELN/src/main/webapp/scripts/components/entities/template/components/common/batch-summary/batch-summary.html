@@ -13,7 +13,7 @@
               ng-class="{'product-batch-register': vm.isReadonly || !vm.isHasCheckedRows()}">
     <div class="row m-b20">
         <div class="col-lg-8 m-bt-lg">
-            <span class="txt-small bold m-r5">Batches:</span>
+            <span class="txt-small bold m-r5" i-translate="BATCHES" i-end=":"></span>
             <div class="btn-group">
                 <add-new-batch batch-operation="vm.batchOperation"
                                on-added-batch="vm.onAddedBatch({batch: batch})"
@@ -34,14 +34,14 @@
                         ng-disabled="vm.isReadonly || vm.isIntendedSynced()"
                         ng-click="vm.syncWithIntendedProducts()">
                     <span class="fa fa-refresh"></span>
-                    <span class="m-l5">Sync</span>
+                    <span class="m-l5" i-translate="SYNC"></span>
                 </button>
-                <button type="button" class="btn btn-info btn-small" disabled>VnV</button>
+                <button type="button" class="btn btn-info btn-small" disabled i-translate="VNV"></button>
                 <button type="button" class="btn btn-info btn-small"
                         ng-disabled="vm.isReadonly || !vm.isHasCheckedRows()" ng-show="vm.isHasRegService"
                         ng-click="vm.registerBatches()">
                     <span class="fa fa-floppy-o"></span>
-                    <span class="m-l5">Register</span>
+                    <span class="m-l5" i-translate="REGISTER"></span>
                 </button>
                 <indigo-inline-loader promise="vm.batchOperation"
                                       on-status-changed="vm.onBatchOperationChanged(completed)">
@@ -49,19 +49,19 @@
             </div>
         </div>
         <div class="col-lg-4 text-align-lg">
-            <span class="txt-small bold m-r5">SD File:</span>
+            <span class="txt-small bold m-r5" i-translate="SD_FILE" i-end=":"></span>
             <div class="btn-group">
                 <button type="button"
                         class="btn btn-info btn-small btn-can-loading}}"
                         ng-class="{'btn-loading': importLoading}"
                         ng-click="vm.importSDFile()" ng-disabled="vm.isReadonly || vm.isBatchLoading">
                     <span class="fa fa-cloud-download"></span>
-                    <span class="m-l5">Import</span>
+                    <span class="m-l5" i-translate="IMPORT"></span>
                 </button>
                 <button type="button" class="btn btn-info btn-small" ng-click="vm.exportSDFile()"
                         ng-disabled="!vm.isHasCheckedRows()">
                     <span class="fa fa-cloud-upload"></span>
-                    <span class="m-l5">Export</span>
+                    <span class="m-l5" i-translate="EXPORT"></span>
                 </button>
             </div>
         </div>

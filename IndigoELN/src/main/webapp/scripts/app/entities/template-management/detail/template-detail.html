@@ -1,6 +1,6 @@
 <div class="templates">
     <div class="tab-content-pad">
-        <h3>Template <span ng-bind="vm.template.name"></span></h3>
+        <h3><span i-translate="TEMPLATE"></span> <span ng-bind="vm.template.name"></span></h3>
     </div>
     <form>
         <indigo-components template="vm.template.templateContent"
@@ -11,7 +11,7 @@
     </form>
     <div class="btn-bottom-block tab-content-pad">
         <button type="button" class="btn btn-default" onclick="window.history.back()">
-            <span class="fa fa-mail-reply"></span><span class="m-l5">Back</span>
+            <span class="fa fa-mail-reply"></span><span class="m-l5" i-translate="BACK"></span>
         </button>
     </div>
 </div>
