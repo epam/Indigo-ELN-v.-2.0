@@ -3,7 +3,7 @@
         <div class="col-sm-6">
             <button class="btn btn-primary" ng-click="vm.create()">
                 <span class="fa fa-plus" aria-hidden="true"></span>
-                <span class="m-l5">Create new user</span>
+                <span class="m-l5" i-translate="CREATE_NEW_USER"></span>
             </button>
         </div>
         <div class="col-sm-6 text-right">
@@ -15,7 +15,7 @@
         </div>
     </div>
     <div ng-if="vm.user" class="panel panel-info edit-form animated">
-        <div class="panel-heading">Create/Edit User</div>
+        <div class="panel-heading" i-translate="CREATE_EDIT_USER"></div>
         <div class="panel-body ">
             <form id="editForm" name="editForm" role="form" novalidate autocomplete="off">
 
@@ -57,7 +57,7 @@
                                 indigo-items="vm.roles"
                                 indigo-multiple="true"
                         ></indigo-select>
-                        <p class="help-block" ng-if="!vm.user.roles.length"> This field is required. </p>
+                        <p class="help-block" ng-if="!vm.user.roles.length" i-translate="THIS_FIELD_IS_REQUIRED"></p>
                     </div>
                     <div class="col-xs-6">
                         <indigo-input
@@ -77,15 +77,17 @@
                                       indigo-validation-maxlength="50"
                         ></indigo-input>
                         <indigo-select indigo-label="Groups"
-                                       indigo-items="[{name:'Group 1'}, {name:'Group 2'}]" indigo-model="vm.user.group"
+                                       indigo-items="[{name:'Group 1'}, {name:'Group 2'}]"
+                                       indigo-model="vm.user.group"
                         ></indigo-select>
 
                         <button class="btn btn-info"
                                 ng-if="vm.user.id"
-                                ng-click="vm.changePassword()">Change Password
+                                ng-click="vm.changePassword()" i-translate="CHANGE_PASSWORD">
                         </button>
                         <normal class="user-management__password-success" ng-if="vm.user.password && vm.user.id">
-                            <span class="glyphicon glyphicon-alert">&nbsp;</span>Password successfully changed!
+                            <span class="glyphicon glyphicon-alert">&nbsp;</span>
+                            <span i-translate="PASSWORD_SUCCESSFULLY_CHANGED"></span>
                         </normal>
                         <indigo-checkbox
                                 indigo-label="Activated"
@@ -97,11 +99,11 @@
         </div>
         <div class="panel-footer text-right">
             <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
-                <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
+                <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
             </button>
             <button ng-click="vm.save()" form="editForm" ng-disabled="editForm.$invalid || vm.isSaving || !vm.user.roles.length"
                     class="btn btn-primary m-l5">
-                <span class="fa fa-save"></span><span class="m-l5">Save</span>
+                <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
             </button>
         </div>
     </div>
@@ -109,13 +111,13 @@
         <table class="table table-striped">
             <thead>
             <tr>
-                <th>Username</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>System Roles</th>
-                <th>Email</th>
-                <th>Active</th>
-                <th>Action</th>
+                <th i-translate="USERNAME"></th>
+                <th i-translate="FIRST_NAME"></th>
+                <th i-translate="LAST_NAME"></th>
+                <th i-translate="SYSTEM_ROLES"></th>
+                <th i-translate="EMAIL"></th>
+                <th i-translate="ACTIVE"></th>
+                <th i-translate="ACTION"></th>
             </tr>
             </thead>
             <tbody>
@@ -129,10 +131,10 @@
                 <td ng-bind="user.email"></td>
                 <td>
                     <span role="button" class="uui-label uui-label-red" ng-click="vm.setActive(user, true)"
-                          ng-show="!user.system && !user.activated">Deactivated</span>
+                          ng-show="!user.system && !user.activated" i-translate="DEACTIVATED"></span>
                     <span role="button" class="uui-label uui-label-green" ng-click="vm.setActive(user, false)"
-                          ng-show="!user.system && user.activated">Activated</span>
-                    <span class="uui-label uui-label-green" ng-show="user.system">Activated</span>
+                          ng-show="!user.system && user.activated" i-translate="ACTIVATED"></span>
+                    <span class="uui-label uui-label-green" ng-show="user.system" i-translate="ACTIVATED"></span>
                 </td>
                 <td>
                     <button type="submit"
@@ -140,7 +142,7 @@
                             ng-show="!user.system"
                             class="btn btn-info btn-small">
                         <span class="fa fa-pencil"></span>
-                        <span class="m-l5">Edit</span>
+                        <span class="m-l5" i-translate="EDIT"></span>
                     </button>
                     <!--Deactivate for all now (Task EPMLSOPELN-629)-->
                     <!--<button type="submit"-->
@@ -156,7 +158,8 @@
         </table>
     </div>
     <div class="text-center">
-        <uib-pagination class="pagination-sm" total-items="vm.totalItems" items-per-page="vm.itemsPerPage" ng-model="vm.page"
+        <uib-pagination class="pagination-sm" total-items="vm.totalItems"
+                        items-per-page="vm.itemsPerPage" ng-model="vm.page"
                         ng-change="vm.loadAll()"></uib-pagination>
     </div>
 </div>

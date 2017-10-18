@@ -12,7 +12,7 @@
     <div class="row">
         <div class="col-xs-6">
             <div class="panel panel-info">
-                <div class="panel-heading">Components</div>
+                <div class="panel-heading" i-translate="COMPONENTS"></div>
                 <div class="panel-body panel-body-h">
                     <div class="search-field search-full">
                         <span class="fa fa-search" ng-click="search()"></span>
@@ -39,28 +39,28 @@
                 <div class="panel-heading">
                     <button class="btn btn-default btn-small pull-right" ng-click="vm.addTab()">
                         <span class="fa fa-plus" aria-hidden="true"></span>
-                        <span class="m-l5">Create new tab</span>
+                        <span class="m-l5" i-translate="CREATE_NEW_TAB"></span>
                     </button>
-                    Template Builder
+                    <span i-translate="TEMPLATE_BUILDER"></span>
                 </div>
                 <div class="panel-body panel-body-nopad panel-body-h templates-and-tabs" scroller dragula='"tabs"' dragula-model='vm.template.templateContent'>
                     <div class="text-center no-draggable m-t35 m-b35"
                          ng-if="!vm.template.templateContent.length">
-                        <h3 class="no-draggable text-muted">Please add tabs</h3>
+                        <h3 class="no-draggable text-muted" i-translate="PLEASE_ADD_TABS"></h3>
                     </div>
                     <div class="list-group list-group-drug tab" ng-repeat="tab in vm.template.templateContent" >
                         <span class="list-group-item"  indigo-focus-on-create>
                             <span class="fa fa-trash pull-right" ng-click="vm.removeTab(tab)"></span>
-                            <span editable-text="tab.name" e-form="tabName" ng-click="tabName.$show()" class="semi-b" ng-bind="tab.name">
+                            <span editable-text="tab.name" e-form="tabName" ng-click="tabName.$show()" class="semi-b"
+                                  ng-bind="tab.name">
                                 <span class="fa fa-pencil m-l5"></span>
                             </span>
                         </span>
                         <div class="list-group" dragula='"components"' dragula-model='tab.components'>
                             <div class="no-draggable " ng-if="!tab.components.length">
                                 <div class="no-draggable">
-                                    <h3 class="no-draggable text-muted drag-mess">
-                                        You can <strong>drag & drop</strong>
-                                        components here.</h3>
+                                    <h3 class="no-draggable text-muted drag-mess"
+                                        i-translate="YOU_CAN_DRAG_DROP_COMPONENTS_HERE"></h3>
                                 </div>
                             </div>
                             <a class="list-group-item draggable-component component"
@@ -80,7 +80,7 @@
             <div class="panel-heading clickable" ng-init="vm.showPreview = false" ng-click="vm.showPreview = !vm.showPreview">
                 <span class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': !vm.isCollapsed, 'glyphicon-chevron-up': vm.isCollapsed}"
                     ng-click="vm.isCollapsed = !vm.isCollapsed"></span>
-                Show Preview
+                <span i-translate="SHOW_PREVIEW"></span>
             </div>
             <div class="preview-components panel-body panel-body-nopad" ng-if="vm.showPreview && vm.template.templateContent.length">
                 <indigo-components template="vm.template.templateContent"
@@ -95,10 +95,10 @@
 
 <div class="btn-bottom-block tab-content-pad">
     <button ng-click="vm.save()" type="submit" class="btn btn-primary" ng-disabled="createTemplateForm.$invalid">
-        <span class="fa fa-save"></span><span class="m-l5">Save</span>
+        <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
     </button>
     <button type="button" class="btn btn-default" ng-click="vm.close()">
-        <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
+        <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
     </button>
 </div>
 

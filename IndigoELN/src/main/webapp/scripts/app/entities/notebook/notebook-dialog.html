@@ -8,16 +8,16 @@
             <div class="row m-b20">
                 <div class="col-sm-6 col-xs-9">
                     <div class="row-inline">
-                        <span class="txt-larger">Notebook Members:</span>
+                        <span class="txt-larger"><span i-translate="NOTEBOOK_MEMBERS"></span>:</span>
                         <button ui-sref=".permissions({projectId: vm.projectId, notebookId: vm.notebook.id})"
                                 class="btn btn-default btn-small"
                                 ng-disabled="!vm.isEditAllowed">
                             <span class="fa fa-pencil"></span>
-                            <span class="m-l5">Edit</span>
+                            <span class="m-l5" i-translate="EDIT"></span>
                         </button>
                         <button type="button" class="btn btn-default btn-small"
                                 ui-sref="entities.notebook-detail.permissions-view({projectId: vm.projectId, notebookId: vm.notebook.id})">
-                            <span class="fa fa-eye"></span><span class="m-l5">View Members</span>
+                            <span class="fa fa-eye"></span><span class="m-l5" i-translate="VIEW_MEMBERS"></span>
                         </button>
                     </div>
                 </div>
@@ -49,7 +49,7 @@
                                       indigo-validation-pattern-text="Only 8 digits possible in this field. Example : 01234567"
                                       indigo-validation-required="true">
                         </indigo-input>
-                        <label>Notebook Description</label>
+                        <label i-translate="NOTEBOOK_DESCRIPTION"></label>
                         <indigo-text-editor indigo-name="notebookDescription"
                                             indigo-model="vm.notebook.description"
                                             indigo-readonly="!vm.isEditAllowed"
@@ -59,21 +59,26 @@
 
                         <div ng-if="vm.isSummary && vm.experiments.length"
                              class="panel panel-info panel-info-table m-t20">
-                            <div class="panel-heading">Contents for Notebook {{notebook.name}}</div>
+                            <div class="panel-heading">
+                                <span i-translate="CONTENTS_FOR_NOTEBOOK"></span> <span
+                                    ng-bind="notebook.name"></span></div>
                             <div class="panel-body panel-body-nopad">
                                 <div class="table-responsive" indigo-scroller="x">
                                     <table class="main-table table table-striped table-condensed">
                                         <thead class="main-table__header">
                                         <tr class="table-list">
-                                            <th class="table-list__item table-list__item_header w-15">Notebook -
-                                                Experiment
+                                            <th class="table-list__item table-list__item_header w-15"
+                                                i-translate="NOTEBOOK_EXPERIMENT">
                                             </th>
-                                            <th class="table-list__item table-list__item_header w-35">Experiment
-                                                Details
+                                            <th class="table-list__item table-list__item_header w-35"
+                                                i-translate="EXPERIMENT_DETAILS">
                                             </th>
-                                            <th class="table-list__item table-list__item_header w-35">Reaction Scheme
+                                            <th class="table-list__item table-list__item_header w-35"
+                                                i-translate="REACTION_SCHEME">
                                             </th>
-                                            <th class="table-list__item table-list__item_header w-15">Actions</th>
+                                            <th class="table-list__item table-list__item_header w-15"
+                                                i-translate="ACTIONS">
+                                            </th>
                                         </tr>
                                         </thead>
                                         <tbody class="main-table__body">
@@ -81,11 +86,17 @@
                                             <td class="table-list__item"><a
                                                     ng-click="vm.goToExp(exp)">{{exp.fullName}}</a></td>
                                             <td class="table-list__item">
-                                                <p>Creation date: {{exp.creationDate | date:'MMM dd yyyy'}}</p>
-                                                <p>Subject/Title: {{exp.reactionDetails.title ||
-                                                    exp.conceptDetails.title}}</p>
-                                                <p>Author: {{exp.author.firstName + ' ' + exp.author.lastName}}</p>
-                                                <p>Experiment Status: {{exp.status}}</p>
+                                                <p>
+                                                    <span i-translate="CREATION_DATE"></span>: <span ng-bind="exp.creationDate |
+                                                    date:'MMM dd yyyy'"></span>
+                                                </p>
+                                                <p><span i-translate="SUBJECT_TITLE"></span>: <span ng-bind="exp.reactionDetails.title ||
+                                                    exp.conceptDetails.title"></span></p>
+                                                <p><span i-translate="AUTHOR"></span>: <span
+                                                        ng-bind="exp.author.firstName + ' ' + exp.author.lastName"></span>
+                                                </p>
+                                                <p><span i-translate="EXPERIMENT_STATUS"></span>: <span
+                                                        ng-bind="exp.status"></span></p>
                                             </td>
                                             <td class="table-list__item">
                                                 <img ng-if="!!exp.components.reaction.image"
@@ -94,15 +105,12 @@
                                                      alt="Image is unavailable.">
                                             </td>
                                             <td class="table-list__item">
-                                                <a ui-sref="entities.experiment-detail({projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})">
-                                                    OPEN
-                                                </a>,
-                                                <a ui-sref="entities.experiment-detail.print({projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})">
-                                                    PRINT
-                                                </a>,
-                                                <a ng-click="vm.repeatExperiment(exp, {projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})">
-                                                    REPEAT
-                                                </a>
+                                                <a ui-sref="entities.experiment-detail({projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})"
+                                                   i-translate="OPEN"></a>,
+                                                <a ui-sref="entities.experiment-detail.print({projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})"
+                                                   i-translate="PRINT"></a>,
+                                                <a ng-click="vm.repeatExperiment(exp, {projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})"
+                                                   i-translate="REPEAT"></a>
                                             </td>
                                         </tr>
                                         </tbody>
@@ -118,34 +126,34 @@
 
     <div class="btn-bottom-block tab-content-pad">
         <div class="pull-left">
-            <a class="btn btn-info" ng-click="vm.showSummary()">
-                <span class="m-l5" ng-show="!vm.isSummary">Show Notebook Content</span>
-                <span class="m-l5" ng-show="vm.isSummary">Hide Notebook Content</span>
+            <a class="btn btn-info" ng-click="vm.showSummary()" ng-switch="!vm.isSummary">
+                <span class="m-l5" ng-switch-when="true" i-translate="SHOW_NOTEBOOK_CONTENT"></span>
+                <span class="m-l5" ng-switch-default i-translate="HIDE_NOTEBOOK_CONTENT"></span>
             </a>
             <!--TODO: Task EPMLSOPELN-532: Functionality is temporarily removed-->
             <!--<button type="button" class="btn btn-default" ng-disabled="!vm.canUndo()" ng-click="vm.undoAction()">-->
-                <!--<span class="fa fa-undo"></span><span class="m-l5">Undo Action</span>-->
+            <!--<span class="fa fa-undo"></span><span class="m-l5">Undo Action</span>-->
             <!--</button>-->
             <!--<button type="button" class="btn btn-default" ng-disabled="!vm.canRedo()" ng-click="vm.redoAction()">-->
-                <!--<span class="fa fa-redo"></span><span class="m-l5">Redo Action</span>-->
+            <!--<span class="fa fa-redo"></span><span class="m-l5">Redo Action</span>-->
             <!--</button>-->
         </div>
         <button class="btn btn-info" type="button"
                 ng-disabled="!vm.isCreateChildAllowed || !vm.notebook.id"
-                ng-click="vm.createExperiment()">Create Experiment
+                ng-click="vm.createExperiment()" i-translate="CREATE_EXPERIMENT">
         </button>
-        <button class="btn btn-info" type="button" ng-click="vm.print()">Print</button>
+        <button class="btn btn-info" type="button" ng-click="vm.print()" i-translate="PRINT"></button>
         <button type="submit" form="createNotebookForm"
                 ng-disabled="!vm.isEditAllowed || createNotebookForm.$invalid || vm.isSaving || !vm.isBtnSaveActive"
                 class="btn btn-primary">
-            <span class="fa fa-save"></span><span class="m-l5">Save</span>
+            <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
         </button>
         <button class="btn btn-default" ng-click="vm.refresh()"
                 ng-disabled="!vm.isEditAllowed || !vm.isBtnSaveActive">
-            <span class="fa fa-refresh"></span><span class="m-l5">Reset</span>
+            <span class="fa fa-refresh"></span><span class="m-l5" i-translate="RESET"></span>
         </button>
         <button type="button" class="btn btn-default" onclick="window.history.back()">
-            <span class="fa fa-mail-reply"></span><span class="m-l5">Back</span>
+            <span class="fa fa-mail-reply"></span><span class="m-l5" i-translate="BACK"></span>
         </button>
     </div>
 </div>
