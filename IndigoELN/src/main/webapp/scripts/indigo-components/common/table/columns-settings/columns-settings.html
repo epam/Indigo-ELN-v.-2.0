@@ -22,8 +22,8 @@
         <li ng-repeat="column in vm.columns track by column.id"
             role="menuitem">
             <indigo-checkbox indigo-label="{{::column.name}}"
-                             indigo-model="column.isVisible"
-                             indigo-change="vm.saveInLocalStorage()">
+                             indigo-model="vm.visibleColumns[column.id]"
+                             ng-click="vm.onChanged({column: column, isVisible: vm.visibleColumns[column.id]})">
             </indigo-checkbox>
         </li>
     </ul>

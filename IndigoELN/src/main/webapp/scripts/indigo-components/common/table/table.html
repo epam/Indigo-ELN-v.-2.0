@@ -16,8 +16,9 @@
                    press-enter="$event.preventDefault()">
         </div>
         <columns-settings ng-if="::!vm.indigoHideColumnSettings"
-                          columns="vm.indigoColumns"
-                          save-in-local-storage="vm.saveInLocalStorage()"
+                          visible-columns="vm.visibleColumns"
+                          columns="vm.columns"
+                          on-changed="vm.onChangedColumnSetting(column, isVisible)"
                           reset-columns="vm.resetColumns()">
         </columns-settings>
     </div>
@@ -29,7 +30,7 @@
     <table class="table table-striped product">
         <thead>
         <tr>
-            <th ng-repeat="column in vm.indigoColumns track by column.id" ng-show="column.isVisible"
+            <th ng-repeat="column in vm.columns track by column.id" ng-show="vm.visibleColumns[column.id]"
                 ng-switch="::!column.actions.length">
                 <div class="btn-group btn-group-sm btn-group-justified product-header-item"
                      ng-switch-when="true">
@@ -57,16 +58,16 @@
         <tbody>
         <tr ng-repeat="row in vm.rowsForDisplay track by $id(row)"
             ng-class="{'success': vm.selectedBatch === row}">
-            <td ng-repeat="column in vm.indigoColumns track by column.id"
+            <td ng-repeat="column in vm.columns track by column.id"
                 class="text-center"
                 ng-click="vm.onRowSelect($event, row)"
-                ng-if="column.isVisible"
+                ng-if="vm.visibleColumns[column.id]"
                 style="min-width: 150px">
                 <cell-typer></cell-typer>
             </td>
         </tr>
         <tr ng-if="!vm.rowsForDisplay.length">
-            <td colspan={{vm.indigoColumns.length}} class="text-muted text-center">
+            <td colspan={{vm.columns.length}} class="text-muted text-center">
                 <h3 class="m-50">empty</h3>
             </td>
         </tr>

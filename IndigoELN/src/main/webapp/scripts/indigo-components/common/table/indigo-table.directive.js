@@ -41,7 +41,7 @@
             if (tAttrs.indigoDraggableColumns) {
                 var $tr = $element.find('thead tr');
                 $tr.attr('dragula', '"my-table-columns"');
-                $tr.attr('dragula-model', 'vm.indigoColumns');
+                $tr.attr('dragula-model', 'vm.columns');
             }
         }
     }

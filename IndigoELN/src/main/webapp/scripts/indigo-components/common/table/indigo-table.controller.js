@@ -4,16 +4,15 @@
         .controller('IndigoTableController', IndigoTableController);
 
     /* @ngInject */
-    function IndigoTableController($scope, dragulaService, simpleLocalCache, $attrs, Principal, $timeout, $filter) {
+    function IndigoTableController($scope, dragulaService, simpleLocalCache, Principal, $timeout, $filter) {
         var vm = this;
-        var originalColumnIdsAndFlags;
         var searchColumns;
-        var user;
+        var userId;
 
         init();
 
         function init() {
-            originalColumnIdsAndFlags = getColumnsProps(vm.indigoColumns);
+            userId = Principal.getUserId();
             searchColumns = vm.indigoSearchColumns || ['id', 'nbkBatch'];
             vm.searchText = '';
             vm.filteredRows = vm.indigoRows;
@@ -22,77 +21,70 @@
                 pageSize: 10
             };
 
+            vm.visibleColumns = getVisibleColumns();
+            vm.columns = getSortedColumns(vm.indigoColumns);
+
             updateRowsForDisplay();
 
             vm.startEdit = startEdit;
             vm.searchDebounce = _.debounce(search, 300);
             vm.onRowSelect = onRowSelect;
             vm.onPageChanged = onPageChanged;
-            vm.saveInLocalStorage = saveInLocalStorage;
-            vm.resetColumns = resetColumns;
+            vm.onChangedColumnSetting = onChangedColumnSetting;
+            vm.resetColumns = resetColumnsSettings;
             vm.onClose = onClose;
 
-            getUser();
             bindEvents();
         }
 
-        function getColumnsProps(indigoColumns) {
-            return _.map(indigoColumns, function(column) {
-                column.isVisible = _.isUndefined(column.isVisible) ? true : column.isVisible;
-
-                return {
-                    id: column.id, isVisible: column.isVisible
-                };
-            });
+        function getVisibleColumns() {
+            return simpleLocalCache.getByKey(userId + '.' + vm.indigoId + '.visible.columns') || buildVisibleColumns(vm.indigoColumns);
         }
 
-        function getSortedColumns(columnIdsAndFlags) {
-            return _.sortBy(vm.indigoColumns, function(column) {
-                return _.findIndex(columnIdsAndFlags, function(item) {
-                    return item.id === column.id;
+        function saveColumnSettings() {
+            simpleLocalCache.putByKey(userId + '.' + vm.indigoId + '.visible.columns', vm.visibleColumns);
+        }
+
+        function getSortedColumns(columns) {
+            var sortedColumns = simpleLocalCache.getByKey(userId + '.' + vm.indigoId + '.columnsOrder');
+
+            if (sortedColumns) {
+                var resultColumns = [];
+                _.forEach(sortedColumns, function(sortedColumn, i) {
+                    resultColumns[i] = _.find(columns, function(column) {
+                        return column.id === sortedColumn;
+                    });
                 });
-            });
-        }
 
-        function updateColumns() {
-            var columnIdsAndFlags = simpleLocalCache.getByKey(user.id + '.' + vm.indigoId + '.columns');
-            if (!columnIdsAndFlags) {
-                vm.saveInLocalStorage();
+                return resultColumns;
             }
-            columnIdsAndFlags = columnIdsAndFlags || originalColumnIdsAndFlags;
 
-            vm.indigoColumns = _.map(getSortedColumns(columnIdsAndFlags), function(column) {
-                var index = _.findIndex(columnIdsAndFlags, function(item) {
-                    return item.id === column.id;
-                });
-                if (index > -1) {
-                    column.isVisible = columnIdsAndFlags[index].isVisible;
-                }
+            return columns;
+        }
 
-                return column;
+        function saveColumnsOrder() {
+            simpleLocalCache.putByKey(userId + '.' + vm.indigoId + '.columnsOrder', _.map(vm.columns, 'id'));
+        }
+
+        function onChangedColumnSetting(changedColumn, isVisible) {
+            vm.visibleColumns[changedColumn.id] = isVisible;
+            saveColumnSettings();
+        }
+
+        function buildVisibleColumns(columns) {
+            var visibleColumns = {};
+            _.forEach(columns, function(column) {
+                visibleColumns[column.id] = _.isBoolean(column.isVisible) ? column.isVisible : true;
             });
+
+            return visibleColumns;
         }
 
-        function saveInLocalStorage() {
-            simpleLocalCache.putByKey(user.id + '.' + vm.indigoId + '.columns', getColumnsProps(vm.indigoColumns));
-        }
+        function resetColumnsSettings() {
+            vm.visibleColumns = buildVisibleColumns(vm.indigoColumns);
+            vm.columns = vm.indigoColumns.slice();
 
-        function resetColumns() {
-            simpleLocalCache.removeByKey(user.id + '.' + vm.indigoId + '.columns');
-            updateColumns();
-        }
-
-        function getUser() {
-            Principal
-                .identity()
-                .then(function(userIdentity) {
-                    user = userIdentity;
-                    updateColumns(user);
-
-                    if ($attrs.indigoDraggableColumns) {
-                        $scope.$watch('vm.indigoColumns', vm.saveInLocalStorage);
-                    }
-                });
+            saveColumnSettings();
         }
 
         function onClose(column, data) {
@@ -204,6 +196,8 @@
         function bindEvents() {
             $scope.$watch('vm.indigoRows.length', vm.searchDebounce);
             $scope.$watch('vm.indigoRows', vm.searchDebounce);
+
+            $scope.$on('my-table-columns.dragend', saveColumnsOrder);
         }
     }
 })();

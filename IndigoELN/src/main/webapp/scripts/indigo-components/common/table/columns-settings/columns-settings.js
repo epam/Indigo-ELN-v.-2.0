@@ -9,7 +9,8 @@
             templateUrl: 'scripts/indigo-components/common/table/columns-settings/columns-settings.html',
             scope: {
                 columns: '=',
-                saveInLocalStorage: '&',
+                visibleColumns: '=',
+                onChanged: '&',
                 resetColumns: '&'
             },
             controller: angular.noop,

@@ -19,7 +19,8 @@ function principal($q, Account) {
         authenticate: authenticate,
         identity: identity,
         getIdentity: getIdentity,
-        addUserChangeListener: addUserChangeListener
+        addUserChangeListener: addUserChangeListener,
+        getUserId: getUserId
     };
 
     function addUserChangeListener(clbk) {
@@ -114,6 +115,10 @@ function principal($q, Account) {
 
     function getIdentity() {
         return _identity;
+    }
+
+    function getUserId() {
+        return _identity && _identity.id;
     }
 }
 
