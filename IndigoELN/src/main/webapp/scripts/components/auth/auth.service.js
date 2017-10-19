@@ -56,11 +56,11 @@ function auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService, 
                 var isAuthenticated = Principal.isAuthenticated();
 
                 // an authenticated user can't access to login and register pages
-                if (isAuthenticated && $rootScope.toState.parent === 'account' && ($rootScope.toState.name === 'login' || $rootScope.toState.name === 'register')) {
+                if (isAuthenticated && checkState($rootScope.toState)) {
                     $state.go('experiment');
                 }
 
-                if ($rootScope.toState.data.authorities && $rootScope.toState.data.authorities.length > 0 && !Principal.hasAnyAuthority($rootScope.toState.data.authorities)) {
+                if (isAnyAuthority($rootScope.toState.data.authorities)) {
                     if (isAuthenticated) {
                         // user is signed in but not authorized for desired state
                         $state.go('accessdenied');
@@ -73,6 +73,14 @@ function auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService, 
                         // now, send them to the signin state so they can log in
                         $state.go('login');
                     }
+                }
+
+                function checkState(state) {
+                    return state.parent === 'account' && (state.name === 'login' || state.name === 'register');
+                }
+
+                function isAnyAuthority(authorities) {
+                    return authorities && authorities.length > 0 && !Principal.hasAnyAuthority(authorities);
                 }
             });
     }

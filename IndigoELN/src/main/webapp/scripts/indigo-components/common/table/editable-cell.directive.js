@@ -96,7 +96,7 @@
         function bindEvents() {
             if (vm.column.onClose) {
                 $scope.$watch(function() {
-                    return _.isObject(vm.row[vm.column.id]) ? vm.row[vm.column.id].value || vm.row[vm.column.id].name : vm.row[vm.column.id];
+                    return getCellContent(vm.row[vm.column.id]);
                 }, function(newVal, prevVal) {
                     var col = vm.column;
                     oldVal = prevVal;
@@ -116,6 +116,10 @@
                     });
                 }
             });
+        }
+
+        function getCellContent(cell) {
+            return _.isObject(cell) ? cell.value || cell.name : cell;
         }
     }
 })();
