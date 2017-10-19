@@ -1,0 +1,22 @@
+<div class="modal-header">
+    <h5 class="modal-title" ng-bind="vm.title"></h5>
+</div>
+<div class="modal-body">
+    <div class="long-content-popup">
+        <div class="select-from-dictionary" ng-repeat="item in vm.dictionary.words track by item.name">
+            <indigo-checkbox
+                    indigo-model="vm.selectedItemsFlags[$index]"
+                    indigo-label="{{item.name}}"
+                    indigo-change="vm.selectItem($index, item.name)"
+            ></indigo-checkbox>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">
+        <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
+    </button>
+    <button class="btn btn-primary" type="button" ng-click="vm.save()">
+        <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
+    </button>
+</div>

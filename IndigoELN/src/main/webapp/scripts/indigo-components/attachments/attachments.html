@@ -1,0 +1,9 @@
+<div class="panel panel-info component" indigo-collapsible-component>
+    <div class="panel-heading" i-translate="ATTACHMENTS"></div>
+    <div class="panel-body">
+        <indigo-file-uploader upload-url="api/experiment_files"
+                              on-changed="vm.onChanged()"
+                              indigo-readonly="vm.isReadonly">
+        </indigo-file-uploader>
+    </div>
+</div>

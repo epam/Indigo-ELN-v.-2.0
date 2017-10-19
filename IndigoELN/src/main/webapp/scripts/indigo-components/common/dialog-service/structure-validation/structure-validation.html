@@ -1,0 +1,103 @@
+<div class="modal-header">
+    <h5 class="modal-title" i-translate="STRUCTURE_VALIDATION"></h5>
+</div>
+<div class="modal-body">
+    <p class="m-b20">
+        <span class="semi-b" i-translate="SEARCH_QUERY_IS" i-end=":"></span>
+        {{vm.searchQuery}}
+    </p>
+    <div class="long-content-popup">
+        <table class="table" id="search-result-table">
+            <thead class="search-table-head">
+            <tr>
+                <th i-translate="COMPOUND_ID"></th>
+                <th i-translate="NBK_BATCH"></th>
+                <th i-translate="MOL_WT"></th>
+                <th i-translate="MOL_FORMULA"></th>
+            </tr>
+            </thead>
+            <tbody ng-repeat="item in vm.batches track by $index">
+            <tr class="clickable" ng-class="{'search-table-row-highlight': item.$$isSelected}"
+                ng-click="vm.selectBatch(item)">
+                <td ng-bind="item.compoundId"></td>
+                <td ng-bind="item.fullNbkBatch"></td>
+                <td ng-bind="item.molWeight.value | round"></td>
+                <td ng-bind="item.formula"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-xs-6">
+            <div ng-if="vm.selectedBatch">
+                <div class="h-100">
+                    <img class="img-responsive center-block"
+                         ng-src="data:image/svg+xml;base64,{{vm.selectedBatch.structure.image}}"
+                         alt="Image is unavailable.">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <div class="row">
+                <div class="col-xs-6">
+                    <p i-translate="CHEMICAL_NAME" i-end=":"></p></div>
+                <div class="col-xs-6">
+                    <p ng-bind="vm.selectedBatch.chemicalName"></p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6">
+                    <p i-translate="COMPOUND_ID" i-end=":"></p></div>
+                <div class="col-xs-6">
+                    <p ng-bind="vm.selectedBatch.compoundId"></p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6">
+                    <p i-translate="CONV_BATCH" i-end=":"></p></div>
+                <div class="col-xs-6">
+                    <p ng-bind="vm.selectedBatch.conversationalBatchNumber"></p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6">
+                    <p i-translate="BATCH_MOL_WT_CALCD" i-end=":"></p></div>
+                <div class="col-xs-6">
+                    <p ng-bind="vm.selectedBatch.molWeight.value | round"></p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6">
+                    <p i-translate="MOLECULAR_FORMULA_BATCH_MOL_WT_CALCD" i-end=":"></p></div>
+                <div class="col-xs-6">
+                    <p ng-bind="vm.selectedBatch.formula"></p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6"><p i-translate="SALT_CODE" i-end=":">
+                </p></div>
+                <div class="col-xs-6">
+                    <p ng-bind="vm.selectedBatch.saltCode.name === vm.defaultSaltCodeName ? '00' :
+                        vm.selectedBatch.saltCode.name"></p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6">
+                    <p i-translate="SALT_EQ" i-end=":"></p>
+                </div>
+                <div class="col-xs-6">
+                    <p ng-bind="vm.selectedBatch.saltEq.value"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">
+        <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
+    </button>
+    <button class="btn btn-primary" type="button" ng-disabled="!vm.selectedBatch" ng-click="vm.save()"
+            i-translate="USE_THIS_STRUCTURE">
+    </button>
+</div>

@@ -3,7 +3,7 @@
         <div class="col-sm-6">
             <button type="button" class="btn btn-primary" ng-disabled="vm.indigoReadonly" ng-click="vm.upload()">
                 <span class="glyphicon glyphicon-flash"></span>
-                <span class="m-l5">Attach File</span>
+                <span class="m-l5" i-translate="ATTACH_FILE"></span>
             </button>
         </div>
         <div class="col-sm-6 text-right">
@@ -18,11 +18,11 @@
         <table class="table table-striped">
             <thead>
             <tr>
-                <th>File Name</th>
-                <th>Author</th>
-                <th>Length (bytes)</th>
-                <th>Upload Date</th>
-                <th>Action</th>
+                <th i-translate="FILE_NAME"></th>
+                <th i-translate="AUTHOR"></th>
+                <th i-translate="LENGTH_BYTES"></th>
+                <th i-translate="UPLOAD_DATE"></th>
+                <th i-translate="ACTION"></th>
             </tr>
             </thead>
             <tbody>
@@ -35,14 +35,14 @@
                 <td>
                     <a class="btn btn-info btn-small" href="api/project_files/{{file.id}}" target="_self">
                         <span class="glyphicon glyphicon-download"></span>
-                        <span class="m-l5">Download</span>
+                        <span class="m-l5" i-translate="DOWNLOAD"></span>
                     </a>
                     <button type="button"
                             ng-disabled="vm.indigoReadonly"
                             ng-click="vm.deleteFile(file)"
                             class="btn btn-info btn-small">
                         <span class="fa fa-trash"></span>
-                        <span class="m-l5">Delete</span>
+                        <span class="m-l5" i-translate="DELETE"></span>
                     </button>
                 </td>
             </tr>

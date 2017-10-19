@@ -1,0 +1,36 @@
+<div class="modal-header">
+    <h5 class="modal-title" i-translate="MELTING_POINT_INFORMATION"></h5>
+</div>
+<div class="modal-body">
+    <p class="semi-b m-b20" i-translate="MELTING_POINT_RANGE" i-end=":"></p>
+    <div class="row">
+        <div class="col-xs-2">
+            <indigo-input indigo-model="vm.meltingPoint.lower"
+                          indigo-label="Lower"
+                          indigo-type="number"
+                          indigo-label-vertical="true"></indigo-input>
+            <span class="input-right-txt" ></span>
+        </div>
+        <div class="col-xs-2">
+            <indigo-input indigo-model="vm.meltingPoint.upper"
+                          indigo-label="Upper"
+                          indigo-type="number"
+                          indigo-label-vertical="true"></indigo-input>
+                <span class="input-right-txt" i-translate="CELSIUS"></span>
+        </div>
+        <div class="col-xs-8">
+            <indigo-input indigo-model="vm.meltingPoint.comments"
+                          indigo-columns-num="3"
+                          indigo-label="Comments"
+                          indigo-label-vertical="true"></indigo-input>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">
+        <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL">Cancel</span>
+    </button>
+    <button class="btn btn-primary" type="button" ng-click="vm.save()">
+        <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE">Save</span>
+    </button>
+</div>

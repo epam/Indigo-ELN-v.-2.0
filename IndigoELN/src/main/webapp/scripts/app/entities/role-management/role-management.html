@@ -4,7 +4,7 @@
         <div class="col-sm-6">
             <button class="btn btn-primary" ng-click="vm.create()">
                 <span class="fa fa-plus" aria-hidden="true"></span>
-                <span class="m-l5">Create new Role</span>
+                <span class="m-l5" i-translate="CREATE_NEW_ROLE"></span>
             </button>
         </div>
         <div class="col-sm-6 text-right">
@@ -15,7 +15,7 @@
         </div>
     </div>
     <div ng-if="vm.role" class="panel panel-info edit-form animated">
-        <div class="panel-heading">Create/Update Role</div>
+        <div class="panel-heading" i-translate="CREATE_UPDATE_ROLE"></div>
         <div class="panel-body ">
             <form id="editForm" name="editForm" role="form" novalidate ng-submit="vm.save()" autocomplete="off">
 
@@ -34,7 +34,7 @@
                         ></indigo-input>
                     </div>
                     <div class="col-xs-12 form-group">
-                        <label>Authorities</label>
+                        <label i-translate="AUTHORITIES"></label>
                         <div class="row">
                             <div class="col-xs-3" ng-repeat="authority in vm.authorities track by $index">
                                 <div>
@@ -56,11 +56,11 @@
         </div>
         <div class="panel-footer text-right">
             <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
-                <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
+                <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
             </button>
             <button type="button" class="btn btn-default m-l5" data-dismiss="modal" ng-click="vm.resetAuthorities()">Reset</button>
             <button type="submit" form="editForm" ng-disabled="editForm.$invalid || vm.isSaving" class="btn btn-primary m-l5">
-                <span class="fa fa-save"></span><span class="m-l5">Save</span>
+                <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
             </button>
         </div>
     </div>
@@ -70,11 +70,11 @@
                     <table class="table table-striped authorities-table authorities-column">
                         <thead>
                             <tr>
-                                <th><p>Role name</p></th>
+                                <th i-translate="ROLE_NAME"></th>
                             </tr>
                         <tbody>
                             <tr ng-repeat="role in vm.roles track by role.id">
-                                <td><div class="role-name" uib-tooltip="{{role.name}}">{{role.name}}</div></td>
+                                <td><div class="role-name" uib-tooltip="{{role.name}}" ng-bind="role.name"></div></td>
                             </tr>
                         </tbody>
                     </table>
@@ -83,8 +83,12 @@
                     <table class="table table-striped authorities-table">
                         <thead>
                         <tr>
-                            <th ng-repeat="authority in vm.authorities track by $index" uib-tooltip="{{authority.tooltip}}" tooltip-placement="top" tooltip-append-to-body="true"><p>{{authority.description}}</p></th>
-                            <th>Action</th>
+                            <th ng-repeat="authority in vm.authorities track by $index"
+                                uib-tooltip="{{authority.tooltip}}" tooltip-placement="top"
+                                tooltip-append-to-body="true">
+                                <p ng-bind="authority.description"></p>
+                            </th>
+                            <th i-translate="ACTION"></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -99,14 +103,14 @@
                                         ng-show="!role.system"
                                         class="btn btn-info btn-small">
                                     <span class="fa fa-pencil"></span>
-                                    <span class="m-l5">Edit</span>
+                                    <span class="m-l5" i-translate="EDIT"></span>
                                 </button>
                                 <button type="submit"
                                         ui-sref="entities.role-management.delete({id:role.id})"
                                         ng-show="!role.system"
                                         class="btn btn-info btn-small">
                                     <span class="fa fa-trash"></span>
-                                    <span class="m-l5">delete</span>
+                                    <span class="m-l5" i-translate="DELETE"></span>
                                 </button>
                             </td>
                         </tr>

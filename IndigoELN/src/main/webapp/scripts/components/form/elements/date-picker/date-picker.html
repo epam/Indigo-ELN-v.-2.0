@@ -1,7 +1,7 @@
 <div class="form-group {{indigoClasses}}">
-    <label>{{indigoLabel}}</label>
-    <input type="{{indigoType}}" class="form-control" name="{{indigoName}}" ng-model-options="{ debounce: 150 }"
-           ng-model="ctrl.model" date-time view="date"
+    <label ng-bind="indigoLabel"></label>
+    <input type="{{indigoType}}" class="form-control" ng-model-options="{ debounce: 150 }"
+           ng-model="ctrl.model" date-time type="date"
            format="MMM DD, YYYY HH:mm:ss z" ng-disabled="indigoReadonly" ng-required="indigoValidationRequired"/>
     <div ng-show="ngModelCtrl.$invalid">
         <p class="help-block" ng-show="ngModelCtrl.$error.required"> This field is required. </p>

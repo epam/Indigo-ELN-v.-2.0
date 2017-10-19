@@ -1,0 +1,46 @@
+indigo-product-batch-details {
+  .action-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    &__left,
+    &__right,
+    &__center {
+      flex-shrink: 0;
+    }
+
+    &__left {
+      margin-right: 20px;
+      display: flex;
+      align-items: center;
+
+      .btn {
+        display: flex;
+        align-self: center;
+      }
+      .btn-group {
+        display: flex;
+      }
+    }
+
+    &__center {
+      display: flex;
+      justify-content: space-around;
+    }
+  }
+
+  .product-batch-details {
+    &__loader {
+      position: relative;
+      float: left;
+    }
+  }
+
+
+  simple-radio {
+    margin-right: 30px;
+  }
+}

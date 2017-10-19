@@ -1,0 +1,48 @@
+simple-radio, [simple-radio] {
+  display: inline-flex;
+
+  input {
+    display: none;
+
+    &:checked {
+      + label {
+        &:before {
+          color: @radio-btn-color;
+          content: "\f00c";
+        }
+      }
+
+      &:disabled + label {
+        &:before {
+          color: @radio-btn-disabled-color;
+        }
+      }
+    }
+
+    &:disabled + label {
+      cursor: not-allowed;
+
+      &:before {
+        border-color: @radio-btn-disabled-color;
+      }
+    }
+  }
+
+  label {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    cursor: pointer;
+
+    &:before {
+      content: "\f00c";
+      font: normal normal normal @small-size/1 FontAwesome;
+      display: flex;
+      border: 1px solid @radio-btn-color;
+      border-radius: 50%;
+      padding: 2px;
+      color: transparent;
+      margin-right: 0.4em;
+    }
+  }
+}

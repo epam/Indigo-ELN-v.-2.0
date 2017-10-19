@@ -4,7 +4,7 @@
              tooltip-placement="{{::indigoTooltipPlacement}}">
             <checkbox id="{{::indigoName}}" class="btn-info my-checkbox"></checkbox>
             <label for="{{::indigoName}}"
-                   ng-click="!indigoDisabled ? indigoModel = !indigoModel : return; indigoChangeAsync();">{{indigoLabel}}</label>
+                   ng-click="!indigoDisabled ? indigoModel = !indigoModel : return; indigoChangeAsync();" ng-bind="indigoLabel"></label>
         </div>
     </div>
 </div>

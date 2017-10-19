@@ -28,7 +28,8 @@ angular.module('indigoeln', [
     'cgNotify',
     'duScroll',
     'indigoeln.componentButtons',
-    'indigoeln.entityTree'
+    'indigoeln.entityTree',
+    'indigoeln.Components'
 ])
     .run(function($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle, EntitiesBrowser) {
         $.mCustomScrollbar.defaults.advanced.autoScrollOnFocus = false;

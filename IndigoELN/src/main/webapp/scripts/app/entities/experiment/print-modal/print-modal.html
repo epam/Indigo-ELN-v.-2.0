@@ -3,11 +3,11 @@
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
                 ng-click="vm.dismiss()">&times;</button>
         <h5 class="modal-title">
-            <span>Print settings</span>
+            <span i-translate="PRINT_SETTINGS"></span>
         </h5>
     </div>
     <div class="modal-body" cg-busy="{promise: vm.loading}">
-        <p>Please select components for print:</p>
+        <p><span i-translate="PLEASE_SELECT_COMPONENTS_FOR_PRINT"></span>:</p>
         <indigo-checklist indigo-items="vm.components" class="checklist-wrap-lines"></indigo-checklist>
         <indigo-checkbox ng-if="vm.hasAttachments" indigo-classes="checklist-item" 
             indigo-label="Print attached PDF"
@@ -18,8 +18,8 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.dismiss()">
-            <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
+            <span class="fa fa-ban"></span><span class="m-l5" i-translate="Cancel"></span>
         </button>
-        <button type="submit" class="btn btn-primary">Ok</button>
+        <button type="submit" class="btn btn-primary" i-translate="OK"></button>
     </div>
 </form>

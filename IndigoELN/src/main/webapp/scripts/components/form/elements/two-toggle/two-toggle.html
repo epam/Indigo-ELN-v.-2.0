@@ -1,11 +1,11 @@
 <div class="form-group {{indigoClasses}}">
-    <label class="m-r5">{{indigoLabel}}</label>
+    <label class="m-r5" ng-bind="indigoLabel"></label>
     <div class="btn-group">
         <label class="btn btn-info" ng-model-options="{ debounce: 150 }" ng-model="indigoModel"
                ng-click="indigoModel = indigoFirst" ng-class="{active: indigoModel === indigoFirst}"
-               ng-disabled="indigoReadonly">{{indigoFirst}}</label>
+               ng-disabled="indigoReadonly" ng-bind="indigoFirst"></label>
         <label class="btn btn-info" ng-model-options="{ debounce: 150 }" ng-model="indigoModel"
                ng-click="indigoModel = indigoSecond" ng-class="{active: indigoModel === indigoSecond}"
-               ng-disabled="indigoReadonly">{{indigoSecond}}</label>
+               ng-disabled="indigoReadonly" ng-bind="indigoSecond"></label>
     </div>
 </div>

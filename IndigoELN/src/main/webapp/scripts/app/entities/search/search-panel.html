@@ -1,7 +1,7 @@
 <div class="tab-content-pad scroll-full">
     <div class="reagent-search-tab" ng-show="!vm.isSearchResultFound">
         <div class="panel panel-info">
-            <div class="panel-heading">Search</div>
+            <div class="panel-heading" i-translate="SEARCH"></div>
             <div class="panel-body">
                 <div class="main-search-block">
                     <div class="row">
@@ -14,7 +14,7 @@
                         </div>
                         <div class="col-xs-3">
                             <a class="link-advanced-search" ng-click="vm.state.$$isCollapsed = !vm.state.$$isCollapsed">
-                                Advanced search
+                                <span i-translate="ADVANCED_SEARCH"></span>
                                 <span ng-class="{'glyphicon glyphicon-chevron-down':vm.state.$$isCollapsed,
                                                  'glyphicon glyphicon-chevron-up':!vm.state.$$isCollapsed}"></span>
                             </a>
@@ -25,7 +25,7 @@
                 <div uib-collapse="vm.state.$$isCollapsed" class="collapse-content">
                     <div ng-show="!vm.isSearchResultFound">
                         <div class="criteria-search-block">
-                            <h5>Field Search Criteria:</h5>
+                            <h5><span i-translate="FIELD_SEARCH_CRITERIA"></span>:</h5>
 
                             <div class="row" ng-repeat="(key, obj) in vm.state.model.restrictions.advancedSearch">
                                 <div ng-if="!obj.$$skipList">
@@ -49,14 +49,13 @@
                             </div>
                         </div>
                         <div class="criteria-search-block">
-                            <h5>Entity Type Criteria:</h5>
+                            <h5><span i-translate="ENTITY_TYPE_CRITERIA"></span>:</h5>
 
                             <div class="row">
                                 <div class="col-xs-2">
                                     <indigo-checkbox indigo-model="vm.state.selectedEntitiesFlags['Project']"
                                                      indigo-change="vm.selectEntity('Project')"
                                                      indigo-label="Project"></indigo-checkbox>
-
                                 </div>
                                 <div class="col-xs-2">
                                     <indigo-checkbox indigo-model="vm.state.selectedEntitiesFlags['Notebook']"
@@ -73,21 +72,21 @@
                             </div>
                         </div>
                         <div class="criteria-search-block">
-                            <h5>Entity Searching Domain:</h5>
+                            <h5><span i-translate="ENTITY_SEARCHING_DOMAIN"></span>:</h5>
 
                             <div class="row m-b15">
                                 <div class="col-xs-2">
                                     <label class="radio-inline">
                                         <input checked="checked" name="domain" type="radio" value="OWN_ENTITY"
                                                ng-change="vm.changeDomain()" ng-model="vm.state.domainModel">
-                                        <span class="search-panel__line-height">In My Own Entity</span>
+                                        <span class="search-panel__line-height" i-translate="IN_MY_OWN_ENTITY"></span>
                                     </label>
                                 </div>
                                 <div class="col-xs-10">
                                     <label class="radio-inline">
                                         <input name="domain" type="radio" value="USERS_ENTITIES"
                                                ng-change="vm.changeDomain()" ng-model="vm.state.domainModel">
-                                        <span class="search-panel__line-height">In Entities of These Users</span>
+                                        <span class="search-panel__line-height" i-translate="IN_ENTITIES_OF_THESE_USERS"></span>
                                     </label>
                                 </div>
                             </div>
@@ -102,36 +101,36 @@
                             </indigo-select>
                         </div>
                         <div class="criteria-search-block">
-                            <h5>Experiment Status Criteria:</h5>
+                            <h5><span i-translate="EXPERIMENT_STATUS_CRITERIA"></span>:</h5>
 
                             <div class="row">
 
                                 <div class="col-xs-2">
-                                    <indigo-checkbox indigo-model="vm.state.selectedItemsFlags['OPEN']"
+                                    <indigo-checkbox indigo-model="vm.state.selectedItemsFlags.OPEN"
                                                      indigo-change="vm.selectItem('OPEN')"
                                                      indigo-label="Open"></indigo-checkbox>
 
-                                    <indigo-checkbox indigo-model="vm.state.selectedItemsFlags['SINGING']"
+                                    <indigo-checkbox indigo-model="vm.state.selectedItemsFlags.SINGING"
                                                      indigo-change="vm.selectItem('SINGING')"
                                                      indigo-label="Signing"></indigo-checkbox>
 
                                 </div>
                                 <div class="col-xs-2">
-                                    <indigo-checkbox indigo-model="vm.state.selectedItemsFlags['COMPLETED']"
+                                    <indigo-checkbox indigo-model="vm.state.selectedItemsFlags.COMPLETED"
                                                      indigo-change="vm.selectItem('COMPLETED')"
                                                      indigo-label="Completed"></indigo-checkbox>
 
-                                    <indigo-checkbox indigo-model="vm.state.selectedItemsFlags['SUBMIT_FAIL']"
+                                    <indigo-checkbox indigo-model="vm.state.selectedItemsFlags.SUBMIT_FAIL"
                                                      indigo-change="vm.selectItem('SUBMIT_FAIL')"
                                                      indigo-label="Submit Fail"></indigo-checkbox>
 
                                 </div>
                                 <div class="col-xs-2">
-                                    <indigo-checkbox indigo-model="vm.state.selectedItemsFlags['SUBMITTED']"
+                                    <indigo-checkbox indigo-model="vm.state.selectedItemsFlags.SUBMITTED"
                                                      indigo-change="vm.selectItem('SUBMITTED')"
                                                      indigo-label="Submitted"></indigo-checkbox>
 
-                                    <indigo-checkbox indigo-model="vm.state.selectedItemsFlags['ARCHIVED']"
+                                    <indigo-checkbox indigo-model="vm.state.selectedItemsFlags.ARCHIVED"
                                                      indigo-change="vm.selectItem('ARCHIVED')"
                                                      indigo-label="Archived"></indigo-checkbox>
 
@@ -143,11 +142,11 @@
             </div>
         </div>
         <div class="panel panel-info">
-            <div class="panel-heading">Structure/Reaction search Query</div>
+            <div class="panel-heading" i-translate="STRUCTURE_REACTION_SEARCH_QUERY"></div>
             <div class="panel-body">
                 <div class="row">
                     <div class="col-xs-2">
-                        <label class="control-label">Search</label>
+                        <label class="control-label" i-translate="SEARCH"></label>
                     </div>
                     <div class="col-xs-4">
                         <indigo-select indigo-items="vm.structureTypes"
@@ -156,7 +155,7 @@
                 </div>
                 <div class="row">
                     <div class="col-xs-2">
-                        <label class="control-label">Similarity criteria</label>
+                        <label class="control-label" i-translate="SIMILARITY_CRITERIA"></label>
                     </div>
                     <div class="col-xs-4">
                         <indigo-select indigo-items="vm.conditionSimilarity"
@@ -202,18 +201,18 @@
             <button class="btn btn-primary btn-can-loading {{(vm.loading) ? 'btn-loading' : ''}}" type="button"
                     ng-click="vm.search()"
                     ng-disabled="!vm.state.model.restrictions.structure.image && !vm.isAdvancedSearchFilled() &&
-                    !vm.state.model.restrictions.searchQuery">Search
+                    !vm.state.model.restrictions.searchQuery" i-translate="SEARCH">
             </button>
-            <button class="btn btn-secondary" type="button" ng-click="vm.clear()">Clear</button>
+            <button class="btn btn-secondary" type="button" ng-click="vm.clear()" i-translate="CLEAR"></button>
         </div>
         <table class="main-table table table-striped table-condensed dash-table">
             <thead class="main-table__header">
-            <th>Entity Type</th>
-            <th>Entity Name/Id</th>
-            <th>Creation Date</th>
-            <th>Author</th>
-            <th>Subject\Title</th>
-            <th>Actions</th>
+            <th i-translate="ENTITY_TYPE"></th>
+            <th i-translate="ENTITY_NAME_ID"></th>
+            <th i-translate="CREATION DATE"></th>
+            <th i-translate="AUTHOR"></th>
+            <th i-translate="SUBJECT_TITLE"></th>
+            <th i-translate="ACTIONS"></th>
             </thead>
             <tbody class="main-table__body">
             <tr class="table-list" ng-repeat="entity in vm.state.searchResultsPaged track by $index">
@@ -224,8 +223,8 @@
                 <td class="table-list__item dash-exp-id" ng-bind="entity.details.author"></td>
                 <td class="table-list__item dash-exp-id" ng-bind="entity.details.title"></td>
                 <td class="table-list__item dash-exp-id">
-                    <a class="search-action" ng-click="vm.goTo(entity)">Open</a>
-                    <a class="search-action" ng-click="vm.printEntity(entity)">Print</a>
+                    <a class="search-action" ng-click="vm.goTo(entity)" i-translate="OPEN"></a>
+                    <a class="search-action" ng-click="vm.printEntity(entity)" i-translate="PRINT"></a>
                 </td>
             </tr>
             </tbody>
