@@ -8,8 +8,8 @@
         var lastId = 0;
 
         return {
-            restrict: 'E',
-            compile: function($element) {
+            restrict: 'EA',
+            link: function($scope, $element) {
                 var $input = $element.find('input');
                 var $label = $element.find('label');
                 var id = 'simpleRadio_' + lastId;

@@ -17,6 +17,11 @@
          ng-class="{'entered-value': row[column.id].entered}">
         <simple-checkbox model="row[column.id]"></simple-checkbox>
     </div>
+    <simple-radio ng-switch-when="radio" ng-click="$event.stopPropagation()">
+        <input ng-checked="row[column.id]"
+               ng-click="vm.onClickRadio(column, row, row[column.id]);">
+        <label></label>
+    </simple-radio>
     <a ng-switch-when="string" ng-if="!row[column.id].readonly"
        ng-class="{disabled: vm.isReadonly}"
        ng-click="vm.isReadonly || column.onClick({model: row[column.id], row: row, column: column.id})"

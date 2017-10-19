@@ -33,8 +33,17 @@
             vm.onChangedColumnSetting = onChangedColumnSetting;
             vm.resetColumns = resetColumnsSettings;
             vm.onClose = onClose;
+            vm.onClickRadio = onClickRadio;
 
             bindEvents();
+        }
+
+        function onClickRadio(column, row, value) {
+            _.forEach(vm.indigoRows, function(iRow) {
+                iRow[column.id] = iRow === row;
+            });
+
+            column.onClick({model: value, row: row, column: column.id});
         }
 
         function getVisibleColumns() {

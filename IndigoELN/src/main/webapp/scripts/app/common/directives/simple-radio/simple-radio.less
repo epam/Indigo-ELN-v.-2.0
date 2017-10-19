@@ -1,5 +1,5 @@
-simple-radio {
-  display: flex;
+simple-radio, [simple-radio] {
+  display: inline-flex;
 
   input {
     display: none;
@@ -40,11 +40,7 @@ simple-radio {
       display: flex;
       border: 1px solid @radio-btn-color;
       border-radius: 50%;
-      width: @large-size;
-      height: @large-size;
-      text-align: center;
-      justify-content: center;
-      align-items: center;
+      padding: 2px;
       color: transparent;
       margin-right: 0.4em;
     }

@@ -111,7 +111,7 @@
             limiting: {
                 id: 'limiting',
                 name: 'Limiting',
-                type: 'boolean'
+                type: 'radio'
             },
             rxnRole: {
                 id: 'rxnRole',
