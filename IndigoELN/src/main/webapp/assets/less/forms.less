@@ -31,6 +31,10 @@ label {
     box-shadow: none;
   }
   &:disabled, &.disabled, &[disabled], &[readonly] {
+    + label {
+      cursor: not-allowed;
+      pointer-events: none;
+    }
     &:focus {
       border-color: #e5e5e5;
     }

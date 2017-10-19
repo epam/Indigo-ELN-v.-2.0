@@ -74,28 +74,20 @@
                         </button>
                         <indigo-inline-loader promise="vm.batchOperation" class="product-batch-details__loader"
                                               on-status-changed="vm.onBatchOperationChanged(completed)"></indigo-inline-loader>
-                        <div class="product-batch-details__radio">
-                            <input type="radio"
-                                   name="batchDetailsRadio"
-                                   id="batchDetailsRadioIntermediate"
-                                   ng-disabled="vm.isEditDisabled || vm.selectedBatch.batchType == 'Intermediate'"
+                        <simple-radio>
+                            <input name="batchDetailsRadio"
+                                   ng-disabled="vm.isEditDisabled"
                                    ng-click="vm.selectedBatch.batchType = 'Intermediate'; vm.onChanged()"
-                                   ng-checked="vm.selectedBatch.batchType == 'Intermediate'"
-                                   class="product-batch-details__input">
-                            <label for="batchDetailsRadioIntermediate"
-                                   class="product-batch-details__label" i-translate="INTERMEDIATE"></label>
-                        </div>
-                        <div class="product-batch-details__radio">
-                            <input type="radio"
-                                   name="batchDetailsRadio"
-                                   id="batchDetailsRadioTest"
-                                   ng-disabled="vm.isEditDisabled ||vm.selectedBatch.batchType == 'Test Compound'"
+                                   ng-checked="vm.selectedBatch.batchType === 'Intermediate'">
+                            <label i-translate="INTERMEDIATE"></label>
+                        </simple-radio>
+                        <simple-radio>
+                            <input name="batchDetailsRadio"
+                                   ng-disabled="vm.isEditDisabled"
                                    ng-click="vm.selectedBatch.batchType = 'Test Compound'; vm.onChanged()"
-                                   ng-checked="vm.selectedBatch.batchType =='Test Compound'"
-                                   class="product-batch-details__input">
-                            <label for="batchDetailsRadioTest"
-                                   class="product-batch-details__label" i-translate="TEST_COMPOUND"></label>
-                        </div>
+                                   ng-checked="vm.selectedBatch.batchType === 'Test Compound'">
+                            <label i-translate="TEST_COMPOUND"></label>
+                        </simple-radio>
                     </div>
                 </div>
                 <div class="action-panel__right">

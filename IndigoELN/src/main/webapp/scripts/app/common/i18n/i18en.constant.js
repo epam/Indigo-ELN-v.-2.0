@@ -262,6 +262,6 @@
             YOU_ARE_NOT_AUTHORIZED_TO_ACCESS_THE_PAGE: 'You are not authorized to access the page.',
             PROJECT_SELECTION: 'Project selection',
             PROJECT_NAME: 'Project name',
-            NOTEBOOK_BATCH_N: 'Notebook Batch #:'
+            NOTEBOOK_BATCH_N: 'Notebook Batch #'
         });
 })();
