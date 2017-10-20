@@ -84,13 +84,12 @@
             PermissionManagement.setAccessList(vm.notebook.accessList);
 
             // isEditAllowed
-            PermissionManagement.hasPermission('UPDATE_ENTITY').then(function(hasEditPermission) {
-                vm.isEditAllowed = isContentEditor || (hasEditAuthority && hasEditPermission);
-            });
+            vm.isEditAllowed = isContentEditor ||
+                (hasEditAuthority && PermissionManagement.hasPermission('UPDATE_ENTITY'));
+
             // isCreateChildAllowed
-            PermissionManagement.hasPermission('CREATE_SUB_ENTITY').then(function(hasCreateChildPermission) {
-                vm.isCreateChildAllowed = isContentEditor || (hasCreateChildAuthority && hasCreateChildPermission);
-            });
+            vm.isCreateChildAllowed = isContentEditor ||
+                (hasCreateChildAuthority && PermissionManagement.hasPermission('CREATE_SUB_ENTITY'));
         }
 
         function bindEvents() {
