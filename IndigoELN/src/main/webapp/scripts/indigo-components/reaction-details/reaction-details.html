@@ -3,9 +3,12 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-xs-6">
-                <simple-input label="Experiment Subject / Title"
-                              model="vm.model.reactionDetails.title"
-                              is-readonly="vm.isReadonly">
+                <simple-input>
+                    <span i-translate="EXPERIMENT_SUBJECT_TITLE"></span>
+                    <input class="form-control"
+                           ng-model="vm.model.reactionDetails.title"
+                           ng-disabled="vm.isReadonly"
+                           ng-attr-title="vm.model.reactionDetails.title">
                 </simple-input>
                 <indigo-select indigo-label="Therapeutic Area"
                                indigo-dictionary="Therapeutic Area"
@@ -17,9 +20,12 @@
                                indigo-model="vm.model.reactionDetails.codeAndName"
                                indigo-label-vertical="true"
                                indigo-readonly="vm.isReadonly"></indigo-select>
-                <simple-input label="Batch Creator"
-                              model="vm.experiment.author.fullName"
-                              is-readonly="true">
+                <simple-input>
+                    <span i-translate="BATCH_CREATOR"></span>
+                    <input class="form-control"
+                           ng-model="vm.experiment.author.fullName"
+                           disabled="disabled"
+                           ng-attr-title="vm.experiment.author.fullName">
                 </simple-input>
                 <indigo-select indigo-label="Co-authors"
                                indigo-label-vertical="true"
@@ -42,7 +48,8 @@
             </div>
             <div class="col-xs-6">
                 <indigo-date-picker indigo-label="Creation Date" indigo-label-vertical="true"
-                                    indigo-model="vm.experiment.creationDate" indigo-readonly="true"></indigo-date-picker>
+                                    indigo-model="vm.experiment.creationDate"
+                                    indigo-readonly="true"></indigo-date-picker>
                 <indigo-tag-input indigo-label="Cont. FROM Rxn"
                                   indigo-model="vm.model.reactionDetails.contFromRxn"
                                   indigo-readonly="vm.isReadonly"
@@ -72,9 +79,12 @@
                                   indigo-source="vm.getExperiments"
                                   indigo-placeholder="11112222-0003, 11112222-0005"
                                   indigo-classes="linkedExperiments"></indigo-tag-input>
-                <simple-input label="Project Alias Name"
-                              model="vm.model.reactionDetails.projectAliasName"
-                              is-readonly="vm.isReadonly">
+                <simple-input>
+                    <span i-translate="PROJECT_ALIAS_NAME"></span>
+                    <input class="form-control"
+                           ng-model="vm.model.reactionDetails.projectAliasName"
+                           ng-disabled="vm.isReadonly"
+                           ng-attr-title="vm.model.reactionDetails.projectAliasName">
                 </simple-input>
                 <indigo-select indigo-label="Batch Owner"
                                indigo-label-vertical="true"

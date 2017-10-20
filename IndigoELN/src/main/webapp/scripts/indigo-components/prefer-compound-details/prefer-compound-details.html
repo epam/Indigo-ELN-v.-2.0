@@ -95,11 +95,12 @@
             </div>
             <div class="row">
                 <div class="col-xs-6">
-                    <indigo-input indigo-label="Virtual Compound Id"
-                                  indigo-model="vm.selectedBatch.virtualCompoundId"
-                                  indigo-label-vertical="true"
-                                  indigo-readonly="vm.isEditDisabled">
-                    </indigo-input>
+                    <simple-input>
+                        <span i-translate="VIRTUAL_COMPOUND_ID"></span>
+                        <input class="form-control"
+                               ng-model="vm.selectedBatch.virtualCompoundId"
+                               ng-disabled="vm.isEditDisabled">
+                    </simple-input>
                     <indigo-select indigo-label="Sterioisomer Code"
                                    indigo-label-vertical="true"
                                    indigo-dictionary="Stereoisomer Code"
@@ -134,13 +135,14 @@
                                    indigo-change="vm.recalculateSalt(vm.selectedBatch)"
                                    indigo-readonly="vm.isEditDisabled"
                     ></indigo-select>
-                    <indigo-input indigo-label="Salt Equivalent"
-                                  indigo-model="vm.selectedBatch.saltEq.value"
-                                  indigo-change="vm.recalculateSalt(vm.selectedBatch)"
-                                  indigo-type="number"
-                                  indigo-label-vertical="true"
-                                  indigo-readonly="vm.isEditDisabled || !vm.canEditSaltEq()"
-                    ></indigo-input>
+                    <simple-input>
+                        <span i-translate="SALT_EQUIVALENT"></span>
+                        <input class="form-control"
+                               type="number"
+                               ng-model="vm.selectedBatch.saltEq.value"
+                               ng-change="vm.recalculateSalt(vm.selectedBatch)"
+                               ng-disabled="vm.isEditDisabled || !vm.canEditSaltEq()">
+                    </simple-input>
                 </div>
             </div>
         </div>

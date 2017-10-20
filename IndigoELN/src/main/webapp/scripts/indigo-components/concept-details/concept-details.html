@@ -5,11 +5,12 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-xs-6">
-                <indigo-input indigo-label="Concept Subject / Title" indigo-label-vertical="true"
-                              indigo-name="conceptDetailsTitle"
-                              indigo-model="vm.model.conceptDetails.title"
-                              indigo-readonly="vm.isReadonly">
-                </indigo-input>
+                <simple-input>
+                    <span i-translate="CONCEPT_SUBJECT_TITLE"></span>
+                    <input class="form-control"
+                           ng-model="vm.model.conceptDetails.title"
+                           ng-disabled="vm.isReadonly">
+                </simple-input>
                 <indigo-select indigo-label="Therapeutic Area"
                                indigo-dictionary="Therapeutic Area"
                                indigo-model="vm.model.conceptDetails.therapeuticArea"
