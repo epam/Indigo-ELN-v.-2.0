@@ -24,6 +24,8 @@
             vm.visibleColumns = getVisibleColumns();
             vm.columns = getSortedColumns(vm.indigoColumns);
 
+            updateVisibleColumnsExpression();
+
             updateRowsForDisplay();
 
             vm.startEdit = startEdit;
@@ -36,6 +38,15 @@
             vm.onClickRadio = onClickRadio;
 
             bindEvents();
+        }
+
+        function updateVisibleColumnsExpression() {
+            _.forEach(vm.indigoColumns, function(column) {
+                var visibleColumn = vm.visibleColumns[column.id];
+                if (visibleColumn && _.isBoolean(column.isVisible) && visibleColumn !== column.isVisible) {
+                    vm.onChangedVisibleColumn({column: column, isVisible: visibleColumn});
+                }
+            });
         }
 
         function onClickRadio(column, row, value) {
@@ -77,6 +88,7 @@
 
         function onChangedColumnSetting(changedColumn, isVisible) {
             vm.visibleColumns[changedColumn.id] = isVisible;
+            vm.onChangedVisibleColumn({column: changedColumn, isVisible: isVisible});
             saveColumnSettings();
         }
 

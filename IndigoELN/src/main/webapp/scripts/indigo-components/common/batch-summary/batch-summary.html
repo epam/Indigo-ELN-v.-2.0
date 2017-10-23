@@ -9,6 +9,7 @@
               selected-batch="vm.selectedBatch"
               selected-batch-trigger="vm.selectedBatchTrigger"
               on-changed="vm.onChange()"
+              on-changed-visible-column="vm.onChangedVisibleColumn(column, isVisible)"
               on-close-cell="vm.onClose(column, data)"
               ng-class="{'product-batch-register': vm.isReadonly || !vm.isHasCheckedRows()}">
     <div class="row m-b20">

@@ -6,9 +6,8 @@
     function indigoProductBatchSummary() {
         return {
             restrict: 'E',
-            replace: true,
             templateUrl: 'scripts/indigo-components/product-batch-summary/product-batch-summary.html',
-            controller: 'ProductBatchSummaryController',
+            controller: ProductBatchSummaryController,
             controllerAs: 'vm',
             bindToController: true,
             scope: {
@@ -26,5 +25,13 @@
                 onChanged: '&'
             }
         };
+
+        function ProductBatchSummaryController() {
+            var vm = this;
+
+            vm.structureSize = 0.3;
+
+            vm.isStructureVisible = false;
+        }
     }
 })();
