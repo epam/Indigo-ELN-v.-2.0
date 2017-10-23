@@ -192,60 +192,38 @@
                            ng-model="vm.selectedBatch.precursors"
                            ng-disabled="vm.isEditDisabled || vm.isExistStoichTable">
                 </simple-input>
-                <indigo-input indigo-label="Purity"
-                              indigo-model="vm.selectedBatch.purity.asString"
-                              indigo-label-vertical="true"
-                              indigo-input-group="append"
-                              indigo-readonly="true"
-                              indigo-tooltip="vm.selectedBatch.purity.asString">
-                    <button class="btn btn-info" type="button" ng-click="vm.editPurity()"
-                            ng-disabled="vm.isEditDisabled" i-translate="EDIT">
-                    </button>
-                </indigo-input>
-                <indigo-input indigo-label="Melting Point"
-                              indigo-model="vm.selectedBatch.meltingPoint.asString"
-                              indigo-label-vertical="true"
-                              indigo-input-group="append"
-                              indigo-readonly="true"
-                              indigo-tooltip="vm.selectedBatch.meltingPoint.asString"
-                >
-                    <button class="btn btn-info" type="button" ng-click="vm.editMeltingPoint()"
-                            ng-disabled="vm.isEditDisabled" i-translate="EDIT">
-                    </button>
-                </indigo-input>
-                <indigo-input indigo-label="Residual Solvents"
-                              indigo-model="vm.selectedBatch.residualSolvents.asString"
-                              indigo-label-vertical="true"
-                              indigo-input-group="append"
-                              indigo-readonly="true"
-                              indigo-tooltip="vm.selectedBatch.residualSolvents.asString"
-                >
-                    <button class="btn btn-info" ng-click="vm.editResidualSolvents()" type="button"
-                            ng-disabled="vm.isEditDisabled" i-translate="EDIT">
-                    </button>
-                </indigo-input>
-                <indigo-input indigo-label="Solubility in Solvents"
-                              indigo-model="vm.selectedBatch.solubility.asString"
-                              indigo-label-vertical="true"
-                              indigo-input-group="append"
-                              indigo-readonly="true"
-                              indigo-tooltip="vm.selectedBatch.solubility.asString"
-                >
-                    <button class="btn btn-info" ng-click="vm.editSolubility()" type="button"
-                            ng-disabled="vm.isEditDisabled" i-translate="EDIT">
-                    </button>
-                </indigo-input>
-                <indigo-input indigo-label="External Supplier"
-                              indigo-model="vm.selectedBatch.externalSupplier.asString"
-                              indigo-label-vertical="true"
-                              indigo-input-group="append"
-                              indigo-readonly="true"
-                              indigo-tooltip="vm.selectedBatch.externalSupplier.asString"
-                >
-                    <button class="btn btn-info" ng-click="vm.editExternalSupplier()" type="button"
-                            ng-disabled="vm.isEditDisabled" i-translate="EDIT">
-                    </button>
-                </indigo-input>
+
+                <additional-editor-value model="vm.selectedBatch.purity.asString"
+                                         on-click="vm.editPurity()"
+                                         is-disabled="vm.isEditDisabled">
+                    <span i-translate="PURITY"></span>
+                </additional-editor-value>
+
+                <additional-editor-value model="vm.selectedBatch.meltingPoint.asString"
+                                         on-click="vm.editMeltingPoint()"
+                                         is-disabled="vm.isEditDisabled">
+                    <span i-translate="MELTING_POINT"></span>
+                </additional-editor-value>
+
+                <additional-editor-value model="vm.selectedBatch.residualSolvents.asString"
+                                         on-click="vm.editResidualSolvents()"
+                                         is-disabled="vm.isEditDisabled">
+                    <span i-translate="RESIDUAL_SOLVENTS"></span>
+                </additional-editor-value>
+
+                <additional-editor-value model="vm.selectedBatch.solubility.asString"
+                                         on-click="vm.editSolubility()"
+                                         is-disabled="vm.isEditDisabled">
+                    <span i-translate="SOLUBILITY_IN_SOLVENTS"></span>
+                </additional-editor-value>
+
+
+                <additional-editor-value model="vm.selectedBatch.externalSupplier.asString"
+                                         on-click="vm.editExternalSupplier()"
+                                         is-disabled="vm.isEditDisabled">
+                    <span i-translate="EXTERNAL_SUPPLIER"></span>
+                </additional-editor-value>
+
             </div>
             <div class="col-md-4 col-sm-6">
                 <indigo-select indigo-label="Compound Protection"
@@ -254,39 +232,25 @@
                                indigo-dictionary="Compound Protection"
                                indigo-readonly="vm.isEditDisabled"
                 ></indigo-select>
-                <indigo-input indigo-label="Health Hazards"
-                              indigo-model="vm.selectedBatch.healthHazards.asString"
-                              indigo-label-vertical="true"
-                              indigo-input-group="append"
-                              indigo-readonly="true"
-                              indigo-tooltip="vm.selectedBatch.healthHazards.asString"
-                >
-                    <button class="btn btn-info" type="button" ng-click="vm.editHealthHazards()"
-                            ng-disabled="vm.isEditDisabled" i-translate="EDIT">
-                    </button>
-                </indigo-input>
-                <indigo-input indigo-label="Handling Precautions"
-                              indigo-model="vm.selectedBatch.handlingPrecautions.asString"
-                              indigo-label-vertical="true"
-                              indigo-input-group="append"
-                              indigo-readonly="true"
-                              indigo-tooltip="vm.selectedBatch.handlingPrecautions.asString"
-                >
-                    <button class="btn btn-info" type="button" ng-click="vm.editHandlingPrecautions()"
-                            ng-disabled="vm.isEditDisabled" i-translate="EDIT">
-                    </button>
-                </indigo-input>
-                <indigo-input indigo-label="Storage Instructions"
-                              indigo-model="vm.selectedBatch.storageInstructions.asString"
-                              indigo-label-vertical="true"
-                              indigo-input-group="append"
-                              indigo-readonly="true"
-                              indigo-tooltip="vm.selectedBatch.storageInstructions.asString"
-                >
-                    <button class="btn btn-info" type="button" ng-click="vm.editStorageInstructions()"
-                            ng-disabled="vm.isEditDisabled" i-translate="EDIT">
-                    </button>
-                </indigo-input>
+
+                <additional-editor-value model="vm.selectedBatch.healthHazards.asString"
+                                         on-click="vm.editHealthHazards()"
+                                         is-disabled="vm.isEditDisabled">
+                    <span i-translate="HEALTH_HAZARDS"></span>
+                </additional-editor-value>
+
+                <additional-editor-value model="vm.selectedBatch.handlingPrecautions.asString"
+                                         on-click="vm.editHandlingPrecautions()"
+                                         is-disabled="vm.isEditDisabled">
+                    <span i-translate="HANDLING_PRECAUTIONS"></span>
+                </additional-editor-value>
+
+                <additional-editor-value model="vm.selectedBatch.storageInstructions.asString"
+                                         on-click="vm.editStorageInstructions()"
+                                         is-disabled="vm.isEditDisabled">
+                    <span i-translate="STORAGE_INSTRUCTIONS"></span>
+                </additional-editor-value>
+
                 <indigo-text-area indigo-label="Batch Comments"
                                   indigo-model="vm.selectedBatch.comments"
                                   indigo-readonly="vm.isEditDisabled"

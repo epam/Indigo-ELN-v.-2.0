@@ -48,8 +48,6 @@
                 var inputGroup = $input.wrap(elementIg).parent();
                 if (tAttrs.indigoInputGroup === 'append') {
                     inputGroup.append('<div class="input-group-btn" ng-transclude/>');
-                } else if (tAttrs.indigoInputGroup === 'prepend') {
-                    inputGroup.prepend('<div class="input-group-btn" ng-transclude/>');
                 }
             }
             formUtils.clearLabel(tAttrs, tElement);

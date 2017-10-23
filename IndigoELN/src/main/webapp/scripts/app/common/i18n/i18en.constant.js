@@ -272,6 +272,13 @@
             PRECURSOR_REACTANT_IDS: 'Precursor/Reactant IDs',
             NEW_PASSWORD: 'New Password',
             CONCEPT_SUBJECT_TITLE: 'Concept Subject / Title',
+            MELTING_POINT: 'Melting Point',
+            RESIDUAL_SOLVENTS: 'Residual Solvents',
+            SOLUBILITY_IN_SOLVENTS: 'Solubility in Solvents',
+            EXTERNAL_SUPPLIER: 'External Supplier',
+            HEALTH_HAZARDS: 'Health Hazards',
+            HANDLING_PRECAUTIONS: 'Handling Precautions',
+            STORAGE_INSTRUCTIONS: 'Storage Instructions'
 
         });
 })();

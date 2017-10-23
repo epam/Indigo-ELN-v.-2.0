@@ -1,11 +1,14 @@
 simple-input {
   display: flex;
-  label {
+  margin-bottom: @form-group-margin-bottom;
+
+  > label {
+    display: flex;
+    flex-direction: column;
     flex-grow: 1;
     margin-bottom: 0;
 
    > span {
-     margin-bottom: 5px;
      display: flex;
    }
   }
