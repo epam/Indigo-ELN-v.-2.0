@@ -32,7 +32,7 @@
             });
         }
 
-        function loadPage() {
+        function loadPage(page) {
             vm.page = page;
             vm.loadAll();
         }

@@ -32,7 +32,7 @@ function auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService, 
         if (prolongTimeout) {
             clearTimeout(prolongTimeout);
         }
-        prolongTimeout = setTimeout(function() {
+        prolongTimeout = $timeout(function() {
             AuthServerProvider.prolong();
         }, 5000);
     }

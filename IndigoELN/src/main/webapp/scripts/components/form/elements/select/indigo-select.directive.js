@@ -29,29 +29,7 @@
             controllerAs: 'vm',
             bindToController: true,
             compile: compile,
-            template: function(tElement, tAttrs) {
-                var itemProp = tAttrs.indigoItemProp || 'name';
-                var content = _.chain(itemProp.split(','))
-                    .map(function(prop) {
-                        return '{{ $select.selected.' + prop + '}}';
-                    })
-                    .reduce(function(memo, num) {
-                        return memo + (memo.length > 0 ? ' - ' : '') + num;
-                    }, '').value();
-
-                return '<div class="form-group {{vm.indigoClasses}}">' +
-                    '<label ng-bind="vm.indigoLabel"></label>' +
-                    // '<div class="col-xs-10">' +
-                    '<ui-select ng-model="vm.indigoModel" theme="bootstrap" ng-disabled="vm.indigoReadonly"' +
-                    ' onkeypress="return false;" on-select="vm.indigoChange()" on-remove="vm.indigoRemove()"' +
-                    ' append-to-body="true">' +
-                    '<ui-select-match placeholder="{{vm.indigoPlaceHolder}}" >' + content + '</ui-select-match>' +
-                    '<ui-select-choices repeat="item in vm.indigoItems | filter: $select.search">' +
-                    '</ui-select-choices>' +
-                    '</ui-select>' +
-                    // '</div>' +
-                    '</div>';
-            }
+            templateUrl: 'scripts/components/form/elements/select/select.html'
         };
 
         /* @ngInject */
@@ -81,7 +59,7 @@
         }
 
         /* @ngInject */
-        function controller(Dictionary) {
+        function controller(Dictionary, $attrs) {
             var vm = this;
 
             vm.control = vm.indigoControl || {};
@@ -106,6 +84,18 @@
                         vm.indigoItems = dictionary.words;
                     });
                 }
+                vm.content = getContent();
+            }
+
+            function getContent() {
+                var itemProp = $attrs.indigoItemProp || 'name';
+                return _.chain(itemProp.split(','))
+                    .map(function(prop) {
+                        return '{{ $select.selected.' + prop + '}}';
+                    })
+                    .reduce(function(memo, num) {
+                        return memo + (memo.length > 0 ? ' - ' : '') + num;
+                    }, '').value();
             }
         }
     }
