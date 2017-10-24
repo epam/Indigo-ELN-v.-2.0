@@ -9,18 +9,16 @@
             restrict: 'A',
             link: {
                 pre: function($scope, $element, $attrs) {
-                    var authorities = $attrs.indigoHasAuthority.replace(/\s+/g, '').split(',');
+                    var authorities = $attrs.indigoHasAuthority.replace(/\s+/g, '');
 
                     if (authorities.length > 0) {
                         defineVisibility(true);
                     }
 
                     function defineVisibility() {
-                        Principal.hasAnyAuthority(authorities).then(function(isAvailable) {
-                            if (!isAvailable) {
-                                $element.remove();
-                            }
-                        });
+                        if (!Principal.hasAuthority(authorities)) {
+                            $element.remove();
+                        }
                     }
                 }
             }

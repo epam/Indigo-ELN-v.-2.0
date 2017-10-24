@@ -6,7 +6,6 @@
     function indigoPreferredCompoundsSummary() {
         return {
             restrict: 'E',
-            replace: true,
             scope: {
                 model: '=',
                 batches: '=',
@@ -36,6 +35,7 @@
             vm.model = vm.model || {};
             vm.experiment = vm.experiment || {};
             vm.structureSize = 0.3;
+            vm.isStructureVisible = false;
         }
     }
 })();
