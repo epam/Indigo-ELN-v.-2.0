@@ -10,6 +10,9 @@
         return {
             restrict: 'E',
             transclude: true,
+            scope: {
+                validationPatternText: '@?'
+            },
             compile: function($element) {
                 $element.addClass('form-group');
                 var $input = $element.find('input');
@@ -30,6 +33,6 @@
             '<p class="help-block" ng-if="ngModelCtrl.$error.maxlength">This field can\t be longer than' +
             '<span ng-bind="ngModelCtrl.maxlength"></span> characters.</p>' +
             '<p class="help-block" ng-if="ngModelCtrl.$error.pattern"' +
-            ' ng-bind="indigoValidationPatternText"></p></div>');
+            ' ng-bind="validationPatternText"></p></div>');
     }
 })();

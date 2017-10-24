@@ -45,17 +45,11 @@ function formUtils($timeout) {
                     scope.ngModelCtrl = ngModelCtrl;
                     var $inputs = $formGroup.find('input[ng-model],textarea[ng-model],select[ng-model]');
                     if ($inputs.length > 0) {
-                        var unbinds = [];
                         $inputs.each(function() {
-                            unbinds.push(scope.$watch(function() {
+                            scope.$watch(function() {
                                 return ngModelCtrl.$invalid && (ngModelCtrl.$dirty || formCtrl.$submitted);
                             }, function(isInvalid) {
                                 $formGroup.toggleClass('has-error', isInvalid);
-                            }));
-                        });
-                        scope.$on('$destroy', function() {
-                            _.each(unbinds, function(unbind) {
-                                unbind();
                             });
                         });
                     }

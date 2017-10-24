@@ -6,9 +6,11 @@
                    indigo-label="External Supplier Code & Name"
                    indigo-label-vertical="true"
                    indigo-model="vm.externalSupplier.codeAndName"></indigo-select>
-    <indigo-input indigo-model="vm.externalSupplier.catalogRegistryNumber"
-                  indigo-label="Supplier Catalog/Registry#"
-                  indigo-label-vertical="true"> </indigo-input>
+    <simple-input>
+        <span i-translate="SUPPLIER_CATALOG_REGISTRY"></span>
+        <input class="form-control"
+               ng-model="vm.externalSupplier.catalogRegistryNumber">
+    </simple-input>
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" type="button" ng-click="vm.cancel()">

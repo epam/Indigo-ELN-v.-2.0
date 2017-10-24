@@ -24,32 +24,34 @@
                         <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
                         <input type="password" name="password" id="password_fake" class="hidden" autocomplete="off">
                         <input class="hidden" type="password" name="fakepasswordremembered"/>
-                        <indigo-input
-                                indigo-label="Login"
-                                indigo-name="login"
-                                indigo-type="text"
-                                indigo-model="vm.user.login"
-                                indigo-validation-required="vm.user.id == null"
-                                indigo-validation-maxlength="50"
-                                indigo-validation-pattern="/^[a-z0-9]*$/"
-                                indigo-validation-pattern-text="Login should not contain symbols in upper case."
-                        ></indigo-input>
-                        <indigo-input
-                                indigo-label="First Name"
-                                indigo-name="firstName"
-                                indigo-type="text"
-                                indigo-model="vm.user.firstName"
-                                indigo-validation-required="vm.user.firstName == null"
-                                indigo-validation-maxlength="50"
-                        ></indigo-input>
-                        <indigo-input
-                                indigo-label="Last Name"
-                                indigo-name="lastName"
-                                indigo-type="text"
-                                indigo-model="vm.user.lastName"
-                                indigo-validation-required="vm.user.lastName == null"
-                                indigo-validation-maxlength="50"
-                        ></indigo-input>
+                        <simple-input validation-pattern-text="Login should not contain symbols in upper case.">
+                            <span i-translate="LOGIN"></span>
+                            <input class="form-control"
+                                   ng-attr-name="login"
+                                   ng-required="!vm.user.id"
+                                   type="text"
+                                   maxlength="50"
+                                   ng-pattern="/^[a-z0-9]*$/"
+                                   ng-model="vm.user.login">
+                        </simple-input>
+                        <simple-input>
+                            <span i-translate="FIRST_NAME"></span>
+                            <input class="form-control"
+                                   ng-attr-name="firstName"
+                                   ng-required="!vm.user.firstName"
+                                   type="text"
+                                   maxlength="50"
+                                   ng-model="vm.user.firstName">
+                        </simple-input>
+                        <simple-input >
+                            <span i-translate="LAST_NAME"></span>
+                            <input class="form-control"
+                                   ng-attr-name="lastName"
+                                   ng-required="!vm.user.lastName"
+                                   type="text"
+                                   maxlength="50"
+                                   ng-model="vm.user.lastName">
+                        </simple-input>
                         <indigo-select
                                 indigo-label="System Roles"
                                 indigo-name="role"
@@ -60,22 +62,24 @@
                         <p class="help-block" ng-if="!vm.user.roles.length" i-translate="THIS_FIELD_IS_REQUIRED"></p>
                     </div>
                     <div class="col-xs-6">
-                        <indigo-input
-                                indigo-label="Email"
-                                indigo-name="email"
-                                indigo-type="text"
-                                indigo-model="vm.user.email"
-                                indigo-validation-required="user.email == null"
-                                indigo-validation-maxlength="100"
-                        ></indigo-input>
-                        <indigo-input ng-if="!vm.user.id"
-                                      indigo-label="Password"
-                                      indigo-name="password"
-                                      indigo-type="password"
-                                      indigo-model="vm.user.password"
-                                      indigo-validation-required="vm.user.id == null"
-                                      indigo-validation-maxlength="50"
-                        ></indigo-input>
+                        <simple-input>
+                            <span i-translate="EMAIL"></span>
+                            <input class="form-control"
+                                   ng-attr-name="email"
+                                   ng-required="!vm.user.email"
+                                   type="text"
+                                   maxlength="100"
+                                   ng-model="vm.user.email">
+                        </simple-input>
+                        <simple-input ng-if="!vm.user.id">
+                            <span i-translate="PASSWORD"></span>
+                            <input class="form-control"
+                                   ng-attr-name="password"
+                                   ng-required="!vm.user.id"
+                                   type="password"
+                                   maxlength="50"
+                                   ng-model="vm.user.password">
+                        </simple-input>
                         <indigo-select indigo-label="Groups"
                                        indigo-items="[{name:'Group 1'}, {name:'Group 2'}]"
                                        indigo-model="vm.user.group"

@@ -39,20 +39,21 @@
 
     <div ng-switch-when="true" nested-outside-click="vm.closeThis()"
          ng-switch="vm.column.type">
-        <div ng-switch-when="unit">
-            <indigo-input indigo-model="vm.row[vm.column.id].value" indigo-input-group="append"
-                          indigo-input-size="sm"
-                          indigo-readonly="vm.column.readonly || vm.row[vm.column.id].readonly"
-                          indigo-click="vm.column.onClick({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
-                          indigo-change="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
-                          indigo-parsers="vm.unitParsers" indigo-formatters="vm.unitFormatters"
-                          indigo-type="number"
-                          press-enter="vm.closeThis()">
+        <div ng-switch-when="unit" class="additional-editor">
+            <div class="additional-editor__group"
+                 press-enter="vm.closeThis()">
+                <input class="form-control additional-editor__input"
+                       type="number"
+                       ng-disabled="vm.column.readonly || vm.row[vm.column.id].readonly"
+                       ng-click="vm.column.onClick({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
+                       ng-change="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
+                       ng-model="vm.row[vm.column.id].value">
                 <unit-select unit="vm.row[vm.column.id].unit"
                              units="vm.column.unitItems"
+                             append-to-body="true"
                              on-change="vm.row[vm.column.id].unit = unit; vm.closeThis()">
                 </unit-select>
-            </indigo-input>
+            </div>
         </div>
         <div ng-switch-when="scalar">
             <simple-input>

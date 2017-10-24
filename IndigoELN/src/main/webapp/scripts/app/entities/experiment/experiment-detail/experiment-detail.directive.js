@@ -14,7 +14,7 @@
     function ExperimentDetailController($scope, $state, $stateParams, Experiment, ExperimentUtil,
                                         PermissionManagement, FileUploaderCash, EntitiesBrowser, autorecoveryHelper,
                                         notifyService, EntitiesCache, $q, Principal, Notebook, Components,
-                                        autorecoveryCache, confirmationModal, entityHelper) {
+                                        autorecoveryCache, confirmationModal, entityHelper, $location) {
         var vm = this;
         var tabName;
         var params;

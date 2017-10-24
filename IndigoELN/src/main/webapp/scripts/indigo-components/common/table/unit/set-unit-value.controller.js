@@ -11,7 +11,6 @@ angular
 
             vm.save = save;
             vm.clear = clear;
-            vm.setUnit = setUnit;
         }
 
         function save() {
@@ -22,9 +21,5 @@ angular
 
         function clear() {
             $uibModalInstance.dismiss('cancel');
-        }
-
-        function setUnit(unit) {
-            vm.unit = unit;
         }
     });

@@ -278,7 +278,13 @@
             EXTERNAL_SUPPLIER: 'External Supplier',
             HEALTH_HAZARDS: 'Health Hazards',
             HANDLING_PRECAUTIONS: 'Handling Precautions',
-            STORAGE_INSTRUCTIONS: 'Storage Instructions'
-
+            STORAGE_INSTRUCTIONS: 'Storage Instructions',
+            TYPE_IN_YOUR_SEARCH_QUERY: 'Type in your search query',
+            PROJECT_KEYWORDS: 'Project Keywords',
+            SUPPLIER_CATALOG_REGISTRY: 'Supplier Catalog/Registry#',
+            LOWER: 'Lower',
+            UPPER: 'Upper',
+            COMMENTS: 'Comments',
+            VALUE: 'Value'
         });
 })();

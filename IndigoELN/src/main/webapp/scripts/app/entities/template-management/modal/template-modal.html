@@ -2,7 +2,12 @@
     <form class="m-b10" name="createTemplateForm" novalidate autocomplete="off">
         <div class="row">
             <div class="col-sm-6">
-                <indigo-input indigo-label="Name" indigo-model="vm.template.name" indigo-validation-required="!vm.template.name.trim()"></indigo-input>
+                <simple-input>
+                    <span i-translate="NAME"></span>
+                    <input class="form-control"
+                           ng-required="!vm.template.name.trim()"
+                           ng-model="vm.template.name">
+                </simple-input>
             </div>
         </div>
     </form>

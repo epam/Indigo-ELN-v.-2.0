@@ -30,15 +30,19 @@
                     </indigo-select>
                 </td>
                 <td>
-                    <indigo-input indigo-model="vm.purity.data[$index].value"
-                                  indigo-readonly="vm.isInknownPurity()"
-                                  indigo-type="number">
-                    </indigo-input>
+                    <simple-input>
+                        <input class="form-control"
+                               type="number"
+                               ng-disabled="vm.isInknownPurity()"
+                               ng-model="vm.purity.data[$index].value">
+                    </simple-input>
                 </td>
                 <td>
-                    <indigo-input indigo-model="vm.purity.data[$index].comments"
-                                  indigo-readonly="vm.isInknownPurity()">
-                    </indigo-input>
+                    <simple-input>
+                        <input class="form-control"
+                               ng-disabled="vm.isInknownPurity()"
+                               ng-model="vm.purity.data[$index].comments">
+                    </simple-input>
                 </td>
             </tr>
             </tbody>

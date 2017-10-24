@@ -24,14 +24,15 @@
                     <input class="hidden" type="text" name="fakeusernameremembered"/>
                     <input class="hidden" type="password" name="fakepasswordremembered"/>
                     <div class="col-xs-6">
-                        <indigo-input
-                                indigo-label="Name"
-                                indigo-name="name"
-                                indigo-type="text"
-                                indigo-model="vm.role.name"
-                                indigo-validation-required="true"
-                                indigo-validation-maxlength="50"
-                        ></indigo-input>
+                        <simple-input>
+                            <span i-translate="NAME"></span>
+                            <input class="form-control"
+                                   ng-attr-name="name"
+                                   ng-required
+                                   type="text"
+                                   maxlength="50"
+                                   ng-model="vm.role.name">
+                        </simple-input>
                     </div>
                     <div class="col-xs-12 form-group">
                         <label i-translate="AUTHORITIES"></label>

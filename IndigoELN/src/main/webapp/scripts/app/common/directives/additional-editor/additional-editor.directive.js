@@ -12,7 +12,10 @@
                 isDisabled: '=',
                 onClick: '&'
             },
-            templateUrl: 'scripts/app/common/directives/additional-editor-value/additional-editor-value.html',
+            compile: function($element) {
+                $element.addClass('additional-editor');
+            },
+            templateUrl: 'scripts/app/common/directives/additional-editor/additional-editor.html',
             controller: additionalEditorValueController,
             controllerAs: 'vm',
             bindToController: true
