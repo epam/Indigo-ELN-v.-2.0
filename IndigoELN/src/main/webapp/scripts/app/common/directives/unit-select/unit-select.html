@@ -1,9 +1,10 @@
 <div class="btn-group-sm"
      uib-dropdown
-     dropdown-append-to-body="true"
+     dropdown-append-to-body="{{::vm.appendToBody}}"
      is-open="vm.isOpen">
 
-    <button type="button" class="btn btn-info"
+    <button type="button"
+            class="btn btn-info"
             aria-haspopup="true"
             aria-expanded="false"
             uib-dropdown-toggle>

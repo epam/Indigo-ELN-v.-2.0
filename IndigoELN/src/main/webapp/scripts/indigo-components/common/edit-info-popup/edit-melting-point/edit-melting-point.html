@@ -5,24 +5,30 @@
     <p class="semi-b m-b20" i-translate="MELTING_POINT_RANGE" i-end=":"></p>
     <div class="row">
         <div class="col-xs-2">
-            <indigo-input indigo-model="vm.meltingPoint.lower"
-                          indigo-label="Lower"
-                          indigo-type="number"
-                          indigo-label-vertical="true"></indigo-input>
-            <span class="input-right-txt" ></span>
+            <simple-input>
+                <span i-translate="LOWER"></span>
+                <input class="form-control"
+                       type="number"
+                       ng-model="vm.meltingPoint.lower">
+            </simple-input>
+            <span class="input-right-txt">&deg;C</span>
         </div>
         <div class="col-xs-2">
-            <indigo-input indigo-model="vm.meltingPoint.upper"
-                          indigo-label="Upper"
-                          indigo-type="number"
-                          indigo-label-vertical="true"></indigo-input>
-                <span class="input-right-txt" i-translate="CELSIUS"></span>
+            <simple-input>
+                <span i-translate="UPPER"></span>
+                <input class="form-control"
+                       type="number"
+                       ng-model="vm.meltingPoint.upper">
+            </simple-input>
+            <span class="input-right-txt" i-translate="CELSIUS"></span>
         </div>
         <div class="col-xs-8">
-            <indigo-input indigo-model="vm.meltingPoint.comments"
-                          indigo-columns-num="3"
-                          indigo-label="Comments"
-                          indigo-label-vertical="true"></indigo-input>
+            <simple-input>
+                <span i-translate="COMMENTS"></span>
+                <input class="form-control"
+                       type="number"
+                       ng-model="vm.meltingPoint.comments">
+            </simple-input>
         </div>
     </div>
 </div>

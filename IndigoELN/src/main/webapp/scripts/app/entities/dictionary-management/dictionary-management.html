@@ -21,15 +21,14 @@
             <form id="editForm" name="editForm" role="form" novalidate ng-submit="vm.saveDictionary()" autocomplete="off">
                 <div class="row">
                     <div class="col-xs-6">
-                        <indigo-input
-                                indigo-label="Name"
-                                indigo-name="name"
-                                indigo-type="text"
-                                indigo-model="vm.dictionary.name"
-                                indigo-validation-required="true"
-                                indigo-validation-maxlength="200"
-                                indigo-label-vertical="true">
-                        </indigo-input>
+                        <simple-input>
+                            <span i-translate="NAME"></span>
+                            <input class="form-control"
+                                   ng-attr-name="name"
+                                   type="text"
+                                   maxlength="200"
+                                   ng-model="vm.dictionary.name">
+                        </simple-input>
                     </div>
                     <div class="col-xs-6">
                         <indigo-text-area
@@ -123,15 +122,15 @@
                           autocomplete="off">
                         <div class="row m-b10">
                             <div class="col-xs-6">
-                                <indigo-input
-                                        indigo-label="Name"
-                                        indigo-name="name"
-                                        indigo-type="text"
-                                        indigo-model="vm.word.name"
-                                        indigo-validation-required="true"
-                                        indigo-validation-maxlength="200"
-                                        indigo-label-vertical="true">
-                                </indigo-input>
+                                <simple-input>
+                                    <span i-translate="NAME"></span>
+                                    <input class="form-control"
+                                           ng-attr-name="name"
+                                           type="text"
+                                           maxlength="200"
+                                           ng-required
+                                           ng-model="vm.word.name">
+                                </simple-input>
                             </div>
                             <div class="col-xs-6">
                                 <indigo-text-area

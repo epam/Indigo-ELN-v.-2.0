@@ -10,6 +10,7 @@
             scope: {
                 unit: '=',
                 units: '=',
+                appendToBody: '=',
                 onChange: '&'
             },
             controller: UnitSelectController,
