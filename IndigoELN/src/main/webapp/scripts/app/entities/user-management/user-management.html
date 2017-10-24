@@ -135,15 +135,15 @@
                 <td ng-bind="user.email"></td>
                 <td>
                     <span role="button" class="uui-label uui-label-red" ng-click="vm.setActive(user, true)"
-                          ng-show="!user.system && !user.activated" i-translate="DEACTIVATED"></span>
+                          ng-if="!user.system && !user.activated" i-translate="DEACTIVATED"></span>
                     <span role="button" class="uui-label uui-label-green" ng-click="vm.setActive(user, false)"
-                          ng-show="!user.system && user.activated" i-translate="ACTIVATED"></span>
-                    <span class="uui-label uui-label-green" ng-show="user.system" i-translate="ACTIVATED"></span>
+                          ng-if="!user.system && user.activated" i-translate="ACTIVATED"></span>
+                    <span class="uui-label uui-label-green" ng-if="user.system" i-translate="ACTIVATED"></span>
                 </td>
                 <td>
                     <button type="submit"
                             ng-click="vm.edit(user)"
-                            ng-show="!user.system"
+                            ng-if="!user.system"
                             class="btn btn-info btn-small">
                         <span class="fa fa-pencil"></span>
                         <span class="m-l5" i-translate="EDIT"></span>
@@ -151,7 +151,7 @@
                     <!--Deactivate for all now (Task EPMLSOPELN-629)-->
                     <!--<button type="submit"-->
                             <!--ui-sref="entities.user-management.delete({login:user.login})"-->
-                            <!--ng-show="!user.system"-->
+                            <!--ng-if="!user.system"-->
                             <!--class="btn btn-info btn-small">-->
                         <!--<span class="fa fa-trash"></span>-->
                         <!--<span class="m-l5">delete</span>-->

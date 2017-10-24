@@ -101,14 +101,14 @@
                             <td>
                                 <button type="submit"
                                         ng-click="vm.edit(role)"
-                                        ng-show="!role.system"
+                                        ng-if="!role.system"
                                         class="btn btn-info btn-small">
                                     <span class="fa fa-pencil"></span>
                                     <span class="m-l5" i-translate="EDIT"></span>
                                 </button>
                                 <button type="submit"
                                         ui-sref="entities.role-management.delete({id:role.id})"
-                                        ng-show="!role.system"
+                                        ng-if="!role.system"
                                         class="btn btn-info btn-small">
                                     <span class="fa fa-trash"></span>
                                     <span class="m-l5" i-translate="DELETE"></span>

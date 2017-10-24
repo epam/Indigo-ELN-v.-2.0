@@ -39,7 +39,7 @@
                 </button>
                 <button type="button" class="btn btn-info btn-small" disabled i-translate="VNV"></button>
                 <button type="button" class="btn btn-info btn-small"
-                        ng-disabled="vm.isReadonly || !vm.isHasCheckedRows()" ng-show="vm.isHasRegService"
+                        ng-disabled="vm.isReadonly || !vm.isHasCheckedRows()" ng-if="vm.isHasRegService"
                         ng-click="vm.registerBatches()">
                     <span class="fa fa-floppy-o"></span>
                     <span class="m-l5" i-translate="REGISTER"></span>
