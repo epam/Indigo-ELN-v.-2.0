@@ -39,13 +39,13 @@ function formUtils($timeout) {
 
     function showValidation($formGroup, scope, formCtrl) {
         $timeout(function() {
+            var unbinds = [];
             if (formCtrl) {
                 var ngModelCtrl = formCtrl[scope.indigoName];
                 if (ngModelCtrl) {
                     scope.ngModelCtrl = ngModelCtrl;
                     var $inputs = $formGroup.find('input[ng-model],textarea[ng-model],select[ng-model]');
                     if ($inputs.length > 0) {
-                        var unbinds = [];
                         $inputs.each(function() {
                             unbinds.push(scope.$watch(function() {
                                 return ngModelCtrl.$invalid && (ngModelCtrl.$dirty || formCtrl.$submitted);

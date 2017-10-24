@@ -22,7 +22,7 @@ function experiment($resource, PermissionManagement, entityTreeService) {
                 method: 'GET',
                 isArray: true,
                 transformResponse: function(data) {
-                    data = angular.fromJson(data);
+                    data = JSON.parse(data);
                     _.each(data, function(item, key) {
                         data[key] = toModel(item);
                     });
@@ -40,7 +40,7 @@ function experiment($resource, PermissionManagement, entityTreeService) {
                 transformRequest: function(data) {
                     data = transformRequest(data);
 
-                    return angular.toJson(data);
+                    return JSON.stringify(data);
                 },
                 transformResponse: transformResponse,
                 interceptor: interceptor
@@ -56,7 +56,7 @@ function experiment($resource, PermissionManagement, entityTreeService) {
                 transformRequest: function(data) {
                     data = transformRequest(data);
 
-                    return angular.toJson(data);
+                    return JSON.stringify(data);
                 },
                 transformResponse: transformResponse,
                 interceptor: interceptor
@@ -108,7 +108,7 @@ function experiment($resource, PermissionManagement, entityTreeService) {
     }
 
     function transformResponse(data) {
-        data = angular.fromJson(data);
+        data = JSON.parse(data);
         data = toModel(data);
         data.creationDate = moment(data.creationDate).toISOString();
 

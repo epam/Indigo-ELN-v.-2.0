@@ -11,7 +11,7 @@ function experimentFileUploaderService($resource) {
         get: {
             method: 'GET',
             transformResponse: function(data) {
-                data = angular.fromJson(data);
+                data = JSON.parse(data);
 
                 return data;
             }

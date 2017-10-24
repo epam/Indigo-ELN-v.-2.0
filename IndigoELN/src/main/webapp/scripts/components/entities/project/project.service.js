@@ -39,7 +39,7 @@ function project($resource, FileUploaderCash, PermissionManagement, entityTreeSe
         get: {
             method: 'GET',
             transformResponse: function(data) {
-                data = angular.fromJson(data);
+                data = JSON.parse(data);
                 transformResponse(data);
 
                 return data;
@@ -50,7 +50,7 @@ function project($resource, FileUploaderCash, PermissionManagement, entityTreeSe
             transformRequest: function(data) {
                 data = transformRequest(data);
 
-                return angular.toJson(data);
+                return JSON.stringify(data);
             },
             interceptor: {
                 response: function(response) {
@@ -66,10 +66,10 @@ function project($resource, FileUploaderCash, PermissionManagement, entityTreeSe
             transformRequest: function(data) {
                 data = transformRequest(data);
 
-                return angular.toJson(data);
+                return JSON.stringify(data);
             },
             transformResponse: function(data) {
-                data = angular.fromJson(data);
+                data = JSON.parse(data);
                 transformResponse(data);
 
                 return data;

@@ -23,6 +23,9 @@ function errorHandlerInterceptor($q, $injector, $rootScope, $log) {
                 var errorAlertHeader = httpResponse.headers('X-indigoeln-error-alert');
                 var errorHeader = httpResponse.headers('X-indigoeln-error');
                 var entityKey = httpResponse.headers('X-indigoeln-params');
+                var fieldError;
+                var convertedField;
+                var fieldName;
                 if (_.isString(errorAlertHeader)) {
                     $log.error(errorAlertHeader);
                 } else if (errorHeader) {
@@ -31,10 +34,10 @@ function errorHandlerInterceptor($q, $injector, $rootScope, $log) {
                     });
                 } else if (httpResponse.data && httpResponse.data.fieldErrors) {
                     for (i = 0; i < httpResponse.data.fieldErrors.length; i++) {
-                        var fieldError = httpResponse.data.fieldErrors[i];
+                        fieldError = httpResponse.data.fieldErrors[i];
                         // convert 'something[14].other[4].id' to 'something[].other[].id' so translations can be written to it
-                        var convertedField = fieldError.field.replace(/\[\d*\]/g, '[]');
-                        var fieldName = convertedField.charAt(0).toUpperCase() + convertedField.slice(1);
+                        convertedField = fieldError.field.replace(/\[\d*\]/g, '[]');
+                        fieldName = convertedField.charAt(0).toUpperCase() + convertedField.slice(1);
                         addErrorAlert('Field ' + fieldName + ' cannot be empty', 'error.' + fieldError.message, {
                             fieldName: fieldName
                         });

@@ -27,7 +27,7 @@ function wsService($window, $cookies, $http, $q, $log) {
             function() {
                 var listener = $q.defer();
                 var subscriber = stompClient.subscribe('/topic/' + destination, function(data) {
-                    listener.notify(angular.fromJson(data.body));
+                    listener.notify(JSON.parse(data.body));
                 });
 
                 return {

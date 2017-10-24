@@ -13,7 +13,7 @@
         init();
 
         function init() {
-            uploader = vm.uploader = new FileUploader({
+            uploader = new FileUploader({
                 url: url,
                 alias: 'file',
                 headers: {
@@ -21,10 +21,12 @@
                 }
             });
 
+            vm.uploader = uploader;
+
             uploader.filters.push({
                 name: 'customFilter',
                 fn: function() {
-                    return this.queue.length < 1;
+                    return vm.queue.length < 1;
                 }
             });
 

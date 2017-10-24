@@ -1,28 +1,26 @@
 <div class="sidebar-popover">
     <div class="sidebar-popover-number m-b5"><span i-translate="EXPERIMENT"></span>
-        <span ng-bind="node.parent.name"></span>-
-        <span ng-bind="vm.experimentsCollection[node.original.fullId].fullName"></span>
+        <span>{{node.parent.name}}</span>-
+        <span>{{vm.experimentsCollection[node.original.fullId].fullName}}</span>
     </div>
     <div class="sidebar-popover-content">
         <div>
-      <span class="bold"
-            ng-bind="vm.experimentsCollection[node.original.fullId].components.reactionDetails.title">
+      <span class="bold">
+          {{vm.experimentsCollection[node.original.fullId].components.reactionDetails.title}}
       </span>
-            <span>
-        <span ng-bind="vm.experimentsCollection[node.original.fullId].components.reactionDetails.therapeuticArea.name"></span>
-      </span>
+        <span>vm.experimentsCollection[node.original.fullId].components.reactionDetails.therapeuticArea.name</span>
         </div>
         <div>
-            <span class="bold"><span i-translate="CREATION_DATE"></span>:</span><span
-                ng-bind="vm.experimentsCollection[node.original.fullId].creationDate  | date:'MMM dd yyyy'"></span>
+            <span class="bold"><span i-translate="CREATION_DATE"></span>:</span>
+            <span>{{vm.experimentsCollection[node.original.fullId].creationDate  | date:'MMM dd yyyy'}}</span>
         </div>
         <span>
-      <span class="bold"><span i-translate="AUTHOR"></span>:</span><span
-                ng-bind="vm.experimentsCollection[node.original.fullId].author.firstName"></span>
+      <span class="bold"><span i-translate="AUTHOR"></span>:</span>
+            <span>{{vm.experimentsCollection[node.original.fullId].author.firstName}}</span>
     </span>
         <span>
-      <span class="bold"><span i-translate="STATUS"></span>:</span> <span
-                ng-bind="vm.experimentsCollection[node.original.fullId].status"></span>
+      <span class="bold"><span i-translate="STATUS"></span>:</span>
+            <span>{{vm.experimentsCollection[node.original.fullId].status}}</span>
     </span>
         <img ng-if="!!vm.experimentsCollection[node.original.fullId].components.reaction.image"
              class="sidebar-popover-sheme" ng-src="data:image/svg+xml;base64,{{experiment.components.reaction.image}}"

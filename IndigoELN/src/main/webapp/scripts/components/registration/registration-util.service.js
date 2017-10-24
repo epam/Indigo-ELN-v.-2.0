@@ -3,9 +3,9 @@ angular
     .factory('RegistrationUtil', registrationUtil);
 
 /* @ngInject */
-function registrationUtil(AppValues) {
+function registrationUtil(AppValues, registrationMsg) {
     var isStereoisomerNeedComment = function(stereoisomer) {
-        var stereocodesWithComment = ['SNENU', 'LRCMX', 'ENENU', 'DSTRU', 'UNKWN', 'HSREG'];
+        var stereocodesWithComment = registrationMsg.STEREOCODES;
 
         return _.some(stereocodesWithComment, function(stereocode) {
             return stereoisomer.indexOf(stereocode) > -1;
@@ -14,43 +14,43 @@ function registrationUtil(AppValues) {
 
     var errors = [
         {
-            message: 'Total Weight or Volume should be grater then zero',
+            message: registrationMsg.TOTAL_WEIGHT_ERROR,
             test: function(batch) {
                 return !batch.totalWeight.value && !batch.totalVolume.value;
             }
         },
         {
-            message: 'Compound Source is required',
+            message: registrationMsg.COMPOUND_SOURCE_ERROR,
             test: function(batch) {
                 return !batch.source || !batch.source.name;
             }
         },
         {
-            message: 'Structure is required',
+            message: registrationMsg.STRUCTURE_ERROR,
             test: function(batch) {
                 return !batch.structure || !batch.structure.image;
             }
         },
         {
-            message: 'Source Detail is required',
+            message: registrationMsg.SOURCE_DETAIL_ERROR,
             test: function(batch) {
                 return !batch.sourceDetail || !batch.sourceDetail.name;
             }
         },
         {
-            message: 'Stereocode is required',
+            message: registrationMsg.STEREOCODE_ERROR,
             test: function(batch) {
                 return !batch.stereoisomer || !batch.stereoisomer.name;
             }
         },
         {
-            message: 'Salt EQ is required and must be grater then zero',
+            message: registrationMsg.SALT_EQ_ERROR,
             test: function(batch) {
                 return _.get(batch.saltCode, 'value') && batch.saltCode.value !== AppValues.getDefaultSaltCode().value && !_.get(batch.saltEq, 'value');
             }
         },
         {
-            message: 'Structure comments is required',
+            message: registrationMsg.STRUCTURE_COMMENTS_ERROR,
             test: function(batch) {
                 return batch.stereoisomer && batch.stereoisomer.name && isStereoisomerNeedComment(batch.stereoisomer.name) && !batch.structureComments;
             }

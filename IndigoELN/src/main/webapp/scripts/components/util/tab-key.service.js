@@ -38,6 +38,6 @@ function tabKeyUtils() {
             return safeString(value);
         });
 
-        return angular.toJson(paramsToString.sort());
+        return JSON.stringify(paramsToString.sort());
     }
 }

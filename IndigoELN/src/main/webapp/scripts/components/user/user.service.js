@@ -13,7 +13,7 @@ angular.module('indigoeln')
             get: {
                 method: 'GET',
                 transformResponse: function(data) {
-                    data = angular.fromJson(data);
+                    data = JSON.parse(data);
 
                     return data;
                 }
@@ -23,7 +23,7 @@ angular.module('indigoeln')
                 transformRequest: function(data) {
                     transformRequest(data);
 
-                    return angular.toJson(data);
+                    return JSON.stringify(data);
                 }
             },
             update: {
@@ -31,7 +31,7 @@ angular.module('indigoeln')
                 transformRequest: function(data) {
                     transformRequest(data);
 
-                    return angular.toJson(data);
+                    return JSON.stringify(data);
                 }
             },
             delete: {

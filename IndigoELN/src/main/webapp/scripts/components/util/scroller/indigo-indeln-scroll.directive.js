@@ -3,9 +3,9 @@
         .module('indigoeln')
         .directive('indigoIndelnScroll', indigoIndelnScroll);
 
-    indigoIndelnScroll.$inject = ['$document', '$window'];
+    indigoIndelnScroll.$inject = ['$document'];
 
-    function indigoIndelnScroll($document, $window) {
+    function indigoIndelnScroll($document) {
         return {
             restrict: 'A',
             link: link
@@ -13,7 +13,7 @@
 
         function link(scope, iAttrs) {
             var scrollToTop = function() {
-                var h = angular.element($window).height();
+                var h = angular.element(window).height();
                 var elDocument = angular.element($document);
 
                 elDocument.mousemove(function(e) {

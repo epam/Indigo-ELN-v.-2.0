@@ -22,7 +22,7 @@ angular
                     method: 'GET',
                     isArray: true,
                     transformResponse: function(data) {
-                        return _.map(angular.fromJson(data), toModel);
+                        return _.map(JSON.parse(data), toModel);
                     }
                 }
             });
