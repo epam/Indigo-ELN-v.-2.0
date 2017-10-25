@@ -52,7 +52,7 @@
         <uib-tab index="1" active="vm.isActiveTab1" ng-click="vm.isActiveTab0 = false; vm.isActiveTab1 = true"
                  heading="Reagent Catalog">
             <div class="reagent-search-tab">
-                <div ng-show="!vm.isSearchResultFound">
+                <div ng-if="!vm.isSearchResultFound">
                     <indigo-checklist indigo-items="vm.model.databases" indigo-label="Choose catalog to search in"
                                       class="m-b20"></indigo-checklist>
                     <div ng-init="$$isCollapsed=true" class="m-b20">
@@ -75,7 +75,7 @@
                             <div class="search-hint" i-translate="IF_YOU_SEARCH_A_MOLECULAR_FORMULA"></div>
                         </div>
                         <div uib-collapse="$$isCollapsed" class="collapse-content">
-                            <div ng-show="!vm.isSearchResultFound">
+                            <div ng-if="!vm.isSearchResultFound">
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <label class="control-label" i-translate="COMPOUND_ID" i-end=":"></label>
@@ -263,12 +263,12 @@
                                                             !vm.model.restrictions.searchQuery">Search
                         </button>
                         <button class="btn btn-default" type="button" ng-click="vm.cancel()"
-                                ng-show="!vm.isSearchResultFound">
+                                ng-if="!vm.isSearchResultFound">
                             <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
                         </button>
                     </div>
                 </div>
-                <div ng-show="vm.isSearchResultFound">
+                <div ng-if="vm.isSearchResultFound">
                     <div>Search results for
                         <span ng-if="vm.model.restrictions.structure.image"> structure
                                             <div class="search-image"><img class="full-img"
@@ -501,7 +501,7 @@
                                                             !vm.model.restrictions.searchQuery"
                                 i-translate="SEARCH">
                         </button>
-                        <span class="semi-b search-result-table-label" ng-show="!vm.loading">
+                        <span class="semi-b search-result-table-label" ng-if="!vm.loading">
                             <span ng-bind="vm.searchResults.length"></span> results found</span>
 
                     </div>

@@ -11,7 +11,7 @@
                            indigo-item-prop="name"
             ></indigo-select>
             <div class="select-parent-dialog__table">
-                <table class="table table-striped" ng-show="vm.selectedParent">
+                <table class="table table-striped" ng-if="vm.selectedParent">
                     <thead>
                     <tr>
                         <th i-translate="PROJECT_NAME"></th>
