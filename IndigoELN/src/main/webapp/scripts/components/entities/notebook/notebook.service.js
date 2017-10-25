@@ -13,7 +13,7 @@ function notebook($resource, PermissionManagement, entityTreeService) {
         get: {
             method: 'GET',
             transformResponse: function(data) {
-                data = JSON.parse(data);
+                data = angular.fromJson(data);
                 data.accessList = _.sortBy(data.accessList, function(value) {
                     return value.user.id;
                 });
@@ -26,7 +26,7 @@ function notebook($resource, PermissionManagement, entityTreeService) {
             transformRequest: function(data) {
                 data = transformRequest(data);
 
-                return JSON.stringify(data);
+                return angular.toJson(data);
             },
             interceptor: {
                 response: function(response) {
@@ -42,7 +42,7 @@ function notebook($resource, PermissionManagement, entityTreeService) {
             transformRequest: function(data) {
                 data = transformRequest(data);
 
-                return JSON.stringify(data);
+                return angular.toJson(data);
             },
             interceptor: {
                 response: function(response) {

@@ -138,12 +138,12 @@
 
         function getSref(node) {
             if (isProject(node)) {
-                return 'entities.project-detail(' + JSON.stringify(getParams(node.params)) + ')';
+                return 'entities.project-detail(' + angular.toJson(getParams(node.params)) + ')';
             } else if (isNotebook(node)) {
-                return 'entities.notebook-detail(' + JSON.stringify(getParams(node.params)) + ')';
+                return 'entities.notebook-detail(' + angular.toJson(getParams(node.params)) + ')';
             }
 
-            return 'entities.experiment-detail(' + JSON.stringify(getParams(node.params)) + ')';
+            return 'entities.experiment-detail(' + angular.toJson(getParams(node.params)) + ')';
         }
 
         function isProject(node) {

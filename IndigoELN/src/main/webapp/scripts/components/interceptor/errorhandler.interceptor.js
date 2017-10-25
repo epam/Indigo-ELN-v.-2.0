@@ -11,7 +11,7 @@ function errorHandlerInterceptor($q, $injector, $rootScope, $log) {
     function responseError(httpResponse) {
         var i;
         var addErrorAlert = function() {
-            $log.error(JSON.stringify(arguments));
+            $log.error(angular.toJson(arguments));
         };
         switch (httpResponse.status) {
             // connection refused, server not reachable
@@ -65,7 +65,7 @@ function errorHandlerInterceptor($q, $injector, $rootScope, $log) {
                 if (httpResponse.data && httpResponse.data.message) {
                     addErrorAlert(httpResponse.data.message);
                 } else {
-                    addErrorAlert(JSON.stringify(httpResponse));
+                    addErrorAlert(angular.toJson(httpResponse));
                 }
         }
 

@@ -7,7 +7,7 @@ angular.module('indigoeln')
             get: {
                 method: 'GET',
                 transformResponse: function(data) {
-                    data = JSON.parse(data);
+                    data = angular.fromJson(data);
 
                     return data;
                 }
