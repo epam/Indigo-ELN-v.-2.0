@@ -59,7 +59,7 @@
         }
 
         /* @ngInject */
-        function controller(Dictionary, $attrs) {
+        function controller(Dictionary) {
             var vm = this;
 
             vm.control = vm.indigoControl || {};
@@ -84,18 +84,6 @@
                         vm.indigoItems = dictionary.words;
                     });
                 }
-                vm.content = getContent();
-            }
-
-            function getContent() {
-                var itemProp = $attrs.indigoItemProp || 'name';
-                return _.chain(itemProp.split(','))
-                    .map(function(prop) {
-                        return '{{ $select.selected.' + prop + '}}';
-                    })
-                    .reduce(function(memo, num) {
-                        return memo + (memo.length > 0 ? ' - ' : '') + num;
-                    }, '').value();
             }
         }
     }

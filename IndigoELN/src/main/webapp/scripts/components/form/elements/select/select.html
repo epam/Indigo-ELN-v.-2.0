@@ -3,7 +3,7 @@
 <ui-select ng-model="vm.indigoModel" theme="bootstrap" ng-disabled="vm.indigoReadonly"
            onkeypress="return false;" on-select="vm.indigoChange()" on-remove="vm.indigoRemove()"
            append-to-body="true">
-<ui-select-match placeholder="{{vm.indigoPlaceHolder}}" >{{vm.content}}</ui-select-match>
+<ui-select-match placeholder="{{vm.indigoPlaceHolder}}" >{{$select.selected.name}}</ui-select-match>
 <ui-select-choices repeat="item in vm.indigoItems | filter: $select.search">
 </ui-select-choices>
 </ui-select>
