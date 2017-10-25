@@ -1,7 +1,7 @@
 {
   "name": "indigoeln",
-  "appPath": "src/main/webapp",
-  "testPath": "src/test/javascript/spec",
+  "appPath": "src",
+  "testPath": "src/tests",
   "dependencies": {
     "angular": "1.4.8",
     "angular-mocks": "1.4.8",

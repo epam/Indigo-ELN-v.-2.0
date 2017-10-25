@@ -1,0 +1,20 @@
+### NodeJS ###
+/.tmp/
+/node_modules/
+/bower_components/
+/src/assets/styles/
+/dist/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
