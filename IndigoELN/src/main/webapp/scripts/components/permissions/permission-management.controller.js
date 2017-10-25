@@ -4,7 +4,8 @@
         .controller('PermissionManagementController', PermissionManagementController);
 
     /* @ngInject */
-    function PermissionManagementController($scope, $uibModalInstance, PermissionManagement, users, permissions, notifyService, AlertModal) {
+    function PermissionManagementController($scope, $uibModalInstance, PermissionManagement, users, permissions,
+                                            permissionConstants, notifyService, AlertModal) {
         var vm = this;
 
         init();
@@ -60,12 +61,9 @@
             };
 
             if (vm.entity === 'Project') {
-                message = 'You are trying to remove USER who has access to notebooks or ' +
-                    'experiments within this project. By removing this USER you block his (her) ' +
-                    'access to notebook or experiments withing this project';
+                message = permissionConstants.removeProjectWarning;
             } else if (vm.entity === 'Notebook') {
-                message = 'You are trying to remove USER who has access to experiments within this notebook. ' +
-                    'By removing this USER you block his (her) access to experiments withing this notebook';
+                message = permissionConstants.removeNotebookWarning;
             }
 
             PermissionManagement.isUserRemovableFromAccessList(member).then(function(isRemovable) {
@@ -93,8 +91,7 @@
 
         function checkAuthority(member, permission) {
             if (!PermissionManagement.hasAuthorityForPermission(member, permission)) {
-                notifyService.warning('This user cannot be set as ' + permission + ' as he does not have ' +
-                    'sufficient privileges in the system, please select another permissions level');
+                notifyService.warning(permissionConstants.checkAuthorityWarning(permission));
                 member.permissionView = vm.oldPermission;
             }
         }

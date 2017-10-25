@@ -25,7 +25,7 @@
 
             formData.push(paramsForUpload);
 
-            uploader = vm.uploader = new FileUploader({
+            uploader  = new FileUploader({
                 url: uploadUrl,
                 alias: 'file',
                 headers: {
@@ -33,6 +33,8 @@
                 },
                 formData: formData
             });
+
+            vm.uploader = uploader;
 
             uploader.filters.push({
                 name: 'customFilter',

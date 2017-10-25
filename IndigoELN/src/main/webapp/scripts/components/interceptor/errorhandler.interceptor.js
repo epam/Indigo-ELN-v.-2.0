@@ -11,7 +11,7 @@ function errorHandlerInterceptor($q, $injector, $rootScope, $log) {
     function responseError(httpResponse) {
         var i;
         var addErrorAlert = function() {
-            $log.error(JSON.stringify(arguments));
+            $log.error(angular.toJson(arguments));
         };
         switch (httpResponse.status) {
             // connection refused, server not reachable
@@ -30,15 +30,13 @@ function errorHandlerInterceptor($q, $injector, $rootScope, $log) {
                         entityName: entityKey
                     });
                 } else if (httpResponse.data && httpResponse.data.fieldErrors) {
-                    for (i = 0; i < httpResponse.data.fieldErrors.length; i++) {
-                        var fieldError = httpResponse.data.fieldErrors[i];
-                        // convert 'something[14].other[4].id' to 'something[].other[].id' so translations can be written to it
-                        var convertedField = fieldError.field.replace(/\[\d*\]/g, '[]');
+                    _.forEach(httpResponse.data.fieldErrors, function(error) {
+                        var convertedField = error.field.replace(/\[\d*\]/g, '[]');
                         var fieldName = convertedField.charAt(0).toUpperCase() + convertedField.slice(1);
-                        addErrorAlert('Field ' + fieldName + ' cannot be empty', 'error.' + fieldError.message, {
+                        addErrorAlert('Field ' + fieldName + ' cannot be empty', 'error.' + error.message, {
                             fieldName: fieldName
                         });
-                    }
+                    });
                 } else if (httpResponse.data && httpResponse.data.message) {
                     $log.error(httpResponse.data.message);
                 } else {
@@ -62,7 +60,7 @@ function errorHandlerInterceptor($q, $injector, $rootScope, $log) {
                 if (httpResponse.data && httpResponse.data.message) {
                     addErrorAlert(httpResponse.data.message);
                 } else {
-                    addErrorAlert(JSON.stringify(httpResponse));
+                    addErrorAlert(angular.toJson(httpResponse));
                 }
         }
 

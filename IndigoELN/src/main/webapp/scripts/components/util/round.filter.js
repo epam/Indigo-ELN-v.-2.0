@@ -57,6 +57,7 @@ angular.module('indigoeln')
                 var baseUnit = getBaseUnit(targetUnit);
                 return baseUnit && baseUnit !== targetUnit;
             }
+            return false;
         }
 
         function getBaseUnit(targetUnit) {

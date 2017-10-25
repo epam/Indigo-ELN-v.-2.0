@@ -122,8 +122,6 @@
                 return $q.resolve();
             }
 
-            console.log('vm.project.name', vm.project.name);
-
             vm.loading = Project.get($stateParams).$promise
                 .then(function(result) {
                     angular.extend(vm.project, result);

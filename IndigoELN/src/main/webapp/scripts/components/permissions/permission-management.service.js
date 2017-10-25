@@ -23,7 +23,7 @@ angular.module('indigoeln')
     .factory('PermissionManagement', permissionManagement);
 
 /* @ngInject */
-function permissionManagement($q, Principal, UserRemovableFromProject, UserRemovableFromNotebook) {
+function permissionManagement($q, Principal, UserRemovableFromProject, UserRemovableFromNotebook, permissionConstants) {
     var _accessList;
     var _author;
     var _entity;
@@ -141,9 +141,9 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
     }
 
     function hasAuthorityForProjectPermission(member, permission) {
-        var projectOwnerAuthoritySet = ['PROJECT_READER', 'PROJECT_CREATOR', 'NOTEBOOK_READER', 'NOTEBOOK_CREATOR'];
-        var projectUserAuthoritySet = ['PROJECT_READER', 'NOTEBOOK_READER', 'NOTEBOOK_CREATOR'];
-        var projectViewerAuthoritySet = ['PROJECT_READER'];
+        var projectOwnerAuthoritySet = permissionConstants.PROJECT_OWNER_AUTHORITY_SET;
+        var projectUserAuthoritySet = permissionConstants.PROJECT_USER_AUTHORITY_SET;
+        var projectViewerAuthoritySet = permissionConstants.PROJECT_VIEWER_AUTHORITY_SET;
 
         if (permission === 'OWNER') {
             return _.every(projectOwnerAuthoritySet, function(authority) {
@@ -161,9 +161,9 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
     }
 
     function hasAuthorityForNotebookPermission(member, permission) {
-        var notebookOwnerAuthoritySet = ['NOTEBOOK_READER', 'NOTEBOOK_CREATOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR'];
-        var notebookUserAuthoritySet = ['NOTEBOOK_READER', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR'];
-        var notebookViewerAuthoritySet = ['NOTEBOOK_READER'];
+        var notebookOwnerAuthoritySet = permissionConstants.NOTEBOOK_OWNER_AUTHORITY_SET;
+        var notebookUserAuthoritySet = permissionConstants.NOTEBOOK_USER_AUTHORITY_SET;
+        var notebookViewerAuthoritySet = permissionConstants.NOTEBOOK_VIEWER_AUTHORITY_SET;
 
         if (permission === 'OWNER') {
             return _.every(notebookOwnerAuthoritySet, function(authority) {
@@ -181,8 +181,8 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
     }
 
     function hasAuthorityForExperimentPermission(member, permission) {
-        var experimentOwnerAuthoritySet = ['EXPERIMENT_READER', 'EXPERIMENT_CREATOR'];
-        var experimentViewerAuthoritySet = ['EXPERIMENT_READER'];
+        var experimentOwnerAuthoritySet = permissionConstants.EXPERIMENT_OWNER_AUTHORITY_SET;
+        var experimentViewerAuthoritySet = permissionConstants.EXPERIMENT_VIEWER_AUTHORITY_SET;
 
         if (permission === 'OWNER') {
             return _.every(experimentOwnerAuthoritySet, function(authority) {

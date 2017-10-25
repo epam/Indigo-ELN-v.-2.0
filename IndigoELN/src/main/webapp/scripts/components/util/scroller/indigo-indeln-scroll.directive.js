@@ -17,7 +17,7 @@
                 var elDocument = angular.element($document);
 
                 elDocument.mousemove(function(e) {
-                    var mousePosition = e.pageY - angular.element(window).scrollTop();
+                    var mousePosition = e.pageY - angular.element($window).scrollTop();
                     var topRegion = 220;
                     var bottomRegion = h - 220;
                     if (isClickDown(e, mousePosition, topRegion, bottomRegion)) {
