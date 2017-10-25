@@ -23,9 +23,6 @@ function errorHandlerInterceptor($q, $injector, $rootScope, $log) {
                 var errorAlertHeader = httpResponse.headers('X-indigoeln-error-alert');
                 var errorHeader = httpResponse.headers('X-indigoeln-error');
                 var entityKey = httpResponse.headers('X-indigoeln-params');
-                var fieldError;
-                var convertedField;
-                var fieldName;
                 if (_.isString(errorAlertHeader)) {
                     $log.error(errorAlertHeader);
                 } else if (errorHeader) {
@@ -33,15 +30,13 @@ function errorHandlerInterceptor($q, $injector, $rootScope, $log) {
                         entityName: entityKey
                     });
                 } else if (httpResponse.data && httpResponse.data.fieldErrors) {
-                    for (i = 0; i < httpResponse.data.fieldErrors.length; i++) {
-                        fieldError = httpResponse.data.fieldErrors[i];
-                        // convert 'something[14].other[4].id' to 'something[].other[].id' so translations can be written to it
-                        convertedField = fieldError.field.replace(/\[\d*\]/g, '[]');
-                        fieldName = convertedField.charAt(0).toUpperCase() + convertedField.slice(1);
-                        addErrorAlert('Field ' + fieldName + ' cannot be empty', 'error.' + fieldError.message, {
+                    _.forEach(httpResponse.data.fieldErrors, function(error) {
+                        var convertedField = error.field.replace(/\[\d*\]/g, '[]');
+                        var fieldName = convertedField.charAt(0).toUpperCase() + convertedField.slice(1);
+                        addErrorAlert('Field ' + fieldName + ' cannot be empty', 'error.' + error.message, {
                             fieldName: fieldName
                         });
-                    }
+                    });
                 } else if (httpResponse.data && httpResponse.data.message) {
                     $log.error(httpResponse.data.message);
                 } else {
