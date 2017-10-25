@@ -39,7 +39,6 @@ function formUtils($timeout) {
 
     function showValidation($formGroup, scope, formCtrl) {
         $timeout(function() {
-            var unbinds = [];
             if (formCtrl) {
                 var ngModelCtrl = formCtrl[scope.indigoName];
                 if (ngModelCtrl) {

@@ -3,9 +3,9 @@
         .module('indigoeln')
         .directive('indigoIndelnScroll', indigoIndelnScroll);
 
-    indigoIndelnScroll.$inject = ['$document'];
+    indigoIndelnScroll.$inject = ['$document', '$window'];
 
-    function indigoIndelnScroll($document) {
+    function indigoIndelnScroll($document, $window) {
         return {
             restrict: 'A',
             link: link
