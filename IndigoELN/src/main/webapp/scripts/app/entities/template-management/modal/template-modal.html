@@ -2,7 +2,12 @@
     <form class="m-b10" name="createTemplateForm" novalidate autocomplete="off">
         <div class="row">
             <div class="col-sm-6">
-                <indigo-input indigo-label="Name" indigo-model="vm.template.name" indigo-validation-required="!vm.template.name.trim()"></indigo-input>
+                <simple-input>
+                    <span i-translate="NAME"></span>
+                    <input class="form-control"
+                           ng-required="!vm.template.name.trim()"
+                           ng-model="vm.template.name">
+                </simple-input>
             </div>
         </div>
     </form>
@@ -25,7 +30,7 @@
                              indigo-indeln-scroll>
                             <a class="list-group-item draggable-component"
                                ng-repeat="component in vm.components track by $index"
-                               data-id="{{component.id}}" ng-show="component | containValue: search: ['name', 'desc']">
+                               data-id="{{component.id}}" ng-if="component | containValue: search: ['name', 'desc']">
                                 <h5 class="draggable-component" ng-bind="component.name"></h5>
                                 <p class="draggable-component" ng-bind="component.desc"></p>
                             </a>

@@ -8,6 +8,7 @@
               on-select-row="vm.onRowSelected(row)"
               indigo-hide-column-settings="vm.isHideColumnSettings"
               on-changed="vm.onChange()"
+              on-changed-visible-column="vm.onChangedVisibleColumn(column, isVisible)"
               on-close-cell="vm.onClose(column, data)">
     <div class="row m-b20 ng-scope">
         <div class="col-sm-7 m-bt-sm">

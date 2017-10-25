@@ -1,0 +1,12 @@
+<label class="additional-editor__label" ng-transclude></label>
+<div class="additional-editor__group">
+    <input class="form-control additional-editor__input"
+           ng-value="vm.model"
+           ng-disabled="true">
+
+    <button class="btn btn-info additional-editor__button"
+            type="button"
+            ng-click="vm.onClick()"
+            ng-disabled="vm.isDisabled" i-translate="EDIT">
+    </button>
+</div>

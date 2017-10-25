@@ -10,7 +10,11 @@
         <h5 class="modal-title" i-translate="SET_VALUE_FOR_$"></h5>
     </div>
     <div class="modal-body">
-        <indigo-input indigo-type="text" indigo-model="vm.value"></indigo-input>
+        <simple-input>
+            <input class="form-control"
+                   type="text"
+                   ng-model="vm.value">
+        </simple-input>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">

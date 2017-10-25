@@ -69,26 +69,17 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
         return list;
     }
 
-    function hasPermission(permission, accessList) {
-        if (!accessList && !_accessList) {
-            return $q.when(false);
-        }
-        var list = accessList || _accessList;
-
-        return Principal.identity().then(function(identity) {
-            var hasPermission = false;
-            _.each(list, function(item) {
-                if (item.user.id === identity.id && _.includes(item.permissions, permission)) {
-                    hasPermission = true;
-                }
-            });
-
-            return hasPermission;
-        }, function() {
+    function hasPermission(permission) {
+        if (!_accessList) {
             return false;
+        }
+
+        var userId = Principal.getIdentity().id;
+
+        return _.some(_accessList, function(item) {
+            return item.user.id === userId && _.includes(item.permissions, permission);
         });
     }
-
 
     function getAuthorAccessList(entityAuthor, projectAuthor) {
         var experimentCreatorPermissions = {
@@ -188,7 +179,6 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
             });
         }
     }
-
 
     function hasAuthorityForExperimentPermission(member, permission) {
         var experimentOwnerAuthoritySet = permissionConstants.EXPERIMENT_OWNER_AUTHORITY_SET;

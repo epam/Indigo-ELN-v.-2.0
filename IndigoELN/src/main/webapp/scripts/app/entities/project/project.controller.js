@@ -146,13 +146,11 @@
             PermissionManagement.setAuthor(vm.project.author);
             PermissionManagement.setAccessList(vm.project.accessList);
 
-            PermissionManagement.hasPermission('UPDATE_ENTITY').then(function(hasEditPermission) {
-                vm.isEditAllowed = isContentEditor || (hasEditAuthority && hasEditPermission);
-            });
-
-            PermissionManagement.hasPermission('CREATE_SUB_ENTITY').then(function(hasCreateChildPermission) {
-                vm.isCreateChildAllowed = isContentEditor || (hasCreateChildAuthority && hasCreateChildPermission);
-            });
+            vm.isEditAllowed = isContentEditor ||
+                (hasEditAuthority && PermissionManagement.hasPermission('UPDATE_ENTITY'));
+            // isCreateChildAllowed
+            vm.isCreateChildAllowed = isContentEditor ||
+                (hasCreateChildAuthority && PermissionManagement.hasPermission('CREATE_SUB_ENTITY'));
         }
 
         function toggleDirty(isDirty) {
@@ -191,7 +189,6 @@
                 toggleDirty(vm.stateData.isNew || isDirty);
                 updateRecovery(newEntity, isDirty);
             }, true);
-
 
             $scope.$watch('createProjectForm', function(newValue) {
                 EntitiesBrowser.setCurrentForm(newValue);

@@ -9,6 +9,7 @@
               selected-batch="vm.selectedBatch"
               selected-batch-trigger="vm.selectedBatchTrigger"
               on-changed="vm.onChange()"
+              on-changed-visible-column="vm.onChangedVisibleColumn(column, isVisible)"
               on-close-cell="vm.onClose(column, data)"
               ng-class="{'product-batch-register': vm.isReadonly || !vm.isHasCheckedRows()}">
     <div class="row m-b20">
@@ -38,7 +39,7 @@
                 </button>
                 <button type="button" class="btn btn-info btn-small" disabled i-translate="VNV"></button>
                 <button type="button" class="btn btn-info btn-small"
-                        ng-disabled="vm.isReadonly || !vm.isHasCheckedRows()" ng-show="vm.isHasRegService"
+                        ng-disabled="vm.isReadonly || !vm.isHasCheckedRows()" ng-if="vm.isHasRegService"
                         ng-click="vm.registerBatches()">
                     <span class="fa fa-floppy-o"></span>
                     <span class="m-l5" i-translate="REGISTER"></span>

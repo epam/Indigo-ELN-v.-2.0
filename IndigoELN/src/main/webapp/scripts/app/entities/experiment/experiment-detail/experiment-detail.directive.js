@@ -289,11 +289,10 @@
             PermissionManagement.setEntity('Experiment');
             PermissionManagement.setAuthor(vm.experiment.author);
             PermissionManagement.setAccessList(vm.experiment.accessList);
-            PermissionManagement.hasPermission('UPDATE_ENTITY').then(function(_hasEditPermission) {
-                hasEditPermission = _hasEditPermission;
-                updateStatuses();
-                setReadOnly();
-            });
+
+            hasEditPermission = PermissionManagement.hasPermission('UPDATE_ENTITY');
+            updateStatuses();
+            setReadOnly();
         }
 
         function updateStatuses() {

@@ -32,8 +32,15 @@
             vm.isBatchLoading = false;
             vm.onBatchOperationChanged = onBatchOperationChanged;
             vm.onClose = onClose;
+            vm.onChangedVisibleColumn = onChangedVisibleColumn;
 
             bindEvents();
+        }
+
+        function onChangedVisibleColumn(column, isVisible) {
+            if (column.id === 'structure') {
+                vm.onShowStructure({column: column, isVisible: isVisible});
+            }
         }
 
         function onClose(column, data) {

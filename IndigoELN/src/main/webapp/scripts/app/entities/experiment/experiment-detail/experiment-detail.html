@@ -1,5 +1,5 @@
 <div class="access-notification" ng-if="vm.isNotHavePermissions" i-translate="ACCESS_DENIED"></div>
-<div class="experiments" cg-busy="{promise: vm.loading}" ng-show="!vm.isNotHavePermissions"
+<div class="experiments" cg-busy="{promise: vm.loading}" ng-if="!vm.isNotHavePermissions"
      detect-rendered="vm.deferLoading.resolve()">
     <autorecovery kind="{{vm.stateData.tab.kind}}"
                   name="{{vm.experiment.name}}"

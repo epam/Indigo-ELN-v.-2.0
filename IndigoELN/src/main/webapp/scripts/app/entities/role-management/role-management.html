@@ -24,14 +24,15 @@
                     <input class="hidden" type="text" name="fakeusernameremembered"/>
                     <input class="hidden" type="password" name="fakepasswordremembered"/>
                     <div class="col-xs-6">
-                        <indigo-input
-                                indigo-label="Name"
-                                indigo-name="name"
-                                indigo-type="text"
-                                indigo-model="vm.role.name"
-                                indigo-validation-required="true"
-                                indigo-validation-maxlength="50"
-                        ></indigo-input>
+                        <simple-input>
+                            <span i-translate="NAME"></span>
+                            <input class="form-control"
+                                   ng-attr-name="name"
+                                   ng-required
+                                   type="text"
+                                   maxlength="50"
+                                   ng-model="vm.role.name">
+                        </simple-input>
                     </div>
                     <div class="col-xs-12 form-group">
                         <label i-translate="AUTHORITIES"></label>
@@ -100,14 +101,14 @@
                             <td>
                                 <button type="submit"
                                         ng-click="vm.edit(role)"
-                                        ng-show="!role.system"
+                                        ng-if="!role.system"
                                         class="btn btn-info btn-small">
                                     <span class="fa fa-pencil"></span>
                                     <span class="m-l5" i-translate="EDIT"></span>
                                 </button>
                                 <button type="submit"
                                         ui-sref="entities.role-management.delete({id:role.id})"
-                                        ng-show="!role.system"
+                                        ng-if="!role.system"
                                         class="btn btn-info btn-small">
                                     <span class="fa fa-trash"></span>
                                     <span class="m-l5" i-translate="DELETE"></span>

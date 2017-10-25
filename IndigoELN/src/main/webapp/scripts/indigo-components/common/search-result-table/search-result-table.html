@@ -51,8 +51,11 @@
                                     <label class="control-label" i-translate="COMPOUND_ID" i-end=":"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <indigo-input ng-if="isEditMode" indigo-readonly="true"
-                                                  indigo-model="item.compoundId"></indigo-input>
+                                    <simple-input ng-if="isEditMode">
+                                        <input class="form-control"
+                                               ng-model="item.compoundId"
+                                               disabled="true">
+                                    </simple-input>
                                     <p ng-if="!isEditMode" ng-bind="item.compoundId"></p>
                                 </div>
                             </div>
@@ -61,8 +64,11 @@
                                     <label class="control-label" i-translate="BATCH_NUMBER" i-end=":"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <indigo-input ng-if="isEditMode" indigo-readonly="true"
-                                                  indigo-model="item.fullNbkBatch"></indigo-input>
+                                    <simple-input ng-if="isEditMode">
+                                        <input class="form-control"
+                                               ng-model="item.fullNbkBatch"
+                                               disabled="true">
+                                    </simple-input>
                                     <p ng-if="!isEditMode" ng-bind="item.fullNbkBatch"></p>
                                 </div>
                             </div>
@@ -71,8 +77,11 @@
                                     <label class="control-label" i-translate="MOLECULAR_FORMULA" i-end=":"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <indigo-input ng-if="isEditMode" indigo-readonly="true"
-                                                  indigo-model="item.formula"></indigo-input>
+                                    <simple-input ng-if="isEditMode">
+                                        <input class="form-control"
+                                               ng-model="item.formula"
+                                               disabled="true">
+                                    </simple-input>
                                     <p ng-if="!isEditMode" ng-bind="item.formula"></p>
                                 </div>
                             </div>
@@ -81,8 +90,11 @@
                                     <label class="control-label" i-translate="MOLECULAR_WEIGHT" i-end=":"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <indigo-input ng-if="isEditMode" indigo-readonly="true"
-                                                  indigo-model="item.molWeight.value | round"></indigo-input>
+                                    <simple-input ng-if="isEditMode">
+                                        <input class="form-control"
+                                               ng-model="item.molWeight.value | round"
+                                               disabled="true">
+                                    </simple-input>
                                     <p ng-if="!isEditMode" ng-bind="item.molWeight.value | round"></p>
                                 </div>
                             </div>
@@ -101,7 +113,10 @@
                                     <label class="control-label" i-translate="CHEMICAL_NAME" i-end=":"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <indigo-input ng-if="isEditMode" indigo-model="item.chemicalName"></indigo-input>
+                                    <simple-input ng-if="isEditMode">
+                                        <input class="form-control"
+                                               ng-model="item.chemicalName">
+                                    </simple-input>
                                     <p ng-if="!isEditMode" ng-bind="item.chemicalName"></p>
                                 </div>
                             </div>
@@ -121,9 +136,12 @@
                                     <label class="control-label" i-translate="SALT_EQ" i-end=":"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <indigo-input ng-if="isEditMode" indigo-type="number"
-                                                  indigo-change="recalculateSalt(item)"
-                                                  indigo-model="item.saltEq.value"></indigo-input>
+                                    <simple-input ng-if="isEditMode">
+                                        <input class="form-control"
+                                               type="number"
+                                               ng-change="recalculateSalt(item)"
+                                               ng-model="item.saltEq.value">
+                                    </simple-input>
                                     <p ng-if="!isEditMode" ng-bind="item.saltEq.value"></p>
                                 </div>
                             </div>
@@ -132,7 +150,10 @@
                                     <label class="control-label" i-translate="EXTERNAL_N" i-end=":"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <indigo-input ng-if="isEditMode" indigo-model="item.externalNumber"></indigo-input>
+                                    <simple-input ng-if="isEditMode">
+                                        <input class="form-control"
+                                               ng-model="item.externalNumber">
+                                    </simple-input>
                                     <p ng-if="!isEditMode" ng-bind="item.externalNumber"></p>
                                 </div>
                             </div>
@@ -152,7 +173,10 @@
                                     <label class="control-label" i-translate="BATCH_COMMENT"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <indigo-input ng-if="isEditMode" indigo-model="item.comments"></indigo-input>
+                                    <simple-input ng-if="isEditMode">
+                                        <input class="form-control"
+                                               ng-model="item.comments">
+                                    </simple-input>
                                     <p ng-if="!isEditMode" ng-bind="item.comments"></p>
                                 </div>
                             </div>
@@ -161,7 +185,10 @@
                                     <label class="control-label" i-translate="BATCH_HAZARD_COMMENT"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                    <indigo-input ng-if="isEditMode" indigo-model="item.hazardComments"></indigo-input>
+                                    <simple-input ng-if="isEditMode">
+                                        <input class="form-control"
+                                               ng-model="item.hazardComments">
+                                    </simple-input>
                                     <p ng-if="!isEditMode" ng-bind="item.hazardComments"></p>
                                 </div>
                             </div>
@@ -170,7 +197,10 @@
                                     <label class="control-label" i-translate="CAS_NUMBER"></label>
                                 </div>
                                 <div class="col-xs-6">
-                                    <indigo-input ng-if="isEditMode" indigo-model="item.casNumber"></indigo-input>
+                                    <simple-input ng-if="isEditMode">
+                                        <input class="form-control"
+                                               ng-model="item.casNumber">
+                                    </simple-input>
                                     <p ng-if="!isEditMode" ng-bind="item.casNumber"></p>
                                 </div>
                             </div>

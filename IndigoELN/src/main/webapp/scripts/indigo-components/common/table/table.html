@@ -30,7 +30,7 @@
     <table class="table table-striped product">
         <thead>
         <tr>
-            <th ng-repeat="column in vm.columns track by column.id" ng-show="vm.visibleColumns[column.id]"
+            <th ng-repeat="column in vm.columns track by column.id" ng-if="vm.visibleColumns[column.id]"
                 ng-switch="::!column.actions.length">
                 <div class="btn-group btn-group-sm btn-group-justified product-header-item"
                      ng-switch-when="true">

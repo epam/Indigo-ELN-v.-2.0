@@ -22,6 +22,7 @@
                 onSelectRow: '&',
                 onRemoveBatches: '&',
                 onChanged: '&',
+                onChangedVisibleColumn: '&',
                 onCloseCell: '&'
             },
             controller: 'IndigoTableController',

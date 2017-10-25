@@ -48,30 +48,25 @@ function principal($q, Account) {
     }
 
     function hasAuthority(authority) {
-        if (!_authenticated) {
-            return $q.when(false);
+        if (!_identity.authorities) {
+            return false;
         }
 
-        return this.identity().then(function(_id) {
-            return _id.authorities && _id.authorities.indexOf(authority) !== -1;
-        }, function() {
-            return false;
-        });
+        return _identity.authorities.indexOf(authority) !== -1;
     }
 
     function hasAnyAuthority(authorities) {
-        return this.identity().then(function(_id) {
-            if (!_id.authorities) {
-                return false;
-            }
-            for (var i = 0; i < authorities.length; i++) {
-                if (_id.authorities.indexOf(authorities[i]) !== -1) {
-                    return true;
-                }
-            }
-
+        if (!_identity.authorities) {
             return false;
-        });
+        }
+
+        for (var i = 0; i < authorities.length; i++) {
+            if (_identity.authorities.indexOf(authorities[i]) !== -1) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     function hasAuthorityIdentitySafe(authority) {

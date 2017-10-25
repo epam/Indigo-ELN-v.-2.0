@@ -178,7 +178,7 @@
             </div>
         </div>
     </div>
-    <div class="text-center" ng-show="vm.curExperiments.length > vm.curExperimentsPaged.length">
+    <div class="text-center" ng-if="vm.curExperiments.length > vm.curExperimentsPaged.length">
         <uib-pagination class="pagination-sm" total-items="vm.totalItems" items-per-page="vm.itemsPerPage" ng-model="vm.page" ng-change="vm.doPage()"></uib-pagination>
     </div>
 </div>

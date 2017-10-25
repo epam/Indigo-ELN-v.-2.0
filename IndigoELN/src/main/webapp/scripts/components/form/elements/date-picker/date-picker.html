@@ -3,7 +3,7 @@
     <input type="{{indigoType}}" class="form-control" ng-model-options="{ debounce: 150 }"
            ng-model="ctrl.model" date-time type="date"
            format="MMM DD, YYYY HH:mm:ss z" ng-disabled="indigoReadonly" ng-required="indigoValidationRequired"/>
-    <div ng-show="ngModelCtrl.$invalid">
-        <p class="help-block" ng-show="ngModelCtrl.$error.required"> This field is required. </p>
+    <div ng-if="ngModelCtrl.$invalid">
+        <p class="help-block" ng-if="ngModelCtrl.$error.required"> This field is required. </p>
     </div>
 </div>
