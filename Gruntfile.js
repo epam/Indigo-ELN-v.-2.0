@@ -21,7 +21,7 @@ module.exports = function(grunt) {
         yeoman: {
             // configurable paths
             app: require('./bower.json').appPath || 'app',
-            dist: 'src/main/webapp/dist'
+            dist: 'src/dist'
         },
         watch: {
             options: {spawn: false},
@@ -35,57 +35,73 @@ module.exports = function(grunt) {
             }
         },
         autoprefixer: {},
-        wiredep: {app: {src: ['src/main/webapp/index.html']}},
+        wiredep: {app: {src: ['src/index.html']}},
         browserSync: {
-            dev: {bsFiles: {src: [
-                'src/main/webapp/**/*.html',
-                'src/main/webapp/**/*.json',
-                'src/main/webapp/assets/styles/**/*.css',
-                'src/main/webapp/scripts/**/*.{js,html}',
-                'src/main/webapp/assets/images/**/*.{png,jpg,jpeg,gif,webp,svg}',
-                'tmp/**/*.{css,js}'
-            ]}},
+            dev: {
+                bsFiles: {
+                    src: [
+                        'src/**/*.html',
+                        'src/**/*.json',
+                        'src/assets/styles/**/*.css',
+                        'src/scripts/**/*.{js,html}',
+                        'src/assets/images/**/*.{png,jpg,jpeg,gif,webp,svg}',
+                        'tmp/**/*.{css,js}'
+                    ]
+                }
+            },
             options: {
                 watchTask: true,
                 proxy: 'localhost:8080'
             }
         },
-        complexity: {generic: {
-            src: ['src/main/webapp/scripts/**/*.js'],
-            exclude: [],
-            options: {pmdXML: './pmd.xml'}
-        }},
+        complexity: {
+            generic: {
+                src: ['src/scripts/**/*.js'],
+                exclude: [],
+                options: {pmdXML: './pmd.xml'}
+            }
+        },
         clean: {
-            dist: {files: [{
-                dot: true,
-                src: [
-                    '.tmp',
-                    '<%= yeoman.dist %>/*',
-                    '!<%= yeoman.dist %>/.git*'
-                ]
-            }]},
+            dist: {
+                files: [{
+                    dot: true,
+                    src: [
+                        '.tmp',
+                        '<%= yeoman.dist %>/*',
+                        '!<%= yeoman.dist %>/.git*'
+                    ]
+                }]
+            },
             server: '.tmp'
         },
         concat: {},
         uglifyjs: {},
-        rev: {dist: {files: {src: [
-            '<%= yeoman.dist %>/scripts/**/*.js',
-            '<%= yeoman.dist %>/assets/styles/**/*.css',
-            '<%= yeoman.dist %>/assets/images/**/*.{png,jpg,jpeg,gif,webp,svg}',
-            '<%= yeoman.dist %>/assets/fonts/*/**.{ttf,otf,woff,eot,svg}'
-        ]}}},
+        rev: {
+            dist: {
+                files: {
+                    src: [
+                        '<%= yeoman.dist %>/scripts/**/*.js',
+                        '<%= yeoman.dist %>/assets/styles/**/*.css',
+                        '<%= yeoman.dist %>/assets/images/**/*.{png,jpg,jpeg,gif,webp,svg}',
+                        '<%= yeoman.dist %>/assets/fonts/*/**.{ttf,otf,woff,eot,svg}'
+                    ]
+                }
+            }
+        },
         useminPrepare: {
-            html: 'src/main/webapp/**/index.html',
+            html: 'src/**/index.html',
             options: {
                 dest: '<%= yeoman.dist %>',
-                flow: {html: {
-                    steps: {
-                        js: ['concat', 'uglifyjs'],
-                        // Let cssmin concat files so it corrects relative paths to fonts and images
-                        css: ['cssmin', useminAutoprefixer]
-                    },
-                    post: {}
-                }}
+                flow: {
+                    html: {
+                        steps: {
+                            js: ['concat', 'uglifyjs'],
+                            // Let cssmin concat files so it corrects relative paths to fonts and images
+                            css: ['cssmin', useminAutoprefixer]
+                        },
+                        post: {}
+                    }
+                }
             }
         },
         usemin: {
@@ -94,97 +110,119 @@ module.exports = function(grunt) {
             js: ['<%= yeoman.dist %>/scripts/**/*.js'],
             options: {
                 assetsDirs: ['<%= yeoman.dist %>', '<%= yeoman.dist %>/assets/styles', '<%= yeoman.dist %>/assets/images', '<%= yeoman.dist %>/assets/fonts'],
-                patterns: {js: [
+                patterns: {
+                    js: [
                         [/(assets\/images\/.*?\.(?:gif|jpeg|jpg|png|webp|svg))/gm, 'Update the JS to reference our revved images']
-                ]},
+                    ]
+                },
                 dirs: ['<%= yeoman.dist %>']
             }
         },
-        imagemin: {dist: {files: [{
-            expand: true,
-            cwd: 'src/main/webapp/assets/images',
-            // we don't optimize PNG files as it doesn't work on Linux. If you are not on Linux, feel free to use '**/*.{png,jpg,jpeg}'
-            src: '**/*.{jpg,jpeg}',
-            dest: '<%= yeoman.dist %>/assets/images'
-        }]}},
-        svgmin: {dist: {files: [{
-            expand: true,
-            cwd: 'src/main/webapp/assets/images',
-            src: '**/*.svg',
-            dest: '<%= yeoman.dist %>/assets/images'
-        }]}},
-        cssmin: {},
-        ngtemplates: {dist: {
-            cwd: 'src/main/webapp',
-            src: ['scripts/app/**/*.html', 'scripts/components/**/*.html'],
-            dest: '.tmp/templates/templates.js',
-            options: {
-                module: 'indigoeln',
-                usemin: 'scripts/app.js',
-                htmlmin: '<%= htmlmin.dist.options %>'
+        imagemin: {
+            dist: {
+                files: [{
+                    expand: true,
+                    cwd: 'src/assets/images',
+                    // we don't optimize PNG files as it doesn't work on Linux. If you are not on Linux, feel free to use '**/*.{png,jpg,jpeg}'
+                    src: '**/*.{jpg,jpeg}',
+                    dest: '<%= yeoman.dist %>/assets/images'
+                }]
             }
-        }},
-        htmlmin: {dist: {
-            options: {
-                removeCommentsFromCDATA: true,
+        },
+        svgmin: {
+            dist: {
+                files: [{
+                    expand: true,
+                    cwd: 'src/assets/images',
+                    src: '**/*.svg',
+                    dest: '<%= yeoman.dist %>/assets/images'
+                }]
+            }
+        },
+        cssmin: {},
+        ngtemplates: {
+            dist: {
+                cwd: 'src',
+                src: ['scripts/app/**/*.html', 'scripts/components/**/*.html'],
+                dest: '.tmp/templates/templates.js',
+                options: {
+                    module: 'indigoeln',
+                    usemin: 'scripts/app.js',
+                    htmlmin: '<%= htmlmin.dist.options %>'
+                }
+            }
+        },
+        htmlmin: {
+            dist: {
+                options: {
+                    removeCommentsFromCDATA: true,
                     // https://github.com/yeoman/grunt-usemin/issues/44
-                collapseWhitespace: true,
-                collapseBooleanAttributes: true,
-                conservativeCollapse: true,
-                removeAttributeQuotes: true,
-                removeRedundantAttributes: true,
-                useShortDoctype: true,
-                removeEmptyAttributes: true,
-                keepClosingSlash: true
-            },
-            files: [{
-                expand: true,
-                cwd: '<%= yeoman.dist %>',
-                src: ['*.html'],
-                dest: '<%= yeoman.dist %>'
-            }]
-        }},
+                    collapseWhitespace: true,
+                    collapseBooleanAttributes: true,
+                    conservativeCollapse: true,
+                    removeAttributeQuotes: true,
+                    removeRedundantAttributes: true,
+                    useShortDoctype: true,
+                    removeEmptyAttributes: true,
+                    keepClosingSlash: true
+                },
+                files: [{
+                    expand: true,
+                    cwd: '<%= yeoman.dist %>',
+                    src: ['*.html'],
+                    dest: '<%= yeoman.dist %>'
+                }]
+            }
+        },
         // Put files not handled in other tasks here
         copy: {
-            fonts: {files: [{
-                expand: true,
-                dot: true,
-                flatten: true,
-                cwd: 'src/main/webapp',
-                dest: '<%= yeoman.dist %>/assets/fonts',
-                src: [
-                    'bower_components/bootstrap/fonts/*.*',
-                    'bower_components/font-awesome-bower/fonts/*.*'
-                ]
-            }]},
-            dist: {files: [{
-                expand: true,
-                dot: true,
-                cwd: 'src/main/webapp',
-                dest: '<%= yeoman.dist %>',
-                src: [
-                    '*.html',
-                    'scripts/**/*.html',
-                    'assets/images/**/*.{png,gif,webp,jpg,jpeg,svg}',
-                    'assets/fonts/*/**.{ttf,otf,woff,eot,svg}',
-                    'assets/data/**/*.json',
-                    'vendors/**/*'
-                ]
-            }, {
-                expand: true,
-                cwd: '.tmp/assets/images',
-                dest: '<%= yeoman.dist %>/assets/images',
-                src: [
-                    'generated/*'
-                ]
-            }]}
+            fonts: {
+                files: [{
+                    expand: true,
+                    dot: true,
+                    flatten: true,
+                    cwd: 'src',
+                    dest: '<%= yeoman.dist %>/assets/fonts',
+                    src: [
+                        'bower_components/bootstrap/fonts/*.*',
+                        'bower_components/font-awesome-bower/fonts/*.*'
+                    ]
+                }]
+            },
+            dist: {
+                files: [{
+                    expand: true,
+                    dot: true,
+                    cwd: 'src',
+                    dest: '<%= yeoman.dist %>',
+                    src: [
+                        '*.html',
+                        'scripts/**/*.html',
+                        'assets/images/**/*.{png,gif,webp,jpg,jpeg,svg}',
+                        'assets/fonts/*/**.{ttf,otf,woff,eot,svg}',
+                        'assets/data/**/*.json',
+                        'vendors/**/*'
+                    ]
+                }, {
+                    expand: true,
+                    cwd: '.tmp/assets/images',
+                    dest: '<%= yeoman.dist %>/assets/images',
+                    src: [
+                        'generated/*'
+                    ]
+                }]
+            }
         },
-        ngAnnotate: {dist: {files: [{
-            expand: true,
-            cwd: '.tmp/concat/scripts',
-            src: '*.js',
-            dest: '.tmp/concat/scripts'
-        }]}},
+        ngAnnotate: {
+            dist: {
+                files: [{
+                    expand: true,
+                    cwd: '.tmp/concat/scripts',
+                    src: '*.js',
+                    dest: '.tmp/concat/scripts'
+                }]
+            }
+        },
         less: {
             dev: {
                 options: {
@@ -197,11 +235,13 @@ module.exports = function(grunt) {
                         '<%= yeoman.app %>/assets/less/indigo-bootstrap.less'
                 }
             },
-            prod: {files: {
-                '<%= yeoman.app %>/assets/styles/main.css': '<%= yeoman.app %>/assets/less/main.less',
-                '<%= yeoman.app %>/assets/styles/indigo-bootstrap.css':
+            prod: {
+                files: {
+                    '<%= yeoman.app %>/assets/styles/main.css': '<%= yeoman.app %>/assets/less/main.less',
+                    '<%= yeoman.app %>/assets/styles/indigo-bootstrap.css':
                         '<%= yeoman.app %>/assets/less/indigo-bootstrap.less'
-            }}
+                }
+            }
         }
     });
 
