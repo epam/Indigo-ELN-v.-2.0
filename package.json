@@ -3,7 +3,7 @@
   "private": true,
   "cacheDirectories": [
     "node_modules",
-    "src/main/webapp/bower_components"
+    "bower_components"
   ],
   "dependencies": {
     "bower": "1.7.1"

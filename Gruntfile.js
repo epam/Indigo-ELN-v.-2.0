@@ -21,7 +21,7 @@ module.exports = function(grunt) {
         yeoman: {
             // configurable paths
             app: require('./bower.json').appPath || 'app',
-            dist: 'src/dist'
+            dist: 'dist'
         },
         watch: {
             options: {spawn: false},
@@ -74,8 +74,12 @@ module.exports = function(grunt) {
             },
             server: '.tmp'
         },
-        concat: {},
-        uglifyjs: {},
+        concat: {
+            // src and dest is configured in a subtask called "generated" by usemin
+        },
+        uglifyjs: {
+            // src and dest is configured in a subtask called "generated" by usemin
+        },
         rev: {
             dist: {
                 files: {
@@ -89,7 +93,7 @@ module.exports = function(grunt) {
             }
         },
         useminPrepare: {
-            html: 'src/**/index.html',
+            html: 'src/index.html',
             options: {
                 dest: '<%= yeoman.dist %>',
                 flow: {
@@ -139,7 +143,9 @@ module.exports = function(grunt) {
                 }]
             }
         },
-        cssmin: {},
+        cssmin: {
+            // src and dest is configured in a subtask called "generated" by usemin
+        },
         ngtemplates: {
             dist: {
                 cwd: 'src',
@@ -197,7 +203,7 @@ module.exports = function(grunt) {
                     dest: '<%= yeoman.dist %>',
                     src: [
                         '*.html',
-                        'scripts/**/*.html',
+                        // 'scripts/**/*.html',
                         'assets/images/**/*.{png,gif,webp,jpg,jpeg,svg}',
                         'assets/fonts/*/**.{ttf,otf,woff,eot,svg}',
                         'assets/data/**/*.json',
