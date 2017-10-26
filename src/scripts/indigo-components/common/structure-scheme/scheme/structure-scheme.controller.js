@@ -3,7 +3,7 @@ angular
     .controller('StructureSchemeController', StructureSchemeController);
 
 /* @ngInject */
-function StructureSchemeController($scope, $q, $http, $uibModal, notifyService, CalculationService) {
+function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyService, CalculationService) {
     var vm = this;
 
     init();
@@ -50,7 +50,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, notifyService, 
         }
 
         $http({
-            url: 'api/renderer/' + vm.structureType + '/image',
+            url: apiUrl + 'renderer/' + vm.structureType + '/image',
             method: 'POST',
             data: structure.molfile
         }).success(function(result) {
@@ -69,7 +69,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, notifyService, 
 
     function isEmptyStructure(structure) {
         return $http({
-            url: 'api/bingodb/' + vm.structureType + '/empty',
+            url: apiUrl + 'bingodb/' + vm.structureType + '/empty',
             method: 'POST',
             data: structure
         }).then(function(result) {
@@ -118,7 +118,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, notifyService, 
                 setStructure();
             } else {
                 $http({
-                    url: 'api/bingodb/' + vm.structureType + '/',
+                    url: apiUrl + 'bingodb/' + vm.structureType + '/',
                     method: 'POST',
                     data: structure
                 }).success(function(structureId) {

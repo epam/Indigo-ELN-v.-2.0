@@ -1,6 +1,6 @@
 angular.module('indigoeln')
-    .factory('Dashboard', function($resource) {
-        return $resource('api/dashboard', {}, {
+    .factory('Dashboard', function($resource, apiUrl) {
+        return $resource(apiUrl + 'dashboard', {}, {
             get: {
                 method: 'GET'
             }

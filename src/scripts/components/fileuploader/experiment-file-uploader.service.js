@@ -3,8 +3,8 @@ angular
     .factory('ExperimentFileUploaderService', experimentFileUploaderService);
 
 /* @ngInject */
-function experimentFileUploaderService($resource) {
-    return $resource('api/experiment_files/:id', {}, {
+function experimentFileUploaderService($resource, apiUrl) {
+    return $resource(apiUrl + 'experiment_files/:id', {}, {
         query: {
             method: 'GET', isArray: true
         },

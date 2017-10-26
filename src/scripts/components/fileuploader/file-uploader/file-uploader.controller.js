@@ -5,7 +5,7 @@
 
     function FileUploaderController($uibModal, $filter, $stateParams, FileUploaderCash,
                                     ParseLinks, notifyService, ProjectFileUploaderService,
-                                    ExperimentFileUploaderService, $timeout) {
+                                    ExperimentFileUploaderService, $timeout, apiUrl) {
         var vm = this;
         var params = $stateParams;
         var UploaderService = params.experimentId ? ExperimentFileUploaderService : ProjectFileUploaderService;
@@ -13,6 +13,7 @@
         init();
 
         function init() {
+            vm.apiUrl = apiUrl;
             vm.pagination = {
                 page: 1,
                 pageSize: 10

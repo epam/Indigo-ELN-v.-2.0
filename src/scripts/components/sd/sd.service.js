@@ -1,8 +1,8 @@
 angular.module('indigoeln')
-    .factory('sdService', function($resource) {
-        return $resource('api/sd', {}, {
+    .factory('sdService', function($resource, apiUrl) {
+        return $resource(apiUrl + 'sd', {}, {
             export: {
-                url: 'api/sd/export', method: 'POST'
+                url: apiUrl + 'sd/export', method: 'POST'
             }
         });
     });

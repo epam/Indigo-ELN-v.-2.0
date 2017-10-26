@@ -1,12 +1,12 @@
 angular.module('indigoeln')
-    .factory('User', function($resource) {
+    .factory('User', function($resource, apiUrl) {
         function transformRequest(user) {
             if (_.isObject(user.group)) {
                 user.group = user.group.name;
             }
         }
 
-        return $resource('api/users/:login', {}, {
+        return $resource(apiUrl + 'users/:login', {}, {
             query: {
                 method: 'GET', isArray: true
             },

@@ -3,7 +3,7 @@ angular
     .factory('CalculationService', calculationService);
 
 /* @ngInject */
-function calculationService($rootScope, $http, $q, AppValues,
+function calculationService($rootScope, $http, $q, AppValues, apiUrl,
                             StoichTableCache, ProductBatchSummaryCache, capitalizeFilter) {
     var defaultBatch = AppValues.getDefaultBatch();
     var recalculatingStoich = false;
@@ -81,7 +81,7 @@ function calculationService($rootScope, $http, $q, AppValues,
     function getMoleculeInfo(reagent) {
         var config = _.isObject(reagent) ? getSaltConfig(reagent) : null;
         var data = reagent.structure ? reagent.structure.molfile : reagent;
-        var url = 'api/calculations/molecule/info';
+        var url = apiUrl + 'calculations/molecule/info';
 
         return $http.put(url, data, config).then(function(response) {
             return response.data;
@@ -89,7 +89,7 @@ function calculationService($rootScope, $http, $q, AppValues,
     }
 
     function getImageForStructure(molfile, type, callback) {
-        return $http.post('api/renderer/' + type + '/image', molfile).then(function(response) {
+        return $http.post(apiUrl + 'renderer/' + type + '/image', molfile).then(function(response) {
             if (callback) {
                 callback(response.data.image);
             }
@@ -120,7 +120,7 @@ function calculationService($rootScope, $http, $q, AppValues,
         if (reagent.structure && reagent.structure.molfile) {
             var config = getSaltConfig(reagent);
 
-            return $http.put('api/calculations/molecule/info', reagent.structure.molfile, config)
+            return $http.put(apiUrl + 'calculations/molecule/info', reagent.structure.molfile, config)
                 .then(function(result) {
                     var data = result.data;
                     data.mySaltEq = reagent.saltEq;
@@ -150,7 +150,7 @@ function calculationService($rootScope, $http, $q, AppValues,
             actualProducts: ProductBatchSummaryCache.getProductBatchSummary()
         };
 
-        return $http.put('api/calculations/stoich/calculate', requestData).then(function(result) {
+        return $http.put(apiUrl + 'calculations/stoich/calculate', requestData).then(function(result) {
             $rootScope.$broadcast('stoic-table-recalculated', result.data);
             recalculatingStoich = false;
 
@@ -169,7 +169,7 @@ function calculationService($rootScope, $http, $q, AppValues,
             molWeightChanged: calcData.molWeightChanged
         };
 
-        return $http.put('api/calculations/stoich/calculate/batch', requestData).then(function(result) {
+        return $http.put(apiUrl + 'calculations/stoich/calculate/batch', requestData).then(function(result) {
             $rootScope.$broadcast('stoic-table-recalculated', result.data);
 
             return result.data;
@@ -181,7 +181,7 @@ function calculationService($rootScope, $http, $q, AppValues,
             productBatch: setDefaultValues(data.row)
         };
 
-        return $http.put('api/calculations/product/calculate/batch/amounts', requestData).then(function(result) {
+        return $http.put(apiUrl + 'calculations/product/calculate/batch/amounts', requestData).then(function(result) {
             if (callback) {
                 callback(result);
             } else {
@@ -196,7 +196,7 @@ function calculationService($rootScope, $http, $q, AppValues,
             changedField: data.column
         };
 
-        return $http.put('api/calculations/product/calculate/batch', requestData).then(function(result) {
+        return $http.put(apiUrl + 'calculations/product/calculate/batch', requestData).then(function(result) {
             result.data.yield = Math.round(result.data.yield);
             _.extend(data.row, result.data);
         });
@@ -236,7 +236,7 @@ function calculationService($rootScope, $http, $q, AppValues,
     function isMoleculesEqual(molecule1, molecule2) {
         var isEqual = _.isEqual(molecule1, molecule2);
 
-        return $q.when(isEqual || $http.put('api/calculations/molecule/equals', [molecule1, molecule2])
+        return $q.when(isEqual || $http.put(apiUrl + 'calculations/molecule/equals', [molecule1, molecule2])
                 .then(function(response) {
                     return response.data;
                 }));
@@ -267,11 +267,11 @@ function calculationService($rootScope, $http, $q, AppValues,
             products: products
         };
 
-        return $http.put('api/calculations/reaction/combine', requestData);
+        return $http.put(apiUrl + 'calculations/reaction/combine', requestData);
     }
 
     function getReactionProductsAndReactants(molfile) {
-        return $http.put('api/calculations/reaction/extract', molfile).then(function(response) {
+        return $http.put(apiUrl + 'calculations/reaction/extract', molfile).then(function(response) {
             return response.data;
         });
     }

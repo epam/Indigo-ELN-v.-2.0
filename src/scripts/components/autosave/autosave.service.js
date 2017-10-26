@@ -1,7 +1,7 @@
 angular
     .module('indigoeln')
-    .factory('AutosaveService', function($resource) {
-        return $resource('api/autosave/:id', {
+    .factory('AutosaveService', function($resource, apiUrl) {
+        return $resource(apiUrl + 'autosave/:id', {
             id: '@id'
         }, {
             save: {

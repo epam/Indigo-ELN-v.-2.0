@@ -55,7 +55,7 @@
                                             on-changed="vm.onChanged()">
                         </indigo-text-editor>
                         <div class="m-t20">
-                            <indigo-file-uploader upload-url="api/project_files"
+                            <indigo-file-uploader upload-url="{{vm.apiUrl}}project_files"
                                                   indigo-readonly="!vm.isEditAllowed"
                                                   on-changed="vm.updateAttachments()">
                             </indigo-file-uploader>

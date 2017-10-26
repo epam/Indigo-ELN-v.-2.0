@@ -3,7 +3,7 @@ angular
     .factory('Experiment', experiment);
 
 /* @ngInject */
-function experiment($resource, PermissionManagement, entityTreeService) {
+function experiment($resource, PermissionManagement, entityTreeService, apiUrl) {
     var interceptor = {
         response: function(response) {
             entityTreeService.updateExperiment(response.data);
@@ -12,7 +12,7 @@ function experiment($resource, PermissionManagement, entityTreeService) {
         }
     };
 
-    return $resource('api/projects/:projectId/notebooks/:notebookId/experiments/:experimentId',
+    return $resource(apiUrl + 'projects/:projectId/notebooks/:notebookId/experiments/:experimentId',
         {
             projectId: '@projectId',
             notebookId: '@notebookId',
@@ -47,12 +47,12 @@ function experiment($resource, PermissionManagement, entityTreeService) {
             },
             version: {
                 method: 'POST',
-                url: 'api/projects/:projectId/notebooks/:notebookId/experiments/:experimentId/version',
+                url: apiUrl + 'projects/:projectId/notebooks/:notebookId/experiments/:experimentId/version',
                 interceptor: interceptor
             },
             update: {
                 method: 'PUT',
-                url: 'api/projects/:projectId/notebooks/:notebookId/experiments',
+                url: apiUrl + 'projects/:projectId/notebooks/:notebookId/experiments',
                 transformRequest: function(data) {
                     data = transformRequest(data);
 
@@ -66,11 +66,11 @@ function experiment($resource, PermissionManagement, entityTreeService) {
             },
             print: {
                 method: 'GET',
-                url: 'api/print/project/:projectId/notebook/:notebookId/experiment/:experimentId'
+                url: apiUrl + 'print/project/:projectId/notebook/:notebookId/experiment/:experimentId'
             },
             reopen: {
                 method: 'PUT',
-                url: 'api/projects/:projectId/notebooks/:notebookId/experiments/:experimentId/reopen',
+                url: apiUrl + 'projects/:projectId/notebooks/:notebookId/experiments/:experimentId/reopen',
                 interceptor: interceptor
             }
         });

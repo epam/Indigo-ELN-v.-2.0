@@ -14,9 +14,14 @@
             bindToController: true,
             controllerAs: 'vm',
             templateUrl: 'scripts/indigo-components/attachments/attachments.html',
-            controller: function() {
-
-            }
+            controller: IndigoAttachmentsController
         };
+    }
+
+    IndigoAttachmentsController.$inject = ['apiUrl'];
+
+    function IndigoAttachmentsController(apiUrl) {
+        var vm = this;
+        vm.apiUrl = apiUrl;
     }
 })();

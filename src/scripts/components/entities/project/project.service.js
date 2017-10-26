@@ -3,7 +3,7 @@ angular
     .factory('Project', project);
 
 /* @ngInject */
-function project($resource, FileUploaderCash, PermissionManagement, entityTreeService) {
+function project($resource, FileUploaderCash, PermissionManagement, entityTreeService, apiUrl) {
     function transformRequest(data) {
         data = _.extend({}, data);
         data.tags = _.map(data.tags, 'text');
@@ -32,7 +32,7 @@ function project($resource, FileUploaderCash, PermissionManagement, entityTreeSe
         });
     }
 
-    return $resource('api/projects/:projectId', {}, {
+    return $resource(apiUrl + 'projects/:projectId', {}, {
         query: {
             method: 'GET', isArray: true
         },
@@ -62,7 +62,7 @@ function project($resource, FileUploaderCash, PermissionManagement, entityTreeSe
         },
         update: {
             method: 'PUT',
-            url: 'api/projects',
+            url: apiUrl + 'projects',
             transformRequest: function(data) {
                 data = transformRequest(data);
 
@@ -87,7 +87,7 @@ function project($resource, FileUploaderCash, PermissionManagement, entityTreeSe
         },
         print: {
             method: 'GET',
-            url: 'api/print/project/:projectId'
+            url: apiUrl + 'print/project/:projectId'
         }
     });
 }

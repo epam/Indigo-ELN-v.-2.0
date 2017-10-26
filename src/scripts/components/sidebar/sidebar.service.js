@@ -1,13 +1,13 @@
 angular.module('indigoeln')
-    .factory('AllProjects', function($resource) {
-        return $resource('api/projects/all', {}, {
+    .factory('AllProjects', function($resource, apiUrl) {
+        return $resource(apiUrl + 'projects/all', {}, {
             query: {
                 method: 'GET', isArray: true
             }
         });
     })
-    .factory('AllNotebooks', function($resource) {
-        return $resource('api/projects/:projectId/notebooks/all', {
+    .factory('AllNotebooks', function($resource, apiUrl) {
+        return $resource(apiUrl + 'projects/:projectId/notebooks/all', {
             projectId: '@projectId'
         }, {
             query: {
@@ -15,8 +15,8 @@ angular.module('indigoeln')
             }
         });
     })
-    .factory('AllExperiments', function($resource) {
-        return $resource('api/projects/:projectId/notebooks/:notebookId/experiments/all',
+    .factory('AllExperiments', function($resource, apiUrl) {
+        return $resource(apiUrl + 'projects/:projectId/notebooks/:notebookId/experiments/all',
             {
                 projectId: '@projectId',
                 notebookId: '@notebookId'

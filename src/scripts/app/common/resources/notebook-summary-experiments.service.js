@@ -1,6 +1,6 @@
 angular
     .module('indigoeln')
-    .factory('notebookSummaryExperiments', function($resource) {
+    .factory('notebookSummaryExperiments', function($resource, apiUrl) {
         function toModel(experiment) {
             if (_.isArray(experiment.components)) {
                 var components = {};
@@ -13,7 +13,7 @@ angular
             return experiment;
         }
 
-        return $resource('api/projects/:projectId/notebooks/:notebookId/experiments/notebook-summary',
+        return $resource(apiUrl + 'projects/:projectId/notebooks/:notebookId/experiments/notebook-summary',
             {
                 projectId: '@projectId',
                 notebookId: '@notebookId'

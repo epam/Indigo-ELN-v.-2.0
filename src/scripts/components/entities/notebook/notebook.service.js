@@ -3,8 +3,8 @@ angular
     .factory('Notebook', notebook);
 
 /* @ngInject */
-function notebook($resource, PermissionManagement, entityTreeService) {
-    return $resource('api/projects/:projectId/notebooks/:notebookId', {
+function notebook($resource, PermissionManagement, entityTreeService, apiUrl) {
+    return $resource(apiUrl + 'projects/:projectId/notebooks/:notebookId', {
         projectId: '@projectId'
     }, {
         query: {
@@ -38,7 +38,7 @@ function notebook($resource, PermissionManagement, entityTreeService) {
         },
         update: {
             method: 'PUT',
-            url: 'api/projects/:projectId/notebooks',
+            url: apiUrl + 'projects/:projectId/notebooks',
             transformRequest: function(data) {
                 data = transformRequest(data);
 
@@ -57,7 +57,7 @@ function notebook($resource, PermissionManagement, entityTreeService) {
         },
         print: {
             method: 'GET',
-            url: 'api/print/project/:projectId/notebook/:notebookId'
+            url: apiUrl + 'print/project/:projectId/notebook/:notebookId'
         }
     });
 

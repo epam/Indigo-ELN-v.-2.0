@@ -1,6 +1,6 @@
 angular.module('indigoeln')
-    .factory('UserReagents', function($resource) {
-        return $resource('api/user_reagents', {}, {
+    .factory('UserReagents', function($resource, apiUrl) {
+        return $resource(apiUrl + 'user_reagents', {}, {
             get: {
                 method: 'GET', isArray: true
             },

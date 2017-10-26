@@ -14,7 +14,7 @@
     function ExperimentDetailController($scope, $state, $stateParams, Experiment, ExperimentUtil,
                                         PermissionManagement, FileUploaderCash, EntitiesBrowser, autorecoveryHelper,
                                         notifyService, EntitiesCache, $q, Principal, Notebook, Components,
-                                        autorecoveryCache, confirmationModal, entityHelper) {
+                                        autorecoveryCache, confirmationModal, entityHelper, apiUrl) {
         var vm = this;
         var tabName;
         var params;
@@ -29,6 +29,7 @@
 
         function init() {
             updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
+            vm.apiUrl = apiUrl;
             vm.stateData = $state.current.data;
             vm.isCollapsed = true;
             vm.deferLoading = $q.defer();

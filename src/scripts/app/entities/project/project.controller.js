@@ -6,7 +6,7 @@
     /* @ngInject */
     function ProjectController($scope, $rootScope, $state, Project, notifyService, PermissionManagement, FileUploaderCash,
                                pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils, autorecoveryHelper,
-                               autorecoveryCache, EntitiesCache, confirmationModal, $q, entityHelper) {
+                               autorecoveryCache, EntitiesCache, confirmationModal, $q, entityHelper, apiUrl) {
         var vm = this;
         var identity = pageInfo.identity;
         var isContentEditor = pageInfo.isContentEditor;
@@ -23,6 +23,7 @@
             updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
             entityTitle = pageInfo.project.name;
 
+            vm.apiUrl = apiUrl;
             vm.stateData = $state.current.data;
             vm.isBtnSaveActive = false;
 

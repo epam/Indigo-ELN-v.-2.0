@@ -74,11 +74,13 @@
                     <a href="#" i-translate="RESUBMIT_FOR_SIGNATURE"></a></li>
                 <li role="menuitem"
                     ng-if="vm.isStatusSubmitFail || vm.isStatusSubmitted || vm.isStatusSigning || vm.isStatusSigned">
-                    <a href="api/signature/document/content?documentId={{vm.experiment.documentId}}" target="_blank"
+                    <a href="{{vm.apiUrl}}signature/document/content?documentId={{vm.experiment.documentId}}"
+                       target="_blank"
                     i-translate="VIEW_RECORD_SUBMITTED_FOR_SIGNATURE"></a>
                 </li>
                 <li role="menuitem" ng-if="vm.isStatusArchieved">
-                    <a href="api/signature/document/content?documentId={{vm.experiment.documentId}}" target="_blank"
+                    <a href="{{vm.apiUrl}}signature/document/content?documentId={{vm.experiment.documentId}}"
+                       target="_blank"
                     i-translate="VIEW_RECORD_ARCHIEVED"></a>
                 </li>
             </ul>

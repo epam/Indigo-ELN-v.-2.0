@@ -1,6 +1,6 @@
 angular.module('indigoeln')
-    .factory('PdfService', function($resource) {
-        return $resource('api/print', {}, {
+    .factory('PdfService', function($resource, apiUrl) {
+        return $resource(apiUrl + 'print', {}, {
             create: {
                 method: 'POST'
             }

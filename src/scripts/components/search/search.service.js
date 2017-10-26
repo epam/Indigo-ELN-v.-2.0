@@ -1,14 +1,14 @@
 angular.module('indigoeln')
-    .factory('SearchService', function($resource) {
-        return $resource('api/search', {}, {
+    .factory('SearchService', function($resource, apiUrl) {
+        return $resource(apiUrl + 'search', {}, {
             getCatalogues: {
-                url: 'api/search/catalogue', method: 'GET', isArray: true
+                url: apiUrl + 'search/catalogue', method: 'GET', isArray: true
             },
             search: {
-                url: 'api/search/batch', method: 'POST', isArray: true
+                url: apiUrl + 'search/batch', method: 'POST', isArray: true
             },
             searchAll: {
-                url: 'api/search', method: 'POST', isArray: true
+                url: apiUrl + 'search', method: 'POST', isArray: true
             }
         });
     });

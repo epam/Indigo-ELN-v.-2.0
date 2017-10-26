@@ -16,8 +16,27 @@ var useminAutoprefixer = {
 module.exports = function(grunt) {
     require('load-grunt-tasks')(grunt);
     require('time-grunt')(grunt);
-
+    var serveStatic = require('serve-static');
+    grunt.loadNpmTasks('grunt-ng-constant');
+    grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.initConfig({
+        connect: {
+            server: {
+                options: {
+                    port: 9000,
+                    keepalive: true,
+                    middleware: function(connect) {
+                        return [
+                            serveStatic('src'),
+                            connect().use(
+                                '/bower_components',
+                                serveStatic('./bower_components')
+                            )
+                        ];
+                    }
+                }
+            }
+        },
         yeoman: {
             // configurable paths
             app: require('./bower.json').appPath || 'app',
@@ -32,6 +51,17 @@ module.exports = function(grunt) {
             less: {
                 files: ['<%= yeoman.app %>/assets/less/*.less', '<%= yeoman.app %>/scripts/**/*.less'],
                 tasks: ['less:dev']
+            }
+        },
+        ngconstant: {
+            options: {
+                name: 'config',
+                dest: 'src/scripts/app/config.js',
+                constants: {
+                    apiUrl: grunt.option('apiUrl') || 'api/'
+                }
+            },
+            build: {
             }
         },
         autoprefixer: {},
@@ -251,21 +281,23 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.registerTask('serve', [
-        'clean:server',
+    grunt.registerTask('start', [
+        // 'clean:server',
         'wiredep',
-        'browserSync',
+        'ngconstant',
+        'connect',
         'watch'
     ]);
 
-    grunt.registerTask('server', function(target) {
-        grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
-        grunt.task.run([target ? ('serve:' + target) : 'serve']);
-    });
+    // grunt.registerTask('server', function(target) {
+    //     grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
+    //     grunt.task.run([target ? ('serve:' + target) : 'serve']);
+    // });
 
     grunt.registerTask('build', [
         'clean:dist',
         'wiredep:app',
+        'ngconstant',
         'useminPrepare',
         'ngtemplates',
         'less:prod',

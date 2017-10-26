@@ -31,12 +31,24 @@ angular.module('indigoeln', [
     'indigoeln.entityTree',
     'indigoeln.Components'
 ])
-    .run(function($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle, EntitiesBrowser) {
+    .run(function($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle, EntitiesBrowser,
+                  $http, apiUrl) {
         $.mCustomScrollbar.defaults.advanced.autoScrollOnFocus = false;
         // idleTime: 30 minutes, countdown: 30 seconds
         var countdownDialog = null;
         var idleTime = 30;
         var countdown = 30;
+
+        // $http.get(apiUrl + 'client_configuration').then(
+        //     function(response) {
+        //         angular.module('config')
+        //             .constant('CONFIG', response.data);
+        //
+        //         angular.element(document).ready(function() {
+        //             angular.bootstrap(document, ['indigoeln']);
+        //         });
+        //     }
+        // );
 
         $rootScope.$on('$stateChangeStart', function(event, toState, toStateParams) {
             $rootScope.toState = toState;

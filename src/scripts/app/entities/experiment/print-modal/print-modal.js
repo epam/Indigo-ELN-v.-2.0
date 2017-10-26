@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .factory('printModal', function($rootScope, $state, $uibModal, $window, $httpParamSerializer) {
+    .factory('printModal', function($rootScope, $state, $uibModal, $window, $httpParamSerializer, apiUrl) {
         return {
             showPopup: showPopup
         };
@@ -21,7 +21,7 @@ angular.module('indigoeln')
                 }
             }).result.then(function(result) {
                 var qs = $httpParamSerializer(result);
-                var url = 'api/print/project/' + params.projectId;
+                var url = apiUrl + 'print/project/' + params.projectId;
                 if (params.notebookId) {
                     url += '/notebook/' + params.notebookId;
                 }

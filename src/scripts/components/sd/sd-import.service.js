@@ -3,7 +3,7 @@ angular
     .factory('sdImportService', sdImportService);
 
 /* @ngInject */
-function sdImportService($uibModal, Dictionary, sdConstants, AlertModal, notifyService, sdImportHelperService, $q) {
+function sdImportService($uibModal, Dictionary, sdConstants, AlertModal, apiUrl, sdImportHelperService, $q) {
     return {
         importFile: importFile
     };
@@ -67,7 +67,7 @@ function sdImportService($uibModal, Dictionary, sdConstants, AlertModal, notifyS
             controllerAs: 'vm',
             resolve: {
                 url: function() {
-                    return 'api/sd/import';
+                    return apiUrl + 'sd/import';
                 }
             }
         }).result.then(function(result) {

@@ -1,20 +1,20 @@
 angular.module('indigoeln')
-    .factory('UserWithAuthority', function($resource) {
-        return $resource('api/users/permission-management', {}, {
+    .factory('UserWithAuthority', function($resource, apiUrl) {
+        return $resource(apiUrl + 'users/permission-management', {}, {
             query: {
                 method: 'GET', isArray: true
             }
         });
     })
-    .factory('UserRemovableFromProject', function($resource) {
-        return $resource('api/projects/permissions/user-removable', {}, {
+    .factory('UserRemovableFromProject', function($resource, apiUrl) {
+        return $resource(apiUrl + 'projects/permissions/user-removable', {}, {
             get: {
                 method: 'GET'
             }
         });
     })
-    .factory('UserRemovableFromNotebook', function($resource) {
-        return $resource('api/notebooks/permissions/user-removable', {}, {
+    .factory('UserRemovableFromNotebook', function($resource, apiUrl) {
+        return $resource(apiUrl + 'notebooks/permissions/user-removable', {}, {
             get: {
                 method: 'GET'
             }

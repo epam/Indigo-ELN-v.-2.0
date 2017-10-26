@@ -5,7 +5,8 @@ angular
 /* @ngInject */
 function productBatchSummaryOperations($q, ProductBatchSummaryCache, RegistrationUtil, StoichTableCache, AppValues,
                                        notifyService, $timeout, EntitiesBrowser, RegistrationService, sdImportService,
-                                       sdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService) {
+                                       sdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService,
+                                       apiUrl) {
     var curNbkOperation = $q.when();
 
     return {
@@ -28,7 +29,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         });
 
         sdExportService.exportItems(selectedBatches).then(function(data) {
-            var file_path = 'api/sd/download?fileName=' + data.fileName;
+            var file_path = apiUrl + 'sd/download?fileName=' + data.fileName;
             var a = document.createElement('A');
             a.href = file_path;
             a.download = file_path.substr(file_path.lastIndexOf('/') + 1);
@@ -186,7 +187,8 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     function registerBatches(batches) {
         var nonEditableBatches = getSelectedNonEditableBatches(batches);
         if (nonEditableBatches && nonEditableBatches.length > 0) {
-            notifyService.warning('Batch(es) ' + _.uniq(nonEditableBatches).join(', ') + ' already have been registered.');
+            notifyService.warning('Batch(es) ' + _.uniq(nonEditableBatches)
+                .join(', ') + ' already have been registered.');
 
             return registerBatchesWith(batches, nonEditableBatches);
         }
@@ -196,7 +198,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
 
     function requestNbkBatchNumber(lastNbkBatch) {
         var latest = lastNbkBatch || getLatestNbkBatch();
-        var request = 'api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
+        var request = apiUrl + 'projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
             '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest;
 
         return $http.get(request)
@@ -268,7 +270,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         var nonEditableBatches = getSelectedNonEditableBatches(batches);
         if (nonEditableBatches && nonEditableBatches.length > 0) {
             notifyService.error('Following batches were registered or sent to registration and cannot be deleted: ' + _.uniq(nonEditableBatches)
-                    .join(', '));
+                .join(', '));
         }
     }
 
@@ -291,7 +293,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
 
     function saveMolecule(mol) {
         if (mol) {
-            return $http.post('api/bingodb/molecule/', mol).then(function(response) {
+            return $http.post(apiUrl + 'bingodb/molecule/', mol).then(function(response) {
                 return response.data;
             });
         }

@@ -3,7 +3,7 @@ angular
     .factory('AuthServerProvider', authServerProvider);
 
 /* @ngInject */
-function authServerProvider($http) {
+function authServerProvider($http, apiUrl) {
     return {
         login: login,
         logout: logout,
@@ -15,7 +15,7 @@ function authServerProvider($http) {
             '&j_password=' + encodeURIComponent(credentials.password) +
             '&remember-me=' + credentials.rememberMe + '&submit=Login';
 
-        return $http.post('api/authentication', data, {
+        return $http.post(apiUrl + 'authentication', data, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
@@ -26,13 +26,13 @@ function authServerProvider($http) {
 
     function logout() {
         // logout from the server
-        $http.post('api/logout').success(function(response) {
+        $http.post(apiUrl + 'logout').success(function(response) {
             return response;
         });
     }
 
     function prolong() {
         // ping server to prolong session
-        $http.get('api/accounts/prolong');
+        $http.get(apiUrl + 'accounts/prolong');
     }
 }
