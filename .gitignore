@@ -1,3 +1,8 @@
 /.idea/
 /report/
 npm-debug.log*
+/.tmp/
+/node_modules/
+/bower_components/
+/src/assets/styles/
+/dist/
