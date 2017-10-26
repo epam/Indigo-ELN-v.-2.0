@@ -2,15 +2,7 @@
 /activemq-data/
 .DS_Store
 target/
-
-### NodeJS ###
-/.tmp/
-/etc/
-/node/
-/node_modules/
-/src/main/webapp/bower_components/
-/src/main/webapp/assets/styles/
-/src/main/webapp/dist/
+static/
 
 ### STS ###
 .apt_generated
