@@ -1,0 +1,201 @@
+@import "../../../bower_components/bootstrap/less/mixins/table-row.less";
+@import 'variables.less';
+@import 'mixin.less';
+@import 'helper.less';
+
+/******************TABLES*********************/
+
+table {
+  page-break-inside: auto
+}
+
+tr {
+  page-break-inside: avoid;
+  page-break-after: auto
+}
+
+.table-responsive {
+  @media screen and (max-width: @screen-xs-max) {
+    border: none;
+  }
+}
+
+.table {
+  border: @table-border;
+
+  > thead > tr > th {
+    border-bottom: @table-border;
+    color: @table-th-color;
+    font-family: @table-th-family;
+    font-weight: normal;
+    white-space: nowrap;
+
+    > p {
+      margin: 0;
+    }
+  }
+
+  > thead > tr > th,
+  > tbody > tr > td {
+    padding: @table-col-pad;
+
+    &.td-40p {
+      width: 40%;
+    }
+
+    .btn + .btn {
+      margin-left: @space-between-btns;
+    }
+
+    .btn-group {
+      .flex-row;
+    }
+
+    > .form-group {
+      margin-bottom: 0;
+    }
+  }
+
+  > tbody > tr > td {
+    border: 0 none;
+    vertical-align: middle;
+  }
+
+  &.authorities-table {
+    border-left: none;
+    > tbody > tr {
+      height: 40px;
+      > td {
+        text-align: center;
+        white-space: nowrap;
+
+        .role-name {
+          width: 205px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+    &.authorities-column {
+      border-left: 1px solid #ddd;
+      float: left;
+      > thead > tr > th,
+      > tbody > tr > td {
+        text-align: left;
+          border-right: 1px solid #ddd;
+          background-color: #fafafa;
+        .tooltip {
+          width: auto;
+          .tooltip-inner {
+            max-width: none;
+          }
+        }
+      }
+      > tbody > tr:nth-of-type(odd) > td {
+        background-color: #f6f6f6;
+      }
+    }
+  }
+
+  &.product {
+    .product-header {
+      .btn-group {
+        justify-content: center;
+      }
+
+      &-item {
+        min-width: 150px;
+        justify-content: center; 
+      }
+    }
+
+    .btn-group {
+      .btn {
+        color: @table-th-color;
+        font: 14px @table-th-family;
+        padding: 0;
+        width: auto;
+      }
+    }
+
+    .my-checkbox-wrapper {
+      margin: 0;
+
+      .checkbox {
+        margin: 0;
+      }
+    }
+  }
+}
+.product-batch-register {
+  .product {
+    editable-cell {
+      a {
+        cursor: default;
+        &:hover {
+          color: #337ab7;
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}
+.wrapper-authorities-col {
+  float: left;
+}
+.table-row-variant(success; @brand4);
+
+//table .success td {
+//  background-color: @bg-blue !important;
+//}
+
+.my-scroller-axis-x {
+  //max-width: 100%;
+  //width: 100vh;
+  overflow: hidden;
+}
+
+.my-component {
+  width: 100%;
+  .panel-heading {
+    cursor: pointer;
+  }
+.grid-popup {
+      margin-top: -10px;
+      background: #fff;
+      border: 1px solid #ccc;
+      max-height: 0;
+      transition: max-height ease-out 0.3s;
+      visibility: hidden;
+      line-height: 20px
+  }
+  
+  .grid-popup.shown-true {
+      max-height: 200px;
+      visibility: visible;
+  }
+  
+  .grid-popup .popitem:hover {
+      cursor: pointer;
+      background: #f1f1f1
+  }
+}
+
+.permission-management {
+  &__action {
+    width: 15%;
+  }
+}
+
+.edit-residual-solvents {
+  &__header {
+    width:5%
+  }
+}
+
+.select-parent-dialog {
+  &__table {
+    height: 100px;
+  }
+}
+
