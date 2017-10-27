@@ -1,11 +1,16 @@
 package com.epam.indigoeln.config.security;
 
+import com.epam.indigoeln.Application;
 import com.epam.indigoeln.core.security.*;
 import com.epam.indigoeln.web.rest.filter.SessionExpirationFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -24,6 +29,12 @@ import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 import static com.epam.indigoeln.core.security.Authority.*;
 import static com.epam.indigoeln.core.security.CookieConstants.CSRF_TOKEN_HEADER;
@@ -34,6 +45,8 @@ import static com.epam.indigoeln.core.security.CookieConstants.CSRF_TOKEN_HEADER
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSecurityConfig.class);
 
     private static final String[] TEMPLATE_READERS = new String[]{
             TEMPLATE_EDITOR.name(), EXPERIMENT_CREATOR.name(),
@@ -73,6 +86,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             EXPERIMENT_REMOVER.name(), CONTENT_EDITOR.name()};
 
     @Autowired
+    private Environment environment;
+
+    @Autowired
     private IntSecurityProperties securityProperties;
 
     @Autowired
@@ -105,6 +121,23 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .passwordEncoder(passwordEncoder());
     }
 
+    @Bean
+    @Profile(Application.Profile.CORS)
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Collections.singletonList("*"));
+        configuration.setAllowedMethods(Collections.singletonList("*"));
+        configuration.setAllowedHeaders(Collections.singletonList("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+
+        LOGGER.warn("Enabled CORS mappings for '/**'");
+
+        return source;
+    }
+
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring()
@@ -121,6 +154,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement() // add session management
                 .maximumSessions(-1) // set unlimited number of sessions per User // TODO think about this
                 .sessionRegistry(sessionRegistry());
+
+        if (Arrays.asList(environment.getActiveProfiles()).contains(Application.Profile.CORS)) {
+            http.cors();
+        }
 
         http
                 .csrf()

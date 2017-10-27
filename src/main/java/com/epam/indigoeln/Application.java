@@ -10,10 +10,9 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer {
 
-    public static class Profile {
-        public static final String DEV = "dev";
-        private Profile() {
-        }
+    public interface Profile {
+        String DEV = "dev";
+        String CORS = "cors";
     }
 
     /**
