@@ -273,10 +273,16 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <properties>
+                <spring.profiles.active>dev,cors</spring.profiles.active>
+            </properties>
         </profile>
 
         <profile>
             <id>release</id>
+            <properties>
+                <spring.profiles.active>release</spring.profiles.active>
+            </properties>
             <dependencies>
                 <dependency>
                     <groupId>org.springframework.boot</groupId>
@@ -304,7 +310,7 @@
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
                 <includes>
-                    <include>**/*.xml</include>
+                    <include>application.properties</include>
                 </includes>
             </resource>
 
@@ -312,7 +318,7 @@
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
                 <excludes>
-                    <exclude>**/*.xml</exclude>
+                    <exclude>application.properties</exclude>
                 </excludes>
             </resource>
 
