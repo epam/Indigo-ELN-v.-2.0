@@ -3,16 +3,23 @@ angular
     .factory('WSService', wsService);
 
 /* @ngInject */
-function wsService($window, $cookies, $http, $q, $log) {
+function wsService($cookies, $http, $q, $log, apiUrl, $location) {
     var stompClient = null;
     var connectionPromise = null;
-    var loc = $window.location;
-    var url = '//' + loc.host + loc.pathname + 'websocket';
+    var url = getWbsocketUrl();
 
     return {
         disconnect: disconnect,
         subscribe: subscribe
     };
+
+    function getWbsocketUrl() {
+        if (!_.includes(apiUrl, $location.host())) {
+            return _.replace(apiUrl, 'api/', 'websocket');
+        }
+
+        return $location.host() + '/websocket';
+    }
 
     function disconnect() {
         if (stompClient !== null) {
