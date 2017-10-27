@@ -56,5 +56,9 @@
   },
   "engines": {
     "node": "^0.12 || ^4.2"
+  },
+  "scripts": {
+    "bower": "bower install",
+    "build": "grunt build"
   }
 }
