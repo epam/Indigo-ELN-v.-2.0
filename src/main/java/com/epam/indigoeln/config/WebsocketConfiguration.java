@@ -1,8 +1,12 @@
 package com.epam.indigoeln.config;
 
 
+import com.epam.indigoeln.Application;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -13,8 +17,10 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.StompWebSocketEndpointRegistration;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
+import java.util.Arrays;
 import java.util.Map;
 
 @Configuration
@@ -22,6 +28,12 @@ import java.util.Map;
 public class WebsocketConfiguration extends AbstractWebSocketMessageBrokerConfigurer {
 
     public static final String IP_ADDRESS = "IP_ADDRESS";
+
+    @Autowired
+    private Environment environment;
+
+    @Value("${cors.origin}")
+    private String corsOrigin;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -35,9 +47,13 @@ public class WebsocketConfiguration extends AbstractWebSocketMessageBrokerConfig
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/websocket")
-                .withSockJS()
-                .setInterceptors(httpSessionHandshakeInterceptor());
+        StompWebSocketEndpointRegistration endpoint = registry.addEndpoint("/websocket");
+
+        if (Arrays.asList(environment.getActiveProfiles()).contains(Application.Profile.CORS)) {
+            endpoint.setAllowedOrigins(corsOrigin);
+        }
+
+        endpoint.withSockJS().setInterceptors(httpSessionHandshakeInterceptor());
     }
 
     @Bean
