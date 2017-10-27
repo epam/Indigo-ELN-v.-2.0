@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="indigoeln">
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta charset="UTF-8"/>
@@ -98,7 +98,7 @@
 <!-- build:js({.tmp,src}) scripts/app.js -->
 <script src="scripts/app/config.js"></script>
 <script src="scripts/app/app.js"></script>
-<script src="scripts/app/common/constants/api-url.constant.js"></script>
+<script src="scripts/app/common/services/config.service.js"></script>
 <script src="scripts/indigo-components/components.module.js"></script>
 <script src="scripts/app/common/directives/i-translate.directive.js"></script>
 <script src="scripts/app/common/i18n/i18en.constant.js"></script>
@@ -318,7 +318,6 @@
 <script src="scripts/components/util/capitalize.filter.js"></script>
 <script src="scripts/components/fileuploader/single-file-uploader/single-file-uploader.controller.js"></script>
 <script src="scripts/components/autosave/autosave.service.js"></script>
-<script src="scripts/app/init.js"></script>
 <script src="scripts/components/registration/registration-util.service.js"></script>
 <script src="scripts/indigo-components/common/table/input/input.service.js"></script>
 <script src="scripts/indigo-components/common/table/input/set-input-value.controller.js"></script>

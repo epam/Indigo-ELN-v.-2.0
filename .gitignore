@@ -6,3 +6,4 @@ npm-debug.log*
 /bower_components/
 /src/assets/styles/
 /dist/
+/src/scripts/app/config.js

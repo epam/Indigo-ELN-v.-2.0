@@ -4,7 +4,7 @@
         .controller('ExperimentController', ExperimentController);
 
     /* @ngInject */
-    function ExperimentController($scope, Dashboard, CONFIG, $filter, $timeout, Experiment) {
+    function ExperimentController($scope, Dashboard, configService, $filter, $timeout, Experiment) {
         var vm = this;
         var openExperiments;
         var waitingExperiments;
@@ -14,7 +14,7 @@
         vm.experiments = [];
         vm.dView = 'open';
         vm.itemsPerPage = 20;
-        vm.signatureServiceUrl = CONFIG['indigoeln.client.signatureservice.url'];
+        vm.signatureServiceUrl = configService.getConfiguration()['indigoeln.client.signatureservice.url'];
 
         vm.loadAll = loadAll;
         vm.onViewChange = onViewChange;
