@@ -27,7 +27,7 @@ public class PaginationUtil {
             throws URISyntaxException {
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("X-Total-Count", Long.toString(page.getTotalElements()));
+        headers.add(HeaderUtil.TOTAL_COUNT, Long.toString(page.getTotalElements()));
         StringBuilder link = new StringBuilder();
         if ((page.getNumber() + 1) < page.getTotalPages()) {
             link.append(getLink(getURI(baseUrl, page.getNumber() + 1, page.getSize()), "next")).append(",");

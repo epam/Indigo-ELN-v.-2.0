@@ -3,6 +3,7 @@ package com.epam.indigoeln.config.security;
 import com.epam.indigoeln.Application;
 import com.epam.indigoeln.core.security.*;
 import com.epam.indigoeln.web.rest.filter.SessionExpirationFilter;
+import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -129,11 +131,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Profile(Application.Profile.CORS)
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowCredentials(true);
         configuration.setAllowedOrigins(Collections.singletonList(corsOrigin));
         configuration.setAllowedMethods(Collections.singletonList("*"));
         configuration.setAllowedHeaders(Collections.singletonList("*"));
-        configuration.setExposedHeaders(Collections.singletonList("*"));
-        configuration.setAllowCredentials(true);
+        configuration.setExposedHeaders(Arrays.asList(
+                HeaderUtil.SUCCESS_ALERT,
+                HeaderUtil.TOTAL_COUNT,
+                HttpHeaders.LINK,
+                HttpHeaders.CONTENT_TYPE,
+                HttpHeaders.CONTENT_DISPOSITION));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

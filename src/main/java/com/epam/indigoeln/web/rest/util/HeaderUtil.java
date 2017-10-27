@@ -8,7 +8,8 @@ import org.springframework.http.MediaType;
  */
 public class HeaderUtil {
 
-    private static final String SUCCESS_ALERT = "X-indigoeln-success-alert";
+    public static final String SUCCESS_ALERT = "X-indigoeln-success-alert";
+    public static final String TOTAL_COUNT = "X-Total-Count";
 
     private HeaderUtil() {
     }
@@ -62,9 +63,9 @@ public class HeaderUtil {
     public static HttpHeaders createPdfPreviewHeaders(String fileName) {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_PDF);
-        httpHeaders.add("Content-disposition", "inline; filename=" + fileName);
-        httpHeaders.add("Access-Control-Allow-Headers", "Range");
-        httpHeaders.add("Access-Control-Expose-Headers", "Accept-Ranges, Content-Encoding, Content-Length, Content-Range");
+        httpHeaders.add("Content-Disposition", "inline; filename=" + fileName);
+//        httpHeaders.add("Access-Control-Allow-Headers", "Range");
+//        httpHeaders.add("Access-Control-Expose-Headers", "Accept-Ranges, Content-Encoding, Content-Length, Content-Range");
         return httpHeaders;
     }
 }
