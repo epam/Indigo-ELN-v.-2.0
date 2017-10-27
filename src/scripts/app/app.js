@@ -31,7 +31,10 @@ angular.module('indigoeln', [
     'indigoeln.entityTree',
     'indigoeln.Components'
 ])
-    .run(function($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle, EntitiesBrowser) {
+    .run(function($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle, EntitiesBrowser,
+                  $http, $cookies) {
+        $http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken;
+
         $.mCustomScrollbar.defaults.advanced.autoScrollOnFocus = false;
         // idleTime: 30 minutes, countdown: 30 seconds
         var countdownDialog = null;
@@ -122,6 +125,7 @@ angular.module('indigoeln', [
         // enable CSRF
         $httpProvider.defaults.xsrfCookieName = 'CSRF-TOKEN';
         $httpProvider.defaults.xsrfHeaderName = 'X-CSRF-TOKEN';
+        $httpProvider.defaults.withCredentials = true;
 
         $urlRouterProvider.otherwise('/');
         $stateProvider.state('app_page', {
