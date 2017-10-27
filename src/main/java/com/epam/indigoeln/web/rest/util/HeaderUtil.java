@@ -26,7 +26,7 @@ public class HeaderUtil {
 
     public static HttpHeaders createAttachmentDescription(String filename) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
         return headers;
     }
 
@@ -63,7 +63,7 @@ public class HeaderUtil {
     public static HttpHeaders createPdfPreviewHeaders(String fileName) {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_PDF);
-        httpHeaders.add("Content-Disposition", "inline; filename=" + fileName);
+        httpHeaders.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + fileName);
 //        httpHeaders.add("Access-Control-Allow-Headers", "Range");
 //        httpHeaders.add("Access-Control-Expose-Headers", "Accept-Ranges, Content-Encoding, Content-Length, Content-Range");
         return httpHeaders;

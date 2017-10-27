@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -195,9 +196,9 @@ public class BingoService {
 
             connection.setRequestMethod(method);
 
-            connection.setRequestProperty("Authorization", "Basic " + Base64.encodeBase64String(basic.getBytes()));
-            connection.setRequestProperty("Content-type", "text/plain");
-            connection.setRequestProperty("Accept", "*/*");
+            connection.setRequestProperty(HttpHeaders.AUTHORIZATION, "Basic " + Base64.encodeBase64String(basic.getBytes()));
+            connection.setRequestProperty(HttpHeaders.CONTENT_TYPE, "text/plain");
+            connection.setRequestProperty(HttpHeaders.ACCEPT, "*/*");
 
             connection.setDoInput(true);
             connection.setDoOutput(true);
