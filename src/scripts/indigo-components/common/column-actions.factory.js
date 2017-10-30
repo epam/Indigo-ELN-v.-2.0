@@ -30,11 +30,17 @@
 
         function editPurityForAllRows(rows) {
             InfoEditor.editPurity({}, function(result) {
-                _.each(rows, function(row) {
-                    if (!RegistrationUtil.isRegistered(row)) {
-                        row.purity = angular.copy(result);
-                    }
+                iterateRegisterd(rows, function(row) {
+                    row.purity = angular.copy(result);
                 });
+            });
+        }
+
+        function iterateRegisterd(rows, iterator) {
+            return _.forEach(rows, function(row) {
+                if (!RegistrationUtil.isRegistered(row)) {
+                    iterator(row);
+                }
             });
         }
 
@@ -46,10 +52,8 @@
 
         function editMeltingPointForAllRows(rows) {
             InfoEditor.editMeltingPoint({}, function(result) {
-                _.each(rows, function(row) {
-                    if (!RegistrationUtil.isRegistered(row)) {
-                        row.meltingPoint = angular.copy(result);
-                    }
+                iterateRegisterd(rows, function(row) {
+                    row.meltingPoint = angular.copy(result);
                 });
             });
         }
@@ -66,11 +70,9 @@
                     }
                 }
             }).result.then(function(result) {
-                _.each(rows, function(row) {
-                    if (!RegistrationUtil.isRegistered(row)) {
-                        row.source = result.source;
-                        row.sourceDetail = result.sourceDetail;
-                    }
+                iterateRegisterd(rows, function(row) {
+                    row.source = result.source;
+                    row.sourceDetail = result.sourceDetail;
                 });
             });
         }
@@ -83,10 +85,8 @@
 
         function editExternalSupplierForAllRows(rows) {
             InfoEditor.editExternalSupplier({}, function(result) {
-                _.each(rows, function(row) {
-                    if (!RegistrationUtil.isRegistered(row)) {
-                        row.externalSupplier = angular.copy(result);
-                    }
+                iterateRegisterd(rows, function(row) {
+                    row.externalSupplier = angular.copy(result);
                 });
             });
         }
@@ -99,10 +99,8 @@
 
         function editHealthHazardsForAllRows(rows) {
             InfoEditor.editHealthHazards({}, function(result) {
-                _.each(rows, function(row) {
-                    if (!RegistrationUtil.isRegistered(row)) {
-                        row.healthHazards = angular.copy(result);
-                    }
+                iterateRegisterd(rows, function(row) {
+                    row.healthHazards = angular.copy(result);
                 });
             });
         }
@@ -111,10 +109,8 @@
             var data = rows.length === 1 ? rows[0].residualSolvents : {};
 
             InfoEditor.editResidualSolvents(data).then(function(result) {
-                _.forEach(rows, function(row) {
-                    if (!RegistrationUtil.isRegistered(row)) {
-                        row.residualSolvents = result;
-                    }
+                iterateRegisterd(rows, function(row) {
+                    row.residualSolvents = result;
                 });
             });
         }
@@ -123,20 +119,16 @@
             var data = rows.length === 1 ? rows[0].solubility : {};
 
             InfoEditor.editSolubility(data, function(result) {
-                _.each(rows, function(row) {
-                    if (!RegistrationUtil.isRegistered(row)) {
-                        row.solubility = result;
-                    }
+                iterateRegisterd(rows, function(row) {
+                    row.solubility = result;
                 });
             });
         }
 
         function editStorageInstructions(rows) {
             var callback = function(result) {
-                _.each(rows, function(row) {
-                    if (!RegistrationUtil.isRegistered(row)) {
-                        row.storageInstructions = result;
-                    }
+                iterateRegisterd(rows, function(row) {
+                    row.storageInstructions = result;
                 });
             };
             var data = rows.length === 1 ? rows[0].storageInstructions : {};
@@ -145,10 +137,8 @@
 
         function editHandlingPrecautions(rows) {
             var callback = function(result) {
-                _.each(rows, function(row) {
-                    if (!RegistrationUtil.isRegistered(row)) {
-                        row.handlingPrecautions = result;
-                    }
+                iterateRegisterd(rows, function(row) {
+                    row.handlingPrecautions = result;
                 });
             };
             var data = rows.length === 1 ? rows[0].handlingPrecautions : {};

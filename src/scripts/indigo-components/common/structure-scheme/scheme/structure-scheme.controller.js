@@ -130,11 +130,7 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
         });
     }
 
-    function openEditor($event) {
-        $event.stopPropagation();
-        if (vm.isReadonly) {
-            return;
-        }
+    function openEditor() {
         // open editor with pre-defined structure (prestructure)
         var modalInstance = $uibModal.open({
             animation: true,
@@ -164,11 +160,7 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
         }
     }
 
-    function importStructure($event) {
-        $event.stopPropagation();
-        if (vm.isReadonly) {
-            return;
-        }
+    function importStructure() {
         var modalInstance = $uibModal.open({
             animation: true,
             templateUrl: 'scripts/indigo-components/common/structure-scheme/import/structure-import-modal.html',
@@ -181,11 +173,7 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
         modalInstance.result.then(successEditStructure);
     }
 
-    function exportStructure($event) {
-        $event.stopPropagation();
-        if (vm.isReadonly) {
-            return;
-        }
+    function exportStructure() {
         $uibModal.open({
             animation: true,
             templateUrl: 'scripts/indigo-components/common/structure-scheme/export/structure-export-modal.html',

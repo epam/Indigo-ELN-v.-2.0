@@ -3,13 +3,14 @@
         {{vm.title}}
                 <span ng-disabled="vm.isReadonly" class="fa fa-save btn action-panel-btn pull-right m-r30-imp"
                       title="Export {{vm.title}}"
-                      ng-click="vm.exportStructure($event)"></span>
+                      ng-click="vm.isReadonly && vm.exportStructure(); $event.stopPropagation()"></span>
                 <span ng-disabled="vm.isReadonly" class="fa  fa-folder-open-o btn action-panel-btn pull-right"
                       title="Import {{vm.title}}"
-                      ng-click="vm.importStructure($event)"></span>
+                      ng-click="vm.isReadonly && vm.importStructure(); $event.stopPropagation()"></span>
                 <span ng-disabled="vm.isReadonly"
                       class="fa fa-edit btn action-panel-btn  panel-btn-reaction-scheme pull-right"
-                      title="Edit/Add {{vm.title}}" ng-click="vm.openEditor($event)"></span>
+                      title="Edit/Add {{vm.title}}"
+                      ng-click="vm.isReadonly && vm.openEditor(); $event.stopPropagation()"></span>
     </div>
     <div indigo-resizable max-height="300" min-height="50" ng-dblclick="vm.openEditor($event)"
          class="panel-body text-center structure-scheme__img" ng-class="{'sizable-panel-body': image}">

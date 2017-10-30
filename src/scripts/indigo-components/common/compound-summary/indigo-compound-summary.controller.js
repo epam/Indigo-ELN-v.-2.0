@@ -42,31 +42,7 @@
             return [
                 batchHelper.columns.structure,
                 batchHelper.columns.nbkBatch,
-                {
-                    id: '$$select',
-                    name: 'Select',
-                    type: 'boolean',
-                    noDisableable: true,
-                    noDirty: true,
-                    actions: [
-                        {
-                            name: 'Select All',
-                            action: function() {
-                                _.each(getBatches(), function(row) {
-                                    row.$$select = true;
-                                });
-                            }
-                        },
-                        {
-                            name: 'Deselect All',
-                            action: function() {
-                                _.each(getBatches(), function(row) {
-                                    row.$$select = false;
-                                });
-                            }
-                        }
-                    ]
-                },
+                batchHelper.columns.select,
                 batchHelper.columns.virtualCompoundId,
                 batchHelper.columns.molWeight,
                 batchHelper.columns.formula,
