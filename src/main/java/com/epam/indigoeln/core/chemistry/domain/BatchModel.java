@@ -7,17 +7,16 @@ import com.epam.indigoeln.core.chemistry.experiment.datamodel.common.Amount2;
 import com.epam.indigoeln.core.chemistry.experiment.utils.BatchUtils;
 import com.epam.indigoeln.core.chemistry.experiment.utils.CeNNumberUtils;
 import com.epam.indigoeln.web.rest.dto.calculation.BasicBatchModel;
-import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static com.epam.indigoeln.core.chemistry.experiment.common.units.UnitType.*;
 import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 
-@EqualsAndHashCode(callSuper = true)
 public class BatchModel extends CeNAbstractModel implements Comparable<BatchModel>, StoicModelInterface {
 
     public static final long serialVersionUID = 7526472295622776147L;
@@ -557,6 +556,40 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
             // set weight, moles and rxn equivs to default values.
             volumeAmount.softReset();
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        BatchModel that = (BatchModel) o;
+        return autoCalcOn == that.autoCalcOn &&
+                inCalculation == that.inCalculation &&
+                limiting == that.limiting &&
+                transactionOrder == that.transactionOrder &&
+                lastUpdatedType == that.lastUpdatedType &&
+                Objects.equals(previousMolarAmount, that.previousMolarAmount) &&
+                Objects.equals(compound, that.compound) &&
+                Objects.equals(molecularWeightAmount, that.molecularWeightAmount) &&
+                Objects.equals(moleAmount, that.moleAmount) &&
+                Objects.equals(weightAmount, that.weightAmount) &&
+                Objects.equals(loadingAmount, that.loadingAmount) &&
+                Objects.equals(volumeAmount, that.volumeAmount) &&
+                Objects.equals(densityAmount, that.densityAmount) &&
+                Objects.equals(molarAmount, that.molarAmount) &&
+                Objects.equals(purityAmount, that.purityAmount) &&
+                Objects.equals(rxnEquivsAmount, that.rxnEquivsAmount) &&
+                Objects.equals(totalVolume, that.totalVolume) &&
+                Objects.equals(totalWeight, that.totalWeight) &&
+                Objects.equals(totalMolarity, that.totalMolarity) &&
+                Objects.equals(batchType, that.batchType) &&
+                Objects.equals(precursors, that.precursors);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), previousMolarAmount, autoCalcOn, inCalculation, compound, molecularWeightAmount, moleAmount, weightAmount, loadingAmount, volumeAmount, densityAmount, molarAmount, purityAmount, rxnEquivsAmount, totalVolume, totalWeight, totalMolarity, limiting, batchType, precursors, transactionOrder, lastUpdatedType);
     }
 
     // Before playing here familiarize yourself with the
