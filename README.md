@@ -21,15 +21,15 @@ See Spring profiles for additional information about development modes.
 - `cors` - for development use only - enables CORS mappings for UI development
 - `release` - for production use
 
-`dev` and `cors` are enabled by default with `dev` Maven profile. `release` is enabled with `release` Maven profile
+`dev` and `cors` are enabled by default with `dev` Maven profile. `release` is enabled with `release` Maven profile.
 
-See [Spring Boot docs](http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/) for configuration and installation options
+See [Spring Boot docs](http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/) for configuration and installation options.
 
 ## Docker image
 
-Execute `docker:build` (`mvn clean package docker:build -P release`)
+Execute `docker:build` (`mvn clean package docker:build -P release`).
 
-`Dockerfile` will be placed into `target/docker`
+`Dockerfile` will be placed into `target/docker`.
 
 Example run:
  
