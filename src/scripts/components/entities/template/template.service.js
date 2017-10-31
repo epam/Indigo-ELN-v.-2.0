@@ -6,11 +6,7 @@ angular.module('indigoeln')
             },
             get: {
                 method: 'GET',
-                transformResponse: function(data) {
-                    data = angular.fromJson(data);
-
-                    return data;
-                }
+                transformResponse: angular.fromJson
             },
             update: {
                 method: 'PUT'

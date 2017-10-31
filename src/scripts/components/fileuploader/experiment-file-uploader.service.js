@@ -10,11 +10,7 @@ function experimentFileUploaderService($resource, apiUrl) {
         },
         get: {
             method: 'GET',
-            transformResponse: function(data) {
-                data = angular.fromJson(data);
-
-                return data;
-            }
+            transformResponse: angular.fromJson
         },
         save: {
             method: 'POST'

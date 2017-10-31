@@ -4,6 +4,8 @@ angular.module('indigoeln')
             if (_.isObject(user.group)) {
                 user.group = user.group.name;
             }
+
+            return angular.toJson(user);
         }
 
         return $resource(apiUrl + 'users/:login', {}, {
@@ -12,27 +14,15 @@ angular.module('indigoeln')
             },
             get: {
                 method: 'GET',
-                transformResponse: function(data) {
-                    data = angular.fromJson(data);
-
-                    return data;
-                }
+                transformResponse: angular.fromJson
             },
             save: {
                 method: 'POST',
-                transformRequest: function(data) {
-                    transformRequest(data);
-
-                    return angular.toJson(data);
-                }
+                transformRequest: transformRequest
             },
             update: {
                 method: 'PUT',
-                transformRequest: function(data) {
-                    transformRequest(data);
-
-                    return angular.toJson(data);
-                }
+                transformRequest: transformRequest
             },
             delete: {
                 method: 'DELETE'

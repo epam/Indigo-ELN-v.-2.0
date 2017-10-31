@@ -13,21 +13,17 @@ function notebook($resource, PermissionManagement, entityTreeService, apiUrl) {
         get: {
             method: 'GET',
             transformResponse: function(data) {
-                data = angular.fromJson(data);
-                data.accessList = _.sortBy(data.accessList, function(value) {
+                var project = angular.fromJson(data);
+                project.accessList = _.sortBy(project.accessList, function(value) {
                     return value.user.id;
                 });
 
-                return data;
+                return project;
             }
         },
         save: {
             method: 'POST',
-            transformRequest: function(data) {
-                data = transformRequest(data);
-
-                return angular.toJson(data);
-            },
+            transformRequest: transformRequest,
             interceptor: {
                 response: function(response) {
                     entityTreeService.addNotebook(response.data);
@@ -39,11 +35,7 @@ function notebook($resource, PermissionManagement, entityTreeService, apiUrl) {
         update: {
             method: 'PUT',
             url: apiUrl + 'projects/:projectId/notebooks',
-            transformRequest: function(data) {
-                data = transformRequest(data);
-
-                return angular.toJson(data);
-            },
+            transformRequest: transformRequest,
             interceptor: {
                 response: function(response) {
                     entityTreeService.updateNotebook(response.data);
@@ -61,11 +53,10 @@ function notebook($resource, PermissionManagement, entityTreeService, apiUrl) {
         }
     });
 
-
     function transformRequest(data) {
-        data = _.extend({}, data);
-        data.accessList = PermissionManagement.expandPermission(data.accessList);
+        var newData = angular.copy(data);
+        newData.accessList = PermissionManagement.expandPermission(newData.accessList);
 
-        return data;
+        return angular.toJson(newData);
     }
 }

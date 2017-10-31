@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('Experiment', experiment);
+    .factory('Experiment', experimentFactory);
 
 /* @ngInject */
-function experiment($resource, PermissionManagement, entityTreeService, apiUrl) {
+function experimentFactory($resource, PermissionManagement, entityTreeService, apiUrl) {
     var interceptor = {
         response: function(response) {
             entityTreeService.updateExperiment(response.data);
@@ -22,12 +22,12 @@ function experiment($resource, PermissionManagement, entityTreeService, apiUrl) 
                 method: 'GET',
                 isArray: true,
                 transformResponse: function(data) {
-                    data = angular.fromJson(data);
-                    _.each(data, function(item, key) {
-                        data[key] = toModel(item);
+                    var experiment = angular.fromJson(data);
+                    _.forEach(experiment, function(item, key) {
+                        experiment[key] = toModel(item);
                     });
 
-                    return data;
+                    return experiment;
                 }
             },
             get: {
@@ -37,11 +37,7 @@ function experiment($resource, PermissionManagement, entityTreeService, apiUrl) 
             },
             save: {
                 method: 'POST',
-                transformRequest: function(data) {
-                    data = transformRequest(data);
-
-                    return angular.toJson(data);
-                },
+                transformRequest: transformRequest,
                 transformResponse: transformResponse,
                 interceptor: interceptor
             },
@@ -53,17 +49,11 @@ function experiment($resource, PermissionManagement, entityTreeService, apiUrl) 
             update: {
                 method: 'PUT',
                 url: apiUrl + 'projects/:projectId/notebooks/:notebookId/experiments',
-                transformRequest: function(data) {
-                    data = transformRequest(data);
-
-                    return angular.toJson(data);
-                },
+                transformRequest: transformRequest,
                 transformResponse: transformResponse,
                 interceptor: interceptor
             },
-            delete: {
-                method: 'DELETE'
-            },
+            delete: {method: 'DELETE'},
             print: {
                 method: 'GET',
                 url: apiUrl + 'print/project/:projectId/notebook/:notebookId/experiment/:experimentId'
@@ -74,7 +64,6 @@ function experiment($resource, PermissionManagement, entityTreeService, apiUrl) 
                 interceptor: interceptor
             }
         });
-
 
     function toModel(experiment) {
         var components = experiment.components;
@@ -100,18 +89,18 @@ function experiment($resource, PermissionManagement, entityTreeService, apiUrl) 
     }
 
     function transformRequest(data) {
-        data = _.extend({}, data);
-        data.components = toComponents(data.components);
-        data.accessList = PermissionManagement.expandPermission(data.accessList);
+        var copiedRequest = angular.copy(data);
+        copiedRequest.components = toComponents(copiedRequest.components);
+        copiedRequest.accessList = PermissionManagement.expandPermission(copiedRequest.accessList);
 
-        return data;
+        return angular.toJson(copiedRequest);
     }
 
     function transformResponse(data) {
-        data = angular.fromJson(data);
-        data = toModel(data);
-        data.creationDate = moment(data.creationDate).toISOString();
+        var experiment = toModel(angular.fromJson(data));
 
-        return data;
+        experiment.creationDate = moment(experiment.creationDate).toISOString();
+
+        return experiment;
     }
 }

@@ -29,13 +29,14 @@
                 ' info-products="vm.model.reaction.infoProducts"';
 
             _.forEach(Components, function(component) {
-                $templateCache.put(component.id, getTemplate(component.id));
+                $templateCache.put(component.id, getTemplate(component));
             });
 
-            function getTemplate(id) {
-                var directiveName = 'indigo-' + id;
+            function getTemplate(component) {
+                var directiveName = 'indigo-' + component.id;
 
-                return '<' + directiveName + getComponentAttributes(id) + '></' + directiveName + '>';
+                return '<' + directiveName + getComponentAttributes(component.id) +
+                    'component-data="vm.model.' + component.field + '"></' + directiveName + '>';
             }
 
             function getComponentAttributes(id) {
