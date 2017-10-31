@@ -7,7 +7,6 @@
     function addNewBatchDirective() {
         return {
             restrict: 'E',
-            replace: true,
             scope: {
                 batchOperation: '=',
                 isReadonly: '=',
@@ -17,7 +16,10 @@
             templateUrl: 'scripts/app/common/directives/component-buttons/add-new-batch/add-new-batch.html',
             controller: addNewBatchController,
             controllerAs: 'vm',
-            bindToController: true
+            bindToController: true,
+            link: function($scope, $element, $attr, controllers) {
+                $element.addClass('component-button');
+            }
         };
     }
 

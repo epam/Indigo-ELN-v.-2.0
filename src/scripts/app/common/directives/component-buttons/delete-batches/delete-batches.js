@@ -7,7 +7,6 @@
     function deleteBatchesDirective() {
         return {
             restrict: 'E',
-            replace: true,
             scope: {
                 isReadonly: '=',
                 batches: '=?',
@@ -18,7 +17,10 @@
             templateUrl: 'scripts/app/common/directives/component-buttons/delete-batches/delete-batches.html',
             controller: deleteBatchesController,
             controllerAs: 'vm',
-            bindToController: true
+            bindToController: true,
+            link: function($scope, $element, $attr, controllers) {
+                $element.addClass('component-button');
+            }
         };
     }
 
