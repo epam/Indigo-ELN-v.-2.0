@@ -1,5 +1,7 @@
 package com.epam.indigoeln.bingodb.config;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -7,13 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties("bingo")
 public class BingoProperties {
 
+    @Getter
+    @Setter
     private String folder;
-
-    public String getFolder() {
-        return folder;
-    }
-
-    public void setFolder(String folder) {
-        this.folder = folder;
-    }
 }

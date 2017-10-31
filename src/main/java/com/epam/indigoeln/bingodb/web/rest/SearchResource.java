@@ -33,9 +33,7 @@ public class SearchResource {
     @PostMapping(value = "molecule/exact", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO> searchMoleculeExact(@ApiParam("Molecule in Molfile/Smiles format") @RequestBody String structure,
                                                            @ApiParam("Search options") @RequestParam(required = false) String options) {
-        return ResponseEntity.ok().body(new ResponseDTO() {{
-            setStructures(bingoService.searchMoleculeExact(structure, options));
-        }});
+        return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchMoleculeExact(structure, options)));
     }
 
     @ApiOperation("Search molecules with substructure match")
@@ -46,9 +44,7 @@ public class SearchResource {
     @PostMapping(value = "molecule/substructure", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO> searchMoleculeSub(@ApiParam("Molecule in Molfile/Smiles format") @RequestBody String structure,
                                                          @ApiParam("Search options") @RequestParam(required = false) String options) {
-        return ResponseEntity.ok().body(new ResponseDTO() {{
-            setStructures(bingoService.searchMoleculeSub(structure, options));
-        }});
+        return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchMoleculeSub(structure, options)));
     }
 
     @ApiOperation("Search molecules with similarity match")
@@ -61,9 +57,7 @@ public class SearchResource {
                                                                 @ApiParam("Similarity min") @RequestParam Float min,
                                                                 @ApiParam("Similarity max") @RequestParam Float max,
                                                                 @ApiParam("Similarity metric (default is 'tanimoto')") @RequestParam(required = false) String metric) {
-        return ResponseEntity.ok().body(new ResponseDTO() {{
-            setStructures(bingoService.searchMoleculeSim(structure, min, max, metric));
-        }});
+        return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchMoleculeSim(structure, min, max, metric)));
     }
 
     @ApiOperation("Search molecules by molecular formula")
@@ -74,9 +68,7 @@ public class SearchResource {
     @PostMapping(value = "molecule/molformula", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO> searchMoleculeMolFormula(@ApiParam("Molecular formula") @RequestBody String molFormula,
                                                                 @ApiParam("Search options") @RequestParam(required = false) String options) {
-        return ResponseEntity.ok().body(new ResponseDTO() {{
-            setStructures(bingoService.searchMoleculeMolFormula(molFormula, options));
-        }});
+        return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchMoleculeMolFormula(molFormula, options)));
     }
 
     @ApiOperation("Search reactions with exact match")
@@ -87,9 +79,7 @@ public class SearchResource {
     @PostMapping(value = "reaction/exact", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO> searchReactionExact(@ApiParam("Molecule or Reaction in Molfile/Rxnfile/Smiles format") @RequestBody String structure,
                                                            @ApiParam("Search options") @RequestParam(required = false) String options) {
-        return ResponseEntity.ok().body(new ResponseDTO() {{
-            setStructures(bingoService.searchReactionExact(structure, options));
-        }});
+        return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchReactionExact(structure, options)));
     }
 
     @ApiOperation("Search reactions with substructure match")
@@ -100,9 +90,7 @@ public class SearchResource {
     @PostMapping(value = "reaction/substructure", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO> searchReactionSub(@ApiParam("Molecule or Reaction in Molfile/Rxnfile/Smiles format") @RequestBody String structure,
                                                          @ApiParam("Search options") @RequestParam(required = false) String options) {
-        return ResponseEntity.ok().body(new ResponseDTO() {{
-            setStructures(bingoService.searchReactionSub(structure, options));
-        }});
+        return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchReactionSub(structure, options)));
     }
 
     @ApiOperation("Search reactions with similarity match")
@@ -115,8 +103,6 @@ public class SearchResource {
                                                                 @ApiParam("Similarity min") @RequestParam Float min,
                                                                 @ApiParam("Similarity max") @RequestParam Float max,
                                                                 @ApiParam("Similarity metric (default is 'tanimoto')") @RequestParam(required = false) String metric) {
-        return ResponseEntity.ok().body(new ResponseDTO() {{
-            setStructures(bingoService.searchReactionSim(structure, min, max, metric));
-        }});
+        return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchReactionSim(structure, min, max, metric)));
     }
 }
