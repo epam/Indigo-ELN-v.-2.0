@@ -31,8 +31,7 @@
         };
 
         /* @ngInject */
-        function indigoPreferredCompoundDetailsController($scope, EntitiesBrowser, ProductBatchSummaryOperations,
-                                                          AppValues, batchHelper) {
+        function indigoPreferredCompoundDetailsController($scope, EntitiesBrowser, AppValues, batchHelper) {
             var vm = this;
 
             init();
@@ -45,7 +44,6 @@
                 vm.notebookId = EntitiesBrowser.getActiveTab().$$title;
                 vm.saltCodeValues = AppValues.getSaltCodeValues();
                 vm.selectControl = {};
-                vm.importSDFile = importSDFile;
                 vm.hasCheckedRows = batchHelper.hasCheckedRow;
                 vm.selectBatch = selectBatch;
                 vm.canEditSaltEq = canEditSaltEq;
@@ -68,17 +66,6 @@
             function checkEditDisabled() {
                 return vm.isReadonly || !vm.selectedBatch || !vm.selectedBatch.nbkBatch ||
                     vm.selectedBatch.registrationStatus;
-            }
-
-            function importSDFile() {
-                vm.batchOperation = ProductBatchSummaryOperations
-                    .importSDFile()
-                    .then(function(batches) {
-                        _.forEach(batches, function(batch) {
-                            vm.onAddedBatch({batch: batch});
-                        });
-                        selectBatch(batches[0]);
-                    });
             }
 
             function onBatchOperationChanged(completed) {

@@ -2,7 +2,9 @@ angular
     .module('indigoeln.Components')
     .controller('EditSolubilityController', EditSolubilityController);
 
-function EditSolubilityController($uibModalInstance, solubility) {
+EditSolubilityController.$inject = ['EditSolubilityController'];
+
+function EditSolubilityController($uibModalInstance, solubility, appUnits) {
     var vm = this;
 
     init();
@@ -10,42 +12,18 @@ function EditSolubilityController($uibModalInstance, solubility) {
     function init() {
         vm.solubility = getSolubility();
         vm.solubilityTypeSelect = [
-            {
-                name: 'Quantitative'
-            },
-            {
-                name: 'Qualitative'
-            }];
+            {name: 'Quantitative'},
+            {name: 'Qualitative'}];
 
         vm.qualitativeSolubilitySelect = [
-            {
-                name: 'Soluble'
-            },
-            {
-                name: 'Unsoluble'
-            },
-            {
-                name: 'Precipitate'
-            }];
+            {name: 'Soluble'},
+            {name: 'Unsoluble'},
+            {name: 'Precipitate'}];
 
         vm.unitSelect = [
-            {
-                name: 'g/ml'
-            }];
+            {name: 'g/ml'}];
 
-        vm.operatorSelect = [
-            {
-                name: '>'
-            },
-            {
-                name: '<'
-            },
-            {
-                name: '='
-            },
-            {
-                name: '~'
-            }];
+        vm.operatorSelect = appUnits.operatorSelect;
 
         vm.save = save;
         vm.cancel = cancel;

@@ -96,6 +96,10 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             return createBatch(angular.copy(batch), isSyncWithIntended);
         });
 
+        return successAddedBatches(promises);
+    }
+
+    function successAddedBatches(promises) {
         return $q
             .all(promises)
             .then(function(batches) {
@@ -176,19 +180,17 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
                 return createBatch(unit);
             });
 
-            return $q.all(promises).then(function(batches) {
-                return updateNbkBatches(batches).then(function() {
-                    notifyService.info(batches.length + ' batches successfully imported');
+            return successAddedBatches(promises).then(function(batches) {
+                notifyService.info(batches.length + ' batches successfully imported');
 
-                    return batches;
-                });
+                return batches;
             });
         });
     }
 
     function registerBatches(batches) {
         var nonEditableBatches = getSelectedNonEditableBatches(batches);
-        if (nonEditableBatches && nonEditableBatches.length > 0) {
+        if (!_.isEmpty(nonEditableBatches)) {
             notifyService.warning('Batch(es) ' + _.uniq(nonEditableBatches)
                 .join(', ') + ' already have been registered.');
 
@@ -270,7 +272,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
 
     function checkNonRemovableBatches(batches) {
         var nonEditableBatches = getSelectedNonEditableBatches(batches);
-        if (nonEditableBatches && nonEditableBatches.length > 0) {
+        if (!_.isEmpty(nonEditableBatches)) {
             notifyService.error('Following batches were registered or sent to registration and cannot be deleted: ' + _.uniq(nonEditableBatches)
                 .join(', '));
         }

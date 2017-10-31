@@ -61,33 +61,26 @@
         }
 
         function closeThis() {
-            var col = vm.column;
-            var val = vm.row[col.id];
-            if ((col.type === 'scalar' || col.type === 'unit') && isChanged) {
-                var absv = Math.abs(val.value);
-                if (absv !== val.value) {
-                    val.value = absv;
+            var model = vm.row[vm.column.id];
+            if ((vm.column.type === 'scalar' || vm.column.type === 'unit') && isChanged) {
+                var absv = Math.abs(model.value);
+                if (absv !== model.value) {
+                    model.value = absv;
                     notifyService.error('Total Amount made must more than zero.');
                 }
             }
-            if (col.type === 'input' && val === '') {
-                vm.row[col.id] = undefined;
+            if (vm.column.type === 'input' && model === '') {
+                vm.row[vm.column.id] = undefined;
             }
 
-            if (col.onClose && isChanged) {
-                col.onClose({
-                    model: vm.row[col.id],
-                    row: vm.row,
-                    column: col.id,
-                    oldVal: oldVal
-                });
+            if (isChanged) {
                 isChanged = false;
             }
             vm.onClose({
                 data: {
-                    model: vm.row[col.id],
+                    model: vm.row[vm.column.id],
                     row: vm.row,
-                    column: col.id,
+                    column: vm.column.id,
                     oldVal: oldVal
                 }
             });

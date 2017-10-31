@@ -3,7 +3,7 @@ angular
     .controller('EditPurityController', EditPurityController);
 
 /* @ngInject */
-function EditPurityController($uibModalInstance, data, dictionary) {
+function EditPurityController($uibModalInstance, data, dictionary, appUnits) {
     var vm = this;
 
     init();
@@ -12,20 +12,7 @@ function EditPurityController($uibModalInstance, data, dictionary) {
         vm.purity = data || {};
         vm.purity.data = vm.purity.data || [];
         vm.dictionary = dictionary;
-
-        vm.operatorSelect = [
-            {
-                name: '>'
-            },
-            {
-                name: '<'
-            },
-            {
-                name: '='
-            },
-            {
-                name: '~'
-            }];
+        vm.operatorSelect = appUnits.operatorSelect;
 
         vm.unknownPurity = 'Purity Unknown';
 

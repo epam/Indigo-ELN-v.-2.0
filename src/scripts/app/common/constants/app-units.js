@@ -54,5 +54,6 @@ angular
             yield: 0,
             prevMolarAmount: {value: 0, unit: 'M', entered: false},
             precursors: ''
-        }
+        },
+        operatorSelect: [{name: '>'}, {name: '<'}, {name: '='}, {name: '~'}]
     });

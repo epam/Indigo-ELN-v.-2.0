@@ -13,6 +13,19 @@
                                          stoichReactantsColumns, stoichProductColumns) {
         var vm = this;
 
+        var columnsWithClose = [
+            'molWeight',
+            'weight',
+            'volume',
+            'mol',
+            'eq',
+            'density',
+            'molarity',
+            'stoicPurity',
+            'loadFactor',
+            'rxnRole'
+        ];
+
         vm.model = vm.model || {};
 
         vm.clear = clear;
@@ -23,6 +36,7 @@
         vm.analyzeRxn = analyzeRxn;
         vm.createRxn = createRxn;
         vm.searchReagents = searchReagents;
+        vm.onCloseCell = onCloseCell;
 
         init();
 
@@ -121,20 +135,20 @@
                 stoichReactantsColumns.casNumber,
                 stoichReactantsColumns.chemicalName,
                 stoichReactantsColumns.fullNbkBatch,
-                addOnClose(stoichReactantsColumns.molWeight),
-                addOnClose(stoichReactantsColumns.weight),
-                addOnClose(stoichReactantsColumns.volume),
-                addOnClose(stoichReactantsColumns.mol),
-                addOnClose(stoichReactantsColumns.eq),
+                stoichReactantsColumns.molWeight,
+                stoichReactantsColumns.weight,
+                stoichReactantsColumns.volume,
+                stoichReactantsColumns.mol,
+                stoichReactantsColumns.eq,
                 getLimiting(),
-                getRxnRoleColumn(),
-                addOnClose(stoichReactantsColumns.density),
-                addOnClose(stoichReactantsColumns.molarity),
-                addOnClose(stoichReactantsColumns.stoicPurity),
+                stoichReactantsColumns.rxnRole,
+                stoichReactantsColumns.density,
+                stoichReactantsColumns.molarity,
+                stoichReactantsColumns.stoicPurity,
                 stoichReactantsColumns.formula,
                 stoichReactantsColumns.saltCode,
                 stoichReactantsColumns.saltEq,
-                addOnClose(stoichReactantsColumns.loadFactor),
+                stoichReactantsColumns.loadFactor,
                 stoichReactantsColumns.hazardComments,
                 stoichReactantsColumns.comments
             ];
@@ -155,23 +169,14 @@
             bindEvents();
         }
 
-        function addOnClose(column) {
-            return _.extend({}, column, {
-                onClose: function(data) {
-                    CalculationService.setEntered(data);
-                    CalculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
-                }
-            });
-        }
-
-        function getRxnRoleColumn() {
-            return _.extend({}, stoichReactantsColumns.rxnRole, {
-                onClose: function(data) {
-                    CalculationService.setEntered(data);
+        function onCloseCell(column, data) {
+            if (_.includes(columnsWithClose, column.id)) {
+                CalculationService.setEntered(data);
+                if (column.id === stoichReactantsColumns.rxnRole.id) {
                     onRxnRoleChange(data);
-                    CalculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
                 }
-            });
+                CalculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
+            }
         }
 
         function getLimiting() {
