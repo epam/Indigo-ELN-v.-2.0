@@ -178,7 +178,7 @@ module.exports = function(grunt) {
         ngtemplates: {
             dist: {
                 cwd: 'src',
-                src: ['scripts/app/**/*.html', 'scripts/components/**/*.html'],
+                src: ['scripts/**/*.html'],
                 dest: '.tmp/templates/templates.js',
                 options: {
                     module: 'indigoeln',
