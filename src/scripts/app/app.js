@@ -33,8 +33,7 @@ angular.module('indigoeln', [
 ])
     .run(function($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle, EntitiesBrowser,
                   $http, $cookies) {
-        $http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken;
-        $http.defaults.headers.put['X-CSRFToken'] = $cookies.csrftoken;
+        updateCSRFTOKEN($cookies, $http);
 
         $.mCustomScrollbar.defaults.advanced.autoScrollOnFocus = false;
         // idleTime: 30 minutes, countdown: 30 seconds
@@ -47,7 +46,9 @@ angular.module('indigoeln', [
             $rootScope.toStateParams = toStateParams;
 
             if (Principal.isIdentityResolved()) {
-                Auth.authorize();
+                Auth.authorize().then(function() {
+                    updateCSRFTOKEN($cookies, $http);
+                });
             }
             var tab = angular.copy(toState.data.tab);
 
@@ -164,3 +165,9 @@ angular.module('indigoeln', [
 
         $animateProvider.classNameFilter(/\banimated\b/);
     });
+
+function updateCSRFTOKEN($cookies, $http) {
+    var csrfToken = $cookies.get('CSRF-TOKEN');
+    $http.defaults.headers.post['X-CSRF-TOKEN'] = csrfToken;
+    $http.defaults.headers.put['X-CSRF-TOKEN'] = csrfToken;
+}
