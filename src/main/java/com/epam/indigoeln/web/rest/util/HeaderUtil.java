@@ -62,10 +62,10 @@ public class HeaderUtil {
 
     public static HttpHeaders createPdfPreviewHeaders(String fileName) {
         HttpHeaders httpHeaders = new HttpHeaders();
+
         httpHeaders.setContentType(MediaType.APPLICATION_PDF);
         httpHeaders.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + fileName);
-//        httpHeaders.add("Access-Control-Allow-Headers", "Range");
-//        httpHeaders.add("Access-Control-Expose-Headers", "Accept-Ranges, Content-Encoding, Content-Length, Content-Range");
+
         return httpHeaders;
     }
 }

@@ -49,7 +49,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     private AmountModel molarAmount = new AmountModel(UnitType.MOLAR); // Describes concentration of batch
     private AmountModel purityAmount = new AmountModel(UnitType.SCALAR, 100); // % Purity info 100 - 0
     private AmountModel rxnEquivsAmount = new AmountModel(UnitType.SCALAR, 1.0, 1.0); // Represents equivalants of compound to a
-    private SaltFormModel saltForm = new SaltFormModel("00"); // Must be from a vetted list
+
     /*
      * This will hold the List Key corresponding the Batch. It will be used while loading Batches to determine the listkey to which
      * the batch is assigned to, which helps in building the BatchesList object.
@@ -59,7 +59,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     private AmountModel totalMolarity = new AmountModel(UnitType.MOLAR); // Total Amount made molarity
     private boolean limiting = false;
     private BatchType batchType = null;
-    private double saltEquivs;
+
     private List<String> precursors = new ArrayList<>(); // holds compound ids that were used to create this batch.
     private int transactionOrder = 0;
     // uses constants from above
