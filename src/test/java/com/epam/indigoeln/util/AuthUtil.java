@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 
 public class AuthUtil {
     public static final String login = "admin";
-    public static final String password = "admin";
+    public static final String password = "1234";
     private String[] cookie;
     private String csrfToken;
 

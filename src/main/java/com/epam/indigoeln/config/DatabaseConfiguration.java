@@ -1,5 +1,6 @@
 package com.epam.indigoeln.config;
 
+import com.epam.indigoeln.config.dbchangelogs.ChangeLogBase;
 import com.epam.indigoeln.core.util.JSR310DateConverters.*;
 import com.github.mongobee.Mongobee;
 import com.mongodb.Mongo;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.core.convert.CustomConversions;
@@ -25,6 +27,9 @@ import java.util.List;
 @EnableMongoRepositories("com.epam.indigoeln.core.repository")
 @Import(value = MongoAutoConfiguration.class)
 public class DatabaseConfiguration extends AbstractMongoConfiguration {
+
+    @Autowired
+    private Environment environment;
 
     @Autowired
     private Mongo mongo;
@@ -54,6 +59,8 @@ public class DatabaseConfiguration extends AbstractMongoConfiguration {
 
     @Bean
     public Mongobee mongobee() {
+        ChangeLogBase.setEnvironment(environment);
+
         Mongobee runner = new Mongobee(mongo);
 
         runner.setChangeLogsScanPackage("com.epam.indigoeln.config.dbchangelogs");
