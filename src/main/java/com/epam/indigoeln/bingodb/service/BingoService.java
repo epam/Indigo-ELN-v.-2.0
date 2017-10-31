@@ -55,10 +55,16 @@ public class BingoService {
     @Synchronized
     public BingoStructure getById(String id) {
         if (isMoleculeId(id)) {
-            return new BingoStructure(id, moleculeBingo.getRecordById(getIntId(id)).molfile());
+            return new BingoStructure() {{
+                setId(id);
+                setStructure(moleculeBingo.getRecordById(getIntId(id)).molfile());
+            }};
         }
         if (isReactionId(id)) {
-            return new BingoStructure(id, reactionBingo.getRecordById(getIntId(id)).rxnfile());
+            return new BingoStructure() {{
+                setId(id);
+                setStructure(reactionBingo.getRecordById(getIntId(id)).rxnfile());
+            }};
         }
         return null;
     }

@@ -33,7 +33,9 @@ public class StructureResource {
     })
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO> insert(@ApiParam("Molecule or Reaction in Molfile/Rxnfile/Smiles format") @RequestBody String structure) {
-        return ResponseEntity.ok().body(new ResponseDTO(Collections.singletonList(bingoService.insert(structure))));
+        return ResponseEntity.ok().body(new ResponseDTO() {{
+            setStructures(Collections.singletonList(bingoService.insert(structure)));
+        }});
     }
 
     @ApiOperation("Update structure with given ID")
@@ -44,7 +46,9 @@ public class StructureResource {
     @PutMapping(value = "{id}", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO> update(@ApiParam("Structure ID") @PathVariable String id,
                                               @ApiParam("Molecule or Reaction in Molfile/Rxnfile/Smiles format") @RequestBody String structure) {
-        return ResponseEntity.ok().body(new ResponseDTO(Collections.singletonList(bingoService.update(id, structure))));
+        return ResponseEntity.ok().body(new ResponseDTO() {{
+            setStructures(Collections.singletonList(bingoService.update(id, structure)));
+        }});
     }
 
     @ApiOperation("Delete structure with given ID")
@@ -65,6 +69,8 @@ public class StructureResource {
     })
     @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO> getById(@ApiParam("Structure ID") @PathVariable String id) {
-        return ResponseEntity.ok().body(new ResponseDTO(Collections.singletonList(bingoService.getById(id))));
+        return ResponseEntity.ok().body(new ResponseDTO() {{
+            setStructures(Collections.singletonList(bingoService.getById(id)));
+        }});
     }
 }

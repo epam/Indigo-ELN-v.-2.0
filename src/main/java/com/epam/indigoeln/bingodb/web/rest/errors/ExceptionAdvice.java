@@ -17,6 +17,8 @@ public class ExceptionAdvice {
     public ResponseEntity<ErrorDTO> handleException(Exception e) {
         String message = "Error processing request: " + e.getMessage();
         LOGGER.error(message, e);
-        return new ResponseEntity<>(new ErrorDTO(message), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ErrorDTO() {{
+            setMessage(message);
+        }}, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
