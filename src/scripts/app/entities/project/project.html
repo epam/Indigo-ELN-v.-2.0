@@ -82,7 +82,7 @@
         </button>
         <button class="btn btn-info" type="button" ng-click="vm.print()" i-translate="PRINT"></button>
         <button ng-click="vm.save()" form="createProjectForm"
-                ng-disabled="!vm.isEditAllowed || createProjectForm.$invalid || vm.isSaving || !vm.isBtnSaveActive"
+                ng-disabled="!vm.isEditAllowed || createProjectForm.$invalid || vm.isSaving || !vm.isEntityChanged"
                 class="btn btn-primary"><span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
         </button>
         <a class="btn btn-default" ng-click="vm.refresh()">

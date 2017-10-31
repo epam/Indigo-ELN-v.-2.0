@@ -4,7 +4,7 @@
         .controller('ProjectController', ProjectController);
 
     /* @ngInject */
-    function ProjectController($scope, $rootScope, $state, Project, notifyService, PermissionManagement, FileUploaderCash,
+    function ProjectController($scope, $state, Project, notifyService, PermissionManagement, FileUploaderCash,
                                pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils, autorecoveryHelper,
                                autorecoveryCache, EntitiesCache, confirmationModal, $q, entityHelper, apiUrl) {
         var vm = this;
@@ -14,7 +14,6 @@
         var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
         var updateRecovery;
         var originalProject;
-        var isChanged;
         var entityTitle;
 
         init();
@@ -25,7 +24,6 @@
 
             vm.apiUrl = apiUrl;
             vm.stateData = $state.current.data;
-            vm.isBtnSaveActive = false;
 
             vm.loading = initEntity().then(function() {
                 originalProject = angular.copy(pageInfo.project);
@@ -95,7 +93,7 @@
         }
 
         function save() {
-            if (!isChanged) {
+            if (!vm.isEntityChanged) {
                 return $q.resolve();
             }
 
@@ -155,26 +153,17 @@
         }
 
         function toggleDirty(isDirty) {
-            if (!$scope.createProjectForm) {
-                return;
-            }
-
-            isChanged = _.isBoolean(isDirty) ? isDirty : !$scope.createProjectForm.$dirty;
-
-            if (isChanged) {
-                $scope.createProjectForm.$setDirty();
+            if (isDirty) {
                 EntitiesCache.put($stateParams, pageInfo.project);
-            } else {
-                $scope.createProjectForm.$setPristine();
             }
-            vm.isBtnSaveActive = $scope.createProjectForm.$dirty;
-            EntitiesBrowser.changeDirtyTab($stateParams, isChanged);
+            vm.isEntityChanged = !!isDirty;
+            EntitiesBrowser.changeDirtyTab($stateParams, isDirty);
         }
 
         function initDirtyListener() {
             $scope.$on('entity-updated', function(event, data) {
                 vm.loading.then(function() {
-                    entityHelper.checkVersion($stateParams, data, vm.project, entityTitle, isChanged, refresh);
+                    entityHelper.checkVersion($stateParams, data, vm.project, entityTitle, vm.isEntityChanged, refresh);
                 });
             });
 
