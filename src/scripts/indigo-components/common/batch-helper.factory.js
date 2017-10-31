@@ -3,9 +3,11 @@
         .module('indigoeln.Components')
         .factory('batchHelper', batchHelper);
 
-    batchHelper.$inject = ['appUnits', 'CalculationService', 'columnActions', 'scalarService', 'unitService', 'selectService', 'inputService'];
+    batchHelper.$inject = ['appUnits', 'CalculationService', 'columnActions', 'scalarService', 'unitService',
+        'selectService', 'inputService'];
 
-    function batchHelper(appUnits, CalculationService, columnActions, scalarService, unitService, selectService, inputService) {
+    function batchHelper(appUnits, CalculationService, columnActions, scalarService, unitService, selectService,
+                         inputService) {
         var columnCloseFunction = {
             totalWeight: onClose1,
             totalVolume: onClose1,
@@ -62,6 +64,8 @@
 
         return {
             close: close,
+            hasCheckedRow: hasCheckedRow,
+            getCheckedBatches: getCheckedBatches,
             compounds: compounds,
             columns: {
                 structure: {
@@ -413,5 +417,17 @@
                 }
             }
         };
+
+        function hasCheckedRow(batches) {
+            return _.some(batches, function(item) {
+                return item.$$select;
+            });
+        }
+
+        function getCheckedBatches(batches) {
+            return _.filter(batches, function(batch) {
+                return batch.$$select;
+            });
+        }
     }
 })();

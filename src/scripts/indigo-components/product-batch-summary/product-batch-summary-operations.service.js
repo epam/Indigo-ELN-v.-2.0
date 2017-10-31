@@ -6,7 +6,7 @@ angular
 function productBatchSummaryOperations($q, ProductBatchSummaryCache, RegistrationUtil, StoichTableCache, AppValues,
                                        notifyService, $timeout, EntitiesBrowser, RegistrationService, sdImportService,
                                        sdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService,
-                                       apiUrl) {
+                                       apiUrl, $document) {
     var curNbkOperation = $q.when();
 
     return {
@@ -22,20 +22,22 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         deleteBatches: deleteBatches
     };
 
+    function downloadLink(filePath) {
+        var a = $document[0].createElement('A');
+        a.href = filePath;
+        a.download = filePath.substr(filePath.lastIndexOf('/') + 1);
+        $document[0].body.appendChild(a);
+        a.click();
+        $document[0].body.removeChild(a);
+    }
+
     function exportSDFile(exportBatches) {
-        var batches = exportBatches || ProductBatchSummaryCache.getProductBatchSummary();
-        var selectedBatches = _.filter(batches, function(item) {
-            return item.$$select;
-        });
+        var selectedBatches = !_.isArray(exportBatches) ?
+            [exportBatches] :
+            _.filter(exportBatches, '$$select');
 
         sdExportService.exportItems(selectedBatches).then(function(data) {
-            var file_path = apiUrl + 'sd/download?fileName=' + data.fileName;
-            var a = document.createElement('A');
-            a.href = file_path;
-            a.download = file_path.substr(file_path.lastIndexOf('/') + 1);
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            downloadLink(apiUrl + 'sd/download?fileName=' + data.fileName);
         });
     }
 

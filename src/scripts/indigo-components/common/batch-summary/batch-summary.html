@@ -4,30 +4,27 @@
               indigo-draggable-columns="true"
               indigo-search-columns="['nbkBatch']"
               is-readonly="vm.isReadonly"
-              on-select-row="vm.onRowSelected(row)"
+              on-select-row="vm.onSelectBatch({batch: row})"
               indigo-hide-column-settings="vm.isHideColumnSettings"
               selected-batch="vm.selectedBatch"
               selected-batch-trigger="vm.selectedBatchTrigger"
               on-changed="vm.onChange()"
               on-changed-visible-column="vm.onChangedVisibleColumn(column, isVisible)"
               on-close-cell="vm.onClose(column, data)"
-              ng-class="{'product-batch-register': vm.isReadonly || !vm.isHasCheckedRows()}">
-    <div class="row m-b20">
-        <div class="col-lg-8 m-bt-lg">
+              ng-class="{'product-batch-register': vm.isReadonly || !vm.hasCheckedRows(vm.batches)}">
+    <div class="m-b20 action-panel">
+        <div class="action-panel__left">
             <span class="txt-small bold m-r5" i-translate="BATCHES" i-end=":"></span>
-            <div class="btn-group">
+            <div class="btn-group list-component-buttons">
                 <add-new-batch batch-operation="vm.batchOperation"
                                on-added-batch="vm.onAddedBatch({batch: batch})"
                                on-select-batch="vm.onSelectBatch({batch: batch})"
                                is-readonly="vm.isReadonly">
                 </add-new-batch>
-                <button type="button" class="btn btn-info btn-small"
-                        ng-disabled="vm.isReadonly || !vm.isHasCheckedRows()"
-                        ng-click="vm.duplicateBatches()">
-                    <span class="fa fa-clone"></span>
-                    <span class="m-l5">Duplicate</span>
-                </button>
-                <delete-batches is-readonly="vm.isReadonly || !vm.isHasCheckedRows()"
+                <duplicate-batches is-readonly="vm.isReadonly || !vm.hasCheckedRows(vm.batches)"
+                                   batches="vm.batches">
+                </duplicate-batches>
+                <delete-batches is-readonly="vm.isReadonly || !vm.hasCheckedRows(vm.batches)"
                                 batches="vm.batches"
                                 on-remove-batches="vm.onRemoveBatches({batches: batches})">
                 </delete-batches>
@@ -39,7 +36,7 @@
                 </button>
                 <button type="button" class="btn btn-info btn-small" disabled i-translate="VNV"></button>
                 <button type="button" class="btn btn-info btn-small"
-                        ng-disabled="vm.isReadonly || !vm.isHasCheckedRows()" ng-if="vm.isHasRegService"
+                        ng-disabled="vm.isReadonly || !vm.hasCheckedRows(vm.batches)" ng-if="vm.isHasRegService"
                         ng-click="vm.registerBatches()">
                     <span class="fa fa-floppy-o"></span>
                     <span class="m-l5" i-translate="REGISTER"></span>
@@ -49,21 +46,11 @@
                 </indigo-inline-loader>
             </div>
         </div>
-        <div class="col-lg-4 text-align-lg">
+        <div class="action-panel__right">
             <span class="txt-small bold m-r5" i-translate="SD_FILE" i-end=":"></span>
             <div class="btn-group">
-                <button type="button"
-                        class="btn btn-info btn-small btn-can-loading}}"
-                        ng-class="{'btn-loading': importLoading}"
-                        ng-click="vm.importSDFile()" ng-disabled="vm.isReadonly || vm.isBatchLoading">
-                    <span class="fa fa-cloud-download"></span>
-                    <span class="m-l5" i-translate="IMPORT"></span>
-                </button>
-                <button type="button" class="btn btn-info btn-small" ng-click="vm.exportSDFile()"
-                        ng-disabled="!vm.isHasCheckedRows()">
-                    <span class="fa fa-cloud-upload"></span>
-                    <span class="m-l5" i-translate="EXPORT"></span>
-                </button>
+                <import-sdf-file is-readonly="vm.isReadonly || vm.isBatchLoading"></import-sdf-file>
+                <export-sdf-file is-readonly="!vm.hasCheckedRows(vm.batches)"></export-sdf-file>
             </div>
         </div>
     </div>

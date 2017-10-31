@@ -29,7 +29,7 @@
         };
 
         function IndigoComponentsController($scope, ProductBatchSummaryOperations, ProductBatchSummaryCache,
-                                            EntitiesBrowser, Principal) {
+                                            EntitiesBrowser, Principal, batchHelper) {
             var vm = this;
             var precursors;
 
@@ -67,10 +67,15 @@
                 vm.onChanged({componentId: componentId});
             }
 
+            function updateBatches() {
+                batchesChanged();
+                vm.batchesTrigger++;
+            }
+
             function updateModel() {
                 vm.batches = _.get(vm.model, 'productBatchSummary.batches') || [];
                 ProductBatchSummaryCache.setProductBatchSummary(vm.batches);
-                vm.batchesTrigger++;
+                updateBatches();
 
                 updateSelections();
             }
@@ -155,6 +160,26 @@
                 _.forEach(vm.batches, function(batch) {
                     batch.precursors = precursors;
                 });
+            }
+
+            function batchesChanged() {
+                _.each(vm.batches, function(batch) {
+                    batch.$$purity = batch.purity ? batch.purity.asString : null;
+                    batch.$$externalSupplier = batch.externalSupplier ? batch.externalSupplier.asString : null;
+                    batch.$$meltingPoint = batch.meltingPoint ? batch.meltingPoint.asString : null;
+                    batch.$$healthHazards = batch.healthHazards ? batch.healthHazards.asString : null;
+                    batch.$$batchType = getBatchType(batch);
+                });
+            }
+
+            function getBatchType(batch) {
+                if (!batch.batchType) {
+                    return null;
+                }
+
+                return batchHelper.compounds[0].name === batch.batchType ?
+                    batchHelper.compounds[0]
+                    : batchHelper.compounds[1];
             }
         }
     }

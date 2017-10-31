@@ -20,13 +20,7 @@
                 page: 1,
                 pageSize: 10
             };
-
             vm.visibleColumns = getVisibleColumns();
-            vm.columns = getSortedColumns(vm.indigoColumns);
-
-            updateVisibleColumnsExpression();
-
-            updateRowsForDisplay();
 
             vm.startEdit = startEdit;
             vm.searchDebounce = _.debounce(search, 300);
@@ -214,7 +208,14 @@
             vm.pagination.page = _.ceil(rows.length / vm.pagination.pageSize);
         }
 
+        function initColumns() {
+            vm.columns = getSortedColumns(vm.indigoColumns);
+            updateVisibleColumnsExpression();
+            updateRowsForDisplay();
+        }
+
         function bindEvents() {
+            $scope.$watch('vm.indigoColumns', initColumns);
             $scope.$watch('vm.indigoRows.length', vm.searchDebounce);
             $scope.$watch('vm.indigoRows', vm.searchDebounce);
 

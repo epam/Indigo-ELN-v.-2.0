@@ -31,7 +31,7 @@
             $scope.$watch('vm.promise.$$state', function(val) {
                 vm.isLoading = (val && val.status === 0);
                 if (vm.onStatusChanged) {
-                    vm.onStatusChanged({completed: vm.isLoading});
+                    vm.onStatusChanged({completed: !vm.isLoading});
                 }
             }, true);
         }

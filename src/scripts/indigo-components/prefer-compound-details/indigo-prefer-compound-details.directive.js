@@ -31,7 +31,8 @@
         };
 
         /* @ngInject */
-        function indigoPreferredCompoundDetailsController($scope, EntitiesBrowser, ProductBatchSummaryOperations, AppValues) {
+        function indigoPreferredCompoundDetailsController($scope, EntitiesBrowser, ProductBatchSummaryOperations,
+                                                          AppValues, batchHelper) {
             var vm = this;
 
             init();
@@ -45,12 +46,9 @@
                 vm.saltCodeValues = AppValues.getSaltCodeValues();
                 vm.selectControl = {};
                 vm.importSDFile = importSDFile;
-                vm.exportSDFile = exportSDFile;
-
+                vm.hasCheckedRows = batchHelper.hasCheckedRow;
                 vm.selectBatch = selectBatch;
                 vm.canEditSaltEq = canEditSaltEq;
-                vm.deleteBatch = deleteBatch;
-                vm.duplicateBatch = duplicateBatch;
                 vm.onBatchOperationChanged = onBatchOperationChanged;
                 vm.isBatchLoading = false;
 
@@ -59,6 +57,7 @@
 
             function canEditSaltEq() {
                 var o = vm.selectedBatch;
+
                 return o && o.saltCode && o.saltCode.value !== 0;
             }
 
@@ -67,40 +66,24 @@
             }
 
             function checkEditDisabled() {
-                return vm.isReadonly || !vm.selectedBatch || !vm.selectedBatch.nbkBatch || vm.selectedBatch.registrationStatus;
-            }
-
-            function successAddedBatch(batch) {
-                vm.onAddedBatch({batch: batch});
-                vm.onChanged();
-                selectBatch(batch);
-            }
-
-            function duplicateBatch() {
-                vm.batchOperation = ProductBatchSummaryOperations.duplicateBatch(vm.selectedBatch).then(successAddedBatch);
-            }
-
-            function deleteBatch() {
-                vm.onRemoveBatches({batches: [vm.selectedBatch]});
+                return vm.isReadonly || !vm.selectedBatch || !vm.selectedBatch.nbkBatch ||
+                    vm.selectedBatch.registrationStatus;
             }
 
             function importSDFile() {
-                vm.batchOperation = ProductBatchSummaryOperations.importSDFile().then(function(batches) {
-                    _.forEach(batches, function(batch) {
-                        vm.onAddedBatch({batch: batch});
+                vm.batchOperation = ProductBatchSummaryOperations
+                    .importSDFile()
+                    .then(function(batches) {
+                        _.forEach(batches, function(batch) {
+                            vm.onAddedBatch({batch: batch});
+                        });
+                        selectBatch(batches[0]);
                     });
-                    selectBatch(batches[0]);
-                });
-            }
-
-            function exportSDFile() {
-                ProductBatchSummaryOperations.exportSDFile();
             }
 
             function onBatchOperationChanged(completed) {
                 vm.isBatchLoading = completed;
             }
-
 
             function onRowSelected(batch) {
                 if (batch) {

@@ -43,7 +43,7 @@
             <div class="action-panel m-b20">
                 <div class="action-panel__left">
                     <span class="txt-small bold m-r5"><span i-translate="BATCHES"></span>:</span>
-                    <div class="btn-group">
+                    <div class="btn-group list-component-buttons">
                         <add-new-batch batch-operation="vm.batchOperation"
                                        on-added-batch="vm.onAddedBatch({batch: batch})"
                                        on-select-batch="vm.onSelectBatch({batch: batch})"
@@ -94,17 +94,10 @@
                     <span class="txt-small bold m-r5"> <span i-translate="SD_FILE"></span>:</span>
 
                     <div class="btn-group">
-                        <button type="button"
-                                class="btn btn-info btn-small  btn-can-loading {{(vm.importLoading) ? 'btn-loading' : ''}}"
-                                ng-click="vm.importSDFile()" ng-disabled="vm.isReadonly || vm.isBatchLoading">
-                            <span class="fa fa-cloud-download"></span>
-                            <span class="m-l5" i-translate="IMPORT"></span>
-                        </button>
-                        <button type="button" class="btn btn-info btn-small" ng-click="vm.exportSDFile()"
-                                ng-disabled="vm.isEditDisabled">
-                            <span class="fa fa-cloud-upload"></span>
-                            <span class="m-l5" i-translate="EXPORT"></span>
-                        </button>
+                        <import-sdf-file is-readonly="vm.isReadonly || vm.isBatchLoading"></import-sdf-file>
+                        <export-sdf-file is-readonly="!vm.selectedBatch"
+                                         is-selected-batch="true">
+                        </export-sdf-file>
                     </div>
                 </div>
             </div>

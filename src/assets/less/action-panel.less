@@ -1,0 +1,41 @@
+.action-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+
+  &:before {
+    display: none;
+  }
+
+  &__left,
+  &__right,
+  &__center {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  &__left {
+    margin-right: 20px;
+
+    .btn {
+      display: flex;
+      align-self: center;
+    }
+    .btn-group {
+      display: flex;
+    }
+  }
+
+  &__right {
+    .btn-group {
+      display: flex;
+    }
+  }
+
+  &__center {
+    display: flex;
+    justify-content: space-around;
+  }
+}

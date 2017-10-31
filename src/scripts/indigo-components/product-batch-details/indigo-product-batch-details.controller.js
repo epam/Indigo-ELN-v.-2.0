@@ -23,8 +23,6 @@
             vm.isIntendedSynced = isIntendedSynced;
             vm.syncWithIntendedProducts = syncWithIntendedProducts;
             vm.registerBatch = registerBatch;
-            vm.importSDFile = importSDFile;
-            vm.exportSDFile = exportSDFile;
             vm.editSolubility = editSolubility;
             vm.editResidualSolvents = editResidualSolvents;
             vm.editExternalSupplier = editExternalSupplier;
@@ -85,19 +83,6 @@
             vm.loading = vm.saveExperimentFn().then(function() {
                 return ProductBatchSummaryOperations.registerBatches([vm.selectedBatch]);
             });
-        }
-
-        function importSDFile() {
-            vm.batchOperation = ProductBatchSummaryOperations.importSDFile().then(function(batches) {
-                _.forEach(batches, function(batch) {
-                    vm.onAddedBatch({batch: batch});
-                });
-                selectBatch(batches[0]);
-            });
-        }
-
-        function exportSDFile() {
-            ProductBatchSummaryOperations.exportSDFile();
         }
 
         function editSolubility() {

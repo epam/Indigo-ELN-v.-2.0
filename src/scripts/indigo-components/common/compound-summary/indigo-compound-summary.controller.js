@@ -4,7 +4,7 @@
         .controller('IndigoCompoundSummaryController', IndigoCompoundSummaryController);
 
     /* @ngInject */
-    function IndigoCompoundSummaryController($scope, ProductBatchSummaryOperations, batchHelper) {
+    function IndigoCompoundSummaryController($scope, batchHelper) {
         var vm = this;
 
         init();
@@ -12,17 +12,12 @@
         function init() {
             vm.model = vm.model || {};
             vm.columns = getDefaultColumns();
-            vm.onRowSelected = onRowSelected;
-            vm.deleteBatches = deleteBatches;
-            vm.duplicateBatches = duplicateBatches;
-            vm.registerVC = registerVC;
-            vm.importSDFile = importSDFile;
-            vm.exportSDFile = exportSDFile;
-            vm.isHasCheckedRows = isHasCheckedRows;
-            vm.vnv = vnv;
+            vm.hasCheckedRows = batchHelper.hasCheckedRow;
+            vm.vnv = angular.noop;
+            vm.registerVC = angular.noop;
             vm.onBatchOperationChanged = onBatchOperationChanged;
             vm.isBatchLoading = false;
-            vm.onClose = onClose;
+            vm.onClose = batchHelper.close;
             vm.onChangedVisibleColumn = onChangedVisibleColumn;
 
             bindEvents();
@@ -32,10 +27,6 @@
             if (column.id === 'structure') {
                 vm.onShowStructure({isVisible: isVisible});
             }
-        }
-
-        function onClose(column, data) {
-            batchHelper.close(column, data);
         }
 
         function getDefaultColumns() {
@@ -53,60 +44,6 @@
             ];
         }
 
-        function duplicateBatches() {
-            vm.batchOperation = ProductBatchSummaryOperations.duplicateBatches(getCheckedBatches())
-                .then(successAddedBatches);
-        }
-
-        function onRowSelected(row) {
-            vm.onSelectBatch({batch: row});
-        }
-
-        function successAddedBatches(batches) {
-            if (batches.length) {
-                _.forEach(batches, function(batch) {
-                    vm.onAddedBatch({batch: batch});
-                });
-                vm.onChanged();
-                vm.onRowSelected(_.last(batches));
-            }
-        }
-
-        function getCheckedBatches() {
-            return _.filter(vm.batches, function(batch) {
-                return batch.$$select;
-            });
-        }
-
-        function isHasCheckedRows() {
-            return !!_.find(getBatches(), function(item) {
-                return item.$$select;
-            });
-        }
-
-        function deleteBatches() {
-            vm.onRemoveBatches({batches: getCheckedBatches()});
-        }
-
-        function importSDFile() {
-            vm.batchOperation = ProductBatchSummaryOperations.importSDFile().then(successAddedBatches);
-        }
-
-        function exportSDFile() {
-            ProductBatchSummaryOperations.exportSDFile(getBatches());
-        }
-
-        function getBatches() {
-            return vm.batches;
-        }
-
-        function registerVC() {
-
-        }
-
-        function vnv() {
-        }
-
         function onBatchOperationChanged(completed) {
             vm.isBatchLoading = completed;
         }
@@ -116,7 +53,9 @@
                 var column = _.find(vm.columns, function(item) {
                     return item.id === 'structure';
                 });
-                column.width = (500 * newVal) + 'px';
+                if (column) {
+                    column.width = (500 * newVal) + 'px';
+                }
             });
         }
     }
