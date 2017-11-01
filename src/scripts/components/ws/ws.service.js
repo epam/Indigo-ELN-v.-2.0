@@ -14,7 +14,7 @@ function wsService($cookies, $http, $q, $log, apiUrl) {
     };
 
     function getWbsocketUrl() {
-        if (!_.includes(apiUrl, location.host)) {
+        if (!_.includes(apiUrl, location.host) && apiUrl !== 'api/') {
             return _.replace(apiUrl, 'api/', 'websocket');
         }
 
