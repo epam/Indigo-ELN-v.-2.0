@@ -8,7 +8,7 @@
             restrict: 'E',
             replace: true,
             templateUrl: 'scripts/indigo-components/prefer-compound-details/prefer-compound-details.html',
-            controller: indigoPreferredCompoundDetailsController,
+            controller: IndigoPreferredCompoundDetailsController,
             controllerAs: 'vm',
             bindToController: true,
             scope: {
@@ -31,7 +31,7 @@
         };
 
         /* @ngInject */
-        function indigoPreferredCompoundDetailsController($scope, EntitiesBrowser, AppValues, batchHelper) {
+        function IndigoPreferredCompoundDetailsController($scope, EntitiesBrowser, AppValues, batchHelper) {
             var vm = this;
 
             init();

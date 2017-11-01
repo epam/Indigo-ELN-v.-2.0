@@ -4,16 +4,16 @@ angular
         return {
             scope: true,
             restrict: 'E',
-            controller: appPageController,
+            controller: AppPageController,
             controllerAs: 'vm',
             templateUrl: 'scripts/components/app-page/app-page.component.html',
             bindToController: true
         };
     });
 
-appPageController.$inject = ['$rootScope', '$scope', '$cookies', '$window', 'WSService', '$timeout'];
+AppPageController.$inject = ['$rootScope', '$scope', '$cookies', '$window', 'WSService', '$timeout'];
 
-function appPageController($rootScope, $scope, $cookies, $window, WSService, $timeout) {
+function AppPageController($rootScope, $scope, $cookies, $window, WSService, $timeout) {
     var vm = this;
     var mobileViewWidth = 992;
     var updateToggle;

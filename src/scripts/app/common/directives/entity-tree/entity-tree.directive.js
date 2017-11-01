@@ -8,7 +8,7 @@
                     isAll: '=',
                     onSelectNode: '&'
                 },
-                controller: entityTree,
+                controller: EntityTreeController,
                 controllerAs: 'vm',
                 bindToController: true,
                 templateUrl: 'scripts/app/common/directives/entity-tree/entity-tree.html',
@@ -23,7 +23,7 @@
         });
 
     /* @ngInject */
-    function entityTree(entityTreeService, $timeout, Experiment, $scope, scrollService, $q) {
+    function EntityTreeController(entityTreeService, $timeout, Experiment, $scope, scrollService, $q) {
         var vm = this;
 
         init();

@@ -11,14 +11,14 @@
                 indigoItems: '=',
                 indigoLabel: '@'
             },
-            controller: controller,
+            controller: IndigoChecklistController,
             controllerAs: 'vm',
             bindToController: true,
             templateUrl: 'scripts/components/form/elements/checklist/checklist.html'
         };
 
         /* @ngInject */
-        function controller() {
+        function IndigoChecklistController() {
             var vm = this;
             vm.allItemsSelected = false;
 

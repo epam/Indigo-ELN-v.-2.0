@@ -11,14 +11,14 @@
                 promise: '=',
                 onStatusChanged: '&'
             },
-            controller: indigoInlineLoaderController,
+            controller: IndigoInlineLoaderController,
             controllerAs: 'vm',
             bindToController: true
         };
     }
 
     /* @ngInject */
-    function indigoInlineLoaderController($scope) {
+    function IndigoInlineLoaderController($scope) {
         var vm = this;
 
         init();

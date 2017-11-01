@@ -8,7 +8,7 @@
     function editableCell() {
         return {
             restrict: 'E',
-            controller: editableCellController,
+            controller: EditableCellController,
             controllerAs: 'vm',
             bindToController: true,
             scope: {
@@ -21,9 +21,9 @@
         };
     }
 
-    editableCellController.$inject = ['$scope', 'UnitsConverter', 'roundFilter', 'notifyService'];
+    EditableCellController.$inject = ['$scope', 'UnitsConverter', 'roundFilter', 'notifyService'];
 
-    function editableCellController($scope, UnitsConverter, roundFilter, notifyService) {
+    function EditableCellController($scope, UnitsConverter, roundFilter, notifyService) {
         var vm = this;
         var oldVal;
         var isChanged;

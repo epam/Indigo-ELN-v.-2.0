@@ -1,9 +1,9 @@
 angular
     .module('indigoeln.Components')
-    .controller('analyzeRxnController', analyzeRxnController);
+    .controller('AnalyzeRxnController', AnalyzeRxnController);
 
 /* @ngInject */
-function analyzeRxnController($uibModalInstance, reactants, SearchService, AppValues, onStoichRowsChanged,
+function AnalyzeRxnController($uibModalInstance, reactants, SearchService, AppValues, onStoichRowsChanged,
                               stoichColumnActions, $q) {
     var vm = this;
 

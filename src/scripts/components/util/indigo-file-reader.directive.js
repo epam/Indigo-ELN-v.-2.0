@@ -8,7 +8,7 @@
         return {
             restrict: 'A',
             scope: false,
-            controller: controller,
+            controller: IndigoFileReaderController,
             link: link
         };
 
@@ -30,7 +30,7 @@
         }
 
         /* @ngInject */
-        function controller($scope) {
+        function IndigoFileReaderController($scope) {
             $scope.showContent = function($fileContent) {
                 $scope.content = $fileContent;
             };

@@ -73,7 +73,7 @@
                     $uibModal.open({
                         animation: true,
                         size: 'lg',
-                        controller: 'analyzeRxnController',
+                        controller: 'AnalyzeRxnController',
                         controllerAs: 'vm',
                         templateUrl: 'scripts/indigo-components/common/analyze-rxn/analyze-rxn.html',
                         resolve: {

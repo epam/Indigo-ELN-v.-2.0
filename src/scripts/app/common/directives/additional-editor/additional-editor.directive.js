@@ -16,13 +16,9 @@
                 $element.addClass('additional-editor');
             },
             templateUrl: 'scripts/app/common/directives/additional-editor/additional-editor.html',
-            controller: additionalEditorValueController,
+            controller: angular.noop,
             controllerAs: 'vm',
             bindToController: true
         };
-
-        function additionalEditorValueController() {
-
-        }
     }
 })();

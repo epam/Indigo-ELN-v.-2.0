@@ -13,14 +13,14 @@
                 isReadonly: '=',
                 onChanged: '&'
             },
-            controller: indigoBatchStructureController,
+            controller: IndigoBatchStructureController,
             controllerAs: 'vm',
             bindToController: true
         };
     }
 
     /* @ngInject */
-    function indigoBatchStructureController(CalculationService) {
+    function IndigoBatchStructureController(CalculationService) {
         var vm = this;
 
         init();

@@ -15,7 +15,7 @@
                 onRemoveBatches: '&'
             },
             templateUrl: 'scripts/app/common/directives/component-buttons/delete-batches/delete-batches.html',
-            controller: deleteBatchesController,
+            controller: DeleteBatchesController,
             controllerAs: 'vm',
             bindToController: true,
             link: function($scope, $element, $attr, controllers) {
@@ -24,9 +24,9 @@
         };
     }
 
-    deleteBatchesController.$inject = [];
+    DeleteBatchesController.$inject = [];
 
-    function deleteBatchesController() {
+    function DeleteBatchesController() {
         var vm = this;
 
         init();

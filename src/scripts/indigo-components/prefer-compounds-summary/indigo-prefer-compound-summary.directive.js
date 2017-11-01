@@ -22,14 +22,14 @@
                 onRemoveBatches: '&',
                 onChanged: '&'
             },
-            controller: controller,
+            controller: IndigoPreferredCompoundsSummaryController,
             controllerAs: 'vm',
             bindToController: true,
             templateUrl: 'scripts/indigo-components/prefer-compounds-summary/prefer-compound-summary.html'
         };
 
         /* @ngInject */
-        function controller() {
+        function IndigoPreferredCompoundsSummaryController() {
             var vm = this;
 
             vm.model = vm.model || {};

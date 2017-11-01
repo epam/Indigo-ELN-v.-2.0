@@ -177,7 +177,7 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
         $uibModal.open({
             animation: true,
             templateUrl: 'scripts/indigo-components/common/structure-scheme/export/structure-export-modal.html',
-            controller: 'structureExportModalController',
+            controller: 'StructureExportModalController',
             controllerAs: 'vm',
             windowClass: 'structure-export-modal',
             resolve: {

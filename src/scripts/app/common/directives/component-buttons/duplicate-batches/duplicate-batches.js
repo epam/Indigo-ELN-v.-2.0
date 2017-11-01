@@ -13,7 +13,7 @@
                 batches: '='
             },
             templateUrl: 'scripts/app/common/directives/component-buttons/duplicate-batches/duplicate-batches.html',
-            controller: duplicateBatchesController,
+            controller: DuplicateBatchesController,
             controllerAs: 'vm',
             bindToController: true,
             link: function($scope, $element, $attr, controllers) {
@@ -23,9 +23,9 @@
         };
     }
 
-    duplicateBatchesController.$inject = ['ProductBatchSummaryOperations', 'batchHelper'];
+    DuplicateBatchesController.$inject = ['ProductBatchSummaryOperations', 'batchHelper'];
 
-    function duplicateBatchesController(ProductBatchSummaryOperations, batchHelper) {
+    function DuplicateBatchesController(ProductBatchSummaryOperations, batchHelper) {
         var vm = this;
 
         init();

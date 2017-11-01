@@ -7,7 +7,7 @@
         return {
             restrict: 'E',
             templateUrl: 'scripts/indigo-components/reaction-scheme/reaction-scheme.html',
-            controller: indigoReactionSchemeController,
+            controller: IndigoReactionSchemeController,
             controllerAs: 'vm',
             bindToController: true,
             scope: {
@@ -22,7 +22,7 @@
     }
 
     /* @ngInject */
-    function indigoReactionSchemeController($scope, $rootScope, CalculationService, $q, notifyService, AppValues) {
+    function IndigoReactionSchemeController($scope, $rootScope, CalculationService, $q, notifyService, AppValues) {
         var vm = this;
 
         init();

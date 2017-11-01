@@ -1,8 +1,8 @@
 angular
     .module('indigoeln.Components')
-    .controller('structureExportModalController', structureExportModalController);
+    .controller('StructureExportModalController', StructureExportModalController);
 
-function structureExportModalController($uibModalInstance, structureToSave, structureType, FileSaver) {
+function StructureExportModalController($uibModalInstance, structureToSave, structureType, FileSaver) {
     var vm = this;
     var NUM_MAX = 999;
     var NUM_MIN = 100;

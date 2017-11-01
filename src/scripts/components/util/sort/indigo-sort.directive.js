@@ -11,11 +11,11 @@
                 ascending: '=',
                 callback: '&'
             },
-            controller: controller
+            controller: IndigoSortController
         };
 
         /* @ngInject */
-        function controller($scope) {
+        function IndigoSortController($scope) {
             this.sort = function(field) {
                 if (field !== $scope.predicate) {
                     $scope.ascending = true;

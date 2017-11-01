@@ -25,7 +25,7 @@
                 indigoRemove: '&',
                 indigoReadonly: '='
             },
-            controller: controller,
+            controller: IndigoSelectController,
             controllerAs: 'vm',
             bindToController: true,
             compile: compile,
@@ -81,7 +81,7 @@
         }
 
         /* @ngInject */
-        function controller(Dictionary) {
+        function IndigoSelectController(Dictionary) {
             var vm = this;
 
             vm.control = vm.indigoControl || {};

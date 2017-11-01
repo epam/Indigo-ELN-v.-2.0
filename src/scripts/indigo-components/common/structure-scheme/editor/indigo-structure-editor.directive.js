@@ -42,12 +42,12 @@
                     }, 1000);
                 };
             },
-            controller: indigoEditorController
+            controller: IndigoEditorController
         };
     }
 
     /* @ngInject */
-    function indigoEditorController() {
+    function IndigoEditorController() {
         var vm = this;
         vm.editors = {
             KETCHER: {

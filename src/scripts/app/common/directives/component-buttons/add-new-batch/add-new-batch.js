@@ -14,7 +14,7 @@
                 onSelectBatch: '&'
             },
             templateUrl: 'scripts/app/common/directives/component-buttons/add-new-batch/add-new-batch.html',
-            controller: addNewBatchController,
+            controller: AddNewBatchController,
             controllerAs: 'vm',
             bindToController: true,
             link: function($scope, $element, $attr, controllers) {
@@ -23,9 +23,9 @@
         };
     }
 
-    addNewBatchController.$inject = ['ProductBatchSummaryOperations'];
+    AddNewBatchController.$inject = ['ProductBatchSummaryOperations'];
 
-    function addNewBatchController(ProductBatchSummaryOperations) {
+    function AddNewBatchController(ProductBatchSummaryOperations) {
         var vm = this;
 
         init();
