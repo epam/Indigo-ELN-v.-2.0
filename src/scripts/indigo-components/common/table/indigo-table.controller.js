@@ -60,6 +60,10 @@
         }
 
         function getSortedColumns(columns) {
+            if (!columns) {
+                return;
+            }
+
             var sortedColumns = simpleLocalCache.getByKey(userId + '.' + vm.indigoId + '.columnsOrder');
 
             if (_.isArray(sortedColumns)) {
