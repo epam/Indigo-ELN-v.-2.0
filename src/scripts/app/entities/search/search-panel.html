@@ -40,10 +40,12 @@
                                     </div>
                                     <div class="col-xs-3">
                                         <form ng-submit="vm.search()" ng-switch="!!obj.value">
-                                            <simple-input ng-switch-when="false">
-                                                <input class="form-control"
-                                                       ng-model="obj.value">
-                                            </simple-input>
+                                            <div ng-switch-when="false">
+                                                <simple-input>
+                                                    <input class="form-control"
+                                                           ng-model="obj.value">
+                                                </simple-input>
+                                            </div>
                                             <indigo-select ng-switch-when="true"
                                                            indigo-items="obj.searchConditions"
                                                            indigo-model="obj.selectedValue">
@@ -91,7 +93,8 @@
                                     <label class="radio-inline">
                                         <input name="domain" type="radio" value="USERS_ENTITIES"
                                                ng-change="vm.changeDomain()" ng-model="vm.state.domainModel">
-                                        <span class="search-panel__line-height" i-translate="IN_ENTITIES_OF_THESE_USERS"></span>
+                                        <span class="search-panel__line-height"
+                                              i-translate="IN_ENTITIES_OF_THESE_USERS"></span>
                                     </label>
                                 </div>
                             </div>
