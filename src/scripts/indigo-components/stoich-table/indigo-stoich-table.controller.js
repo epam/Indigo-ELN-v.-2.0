@@ -23,7 +23,8 @@
             'molarity',
             'stoicPurity',
             'loadFactor',
-            'rxnRole'
+            'rxnRole',
+            'compoundId'
         ];
 
         vm.model = vm.model || {};
@@ -131,7 +132,7 @@
 
         function init() {
             vm.reactantsColumns = [
-                getCompoundId(),
+                stoichReactantsColumns.compoundId,
                 stoichReactantsColumns.casNumber,
                 stoichReactantsColumns.chemicalName,
                 stoichReactantsColumns.fullNbkBatch,
@@ -171,6 +172,9 @@
 
         function onCloseCell(column, data) {
             if (_.includes(columnsWithClose, column.id)) {
+                if (column.id === stoichReactantsColumns.compoundId.id) {
+                    onCloseCompoundId(data);
+                }
                 CalculationService.setEntered(data);
                 if (column.id === stoichReactantsColumns.rxnRole.id) {
                     onRxnRoleChange(data);
@@ -188,17 +192,13 @@
             });
         }
 
-        function getCompoundId() {
-            return _.extend({}, stoichReactantsColumns.compoundId, {
-                onClose: function(data) {
-                    var row = data.row;
-                    var compoundId = data.model;
-                    stoichColumnActions.fetchBatchByCompoundId(compoundId, row)
-                        .then(function() {
-                            vm.onPrecursorsChanged({precursors: getPrecursors()});
-                        }, alertCompoundWrongFormat);
-                }
-            });
+        function onCloseCompoundId(data) {
+            var row = data.row;
+            var compoundId = data.model;
+            stoichColumnActions.fetchBatchByCompoundId(compoundId, row)
+                .then(function() {
+                    vm.onPrecursorsChanged({precursors: getPrecursors()});
+                }, alertCompoundWrongFormat);
         }
 
         function alertCompoundWrongFormat() {

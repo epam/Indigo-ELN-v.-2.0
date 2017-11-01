@@ -97,14 +97,15 @@
             <simple-input class="form-group-sm">
                 <input class="form-control"
                        type="text"
-                       ng-model="vm.row[vm.column.id].value"
+                       ng-model="vm.row[vm.column.id]"
                        ng-click="vm.column.onClick(vm.row[vm.column.id])"
                        ng-change="vm.column.onChange(vm.row[vm.column.id])"
                        press-enter="vm.closeThis()">
             </simple-input>
             <ul ng-if="vm.column.hasPopup" class="grid-popup shown-{{!!vm.row.$$popItems.length}}">
                 <li ng-repeat="popitem in vm.row.$$popItems track by $index "
-                    ng-click="vm.column.popItemClick(vm.row, popitem.item)" class="popitem">
+                    ng-click="vm.column.popItemClick(vm.row, popitem.item)" class="popitem"
+                    ng-bind="popitem.title">
                 </li>
             </ul>
         </div>

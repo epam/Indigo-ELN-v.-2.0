@@ -17,7 +17,7 @@
                 onStartEdit: '&',
                 onClose: '&'
             },
-            templateUrl: 'scripts/indigo-components/common/table/table-val.html'
+            templateUrl: 'scripts/indigo-components/common/table/editable-cell/editable-cell.html'
         };
     }
 

@@ -7,7 +7,7 @@
         'sdImportHelperService', 'dialogService', 'SearchService'];
 
     function stoichColumnActions(RegistrationService, CalculationService, $q, appUnits, Dictionary, sdImportHelperService,
-                           dialogService, SearchService) {
+                                 dialogService, SearchService) {
         return {
             fetchBatchByCompoundId: fetchBatchByCompoundId,
             cleanReactant: cleanReactant,
@@ -20,21 +20,26 @@
         function fetchBatchByCompoundId(compoundId, row) {
             var searchRequest = {compoundNo: compoundId};
 
-            return RegistrationService.compounds(searchRequest, function(result) {
-                return convertCompoundsToBatches(result.slice(0, 20)).then(function(batches) {
-                    if (batches.length === 1) {
-                        populateFetchedBatch(row, batches[0]);
-                    } else if (batches.length > 1) {
-                        return dialogService.structureValidation(batches, compoundId).then(function(selectedBatch) {
-                            populateFetchedBatch(row, selectedBatch);
-                        });
-                    } else {
-                        return $q.reject(batches);
-                    }
+            return RegistrationService
+                .compounds(searchRequest)
+                .$promise
+                .then(function(result) {
+                    return convertCompoundsToBatches(result.slice(0, 20)).then(function(batches) {
+                        if (batches.length === 1) {
+                            populateFetchedBatch(row, batches[0]);
+                        } else if (batches.length > 1) {
+                            return dialogService
+                                .structureValidation(batches, compoundId)
+                                .then(function(selectedBatch) {
+                                    populateFetchedBatch(row, selectedBatch);
+                                });
+                        } else {
+                            return $q.reject(batches);
+                        }
 
-                    return batches;
+                        return batches;
+                    });
                 });
-            });
         }
 
         function convertCompoundsToBatches(compounds) {

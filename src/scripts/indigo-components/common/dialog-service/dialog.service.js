@@ -9,8 +9,8 @@ function dialogService($uibModal) {
         selectEntitiesToSave: selectEntitiesToSave
     };
 
-    function structureValidation(batches, searchQuery, callback) {
-        $uibModal.open({
+    function structureValidation(batches, searchQuery) {
+        return $uibModal.open({
             animation: true,
             size: 'lg',
             controller: 'StructureValidationController',
@@ -24,12 +24,10 @@ function dialogService($uibModal) {
                     return searchQuery;
                 }
             }
-        }).result.then(function(result) {
-            callback(result);
-        });
+        }).result;
     }
 
-    function selectEntitiesToSave(data, callback) {
+    function selectEntitiesToSave(data) {
         return $uibModal.open({
             animation: true,
             size: 'md',
@@ -41,12 +39,6 @@ function dialogService($uibModal) {
                     return data;
                 }
             }
-        }).result.then(function(result) {
-            if (_.isFunction(callback)) {
-                callback(result);
-            }
-
-            return result;
-        });
+        }).result;
     }
 }

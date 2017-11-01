@@ -72,13 +72,15 @@
         }
 
         function openCloseDialog(editTabs) {
-            return dialogService.selectEntitiesToSave(editTabs, function(tabsToSave) {
-                return $q.all(_.map(tabsToSave, function(tabToSave) {
-                    return saveEntity(tabToSave).then(function() {
-                        closeTab(tabToSave);
-                    });
-                }));
-            });
+            return dialogService
+                .selectEntitiesToSave(editTabs)
+                .then(function(tabsToSave) {
+                    return $q.all(_.map(tabsToSave, function(tabToSave) {
+                        return saveEntity(tabToSave).then(function() {
+                            closeTab(tabToSave);
+                        });
+                    }));
+                });
         }
 
         function onCloseAllTabs(exceptCurrent) {
