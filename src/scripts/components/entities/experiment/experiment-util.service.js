@@ -13,16 +13,20 @@ function experimentUtil($state, $uibModal, $q, Experiment, PermissionManagement,
         completeExperimentAndSign: completeExperimentAndSign
     };
 
+    function goToExperimentDetail(result, params) {
+        $state.go('entities.experiment-detail', {
+            experimentId: result.id,
+            notebookId: params.notebookId,
+            projectId: params.projectId
+        });
+    }
+
     function versionExperiment(experiment, params) {
         return Experiment.version({
             projectId: params.projectId,
             notebookId: params.notebookId
         }, experiment.name, function(result) {
-            $state.go('entities.experiment-detail', {
-                experimentId: result.id,
-                notebookId: params.notebookId,
-                projectId: params.projectId
-            });
+            goToExperimentDetail(result, params);
         }).$promise;
     }
 
@@ -49,11 +53,7 @@ function experimentUtil($state, $uibModal, $q, Experiment, PermissionManagement,
             projectId: params.projectId,
             notebookId: params.notebookId
         }, experimentForSave, function(result) {
-            $state.go('entities.experiment-detail', {
-                experimentId: result.id,
-                notebookId: params.notebookId,
-                projectId: params.projectId
-            });
+            goToExperimentDetail(result, params);
         }).$promise;
     }
 

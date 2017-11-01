@@ -9,7 +9,7 @@ function scalarService($uibModal, RegistrationUtil, CalculationService) {
     };
 
     function action(rows, title, column) {
-        $uibModal.open({
+        return $uibModal.open({
             templateUrl: 'scripts/indigo-components/common/table/scalar/set-scalar-value.html',
             controller: 'SetScalarValueController',
             controllerAs: 'vm',
@@ -20,21 +20,17 @@ function scalarService($uibModal, RegistrationUtil, CalculationService) {
                 }
             }
         }).result.then(function(result) {
-            _.each(rows, function(row) {
+            return _.reduce(rows, function(array, row) {
                 if (!RegistrationUtil.isRegistered(row)) {
                     row[column.id].value = result;
                     row[column.id].entered = true;
                     if (column.id === 'saltEq') {
-                        recalculateSalt(row);
+                        array.push(CalculationService.recalculateSalt(row));
                     }
                 }
-            });
-        });
-    }
 
-    function recalculateSalt(reagent) {
-        CalculationService.recalculateSalt(reagent).then(function() {
-            CalculationService.recalculateStoich();
+                return array;
+            }, []);
         });
     }
 }

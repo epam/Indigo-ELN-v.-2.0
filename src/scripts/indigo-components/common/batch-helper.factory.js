@@ -4,10 +4,10 @@
         .factory('batchHelper', batchHelper);
 
     batchHelper.$inject = ['appUnits', 'CalculationService', 'columnActions', 'scalarService', 'unitService',
-        'selectService', 'inputService'];
+        'selectService', 'inputService', '$q'];
 
     function batchHelper(appUnits, CalculationService, columnActions, scalarService, unitService, selectService,
-                         inputService) {
+                         inputService, $q) {
         var columnCloseFunction = {
             totalWeight: onClose1,
             totalVolume: onClose1,
@@ -226,7 +226,10 @@
                             name: 'Set value for scalar',
                             title: 'scalar',
                             action: function(rows, column) {
-                                scalarService.action(rows, 'scalar', column);
+                                scalarService.action(rows, 'scalar', column)
+                                    .then(function(promises) {
+                                        return $q.all(promises).then(CalculationService.recalculateStoich);
+                                    });
                             }
                         }
                     ]

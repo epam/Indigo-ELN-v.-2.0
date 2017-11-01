@@ -162,15 +162,19 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, CacheFactory) {
         return activeTab;
     }
 
+    function getTab(user, stateParams) {
+        var userId = getUserId(user);
+        var result = TabKeyUtils.getTabKeyFromParams(stateParams);
+
+        return tabs[userId][result];
+    }
 
     function setCurrentTabTitle(tabTitle, stateParams) {
         return resolvePrincipal(function(user) {
-            var userId = getUserId(user);
-            var result = TabKeyUtils.getTabKeyFromParams(stateParams);
-            var t = tabs[userId][result];
-            if (t) {
-                t.$$title = tabTitle;
-                t.title = tabTitle;
+            var tab = getTab(user, stateParams);
+            if (tab) {
+                tab.$$title = tabTitle;
+                tab.title = tabTitle;
                 saveTabs(user);
             }
         });
@@ -204,10 +208,9 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, CacheFactory) {
 
     function changeDirtyTab(stateParams, dirty) {
         return resolvePrincipal(function(user) {
-            var userId = getUserId(user);
-            var result = TabKeyUtils.getTabKeyFromParams(stateParams);
-            if (tabs[userId][result]) {
-                tabs[userId][result].dirty = dirty;
+            var tab = getTab(user, stateParams);
+            if (tab) {
+                tab.dirty = dirty;
             }
         });
     }
