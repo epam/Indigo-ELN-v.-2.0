@@ -62,7 +62,7 @@
         function getSortedColumns(columns) {
             var sortedColumns = simpleLocalCache.getByKey(userId + '.' + vm.indigoId + '.columnsOrder');
 
-            if (sortedColumns) {
+            if (_.isArray(sortedColumns)) {
                 var resultColumns = [];
                 _.forEach(sortedColumns, function(sortedColumn, i) {
                     resultColumns[i] = _.find(columns, function(column) {
