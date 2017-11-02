@@ -7,43 +7,34 @@
         return {
             restrict: 'A',
             scope: {
-                predicate: '=indigoSort',
+                indigoSort: '=',
                 ascending: '=',
                 callback: '&'
             },
-            controller: IndigoSortController
+            controller: IndigoSortController,
+            controllerAs: 'vm',
+            bindToController: true
         };
 
         /* @ngInject */
-        function IndigoSortController($scope) {
-            this.sort = function(field) {
-                if (field !== $scope.predicate) {
-                    $scope.ascending = true;
-                } else {
-                    $scope.ascending = !$scope.ascending;
-                }
-                $scope.predicate = field;
-                $scope.$apply();
-                $scope.callback();
-            };
+        function IndigoSortController() {
+            var vm = this;
 
-            this.applyClass = function(element) {
-                var allThIcons = element.parent().find('span.glyphicon'),
-                    sortIcon = 'glyphicon-sort',
-                    sortAsc = 'glyphicon-sort-by-attributes',
-                    sortDesc = 'glyphicon-sort-by-attributes-alt',
-                    remove = sortIcon + ' ' + sortDesc,
-                    add = sortAsc,
-                    thisIcon = element.find('span.glyphicon');
-                if (!$scope.ascending) {
-                    remove = sortIcon + ' ' + sortAsc;
-                    add = sortDesc;
+            $onInit();
+
+            function $onInit() {
+                vm.sort = sort;
+            }
+
+            function sort(field) {
+                if (field !== vm.indigoSort) {
+                    vm.ascending = true;
+                } else {
+                    vm.ascending = !vm.ascending;
                 }
-                allThIcons.removeClass(sortAsc + ' ' + sortDesc);
-                allThIcons.addClass(sortIcon);
-                thisIcon.removeClass(remove);
-                thisIcon.addClass(add);
-            };
+                vm.indigoSort = field;
+                vm.callback();
+            }
         }
     }
 })();
