@@ -9,7 +9,6 @@ angular.module('indigoeln', [
     'ct.ui.router.extras',
     'xeditable',
     'angularFileUpload',
-    'ngTagsInput',
     'ngCookies',
     'prettyBytes',
     angularDragula(angular),
