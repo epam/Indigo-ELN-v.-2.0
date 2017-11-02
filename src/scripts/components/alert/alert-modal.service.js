@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('AlertModal', alertModal);
+    .factory('AlertModal', alertModalFactory);
 
 /* @ngInject */
-function alertModal($uibModal) {
+function alertModalFactory($uibModal) {
     return {
         alert: alert,
         error: error,
@@ -15,74 +15,55 @@ function alertModal($uibModal) {
     };
 
     function alert(title, message, size, okCallback, noCallback, okText, hideCancel, noText) {
-        alertModal(title, message, size, okCallback, noCallback, okText, hideCancel, noText);
+        openAlertModal(title, message, size, okCallback, noCallback, okText, hideCancel, noText);
     }
 
     function error(msg, size) {
-        alertModal('Error', msg, size);
+        openAlertModal('Error', msg, size);
     }
 
     function warning(msg, size) {
-        alertModal('Warning', msg, size);
+        openAlertModal('Warning', msg, size);
     }
 
     function info(msg, size, okCallback) {
-        alertModal('Info', msg, size, okCallback, null);
+        openAlertModal('Info', msg, size, okCallback, null);
     }
 
     function confirm(msg, size, okCallback) {
-        alertModal('Confirm', msg, size, okCallback, null);
+        openAlertModal('Confirm', msg, size, okCallback, null);
     }
 
     function save(msg, size, callback) {
-        alertModal('Save', msg, size, callback.bind(null, true), callback.bind(null, false), 'Yes');
+        openAlertModal('Save', msg, size, callback.bind(null, true), callback.bind(null, false), 'Yes');
     }
 
     function autorecover(msg, size, okCallback, noCallback) {
-        alertModal('Info', msg, size, okCallback, noCallback, 'Yes', true);
+        openAlertModal('Info', msg, size, okCallback, noCallback, 'Yes', true);
     }
 
-    function alertModal(title, message, size, okCallback, noCallback, okText, hideCancel, noText) {
+    function openAlertModal(title, message, size, okCallback, noCallback, okText, hideCancel, noText) {
         $uibModal.open({
             size: size || 'md',
-            template: '<div class="modal-header">' +
-            '<h5 class="modal-title">' + title + '</h5>' +
-            '</div>' +
-            '<div class="modal-body long-content-popup">' +
-            '<p>' + message + '</p>' +
-            '</div>' +
-            '<div class="modal-footer">' +
-            '<button class="btn btn-primary" type="button" ng-click="ok()">{{okText}}</button>' +
-            '<button class="btn btn-info" type="button" ng-click="no()" ng-if="hasNoCallback">{{noText}}</button>' +
-            '<button class="btn btn-default" type="button" ng-if="cancelVisible" ng-click="cancel()"><i class="fa fa-ban"></i><span class="m-l5">Cancel</span></button>' +
-            '</div>',
-            controller: function($scope, $uibModalInstance) {
-                $scope.hasOkCallback = !!okCallback;
-                $scope.hasNoCallback = !!noCallback;
-                if (hideCancel) {
-                    $scope.cancelVisible = false;
-                } else {
-                    $scope.cancelVisible = $scope.hasOkCallback || $scope.hasNoCallback;
+            resolve: {
+                title: function() {
+                    return title;
+                },
+                message: function() {
+                    return message;
+                },
+                okText: function() {
+                    return okText;
+                },
+                noText: function() {
+                    return noText;
+                },
+                cancelVisible: function() {
+                    return hideCancel ? false : okCallback || noCallback;
                 }
-                $scope.okText = okText || 'OK';
-                $scope.noText = noText || 'No';
-                $scope.cancel = function() {
-                    $uibModalInstance.dismiss('cancel');
-                };
-                $scope.ok = function() {
-                    $uibModalInstance.close();
-                    if ($scope.hasOkCallback) {
-                        okCallback();
-                    }
-                };
-
-                $scope.no = function() {
-                    $uibModalInstance.close();
-                    if ($scope.hasNoCallback) {
-                        noCallback();
-                    }
-                };
-            }
+            },
+            templateUrl: 'scripts/components/alert/alert-modal.html',
+            controller: 'AlertModalController'
         });
     }
 }

@@ -1,0 +1,25 @@
+<div class="modal-header">
+    <h5 class="modal-title" ng-bind="vm.title"></h5>
+</div>
+<div class="modal-body long-content-popup">
+    <p ng-bind="vm.message"></p>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary"
+            type="button"
+            ng-click="vm.ok()"
+            ng-bind="vm.okText">
+    </button>
+    <button class="btn btn-info"
+            type="button"
+            ng-click="vm.no()"
+            ng-if="vm.hasNoCallback"
+            ng-bind="noText">
+    </button>
+    <button class="btn btn-default"
+            type="button"
+            ng-if="vm.cancelVisible"
+            ng-click="vm.cancel()">
+        <i class="fa fa-ban"></i><span class="m-l5" i-translate="CANCEL"></span>
+    </button>
+</div>
