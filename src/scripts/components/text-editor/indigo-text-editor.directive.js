@@ -15,11 +15,14 @@
             restrict: 'E',
             templateUrl: 'scripts/components/text-editor/indigo-text-editor.html',
             replace: true,
+            controller: angular.noop,
+            controllerAs: 'vm',
+            bindToController: true,
             link: link
         };
 
         /* @ngInject */
-        function link($scope, $element) {
+        function link($scope, $element, $attr, vm) {
             var editor;
 
             init();
@@ -33,7 +36,7 @@
                     }, textEditorConfig)
                 );
 
-                if ($scope.indigoReadonly === true) {
+                if (vm.indigoReadonly === true) {
                     editor.body.attr('contenteditable', false);
                 }
 
@@ -48,10 +51,10 @@
                 });
 
                 var editorListener = editor.on('valuechanged', function() {
-                    if (angular.isDefined($scope.indigoModel) && $scope.indigoModel !== editor.getValue()) {
+                    if (angular.isDefined(vm.indigoModel) && vm.indigoModel !== editor.getValue()) {
                         $timeout(function() {
-                            $scope.indigoModel = editor.getValue();
-                            $scope.onChanged({text: $scope.indigoModel});
+                            vm.indigoModel = editor.getValue();
+                            $scope.onChanged({text: vm.indigoModel});
                         });
                     }
                 });
