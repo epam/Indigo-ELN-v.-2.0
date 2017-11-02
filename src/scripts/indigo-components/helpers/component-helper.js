@@ -6,12 +6,13 @@
 
     function componentHelper(Dictionary, notifyService, $state) {
         var loadExperimentsPromise;
+        var experimentsPromise;
 
         return {
             onAddLinkedExperiment: onAddLinkedExperiment,
             getExperiments: getExperiments,
             onLinkedExperimentClick: onLinkedExperimentClick
-        }
+        };
 
         function onAddLinkedExperiment(tag) {
             return loadExperiments().then(function(experiments) {
@@ -33,22 +34,18 @@
             return loadExperimentsPromise;
         }
 
-        function getExperiments(query) {
-            return loadExperiments().then(function(experiments) {
-                return _
-                    .chain(experiments)
-                    .filter(function(experiment) {
-                        return experiment.name.startsWith(query);
-                    })
-                    .map(function(experiment) {
-                        return experiment.name;
-                    })
-                    .value();
-            });
+        function getExperiments() {
+            if (experimentsPromise) {
+                return experimentsPromise;
+            }
+
+            experimentsPromise = loadExperiments();
+
+            return experimentsPromise;
         }
 
         function onLinkedExperimentClick(tag) {
-            loadExperiments().then(function(experiments) {
+            return loadExperiments().then(function(experiments) {
                 var foundExperiment = _.find(experiments, function(experiment) {
                     return experiment.name === tag.text;
                 });

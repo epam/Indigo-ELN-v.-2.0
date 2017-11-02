@@ -111,47 +111,6 @@ body {
     }
 }
 
-//TAGS LIST
-
-tags-input {
-
-    .host {
-        margin: 0;
-    }
-
-    .tags {
-        border-color: @border-color;
-        box-shadow: none;
-        -webkit-appearance: none;
-
-        &.focused {
-            border-color: @brand2;
-            box-shadow: none;
-        }
-
-        .input {
-            font-family: inherit;
-        }
-    }
-
-    .tag-list {
-
-        .tag-item {
-            background-image: none;
-            background-color: @tag-list-bg;
-            .border-radius(@border-radius);
-            font-size: @tag-list-size;
-            font-family: inherit;
-            padding: @tag-list-pad;
-
-            .remove-button {
-                color: #999;
-                font-weight: normal;
-            }
-        }
-    }
-}
-
 //STATISTIC RADIO (MAIN PAGE)
 
 .statistic-radio {
@@ -807,12 +766,6 @@ body > .ui-select-bootstrap.open {
     /*left: 20%;*/
 }
 
-.linkedExperiments .tag-list span {
-    text-decoration: underline;
-    color: blue;
-    cursor: pointer;
-}
-
 .entered-value {
     color: blue;
 }
@@ -1226,4 +1179,5 @@ ul.my-dropdown-list {
 @import "../../scripts/app/common/directives/simple-input/simple-input";
 @import "../../scripts/app/common/directives/additional-editor/additional-editor";
 @import "../../scripts/app/common/directives/component-buttons/component-buttons";
+@import "../../scripts/components/form/elements/linked-experiments/linked-experiments";
 @import "../../assets/less/action-panel";

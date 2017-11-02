@@ -15,9 +15,6 @@
                 vm.users = dictionary.words;
             });
 
-            vm.onLinkedExperimentClick = componentHelper.onLinkedExperimentClick;
-            vm.onAddLinkedExperiment = componentHelper.onAddLinkedExperiment;
-            vm.getExperiments = componentHelper.getExperiments;
             vm.updateIds = updateIds;
 
             bindEvents();

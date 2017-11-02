@@ -1,0 +1,25 @@
+<div class="form-group">
+    <label ng-bind="vm.indigoLabel"></label>
+
+    <ui-select ng-model="vm.indigoModel"
+               theme="bootstrap"
+               ng-disabled="vm.indigoReadonly"
+               spinner-enabled="true"
+               close-on-select="{{vm.closeOnSelect || true}}">
+        <ui-select-match placeholder="{{vm.indigoPlaceholder}}">
+            <a ui-sref="entities.experiment-detail({projectId: $item.projectId, notebookId: $item.notebookId, experimentId: $item.id})"
+               ng-if="$item.name"
+               ng-bind="$item.name">
+            </a>
+            <a ui-sref="entities.experiment-detail({projectId: $select.selected.projectId, notebookId: $select.selected.notebookId, experimentId: $select.selected.id})"
+               ng-if="$select.selected.name"
+               ng-bind="$select.selected.name">
+            </a>
+        </ui-select-match>
+        <ui-select-choices refresh="vm.refresh($select.search)"
+                           refresh-delay="0"
+                           repeat="item in vm.items">
+            <span ng-bind-html="item.name | highlight: $select.search" class="tag-item"></span>
+        </ui-select-choices>
+    </ui-select>
+</div>
