@@ -3,37 +3,48 @@
         .module('indigoeln')
         .directive('indigoFileReader', indigoFileReader);
 
-    /* @ngInject */
-    function indigoFileReader($parse) {
+    function indigoFileReader() {
+        IndigoFileReaderController.$inject = ['$element'];
+
         return {
             restrict: 'A',
-            scope: false,
+            scope: {
+                indigoFileReader: '&'
+            },
             controller: IndigoFileReaderController,
-            link: link
+            controllerAs: 'vm',
+            bindToController: true
         };
 
-        /* @ngInject */
-        function link($scope, $element, $attrs) {
-            var showFunc = $parse($attrs.indigoFileReader);
 
-            $element.on('change', function(onChangeEvent) {
+        function IndigoFileReaderController($element) {
+            var vm = this;
+
+            $onInit();
+
+            function $onInit() {
+                $element.on('change', onChangeElement);
+            }
+
+            function loadFile(blob) {
                 var reader = new FileReader();
                 reader.onload = function(onLoadEvent) {
-                    $scope.$apply(function() {
-                        showFunc($scope, {
-                            $fileContent: onLoadEvent.target.result
-                        });
-                    });
+                    vm.indigoFileReader({fileContent: onLoadEvent.target.result});
                 };
-                reader.readAsText((onChangeEvent.srcElement || onChangeEvent.target).files[0]);
-            });
-        }
 
-        /* @ngInject */
-        function IndigoFileReaderController($scope) {
-            $scope.showContent = function($fileContent) {
-                $scope.content = $fileContent;
-            };
+                reader.readAsText(blob);
+            }
+
+            function onChangeElement(onChangeEvent) {
+                var blob = (onChangeEvent.srcElement || onChangeEvent.target).files[0];
+                if (!blob) {
+                    vm.indigoFileReader({fileContent: null});
+
+                    return;
+                }
+
+                loadFile(blob);
+            }
         }
     }
 })();
