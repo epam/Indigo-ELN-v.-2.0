@@ -54,7 +54,7 @@
                     if (angular.isDefined(vm.indigoModel) && vm.indigoModel !== editor.getValue()) {
                         $timeout(function() {
                             vm.indigoModel = editor.getValue();
-                            $scope.onChanged({text: vm.indigoModel});
+                            vm.onChanged({text: vm.indigoModel});
                         });
                     }
                 });
