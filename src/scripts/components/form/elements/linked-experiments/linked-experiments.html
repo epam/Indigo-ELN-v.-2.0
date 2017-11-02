@@ -21,5 +21,8 @@
                            repeat="item in vm.items">
             <span ng-bind-html="item.name | highlight: $select.search" class="tag-item"></span>
         </ui-select-choices>
+        <ui-select-no-choice>
+            Not found any experiments
+        </ui-select-no-choice>
     </ui-select>
 </div>
