@@ -1,11 +1,5 @@
-angular.module('indigoeln')
-    .factory('ProjectsForSubCreation', function($resource, apiUrl) {
-        return $resource(apiUrl + 'projects/sub-creations', {}, {
-            query: {
-                method: 'GET', isArray: true
-            }
-        });
-    })
+angular
+    .module('indigoeln')
     .factory('NotebooksForSubCreation', function($resource, apiUrl) {
         return $resource(apiUrl + 'notebooks/sub-creations', {
             projectId: '@projectId'
