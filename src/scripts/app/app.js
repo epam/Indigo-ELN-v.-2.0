@@ -84,6 +84,7 @@ angular.module('indigoeln', [
                     animation: false,
                     templateUrl: 'scripts/app/timer/timer-dialog.html',
                     controller: 'CountdownDialogController',
+                    controllerAs: 'vm',
                     windowClass: 'modal-danger',
                     resolve: {
                         countdown: function() {
