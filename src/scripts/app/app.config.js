@@ -17,7 +17,7 @@ function appConfig($stateProvider, $urlRouterProvider, $httpProvider, $compilePr
         abstract: true,
         views: {
             'app_page@': {
-                template: '<app-page></app-page>'
+                template: '<app-layout></app-layout>'
             }
         },
         resolve: {

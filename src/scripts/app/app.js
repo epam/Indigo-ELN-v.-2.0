@@ -24,10 +24,11 @@ angular
         'ui.bootstrap-slider',
         'config',
         'angular-cache',
-        'indigoeln.autorecovery',
         'cgNotify',
         'duScroll',
         'indigoeln.componentButtons',
         'indigoeln.entityTree',
-        'indigoeln.componentsModule'
+        'indigoeln.componentsModule',
+        'indigo.commonModule',
+        'indigo.sidebarModule'
     ]);

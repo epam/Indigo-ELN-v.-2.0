@@ -1,0 +1,2 @@
+angular
+    .module('indigo.sidebarModule', []);
