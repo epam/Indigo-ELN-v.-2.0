@@ -1,5 +1,5 @@
 angular
-    .module('indigoeln')
+    .module('indigoeln.constantsModule')
     .constant('appUnits', {
         grams: ['mg', 'g', 'kg'],
         liters: ['ml', 'ul', 'l'],

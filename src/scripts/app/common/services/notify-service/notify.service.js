@@ -1,11 +1,11 @@
 angular
-    .module('indigo.commonModule.servicesModule')
+    .module('indigoeln.commonModule.servicesModule')
     .factory('notifyService', notifyService);
 
 /* @ngInject */
 function notifyService(notify, $document) {
     notify.config({
-        templateUrl: 'scripts/components/notify-service/notify-service.html',
+        templateUrl: 'scripts/app/common/services/notify-service/notify-service.html',
         startTop: 0
     });
 

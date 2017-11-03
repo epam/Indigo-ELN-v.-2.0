@@ -1,5 +1,5 @@
 angular
-    .module('indigoeln')
+    .module('indigoeln.constantsModule')
     .constant('appRoles', {
         CONTENT_EDITOR: 'CONTENT_EDITOR',
         PROJECT_CREATOR: 'PROJECT_CREATOR',

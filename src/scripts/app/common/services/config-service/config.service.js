@@ -1,6 +1,6 @@
 (function() {
     angular
-        .module('indigo.commonModule.servicesModule')
+        .module('indigoeln.commonModule.servicesModule')
         .factory('configService', configService);
 
     configService.$inject = [];

@@ -28,7 +28,8 @@ angular
         'duScroll',
         'indigoeln.componentButtons',
         'indigoeln.entityTree',
-        'indigoeln.componentsModule',
-        'indigo.commonModule',
-        'indigo.sidebarModule'
+        'indigoeln.commonModule',
+        'indigoeln.sidebarModule',
+        'indigoeln.permissionsModule',
+        'indigoeln.experimentModule'
     ]);

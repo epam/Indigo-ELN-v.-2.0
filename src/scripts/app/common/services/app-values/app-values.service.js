@@ -1,5 +1,5 @@
 angular
-    .module('indigo.commonModule.servicesModule')
+    .module('indigoeln.commonModule.servicesModule')
     .factory('appValues', appValuesFactory);
 
 /* @ngInject */

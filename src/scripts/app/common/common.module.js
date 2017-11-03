@@ -1,5 +1,6 @@
 angular
-    .module('indigo.commonModule', [
-        'indigo.commonModule.servicesModule',
-        'indigoeln.commonModule.componentsModule'
+    .module('indigoeln.commonModule', [
+        'indigoeln.commonModule.servicesModule',
+        'indigoeln.commonModule.componentsModule',
+        'indigoeln.constantsModule'
     ]);

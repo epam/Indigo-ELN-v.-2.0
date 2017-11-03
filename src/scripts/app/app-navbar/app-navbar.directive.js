@@ -6,7 +6,7 @@
                 restrict: 'E',
                 controller: NavbarController,
                 controllerAs: 'vm',
-                templateUrl: 'scripts/components/navbar/navbar.html',
+                templateUrl: 'scripts/app/app-navbar/app-navbar.html',
                 bindToController: true,
                 scope: {
                     onToggleSidebar: '&'

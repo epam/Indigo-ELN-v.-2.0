@@ -60,10 +60,18 @@ function alertModalFactory($uibModal) {
                 },
                 cancelVisible: function() {
                     return hideCancel ? false : okCallback || noCallback;
+                },
+                okCallback: function() {
+                    return okCallback;
+                },
+                noCallback: function() {
+                    return noCallback;
                 }
             },
             templateUrl: 'scripts/app/common/components/alert-modal/alert-modal.html',
-            controller: 'AlertModalController'
+            controller: 'AlertModalController',
+            bindToController: true,
+            controllerAs: 'vm'
         });
     }
 }
