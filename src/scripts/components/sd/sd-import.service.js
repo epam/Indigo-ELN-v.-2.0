@@ -3,7 +3,7 @@ angular
     .factory('sdImportService', sdImportService);
 
 /* @ngInject */
-function sdImportService($uibModal, Dictionary, sdConstants, AlertModal, apiUrl, sdImportHelperService, $q) {
+function sdImportService($uibModal, dictionaryService, sdConstants, alertModal, apiUrl, sdImportHelperService, $q) {
     return {
         importFile: importFile
     };
@@ -75,13 +75,13 @@ function sdImportService($uibModal, Dictionary, sdConstants, AlertModal, apiUrl,
                 return $q.reject();
             }
 
-            return Dictionary.all({})
+            return dictionaryService.all({})
                 .$promise
                 .then(function(dicts) {
                     return importItems(result, dicts);
                 });
         }, function() {
-            AlertModal.error('This file cannot be imported. Error occurred.');
+            alertModal.error('This file cannot be imported. Error occurred.');
         });
     }
 }

@@ -4,7 +4,7 @@
         .controller('ExperimentDeleteController', ExperimentDeleteController);
 
     /* @ngInject */
-    function ExperimentDeleteController($uibModalInstance, $stateParams, entity, Experiment) {
+    function ExperimentDeleteController($uibModalInstance, $stateParams, entity, experimentService) {
         var vm = this;
         vm.experiment = entity;
 
@@ -16,7 +16,7 @@
         }
 
         function confirmDelete(id) {
-            Experiment.delete({
+            experimentService.delete({
                 experimentId: id,
                 notebookId: $stateParams.notebookId,
                 projectId: $stateParams.projectId

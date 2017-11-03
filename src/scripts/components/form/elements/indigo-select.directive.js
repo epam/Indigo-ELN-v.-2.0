@@ -81,7 +81,7 @@
         }
 
         /* @ngInject */
-        function IndigoSelectController(Dictionary) {
+        function IndigoSelectController(dictionaryService) {
             var vm = this;
 
             vm.control = vm.indigoControl || {};
@@ -100,7 +100,7 @@
 
             function init() {
                 if (vm.indigoDictionary) {
-                    Dictionary.getByName({
+                    dictionaryService.getByName({
                         name: vm.indigoDictionary
                     }, function(dictionary) {
                         vm.indigoItems = dictionary.words;

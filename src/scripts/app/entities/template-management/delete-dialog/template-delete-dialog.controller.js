@@ -4,7 +4,7 @@
         .controller('TemplateDeleteController', TemplateDeleteController);
 
     /* @ngInject */
-    function TemplateDeleteController($uibModalInstance, $stateParams, Template) {
+    function TemplateDeleteController($uibModalInstance, $stateParams, templateService) {
         var vm = this;
 
         vm.clear = clear;
@@ -15,7 +15,7 @@
         }
 
         function confirmDelete() {
-            Template.delete({
+            templateService.delete({
                 id: $stateParams.id
             },
                 function() {

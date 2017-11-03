@@ -1,6 +1,6 @@
 angular
     .module('indigoeln.entityTree', [])
-    .run(function($rootScope, entityTreeService, Principal) {
-        Principal.addUserChangeListener(entityTreeService.clearAll);
+    .run(function($rootScope, entityTreeService, principalService) {
+        principalService.addUserChangeListener(entityTreeService.clearAll);
     });
 

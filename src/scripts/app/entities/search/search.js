@@ -21,10 +21,10 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    pageInfo: function($q, Principal, Users) {
+                    pageInfo: function($q, principalService, usersService) {
                         return $q.all([
-                            Users.get(),
-                            Principal.identity()
+                            usersService.get(),
+                            principalService.identity()
                         ]).then(function(results) {
                             return {
                                 users: results[0],

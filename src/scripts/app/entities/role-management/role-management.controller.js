@@ -4,7 +4,7 @@
         .controller('RoleManagementController', RoleManagementController);
 
     /* @ngInject */
-    function RoleManagementController($scope, Role, AccountRole, $filter, $uibModal, pageInfo, notifyService) {
+    function RoleManagementController($scope, roleService, accountRole, $filter, $uibModal, pageInfo, notifyService) {
         var ROLE_EDITOR_AUTHORITY = 'ROLE_EDITOR';
         var vm = this;
         vm.roles = pageInfo.roles;
@@ -22,7 +22,7 @@
 
 
         function search() {
-            Role.query({}, function(result) {
+            roleService.query({}, function(result) {
                 vm.roles = $filter('filter')(result, {
                     name: vm.searchText
                 });
@@ -74,9 +74,9 @@
         function save() {
             vm.isSaving = true;
             if (vm.role.id !== null) {
-                Role.update(vm.role, onSaveSuccess, onSaveError);
+                roleService.update(vm.role, onSaveSuccess, onSaveError);
             } else {
-                Role.save(vm.role, onSaveSuccess, onSaveError);
+                roleService.save(vm.role, onSaveSuccess, onSaveError);
             }
         }
 
@@ -89,15 +89,15 @@
 
         function onSaveError() {
             vm.isSaving = false;
-            notifyService.error('Role is not saved due to server error!');
+            notifyService.error('roleService is not saved due to server error!');
             loadAll();
         }
 
         function loadAll() {
-            AccountRole.query({}, function(result) {
+            accountRole.query({}, function(result) {
                 vm.accountRoles = result;
             });
-            Role.query({}, function(result) {
+            roleService.query({}, function(result) {
                 vm.roles = result;
             });
         }

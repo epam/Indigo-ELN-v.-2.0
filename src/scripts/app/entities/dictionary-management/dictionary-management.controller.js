@@ -4,7 +4,7 @@
         .controller('DictionaryManagementController', DictionaryManagementController);
 
     /* @ngInject */
-    function DictionaryManagementController($scope, $filter, $uibModal, notifyService, Dictionary, ParseLinks) {
+    function DictionaryManagementController($scope, $filter, $uibModal, notifyService, dictionaryService, parseLinksService) {
         var vm = this;
 
         vm.dictionaries = [];
@@ -62,12 +62,12 @@
         }
 
         function loadAllDictionaries() {
-            Dictionary.query({
+            dictionaryService.query({
                 page: vm.page - 1,
                 size: vm.itemsPerPage,
                 search: vm.searchText
             }, function(result, headers) {
-                vm.links = ParseLinks.parse(headers('link'));
+                vm.links = parseLinksService.parse(headers('link'));
                 vm.totalItems = headers('X-Total-Count');
                 vm.dictionaries = result;
                 vm.word = null;
@@ -77,9 +77,9 @@
         function saveDictionary() {
             vm.isSaving = true;
             if (vm.dictionary.id) {
-                Dictionary.update(vm.dictionary, onSaveSuccess, onSaveError);
+                dictionaryService.update(vm.dictionary, onSaveSuccess, onSaveError);
             } else {
-                Dictionary.save(vm.dictionary, onSaveSuccess, onSaveError);
+                dictionaryService.save(vm.dictionary, onSaveSuccess, onSaveError);
             }
         }
 
@@ -95,12 +95,12 @@
         }
 
         function searchDictionary() {
-            Dictionary.query({
+            dictionaryService.query({
                 page: vm.page - 1,
                 size: vm.itemsPerPage,
                 search: vm.searchText
             }, function(result, headers) {
-                vm.links = ParseLinks.parse(headers('link'));
+                vm.links = parseLinksService.parse(headers('link'));
                 vm.totalItems = headers('X-Total-Count');
                 vm.dictionaries = $filter('filter')(result, vm.searchText);
             });
@@ -145,7 +145,7 @@
                     }
                 });
             }
-            Dictionary.update(vm.selectedDictionary, onSaveSuccess, onSaveError);
+            dictionaryService.update(vm.selectedDictionary, onSaveSuccess, onSaveError);
         }
 
         function editWord(word) {
@@ -197,7 +197,7 @@
                     }
                 }
                 if (modified) {
-                    Dictionary.update(vm.selectedDictionary, onSaveSuccess, onSaveError);
+                    dictionaryService.update(vm.selectedDictionary, onSaveSuccess, onSaveError);
                 }
             }
         }

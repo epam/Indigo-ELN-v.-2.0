@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .config(function($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig, userPermissions) {
+    .config(function($stateProvider, permissionManagementConfig, permissionViewManagementConfig, userPermissions) {
         var permissions = [
             userPermissions.VIEWER,
             userPermissions.OWNER
@@ -29,7 +29,7 @@ angular.module('indigoeln')
                     pageTitle: 'Experiment',
                     tab: {
                         name: 'Experiment',
-                        service: 'Experiment',
+                        service: 'experimentService',
                         kind: 'experiment',
                         type: 'entity',
                         state: 'entities.experiment-detail'
@@ -54,8 +54,8 @@ angular.module('indigoeln')
                         controllerAs: 'vm',
                         size: 'md',
                         resolve: {
-                            entity: ['Experiment', function(Experiment) {
-                                return Experiment.get({
+                            entity: ['experimentService', function(experimentService) {
+                                return experimentService.get({
                                     experimentId: $stateParams.id,
                                     notebookId: $stateParams.notebookId
                                 }).$promise;
@@ -70,14 +70,14 @@ angular.module('indigoeln')
                     });
                 }]
             })
-            .state('entities.experiment-detail.permissions', _.extend({}, PermissionManagementConfig, {
+            .state('entities.experiment-detail.permissions', _.extend({}, permissionManagementConfig, {
                 parent: 'entities.experiment-detail',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR']
                 },
                 permissions: permissions
             }))
-            .state('entities.experiment-detail.permissions-view', _.extend({}, PermissionViewManagementConfig, {
+            .state('entities.experiment-detail.permissions-view', _.extend({}, permissionViewManagementConfig, {
                 parent: 'entities.experiment-detail',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR']
@@ -88,7 +88,7 @@ angular.module('indigoeln')
                 parent: 'entities.experiment-detail',
                 url: '/print',
                 onEnter: function(printModal, $stateParams) {
-                    printModal.showPopup($stateParams, 'Experiment');
+                    printModal.showPopup($stateParams, 'experimentService');
                 },
                 data: {
                     authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR']
@@ -110,11 +110,11 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    pageInfo: function($q, $stateParams, Experiment, Notebook, Project) {
+                    pageInfo: function($q, $stateParams, experimentService, notebookService, projectService) {
                         return $q.all([
-                            Experiment.get($stateParams).$promise,
-                            Notebook.get($stateParams).$promise,
-                            Project.get($stateParams).$promise
+                            experimentService.get($stateParams).$promise,
+                            notebookService.get($stateParams).$promise,
+                            projectService.get($stateParams).$promise
                         ]).then(function(results) {
                             return {
                                 experiment: results[0],

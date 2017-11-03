@@ -1,9 +1,9 @@
 angular
-    .module('indigoeln.Components')
-    .factory('ProductBatchSummaryCache', ProductBatchSummaryCache);
+    .module('indigoeln.componentsModule')
+    .factory('productBatchSummaryCache', productBatchSummaryCache);
 
 /* @ngInject */
-function ProductBatchSummaryCache() {
+function productBatchSummaryCache() {
     var _productBatchSummary;
 
     return {

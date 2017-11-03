@@ -1,17 +1,17 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .controller('SomethingDetailsController', SomethingDetailsController);
 
     /* @ngInject */
-    function SomethingDetailsController($scope, Users, componentHelper) {
+    function SomethingDetailsController($scope, usersService) {
         var vm = this;
         var userPromise;
 
         init();
 
         function init() {
-            userPromise = Users.get().then(function(dictionary) {
+            userPromise = usersService.get().then(function(dictionary) {
                 vm.users = dictionary.words;
             });
 
@@ -29,14 +29,14 @@
 
             $scope.$watch('vm.componentData.coAuthors', function() {
                 userPromise.then(function() {
-                    vm.coAuthors = Users.getUsersById(vm.componentData.coAuthors);
+                    vm.coAuthors = usersService.getUsersById(vm.componentData.coAuthors);
                 });
             });
 
             $scope.$watch('vm.componentData.designers', function(designers) {
                 if (designers) {
                     userPromise.then(function() {
-                        vm.designers = Users.getUsersById(vm.componentData.designers);
+                        vm.designers = usersService.getUsersById(vm.componentData.designers);
                     });
                 }
             });
@@ -44,7 +44,7 @@
             $scope.$watch('vm.componentData.batchOwner', function(batchOwner) {
                 if (batchOwner) {
                     userPromise.then(function() {
-                        vm.batchOwner = Users.getUsersById(vm.componentData.batchOwner);
+                        vm.batchOwner = usersService.getUsersById(vm.componentData.batchOwner);
                     });
                 }
             });

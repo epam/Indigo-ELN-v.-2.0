@@ -4,8 +4,8 @@
         .controller('CreateNewExperimentModalController', CreateNewExperimentModalController);
 
     /* @ngInject */
-    function CreateNewExperimentModalController($scope, componentsUtils, $uibModalInstance, Experiment, Principal, $q,
-                                                simpleLocalCache, fullNotebookId, NotebooksForSubCreation, Template) {
+    function CreateNewExperimentModalController($scope, componentsUtils, $uibModalInstance, experimentService, principalService, $q,
+                                                simpleLocalCache, fullNotebookId, notebooksForSubCreation, templateService) {
         var vm = this;
         var userId;
         var lastSelectedTemplateIdKey = '.lastSelectedTemplateId';
@@ -28,7 +28,7 @@
             vm.ok = save;
             vm.cancel = cancelPressed;
 
-            $q.all([NotebooksForSubCreation.query().$promise, Template.query({size: 100000}).$promise, updateUserId()])
+            $q.all([notebooksForSubCreation.query().$promise, templateService.query({size: 100000}).$promise, updateUserId()])
                 .then(function(responses) {
                     vm.notebooks = responses[0];
                     vm.templates = responses[1];
@@ -40,7 +40,7 @@
         }
 
         function updateUserId() {
-            return Principal.identity()
+            return principalService.identity()
                 .then(function(user) {
                     userId = user.id;
                 });
@@ -85,7 +85,7 @@
 
             initComponents(vm.experiment);
 
-            Experiment.save({
+            experimentService.save({
                 notebookId: vm.selectedNotebook.id,
                 projectId: vm.selectedNotebook.parentId
             }, vm.experiment, onSaveSuccess, onSaveError);

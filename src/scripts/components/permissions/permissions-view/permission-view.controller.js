@@ -4,11 +4,11 @@
         .controller('PermissionViewManagementController', PermissionViewManagementController);
 
     /* @ngInject */
-    function PermissionViewManagementController($uibModalInstance, PermissionManagement) {
+    function PermissionViewManagementController($uibModalInstance, permissionManagementService) {
         var vm = this;
 
-        vm.accessList = PermissionManagement.getAccessList();
-        vm.entity = PermissionManagement.getEntity();
+        vm.accessList = permissionManagementService.getAccessList();
+        vm.entity = permissionManagementService.getEntity();
 
         vm.close = close;
 

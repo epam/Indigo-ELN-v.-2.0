@@ -4,7 +4,7 @@
         .controller('TemplateController', TemplateController);
 
     /* @ngInject */
-    function TemplateController(Template, ParseLinks) {
+    function TemplateController(templateService, parseLinksService) {
         var vm = this;
 
         vm.templates = [];
@@ -21,12 +21,12 @@
         vm.loadAll();
 
         function loadAll() {
-            Template.query({
+            templateService.query({
                 page: vm.page - 1,
                 size: vm.itemsPerPage,
                 sort: [vm.predicate + ',' + (vm.reverse ? 'asc' : 'desc'), 'id']
             }, function(result, headers) {
-                vm.links = ParseLinks.parse(headers('link'));
+                vm.links = parseLinksService.parse(headers('link'));
                 vm.totalItems = headers('X-Total-Count');
                 vm.templates = result;
             });

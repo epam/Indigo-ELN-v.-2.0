@@ -238,7 +238,7 @@
             ENTITY_NAME_ID: 'Entity Name/Id',
             ARE_YOU_SURE_YOU_WANT_TO_DELETE_THIS_TEMPLATE: 'Are you sure you want to delete this Template?',
             TEMPLATE: 'Template',
-            COMPONENTS: 'Components',
+            COMPONENTS: 'typeComponents',
             CREATE_NEW_TAB: 'Create new tab',
             TEMPLATE_BUILDER: 'Template Builder',
             PLEASE_ADD_TABS: 'Please add tabs',

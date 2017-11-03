@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('Notebook', notebook);
+    .factory('notebookService', notebook);
 
 /* @ngInject */
-function notebook($resource, PermissionManagement, entityTreeService, apiUrl) {
+function notebook($resource, permissionManagementService, entityTreeService, apiUrl) {
     return $resource(apiUrl + 'projects/:projectId/notebooks/:notebookId', {
         projectId: '@projectId'
     }, {
@@ -55,7 +55,7 @@ function notebook($resource, PermissionManagement, entityTreeService, apiUrl) {
 
     function transformRequest(data) {
         var newData = angular.copy(data);
-        newData.accessList = PermissionManagement.expandPermission(newData.accessList);
+        newData.accessList = permissionManagementService.expandPermission(newData.accessList);
 
         return angular.toJson(newData);
     }

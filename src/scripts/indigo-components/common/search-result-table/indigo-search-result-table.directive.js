@@ -1,6 +1,6 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .directive('indigoSearchResultTable', indigoSearchResultTable);
 
     function indigoSearchResultTable() {
@@ -22,9 +22,9 @@
         };
     }
 
-    IndigoSearchResultTableController.$inject = ['UserReagents', 'AppValues', 'CalculationService'];
+    IndigoSearchResultTableController.$inject = ['userReagents', 'appValues', 'calculationService'];
 
-    function IndigoSearchResultTableController(UserReagents, AppValues, CalculationService) {
+    function IndigoSearchResultTableController(userReagents, appValues, calculationService) {
         var vm = this;
 
         var itemBeforeEdit;
@@ -32,8 +32,8 @@
         $onInit();
 
         function $onInit() {
-            vm.rxnValues = AppValues.getRxnValues();
-            vm.saltCodeValues = AppValues.getSaltCodeValues();
+            vm.rxnValues = appValues.getRxnValues();
+            vm.saltCodeValues = appValues.getSaltCodeValues();
 
             vm.finishEdit = finishEdit;
             vm.cancelEdit = cancelEdit;
@@ -50,7 +50,7 @@
 
         function finishEdit() {
             vm.isEditMode = false;
-            UserReagents.save(vm.indigoTableContent);
+            userReagents.save(vm.indigoTableContent);
         }
 
         function cancelEdit(index) {
@@ -84,7 +84,7 @@
         }
 
         function recalculateSalt(reagent) {
-            CalculationService.recalculateSalt(reagent);
+            calculationService.recalculateSalt(reagent);
         }
     }
 })();

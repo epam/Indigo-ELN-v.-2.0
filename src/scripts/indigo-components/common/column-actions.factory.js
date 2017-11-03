@@ -1,11 +1,11 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .factory('columnActions', columnActions);
 
-    columnActions.$inject = ['InfoEditor', 'RegistrationUtil', '$uibModal'];
+    columnActions.$inject = ['infoEditor', 'registrationUtil', '$uibModal'];
 
-    function columnActions(InfoEditor, RegistrationUtil, $uibModal) {
+    function columnActions(infoEditor, registrationUtil, $uibModal) {
         return {
             editPurity: editPurity,
             editPurityForAllRows: editPurityForAllRows,
@@ -23,13 +23,13 @@
         };
 
         function editPurity(row) {
-            InfoEditor.editPurity(row.purity, function(result) {
+            infoEditor.editPurity(row.purity, function(result) {
                 row.purity = result;
             });
         }
 
         function editPurityForAllRows(rows) {
-            InfoEditor.editPurity({}, function(result) {
+            infoEditor.editPurity({}, function(result) {
                 iterateRegisterd(rows, function(row) {
                     row.purity = angular.copy(result);
                 });
@@ -38,20 +38,20 @@
 
         function iterateRegisterd(rows, iterator) {
             return _.forEach(rows, function(row) {
-                if (!RegistrationUtil.isRegistered(row)) {
+                if (!registrationUtil.isRegistered(row)) {
                     iterator(row);
                 }
             });
         }
 
         function editMeltingPoint(row) {
-            InfoEditor.editMeltingPoint(row.meltingPoint, function(result) {
+            infoEditor.editMeltingPoint(row.meltingPoint, function(result) {
                 row.meltingPoint = result;
             });
         }
 
         function editMeltingPointForAllRows(rows) {
-            InfoEditor.editMeltingPoint({}, function(result) {
+            infoEditor.editMeltingPoint({}, function(result) {
                 iterateRegisterd(rows, function(row) {
                     row.meltingPoint = angular.copy(result);
                 });
@@ -78,13 +78,13 @@
         }
 
         function editExternalSupplier(row) {
-            InfoEditor.editExternalSupplier(row.externalSupplier, function(result) {
+            infoEditor.editExternalSupplier(row.externalSupplier, function(result) {
                 row.externalSupplier = result;
             });
         }
 
         function editExternalSupplierForAllRows(rows) {
-            InfoEditor.editExternalSupplier({}, function(result) {
+            infoEditor.editExternalSupplier({}, function(result) {
                 iterateRegisterd(rows, function(row) {
                     row.externalSupplier = angular.copy(result);
                 });
@@ -92,13 +92,13 @@
         }
 
         function editHealthHazards(row) {
-            InfoEditor.editHealthHazards(row.healthHazards, function(result) {
+            infoEditor.editHealthHazards(row.healthHazards, function(result) {
                 row.healthHazards = result;
             });
         }
 
         function editHealthHazardsForAllRows(rows) {
-            InfoEditor.editHealthHazards({}, function(result) {
+            infoEditor.editHealthHazards({}, function(result) {
                 iterateRegisterd(rows, function(row) {
                     row.healthHazards = angular.copy(result);
                 });
@@ -108,7 +108,7 @@
         function editResidualSolvents(rows) {
             var data = rows.length === 1 ? rows[0].residualSolvents : {};
 
-            InfoEditor.editResidualSolvents(data).then(function(result) {
+            infoEditor.editResidualSolvents(data).then(function(result) {
                 iterateRegisterd(rows, function(row) {
                     row.residualSolvents = result;
                 });
@@ -118,7 +118,7 @@
         function editSolubility(rows) {
             var data = rows.length === 1 ? rows[0].solubility : {};
 
-            InfoEditor.editSolubility(data, function(result) {
+            infoEditor.editSolubility(data, function(result) {
                 iterateRegisterd(rows, function(row) {
                     row.solubility = result;
                 });
@@ -132,7 +132,7 @@
                 });
             };
             var data = rows.length === 1 ? rows[0].storageInstructions : {};
-            InfoEditor.editStorageInstructions(data || {}, callback);
+            infoEditor.editStorageInstructions(data || {}, callback);
         }
 
         function editHandlingPrecautions(rows) {
@@ -142,7 +142,7 @@
                 });
             };
             var data = rows.length === 1 ? rows[0].handlingPrecautions : {};
-            InfoEditor.editHandlingPrecautions(data || {}, callback);
+            infoEditor.editHandlingPrecautions(data || {}, callback);
         }
     }
 })();

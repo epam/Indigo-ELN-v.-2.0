@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('Principal', principal);
+    .factory('principalService', principalFactory);
 
 /* @ngInject */
-function principal($q, Account) {
+function principalFactory(accountService) {
     var _identity;
     var identityPromise;
     var _authenticated = false;
@@ -97,9 +97,9 @@ function principal($q, Account) {
         }
 
         // retrieve the identity data from the server, update the identity object, and then resolve.
-        identityPromise = Account.get().$promise
-            .then(function(account) {
-                return authenticate(account.data);
+        identityPromise = accountService.get().$promise
+            .then(function(accountService) {
+                return authenticate(accountService.data);
             }, function() {
                 return authenticate(null);
             })

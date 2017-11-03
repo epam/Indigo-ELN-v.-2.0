@@ -1,10 +1,10 @@
 angular
-    .module('indigoeln.Components')
+    .module('indigoeln.componentsModule')
     .controller('SearchReagentsController', SearchReagentsController);
 
 /* @ngInject */
-function SearchReagentsController($rootScope, $uibModalInstance, notifyService, AppValues, activeTab, UserReagents,
-                                  SearchService, SearchUtilService, searchReagentsConstant, stoichColumnActions) {
+function SearchReagentsController($rootScope, $uibModalInstance, notifyService, appValues, activeTab, userReagents,
+                                  searchService, searchUtilService, searchReagentsConstant, stoichColumnActions) {
     var vm = this;
     var myReagentsSearchQuery;
 
@@ -13,7 +13,7 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
     function init() {
         vm.model = {};
         vm.model.restrictions = searchReagentsConstant.restrictions;
-        vm.model.databases = SearchService.getCatalogues();
+        vm.model.databases = searchService.getCatalogues();
         vm.myReagents = {};
 
         vm.isActiveTab0 = activeTab === 0;
@@ -71,12 +71,12 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         $rootScope.$broadcast('stoich-rows-changed', stoichColumnActions.cleanReactants(selected));
     }
 
-    UserReagents.get({}, function(reagents) {
+    userReagents.get({}, function(reagents) {
         vm.myReagentList = _.map(reagents, function(reagent) {
             reagent.$$isSelected = false;
             reagent.$$isCollapsed = true;
-            reagent.rxnRole = reagent.rxnRole || AppValues.getRxnRoleReactant();
-            reagent.saltCode = reagent.saltCode || AppValues.getDefaultSaltCode();
+            reagent.rxnRole = reagent.rxnRole || appValues.getRxnRoleReactant();
+            reagent.saltCode = reagent.saltCode || appValues.getDefaultSaltCode();
 
             return reagent;
         });
@@ -99,7 +99,7 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
             }
         });
         if (count > 0) {
-            UserReagents.save(vm.myReagentList, function() {
+            userReagents.save(vm.myReagentList, function() {
                 if (count === 1) {
                     notifyService.info(count + ' reagent successfully added to My Reagent List');
                 } else if (count > 0) {
@@ -118,11 +118,11 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         _.each(selected, function(item) {
             vm.myReagentList = _.without(vm.myReagentList, item);
         });
-        UserReagents.save(vm.myReagentList);
+        userReagents.save(vm.myReagentList);
     }
 
     function isAdvancedSearchFilled() {
-        return SearchUtilService.isAdvancedSearchFilled(vm.model.restrictions.advancedSearch);
+        return searchUtilService.isAdvancedSearchFilled(vm.model.restrictions.advancedSearch);
     }
 
     function responseCallback(result) {
@@ -134,8 +134,8 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
             batchDetails.database = _.map(vm.model.databases, function(db) {
                 return db.value;
             }).join(', ');
-            batchDetails.rxnRole = batchDetails.rxnRole || AppValues.getRxnRoleReactant();
-            batchDetails.saltCode = batchDetails.saltCode || AppValues.getDefaultSaltCode();
+            batchDetails.rxnRole = batchDetails.rxnRole || appValues.getRxnRoleReactant();
+            batchDetails.saltCode = batchDetails.saltCode || appValues.getDefaultSaltCode();
 
             return batchDetails;
         });
@@ -172,8 +172,8 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
     function search() {
         vm.loading = true;
         vm.searchResults = [];
-        var searchRequest = SearchUtilService.prepareSearchRequest(vm.model.restrictions, vm.model.databases);
-        SearchService.search(searchRequest, function(result) {
+        var searchRequest = searchUtilService.prepareSearchRequest(vm.model.restrictions, vm.model.databases);
+        searchService.search(searchRequest, function(result) {
             responseCallback(result);
             vm.loading = false;
         });

@@ -1,6 +1,6 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .directive('indigoReactionScheme', indigoReactionScheme);
 
     function indigoReactionScheme() {
@@ -22,7 +22,7 @@
     }
 
     /* @ngInject */
-    function IndigoReactionSchemeController($scope, $rootScope, CalculationService, $q, notifyService, AppValues) {
+    function IndigoReactionSchemeController($scope, $rootScope, calculationService, $q, notifyService, appValues) {
         var vm = this;
 
         init();
@@ -55,7 +55,7 @@
         }
 
         function getInfo(molfiles) {
-            return $q.all(_.map(molfiles, CalculationService.getMoleculeInfo));
+            return $q.all(_.map(molfiles, calculationService.getMoleculeInfo));
         }
 
         function updateReaction(response) {
@@ -87,7 +87,7 @@
             updateImage(structure);
 
             if (structure.molfile !== vm.model.reaction.molfile) {
-                vm.loading = CalculationService.getReactionProductsAndReactants(structure.molfile)
+                vm.loading = calculationService.getReactionProductsAndReactants(structure.molfile)
                     .then(function(response) {
                         return updateReaction(response, structure);
                     });
@@ -102,7 +102,7 @@
             }
 
             return _.map(results, function(result, index) {
-                var batch = AppValues.getDefaultBatch();
+                var batch = appValues.getDefaultBatch();
                 batch.chemicalName = isProduct ? getDefaultChemicalName(index) : result.name;
                 batch.formula = result.molecularFormula;
                 batch.molWeight.value = result.molecularWeight;

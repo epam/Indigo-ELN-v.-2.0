@@ -1,6 +1,6 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .directive('editableCell', editableCell);
 
     editableCell.$inject = [];
@@ -21,9 +21,9 @@
         };
     }
 
-    EditableCellController.$inject = ['$scope', 'UnitsConverter', 'roundFilter', 'notifyService'];
+    EditableCellController.$inject = ['$scope', 'unitsConverter', 'roundFilter', 'notifyService'];
 
-    function EditableCellController($scope, UnitsConverter, roundFilter, notifyService) {
+    function EditableCellController($scope, unitsConverter, roundFilter, notifyService) {
         var vm = this;
         var oldVal;
         var isChanged;
@@ -37,11 +37,11 @@
             vm.isCheckEnabled = true;
 
             vm.unitParsers = [function(viewValue) {
-                return +UnitsConverter.convert(viewValue, vm.row[vm.column.id].unit).val();
+                return +unitsConverter.convert(viewValue, vm.row[vm.column.id].unit).val();
             }];
 
             vm.unitFormatters = [function(modelValue) {
-                return +roundFilter(UnitsConverter.convert(modelValue)
+                return +roundFilter(unitsConverter.convert(modelValue)
                     .as(vm.row[vm.column.id].unit)
                     .val(), vm.row[vm.column.id].sigDigits, vm.column, vm.row);
             }];

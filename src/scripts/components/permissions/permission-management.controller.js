@@ -4,19 +4,19 @@
         .controller('PermissionManagementController', PermissionManagementController);
 
     /* @ngInject */
-    function PermissionManagementController($scope, $uibModalInstance, PermissionManagement, users, permissions,
-                                            permissionConstants, notifyService, AlertModal) {
+    function PermissionManagementController($scope, $uibModalInstance, permissionManagementService, users, permissions,
+                                            permissionConstants, notifyService, alertModal) {
         var vm = this;
 
         init();
 
         function init() {
-            vm.accessList = PermissionManagement.getAccessList();
+            vm.accessList = permissionManagementService.getAccessList();
             vm.permissions = permissions;
-            vm.entity = PermissionManagement.getEntity();
-            vm.entityId = PermissionManagement.getEntityId();
-            vm.parentId = PermissionManagement.getParentId();
-            vm.author = PermissionManagement.getAuthor();
+            vm.entity = permissionManagementService.getEntity();
+            vm.entityId = permissionManagementService.getEntityId();
+            vm.parentId = permissionManagementService.getParentId();
+            vm.author = permissionManagementService.getAuthor();
 
             if (vm.author) {
                 vm.users = filterUsers(users);
@@ -66,11 +66,11 @@
                 message = permissionConstants.removeNotebookWarning;
             }
 
-            PermissionManagement.isUserRemovableFromAccessList(member).then(function(isRemovable) {
+            permissionManagementService.isUserRemovableFromAccessList(member).then(function(isRemovable) {
                 if (isRemovable) {
                     callback();
                 } else {
-                    AlertModal.confirm(message, null, callback);
+                    alertModal.confirm(message, null, callback);
                 }
             });
         }
@@ -90,7 +90,7 @@
         }
 
         function checkAuthority(member, permission) {
-            if (!PermissionManagement.hasAuthorityForPermission(member, permission)) {
+            if (!permissionManagementService.hasAuthorityForPermission(member, permission)) {
                 notifyService.warning(permissionConstants.checkAuthorityWarning(permission));
                 member.permissionView = vm.oldPermission;
             }
@@ -106,7 +106,7 @@
 
         function filterUsers(nonFilteredUsers) {
             return _.filter(nonFilteredUsers, function(user) {
-                return user.id !== vm.author.id && PermissionManagement.hasAuthorityForPermission(
+                return user.id !== vm.author.id && permissionManagementService.hasAuthorityForPermission(
                         {user: user},
                         vm.permissions[0].id
                     );

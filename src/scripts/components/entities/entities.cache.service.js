@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('EntitiesCache', entitiesCacheFactory);
+    .factory('entitiesCache', entitiesCacheFactory);
 
 /* @ngInject */
-function entitiesCacheFactory(CacheFactory, TabKeyUtils) {
+function entitiesCacheFactory(CacheFactory, tabKeyUtils) {
     var entitiesCache = CacheFactory('entitiesCache');
 
     return {
@@ -18,7 +18,7 @@ function entitiesCacheFactory(CacheFactory, TabKeyUtils) {
     };
 
     function put(stateParams, data) {
-        entitiesCache.put(TabKeyUtils.getTabKeyFromParams(stateParams), data);
+        entitiesCache.put(tabKeyUtils.getTabKeyFromParams(stateParams), data);
     }
 
     function putByName(name, data) {
@@ -30,7 +30,7 @@ function entitiesCacheFactory(CacheFactory, TabKeyUtils) {
     }
 
     function get(stateParams) {
-        return entitiesCache.get(TabKeyUtils.getTabKeyFromParams(stateParams));
+        return entitiesCache.get(tabKeyUtils.getTabKeyFromParams(stateParams));
     }
 
     function getByKey(key) {
@@ -42,7 +42,7 @@ function entitiesCacheFactory(CacheFactory, TabKeyUtils) {
     }
 
     function removeByParams(stateParams) {
-        entitiesCache.remove(TabKeyUtils.getTabKeyFromParams(stateParams));
+        entitiesCache.remove(tabKeyUtils.getTabKeyFromParams(stateParams));
     }
 
     function clearAll() {

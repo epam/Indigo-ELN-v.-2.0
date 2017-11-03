@@ -1,6 +1,6 @@
 angular
     .module('indigoeln')
-    .factory('WSService', wsService);
+    .factory('wsService', wsService);
 
 /* @ngInject */
 function wsService($cookies, $http, $q, $log, apiUrl) {

@@ -4,8 +4,8 @@
         .controller('SearchPanelController', SearchPanelController);
 
     /* @ngInject */
-    function SearchPanelController($scope, SearchService, $state, $stateParams, SearchUtilService, pageInfo,
-                                   EntitiesCache, printModal, Dictionary) {
+    function SearchPanelController($scope, searchService, $state, $stateParams, searchUtilService, pageInfo,
+                                   entitiesCache, printModal, dictionaryService) {
         var OWN_ENTITY = 'OWN_ENTITY';
         var USERS_ENTITIES = 'USERS_ENTITIES';
         var CACHE_STATE_KEY = $state.$current.data.tab.state;
@@ -52,8 +52,8 @@
             vm.onChangeModel = onChangeModel;
             vm.printEntity = printEntity;
 
-            if (EntitiesCache.getByName(CACHE_STATE_KEY)) {
-                vm.state = EntitiesCache.getByName(CACHE_STATE_KEY);
+            if (entitiesCache.getByName(CACHE_STATE_KEY)) {
+                vm.state = entitiesCache.getByName(CACHE_STATE_KEY);
             } else {
                 initDefaultState();
             }
@@ -66,8 +66,8 @@
         function initDefaultState() {
             vm.state = {};
             vm.clearStructureTrigger = 0;
-            vm.state.model = SearchUtilService.getStoredModel();
-            vm.state.$$isCollapsed = SearchUtilService.getStoredOptions().isCollapsed;
+            vm.state.model = searchUtilService.getStoredModel();
+            vm.state.$$isCollapsed = searchUtilService.getStoredOptions().isCollapsed;
             vm.state.selectedItemsFlags = {};
             vm.state.selectedEntitiesFlags = {};
             vm.state.selectedUsers = [];
@@ -83,7 +83,7 @@
         function initDropdownInfoForSelectSearch() {
             _.forEach(vm.state.model.restrictions.advancedSearch, function(data) {
                 if (data.isSelect) {
-                    Dictionary.get({
+                    dictionaryService.get({
                         id: data.field
                     }).$promise.then(function(dictionary) {
                         vm.state.model.restrictions.advancedSearch[data.field].searchConditions = dictionary.words;
@@ -94,7 +94,7 @@
 
         function clear() {
             vm.clearStructureTrigger = !vm.clearStructureTrigger;
-            vm.state.model = SearchUtilService.getStoredModel(true);
+            vm.state.model = searchUtilService.getStoredModel(true);
             vm.state.searchResults = [];
             vm.state.searchResultsPaged = [];
 
@@ -102,7 +102,7 @@
         }
 
         function isAdvancedSearchFilled() {
-            return SearchUtilService.isAdvancedSearchFilled(vm.state.model.restrictions.advancedSearch);
+            return searchUtilService.isAdvancedSearchFilled(vm.state.model.restrictions.advancedSearch);
         }
 
         function changeDomain() {
@@ -148,8 +148,8 @@
 
         function search() {
             vm.loading = true;
-            var searchRequest = SearchUtilService.prepareSearchRequest(vm.state.model.restrictions);
-            SearchService.searchAll(searchRequest, function(result) {
+            var searchRequest = searchUtilService.prepareSearchRequest(vm.state.model.restrictions);
+            searchService.searchAll(searchRequest, function(result) {
                 vm.loading = false;
                 vm.state.searchResults = result;
                 doPage(1);
@@ -186,7 +186,7 @@
         }
 
         $scope.$on('$destroy', function() {
-            EntitiesCache.putByName(CACHE_STATE_KEY, vm.state);
+            entitiesCache.putByName(CACHE_STATE_KEY, vm.state);
         });
     }
 })();

@@ -21,9 +21,9 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    pageInfo: function($q, Role) {
+                    pageInfo: function($q, roleService) {
                         return $q.all([
-                            Role.query().$promise
+                            roleService.query().$promise
                         ]).then(function(results) {
                             return {
                                 roles: results[0]
@@ -48,8 +48,8 @@ angular.module('indigoeln')
                         controllerAs: 'vm',
                         size: 'md',
                         resolve: {
-                            entity: ['User', function(User) {
-                                return User.get({
+                            entity: ['userService', function(userService) {
+                                return userService.get({
                                     login: $stateParams.login
                                 });
                             }]

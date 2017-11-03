@@ -1,15 +1,15 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .directive('indigoComponents', indigoComponents);
 
     function indigoComponents() {
         IndigoComponentsController.$inject = [
             '$scope',
-            'ProductBatchSummaryOperations',
-            'ProductBatchSummaryCache',
-            'EntitiesBrowser',
-            'Principal'
+            'productBatchSummaryOperations',
+            'productBatchSummaryCache',
+            'entitiesBrowser',
+            'principalService'
         ];
 
         return {
@@ -28,8 +28,8 @@
             controller: IndigoComponentsController
         };
 
-        function IndigoComponentsController($scope, ProductBatchSummaryOperations, ProductBatchSummaryCache,
-                                            EntitiesBrowser, Principal, batchHelper) {
+        function IndigoComponentsController($scope, productBatchSummaryOperations, productBatchSummaryCache,
+                                            entitiesBrowser, principalService, batchHelper) {
             var vm = this;
             var precursors;
 
@@ -53,14 +53,14 @@
                 vm.onPrecursorsChanged = onPrecursorsChanged;
                 vm.onChangedComponent = onChangedComponent;
                 vm.setActive = setActive;
-                vm.userId = _.get(Principal.getIdentity(), 'id');
+                vm.userId = _.get(principalService.getIdentity(), 'id');
 
                 bindEvents();
             }
 
             function setActive(index) {
                 vm.activeTabIndex = index;
-                EntitiesBrowser.setExperimentTab(vm.activeTabIndex, vm.experiment.fullId);
+                entitiesBrowser.setExperimentTab(vm.activeTabIndex, vm.experiment.fullId);
             }
 
             function onChangedComponent(componentId) {
@@ -74,7 +74,7 @@
 
             function updateModel() {
                 vm.batches = _.get(vm.model, 'productBatchSummary.batches') || [];
-                ProductBatchSummaryCache.setProductBatchSummary(vm.batches);
+                productBatchSummaryCache.setProductBatchSummary(vm.batches);
                 updateBatches();
 
                 updateSelections();
@@ -102,7 +102,7 @@
 
             function updateActiveTab() {
                 if (vm.experiment) {
-                    EntitiesBrowser.getExperimentTab(vm.experiment.fullId).then(function(index) {
+                    entitiesBrowser.getExperimentTab(vm.experiment.fullId).then(function(index) {
                         vm.activeTabIndex = index || 0;
                     });
                 }
@@ -121,7 +121,7 @@
                 if (needToSelectNew(batchesForRemove)) {
                     onSelectBatch(findPrevBatchToSelect(batchesForRemove));
                 }
-                ProductBatchSummaryOperations.deleteBatches(vm.batches, batchesForRemove);
+                productBatchSummaryOperations.deleteBatches(vm.batches, batchesForRemove);
                 if (vm.batches.length - length) {
                     vm.onChanged();
                     vm.batchesTrigger++;

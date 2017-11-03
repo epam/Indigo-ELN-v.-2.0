@@ -1,6 +1,6 @@
 angular
     .module('indigoeln')
-    .factory('AuthServerProvider', authServerProvider);
+    .factory('authServerProvider', authServerProvider);
 
 /* @ngInject */
 function authServerProvider($http, apiUrl) {

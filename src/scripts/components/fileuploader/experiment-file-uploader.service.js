@@ -1,6 +1,6 @@
 angular
     .module('indigoeln')
-    .factory('ExperimentFileUploaderService', experimentFileUploaderService);
+    .factory('experimentFileUploaderService', experimentFileUploaderService);
 
 /* @ngInject */
 function experimentFileUploaderService($resource, apiUrl) {

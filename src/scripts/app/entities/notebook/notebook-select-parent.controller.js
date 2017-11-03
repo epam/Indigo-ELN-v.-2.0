@@ -4,7 +4,7 @@
         .controller('NotebookSelectParentController', NotebookSelectParentController);
 
     /* @ngInject */
-    function NotebookSelectParentController($scope, $uibModalInstance, parents, Principal, simpleLocalCache) {
+    function NotebookSelectParentController($scope, $uibModalInstance, parents, principalService, simpleLocalCache) {
         var vm = this;
         vm.parents = parents;
         vm.selectedParent = '';
@@ -24,7 +24,7 @@
 
         function init() {
             // EPMLSOPELN-415 Remember last selected parent and template
-            Principal.identity()
+            principalService.identity()
                 .then(function(user) {
                     var pkey = user.id + '.' + 'lastSelectedProjectId';
                     var pval = simpleLocalCache.getByKey(pkey);

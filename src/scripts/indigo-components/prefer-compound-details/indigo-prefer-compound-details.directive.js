@@ -1,6 +1,6 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .directive('indigoPreferredCompoundDetails', indigoPreferredCompoundDetails);
 
     function indigoPreferredCompoundDetails() {
@@ -31,7 +31,7 @@
         };
 
         /* @ngInject */
-        function IndigoPreferredCompoundDetailsController($scope, EntitiesBrowser, AppValues, batchHelper) {
+        function IndigoPreferredCompoundDetailsController($scope, entitiesBrowser, appValues, batchHelper) {
             var vm = this;
 
             init();
@@ -41,8 +41,8 @@
                 vm.model = vm.model || {};
                 vm.showStructure = false;
                 vm.showSummary = false;
-                vm.notebookId = EntitiesBrowser.getActiveTab().$$title;
-                vm.saltCodeValues = AppValues.getSaltCodeValues();
+                vm.notebookId = entitiesBrowser.getActiveTab().$$title;
+                vm.saltCodeValues = appValues.getSaltCodeValues();
                 vm.selectControl = {};
                 vm.hasCheckedRows = batchHelper.hasCheckedRow;
                 vm.selectBatch = selectBatch;

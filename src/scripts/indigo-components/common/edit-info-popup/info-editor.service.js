@@ -1,6 +1,6 @@
 angular
-    .module('indigoeln.Components')
-    .factory('InfoEditor', infoEditor);
+    .module('indigoeln.componentsModule')
+    .factory('infoEditor', infoEditor);
 
 /* @ngInject */
 function infoEditor($uibModal) {
@@ -94,8 +94,8 @@ function infoEditor($uibModal) {
                 data: function() {
                     return data;
                 },
-                dictionary: function(Dictionary) {
-                    return Dictionary.get({
+                dictionary: function(dictionaryService) {
+                    return dictionaryService.get({
                         id: 'purity'
                     }).$promise;
                 }
@@ -134,8 +134,8 @@ function infoEditor($uibModal) {
                 data: function() {
                     return model;
                 },
-                dictionary: function(Dictionary) {
-                    return Dictionary.get({
+                dictionary: function(dictionaryService) {
+                    return dictionaryService.get({
                         id: dictionary
                     }).$promise;
                 },

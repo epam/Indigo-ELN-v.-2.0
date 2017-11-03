@@ -46,10 +46,10 @@ function errorHandlerInterceptor($q, $injector, $rootScope, $log) {
 
             case 401:
                 if (httpResponse.config.url !== 'login') {
-                    var Auth = $injector.get('Auth');
+                    var authService = $injector.get('authService');
                     var $state = $injector.get('$state');
                     var params = $rootScope.toStateParams;
-                    Auth.logout();
+                    authService.logout();
                     $rootScope.previousStateName = $rootScope.toState;
                     $rootScope.previousStateNameParams = params;
                     $state.go('login');

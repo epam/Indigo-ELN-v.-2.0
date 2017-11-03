@@ -1,6 +1,6 @@
 angular
     .module('indigoeln')
-    .factory('ParseLinks', parseLinks);
+    .factory('parseLinksService', parseLinks);
 
 function parseLinks() {
     return {

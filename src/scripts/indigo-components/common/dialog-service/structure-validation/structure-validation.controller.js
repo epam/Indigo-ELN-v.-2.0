@@ -1,9 +1,9 @@
 angular
-    .module('indigoeln.Components')
+    .module('indigoeln.componentsModule')
     .controller('StructureValidationController', StructureValidationController);
 
 /* @ngInject */
-function StructureValidationController($uibModalInstance, batches, searchQuery, AppValues) {
+function StructureValidationController($uibModalInstance, batches, searchQuery, appValues) {
     var vm = this;
 
     init();
@@ -12,7 +12,7 @@ function StructureValidationController($uibModalInstance, batches, searchQuery, 
         vm.batches = batches;
         vm.searchQuery = searchQuery;
         vm.selectedBatch = null;
-        vm.defaultSaltCodeName = AppValues.getDefaultSaltCode().name;
+        vm.defaultSaltCodeName = appValues.getDefaultSaltCode().name;
 
         vm.save = save;
         vm.cancel = cancel;

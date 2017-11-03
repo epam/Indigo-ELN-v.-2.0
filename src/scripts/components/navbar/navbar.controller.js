@@ -15,7 +15,7 @@
         });
 
     /* @ngInject */
-    function NavbarController($scope, $state, Principal, Auth, EntitiesCache) {
+    function NavbarController($scope, $state, principalService, authService, entitiesCache) {
         var vm = this;
 
         vm.logout = logout;
@@ -24,18 +24,18 @@
         init();
 
         function init() {
-            Principal.identity().then(function(user) {
+            principalService.identity().then(function(user) {
                 vm.user = user;
             });
 
             $scope.$on('$destroy', function() {
-                EntitiesCache.clearAll();
+                entitiesCache.clearAll();
             });
         }
 
         function logout() {
-            Auth.logout();
-            EntitiesCache.clearAll();
+            authService.logout();
+            entitiesCache.clearAll();
             $state.go('login');
         }
 

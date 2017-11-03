@@ -4,7 +4,7 @@
         .controller('RoleManagementDeleteController', RoleManagementDeleteController);
 
     /* @ngInject */
-    function RoleManagementDeleteController($uibModalInstance, Role, entity) {
+    function RoleManagementDeleteController($uibModalInstance, roleService, entity) {
         var vm = this;
 
         vm.clear = clear;
@@ -15,7 +15,7 @@
         }
 
         function confirmDelete() {
-            Role.delete({
+            roleService.delete({
                 id: entity.id
             },
                 function() {

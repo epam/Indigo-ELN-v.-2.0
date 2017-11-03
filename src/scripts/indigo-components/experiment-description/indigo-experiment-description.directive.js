@@ -1,6 +1,6 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .directive('indigoExperimentDescription', indigoExperimentDescription);
 
     function indigoExperimentDescription() {
@@ -16,8 +16,7 @@
             },
             bindToController: true,
             controllerAs: 'vm',
-            controller: function() {
-            }
+            controller: angular.noop
         };
     }
 })();

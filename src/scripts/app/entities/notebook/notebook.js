@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .config(function($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig, userPermissions) {
+    .config(function($stateProvider, permissionManagementConfig, permissionViewManagementConfig, userPermissions) {
         var permissions = [
             userPermissions.VIEWER,
             userPermissions.USER,
@@ -32,7 +32,7 @@ angular.module('indigoeln')
                     pageTitle: 'indigoeln',
                     tab: {
                         name: 'New Notebook',
-                        service: 'Notebook',
+                        service: 'notebookService',
                         kind: 'notebook',
                         type: 'entity',
                         state: 'entities.notebook-new'
@@ -40,12 +40,12 @@ angular.module('indigoeln')
                     isNew: true
                 },
                 resolve: {
-                    pageInfo: function($q, $stateParams, Principal) {
+                    pageInfo: function($q, $stateParams, principalService) {
                         return $q.all([
-                            Principal.identity(),
-                            Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
-                            Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
-                            Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')
+                            principalService.identity(),
+                            principalService.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
+                            principalService.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
+                            principalService.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')
                         ]).then(function(results) {
                             return {
                                 notebook: {
@@ -77,21 +77,21 @@ angular.module('indigoeln')
                     pageTitle: 'indigoeln',
                     tab: {
                         name: 'Notebook',
-                        service: 'Notebook',
+                        service: 'notebookService',
                         kind: 'notebook',
                         type: 'entity',
                         state: 'entities.notebook-detail'
                     }
                 },
                 resolve: {
-                    pageInfo: function($q, $stateParams, Principal, Notebook) {
+                    pageInfo: function($q, $stateParams, principalService, notebookService) {
                         return $q
                             .all([
-                                Notebook.get($stateParams).$promise,
-                                Principal.identity(),
-                                Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
-                                Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
-                                Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')
+                                notebookService.get($stateParams).$promise,
+                                principalService.identity(),
+                                principalService.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
+                                principalService.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
+                                principalService.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')
                             ])
                             .then(function(results) {
                                 return {
@@ -110,28 +110,28 @@ angular.module('indigoeln')
                 parent: 'entities.notebook-detail',
                 url: '/print',
                 onEnter: function(printModal, $stateParams) {
-                    printModal.showPopup($stateParams, 'Notebook');
+                    printModal.showPopup($stateParams, 'notebookService');
                 },
                 data: {
                     authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR']
                 }
             })
-            .state('entities.notebook-new.permissions', _.extend({}, PermissionManagementConfig, {
+            .state('entities.notebook-new.permissions', _.extend({}, permissionManagementConfig, {
                 parent: 'entities.notebook-new',
                 data: data,
                 permissions: permissions
             }))
-            .state('entities.notebook-new.permissions-view', _.extend({}, PermissionViewManagementConfig, {
+            .state('entities.notebook-new.permissions-view', _.extend({}, permissionViewManagementConfig, {
                 parent: 'entities.notebook-new',
                 data: data,
                 permissions: permissions
             }))
-            .state('entities.notebook-detail.permissions', _.extend({}, PermissionManagementConfig, {
+            .state('entities.notebook-detail.permissions', _.extend({}, permissionManagementConfig, {
                 parent: 'entities.notebook-detail',
                 data: data,
                 permissions: permissions
             }))
-            .state('entities.notebook-detail.permissions-view', _.extend({}, PermissionViewManagementConfig, {
+            .state('entities.notebook-detail.permissions-view', _.extend({}, permissionViewManagementConfig, {
                 parent: 'entities.notebook-detail',
                 data: data,
                 permissions: permissions

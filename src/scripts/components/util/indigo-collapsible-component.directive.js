@@ -4,7 +4,7 @@
         .directive('indigoCollapsibleComponent', indigoCollapsibleComponent);
 
     /* @ngInject */
-    function indigoCollapsibleComponent($state, simpleLocalCache, Principal) {
+    function indigoCollapsibleComponent($state, simpleLocalCache, principalService) {
         return {
             restrict: 'A',
             link: link
@@ -37,7 +37,7 @@
             }
 
 
-            Principal.identity()
+            principalService.identity()
                 .then(function(user) {
                     var isCollapsed = false;
                     var $heading = $element.find('.panel-heading:first');

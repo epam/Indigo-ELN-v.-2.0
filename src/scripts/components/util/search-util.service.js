@@ -1,10 +1,10 @@
 angular.module('indigoeln')
-    .factory('SearchUtilService', searchUtilService);
+    .factory('searchUtilService', searchUtilService);
 
 /* @ngInject */
 function searchUtilService(modelRestrictions) {
-    var storedModel,
-        storedOptions;
+    var storedModel;
+    var storedOptions;
 
     return {
         prepareSearchRequest: prepareSearchRequest,

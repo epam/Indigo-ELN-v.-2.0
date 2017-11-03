@@ -1,10 +1,10 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .controller('IndigoBatchSummaryController', IndigoBatchSummaryController);
 
     /* @ngInject */
-    function IndigoBatchSummaryController($scope, RegistrationService, ProductBatchSummaryOperations, batchHelper) {
+    function IndigoBatchSummaryController($scope, registrationService, productBatchSummaryOperations, batchHelper) {
         var vm = this;
 
         init();
@@ -13,7 +13,7 @@
             vm.loading = false;
             vm.model = vm.model || {};
 
-            RegistrationService.info({}).$promise.then(function(info) {
+            registrationService.info({}).$promise.then(function(info) {
                 var hasRegService = _.isArray(info) && info.length > 0;
 
                 vm.columns = getDefaultColumns(hasRegService);
@@ -85,12 +85,12 @@
         }
 
         function syncWithIntendedProducts() {
-            vm.batchOperation = ProductBatchSummaryOperations.syncWithIntendedProducts()
+            vm.batchOperation = productBatchSummaryOperations.syncWithIntendedProducts()
                 .then(successAddedBatches);
         }
 
         function isIntendedSynced() {
-            var intended = ProductBatchSummaryOperations.getIntendedNotInActual();
+            var intended = productBatchSummaryOperations.getIntendedNotInActual();
 
             return intended ? !intended.length : true;
         }
@@ -107,7 +107,7 @@
 
         function registerBatches() {
             vm.loading = vm.saveExperimentFn().then(function() {
-                return ProductBatchSummaryOperations.registerBatches(batchHelper.getCheckedBatches(vm.batches));
+                return productBatchSummaryOperations.registerBatches(batchHelper.getCheckedBatches(vm.batches));
             });
         }
 

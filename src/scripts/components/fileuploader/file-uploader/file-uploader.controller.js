@@ -3,12 +3,12 @@
         .module('indigoeln')
         .controller('FileUploaderController', FileUploaderController);
 
-    function FileUploaderController($uibModal, $filter, $stateParams, FileUploaderCash,
-                                    ParseLinks, notifyService, ProjectFileUploaderService,
-                                    ExperimentFileUploaderService, $timeout, apiUrl) {
+    function FileUploaderController($uibModal, $filter, $stateParams, fileUploaderCash,
+                                    parseLinksService, notifyService, projectFileUploaderService,
+                                    experimentFileUploaderService, $timeout, apiUrl) {
         var vm = this;
         var params = $stateParams;
-        var UploaderService = params.experimentId ? ExperimentFileUploaderService : ProjectFileUploaderService;
+        var UploaderService = params.experimentId ? experimentFileUploaderService : projectFileUploaderService;
 
         init();
 
@@ -36,7 +36,7 @@
                 notebookId: params.notebookId,
                 experimentId: params.experimentId
             }, function(result, headers) {
-                vm.links = ParseLinks.parse(headers('link'));
+                vm.links = parseLinksService.parse(headers('link'));
                 vm.files = result;
                 updateRowsForDisplay(vm.files);
             });
@@ -92,7 +92,7 @@
             }).result.then(function(file) {
                 vm.files = _.without(vm.files, file);
                 updateRowsForDisplay(vm.files);
-                FileUploaderCash.removeFile(file);
+                fileUploaderCash.removeFile(file);
                 notifyService.success('File was successfully deleted');
             });
         }

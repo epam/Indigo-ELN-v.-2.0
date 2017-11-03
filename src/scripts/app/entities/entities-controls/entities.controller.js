@@ -3,8 +3,8 @@
         .module('indigoeln')
         .controller('EntitiesController', EntitiesController);
 
-    function EntitiesController($scope, EntitiesBrowser, $q, Principal, EntitiesCache, AlertModal, dialogService,
-                                autorecoveryCache, Project, Notebook, Experiment) {
+    function EntitiesController($scope, entitiesBrowser, $q, principalService, entitiesCache, alertModal, dialogService,
+                                autorecoveryCache, projectService, notebookService, experimentService) {
         var vm = this;
 
         init();
@@ -16,18 +16,18 @@
             vm.saveEntity = saveEntity;
 
             bindEvents();
-            Principal.identity().then(function(user) {
-                EntitiesBrowser.restoreTabs(user);
-                EntitiesBrowser.getTabs(function(tabs) {
+            principalService.identity().then(function(user) {
+                entitiesBrowser.restoreTabs(user);
+                entitiesBrowser.getTabs(function(tabs) {
                     vm.tabs = tabs;
-                    vm.activeTab = EntitiesBrowser.getActiveTab();
+                    vm.activeTab = entitiesBrowser.getActiveTab();
                 });
             });
         }
 
         function closeTab(tab) {
-            EntitiesBrowser.close(tab.tabKey);
-            EntitiesCache.removeByKey(tab.tabKey);
+            entitiesBrowser.close(tab.tabKey);
+            entitiesCache.removeByKey(tab.tabKey);
             autorecoveryCache.remove(tab.params);
         }
 
@@ -35,13 +35,13 @@
             var service;
             switch (kind) {
                 case 'project':
-                    service = Project;
+                    service = projectService;
                     break;
                 case 'notebook':
-                    service = Notebook;
+                    service = notebookService;
                     break;
                 case 'experiment':
-                    service = Experiment;
+                    service = experimentService;
                     break;
                 default:
                     break;
@@ -61,7 +61,7 @@
                 return defer.promise;
             }
 
-            var entity = EntitiesCache.get(tab.params);
+            var entity = entitiesCache.get(tab.params);
             if (entity) {
                 var service = getService(tab.kind);
 
@@ -100,7 +100,7 @@
         function onCloseTabClick($event, tab) {
             $event.stopPropagation();
             if (tab.dirty) {
-                AlertModal.save('Do you want to save the changes?', null, function(isSave) {
+                alertModal.save('Do you want to save the changes?', null, function(isSave) {
                     if (isSave) {
                         saveEntity(tab).then(function() {
                             closeTab(tab);
@@ -118,12 +118,12 @@
 
         function onTabClick($event, tab) {
             $event.stopPropagation();
-            EntitiesBrowser.goToTab(tab);
+            entitiesBrowser.goToTab(tab);
         }
 
         function bindEvents() {
             $scope.$watch(function() {
-                return EntitiesBrowser.getActiveTab();
+                return entitiesBrowser.getActiveTab();
             }, function(value) {
                 vm.activeTab = value;
             });

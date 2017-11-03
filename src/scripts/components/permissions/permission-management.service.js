@@ -1,8 +1,10 @@
-angular.module('indigoeln')
-    .factory('PermissionManagement', permissionManagement);
+angular
+    .module('indigoeln')
+    .factory('permissionManagementService', permissionManagementService);
 
 /* @ngInject */
-function permissionManagement($q, Principal, UserRemovableFromProject, UserRemovableFromNotebook, permissionConstants) {
+function permissionManagementService($q, principalService, userRemovableFromProject, userRemovableFromNotebook,
+                                     permissionConstants) {
     var _accessList;
     var _author;
     var _entity;
@@ -53,7 +55,7 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
             return false;
         }
 
-        var userId = Principal.getIdentity().id;
+        var userId = principalService.getIdentity().id;
 
         return _.some(_accessList, function(item) {
             return item.user.id === userId && _.includes(item.permissions, permission);
@@ -190,14 +192,14 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
         }
 
         if (_entity === 'Project') {
-            return UserRemovableFromProject.get({
+            return userRemovableFromProject.get({
                 projectId: _entityId,
                 userId: member.user.id
             })
                 .$promise
                 .then(success);
         } else if (_entity === 'Notebook') {
-            return UserRemovableFromNotebook.get({
+            return userRemovableFromNotebook.get({
                 projectId: _parentId,
                 notebookId: _entityId,
                 userId: member.user.id

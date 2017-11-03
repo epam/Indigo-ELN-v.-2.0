@@ -1,9 +1,9 @@
 angular
-    .module('indigoeln.Components')
+    .module('indigoeln.componentsModule')
     .factory('scalarService', scalarService);
 
 /* @ngInject */
-function scalarService($uibModal, RegistrationUtil, CalculationService) {
+function scalarService($uibModal, registrationUtil, calculationService) {
     return {
         action: action
     };
@@ -21,11 +21,11 @@ function scalarService($uibModal, RegistrationUtil, CalculationService) {
             }
         }).result.then(function(result) {
             return _.reduce(rows, function(array, row) {
-                if (!RegistrationUtil.isRegistered(row)) {
+                if (!registrationUtil.isRegistered(row)) {
                     row[column.id].value = result;
                     row[column.id].entered = true;
                     if (column.id === 'saltEq') {
-                        array.push(CalculationService.recalculateSalt(row));
+                        array.push(calculationService.recalculateSalt(row));
                     }
                 }
 

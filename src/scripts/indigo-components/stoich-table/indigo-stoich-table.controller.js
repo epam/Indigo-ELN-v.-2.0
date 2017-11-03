@@ -1,15 +1,15 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .controller('IndigoStoichTableController', IndigoStoichTableController);
 
     IndigoStoichTableController.$inject = [
-        '$scope', '$rootScope', '$q', '$uibModal', 'AppValues', 'stoichColumnActions', 'AlertModal', 'notifyService',
-        'CalculationService', 'StoichTableCache', 'stoichReactantsColumns', 'stoichProductColumns'
+        '$scope', '$rootScope', '$q', '$uibModal', 'appValues', 'stoichColumnActions', 'alertModal', 'notifyService',
+        'calculationService', 'stoichTableCache', 'stoichReactantsColumns', 'stoichProductColumns'
     ];
 
-    function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, AppValues, stoichColumnActions,
-                                         AlertModal, notifyService, CalculationService, StoichTableCache,
+    function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValues, stoichColumnActions,
+                                         alertModal, notifyService, calculationService, stoichTableCache,
                                          stoichReactantsColumns, stoichProductColumns) {
         var vm = this;
 
@@ -45,12 +45,12 @@
             _.remove(vm.selectedRow, function(value, key) {
                 return !_.includes(['$$hashKey', 'selected'], key);
             });
-            vm.selectedRow.rxnRole = AppValues.getRxnRoleReactant();
+            vm.selectedRow.rxnRole = appValues.getRxnRoleReactant();
             vm.onChanged();
         }
 
         function appendRow() {
-            var reactant = CalculationService.createBatch(getStoicTable());
+            var reactant = calculationService.createBatch(getStoicTable());
             addStoicReactant(reactant);
         }
 
@@ -81,7 +81,7 @@
                             reactants: function() {
                                 var reactants = _.map(batchesToSearch, function(batch) {
                                     var batchCopy = angular.copy(batch);
-                                    CalculationService.getImageForStructure(batchCopy.structure.molfile, 'molecule', function(image) {
+                                    calculationService.getImageForStructure(batchCopy.structure.molfile, 'molecule', function(image) {
                                         batchCopy.structure.image = image;
                                     });
 
@@ -96,20 +96,20 @@
                         }
                     });
                 } else {
-                    AlertModal.info('Stoichiometry is synchronized', 'sm');
+                    alertModal.info('Stoichiometry is synchronized', 'sm');
                 }
             });
         }
 
         function createRxn() {
-            var REACTANT = AppValues.getRxnRoleReactant().name;
+            var REACTANT = appValues.getRxnRoleReactant().name;
             var stoicReactantsMolfiles = _.compact(_.map(getStoicReactants(), function(batch) {
                 return batch.rxnRole.name === REACTANT && batch.structure.molfile;
             }));
             var intendedProductsMolfiles = _.compact(_.map(getIntendedProducts(), function(batch) {
                 return batch.structure.molfile;
             }));
-            CalculationService.combineReactionComponents(stoicReactantsMolfiles, intendedProductsMolfiles)
+            calculationService.combineReactionComponents(stoicReactantsMolfiles, intendedProductsMolfiles)
                 .then(function(result) {
                     $rootScope.$broadcast('new-reaction-scheme', result.data);
                 });
@@ -175,19 +175,19 @@
                 if (column.id === stoichReactantsColumns.compoundId.id) {
                     onCloseCompoundId(data);
                 }
-                CalculationService.setEntered(data);
+                calculationService.setEntered(data);
                 if (column.id === stoichReactantsColumns.rxnRole.id) {
                     onRxnRoleChange(data);
                 }
-                CalculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
+                calculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
             }
         }
 
         function getLimiting() {
             return _.extend({}, stoichReactantsColumns.limiting, {
                 onClick: function(data) {
-                    CalculationService.setEntered(data);
-                    CalculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
+                    calculationService.setEntered(data);
+                    calculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
                 }
             });
         }
@@ -234,21 +234,21 @@
         }
 
         function onRxnRoleChange(data) {
-            var SOLVENT = AppValues.getRxnRoleSolvent().name;
+            var SOLVENT = appValues.getRxnRoleSolvent().name;
             if (data.model.name === SOLVENT) {
                 var valuesToDefault = ['weight', 'mol', 'eq', 'density', 'stoicPurity'];
-                CalculationService.resetValuesToDefault(valuesToDefault, data.row);
-                CalculationService.setValuesReadonly(['weight', 'mol', 'eq', 'density'], data.row);
+                calculationService.resetValuesToDefault(valuesToDefault, data.row);
+                calculationService.setValuesReadonly(['weight', 'mol', 'eq', 'density'], data.row);
             } else if (data.model.name !== SOLVENT && data.oldVal === SOLVENT) {
-                CalculationService.resetValuesToDefault(['volume', 'molarity'], data.row);
-                CalculationService.setValuesEditable(['weight', 'mol', 'eq', 'density'], data.row);
+                calculationService.resetValuesToDefault(['volume', 'molarity'], data.row);
+                calculationService.setValuesEditable(['weight', 'mol', 'eq', 'density'], data.row);
             }
         }
 
         function getStructureImagesForIntendedProducts() {
             _.each(getIntendedProducts(), function(item) {
                 if (!item.structure.image) {
-                    CalculationService.getImageForStructure(item.structure.molfile, 'molecule', function(image) {
+                    calculationService.getImageForStructure(item.structure.molfile, 'molecule', function(image) {
                         item.structure.image = image;
                     });
                 }
@@ -271,14 +271,14 @@
                 getStructureImagesForIntendedProducts();
             }
 
-            CalculationService.recalculateStoich();
+            calculationService.recalculateStoich();
         }
 
         function bindEvents() {
             $scope.$watch('vm.infoProducts', getReactionProductsAndReactants, true);
 
             $scope.$watch('vm.model.stoichTable', function(stoichTable) {
-                StoichTableCache.setStoicTable(stoichTable);
+                stoichTableCache.setStoicTable(stoichTable);
             });
 
             $scope.$watch('vm.model.stoichTable.products', function(products) {
@@ -316,7 +316,7 @@
             }
             setStoicReactants(_.unionWith(getStoicReactants(), reactants, angular.equals));
             vm.onPrecursorsChanged({precursors: getPrecursors()});
-            CalculationService.recalculateStoich();
+            calculationService.recalculateStoich();
         }
 
         function getPrecursors() {
@@ -349,7 +349,7 @@
 
             var allPromises = _.map(reactantsInfo, function(reactantInfo) {
                 var reactantsEqualityPromises = _.map(stoicReactants, function(stoicReactant) {
-                    return CalculationService.isMoleculesEqual(stoicReactant.structure.molfile, reactantInfo.structure.molfile);
+                    return calculationService.isMoleculesEqual(stoicReactant.structure.molfile, reactantInfo.structure.molfile);
                 });
 
                 return $q.all(reactantsEqualityPromises).then(function(responces) {

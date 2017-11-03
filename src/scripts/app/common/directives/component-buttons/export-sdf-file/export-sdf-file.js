@@ -23,9 +23,9 @@
         };
     }
 
-    ExportSdfFileController.$inject = ['ProductBatchSummaryOperations', 'batchHelper'];
+    ExportSdfFileController.$inject = ['productBatchSummaryOperations', 'batchHelper'];
 
-    function ExportSdfFileController(ProductBatchSummaryOperations) {
+    function ExportSdfFileController(productBatchSummaryOperations) {
         var vm = this;
 
         init();
@@ -36,7 +36,7 @@
 
         function exportSdfFile() {
             var exportBatches = vm.isSelectedBatch ? vm.indigoComponents.selectedBatch : vm.indigoComponents.batches;
-            ProductBatchSummaryOperations.exportSDFile(exportBatches);
+            productBatchSummaryOperations.exportSDFile(exportBatches);
         }
     }
 })();

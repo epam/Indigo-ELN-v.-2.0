@@ -2,9 +2,9 @@
     angular.module('indigoeln')
         .factory('componentHelper', componentHelper);
 
-    componentHelper.$inject = ['Dictionary'];
+    componentHelper.$inject = ['dictionaryService'];
 
-    function componentHelper(Dictionary) {
+    function componentHelper(dictionaryService) {
         var loadExperimentsPromise;
         var experimentsPromise;
 
@@ -17,7 +17,7 @@
                 return loadExperimentsPromise;
             }
 
-            loadExperimentsPromise = Dictionary.get({id: 'experiments'}).$promise.then(function(dictionary) {
+            loadExperimentsPromise = dictionaryService.get({id: 'experiments'}).$promise.then(function(dictionary) {
                 return dictionary.words;
             });
 

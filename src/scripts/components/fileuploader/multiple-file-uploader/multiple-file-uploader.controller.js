@@ -4,7 +4,7 @@
         .controller('MultipleFileUploaderController', MultipleFileUploaderController);
 
     /* @ngInject */
-    function MultipleFileUploaderController($uibModalInstance, $cookies, notifyService, FileUploaderCash, FileUploader, params, uploadUrl) {
+    function MultipleFileUploaderController($uibModalInstance, $cookies, notifyService, fileUploaderCash, FileUploader, params, uploadUrl) {
         var vm = this;
         var formData = [];
         var uploader;
@@ -57,7 +57,7 @@
         }
 
         function cancel() {
-            FileUploaderCash.addFiles(vm.files);
+            fileUploaderCash.addFiles(vm.files);
             $uibModalInstance.close(vm.files);
         }
     }

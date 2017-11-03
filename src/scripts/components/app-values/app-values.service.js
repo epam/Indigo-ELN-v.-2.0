@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('AppValues', appValues);
+    .factory('appValues', appValuesFactory);
 
 /* @ngInject */
-function appValues(appUnits) {
+function appValuesFactory(appUnits) {
     var grams = angular.copy(appUnits.grams);
     var liters = angular.copy(appUnits.liters);
     var moles = angular.copy(appUnits.moles);

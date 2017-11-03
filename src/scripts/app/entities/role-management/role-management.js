@@ -22,11 +22,11 @@ angular
                     }
                 },
                 resolve: {
-                    pageInfo: function($q, Role, AccountRole, Auth) {
+                    pageInfo: function($q, roleService, accountRole, authService) {
                         return $q.all([
-                            Role.query().$promise,
-                            AccountRole.query().$promise,
-                            Auth.getAuthorities()
+                            roleService.query().$promise,
+                            accountRole.query().$promise,
+                            authService.getAuthorities()
                         ]).then(function(results) {
                             return {
                                 roles: results[0],
@@ -53,8 +53,8 @@ angular
                         controllerAs: 'vm',
                         size: 'md',
                         resolve: {
-                            entity: ['Role', function(Role) {
-                                return Role.get({
+                            entity: ['roleService', function(roleService) {
+                                return roleService.get({
                                     id: $stateParams.id
                                 }).$promise;
                             }]

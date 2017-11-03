@@ -1,6 +1,6 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .directive('indigoInlineLoader', indigoInlineLoader);
 
     function indigoInlineLoader() {

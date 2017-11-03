@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .factory('Role', function($resource, apiUrl) {
+    .factory('roleService', function($resource, apiUrl) {
         return $resource(apiUrl + 'roles/:id', {}, {
             query: {
                 method: 'GET', isArray: true

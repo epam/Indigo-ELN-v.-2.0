@@ -1,13 +1,13 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .controller('ProductBatchSummarySetSourceController', ProductBatchSummarySetSourceController);
 
     /* @ngInject */
-    function ProductBatchSummarySetSourceController($uibModalInstance, name, $q, Dictionary) {
+    function ProductBatchSummarySetSourceController($uibModalInstance, name, $q, dictionaryService) {
         var vm = this;
-        var sources = Dictionary.getByName({name: 'Source'}).$promise;
-        var sourceDetails = Dictionary.getByName({name: 'Source Details'}).$promise;
+        var sources = dictionaryService.getByName({name: 'Source'}).$promise;
+        var sourceDetails = dictionaryService.getByName({name: 'Source Details'}).$promise;
         $q.all([sources, sourceDetails]).then(function(results) {
             vm.name = name;
             vm.sourceValues = results[0].words;

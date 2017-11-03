@@ -36,8 +36,8 @@ angular.module('indigoeln')
                         controllerAs: 'vm',
                         size: 'md',
                         resolve: {
-                            entity: function(Dictionary) {
-                                return Dictionary.get({
+                            entity: function(dictionaryService) {
+                                return dictionaryService.get({
                                     id: $stateParams.id
                                 }).$promise;
                             }

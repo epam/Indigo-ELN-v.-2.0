@@ -4,7 +4,7 @@
         .controller('LoginController', LoginController);
 
     /* @ngInject */
-    function LoginController($state, Auth) {
+    function LoginController($state, authService) {
         var vm = this;
 
         vm.user = {};
@@ -18,7 +18,7 @@
             event.preventDefault();
             vm.authenticationError = false;
             vm.serverError = false;
-            Auth.login({
+            authService.login({
                 username: vm.username,
                 password: vm.password,
                 rememberMe: vm.rememberMe

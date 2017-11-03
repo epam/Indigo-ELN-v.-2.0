@@ -1,29 +1,33 @@
 angular
     .module('indigoeln')
-    .factory('Users', function($q, Dictionary) {
-        var usersPromise;
-        var allUsers;
+    .factory('usersService', usersService);
 
-        return {
-            get: function(force) {
-                if (!usersPromise || force) {
-                    usersPromise = Dictionary.get({
-                        id: 'users'
-                    }).$promise.then(function(dictionary) {
-                        allUsers = _.keyBy(dictionary.words, 'id');
+usersService.$inject = ['dictionaryService'];
 
-                        return dictionary;
-                    });
-                }
+function usersService(dictionaryService) {
+    var usersPromise;
+    var allUsers;
 
-                return usersPromise;
-            },
-            getUsersById: getUsersById
-        };
+    return {
+        get: function(force) {
+            if (!usersPromise || force) {
+                usersPromise = dictionaryService.get({
+                    id: 'users'
+                }).$promise.then(function(dictionary) {
+                    allUsers = _.keyBy(dictionary.words, 'id');
 
-        function getUsersById(ids) {
-            return _.map(ids, function(id) {
-                return allUsers[id];
-            });
-        }
-    });
+                    return dictionary;
+                });
+            }
+
+            return usersPromise;
+        },
+        getUsersById: getUsersById
+    };
+
+    function getUsersById(ids) {
+        return _.map(ids, function(id) {
+            return allUsers[id];
+        });
+    }
+}

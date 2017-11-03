@@ -23,7 +23,7 @@
         });
 
     /* @ngInject */
-    function EntityTreeController(entityTreeService, $timeout, Experiment, $scope, scrollService, $q) {
+    function EntityTreeController(entityTreeService, $timeout, experimentService, $scope, scrollService, $q) {
         var vm = this;
 
         init();
@@ -130,7 +130,7 @@
             vm.popoverExperiment = node;
 
             if (!vm.experimentsCollection[node.original.fullId]) {
-                Experiment.get(getParams(node.params)).$promise.then(function(experiment) {
+                experimentService.get(getParams(node.params)).$promise.then(function(experiment) {
                     vm.experimentsCollection[node.original.fullId] = experiment;
                 });
             }

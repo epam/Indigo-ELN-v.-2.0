@@ -1,14 +1,14 @@
 angular
     .module('indigoeln')
-    .factory('Project', project);
+    .factory('projectService', project);
 
 /* @ngInject */
-function project($resource, FileUploaderCash, PermissionManagement, entityTreeService, apiUrl) {
+function project($resource, fileUploaderCash, permissionManagementService, entityTreeService, apiUrl) {
     function transformRequest(data) {
         var newData = angular.copy(data);
         newData.tags = _.map(newData.tags, 'text');
-        newData.fileIds = _.map(FileUploaderCash.getFiles(), 'id');
-        newData.accessList = PermissionManagement.expandPermission(newData.accessList);
+        newData.fileIds = _.map(fileUploaderCash.getFiles(), 'id');
+        newData.accessList = permissionManagementService.expandPermission(newData.accessList);
 
         return angular.toJson(newData);
     }

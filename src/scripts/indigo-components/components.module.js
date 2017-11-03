@@ -1,9 +1,9 @@
 (function() {
     angular
-        .module('indigoeln.Components', [
+        .module('indigoeln.componentsModule', [
             'indigoeln.componentButtons'
         ])
-        .run(function($templateCache, Components) {
+        .run(function($templateCache, typeComponents) {
             var defaultAttributes = ' model="vm.model"' +
                 ' reactants="vm.reactants"' +
                 ' reactants-trigger="vm.reactantsTrigger"' +
@@ -28,7 +28,7 @@
                 ' info-reactants="vm.model.reaction.infoReactants"' +
                 ' info-products="vm.model.reaction.infoProducts"';
 
-            _.forEach(Components, function(component) {
+            _.forEach(typeComponents, function(component) {
                 $templateCache.put(component.id, getTemplate(component));
             });
 
@@ -40,7 +40,7 @@
             }
 
             function getComponentAttributes(id) {
-                var component = _.find(Components, {id: id});
+                var component = _.find(typeComponents, {id: id});
                 if (component.isBatch) {
                     return batchAttributes;
                 }

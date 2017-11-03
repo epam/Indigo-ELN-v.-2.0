@@ -1,9 +1,9 @@
 angular
-    .module('indigoeln.Components')
+    .module('indigoeln.componentsModule')
     .factory('inputService', inputService);
 
 /* @ngInject */
-function inputService($uibModal, RegistrationUtil) {
+function inputService($uibModal, registrationUtil) {
     return {
         getActions: function(name) {
             return [{
@@ -29,7 +29,7 @@ function inputService($uibModal, RegistrationUtil) {
             }
         }).result.then(function(result) {
             _.each(rows, function(row) {
-                if (!RegistrationUtil.isRegistered(row)) {
+                if (!registrationUtil.isRegistered(row)) {
                     row[columnId] = result;
                 }
             });

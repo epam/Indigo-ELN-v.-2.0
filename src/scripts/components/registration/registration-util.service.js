@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('RegistrationUtil', registrationUtil);
+    .factory('registrationUtil', registrationUtil);
 
 /* @ngInject */
-function registrationUtil(AppValues, registrationMsg) {
+function registrationUtil(appValues, registrationMsg) {
     var isStereoisomerNeedComment = function(stereoisomer) {
         var stereocodesWithComment = registrationMsg.STEREOCODES;
 
@@ -46,7 +46,7 @@ function registrationUtil(AppValues, registrationMsg) {
         {
             message: registrationMsg.SALT_EQ_ERROR,
             test: function(batch) {
-                return _.get(batch.saltCode, 'value') && batch.saltCode.value !== AppValues.getDefaultSaltCode().value && !_.get(batch.saltEq, 'value');
+                return _.get(batch.saltCode, 'value') && batch.saltCode.value !== appValues.getDefaultSaltCode().value && !_.get(batch.saltEq, 'value');
             }
         },
         {

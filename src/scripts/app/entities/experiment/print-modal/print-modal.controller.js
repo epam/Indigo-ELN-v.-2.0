@@ -4,7 +4,7 @@
         .controller('PrintModalController', PrintModalController);
 
     /* @ngInject */
-    function PrintModalController($uibModalInstance, params, resourceName, resource, Components, componentsUtils) {
+    function PrintModalController($uibModalInstance, params, resourceName, resource, typeComponents, componentsUtils) {
         var vm = this;
 
         init();
@@ -19,9 +19,9 @@
         }
 
         function initCheckboxesForEntity(entity) {
-            if (resourceName === 'Project') {
+            if (resourceName === 'projectService') {
                 vm.hasAttachments = true;
-            } else if (resourceName === 'Notebook') {
+            } else if (resourceName === 'notebookService') {
                 vm.askContents = true;
             } else {
                 vm.hasAttachments = false;
@@ -43,7 +43,7 @@
             var tabs = _.get(experiment, 'template.templateContent');
 
             _.each(componentsUtils.getComponentsFromTemplateContent(tabs), function(component) {
-                if (Components[component.field].isPrint) {
+                if (typeComponents[component.field].isPrint) {
                     vm.components.push(buildComponentItem(component));
                 }
             });

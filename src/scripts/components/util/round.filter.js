@@ -1,5 +1,6 @@
-angular.module('indigoeln')
-    .filter('round', function(StoichTableCache, CalculationService, UnitsConverter) {
+angular
+    .module('indigoeln')
+    .filter('round', function(stoichTableCache, calculationService, unitsConverter) {
         var DEFAULT_PRECISION = 3;
         var MAX_PRECISION = 10;
 
@@ -61,7 +62,7 @@ angular.module('indigoeln')
         }
 
         function getBaseUnit(targetUnit) {
-            return _.get(UnitsConverter.table[targetUnit], 'indigoBase');
+            return _.get(unitsConverter.table[targetUnit], 'indigoBase');
         }
 
         function isMolColumn(column) {
@@ -77,7 +78,7 @@ angular.module('indigoeln')
             var sourceBatch = row;
             // round for mol depends on entered weight/volume precision
             if (column.id === 'mol' && column.isIntended) {
-                sourceBatch = CalculationService.findLimiting(StoichTableCache.getStoicTable());
+                sourceBatch = calculationService.findLimiting(stoichTableCache.getStoicTable());
             }
 
             var weightOrVolume = angular.copy(sourceBatch.weight || sourceBatch.volume);

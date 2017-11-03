@@ -1,6 +1,6 @@
 angular
     .module('indigoeln')
-    .config(function($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig, userPermissions) {
+    .config(function($stateProvider, permissionManagementConfig, permissionViewManagementConfig, userPermissions) {
         var permissions = [
             userPermissions.VIEWER,
             userPermissions.USER,
@@ -29,7 +29,7 @@ angular
                     pageTitle: 'indigoeln',
                     tab: {
                         name: 'New Project',
-                        service: 'Project',
+                        service: 'projectService',
                         kind: 'project',
                         type: 'entity',
                         state: 'entities.project-new'
@@ -37,12 +37,12 @@ angular
                     isNew: true
                 },
                 resolve: {
-                    pageInfo: function($q, Principal) {
+                    pageInfo: function($q, principalService) {
                         return $q.all([
-                            Principal.identity(),
-                            Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
-                            Principal.hasAuthorityIdentitySafe('PROJECT_CREATOR'),
-                            Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR')
+                            principalService.identity(),
+                            principalService.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
+                            principalService.hasAuthorityIdentitySafe('PROJECT_CREATOR'),
+                            principalService.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR')
                         ]).then(function(results) {
                             return {
                                 project: {
@@ -74,20 +74,20 @@ angular
                     pageTitle: 'indigoeln',
                     tab: {
                         name: 'Project',
-                        service: 'Project',
+                        service: 'projectService',
                         kind: 'project',
                         type: 'entity',
                         state: 'entities.project-detail'
                     }
                 },
                 resolve: {
-                    pageInfo: function($q, $stateParams, Principal, Project) {
+                    pageInfo: function($q, $stateParams, principalService, projectService) {
                         return $q.all([
-                            Project.get($stateParams).$promise,
-                            Principal.identity(),
-                            Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
-                            Principal.hasAuthorityIdentitySafe('PROJECT_CREATOR'),
-                            Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR')
+                            projectService.get($stateParams).$promise,
+                            principalService.identity(),
+                            principalService.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
+                            principalService.hasAuthorityIdentitySafe('PROJECT_CREATOR'),
+                            principalService.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR')
                         ]).then(function(results) {
                             return {
                                 project: results[0],
@@ -104,34 +104,34 @@ angular
                 parent: 'entities.project-detail',
                 url: '/print',
                 onEnter: function(printModal, $stateParams) {
-                    printModal.showPopup($stateParams, 'Project');
+                    printModal.showPopup($stateParams, 'projectService');
                 },
                 data: {
                     authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR']
                 }
             })
-            .state('entities.project-new.permissions', _.extend({}, PermissionManagementConfig, {
+            .state('entities.project-new.permissions', _.extend({}, permissionManagementConfig, {
                 parent: 'entities.project-new',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
                 },
                 permissions: permissions
             }))
-            .state('entities.project-new.permissions-view', _.extend({}, PermissionViewManagementConfig, {
+            .state('entities.project-new.permissions-view', _.extend({}, permissionViewManagementConfig, {
                 parent: 'entities.project-new',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
                 },
                 permissions: permissions
             }))
-            .state('entities.project-detail.permissions-view', _.extend({}, PermissionViewManagementConfig, {
+            .state('entities.project-detail.permissions-view', _.extend({}, permissionViewManagementConfig, {
                 parent: 'entities.project-detail',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
                 },
                 permissions: permissions
             }))
-            .state('entities.project-detail.permissions', _.extend({}, PermissionManagementConfig, {
+            .state('entities.project-detail.permissions', _.extend({}, permissionManagementConfig, {
                 parent: 'entities.project-detail',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']

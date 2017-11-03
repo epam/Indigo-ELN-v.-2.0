@@ -1,11 +1,11 @@
 angular
-    .module('indigoeln.Components')
-    .factory('ProductBatchSummaryOperations', productBatchSummaryOperations);
+    .module('indigoeln.componentsModule')
+    .factory('productBatchSummaryOperations', productBatchSummaryOperations);
 
 /* @ngInject */
-function productBatchSummaryOperations($q, ProductBatchSummaryCache, RegistrationUtil, StoichTableCache, AppValues,
-                                       notifyService, $timeout, EntitiesBrowser, RegistrationService, sdImportService,
-                                       sdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService,
+function productBatchSummaryOperations($q, productBatchSummaryCache, registrationUtil, stoichTableCache, appValues,
+                                       notifyService, $timeout, entitiesBrowser, registrationService, sdImportService,
+                                       sdExportService, alertModal, $http, $stateParams, notebookService, calculationService,
                                        apiUrl, $document) {
     var curNbkOperation = $q.when();
 
@@ -45,7 +45,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         return _
             .chain(batches)
             .filter(function(item) {
-                return RegistrationUtil.isRegistered(item);
+                return registrationUtil.isRegistered(item);
             })
             .map(function(item) {
                 return item.fullNbkBatch;
@@ -67,9 +67,9 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     }
 
     function updateNbkBatches(batches) {
-        var experiment = EntitiesBrowser.getCurrentEntity();
+        var experiment = entitiesBrowser.getCurrentEntity();
 
-        return Notebook.get({
+        return notebookService.get({
             projectId: $stateParams.projectId,
             notebookId: $stateParams.notebookId
         })
@@ -121,11 +121,11 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     }
 
     function getIntendedNotInActual() {
-        var stoichTable = StoichTableCache.getStoicTable();
+        var stoichTable = stoichTableCache.getStoicTable();
         if (stoichTable) {
             var intended = stoichTable.products;
             var intendedCandidateHashes = _.map(intended, '$$batchHash');
-            var actual = ProductBatchSummaryCache.getProductBatchSummary();
+            var actual = productBatchSummaryCache.getProductBatchSummary();
             var actualHashes = _.compact(_.map(actual, '$$batchHash'));
             _.each(intendedCandidateHashes, function(intendedCandidateHash, i) {
                 removeItemFromBothArrays(intendedCandidateHash, actualHashes, intendedCandidateHashes, i);
@@ -149,14 +149,14 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
 
     function syncWithIntendedProducts() {
         var batchesQueueToAdd = getIntendedNotInActual();
-        var stoichTable = StoichTableCache.getStoicTable();
+        var stoichTable = stoichTableCache.getStoicTable();
 
         if (stoichTable && stoichTable.products && stoichTable.products.length) {
             if (!batchesQueueToAdd.length) {
-                AlertModal.info('Product Batch Summary is synchronized', 'sm');
+                alertModal.info('Product Batch Summary is synchronized', 'sm');
             } else {
                 _.forEach(batchesQueueToAdd, function(batch) {
-                    batch = _.extend(AppValues.getDefaultBatch(), batch);
+                    batch = _.extend(appValues.getDefaultBatch(), batch);
                 });
 
                 return duplicateBatches(batchesQueueToAdd, true);
@@ -220,10 +220,10 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     }
 
     function createBatch(sdUnit, isSyncWithIntended) {
-        var batch = AppValues.getDefaultBatch();
-        var stoichTable = StoichTableCache.getStoicTable();
+        var batch = appValues.getDefaultBatch();
+        var stoichTable = stoichTableCache.getStoicTable();
         if (stoichTable) {
-            _.extend(batch, angular.copy(CalculationService.createBatch(stoichTable, true)));
+            _.extend(batch, angular.copy(calculationService.createBatch(stoichTable, true)));
         }
 
         _.extend(batch, sdUnit, {
@@ -242,7 +242,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             }
 
             return $q
-                .all([CalculationService.recalculateSalt(batch),
+                .all([calculationService.recalculateSalt(batch),
                     checkImage(batch.structure)
                 ])
                 .then(function() {
@@ -262,7 +262,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
 
     function checkImage(structure) {
         if (structure.molfile && !structure.image) {
-            return CalculationService.getImageForStructure(structure.molfile, 'molecule').then(function(image) {
+            return calculationService.getImageForStructure(structure.molfile, 'molecule').then(function(image) {
                 structure.image = image;
             });
         }
@@ -283,13 +283,13 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             checkNonRemovableBatches(batches);
 
             _.remove(batches, function(batch) {
-                return !RegistrationUtil.isRegistered(batch) && _.includes(batchesForRemove, batch);
+                return !registrationUtil.isRegistered(batch) && _.includes(batchesForRemove, batch);
             });
         }
     }
 
     function getLatestNbkBatch() {
-        var batches = ProductBatchSummaryCache.getProductBatchSummary();
+        var batches = productBatchSummaryCache.getProductBatchSummary();
         var last = _.last(batches);
 
         return (last && last.nbkBatch) || 0;
@@ -310,12 +310,12 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             return !_.includes(excludes, row.fullNbkBatch);
         });
         var message = '';
-        var notFullBatches = RegistrationUtil.getNotFullForRegistrationBatches(batches);
+        var notFullBatches = registrationUtil.getNotFullForRegistrationBatches(batches);
         if (notFullBatches.length) {
             _.each(notFullBatches, function(notFullBatch) {
                 message = message + '<br><b>Batch ' + notFullBatch.nbkBatch + ':</b><br>' + notFullBatch.emptyFields.join('<br>');
             });
-            AlertModal.error(message);
+            alertModal.error(message);
         } else {
             var batchNumbers = _.map(batches, function(batch) {
                 return batch.fullNbkBatch;
@@ -328,10 +328,10 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     }
 
     function saveAndRegister(batchNumbers) {
-        return EntitiesBrowser.saveCurrentEntity()
+        return entitiesBrowser.saveCurrentEntity()
             .then(function() {
                 $timeout(function() {
-                    RegistrationService.register({}, batchNumbers).$promise
+                    registrationService.register({}, batchNumbers).$promise
                         .then(function() {
                             notifyService.success('Selected Batches successfully sent to Registration');
                         }, function() {

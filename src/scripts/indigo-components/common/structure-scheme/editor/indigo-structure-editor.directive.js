@@ -1,10 +1,10 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .directive('indigoEditor', indigoEditor);
 
     /* @ngInject */
-    function indigoEditor(editorUtils, Auth, $timeout) {
+    function indigoEditor(editorUtils, authService, $timeout) {
         return {
             restrict: 'E',
             replace: true,
@@ -37,7 +37,7 @@
 
                     $timeout(function() {
                         $element.contents().find('svg').on('click', function() {
-                            Auth.prolong();
+                            authService.prolong();
                         });
                     }, 1000);
                 };

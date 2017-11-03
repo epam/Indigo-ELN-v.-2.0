@@ -1,6 +1,6 @@
 angular
-    .module('indigoeln.Components')
-    .factory('StoichTableCache', stoichTableCache);
+    .module('indigoeln.componentsModule')
+    .factory('stoichTableCache', stoichTableCache);
 
 /* @ngInject */
 function stoichTableCache() {

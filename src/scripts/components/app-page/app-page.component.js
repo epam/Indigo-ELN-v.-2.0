@@ -11,9 +11,9 @@ angular
         };
     });
 
-AppPageController.$inject = ['$rootScope', '$scope', '$cookies', '$window', 'WSService', '$timeout'];
+AppPageController.$inject = ['$rootScope', '$scope', '$cookies', '$window', 'wsService', '$timeout'];
 
-function AppPageController($rootScope, $scope, $cookies, $window, WSService, $timeout) {
+function AppPageController($rootScope, $scope, $cookies, $window, wsService, $timeout) {
     var vm = this;
     var mobileViewWidth = 992;
     var updateToggle;
@@ -43,7 +43,7 @@ function AppPageController($rootScope, $scope, $cookies, $window, WSService, $ti
     }
 
     function onSubscribe(destination, broadcastEventName) {
-        WSService.subscribe(destination).then(function(subscribe) {
+        wsService.subscribe(destination).then(function(subscribe) {
             subscribers.push(subscribe);
             subscribe.onServerEvent(function(statuses) {
                 $rootScope.$broadcast(broadcastEventName, statuses);

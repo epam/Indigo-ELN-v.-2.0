@@ -1,9 +1,9 @@
 angular
-    .module('indigoeln.Components')
+    .module('indigoeln.componentsModule')
     .controller('StructureSchemeController', StructureSchemeController);
 
 /* @ngInject */
-function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyService, CalculationService) {
+function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyService, calculationService) {
     var vm = this;
 
     init();
@@ -95,7 +95,7 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
 
     function setStructure(structure, structureId) {
         if (structure) {
-            CalculationService.getImageForStructure(structure, vm.structureType).then(function(image) {
+            calculationService.getImageForStructure(structure, vm.structureType).then(function(image) {
                 setRenderedStructure({
                     molfile: structure,
                     structureId: structureId,

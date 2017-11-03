@@ -65,7 +65,7 @@
                             type: '',
                             id: null,
                             cache: true,
-                            service: 'Template',
+                            service: 'templateService',
                             params: null,
                             resource: null
                         }
@@ -131,8 +131,8 @@
                 });
         });
 
-    function pageInfo($stateParams, Template) {
-        return Template
+    function pageInfo($stateParams, templateService) {
+        return templateService
             .get({id: $stateParams.id})
             .$promise
             .then(function(template) {

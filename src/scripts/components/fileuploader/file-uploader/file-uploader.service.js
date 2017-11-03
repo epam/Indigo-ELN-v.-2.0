@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .factory('FileUploaderCash', fileUploaderCash);
+    .factory('fileUploaderCash', fileUploaderCash);
 
 /* @ngInject */
 function fileUploaderCash() {

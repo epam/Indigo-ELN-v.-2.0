@@ -23,9 +23,9 @@
         };
     }
 
-    DuplicateBatchesController.$inject = ['ProductBatchSummaryOperations', 'batchHelper'];
+    DuplicateBatchesController.$inject = ['productBatchSummaryOperations', 'batchHelper'];
 
-    function DuplicateBatchesController(ProductBatchSummaryOperations, batchHelper) {
+    function DuplicateBatchesController(productBatchSummaryOperations, batchHelper) {
         var vm = this;
 
         init();
@@ -35,7 +35,7 @@
         }
 
         function duplicateBatches() {
-            vm.indigoComponents.batchOperation = ProductBatchSummaryOperations.duplicateBatches(batchHelper.getCheckedBatches(vm.batches))
+            vm.indigoComponents.batchOperation = productBatchSummaryOperations.duplicateBatches(batchHelper.getCheckedBatches(vm.batches))
                 .then(successAddedBatches);
         }
 

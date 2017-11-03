@@ -1,7 +1,7 @@
 angular
     .module('indigoeln')
-    .factory('notebooksForSubCreation', function($resource, apiUrl) {
-        return $resource(apiUrl + 'notebooks/sub-creations', {
+    .factory('allNotebooks', function($resource, apiUrl) {
+        return $resource(apiUrl + 'projects/:projectId/notebooks/all', {
             projectId: '@projectId'
         }, {
             query: {

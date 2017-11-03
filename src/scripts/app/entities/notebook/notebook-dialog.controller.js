@@ -4,9 +4,9 @@
         .controller('NotebookDialogController', NotebookDialogController);
 
     /* @ngInject */
-    function NotebookDialogController($scope, $rootScope, $state, Notebook, notifyService, PermissionManagement, modalHelper,
-                                      ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils,
-                                      autorecoveryHelper, notebookSummaryExperiments, $q, EntitiesCache,
+    function NotebookDialogController($scope, $state, notebookService, notifyService, permissionManagementService, modalHelper,
+                                      experimentUtil, pageInfo, entitiesBrowser, $timeout, $stateParams, tabKeyUtils,
+                                      autorecoveryHelper, notebookSummaryExperiments, $q, entitiesCache,
                                       autorecoveryCache, confirmationModal, entityHelper) {
         var vm = this;
         var identity = pageInfo.identity;
@@ -26,7 +26,7 @@
 
             vm.loading = initEntity().then(function() {
                 originalNotebook = angular.copy(pageInfo.notebook);
-                EntitiesBrowser.setCurrentTabTitle(pageInfo.notebook.name, $stateParams);
+                entitiesBrowser.setCurrentTabTitle(pageInfo.notebook.name, $stateParams);
                 initPermissions();
             });
 
@@ -47,17 +47,17 @@
             vm.print = print;
             vm.onRestore = onRestore;
 
-            EntitiesBrowser.setSaveCurrentEntity(save);
+            entitiesBrowser.setSaveCurrentEntity(save);
 
             bindEvents();
         }
 
         function initEntity() {
-            var restoredEntity = EntitiesCache.get($stateParams);
+            var restoredEntity = entitiesCache.get($stateParams);
 
             if (!restoredEntity) {
                 pageInfo.notebook.author = pageInfo.notebook.author || identity;
-                pageInfo.notebook.accessList = pageInfo.notebook.accessList || PermissionManagement.getAuthorAccessList(identity);
+                pageInfo.notebook.accessList = pageInfo.notebook.accessList || permissionManagementService.getAuthorAccessList(identity);
                 vm.notebook = pageInfo.notebook;
             } else if (restoredEntity.version === pageInfo.notebook.version) {
                 vm.notebook = restoredEntity;
@@ -77,19 +77,19 @@
         }
 
         function initPermissions() {
-            PermissionManagement.setEntity('Notebook');
-            PermissionManagement.setEntityId(vm.notebook.id);
-            PermissionManagement.setParentId(vm.projectId);
-            PermissionManagement.setAuthor(vm.notebook.author);
-            PermissionManagement.setAccessList(vm.notebook.accessList);
+            permissionManagementService.setEntity('Notebook');
+            permissionManagementService.setEntityId(vm.notebook.id);
+            permissionManagementService.setParentId(vm.projectId);
+            permissionManagementService.setAuthor(vm.notebook.author);
+            permissionManagementService.setAccessList(vm.notebook.accessList);
 
             // isEditAllowed
             vm.isEditAllowed = isContentEditor ||
-                (hasEditAuthority && PermissionManagement.hasPermission('UPDATE_ENTITY'));
+                (hasEditAuthority && permissionManagementService.hasPermission('UPDATE_ENTITY'));
 
             // isCreateChildAllowed
             vm.isCreateChildAllowed = isContentEditor ||
-                (hasCreateChildAuthority && PermissionManagement.hasPermission('CREATE_SUB_ENTITY'));
+                (hasCreateChildAuthority && permissionManagementService.hasPermission('CREATE_SUB_ENTITY'));
         }
 
         function bindEvents() {
@@ -118,11 +118,11 @@
             }, true);
 
             $scope.$watch('createNotebookForm', function(form) {
-                EntitiesBrowser.setCurrentForm(form);
+                entitiesBrowser.setCurrentForm(form);
             });
 
             $scope.$on('access-list-changed', function() {
-                vm.notebook.accessList = PermissionManagement.getAccessList();
+                vm.notebook.accessList = permissionManagementService.getAccessList();
             });
         }
 
@@ -132,7 +132,7 @@
             if (angular.isDefined(version)) {
                 vm.notebook.version = version;
             }
-            EntitiesCache.put($stateParams, vm.notebook);
+            entitiesCache.put($stateParams, vm.notebook);
         }
 
         function createExperiment() {
@@ -194,17 +194,17 @@
         }
 
         function repeatExperiment(experiment, params) {
-            ExperimentUtil.repeatExperiment(experiment, params);
+            experimentUtil.repeatExperiment(experiment, params);
         }
 
         function onSaveSuccess(result) {
-            EntitiesBrowser.close(TabKeyUtils.getTabKeyFromParams($stateParams));
+            entitiesBrowser.close(tabKeyUtils.getTabKeyFromParams($stateParams));
             $timeout(function() {
                 $state.go('entities.notebook-detail', {
                     projectId: vm.projectId, notebookId: result.id
                 });
             });
-            EntitiesCache.removeByParams($stateParams);
+            entitiesCache.removeByParams($stateParams);
         }
 
         function onSaveError(result) {
@@ -236,12 +236,12 @@
 
             if (isChanged) {
                 $scope.createNotebookForm.$setDirty();
-                EntitiesCache.put($stateParams, vm.notebook);
+                entitiesCache.put($stateParams, vm.notebook);
             } else {
                 $scope.createNotebookForm.$setPristine();
             }
             vm.isBtnSaveActive = $scope.createNotebookForm.$dirty;
-            EntitiesBrowser.changeDirtyTab($stateParams, isChanged);
+            entitiesBrowser.changeDirtyTab($stateParams, isChanged);
         }
 
         function refresh() {
@@ -252,7 +252,7 @@
                 return $q.resolve();
             }
 
-            vm.loading = Notebook.get($stateParams).$promise.then(function(response) {
+            vm.loading = notebookService.get($stateParams).$promise.then(function(response) {
                 vm.notebook = response;
                 originalNotebook = angular.copy(vm.notebook);
                 autorecoveryCache.hide($stateParams);
@@ -278,19 +278,19 @@
 
             vm.hasError = false;
             if (vm.notebook.id) {
-                vm.loading = Notebook.update($stateParams, vm.notebook).$promise
+                vm.loading = notebookService.update($stateParams, vm.notebook).$promise
                     .then(function(result) {
-                        EntitiesCache.removeByParams($stateParams);
+                        entitiesCache.removeByParams($stateParams);
                         autorecoveryCache.remove($stateParams);
                         vm.notebook.version = result.version;
                         originalNotebook = angular.copy(vm.notebook);
-                        EntitiesBrowser.setCurrentTabTitle(vm.notebook.name, $stateParams);
+                        entitiesBrowser.setCurrentTabTitle(vm.notebook.name, $stateParams);
                     }, onSaveError);
 
                 return vm.loading;
             }
 
-            vm.loading = Notebook.save({
+            vm.loading = notebookService.save({
                 projectId: vm.projectId
             }, vm.notebook, onSaveSuccess, onSaveError).$promise;
 

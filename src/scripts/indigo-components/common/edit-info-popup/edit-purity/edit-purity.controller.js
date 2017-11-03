@@ -1,5 +1,5 @@
 angular
-    .module('indigoeln.Components')
+    .module('indigoeln.componentsModule')
     .controller('EditPurityController', EditPurityController);
 
 /* @ngInject */

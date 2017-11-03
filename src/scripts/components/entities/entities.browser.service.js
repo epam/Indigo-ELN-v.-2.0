@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('EntitiesBrowser', entitiesBrowser);
+    .factory('entitiesBrowser', entitiesBrowser);
 
 /* @ngInject */
-function entitiesBrowser($q, $state, Principal, TabKeyUtils, CacheFactory) {
+function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory) {
     var tabs = {};
     var activeTab = {};
     var entityActions;
@@ -13,7 +13,7 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, CacheFactory) {
     var restored = false;
 
     var resolvePrincipal = function(func) {
-        return Principal.identity().then(func);
+        return principalService.identity().then(func);
     };
 
     var tabCache = CacheFactory.createCache('tabCache', {
@@ -76,7 +76,7 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, CacheFactory) {
     }
 
     function getTabKey(tab) {
-        return tab && tab.tabKey ? tab.tabKey : TabKeyUtils.getTabKeyFromTab(tab);
+        return tab && tab.tabKey ? tab.tabKey : tabKeyUtils.getTabKeyFromTab(tab);
     }
 
     function getTabs(success) {
@@ -164,7 +164,7 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, CacheFactory) {
 
     function getTab(user, stateParams) {
         var userId = getUserId(user);
-        var result = TabKeyUtils.getTabKeyFromParams(stateParams);
+        var result = tabKeyUtils.getTabKeyFromParams(stateParams);
 
         return tabs[userId][result];
     }
@@ -219,7 +219,7 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, CacheFactory) {
     function addTab(tab) {
         return resolvePrincipal(function(user) {
             var userId = getUserId(user);
-            var tabKey = TabKeyUtils.getTabKeyFromTab(tab);
+            var tabKey = tabKeyUtils.getTabKeyFromTab(tab);
 
             if (!tabs[userId][tabKey]) {
                 tab.tabKey = tabKey;
@@ -236,7 +236,7 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, CacheFactory) {
     function getTabByParams(params) {
         return resolvePrincipal(function(user) {
             var userId = getUserId(user);
-            var tabKey = TabKeyUtils.getTabKeyFromParams(params);
+            var tabKey = tabKeyUtils.getTabKeyFromParams(params);
 
             return tabs[userId][tabKey];
         });

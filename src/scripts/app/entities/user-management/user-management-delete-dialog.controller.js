@@ -4,7 +4,7 @@
         .controller('UserManagementDeleteController', UserManagementDeleteController);
 
     /* @ngInject */
-    function UserManagementDeleteController($uibModalInstance, entity, User) {
+    function UserManagementDeleteController($uibModalInstance, entity, userService) {
         var vm = this;
 
         vm.user = entity;
@@ -17,7 +17,7 @@
         }
 
         function confirmDelete(login) {
-            User.delete({
+            userService.delete({
                 login: login
             },
                 function() {

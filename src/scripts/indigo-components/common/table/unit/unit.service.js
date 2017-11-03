@@ -1,9 +1,9 @@
 angular
-    .module('indigoeln.Components')
+    .module('indigoeln.componentsModule')
     .factory('unitService', unitService);
 
 /* @ngInject */
-function unitService($uibModal, CalculationService, RegistrationUtil) {
+function unitService($uibModal, calculationService, registrationUtil) {
     return {
         getActions: function(name, unitItems) {
             var actions = [{
@@ -40,12 +40,12 @@ function unitService($uibModal, CalculationService, RegistrationUtil) {
             }
         }).result.then(function(result) {
             _.each(rows, function(row) {
-                if (!RegistrationUtil.isRegistered(row)) {
+                if (!registrationUtil.isRegistered(row)) {
                     row[id] = row[id] || {};
                     row[id].value = result.value;
                     row[id].unit = result.unit;
                     row[id].entered = true;
-                    CalculationService.calculateProductBatch({
+                    calculationService.calculateProductBatch({
                         row: row, column: id
                     });
                 }

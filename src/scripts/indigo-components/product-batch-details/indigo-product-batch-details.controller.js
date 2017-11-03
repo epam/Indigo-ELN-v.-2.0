@@ -1,11 +1,11 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .controller('IndigoProductBatchDetailsController', IndigoProductBatchDetailsController);
 
     /* @ngInject */
-    function IndigoProductBatchDetailsController($scope, AppValues, InfoEditor, CalculationService, EntitiesBrowser,
-                                                 batchHelper, ProductBatchSummaryOperations) {
+    function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calculationService, entitiesBrowser,
+                                                 batchHelper, productBatchSummaryOperations) {
         var vm = this;
 
         init();
@@ -13,10 +13,10 @@
         function init() {
             vm.productTableColumns = getDefaultColumns();
             vm.showSummary = false;
-            vm.notebookId = EntitiesBrowser.getActiveTab().$$title;
+            vm.notebookId = entitiesBrowser.getActiveTab().$$title;
             vm.detailTable = [];
             vm.selectControl = {};
-            vm.saltCodeValues = AppValues.getSaltCodeValues();
+            vm.saltCodeValues = appValues.getSaltCodeValues();
             vm.model = vm.model || {};
             vm.selectBatch = selectBatch;
             vm.duplicateBatch = duplicateBatch;
@@ -59,17 +59,17 @@
         }
 
         function duplicateBatch() {
-            vm.batchOperation = ProductBatchSummaryOperations.duplicateBatch(vm.selectedBatch).then(successAddedBatch);
+            vm.batchOperation = productBatchSummaryOperations.duplicateBatch(vm.selectedBatch).then(successAddedBatch);
         }
 
         function isIntendedSynced() {
-            var intended = ProductBatchSummaryOperations.getIntendedNotInActual();
+            var intended = productBatchSummaryOperations.getIntendedNotInActual();
 
             return intended ? !intended.length : true;
         }
 
         function syncWithIntendedProducts() {
-            vm.batchOperation = ProductBatchSummaryOperations.syncWithIntendedProducts().then(function(batches) {
+            vm.batchOperation = productBatchSummaryOperations.syncWithIntendedProducts().then(function(batches) {
                 if (batches.length) {
                     _.forEach(batches, function(batch) {
                         vm.onAddedBatch({batch: batch});
@@ -81,7 +81,7 @@
 
         function registerBatch() {
             vm.loading = vm.saveExperimentFn().then(function() {
-                return ProductBatchSummaryOperations.registerBatches([vm.selectedBatch]);
+                return productBatchSummaryOperations.registerBatches([vm.selectedBatch]);
             });
         }
 
@@ -90,11 +90,11 @@
                 vm.selectedBatch.solubility = result;
                 vm.onChanged();
             };
-            InfoEditor.editSolubility(vm.selectedBatch.solubility, callback);
+            infoEditor.editSolubility(vm.selectedBatch.solubility, callback);
         }
 
         function editResidualSolvents() {
-            InfoEditor.editResidualSolvents(vm.selectedBatch.residualSolvents).then(function(result) {
+            infoEditor.editResidualSolvents(vm.selectedBatch.residualSolvents).then(function(result) {
                 vm.selectedBatch.residualSolvents = result;
                 vm.onChanged();
             });
@@ -105,7 +105,7 @@
                 vm.selectedBatch.externalSupplier = result;
                 vm.onChanged();
             };
-            InfoEditor.editExternalSupplier(vm.selectedBatch.externalSupplier, callback);
+            infoEditor.editExternalSupplier(vm.selectedBatch.externalSupplier, callback);
         }
 
         function editMeltingPoint() {
@@ -113,7 +113,7 @@
                 vm.selectedBatch.meltingPoint = result;
                 vm.onChanged();
             };
-            InfoEditor.editMeltingPoint(vm.selectedBatch.meltingPoint, callback);
+            infoEditor.editMeltingPoint(vm.selectedBatch.meltingPoint, callback);
         }
 
         function editPurity() {
@@ -121,7 +121,7 @@
                 vm.selectedBatch.purity = result;
                 vm.onChanged();
             };
-            InfoEditor.editPurity(vm.selectedBatch.purity, callback);
+            infoEditor.editPurity(vm.selectedBatch.purity, callback);
         }
 
         function editHealthHazards() {
@@ -129,7 +129,7 @@
                 vm.selectedBatch.healthHazards = result;
                 vm.onChanged();
             };
-            InfoEditor.editHealthHazards(vm.selectedBatch.healthHazards, callback);
+            infoEditor.editHealthHazards(vm.selectedBatch.healthHazards, callback);
         }
 
         function editHandlingPrecautions() {
@@ -137,7 +137,7 @@
                 vm.selectedBatch.handlingPrecautions = result;
                 vm.onChanged();
             };
-            InfoEditor.editHandlingPrecautions(vm.selectedBatch.handlingPrecautions, callback);
+            infoEditor.editHandlingPrecautions(vm.selectedBatch.handlingPrecautions, callback);
         }
 
         function editStorageInstructions() {
@@ -145,7 +145,7 @@
                 vm.selectedBatch.storageInstructions = result;
                 vm.onChanged();
             };
-            InfoEditor.editStorageInstructions(vm.selectedBatch.storageInstructions, callback);
+            infoEditor.editStorageInstructions(vm.selectedBatch.storageInstructions, callback);
         }
 
         function canEditSaltEq() {
@@ -161,8 +161,8 @@
             } else {
                 o.saltEq.value = Math.abs(o.saltEq.value);
             }
-            CalculationService.recalculateSalt(reagent).then(function() {
-                CalculationService.recalculateStoich();
+            calculationService.recalculateSalt(reagent).then(function() {
+                calculationService.recalculateStoich();
             });
         }
 

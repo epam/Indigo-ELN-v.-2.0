@@ -1,6 +1,6 @@
 angular
     .module('indigoeln')
-    .factory('TabKeyUtils', tabKeyUtils);
+    .factory('tabKeyUtils', tabKeyUtils);
 
 function tabKeyUtils() {
     return {

@@ -3,7 +3,7 @@ angular
     .factory('autorecoveryCache', autorecoveryCacheFactory);
 
 /* @ngInject */
-function autorecoveryCacheFactory(CacheFactory, TabKeyUtils) {
+function autorecoveryCacheFactory(CacheFactory, tabKeyUtils) {
     var cache = CacheFactory('recoveryCache', {
         storageMode: 'localStorage'
     });
@@ -72,6 +72,6 @@ function autorecoveryCacheFactory(CacheFactory, TabKeyUtils) {
     }
 
     function paramsConverter(stateParams) {
-        return TabKeyUtils.getTabKeyFromParams(_.extend({isAutorecovery: true}, stateParams));
+        return tabKeyUtils.getTabKeyFromParams(_.extend({isAutorecovery: true}, stateParams));
     }
 }

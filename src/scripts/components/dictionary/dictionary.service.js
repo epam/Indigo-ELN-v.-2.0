@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .factory('Dictionary', function($resource, CacheFactory, apiUrl) {
+    .factory('dictionaryService', function($resource, CacheFactory, apiUrl) {
         var dictionaryCache = CacheFactory.createCache('dictionaryCache', {
             maxAge: 5 * 60 * 1000,
             deleteOnExpire: 'passive'

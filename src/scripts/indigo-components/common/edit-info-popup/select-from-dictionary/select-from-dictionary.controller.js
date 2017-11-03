@@ -1,4 +1,4 @@
-angular.module('indigoeln.Components').controller('SelectFromDictionaryController',
+angular.module('indigoeln.componentsModule').controller('SelectFromDictionaryController',
     function($scope, $rootScope, $uibModalInstance, data, dictionary, title) {
         var vm = this;
 

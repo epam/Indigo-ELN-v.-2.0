@@ -4,7 +4,7 @@
         .directive('indigoHasAnyAuthority', indigoHasAnyAuthority);
 
     /* @ngInject */
-    function indigoHasAnyAuthority(Principal) {
+    function indigoHasAnyAuthority(principalService) {
         return {
             restrict: 'A',
             link: function($scope, $element, $attrs) {
@@ -23,7 +23,7 @@
                         setVisible();
                     }
 
-                    $element.toggleClass('hidden', !Principal.hasAnyAuthority(authorities));
+                    $element.toggleClass('hidden', !principalService.hasAnyAuthority(authorities));
                 }
             }
         };

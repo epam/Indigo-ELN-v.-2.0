@@ -1,13 +1,13 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .factory('stoichColumnActions', stoichColumnActions);
 
-    stoichColumnActions.$inject = ['RegistrationService', 'CalculationService', '$q', 'appUnits', 'Dictionary',
-        'sdImportHelperService', 'dialogService', 'SearchService'];
+    stoichColumnActions.$inject = ['registrationService', 'calculationService', '$q', 'appUnits', 'dictionaryService',
+        'sdImportHelperService', 'dialogService', 'searchService', 'notifyService'];
 
-    function stoichColumnActions(RegistrationService, CalculationService, $q, appUnits, Dictionary, sdImportHelperService,
-                                 dialogService, SearchService) {
+    function stoichColumnActions(registrationService, calculationService, $q, appUnits, dictionaryService, sdImportHelperService,
+                                 dialogService, searchService, notifyService) {
         return {
             fetchBatchByCompoundId: fetchBatchByCompoundId,
             cleanReactant: cleanReactant,
@@ -20,7 +20,7 @@
         function fetchBatchByCompoundId(compoundId, row) {
             var searchRequest = {compoundNo: compoundId};
 
-            return RegistrationService
+            return registrationService
                 .compounds(searchRequest)
                 .$promise
                 .then(function(result) {
@@ -43,7 +43,7 @@
         }
 
         function convertCompoundsToBatches(compounds) {
-            return Dictionary.all().$promise
+            return dictionaryService.all().$promise
                 .then(function(dicts) {
                     return _.map(compounds, function(c) {
                         return {
@@ -71,12 +71,12 @@
                 .then(function(result) {
                     return $q.all(_.map(result, function(item) {
                         return $q.all([
-                            CalculationService.getMoleculeInfo(item).then(function(molInfo) {
+                            calculationService.getMoleculeInfo(item).then(function(molInfo) {
                                 item.formula = molInfo.molecularFormula;
                                 item.molWeight = item.molWeight || {};
                                 item.molWeight.value = molInfo.molecularWeight;
                             }),
-                            CalculationService.getImageForStructure(item.structure.molfile, 'molecule')
+                            calculationService.getImageForStructure(item.structure.molfile, 'molecule')
                                 .then(function(image) {
                                     item.structure.image = image;
                                 })
@@ -94,7 +94,7 @@
             row.rxnRole = row.rxnRole || angular.copy(appUnits.rxnRoleReactant);
             row.weight = null;
             row.volume = null;
-            CalculationService.recalculateStoich();
+            calculationService.recalculateStoich();
         }
 
         function cleanReactant(batch) {
@@ -122,13 +122,14 @@
                 databases: ['Indigo ELN']
             };
 
-            return SearchService.search(searchRequest).$promise.then(function(result) {
+            return searchService.search(searchRequest).$promise.then(function(result) {
                 return result.slice(0, 5);
             });
         }
 
         function alertWrongFormat() {
-            notifyService.error('Notebook batch number does not exist or in the wrong format- format should be "nbk. number-exp. number-batch number"');
+            notifyService.error('Notebook batch number does not exist or in the wrong format- format should be "nbk. ' +
+                'number-exp. number-batch number"');
         }
     }
 })();

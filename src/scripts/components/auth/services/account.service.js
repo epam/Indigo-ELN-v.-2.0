@@ -1,6 +1,6 @@
 angular
     .module('indigoeln')
-    .factory('Account', function($resource, apiUrl) {
+    .factory('accountService', function($resource, apiUrl) {
         return $resource(apiUrl + 'accounts/account', {}, {
             get: {
                 method: 'GET',

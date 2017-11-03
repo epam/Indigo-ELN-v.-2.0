@@ -4,7 +4,7 @@
         .controller('DictionaryManagementDeleteController', DictionaryManagementDeleteController);
 
     /* @ngInject */
-    function DictionaryManagementDeleteController($uibModalInstance, Dictionary, entity) {
+    function DictionaryManagementDeleteController($uibModalInstance, dictionaryService, entity) {
         var vm = this;
 
         vm.dismiss = dismiss;
@@ -15,7 +15,7 @@
         }
 
         function confirmDelete() {
-            Dictionary.delete({
+            dictionaryService.delete({
                 id: entity.id
             },
                 function() {

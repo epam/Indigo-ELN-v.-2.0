@@ -1,11 +1,11 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .factory('stoichReactantsColumns', stoichReactantsColumns);
 
-    stoichReactantsColumns.$inject = ['appUnits', 'stoichColumnActions', 'selectService', 'unitService', 'CalculationService'];
+    stoichReactantsColumns.$inject = ['appUnits', 'stoichColumnActions', 'selectService', 'unitService', 'calculationService'];
 
-    function stoichReactantsColumns(appUnits, stoichColumnActions, selectService, unitService, CalculationService) {
+    function stoichReactantsColumns(appUnits, stoichColumnActions, selectService, unitService, calculationService) {
         return {
             compoundId: {
                 id: 'compoundId',
@@ -149,7 +149,7 @@
                 type: 'select',
                 values: appUnits.saltCodeValues,
                 onClose: function(data) {
-                    CalculationService.setEntered(data);
+                    calculationService.setEntered(data);
                     recalculateSalt(data.row);
                     if (data.row.saltCode.value === 0) {
                         data.row.saltEq.value = 0;
@@ -166,7 +166,7 @@
                     return o.saltCode && o.saltCode.value > 0;
                 },
                 onClose: function(data) {
-                    CalculationService.setEntered(data);
+                    calculationService.setEntered(data);
                     recalculateSalt(data.row);
                     if (data.row.saltCode.value === 0) {
                         data.row.saltEq.value = 0;
@@ -193,8 +193,8 @@
         };
 
         function recalculateSalt(reagent) {
-            CalculationService.recalculateSalt(reagent).then(function() {
-                CalculationService.recalculateAmounts({
+            calculationService.recalculateSalt(reagent).then(function() {
+                calculationService.recalculateAmounts({
                     row: reagent
                 });
             });

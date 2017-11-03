@@ -3,10 +3,10 @@ angular
     .factory('sdImportHelperService', sdImportHelperService);
 
 /* @ngInject */
-function sdImportHelperService(AppValues) {
+function sdImportHelperService(appValues) {
     var additionalFormatFunctions = {
         GLOBAL_SALT_CODE: function(property, value) {
-            return getItem(AppValues.getSaltCodeValues(), property.subPropName, value);
+            return getItem(appValues.getSaltCodeValues(), property.subPropName, value);
         },
         GLOBAL_SALT_EQ: function(property, value) {
             return {

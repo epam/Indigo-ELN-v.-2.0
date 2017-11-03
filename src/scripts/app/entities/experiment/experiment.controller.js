@@ -4,7 +4,7 @@
         .controller('ExperimentController', ExperimentController);
 
     /* @ngInject */
-    function ExperimentController($scope, Dashboard, configService, $filter, $timeout, Experiment) {
+    function ExperimentController($scope, dashboardService, configService, $filter, $timeout, experimentService) {
         var vm = this;
         var openExperiments;
         var waitingExperiments;
@@ -28,7 +28,7 @@
         vm.loadAll();
 
         function loadAll() {
-            vm.loading = Dashboard.get({}, function(result) {
+            vm.loading = dashboardService.get({}, function(result) {
                 openExperiments = result.openAndCompletedExp.filter(function(e) {
                     return e.status === 'Open';
                 });
@@ -91,7 +91,7 @@
             }
 
             etimeout = $timeout(function() {
-                Experiment.get({
+                experimentService.get({
                     experimentId: experiment.experimentId,
                     notebookId: experiment.notebookId,
                     projectId: experiment.projectId

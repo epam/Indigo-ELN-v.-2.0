@@ -1,13 +1,13 @@
 /**
  * Created by Stepan_Litvinov on 6/29/2016.
  */
-angular.module('indigoeln.Components')
-    .filter('unit', function(UnitsConverter) {
+angular.module('indigoeln.componentsModule')
+    .filter('unit', function(unitsConverter) {
         return function(value, to) {
             if (!value) {
                 return value;
             }
 
-            return +UnitsConverter.convert(value).as(to).val();
+            return +unitsConverter.convert(value).as(to).val();
         };
     });

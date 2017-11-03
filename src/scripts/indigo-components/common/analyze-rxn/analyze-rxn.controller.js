@@ -1,9 +1,9 @@
 angular
-    .module('indigoeln.Components')
+    .module('indigoeln.componentsModule')
     .controller('AnalyzeRxnController', AnalyzeRxnController);
 
 /* @ngInject */
-function AnalyzeRxnController($uibModalInstance, reactants, SearchService, AppValues, onStoichRowsChanged,
+function AnalyzeRxnController($uibModalInstance, reactants, searchService, appValues, onStoichRowsChanged,
                               stoichColumnActions, $q) {
     var vm = this;
 
@@ -61,7 +61,7 @@ function AnalyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
             reactants: reactants,
             selectedReactants: [],
             isSearchResultFound: false,
-            databases: SearchService.getCatalogues()
+            databases: searchService.getCatalogues()
         };
     }
 
@@ -80,8 +80,8 @@ function AnalyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
             batchDetails.$$isSelected = false;
             batchDetails.nbkBatch = item.notebookBatchNumber;
             batchDetails.database = databases.join(', ');
-            batchDetails.rxnRole = batchDetails.rxnRole || AppValues.getRxnRoleReactant();
-            batchDetails.saltCode = batchDetails.saltCode || AppValues.getDefaultSaltCode();
+            batchDetails.rxnRole = batchDetails.rxnRole || appValues.getRxnRoleReactant();
+            batchDetails.saltCode = batchDetails.saltCode || appValues.getDefaultSaltCode();
 
             return batchDetails;
         });
@@ -96,6 +96,6 @@ function AnalyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
             }
         };
 
-        return SearchService.search(searchRequest).$promise;
+        return searchService.search(searchRequest).$promise;
     }
 }

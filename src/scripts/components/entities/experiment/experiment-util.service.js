@@ -1,10 +1,10 @@
 angular
     .module('indigoeln')
-    .factory('ExperimentUtil', experimentUtil);
+    .factory('experimentUtil', experimentUtil);
 
 /* @ngInject */
-function experimentUtil($state, $uibModal, $q, Experiment, PermissionManagement, SignatureTemplates,
-                        SignatureDocument, componentsUtils, notifyService) {
+function experimentUtil($state, $uibModal, $q, experimentService, permissionManagementService, signatureTemplates,
+                        signatureDocument, componentsUtils, notifyService) {
     return {
         versionExperiment: versionExperiment,
         repeatExperiment: repeatExperiment,
@@ -22,7 +22,7 @@ function experimentUtil($state, $uibModal, $q, Experiment, PermissionManagement,
     }
 
     function versionExperiment(experiment, params) {
-        return Experiment.version({
+        return experimentService.version({
             projectId: params.projectId,
             notebookId: params.notebookId
         }, experiment.name, function(result) {
@@ -31,7 +31,7 @@ function experimentUtil($state, $uibModal, $q, Experiment, PermissionManagement,
     }
 
     function repeatExperiment(experiment, params) {
-        experiment.accessList = PermissionManagement.expandPermission(experiment.accessList);
+        experiment.accessList = permissionManagementService.expandPermission(experiment.accessList);
         var ec = experiment.components;
         var components = {
             reactionDetails: ec.reactionDetails,
@@ -49,7 +49,7 @@ function experimentUtil($state, $uibModal, $q, Experiment, PermissionManagement,
             template: experiment.template
         };
 
-        return Experiment.save({
+        return experimentService.save({
             projectId: params.projectId,
             notebookId: params.notebookId
         }, experimentForSave, function(result) {
@@ -58,7 +58,7 @@ function experimentUtil($state, $uibModal, $q, Experiment, PermissionManagement,
     }
 
     function reopenExperiment(experiment, params) {
-        return Experiment.reopen({
+        return experimentService.reopen({
             projectId: params.projectId,
             notebookId: params.notebookId,
             experimentId: params.experimentId
@@ -71,12 +71,12 @@ function experimentUtil($state, $uibModal, $q, Experiment, PermissionManagement,
 
     function completeExperiment(experiment, params, notebookName) {
         return openCompleteConfirmationModal(experiment, notebookName).result.then(function() {
-            experiment.accessList = PermissionManagement.expandPermission(experiment.accessList);
+            experiment.accessList = permissionManagementService.expandPermission(experiment.accessList);
             var experimentForSave = _.extend({}, experiment, {
                 status: 'Completed'
             });
 
-            return Experiment.update({
+            return experimentService.update({
                 projectId: params.projectId,
                 notebookId: params.notebookId
             }, experimentForSave).$promise;
@@ -109,7 +109,7 @@ function experimentUtil($state, $uibModal, $q, Experiment, PermissionManagement,
     }
 
     function selectTemplate(componentTemplates, filename, stateParams) {
-        return SignatureTemplates.query({})
+        return signatureTemplates.query({})
             .$promise
             .then(function(result) {
                 return $uibModal
@@ -129,7 +129,7 @@ function experimentUtil($state, $uibModal, $q, Experiment, PermissionManagement,
                         if (template) {
                             var templates = componentsUtils.getComponentsFromTemplateContent(componentTemplates);
 
-                            return SignatureDocument.upload(
+                            return signatureDocument.upload(
                                 {
                                     fileName: filename + '.pdf',
                                     components: getComponentsForPrint(templates),

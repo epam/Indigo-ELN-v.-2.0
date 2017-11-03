@@ -1,9 +1,9 @@
 angular
-    .module('indigoeln.Components')
+    .module('indigoeln.componentsModule')
     .factory('componentsUtils', componentsUtilsFactory);
 
 /* @ngInject */
-function componentsUtilsFactory(Principal, Components) {
+function componentsUtilsFactory(principalService, typeComponents) {
     return {
         initComponents: initComponents,
         getComponentsFromTemplateContent: getComponentsFromTemplateContent
@@ -12,15 +12,15 @@ function componentsUtilsFactory(Principal, Components) {
     function initComponents(components, componentTemplates) {
         var templates = _.keyBy(getComponentsFromTemplateContent(componentTemplates), 'field');
 
-        initExperimentDescription(components, templates[Components.experimentDescription.field]);
-        initConceptDetails(components, templates[Components.conceptDetails.field]);
-        initPreferredCompoundSummary(components, templates[Components.preferredCompoundSummary.field]);
-        initPreferredCompoundDetails(components, templates[Components.preferredCompoundDetails.field]);
-        initProductBatchDetails(components, templates[Components.productBatchDetails.field]);
+        initExperimentDescription(components, templates[typeComponents.experimentDescription.field]);
+        initConceptDetails(components, templates[typeComponents.conceptDetails.field]);
+        initPreferredCompoundSummary(components, templates[typeComponents.preferredCompoundSummary.field]);
+        initPreferredCompoundDetails(components, templates[typeComponents.preferredCompoundDetails.field]);
+        initProductBatchDetails(components, templates[typeComponents.productBatchDetails.field]);
         initProductBatchSummary(components, _.find(templates, {isBatch: true}));
-        initStoichTable(components, templates[Components.stoichTable.field]);
-        initReactionDetails(components, templates[Components.reactionDetails.field]);
-        initReaction(components, templates[Components.reaction.field]);
+        initStoichTable(components, templates[typeComponents.stoichTable.field]);
+        initReactionDetails(components, templates[typeComponents.reactionDetails.field]);
+        initReaction(components, templates[typeComponents.reaction.field]);
     }
 
     function getComponentsFromTemplateContent(componentTemplates) {
@@ -42,7 +42,7 @@ function componentsUtilsFactory(Principal, Components) {
         if (isExist) {
             _.defaultsDeep(
                 components, {
-                    conceptDetails: {experimentCreator: Principal.getIdentity().id}
+                    conceptDetails: {experimentCreator: principalService.getIdentity().id}
                 }
             );
         }
@@ -92,7 +92,7 @@ function componentsUtilsFactory(Principal, Components) {
                     reactionDetails: {
                         batchOwner: [],
                         coAuthors: [],
-                        experimentCreator: Principal.getIdentity().id
+                        experimentCreator: principalService.getIdentity().id
                     }
                 });
         }

@@ -22,9 +22,9 @@
         };
     }
 
-    ImportSdfFileController.$inject = ['ProductBatchSummaryOperations'];
+    ImportSdfFileController.$inject = ['productBatchSummaryOperations'];
 
-    function ImportSdfFileController(ProductBatchSummaryOperations) {
+    function ImportSdfFileController(productBatchSummaryOperations) {
         var vm = this;
 
         init();
@@ -34,7 +34,7 @@
         }
 
         function importSdfFile() {
-            vm.indigoComponents.batchOperation = ProductBatchSummaryOperations.importSDFile().then(successAddedBatches);
+            vm.indigoComponents.batchOperation = productBatchSummaryOperations.importSDFile().then(successAddedBatches);
         }
 
         function successAddedBatches(batches) {

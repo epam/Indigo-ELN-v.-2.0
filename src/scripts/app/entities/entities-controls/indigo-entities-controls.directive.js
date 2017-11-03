@@ -19,7 +19,7 @@
         };
 
         /* @ngInject */
-        function indigoEntitiesControlsController($state, EntitiesBrowser, modalHelper, ProjectsForSubCreation, appRoles) {
+        function indigoEntitiesControlsController($state, entitiesBrowser, modalHelper, projectsForSubCreation, appRoles) {
             var vm = this;
 
             vm.CONTENT_EDITOR = appRoles.CONTENT_EDITOR;
@@ -48,13 +48,13 @@
             vm.createNotebook = createNotebook;
 
             function init() {
-                EntitiesBrowser.getTabs(function(tabs) {
+                entitiesBrowser.getTabs(function(tabs) {
                     vm.entities = tabs;
                 });
             }
 
             function onTabClick(tab) {
-                EntitiesBrowser.goToTab(tab);
+                entitiesBrowser.goToTab(tab);
             }
 
             function openSearch() {
@@ -62,7 +62,7 @@
             }
 
             function canSave() {
-                return !!EntitiesBrowser.saveCurrentEntity && !!EntitiesBrowser.getCurrentForm() && EntitiesBrowser.getCurrentForm().$dirty;
+                return !!entitiesBrowser.saveCurrentEntity && !!entitiesBrowser.getCurrentForm() && entitiesBrowser.getCurrentForm().$dirty;
             }
 
             function save() {
@@ -70,23 +70,23 @@
             }
 
             function canPrint() {
-                var actions = EntitiesBrowser.getEntityActions();
+                var actions = entitiesBrowser.getEntityActions();
 
                 return actions && actions.print;
             }
 
             function print() {
-                EntitiesBrowser.getEntityActions().print();
+                entitiesBrowser.getEntityActions().print();
             }
 
             function canDuplicate() {
-                var actions = EntitiesBrowser.getEntityActions();
+                var actions = entitiesBrowser.getEntityActions();
 
                 return actions && actions.duplicate;
             }
 
             function duplicate() {
-                EntitiesBrowser.getEntityActions().duplicate();
+                entitiesBrowser.getEntityActions().duplicate();
             }
 
             function onCloseTabClick($event, tab) {
@@ -114,7 +114,7 @@
             function createNotebook() {
                 var resolve = {
                     parents: function() {
-                        return ProjectsForSubCreation.query().$promise;
+                        return projectsForSubCreation.query().$promise;
                     }
                 };
                 modalHelper.openCreateNewNotebookModal(resolve).then(function(projectId) {

@@ -1,11 +1,11 @@
 angular
     .module('indigoeln')
-    .factory('CalculationService', calculationService);
+    .factory('calculationService', calculationService);
 
 /* @ngInject */
-function calculationService($rootScope, $http, $q, AppValues, apiUrl,
-                            StoichTableCache, ProductBatchSummaryCache, capitalizeFilter) {
-    var defaultBatch = AppValues.getDefaultBatch();
+function calculationService($rootScope, $http, $q, appValues, apiUrl,
+                            stoichTableCache, productBatchSummaryCache, capitalizeFilter) {
+    var defaultBatch = appValues.getDefaultBatch();
     var recalculatingStoich = false;
 
     return {
@@ -105,7 +105,7 @@ function calculationService($rootScope, $http, $q, AppValues, apiUrl,
     }
 
     function createBatch(stoichTable, isProduct) {
-        var batch = AppValues.getDefaultBatch();
+        var batch = appValues.getDefaultBatch();
         var limiting = findLimiting(stoichTable);
         var property = isProduct ? 'theoMoles' : 'mol';
         if (limiting) {
@@ -143,11 +143,11 @@ function calculationService($rootScope, $http, $q, AppValues, apiUrl,
             return;
         }
         recalculatingStoich = true;
-        var stoichTable = StoichTableCache.getStoicTable();
+        var stoichTable = stoichTableCache.getStoicTable();
         var requestData = {
             stoicBatches: setDefaultValues(stoichTable.reactants),
             intendedProducts: setDefaultValues(stoichTable.products),
-            actualProducts: ProductBatchSummaryCache.getProductBatchSummary()
+            actualProducts: productBatchSummaryCache.getProductBatchSummary()
         };
 
         return $http.put(apiUrl + 'calculations/stoich/calculate', requestData).then(function(result) {
@@ -159,11 +159,11 @@ function calculationService($rootScope, $http, $q, AppValues, apiUrl,
     }
 
     function recalculateStoichBasedOnBatch(calcData) {
-        var stoichTable = StoichTableCache.getStoicTable();
+        var stoichTable = stoichTableCache.getStoicTable();
         var requestData = {
             stoicBatches: setDefaultValues(stoichTable.reactants),
             intendedProducts: setDefaultValues(stoichTable.products),
-            actualProducts: setDefaultValues(ProductBatchSummaryCache.getProductBatchSummary()),
+            actualProducts: setDefaultValues(productBatchSummaryCache.getProductBatchSummary()),
             changedBatchRowNumber: _.indexOf(stoichTable.reactants, calcData.row),
             changedField: calcData.changedField || calcData.column,
             molWeightChanged: calcData.molWeightChanged
@@ -214,7 +214,7 @@ function calculationService($rootScope, $http, $q, AppValues, apiUrl,
     }
 
     function resetValuesToDefault(values, batch) {
-        var defaultBatch = AppValues.getDefaultBatch();
+        var defaultBatch = appValues.getDefaultBatch();
 
         _.each(values, function(value) {
             batch[value] = angular.copy(defaultBatch[value]);
@@ -251,10 +251,10 @@ function calculationService($rootScope, $http, $q, AppValues, apiUrl,
         } else if (!data.mySaltEq || data.mySaltEq.value === 0) {
             return formulaPart;
         }
-        if (data.mySaltCode && data.mySaltCode.name !== AppValues.getDefaultSaltCode().name) {
+        if (data.mySaltCode && data.mySaltCode.name !== appValues.getDefaultSaltCode().name) {
             var saltName = data.mySaltCode.name.split('-')[1] || data.mySaltCode.name;
             descriptionPart = '(' + capitalizeFilter(saltName.trim()) + ')';
-        } else if (data.mySaltCode && data.mySaltCode.name === AppValues.getDefaultSaltCode().name) {
+        } else if (data.mySaltCode && data.mySaltCode.name === appValues.getDefaultSaltCode().name) {
             return formulaPart;
         }
 

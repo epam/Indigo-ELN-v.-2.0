@@ -23,9 +23,9 @@
         };
     }
 
-    AddNewBatchController.$inject = ['ProductBatchSummaryOperations'];
+    AddNewBatchController.$inject = ['productBatchSummaryOperations'];
 
-    function AddNewBatchController(ProductBatchSummaryOperations) {
+    function AddNewBatchController(productBatchSummaryOperations) {
         var vm = this;
 
         init();
@@ -35,7 +35,7 @@
         }
 
         function addNewBatch() {
-            vm.batchOperation = ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
+            vm.batchOperation = productBatchSummaryOperations.addNewBatch().then(successAddedBatch);
         }
 
         function successAddedBatch(batch) {

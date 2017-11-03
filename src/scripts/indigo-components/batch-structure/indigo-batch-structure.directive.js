@@ -1,6 +1,6 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .directive('indigoBatchStructure', indigoBatchStructure);
 
     function indigoBatchStructure() {
@@ -20,7 +20,7 @@
     }
 
     /* @ngInject */
-    function IndigoBatchStructureController(CalculationService) {
+    function IndigoBatchStructureController(calculationService) {
         var vm = this;
 
         init();
@@ -49,7 +49,7 @@
             batch.formula = null;
             batch.molWeight = null;
 
-            return CalculationService.calculateProductBatch({
+            return calculationService.calculateProductBatch({
                 row: batch, column: getColumn(batch)
             });
         }
@@ -59,14 +59,14 @@
             batch.molWeight = batch.molWeight || {};
             batch.molWeight.value = molInfo.molecularWeight;
 
-            return CalculationService.calculateProductBatch({
+            return calculationService.calculateProductBatch({
                 row: batch, column: getColumn(batch)
             });
         }
 
         function updateBatchMolInfo() {
             if (vm.selectedBatch.structure && vm.selectedBatch.structure.molfile) {
-                return CalculationService
+                return calculationService
                     .getMoleculeInfo(vm.selectedBatch)
                     .then(function(molInfo) {
                         return updateBatchFormula(vm.selectedBatch, molInfo);

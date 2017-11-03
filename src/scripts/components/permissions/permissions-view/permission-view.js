@@ -1,7 +1,7 @@
 angular.module('indigoeln')
-    .constant('PermissionViewManagementConfig', {
+    .constant('permissionViewManagementConfig', {
         url: '/permissions-view',
-        onEnter: ['$rootScope', '$stateParams', '$state', '$uibModal', 'PermissionManagement',
+        onEnter: ['$rootScope', '$stateParams', '$state', '$uibModal', 'permissionManagementService',
             function($rootScope, $stateParams, $state, $uibModal) {
                 $uibModal.open({
                     templateUrl: 'scripts/components/permissions/permissions-view/permission-view.html',

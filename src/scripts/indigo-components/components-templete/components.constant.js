@@ -1,7 +1,7 @@
 (function() {
     angular
-        .module('indigoeln.Components')
-        .constant('Components', {
+        .module('indigoeln.componentsModule')
+        .constant('typeComponents', {
             conceptDetails: {
                 field: 'conceptDetails',
                 name: 'Concept Details',

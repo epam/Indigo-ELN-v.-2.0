@@ -1,10 +1,10 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .controller('IndigoTableController', IndigoTableController);
 
     /* @ngInject */
-    function IndigoTableController($scope, dragulaService, simpleLocalCache, Principal, $timeout, $filter) {
+    function IndigoTableController($scope, dragulaService, simpleLocalCache, principalService, $timeout, $filter) {
         var vm = this;
         var searchColumns;
         var userId;
@@ -12,7 +12,7 @@
         init();
 
         function init() {
-            userId = Principal.getUserId();
+            userId = principalService.getUserId();
             searchColumns = vm.indigoSearchColumns || ['id', 'nbkBatch'];
             vm.searchText = '';
             vm.filteredRows = vm.indigoRows;

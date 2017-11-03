@@ -1,8 +1,8 @@
 angular.module('indigoeln')
-    .constant('PermissionManagementConfig', {
+    .constant('permissionManagementConfig', {
         url: '/permissions',
-        onEnter: ['$rootScope', '$stateParams', '$state', '$uibModal', 'PermissionManagement',
-            function($rootScope, $stateParams, $state, $uibModal, PermissionManagement) {
+        onEnter: ['$rootScope', '$stateParams', '$state', '$uibModal', 'permissionManagementService',
+            function($rootScope, $stateParams, $state, $uibModal, permissionManagementService) {
                 var that = this;
                 $uibModal.open({
                     templateUrl: 'scripts/components/permissions/permission-management.html',
@@ -10,15 +10,15 @@ angular.module('indigoeln')
                     controllerAs: 'vm',
                     size: 'lg',
                     resolve: {
-                        users: function(UserWithAuthority) {
-                            return UserWithAuthority.query().$promise;
+                        users: function(userWithAuthority) {
+                            return userWithAuthority.query().$promise;
                         },
                         permissions: function() {
                             return that.permissions;
                         }
                     }
                 }).result.then(function(result) {
-                    PermissionManagement.setAccessList(result);
+                    permissionManagementService.setAccessList(result);
                     $rootScope.$broadcast('access-list-changed');
                     $state.go('^');
                 }, function() {

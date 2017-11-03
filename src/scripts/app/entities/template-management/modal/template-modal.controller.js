@@ -4,11 +4,11 @@
         .controller('TemplateModalController', TemplateModalController);
 
     /* @ngInject */
-    function TemplateModalController($scope, $stateParams, Template, notifyService, $state, dragulaService,
-                                     Components, pageInfo, EntitiesBrowser, TabKeyUtils, $interval) {
+    function TemplateModalController($scope, $stateParams, templateService, notifyService, $state, dragulaService,
+                                     typeComponents, pageInfo, entitiesBrowser, tabKeyUtils, $interval) {
         var vm = this;
 
-        vm.components = _.values(Components);
+        vm.components = _.values(typeComponents);
         vm.template = pageInfo.entity || {};
         vm.template.templateContent = vm.template.templateContent || [];
 
@@ -71,18 +71,18 @@
         function save() {
             vm.isSaving = true;
             if (vm.template.id) {
-                Template.update(vm.template, onSaveSuccess, onSaveError);
+                templateService.update(vm.template, onSaveSuccess, onSaveError);
             } else {
-                Template.save(vm.template, onSaveSuccess, onSaveError).$promise;
+                templateService.save(vm.template, onSaveSuccess, onSaveError).$promise;
             }
         }
 
         function close() {
             if (!vm.template.id) {
                 var tabName = $state.$current.data.tab.name;
-                EntitiesBrowser.close(TabKeyUtils.getTabKeyFromName(tabName));
+                entitiesBrowser.close(tabKeyUtils.getTabKeyFromName(tabName));
             } else {
-                EntitiesBrowser.close(TabKeyUtils.getTabKeyFromParams($stateParams));
+                entitiesBrowser.close(tabKeyUtils.getTabKeyFromParams($stateParams));
             }
         }
 

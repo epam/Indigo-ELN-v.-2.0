@@ -4,7 +4,7 @@
         .controller('UserManagementController', UserManagementController);
 
     /* @ngInject */
-    function UserManagementController($uibModal, User, ParseLinks, $filter, pageInfo, notifyService) {
+    function UserManagementController($uibModal, userService, parseLinksService, $filter, pageInfo, notifyService) {
         var vm = this;
         vm.users = [];
         vm.roles = pageInfo.roles;
@@ -23,10 +23,10 @@
         vm.loadAll();
 
         function loadAll() {
-            User.query({
+            userService.query({
                 page: vm.page - 1, size: vm.itemsPerPage
             }, function(result, headers) {
-                vm.links = ParseLinks.parse(headers('link'));
+                vm.links = parseLinksService.parse(headers('link'));
                 vm.totalItems = headers('X-Total-Count');
                 vm.users = result;
             });
@@ -34,7 +34,7 @@
 
         function setActive(user, isActivated) {
             user.activated = isActivated;
-            User.update(user, function() {
+            userService.update(user, function() {
                 loadAll();
                 clear();
             });
@@ -69,9 +69,9 @@
         function save() {
             vm.isSaving = true;
             if (vm.user.id) {
-                User.update(vm.user, onSaveSuccess, onSaveError);
+                userService.update(vm.user, onSaveSuccess, onSaveError);
             } else {
-                User.save(vm.user, onSaveSuccess, onSaveError);
+                userService.save(vm.user, onSaveSuccess, onSaveError);
             }
         }
 
@@ -100,10 +100,10 @@
 
 
         function search() {
-            User.query({
+            userService.query({
                 page: vm.page - 1, size: 20
             }, function(result, headers) {
-                vm.links = ParseLinks.parse(headers('link'));
+                vm.links = parseLinksService.parse(headers('link'));
                 vm.totalItems = headers('X-Total-Count');
                 vm.users = $filter('filter')(result, vm.searchText);
             });

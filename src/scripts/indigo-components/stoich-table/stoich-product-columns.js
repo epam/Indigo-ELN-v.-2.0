@@ -1,11 +1,11 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .factory('stoichProductColumns', stoichProductColumns);
 
-    stoichProductColumns.$inject = ['appUnits', 'CalculationService'];
+    stoichProductColumns.$inject = ['appUnits', 'calculationService'];
 
-    function stoichProductColumns(appUnits, CalculationService) {
+    function stoichProductColumns(appUnits, calculationService) {
         return {
             chemicalName: {
                 id: 'chemicalName',
@@ -50,7 +50,7 @@
                 values: appUnits.saltCodeValues,
                 showDefault: true,
                 onClose: function(data) {
-                    CalculationService.setEntered(data);
+                    calculationService.setEntered(data);
                     recalculateSalt(data.row);
                     if (data.model.value === 0) {
                         data.row.saltEq.value = 0;
@@ -66,7 +66,7 @@
                     return o.saltCode && o.saltCode.value > 0;
                 },
                 onClose: function(data) {
-                    CalculationService.setEntered(data);
+                    calculationService.setEntered(data);
                     recalculateSalt(data.row);
                 }
             },
@@ -82,8 +82,8 @@
         };
 
         function recalculateSalt(reagent) {
-            CalculationService.recalculateSalt(reagent).then(function() {
-                CalculationService.recalculateAmounts({
+            calculationService.recalculateSalt(reagent).then(function() {
+                calculationService.recalculateAmounts({
                     row: reagent
                 });
             });

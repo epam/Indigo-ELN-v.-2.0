@@ -1,7 +1,7 @@
 (function() {
     angular
         .module('indigoeln')
-        .factory('UnitsConverter', unitsConverter);
+        .factory('unitsConverter', unitsConverter);
 
     function unitsConverter() {
         var table = {};

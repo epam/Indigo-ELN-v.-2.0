@@ -4,7 +4,7 @@
         .controller('TemplateDetailController', TemplateDetailController);
 
     /* @ngInject */
-    function TemplateDetailController($stateParams, Template, componentsUtils) {
+    function TemplateDetailController($stateParams, templateService, componentsUtils) {
         var vm = this;
 
         vm.load = load;
@@ -15,7 +15,7 @@
         }
 
         function load(id) {
-            Template.get({
+            templateService.get({
                 id: id
             }, function(result) {
                 vm.template = result;

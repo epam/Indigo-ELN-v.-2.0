@@ -1,12 +1,12 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .factory('batchHelper', batchHelper);
 
-    batchHelper.$inject = ['appUnits', 'CalculationService', 'columnActions', 'scalarService', 'unitService',
+    batchHelper.$inject = ['appUnits', 'calculationService', 'columnActions', 'scalarService', 'unitService',
         'selectService', 'inputService', '$q'];
 
-    function batchHelper(appUnits, CalculationService, columnActions, scalarService, unitService, selectService,
+    function batchHelper(appUnits, calculationService, columnActions, scalarService, unitService, selectService,
                          inputService, $q) {
         var columnCloseFunction = {
             totalWeight: onClose1,
@@ -26,12 +26,12 @@
         }
 
         function onClose1(data) {
-            CalculationService.setEntered(data);
-            CalculationService.calculateProductBatch(data);
+            calculationService.setEntered(data);
+            calculationService.calculateProductBatch(data);
         }
 
         function onCloseSaltCode(data) {
-            CalculationService.setEntered(data);
+            calculationService.setEntered(data);
             recalculateSalt(data.row);
             if (data.model.value === 0) {
                 data.row.saltEq.value = 0;
@@ -39,7 +39,7 @@
         }
 
         function onCloseSaltEq(data) {
-            CalculationService.setEntered(data);
+            calculationService.setEntered(data);
             recalculateSalt(data.row);
         }
 
@@ -52,8 +52,8 @@
         }
 
         function recalculateSalt(reagent) {
-            CalculationService.recalculateSalt(reagent).then(function() {
-                CalculationService.recalculateStoich();
+            calculationService.recalculateSalt(reagent).then(function() {
+                calculationService.recalculateStoich();
             });
         }
 
@@ -228,7 +228,7 @@
                             action: function(rows, column) {
                                 scalarService.action(rows, 'scalar', column)
                                     .then(function(promises) {
-                                        return $q.all(promises).then(CalculationService.recalculateStoich);
+                                        return $q.all(promises).then(calculationService.recalculateStoich);
                                     });
                             }
                         }

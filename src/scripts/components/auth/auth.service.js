@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('Auth', auth);
+    .factory('authService', auth);
 
 /* @ngInject */
-function auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService, $log, $http) {
+function auth($rootScope, $state, $q, principalService, authServerProvider, wsService, $log, $http, $timeout) {
     var prolongTimeout;
 
     return {
@@ -16,9 +16,9 @@ function auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService, 
 
 
     function login(credentials) {
-        return AuthServerProvider.login(credentials).then(function(data) {
+        return authServerProvider.login(credentials).then(function(data) {
             // retrieve the logged account information
-            return Principal.identity(true).then(function() {
+            return principalService.identity(true).then(function() {
                 return data;
             });
         }).catch(function(err) {
@@ -33,27 +33,27 @@ function auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService, 
             clearTimeout(prolongTimeout);
         }
         prolongTimeout = $timeout(function() {
-            AuthServerProvider.prolong();
+            authServerProvider.prolong();
         }, 5000);
     }
 
     function logout() {
-        AuthServerProvider.logout();
-        Principal.authenticate(null);
+        authServerProvider.logout();
+        principalService.authenticate(null);
         // Reset state memory
         $rootScope.previousStateName = undefined;
         $rootScope.previousStateNameParams = undefined;
         try {
-            WSService.disconnect();
+            wsService.disconnect();
         } catch (e) {
             $log.error('Error to disconnect');
         }
     }
 
     function authorize(force) {
-        return Principal.identity(force)
+        return principalService.identity(force)
             .then(function() {
-                var isAuthenticated = Principal.isAuthenticated();
+                var isAuthenticated = principalService.isAuthenticated();
 
                 // an authenticated user can't access to login and register pages
                 if (isAuthenticated && checkState($rootScope.toState)) {
@@ -80,7 +80,7 @@ function auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService, 
                 }
 
                 function isAnyAuthority(authorities) {
-                    return authorities && authorities.length > 0 && !Principal.hasAnyAuthority(authorities);
+                    return authorities && authorities.length > 0 && !principalService.hasAnyAuthority(authorities);
                 }
             });
     }

@@ -28,9 +28,9 @@ angular.module('indigoeln', [
     'duScroll',
     'indigoeln.componentButtons',
     'indigoeln.entityTree',
-    'indigoeln.Components'
+    'indigoeln.componentsModule'
 ])
-    .run(function($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle, EntitiesBrowser,
+    .run(function($rootScope, $window, $state, $uibModal, editableOptions, authService, principalService, Idle, entitiesBrowser,
                   $http, $cookies) {
         updateCSRFTOKEN($cookies, $http);
 
@@ -44,8 +44,8 @@ angular.module('indigoeln', [
             $rootScope.toState = toState;
             $rootScope.toStateParams = toStateParams;
 
-            if (Principal.isIdentityResolved()) {
-                Auth.authorize().then(function() {
+            if (principalService.isIdentityResolved()) {
+                authService.authorize().then(function() {
                     updateCSRFTOKEN($cookies, $http);
                 });
             }
@@ -54,7 +54,7 @@ angular.module('indigoeln', [
             if (tab) {
                 tab.params = toStateParams;
                 if (tab.type && tab.type === 'entity') {
-                    EntitiesBrowser.addTab(tab);
+                    entitiesBrowser.addTab(tab);
                 }
             }
         });
@@ -108,7 +108,7 @@ angular.module('indigoeln', [
                 countdownDialog.close();
                 countdownDialog = null;
             }
-            Auth.logout();
+            authService.logout();
             $state.go('login');
         });
         $rootScope.back = function() {
@@ -145,11 +145,11 @@ angular.module('indigoeln', [
                         }
                     );
                 },
-                authorize: function(Auth) {
-                    return Auth.authorize();
+                authorize: function(authService) {
+                    return authService.authorize();
                 },
-                user: function(Principal) {
-                    return Principal.identity();
+                user: function(principalService) {
+                    return principalService.identity();
                 }
             }
         });

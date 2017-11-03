@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .factory('Template', function($resource, apiUrl) {
+    .factory('templateService', function($resource, apiUrl) {
         return $resource(apiUrl + 'templates/:id', {}, {
             query: {
                 method: 'GET', isArray: true

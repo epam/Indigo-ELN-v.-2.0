@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('Experiment', experimentFactory);
+    .factory('experimentService', experimentFactory);
 
 /* @ngInject */
-function experimentFactory($resource, PermissionManagement, entityTreeService, apiUrl) {
+function experimentFactory($resource, permissionManagementService, entityTreeService, apiUrl) {
     var interceptor = {
         response: function(response) {
             entityTreeService.updateExperiment(response.data);
@@ -91,7 +91,7 @@ function experimentFactory($resource, PermissionManagement, entityTreeService, a
     function transformRequest(data) {
         var copiedRequest = angular.copy(data);
         copiedRequest.components = toComponents(copiedRequest.components);
-        copiedRequest.accessList = PermissionManagement.expandPermission(copiedRequest.accessList);
+        copiedRequest.accessList = permissionManagementService.expandPermission(copiedRequest.accessList);
 
         return angular.toJson(copiedRequest);
     }

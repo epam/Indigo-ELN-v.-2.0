@@ -4,7 +4,7 @@
         .directive('indigoHasAuthority', indigoHasAuthority);
 
     /* @ngInject */
-    function indigoHasAuthority(Principal) {
+    function indigoHasAuthority(principalService) {
         return {
             restrict: 'A',
             link: {
@@ -16,7 +16,7 @@
                     }
 
                     function defineVisibility() {
-                        if (!Principal.hasAuthority(authorities)) {
+                        if (!principalService.hasAuthority(authorities)) {
                             $element.remove();
                         }
                     }

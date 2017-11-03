@@ -1,7 +1,7 @@
 angular
     .module('indigoeln')
-    .factory('accountRole', function($resource, apiUrl) {
-        return $resource(apiUrl + 'accounts/account/roles', {}, {
+    .factory('allProjects', function($resource, apiUrl) {
+        return $resource(apiUrl + 'projects/all', {}, {
             query: {
                 method: 'GET', isArray: true
             }

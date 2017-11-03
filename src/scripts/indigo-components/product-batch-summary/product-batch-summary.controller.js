@@ -1,6 +1,6 @@
 (function() {
     angular
-        .module('indigoeln.Components')
+        .module('indigoeln.componentsModule')
         .controller('ProductBatchSummaryController', ProductBatchSummaryController);
 
     /* @ngInject */
