@@ -1,5 +1,5 @@
 angular
-    .module('indigoeln')
+    .module('indigoeln.constantsModule')
     .constant('userPermissions', {
         VIEWER: {
             id: 'VIEWER', name: 'VIEWER (read notebook)'

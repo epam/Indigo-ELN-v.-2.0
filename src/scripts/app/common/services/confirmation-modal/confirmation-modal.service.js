@@ -1,5 +1,5 @@
 angular
-    .module('indigoeln')
+    .module('indigoeln.commonModule.servicesModule')
     .factory('confirmationModal', confirmationModalFactory);
 
 /* @ngInject */

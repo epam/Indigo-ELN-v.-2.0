@@ -1,5 +1,5 @@
 angular
-    .module('indigoeln')
+    .module('indigoeln.commonModule.servicesModule')
     .factory('scrollService', scrollService);
 
 /* @ngInject */

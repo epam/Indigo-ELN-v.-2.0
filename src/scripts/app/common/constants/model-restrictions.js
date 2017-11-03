@@ -1,5 +1,5 @@
 angular
-    .module('indigoeln')
+    .module('indigoeln.constantsModule')
     .constant('modelRestrictions', {
         searchQuery: '',
         advancedSearch: {
