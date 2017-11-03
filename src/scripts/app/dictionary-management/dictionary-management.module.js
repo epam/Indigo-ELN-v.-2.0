@@ -1,4 +1,5 @@
-angular.module('indigoeln')
+angular
+    .module('indigoeln.dictionaryManagementModule', [])
     .config(function($stateProvider) {
         $stateProvider
             .state('entities.dictionary-management', {
@@ -15,7 +16,7 @@ angular.module('indigoeln')
                 },
                 views: {
                     tabContent: {
-                        templateUrl: 'scripts/app/entities/dictionary-management/dictionary-management.html',
+                        templateUrl: 'scripts/app/dictionary-management/dictionary-management.html',
                         controller: 'DictionaryManagementController',
                         controllerAs: 'vm'
                     }
@@ -31,7 +32,7 @@ angular.module('indigoeln')
                 },
                 onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                     $uibModal.open({
-                        templateUrl: 'scripts/app/entities/dictionary-management/delete-dialog/dictionary-management-delete-dialog.html',
+                        templateUrl: 'scripts/app/dictionary-management/delete-dialog/dictionary-management-delete-dialog.html',
                         controller: 'DictionaryManagementDeleteController',
                         controllerAs: 'vm',
                         size: 'md',

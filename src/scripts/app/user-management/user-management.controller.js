@@ -1,6 +1,6 @@
 (function() {
     angular
-        .module('indigoeln')
+        .module('indigoeln.userManagementModule')
         .controller('UserManagementController', UserManagementController);
 
     /* @ngInject */

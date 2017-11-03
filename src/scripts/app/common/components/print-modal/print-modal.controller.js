@@ -1,6 +1,6 @@
 (function() {
     angular
-        .module('indigoeln')
+        .module('indigoeln.commonModule.componentsModule')
         .controller('PrintModalController', PrintModalController);
 
     /* @ngInject */

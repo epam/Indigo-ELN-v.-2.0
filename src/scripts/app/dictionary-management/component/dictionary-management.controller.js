@@ -1,6 +1,6 @@
 (function() {
     angular
-        .module('indigoeln')
+        .module('indigoeln.dictionaryManagementModule')
         .controller('DictionaryManagementController', DictionaryManagementController);
 
     /* @ngInject */
@@ -155,7 +155,7 @@
         function deleteWord(word) {
             $uibModal.open({
                 animation: true,
-                templateUrl: 'scripts/app/entities/dictionary-management/delete-dialog/dictionary-management-delete-word-dialog.html',
+                templateUrl: 'scripts/app/dictionary-management/delete-word-dialog/dictionary-management-delete-word-dialog.html',
                 controller: 'DictionaryManagementDeleteWordController',
                 controllerAs: 'vm'
             }).result.then(function() {

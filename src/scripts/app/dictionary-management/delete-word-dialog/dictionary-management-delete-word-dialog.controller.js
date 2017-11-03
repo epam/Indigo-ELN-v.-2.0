@@ -1,6 +1,6 @@
 (function() {
     angular
-        .module('indigoeln')
+        .module('indigoeln.dictionaryManagementModule')
         .controller('DictionaryManagementDeleteWordController', DictionaryManagementDeleteWordController);
 
     /* @ngInject */

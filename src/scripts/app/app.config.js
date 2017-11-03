@@ -13,29 +13,58 @@ function appConfig($stateProvider, $urlRouterProvider, $httpProvider, $compilePr
     $httpProvider.defaults.withCredentials = true;
 
     $urlRouterProvider.otherwise('/');
-    $stateProvider.state('app_page', {
-        abstract: true,
-        views: {
-            'app_page@': {
-                template: '<app-layout></app-layout>'
-            }
-        },
-        resolve: {
-            appUrl: function($http, apiUrl, configService) {
-                return $http.get(apiUrl + 'client_configuration').then(
-                    function(response) {
-                        configService.setConfiguration(response.data);
-                    }
-                );
+    $stateProvider
+        .state('app_page', {
+            abstract: true,
+            views: {
+                'app_page@': {
+                    template: '<app-layout></app-layout>'
+                }
             },
-            authorize: function(authService) {
-                return authService.authorize();
-            },
-            user: function(principalService) {
-                return principalService.identity();
+            resolve: {
+                appUrl: function($http, apiUrl, configService) {
+                    return $http.get(apiUrl + 'client_configuration').then(
+                        function(response) {
+                            configService.setConfiguration(response.data);
+                        }
+                    );
+                },
+                authorize: function(authService) {
+                    return authService.authorize();
+                },
+                user: function(principalService) {
+                    return principalService.identity();
+                }
             }
-        }
-    });
+        })
+        .state('error', {
+            parent: 'app_page',
+            url: '/error',
+            data: {
+                authorities: [],
+                pageTitle: 'Error page!'
+            },
+            views: {
+                'content@app_page': {
+                    templateUrl: 'scripts/app/common/templates/error.html'
+                }
+            },
+            resolve: {}
+        })
+        .state('accessdenied', {
+            parent: 'app_page',
+            url: '/accessdenied',
+            data: {
+                authorities: []
+            },
+            views: {
+                'content@app_page': {
+                    templateUrl: 'scripts/app/common/templates/access-denied.html'
+                }
+            },
+            resolve: {}
+        });
+
     $httpProvider.interceptors.push('errorHandlerInterceptor');
     $httpProvider.interceptors.push('notificationInterceptor');
 

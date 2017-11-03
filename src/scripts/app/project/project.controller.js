@@ -1,6 +1,6 @@
 (function() {
     angular
-        .module('indigoeln')
+        .module('indigoeln.projectModule')
         .controller('ProjectController', ProjectController);
 
     /* @ngInject */

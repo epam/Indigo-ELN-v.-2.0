@@ -1,5 +1,5 @@
 angular
-    .module('indigoeln')
+    .module('indigoeln.projectModule', [])
     .config(function($stateProvider, permissionManagementConfig, permissionViewManagementConfig, userPermissions) {
         var permissions = [
             userPermissions.VIEWER,
@@ -16,7 +16,7 @@ angular
                 url: '/project/new',
                 views: {
                     tabContent: {
-                        templateUrl: 'scripts/app/entities/project/project.html',
+                        templateUrl: 'scripts/app/project/project.html',
                         controller: 'ProjectController',
                         controllerAs: 'vm'
                     }
@@ -64,7 +64,7 @@ angular
                 url: '/project/{projectId}',
                 views: {
                     tabContent: {
-                        templateUrl: 'scripts/app/entities/project/project.html',
+                        templateUrl: 'scripts/app/project/project.html',
                         controller: 'ProjectController',
                         controllerAs: 'vm'
                     }

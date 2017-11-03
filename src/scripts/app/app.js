@@ -31,5 +31,7 @@ angular
         'indigoeln.commonModule',
         'indigoeln.sidebarModule',
         'indigoeln.permissionsModule',
-        'indigoeln.experimentModule'
+        'indigoeln.experimentModule',
+        'indigoeln.projectModule',
+        'indigoeln.userManagementModule'
     ]);

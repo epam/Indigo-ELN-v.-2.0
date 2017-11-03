@@ -1,5 +1,5 @@
 angular
-    .module('indigoeln')
+    .module('indigoeln.commonModule.componentsModule')
     .factory('printModal', function($rootScope, $state, $uibModal, $window, $httpParamSerializer, apiUrl) {
         return {
             showPopup: showPopup
@@ -8,7 +8,7 @@ angular
         function showPopup(params, resourceName) {
             $uibModal.open({
                 animation: true,
-                templateUrl: 'scripts/app/entities/print-modal/print-modal.html',
+                templateUrl: 'scripts/app/common/components/print-modal/print-modal.html',
                 controller: 'PrintModalController',
                 controllerAs: 'vm',
                 resolve: {

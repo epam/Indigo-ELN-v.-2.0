@@ -1,4 +1,5 @@
-angular.module('indigoeln')
+angular
+    .module('indigoeln.userManagementModule', [])
     .config(function($stateProvider) {
         $stateProvider
             .state('entities.user-management', {

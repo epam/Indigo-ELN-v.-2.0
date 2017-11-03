@@ -57,7 +57,7 @@ function appRun($rootScope, $window, $state, $uibModal, editableOptions, authSer
         if (!countdownDialog) {
             countdownDialog = $uibModal.open({
                 animation: false,
-                templateUrl: 'scripts/app/timer/timer-dialog.html',
+                templateUrl: 'scripts/app/common/components/timer/timer-dialog.html',
                 controller: 'CountdownDialogController',
                 controllerAs: 'vm',
                 windowClass: 'modal-danger',

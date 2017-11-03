@@ -1,5 +1,5 @@
 angular
-    .module('indigoeln')
+    .module('indigoeln.commonModule.componentsModule')
     .controller('CountdownDialogController', function($scope, countdown, idleTime) {
         var vm = this;
 
