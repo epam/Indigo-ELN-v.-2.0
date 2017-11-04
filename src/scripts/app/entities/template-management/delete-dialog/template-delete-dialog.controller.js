@@ -1,26 +1,22 @@
-(function() {
-    angular
-        .module('indigoeln')
-        .controller('TemplateDeleteController', TemplateDeleteController);
+/* @ngInject */
+function TemplateDeleteController($uibModalInstance, $stateParams, templateService) {
+    var vm = this;
 
-    /* @ngInject */
-    function TemplateDeleteController($uibModalInstance, $stateParams, templateService) {
-        var vm = this;
+    vm.clear = clear;
+    vm.confirmDelete = confirmDelete;
 
-        vm.clear = clear;
-        vm.confirmDelete = confirmDelete;
+    function clear() {
+        $uibModalInstance.dismiss('cancel');
+    }
 
-        function clear() {
-            $uibModalInstance.dismiss('cancel');
-        }
-
-        function confirmDelete() {
-            templateService.delete({
+    function confirmDelete() {
+        templateService.delete({
                 id: $stateParams.id
             },
-                function() {
-                    $uibModalInstance.close(true);
-                });
-        }
+            function() {
+                $uibModalInstance.close(true);
+            });
     }
-})();
+}
+
+module.exports = TemplateDeleteController;

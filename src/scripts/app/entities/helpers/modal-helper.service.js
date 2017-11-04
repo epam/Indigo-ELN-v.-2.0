@@ -1,9 +1,5 @@
-angular
-    .module('indigoeln')
-    .factory('modalHelper', modalHelperFactory);
-
 /* @ngInject */
-function modalHelperFactory($uibModal) {
+function modalHelper($uibModal) {
     return {
         openCreateNewExperimentModal: openCreateNewExperimentModal,
         openCreateNewNotebookModal: openCreateNewNotebookModal
@@ -31,3 +27,5 @@ function modalHelperFactory($uibModal) {
         }).result;
     }
 }
+
+module.exports = modalHelper;

@@ -1,29 +1,21 @@
-(function() {
-    angular
-        .module('indigoeln.componentButtons')
-        .directive('exportSdfFile', exportSdfFileDirective);
-
-    /* @ngInject */
-    function exportSdfFileDirective() {
-        return {
-            restrict: 'E',
-            require: ['^^indigoComponents', 'exportSdfFile'],
-            scope: {
-                isReadonly: '=',
-                isSelectedBatch: '=?'
-            },
-            templateUrl: 'scripts/app/common/directives/component-buttons/export-sdf-file/export-sdf-file.html',
-            controller: ExportSdfFileController,
-            controllerAs: 'vm',
-            bindToController: true,
-            link: function($scope, $element, $attr, controllers) {
-                $element.addClass('component-button');
-                controllers[1].indigoComponents = controllers[0];
-            }
-        };
-    }
-
-    ExportSdfFileController.$inject = ['productBatchSummaryOperations', 'batchHelper'];
+/* @ngInject */
+function exportSdfFileDirective() {
+    return {
+        restrict: 'E',
+        require: ['^^indigoComponents', 'exportSdfFile'],
+        scope: {
+            isReadonly: '=',
+            isSelectedBatch: '=?'
+        },
+        template: require('./export-sdf-file.html'),
+        controller: ExportSdfFileController,
+        controllerAs: 'vm',
+        bindToController: true,
+        link: function($scope, $element, $attr, controllers) {
+            $element.addClass('component-button');
+            controllers[1].indigoComponents = controllers[0];
+        }
+    };
 
     function ExportSdfFileController(productBatchSummaryOperations) {
         var vm = this;
@@ -39,4 +31,6 @@
             productBatchSummaryOperations.exportSDFile(exportBatches);
         }
     }
-})();
+}
+
+module.exports = exportSdfFileDirective;

@@ -31,6 +31,10 @@ module.exports = function(grunt) {
                             connect().use(
                                 '/bower_components',
                                 serveStatic('./bower_components')
+                            ),
+                            connect().use(
+                                '/node_modules',
+                                serveStatic('./node_modules')
                             )
                         ];
                     }

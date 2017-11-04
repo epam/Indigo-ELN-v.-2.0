@@ -1,30 +1,22 @@
-(function() {
-    angular
-        .module('indigoeln.componentButtons')
-        .directive('deleteBatches', deleteBatchesDirective);
-
-    /* @ngInject */
-    function deleteBatchesDirective() {
-        return {
-            restrict: 'E',
-            scope: {
-                isReadonly: '=',
-                batches: '=?',
-                deleteBatches: '=?',
-                deleteBatch: '=?',
-                onRemoveBatches: '&'
-            },
-            templateUrl: 'scripts/app/common/directives/component-buttons/delete-batches/delete-batches.html',
-            controller: DeleteBatchesController,
-            controllerAs: 'vm',
-            bindToController: true,
-            link: function($scope, $element, $attr, controllers) {
-                $element.addClass('component-button');
-            }
-        };
-    }
-
-    DeleteBatchesController.$inject = [];
+/* @ngInject */
+function deleteBatchesDirective() {
+    return {
+        restrict: 'E',
+        scope: {
+            isReadonly: '=',
+            batches: '=?',
+            deleteBatches: '=?',
+            deleteBatch: '=?',
+            onRemoveBatches: '&'
+        },
+        template: require('./delete-batches.html'),
+        controller: DeleteBatchesController,
+        controllerAs: 'vm',
+        bindToController: true,
+        link: function ($scope, $element, $attr, controllers) {
+            $element.addClass('component-button');
+        }
+    };
 
     function DeleteBatchesController() {
         var vm = this;
@@ -50,4 +42,6 @@
             return vm.deleteBatch ? [vm.deleteBatch] : null;
         }
     }
-})();
+}
+
+module.exports = deleteBatchesDirective;

@@ -1,16 +1,12 @@
-(function() {
-    angular
-        .module('indigoeln')
-        .directive('experimentDetail', function() {
-            return {
-                scope: true,
-                templateUrl: 'scripts/app/entities/experiment/experiment-detail/experiment-detail.html',
-                controller: ExperimentDetailController,
-                controllerAs: 'vm'
-            };
-        });
+/* @ngInject */
+function experimentDetail() {
+    return {
+        scope: true,
+        template: require('./experiment-detail.html'),
+        controller: ExperimentDetailController,
+        controllerAs: 'vm'
+    };
 
-    /* @ngInject */
     function ExperimentDetailController($scope, $state, $stateParams, experimentService, experimentUtil,
                                         permissionManagementService, fileUploaderCash, entitiesBrowser,
                                         autorecoveryHelper, notifyService, entitiesCache, $q, principalService,
@@ -369,4 +365,6 @@
             });
         }
     }
-})();
+}
+
+module.exports = experimentDetail;

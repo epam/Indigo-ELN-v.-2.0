@@ -1,48 +1,43 @@
-(function() {
-    angular
-        .module('indigoeln')
-        .controller('NotebookSelectParentController', NotebookSelectParentController);
+/* @ngInject */
+function NotebookSelectParentController($scope, $uibModalInstance, parents, principalService, simpleLocalCache) {
+    var vm = this;
+    vm.parents = parents;
+    vm.selectedParent = '';
 
-    /* @ngInject */
-    function NotebookSelectParentController($scope, $uibModalInstance, parents, principalService, simpleLocalCache) {
-        var vm = this;
-        vm.parents = parents;
-        vm.selectedParent = '';
+    vm.ok = okPressed;
+    vm.cancel = cancelPressed;
 
-        vm.ok = okPressed;
-        vm.cancel = cancelPressed;
+    init();
 
-        init();
-
-        function okPressed() {
-            $uibModalInstance.close(vm.selectedParent.id);
-        }
-
-        function cancelPressed() {
-            $uibModalInstance.dismiss();
-        }
-
-        function init() {
-            // EPMLSOPELN-415 Remember last selected parent and template
-            principalService.identity()
-                .then(function(user) {
-                    var pkey = user.id + '.' + 'lastSelectedProjectId';
-                    var pval = simpleLocalCache.getByKey(pkey);
-                    if (pval) {
-                        vm.selectedParent = parents.filter(function(p) {
-                            return p.id === pval;
-                        })[0];
-                    }
-                    var unsubscribe = $scope.$watchGroup(['selectedParent'], function() {
-                        if (vm.selectedParent) {
-                            simpleLocalCache.putByKey(pkey, vm.selectedParent.id);
-                        }
-                    });
-                    $scope.$on('$destroy', function() {
-                        unsubscribe();
-                    });
-                });
-        }
+    function okPressed() {
+        $uibModalInstance.close(vm.selectedParent.id);
     }
-})();
 
+    function cancelPressed() {
+        $uibModalInstance.dismiss();
+    }
+
+    function init() {
+        // EPMLSOPELN-415 Remember last selected parent and template
+        principalService.identity()
+            .then(function(user) {
+                var pkey = user.id + '.' + 'lastSelectedProjectId';
+                var pval = simpleLocalCache.getByKey(pkey);
+                if (pval) {
+                    vm.selectedParent = parents.filter(function(p) {
+                        return p.id === pval;
+                    })[0];
+                }
+                var unsubscribe = $scope.$watchGroup(['selectedParent'], function() {
+                    if (vm.selectedParent) {
+                        simpleLocalCache.putByKey(pkey, vm.selectedParent.id);
+                    }
+                });
+                $scope.$on('$destroy', function() {
+                    unsubscribe();
+                });
+            });
+    }
+}
+
+module.exports = NotebookSelectParentController;

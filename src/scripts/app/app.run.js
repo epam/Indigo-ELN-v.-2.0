@@ -1,10 +1,4 @@
-angular
-    .module('indigoeln')
-    .run(appRun);
-
-appRun.$inject = ['$rootScope', '$window', '$state', '$uibModal', 'editableOptions', 'authService', 'principalService',
-    'Idle', 'entitiesBrowser', '$http', '$cookies'];
-
+/* @ngInject */
 function appRun($rootScope, $window, $state, $uibModal, editableOptions, authService, principalService, Idle,
                 entitiesBrowser, $http, $cookies) {
     updateCSRFTOKEN($cookies, $http);
@@ -97,10 +91,12 @@ function appRun($rootScope, $window, $state, $uibModal, editableOptions, authSer
     };
     // Theme for angular-xeditable. Can also be 'bs2', 'default'
     editableOptions.theme = 'bs3';
+
+    function updateCSRFTOKEN($cookies, $http) {
+        var csrfToken = $cookies.get('CSRF-TOKEN');
+        $http.defaults.headers.post['X-CSRF-TOKEN'] = csrfToken;
+        $http.defaults.headers.put['X-CSRF-TOKEN'] = csrfToken;
+    }
 }
 
-function updateCSRFTOKEN($cookies, $http) {
-    var csrfToken = $cookies.get('CSRF-TOKEN');
-    $http.defaults.headers.post['X-CSRF-TOKEN'] = csrfToken;
-    $http.defaults.headers.put['X-CSRF-TOKEN'] = csrfToken;
-}
+module.exports = appRun;

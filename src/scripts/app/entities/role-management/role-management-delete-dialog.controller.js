@@ -1,29 +1,25 @@
-(function() {
-    angular
-        .module('indigoeln')
-        .controller('RoleManagementDeleteController', RoleManagementDeleteController);
+/* @ngInject */
+function RoleManagementDeleteController($uibModalInstance, roleService, entity) {
+    var vm = this;
 
-    /* @ngInject */
-    function RoleManagementDeleteController($uibModalInstance, roleService, entity) {
-        var vm = this;
+    vm.clear = clear;
+    vm.confirmDelete = confirmDelete;
 
-        vm.clear = clear;
-        vm.confirmDelete = confirmDelete;
+    function clear() {
+        $uibModalInstance.dismiss('cancel');
+    }
 
-        function clear() {
-            $uibModalInstance.dismiss('cancel');
-        }
-
-        function confirmDelete() {
-            roleService.delete({
+    function confirmDelete() {
+        roleService.delete({
                 id: entity.id
             },
-                function() {
-                    $uibModalInstance.close(true);
-                },
-                function() {
-                    $uibModalInstance.close(false);
-                });
-        }
+            function() {
+                $uibModalInstance.close(true);
+            },
+            function() {
+                $uibModalInstance.close(false);
+            });
     }
-})();
+}
+
+module.exports = RoleManagementDeleteController;

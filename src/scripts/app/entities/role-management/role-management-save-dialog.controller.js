@@ -1,21 +1,17 @@
-(function() {
-    angular
-        .module('indigoeln')
-        .controller('RoleManagementSaveController', RoleManagementSaveController);
+/* @ngInject */
+function RoleManagementSaveController($uibModalInstance) {
+    var vm = this;
 
-    /* @ngInject */
-    function RoleManagementSaveController($uibModalInstance) {
-        var vm = this;
+    vm.clear = clear;
+    vm.confirmSave = confirmSave;
 
-        vm.clear = clear;
-        vm.confirmSave = confirmSave;
-
-        function clear() {
-            $uibModalInstance.dismiss('cancel');
-        }
-
-        function confirmSave() {
-            $uibModalInstance.close(true);
-        }
+    function clear() {
+        $uibModalInstance.dismiss('cancel');
     }
-})();
+
+    function confirmSave() {
+        $uibModalInstance.close(true);
+    }
+}
+
+module.exports = RoleManagementSaveController;

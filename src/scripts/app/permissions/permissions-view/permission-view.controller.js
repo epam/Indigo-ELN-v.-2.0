@@ -1,19 +1,15 @@
-(function() {
-    angular
-        .module('indigoeln.permissionsModule')
-        .controller('PermissionViewManagementController', PermissionViewManagementController);
+/* @ngInject */
+function PermissionViewManagementController($uibModalInstance, permissionManagementService) {
+    var vm = this;
 
-    /* @ngInject */
-    function PermissionViewManagementController($uibModalInstance, permissionManagementService) {
-        var vm = this;
+    vm.accessList = permissionManagementService.getAccessList();
+    vm.entity = permissionManagementService.getEntity();
 
-        vm.accessList = permissionManagementService.getAccessList();
-        vm.entity = permissionManagementService.getEntity();
+    vm.close = close;
 
-        vm.close = close;
-
-        function close() {
-            $uibModalInstance.dismiss('cancel');
-        }
+    function close() {
+        $uibModalInstance.dismiss('cancel');
     }
-})();
+}
+
+module.exports = PermissionViewManagementController;

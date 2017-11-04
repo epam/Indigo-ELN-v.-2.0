@@ -1,29 +1,21 @@
-(function() {
-    angular
-        .module('indigoeln.componentButtons')
-        .directive('addNewBatch', addNewBatchDirective);
-
-    /* @ngInject */
-    function addNewBatchDirective() {
-        return {
-            restrict: 'E',
-            scope: {
-                batchOperation: '=',
-                isReadonly: '=',
-                onAddedBatch: '&',
-                onSelectBatch: '&'
-            },
-            templateUrl: 'scripts/app/common/directives/component-buttons/add-new-batch/add-new-batch.html',
-            controller: AddNewBatchController,
-            controllerAs: 'vm',
-            bindToController: true,
-            link: function($scope, $element, $attr, controllers) {
-                $element.addClass('component-button');
-            }
-        };
-    }
-
-    AddNewBatchController.$inject = ['productBatchSummaryOperations'];
+/* @ngInject */
+function addNewBatchDirective() {
+    return {
+        restrict: 'E',
+        scope: {
+            batchOperation: '=',
+            isReadonly: '=',
+            onAddedBatch: '&',
+            onSelectBatch: '&'
+        },
+        template: require('./add-new-batch.html'),
+        controller: AddNewBatchController,
+        controllerAs: 'vm',
+        bindToController: true,
+        link: function($scope, $element, $attr, controllers) {
+            $element.addClass('component-button');
+        }
+    };
 
     function AddNewBatchController(productBatchSummaryOperations) {
         var vm = this;
@@ -43,4 +35,6 @@
             vm.onSelectBatch({batch: batch});
         }
     }
-})();
+}
+
+module.exports = addNewBatchDirective;

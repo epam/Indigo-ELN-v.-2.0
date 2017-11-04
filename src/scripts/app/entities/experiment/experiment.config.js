@@ -1,11 +1,5 @@
-angular
-    .module('indigoeln.experimentModule')
-    .config(experimentModuleConfig);
-
-experimentModuleConfig.$inject = ['$stateProvider', 'permissionManagementConfig', 'permissionViewManagementConfig',
-    'userPermissions'];
-
-function experimentModuleConfig($stateProvider, permissionManagementConfig, permissionViewManagementConfig,
+/* @ngInject */
+function experimentConfig($stateProvider, permissionManagementConfig, permissionViewManagementConfig,
                                 userPermissions) {
     var permissions = [
         userPermissions.VIEWER,
@@ -22,7 +16,7 @@ function experimentModuleConfig($stateProvider, permissionManagementConfig, perm
             },
             views: {
                 'content@app_page': {
-                    templateUrl: 'scripts/app/entities/experiment/experiments.html',
+                    template: require('./experiments.html'),
                     controller: 'ExperimentController',
                     controllerAs: 'vm'
                 }
@@ -56,7 +50,7 @@ function experimentModuleConfig($stateProvider, permissionManagementConfig, perm
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
-                    templateUrl: 'scripts/app/entities/experiment/delete-dialog/experiment-delete-dialog.html',
+                    template: require('./delete-dialog/experiment-delete-dialog.html'),
                     controller: 'ExperimentDeleteController',
                     controllerAs: 'vm',
                     size: 'md',
@@ -101,6 +95,7 @@ function experimentModuleConfig($stateProvider, permissionManagementConfig, perm
                 authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR']
             }
         })
+        //TODO: Do we really need this state?
         .state('experiment-preview-submit', {
             parent: 'entity',
             url: '/project/{projectId}/notebook/{notebookId}/experiment/{experimentId}/preview-submit',
@@ -133,3 +128,5 @@ function experimentModuleConfig($stateProvider, permissionManagementConfig, perm
             }
         });
 }
+
+module.exports = experimentConfig;

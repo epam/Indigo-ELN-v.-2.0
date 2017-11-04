@@ -1,15 +1,12 @@
-(function() {
-    angular
-        .module('indigoeln.sidebarModule')
-        .directive('sidebar', function() {
-            return {
-                scope: true,
-                templateUrl: 'scripts/app/sidebar/component/sidebar.html',
-                controller: SidebarController,
-                bindToController: true,
-                controllerAs: 'vm'
-            };
-        });
+/* @ngInject */
+function sidebar() {
+    return {
+        scope: true,
+        template: require('./sidebar.html'),
+        controller: SidebarController,
+        bindToController: true,
+        controllerAs: 'vm'
+    };
 
     function SidebarController($scope, $state, $stateParams, sidebarCache, entityTreeService) {
         var vm = this;
@@ -19,6 +16,7 @@
         vm.ROLE_EDITOR = 'ROLE_EDITOR';
         vm.TEMPLATE_EDITOR = 'TEMPLATE_EDITOR';
         vm.DICTIONARY_EDITOR = 'DICTIONARY_EDITOR';
+        //TODO: Do we really need this variable and template?
         vm.POPOVER_TEMPLATE = 'scripts/app/sidebar/component/sidebar-popover-template.html';
         vm.ADMINISTRATION_AUTHORITIES = [vm.USER_EDITOR, vm.ROLE_EDITOR, vm.TEMPLATE_EDITOR, vm.DICTIONARY_EDITOR].join(',');
         vm.$state = $state;
@@ -79,4 +77,6 @@
             });
         }
     }
-})();
+}
+
+module.exports = sidebar;

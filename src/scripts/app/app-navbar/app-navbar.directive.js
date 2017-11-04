@@ -1,20 +1,16 @@
-(function() {
-    angular
-        .module('indigoeln')
-        .directive('navbar', function() {
-            return {
-                restrict: 'E',
-                controller: NavbarController,
-                controllerAs: 'vm',
-                templateUrl: 'scripts/app/app-navbar/app-navbar.html',
-                bindToController: true,
-                scope: {
-                    onToggleSidebar: '&'
-                }
-            };
-        });
+/* @ngInject */
+function appNavbar() {
+    return {
+        restrict: 'E',
+        controller: NavbarController,
+        controllerAs: 'vm',
+        template: require('./app-navbar.html'),
+        bindToController: true,
+        scope: {
+            onToggleSidebar: '&'
+        }
+    };
 
-    /* @ngInject */
     function NavbarController($scope, $state, principalService, authService, entitiesCache) {
         var vm = this;
 
@@ -44,4 +40,6 @@
             $state.go('entities.search-panel', {query: vm.query});
         }
     }
-})();
+}
+
+module.exports = appNavbar;

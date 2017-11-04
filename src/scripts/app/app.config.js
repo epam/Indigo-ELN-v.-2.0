@@ -1,10 +1,4 @@
-angular
-    .module('indigoeln')
-    .config(appConfig);
-
-appConfig.$inject = ['$stateProvider', '$urlRouterProvider', '$httpProvider', '$compileProvider', 'IdleProvider',
-    '$animateProvider'];
-
+/* @ngInject */
 function appConfig($stateProvider, $urlRouterProvider, $httpProvider, $compileProvider, IdleProvider,
                    $animateProvider) {
     // enable CSRF
@@ -46,7 +40,7 @@ function appConfig($stateProvider, $urlRouterProvider, $httpProvider, $compilePr
             },
             views: {
                 'content@app_page': {
-                    templateUrl: 'scripts/app/common/templates/error.html'
+                    template: require('./common/templates/error.html')
                 }
             },
             resolve: {}
@@ -59,7 +53,7 @@ function appConfig($stateProvider, $urlRouterProvider, $httpProvider, $compilePr
             },
             views: {
                 'content@app_page': {
-                    templateUrl: 'scripts/app/common/templates/access-denied.html'
+                    template: require('./common/templates/access-denied.html')
                 }
             },
             resolve: {}
@@ -77,3 +71,5 @@ function appConfig($stateProvider, $urlRouterProvider, $httpProvider, $compilePr
 
     $animateProvider.classNameFilter(/\banimated\b/);
 }
+
+module.exports = appConfig;
