@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln.commonModule.componentsModule')
-    .controller('AlertModalController', AlertModalController);
-
 AlertModalController.$inject = ['$uibModalInstance', 'title', 'message', 'okText', 'noText', 'cancelVisible',
     'okCallback', 'noCallback'];
 
@@ -43,3 +39,5 @@ function AlertModalController($uibModalInstance, title, message, okText, noText,
         }
     }
 }
+
+module.export = AlertModalController;

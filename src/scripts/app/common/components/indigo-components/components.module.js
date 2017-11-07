@@ -1,54 +1,74 @@
-(function() {
-    angular
-        .module('indigoeln.componentsModule', [
-            'indigoeln.componentButtons'
-        ])
-        .run(function($templateCache, typeComponents) {
-            var defaultAttributes = ' model="vm.model"' +
-                ' reactants="vm.reactants"' +
-                ' reactants-trigger="vm.reactantsTrigger"' +
-                ' experiment="vm.experiment"' +
-                ' is-readonly="vm.isReadonly"' +
-                ' on-changed="vm.onChangedComponent({componentId: component.id})"';
+var run = require('./components.run');
+var indigoAttachments = require('./directives/attachments/indigo-attachments.directive');
+var indigoBatchStructure = require('./directives/batch-structure/indigo-batch-structure.directive');
+var indigoComponents = require('./directives/indigo-components/indigo-components.directive');
+var indigoPreferredCompoundDetails = require('./directives/prefer-compound-details/indigo-prefer-compound-details.directive');
+var indigoPreferredCompoundsSummary = require('./directives/prefer-compounds-summary/indigo-prefer-compound-summary.directive');
+var indigoProductBatchDetails = require('./directives/product-batch-details/indigo-product-batch-details.directive');
+var indigoProductBatchSummary = require('./directives/product-batch-summary/indigo-product-batch-summary.directive');
+var indigoReactionScheme = require('./directives/reaction-scheme/indigo-reaction-scheme.directive');
+var indigoBatchSummary = require('./common/batch-summary/indigo-batch-summary.directive');
+var indigoCompoundSummary = require('./common/compound-summary/indigo-compound-summary.directive');
+var indigoInlineLoader = require('./common/inline-loader/indigo-inline-loader.directive');
 
-            var batchAttributes = defaultAttributes +
-                ' batches="vm.batches"' +
-                ' on-added-batch="vm.onAddedBatch(batch)"' +
-                ' batches-trigger="vm.batchesTrigger"' +
-                ' selected-batch="vm.selectedBatch"' +
-                ' is-exist-stoich-table="::!!vm.model.stoichTable"' +
-                ' selected-batch-trigger="vm.selectedBatchTrigger"' +
-                ' on-select-batch="vm.onSelectBatch(batch)"' +
-                ' on-remove-batches="vm.onRemoveBatches(batches)"' +
-                ' batch-operation="vm.batchOperation"' +
-                ' save-experiment-fn="vm.saveExperimentFn()"';
+var indigoStoichTable = require('./directives/stoich-table/stoich-table.module');
+var componentButtons = require('./directives/component-buttons/component-buttons.module.js');
+var structureScheme = require('./common/structure-scheme/structure-scheme.module');
+var editInfoPopup = require('./common/edit-info-popup/edit-info-popup.module');
 
-            var stoichTableAttributes = defaultAttributes +
-                ' on-precursors-changed="vm.onPrecursorsChanged(precursors)"' +
-                ' info-reactants="vm.model.reaction.infoReactants"' +
-                ' info-products="vm.model.reaction.infoProducts"';
+var ProductBatchSummarySetSourceController = require('./directives/product-batch-summary-set-source/product-batch-summary-set-source.controller');
+var AnalyzeRxnController = require('./common/analyze-rxn/analyze-rxn.controller');
+var EntitiesToSaveController = require('./services/dialog-service/entities-to-save/entities-to-save.controller');
+var StructureValidationController = require('./services/dialog-service/structure-validation/structure-validation.controller');
+var SearchReagentsController = require('./common/search-reagents/search-reagents.controller');
+var SomethingDetailsController = require('./common/something-details/something-details.controller');
 
-            _.forEach(typeComponents, function(component) {
-                $templateCache.put(component.id, getTemplate(component));
-            });
+var typeComponents = require('./constants/components.constant');
+var searchReagentsConstant = require('./common/search-reagents/search-reagents.constant');
 
-            function getTemplate(component) {
-                var directiveName = 'indigo-' + component.id;
+var productBatchSummaryCache = require('./services/product-batch-summary-cache.service');
+var productBatchSummaryOperations = require('./services/product-batch-summary-operations.service');
+var batchHelper = require('./services/batch-helper.factory');
+var columnActions = require('./services/column-actions.factory');
+var dialogService = require('./services/dialog-service/dialog.service');
 
-                return '<' + directiveName + getComponentAttributes(component.id) +
-                    'component-data="vm.model.' + component.field + '"></' + directiveName + '>';
-            }
+var dependencies = [
+    indigoStoichTable,
+    componentButtons,
+    structureScheme,
+    editInfoPopup
+];
 
-            function getComponentAttributes(id) {
-                var component = _.find(typeComponents, {id: id});
-                if (component.isBatch) {
-                    return batchAttributes;
-                }
-                if (id === 'stoich-table') {
-                    return stoichTableAttributes;
-                }
+module.export = angular
+    .module('indigoeln.componentsModule', dependencies)
+    .run(run)
 
-                return defaultAttributes;
-            }
-        });
-})();
+    .directive('indigoAttachments', indigoAttachments)
+    .directive('indigoBatchStructure', indigoBatchStructure)
+    .directive('indigoComponents', indigoComponents)
+    .directive('indigoPreferredCompoundDetails', indigoPreferredCompoundDetails)
+    .directive('indigoPreferredCompoundsSummary', indigoPreferredCompoundsSummary)
+    .directive('indigoProductBatchDetails', indigoProductBatchDetails)
+    .directive('indigoProductBatchSummary', indigoProductBatchSummary)
+    .directive('indigoReactionScheme', indigoReactionScheme)
+    .directive('indigoBatchSummary', indigoBatchSummary)
+    .directive('indigoCompoundSummary', indigoCompoundSummary)
+    .directive('indigoInlineLoader', indigoInlineLoader)
+
+    .controller('ProductBatchSummarySetSourceController', ProductBatchSummarySetSourceController)
+    .controller('AnalyzeRxnController', AnalyzeRxnController)
+    .controller('EntitiesToSaveController', EntitiesToSaveController)
+    .controller('StructureValidationController', StructureValidationController)
+    .controller('SearchReagentsController', SearchReagentsController)
+    .controller('SomethingDetailsController', SomethingDetailsController)
+
+    .constant('typeComponents', typeComponents)
+    .constant('searchReagentsConstant', searchReagentsConstant)
+
+    .factory('productBatchSummaryCache', productBatchSummaryCache)
+    .factory('productBatchSummaryOperations', productBatchSummaryOperations)
+    .factory('batchHelper', batchHelper)
+    .factory('columnActions', columnActions)
+    .factory('dialogService', dialogService)
+
+    .name;

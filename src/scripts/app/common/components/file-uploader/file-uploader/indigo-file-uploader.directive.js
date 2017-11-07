@@ -1,21 +1,19 @@
-(function() {
-    angular
-        .module('indigoeln.fileUploader')
-        .directive('indigoFileUploader', indigoFileUploader);
+var template = require('./file-uploader.html');
 
-    function indigoFileUploader() {
-        return {
-            restrict: 'E',
-            replace: true,
-            controller: 'FileUploaderController',
-            controllerAs: 'vm',
-            bindToController: true,
-            templateUrl: 'scripts/app/common/components/file-uploader/file-uploader/file-uploader.html',
-            scope: {
-                uploadUrl: '@',
-                indigoReadonly: '=',
-                onChanged: '&'
-            }
-        };
-    }
-})();
+function indigoFileUploader() {
+    return {
+        restrict: 'E',
+        replace: true,
+        controller: 'FileUploaderController',
+        controllerAs: 'vm',
+        bindToController: true,
+        template: template,
+        scope: {
+            uploadUrl: '@',
+            indigoReadonly: '=',
+            onChanged: '&'
+        }
+    };
+}
+
+module.export = indigoFileUploader;

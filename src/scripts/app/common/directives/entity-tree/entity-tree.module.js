@@ -9,5 +9,7 @@ module.exports = angular
 
     .run(function($rootScope, entityTreeService, principalService) {
         principalService.addUserChangeListener(entityTreeService.clearAll);
-    });
+    })
+
+    .name;
 

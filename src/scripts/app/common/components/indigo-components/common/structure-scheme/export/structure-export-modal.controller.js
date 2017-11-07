@@ -1,6 +1,4 @@
-angular
-    .module('indigoeln.componentsModule')
-    .controller('StructureExportModalController', StructureExportModalController);
+StructureExportModalController.$inject = ['$uibModalInstance', 'structureToSave', 'structureType', 'FileSaver'];
 
 function StructureExportModalController($uibModalInstance, structureToSave, structureType, FileSaver) {
     var vm = this;
@@ -44,3 +42,5 @@ function StructureExportModalController($uibModalInstance, structureToSave, stru
 
     init();
 }
+
+module.export = StructureExportModalController;

@@ -1,8 +1,5 @@
-angular
-    .module('indigoeln.componentsModule')
-    .controller('EditExternalSupplierController', EditExternalSupplierController);
+EditExternalSupplierController.$inject = ['$uibModalInstance', 'data'];
 
-/* @ngInject */
 function EditExternalSupplierController($uibModalInstance, data) {
     var vm = this;
 
@@ -48,3 +45,5 @@ function EditExternalSupplierController($uibModalInstance, data) {
         $uibModalInstance.dismiss('cancel');
     }
 }
+
+module.export = EditExternalSupplierController;

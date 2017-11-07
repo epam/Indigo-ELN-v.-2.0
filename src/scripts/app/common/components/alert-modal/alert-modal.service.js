@@ -1,9 +1,8 @@
-angular
-    .module('indigoeln.commonModule.componentsModule')
-    .factory('alertModal', alertModalFactory);
+var template = require('./alert-modal.html');
 
-/* @ngInject */
-function alertModalFactory($uibModal) {
+alertModal.$inject = ['$uibModal'];
+
+function alertModal($uibModal) {
     return {
         alert: alert,
         error: error,
@@ -68,7 +67,7 @@ function alertModalFactory($uibModal) {
                     return noCallback;
                 }
             },
-            templateUrl: 'scripts/app/common/components/alert-modal/alert-modal.html',
+            template: template,
             controller: 'AlertModalController',
             bindToController: true,
             controllerAs: 'vm'
