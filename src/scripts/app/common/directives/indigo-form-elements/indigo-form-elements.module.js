@@ -7,12 +7,7 @@ var indigoSimpleText = require('./elements/simple-text/indigo-simple-text.direct
 var indigoTextArea = require('./elements/text-area/indigo-text-area.directive');
 var indigoTwoToggle = require('./elements/two-toggle/indigo-two-toggle.directive');
 
-
-var entityTree = require('./entity-tree/entity-tree.module');
-
-var dependencies = [
-    entityTree
-];
+var dependencies = [];
 
 module.exports = angular
     .module('indigoeln.indigoFormElements', dependencies)
