@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln.authServiceModule')
-    .factory('authServerProvider', authServerProvider);
-
 /* @ngInject */
 function authServerProvider($http, apiUrl) {
     return {
@@ -36,3 +32,5 @@ function authServerProvider($http, apiUrl) {
         $http.get(apiUrl + 'accounts/prolong');
     }
 }
+
+module.exports = authServerProvider;

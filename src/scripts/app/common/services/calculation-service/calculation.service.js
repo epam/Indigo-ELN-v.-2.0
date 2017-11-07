@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln.commonModule.servicesModule')
-    .factory('calculationService', calculationService);
-
 /* @ngInject */
 function calculationService($rootScope, $http, $q, appValues, apiUrl,
                             stoichTableCache, productBatchSummaryCache, capitalizeFilter) {
@@ -237,9 +233,9 @@ function calculationService($rootScope, $http, $q, appValues, apiUrl,
         var isEqual = _.isEqual(molecule1, molecule2);
 
         return $q.when(isEqual || $http.put(apiUrl + 'calculations/molecule/equals', [molecule1, molecule2])
-                .then(function(response) {
-                    return response.data;
-                }));
+            .then(function(response) {
+                return response.data;
+            }));
     }
 
     function getSaltFormula(data) {
@@ -276,3 +272,5 @@ function calculationService($rootScope, $http, $q, appValues, apiUrl,
         });
     }
 }
+
+module.exports = calculationService;

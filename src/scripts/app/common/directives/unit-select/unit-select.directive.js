@@ -1,31 +1,29 @@
-(function() {
-    angular
-        .module('indigoeln')
-        .directive('unitSelect', unitSelectDirective);
+var template = require('./unit-select.html');
 
-    function unitSelectDirective() {
-        return {
-            restrict: 'E',
-            templateUrl: 'scripts/app/common/directives/unit-select/unit-select.html',
-            scope: {
-                unit: '=',
-                units: '=',
-                appendToBody: '=',
-                onChange: '&'
-            },
-            controller: UnitSelectController,
-            controllerAs: 'vm',
-            bindToController: true
-        };
+function unitSelect() {
+    return {
+        restrict: 'E',
+        template: template,
+        scope: {
+            unit: '=',
+            units: '=',
+            appendToBody: '=',
+            onChange: '&'
+        },
+        controller: UnitSelectController,
+        controllerAs: 'vm',
+        bindToController: true
+    };
 
-        function UnitSelectController() {
-            var vm = this;
+    function UnitSelectController() {
+        var vm = this;
 
-            init();
+        init();
 
-            function init() {
-                vm.isOpen = false;
-            }
+        function init() {
+            vm.isOpen = false;
         }
     }
-})();
+}
+
+module.export = unitSelect;

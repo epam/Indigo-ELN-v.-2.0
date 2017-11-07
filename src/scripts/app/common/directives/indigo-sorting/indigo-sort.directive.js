@@ -1,40 +1,36 @@
-(function() {
-    angular
-        .module('indigoeln')
-        .directive('indigoSort', indigoSort);
+function indigoSort() {
+    return {
+        restrict: 'A',
+        scope: {
+            indigoSort: '=',
+            ascending: '=',
+            callback: '&'
+        },
+        controller: IndigoSortController,
+        controllerAs: 'vm',
+        bindToController: true
+    };
 
-    function indigoSort() {
-        return {
-            restrict: 'A',
-            scope: {
-                indigoSort: '=',
-                ascending: '=',
-                callback: '&'
-            },
-            controller: IndigoSortController,
-            controllerAs: 'vm',
-            bindToController: true
-        };
+    function IndigoSortController() {
+        var vm = this;
 
-        /* @ngInject */
-        function IndigoSortController() {
-            var vm = this;
+        $onInit();
 
-            $onInit();
+        function $onInit() {
+            vm.sort = sort;
+        }
 
-            function $onInit() {
-                vm.sort = sort;
+        function sort(field) {
+            if (field !== vm.indigoSort) {
+                vm.ascending = true;
+            } else {
+                vm.ascending = !vm.ascending;
             }
-
-            function sort(field) {
-                if (field !== vm.indigoSort) {
-                    vm.ascending = true;
-                } else {
-                    vm.ascending = !vm.ascending;
-                }
-                vm.indigoSort = field;
-                vm.callback();
-            }
+            vm.indigoSort = field;
+            vm.callback();
         }
     }
-})();
+}
+
+module.export = indigoSort;
+

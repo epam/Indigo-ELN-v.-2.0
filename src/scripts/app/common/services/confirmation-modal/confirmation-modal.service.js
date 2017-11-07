@@ -1,9 +1,7 @@
-angular
-    .module('indigoeln.commonModule.servicesModule')
-    .factory('confirmationModal', confirmationModalFactory);
+var template = require('./confirmation-modal.html');
 
 /* @ngInject */
-function confirmationModalFactory($uibModal, $q) {
+function confirmationModal($uibModal, $q) {
     return {
         open: open,
         openEntityVersionsConflictConfirm: openEntityVersionsConflictConfirm
@@ -15,7 +13,7 @@ function confirmationModalFactory($uibModal, $q) {
             controllerAs: 'vm',
             resolve: resolve,
             size: size || 'md',
-            templateUrl: 'scripts/app/common/services/confirmation-modal/confirmation-modal.html',
+            template: template,
             controller: 'ConfirmationModalController'
         });
     }
@@ -47,3 +45,5 @@ function confirmationModalFactory($uibModal, $q) {
         });
     }
 }
+
+module.exports = confirmationModal;

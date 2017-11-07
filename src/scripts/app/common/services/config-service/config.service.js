@@ -1,23 +1,19 @@
-(function() {
-    angular
-        .module('indigoeln.commonModule.servicesModule')
-        .factory('configService', configService);
+/* @ngInject */
+function configService() {
+    var configuration = {};
 
-    configService.$inject = [];
-    function configService() {
-        var configuration = {};
+    return {
+        setConfiguration: setConfiguration,
+        getConfiguration: getConfiguration
+    };
 
-        return {
-            setConfiguration: setConfiguration,
-            getConfiguration: getConfiguration
-        };
-
-        function setConfiguration(newConfig) {
-            configuration = newConfig;
-        }
-
-        function getConfiguration() {
-            return configuration;
-        }
+    function setConfiguration(newConfig) {
+        configuration = newConfig;
     }
-})();
+
+    function getConfiguration() {
+        return configuration;
+    }
+}
+
+module.exports = configService;

@@ -1,9 +1,12 @@
-angular
-    .module('indigoeln.entityTree')
-    .directive('simpleNode', function() {
-        return {
-            replace: true,
-            transclude: true,
-            templateUrl: 'scripts/app/common/directives/entity-tree/simple-node/simple-node.html'
-        };
-    });
+var template = require('./simple-node.html');
+
+function simpleNode() {
+    return {
+        replace: true,
+        transclude: true,
+        template: template
+    };
+}
+
+module.exports = simpleNode;
+

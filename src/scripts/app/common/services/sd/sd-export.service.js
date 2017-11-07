@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln')
-    .factory('sdExportService', sdExportService);
-
 /* @ngInject */
 function sdExportService(sdService, sdConstants, notifyService, $q, $log) {
     return {
@@ -38,7 +34,7 @@ function sdExportService(sdService, sdConstants, notifyService, $q, $log) {
     function generateExportProperties(item) {
         var properties = {};
         _.each(sdConstants, function(prop) {
-            if (_.isUndefined(item[prop.name])){
+            if (_.isUndefined(item[prop.name])) {
                 return;
             }
             var property = prop.childrenLength ? getMultipleProperty(item, prop) : getSingleProperty(item, prop);
@@ -69,3 +65,5 @@ function sdExportService(sdService, sdConstants, notifyService, $q, $log) {
         return _.join([property.code, index], '_');
     }
 }
+
+module.exports = sdExportService;

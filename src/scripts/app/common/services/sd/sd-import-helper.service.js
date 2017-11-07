@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln')
-    .factory('sdImportHelperService', sdImportHelperService);
-
 /* @ngInject */
 function sdImportHelperService(appValues) {
     var additionalFormatFunctions = {
@@ -69,3 +65,5 @@ function sdImportHelperService(appValues) {
         });
     }
 }
+
+module.exports = sdImportHelperService;

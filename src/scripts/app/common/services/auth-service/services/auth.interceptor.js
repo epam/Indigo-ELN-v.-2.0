@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln.authServiceModule')
-    .factory('authExpiredInterceptor', authExpiredInterceptor);
-
 /* @ngInject */
 function authExpiredInterceptor($rootScope, $q, $injector) {
     return {
@@ -59,3 +55,5 @@ function authExpiredInterceptor($rootScope, $q, $injector) {
         return '';
     }
 }
+
+module.exports = authExpiredInterceptor;

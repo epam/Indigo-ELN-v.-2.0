@@ -1,8 +1,5 @@
-angular
-    .module('indigoeln')
-    .factory('formUtils', formUtils);
+formUtils.$inject = ['formUtils'];
 
-/* @ngInject */
 function formUtils($timeout) {
     return {
         doVertical: doVertical,
@@ -118,3 +115,5 @@ function formUtils($timeout) {
         }
     }
 }
+
+module.export = formUtils;

@@ -1,9 +1,4 @@
-angular
-    .module('indigoeln')
-    .factory('usersService', usersService);
-
-usersService.$inject = ['dictionaryService'];
-
+/* @ngInject */
 function usersService(dictionaryService) {
     var usersPromise;
     var allUsers;
@@ -31,3 +26,5 @@ function usersService(dictionaryService) {
         });
     }
 }
+
+module.exports = usersService;
