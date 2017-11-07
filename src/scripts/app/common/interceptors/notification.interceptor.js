@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln')
-    .factory('notificationInterceptor', notificationInterceptor);
-
 /* @ngInject */
 function notificationInterceptor($injector) {
     var SUCCESS_ALERT = 'X-indigoeln-success-alert',
@@ -37,3 +33,5 @@ function notificationInterceptor($injector) {
         return response;
     }
 }
+
+module.exports = notificationInterceptor;

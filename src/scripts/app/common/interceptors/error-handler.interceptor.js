@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln')
-    .factory('errorHandlerInterceptor', errorHandlerInterceptor);
-
 /* @ngInject */
 function errorHandlerInterceptor($q, $injector, $rootScope, $log) {
     return {
@@ -68,3 +64,4 @@ function errorHandlerInterceptor($q, $injector, $rootScope, $log) {
     }
 }
 
+module.exports = errorHandlerInterceptor;

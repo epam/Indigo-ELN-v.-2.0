@@ -1,7 +1,4 @@
-angular
-    .module('indigoeln')
-    .factory('tabKeyUtils', tabKeyUtils);
-
+/* @ngInject */
 function tabKeyUtils() {
     return {
         getTabKeyFromTab: getTabKeyFromTab,
@@ -41,3 +38,5 @@ function tabKeyUtils() {
         return angular.toJson(paramsToString.sort());
     }
 }
+
+module.exports = tabKeyUtils;

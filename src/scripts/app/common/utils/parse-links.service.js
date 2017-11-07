@@ -1,8 +1,5 @@
-angular
-    .module('indigoeln')
-    .factory('parseLinksService', parseLinks);
-
-function parseLinks() {
+/* @ngInject */
+function parseLinksService() {
     return {
         parse: parse
     };
@@ -41,3 +38,4 @@ function parseLinks() {
     }
 }
 
+module.exports = parseLinksService;

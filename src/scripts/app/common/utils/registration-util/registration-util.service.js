@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln')
-    .factory('registrationUtil', registrationUtil);
-
 /* @ngInject */
 function registrationUtil(appValues, registrationMsg) {
     var isStereoisomerNeedComment = function(stereoisomer) {
@@ -87,3 +83,5 @@ function registrationUtil(appValues, registrationMsg) {
         return notFullBatches;
     }
 }
+
+module.exports = registrationUtil;

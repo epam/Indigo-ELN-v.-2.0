@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln')
-    .factory('experimentUtil', experimentUtil);
-
 /* @ngInject */
 function experimentUtil($state, $uibModal, $q, experimentService, permissionManagementService, signatureTemplates,
                         signatureDocument, componentsUtils, notifyService) {
@@ -150,3 +146,4 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionMana
     }
 }
 
+module.exports = experimentUtil;

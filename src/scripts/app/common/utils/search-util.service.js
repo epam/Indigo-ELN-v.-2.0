@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln')
-    .factory('searchUtilService', searchUtilService);
-
 /* @ngInject */
 function searchUtilService(modelRestrictions) {
     var storedModel;
@@ -105,3 +101,5 @@ function searchUtilService(modelRestrictions) {
         })).length;
     }
 }
+
+module.exports = searchUtilService;
