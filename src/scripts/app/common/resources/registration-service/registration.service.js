@@ -1,9 +1,4 @@
-angular
-    .module('indigoeln')
-    .factory('registrationService', registrationService);
-
-registrationService.$inject = ['$resource', 'apiUrl'];
-
+/* @ngInject */
 function registrationService($resource, apiUrl) {
     return $resource(apiUrl + 'registration', {
         repositoryId: '@repositoryId',
@@ -20,4 +15,6 @@ function registrationService($resource, apiUrl) {
         }
     });
 }
+
+module.exports = registrationService;
 

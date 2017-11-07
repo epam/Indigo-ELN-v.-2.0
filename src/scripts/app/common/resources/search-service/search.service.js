@@ -1,9 +1,4 @@
-angular
-    .module('indigoeln')
-    .factory('searchService', searchService);
-
-searchService.$inject = ['$resource', 'apiUrl'];
-
+/* @ngInject */
 function searchService($resource, apiUrl) {
     return $resource(apiUrl + 'search', {}, {
         getCatalogues: {
@@ -17,3 +12,5 @@ function searchService($resource, apiUrl) {
         }
     });
 }
+
+module.exports = searchService;

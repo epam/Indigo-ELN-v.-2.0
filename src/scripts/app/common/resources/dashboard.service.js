@@ -1,9 +1,4 @@
-angular
-    .module('indigoeln')
-    .factory('dashboardService', dashboardService);
-
-dashboardService.$inject = ['$resource', 'apiUrl'];
-
+/* @ngInject */
 function dashboardService($resource, apiUrl) {
     return $resource(apiUrl + 'dashboard', {}, {
         get: {
@@ -11,3 +6,5 @@ function dashboardService($resource, apiUrl) {
         }
     });
 }
+
+module.exports = dashboardService;

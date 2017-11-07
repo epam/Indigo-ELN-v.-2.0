@@ -1,9 +1,5 @@
-angular
-    .module('indigoeln')
-    .factory('projectService', project);
-
 /* @ngInject */
-function project($resource, fileUploaderCash, permissionManagementService, entityTreeService, apiUrl) {
+function projectService($resource, fileUploaderCash, permissionManagementService, entityTreeService, apiUrl) {
     function transformRequest(data) {
         var newData = angular.copy(data);
         newData.tags = _.map(newData.tags, 'text');
@@ -67,3 +63,5 @@ function project($resource, fileUploaderCash, permissionManagementService, entit
         }
     });
 }
+
+module.exports = projectService;

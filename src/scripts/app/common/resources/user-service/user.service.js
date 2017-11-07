@@ -1,8 +1,4 @@
-angular.module('indigoeln')
-    .factory('userService', userService);
-
-userService.$inject = ['$resource', 'apiUrl'];
-
+/* @ngInject */
 function userService($resource, apiUrl) {
     function transformRequest(user) {
         if (_.isObject(user.group)) {
@@ -33,3 +29,5 @@ function userService($resource, apiUrl) {
         }
     });
 }
+
+module.exports = userService;

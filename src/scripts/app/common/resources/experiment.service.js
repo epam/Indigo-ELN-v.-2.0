@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln')
-    .factory('experimentService', experimentFactory);
-
 /* @ngInject */
 function experimentFactory($resource, permissionManagementService, entityTreeService, apiUrl) {
     var interceptor = {
@@ -104,3 +100,5 @@ function experimentFactory($resource, permissionManagementService, entityTreeSer
         return experiment;
     }
 }
+
+module.exports = experimentFactory;

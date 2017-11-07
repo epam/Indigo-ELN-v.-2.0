@@ -1,9 +1,5 @@
-angular
-    .module('indigoeln')
-    .factory('notebookService', notebook);
-
 /* @ngInject */
-function notebook($resource, permissionManagementService, entityTreeService, apiUrl) {
+function notebookService($resource, permissionManagementService, entityTreeService, apiUrl) {
     return $resource(apiUrl + 'projects/:projectId/notebooks/:notebookId', {
         projectId: '@projectId'
     }, {
@@ -60,3 +56,5 @@ function notebook($resource, permissionManagementService, entityTreeService, api
         return angular.toJson(newData);
     }
 }
+
+module.exports = notebookService;
