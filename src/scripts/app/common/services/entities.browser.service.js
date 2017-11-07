@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln')
-    .factory('entitiesBrowser', entitiesBrowser);
-
 /* @ngInject */
 function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory) {
     var tabs = {};
@@ -125,7 +121,6 @@ function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory
         return curForm;
     }
 
-
     function goToTab(tab) {
         var curTab = tab;
 
@@ -141,7 +136,6 @@ function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory
     function saveEntity() {
         return $q.resolve();
     }
-
 
     function close(tabKey) {
         return resolvePrincipal(function(user) {
@@ -215,7 +209,6 @@ function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory
         });
     }
 
-
     function addTab(tab) {
         return resolvePrincipal(function(user) {
             var userId = getUserId(user);
@@ -270,3 +263,5 @@ function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory
         tabCache.put(storageKey, tabs);
     }
 }
+
+module.exports = entitiesBrowser;

@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln.commonModule.servicesModule')
-    .controller('ConfirmationModalController', ConfirmationModalController);
-
 /* @ngInject */
 function ConfirmationModalController($uibModalInstance, title, message, buttons) {
     var vm = this;
@@ -35,3 +31,5 @@ function ConfirmationModalController($uibModalInstance, title, message, buttons)
         $uibModalInstance.close('reject');
     }
 }
+
+module.exports = ConfirmationModalController;

@@ -1,9 +1,5 @@
-angular
-    .module('indigoeln.authServiceModule')
-    .factory('principalService', principalFactory);
-
 /* @ngInject */
-function principalFactory(accountService) {
+function principalService(accountService) {
     var _identity;
     var identityPromise;
     var _authenticated = false;
@@ -116,3 +112,5 @@ function principalFactory(accountService) {
         return _identity && _identity.id;
     }
 }
+
+module.exports = principalService;

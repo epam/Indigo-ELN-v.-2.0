@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln.commonModule.servicesModule')
-    .factory('appValues', appValuesFactory);
-
 /* @ngInject */
 function appValuesFactory(appUnits) {
     var grams = angular.copy(appUnits.grams);
@@ -33,7 +29,6 @@ function appValuesFactory(appUnits) {
         getLoadFactorUnits: getLoadFactorUnits,
         getDefaultBatch: getDefaultBatch
     };
-
 
     function getGrams() {
         return grams;
@@ -87,3 +82,5 @@ function appValuesFactory(appUnits) {
         return angular.copy(defaultBatch);
     }
 }
+
+module.exports = appValuesFactory;

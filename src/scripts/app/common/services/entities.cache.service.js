@@ -1,9 +1,5 @@
-angular
-    .module('indigoeln')
-    .factory('entitiesCache', entitiesCacheFactory);
-
 /* @ngInject */
-function entitiesCacheFactory(CacheFactory, tabKeyUtils) {
+function entitiesCacheService(CacheFactory, tabKeyUtils) {
     var entitiesCache = CacheFactory('entitiesCache');
 
     return {
@@ -26,7 +22,7 @@ function entitiesCacheFactory(CacheFactory, tabKeyUtils) {
     }
 
     function getByName(name) {
-       return entitiesCache.get(name);
+        return entitiesCache.get(name);
     }
 
     function get(stateParams) {
@@ -49,3 +45,5 @@ function entitiesCacheFactory(CacheFactory, tabKeyUtils) {
         entitiesCache.removeAll();
     }
 }
+
+module.export = entitiesCacheService;

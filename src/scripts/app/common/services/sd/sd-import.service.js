@@ -1,6 +1,4 @@
-angular
-    .module('indigoeln')
-    .factory('sdImportService', sdImportService);
+var template = require('../../components/file-uploader/single-file-uploader/single-file-uploader-modal.html');
 
 /* @ngInject */
 function sdImportService($uibModal, dictionaryService, sdConstants, alertModal, apiUrl, sdImportHelperService, $q) {
@@ -62,7 +60,7 @@ function sdImportService($uibModal, dictionaryService, sdConstants, alertModal, 
         return $uibModal.open({
             animation: true,
             size: 'lg',
-            templateUrl: 'scripts/app/common/components/file-uploader/single-file-uploader/single-file-uploader-modal.html',
+            template: template,
             controller: 'SingleFileUploaderController',
             controllerAs: 'vm',
             resolve: {
@@ -85,3 +83,5 @@ function sdImportService($uibModal, dictionaryService, sdConstants, alertModal, 
         });
     }
 }
+
+module.exports = sdImportService;

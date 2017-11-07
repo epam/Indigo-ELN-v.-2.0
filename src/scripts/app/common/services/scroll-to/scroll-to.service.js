@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln.commonModule.servicesModule')
-    .factory('scrollService', scrollService);
-
 /* @ngInject */
 function scrollService() {
     return {
@@ -19,3 +15,5 @@ function scrollService() {
         }
     }
 }
+
+module.exports = scrollService;

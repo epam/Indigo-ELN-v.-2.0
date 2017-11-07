@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln.commonModule.servicesModule')
-    .factory('wsService', wsService);
-
 /* @ngInject */
 function wsService($cookies, $http, $q, $log, apiUrl) {
     var stompClient = null;
@@ -75,3 +71,5 @@ function wsService($cookies, $http, $q, $log, apiUrl) {
         return connectionPromise;
     }
 }
+
+module.export = wsService;

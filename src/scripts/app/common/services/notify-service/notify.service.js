@@ -1,11 +1,9 @@
-angular
-    .module('indigoeln.commonModule.servicesModule')
-    .factory('notifyService', notifyService);
+var template = require('./notify-service.html');
 
 /* @ngInject */
 function notifyService(notify, $document) {
     notify.config({
-        templateUrl: 'scripts/app/common/services/notify-service/notify-service.html',
+        template: template,
         startTop: 0
     });
 
@@ -40,3 +38,5 @@ function notifyService(notify, $document) {
         customNotify(msg, 'info-notify');
     }
 }
+
+module.exports = notifyService;

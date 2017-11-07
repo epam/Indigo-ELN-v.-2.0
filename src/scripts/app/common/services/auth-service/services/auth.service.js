@@ -1,9 +1,5 @@
-angular
-    .module('indigoeln.authServiceModule')
-    .factory('authService', auth);
-
 /* @ngInject */
-function auth($rootScope, $state, $q, principalService, authServerProvider, wsService, $log, $http, $timeout) {
+function authService($rootScope, $state, $q, principalService, authServerProvider, wsService, $log, $http, $timeout) {
     var prolongTimeout;
 
     return {
@@ -13,7 +9,6 @@ function auth($rootScope, $state, $q, principalService, authServerProvider, wsSe
         authorize: authorize,
         getAuthorities: getAuthorities
     };
-
 
     function login(credentials) {
         return authServerProvider.login(credentials).then(function(data) {
@@ -85,8 +80,9 @@ function auth($rootScope, $state, $q, principalService, authServerProvider, wsSe
             });
     }
 
-
     function getAuthorities() {
         return $http.get('assets/data/authorities.json');
     }
 }
+
+module.exports = authService;
