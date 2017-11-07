@@ -141,4 +141,4 @@ function columnActions(infoEditor, registrationUtil, $uibModal) {
     }
 }
 
-module.export = columnActions;
+module.exports = columnActions;

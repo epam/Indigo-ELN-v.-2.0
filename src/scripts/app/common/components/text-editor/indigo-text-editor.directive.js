@@ -68,4 +68,4 @@ function indigoTextEditor($timeout) {
     }
 }
 
-module.export = indigoTextEditor;
+module.exports = indigoTextEditor;

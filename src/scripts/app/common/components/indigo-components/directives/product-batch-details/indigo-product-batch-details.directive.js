@@ -255,4 +255,4 @@ function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calc
     }
 }
 
-module.export = indigoProductBatchDetails;
+module.exports = indigoProductBatchDetails;

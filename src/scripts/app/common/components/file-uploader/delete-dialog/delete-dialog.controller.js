@@ -32,4 +32,4 @@ function FileUploaderDeleteDialogController($uibModalInstance, notifyService, Up
     }
 }
 
-module.export = FileUploaderDeleteDialogController;
+module.exports = FileUploaderDeleteDialogController;

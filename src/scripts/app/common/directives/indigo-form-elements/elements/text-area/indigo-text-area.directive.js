@@ -34,5 +34,4 @@ function indigoTextArea(formUtils) {
     }
 }
 
-module.export = indigoTextArea;
-
+module.exports = indigoTextArea;

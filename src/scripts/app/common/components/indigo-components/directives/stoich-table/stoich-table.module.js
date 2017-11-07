@@ -8,7 +8,7 @@ var stoichTableCache = require('./stoich-table-cache.service');
 
 var dependencies = [];
 
-module.export = angular
+module.exports = angular
     .module('indigoeln.stoichTable', dependencies)
 
     .directive('indigoStoichTable', indigoStoichTable)

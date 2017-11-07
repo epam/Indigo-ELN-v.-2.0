@@ -83,4 +83,4 @@ function EditSolubilityController($uibModalInstance, solubility, appUnits) {
     }
 }
 
-module.export = EditSolubilityController;
+module.exports = EditSolubilityController;

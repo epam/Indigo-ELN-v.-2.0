@@ -41,5 +41,5 @@ function dialogService($uibModal) {
     }
 }
 
-module.export = dialogService;
+module.exports = dialogService;
 

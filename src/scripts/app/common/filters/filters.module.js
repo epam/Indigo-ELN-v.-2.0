@@ -12,6 +12,6 @@ module.exports = angular
     .filter('joinBy', joinBy)
     .filter('round', round)
 
-    .config('filtersConfig', filtersConfig)
+    .config(filtersConfig)
 
     .name;

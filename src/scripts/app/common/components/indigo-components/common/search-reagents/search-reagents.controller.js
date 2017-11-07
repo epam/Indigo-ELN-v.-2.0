@@ -187,4 +187,4 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
     }
 }
 
-module.export = SearchReagentsController;
+module.exports = SearchReagentsController;

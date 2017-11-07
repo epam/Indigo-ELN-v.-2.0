@@ -9,4 +9,4 @@ function run($templateCache) {
         ' ng-bind="validationPatternText"></p></div>');
 }
 
-module.export = run;
+module.exports = run;

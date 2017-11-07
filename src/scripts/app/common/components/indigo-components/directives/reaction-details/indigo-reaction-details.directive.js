@@ -16,5 +16,5 @@ function indigoReactionDetails() {
     };
 }
 
-module.export = indigoReactionDetails;
+module.exports = indigoReactionDetails;
 

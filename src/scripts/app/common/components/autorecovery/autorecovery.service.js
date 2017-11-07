@@ -74,4 +74,4 @@ function autorecoveryCache(CacheFactory, tabKeyUtils) {
     }
 }
 
-module.export = autorecoveryCache;
+module.exports = autorecoveryCache;

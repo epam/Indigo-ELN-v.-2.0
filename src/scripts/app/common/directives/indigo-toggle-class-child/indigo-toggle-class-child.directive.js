@@ -15,5 +15,4 @@ function indigoToggleClassChild() {
     }
 }
 
-module.export = indigoToggleClassChild;
-
+module.exports = indigoToggleClassChild;

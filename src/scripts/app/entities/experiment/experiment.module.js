@@ -7,13 +7,16 @@ var experimentDetail = require('./experiment-detail/experiment-detail.directive'
 var ExperimentSelectSignatureTemplateModalController =
     require('./select-signature-template-modal/experiment-select-signature-template-modal.controller');
 
-//TODO Add common constants
-var dependencies = [];
+var constants = require('../../common/constants/constants.module');
+var permissions = require('../../permissions/permissions.module');
+
+var dependencies = [
+    constants,
+    permissions
+];
 
 module.exports = angular
-    .module('indigoeln.entities.experiment', [
-        'indigoeln.constantsModule'
-    ])
+    .module('indigoeln.entities.experiment', dependencies)
 
     .controller('ExperimentController', ExperimentController)
     .controller('ExperimentCompleteModalController', ExperimentCompleteModalController)

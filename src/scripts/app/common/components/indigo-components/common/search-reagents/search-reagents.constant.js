@@ -84,4 +84,4 @@ var searchReagentsConstant = {
     }
 };
 
-module.export = searchReagentsConstant;
+module.exports = searchReagentsConstant;

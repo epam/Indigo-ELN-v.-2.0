@@ -85,4 +85,4 @@ function stoichProductColumns(appUnits, calculationService) {
     }
 }
 
-module.export = stoichProductColumns;
+module.exports = stoichProductColumns;

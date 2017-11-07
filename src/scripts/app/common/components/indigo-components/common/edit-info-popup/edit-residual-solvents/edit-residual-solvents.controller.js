@@ -52,4 +52,4 @@ function EditResidualSolventsController($uibModalInstance, solvents) {
     }
 }
 
-module.export = EditResidualSolventsController;
+module.exports = EditResidualSolventsController;

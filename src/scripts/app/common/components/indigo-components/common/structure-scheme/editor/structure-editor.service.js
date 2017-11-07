@@ -19,5 +19,5 @@ function editorUtils($document) {
     };
 }
 
-module.export = editorUtils;
+module.exports = editorUtils;
 

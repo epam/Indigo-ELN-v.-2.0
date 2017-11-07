@@ -32,5 +32,5 @@ function indigoProductBatchSummary() {
     }
 }
 
-module.export = indigoProductBatchSummary;
+module.exports = indigoProductBatchSummary;
 

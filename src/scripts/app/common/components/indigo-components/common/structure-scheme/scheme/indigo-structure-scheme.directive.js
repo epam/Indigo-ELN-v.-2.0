@@ -19,4 +19,4 @@ function indigoStructureScheme() {
     };
 }
 
-module.export = indigoStructureScheme;
+module.exports = indigoStructureScheme;

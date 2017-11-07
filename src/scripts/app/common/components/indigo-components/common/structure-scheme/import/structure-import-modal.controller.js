@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln.componentsModule')
-    .controller('StructureImportModalController', StructureImportModalController);
-
 /* @ngInject */
 function StructureImportModalController($uibModalInstance, $timeout) {
     var vm = this;
@@ -21,6 +17,7 @@ function StructureImportModalController($uibModalInstance, $timeout) {
             vm.content = fileContent;
         });
     }
+
     function importContent() {
         $uibModalInstance.close(vm.content);
     }
@@ -29,3 +26,5 @@ function StructureImportModalController($uibModalInstance, $timeout) {
         $uibModalInstance.dismiss('cancel');
     }
 }
+
+module.exports = StructureImportModalController;

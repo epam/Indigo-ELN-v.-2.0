@@ -11,4 +11,4 @@ function detectRendered($parse) {
     };
 }
 
-module.export = detectRendered;
+module.exports = detectRendered;

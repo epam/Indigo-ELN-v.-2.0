@@ -35,4 +35,4 @@ function IndigoInlineLoaderController($scope) {
     }
 }
 
-module.export = indigoInlineLoader;
+module.exports = indigoInlineLoader;

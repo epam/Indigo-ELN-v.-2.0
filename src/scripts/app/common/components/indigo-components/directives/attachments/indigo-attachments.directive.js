@@ -1,4 +1,4 @@
-var template = require('./attachments.html');
+var template = require('./indigo-attachments.html');
 
 function indigoAttachments() {
     return {
@@ -22,5 +22,5 @@ function IndigoAttachmentsController(apiUrl) {
     vm.apiUrl = apiUrl;
 }
 
-module.export = indigoAttachments;
+module.exports = indigoAttachments;
 

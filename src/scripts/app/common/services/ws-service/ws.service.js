@@ -72,4 +72,4 @@ function wsService($cookies, $http, $q, $log, apiUrl) {
     }
 }
 
-module.export = wsService;
+module.exports = wsService;

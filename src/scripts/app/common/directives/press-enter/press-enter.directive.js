@@ -13,6 +13,4 @@ function pressEnter() {
     };
 }
 
-module.export = pressEnter;
-
-
+module.exports = pressEnter;

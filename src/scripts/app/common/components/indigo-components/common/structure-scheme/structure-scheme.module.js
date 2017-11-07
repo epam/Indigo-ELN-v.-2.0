@@ -9,7 +9,7 @@ var StructureImportModalController = require('./import/structure-import-modal.co
 var StructureSchemeController = require('./scheme/structure-scheme.controller');
 
 
-module.export = angular
+module.exports = angular
     .module('indigoeln.structureScheme', [])
 
     .directive('indigoEditor', indigoEditor)

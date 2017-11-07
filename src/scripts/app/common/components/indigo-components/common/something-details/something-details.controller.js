@@ -51,4 +51,4 @@ function SomethingDetailsController($scope, usersService) {
     }
 }
 
-module.export = SomethingDetailsController;
+module.exports = SomethingDetailsController;

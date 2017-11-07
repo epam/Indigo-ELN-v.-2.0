@@ -21,5 +21,5 @@ function stoichTableCache() {
     }
 }
 
-module.export = stoichTableCache;
+module.exports = stoichTableCache;
 

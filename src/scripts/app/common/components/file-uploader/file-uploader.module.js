@@ -10,7 +10,7 @@ var fileUploaderCash = require('./services/file-uploader.service');
 
 var dependencies = [];
 
-module.export = angular
+module.exports = angular
     .module('indigoeln.fileUploader', dependencies)
 
     .controller('FileUploaderDeleteDialogController', FileUploaderDeleteDialogController)

@@ -1,7 +1,7 @@
 var printModal = require('./print-modal.factory');
 var PrintModalController = require('./print-modal.controller');
 
-module.export = angular
+module.exports = angular
     .module('indigoeln.printModal', [])
 
     .controller('PrintModalController', PrintModalController)

@@ -116,4 +116,4 @@ function formUtils($timeout) {
     }
 }
 
-module.export = formUtils;
+module.exports = formUtils;

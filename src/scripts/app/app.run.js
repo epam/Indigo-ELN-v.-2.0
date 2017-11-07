@@ -1,3 +1,5 @@
+var template = require('./common/components/timer/timer-dialog.html');
+
 /* @ngInject */
 function appRun($rootScope, $window, $state, $uibModal, editableOptions, authService, principalService, Idle,
                 entitiesBrowser, $http, $cookies) {
@@ -51,7 +53,7 @@ function appRun($rootScope, $window, $state, $uibModal, editableOptions, authSer
         if (!countdownDialog) {
             countdownDialog = $uibModal.open({
                 animation: false,
-                templateUrl: 'scripts/app/common/components/timer/timer-dialog.html',
+                template: template,
                 controller: 'CountdownDialogController',
                 controllerAs: 'vm',
                 windowClass: 'modal-danger',

@@ -1,4 +1,4 @@
-var template = require('./components.html');
+var template = require('./indigo-components.html');
 
 function indigoComponents() {
     return {
@@ -176,4 +176,4 @@ function IndigoComponentsController($scope, productBatchSummaryOperations, produ
     }
 }
 
-module.export = indigoComponents;
+module.exports = indigoComponents;

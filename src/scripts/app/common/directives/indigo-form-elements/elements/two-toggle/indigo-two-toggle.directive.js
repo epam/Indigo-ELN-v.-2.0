@@ -30,4 +30,4 @@ function indigoTwoToggle(formUtils) {
     }
 }
 
-module.export = indigoTwoToggle;
+module.exports = indigoTwoToggle;

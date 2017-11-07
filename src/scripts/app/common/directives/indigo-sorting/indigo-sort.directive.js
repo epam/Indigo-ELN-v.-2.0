@@ -32,5 +32,5 @@ function indigoSort() {
     }
 }
 
-module.export = indigoSort;
+module.exports = indigoSort;
 

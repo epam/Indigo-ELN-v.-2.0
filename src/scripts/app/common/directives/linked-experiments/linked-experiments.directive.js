@@ -40,4 +40,4 @@ function linkedExperiments() {
     }
 }
 
-module.export = linkedExperiments;
+module.exports = linkedExperiments;

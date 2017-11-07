@@ -23,5 +23,5 @@ function ProductBatchSummarySetSourceController($uibModalInstance, name, $q, dic
     });
 }
 
-module.export = ProductBatchSummarySetSourceController;
+module.exports = ProductBatchSummarySetSourceController;
 

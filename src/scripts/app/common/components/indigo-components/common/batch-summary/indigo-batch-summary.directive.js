@@ -151,4 +151,4 @@ function IndigoBatchSummaryController($scope, registrationService, productBatchS
     }
 }
 
-module.export = indigoBatchSummary;
+module.exports = indigoBatchSummary;

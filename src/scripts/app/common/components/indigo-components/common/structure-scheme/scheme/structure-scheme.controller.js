@@ -189,4 +189,4 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
     }
 }
 
-module.export = StructureSchemeController;
+module.exports = StructureSchemeController;

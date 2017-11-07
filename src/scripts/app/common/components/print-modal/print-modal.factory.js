@@ -35,4 +35,4 @@ function printModal($uibModal, $window, $httpParamSerializer, apiUrl) {
     }
 }
 
-module.export = printModal;
+module.exports = printModal;

@@ -14,4 +14,4 @@ function indigoSimpleText() {
     };
 }
 
-module.export = indigoSimpleText;
+module.exports = indigoSimpleText;

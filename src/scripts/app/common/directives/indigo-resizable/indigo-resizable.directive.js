@@ -18,4 +18,4 @@ function indigoResizable() {
     }
 }
 
-module.export = indigoResizable;
+module.exports = indigoResizable;

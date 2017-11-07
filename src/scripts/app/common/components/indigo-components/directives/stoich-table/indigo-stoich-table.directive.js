@@ -384,4 +384,4 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     }
 }
 
-module.export = indigoStoichTable;
+module.exports = indigoStoichTable;

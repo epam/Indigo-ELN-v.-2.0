@@ -47,5 +47,5 @@ function SelectFromDictionaryController($uibModalInstance, data, dictionary, tit
     }
 }
 
-module.export = SelectFromDictionaryController;
+module.exports = SelectFromDictionaryController;
 

@@ -14,4 +14,4 @@ function indigoScroller() {
     }
 }
 
-module.export = indigoScroller;
+module.exports = indigoScroller;

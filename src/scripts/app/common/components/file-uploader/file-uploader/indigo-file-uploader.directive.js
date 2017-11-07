@@ -16,4 +16,4 @@ function indigoFileUploader() {
     };
 }
 
-module.export = indigoFileUploader;
+module.exports = indigoFileUploader;

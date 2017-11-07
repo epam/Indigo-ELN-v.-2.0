@@ -130,4 +130,4 @@ function FileUploaderController($uibModal, $filter, $stateParams, fileUploaderCa
     }
 }
 
-module.export = FileUploaderController;
+module.exports = FileUploaderController;

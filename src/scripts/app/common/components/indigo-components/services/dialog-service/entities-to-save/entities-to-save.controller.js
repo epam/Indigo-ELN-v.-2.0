@@ -1,7 +1,4 @@
-angular
-    .module('indigoeln.componentsModule')
-    .controller('EntitiesToSaveController', EntitiesToSaveController);
-
+/* @ngInject */
 function EntitiesToSaveController($uibModalInstance, data) {
     var vm = this;
 
@@ -44,3 +41,5 @@ function EntitiesToSaveController($uibModalInstance, data) {
         $uibModalInstance.dismiss('cancel');
     }
 }
+
+module.exports = EntitiesToSaveController;

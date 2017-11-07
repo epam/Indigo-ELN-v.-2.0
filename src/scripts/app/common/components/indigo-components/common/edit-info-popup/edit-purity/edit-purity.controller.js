@@ -53,4 +53,4 @@ function EditPurityController($uibModalInstance, data, dictionary, appUnits) {
     }
 }
 
-module.export = EditPurityController;
+module.exports = EditPurityController;

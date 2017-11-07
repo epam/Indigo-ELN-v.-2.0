@@ -33,4 +33,4 @@ function StructureValidationController($uibModalInstance, batches, searchQuery, 
     }
 }
 
-module.export = StructureValidationController;
+module.exports = StructureValidationController;

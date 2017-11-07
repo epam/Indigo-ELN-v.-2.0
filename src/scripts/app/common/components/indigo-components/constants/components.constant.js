@@ -88,4 +88,4 @@ var typeComponents = {
     }
 };
 
-module.export = typeComponents;
+module.exports = typeComponents;

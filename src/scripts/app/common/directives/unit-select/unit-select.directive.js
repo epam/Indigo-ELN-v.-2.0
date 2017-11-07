@@ -26,4 +26,4 @@ function unitSelect() {
     }
 }
 
-module.export = unitSelect;
+module.exports = unitSelect;

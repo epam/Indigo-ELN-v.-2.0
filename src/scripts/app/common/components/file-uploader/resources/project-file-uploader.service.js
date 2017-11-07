@@ -25,4 +25,4 @@ function projectFileUploaderService($resource, apiUrl) {
     });
 }
 
-module.export = projectFileUploaderService;
+module.exports = projectFileUploaderService;

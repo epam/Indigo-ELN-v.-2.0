@@ -23,4 +23,4 @@ function autorecoveryHelper(autorecoveryCache) {
     }
 }
 
-module.export = autorecoveryHelper;
+module.exports = autorecoveryHelper;

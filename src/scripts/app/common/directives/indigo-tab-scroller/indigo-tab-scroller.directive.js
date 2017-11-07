@@ -27,5 +27,5 @@ function indigoTabScroller($timeout) {
     }
 }
 
-module.export = indigoTabScroller;
+module.exports = indigoTabScroller;
 

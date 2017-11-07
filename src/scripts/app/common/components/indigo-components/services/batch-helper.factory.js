@@ -429,4 +429,4 @@ function batchHelper(appUnits, calculationService, columnActions, scalarService,
     }
 }
 
-module.export = batchHelper;
+module.exports = batchHelper;

@@ -121,4 +121,4 @@ function IndigoReactionSchemeController($scope, $rootScope, calculationService, 
     }
 }
 
-module.export = indigoReactionScheme;
+module.exports = indigoReactionScheme;

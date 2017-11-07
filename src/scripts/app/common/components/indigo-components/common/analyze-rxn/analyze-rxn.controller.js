@@ -98,4 +98,4 @@ function AnalyzeRxnController($uibModalInstance, reactants, searchService, appVa
     }
 }
 
-module.export = AnalyzeRxnController;
+module.exports = AnalyzeRxnController;

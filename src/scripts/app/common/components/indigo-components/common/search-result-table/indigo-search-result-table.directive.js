@@ -85,5 +85,5 @@ function IndigoSearchResultTableController(userReagents, appValues, calculationS
     }
 }
 
-module.export = indigoSearchResultTable;
+module.exports = indigoSearchResultTable;
 

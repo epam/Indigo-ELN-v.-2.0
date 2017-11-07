@@ -41,5 +41,5 @@ function indigoDatePicker(formUtils) {
     }
 }
 
-module.export = indigoDatePicker;
+module.exports = indigoDatePicker;
 

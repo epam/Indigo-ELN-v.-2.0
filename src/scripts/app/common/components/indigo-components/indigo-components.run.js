@@ -49,4 +49,4 @@ function run($templateCache, typeComponents) {
     }
 }
 
-module.export = run;
+module.exports = run;

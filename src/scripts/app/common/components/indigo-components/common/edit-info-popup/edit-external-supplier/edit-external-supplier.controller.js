@@ -46,4 +46,4 @@ function EditExternalSupplierController($uibModalInstance, data) {
     }
 }
 
-module.export = EditExternalSupplierController;
+module.exports = EditExternalSupplierController;

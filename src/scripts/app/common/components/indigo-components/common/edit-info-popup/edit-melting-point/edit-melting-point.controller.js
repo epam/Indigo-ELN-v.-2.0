@@ -34,4 +34,4 @@ function EditMeltingPointController($uibModalInstance, data) {
     }
 }
 
-module.export = EditMeltingPointController;
+module.exports = EditMeltingPointController;

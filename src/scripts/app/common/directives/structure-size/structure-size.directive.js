@@ -13,4 +13,4 @@ function stuctureSize() {
     };
 }
 
-module.export = stuctureSize;
+module.exports = stuctureSize;

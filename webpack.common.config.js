@@ -35,6 +35,11 @@ module.exports = function(env) {
             new ExtractTextPlugin({filename: '[name].bundle.css', allChunks: true}),
             new webpack.DefinePlugin({
                 apiUrl: JSON.stringify(apiUrl)
+            }),
+            new webpack.ProvidePlugin({
+                _: 'lodash',
+                'window.jQuery': 'jquery',
+                $: 'jquery'
             })
         ],
         output: {

@@ -38,5 +38,4 @@ function indigoCheckbox(formUtils) {
     }
 }
 
-module.export = indigoCheckbox;
-
+module.exports = indigoCheckbox;

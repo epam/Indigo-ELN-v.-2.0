@@ -46,4 +46,4 @@ function entitiesCacheService(CacheFactory, tabKeyUtils) {
     }
 }
 
-module.export = entitiesCacheService;
+module.exports = entitiesCacheService;

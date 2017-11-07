@@ -21,4 +21,4 @@ function experimentFileUploaderService($resource, apiUrl) {
     });
 }
 
-module.export = experimentFileUploaderService;
+module.exports = experimentFileUploaderService;

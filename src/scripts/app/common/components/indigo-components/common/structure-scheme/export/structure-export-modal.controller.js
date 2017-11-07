@@ -43,4 +43,4 @@ function StructureExportModalController($uibModalInstance, structureToSave, stru
     init();
 }
 
-module.export = StructureExportModalController;
+module.exports = StructureExportModalController;

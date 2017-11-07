@@ -35,5 +35,5 @@ function indigoPreferredCompoundsSummary() {
     }
 }
 
-module.export = indigoPreferredCompoundsSummary;
+module.exports = indigoPreferredCompoundsSummary;
 

@@ -75,4 +75,4 @@ function IndigoBatchStructureController(calculationService) {
     }
 }
 
-module.export = indigoBatchStructure;
+module.exports = indigoBatchStructure;

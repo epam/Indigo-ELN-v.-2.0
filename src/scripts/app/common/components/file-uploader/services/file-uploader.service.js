@@ -36,4 +36,4 @@ function fileUploaderCash() {
     }
 }
 
-module.export = fileUploaderCash;
+module.exports = fileUploaderCash;

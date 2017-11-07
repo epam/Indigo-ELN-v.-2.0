@@ -19,4 +19,4 @@ function simpleInput($templateCache) {
     };
 }
 
-module.export = simpleInput;
+module.exports = simpleInput;

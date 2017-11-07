@@ -342,4 +342,4 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
     }
 }
 
-module.export = productBatchSummaryOperations;
+module.exports = productBatchSummaryOperations;

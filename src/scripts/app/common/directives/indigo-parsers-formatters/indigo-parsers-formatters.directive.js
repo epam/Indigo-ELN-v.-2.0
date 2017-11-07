@@ -21,4 +21,4 @@ function indigoParsersFormatters() {
     }
 }
 
-module.export = indigoParsersFormatters;
+module.exports = indigoParsersFormatters;

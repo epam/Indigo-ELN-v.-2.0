@@ -40,4 +40,4 @@ function AlertModalController($uibModalInstance, title, message, okText, noText,
     }
 }
 
-module.export = AlertModalController;
+module.exports = AlertModalController;

@@ -128,4 +128,4 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
     }
 }
 
-module.export = stoichColumnActions;
+module.exports = stoichColumnActions;

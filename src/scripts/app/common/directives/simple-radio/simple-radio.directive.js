@@ -22,4 +22,4 @@ function simpleRadio() {
     };
 }
 
-module.export = simpleRadio;
+module.exports = simpleRadio;

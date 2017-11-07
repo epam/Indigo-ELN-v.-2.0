@@ -5,6 +5,11 @@ require('../../assets/less/indigo-bootstrap.less');
 require('../../assets/less/main.less');
 
 /**
+ * External libs
+ */
+require('./dependencies/malihu-custom-scrollbar-plugin');
+
+/**
  * Base external modules
  */
 var angular = require('angular');

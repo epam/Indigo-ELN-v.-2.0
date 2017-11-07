@@ -106,5 +106,5 @@ function indigoSelect(formUtils) {
     }
 }
 
-module.export = indigoSelect;
+module.exports = indigoSelect;
 

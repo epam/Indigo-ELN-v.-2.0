@@ -25,4 +25,4 @@ function indigoHasAnyAuthority(principalService) {
     };
 }
 
-module.export = indigoHasAnyAuthority;
+module.exports = indigoHasAnyAuthority;

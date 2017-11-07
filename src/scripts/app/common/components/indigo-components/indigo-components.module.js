@@ -1,4 +1,3 @@
-var run = require('./components.run');
 var indigoAttachments = require('./directives/attachments/indigo-attachments.directive');
 var indigoBatchStructure = require('./directives/batch-structure/indigo-batch-structure.directive');
 var indigoComponents = require('./directives/indigo-components/indigo-components.directive');
@@ -32,6 +31,8 @@ var batchHelper = require('./services/batch-helper.factory');
 var columnActions = require('./services/column-actions.factory');
 var dialogService = require('./services/dialog-service/dialog.service');
 
+var run = require('./indigo-components.run');
+
 var dependencies = [
     indigoStoichTable,
     componentButtons,
@@ -39,9 +40,8 @@ var dependencies = [
     editInfoPopup
 ];
 
-module.export = angular
-    .module('indigoeln.componentsModule', dependencies)
-    .run(run)
+module.exports = angular
+    .module('indigoeln.indigoComponents', dependencies)
 
     .directive('indigoAttachments', indigoAttachments)
     .directive('indigoBatchStructure', indigoBatchStructure)
@@ -70,5 +70,7 @@ module.export = angular
     .factory('batchHelper', batchHelper)
     .factory('columnActions', columnActions)
     .factory('dialogService', dialogService)
+
+    .run(run)
 
     .name;

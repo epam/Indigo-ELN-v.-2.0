@@ -94,5 +94,5 @@ function indigoPreferredCompoundDetails() {
     }
 }
 
-module.export = indigoPreferredCompoundDetails;
+module.exports = indigoPreferredCompoundDetails;
 

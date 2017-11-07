@@ -45,4 +45,4 @@ function SingleFileUploaderController($uibModalInstance, $cookies, FileUploader,
     }
 }
 
-module.export = SingleFileUploaderController;
+module.exports = SingleFileUploaderController;

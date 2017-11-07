@@ -85,4 +85,4 @@ function IndigoCompoundSummaryController($scope, batchHelper) {
     }
 }
 
-module.export = indigoCompoundSummary;
+module.exports = indigoCompoundSummary;

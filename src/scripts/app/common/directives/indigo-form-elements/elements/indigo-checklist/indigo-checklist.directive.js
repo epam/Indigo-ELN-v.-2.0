@@ -27,6 +27,4 @@ function indigoChecklist() {
     }
 }
 
-module.export = indigoChecklist;
-
-
+module.exports = indigoChecklist;

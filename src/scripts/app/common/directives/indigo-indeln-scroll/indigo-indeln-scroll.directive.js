@@ -35,5 +35,5 @@ function indigoIndelnScroll($document, $window) {
     }
 }
 
-module.export = indigoIndelnScroll;
+module.exports = indigoIndelnScroll;
 

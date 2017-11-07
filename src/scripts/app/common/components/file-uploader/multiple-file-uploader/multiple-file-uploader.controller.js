@@ -60,4 +60,4 @@ function MultipleFileUploaderController($uibModalInstance, $cookies, notifyServi
     }
 }
 
-module.export = MultipleFileUploaderController;
+module.exports = MultipleFileUploaderController;

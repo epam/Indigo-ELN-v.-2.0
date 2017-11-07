@@ -70,4 +70,4 @@ function PrintModalController($uibModalInstance, params, resourceName, resource,
     }
 }
 
-module.export = PrintModalController;
+module.exports = PrintModalController;

@@ -21,4 +21,4 @@ function indigoHasAuthority(principalService) {
     };
 }
 
-module.export = indigoHasAuthority;
+module.exports = indigoHasAuthority;

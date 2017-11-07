@@ -33,4 +33,6 @@ module.exports = angular
     .factory('experimentFactory', experimentFactory)
     .factory('notebookSummaryExperiments', notebookSummaryExperiments)
     .factory('notebooksForSubCreation', notebooksForSubCreation)
-    .factory('projectsForSubCreation', projectsForSubCreation);
+    .factory('projectsForSubCreation', projectsForSubCreation)
+
+    .name;

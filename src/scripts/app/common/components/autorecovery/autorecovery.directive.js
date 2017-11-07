@@ -58,4 +58,4 @@ function autorecovery() {
     }
 }
 
-module.export = autorecovery;
+module.exports = autorecovery;

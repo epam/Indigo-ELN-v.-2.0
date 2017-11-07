@@ -29,5 +29,4 @@ function nestedOutsideClick($parse, $document, $timeout) {
     }
 }
 
-module.export = nestedOutsideClick;
-
+module.exports = nestedOutsideClick;

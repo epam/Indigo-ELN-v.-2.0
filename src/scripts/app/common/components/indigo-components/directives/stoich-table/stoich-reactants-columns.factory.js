@@ -196,5 +196,4 @@ function stoichReactantsColumns(appUnits, stoichColumnActions, selectService, un
     }
 }
 
-module.export = stoichReactantsColumns;
-
+module.exports = stoichReactantsColumns;

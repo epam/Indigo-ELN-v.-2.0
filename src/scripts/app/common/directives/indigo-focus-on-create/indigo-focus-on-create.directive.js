@@ -14,5 +14,4 @@ function indigoFocusOnCreate() {
     }
 }
 
-module.export = indigoFocusOnCreate;
-
+module.exports = indigoFocusOnCreate;

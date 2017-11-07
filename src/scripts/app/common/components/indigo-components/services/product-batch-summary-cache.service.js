@@ -15,4 +15,4 @@ function productBatchSummaryCache() {
     }
 }
 
-module.export = productBatchSummaryCache;
+module.exports = productBatchSummaryCache;
