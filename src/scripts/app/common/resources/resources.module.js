@@ -10,7 +10,7 @@ var templateService = require('./template/template.service');
 var userReagents = require('./user-reagents/user-reagents.service');
 var userService = require('./user-service/user.service');
 var dashboardService = require('./dashboard.service');
-var experimentFactory = require('./experiment.service');
+var experimentService = require('./experiment.service');
 var notebookSummaryExperiments = require('./notebook-summary-experiments.service');
 var notebooksForSubCreation = require('./notebooks-for-sub-creation.service');
 var projectsForSubCreation = require('./projects-for-sub-creation.service');
@@ -30,7 +30,7 @@ module.exports = angular
     .factory('userReagents', userReagents)
     .factory('userService', userService)
     .factory('dashboardService', dashboardService)
-    .factory('experimentFactory', experimentFactory)
+    .factory('experimentService', experimentService)
     .factory('notebookSummaryExperiments', notebookSummaryExperiments)
     .factory('notebooksForSubCreation', notebooksForSubCreation)
     .factory('projectsForSubCreation', projectsForSubCreation)

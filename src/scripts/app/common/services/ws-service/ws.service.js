@@ -1,3 +1,6 @@
+var SockJS = require('sockjs-client');
+var Stomp = require('stompjs/lib/stomp').Stomp;
+
 /* @ngInject */
 function wsService($cookies, $http, $q, $log, apiUrl) {
     var stompClient = null;

@@ -1,3 +1,5 @@
+var moment = require('moment-timezone');
+
 /* @ngInject */
 function filtersConfig($provide) {
     $provide.decorator('dateFilter', function($delegate) {

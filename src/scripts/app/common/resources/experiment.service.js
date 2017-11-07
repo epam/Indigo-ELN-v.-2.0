@@ -1,5 +1,7 @@
+var moment = require('moment-timezone');
+
 /* @ngInject */
-function experimentFactory($resource, permissionManagementService, entityTreeService, apiUrl) {
+function experimentService($resource, permissionManagementService, entityTreeService, apiUrl) {
     var interceptor = {
         response: function(response) {
             entityTreeService.updateExperiment(response.data);
@@ -101,4 +103,4 @@ function experimentFactory($resource, permissionManagementService, entityTreeSer
     }
 }
 
-module.exports = experimentFactory;
+module.exports = experimentService;
