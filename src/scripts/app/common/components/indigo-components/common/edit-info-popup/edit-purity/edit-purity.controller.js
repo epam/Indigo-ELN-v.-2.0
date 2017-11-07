@@ -1,8 +1,5 @@
-angular
-    .module('indigoeln.componentsModule')
-    .controller('EditPurityController', EditPurityController);
+EditPurityController.$inject = ['$uibModalInstance', 'data', 'dictionary', 'appUnits'];
 
-/* @ngInject */
 function EditPurityController($uibModalInstance, data, dictionary, appUnits) {
     var vm = this;
 
@@ -55,3 +52,5 @@ function EditPurityController($uibModalInstance, data, dictionary, appUnits) {
         $uibModalInstance.dismiss('cancel');
     }
 }
+
+module.export = EditPurityController;

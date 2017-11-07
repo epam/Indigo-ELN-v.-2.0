@@ -1,8 +1,5 @@
-angular
-    .module('indigoeln.fileUploader')
-    .factory('experimentFileUploaderService', experimentFileUploaderService);
+experimentFileUploaderService.$inject = ['$resource', 'apiUrl'];
 
-/* @ngInject */
 function experimentFileUploaderService($resource, apiUrl) {
     return $resource(apiUrl + 'experiment_files/:id', {}, {
         query: {
@@ -23,3 +20,5 @@ function experimentFileUploaderService($resource, apiUrl) {
         }
     });
 }
+
+module.export = experimentFileUploaderService;

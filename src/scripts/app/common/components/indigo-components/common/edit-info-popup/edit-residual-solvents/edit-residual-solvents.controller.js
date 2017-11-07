@@ -1,8 +1,5 @@
-angular
-    .module('indigoeln.componentsModule')
-    .controller('EditResidualSolventsController', EditResidualSolventsController);
+EditResidualSolventsController.$inject = ['$uibModalInstance', 'solvents'];
 
-/* @ngInject */
 function EditResidualSolventsController($uibModalInstance, solvents) {
     var vm = this;
 
@@ -54,3 +51,5 @@ function EditResidualSolventsController($uibModalInstance, solvents) {
         $uibModalInstance.dismiss('cancel');
     }
 }
+
+module.export = EditResidualSolventsController;

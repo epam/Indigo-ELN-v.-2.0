@@ -1,8 +1,5 @@
-angular
-    .module('indigoeln.componentsModule')
-    .controller('StructureSchemeController', StructureSchemeController);
+StructureSchemeController.$inject = ['$scope', 'apiUrl', '$http', '$uibModal', 'notifyService', 'calculationService'];
 
-/* @ngInject */
 function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyService, calculationService) {
     var vm = this;
 
@@ -134,7 +131,7 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
         // open editor with pre-defined structure (prestructure)
         var modalInstance = $uibModal.open({
             animation: true,
-            templateUrl: 'scripts/app/common/components/indigo-components/common/structure-scheme/editor/structure-editor-modal.html',
+            templateUrl: require('../structure-editor-modal/structure-editor-modal.html'),
             controller: 'StructureEditorModalController',
             controllerAs: 'vm',
             windowClass: 'structure-editor-modal',
@@ -163,7 +160,7 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
     function importStructure() {
         var modalInstance = $uibModal.open({
             animation: true,
-            templateUrl: 'scripts/app/common/components/indigo-components/common/structure-scheme/import/structure-import-modal.html',
+            templateUrl: require('../import/structure-import-modal.controller'),
             controller: 'StructureImportModalController',
             controllerAs: 'vm',
             windowClass: 'structure-import-modal'
@@ -176,7 +173,7 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
     function exportStructure() {
         $uibModal.open({
             animation: true,
-            templateUrl: 'scripts/app/common/components/indigo-components/common/structure-scheme/export/structure-export-modal.html',
+            templateUrl: require('../export/structure-export-modal.html'),
             controller: 'StructureExportModalController',
             controllerAs: 'vm',
             windowClass: 'structure-export-modal',
@@ -191,3 +188,5 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
         });
     }
 }
+
+module.export = StructureSchemeController;

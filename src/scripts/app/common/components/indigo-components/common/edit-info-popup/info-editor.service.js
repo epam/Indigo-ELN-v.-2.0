@@ -1,8 +1,12 @@
-angular
-    .module('indigoeln.componentsModule')
-    .factory('infoEditor', infoEditor);
+var editSolubilityTemplate = require('./edit-solubility/edit-solubility.html');
+var editResidualSolventsTemplate = require('./edit-residual-solvents/edit-residual-solvents.html');
+var editExternalSupplierTemplate = require('./edit-external-supplier/edit-external-supplier.html');
+var editMeltingPointTemplate = require('./edit-melting-point/edit-melting-point.html');
+var editPurityTemplate = require('./edit-purity/edit-purity.html');
+var selectFromDictionaryTemplate = require('./select-from-dictionary/select-from-dictionary.html');
 
-/* @ngInject */
+infoEditor.$inject = ['$uibModal'];
+
 function infoEditor($uibModal) {
     return {
         editSolubility: editSolubility,
@@ -21,7 +25,7 @@ function infoEditor($uibModal) {
             size: 'lg',
             controller: 'EditSolubilityController',
             controllerAs: 'vm',
-            templateUrl: 'scripts/app/common/components/indigo-components/common/edit-info-popup/edit-solubility/edit-solubility.html',
+            template: editSolubilityTemplate,
             resolve: {
                 solubility: function() {
                     return solubility;
@@ -40,7 +44,7 @@ function infoEditor($uibModal) {
             size: 'lg',
             controller: 'EditResidualSolventsController',
             controllerAs: 'vm',
-            templateUrl: 'scripts/app/common/components/indigo-components/common/edit-info-popup/edit-residual-solvents/edit-residual-solvents.html',
+            template: editResidualSolventsTemplate,
             resolve: {
                 solvents: function() {
                     return (residualSolvents && residualSolvents.data) || [];
@@ -55,7 +59,7 @@ function infoEditor($uibModal) {
             size: 'md',
             controller: 'EditExternalSupplierController',
             controllerAs: 'vm',
-            templateUrl: 'scripts/app/common/components/indigo-components/common/edit-info-popup/edit-external-supplier/edit-external-supplier.html',
+            template: editExternalSupplierTemplate,
             resolve: {
                 data: function() {
                     return data;
@@ -72,7 +76,7 @@ function infoEditor($uibModal) {
             size: 'md',
             controller: 'EditMeltingPointController',
             controllerAs: 'vm',
-            templateUrl: 'scripts/app/common/components/indigo-components/common/edit-info-popup/edit-melting-point/edit-melting-point.html',
+            template: editMeltingPointTemplate,
             resolve: {
                 data: function() {
                     return data;
@@ -89,7 +93,7 @@ function infoEditor($uibModal) {
             size: 'lg',
             controller: 'EditPurityController',
             controllerAs: 'vm',
-            templateUrl: 'scripts/app/common/components/indigo-components/common/edit-info-popup/edit-purity/edit-purity.html',
+            template: editPurityTemplate,
             resolve: {
                 data: function() {
                     return data;
@@ -129,7 +133,7 @@ function infoEditor($uibModal) {
             size: 'sm',
             controller: 'SelectFromDictionaryController',
             controllerAs: 'vm',
-            templateUrl: 'scripts/app/common/components/indigo-components/common/edit-info-popup/select-from-dictionary/select-from-dictionary.html',
+            template: selectFromDictionaryTemplate,
             resolve: {
                 data: function() {
                     return model;

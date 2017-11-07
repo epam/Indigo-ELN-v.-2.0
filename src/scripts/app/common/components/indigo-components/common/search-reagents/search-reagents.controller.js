@@ -1,8 +1,6 @@
-angular
-    .module('indigoeln.componentsModule')
-    .controller('SearchReagentsController', SearchReagentsController);
+SearchReagentsController.$inject = ['$rootScope', '$uibModalInstance', 'notifyService', 'appValues', 'activeTab',
+    'userReagents', 'searchService', 'searchUtilService', 'searchReagentsConstant', 'stoichColumnActions'];
 
-/* @ngInject */
 function SearchReagentsController($rootScope, $uibModalInstance, notifyService, appValues, activeTab, userReagents,
                                   searchService, searchUtilService, searchReagentsConstant, stoichColumnActions) {
     var vm = this;
@@ -188,3 +186,5 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         _.extend(vm.model.restrictions.structure, structure);
     }
 }
+
+module.export = SearchReagentsController;

@@ -1,8 +1,5 @@
-angular
-    .module('indigoeln.autorecovery')
-    .factory('autorecoveryHelper', autorecoveryHelper);
+autorecoveryHelper.$inject = ['autorecoveryCache'];
 
-/* @ngInject */
 function autorecoveryHelper(autorecoveryCache) {
     return {
         getUpdateRecoveryDebounce: getUpdateRecoveryDebounce,
@@ -25,3 +22,5 @@ function autorecoveryHelper(autorecoveryCache) {
         return originalEntity && !angular.equals(originalEntity, newEntity);
     }
 }
+
+module.export = autorecoveryHelper;

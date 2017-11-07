@@ -1,8 +1,6 @@
-angular
-    .module('indigoeln.componentsModule')
-    .controller('AnalyzeRxnController', AnalyzeRxnController);
+AnalyzeRxnController.$inject = ['$uibModalInstance', 'reactants', 'searchService', 'appValues', 'onStoichRowsChanged',
+    'stoichColumnActions', '$q'];
 
-/* @ngInject */
 function AnalyzeRxnController($uibModalInstance, reactants, searchService, appValues, onStoichRowsChanged,
                               stoichColumnActions, $q) {
     var vm = this;
@@ -99,3 +97,5 @@ function AnalyzeRxnController($uibModalInstance, reactants, searchService, appVa
         return searchService.search(searchRequest).$promise;
     }
 }
+
+module.export = AnalyzeRxnController;

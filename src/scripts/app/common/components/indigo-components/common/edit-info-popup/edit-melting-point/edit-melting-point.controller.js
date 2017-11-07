@@ -1,8 +1,5 @@
-angular
-    .module('indigoeln.componentsModule')
-    .controller('EditMeltingPointController', EditMeltingPointController);
+EditMeltingPointController.$inject = ['$uibModalInstance', 'data'];
 
-/* @ngInject */
 function EditMeltingPointController($uibModalInstance, data) {
     var vm = this;
 
@@ -36,3 +33,5 @@ function EditMeltingPointController($uibModalInstance, data) {
         $uibModalInstance.dismiss('cancel');
     }
 }
+
+module.export = EditMeltingPointController;

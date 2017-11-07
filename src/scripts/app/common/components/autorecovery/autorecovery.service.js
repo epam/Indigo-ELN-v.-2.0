@@ -1,9 +1,6 @@
-angular
-    .module('indigoeln.autorecovery')
-    .factory('autorecoveryCache', autorecoveryCacheFactory);
+autorecoveryCache.$inject = ['CacheFactory', 'tabKeyUtils'];
 
-/* @ngInject */
-function autorecoveryCacheFactory(CacheFactory, tabKeyUtils) {
+function autorecoveryCache(CacheFactory, tabKeyUtils) {
     var cache = CacheFactory('recoveryCache', {
         storageMode: 'localStorage'
     });
@@ -57,6 +54,7 @@ function autorecoveryCacheFactory(CacheFactory, tabKeyUtils) {
     function isResolved(stateParams) {
         return !_.isUndefined(visbilityAutorecovery[paramsConverter(stateParams)]);
     }
+
     function isVisible(stateParams) {
         return visbilityAutorecovery[paramsConverter(stateParams)];
     }
@@ -75,3 +73,5 @@ function autorecoveryCacheFactory(CacheFactory, tabKeyUtils) {
         return tabKeyUtils.getTabKeyFromParams(_.extend({isAutorecovery: true}, stateParams));
     }
 }
+
+module.export = autorecoveryCache;

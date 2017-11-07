@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln.componentsModule')
-    .controller('EditSolubilityController', EditSolubilityController);
-
 EditSolubilityController.$inject = ['EditSolubilityController'];
 
 function EditSolubilityController($uibModalInstance, solubility, appUnits) {
@@ -86,3 +82,5 @@ function EditSolubilityController($uibModalInstance, solubility, appUnits) {
         $uibModalInstance.dismiss('cancel');
     }
 }
+
+module.export = EditSolubilityController;
