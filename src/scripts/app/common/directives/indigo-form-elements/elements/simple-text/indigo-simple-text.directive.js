@@ -1,19 +1,17 @@
-(function() {
-    angular
-        .module('indigoeln')
-        .directive('indigoSimpleText', indigoSimpleText);
+var template = require('./simple-text.html');
 
-    function indigoSimpleText() {
-        return {
-            restrict: 'E',
-            replace: true,
-            scope: {
-                indigoLabel: '@',
-                indigoModel: '=',
-                indigoEmptyText: '@',
-                indigoClasses: '@'
-            },
-            templateUrl: 'scripts/app/common/directives/indigo-form-elements/elements/simple-text/simple-text.html'
-        };
-    }
-})();
+function indigoSimpleText() {
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            indigoLabel: '@',
+            indigoModel: '=',
+            indigoEmptyText: '@',
+            indigoClasses: '@'
+        },
+        template: template
+    };
+}
+
+module.export = indigoSimpleText;

@@ -1,19 +1,16 @@
-(function() {
-    angular
-        .module('indigoeln')
-        .directive('stuctureSize', stuctureSize);
+var template = require('./structure-size.html');
 
-    /* @ngInject */
-    function stuctureSize() {
-        return {
-            restrict: 'E',
-            scope: {
-                model: '='
-            },
-            templateUrl: 'scripts/app/common/directives/structure-size/structure-size.html',
-            controller: angular.noop,
-            controllerAs: 'vm',
-            bindToController: true
-        };
-    }
-})();
+function stuctureSize() {
+    return {
+        restrict: 'E',
+        scope: {
+            model: '='
+        },
+        template: template,
+        controller: angular.noop,
+        controllerAs: 'vm',
+        bindToController: true
+    };
+}
+
+module.export = stuctureSize;
