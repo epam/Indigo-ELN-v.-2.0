@@ -1,4 +1,7 @@
-/* @ngInject */
+var template = require('./search-panel.html');
+
+searchConfig.$inject = ['$stateProvider'];
+
 function searchConfig($stateProvider) {
     $stateProvider
         .state('entities.search-panel', {
@@ -6,7 +9,7 @@ function searchConfig($stateProvider) {
             params: {query: null},
             views: {
                 tabContent: {
-                    template: require('./search-panel.html'),
+                    template: template,
                     controller: 'SearchPanelController',
                     controllerAs: 'vm'
                 }

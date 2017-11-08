@@ -1,8 +1,9 @@
-/* @ngInject */
+var template = require('./entities-controls.html');
+
 function indigoEntitiesControls() {
     return {
         restrict: 'E',
-        template: require('./entities-controls.html'),
+        template: template,
         controller: indigoEntitiesControlsController,
         bindToController: true,
         controllerAs: 'vm',

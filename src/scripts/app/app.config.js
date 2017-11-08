@@ -1,4 +1,8 @@
-/* @ngInject */
+var errorTemplate = require('./common/templates/error.html');
+var accessDeniedTemplate = require('./common/templates/access-denied.html');
+appConfig.$inject = ['$stateProvider', '$urlRouterProvider', '$httpProvider', '$compileProvider', 'IdleProvider',
+    '$animateProvider'];
+
 function appConfig($stateProvider, $urlRouterProvider, $httpProvider, $compileProvider, IdleProvider,
                    $animateProvider) {
     // enable CSRF
@@ -7,6 +11,7 @@ function appConfig($stateProvider, $urlRouterProvider, $httpProvider, $compilePr
     $httpProvider.defaults.withCredentials = true;
 
     $urlRouterProvider.otherwise('/');
+
     $stateProvider
         .state('app_page', {
             abstract: true,
@@ -40,7 +45,7 @@ function appConfig($stateProvider, $urlRouterProvider, $httpProvider, $compilePr
             },
             views: {
                 'content@app_page': {
-                    template: require('./common/templates/error.html')
+                    template: errorTemplate
                 }
             },
             resolve: {}
@@ -53,7 +58,7 @@ function appConfig($stateProvider, $urlRouterProvider, $httpProvider, $compilePr
             },
             views: {
                 'content@app_page': {
-                    template: require('./common/templates/access-denied.html')
+                    template: accessDeniedTemplate
                 }
             },
             resolve: {}

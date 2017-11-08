@@ -1,4 +1,8 @@
-/* @ngInject */
+var userManagementPasswordDialogTemplate = require('./user-management-password-dialog.html');
+
+UserManagementController.$inject = ['$uibModal', 'userService', 'parseLinksService', '$filter', 'pageInfo',
+    'notifyService'];
+
 function UserManagementController($uibModal, userService, parseLinksService, $filter, pageInfo, notifyService) {
     var vm = this;
     vm.users = [];
@@ -108,7 +112,7 @@ function UserManagementController($uibModal, userService, parseLinksService, $fi
         $uibModal.open({
             animation: true,
             size: 'sm',
-            template: require('./user-management-password-dialog.html'),
+            template: userManagementPasswordDialogTemplate,
             controllerAs: 'vm',
             controller: function($scope, $uibModalInstance) {
                 var vm = this;

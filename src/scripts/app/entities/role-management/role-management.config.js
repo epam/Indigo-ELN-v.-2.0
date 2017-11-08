@@ -1,4 +1,8 @@
-/* @ngInject */
+var roleManagementTemplate = require('./role-management.html');
+var roleManagementDeleteDialog = require('./role-management-delete-dialog.html');
+
+roleManagementConfig.$inject = ['$stateProvider'];
+
 function roleManagementConfig($stateProvider) {
     $stateProvider
         .state('entities.role-management', {
@@ -15,7 +19,7 @@ function roleManagementConfig($stateProvider) {
             },
             views: {
                 tabContent: {
-                    template: require('./role-management.html'),
+                    template: roleManagementTemplate,
                     controller: 'RoleManagementController',
                     controllerAs: 'vm'
                 }
@@ -47,7 +51,7 @@ function roleManagementConfig($stateProvider) {
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
-                    template: require('./role-management-delete-dialog.html'),
+                    template: roleManagementDeleteDialog,
                     controller: 'RoleManagementDeleteController',
                     controllerAs: 'vm',
                     size: 'md',

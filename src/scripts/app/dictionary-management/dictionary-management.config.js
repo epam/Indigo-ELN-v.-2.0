@@ -1,4 +1,8 @@
-/* @ngInject */
+var dictionaryManagementTemplate = require('./component/dictionary-management.html');
+var dictionaryManagementDeleteDialogTemplate = require('./delete-dialog/dictionary-management-delete-dialog.html');
+
+dictionaryManagementConfig.$inject = ['$stateProvider'];
+
 function dictionaryManagementConfig($stateProvider) {
     $stateProvider
         .state('entities.dictionary-management', {
@@ -15,7 +19,7 @@ function dictionaryManagementConfig($stateProvider) {
             },
             views: {
                 tabContent: {
-                    template: require('./component/dictionary-management.html'),
+                    template: dictionaryManagementTemplate,
                     controller: 'DictionaryManagementController',
                     controllerAs: 'vm'
                 }
@@ -31,7 +35,7 @@ function dictionaryManagementConfig($stateProvider) {
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
-                    template: require('./delete-dialog/dictionary-management-delete-dialog.html'),
+                    template: dictionaryManagementDeleteDialogTemplate,
                     controller: 'DictionaryManagementDeleteController',
                     controllerAs: 'vm',
                     size: 'md',

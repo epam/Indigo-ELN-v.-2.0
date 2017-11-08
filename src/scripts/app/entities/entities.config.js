@@ -1,4 +1,6 @@
-/* @ngInject */
+var entitiesTemplate = require('./entities.html')
+entitiesConfig.$inject = ['$stateProvider'];
+
 function entitiesConfig($stateProvider) {
     $stateProvider
         .state('entity', {
@@ -10,7 +12,7 @@ function entitiesConfig($stateProvider) {
             parent: 'entity',
             views: {
                 'content@app_page': {
-                    template: require('./entities.html'),
+                    template: entitiesTemplate,
                     controller: 'EntitiesController',
                     controllerAs: 'vm'
                 }

@@ -1,4 +1,7 @@
-/* @ngInject */
+var template = require('./login/login.html');
+
+accountConfig.$inject = ['$stateProvider'];
+
 function accountConfig($stateProvider) {
     $stateProvider
         .state('account', {
@@ -13,7 +16,7 @@ function accountConfig($stateProvider) {
             },
             views: {
                 'app_page@': {
-                    template: require('./login/login.html'),
+                    template: template,
                     controller: 'LoginController',
                     controllerAs: 'vm'
                 }

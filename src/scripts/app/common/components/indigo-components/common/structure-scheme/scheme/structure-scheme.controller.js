@@ -1,3 +1,7 @@
+var structureEditorModalTemplate = require('../structure-editor-modal/structure-editor-modal.html');
+var structureImportModalTemplate = require('../import/structure-import-modal.controller');
+var structureExportModalTemplate = require('../export/structure-export-modal.html');
+
 StructureSchemeController.$inject = ['$scope', 'apiUrl', '$http', '$uibModal', 'notifyService', 'calculationService'];
 
 function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyService, calculationService) {
@@ -131,7 +135,7 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
         // open editor with pre-defined structure (prestructure)
         var modalInstance = $uibModal.open({
             animation: true,
-            templateUrl: require('../structure-editor-modal/structure-editor-modal.html'),
+            template: structureEditorModalTemplate,
             controller: 'StructureEditorModalController',
             controllerAs: 'vm',
             windowClass: 'structure-editor-modal',
@@ -160,7 +164,7 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
     function importStructure() {
         var modalInstance = $uibModal.open({
             animation: true,
-            templateUrl: require('../import/structure-import-modal.controller'),
+            template: structureImportModalTemplate,
             controller: 'StructureImportModalController',
             controllerAs: 'vm',
             windowClass: 'structure-import-modal'
@@ -173,7 +177,7 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
     function exportStructure() {
         $uibModal.open({
             animation: true,
-            templateUrl: require('../export/structure-export-modal.html'),
+            template: structureExportModalTemplate,
             controller: 'StructureExportModalController',
             controllerAs: 'vm',
             windowClass: 'structure-export-modal',

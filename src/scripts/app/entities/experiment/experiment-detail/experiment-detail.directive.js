@@ -1,8 +1,9 @@
-/* @ngInject */
+var template = require('./experiment-detail.html');
+
 function experimentDetail() {
     return {
         scope: true,
-        template: require('./experiment-detail.html'),
+        template: template,
         controller: ExperimentDetailController,
         controllerAs: 'vm'
     };

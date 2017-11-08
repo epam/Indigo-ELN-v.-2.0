@@ -1,11 +1,12 @@
-/* @ngInject */
+var template = require('./app-layout.html');
+
 function appLayout() {
     return {
         scope: true,
         restrict: 'E',
         controller: AppPageController,
         controllerAs: 'vm',
-        template: require('./app-layout.html'),
+        template: template,
         bindToController: true
     };
 

@@ -1,4 +1,8 @@
-/* @ngInject */
+var projectTemplate = require('./project.html');
+
+projectConfig.$inject = ['$stateProvider', 'permissionManagementConfig', 'permissionViewManagementConfig',
+    'userPermissions'];
+
 function projectConfig($stateProvider, permissionManagementConfig, permissionViewManagementConfig, userPermissions) {
     var permissions = [
         userPermissions.VIEWER,
@@ -15,7 +19,7 @@ function projectConfig($stateProvider, permissionManagementConfig, permissionVie
             url: '/project/new',
             views: {
                 tabContent: {
-                    template: require('./project.html'),
+                    template: projectTemplate,
                     controller: 'ProjectController',
                     controllerAs: 'vm'
                 }
@@ -63,7 +67,7 @@ function projectConfig($stateProvider, permissionManagementConfig, permissionVie
             url: '/project/{projectId}',
             views: {
                 tabContent: {
-                    template: require('./project.html'),
+                    template: projectTemplate,
                     controller: 'ProjectController',
                     controllerAs: 'vm'
                 }

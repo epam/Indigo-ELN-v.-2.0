@@ -1,4 +1,10 @@
-/* @ngInject */
+var entitiesTemplate = require('./templates.html');
+var templateDetail = require('./detail/template-detail.html');
+var templateModal = require('./modal/template-modal.html');
+var templateDeleteDialog = require('./delete-dialog/template-delete-dialog.html');
+
+templateManagementConfig.$inject = ['$stateProvider'];
+
 function templateManagementConfig($stateProvider) {
     $stateProvider
         .state('entities.template', {
@@ -16,7 +22,7 @@ function templateManagementConfig($stateProvider) {
             },
             views: {
                 tabContent: {
-                    template: require('./templates.html'),
+                    template: entitiesTemplate,
                     controller: 'TemplateController',
                     controllerAs: 'vm'
                 }
@@ -37,7 +43,7 @@ function templateManagementConfig($stateProvider) {
             },
             views: {
                 tabContent: {
-                    template: require('./modal/template-modal.html'),
+                    template: templateModal,
                     controller: 'TemplateModalController',
                     controllerAs: 'vm'
                 }
@@ -71,7 +77,7 @@ function templateManagementConfig($stateProvider) {
             },
             views: {
                 tabContent: {
-                    template: require('./detail/template-detail.html'),
+                    template: templateDetail,
                     controller: 'TemplateDetailController',
                     controllerAs: 'vm'
                 }
@@ -94,7 +100,7 @@ function templateManagementConfig($stateProvider) {
             },
             views: {
                 tabContent: {
-                    template: require('./modal/template-modal.html'),
+                    template: templateModal,
                     controller: 'TemplateModalController',
                     controllerAs: 'vm'
 
@@ -115,7 +121,7 @@ function templateManagementConfig($stateProvider) {
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
-                    template: require('./delete-dialog/template-delete-dialog.html'),
+                    template: templateDeleteDialog,
                     controller: 'TemplateDeleteController',
                     controllerAs: 'vm',
                     size: 'md'

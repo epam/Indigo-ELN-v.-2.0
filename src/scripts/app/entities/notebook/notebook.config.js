@@ -1,4 +1,7 @@
-/* @ngInject */
+var template = require('./notebook-dialog.html');
+notebookConfig.$inject = ['$stateProvider', 'permissionManagementConfig', 'permissionViewManagementConfig',
+    'userPermissions'];
+
 function notebookConfig($stateProvider, permissionManagementConfig, permissionViewManagementConfig, userPermissions) {
     var permissions = [
         userPermissions.VIEWER,
@@ -19,7 +22,7 @@ function notebookConfig($stateProvider, permissionManagementConfig, permissionVi
             url: '/project/{parentId}/notebook/new',
             views: {
                 tabContent: {
-                    template: require('./notebook-dialog.html'),
+                    template: template,
                     controller: 'NotebookDialogController',
                     controllerAs: 'vm'
                 }
@@ -67,7 +70,7 @@ function notebookConfig($stateProvider, permissionManagementConfig, permissionVi
             url: '/project/{projectId}/notebook/{notebookId}',
             views: {
                 tabContent: {
-                    template: require('./notebook-dialog.html'),
+                    template: template,
                     controller: 'NotebookDialogController',
                     controllerAs: 'vm'
                 }

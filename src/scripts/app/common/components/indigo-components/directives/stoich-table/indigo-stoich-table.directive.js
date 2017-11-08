@@ -1,4 +1,6 @@
 var template = require('./stoich-table.html');
+var analyzeRxnTemplate = require('../../common/analyze-rxn/analyze-rxn.html');
+var searchReagentsTemplate = require('../../common/search-reagents/search-reagents.html');
 
 function indigoStoichTable() {
     return {
@@ -95,7 +97,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
                     size: 'lg',
                     controller: 'AnalyzeRxnController',
                     controllerAs: 'vm',
-                    template: require('../../common/analyze-rxn/analyze-rxn.html'),
+                    template: analyzeRxnTemplate,
                     resolve: {
                         reactants: function() {
                             var reactants = _.map(batchesToSearch, function(batch) {
@@ -140,7 +142,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             size: 'lg',
             controller: 'SearchReagentsController',
             controllerAs: 'vm',
-            template: require('../../common/search-reagents/search-reagents.html'),
+            template: searchReagentsTemplate,
             resolve: {
                 activeTab: function() {
                     return activeTab;

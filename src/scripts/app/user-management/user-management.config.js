@@ -1,4 +1,8 @@
-/* @ngInject */
+var userManagementTemplate = require('./user-management.html');
+var userManagementDeleteDialogTemplate = require('./user-management-delete-dialog.html');
+
+userManagementConfig.$inject = ['$stateProvider'];
+
 function userManagementConfig($stateProvider) {
     $stateProvider
         .state('entities.user-management', {
@@ -15,7 +19,7 @@ function userManagementConfig($stateProvider) {
             },
             views: {
                 tabContent: {
-                    template: require('./user-management.html'),
+                    template: userManagementTemplate,
                     controller: 'UserManagementController',
                     controllerAs: 'vm'
                 }
@@ -43,7 +47,7 @@ function userManagementConfig($stateProvider) {
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
-                    templateUrl: require('./user-management-delete-dialog.html'),
+                    template: userManagementDeleteDialogTemplate,
                     controller: 'UserManagementDeleteController',
                     controllerAs: 'vm',
                     size: 'md',

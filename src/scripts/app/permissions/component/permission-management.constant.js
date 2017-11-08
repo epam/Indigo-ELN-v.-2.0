@@ -1,10 +1,12 @@
+var template = require('./permission-management.html');
+
 var permissionManagementConfig = {
     url: '/permissions',
     onEnter: ['$rootScope', '$stateParams', '$state', '$uibModal', 'permissionManagementService',
         function($rootScope, $stateParams, $state, $uibModal, permissionManagementService) {
             var that = this;
             $uibModal.open({
-                template: require('./permission-management.html'),
+                template: template,
                 controller: 'PermissionManagementController',
                 controllerAs: 'vm',
                 size: 'lg',

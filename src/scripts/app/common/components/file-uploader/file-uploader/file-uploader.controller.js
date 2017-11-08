@@ -1,3 +1,6 @@
+var multipleFileUploaderTemplate = require('../multiple-file-uploader/multiple-file-uploader.html');
+var deleteDialogTemplate = require('../delete-dialog/delete-dialog.html');
+
 FileUploaderController.$inject = ['$uibModal', '$filter', '$stateParams', 'fileUploaderCash',
     'parseLinksService', 'notifyService', 'projectFileUploaderService',
     'experimentFileUploaderService', '$timeout', 'apiUrl'];
@@ -51,7 +54,7 @@ function FileUploaderController($uibModal, $filter, $stateParams, fileUploaderCa
         $uibModal.open({
             animation: true,
             size: 'lg',
-            templateUrl: 'scripts/app/common/components/file-uploader/multiple-file-uploader/multiple-file-uploader.html',
+            template: multipleFileUploaderTemplate,
             controller: 'MultipleFileUploaderController',
             controllerAs: 'vm',
             resolve: {
@@ -74,7 +77,7 @@ function FileUploaderController($uibModal, $filter, $stateParams, fileUploaderCa
     function deleteFile(file) {
         $uibModal.open({
             animation: true,
-            templateUrl: 'scripts/app/common/components/file-uploader/delete-dialog/delete-dialog.html',
+            template: deleteDialogTemplate,
             controller: 'FileUploaderDeleteDialogController',
             controllerAs: 'vm',
             resolve: {

@@ -1,3 +1,5 @@
+var productBatchSummarySetSourceTemplate = require('../directives/product-batch-summary-set-source/product-batch-summary-set-source.html');
+
 columnActions.$inject = ['infoEditor', 'registrationUtil', '$uibModal'];
 
 function columnActions(infoEditor, registrationUtil, $uibModal) {
@@ -55,7 +57,7 @@ function columnActions(infoEditor, registrationUtil, $uibModal) {
 
     function openProductBatchSummaryModal(rows, title) {
         $uibModal.open({
-            template: require('../directives/product-batch-summary-set-source/product-batch-summary-set-source.html'),
+            template: productBatchSummarySetSourceTemplate,
             controller: 'ProductBatchSummarySetSourceController',
             controllerAs: 'vm',
             size: 'sm',

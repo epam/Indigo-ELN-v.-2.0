@@ -1,3 +1,6 @@
+var experimentsTemplate = require('./experiments.html');
+var experimentDeleteDialogTemplate = require('./delete-dialog/experiment-delete-dialog.html');
+
 /* @ngInject */
 function experimentConfig($stateProvider, permissionManagementConfig, permissionViewManagementConfig,
                                 userPermissions) {
@@ -16,7 +19,7 @@ function experimentConfig($stateProvider, permissionManagementConfig, permission
             },
             views: {
                 'content@app_page': {
-                    template: require('./experiments.html'),
+                    template: experimentsTemplate,
                     controller: 'ExperimentController',
                     controllerAs: 'vm'
                 }
@@ -50,7 +53,7 @@ function experimentConfig($stateProvider, permissionManagementConfig, permission
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
-                    template: require('./delete-dialog/experiment-delete-dialog.html'),
+                    template: experimentDeleteDialogTemplate,
                     controller: 'ExperimentDeleteController',
                     controllerAs: 'vm',
                     size: 'md',
