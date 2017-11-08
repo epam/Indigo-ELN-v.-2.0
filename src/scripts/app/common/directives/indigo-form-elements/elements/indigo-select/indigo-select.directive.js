@@ -107,4 +107,3 @@ function indigoSelect(formUtils) {
 }
 
 module.exports = indigoSelect;
-

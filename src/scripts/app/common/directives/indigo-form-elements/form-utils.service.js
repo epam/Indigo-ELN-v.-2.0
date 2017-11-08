@@ -1,4 +1,4 @@
-formUtils.$inject = ['formUtils'];
+formUtils.$inject = ['$timeout'];
 
 function formUtils($timeout) {
     return {
