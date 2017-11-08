@@ -14,6 +14,7 @@ var indigoStoichTable = require('./directives/stoich-table/stoich-table.module')
 var componentButtons = require('./directives/component-buttons/component-buttons.module.js');
 var structureScheme = require('./common/structure-scheme/structure-scheme.module');
 var editInfoPopup = require('./common/edit-info-popup/edit-info-popup.module');
+var indigoTable = require('./common/table/indigo-table.module');
 
 var ProductBatchSummarySetSourceController = require('./directives/product-batch-summary-set-source/product-batch-summary-set-source.controller');
 var AnalyzeRxnController = require('./common/analyze-rxn/analyze-rxn.controller');
@@ -37,7 +38,8 @@ var dependencies = [
     indigoStoichTable,
     componentButtons,
     structureScheme,
-    editInfoPopup
+    editInfoPopup,
+    indigoTable
 ];
 
 module.exports = angular

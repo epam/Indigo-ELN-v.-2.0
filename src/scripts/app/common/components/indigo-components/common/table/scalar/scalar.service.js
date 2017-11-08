@@ -1,8 +1,7 @@
-angular
-    .module('indigoeln.componentsModule')
-    .factory('scalarService', scalarService);
+var template = require('./set-scalar-value.html');
 
-/* @ngInject */
+scalarService.$inject = ['$uibModal', 'registrationUtil', 'calculationService'];
+
 function scalarService($uibModal, registrationUtil, calculationService) {
     return {
         action: action
@@ -10,7 +9,7 @@ function scalarService($uibModal, registrationUtil, calculationService) {
 
     function action(rows, title, column) {
         return $uibModal.open({
-            templateUrl: 'scripts/app/common/components/indigo-components/common/table/scalar/set-scalar-value.html',
+            template: template,
             controller: 'SetScalarValueController',
             controllerAs: 'vm',
             size: 'sm',
@@ -34,3 +33,5 @@ function scalarService($uibModal, registrationUtil, calculationService) {
         });
     }
 }
+
+module.exports = scalarService;

@@ -1,25 +1,28 @@
-angular
-    .module('indigoeln.componentsModule')
-    .controller('SetUnitValueController', function($scope, name, unitNames, $uibModalInstance, unitsConverter) {
-        var vm = this;
+SetUnitValueController.$inject = ['name', 'unitNames', '$uibModalInstance', 'unitsConverter'];
 
-        init();
-        function init() {
-            vm.name = name;
-            vm.unitNames = unitNames;
-            vm.unit = unitNames[0];
+function SetUnitValueController(name, unitNames, $uibModalInstance, unitsConverter) {
+    var vm = this;
 
-            vm.save = save;
-            vm.clear = clear;
-        }
+    init();
 
-        function save() {
-            $uibModalInstance.close({
-                value: unitsConverter.convert(vm.value, vm.unit).val(), unit: vm.unit
-            });
-        }
+    function init() {
+        vm.name = name;
+        vm.unitNames = unitNames;
+        vm.unit = unitNames[0];
 
-        function clear() {
-            $uibModalInstance.dismiss('cancel');
-        }
-    });
+        vm.save = save;
+        vm.clear = clear;
+    }
+
+    function save() {
+        $uibModalInstance.close({
+            value: unitsConverter.convert(vm.value, vm.unit).val(), unit: vm.unit
+        });
+    }
+
+    function clear() {
+        $uibModalInstance.dismiss('cancel');
+    }
+}
+
+module.exports = SetUnitValueController;

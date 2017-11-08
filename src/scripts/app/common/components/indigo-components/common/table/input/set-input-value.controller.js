@@ -1,8 +1,5 @@
-angular
-    .module('indigoeln.componentsModule')
-    .controller('SetInputValueController', SetInputValueController);
+SetInputValueController.$inject = ['name', '$uibModalInstance'];
 
-/* @ngInject */
 function SetInputValueController(name, $uibModalInstance) {
     var vm = this;
 
@@ -23,3 +20,5 @@ function SetInputValueController(name, $uibModalInstance) {
         $uibModalInstance.dismiss('cancel');
     }
 }
+
+module.exports = SetInputValueController;

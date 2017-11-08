@@ -1,8 +1,7 @@
-angular
-    .module('indigoeln.componentsModule')
-    .factory('unitService', unitService);
+var template = require('./set-unit-value.html');
 
-/* @ngInject */
+unitService.$inject = ['$uibModal', 'calculationService', 'registrationUtil'];
+
 function unitService($uibModal, calculationService, registrationUtil) {
     return {
         getActions: function(name, unitItems) {
@@ -26,7 +25,7 @@ function unitService($uibModal, calculationService, registrationUtil) {
         var id = column.id;
 
         return $uibModal.open({
-            templateUrl: 'scripts/app/common/components/indigo-components/common/table/unit/set-unit-value.html',
+            template: template,
             controller: 'SetUnitValueController',
             controllerAs: 'vm',
             size: 'sm',
@@ -68,3 +67,5 @@ function unitService($uibModal, calculationService, registrationUtil) {
         };
     }
 }
+
+module.exports = unitService;

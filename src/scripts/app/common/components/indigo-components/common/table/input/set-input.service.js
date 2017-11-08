@@ -1,8 +1,7 @@
-angular
-    .module('indigoeln.componentsModule')
-    .factory('inputService', inputService);
+var template = require('./set-input-value.html');
 
-/* @ngInject */
+inputService.$inject = ['$uibModal', 'registrationUtil'];
+
 function inputService($uibModal, registrationUtil) {
     return {
         getActions: function(name) {
@@ -18,7 +17,7 @@ function inputService($uibModal, registrationUtil) {
 
     function action(rows, title, columnId) {
         $uibModal.open({
-            templateUrl: 'scripts/app/common/components/indigo-components/common/table/input/set-input-value.html',
+            template: template,
             controller: 'SetInputValueController',
             controllerAs: 'vm',
             size: 'sm',
@@ -36,3 +35,5 @@ function inputService($uibModal, registrationUtil) {
         });
     }
 }
+
+module.exports = inputService;

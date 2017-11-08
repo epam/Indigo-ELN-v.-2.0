@@ -1,13 +1,12 @@
-/**
- * Created by Stepan_Litvinov on 6/29/2016.
- */
-angular.module('indigoeln.componentsModule')
-    .filter('unit', function(unitsConverter) {
-        return function(value, to) {
-            if (!value) {
-                return value;
-            }
+function unit(unitsConverter) {
+    return function(value, to) {
+        if (!value) {
+            return value;
+        }
 
-            return +unitsConverter.convert(value).as(to).val();
-        };
-    });
+        return +unitsConverter.convert(value).as(to).val();
+    };
+}
+
+module.exports = unit;
+

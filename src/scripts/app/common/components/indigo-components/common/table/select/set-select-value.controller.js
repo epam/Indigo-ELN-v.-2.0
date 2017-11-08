@@ -1,8 +1,5 @@
-angular
-    .module('indigoeln.componentsModule')
-    .controller('SetSelectValueController', SetSelectValueController);
+SetSelectValueController.$inject = ['id', 'name', 'values', 'dictionary', '$uibModalInstance'];
 
-/* @ngInject */
 function SetSelectValueController(id, name, values, dictionary, $uibModalInstance) {
     var vm = this;
 
@@ -29,3 +26,5 @@ function SetSelectValueController(id, name, values, dictionary, $uibModalInstanc
         $uibModalInstance.dismiss('cancel');
     }
 }
+
+module.exports = SetSelectValueController;
