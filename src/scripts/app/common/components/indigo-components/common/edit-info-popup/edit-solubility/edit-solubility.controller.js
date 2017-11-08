@@ -1,4 +1,4 @@
-EditSolubilityController.$inject = ['EditSolubilityController'];
+EditSolubilityController.$inject = ['$uibModalInstance', 'solubility', 'appUnits'];
 
 function EditSolubilityController($uibModalInstance, solubility, appUnits) {
     var vm = this;

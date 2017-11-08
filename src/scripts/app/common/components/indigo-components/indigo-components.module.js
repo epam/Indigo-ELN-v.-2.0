@@ -9,6 +9,8 @@ var indigoReactionScheme = require('./directives/reaction-scheme/indigo-reaction
 var indigoBatchSummary = require('./common/batch-summary/indigo-batch-summary.directive');
 var indigoCompoundSummary = require('./common/compound-summary/indigo-compound-summary.directive');
 var indigoInlineLoader = require('./common/inline-loader/indigo-inline-loader.directive');
+var indigoConceptDetails = require('./directives/concept-details/indigo-concept-details.directive');
+var indigoExperimentDescription = require('./directives/experiment-description/indigo-experiment-description.directive');
 
 var indigoStoichTable = require('./directives/stoich-table/stoich-table.module');
 var componentButtons = require('./directives/component-buttons/component-buttons.module.js');
@@ -57,6 +59,8 @@ module.exports = angular
     .directive('indigoBatchSummary', indigoBatchSummary)
     .directive('indigoCompoundSummary', indigoCompoundSummary)
     .directive('indigoInlineLoader', indigoInlineLoader)
+    .directive('indigoConceptDetails', indigoConceptDetails)
+    .directive('indigoExperimentDescription', indigoExperimentDescription)
 
     .controller('ProductBatchSummarySetSourceController', ProductBatchSummarySetSourceController)
     .controller('AnalyzeRxnController', AnalyzeRxnController)

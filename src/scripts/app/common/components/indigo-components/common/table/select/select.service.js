@@ -46,3 +46,5 @@ function selectService($uibModal, registrationUtil) {
         });
     }
 }
+
+module.exports = selectService;

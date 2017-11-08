@@ -44,4 +44,3 @@ function dialogService($uibModal) {
 }
 
 module.exports = dialogService;
-

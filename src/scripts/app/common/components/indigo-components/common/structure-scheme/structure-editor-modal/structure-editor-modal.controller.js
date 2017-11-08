@@ -16,3 +16,5 @@ function StructureEditorModalController($uibModalInstance, prestructure, editor)
         $uibModalInstance.dismiss('cancel');
     };
 }
+
+module.exports = StructureEditorModalController;

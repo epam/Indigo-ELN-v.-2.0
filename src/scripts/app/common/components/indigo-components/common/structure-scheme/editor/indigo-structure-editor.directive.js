@@ -54,3 +54,4 @@ function IndigoEditorController() {
     };
 }
 
+module.exports = indigoEditor;
