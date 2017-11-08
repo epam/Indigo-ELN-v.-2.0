@@ -1,3 +1,4 @@
+var Simditor = require('../../../dependencies/simditor');
 var template = require('./indigo-text-editor.html');
 var textEditorConfig = require('./text-editor.json');
 

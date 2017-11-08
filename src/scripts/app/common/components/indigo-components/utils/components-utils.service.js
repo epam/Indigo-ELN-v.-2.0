@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln.componentsModule')
-    .factory('componentsUtils', componentsUtilsFactory);
-
 /* @ngInject */
 function componentsUtilsFactory(principalService, typeComponents) {
     return {
@@ -110,3 +106,5 @@ function componentsUtilsFactory(principalService, typeComponents) {
         }
     }
 }
+
+module.exports = componentsUtilsFactory;

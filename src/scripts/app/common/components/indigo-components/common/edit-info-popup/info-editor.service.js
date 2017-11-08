@@ -152,3 +152,5 @@ function infoEditor($uibModal) {
         });
     }
 }
+
+module.exports = infoEditor;

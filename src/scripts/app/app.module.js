@@ -13,7 +13,6 @@ require('../../assets/less/main.less');
  */
 require('./dependencies/jquery');
 require('./dependencies/malihu-custom-scrollbar-plugin');
-require('./dependencies/simditor');
 require('./dependencies/jquery-ui');
 require('bootstrap/dist/js/bootstrap.min');
 

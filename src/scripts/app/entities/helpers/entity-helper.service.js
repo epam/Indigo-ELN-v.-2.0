@@ -1,6 +1,6 @@
 /* @ngInject */
 function entityHelper(CacheFactory, tabKeyUtils, confirmationModal, notifyService) {
-    var versionCache = CacheFactory('versionCache');
+    var versionCache = CacheFactory.get('versionCache') || CacheFactory('versionCache');
     var isConflictConfirmOpen = false;
 
     return {

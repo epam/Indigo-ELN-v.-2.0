@@ -1,3 +1,6 @@
+var newExperimentModal = require('../experiment/create-new-experiment-modal/create-new-experiment-modal.html');
+var newNotebookModal = require('../notebook/notebook-select-parent.html');
+
 /* @ngInject */
 function modalHelper($uibModal) {
     return {
@@ -8,7 +11,7 @@ function modalHelper($uibModal) {
     function openCreateNewExperimentModal(resolve) {
         return $uibModal.open({
             animation: true,
-            templateUrl: 'scripts/app/entities/experiment/create-new-experiment-modal/create-new-experiment-modal.html',
+            template: newExperimentModal,
             controller: 'CreateNewExperimentModalController',
             controllerAs: 'vm',
             size: 'lg',
@@ -19,7 +22,7 @@ function modalHelper($uibModal) {
     function openCreateNewNotebookModal(resolve) {
         return $uibModal.open({
             animation: true,
-            templateUrl: 'scripts/app/entities/notebook/notebook-select-parent.html',
+            template: newNotebookModal,
             controller: 'NotebookSelectParentController',
             controllerAs: 'vm',
             size: 'lg',
