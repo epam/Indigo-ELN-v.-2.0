@@ -11,7 +11,6 @@ require('../../assets/less/main.less');
 /**
  * External libs
  */
-
 require('./dependencies/jquery');
 require('./dependencies/malihu-custom-scrollbar-plugin');
 require('./dependencies/simditor');

@@ -74,3 +74,5 @@ function alertModal($uibModal) {
         });
     }
 }
+
+module.exports = alertModal;
