@@ -1,8 +1,7 @@
-angular
-    .module('indigoeln.componentsModule')
-    .factory('selectService', selectService);
+var template = require('./set-select-value.html');
 
-/* @ngInject */
+selectService.$inject = ['$uibModal', 'registrationUtil'];
+
 function selectService($uibModal, registrationUtil) {
     return {
         getActions: function(name, values, dictionary) {
@@ -20,7 +19,7 @@ function selectService($uibModal, registrationUtil) {
 
     function action(rows, title, columnId, dictionary, values) {
         $uibModal.open({
-            templateUrl: 'scripts/app/common/components/indigo-components/common/table/select/set-select-value.html',
+            template: template,
             controller: 'SetSelectValueController',
             controllerAs: 'vm',
             size: 'sm',
