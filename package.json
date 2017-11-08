@@ -20,7 +20,6 @@
     "angular-file-saver": "1.0.3",
     "angular-file-upload": "2.2.0",
     "angular-filter": "0.5.8",
-    "angular-mocks": "1.4.8",
     "angular-pretty-bytes": "1.0.1",
     "angular-resource": "1.4.8",
     "angular-route": "1.4.8",
@@ -118,7 +117,7 @@
   "scripts": {
     "bower": "bower install",
     "build": "grunt build",
-    "start": "webpack-dev-server --config webpack.dev.config.js --env.build=dev --env.apiUrl=http://localhost:8080/api/",
+    "start": "webpack-dev-server --config webpack.dev.config.js --env.build=dev --env.apiUrl=http://ecse00100843.epam.com/api/",
     "dist": "webpack --config webpack.prod.config.js --env.build=prod --env.apiUrl=http://localhost:8080/api/"
   }
 }

@@ -29,9 +29,7 @@ module.exports = function(env) {
                 apiUrl: JSON.stringify(apiUrl)
             }),
             new webpack.ProvidePlugin({
-                _: 'lodash',
-                'window.jQuery': 'jquery',
-                $: 'jquery'
+                _: 'lodash'
             }),
             new HtmlWebpackPlugin({
                 favicon: path.join(DIRS.assets, 'images', 'favicon.ico'),

@@ -2,12 +2,21 @@
  * App styles
  */
 require('../../assets/less/indigo-bootstrap.less');
+require('bootstrap-slider/dist/css/bootstrap-slider.min.css');
+require('animate.css/animate.min.css');
+require('font-awesome/css/font-awesome.min.css');
+require('rdash-ui/dist/css/rdash.min.css');
 require('../../assets/less/main.less');
 
 /**
  * External libs
  */
+
+require('./dependencies/jquery');
 require('./dependencies/malihu-custom-scrollbar-plugin');
+require('./dependencies/simditor');
+require('./dependencies/jquery-ui');
+require('bootstrap/dist/js/bootstrap.min');
 
 /**
  * Base external modules
