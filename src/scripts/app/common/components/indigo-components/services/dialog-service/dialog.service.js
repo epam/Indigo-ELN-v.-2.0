@@ -1,6 +1,8 @@
 var entitiesToSaveTemplate = require('./entities-to-save/entities-to-save.html');
 var structureValidationTemplate = require('./structure-validation/structure-validation.html');
 
+dialogService.$inject = ['$uibModal'];
+
 function dialogService($uibModal) {
     return {
         structureValidation: structureValidation,

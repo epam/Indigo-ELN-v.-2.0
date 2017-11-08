@@ -56,7 +56,6 @@ var userManagement = require('./user-management/user-management.module');
 
 var appRun = require('./app.run');
 var appConfig = require('./app.config');
-var config = require('./config');
 
 var dependencies = [
     uiRouter,
@@ -81,7 +80,6 @@ var dependencies = [
     uiCheckbox,
     monospacedElastic,
     uiBootstrapSlider,
-    config,
     angularCache,
     cgNotify,
     duScroll,
@@ -102,5 +100,7 @@ module.exports = angular
 
     .run(appRun)
     .config(appConfig)
+
+    .constant('apiUrl', apiUrl)
 
     .name;

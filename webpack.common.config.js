@@ -24,14 +24,6 @@ module.exports = function(env) {
         plugins: [
             new CleanWebpackPlugin(['dist_1']),
 
-            new HtmlWebpackPlugin({
-                favicon: path.join(DIRS.assets, 'images', 'favicon.ico'),
-                template: path.join(DIRS.src, 'index.html'),
-                filename: 'index.html',
-                hash: true,
-                chunks: ['app']
-            }),
-
             new ExtractTextPlugin({filename: '[name].bundle.css', allChunks: true}),
             new webpack.DefinePlugin({
                 apiUrl: JSON.stringify(apiUrl)
@@ -40,6 +32,13 @@ module.exports = function(env) {
                 _: 'lodash',
                 'window.jQuery': 'jquery',
                 $: 'jquery'
+            }),
+            new HtmlWebpackPlugin({
+                favicon: path.join(DIRS.assets, 'images', 'favicon.ico'),
+                template: path.join(DIRS.src, 'index.html'),
+                filename: 'index.html',
+                hash: true,
+                chunks: ['app']
             })
         ],
         output: {

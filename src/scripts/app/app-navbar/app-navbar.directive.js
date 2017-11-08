@@ -1,15 +1,18 @@
-/* @ngInject */
+var template = require('./app-navbar.html');
+
 function appNavbar() {
     return {
         restrict: 'E',
         controller: NavbarController,
         controllerAs: 'vm',
-        template: require('./app-navbar.html'),
+        template: template,
         bindToController: true,
         scope: {
             onToggleSidebar: '&'
         }
     };
+
+    NavbarController.$inject = ['$scope', '$state', 'principalService', 'authService', 'entitiesCache'];
 
     function NavbarController($scope, $state, principalService, authService, entitiesCache) {
         var vm = this;
