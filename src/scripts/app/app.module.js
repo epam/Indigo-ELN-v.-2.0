@@ -25,9 +25,7 @@ var ngResource = require('angular-resource');
 var uiTree = require('./dependencies/angular-ui-tree');
 var uiBootstrap = require('angular-ui-bootstrap');
 var ngAnimate = require('angular-animate');
-var ngRoute = require('angular-route');
 var ngIdle = require('ng-idle');
-var ngSanitize = require('angular-sanitize');
 var ngCookies = require('angular-cookies');
 var duScroll = require('angular-scroll');
 
@@ -69,7 +67,6 @@ var dependencies = [
     uiTree,
     uiBootstrap,
     ngAnimate,
-    ngRoute,
     ngIdle,
     uiRouterExtras,
     xeditable,
@@ -80,7 +77,6 @@ var dependencies = [
     angularFilter,
     ngFileSaver,
     uiSelect,
-    ngSanitize,
     datePicker,
     uiCheckbox,
     monospacedElastic,
