@@ -17,30 +17,35 @@ module.exports = function(env) {
         app: path.join(__dirname, 'src', 'scripts', 'app'),
         src: path.join(__dirname, 'src'),
         assets: path.join(__dirname, 'src', 'assets'),
-        dist: path.join(__dirname, 'dist_1')
+        dist: path.join(__dirname, 'dist')
     };
 
     return {
         entry: {
-            app: path.join(DIRS.app, 'app.module.js')
+            app: path.join(DIRS.app, 'app.module.js'),
+            vendors: path.join(DIRS.app, 'dependencies/vendors.js')
         },
         plugins: [
-            new CleanWebpackPlugin(['dist_1']),
+            new CleanWebpackPlugin([DIRS.dist]),
 
             new ExtractTextPlugin({filename: '[name].bundle.css', allChunks: true}),
             new webpack.DefinePlugin({
-                apiUrl: JSON.stringify(apiUrl)
+                apiUrl: apiUrl ? JSON.stringify(apiUrl) : 'api/'
             }),
             new webpack.ProvidePlugin({
                 _: 'lodash'
             }),
             new CopyWebpackPlugin(copy(DIRS)),
+            new webpack.optimize.CommonsChunkPlugin({
+                name: 'vendors',
+                minChunks: Infinity
+            }),
             new HtmlWebpackPlugin({
                 favicon: path.join(DIRS.assets, 'images', 'favicon.ico'),
                 template: path.join(DIRS.src, 'index.html'),
                 filename: 'index.html',
                 hash: true,
-                chunks: ['app']
+                chunks: ['vendors', 'app']
             })
         ],
         output: {
