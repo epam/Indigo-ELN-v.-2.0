@@ -32,9 +32,6 @@ module.exports = function(env) {
             new webpack.DefinePlugin({
                 apiUrl: JSON.stringify(apiUrl || 'api/')
             }),
-            new webpack.ProvidePlugin({
-                _: 'lodash'
-            }),
             new CopyWebpackPlugin(copy(DIRS)),
             new webpack.optimize.CommonsChunkPlugin({
                 name: 'vendors',
