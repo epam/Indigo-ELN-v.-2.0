@@ -1,5 +1,4 @@
 var template = require('./common/components/timer/timer-dialog.html');
-var $ = require('./dependencies/jquery');
 
 /* @ngInject */
 function appRun($rootScope, $window, $state, $uibModal, editableOptions, authService, principalService, Idle,

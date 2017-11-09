@@ -73,4 +73,5 @@ var vendors = [
 
 module.exports = angular
     .module('indigoeln.vendors', vendors)
+
     .name;
