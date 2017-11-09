@@ -6,11 +6,17 @@ require('rdash-ui/dist/css/rdash.min.css');
 // endregion
 
 // region  External libs
-require('./jquery');
+require('expose-loader?$!expose-loader?jQuery!jquery');
+require('expose-loader?angular!angular');
+require('expose-loader?_!lodash');
 require('./malihu-custom-scrollbar-plugin');
 require('./jquery-ui');
 require('bootstrap/dist/js/bootstrap.min');
 require('angular');
+require('moment-timezone');
+require('sockjs-client');
+require('./simditor');
+require('pretty-bytes');
 // endregion
 
 // region Base external modules
@@ -65,4 +71,6 @@ var vendors = [
     cgNotify
 ];
 
-module.exports = vendors;
+module.exports = angular
+    .module('indigoeln.vendors', vendors)
+    .name;

@@ -22,6 +22,7 @@ var appRun = require('./app.run');
 var appConfig = require('./app.config');
 
 var dependencies = [
+    vendors,
     account,
     appLayout,
     appNavbar,
@@ -35,7 +36,7 @@ var dependencies = [
 ];
 
 module.exports = angular
-    .module('indigoeln', _.concat(vendors, dependencies))
+    .module('indigoeln', dependencies)
 
     .run(appRun)
     .config(appConfig)
