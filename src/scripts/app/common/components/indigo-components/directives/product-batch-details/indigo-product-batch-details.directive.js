@@ -1,3 +1,4 @@
+require('./indigo-product-batch-details.less');
 var template = require('./product-batch-details.html');
 
 function indigoProductBatchDetails() {

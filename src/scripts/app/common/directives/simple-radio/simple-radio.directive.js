@@ -1,3 +1,5 @@
+require('./simple-radio.less');
+
 function simpleRadio() {
     var lastId = 0;
 

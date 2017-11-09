@@ -1,3 +1,4 @@
+require('./linked-experiments.less');
 var template = require('./linked-experiments.html');
 
 function linkedExperiments() {

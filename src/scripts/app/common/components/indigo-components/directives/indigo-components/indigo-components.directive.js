@@ -1,3 +1,4 @@
+require('./indigo-components.less');
 var template = require('./indigo-components.html');
 
 function indigoComponents() {

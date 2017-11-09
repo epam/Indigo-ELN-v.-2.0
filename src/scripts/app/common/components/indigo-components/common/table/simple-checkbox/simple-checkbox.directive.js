@@ -1,3 +1,4 @@
+require('./simple-checkbox.less');
 var template = require('./simple-checkbox.html');
 
 function simpleCheckbox() {

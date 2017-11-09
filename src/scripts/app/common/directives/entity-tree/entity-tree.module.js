@@ -1,9 +1,10 @@
+require('./entity-tree.less');
 var entityTree = require('./entity-tree.directive');
 var simpleNode = require('./simple-node/simple-node.directive');
 
 var entityTreeService = require('./entity-tree.service');
-var run = require('./entity-tree.run');
 
+var run = require('./entity-tree.run');
 var sidebar = require('../../../sidebar/sidebar.module');
 
 var dependencies = [

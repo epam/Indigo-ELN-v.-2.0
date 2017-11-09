@@ -1,3 +1,4 @@
+require('./structure-size.less');
 var template = require('./structure-size.html');
 
 function stuctureSize() {

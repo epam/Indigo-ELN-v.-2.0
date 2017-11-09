@@ -1,3 +1,4 @@
+require('./additional-editor.less');
 var template = require('./additional-editor.html');
 
 function additionalEditorValue() {

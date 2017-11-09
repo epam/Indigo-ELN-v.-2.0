@@ -20,7 +20,7 @@
     "angular-file-saver": "1.0.3",
     "angular-file-upload": "2.2.0",
     "angular-filter": "0.5.8",
-    "pretty-bytes": "^4.0.2",
+    "pretty-bytes": "4.0.2",
     "angular-resource": "1.4.8",
     "angular-scroll": "1.0.2",
     "angular-sanitize": "1.4.8",

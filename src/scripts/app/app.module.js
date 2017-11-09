@@ -1,14 +1,4 @@
 /**
- * App styles
- */
-require('../../assets/less/indigo-bootstrap.less');
-require('bootstrap-slider/dist/css/bootstrap-slider.min.css');
-require('animate.css/animate.min.css');
-require('font-awesome/css/font-awesome.min.css');
-require('rdash-ui/dist/css/rdash.min.css');
-require('../../assets/less/main.less');
-
-/**
  * External libs
  */
 require('./dependencies/jquery');
@@ -26,6 +16,7 @@ var uiTree = require('./dependencies/angular-ui-tree');
 var uiBootstrap = require('angular-ui-bootstrap');
 var ngAnimate = require('angular-animate');
 var ngIdle = require('ng-idle');
+var ngSanitize = require('angular-sanitize');
 var ngCookies = require('angular-cookies');
 var duScroll = require('angular-scroll');
 
@@ -43,6 +34,16 @@ var uiBootstrapSlider = require('./dependencies/angular-bootstrap-slider');
 var angularCache = require('./dependencies/angular-cache');
 var uiSelect = require('./dependencies/ui-select');
 var cgNotify = require('./dependencies/angular-notify');
+
+/**
+ * App styles
+ */
+require('../../assets/less/indigo-bootstrap.less');
+require('bootstrap-slider/dist/css/bootstrap-slider.min.css');
+require('animate.css/animate.min.css');
+require('font-awesome/css/font-awesome.min.css');
+require('rdash-ui/dist/css/rdash.min.css');
+require('../../assets/less/main.less');
 
 /**
  * App modules
@@ -77,6 +78,7 @@ var dependencies = [
     angularFilter,
     ngFileSaver,
     uiSelect,
+    ngSanitize,
     datePicker,
     uiCheckbox,
     monospacedElastic,
