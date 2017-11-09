@@ -23,6 +23,7 @@
     "pretty-bytes": "^4.0.2",
     "angular-resource": "1.4.8",
     "angular-scroll": "1.0.2",
+    "angular-sanitize": "1.4.8",
     "angular-ui-bootstrap": "2.5.0",
     "angular-ui-router": "0.2.15",
     "angular-ui-tree": "2.11.0",
