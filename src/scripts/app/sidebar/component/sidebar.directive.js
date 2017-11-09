@@ -1,5 +1,4 @@
 var template = require('./sidebar.html');
-var popoverTemplate = require('./sidebar-popover-template.html');
 
 function sidebar() {
     return {
@@ -21,8 +20,6 @@ function SidebarController($scope, $state, $stateParams, sidebarCache, entityTre
     vm.ROLE_EDITOR = 'ROLE_EDITOR';
     vm.TEMPLATE_EDITOR = 'TEMPLATE_EDITOR';
     vm.DICTIONARY_EDITOR = 'DICTIONARY_EDITOR';
-    //TODO: Do we really need this variable and template?
-    vm.POPOVER_TEMPLATE = popoverTemplate;
     vm.ADMINISTRATION_AUTHORITIES = [vm.USER_EDITOR, vm.ROLE_EDITOR, vm.TEMPLATE_EDITOR, vm.DICTIONARY_EDITOR].join(',');
     vm.$state = $state;
 

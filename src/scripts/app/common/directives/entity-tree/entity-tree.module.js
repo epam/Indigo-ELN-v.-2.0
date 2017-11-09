@@ -1,6 +1,8 @@
 var entityTree = require('./entity-tree.directive');
-var entityTreeService = require('./entity-tree.service');
 var simpleNode = require('./simple-node/simple-node.directive');
+
+var entityTreeService = require('./entity-tree.service');
+var run = require('./entity-tree.run');
 
 var sidebar = require('../../../sidebar/sidebar.module');
 
@@ -16,9 +18,7 @@ module.exports = angular
 
     .factory('entityTreeService', entityTreeService)
 
-    .run(function($rootScope, entityTreeService, principalService) {
-        principalService.addUserChangeListener(entityTreeService.clearAll);
-    })
+    .run(run)
 
     .name;
 
