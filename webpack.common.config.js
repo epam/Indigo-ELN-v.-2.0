@@ -3,7 +3,10 @@ var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var CleanWebpackPlugin = require('clean-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
 var autoprefixer = require('autoprefixer');
+
+var copy = require('./webpack/copy');
 
 module.exports = function(env) {
     var IS_PROD = env.build === 'prod';
@@ -31,6 +34,7 @@ module.exports = function(env) {
             new webpack.ProvidePlugin({
                 _: 'lodash'
             }),
+            new CopyWebpackPlugin(copy(DIRS)),
             new HtmlWebpackPlugin({
                 favicon: path.join(DIRS.assets, 'images', 'favicon.ico'),
                 template: path.join(DIRS.src, 'index.html'),

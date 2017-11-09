@@ -51,6 +51,7 @@
     "autoprefixer": "7.1.6",
     "browser-sync": "2.10.0",
     "clean-webpack-plugin": "0.1.17",
+    "copy-webpack-plugin": "^4.2.0",
     "css-loader": "0.28.7",
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^11.2.0",
