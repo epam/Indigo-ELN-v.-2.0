@@ -30,7 +30,7 @@ module.exports = function(env) {
 
             new ExtractTextPlugin({filename: '[name].bundle.css', allChunks: true}),
             new webpack.DefinePlugin({
-                apiUrl: apiUrl ? JSON.stringify(apiUrl) : 'api/'
+                apiUrl: JSON.stringify(apiUrl || 'api/')
             }),
             new webpack.ProvidePlugin({
                 _: 'lodash'
