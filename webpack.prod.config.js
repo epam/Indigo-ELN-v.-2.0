@@ -4,8 +4,8 @@ var merge = require('webpack-merge');
 
 module.exports = function(env) {
     return merge(commonConfig(env), {
-        // plugins: [
-        //     new UglifyJSPlugin()
-        // ]
+        plugins: [
+            new UglifyJSPlugin()
+        ]
     });
 };

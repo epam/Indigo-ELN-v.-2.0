@@ -1,5 +1,7 @@
+var authoritiesData = require('../../../../../../assets/data/authorities.json');
+
 /* @ngInject */
-function authService($rootScope, $state, $q, principalService, authServerProvider, wsService, $log, $http, $timeout) {
+function authService($rootScope, $state, $q, principalService, authServerProvider, wsService, $log, $timeout) {
     var prolongTimeout;
 
     return {
@@ -81,7 +83,7 @@ function authService($rootScope, $state, $q, principalService, authServerProvide
     }
 
     function getAuthorities() {
-        return $http.get('assets/data/authorities.json');
+        return authoritiesData;
     }
 }
 
