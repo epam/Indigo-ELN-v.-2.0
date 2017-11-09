@@ -16,7 +16,7 @@ angular
                 },
                 views: {
                     tabContent: {
-                        templateUrl: 'scripts/app/entities/user-management/user-management.html',
+                        templateUrl: 'scripts/app/user-management/user-management.html',
                         controller: 'UserManagementController',
                         controllerAs: 'vm'
                     }
@@ -44,7 +44,7 @@ angular
                 },
                 onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                     $uibModal.open({
-                        templateUrl: 'scripts/app/entities/user-management/user-management-delete-dialog.html',
+                        templateUrl: 'scripts/app/user-management/user-management-delete-dialog.html',
                         controller: 'UserManagementDeleteController',
                         controllerAs: 'vm',
                         size: 'md',

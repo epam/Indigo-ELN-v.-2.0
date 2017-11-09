@@ -33,5 +33,6 @@ angular
         'indigoeln.permissionsModule',
         'indigoeln.experimentModule',
         'indigoeln.projectModule',
-        'indigoeln.userManagementModule'
+        'indigoeln.userManagementModule',
+        'indigoeln.dictionaryManagementModule'
     ]);

@@ -16,7 +16,7 @@ angular
                 },
                 views: {
                     tabContent: {
-                        templateUrl: 'scripts/app/dictionary-management/dictionary-management.html',
+                        templateUrl: 'scripts/app/dictionary-management/component/dictionary-management.html',
                         controller: 'DictionaryManagementController',
                         controllerAs: 'vm'
                     }
