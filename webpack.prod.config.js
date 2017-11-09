@@ -5,7 +5,13 @@ var merge = require('webpack-merge');
 module.exports = function(env) {
     return merge(commonConfig(env), {
         plugins: [
-            new UglifyJSPlugin()
+            new UglifyJSPlugin({
+                test: /\.js($|\?)/i,
+                uglifyOptions: {
+                    ecma: 5,
+                    mangle: false
+                }
+            })
         ]
     });
 };
