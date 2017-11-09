@@ -36,7 +36,6 @@ var uiRouterExtras = require('./dependencies/ui-router-extras');
 var xeditable = require('./dependencies/angular-xeditable');
 var angularFileUpload = require('./dependencies/angular-file-upload');
 var ngFileSaver = require('./dependencies/angular-file-saver');
-var prettyBytes = require('./dependencies/angular-pretty-bytes');
 var cgBusy = require('./dependencies/angular-busy');
 var angularFilter = require('./dependencies/angular-filter');
 var datePicker = require('./dependencies/angular-datepicker');
@@ -76,7 +75,6 @@ var dependencies = [
     xeditable,
     angularFileUpload,
     ngCookies,
-    prettyBytes,
     angularDragula,
     cgBusy,
     angularFilter,
