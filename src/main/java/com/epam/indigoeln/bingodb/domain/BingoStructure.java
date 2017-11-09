@@ -1,10 +1,11 @@
 package com.epam.indigoeln.bingodb.domain;
 
-import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
-@EqualsAndHashCode
 public class BingoStructure implements Serializable {
 
     private String id;
@@ -33,5 +34,39 @@ public class BingoStructure implements Serializable {
 
     public void setStructure(String structure) {
         this.structure = structure;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        BingoStructure that = (BingoStructure) o;
+
+        return new EqualsBuilder()
+                .append(id, that.id)
+                .append(structure, that.structure)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(id)
+                .append(structure)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("structure", structure)
+                .toString();
     }
 }
