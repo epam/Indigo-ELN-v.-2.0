@@ -17,7 +17,7 @@ function wsService($cookies, $http, $q, $log, apiUrl) {
             return _.replace(apiUrl, 'api/', 'websocket');
         }
 
-        return location.host + '/websocket';
+        return 'websocket';
     }
 
     function disconnect() {
