@@ -118,6 +118,7 @@
     "bower": "bower install",
     "build": "grunt build",
     "start": "webpack-dev-server --config webpack.dev.config.js --env.build=dev --env.apiUrl=http://ecse00100843.epam.com/api/",
+    "start-local": "webpack-dev-server --config webpack.dev.config.js --env.build=dev --env.apiUrl=http://localhost:8080/api/",
     "dist": "webpack --config webpack.prod.config.js --env.build=prod --env.apiUrl=http://localhost:8080/api/"
   }
 }
