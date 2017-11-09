@@ -18,6 +18,8 @@ var unitService = require('./unit/unit.service');
 
 var unit = require('./unit/unit.filter');
 
+var run = require('./indigo-table.run');
+
 module.exports = angular
     .module('indigoeln.indigoTable', [])
 
@@ -37,5 +39,7 @@ module.exports = angular
     .factory('unitService', unitService)
 
     .filter('unit', unit)
+
+    .run(run)
 
     .name;

@@ -17,7 +17,7 @@
                       ng-class="{'entered-value': vm.row[vm.column.id].entered}" ng-bind="vm.row[vm.column.id]">
                 </span>
                 <span ng-switch-when="false"
-                      uib-popover-template="'scripts/app/common/components/indigo-components/common/table/image-popover.html'"
+                      uib-popover-template="'image-popover.html'"
                       popover-title="{{vm.row[vm.column.id]}}"
                       popover-trigger="'mouseenter'"
                       popover-placement="top-right"
