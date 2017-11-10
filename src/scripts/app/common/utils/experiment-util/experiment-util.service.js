@@ -1,5 +1,5 @@
-var experimentCompleteModalTemplate = require('../../../entities/experiment/complete-modal/experiment-complete-modal.html');
-var experimentSelectSignatureTemplateModal = require('../../../entities/experiment/select-signature-template-modal/experiment-select-signature-template-modal.html');
+var experimentCompleteModalTemplate = require('../../../experiment/complete-modal/experiment-complete-modal.html');
+var experimentSelectSignatureTemplateModal = require('../../../experiment/select-signature-template-modal/experiment-select-signature-template-modal.html');
 
 /* @ngInject */
 function experimentUtil($state, $uibModal, $q, experimentService, permissionManagementService, signatureTemplates,
@@ -102,7 +102,7 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionMana
                     return fullName;
                 }
             },
-            controller: 'ExperimentCompleteModalController',
+            conoller: 'ExperimentCompleteModalController',
             controllerAs: 'vm'
         });
     }

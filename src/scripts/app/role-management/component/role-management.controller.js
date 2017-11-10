@@ -1,4 +1,4 @@
-var roleManagementSaveDialogTemplate = require('../role-management/role-management-save-dialog.html');
+var roleManagementSaveDialogTemplate = require('../save-dialog/role-management-save-dialog.html');
 
 /* @ngInject */
 function RoleManagementController($scope, roleService, accountRole, $filter, $uibModal, pageInfo, notifyService) {
