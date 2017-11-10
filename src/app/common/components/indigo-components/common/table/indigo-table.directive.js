@@ -62,7 +62,6 @@ function IndigoTableController($scope, dragulaService, simpleLocalCache, princip
             page: 1,
             pageSize: 10
         };
-        vm.visibleColumns = getVisibleColumns();
 
         vm.startEdit = startEdit;
         vm.searchDebounce = _.debounce(search, 300);
@@ -256,6 +255,7 @@ function IndigoTableController($scope, dragulaService, simpleLocalCache, princip
 
     function initColumns() {
         vm.columns = getSortedColumns(vm.indigoColumns);
+        vm.visibleColumns = getVisibleColumns();
         updateVisibleColumnsExpression();
         updateRowsForDisplay();
     }
