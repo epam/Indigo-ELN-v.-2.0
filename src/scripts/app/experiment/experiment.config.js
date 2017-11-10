@@ -91,8 +91,12 @@ function experimentConfig($stateProvider, permissionManagementConfig, permission
         .state('entities.experiment-detail.print', {
             parent: 'entities.experiment-detail',
             url: '/print',
-            onEnter: function(printModal, $stateParams) {
-                printModal.showPopup($stateParams, 'experimentService');
+            onEnter: function(printModal, $stateParams, $state) {
+                printModal
+                    .showPopup($stateParams, 'experimentService')
+                    .catch(function() {
+                        $state.go('^');
+                    });
             },
             data: {
                 authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR']
