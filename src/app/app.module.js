@@ -1,6 +1,6 @@
 // region App styles
-require('../../assets/less/indigo-bootstrap.less');
-require('../../assets/less/main.less');
+require('../assets/less/indigo-bootstrap.less');
+require('../assets/less/main.less');
 // endregion
 
 var vendors = require('./dependencies/vendors');

@@ -14,7 +14,7 @@ module.exports = function(env) {
     var apiUrl = env.apiUrl;
 
     var DIRS = {
-        app: path.join(__dirname, 'src', 'scripts', 'app'),
+        app: path.join(__dirname, 'src', 'app'),
         src: path.join(__dirname, 'src'),
         assets: path.join(__dirname, 'src', 'assets'),
         dist: path.join(__dirname, 'dist')
