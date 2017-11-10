@@ -1,7 +1,7 @@
-SearchReagentsController.$inject = ['$rootScope', '$uibModalInstance', 'notifyService', 'appValues', 'activeTab',
+SearchReagentsController.$inject = ['$rootScope', '$uibModalInstance', 'notifyService', 'appValues', 'activeTabIndex',
     'userReagents', 'searchService', 'searchUtilService', 'searchReagentsConstant', 'stoichColumnActions'];
 
-function SearchReagentsController($rootScope, $uibModalInstance, notifyService, appValues, activeTab, userReagents,
+function SearchReagentsController($rootScope, $uibModalInstance, notifyService, appValues, activeTabIndex, userReagents,
                                   searchService, searchUtilService, searchReagentsConstant, stoichColumnActions) {
     var vm = this;
     var myReagentsSearchQuery;
@@ -14,8 +14,7 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         vm.model.databases = searchService.getCatalogues();
         vm.myReagents = {};
 
-        vm.isActiveTab0 = activeTab === 0;
-        vm.isActiveTab1 = activeTab === 1;
+        vm.activeTabIndex = activeTabIndex;
         vm.isSearchResultFound = false;
         vm.conditionText = [{
             name: 'contains'

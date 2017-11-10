@@ -1,3 +1,5 @@
+var template = require('./print-modal.html');
+
 printModal.$inject = ['$uibModal', '$window', '$httpParamSerializer', 'apiUrl'];
 
 function printModal($uibModal, $window, $httpParamSerializer, apiUrl) {
@@ -8,7 +10,7 @@ function printModal($uibModal, $window, $httpParamSerializer, apiUrl) {
     function showPopup(params, resourceName) {
         $uibModal.open({
             animation: true,
-            templateUrl: 'scripts/app/common/components/print-modal/print-modal.html',
+            template: template,
             controller: 'PrintModalController',
             controllerAs: 'vm',
             resolve: {

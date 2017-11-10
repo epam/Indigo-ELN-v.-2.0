@@ -1,3 +1,5 @@
+var dictionaryManagementDeleteWordDialogTemplate = require('../../dictionary-management/delete-word-dialog/dictionary-management-delete-word-dialog.html');
+
 /* @ngInject */
 function DictionaryManagementController($scope, $filter, $uibModal, notifyService, dictionaryService, parseLinksService) {
     var vm = this;
@@ -149,7 +151,7 @@ function DictionaryManagementController($scope, $filter, $uibModal, notifyServic
     function deleteWord(word) {
         $uibModal.open({
             animation: true,
-            templateUrl: 'scripts/app/dictionary-management/delete-word-dialog/dictionary-management-delete-word-dialog.html',
+            template: dictionaryManagementDeleteWordDialogTemplate,
             controller: 'DictionaryManagementDeleteWordController',
             controllerAs: 'vm'
         }).result.then(function() {

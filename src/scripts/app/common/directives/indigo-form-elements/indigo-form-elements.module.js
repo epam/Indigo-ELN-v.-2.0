@@ -14,7 +14,7 @@ module.exports = angular
 
     .factory('formUtils', formUtils)
 
-    .directive('indigo-checkbox', indigoCheckbox)
+    .directive('indigoCheckbox', indigoCheckbox)
     .directive('indigoChecklist', indigoChecklist)
     .directive('indigoSelect', indigoSelect)
     .directive('indigoSimpleText', indigoSimpleText)

@@ -136,7 +136,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             });
     }
 
-    function searchReagents(activeTab) {
+    function searchReagents(activeTabIndex) {
         $uibModal.open({
             animation: true,
             size: 'lg',
@@ -144,8 +144,8 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             controllerAs: 'vm',
             template: searchReagentsTemplate,
             resolve: {
-                activeTab: function() {
-                    return activeTab;
+                activeTabIndex: function() {
+                    return activeTabIndex;
                 }
             }
         });

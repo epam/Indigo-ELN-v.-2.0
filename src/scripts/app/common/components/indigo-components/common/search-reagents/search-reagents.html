@@ -2,9 +2,9 @@
     <h5 class="modal-title" i-translate="LOOKUP_REAGENTS"></h5>
 </div>
 <div class="modal-body modal-body-search">
-    <uib-tabset active="activeForm" class="inner-tabs">
-        <uib-tab index="0" active="vm.isActiveTab0" ng-click="vm.isActiveTab0 = true; vm.isActiveTab1 = false"
-                 heading="My Reagent List">
+    <uib-tabset class="inner-tabs"
+                active="vm.activeTabIndex">
+        <uib-tab heading="My Reagent List">
             <div class="reagent-search-tab">
                 <div class="input-group m-b20">
                     <input type="text" class="form-control" ng-model="vm.myReagents.searchQuery"/>
@@ -49,8 +49,7 @@
                 </div>
             </div>
         </uib-tab>
-        <uib-tab index="1" active="vm.isActiveTab1" ng-click="vm.isActiveTab0 = false; vm.isActiveTab1 = true"
-                 heading="Reagent Catalog">
+        <uib-tab heading="Reagent Catalog">
             <div class="reagent-search-tab">
                 <div ng-if="!vm.isSearchResultFound">
                     <indigo-checklist indigo-items="vm.model.databases" indigo-label="Choose catalog to search in"
