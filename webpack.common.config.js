@@ -5,13 +5,14 @@ var CleanWebpackPlugin = require('clean-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var autoprefixer = require('autoprefixer');
+var _ = require('lodash');
 
 var copy = require('./webpack/copy');
 
 module.exports = function(env) {
     var IS_PROD = env.build === 'prod';
     var IS_DEV = env.build === 'dev';
-    var apiUrl = env.apiUrl;
+    var apiUrl = _.isArray(env.apiUrl) ? _.last(env.apiUrl) : env.apiUrl;
 
     var DIRS = {
         app: path.join(__dirname, 'src', 'app'),
