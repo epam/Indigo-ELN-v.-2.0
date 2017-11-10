@@ -10,7 +10,6 @@ var account = require('./account/account.module');
 var appLayout = require('./app-layout/app-layout.module');
 var common = require('./common/common.module');
 var dictionaryManagement = require('./dictionary-management/dictionary-management.module');
-var entities = require('./entities/entities.module');
 var permissions = require('./permissions/permissions.module');
 var project = require('./project/project.module');
 var userManagement = require('./user-management/user-management.module');
@@ -30,7 +29,6 @@ var dependencies = [
     appLayout,
     common,
     dictionaryManagement,
-    entities,
     permissions,
     project,
     userManagement,
