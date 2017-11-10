@@ -8,7 +8,7 @@ function printModal($uibModal, $window, $httpParamSerializer, apiUrl) {
     };
 
     function showPopup(params, resourceName) {
-        $uibModal.open({
+        return $uibModal.open({
             animation: true,
             template: template,
             controller: 'PrintModalController',

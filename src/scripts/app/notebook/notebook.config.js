@@ -113,8 +113,12 @@ function notebookConfig($stateProvider, permissionManagementConfig, permissionVi
         .state('entities.notebook-detail.print', {
             parent: 'entities.notebook-detail',
             url: '/print',
-            onEnter: function(printModal, $stateParams) {
-                printModal.showPopup($stateParams, 'notebookService');
+            onEnter: function(printModal, $stateParams, $state) {
+                printModal
+                    .showPopup($stateParams, 'notebookService')
+                    .catch(function() {
+                        $state.go('^');
+                    });
             },
             data: {
                 authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR']
