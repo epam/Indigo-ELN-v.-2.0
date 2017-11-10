@@ -100,11 +100,11 @@ function entityTreeService(allProjects, $injector, allNotebooks, allExperiments,
         }
     }
 
-    function getProjects(isAll) {
+    function getProjects(projectId, isAll) {
         var list = isAll ? allProjectsList : projectsList;
         var map = isAll ? allProjectsMap : projectsMap;
 
-        if (_.isEmpty(list)) {
+        if (_.isEmpty(list) || !(projectId && _.has(list, {id: projectId}))) {
             return (isAll ? allProjects : $injector.get('projectService')).query()
                 .$promise
                 .then(function(projects) {
@@ -123,7 +123,7 @@ function entityTreeService(allProjects, $injector, allNotebooks, allExperiments,
         return $q.resolve(list);
     }
 
-    function getNotebooks(projectId, isAll) {
+    function getNotebooks(projectId, notebookId, isAll) {
         var pMap;
         var nMap;
         var service;
@@ -138,7 +138,7 @@ function entityTreeService(allProjects, $injector, allNotebooks, allExperiments,
             service = $injector.get('notebookService');
         }
 
-        if (_.isEmpty(nMap[projectId])) {
+        if (isNeedLoad(nMap, projectId, notebookId)) {
             return getEntities(
                 service,
                 {projectId: projectId},
@@ -153,11 +153,16 @@ function entityTreeService(allProjects, $injector, allNotebooks, allExperiments,
         return $q.resolve(nMap[projectId]);
     }
 
-    function getExperiments(projectId, notebookId, isAll) {
+    function isNeedLoad(eMap, path, entity) {
+        return _.isEmpty(eMap[path]) || !(entity && _.has(eMap[path], {id: entity}));
+    }
+
+    function getExperiments(projectId, notebookId, experimentId, isAll) {
         var nMap = isAll ? allNotebooksMap : notebooksMap;
         var eMap = isAll ? allExperimentsMap : experimentsMap;
         var path = projectId + '_' + notebookId;
-        if (_.isEmpty(eMap[path])) {
+
+        if (isNeedLoad(eMap, path, experimentId)) {
             return getEntities(
                 isAll ? allExperiments : $injector.get('experimentService'),
                 {

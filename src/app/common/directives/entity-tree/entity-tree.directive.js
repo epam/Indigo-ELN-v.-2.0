@@ -88,7 +88,7 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
     }
 
     function loadProject(path) {
-        return entityTreeService.getProjects(vm.isAll).then(function(projects) {
+        return entityTreeService.getProjects(_.first(path), vm.isAll).then(function(projects) {
             updateTree(projects);
 
             if (path) {
@@ -100,7 +100,7 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
     }
 
     function loadNotebook(path, project) {
-        return entityTreeService.getNotebooks(path[0], vm.isAll).then(function(notebooks) {
+        return entityTreeService.getNotebooks(path[0], path[1], vm.isAll).then(function(notebooks) {
             project.children = notebooks;
 
             return findNodeById(notebooks, path[1]) || $q.reject();
@@ -108,7 +108,7 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
     }
 
     function loadExperiment(path, notebook) {
-        return entityTreeService.getExperiments(path[0], path[1], vm.isAll).then(function(experiments) {
+        return entityTreeService.getExperiments(path[0], path[1], path[3], vm.isAll).then(function(experiments) {
             notebook.children = experiments;
 
             return findNodeById(experiments, path[2]) || $q.reject();
@@ -161,7 +161,7 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
         vm.onSelectNode({node: node});
 
         if (isProject(node)) {
-            node.children = entityTreeService.getNotebooks(node.id, vm.isAll).then(function(children) {
+            node.children = entityTreeService.getNotebooks(node.id, null, vm.isAll).then(function(children) {
                 $timeout(function() {
                     node.children = children;
                 });
