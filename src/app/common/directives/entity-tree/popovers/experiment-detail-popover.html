@@ -25,7 +25,8 @@
                 ng-bind="vm.experimentsCollection[node.original.fullId].status"></span>
     </span>
         <img ng-if="!!vm.experimentsCollection[node.original.fullId].components.reaction.image"
-             class="sidebar-popover-sheme" ng-src="data:image/svg+xml;base64,{{experiment.components.reaction.image}}"
+             class="sidebar-popover-sheme"
+             ng-src="data:image/svg+xml;base64,{{vm.experimentsCollection[node.original.fullId].components.reaction.image}}"
              alt="Reaction Scheme">
     </div>
 </div>
