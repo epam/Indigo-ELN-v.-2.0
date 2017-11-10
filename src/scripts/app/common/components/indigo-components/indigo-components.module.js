@@ -11,6 +11,7 @@ var indigoCompoundSummary = require('./common/compound-summary/indigo-compound-s
 var indigoInlineLoader = require('./common/inline-loader/indigo-inline-loader.directive');
 var indigoConceptDetails = require('./directives/concept-details/indigo-concept-details.directive');
 var indigoExperimentDescription = require('./directives/experiment-description/indigo-experiment-description.directive');
+var indigoSearchResultTable = require('./common/search-result-table/indigo-search-result-table.directive');
 
 var indigoStoichTable = require('./directives/stoich-table/stoich-table.module');
 var componentButtons = require('./directives/component-buttons/component-buttons.module.js');
@@ -48,6 +49,7 @@ var dependencies = [
 module.exports = angular
     .module('indigoeln.indigoComponents', dependencies)
 
+    .directive('indigoSearchResultTable', indigoSearchResultTable)
     .directive('indigoAttachments', indigoAttachments)
     .directive('indigoBatchStructure', indigoBatchStructure)
     .directive('indigoComponents', indigoComponents)
