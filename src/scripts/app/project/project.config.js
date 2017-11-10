@@ -106,8 +106,12 @@ function projectConfig($stateProvider, permissionManagementConfig, permissionVie
         .state('entities.project-detail.print', {
             parent: 'entities.project-detail',
             url: '/print',
-            onEnter: function(printModal, $stateParams) {
-                printModal.showPopup($stateParams, 'projectService');
+            onEnter: function(printModal, $stateParams, $state) {
+                printModal
+                    .showPopup($stateParams, 'projectService')
+                    .catch(function() {
+                        $state.go('^');
+                    });
             },
             data: {
                 authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR']
