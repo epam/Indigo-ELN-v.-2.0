@@ -1,5 +1,5 @@
-var roleManagementTemplate = require('./role-management.html');
-var roleManagementDeleteDialog = require('./role-management-delete-dialog.html');
+var roleManagementTemplate = require('./component/role-management.html');
+var roleManagementDeleteDialog = require('./delete-dialog/role-management-delete-dialog.html');
 
 roleManagementConfig.$inject = ['$stateProvider'];
 

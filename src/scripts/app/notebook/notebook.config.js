@@ -1,4 +1,5 @@
-var template = require('./notebook-dialog.html');
+var template = require('./dialog/notebook-dialog.html');
+
 notebookConfig.$inject = ['$stateProvider', 'permissionManagementConfig', 'permissionViewManagementConfig',
     'userPermissions'];
 

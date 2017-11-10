@@ -7,7 +7,7 @@ var allProjects = require('./resources/all-projects.service');
 var sidebarCache = require('./services/sidebar-cache.service');
 
 module.exports = angular
-    .module('indigoeln.sidebar', [])
+    .module('indigoeln.appSidebar', [])
 
     .directive('sidebar', sidebar)
 

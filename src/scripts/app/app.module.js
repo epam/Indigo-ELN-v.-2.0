@@ -8,14 +8,17 @@ var vendors = require('./dependencies/vendors');
 // region App modules
 var account = require('./account/account.module');
 var appLayout = require('./app-layout/app-layout.module');
-var appNavbar = require('./app-navbar/app-navbar.module');
 var common = require('./common/common.module');
 var dictionaryManagement = require('./dictionary-management/dictionary-management.module');
 var entities = require('./entities/entities.module');
 var permissions = require('./permissions/permissions.module');
 var project = require('./project/project.module');
-var sidebar = require('./sidebar/sidebar.module');
 var userManagement = require('./user-management/user-management.module');
+var templateManagement = require('./template-management/template-management.module');
+var roleManagement = require('./role-management/role-management.module');
+var notebook = require('./notebook/notebook.module');
+var experiment = require('./experiment/experiment.module');
+var search = require('./search/search.module');
 // endregion
 
 var appRun = require('./app.run');
@@ -25,22 +28,25 @@ var dependencies = [
     vendors,
     account,
     appLayout,
-    appNavbar,
     common,
     dictionaryManagement,
     entities,
     permissions,
     project,
-    sidebar,
-    userManagement
+    userManagement,
+    templateManagement,
+    roleManagement,
+    notebook,
+    experiment,
+    search
 ];
 
 module.exports = angular
     .module('indigoeln', dependencies)
 
-    .run(appRun)
-    .config(appConfig)
-
     .constant('apiUrl', apiUrl)
+
+    .config(appConfig)
+    .run(appRun)
 
     .name;

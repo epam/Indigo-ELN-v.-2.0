@@ -5,10 +5,10 @@ var simpleNode = require('./simple-node/simple-node.directive');
 var entityTreeService = require('./entity-tree.service');
 
 var run = require('./entity-tree.run');
-var sidebar = require('../../../sidebar/sidebar.module');
+var appSidebar = require('../../../app-layout/app-sidebar/app-sidebar.module');
 
 var dependencies = [
-    sidebar
+    appSidebar
 ];
 
 module.exports = angular

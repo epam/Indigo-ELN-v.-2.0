@@ -1,4 +1,4 @@
-var template = require('./search-panel.html');
+var template = require('./component/search-panel.html');
 
 searchConfig.$inject = ['$stateProvider'];
 

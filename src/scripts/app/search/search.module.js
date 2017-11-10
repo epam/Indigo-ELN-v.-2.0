@@ -1,8 +1,8 @@
 var searchConfig = require('./search.config');
-var SearchPanelController = require('./search-panel.controller');
+var SearchPanelController = require('./component/search-panel.controller');
 
 module.exports = angular
-    .module('indigoeln.entities.search', [])
+    .module('indigoeln.search', [])
 
     .controller('SearchPanelController', SearchPanelController)
 

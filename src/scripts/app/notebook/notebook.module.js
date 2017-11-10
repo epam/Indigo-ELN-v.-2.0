@@ -1,9 +1,9 @@
 var notebookConfig = require('./notebook.config');
-var NotebookDialogController = require('./notebook-dialog.controller');
-var NotebookSelectParentController = require('./notebook-select-parent.controller');
+var NotebookDialogController = require('./dialog/notebook-dialog.controller');
+var NotebookSelectParentController = require('./select-parent/notebook-select-parent.controller');
 
 module.exports = angular
-    .module('indigoeln.entities.notebook', [])
+    .module('indigoeln.notebook', [])
 
     .controller('NotebookDialogController', NotebookDialogController)
     .controller('NotebookSelectParentController', NotebookSelectParentController)

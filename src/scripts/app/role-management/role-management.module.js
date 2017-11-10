@@ -1,11 +1,11 @@
 var roleManagementConfig = require('./role-management.config');
-var RoleManagementController = require('./role-management.controller');
-var RoleManagementDeleteController = require('./role-management-delete-dialog.controller');
-var RoleManagementSaveController = require('./role-management-save-dialog.controller');
+var RoleManagementController = require('./component/role-management.controller');
+var RoleManagementDeleteController = require('./delete-dialog/role-management-delete-dialog.controller');
+var RoleManagementSaveController = require('./save-dialog/role-management-save-dialog.controller');
 
 
 module.exports = angular
-    .module('indigoeln.entities.roleManagement', [])
+    .module('indigoeln.roleManagement', [])
 
     .controller('RoleManagementController', RoleManagementController)
     .controller('RoleManagementDeleteController', RoleManagementDeleteController)

@@ -1,4 +1,4 @@
-var entitiesTemplate = require('./templates.html');
+var entitiesTemplate = require('./component/template-management.html');
 var templateDetail = require('./detail/template-detail.html');
 var templateModal = require('./modal/template-modal.html');
 var templateDeleteDialog = require('./delete-dialog/template-delete-dialog.html');

@@ -1,5 +1,6 @@
-var newExperimentModal = require('../experiment/create-new-experiment-modal/create-new-experiment-modal.html');
-var newNotebookModal = require('../notebook/notebook-select-parent.html');
+//TODO Fix paths
+var newExperimentModal = require('../../experiment/create-new-experiment-modal/create-new-experiment-modal.html');
+var newNotebookModal = require('../../notebook/select-parent/notebook-select-parent.html');
 
 /* @ngInject */
 function modalHelper($uibModal) {
