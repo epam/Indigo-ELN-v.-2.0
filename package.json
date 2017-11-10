@@ -77,9 +77,8 @@
     "node": "^7.0.0"
   },
   "scripts": {
-    "build": "webpack --config webpack.prod.config.js --env.build=prod",
-    "start": "webpack-dev-server --config webpack.dev.config.js --env.build=dev --env.apiUrl=http://ecse00100843.epam.com/api/",
-    "start-local": "webpack-dev-server --config webpack.dev.config.js --env.build=dev --env.apiUrl=http://localhost:8080/api/",
-    "dist": "webpack --config webpack.prod.config.js --env.build=prod --env.apiUrl=http://localhost:8080/api/"
+    "build": "webpack --config webpack.prod.config.js --env.build=prod --env.apiUrl=http://localhost:9000/api/",
+    "start": "webpack-dev-server --config webpack.dev.config.js --env.build=dev --env.apiUrl=http://localhost:9000/api/",
+    "start:prod": "webpack-dev-server --open --port 9000 --config webpack.prod.config.js --env.build=prod --env.apiUrl=http://localhost:9000/api/"
   }
 }

@@ -30,7 +30,7 @@ module.exports = function(env) {
 
             new ExtractTextPlugin({filename: '[name].bundle.css', allChunks: true}),
             new webpack.DefinePlugin({
-                apiUrl: JSON.stringify(apiUrl || 'api/')
+                apiUrl: JSON.stringify(apiUrl)
             }),
             new CopyWebpackPlugin(copy(DIRS)),
             new webpack.optimize.CommonsChunkPlugin({
