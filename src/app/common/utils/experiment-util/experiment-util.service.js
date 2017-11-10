@@ -102,7 +102,7 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionMana
                     return fullName;
                 }
             },
-            conoller: 'ExperimentCompleteModalController',
+            controller: 'ExperimentCompleteModalController',
             controllerAs: 'vm'
         });
     }

@@ -17,6 +17,7 @@ var i18n = {
     ADD_TO_STOICH_TABLE: 'Add to Stoich. Table',
     UPDATE_STOICH_AND_EXIT: 'Update Stoich and Exit',
     CANCEL: 'Cancel',
+    SUBMIT: 'Submit',
     SAVE: 'Save',
     BATCHES: 'Batches',
     VNV: 'VnV',
