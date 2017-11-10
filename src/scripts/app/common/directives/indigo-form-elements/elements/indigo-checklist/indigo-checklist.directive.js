@@ -11,7 +11,7 @@ function indigoChecklist() {
         controller: IndigoChecklistController,
         controllerAs: 'vm',
         bindToController: true,
-        templateUrl: template
+        template: template
     };
 
     /* @ngInject */

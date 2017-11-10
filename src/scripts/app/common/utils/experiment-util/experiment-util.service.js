@@ -1,3 +1,6 @@
+var experimentCompleteModalTemplate = require('../../../entities/experiment/complete-modal/experiment-complete-modal.html');
+var experimentSelectSignatureTemplateModal = require('../../../entities/experiment/select-signature-template-modal/experiment-select-signature-template-modal.html');
+
 /* @ngInject */
 function experimentUtil($state, $uibModal, $q, experimentService, permissionManagementService, signatureTemplates,
                         signatureDocument, componentsUtils, notifyService) {
@@ -88,7 +91,7 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionMana
     function openCompleteConfirmationModal(experiment, notebookName) {
         return $uibModal.open({
             animation: true,
-            templateUrl: 'scripts/app/entities/experiment/complete-modal/experiment-complete-modal.html',
+            template: experimentCompleteModalTemplate,
             resolve: {
                 fullExperimentName: function() {
                     var fullName = notebookName + '-' + experiment.name;
@@ -111,7 +114,7 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionMana
                 return $uibModal
                     .open({
                         animation: true,
-                        templateUrl: 'scripts/app/entities/experiment/select-signature-template-modal/experiment-select-signature-template-modal.html',
+                        template: experimentSelectSignatureTemplateModal,
                         controller: 'ExperimentSelectSignatureTemplateModalController',
                         controllerAs: 'vm',
                         resolve: {

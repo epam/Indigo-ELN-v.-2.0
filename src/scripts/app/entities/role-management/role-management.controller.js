@@ -1,3 +1,5 @@
+var roleManagementSaveDialogTemplate = require('../role-management/role-management-save-dialog.html');
+
 /* @ngInject */
 function RoleManagementController($scope, roleService, accountRole, $filter, $uibModal, pageInfo, notifyService) {
     var ROLE_EDITOR_AUTHORITY = 'ROLE_EDITOR';
@@ -50,7 +52,7 @@ function RoleManagementController($scope, roleService, accountRole, $filter, $ui
         if (isLastRoleWithRoleEditor()) {
             $uibModal.open({
                 animation: true,
-                templateUrl: 'scripts/app/entities/role-management/role-management-save-dialog.html',
+                template: roleManagementSaveDialogTemplate,
                 controller: 'RoleManagementSaveController',
                 controllerAs: 'vm',
                 size: 'md',

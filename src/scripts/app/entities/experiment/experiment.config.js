@@ -3,7 +3,7 @@ var experimentDeleteDialogTemplate = require('./delete-dialog/experiment-delete-
 
 /* @ngInject */
 function experimentConfig($stateProvider, permissionManagementConfig, permissionViewManagementConfig,
-                                userPermissions) {
+                          userPermissions) {
     var permissions = [
         userPermissions.VIEWER,
         userPermissions.OWNER
@@ -96,38 +96,6 @@ function experimentConfig($stateProvider, permissionManagementConfig, permission
             },
             data: {
                 authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR']
-            }
-        })
-        //TODO: Do we really need this state?
-        .state('experiment-preview-submit', {
-            parent: 'entity',
-            url: '/project/{projectId}/notebook/{notebookId}/experiment/{experimentId}/preview-submit',
-            data: {
-                authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR'],
-                pageTitle: 'indigoeln',
-                isFullPrint: true
-            },
-            views: {
-                'content@app_page': {
-                    templateUrl: 'scripts/app/entities/experiment/preview/experiment-preview.html',
-                    controller: 'ExperimentPreviewController',
-                    controllerAs: 'vm'
-                }
-            },
-            resolve: {
-                pageInfo: function($q, $stateParams, experimentService, notebookService, projectService) {
-                    return $q.all([
-                        experimentService.get($stateParams).$promise,
-                        notebookService.get($stateParams).$promise,
-                        projectService.get($stateParams).$promise
-                    ]).then(function(results) {
-                        return {
-                            experiment: results[0],
-                            notebook: results[1],
-                            project: results[2]
-                        };
-                    });
-                }
             }
         });
 }
