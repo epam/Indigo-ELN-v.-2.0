@@ -38,9 +38,9 @@ function IndigoBatchSummaryController($scope, registrationService, productBatchS
         vm.model = vm.model || {};
 
         registrationService.info({}).$promise.then(function(info) {
-            var hasRegService = _.isArray(info) && info.length > 0;
+            vm.hasRegService = _.isArray(info) && info.length > 0;
 
-            vm.columns = getDefaultColumns(hasRegService);
+            vm.columns = getDefaultColumns(vm.hasRegService);
         });
 
         vm.syncWithIntendedProducts = syncWithIntendedProducts;
