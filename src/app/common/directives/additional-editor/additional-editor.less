@@ -1,0 +1,30 @@
+@import "../../../../assets/less/variables";
+
+.additional-editor {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: @form-group-margin-bottom;
+
+  &__input {
+    height: auto;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  &__label {
+    margin-bottom: 0;
+  }
+
+  &__group {
+    display: flex;
+    height: 100%;
+
+    .form-control[disabled] {
+      cursor: text;
+    }
+
+  }
+
+  &__button {
+    padding: 6px 18px;
+  }
+}
