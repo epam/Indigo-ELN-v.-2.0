@@ -26,6 +26,11 @@ function ProjectController($scope, $state, projectService, notifyService, permis
             initPermissions();
             initDirtyListener();
             entitiesBrowser.setSaveCurrentEntity(save);
+            entitiesBrowser.setEntityActions({
+                save: save,
+                print: vm.print
+            });
+
             if (!vm.project.id) {
                 fileUploaderCash.setFiles([]);
             }

@@ -22,6 +22,10 @@ function NotebookDialogController($scope, $state, notebookService, notifyService
         vm.loading = initEntity().then(function() {
             originalNotebook = angular.copy(pageInfo.notebook);
             entitiesBrowser.setCurrentTabTitle(pageInfo.notebook.name, $stateParams);
+            entitiesBrowser.setEntityActions({
+                save: save,
+                print: vm.print
+            });
             initPermissions();
         });
 

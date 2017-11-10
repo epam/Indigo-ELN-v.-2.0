@@ -8,6 +8,7 @@ function indigoEntitiesControls() {
         bindToController: true,
         controllerAs: 'vm',
         scope: {
+            activeTab: '=',
             onCloseTab: '&',
             onCloseAllTabs: '&',
             onCloseNonActiveTabs: '&',
@@ -33,7 +34,6 @@ function indigoEntitiesControls() {
 
         vm.onTabClick = onTabClick;
         vm.openSearch = openSearch;
-        vm.canSave = canSave;
         vm.save = save;
         vm.canPrint = canPrint;
         vm.print = print;
@@ -55,10 +55,6 @@ function indigoEntitiesControls() {
 
         function openSearch() {
             $state.go('entities.search-panel');
-        }
-
-        function canSave() {
-            return !!entitiesBrowser.saveCurrentEntity && !!entitiesBrowser.getCurrentForm() && entitiesBrowser.getCurrentForm().$dirty;
         }
 
         function save() {
