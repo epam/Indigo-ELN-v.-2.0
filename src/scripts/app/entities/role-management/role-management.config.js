@@ -34,7 +34,7 @@ function roleManagementConfig($stateProvider) {
                         return {
                             roles: results[0],
                             accountRoles: results[1],
-                            authorities: results[2].data
+                            authorities: results[2]
                         };
                     });
                 }
