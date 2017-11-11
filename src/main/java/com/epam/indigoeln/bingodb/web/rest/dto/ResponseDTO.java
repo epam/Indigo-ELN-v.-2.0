@@ -8,14 +8,28 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * Simple DTO for REST response
+ */
 public class ResponseDTO implements Serializable {
 
+    /**
+     * Structures to response
+     */
     private List<BingoStructure> structures;
 
+    /**
+     * Create a new ResponseDTO instance
+     */
     public ResponseDTO() {
         // Empty constructor for JSON deserialize
     }
 
+    /**
+     * Create a new ResponseDTO instance
+     *
+     * @param structures structures to response
+     */
     public ResponseDTO(List<BingoStructure> structures) {
         this.structures = structures;
     }

@@ -11,14 +11,42 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+/**
+ * Configuration for Bingo library for molecule/reaction databases
+ * <p>
+ * According to Bingo library restrictions:
+ * <p>
+ * - Bingo works with molecules and reactions in their own database files
+ * <p>
+ * - Each Bingo instance should use own Indigo instance
+ * <p>
+ * - All structure loading/parsing should be processed with these Indigo instances
+ */
 @Configuration
 public class BingoConfig {
 
+    /**
+     * Configuration properties for databases
+     */
     private final BingoProperties bingoProperties;
 
+    /**
+     * Indigo instance for molecule database Bingo instance
+     */
     private final Indigo moleculeIndigo;
+
+    /**
+     * Indigo instance for reaction database Bingo instance
+     */
     private final Indigo reactionIndigo;
 
+    /**
+     * Create a new BingoConfig instance
+     *
+     * @param bingoProperties Configuration properties for databases
+     * @param moleculeIndigo  Indigo instance for molecule database Bingo instance
+     * @param reactionIndigo  Indigo instance for reaction database Bingo instance
+     */
     @Autowired
     public BingoConfig(BingoProperties bingoProperties,
                        Indigo moleculeIndigo,
@@ -28,16 +56,36 @@ public class BingoConfig {
         this.reactionIndigo = reactionIndigo;
     }
 
+    /**
+     * Create a new Bingo instance for molecule database
+     *
+     * @return Bingo instance for molecule database
+     * @throws IOException if database creation failed
+     */
     @Bean
     public Bingo moleculeBingo() throws IOException {
         return bingo("molecule", moleculeIndigo);
     }
 
+    /**
+     * Create a new Bingo instance for reaction database
+     *
+     * @return Bingo instance for reaction database
+     * @throws IOException if database creation failed
+     */
     @Bean
     public Bingo reactionBingo() throws IOException {
         return bingo("reaction", reactionIndigo);
     }
 
+    /**
+     * Create a new Bingo instance for specified structure type
+     *
+     * @param type   structure type - molecule or reaction
+     * @param indigo Indigo instance to use
+     * @return Bingo instance for specified structure type
+     * @throws IOException if database creation failed
+     */
     private Bingo bingo(String type, Indigo indigo) throws IOException {
         String folder = bingoProperties.getFolder() + File.separator + type;
 

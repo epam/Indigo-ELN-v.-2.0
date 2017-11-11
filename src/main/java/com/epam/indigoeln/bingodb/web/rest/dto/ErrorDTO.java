@@ -6,14 +6,27 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
+/**
+ * Simple DTO for REST errors
+ */
 public class ErrorDTO implements Serializable {
 
+    /**
+     * Error message
+     */
     private String message;
 
+    /**
+     * Create a new ErrorDTO instance
+     */
     public ErrorDTO() {
         // Empty constructor for JSON deserialize
     }
 
+    /**
+     * Create a new ErrorDTO instance
+     * @param message an error message
+     */
     public ErrorDTO(String message) {
         this.message = message;
     }

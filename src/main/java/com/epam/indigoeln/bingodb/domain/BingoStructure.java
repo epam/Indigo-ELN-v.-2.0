@@ -6,15 +6,33 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 
+/**
+ * Entity for holding structure with its ID
+ */
 public class BingoStructure implements Serializable {
 
+    /**
+     * Structure ID
+     */
     private String id;
+
+    /**
+     * Structure
+     */
     private String structure;
 
+    /**
+     * Create a new BingoStructure instance
+     */
     public BingoStructure() {
         // Empty constructor for JSON deserialize
     }
 
+    /**
+     * Create a new BingoStructure instance
+     * @param id structure id
+     * @param structure structure
+     */
     public BingoStructure(String id, String structure) {
         this.id = id;
         this.structure = structure;
