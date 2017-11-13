@@ -1,4 +1,3 @@
-/* @ngInject */
 function tabKeyUtils() {
     return {
         getTabKeyFromTab: getTabKeyFromTab,
@@ -7,7 +6,7 @@ function tabKeyUtils() {
     };
 
     function getTabKeyFromTab(tab) {
-        var matchParams = !_.isEmpty(tab.params) ? tab.params : {
+        var matchParams = !_.isEmpty(tab.params) && !tab.isSingle ? tab.params : {
             name: tab.name
         };
 

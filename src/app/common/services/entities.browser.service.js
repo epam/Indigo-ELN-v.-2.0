@@ -1,4 +1,5 @@
-/* @ngInject */
+entitiesBrowser.$inject = ['$q', '$state', 'principalService', 'tabKeyUtils', 'CacheFactory'];
+
 function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory) {
     var tabs = {};
     var activeTab = {};

@@ -4,7 +4,7 @@ function indigoEntitiesControls() {
     return {
         restrict: 'E',
         template: template,
-        controller: indigoEntitiesControlsController,
+        controller: IndigoEntitiesControlsController,
         bindToController: true,
         controllerAs: 'vm',
         scope: {
@@ -15,10 +15,18 @@ function indigoEntitiesControls() {
             onSave: '&'
         }
     };
+}
 
-    function indigoEntitiesControlsController($state, entitiesBrowser, modalHelper, projectsForSubCreation, appRoles) {
-        var vm = this;
+IndigoEntitiesControlsController.$inject = ['$state', 'entitiesBrowser', 'modalHelper', 'projectsForSubCreation', 'appRoles',
+    '$scope'];
 
+function IndigoEntitiesControlsController($state, entitiesBrowser, modalHelper, projectsForSubCreation, appRoles,
+                                          $scope) {
+    var vm = this;
+
+    $onInit();
+
+    function $onInit() {
         vm.CONTENT_EDITOR = appRoles.CONTENT_EDITOR;
         vm.PROJECT_CREATOR = appRoles.PROJECT_CREATOR;
         vm.NOTEBOOK_CREATOR = appRoles.NOTEBOOK_CREATOR;
@@ -29,8 +37,6 @@ function indigoEntitiesControls() {
         vm.EXPERIMENT_CREATORS = [vm.CONTENT_EDITOR, vm.EXPERIMENT_CREATOR].join(',');
         vm.ENTITY_CREATORS = [vm.CONTENT_EDITOR, vm.PROJECT_CREATOR, vm.NOTEBOOK_CREATOR, vm.EXPERIMENT_CREATOR].join(',');
         vm.isDashboard = false;
-
-        init();
 
         vm.onTabClick = onTabClick;
         vm.openSearch = openSearch;
@@ -43,78 +49,91 @@ function indigoEntitiesControls() {
         vm.createExperiment = createExperiment;
         vm.createNotebook = createNotebook;
 
-        function init() {
-            entitiesBrowser.getTabs(function(tabs) {
-                vm.entities = tabs;
+        entitiesBrowser.getTabs(function(tabs) {
+            vm.entities = tabs;
+        });
+
+        bindEvents();
+    }
+
+    function onTabClick(tab) {
+        entitiesBrowser.goToTab(tab);
+    }
+
+    function openSearch() {
+        $state.go('entities.search-panel');
+    }
+
+    function save() {
+        vm.onSave();
+    }
+
+    function canPrint() {
+        var actions = entitiesBrowser.getEntityActions();
+
+        return actions && actions.print;
+    }
+
+    function print() {
+        entitiesBrowser.getEntityActions().print();
+    }
+
+    function canDuplicate() {
+        var actions = entitiesBrowser.getEntityActions();
+
+        return actions && actions.duplicate;
+    }
+
+    function duplicate() {
+        entitiesBrowser.getEntityActions().duplicate();
+    }
+
+    function onCloseTabClick($event, tab) {
+        vm.onCloseTab({
+            $event: $event, tab: tab
+        });
+    }
+
+    function createExperiment() {
+        var resolve = {
+            fullNotebookId: function() {
+                return null;
+            }
+        };
+
+        modalHelper.openCreateNewExperimentModal(resolve).then(function(result) {
+            $state.go('entities.experiment-detail', {
+                notebookId: result.notebookId,
+                projectId: result.projectId,
+                experimentId: result.id
             });
-        }
+        });
+    }
 
-        function onTabClick(tab) {
-            entitiesBrowser.goToTab(tab);
-        }
-
-        function openSearch() {
-            $state.go('entities.search-panel');
-        }
-
-        function save() {
-            vm.onSave();
-        }
-
-        function canPrint() {
-            var actions = entitiesBrowser.getEntityActions();
-
-            return actions && actions.print;
-        }
-
-        function print() {
-            entitiesBrowser.getEntityActions().print();
-        }
-
-        function canDuplicate() {
-            var actions = entitiesBrowser.getEntityActions();
-
-            return actions && actions.duplicate;
-        }
-
-        function duplicate() {
-            entitiesBrowser.getEntityActions().duplicate();
-        }
-
-        function onCloseTabClick($event, tab) {
-            vm.onCloseTab({
-                $event: $event, tab: tab
+    function createNotebook() {
+        var resolve = {
+            parents: function() {
+                return projectsForSubCreation.query().$promise;
+            }
+        };
+        modalHelper.openCreateNewNotebookModal(resolve).then(function(projectId) {
+            $state.go('entities.notebook-new', {
+                parentId: projectId
             });
-        }
+        });
+    }
 
-        function createExperiment() {
-            var resolve = {
-                fullNotebookId: function() {
-                    return null;
+    function bindEvents() {
+        $scope.$on('$stateChangeSuccess', function(event, toState, toStateParams) {
+            var tab = angular.copy(toState.data.tab);
+
+            if (tab) {
+                tab.params = toStateParams;
+                if (tab.type && tab.type === 'entity') {
+                    entitiesBrowser.addTab(tab);
                 }
-            };
-
-            modalHelper.openCreateNewExperimentModal(resolve).then(function(result) {
-                $state.go('entities.experiment-detail', {
-                    notebookId: result.notebookId,
-                    projectId: result.projectId,
-                    experimentId: result.id
-                });
-            });
-        }
-
-        function createNotebook() {
-            var resolve = {
-                parents: function() {
-                    return projectsForSubCreation.query().$promise;
-                }
-            };
-            modalHelper.openCreateNewNotebookModal(resolve).then(function(projectId) {
-                $state.go('entities.notebook-new', {
-                    parentId: projectId
-                });
-            });
-        }
+            }
+        });
     }
 }
 

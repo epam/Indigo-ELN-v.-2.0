@@ -2,7 +2,7 @@ var template = require('./common/components/timer/timer-dialog.html');
 
 /* @ngInject */
 function appRun($rootScope, $window, $state, $uibModal, editableOptions, authService, principalService, Idle,
-                entitiesBrowser, $http, $cookies) {
+                $http, $cookies) {
     updateCSRFTOKEN($cookies, $http);
 
     $.mCustomScrollbar.defaults.advanced.autoScrollOnFocus = false;
@@ -19,14 +19,6 @@ function appRun($rootScope, $window, $state, $uibModal, editableOptions, authSer
             authService.authorize().then(function() {
                 updateCSRFTOKEN($cookies, $http);
             });
-        }
-        var tab = angular.copy(toState.data.tab);
-
-        if (tab) {
-            tab.params = toStateParams;
-            if (tab.type && tab.type === 'entity') {
-                entitiesBrowser.addTab(tab);
-            }
         }
     });
 

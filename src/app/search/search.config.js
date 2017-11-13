@@ -20,7 +20,8 @@ function searchConfig($stateProvider) {
                     name: 'Search',
                     kind: 'search-panel',
                     type: 'entity',
-                    state: 'entities.search-panel'
+                    state: 'entities.search-panel',
+                    isSingle: true
                 }
             },
             resolve: {
