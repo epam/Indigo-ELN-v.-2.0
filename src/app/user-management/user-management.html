@@ -27,7 +27,7 @@
                         <simple-input validation-pattern-text="Login should not contain symbols in upper case.">
                             <span i-translate="LOGIN"></span>
                             <input class="form-control"
-                                   ng-attr-name="login"
+                                   name="login"
                                    ng-required="!vm.user.id"
                                    type="text"
                                    maxlength="50"
@@ -37,7 +37,7 @@
                         <simple-input>
                             <span i-translate="FIRST_NAME"></span>
                             <input class="form-control"
-                                   ng-attr-name="firstName"
+                                   name="firstName"
                                    ng-required="!vm.user.firstName"
                                    type="text"
                                    maxlength="50"
@@ -46,7 +46,7 @@
                         <simple-input >
                             <span i-translate="LAST_NAME"></span>
                             <input class="form-control"
-                                   ng-attr-name="lastName"
+                                   name="lastName"
                                    ng-required="!vm.user.lastName"
                                    type="text"
                                    maxlength="50"
@@ -59,22 +59,23 @@
                                 indigo-items="vm.roles"
                                 indigo-multiple="true"
                         ></indigo-select>
-                        <p class="help-block" ng-if="!vm.user.roles.length" i-translate="THIS_FIELD_IS_REQUIRED"></p>
+                        <p class="help-block" ng-if="editForm.role.$dirty && !vm.user.roles.length"
+                           i-translate="THIS_FIELD_IS_REQUIRED"></p>
                     </div>
                     <div class="col-xs-6">
                         <simple-input>
                             <span i-translate="EMAIL"></span>
                             <input class="form-control"
-                                   ng-attr-name="email"
+                                   name="email"
                                    ng-required="!vm.user.email"
-                                   type="text"
+                                   type="email"
                                    maxlength="100"
                                    ng-model="vm.user.email">
                         </simple-input>
                         <simple-input ng-if="!vm.user.id">
                             <span i-translate="PASSWORD"></span>
                             <input class="form-control"
-                                   ng-attr-name="password"
+                                   name="password"
                                    ng-required="!vm.user.id"
                                    type="password"
                                    maxlength="50"

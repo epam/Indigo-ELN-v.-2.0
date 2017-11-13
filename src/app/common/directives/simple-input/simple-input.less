@@ -10,8 +10,16 @@ simple-input {
     flex-grow: 1;
     margin-bottom: 0;
 
-   > span {
-     display: flex;
-   }
+    > span {
+      display: flex;
+    }
+  }
+
+  &.required {
+    span:after {
+      margin-left: 0.1em;
+      content: '*';
+      color: @danger-notify;
+    }
   }
 }

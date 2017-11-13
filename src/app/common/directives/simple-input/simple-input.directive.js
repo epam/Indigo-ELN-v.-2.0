@@ -1,18 +1,25 @@
-simpleInput.$inject = ['$templateCache'];
+require('./simple-input.less');
+var template = require('./simple-input.html');
 
-function simpleInput($templateCache) {
+simpleInput.$inject = ['$compile'];
+
+function simpleInput($compile) {
     return {
         restrict: 'E',
         transclude: true,
+        require: '?^form',
         scope: {
             validationPatternText: '@?'
         },
-        compile: function($element) {
+        link: function($scope, $element, $attr, formCtrl) {
             $element.addClass('form-group');
             var $input = $element.find('input');
 
             if ($input.attr('ng-required')) {
-                $input.after($templateCache.get('inputModelInvalid'));
+                $element.addClass('required');
+                $scope.ngModelCtrl = formCtrl[$input.attr('name')];
+                var el = $compile(template)($scope);
+                $input.after(el);
             }
         },
         template: '<label ng-transclude></label>'

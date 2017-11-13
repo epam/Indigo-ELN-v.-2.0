@@ -18,15 +18,14 @@ var nestedOutsideClick = require('./nested-outside-click/nested-outside-click');
 var pressEnter = require('./press-enter/press-enter.directive');
 var simpleRadio = require('./simple-radio/simple-radio.directive');
 var detectRendered = require('./detect-rendered/detect-rendered.directive');
+var simpleInput = require('./simple-input/simple-input.directive');
 
 var entityTree = require('./entity-tree/entity-tree.module');
 var indigoFormElements = require('./indigo-form-elements/indigo-form-elements.module');
-var simpleInput = require('./simple-input/simple-input.module');
 
 var dependencies = [
     entityTree,
-    indigoFormElements,
-    simpleInput
+    indigoFormElements
 ];
 
 module.exports = angular
@@ -52,5 +51,6 @@ module.exports = angular
     .directive('pressEnter', pressEnter)
     .directive('simpleRadio', simpleRadio)
     .directive('detectRendered', detectRendered)
+    .directive('simpleInput', simpleInput)
 
     .name;
