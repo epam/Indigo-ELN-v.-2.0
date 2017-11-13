@@ -100,6 +100,8 @@ public class BingoConfig {
 
         bingo.optimize();
 
+        if (true) return bingo;
+
         return bingo;
     }
 }
