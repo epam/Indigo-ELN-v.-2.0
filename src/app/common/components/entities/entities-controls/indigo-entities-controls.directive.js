@@ -52,8 +52,6 @@ function IndigoEntitiesControlsController($state, entitiesBrowser, modalHelper, 
         entitiesBrowser.getTabs(function(tabs) {
             vm.entities = tabs;
         });
-
-        bindEvents();
     }
 
     function onTabClick(tab) {
@@ -120,19 +118,6 @@ function IndigoEntitiesControlsController($state, entitiesBrowser, modalHelper, 
             $state.go('entities.notebook-new', {
                 parentId: projectId
             });
-        });
-    }
-
-    function bindEvents() {
-        $scope.$on('$stateChangeSuccess', function(event, toState, toStateParams) {
-            var tab = angular.copy(toState.data.tab);
-
-            if (tab) {
-                tab.params = toStateParams;
-                if (tab.type && tab.type === 'entity') {
-                    entitiesBrowser.addTab(tab);
-                }
-            }
         });
     }
 }

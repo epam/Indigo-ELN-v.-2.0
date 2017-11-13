@@ -1,4 +1,5 @@
 var entitiesConfig = require('./entities.config');
+var run = require('./entities-controls.run');
 
 var entitiesControls = require('./entities-controls/entities-controls.module');
 
@@ -10,5 +11,6 @@ module.exports = angular
     .module('indigoeln.entities', dependencies)
 
     .config(entitiesConfig)
+    .run(run)
 
     .name;
