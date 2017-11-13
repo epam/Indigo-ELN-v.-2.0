@@ -2,7 +2,10 @@ var modelRestrictions = {
     searchQuery: '',
     advancedSearch: {
         therapeuticArea: {
-            name: 'Therapeutic Area', field: 'therapeuticArea', isSelect: true, condition: {name: 'contains'},
+            name: 'Therapeutic Area',
+            field: 'therapeuticArea',
+            isSelect: true,
+            condition: {name: 'contains'},
             $$conditionList: [
                 {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
             ]
@@ -17,42 +20,66 @@ var modelRestrictions = {
             ]
         },
         batchYield: {
-            name: 'Batch Yield%', field: 'batchYield', condition: {name: '>'}, $$conditionList: [
+            name: 'Batch Yield%',
+            field: 'batchYield',
+            condition: {name: '>'},
+            $$conditionList: [
                 {name: '>'}, {name: '<'}, {name: '='}, {name: '~'}
             ]
         },
         batchPurity: {
-            name: 'Batch Purity%', field: 'purity', condition: {name: '>'}, $$conditionList: [
+            name: 'Batch Purity%',
+            field: 'purity',
+            condition: {name: '>'},
+            $$conditionList: [
                 {name: '>'}, {name: '<'}, {name: '='}, {name: '~'}
             ]
         },
         subject: {
-            name: 'Subject/Title', field: 'name', condition: {name: 'contains'}, $$conditionList: [
+            name: 'Subject/Title',
+            field: 'name',
+            condition: {name: 'contains'},
+            $$conditionList: [
                 {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
             ]
         },
         entityDescription: {
-            name: 'Entity Description', field: 'description', condition: {name: 'contains'}, $$conditionList: [
+            name: 'Entity Description',
+            field: 'description',
+            condition: {name: 'contains'},
+            $$conditionList: [
                 {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
             ]
         },
         compoundId: {
-            name: 'Compound ID', field: 'compoundId', condition: {name: 'contains'}, $$conditionList: [
+            name: 'Compound ID',
+            field: 'compoundId',
+            condition: {name: 'contains'},
+            $$conditionList: [
                 {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
             ]
         },
         literatureRef: {
-            name: 'Literature Ref', field: 'references', condition: {name: 'contains'}, $$conditionList: [
+            name: 'Literature Ref',
+            field: 'references',
+            condition: {name: 'contains'},
+            $$conditionList: [
                 {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
             ]
         },
         entityKeywords: {
-            name: 'Entity Keywords', field: 'keywords', condition: {name: 'contains'}, $$conditionList: [
+            name: 'Entity Keywords',
+            field: 'keywords',
+            condition: {name: 'contains'},
+            $$conditionList: [
                 {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
             ]
         },
         chemicalName: {
-            name: 'Chemical Name', field: 'chemicalName', condition: {name: 'contains'}, $$conditionList: [
+            name: 'Chemical Name',
+            field: 'chemicalName',
+            condition: {name: 'contains'},
+            $$conditionList: [
                 {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
             ]
         },

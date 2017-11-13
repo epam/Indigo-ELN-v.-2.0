@@ -1,6 +1,6 @@
 /* @ngInject */
 function commonConfig(uibPagerConfig, uibPaginationConfig) {
-    //TODO: Looks like a global config -> app.config
+    // TODO: Looks like a global config -> app.config
     uibPagerConfig.itemsPerPage = 20;
     uibPagerConfig.previousText = '«';
     uibPagerConfig.nextText = '»';

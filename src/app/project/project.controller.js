@@ -44,7 +44,9 @@ function ProjectController($scope, $state, projectService, notifyService, permis
 
         if (!restoredEntity) {
             pageInfo.project.author = pageInfo.project.author || identity;
-            pageInfo.project.accessList = pageInfo.project.accessList || permissionManagementService.getAuthorAccessList(identity);
+            pageInfo.project.accessList = pageInfo.project.accessList
+                || permissionManagementService.getAuthorAccessList(identity);
+
             vm.project = pageInfo.project;
         } else if (restoredEntity.version === pageInfo.project.version) {
             vm.project = restoredEntity;

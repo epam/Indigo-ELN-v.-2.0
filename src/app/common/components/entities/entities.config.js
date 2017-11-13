@@ -1,4 +1,4 @@
-var entitiesTemplate = require('./entities.html')
+var entitiesTemplate = require('./entities.html');
 entitiesConfig.$inject = ['$stateProvider'];
 
 function entitiesConfig($stateProvider) {

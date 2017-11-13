@@ -13,6 +13,7 @@ function unitService($uibModal, calculationService, registrationUtil) {
                     unitAction(rows, name, column, unitItems);
                 }
             }];
+
             _.map(unitItems, function(unit) {
                 actions.push(toUnitAction(unit));
             });

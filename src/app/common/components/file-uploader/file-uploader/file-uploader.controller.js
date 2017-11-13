@@ -115,6 +115,7 @@ function FileUploaderController($uibModal, $filter, $stateParams, fileUploaderCa
         if (!rows || rows.length === 0) {
             vm.limit = 0;
             vm.rowsForDisplay = null;
+
             return;
         }
         var skip = getSkipItems(rows);

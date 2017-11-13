@@ -26,7 +26,8 @@ function indigoEntitiesControls() {
         vm.PROJECT_CREATORS = [vm.CONTENT_EDITOR, vm.PROJECT_CREATOR].join(',');
         vm.NOTEBOOK_CREATORS = [vm.CONTENT_EDITOR, vm.NOTEBOOK_CREATOR].join(',');
         vm.EXPERIMENT_CREATORS = [vm.CONTENT_EDITOR, vm.EXPERIMENT_CREATOR].join(',');
-        vm.ENTITY_CREATORS = [vm.CONTENT_EDITOR, vm.PROJECT_CREATOR, vm.NOTEBOOK_CREATOR, vm.EXPERIMENT_CREATOR].join(',');
+        vm.ENTITY_CREATORS = [vm.CONTENT_EDITOR, vm.PROJECT_CREATOR, vm.NOTEBOOK_CREATOR, vm.EXPERIMENT_CREATOR]
+            .join(',');
         vm.isDashboard = false;
 
         init();
@@ -58,7 +59,9 @@ function indigoEntitiesControls() {
         }
 
         function canSave() {
-            return !!entitiesBrowser.saveCurrentEntity && !!entitiesBrowser.getCurrentForm() && entitiesBrowser.getCurrentForm().$dirty;
+            return !!entitiesBrowser.saveCurrentEntity
+                && !!entitiesBrowser.getCurrentForm()
+                && entitiesBrowser.getCurrentForm().$dirty;
         }
 
         function save() {

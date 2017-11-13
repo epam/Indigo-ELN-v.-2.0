@@ -1,7 +1,8 @@
 /* @ngInject */
 function unitsConverter() {
     var table = {};
-    var prefixes = ['Y', 'Z', 'E', 'P', 'T', 'G', 'M', 'k', 'h', 'da', '', 'd', 'c', 'm', 'u', 'n', 'p', 'f', 'a', 'z', 'y'];
+    var prefixes =
+        ['Y', 'Z', 'E', 'P', 'T', 'G', 'M', 'k', 'h', 'da', '', 'd', 'c', 'm', 'u', 'n', 'p', 'f', 'a', 'z', 'y'];
     var factors = [24, 21, 18, 15, 12, 9, 6, 3, 2, 1, 0, -1, -2, -3, -6, -9, -12, -15, -18, -21, -24];
     // SI units only, that follow the mg/kg/dg/cg type of format
     var units = [
@@ -53,7 +54,9 @@ function unitsConverter() {
         var target = table[this.targetUnit];
         var current = table[this.currentUnit];
         if (target.base !== current.base) {
-            throw new Error('Incompatible units; cannot convert from "' + this.currentUnit + '" to "' + this.targetUnit + '"');
+            throw new Error(
+                'Incompatible units; cannot convert from "' + this.currentUnit + '" to "' + this.targetUnit + '"'
+            );
         }
 
         return (this.value / target.multiplier) * current.multiplier;

@@ -11,14 +11,16 @@ function ExperimentDeleteController($uibModalInstance, $stateParams, entity, exp
     }
 
     function confirmDelete(id) {
-        experimentService.delete({
+        experimentService.delete(
+            {
                 experimentId: id,
                 notebookId: $stateParams.notebookId,
                 projectId: $stateParams.projectId
             },
             function() {
                 $uibModalInstance.close(true);
-            });
+            }
+        );
     }
 }
 

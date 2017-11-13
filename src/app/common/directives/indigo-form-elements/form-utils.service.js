@@ -92,7 +92,10 @@ function formUtils($timeout) {
                 .attr('ng-model-options', '{ debounce: 150 }');
         }
         if (tAttrs.indigoParsers || tAttrs.indigoFormatters) {
-            $element.attr('indigo-parsers-formatters', '{indigoParsers: indigoParsers, indigoFormatters: indigoFormatters}');
+            $element.attr(
+                'indigo-parsers-formatters',
+                '{indigoParsers: indigoParsers, indigoFormatters: indigoFormatters}'
+            );
         }
 
         if (tAttrs.indigoReadonly) {

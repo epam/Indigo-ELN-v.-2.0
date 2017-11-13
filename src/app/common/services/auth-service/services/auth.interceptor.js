@@ -7,7 +7,10 @@ function authExpiredInterceptor($rootScope, $q, $injector) {
     function responseError(response) {
         // If we have an unauthorized request we redirect to the login page
         // Don't do this check on the account API to avoid infinite loop
-        if (response.status === 401 && !_.isUndefined(response.data.path) && response.data.path.indexOf('/api/account') === -1) {
+        if (response.status === 401
+            && !_.isUndefined(response.data.path)
+            && response.data.path.indexOf('/api/account') === -1
+        ) {
             var authService = $injector.get('authService');
             var $state = $injector.get('$state');
             var to = $rootScope.toState;
@@ -36,6 +39,7 @@ function authExpiredInterceptor($rootScope, $q, $injector) {
             return $http(oldResponse.config);
         }
         // unlikely get here but reject with the old response any way and avoid infinite loop
+
         return $q.reject(oldResponse);
     }
 

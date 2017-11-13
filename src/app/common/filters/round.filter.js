@@ -25,6 +25,7 @@ function round(stoichTableCache, calculationService, unitsConverter) {
 
     function getCorrectPrecisionForWeight(row) {
         var numOfDigits = getNumberSignificantFigures(row['mol'].value);
+
         return numOfDigits > MAX_PRECISION ? DEFAULT_PRECISION : numOfDigits;
     }
 
@@ -55,8 +56,10 @@ function round(stoichTableCache, calculationService, unitsConverter) {
     function isUnitChanged(targetUnit) {
         if (targetUnit) {
             var baseUnit = getBaseUnit(targetUnit);
+
             return baseUnit && baseUnit !== targetUnit;
         }
+
         return false;
     }
 

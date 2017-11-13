@@ -42,13 +42,18 @@ function registrationUtil(appValues, registrationMsg) {
         {
             message: registrationMsg.SALT_EQ_ERROR,
             test: function(batch) {
-                return _.get(batch.saltCode, 'value') && batch.saltCode.value !== appValues.getDefaultSaltCode().value && !_.get(batch.saltEq, 'value');
+                return _.get(batch.saltCode, 'value')
+                    && batch.saltCode.value !== appValues.getDefaultSaltCode().value
+                    && !_.get(batch.saltEq, 'value');
             }
         },
         {
             message: registrationMsg.STRUCTURE_COMMENTS_ERROR,
             test: function(batch) {
-                return batch.stereoisomer && batch.stereoisomer.name && isStereoisomerNeedComment(batch.stereoisomer.name) && !batch.structureComments;
+                return batch.stereoisomer
+                    && batch.stereoisomer.name
+                    && isStereoisomerNeedComment(batch.stereoisomer.name)
+                    && !batch.structureComments;
             }
         }
     ];

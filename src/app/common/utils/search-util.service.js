@@ -50,7 +50,10 @@ function searchUtilService(modelRestrictions) {
         var advancedSearch = restrictions.advancedSearch;
         var advancedSummary = restrictions.advancedSummary = [];
         _.each(advancedSearch, function(restriction) {
-            restriction.value = _.isUndefined(restriction.selectedValue) ? restriction.value : restriction.selectedValue.name;
+            restriction.value = _.isUndefined(restriction.selectedValue)
+                ? restriction.value
+                : restriction.selectedValue.name;
+
             var value = _.isArray(restriction.value) && restriction.value.length === 0 ? null : restriction.value;
             if (value) {
                 var restrictionCopy = angular.copy(restriction);

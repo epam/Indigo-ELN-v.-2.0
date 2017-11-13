@@ -10,13 +10,15 @@ function TemplateDetailController($stateParams, templateService, componentsUtils
     }
 
     function load(id) {
-        templateService.get({
-            id: id
-        }, function(result) {
-            vm.template = result;
-            componentsUtils.initComponents(vm.model, vm.template.templateContent);
-
-        });
+        templateService.get(
+            {
+                id: id
+            },
+            function(result) {
+                vm.template = result;
+                componentsUtils.initComponents(vm.model, vm.template.templateContent);
+            }
+        );
     }
 }
 

@@ -43,7 +43,9 @@ function indigoCollapsibleComponent($state, simpleLocalCache, principalService) 
                 }
                 var $collapsible = $heading.next();
                 var iconStyle = !isCollapsed ? 'glyphicon-chevron-up' : 'glyphicon-chevron-down';
-                var $button = angular.element('<span class="pull-right clickable"><i class="glyphicon ' + iconStyle + '"></i></span>');
+                var $button = angular.element(
+                    '<span class="pull-right clickable"><i class="glyphicon ' + iconStyle + '"></i></span>'
+                );
                 var $icon = $button.find('i');
                 $heading.prepend($button);
                 if (isCollapsed) {

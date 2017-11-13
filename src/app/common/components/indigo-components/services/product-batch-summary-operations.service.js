@@ -5,8 +5,8 @@ productBatchSummaryOperations.$inject = ['$q', 'productBatchSummaryCache', 'regi
 
 function productBatchSummaryOperations($q, productBatchSummaryCache, registrationUtil, stoichTableCache, appValues,
                                        notifyService, $timeout, entitiesBrowser, registrationService, sdImportService,
-                                       sdExportService, alertModal, $http, $stateParams, notebookService, calculationService,
-                                       apiUrl, $document) {
+                                       sdExportService, alertModal, $http, $stateParams, notebookService,
+                                       calculationService, apiUrl, $document) {
     var curNbkOperation = $q.when();
 
     return {
@@ -273,8 +273,12 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
     function checkNonRemovableBatches(batches) {
         var nonEditableBatches = getSelectedNonEditableBatches(batches);
         if (!_.isEmpty(nonEditableBatches)) {
-            notifyService.error('Following batches were registered or sent to registration and cannot be deleted: ' + _.uniq(nonEditableBatches)
-                .join(', '));
+            var errorMessage = 'Following batches were registered or sent to registration and cannot be deleted: ';
+
+            notifyService.error(
+                errorMessage + _.uniq(nonEditableBatches)
+                    .join(', ')
+            );
         }
     }
 
@@ -313,7 +317,8 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
         var notFullBatches = registrationUtil.getNotFullForRegistrationBatches(batches);
         if (notFullBatches.length) {
             _.each(notFullBatches, function(notFullBatch) {
-                message = message + '<br><b>Batch ' + notFullBatch.nbkBatch + ':</b><br>' + notFullBatch.emptyFields.join('<br>');
+                message = message + '<br><b>Batch '
+                    + notFullBatch.nbkBatch + ':</b><br>' + notFullBatch.emptyFields.join('<br>');
             });
             alertModal.error(message);
         } else {

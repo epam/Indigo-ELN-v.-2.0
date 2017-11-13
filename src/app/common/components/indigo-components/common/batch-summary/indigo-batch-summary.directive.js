@@ -26,7 +26,8 @@ function indigoBatchSummary() {
     };
 }
 
-IndigoBatchSummaryController.$inject = ['$scope', 'registrationService', 'productBatchSummaryOperations', 'batchHelper'];
+IndigoBatchSummaryController.$inject =
+    ['$scope', 'registrationService', 'productBatchSummaryOperations', 'batchHelper'];
 
 function IndigoBatchSummaryController($scope, registrationService, productBatchSummaryOperations, batchHelper) {
     var vm = this;
