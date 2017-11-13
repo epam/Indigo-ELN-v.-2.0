@@ -14,26 +14,68 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 
+/**
+ * Service class to work with user roles
+ */
 @Service
 public class RoleService {
 
-    @Autowired
-    private SessionRegistry sessionRegistry;
+    /**
+     * SessionRegistry instance to work with user sessions
+     */
+    private final SessionRegistry sessionRegistry;
 
-    @Autowired
-    private RoleRepository roleRepository;
+    /**
+     * RoleRepository instance to work with roles in DB
+     */
+    private final RoleRepository roleRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    /**
+     * UserRepository instance to work with users in DB
+     */
+    private final UserRepository userRepository;
 
+    /**
+     * Create a new RoleService instance
+     *
+     * @param sessionRegistry SessionRegistry instance to work with user sessions
+     * @param roleRepository  RoleRepository instance to work with roles in DB
+     * @param userRepository  UserRepository instance to work with users in DB
+     */
+    @Autowired
+    public RoleService(SessionRegistry sessionRegistry,
+                       RoleRepository roleRepository,
+                       UserRepository userRepository) {
+        this.sessionRegistry = sessionRegistry;
+        this.roleRepository = roleRepository;
+        this.userRepository = userRepository;
+    }
+
+    /**
+     * Retrieve all roles from DB
+     *
+     * @return all roles in application
+     */
     public Collection<Role> getAllRoles() {
         return roleRepository.findAll();
     }
 
+    /**
+     * Retrieve one role by given ID
+     *
+     * @param id role ID
+     * @return role with given ID
+     */
     public Role getRole(String id) {
         return roleRepository.findOne(id);
     }
 
+    /**
+     * Create a new role in DB
+     *
+     * @param role role to create
+     * @return created role with new ID
+     */
     public Role createRole(Role role) {
         //reset role's id
         role.setId(null);
@@ -44,6 +86,12 @@ public class RoleService {
         }
     }
 
+    /**
+     * Update an existing role in DB
+     *
+     * @param role role to update
+     * @return updated role
+     */
     public Role updateRole(Role role) {
         Role roleFromDB = roleRepository.findOne(role.getId());
         if (roleFromDB == null) {
@@ -59,6 +107,11 @@ public class RoleService {
         return savedRole;
     }
 
+    /**
+     * Delete role with given ID from DB
+     *
+     * @param id role ID
+     */
     public void deleteRole(String id) {
         Role role = roleRepository.findOne(id);
         if (role == null) {
