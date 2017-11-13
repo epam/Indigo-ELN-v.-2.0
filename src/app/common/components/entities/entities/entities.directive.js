@@ -1,4 +1,18 @@
-/* @ngInject */
+var template = require('./entities.html');
+
+function entities() {
+    return {
+        scope: true,
+        template: template,
+        controller: EntitiesController,
+        controllerAs: 'vm',
+        bindToController: true
+    };
+}
+
+EntitiesController.$inject = ['$scope', 'entitiesBrowser', '$q', 'principalService', 'entitiesCache', 'alertModal', 'dialogService',
+    'autorecoveryCache', 'projectService', 'notebookService', 'experimentService'];
+
 function EntitiesController($scope, entitiesBrowser, $q, principalService, entitiesCache, alertModal, dialogService,
                             autorecoveryCache, projectService, notebookService, experimentService) {
     var vm = this;
@@ -126,4 +140,4 @@ function EntitiesController($scope, entitiesBrowser, $q, principalService, entit
     }
 }
 
-module.exports = EntitiesController;
+module.exports = entities;

@@ -10,7 +10,7 @@
                                 <simple-input>
                                     <span i-translate="TYPE_IN_YOUR_SEARCH_QUERY"></span>
                                     <input class="form-control"
-                                           ng-model="vm.state.model.restrictions.searchQuery">
+                                           ng-model="vm.state.restrictions.searchQuery">
                                 </simple-input>
                             </form>
                         </div>
@@ -29,7 +29,7 @@
                         <div class="criteria-search-block">
                             <h5><span i-translate="FIELD_SEARCH_CRITERIA"></span>:</h5>
 
-                            <div class="row" ng-repeat="(key, obj) in vm.state.model.restrictions.advancedSearch">
+                            <div class="row" ng-repeat="(key, obj) in vm.state.restrictions.advancedSearch">
                                 <div ng-if="!obj.$$skipList">
                                     <div class="col-xs-3"><label class="control-label" ng-bind="::obj.name"></label>
                                     </div>
@@ -158,7 +158,7 @@
                     </div>
                     <div class="col-xs-4">
                         <indigo-select indigo-items="vm.structureTypes"
-                                       indigo-model="vm.state.model.restrictions.structure.type"></indigo-select>
+                                       indigo-model="vm.state.restrictions.structure.type"></indigo-select>
                     </div>
                 </div>
                 <div class="row">
@@ -167,9 +167,9 @@
                     </div>
                     <div class="col-xs-4">
                         <indigo-select indigo-items="vm.conditionSimilarity"
-                                       indigo-model="vm.state.model.restrictions.structure.similarityCriteria"></indigo-select>
+                                       indigo-model="vm.state.restrictions.structure.similarityCriteria"></indigo-select>
                     </div>
-                    <div ng-if="vm.state.model.restrictions.structure.similarityCriteria.name == 'similarity'">
+                    <div ng-if="vm.state.restrictions.structure.similarityCriteria.name == 'similarity'">
                         <simple-input class="col-xs-1"
                                       validation-pattern-text="Enter 1-100">
                             <input class="form-control"
@@ -177,7 +177,7 @@
                                    ng-pattern="/^\d{1,2}(?!\d)|100$/"
                                    ng-required
                                    maxlength="3"
-                                   ng-model="vm.state.model.restrictions.structure.similarityValue">
+                                   ng-model="vm.state.restrictions.structure.similarityValue">
                         </simple-input>
                         <div class="relative">
                             <span class="absolute top-7">%</span>
@@ -188,21 +188,21 @@
                     <indigo-structure-scheme class="search-structure-scheme"
                                              ss-structure-type="molecule"
                                              ss-title="'Structure or reaction'"
-                                             ss-model="vm.state.model.restrictions.structure"
+                                             ss-model="vm.state.restrictions.structure"
                                              model-trigger="vm.clearStructureTrigger"
                                              ss-autosave="false"
                                              model-trigger="vm.selectedBatchTrigger"
                                              on-changed="vm.onChangeModel(structure)"
-                                             ng-if="vm.state.model.restrictions.structure.type.name == 'Product'">
+                                             ng-if="vm.state.restrictions.structure.type.name == 'Product'">
                     </indigo-structure-scheme>
                     <indigo-structure-scheme class="search-structure-scheme"
                                              ss-structure-type="reaction"
                                              ss-title="'Structure or reaction'"
-                                             ss-model="vm.state.model.restrictions.structure"
+                                             ss-model="vm.state.restrictions.structure"
                                              model-trigger="vm.clearStructureTrigger"
                                              on-changed="vm.onChangeModel(structure)"
                                              ss-autosave="false"
-                                             ng-if="vm.state.model.restrictions.structure.type.name == 'Reaction'">
+                                             ng-if="vm.state.restrictions.structure.type.name == 'Reaction'">
                     </indigo-structure-scheme>
                 </div>
             </div>
@@ -210,8 +210,8 @@
         <div class="btn-bottom-block">
             <button class="btn btn-primary btn-can-loading {{(vm.loading) ? 'btn-loading' : ''}}" type="button"
                     ng-click="vm.search()"
-                    ng-disabled="!vm.state.model.restrictions.structure.image && !vm.isAdvancedSearchFilled() &&
-                    !vm.state.model.restrictions.searchQuery" i-translate="SEARCH">
+                    ng-disabled="!vm.state.restrictions.structure.image && !vm.isAdvancedSearchFilled() &&
+                    !vm.state.restrictions.searchQuery" i-translate="SEARCH">
             </button>
             <button class="btn btn-secondary" type="button" ng-click="vm.clear()" i-translate="CLEAR"></button>
         </div>

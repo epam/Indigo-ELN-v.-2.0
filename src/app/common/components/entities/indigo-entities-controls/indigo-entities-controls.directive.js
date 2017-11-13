@@ -1,4 +1,4 @@
-var template = require('./entities-controls.html');
+var template = require('./indigo-entities-controls.html');
 
 function indigoEntitiesControls() {
     return {
@@ -17,11 +17,10 @@ function indigoEntitiesControls() {
     };
 }
 
-IndigoEntitiesControlsController.$inject = ['$state', 'entitiesBrowser', 'modalHelper', 'projectsForSubCreation', 'appRoles',
-    '$scope'];
+IndigoEntitiesControlsController.$inject = ['$state', 'entitiesBrowser', 'modalHelper', 'projectsForSubCreation',
+    'appRoles', '$scope'];
 
-function IndigoEntitiesControlsController($state, entitiesBrowser, modalHelper, projectsForSubCreation, appRoles,
-                                          $scope) {
+function IndigoEntitiesControlsController($state, entitiesBrowser, modalHelper, projectsForSubCreation, appRoles) {
     var vm = this;
 
     $onInit();
@@ -38,8 +37,6 @@ function IndigoEntitiesControlsController($state, entitiesBrowser, modalHelper, 
         vm.ENTITY_CREATORS = [vm.CONTENT_EDITOR, vm.PROJECT_CREATOR, vm.NOTEBOOK_CREATOR, vm.EXPERIMENT_CREATOR]
             .join(',');
         vm.isDashboard = false;
-
-        init();
 
         vm.onTabClick = onTabClick;
         vm.openSearch = openSearch;
@@ -69,15 +66,12 @@ function IndigoEntitiesControlsController($state, entitiesBrowser, modalHelper, 
     function save() {
         vm.onSave();
     }
-        function canSave() {
-            return !!entitiesBrowser.saveCurrentEntity
-                && !!entitiesBrowser.getCurrentForm()
-                && entitiesBrowser.getCurrentForm().$dirty;
-        }
 
-        function save() {
-            vm.onSave();
-        }
+    function canSave() {
+        return !!entitiesBrowser.saveCurrentEntity
+            && !!entitiesBrowser.getCurrentForm()
+            && entitiesBrowser.getCurrentForm().$dirty;
+    }
 
     function canPrint() {
         var actions = entitiesBrowser.getEntityActions();

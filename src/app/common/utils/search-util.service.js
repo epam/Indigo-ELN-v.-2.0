@@ -1,6 +1,5 @@
 /* @ngInject */
 function searchUtilService(modelRestrictions) {
-    var storedModel;
     var storedOptions;
 
     return {
@@ -21,14 +20,8 @@ function searchUtilService(modelRestrictions) {
         return storedOptions;
     }
 
-    function getStoredModel(clear) {
-        if (storedModel && !clear) {
-            return storedModel;
-        }
-        storedModel = {};
-        storedModel.restrictions = angular.copy(modelRestrictions);
-
-        return storedModel;
+    function getStoredModel() {
+        return angular.copy(modelRestrictions);
     }
 
     function prepareStructure(restrictions) {

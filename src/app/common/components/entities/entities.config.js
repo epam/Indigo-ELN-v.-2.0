@@ -1,4 +1,3 @@
-var entitiesTemplate = require('./entities.html');
 entitiesConfig.$inject = ['$stateProvider'];
 
 function entitiesConfig($stateProvider) {
@@ -12,9 +11,7 @@ function entitiesConfig($stateProvider) {
             parent: 'entity',
             views: {
                 'content@app_page': {
-                    template: entitiesTemplate,
-                    controller: 'EntitiesController',
-                    controllerAs: 'vm'
+                    template: '<entities></entities>'
                 }
             }
         });

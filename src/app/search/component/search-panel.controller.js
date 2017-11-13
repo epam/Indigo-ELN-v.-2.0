@@ -1,9 +1,9 @@
 /* @ngInject */
 function SearchPanelController($scope, searchService, $state, $stateParams, searchUtilService, pageInfo,
-                               entitiesCache, printModal, dictionaryService) {
+                               entitiesCache, printModal, dictionaryService, tabKeyUtils) {
     var OWN_ENTITY = 'OWN_ENTITY';
     var USERS_ENTITIES = 'USERS_ENTITIES';
-    var CACHE_STATE_KEY = $state.$current.data.tab.state;
+    var CACHE_STATE_KEY = tabKeyUtils.getTabKeyFromTab($state.current.data.tab);
     var vm = this;
 
     init();
@@ -47,41 +47,44 @@ function SearchPanelController($scope, searchService, $state, $stateParams, sear
         vm.onChangeModel = onChangeModel;
         vm.printEntity = printEntity;
 
-        if (entitiesCache.getByName(CACHE_STATE_KEY)) {
-            vm.state = entitiesCache.getByName(CACHE_STATE_KEY);
+        if (entitiesCache.getByKey(CACHE_STATE_KEY)) {
+            vm.state = entitiesCache.getByKey(CACHE_STATE_KEY);
         } else {
             initDefaultState();
         }
         if ($stateParams.query) {
-            vm.state.model.restrictions.searchQuery = $stateParams.query;
+            vm.state.restrictions.searchQuery = $stateParams.query;
             search();
         }
     }
 
     function initDefaultState() {
-        vm.state = {};
         vm.clearStructureTrigger = 0;
-        vm.state.model = searchUtilService.getStoredModel();
-        vm.state.$$isCollapsed = searchUtilService.getStoredOptions().isCollapsed;
-        vm.state.selectedItemsFlags = {};
-        vm.state.selectedEntitiesFlags = {};
-        vm.state.selectedUsers = [];
-        vm.state.itemsPerPage = 10;
-        vm.state.page = 1;
-        vm.state.domainModel = '';
-        vm.state.searchResults = [];
-        vm.state.searchResultsPaged = [];
+        vm.state = {
+            restrictions: searchUtilService.getStoredModel(),
+            $$isCollapsed: searchUtilService.getStoredOptions().isCollapsed,
+            selectedItemsFlags: {},
+            selectedEntitiesFlags: {},
+            selectedUsers: [],
+            itemsPerPage: 10,
+            page: 1,
+            domainModel: '',
+            searchResults: [],
+            searchResultsPaged: []
+        };
 
         initDropdownInfoForSelectSearch();
+
+        entitiesCache.putByKey(CACHE_STATE_KEY, vm.state);
     }
 
     function initDropdownInfoForSelectSearch() {
-        _.forEach(vm.state.model.restrictions.advancedSearch, function(data) {
+        _.forEach(vm.state.restrictions.advancedSearch, function(data) {
             if (data.isSelect) {
                 dictionaryService.get({
                     id: data.field
                 }).$promise.then(function(dictionary) {
-                    vm.state.model.restrictions.advancedSearch[data.field].searchConditions = dictionary.words;
+                    vm.state.restrictions.advancedSearch[data.field].searchConditions = dictionary.words;
                 });
             }
         });
@@ -89,7 +92,7 @@ function SearchPanelController($scope, searchService, $state, $stateParams, sear
 
     function clear() {
         vm.clearStructureTrigger = !vm.clearStructureTrigger;
-        vm.state.model = searchUtilService.getStoredModel(true);
+        vm.state.restrictions = searchUtilService.getStoredModel();
         vm.state.searchResults = [];
         vm.state.searchResultsPaged = [];
 
@@ -97,15 +100,15 @@ function SearchPanelController($scope, searchService, $state, $stateParams, sear
     }
 
     function isAdvancedSearchFilled() {
-        return searchUtilService.isAdvancedSearchFilled(vm.state.model.restrictions.advancedSearch);
+        return searchUtilService.isAdvancedSearchFilled(vm.state.restrictions.advancedSearch);
     }
 
     function changeDomain() {
-        vm.state.model.restrictions.advancedSearch.entityDomain.value = [];
+        vm.state.restrictions.advancedSearch.entityDomain.value = [];
         if (vm.state.domainModel === OWN_ENTITY) {
-            vm.state.model.restrictions.advancedSearch.entityDomain.value.push(vm.identity.id);
+            vm.state.restrictions.advancedSearch.entityDomain.value.push(vm.identity.id);
         } else if (vm.state.domainModel === USERS_ENTITIES) {
-            vm.state.model.restrictions.advancedSearch.entityDomain.value = _.map(
+            vm.state.restrictions.advancedSearch.entityDomain.value = _.map(
                 vm.state.selectedUsers,
                 function(user) {
                     return user.id;
@@ -116,7 +119,7 @@ function SearchPanelController($scope, searchService, $state, $stateParams, sear
 
     function selectedUsersChange() {
         if (vm.state.domainModel === USERS_ENTITIES) {
-            vm.state.model.restrictions.advancedSearch.entityDomain.value = _.map(
+            vm.state.restrictions.advancedSearch.entityDomain.value = _.map(
                 vm.state.selectedUsers,
                 function(user) {
                     return user.id;
@@ -127,29 +130,29 @@ function SearchPanelController($scope, searchService, $state, $stateParams, sear
 
     function selectItem(item) {
         if (vm.state.selectedItemsFlags[item]) {
-            vm.state.model.restrictions.advancedSearch.statusCriteria.value.push(item);
+            vm.state.restrictions.advancedSearch.statusCriteria.value.push(item);
         } else {
-            var index = _.indexOf(vm.state.model.restrictions.advancedSearch.statusCriteria.value, item);
+            var index = _.indexOf(vm.state.restrictions.advancedSearch.statusCriteria.value, item);
             if (index !== -1) {
-                vm.state.model.restrictions.advancedSearch.statusCriteria.value.splice(index, 1);
+                vm.state.restrictions.advancedSearch.statusCriteria.value.splice(index, 1);
             }
         }
     }
 
     function selectEntity(item) {
         if (vm.state.selectedEntitiesFlags[item]) {
-            vm.state.model.restrictions.advancedSearch.entityTypeCriteria.value.push(item);
+            vm.state.restrictions.advancedSearch.entityTypeCriteria.value.push(item);
         } else {
-            var index = _.indexOf(vm.state.model.restrictions.advancedSearch.entityTypeCriteria.value, item);
+            var index = _.indexOf(vm.state.restrictions.advancedSearch.entityTypeCriteria.value, item);
             if (index !== -1) {
-                vm.state.model.restrictions.advancedSearch.entityTypeCriteria.value.splice(index, 1);
+                vm.state.restrictions.advancedSearch.entityTypeCriteria.value.splice(index, 1);
             }
         }
     }
 
     function search() {
         vm.loading = true;
-        var searchRequest = searchUtilService.prepareSearchRequest(vm.state.model.restrictions);
+        var searchRequest = searchUtilService.prepareSearchRequest(vm.state.restrictions);
         searchService.searchAll(searchRequest, function(result) {
             vm.loading = false;
             vm.state.searchResults = result;
@@ -187,12 +190,8 @@ function SearchPanelController($scope, searchService, $state, $stateParams, sear
     }
 
     function onChangeModel(structure) {
-        angular.extend(vm.state.model.restrictions.structure, structure);
+        angular.extend(vm.state.restrictions.structure, structure);
     }
-
-    $scope.$on('$destroy', function() {
-        entitiesCache.putByName(CACHE_STATE_KEY, vm.state);
-    });
 }
 
 module.exports = SearchPanelController;

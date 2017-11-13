@@ -4,10 +4,9 @@ function entitiesCacheService(CacheFactory, tabKeyUtils) {
 
     return {
         put: put,
-        putByName: putByName,
-        getByName: getByName,
         get: get,
         getByKey: getByKey,
+        putByKey: putByKey,
         removeByKey: removeByKey,
         removeByParams: removeByParams,
         clearAll: clearAll
@@ -17,20 +16,16 @@ function entitiesCacheService(CacheFactory, tabKeyUtils) {
         entitiesCache.put(tabKeyUtils.getTabKeyFromParams(stateParams), data);
     }
 
-    function putByName(name, data) {
-        entitiesCache.put(name, data);
-    }
-
-    function getByName(name) {
-        return entitiesCache.get(name);
-    }
-
     function get(stateParams) {
         return entitiesCache.get(tabKeyUtils.getTabKeyFromParams(stateParams));
     }
 
     function getByKey(key) {
         return entitiesCache.get(key);
+    }
+
+    function putByKey(key, data) {
+        entitiesCache.put(key, data);
     }
 
     function removeByKey(key) {
