@@ -1,4 +1,5 @@
-stoichReactantsColumns.$inject = ['appUnits', 'stoichColumnActions', 'selectService', 'unitService', 'calculationService'];
+stoichReactantsColumns.$inject =
+    ['appUnits', 'stoichColumnActions', 'selectService', 'unitService', 'calculationService'];
 
 function stoichReactantsColumns(appUnits, stoichColumnActions, selectService, unitService, calculationService) {
     return {

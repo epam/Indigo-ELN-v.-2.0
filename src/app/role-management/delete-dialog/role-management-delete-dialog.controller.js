@@ -10,7 +10,8 @@ function RoleManagementDeleteController($uibModalInstance, roleService, entity) 
     }
 
     function confirmDelete() {
-        roleService.delete({
+        roleService.delete(
+            {
                 id: entity.id
             },
             function() {
@@ -18,7 +19,8 @@ function RoleManagementDeleteController($uibModalInstance, roleService, entity) 
             },
             function() {
                 $uibModalInstance.close(false);
-            });
+            }
+        );
     }
 }
 

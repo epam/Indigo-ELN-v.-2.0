@@ -12,7 +12,8 @@ function UserManagementDeleteController($uibModalInstance, entity, userService) 
     }
 
     function confirmDelete(login) {
-        userService.delete({
+        userService.delete(
+            {
                 login: login
             },
             function() {

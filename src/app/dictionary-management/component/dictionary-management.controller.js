@@ -1,7 +1,9 @@
-var dictionaryManagementDeleteWordDialogTemplate = require('../../dictionary-management/delete-word-dialog/dictionary-management-delete-word-dialog.html');
+var dictionaryManagementDeleteWordDialogTemplate =
+    require('../../dictionary-management/delete-word-dialog/dictionary-management-delete-word-dialog.html');
 
 /* @ngInject */
-function DictionaryManagementController($scope, $filter, $uibModal, notifyService, dictionaryService, parseLinksService) {
+function DictionaryManagementController($scope, $filter, $uibModal,
+                                        notifyService, dictionaryService, parseLinksService) {
     var vm = this;
 
     vm.dictionaries = [];

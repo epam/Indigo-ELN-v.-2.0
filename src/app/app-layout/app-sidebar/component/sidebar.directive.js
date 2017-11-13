@@ -20,7 +20,8 @@ function SidebarController($scope, $state, $stateParams, sidebarCache, entityTre
     vm.ROLE_EDITOR = 'ROLE_EDITOR';
     vm.TEMPLATE_EDITOR = 'TEMPLATE_EDITOR';
     vm.DICTIONARY_EDITOR = 'DICTIONARY_EDITOR';
-    vm.ADMINISTRATION_AUTHORITIES = [vm.USER_EDITOR, vm.ROLE_EDITOR, vm.TEMPLATE_EDITOR, vm.DICTIONARY_EDITOR].join(',');
+    vm.ADMINISTRATION_AUTHORITIES = [vm.USER_EDITOR, vm.ROLE_EDITOR, vm.TEMPLATE_EDITOR, vm.DICTIONARY_EDITOR]
+        .join(',');
     vm.$state = $state;
 
     vm.getTreeItemById = getTreeItemById;

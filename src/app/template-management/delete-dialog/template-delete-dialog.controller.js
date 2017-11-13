@@ -10,12 +10,14 @@ function TemplateDeleteController($uibModalInstance, $stateParams, templateServi
     }
 
     function confirmDelete() {
-        templateService.delete({
+        templateService.delete(
+            {
                 id: $stateParams.id
             },
             function() {
                 $uibModalInstance.close(true);
-            });
+            }
+        );
     }
 }
 

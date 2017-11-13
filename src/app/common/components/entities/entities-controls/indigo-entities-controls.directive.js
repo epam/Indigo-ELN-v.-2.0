@@ -35,11 +35,15 @@ function IndigoEntitiesControlsController($state, entitiesBrowser, modalHelper, 
         vm.PROJECT_CREATORS = [vm.CONTENT_EDITOR, vm.PROJECT_CREATOR].join(',');
         vm.NOTEBOOK_CREATORS = [vm.CONTENT_EDITOR, vm.NOTEBOOK_CREATOR].join(',');
         vm.EXPERIMENT_CREATORS = [vm.CONTENT_EDITOR, vm.EXPERIMENT_CREATOR].join(',');
-        vm.ENTITY_CREATORS = [vm.CONTENT_EDITOR, vm.PROJECT_CREATOR, vm.NOTEBOOK_CREATOR, vm.EXPERIMENT_CREATOR].join(',');
+        vm.ENTITY_CREATORS = [vm.CONTENT_EDITOR, vm.PROJECT_CREATOR, vm.NOTEBOOK_CREATOR, vm.EXPERIMENT_CREATOR]
+            .join(',');
         vm.isDashboard = false;
+
+        init();
 
         vm.onTabClick = onTabClick;
         vm.openSearch = openSearch;
+        vm.canSave = canSave;
         vm.save = save;
         vm.canPrint = canPrint;
         vm.print = print;
@@ -65,6 +69,15 @@ function IndigoEntitiesControlsController($state, entitiesBrowser, modalHelper, 
     function save() {
         vm.onSave();
     }
+        function canSave() {
+            return !!entitiesBrowser.saveCurrentEntity
+                && !!entitiesBrowser.getCurrentForm()
+                && entitiesBrowser.getCurrentForm().$dirty;
+        }
+
+        function save() {
+            vm.onSave();
+        }
 
     function canPrint() {
         var actions = entitiesBrowser.getEntityActions();

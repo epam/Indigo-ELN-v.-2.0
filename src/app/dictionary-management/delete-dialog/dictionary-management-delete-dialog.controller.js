@@ -10,7 +10,8 @@ function DictionaryManagementDeleteController($uibModalInstance, dictionaryServi
     }
 
     function confirmDelete() {
-        dictionaryService.delete({
+        dictionaryService.delete(
+            {
                 id: entity.id
             },
             function() {
@@ -18,7 +19,8 @@ function DictionaryManagementDeleteController($uibModalInstance, dictionaryServi
             },
             function() {
                 $uibModalInstance.close(false);
-            });
+            }
+        );
     }
 }
 

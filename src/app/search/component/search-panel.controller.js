@@ -105,17 +105,23 @@ function SearchPanelController($scope, searchService, $state, $stateParams, sear
         if (vm.state.domainModel === OWN_ENTITY) {
             vm.state.model.restrictions.advancedSearch.entityDomain.value.push(vm.identity.id);
         } else if (vm.state.domainModel === USERS_ENTITIES) {
-            vm.state.model.restrictions.advancedSearch.entityDomain.value = _.map(vm.state.selectedUsers, function(user) {
-                return user.id;
-            });
+            vm.state.model.restrictions.advancedSearch.entityDomain.value = _.map(
+                vm.state.selectedUsers,
+                function(user) {
+                    return user.id;
+                }
+            );
         }
     }
 
     function selectedUsersChange() {
         if (vm.state.domainModel === USERS_ENTITIES) {
-            vm.state.model.restrictions.advancedSearch.entityDomain.value = _.map(vm.state.selectedUsers, function(user) {
-                return user.id;
-            });
+            vm.state.model.restrictions.advancedSearch.entityDomain.value = _.map(
+                vm.state.selectedUsers,
+                function(user) {
+                    return user.id;
+                }
+            );
         }
     }
 

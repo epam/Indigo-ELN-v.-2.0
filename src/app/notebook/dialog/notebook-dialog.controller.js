@@ -1,7 +1,7 @@
 /* @ngInject */
-function NotebookDialogController($scope, $state, notebookService, notifyService, permissionManagementService, modalHelper,
-                                  experimentUtil, pageInfo, entitiesBrowser, $timeout, $stateParams, tabKeyUtils,
-                                  autorecoveryHelper, notebookSummaryExperiments, $q, entitiesCache,
+function NotebookDialogController($scope, $state, notebookService, notifyService, permissionManagementService,
+                                  modalHelper, experimentUtil, pageInfo, entitiesBrowser, $timeout, $stateParams,
+                                  tabKeyUtils, autorecoveryHelper, notebookSummaryExperiments, $q, entitiesCache,
                                   autorecoveryCache, confirmationModal, entityHelper) {
     var vm = this;
     var identity = pageInfo.identity;
@@ -56,7 +56,9 @@ function NotebookDialogController($scope, $state, notebookService, notifyService
 
         if (!restoredEntity) {
             pageInfo.notebook.author = pageInfo.notebook.author || identity;
-            pageInfo.notebook.accessList = pageInfo.notebook.accessList || permissionManagementService.getAuthorAccessList(identity);
+            pageInfo.notebook.accessList = pageInfo.notebook.accessList
+                || permissionManagementService.getAuthorAccessList(identity);
+
             vm.notebook = pageInfo.notebook;
         } else if (restoredEntity.version === pageInfo.notebook.version) {
             vm.notebook = restoredEntity;
@@ -217,6 +219,7 @@ function NotebookDialogController($scope, $state, notebookService, notifyService
             }
             vm.hasError = false;
             partialRefresh();
+
             return;
         }
 

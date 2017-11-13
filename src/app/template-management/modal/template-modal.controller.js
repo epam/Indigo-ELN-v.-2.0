@@ -111,7 +111,9 @@ function TemplateModalController($scope, $stateParams, templateService, notifySe
 
     function onSaveError(result) {
         vm.isSaving = false;
-        var mess = result.status === 400 ? 'Error saving, template name already exists.' : 'Template is not saved due to server error!';
+        var mess = result.status === 400
+            ? 'Error saving, template name already exists.'
+            : 'Template is not saved due to server error!';
         notifyService.error(mess);
     }
 }

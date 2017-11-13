@@ -102,9 +102,13 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
                         reactants: function() {
                             var reactants = _.map(batchesToSearch, function(batch) {
                                 var batchCopy = angular.copy(batch);
-                                calculationService.getImageForStructure(batchCopy.structure.molfile, 'molecule', function(image) {
-                                    batchCopy.structure.image = image;
-                                });
+                                calculationService.getImageForStructure(
+                                    batchCopy.structure.molfile,
+                                    'molecule',
+                                    function(image) {
+                                        batchCopy.structure.image = image;
+                                    }
+                                );
 
                                 return batchCopy;
                             });
@@ -278,7 +282,8 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
 
     function isEqualsMolfiles(reaction) {
         return _.some(reaction, function(reagent, index) {
-            return _.get(reagent.structure, 'molfile') === _.get(vm.model.stoichTable, 'products[' + index + '].structure.molfile');
+            return _.get(reagent.structure, 'molfile')
+                === _.get(vm.model.stoichTable, 'products[' + index + '].structure.molfile');
         });
     }
 
@@ -370,7 +375,10 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
 
         var allPromises = _.map(reactantsInfo, function(reactantInfo) {
             var reactantsEqualityPromises = _.map(stoicReactants, function(stoicReactant) {
-                return calculationService.isMoleculesEqual(stoicReactant.structure.molfile, reactantInfo.structure.molfile);
+                return calculationService.isMoleculesEqual(
+                    stoicReactant.structure.molfile,
+                    reactantInfo.structure.molfile
+                );
             });
 
             return $q.all(reactantsEqualityPromises).then(function(responces) {

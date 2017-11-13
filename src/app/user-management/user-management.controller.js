@@ -5,6 +5,7 @@ UserManagementController.$inject = ['$uibModal', 'userService', 'parseLinksServi
 
 function UserManagementController($uibModal, userService, parseLinksService, $filter, pageInfo, notifyService) {
     var vm = this;
+
     vm.users = [];
     vm.roles = pageInfo.roles;
     vm.page = 1;
@@ -116,6 +117,7 @@ function UserManagementController($uibModal, userService, parseLinksService, $fi
             controllerAs: 'vm',
             controller: function($scope, $uibModalInstance) {
                 var vm = this;
+
                 vm.cancel = cancel;
                 vm.ok = ok;
 

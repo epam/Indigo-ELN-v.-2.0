@@ -93,7 +93,8 @@ function IndigoTableController($scope, dragulaService, simpleLocalCache, princip
     }
 
     function getVisibleColumns() {
-        return simpleLocalCache.getByKey(userId + '.' + vm.indigoId + '.visible.columns') || buildVisibleColumns(vm.indigoColumns);
+        return simpleLocalCache.getByKey(userId + '.' + vm.indigoId + '.visible.columns')
+            || buildVisibleColumns(vm.indigoColumns);
     }
 
     function saveColumnSettings() {

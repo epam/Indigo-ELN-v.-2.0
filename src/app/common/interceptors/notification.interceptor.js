@@ -1,10 +1,10 @@
 /* @ngInject */
 function notificationInterceptor($injector) {
-    var SUCCESS_ALERT = 'X-indigoeln-success-alert',
-        ERROR_ALERT = 'X-indigoeln-error-alert',
-        WARNING_ALERT = 'X-indigoeln-warning-alert',
-        INFO_ALERT = 'X-indigoeln-info-alert',
-        ALERT_PARAMS = 'X-indigoeln-params';
+    var SUCCESS_ALERT = 'X-indigoeln-success-alert';
+    var ERROR_ALERT = 'X-indigoeln-error-alert';
+    var WARNING_ALERT = 'X-indigoeln-warning-alert';
+    var INFO_ALERT = 'X-indigoeln-info-alert';
+    var ALERT_PARAMS = 'X-indigoeln-params';
 
     return {
         response: response

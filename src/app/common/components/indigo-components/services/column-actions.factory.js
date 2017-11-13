@@ -1,4 +1,5 @@
-var productBatchSummarySetSourceTemplate = require('../directives/product-batch-summary-set-source/product-batch-summary-set-source.html');
+var productBatchSummarySetSourceTemplate =
+    require('../directives/product-batch-summary-set-source/product-batch-summary-set-source.html');
 
 columnActions.$inject = ['infoEditor', 'registrationUtil', '$uibModal'];
 
