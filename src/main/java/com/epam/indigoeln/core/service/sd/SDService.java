@@ -32,11 +32,24 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Service class for exporting and importing SDFiles
+ */
 @Service
 public class SDService {
 
+    /**
+     * Logger instance
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(SDService.class);
 
+    /**
+     * Read SDFile to collection of item representation
+     *
+     * @param reader reader for SDFile
+     * @return collection of items (structures with properties) from SDFile
+     * @throws IndigoRuntimeException in case of any errors during SDFile reading
+     */
     public Collection<SdUnit> parse(Reader reader) throws IndigoRuntimeException {
         List<SdUnit> result = new ArrayList<>();
         try {
@@ -61,7 +74,13 @@ public class SDService {
         return result;
     }
 
-    public SDFileInfo create(Collection<SDExportItem> items) throws IndigoRuntimeException {
+    /**
+     * Create SDFile representation from given collection of SDFile items
+     *
+     * @param items collection of SDFile items
+     * @return SDFile representation
+     */
+    public SDFileInfo create(Collection<SDExportItem> items) {
         SDFileInfo info = new SDFileInfo();
         if (items != null && !items.isEmpty()) {
             StringBuilder str = new StringBuilder();
@@ -83,6 +102,13 @@ public class SDService {
         }
     }
 
+    /**
+     * Create string representation of given SDFile item
+     *
+     * @param item SDFile item
+     * @return string representation of given SDFile item
+     * @throws IndigoRuntimeException in case if compound structure is empty or any other error
+     */
     public String create(SDExportItem item) throws IndigoRuntimeException {
         SdUnit sDunit;
 
@@ -109,5 +135,4 @@ public class SDService {
         }
 
     }
-
 }

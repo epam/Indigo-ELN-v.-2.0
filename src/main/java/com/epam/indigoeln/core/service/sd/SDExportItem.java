@@ -2,10 +2,19 @@ package com.epam.indigoeln.core.service.sd;
 
 import java.util.Map;
 
+/**
+ * SDFile item representation
+ */
 public class SDExportItem {
 
+    /**
+     * Structure in MolFile format
+     */
     private String molfile;
 
+    /**
+     * Structure properties
+     */
     private Map<String, String> properties;
 
     public String getMolfile() {

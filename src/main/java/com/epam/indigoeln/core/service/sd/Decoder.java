@@ -26,15 +26,30 @@ import org.apache.commons.logging.LogFactory;
 import java.io.ByteArrayOutputStream;
 import java.util.zip.Inflater;
 
-public class Decoder {
+/**
+ * Util class to decode zipped base64 encoded strings
+ */
+class Decoder {
 
+    /**
+     * Logger instance
+     */
     private static final Log LOGGER = LogFactory.getLog(Decoder.class);
 
+    /**
+     * Hidden default constructor
+     */
     private Decoder() {
         // Hide the default constructor
     }
 
-    public static String decodeString(String molRecord) {
+    /**
+     * Decode base64 and unzip string
+     *
+     * @param molRecord string to decode and unzip
+     * @return base64 decoded and unzipped string
+     */
+    static String decodeString(String molRecord) {
         String result = molRecord;
 
         if (StringUtils.isNotBlank(molRecord)) {
@@ -46,12 +61,13 @@ public class Decoder {
 
                 decompressor.setInput(decoded);
 
-                int count = -1;
+                int count;
                 while (!decompressor.finished()) {
                     count = decompressor.inflate(buf);
 
-                    if (count == 0)
+                    if (count == 0) {
                         break;
+                    }
 
                     bos.write(buf, 0, count);
                 }
