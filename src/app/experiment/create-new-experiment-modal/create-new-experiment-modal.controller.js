@@ -39,7 +39,7 @@ function CreateNewExperimentModalController($scope, componentsUtils, $uibModalIn
     }
 
     function updateUserId() {
-        return principalService.identity()
+        return principalService.checkIdentity()
             .then(function(user) {
                 userId = user.id;
             });

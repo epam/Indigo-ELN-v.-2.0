@@ -1,5 +1,5 @@
 function stoichTableCache() {
-    var _stoichTable;
+    var stoichTable;
 
     return {
         getStoicTable: getStoicTable,
@@ -7,17 +7,17 @@ function stoichTableCache() {
     };
 
     function getStoicTable() {
-        if (!_stoichTable) {
-            _stoichTable = {
+        if (!stoichTable) {
+            stoichTable = {
                 reactants: [], products: null
             };
         }
 
-        return _stoichTable;
+        return stoichTable;
     }
 
     function setStoicTable(table) {
-        _stoichTable = table;
+        stoichTable = table;
     }
 }
 

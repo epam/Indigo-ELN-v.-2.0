@@ -1,5 +1,5 @@
 function productBatchSummaryCache() {
-    var _productBatchSummary;
+    var productBatchSummary;
 
     return {
         getProductBatchSummary: getProductBatchSummary,
@@ -7,11 +7,11 @@ function productBatchSummaryCache() {
     };
 
     function getProductBatchSummary() {
-        return _productBatchSummary;
+        return productBatchSummary;
     }
 
     function setProductBatchSummary(batches) {
-        _productBatchSummary = batches;
+        productBatchSummary = batches;
     }
 }
 

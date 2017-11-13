@@ -42,7 +42,7 @@ function projectConfig($stateProvider, permissionManagementConfig, permissionVie
             resolve: {
                 pageInfo: function($q, principalService) {
                     return $q.all([
-                        principalService.identity(),
+                        principalService.checkIdentity(),
                         principalService.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                         principalService.hasAuthorityIdentitySafe('PROJECT_CREATOR'),
                         principalService.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR')
@@ -87,7 +87,7 @@ function projectConfig($stateProvider, permissionManagementConfig, permissionVie
                 pageInfo: function($q, $stateParams, principalService, projectService) {
                     return $q.all([
                         projectService.get($stateParams).$promise,
-                        principalService.identity(),
+                        principalService.checkIdentity(),
                         principalService.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                         principalService.hasAuthorityIdentitySafe('PROJECT_CREATOR'),
                         principalService.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR')

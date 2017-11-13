@@ -95,6 +95,7 @@ function unitsConverter() {
     return {
         table: table,
         convert: function(value, unit) {
+            /* eslint new-cap: "off"*/
             return new unitConverter(value, unit);
         }
     };

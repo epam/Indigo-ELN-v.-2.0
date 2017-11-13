@@ -11,37 +11,37 @@ function appNavbar() {
             onToggleSidebar: '&'
         }
     };
+}
 
-    NavbarController.$inject = ['$scope', '$state', 'principalService', 'authService', 'entitiesCache'];
+NavbarController.$inject = ['$scope', '$state', 'principalService', 'authService', 'entitiesCache'];
 
-    function NavbarController($scope, $state, principalService, authService, entitiesCache) {
-        var vm = this;
+function NavbarController($scope, $state, principalService, authService, entitiesCache) {
+    var vm = this;
 
-        vm.logout = logout;
-        vm.search = search;
+    vm.logout = logout;
+    vm.search = search;
 
-        init();
+    init();
 
-        function init() {
-            principalService.identity().then(function(user) {
-                vm.user = user;
-            });
+    function init() {
+        principalService.checkIdentity().then(function(user) {
+            vm.user = user;
+        });
 
-            $scope.$on('$destroy', function() {
-                entitiesCache.clearAll();
-            });
-        }
-
-        function logout() {
-            authService.logout();
+        $scope.$on('$destroy', function() {
             entitiesCache.clearAll();
-            $state.go('login');
-        }
+        });
+    }
 
-        function search() {
-            vm.query = (vm.query || '').trim().toLowerCase();
-            $state.go('entities.search-panel', {query: vm.query});
-        }
+    function logout() {
+        authService.logout();
+        entitiesCache.clearAll();
+        $state.go('login');
+    }
+
+    function search() {
+        vm.query = (vm.query || '').trim().toLowerCase();
+        $state.go('entities.search-panel', {query: vm.query});
     }
 }
 

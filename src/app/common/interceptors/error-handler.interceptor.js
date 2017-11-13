@@ -5,7 +5,6 @@ function errorHandlerInterceptor($q, $injector, $rootScope, $log) {
     };
 
     function responseError(httpResponse) {
-        var i;
         var addErrorAlert = function() {
             $log.error(angular.toJson(arguments));
         };

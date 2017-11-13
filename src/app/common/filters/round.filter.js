@@ -24,7 +24,7 @@ function round(stoichTableCache, calculationService, unitsConverter) {
     };
 
     function getCorrectPrecisionForWeight(row) {
-        var numOfDigits = getNumberSignificantFigures(row['mol'].value);
+        var numOfDigits = getNumberSignificantFigures(row.mol.value);
 
         return numOfDigits > MAX_PRECISION ? DEFAULT_PRECISION : numOfDigits;
     }

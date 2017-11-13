@@ -32,7 +32,7 @@ function appConfig($stateProvider, $urlRouterProvider, $httpProvider, $compilePr
                     return authService.authorize();
                 },
                 user: function(principalService) {
-                    return principalService.identity();
+                    return principalService.checkIdentity();
                 }
             }
         })

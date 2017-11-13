@@ -134,7 +134,7 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
 
             return _.map(hashesToAdd, function(hash) {
                 return _.find(intended, {
-                    '$$batchHash': hash
+                    $$batchHash: hash
                 });
             });
         }
@@ -155,8 +155,8 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
             if (!batchesQueueToAdd.length) {
                 alertModal.info('Product Batch Summary is synchronized', 'sm');
             } else {
-                _.forEach(batchesQueueToAdd, function(batch) {
-                    batch = _.extend(appValues.getDefaultBatch(), batch);
+                _.map(batchesQueueToAdd, function(batch) {
+                    return _.extend(appValues.getDefaultBatch(), batch);
                 });
 
                 return duplicateBatches(batchesQueueToAdd, true);

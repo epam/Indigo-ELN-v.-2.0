@@ -12,7 +12,7 @@ function EntitiesController($scope, entitiesBrowser, $q, principalService, entit
         vm.saveEntity = saveEntity;
 
         bindEvents();
-        principalService.identity().then(function(user) {
+        principalService.checkIdentity().then(function(user) {
             entitiesBrowser.restoreTabs(user);
             entitiesBrowser.getTabs(function(tabs) {
                 vm.tabs = tabs;

@@ -28,7 +28,7 @@ function searchConfig($stateProvider) {
                 pageInfo: function($q, principalService, usersService) {
                     return $q.all([
                         usersService.get(),
-                        principalService.identity()
+                        principalService.checkIdentity()
                     ]).then(function(results) {
                         return {
                             users: results[0],

@@ -15,7 +15,7 @@ function authService($rootScope, $state, $q, principalService, authServerProvide
     function login(credentials) {
         return authServerProvider.login(credentials).then(function(data) {
             // retrieve the logged account information
-            return principalService.identity(true).then(function() {
+            return principalService.checkIdentity(true).then(function() {
                 return data;
             });
         }).catch(function(err) {
@@ -48,7 +48,7 @@ function authService($rootScope, $state, $q, principalService, authServerProvide
     }
 
     function authorize(force) {
-        return principalService.identity(force)
+        return principalService.checkIdentity(force)
             .then(function() {
                 var isAuthenticated = principalService.isAuthenticated();
 

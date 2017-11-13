@@ -1,11 +1,11 @@
 /* @ngInject */
 function permissionManagementService($q, principalService, userRemovableFromProject, userRemovableFromNotebook,
                                      permissionsConstants) {
-    var _accessList;
-    var _author;
-    var _entity;
-    var _entityId;
-    var _parentId;
+    var accessList;
+    var author;
+    var entity;
+    var entityId;
+    var parentId;
 
     var VIEWER = ['READ_ENTITY'];
     var USER = ['READ_ENTITY', 'CREATE_SUB_ENTITY'];
@@ -47,13 +47,13 @@ function permissionManagementService($q, principalService, userRemovableFromProj
     }
 
     function hasPermission(permission) {
-        if (!_accessList) {
+        if (!accessList) {
             return false;
         }
 
         var userId = principalService.getIdentity().id;
 
-        return _.some(_accessList, function(item) {
+        return _.some(accessList, function(item) {
             return item.user.id === userId && _.includes(item.permissions, permission);
         });
     }
@@ -78,43 +78,43 @@ function permissionManagementService($q, principalService, userRemovableFromProj
     }
 
     function getAccessList() {
-        return _accessList;
+        return accessList;
     }
 
-    function setAccessList(list) {
-        _accessList = list;
+    function setAccessList(newAccessList) {
+        accessList = newAccessList;
     }
 
     function getAuthor() {
-        return _author;
+        return author;
     }
 
-    function setAuthor(user) {
-        _author = user;
+    function setAuthor(newAuthor) {
+        author = newAuthor;
     }
 
     function getEntity() {
-        return _entity;
+        return entity;
     }
 
-    function setEntity(entity) {
-        _entity = entity;
+    function setEntity(newEntity) {
+        entity = newEntity;
     }
 
     function getEntityId() {
-        return _entityId;
+        return entityId;
     }
 
-    function setEntityId(entityId) {
-        _entityId = entityId;
+    function setEntityId(newEntityId) {
+        entityId = newEntityId;
     }
 
     function getParentId() {
-        return _parentId;
+        return parentId;
     }
 
-    function setParentId(parentId) {
-        _parentId = parentId;
+    function setParentId(newParentId) {
+        parentId = newParentId;
     }
 
     function hasAuthorityForProjectPermission(member, permission) {
@@ -173,31 +173,31 @@ function permissionManagementService($q, principalService, userRemovableFromProj
     }
 
     function hasAuthorityForPermission(member, permission) {
-        if (_entity === 'Project') {
+        if (entity === 'Project') {
             return hasAuthorityForProjectPermission(member, permission);
-        } else if (_entity === 'Notebook') {
+        } else if (entity === 'Notebook') {
             return hasAuthorityForNotebookPermission(member, permission);
-        } else if (_entity === 'Experiment') {
+        } else if (entity === 'Experiment') {
             return hasAuthorityForExperimentPermission(member, permission);
         }
     }
 
     function isUserRemovableFromAccessList(member) {
-        if (_entity === 'Experiment' || !_entityId) {
+        if (entity === 'Experiment' || !entityId) {
             return $q.resolve(true);
         }
 
-        if (_entity === 'Project') {
+        if (entity === 'Project') {
             return userRemovableFromProject.get({
-                projectId: _entityId,
+                projectId: entityId,
                 userId: member.user.id
             })
                 .$promise
                 .then(success);
-        } else if (_entity === 'Notebook') {
+        } else if (entity === 'Notebook') {
             return userRemovableFromNotebook.get({
-                projectId: _parentId,
-                notebookId: _entityId,
+                projectId: parentId,
+                notebookId: entityId,
                 userId: member.user.id
             })
                 .$promise

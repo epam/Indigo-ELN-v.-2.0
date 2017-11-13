@@ -2,6 +2,7 @@ var template = require('./notify-service.html');
 
 /* @ngInject */
 function notifyService(notify, $document) {
+    /* eslint angular/module-getter: 0*/
     notify.config({
         template: template,
         startTop: 0
