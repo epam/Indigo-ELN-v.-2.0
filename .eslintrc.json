@@ -57,7 +57,9 @@
     "no-shadow": [
       2,
       {
-        "allow": ["vm"]
+        "allow": [
+          "vm"
+        ]
       }
     ],
     "line-comment-position": [
@@ -72,12 +74,7 @@
     ],
     "no-plusplus": 0,
     "newline-before-return": 1,
-    "no-param-reassign": [
-      "error",
-      {
-        "props": false
-      }
-    ],
+    "no-param-reassign": 0,
     "object-curly-spacing": [
       2,
       "never"
@@ -114,6 +111,7 @@
   "globals": {
     "angular": false,
     "_": false,
-    "moment": false
+    "moment": false,
+    "apiUrl": false
   }
 }

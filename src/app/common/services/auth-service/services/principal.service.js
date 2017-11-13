@@ -1,8 +1,8 @@
 /* @ngInject */
 function principalService(accountService) {
-    var _identity;
+    var identity;
     var identityPromise;
-    var _authenticated = false;
+    var authenticated = false;
     var userChangeListenersIds = 0;
     var userChangeListeners = {};
 
@@ -13,7 +13,7 @@ function principalService(accountService) {
         hasAnyAuthority: hasAnyAuthority,
         hasAuthorityIdentitySafe: hasAuthorityIdentitySafe,
         authenticate: authenticate,
-        identity: identity,
+        checkIdentity: checkIdentity,
         getIdentity: getIdentity,
         addUserChangeListener: addUserChangeListener,
         getUserId: getUserId
@@ -36,28 +36,28 @@ function principalService(accountService) {
     }
 
     function isIdentityResolved() {
-        return !_.isUndefined(_identity);
+        return !_.isUndefined(identity);
     }
 
     function isAuthenticated() {
-        return _authenticated;
+        return authenticated;
     }
 
     function hasAuthority(authority) {
-        if (!_identity.authorities) {
+        if (!identity.authorities) {
             return false;
         }
 
-        return _identity.authorities.indexOf(authority) !== -1;
+        return identity.authorities.indexOf(authority) !== -1;
     }
 
     function hasAnyAuthority(authorities) {
-        if (!_identity.authorities) {
+        if (!identity.authorities) {
             return false;
         }
 
         for (var i = 0; i < authorities.length; i++) {
-            if (_identity.authorities.indexOf(authorities[i]) !== -1) {
+            if (identity.authorities.indexOf(authorities[i]) !== -1) {
                 return true;
             }
         }
@@ -74,15 +74,15 @@ function principalService(accountService) {
     }
 
     function authenticate(userIdentity) {
-        _identity = userIdentity;
-        _authenticated = userIdentity !== null;
+        identity = userIdentity;
+        authenticated = userIdentity !== null;
 
-        return _identity;
+        return identity;
     }
 
-    function identity(isNeedUpdate) {
+    function checkIdentity(isNeedUpdate) {
         if (isNeedUpdate) {
-            _identity = undefined;
+            identity = undefined;
             identityPromise = null;
         }
         // check and see if we have retrieved the identity data from the server.
@@ -105,11 +105,11 @@ function principalService(accountService) {
     }
 
     function getIdentity() {
-        return _identity;
+        return identity;
     }
 
     function getUserId() {
-        return _identity && _identity.id;
+        return identity && identity.id;
     }
 }
 

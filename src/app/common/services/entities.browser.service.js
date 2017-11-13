@@ -10,7 +10,7 @@ function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory
     var restored = false;
 
     var resolvePrincipal = function(func) {
-        return principalService.identity().then(func);
+        return principalService.checkIdentity().then(func);
     };
 
     var tabCache = CacheFactory.createCache('tabCache', {
@@ -258,10 +258,10 @@ function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory
     }
 
     function removeTabFromCache(storageKey, tabKey) {
-        var tabs = tabCache.get(storageKey);
+        var cacheTabs = tabCache.get(storageKey);
 
-        tabs = _.omit(tabs, tabKey);
-        tabCache.put(storageKey, tabs);
+        cacheTabs = _.omit(cacheTabs, tabKey);
+        tabCache.put(storageKey, cacheTabs);
     }
 }
 

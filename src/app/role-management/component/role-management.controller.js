@@ -122,15 +122,15 @@ function RoleManagementController($scope, roleService, accountRole, $filter, $ui
     function isLastRoleWithRoleEditor() {
         var roleEditorCount = 0;
         var lastRoleWithRoleEditorAuthority = false;
-        vm.accountRoles.forEach(function(accountRole) {
-            if (accountRole.authorities.indexOf(ROLE_EDITOR_AUTHORITY) >= 0) {
+        vm.accountRoles.forEach(function(role) {
+            if (role.authorities.indexOf(ROLE_EDITOR_AUTHORITY) >= 0) {
                 roleEditorCount++;
                 if (roleEditorCount > 1) {
                     lastRoleWithRoleEditorAuthority = false;
 
                     return;
                 }
-                if (vm.role.id === accountRole.id &&
+                if (vm.role.id === role.id &&
                     vm.role.authorities.indexOf(ROLE_EDITOR_AUTHORITY) === -1) {
                     lastRoleWithRoleEditorAuthority = true;
                 }

@@ -31,7 +31,7 @@ function indigoCollapsibleComponent($state, simpleLocalCache, principalService) 
             return paramsArr.join('-');
         }
 
-        principalService.identity()
+        principalService.checkIdentity()
             .then(function(user) {
                 var isCollapsed = false;
                 var $heading = $element.find('.panel-heading:first');

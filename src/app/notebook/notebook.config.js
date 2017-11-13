@@ -46,7 +46,7 @@ function notebookConfig($stateProvider, permissionManagementConfig, permissionVi
             resolve: {
                 pageInfo: function($q, $stateParams, principalService) {
                     return $q.all([
-                        principalService.identity(),
+                        principalService.checkIdentity(),
                         principalService.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                         principalService.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
                         principalService.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')
@@ -92,7 +92,7 @@ function notebookConfig($stateProvider, permissionManagementConfig, permissionVi
                     return $q
                         .all([
                             notebookService.get($stateParams).$promise,
-                            principalService.identity(),
+                            principalService.checkIdentity(),
                             principalService.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                             principalService.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
                             principalService.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')

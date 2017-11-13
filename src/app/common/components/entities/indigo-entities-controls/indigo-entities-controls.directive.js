@@ -18,7 +18,7 @@ function indigoEntitiesControls() {
 }
 
 IndigoEntitiesControlsController.$inject = ['$state', 'entitiesBrowser', 'modalHelper', 'projectsForSubCreation',
-    'appRoles', '$scope'];
+    'appRoles'];
 
 function IndigoEntitiesControlsController($state, entitiesBrowser, modalHelper, projectsForSubCreation, appRoles) {
     var vm = this;

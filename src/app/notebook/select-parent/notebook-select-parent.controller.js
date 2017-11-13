@@ -19,9 +19,9 @@ function NotebookSelectParentController($scope, $uibModalInstance, parents, prin
 
     function init() {
         // EPMLSOPELN-415 Remember last selected parent and template
-        principalService.identity()
+        principalService.checkIdentity()
             .then(function(user) {
-                var pkey = user.id + '.' + 'lastSelectedProjectId';
+                var pkey = user.id + '.lastSelectedProjectId';
                 var pval = simpleLocalCache.getByKey(pkey);
                 if (pval) {
                     vm.selectedParent = parents.filter(function(p) {

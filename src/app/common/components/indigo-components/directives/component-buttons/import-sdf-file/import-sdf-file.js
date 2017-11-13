@@ -32,7 +32,7 @@ function importSdfFileDirective() {
 
         function successAddedBatches(batches) {
             if (batches.length) {
-                _.forEach(batches, function (batch) {
+                _.forEach(batches, function(batch) {
                     vm.indigoComponents.onAddedBatch(batch);
                 });
                 vm.indigoComponents.onSelectBatch(_.last(batches));

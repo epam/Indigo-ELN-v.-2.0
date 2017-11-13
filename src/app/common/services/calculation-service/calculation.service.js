@@ -210,6 +210,8 @@ function calculationService($rootScope, $http, $q, appValues, apiUrl,
     }
 
     function resetValuesToDefault(values, batch) {
+        /* eslint no-shadow: "off"*/
+        // TODO Can we use global defaultBatch?
         var defaultBatch = appValues.getDefaultBatch();
 
         _.each(values, function(value) {

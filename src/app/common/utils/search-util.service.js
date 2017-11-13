@@ -41,7 +41,9 @@ function searchUtilService(modelRestrictions) {
 
     function prepareAdvancedSearch(restrictions) {
         var advancedSearch = restrictions.advancedSearch;
-        var advancedSummary = restrictions.advancedSummary = [];
+        var advancedSummary = [];
+        restrictions.advancedSummary = advancedSummary;
+
         _.each(advancedSearch, function(restriction) {
             restriction.value = _.isUndefined(restriction.selectedValue)
                 ? restriction.value

@@ -3,7 +3,7 @@ var webpack = require('webpack');
 var merge = require('webpack-merge');
 
 module.exports = function(env) {
-    return merge(commonConfig(env), {
+    var devConfig = {
         devtool: 'inline-source-map',
         devServer: {
             contentBase: './dist',
@@ -21,15 +21,19 @@ module.exports = function(env) {
             new webpack.NamedModulesPlugin(),
             new webpack.HotModuleReplacementPlugin()
         ]
-        //TODO Enable
-        // module: {
-        //     rules: [
-        //         {
-        //             test: /\.js$/,
-        //             exclude: /node_modules/,
-        //             loader: 'eslint-loader'
-        //         }
-        //     ]
-        // }
-    });
+    };
+
+    if (env.enableStyleCheck) {
+        devConfig.module = {
+            rules: [
+                {
+                    test: /\.js$/,
+                    exclude: /node_modules/,
+                    loader: 'eslint-loader'
+                }
+            ]
+        };
+    }
+
+    return merge(commonConfig(env), devConfig);
 };

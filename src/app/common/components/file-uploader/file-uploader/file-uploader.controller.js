@@ -91,10 +91,10 @@ function FileUploaderController($uibModal, $filter, $stateParams, fileUploaderCa
                     return UploaderService;
                 }
             }
-        }).result.then(function(file) {
-            vm.files = _.without(vm.files, file);
+        }).result.then(function(fileToDelete) {
+            vm.files = _.without(vm.files, fileToDelete);
             updateRowsForDisplay(vm.files);
-            fileUploaderCash.removeFile(file);
+            fileUploaderCash.removeFile(fileToDelete);
             notifyService.success('File was successfully deleted');
         });
     }

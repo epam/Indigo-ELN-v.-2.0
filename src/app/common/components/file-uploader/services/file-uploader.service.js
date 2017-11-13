@@ -1,5 +1,5 @@
 function fileUploaderCash() {
-    var _files;
+    var files;
 
     return {
         getFiles: getFiles,
@@ -10,28 +10,28 @@ function fileUploaderCash() {
     };
 
     function getFiles() {
-        return _files;
+        return files;
     }
 
-    function setFiles(files) {
-        _files = files;
+    function setFiles(newFiles) {
+        files = newFiles;
     }
 
-    function addFile(file) {
-        if (_files) {
-            _files.push(file);
+    function addFile(newFile) {
+        if (files) {
+            files.push(newFile);
         }
     }
 
     function removeFile(file) {
-        if (_files) {
-            _files = _.without(_files, file);
+        if (files) {
+            files = _.without(files, file);
         }
     }
 
-    function addFiles(files) {
-        if (_files) {
-            _files = _.union(_files, files);
+    function addFiles(newFiles) {
+        if (files) {
+            files = _.union(files, newFiles);
         }
     }
 }
