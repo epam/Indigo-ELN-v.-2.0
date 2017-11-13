@@ -68,7 +68,7 @@ function IndigoPreferredCompoundDetailsController($scope, entitiesBrowser, appVa
     }
 
     function onBatchOperationChanged(completed) {
-        vm.isBatchLoading = completed;
+        vm.isBatchLoading = !completed;
     }
 
     function onRowSelected(batch) {

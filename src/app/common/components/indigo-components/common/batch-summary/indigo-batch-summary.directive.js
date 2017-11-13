@@ -136,7 +136,7 @@ function IndigoBatchSummaryController($scope, registrationService, productBatchS
     }
 
     function onBatchOperationChanged(completed) {
-        vm.isBatchLoading = completed;
+        vm.isBatchLoading = !completed;
     }
 
     function bindEvents() {

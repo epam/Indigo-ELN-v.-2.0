@@ -70,7 +70,7 @@ function IndigoCompoundSummaryController($scope, batchHelper) {
     }
 
     function onBatchOperationChanged(completed) {
-        vm.isBatchLoading = completed;
+        vm.isBatchLoading = !completed;
     }
 
     function bindEvents() {

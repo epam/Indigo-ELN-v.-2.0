@@ -230,7 +230,7 @@ function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calc
     }
 
     function onBatchOperationChanged(completed) {
-        vm.isBatchLoading = completed;
+        vm.isBatchLoading = !completed;
     }
 
     function bindEvents() {
