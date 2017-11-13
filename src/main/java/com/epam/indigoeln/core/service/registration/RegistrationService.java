@@ -21,22 +21,66 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+/**
+ * Service class to work with compound registration services
+ */
 @Service
 public class RegistrationService {
 
+    /**
+     * Logger instance
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistrationService.class);
 
+    /**
+     * Default method name for similarity search
+     */
     private static final String DEFAULT_SIMILARITY = "tanimoto";
 
-    @Autowired
-    private List<RegistrationRepository> repositories;
-    @Autowired
-    private ComponentRepository componentRepository;
-    @Autowired
-    private RegistrationJobRepository registrationJobRepository;
-    @Autowired
-    private SimpMessagingTemplate template;
+    /**
+     * List of external registration services
+     */
+    private final List<RegistrationRepository> repositories;
 
+    /**
+     * ComponentRepository instance for work with components
+     */
+    private final ComponentRepository componentRepository;
+
+    /**
+     * RegistrationJobRepository instance for work with registration jobs
+     */
+    private final RegistrationJobRepository registrationJobRepository;
+
+    /**
+     * SimpMessagingTemplate instance for sending messages to websocket
+     */
+    private final SimpMessagingTemplate template;
+
+    /**
+     * Create a new RegistrationService instance
+     *
+     * @param repositories              List of external registration services
+     * @param componentRepository       ComponentRepository instance for work with components
+     * @param registrationJobRepository RegistrationJobRepository instance for work with registration jobs
+     * @param template                  SimpMessagingTemplate instance for sending messages to websocket
+     */
+    @Autowired
+    public RegistrationService(List<RegistrationRepository> repositories,
+                               ComponentRepository componentRepository,
+                               RegistrationJobRepository registrationJobRepository,
+                               SimpMessagingTemplate template) {
+        this.repositories = repositories;
+        this.componentRepository = componentRepository;
+        this.registrationJobRepository = registrationJobRepository;
+        this.template = template;
+    }
+
+    /**
+     * Get external registration services information
+     *
+     * @return external registration services information
+     */
     public List<RegistrationRepositoryInfo> getRepositoriesInfo() {
         return repositories
                 .stream()
@@ -44,6 +88,13 @@ public class RegistrationService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get external registration service by given id
+     *
+     * @param id external registration service id
+     * @return external registration service with given id
+     * @throws RegistrationException if external registration service is not found in initial list
+     */
     private RegistrationRepository getRegistrationRepository(String id) throws RegistrationException {
         Optional<RegistrationRepository> optional = repositories
                 .stream()
@@ -57,6 +108,13 @@ public class RegistrationService {
         return optional.get();
     }
 
+    /**
+     * Get batch->component map from given component supplier filtered with given predicate
+     *
+     * @param supplier  should provide components
+     * @param predicate for filtering batches
+     * @return batch->component map
+     */
     private Map<BatchSummary, Component> getBatches(Supplier<Collection<Component>> supplier, Predicate<BatchSummary> predicate) {
         Map<BatchSummary, Component> batchesMap = new HashMap<>();
 
@@ -73,6 +131,14 @@ public class RegistrationService {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
+    /**
+     * Register batches with given batch numbers in external registration service with given ID
+     *
+     * @param id               external registration service ID
+     * @param fullBatchNumbers batch numbers to register
+     * @return registration job ID
+     * @throws RegistrationException if batches with given batch numbers cannot be found or already on registration
+     */
     public String register(String id, List<String> fullBatchNumbers) throws RegistrationException {
         Map<BatchSummary, Component> batches = getBatches(
                 () -> componentRepository.findBatchSummariesByFullBatchNumbers(fullBatchNumbers),
@@ -127,6 +193,14 @@ public class RegistrationService {
         return jobId;
     }
 
+    /**
+     * Get registration status for registration job with given ID in external registration service with given ID
+     *
+     * @param id    external registration service ID
+     * @param jobId registration job ID
+     * @return registration status for registration job
+     * @throws RegistrationException if external registration service is not found in initial list
+     */
     public RegistrationStatus getStatus(String id, String jobId) throws RegistrationException {
         RegistrationStatus registrationStatus = getRegistrationRepository(id).getRegisterJobStatus(jobId);
 
@@ -158,30 +232,87 @@ public class RegistrationService {
         return registrationStatus;
     }
 
+    /**
+     * Get registered compounds for registration job with given ID from external registration service with given ID
+     *
+     * @param id    external registration service ID
+     * @param jobId registration job ID
+     * @return registered compounds for registration job
+     * @throws RegistrationException if external registration service is not found in initial list
+     */
     public List<Compound> getRegisteredCompounds(String id, String jobId) throws RegistrationException {
         return getRegistrationRepository(id).getRegisteredCompounds(jobId);
     }
 
+    /**
+     * Get compound info for compound with given compound number in external registration service with given ID
+     *
+     * @param id         external registration service ID
+     * @param compoundNo compound number
+     * @return compound info for compound
+     * @throws RegistrationException if external registration service is not found in initial list
+     */
     public List<Compound> getCompoundInfoByCompoundNo(String id, String compoundNo) throws RegistrationException {
         return getRegistrationRepository(id).getCompoundInfoByCompoundNo(compoundNo);
     }
 
+    /**
+     * Perform substructure search for given structure in external registration service with given ID
+     *
+     * @param id           external registration service ID
+     * @param structure    structure to search
+     * @param searchOption substructure search options
+     * @return found structure IDs
+     * @throws RegistrationException if external registration service is not found in initial list
+     */
     public List<Integer> searchSubstructure(String id, String structure, String searchOption) throws RegistrationException {
         return getRegistrationRepository(id).searchSub(structure, searchOption);
     }
 
+    /**
+     * Perform similarity search for given structure in external registration service with given ID
+     *
+     * @param id           external registration service ID
+     * @param structure    structure to search
+     * @param searchOption similarity search options
+     * @return found structure IDs
+     * @throws RegistrationException if external registration service is not found in initial list
+     */
     public List<Integer> searchSimilarity(String id, String structure, String searchOption) throws RegistrationException {
         return getRegistrationRepository(id).searchSim(structure, DEFAULT_SIMILARITY, Double.parseDouble(searchOption) / 100, (double) 1);
     }
 
+    /**
+     * Perform smarts search for given structure in external registration service with given ID
+     *
+     * @param id        external registration service ID
+     * @param structure structure to search
+     * @return found structure IDs
+     * @throws RegistrationException if external registration service is not found in initial list
+     */
     public List<Integer> searchSmarts(String id, String structure) throws RegistrationException {
         return getRegistrationRepository(id).searchSmarts(structure);
     }
 
+    /**
+     * Perform exact search for given structure in external registration service with given ID
+     *
+     * @param id           external registration service ID
+     * @param structure    structure to search
+     * @param searchOption exact search options
+     * @return found structure IDs
+     * @throws RegistrationException if external registration service is not found in initial list
+     */
     public List<Integer> searchExact(String id, String structure, String searchOption) throws RegistrationException {
         return getRegistrationRepository(id).searchExact(structure, searchOption);
     }
 
+    /**
+     * Convert batch representation in Mongo to Compound
+     *
+     * @param batch batch representation in Mongo
+     * @return converted Compound
+     */
     private Compound convert(BasicDBObject batch) {
         Compound result = new Compound();
 
@@ -212,50 +343,111 @@ public class RegistrationService {
         return result;
     }
 
+    /**
+     * Internal batch representation
+     */
     private class BatchSummary {
 
+        /**
+         * Batch representation in Mongo
+         */
         private BasicDBObject delegate;
 
+        /**
+         * Create a new BatchSummary instance
+         *
+         * @param delegate Batch representation in Mongo
+         */
         BatchSummary(BasicDBObject delegate) {
             this.delegate = delegate;
         }
 
+        /**
+         * Get batch representation in Mongo
+         *
+         * @return batch representation in Mongo
+         */
         BasicDBObject getDelegate() {
             return delegate;
         }
 
+        /**
+         * Get full nbk batch number from Mongo representation
+         *
+         * @return full nbk batch number
+         */
         String getFullNbkBatch() {
             return delegate.getString("fullNbkBatch");
         }
 
+        /**
+         * Get registration status from Mongo representation
+         *
+         * @return registration status
+         */
         String getRegistrationStatus() {
             return delegate.getString("registrationStatus");
         }
 
+        /**
+         * Set registration status to Mongo representation
+         *
+         * @param registrationStatus registration status
+         */
         void setRegistrationStatus(String registrationStatus) {
             delegate.put("registrationStatus", registrationStatus);
         }
 
+        /**
+         * Get registration job ID from Mongo representation
+         *
+         * @return registration job ID
+         */
         String getRegistrationJobId() {
             return delegate.getString("registrationJobId");
         }
 
+        /**
+         * Set registration job ID to Mongo representation
+         *
+         * @param registrationJobId registration job ID
+         */
         void setRegistrationJobId(String registrationJobId) {
             delegate.put("registrationJobId", registrationJobId);
         }
 
+        /**
+         * Set external registration service ID to Mongo representation
+         *
+         * @param registrationRepositoryId external registration service ID
+         */
         void setRegistrationRepositoryId(String registrationRepositoryId) {
             delegate.put("registrationRepositoryId", registrationRepositoryId);
         }
 
+        /**
+         * Set registration date to Mongo representation
+         *
+         * @param registrationDate registration date
+         */
         void setRegistrationDate(Date registrationDate) {
             delegate.put("registrationDate", registrationDate);
         }
 
+        /**
+         * Set compound ID to Mongo representation
+         *
+         * @param compoundId compound ID
+         */
         void setCompoundId(String compoundId) {
             delegate.put("compoundId", compoundId);
         }
 
+        /**
+         * Set conversational batch number to Mongo representation
+         *
+         * @param conversationalBatchNumber conversational batch number
+         */
         void setConversationalBatchNumber(String conversationalBatchNumber) {
             delegate.put("conversationalBatchNumber", conversationalBatchNumber);
         }
