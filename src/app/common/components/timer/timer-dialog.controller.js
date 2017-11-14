@@ -1,5 +1,5 @@
 /* @ngInject */
-function CountdownDialogController($scope, countdown, idleTime) {
+function CountdownDialogController(countdown, idleTime) {
     var vm = this;
 
     $onInit();

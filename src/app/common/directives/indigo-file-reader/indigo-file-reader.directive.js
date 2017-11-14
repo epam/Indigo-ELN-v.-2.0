@@ -10,7 +10,7 @@ function indigoFileReader() {
         controllerAs: 'vm',
         bindToController: true
     };
-
+    /* @ngInject */
     function IndigoFileReaderController($element) {
         var vm = this;
 

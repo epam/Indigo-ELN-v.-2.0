@@ -1,5 +1,5 @@
 /* @ngInject */
-function SearchPanelController($scope, searchService, $state, $stateParams, searchUtilService, pageInfo,
+function SearchPanelController(searchService, $state, $stateParams, searchUtilService, pageInfo,
                                entitiesCache, printModal, dictionaryService, tabKeyUtils) {
     var OWN_ENTITY = 'OWN_ENTITY';
     var USERS_ENTITIES = 'USERS_ENTITIES';

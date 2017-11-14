@@ -17,6 +17,7 @@ function importSdfFileDirective() {
         }
     };
 
+    /* @ngInject */
     function ImportSdfFileController(productBatchSummaryOperations) {
         var vm = this;
 
