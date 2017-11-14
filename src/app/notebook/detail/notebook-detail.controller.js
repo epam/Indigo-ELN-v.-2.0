@@ -10,7 +10,6 @@ function NotebookDialogController($scope, $state, notebookService, notifyService
     var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
     var originalNotebook;
     var updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
-    var isChanged;
     var entityTitle;
 
     init();
@@ -30,8 +29,7 @@ function NotebookDialogController($scope, $state, notebookService, notifyService
         });
 
         vm.projectId = pageInfo.projectId;
-        vm.isCollapsed = true;
-        vm.isBtnSaveActive = false;
+        vm.isEntityChanged = false;
         vm.isSummary = false;
         vm.hasError = false;
         vm.isEditAllowed = true;
@@ -45,8 +43,6 @@ function NotebookDialogController($scope, $state, notebookService, notifyService
         vm.save = save;
         vm.print = print;
         vm.onRestore = onRestore;
-
-        entitiesBrowser.setSaveCurrentEntity(save);
 
         bindEvents();
     }
@@ -96,7 +92,7 @@ function NotebookDialogController($scope, $state, notebookService, notifyService
     function bindEvents() {
         $scope.$on('entity-updated', function(event, data) {
             vm.loading.then(function() {
-                entityHelper.checkVersion($stateParams, data, vm.notebook, entityTitle, isChanged, refresh);
+                entityHelper.checkVersion($stateParams, data, vm.notebook, entityTitle, vm.isEntityChanged, refresh);
             });
         });
 
@@ -114,13 +110,6 @@ function NotebookDialogController($scope, $state, notebookService, notifyService
             updateRecovery(newEntity, isDirty);
         }, true);
 
-        $scope.$watch('createNotebookForm.$dirty', function(isDirty) {
-            vm.isBtnSaveActive = isDirty;
-        }, true);
-
-        $scope.$watch('createNotebookForm', function(form) {
-            entitiesBrowser.setCurrentForm(form);
-        });
 
         $scope.$on('access-list-changed', function() {
             vm.notebook.accessList = permissionManagementService.getAccessList();
@@ -228,22 +217,12 @@ function NotebookDialogController($scope, $state, notebookService, notifyService
         });
         notifyService.error('Notebook is not saved due to server error');
     }
-
     function toggleDirty(isDirty) {
-        if (!$scope.createNotebookForm) {
-            return;
-        }
-
-        isChanged = _.isBoolean(isDirty) ? isDirty : !$scope.createNotebookForm.$dirty;
-
-        if (isChanged) {
-            $scope.createNotebookForm.$setDirty();
+        vm.isEntityChanged = !!isDirty;
+        if (vm.isEntityChanged) {
             entitiesCache.put($stateParams, vm.notebook);
-        } else {
-            $scope.createNotebookForm.$setPristine();
         }
-        vm.isBtnSaveActive = $scope.createNotebookForm.$dirty;
-        entitiesBrowser.changeDirtyTab($stateParams, isChanged);
+        entitiesBrowser.changeDirtyTab($stateParams, vm.isEntityChanged);
     }
 
     function refresh() {
@@ -274,7 +253,7 @@ function NotebookDialogController($scope, $state, notebookService, notifyService
     }
 
     function save() {
-        if (!isChanged) {
+        if (!vm.isEntityChanged) {
             return $q.resolve();
         }
 

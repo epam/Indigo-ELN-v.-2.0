@@ -4,32 +4,21 @@
                   on-restore="vm.onRestore(recoveryData)">
     </autorecovery>
     <div class="tab-content-pad">
-        <div>
-            <div class="row m-b20">
-                <div class="col-sm-6 col-xs-9">
-                    <div class="row-inline">
-                        <span class="txt-larger"><span i-translate="NOTEBOOK_MEMBERS"></span>:</span>
-                        <button ui-sref=".permissions({projectId: vm.projectId, notebookId: vm.notebook.id})"
-                                class="btn btn-default btn-small"
-                                ng-disabled="!vm.isEditAllowed">
-                            <span class="fa fa-pencil"></span>
-                            <span class="m-l5" i-translate="EDIT"></span>
-                        </button>
-                        <button type="button" class="btn btn-default btn-small"
-                                ui-sref="entities.notebook-detail.permissions-view({projectId: vm.projectId, notebookId: vm.notebook.id})">
-                            <span class="fa fa-eye"></span><span class="m-l5" i-translate="VIEW_MEMBERS"></span>
-                        </button>
-                    </div>
+        <div class="row m-b20">
+            <div class="col-sm-6 col-xs-9">
+                <div class="row-inline">
+                    <span class="txt-larger"><span i-translate="NOTEBOOK_MEMBERS"></span>:</span>
+                    <button ui-sref=".permissions({projectId: vm.projectId, notebookId: vm.notebook.id})"
+                            class="btn btn-default btn-small"
+                            ng-disabled="!vm.isEditAllowed">
+                        <span class="fa fa-pencil"></span>
+                        <span class="m-l5" i-translate="EDIT"></span>
+                    </button>
+                    <button type="button" class="btn btn-default btn-small"
+                            ui-sref="entities.notebook-detail.permissions-view({projectId: vm.projectId, notebookId: vm.notebook.id})">
+                        <span class="fa fa-eye"></span><span class="m-l5" i-translate="VIEW_MEMBERS"></span>
+                    </button>
                 </div>
-            </div>
-            <div uib-collapse="vm.isCollapsed">
-                <hr>
-                <ul id="triple-list" class="list-triple members">
-                    <li class="members list-triple-members"
-                        ng-repeat="member in vm.notebook.accessList track by $index"
-                        ng-bind="'- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView
-                        + ')'"></li>
-                </ul>
             </div>
         </div>
     </div>
@@ -39,10 +28,11 @@
             <div class="simple-tab-content">
                 <div class="row">
                     <div class="col-xs-12">
-                        <simple-input validation-pattern-text="Only 8 digits possible in this field. Example : 01234567">
+                        <simple-input
+                            validation-pattern-text="Only 8 digits possible in this field. Example : 01234567">
                             <span i-translate="NOTEBOOK_NAME"></span>
                             <input class="form-control"
-                                   ng-attr-name="notebookName"
+                                   name="notebookName"
                                    type="text"
                                    ng-required
                                    ng-model="vm.notebook.name"
@@ -61,7 +51,7 @@
                              class="panel panel-info panel-info-table m-t20">
                             <div class="panel-heading">
                                 <span i-translate="CONTENTS_FOR_NOTEBOOK"></span> <span
-                                    ng-bind="notebook.name"></span></div>
+                                ng-bind="notebook.name"></span></div>
                             <div class="panel-body panel-body-nopad">
                                 <div class="table-responsive" indigo-scroller="x">
                                     <table class="main-table table table-striped table-condensed">
@@ -84,7 +74,7 @@
                                         <tbody class="main-table__body">
                                         <tr class="table-list" ng-repeat="exp in vm.experiments track by $index">
                                             <td class="table-list__item"><a
-                                                    ng-click="vm.goToExp(exp)" ng-bind="exp.fullName"></a></td>
+                                                ng-click="vm.goToExp(exp)" ng-bind="exp.fullName"></a></td>
                                             <td class="table-list__item">
                                                 <p>
                                                     <span i-translate="CREATION_DATE"></span>: <span ng-bind="exp.creationDate |
@@ -93,10 +83,10 @@
                                                 <p><span i-translate="SUBJECT_TITLE"></span>: <span ng-bind="exp.reactionDetails.title ||
                                                     exp.conceptDetails.title"></span></p>
                                                 <p><span i-translate="AUTHOR"></span>: <span
-                                                        ng-bind="exp.author.firstName + ' ' + exp.author.lastName"></span>
+                                                    ng-bind="exp.author.firstName + ' ' + exp.author.lastName"></span>
                                                 </p>
                                                 <p><span i-translate="EXPERIMENT_STATUS"></span>: <span
-                                                        ng-bind="exp.status"></span></p>
+                                                    ng-bind="exp.status"></span></p>
                                             </td>
                                             <td class="table-list__item">
                                                 <img ng-if="!!exp.components.reaction.image"
@@ -144,12 +134,12 @@
         </button>
         <button class="btn btn-info" type="button" ng-click="vm.print()" i-translate="PRINT"></button>
         <button type="submit" form="createNotebookForm"
-                ng-disabled="!vm.isEditAllowed || createNotebookForm.$invalid || vm.isSaving || !vm.isBtnSaveActive"
+                ng-disabled="!vm.isEditAllowed || createNotebookForm.$invalid || vm.isSaving || !vm.isEntityChanged"
                 class="btn btn-primary">
             <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
         </button>
         <button class="btn btn-default" ng-click="vm.refresh()"
-                ng-disabled="!vm.isEditAllowed || !vm.isBtnSaveActive">
+                ng-disabled="!vm.isEditAllowed || !vm.isEntityChanged">
             <span class="fa fa-refresh"></span><span class="m-l5" i-translate="RESET"></span>
         </button>
         <button type="button" class="btn btn-default" onclick="window.history.back()">
