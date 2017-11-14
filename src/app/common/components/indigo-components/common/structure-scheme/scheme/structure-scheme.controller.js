@@ -1,5 +1,5 @@
 var structureEditorModalTemplate = require('../structure-editor-modal/structure-editor-modal.html');
-var structureImportModalTemplate = require('../import/structure-import-modal.controller');
+var structureImportModalTemplate = require('../import/structure-import-modal.html');
 var structureExportModalTemplate = require('../export/structure-export-modal.html');
 
 StructureSchemeController.$inject = ['$scope', 'apiUrl', '$http', '$uibModal', 'notifyService', 'calculationService'];
