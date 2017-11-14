@@ -3,7 +3,7 @@ var experimentSelectSignatureTemplateModal =
     require('../../../experiment/select-signature-template-modal/experiment-select-signature-template-modal.html');
 
 /* @ngInject */
-function experimentUtil($state, $uibModal, $q, experimentService, permissionManagementService, signatureTemplates,
+function experimentUtil($state, $uibModal, $q, experimentService, permissionService, signatureTemplates,
                         signatureDocument, componentsUtils, notifyService) {
     return {
         versionExperiment: versionExperiment,
@@ -29,7 +29,7 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionMana
     }
 
     function repeatExperiment(experiment, params) {
-        experiment.accessList = permissionManagementService.expandPermission(experiment.accessList);
+        experiment.accessList = permissionService.expandPermission(experiment.accessList);
         var ec = experiment.components;
         var components = {
             reactionDetails: ec.reactionDetails,
@@ -69,7 +69,7 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionMana
 
     function completeExperiment(experiment, params, notebookName) {
         return openCompleteConfirmationModal(experiment, notebookName).result.then(function() {
-            experiment.accessList = permissionManagementService.expandPermission(experiment.accessList);
+            experiment.accessList = permissionService.expandPermission(experiment.accessList);
             var experimentForSave = _.extend({}, experiment, {
                 status: 'Completed'
             });

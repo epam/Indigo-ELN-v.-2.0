@@ -1,5 +1,5 @@
 /* @ngInject */
-function ProjectController($scope, $state, projectService, notifyService, permissionManagementService, fileUploaderCash,
+function ProjectController($scope, $state, projectService, notifyService, permissionService, fileUploaderCash,
                            pageInfo, entitiesBrowser, $timeout, $stateParams, tabKeyUtils, autorecoveryHelper,
                            autorecoveryCache, entitiesCache, confirmationModal, $q, entityHelper, apiUrl) {
     var vm = this;
@@ -49,7 +49,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
         if (!restoredEntity) {
             pageInfo.project.author = pageInfo.project.author || identity;
             pageInfo.project.accessList = pageInfo.project.accessList
-                || permissionManagementService.getAuthorAccessList(identity);
+                || permissionService.getAuthorAccessList(identity);
 
             vm.project = pageInfo.project;
         } else if (restoredEntity.version === pageInfo.project.version) {
@@ -142,16 +142,16 @@ function ProjectController($scope, $state, projectService, notifyService, permis
     }
 
     function initPermissions() {
-        permissionManagementService.setEntity('Project');
-        permissionManagementService.setEntityId(vm.project.id);
-        permissionManagementService.setAuthor(vm.project.author);
-        permissionManagementService.setAccessList(vm.project.accessList);
+        permissionService.setEntity('Project');
+        permissionService.setEntityId(vm.project.id);
+        permissionService.setAuthor(vm.project.author);
+        permissionService.setAccessList(vm.project.accessList);
 
         vm.isEditAllowed = isContentEditor ||
-            (hasEditAuthority && permissionManagementService.hasPermission('UPDATE_ENTITY'));
+            (hasEditAuthority && permissionService.hasPermission('UPDATE_ENTITY'));
         // isCreateChildAllowed
         vm.isCreateChildAllowed = isContentEditor ||
-            (hasCreateChildAuthority && permissionManagementService.hasPermission('CREATE_SUB_ENTITY'));
+            (hasCreateChildAuthority && permissionService.hasPermission('CREATE_SUB_ENTITY'));
     }
 
     function toggleDirty(isDirty) {
@@ -182,7 +182,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
         }, true);
 
         $scope.$on('access-list-changed', function() {
-            vm.project.accessList = permissionManagementService.getAccessList();
+            vm.project.accessList = permissionService.getAccessList();
         });
     }
 

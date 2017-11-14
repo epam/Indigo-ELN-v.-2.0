@@ -1,9 +1,9 @@
 /* @ngInject */
-function PermissionViewManagementController($uibModalInstance, permissionManagementService) {
+function PermissionViewController($uibModalInstance, permissionService) {
     var vm = this;
 
-    vm.accessList = permissionManagementService.getAccessList();
-    vm.entity = permissionManagementService.getEntity();
+    vm.accessList = permissionService.getAccessList();
+    vm.entity = permissionService.getEntity();
 
     vm.close = close;
 
@@ -12,4 +12,4 @@ function PermissionViewManagementController($uibModalInstance, permissionManagem
     }
 }
 
-module.exports = PermissionViewManagementController;
+module.exports = PermissionViewController;

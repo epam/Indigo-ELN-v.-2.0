@@ -10,12 +10,12 @@ function experimentDetail() {
 }
 
 ExperimentDetailController.$inject = ['$scope', '$state', '$stateParams', 'experimentService', 'experimentUtil',
-    'permissionManagementService', 'fileUploaderCash', 'entitiesBrowser', 'autorecoveryHelper', 'notifyService',
+    'permissionService', 'fileUploaderCash', 'entitiesBrowser', 'autorecoveryHelper', 'notifyService',
     'entitiesCache', '$q', 'principalService', 'notebookService', 'typeComponents', 'autorecoveryCache',
     'confirmationModal', 'entityHelper', 'apiUrl', 'componentsUtils'];
 
 function ExperimentDetailController($scope, $state, $stateParams, experimentService, experimentUtil,
-                                    permissionManagementService, fileUploaderCash, entitiesBrowser,
+                                    permissionService, fileUploaderCash, entitiesBrowser,
                                     autorecoveryHelper, notifyService, entitiesCache, $q, principalService,
                                     notebookService, typeComponents, autorecoveryCache, confirmationModal,
                                     entityHelper, apiUrl, componentsUtils) {
@@ -311,11 +311,11 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     }
 
     function initPermissions() {
-        permissionManagementService.setEntity('Experiment');
-        permissionManagementService.setAuthor(vm.experiment.author);
-        permissionManagementService.setAccessList(vm.experiment.accessList);
+        permissionService.setEntity('Experiment');
+        permissionService.setAuthor(vm.experiment.author);
+        permissionService.setAccessList(vm.experiment.accessList);
 
-        hasEditPermission = permissionManagementService.hasPermission('UPDATE_ENTITY');
+        hasEditPermission = permissionService.hasPermission('UPDATE_ENTITY');
         updateStatuses();
         setReadOnly();
     }
@@ -364,7 +364,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         }, true);
 
         $scope.$on('access-list-changed', function() {
-            vm.experiment.accessList = permissionManagementService.getAccessList();
+            vm.experiment.accessList = permissionService.getAccessList();
             originalExperiment.accessList = angular.copy(vm.experiment.accessList);
         });
 

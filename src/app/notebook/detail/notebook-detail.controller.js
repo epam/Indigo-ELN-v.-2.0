@@ -1,5 +1,5 @@
 /* @ngInject */
-function NotebookDialogController($scope, $state, notebookService, notifyService, permissionManagementService,
+function NotebookDialogController($scope, $state, notebookService, notifyService, permissionService,
                                   modalHelper, experimentUtil, pageInfo, entitiesBrowser, $timeout, $stateParams,
                                   tabKeyUtils, autorecoveryHelper, notebookSummaryExperiments, $q, entitiesCache,
                                   autorecoveryCache, confirmationModal, entityHelper) {
@@ -53,7 +53,7 @@ function NotebookDialogController($scope, $state, notebookService, notifyService
         if (!restoredEntity) {
             pageInfo.notebook.author = pageInfo.notebook.author || identity;
             pageInfo.notebook.accessList = pageInfo.notebook.accessList
-                || permissionManagementService.getAuthorAccessList(identity);
+                || permissionService.getAuthorAccessList(identity);
 
             vm.notebook = pageInfo.notebook;
         } else if (restoredEntity.version === pageInfo.notebook.version) {
@@ -74,19 +74,19 @@ function NotebookDialogController($scope, $state, notebookService, notifyService
     }
 
     function initPermissions() {
-        permissionManagementService.setEntity('Notebook');
-        permissionManagementService.setEntityId(vm.notebook.id);
-        permissionManagementService.setParentId(vm.projectId);
-        permissionManagementService.setAuthor(vm.notebook.author);
-        permissionManagementService.setAccessList(vm.notebook.accessList);
+        permissionService.setEntity('Notebook');
+        permissionService.setEntityId(vm.notebook.id);
+        permissionService.setParentId(vm.projectId);
+        permissionService.setAuthor(vm.notebook.author);
+        permissionService.setAccessList(vm.notebook.accessList);
 
         // isEditAllowed
         vm.isEditAllowed = isContentEditor ||
-            (hasEditAuthority && permissionManagementService.hasPermission('UPDATE_ENTITY'));
+            (hasEditAuthority && permissionService.hasPermission('UPDATE_ENTITY'));
 
         // isCreateChildAllowed
         vm.isCreateChildAllowed = isContentEditor ||
-            (hasCreateChildAuthority && permissionManagementService.hasPermission('CREATE_SUB_ENTITY'));
+            (hasCreateChildAuthority && permissionService.hasPermission('CREATE_SUB_ENTITY'));
     }
 
     function bindEvents() {
@@ -112,7 +112,7 @@ function NotebookDialogController($scope, $state, notebookService, notifyService
 
 
         $scope.$on('access-list-changed', function() {
-            vm.notebook.accessList = permissionManagementService.getAccessList();
+            vm.notebook.accessList = permissionService.getAccessList();
         });
     }
 

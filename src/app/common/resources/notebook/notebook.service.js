@@ -1,5 +1,5 @@
 /* @ngInject */
-function notebookService($resource, permissionManagementService, entityTreeService, apiUrl) {
+function notebookService($resource, permissionService, entityTreeService, apiUrl) {
     return $resource(apiUrl + 'projects/:projectId/notebooks/:notebookId', {
         projectId: '@projectId'
     }, {
@@ -51,7 +51,7 @@ function notebookService($resource, permissionManagementService, entityTreeServi
 
     function transformRequest(data) {
         var newData = angular.copy(data);
-        newData.accessList = permissionManagementService.expandPermission(newData.accessList);
+        newData.accessList = permissionService.expandPermission(newData.accessList);
 
         return angular.toJson(newData);
     }

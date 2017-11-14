@@ -1,17 +1,17 @@
 /* @ngInject */
-function PermissionManagementController($scope, $uibModalInstance, permissionManagementService, users, permissions,
-                                        permissionsConstants, notifyService, alertModal) {
+function PermissionsController($scope, $uibModalInstance, permissionService, users, permissions,
+                                        permissionsConstant, notifyService, alertModal) {
     var vm = this;
 
     init();
 
     function init() {
-        vm.accessList = permissionManagementService.getAccessList();
+        vm.accessList = permissionService.getAccessList();
         vm.permissions = permissions;
-        vm.entity = permissionManagementService.getEntity();
-        vm.entityId = permissionManagementService.getEntityId();
-        vm.parentId = permissionManagementService.getParentId();
-        vm.author = permissionManagementService.getAuthor();
+        vm.entity = permissionService.getEntity();
+        vm.entityId = permissionService.getEntityId();
+        vm.parentId = permissionService.getParentId();
+        vm.author = permissionService.getAuthor();
 
         if (vm.author) {
             vm.users = filterUsers(users);
@@ -56,12 +56,12 @@ function PermissionManagementController($scope, $uibModalInstance, permissionMan
         };
 
         if (vm.entity === 'Project') {
-            message = permissionsConstants.removeProjectWarning;
+            message = permissionsConstant.removeProjectWarning;
         } else if (vm.entity === 'Notebook') {
-            message = permissionsConstants.removeNotebookWarning;
+            message = permissionsConstant.removeNotebookWarning;
         }
 
-        permissionManagementService.isUserRemovableFromAccessList(member).then(function(isRemovable) {
+        permissionService.isUserRemovableFromAccessList(member).then(function(isRemovable) {
             if (isRemovable) {
                 callback();
             } else {
@@ -85,8 +85,8 @@ function PermissionManagementController($scope, $uibModalInstance, permissionMan
     }
 
     function checkAuthority(member, permission) {
-        if (!permissionManagementService.hasAuthorityForPermission(member, permission)) {
-            notifyService.warning(permissionsConstants.checkAuthorityWarning(permission));
+        if (!permissionService.hasAuthorityForPermission(member, permission)) {
+            notifyService.warning(permissionsConstant.checkAuthorityWarning(permission));
             member.permissionView = vm.oldPermission;
         }
     }
@@ -101,7 +101,7 @@ function PermissionManagementController($scope, $uibModalInstance, permissionMan
 
     function filterUsers(nonFilteredUsers) {
         return _.filter(nonFilteredUsers, function(user) {
-            return user.id !== vm.author.id && permissionManagementService.hasAuthorityForPermission(
+            return user.id !== vm.author.id && permissionService.hasAuthorityForPermission(
                 {user: user},
                 vm.permissions[0].id
             );
@@ -109,4 +109,4 @@ function PermissionManagementController($scope, $uibModalInstance, permissionMan
     }
 }
 
-module.exports = PermissionManagementController;
+module.exports = PermissionsController;

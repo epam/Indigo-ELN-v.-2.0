@@ -10,9 +10,9 @@ function sidebar() {
     };
 }
 
-SidebarController.$inject = ['$scope', '$state', '$stateParams', 'sidebarCache', 'entityTreeService'];
+SidebarController.$inject = ['$scope', '$state', '$stateParams', 'sidebarCacheService', 'entityTreeService'];
 
-function SidebarController($scope, $state, $stateParams, sidebarCache, entityTreeService) {
+function SidebarController($scope, $state, $stateParams, sidebarCacheService, entityTreeService) {
     var vm = this;
 
     vm.CONTENT_EDITOR = 'CONTENT_EDITOR';
@@ -33,9 +33,9 @@ function SidebarController($scope, $state, $stateParams, sidebarCache, entityTre
     init();
 
     function init() {
-        vm.allProjectIsCollapsed = sidebarCache.get('allProjectIsCollapsed');
-        vm.bookmarksIsCollapsed = sidebarCache.get('bookmarksIsCollapsed');
-        vm.adminToggled = sidebarCache.get('adminToggled');
+        vm.allProjectIsCollapsed = sidebarCacheService.get('allProjectIsCollapsed');
+        vm.bookmarksIsCollapsed = sidebarCacheService.get('bookmarksIsCollapsed');
+        vm.adminToggled = sidebarCacheService.get('adminToggled');
         vm.selectedFullId = entityTreeService.getFullIdFromParams($stateParams);
 
         bindEvents();
@@ -55,17 +55,17 @@ function SidebarController($scope, $state, $stateParams, sidebarCache, entityTre
 
     function toggleAdministration() {
         vm.adminToggled = !vm.adminToggled;
-        sidebarCache.put('adminToggled', vm.adminToggled);
+        sidebarCacheService.put('adminToggled', vm.adminToggled);
     }
 
     function toggleProjects() {
         vm.allProjectIsCollapsed = !vm.allProjectIsCollapsed;
-        sidebarCache.put('allProjectIsCollapsed', vm.allProjectIsCollapsed);
+        sidebarCacheService.put('allProjectIsCollapsed', vm.allProjectIsCollapsed);
     }
 
     function toggleMyProjects() {
         vm.bookmarksIsCollapsed = !vm.bookmarksIsCollapsed;
-        sidebarCache.put('bookmarksIsCollapsed', vm.bookmarksIsCollapsed);
+        sidebarCacheService.put('bookmarksIsCollapsed', vm.bookmarksIsCollapsed);
     }
 
     function bindEvents() {

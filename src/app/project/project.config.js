@@ -1,9 +1,9 @@
-var projectTemplate = require('./project.html');
+var projectTemplate = require('./component/project.html');
 
-projectConfig.$inject = ['$stateProvider', 'permissionManagementConfig', 'permissionViewManagementConfig',
+projectConfig.$inject = ['$stateProvider', 'permissionsConfig', 'permissionViewConfig',
     'userPermissions'];
 
-function projectConfig($stateProvider, permissionManagementConfig, permissionViewManagementConfig, userPermissions) {
+function projectConfig($stateProvider, permissionsConfig, permissionViewConfig, userPermissions) {
     var permissions = [
         userPermissions.VIEWER,
         userPermissions.USER,
@@ -117,28 +117,28 @@ function projectConfig($stateProvider, permissionManagementConfig, permissionVie
                 authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR']
             }
         })
-        .state('entities.project-new.permissions', _.extend({}, permissionManagementConfig, {
+        .state('entities.project-new.permissions', _.extend({}, permissionsConfig, {
             parent: 'entities.project-new',
             data: {
                 authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
             },
             permissions: permissions
         }))
-        .state('entities.project-new.permissions-view', _.extend({}, permissionViewManagementConfig, {
+        .state('entities.project-new.permissions-view', _.extend({}, permissionViewConfig, {
             parent: 'entities.project-new',
             data: {
                 authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
             },
             permissions: permissions
         }))
-        .state('entities.project-detail.permissions-view', _.extend({}, permissionViewManagementConfig, {
+        .state('entities.project-detail.permissions-view', _.extend({}, permissionViewConfig, {
             parent: 'entities.project-detail',
             data: {
                 authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
             },
             permissions: permissions
         }))
-        .state('entities.project-detail.permissions', _.extend({}, permissionManagementConfig, {
+        .state('entities.project-detail.permissions', _.extend({}, permissionsConfig, {
             parent: 'entities.project-detail',
             data: {
                 authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']

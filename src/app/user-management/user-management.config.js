@@ -1,5 +1,5 @@
-var userManagementTemplate = require('./user-management.html');
-var userManagementDeleteDialogTemplate = require('./user-management-delete-dialog.html');
+var userManagementTemplate = require('./component/user-management.html');
+var userManagementDeleteDialogTemplate = require('./delete-dialog/user-management-delete-dialog.html');
 
 userManagementConfig.$inject = ['$stateProvider'];
 

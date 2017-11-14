@@ -1,5 +1,5 @@
 /* @ngInject */
-function entityTreeService(allProjects, $injector, allNotebooks, allExperiments, $q) {
+function entityTreeService(allProjectsService, $injector, allNotebooksService, allExperimentsService, $q) {
     var allProjectsList = {};
     var allProjectsMap = {};
     var allNodesByFullId = {};
@@ -105,7 +105,7 @@ function entityTreeService(allProjects, $injector, allNotebooks, allExperiments,
         var map = isAll ? allProjectsMap : projectsMap;
 
         if (_.isEmpty(list) || !(projectId && _.has(list, {id: projectId}))) {
-            return (isAll ? allProjects : $injector.get('projectService')).query()
+            return (isAll ? allProjectsService : $injector.get('projectService')).query()
                 .$promise
                 .then(function(projects) {
                     list = updateTree(projects, map);
@@ -131,7 +131,7 @@ function entityTreeService(allProjects, $injector, allNotebooks, allExperiments,
         if (isAll) {
             pMap = allProjectsMap;
             nMap = allNotebooksMap;
-            service = allNotebooks;
+            service = allNotebooksService;
         } else {
             pMap = projectsMap;
             nMap = notebooksMap;
@@ -164,7 +164,7 @@ function entityTreeService(allProjects, $injector, allNotebooks, allExperiments,
 
         if (isNeedLoad(eMap, path, experimentId)) {
             return getEntities(
-                isAll ? allExperiments : $injector.get('experimentService'),
+                isAll ? allExperimentsService : $injector.get('experimentService'),
                 {
                     projectId: projectId,
                     notebookId: notebookId
