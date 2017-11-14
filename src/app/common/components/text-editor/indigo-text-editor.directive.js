@@ -43,7 +43,7 @@ function indigoTextEditor($timeout) {
         }
 
         function bindEvents() {
-            $scope.$watch('indigoModel', function(value) {
+            $scope.$watch('vm.indigoModel', function(value) {
                 if (value !== editor.getValue()) {
                     editor.setValue(value || '');
                 }
