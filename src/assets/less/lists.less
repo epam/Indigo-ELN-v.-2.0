@@ -6,14 +6,16 @@
 
 .list-group {
 
+  &-container {
+      &:first-child {
+        border-top: 1px solid @list-group-border;
+      }
+  }
+
   &-item {
     border-width: 0 0 1px;
     margin-bottom: 0;
     padding: @list-group-item-pad;
-
-    &:first-child {
-      border-top-width: 1px;
-    }
 
     > h5, > p {
       margin: 0;

@@ -15,16 +15,17 @@ function authServerProvider($http, apiUrl) {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
-        }).success(function(response) {
+        }).then(function(response) {
             return response;
         });
     }
 
     function logout() {
         // logout from the server
-        $http.post(apiUrl + 'logout').success(function(response) {
-            return response;
-        });
+        $http.post(apiUrl + 'logout')
+            .then(function(response) {
+                return response;
+            });
     }
 
     function prolong() {

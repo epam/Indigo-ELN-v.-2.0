@@ -28,12 +28,13 @@
                         <div class="list-group templates-holder palette animated" scroller dragula='"components"'
                              dragula-model='vm.components'
                              indigo-indeln-scroll>
-                            <a class="list-group-item draggable-component"
-                               ng-repeat="component in vm.components track by $index"
-                               data-id="{{component.id}}" ng-if="component | containValue: search: ['name', 'desc']">
-                                <h5 class="draggable-component" ng-bind="component.name"></h5>
-                                <p class="draggable-component" ng-bind="component.desc"></p>
-                            </a>
+                            <div class="list-group-container" ng-repeat="component in vm.components track by $index"
+                               data-id="{{component.id}}">
+                                <a class="list-group-item draggable-component" ng-if="component | containValue: search: ['name', 'desc']">
+                                    <h5 ng-bind="component.name"></h5>
+                                    <p ng-bind="component.desc"></p>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -70,9 +71,9 @@
                             </div>
                             <a class="list-group-item draggable-component component"
                                ng-repeat="component in tab.components">
-                                <h5 class="draggable-component" ng-bind="component.name">
-                                    <span class="fa fa-remove pull-right text-muted" title="Remove" ng-click="vm.removeComponent(tab, component)"></span>
-                                </h5>
+                                <span class="fa fa-remove pull-right text-muted" title="Remove"
+                                      ng-click="vm.removeComponent(tab, component)"></span>
+                                <h5 class="draggable-component" ng-bind="component.name"></h5>
                                 <p class="draggable-component" ng-bind="component.desc"></p>
                             </a>
                         </div>

@@ -54,7 +54,7 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
             url: apiUrl + 'renderer/' + vm.structureType + '/image',
             method: 'POST',
             data: structure.molfile
-        }).success(function(result) {
+        }).then(function(result) {
             vm.structureModel.image = result.image;
             onChangeStructure();
         });
@@ -122,9 +122,9 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
                     url: apiUrl + 'bingodb/' + vm.structureType + '/',
                     method: 'POST',
                     data: structure
-                }).success(function(structureId) {
+                }).then(function(structureId) {
                     setStructure(structure, structureId);
-                }).error(function() {
+                }).catch(function() {
                     notifyService.error('Cannot save the structure!');
                 });
             }

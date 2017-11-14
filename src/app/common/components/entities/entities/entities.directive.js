@@ -10,8 +10,8 @@ function entities() {
     };
 }
 
-EntitiesController.$inject = ['$scope', 'entitiesBrowser', '$q', 'principalService', 'entitiesCache', 'alertModal', 'dialogService',
-    'autorecoveryCache', 'projectService', 'notebookService', 'experimentService'];
+EntitiesController.$inject = ['$scope', 'entitiesBrowser', '$q', 'principalService', 'entitiesCache',
+    'alertModal', 'dialogService', 'autorecoveryCache', 'projectService', 'notebookService', 'experimentService'];
 
 function EntitiesController($scope, entitiesBrowser, $q, principalService, entitiesCache, alertModal, dialogService,
                             autorecoveryCache, projectService, notebookService, experimentService) {
