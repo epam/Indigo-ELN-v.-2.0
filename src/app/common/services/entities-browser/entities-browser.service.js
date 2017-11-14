@@ -180,7 +180,7 @@ function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory
                 }
             }
 
-            setActiveTab(tab);
+            setActiveTab(tabs[userId][tabKey]);
         });
     }
 
