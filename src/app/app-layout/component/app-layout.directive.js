@@ -10,6 +10,7 @@ function appLayout() {
         bindToController: true
     };
 
+    /* @ngInject */
     function AppPageController($rootScope, $scope, $cookies, $window, wsService, $timeout) {
         var vm = this;
         var mobileViewWidth = 992;
