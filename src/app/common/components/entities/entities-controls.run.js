@@ -1,7 +1,8 @@
+/* eslint angular/on-watch: off*/
 run.$inject = ['$rootScope', 'entitiesBrowser'];
 
 function run($rootScope, entitiesBrowser) {
-    var unsubscribe = $rootScope.$on('$stateChangeSuccess', function(event, toState, toStateParams) {
+    $rootScope.$on('$stateChangeSuccess', function(event, toState, toStateParams) {
         var tab = angular.copy(toState.data.tab);
 
         if (tab) {
@@ -11,8 +12,6 @@ function run($rootScope, entitiesBrowser) {
             }
         }
     });
-
-    $rootScope.$on('$destroy', unsubscribe);
 }
 
 module.exports = run;

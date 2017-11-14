@@ -1,3 +1,4 @@
+/* eslint angular/on-watch: off*/
 var template = require('./common/components/timer/timer-dialog.html');
 
 /* @ngInject */
@@ -5,16 +6,13 @@ function appRun($rootScope, $window, $state, $uibModal, editableOptions, authSer
                 $http, $cookies) {
     updateCSRFTOKEN();
 
-    var unsubscribes = [];
-    var unsubscribeFn;
-
     $.mCustomScrollbar.defaults.advanced.autoScrollOnFocus = false;
     // idleTime: 30 minutes, countdown: 30 seconds
     var countdownDialog = null;
     var idleTime = 30;
     var countdown = 30;
 
-    unsubscribeFn = $rootScope.$on('$stateChangeStart', function(event, toState, toStateParams) {
+    $rootScope.$on('$stateChangeStart', function(event, toState, toStateParams) {
         $rootScope.toState = toState;
         $rootScope.toStateParams = toStateParams;
 
@@ -24,9 +22,8 @@ function appRun($rootScope, $window, $state, $uibModal, editableOptions, authSer
             });
         }
     });
-    unsubscribes.push(unsubscribeFn);
 
-    unsubscribeFn = $rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
+    $rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
         var titleKey = 'indigoeln';
 
         // Remember previous state unless we've been redirected to login or we've just
@@ -45,9 +42,8 @@ function appRun($rootScope, $window, $state, $uibModal, editableOptions, authSer
         }
         $window.document.title = titleKey;
     });
-    unsubscribes.push(unsubscribeFn);
 
-    unsubscribeFn = $rootScope.$on('IdleStart', function() {
+    $rootScope.$on('IdleStart', function() {
         if (!countdownDialog) {
             countdownDialog = $uibModal.open({
                 animation: false,
@@ -66,17 +62,15 @@ function appRun($rootScope, $window, $state, $uibModal, editableOptions, authSer
             });
         }
     });
-    unsubscribes.push(unsubscribeFn);
 
-    unsubscribeFn = $rootScope.$on('IdleEnd', function() {
+    $rootScope.$on('IdleEnd', function() {
         if (countdownDialog) {
             countdownDialog.close();
             countdownDialog = null;
         }
     });
-    unsubscribes.push(unsubscribeFn);
 
-    unsubscribeFn = $rootScope.$on('IdleTimeout', function() {
+    $rootScope.$on('IdleTimeout', function() {
         if (countdownDialog) {
             countdownDialog.close();
             countdownDialog = null;
@@ -84,7 +78,6 @@ function appRun($rootScope, $window, $state, $uibModal, editableOptions, authSer
         authService.logout();
         $state.go('login');
     });
-    unsubscribes.push(unsubscribeFn);
 
     $rootScope.back = function() {
         // If previous state is 'activate' or do not exist go to 'home'
@@ -103,12 +96,6 @@ function appRun($rootScope, $window, $state, $uibModal, editableOptions, authSer
         $http.defaults.headers.post['X-CSRF-TOKEN'] = csrfToken;
         $http.defaults.headers.put['X-CSRF-TOKEN'] = csrfToken;
     }
-
-    $rootScope.$on('$destroy', function() {
-        _.forEach(unsubscribes, function(unsubscribe) {
-            unsubscribe();
-        });
-    });
 }
 
 module.exports = appRun;
