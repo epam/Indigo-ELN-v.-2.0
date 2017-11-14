@@ -15,7 +15,7 @@ function simpleInput($compile) {
             $element.addClass('form-group');
             var $input = $element.find('input');
 
-            if ($input.attr('ng-required')) {
+            if ($input[0].attributes['ng-required'] || $input[0].attributes.required) {
                 $element.addClass('required');
                 $scope.ngModelCtrl = formCtrl[$input.attr('name')];
                 var el = $compile(template)($scope);
