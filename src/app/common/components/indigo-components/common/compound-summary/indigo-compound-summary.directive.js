@@ -5,7 +5,6 @@ function indigoCompoundSummary() {
         restrict: 'E',
         template: template,
         scope: {
-            model: '=',
             batches: '=',
             batchesTrigger: '=',
             selectedBatch: '=',
@@ -35,7 +34,6 @@ function IndigoCompoundSummaryController($scope, batchHelper) {
     init();
 
     function init() {
-        vm.model = vm.model || {};
         vm.columns = getDefaultColumns();
         vm.hasCheckedRows = batchHelper.hasCheckedRow;
         vm.vnv = angular.noop;

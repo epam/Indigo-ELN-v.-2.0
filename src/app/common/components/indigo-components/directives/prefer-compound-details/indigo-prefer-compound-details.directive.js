@@ -9,7 +9,7 @@ function indigoPreferredCompoundDetails() {
         controllerAs: 'vm',
         bindToController: true,
         scope: {
-            model: '=',
+            componentData: '=',
             batches: '=',
             batchesTrigger: '=',
             selectedBatch: '=',
@@ -23,6 +23,7 @@ function indigoPreferredCompoundDetails() {
             experimentName: '=',
             structureSize: '=',
             isHideColumnSettings: '=',
+            isExistStoichTable: '=',
             onChanged: '&'
         }
     };
@@ -37,7 +38,6 @@ function IndigoPreferredCompoundDetailsController($scope, entitiesBrowser, appVa
 
     function init() {
         vm.experiment = vm.experiment || {};
-        vm.model = vm.model || {};
         vm.showStructure = false;
         vm.showSummary = false;
         vm.notebookId = entitiesBrowser.getActiveTab().$$title;
@@ -86,10 +86,6 @@ function IndigoPreferredCompoundDetailsController($scope, entitiesBrowser, appVa
 
         $scope.$watch(checkEditDisabled, function(newValue) {
             vm.isEditDisabled = newValue;
-        });
-
-        $scope.$watch('vm.model.stoichTable', function() {
-            vm.isExistStoichTable = !!vm.model.stoichTable;
         });
     }
 }

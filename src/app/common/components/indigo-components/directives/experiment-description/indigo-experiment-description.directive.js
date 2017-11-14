@@ -6,7 +6,7 @@ function indigoExperimentDescription() {
         replace: true,
         template: template,
         scope: {
-            model: '=',
+            componentData: '=',
             experiment: '=',
             isReadonly: '=',
             onChanged: '&'

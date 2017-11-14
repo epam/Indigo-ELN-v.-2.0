@@ -4,7 +4,6 @@ function indigoPreferredCompoundsSummary() {
     return {
         restrict: 'E',
         scope: {
-            model: '=',
             batches: '=',
             batchesTrigger: '=',
             selectedBatch: '=',
@@ -28,7 +27,6 @@ function indigoPreferredCompoundsSummary() {
     function IndigoPreferredCompoundsSummaryController() {
         var vm = this;
 
-        vm.model = vm.model || {};
         vm.experiment = vm.experiment || {};
         vm.structureSize = 0.3;
         vm.isStructureVisible = false;

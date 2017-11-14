@@ -8,7 +8,7 @@ function indigoReactionScheme() {
         controllerAs: 'vm',
         bindToController: true,
         scope: {
-            model: '=',
+            componentData: '=',
             reaction: '=',
             reactionTrigger: '=',
             experiment: '=',
@@ -35,8 +35,8 @@ function IndigoReactionSchemeController($scope, $rootScope, calculationService, 
     }
 
     function checkReaction() {
-        if (_.get(vm.model.reaction, 'molfile') && !_.has(vm.model.reaction, 'molReactants')) {
-            onChangedStructure(vm.model.reaction).then(function() {
+        if (_.get(vm.componentData, 'molfile') && !_.has(vm.componentData, 'molReactants')) {
+            onChangedStructure(vm.componentData).then(function() {
                 notifyService.info('The old version of reaction scheme is updated. ' +
                     'Save Experiment for apply changes');
             });
@@ -45,9 +45,9 @@ function IndigoReactionSchemeController($scope, $rootScope, calculationService, 
 
     function bindEvents() {
         $scope.$on('new-reaction-scheme', function(event, reactionData) {
-            if (reactionData.structure !== _.get(vm.model.reaction, 'molfile')) {
-                vm.model.reaction.molfile = reactionData.structure;
-                vm.model.reaction.image = null;
+            if (reactionData.structure !== _.get(vm.componentData, 'molfile')) {
+                vm.componentData.molfile = reactionData.structure;
+                vm.componentData.image = null;
                 vm.modelTrigger++;
             }
         });
@@ -58,34 +58,34 @@ function IndigoReactionSchemeController($scope, $rootScope, calculationService, 
     }
 
     function updateReaction(response) {
-        vm.model.reaction.molfile = response.structure;
-        vm.model.reaction.molReactants = response.reactants;
-        vm.model.reaction.molProducts = response.products;
+        vm.componentData.molfile = response.structure;
+        vm.componentData.molReactants = response.reactants;
+        vm.componentData.molProducts = response.products;
 
         return $q.all([
-            getInfo(vm.model.reaction.molReactants),
-            getInfo(vm.model.reaction.molProducts)
+            getInfo(vm.componentData.molReactants),
+            getInfo(vm.componentData.molProducts)
         ]).then(function(results) {
-            vm.model.reaction.infoReactants = moleculeInfoResponseCallback(results[0]);
-            vm.model.reaction.infoProducts = moleculeInfoResponseCallback(results[1], true);
-            $rootScope.$broadcast('REACTION_CHANGED', vm.model.reaction);
+            vm.componentData.infoReactants = moleculeInfoResponseCallback(results[0]);
+            vm.componentData.infoProducts = moleculeInfoResponseCallback(results[1], true);
+            $rootScope.$broadcast('REACTION_CHANGED', vm.componentData);
             vm.onChanged();
         });
     }
 
     function updateImage(structure) {
-        if (structure.image !== vm.model.reaction.image) {
-            vm.model.reaction.image = structure.image;
+        if (structure.image !== vm.componentData.image) {
+            vm.componentData.image = structure.image;
         }
     }
 
     function onChangedStructure(structure) {
         if (!structure.molfile) {
-            vm.model.reaction = structure;
+            vm.componentData = structure;
         }
         updateImage(structure);
 
-        if (structure.molfile !== vm.model.reaction.molfile) {
+        if (structure.molfile !== vm.componentData.molfile) {
             vm.loading = calculationService.getReactionProductsAndReactants(structure.molfile)
                 .then(function(response) {
                     return updateReaction(response, structure);

@@ -3,7 +3,7 @@
     <div class="panel-body collapsible">
         <indigo-table indigo-id="reactants"
                       indigo-columns="vm.reactantsColumns"
-                      indigo-rows="vm.model.stoichTable.reactants"
+                      indigo-rows="vm.componentData.reactants"
                       indigo-draggable-columns="true"
                       indigo-draggable-rows="true"
                       on-select-row="vm.onRowSelected(row)"
@@ -49,7 +49,7 @@
                 <div class="col-lg-4 text-align-lg">
                     <div class="btn-group">
                         <button type="button" ng-click="vm.analyzeRxn()"
-                                ng-disabled="vm.isReadonly || !vm.model.stoichTable.products"
+                                ng-disabled="vm.isReadonly || !vm.componentData.products"
                                 class="btn btn-info btn-small">
                             <span class="fa fa-line-chart"></span>
                             <span class="m-l5" i-translate="ANALYZE_RXN"></span>
@@ -64,7 +64,7 @@
             </div>
         </indigo-table>
         <indigo-table indigo-id="intended" indigo-columns="vm.productsColumns"
-                      indigo-rows="vm.model.stoichTable.products"
+                      indigo-rows="vm.componentData.products"
                       is-readonly="vm.isReadonly" indigo-label="Intended Reaction Products"
                       on-changed="vm.onChange()"></indigo-table>
     </div>

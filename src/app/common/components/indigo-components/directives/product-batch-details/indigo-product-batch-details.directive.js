@@ -16,6 +16,7 @@ function indigoProductBatchDetails() {
             selectedBatchTrigger: '=',
             reactants: '=',
             reactantsTrigger: '=',
+            isExistStoichTable: '=',
             isReadonly: '=',
             saveExperimentFn: '&',
             batchOperation: '=',
@@ -43,7 +44,6 @@ function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calc
         vm.detailTable = [];
         vm.selectControl = {};
         vm.saltCodeValues = appValues.getSaltCodeValues();
-        vm.model = vm.model || {};
         vm.selectBatch = selectBatch;
         vm.registerBatch = registerBatch;
         vm.editSolubility = editSolubility;
@@ -217,10 +217,6 @@ function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calc
 
         $scope.$watch(checkEditDisabled, function(newValue) {
             vm.isEditDisabled = newValue;
-        });
-
-        $scope.$watch('vm.model.stoichTable', function() {
-            vm.isExistStoichTable = !!vm.model.stoichTable;
         });
 
         $scope.$watch('vm.reactantsTrigger', function() {

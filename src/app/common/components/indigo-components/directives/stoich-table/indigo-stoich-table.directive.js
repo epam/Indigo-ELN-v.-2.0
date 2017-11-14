@@ -11,7 +11,7 @@ function indigoStoichTable() {
         controllerAs: 'vm',
         bindToController: true,
         scope: {
-            model: '=',
+            componentData: '=',
             experiment: '=',
             isReadonly: '=',
             infoReactants: '=',
@@ -48,8 +48,6 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         'compoundId'
     ];
 
-    vm.model = vm.model || {};
-
     vm.clear = clear;
     vm.appendRow = appendRow;
     vm.removeRow = removeRow;
@@ -71,13 +69,13 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     }
 
     function appendRow() {
-        var reactant = calculationService.createBatch(getStoicTable());
+        var reactant = calculationService.createBatch(vm.componentData);
         addStoicReactant(reactant);
     }
 
     function removeRow() {
         setStoicReactants(_.without(getStoicReactants(), vm.selectedRow));
-        updateReactants(vm.model.stoichTable.reactants);
+        updateReactants(vm.componentData.reactants);
         vm.onChanged();
     }
 
@@ -230,31 +228,27 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         notifyService.error('Compound does not exist or in the wrong format');
     }
 
-    function getStoicTable() {
-        return vm.model.stoichTable;
-    }
-
     function getStoicReactants() {
-        return vm.model.stoichTable.reactants;
+        return vm.componentData.reactants;
     }
 
     function getIntendedProducts() {
-        return vm.model.stoichTable.products;
+        return vm.componentData.products;
     }
 
     function setStoicReactants(reactants) {
-        vm.model.stoichTable.reactants = reactants;
+        vm.componentData.reactants = reactants;
         vm.onChangedReactants({reactants: reactants});
         vm.onChanged();
     }
 
     function setIntendedProducts(products) {
-        vm.model.stoichTable.products = products;
+        vm.componentData.products = products;
     }
 
     function addStoicReactant(reactant) {
-        vm.model.stoichTable.reactants.push(reactant);
-        vm.onChangedReactants({reactants: vm.model.stoichTable.reactants});
+        vm.componentData.reactants.push(reactant);
+        vm.onChangedReactants({reactants: vm.componentData.reactants});
         vm.onChanged();
     }
 
@@ -283,7 +277,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     function isEqualsMolfiles(reaction) {
         return _.some(reaction, function(reagent, index) {
             return _.get(reagent.structure, 'molfile')
-                === _.get(vm.model.stoichTable, 'products[' + index + '].structure.molfile');
+                === _.get(vm.componentData, 'products[' + index + '].structure.molfile');
         });
     }
 
@@ -303,11 +297,11 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     function bindEvents() {
         $scope.$watch('vm.infoProducts', getReactionProductsAndReactants, true);
 
-        $scope.$watch('vm.model.stoichTable', function(stoichTable) {
+        $scope.$watch('vm.componentData', function(stoichTable) {
             stoichTableCache.setStoicTable(stoichTable);
         });
 
-        $scope.$watch('vm.model.stoichTable.products', function(products) {
+        $scope.$watch('vm.componentData.products', function(products) {
             _.each(products, function(batch) {
                 if (!batch.$$batchHash) {
                     batch.$$batchHash = batch.formula + batch.exactMass;
