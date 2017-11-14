@@ -9,7 +9,7 @@ var simpleLocalCache = require('./simple-local-cache/simple-local-cache.service'
 var usersService = require('./users-service/users.service');
 var wsService = require('./ws-service/ws.service');
 var entitiesBrowser = require('./entities-browser/entities-browser.service');
-var entitiesCache = require('./entities.cache.service');
+var entitiesCache = require('./entities-cache/entities-cache.service');
 
 var authService = require('./auth-service/auth-service.module');
 var sd = require('./sd/sd.module');
