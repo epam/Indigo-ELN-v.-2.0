@@ -1,15 +1,14 @@
-var template = require('./duplicate-batches.html');
+var template = require('./sync-with-intended-products.html');
 
-function duplicateBatchesDirective() {
+function syncWithIntendedProducts() {
     return {
         restrict: 'E',
-        require: ['^^indigoComponents', 'duplicateBatches'],
+        require: ['^^indigoComponents', 'syncWithIntendedProducts'],
         scope: {
-            isReadonly: '=',
-            batches: '='
+            isReadonly: '='
         },
         template: template,
-        controller: DuplicateBatchesController,
+        controller: syncWithIntendedProductsController,
         controllerAs: 'vm',
         bindToController: true,
         link: function($scope, $element, $attr, controllers) {
@@ -19,20 +18,27 @@ function duplicateBatchesDirective() {
     };
 }
 
-DuplicateBatchesController.$inject = ['productBatchSummaryOperations', 'batchHelper'];
+syncWithIntendedProductsController.$inject = ['productBatchSummaryOperations'];
 
-function DuplicateBatchesController(productBatchSummaryOperations, batchHelper) {
+function syncWithIntendedProductsController(productBatchSummaryOperations) {
     var vm = this;
 
     init();
 
     function init() {
-        vm.duplicateBatches = duplicateBatches;
+        vm.sync = sync;
+        vm.isIntendedSynced = isIntendedSynced;
     }
 
-    function duplicateBatches() {
+    function isIntendedSynced() {
+        var intended = productBatchSummaryOperations.getIntendedNotInActual();
+
+        return intended ? !intended.length : true;
+    }
+
+    function sync() {
         vm.indigoComponents.batchOperation = productBatchSummaryOperations
-            .duplicateBatches(batchHelper.getCheckedBatches(vm.batches), false, vm.indigoComponents.experiment)
+            .syncWithIntendedProducts(vm.indigoComponents.experiment)
             .then(successAddedBatches);
     }
 
@@ -46,4 +52,4 @@ function DuplicateBatchesController(productBatchSummaryOperations, batchHelper) 
     }
 }
 
-module.exports = duplicateBatchesDirective;
+module.exports = syncWithIntendedProducts;

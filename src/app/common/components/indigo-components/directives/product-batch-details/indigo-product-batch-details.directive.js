@@ -45,9 +45,6 @@ function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calc
         vm.saltCodeValues = appValues.getSaltCodeValues();
         vm.model = vm.model || {};
         vm.selectBatch = selectBatch;
-        vm.duplicateBatch = duplicateBatch;
-        vm.isIntendedSynced = isIntendedSynced;
-        vm.syncWithIntendedProducts = syncWithIntendedProducts;
         vm.registerBatch = registerBatch;
         vm.editSolubility = editSolubility;
         vm.editResidualSolvents = editResidualSolvents;
@@ -79,33 +76,6 @@ function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calc
             || !vm.selectedBatch
             || !vm.selectedBatch.nbkBatch
             || !!vm.selectedBatch.registrationStatus;
-    }
-
-    function successAddedBatch(batch) {
-        vm.onAddedBatch({batch: batch});
-        vm.onChanged();
-        selectBatch(batch);
-    }
-
-    function duplicateBatch() {
-        vm.batchOperation = productBatchSummaryOperations.duplicateBatch(vm.selectedBatch).then(successAddedBatch);
-    }
-
-    function isIntendedSynced() {
-        var intended = productBatchSummaryOperations.getIntendedNotInActual();
-
-        return intended ? !intended.length : true;
-    }
-
-    function syncWithIntendedProducts() {
-        vm.batchOperation = productBatchSummaryOperations.syncWithIntendedProducts().then(function(batches) {
-            if (batches.length) {
-                _.forEach(batches, function(batch) {
-                    vm.onAddedBatch({batch: batch});
-                });
-                selectBatch(batches[0]);
-            }
-        });
     }
 
     function registerBatch() {

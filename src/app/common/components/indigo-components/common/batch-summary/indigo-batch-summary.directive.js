@@ -44,8 +44,6 @@ function IndigoBatchSummaryController($scope, registrationService, productBatchS
             vm.columns = getDefaultColumns(vm.hasRegService);
         });
 
-        vm.syncWithIntendedProducts = syncWithIntendedProducts;
-        vm.isIntendedSynced = isIntendedSynced;
         vm.hasCheckedRows = batchHelper.hasCheckedRow;
         vm.registerBatches = registerBatches;
         vm.isBatchLoading = false;
@@ -107,27 +105,6 @@ function IndigoBatchSummaryController($scope, registrationService, productBatchS
 
     function getPrecursorColumn() {
         return _.extend({}, batchHelper.columns.precursors, {readonly: vm.isExistStoichTable});
-    }
-
-    function syncWithIntendedProducts() {
-        vm.batchOperation = productBatchSummaryOperations.syncWithIntendedProducts()
-            .then(successAddedBatches);
-    }
-
-    function isIntendedSynced() {
-        var intended = productBatchSummaryOperations.getIntendedNotInActual();
-
-        return intended ? !intended.length : true;
-    }
-
-    function successAddedBatches(batches) {
-        if (batches.length) {
-            _.forEach(batches, function(batch) {
-                vm.onAddedBatch({batch: batch});
-            });
-            vm.onChanged();
-            vm.onSelectBatch({batch: _.last(batches)});
-        }
     }
 
     function registerBatches() {

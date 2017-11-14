@@ -11,9 +11,7 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
 
     return {
         exportSDFile: exportSDFile,
-        getSelectedNonEditableBatches: getSelectedNonEditableBatches,
         duplicateBatches: chainPromises(duplicateBatches),
-        duplicateBatch: chainPromises(duplicateBatch),
         getIntendedNotInActual: getIntendedNotInActual,
         syncWithIntendedProducts: syncWithIntendedProducts,
         addNewBatch: chainPromises(addNewBatch),
@@ -66,13 +64,12 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
         };
     }
 
-    function updateNbkBatches(batches) {
-        var experiment = entitiesBrowser.getCurrentEntity();
-
-        return notebookService.get({
-            projectId: $stateParams.projectId,
-            notebookId: $stateParams.notebookId
-        })
+    function updateNbkBatches(batches, experiment) {
+        return notebookService
+            .get({
+                projectId: $stateParams.projectId,
+                notebookId: $stateParams.notebookId
+            })
             .$promise
             .then(function(notebook) {
                 var promise = $q.when();
@@ -91,37 +88,27 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
             });
     }
 
-    function duplicateBatches(batchesQueueToAdd, isSyncWithIntended) {
+    function duplicateBatches(batchesQueueToAdd, isSyncWithIntended, experiment) {
         var promises = _.map(batchesQueueToAdd, function(batch) {
             return createBatch(angular.copy(batch), isSyncWithIntended);
         });
 
-        return successAddedBatches(promises);
+        return successAddedBatches(promises, experiment);
     }
 
-    function successAddedBatches(promises) {
+    function successAddedBatches(promises, experiment) {
         return $q
             .all(promises)
             .then(function(batches) {
-                return updateNbkBatches(batches)
+                return updateNbkBatches(batches, experiment)
                     .then(function() {
                         return batches;
                     });
             });
     }
 
-    function duplicateBatch(batch) {
-        if (!batch) {
-            return null;
-        }
-
-        return duplicateBatches([batch]).then(function(batches) {
-            return _.first(batches);
-        });
-    }
-
-    function getIntendedNotInActual() {
-        var stoichTable = stoichTableCache.getStoicTable();
+    function getIntendedNotInActual(stoich) {
+        var stoichTable = stoich || stoichTableCache.getStoicTable();
         if (stoichTable) {
             var intended = stoichTable.products;
             var intendedCandidateHashes = _.map(intended, '$$batchHash');
@@ -147,9 +134,13 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
         }
     }
 
-    function syncWithIntendedProducts() {
-        var batchesQueueToAdd = getIntendedNotInActual();
-        var stoichTable = stoichTableCache.getStoicTable();
+    function getStoichFromExperiment(experiment) {
+        return _.get(experiment, 'components.stoichTable');
+    }
+
+    function syncWithIntendedProducts(experiment) {
+        var stoichTable = getStoichFromExperiment(experiment);
+        var batchesQueueToAdd = getIntendedNotInActual(stoichTable);
 
         if (stoichTable && stoichTable.products && stoichTable.products.length) {
             if (!batchesQueueToAdd.length) {
@@ -159,16 +150,16 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
                     return _.extend(appValues.getDefaultBatch(), batch);
                 });
 
-                return duplicateBatches(batchesQueueToAdd, true);
+                return duplicateBatches(batchesQueueToAdd, true, experiment);
             }
         }
 
         return $q.resolve([]);
     }
 
-    function addNewBatch() {
+    function addNewBatch(experiment) {
         return createBatch().then(function(batch) {
-            return updateNbkBatches([batch]).then(function() {
+            return updateNbkBatches([batch], experiment).then(function() {
                 return batch;
             });
         });

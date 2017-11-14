@@ -49,22 +49,14 @@
                                        on-select-batch="vm.onSelectBatch({batch: batch})"
                                        is-readonly="vm.isReadonly">
                         </add-new-batch>
-                        <button type="button" class="btn btn-info btn-small"
-                                ng-disabled="vm.isEditDisabled"
-                                ng-click="vm.duplicateBatch()">
-                            <span class="fa fa-clone"></span>
-                            <span class="m-l5" i-translate="DUPLICATE"></span>
-                        </button>
+                        <duplicate-batches is-readonly="vm.isReadonly || !vm.selectedBatch"
+                                           batches="vm.batches">
+                        </duplicate-batches>
                         <delete-batches is-readonly="vm.isEditDisabled"
                                         delete-batch="vm.selectedBatch"
                                         on-remove-batches="vm.onRemoveBatches({batches: batches})">
                         </delete-batches>
-                        <button type="button" class="btn btn-info btn-small"
-                                ng-disabled="vm.isReadonly || vm.isIntendedSynced()"
-                                ng-click="vm.syncWithIntendedProducts()">
-                            <span class="fa fa-refresh"></span>
-                            <span class="m-l5" i-translate="SYNC"></span>
-                        </button>
+                        <sync-with-intended-products is-readonly="vm.isReadonly"></sync-with-intended-products>
                         <button type="button" class="btn btn-info btn-small" disabled i-translate="VNV"></button>
                         <button type="button" class="btn btn-info btn-small"
                                 ng-disabled="vm.isEditDisabled"

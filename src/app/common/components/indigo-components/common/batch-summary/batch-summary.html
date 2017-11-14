@@ -28,12 +28,7 @@
                                 batches="vm.batches"
                                 on-remove-batches="vm.onRemoveBatches({batches: batches})">
                 </delete-batches>
-                <button type="button" class="btn btn-info btn-small"
-                        ng-disabled="vm.isReadonly || vm.isIntendedSynced()"
-                        ng-click="vm.syncWithIntendedProducts()">
-                    <span class="fa fa-refresh"></span>
-                    <span class="m-l5" i-translate="SYNC"></span>
-                </button>
+                <sync-with-intended-products is-readonly="vm.isReadonly"></sync-with-intended-products>
                 <button type="button" class="btn btn-info btn-small" disabled i-translate="VNV"></button>
                 <button type="button" class="btn btn-info btn-small"
                         ng-disabled="vm.isReadonly || !vm.hasCheckedRows(vm.batches)" ng-if="vm.hasRegService"
