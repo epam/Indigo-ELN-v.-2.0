@@ -218,6 +218,8 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     function updateExperiment(experiment) {
         vm.experiment = experiment;
         postInitExperiment(vm.experiment);
+
+        return vm.experiment;
     }
 
     function completeExperiment() {
@@ -252,12 +254,23 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
             .then(updateExperiment);
     }
 
+    /**
+     * Do version current experiment, update title and go to new version experiment
+     * @return { Promise } - promise of state transition
+     */
     function versionExperiment() {
         vm.loading = experimentUtil
             .versionExperiment(vm.experiment, params)
-            .then(getExperiment)
-            .then(updateExperiment)
-            .then(updateCurrentTabTitle);
+            .then(function(experiment) {
+                return getExperiment()
+                    .then(updateExperiment)
+                    .then(updateCurrentTabTitle)
+                    .then(function() {
+                        $state.go($state.current, _.extend({}, params, {
+                            experimentId: experiment.id
+                        }));
+                    });
+            });
     }
 
     function updateCurrentTabTitle() {

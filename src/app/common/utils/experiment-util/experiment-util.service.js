@@ -25,9 +25,7 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionMana
         return experimentService.version({
             projectId: params.projectId,
             notebookId: params.notebookId
-        }, experiment.name, function(result) {
-            goToExperimentDetail(result, params);
-        }).$promise;
+        }, experiment.name).$promise;
     }
 
     function repeatExperiment(experiment, params) {
