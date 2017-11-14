@@ -17,7 +17,8 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
         addNewBatch: chainPromises(addNewBatch),
         importSDFile: chainPromises(importSDFile),
         registerBatches: registerBatches,
-        deleteBatches: deleteBatches
+        deleteBatches: deleteBatches,
+        getSelectedNonEditableBatches: getNonEditableBatches
     };
 
     function downloadLink(filePath) {
@@ -39,16 +40,8 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
         });
     }
 
-    function getSelectedNonEditableBatches(batches) {
-        return _
-            .chain(batches)
-            .filter(function(item) {
-                return registrationUtil.isRegistered(item);
-            })
-            .map(function(item) {
-                return item.fullNbkBatch;
-            })
-            .value();
+    function getNonEditableBatches(batches) {
+        return _.map(_.filter(batches, registrationUtil.isRegistered), 'fullNbkBatch');
     }
 
     function chainPromises(fn) {
@@ -179,18 +172,6 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
         });
     }
 
-    function registerBatches(batches) {
-        var nonEditableBatches = getSelectedNonEditableBatches(batches);
-        if (!_.isEmpty(nonEditableBatches)) {
-            notifyService.warning('Batch(es) ' + _.uniq(nonEditableBatches)
-                .join(', ') + ' already have been registered.');
-
-            return registerBatchesWith(batches, nonEditableBatches);
-        }
-
-        return registerBatchesWith(batches, []);
-    }
-
     function requestNbkBatchNumber(lastNbkBatch) {
         var latest = lastNbkBatch || getLatestNbkBatch();
         var request = apiUrl + 'projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
@@ -262,7 +243,7 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
     }
 
     function checkNonRemovableBatches(batches) {
-        var nonEditableBatches = getSelectedNonEditableBatches(batches);
+        var nonEditableBatches = getNonEditableBatches(batches);
         if (!_.isEmpty(nonEditableBatches)) {
             var errorMessage = 'Following batches were registered or sent to registration and cannot be deleted: ';
 
@@ -300,40 +281,22 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
         return $q.resolve();
     }
 
-    function registerBatchesWith(batchesToRegister, excludes) {
-        var batches = _.filter(batchesToRegister, function(row) {
-            return !_.includes(excludes, row.fullNbkBatch);
-        });
-        var message = '';
-        var notFullBatches = registrationUtil.getNotFullForRegistrationBatches(batches);
-        if (notFullBatches.length) {
-            _.each(notFullBatches, function(notFullBatch) {
-                message = message + '<br><b>Batch '
-                    + notFullBatch.nbkBatch + ':</b><br>' + notFullBatch.emptyFields.join('<br>');
-            });
-            alertModal.error(message);
-        } else {
-            var batchNumbers = _.map(batches, function(batch) {
-                return batch.fullNbkBatch;
-            });
-            if (batchNumbers.length) {
-                return saveAndRegister(batchNumbers);
-            }
-            notifyService.warning('No Batches was selected for Registration');
-        }
-    }
+    function registerBatches(batches) {
+        var batchNumbers = _.map(batches, 'fullNbkBatch');
 
-    function saveAndRegister(batchNumbers) {
-        return entitiesBrowser.saveCurrentEntity()
+        if (!batchNumbers.length) {
+            notifyService.warning('No Batches was selected for Registration');
+
+            return $q.reject();
+        }
+
+        return registrationService
+            .register({}, batchNumbers)
+            .$promise
             .then(function() {
-                $timeout(function() {
-                    registrationService.register({}, batchNumbers).$promise
-                        .then(function() {
-                            notifyService.success('Selected Batches successfully sent to Registration');
-                        }, function() {
-                            notifyService.error('ERROR! Selected Batches registration failed');
-                        });
-                }, 1000);
+                notifyService.success('Selected Batches successfully sent to Registration');
+            }, function() {
+                notifyService.error('ERROR! Selected Batches registration failed');
             });
     }
 }

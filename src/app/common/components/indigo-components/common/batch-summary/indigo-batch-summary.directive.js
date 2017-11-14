@@ -26,26 +26,23 @@ function indigoBatchSummary() {
     };
 }
 
-IndigoBatchSummaryController.$inject =
-    ['$scope', 'registrationService', 'productBatchSummaryOperations', 'batchHelper'];
+IndigoBatchSummaryController.$inject = ['$scope', 'registrationUtil', 'batchHelper'];
 
-function IndigoBatchSummaryController($scope, registrationService, productBatchSummaryOperations, batchHelper) {
+function IndigoBatchSummaryController($scope, registrationUtil, batchHelper) {
     var vm = this;
 
     init();
 
     function init() {
         vm.loading = false;
-        vm.model = vm.model || {};
 
-        registrationService.info({}).$promise.then(function(info) {
-            vm.hasRegService = _.isArray(info) && info.length > 0;
+        registrationUtil.hasRegistrationService().then(function(hasRegService) {
+            vm.hasRegService = hasRegService;
 
             vm.columns = getDefaultColumns(vm.hasRegService);
         });
 
         vm.hasCheckedRows = batchHelper.hasCheckedRow;
-        vm.registerBatches = registerBatches;
         vm.isBatchLoading = false;
         vm.onBatchOperationChanged = onBatchOperationChanged;
         vm.onClose = batchHelper.close;
@@ -105,12 +102,6 @@ function IndigoBatchSummaryController($scope, registrationService, productBatchS
 
     function getPrecursorColumn() {
         return _.extend({}, batchHelper.columns.precursors, {readonly: vm.isExistStoichTable});
-    }
-
-    function registerBatches() {
-        vm.loading = vm.saveExperimentFn().then(function() {
-            return productBatchSummaryOperations.registerBatches(batchHelper.getCheckedBatches(vm.batches));
-        });
     }
 
     function onBatchOperationChanged(completed) {

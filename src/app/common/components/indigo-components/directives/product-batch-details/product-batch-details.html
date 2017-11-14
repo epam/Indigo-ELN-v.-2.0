@@ -58,12 +58,7 @@
                         </delete-batches>
                         <sync-with-intended-products is-readonly="vm.isReadonly"></sync-with-intended-products>
                         <button type="button" class="btn btn-info btn-small" disabled i-translate="VNV"></button>
-                        <button type="button" class="btn btn-info btn-small"
-                                ng-disabled="vm.isEditDisabled"
-                                ng-click="vm.registerBatch()">
-                            <span class="fa fa-floppy-o"></span>
-                            <span class="m-l5" i-translate="REGISTER"></span>
-                        </button>
+                        <register-batches is-readonly="vm.isReadonly"></register-batches>
                         <indigo-inline-loader promise="vm.batchOperation" class="product-batch-details__loader"
                                               on-status-changed="vm.onBatchOperationChanged(completed)"></indigo-inline-loader>
                         <simple-radio>

@@ -1,5 +1,7 @@
 /* @ngInject */
-function registrationUtil(appValues, registrationMsg) {
+function registrationUtil(appValues, registrationMsg, registrationService) {
+    var regServiceInfo;
+
     var isStereoisomerNeedComment = function(stereoisomer) {
         var stereocodesWithComment = registrationMsg.STEREOCODES;
 
@@ -60,7 +62,8 @@ function registrationUtil(appValues, registrationMsg) {
 
     return {
         isRegistered: isRegistered,
-        getNotFullForRegistrationBatches: getNotFullForRegistrationBatches
+        getNotFullForRegistrationBatches: getNotFullForRegistrationBatches,
+        hasRegistrationService: hasRegistrationService
     };
 
     function isRegistered(row) {
@@ -69,16 +72,13 @@ function registrationUtil(appValues, registrationMsg) {
 
     function getNotFullForRegistrationBatches(batches) {
         var notFullBatches = [];
-        _.each(batches, function(batch) {
+        _.forEach(batches, function(batch) {
             var notFullBatch = {
-                nbkBatch: batch.fullNbkBatch, emptyFields: []
+                nbkBatch: batch.fullNbkBatch,
+                emptyFields: _.map(_.filter(errors, function(error) {
+                    return error.test(batch);
+                }), 'message')
             };
-
-            _.forEach(errors, function(error) {
-                if (error.test(batch)) {
-                    notFullBatch.emptyFields.push(error.message);
-                }
-            });
 
             if (notFullBatch.emptyFields.length) {
                 notFullBatches.push(notFullBatch);
@@ -86,6 +86,18 @@ function registrationUtil(appValues, registrationMsg) {
         });
 
         return notFullBatches;
+    }
+
+    function hasRegistrationService() {
+        if (regServiceInfo) {
+            return regServiceInfo;
+        }
+
+        regServiceInfo = registrationService.info({}).$promise.then(function(info) {
+            return _.isArray(info) && info.length > 0;
+        });
+
+        return regServiceInfo;
     }
 }
 

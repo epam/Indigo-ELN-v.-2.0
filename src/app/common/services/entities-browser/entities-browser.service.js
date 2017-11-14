@@ -23,7 +23,6 @@ function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory
         getTabs: getTabs,
         setEntityActions: setEntityActions,
         getEntityActions: getEntityActions,
-        saveCurrentEntity: saveCurrentEntity,
         goToTab: goToTab,
         saveEntity: saveEntity,
         close: close,
@@ -76,10 +75,6 @@ function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory
 
     function getEntityActions() {
         return entityActions;
-    }
-
-    function saveCurrentEntity() {
-        return $q.resolve();
     }
 
     function goToTab(tab) {

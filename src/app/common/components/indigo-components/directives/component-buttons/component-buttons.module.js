@@ -5,7 +5,8 @@ var deleteBatchesDirective = require('./delete-batches/delete-batches');
 var duplicateBatchesDirective = require('./duplicate-batches/duplicate-batches');
 var exportSdfFileDirective = require('./export-sdf-file/export-sdf-file');
 var importSdfFileDirective = require('./import-sdf-file/import-sdf-file');
-var syncWithIntendedProducts = require('./sync-with-intended-products/sync-with-intended-products');
+var syncWithIntendedProducts = require('./sync-with-intended-products/sync-with-intended-products.directive');
+var registerBatches = require('./register-batches/register-batches.directive');
 
 module.exports = angular
     .module('indigoeln.componentButtons', [])
@@ -16,5 +17,6 @@ module.exports = angular
     .directive('exportSdfFile', exportSdfFileDirective)
     .directive('importSdfFile', importSdfFileDirective)
     .directive('syncWithIntendedProducts', syncWithIntendedProducts)
+    .directive('registerBatches', registerBatches)
 
     .name;

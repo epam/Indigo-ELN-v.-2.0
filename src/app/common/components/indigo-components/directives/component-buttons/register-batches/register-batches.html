@@ -1,0 +1,8 @@
+<button type="button"
+        class="btn btn-info btn-small"
+        ng-if="::vm.hasRegService"
+        ng-disabled="vm.isReadonly"
+        ng-click="vm.registerBatches()">
+    <span class="fa fa-floppy-o"></span>
+    <span class="m-l5" i-translate="REGISTER"></span>
+</button>

@@ -29,10 +29,10 @@ function indigoProductBatchDetails() {
 }
 
 IndigoProductBatchDetailsController.$inject = ['$scope', 'appValues', 'infoEditor', 'calculationService',
-    'entitiesBrowser', 'batchHelper', 'productBatchSummaryOperations'];
+    'entitiesBrowser', 'batchHelper'];
 
 function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calculationService, entitiesBrowser,
-                                             batchHelper, productBatchSummaryOperations) {
+                                             batchHelper) {
     var vm = this;
 
     init();
@@ -45,7 +45,6 @@ function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calc
         vm.selectControl = {};
         vm.saltCodeValues = appValues.getSaltCodeValues();
         vm.selectBatch = selectBatch;
-        vm.registerBatch = registerBatch;
         vm.editSolubility = editSolubility;
         vm.editResidualSolvents = editResidualSolvents;
         vm.editExternalSupplier = editExternalSupplier;
@@ -76,12 +75,6 @@ function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calc
             || !vm.selectedBatch
             || !vm.selectedBatch.nbkBatch
             || !!vm.selectedBatch.registrationStatus;
-    }
-
-    function registerBatch() {
-        vm.loading = vm.saveExperimentFn().then(function() {
-            return productBatchSummaryOperations.registerBatches([vm.selectedBatch]);
-        });
     }
 
     function editSolubility() {
