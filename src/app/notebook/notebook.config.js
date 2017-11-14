@@ -54,7 +54,7 @@ function notebookConfig($stateProvider, permissionManagementConfig, permissionVi
                         return {
                             notebook: {
                                 description: '',
-                                name: ''
+                                name: undefined
                             },
                             identity: results[0],
                             isContentEditor: results[1],
