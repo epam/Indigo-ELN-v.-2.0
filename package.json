@@ -83,5 +83,7 @@
     "start:prod": "webpack-dev-server --open --port 9000 --config webpack.prod.config.js --env.build=prod --env.apiUrl=http://localhost:8080/api/",
     "eslint": "eslint src/app"
   },
-  "pre-commit": []
+  "pre-commit": [
+    "eslint"
+  ]
 }

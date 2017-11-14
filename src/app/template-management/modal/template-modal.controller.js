@@ -68,7 +68,7 @@ function TemplateModalController($scope, $stateParams, templateService, notifySe
         if (vm.template.id) {
             templateService.update(vm.template, onSaveSuccess, onSaveError);
         } else {
-            templateService.save(vm.template, onSaveSuccess, onSaveError).$promise;
+            templateService.save(vm.template, onSaveSuccess, onSaveError);
         }
     }
 
@@ -92,7 +92,7 @@ function TemplateModalController($scope, $stateParams, templateService, notifySe
         vm.template.templateContent = _.without(vm.template.templateContent, tab);
     }
 
-    function removeComponent() {
+    function removeComponent(tab, component) {
         tab.components = _.without(tab.components, component);
         vm.components.push(component);
         sortComponents();
@@ -100,6 +100,7 @@ function TemplateModalController($scope, $stateParams, templateService, notifySe
 
     function sortComponents() {
         vm.components.sort(function(b, a) {
+            /* eslint no-nested-ternary: "off"*/
             return (a.name < b.name) ? 1 : (a.name > b.name) ? -1 : 0;
         });
     }

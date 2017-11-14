@@ -1,7 +1,7 @@
 run.$inject = ['$rootScope', 'entitiesBrowser'];
 
 function run($rootScope, entitiesBrowser) {
-    $rootScope.$on('$stateChangeSuccess', function(event, toState, toStateParams) {
+    var unsubscribe = $rootScope.$on('$stateChangeSuccess', function(event, toState, toStateParams) {
         var tab = angular.copy(toState.data.tab);
 
         if (tab) {
@@ -11,6 +11,8 @@ function run($rootScope, entitiesBrowser) {
             }
         }
     });
+
+    $rootScope.$on('$destroy', unsubscribe);
 }
 
 module.exports = run;
