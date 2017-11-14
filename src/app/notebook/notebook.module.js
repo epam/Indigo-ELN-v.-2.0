@@ -1,5 +1,5 @@
 var notebookConfig = require('./notebook.config');
-var NotebookDialogController = require('./dialog/notebook-dialog.controller');
+var NotebookDialogController = require('./detail/notebook-detail.controller');
 var NotebookSelectParentController = require('./select-parent/notebook-select-parent.controller');
 
 module.exports = angular

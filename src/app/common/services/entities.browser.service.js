@@ -4,9 +4,6 @@ function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory
     var tabs = {};
     var activeTab = {};
     var entityActions;
-    var saveCurrentEntityFunction;
-    var activeEntity;
-    var curForm;
     var restored = false;
 
     var resolvePrincipal = function(func) {
@@ -26,24 +23,15 @@ function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory
         getTabs: getTabs,
         setEntityActions: setEntityActions,
         getEntityActions: getEntityActions,
-        setSaveCurrentEntity: setSaveCurrentEntity,
-        getSaveCurrentEntityFunc: getSaveCurrentEntityFunc,
-        callSaveCurrentEntity: callSaveCurrentEntity,
         saveCurrentEntity: saveCurrentEntity,
-        setCurrentEntity: setCurrentEntity,
-        getCurrentEntity: getCurrentEntity,
-        setCurrentForm: setCurrentForm,
-        getCurrentForm: getCurrentForm,
         goToTab: goToTab,
         saveEntity: saveEntity,
         close: close,
-        setActiveTab: setActiveTab,
         getActiveTab: getActiveTab,
         setCurrentTabTitle: setCurrentTabTitle,
         changeDirtyTab: changeDirtyTab,
         addTab: addTab,
         getTabByParams: getTabByParams,
-        saveTabs: saveTabs,
         restoreTabs: restoreTabs,
         setExperimentTab: setExperimentTab,
         getExperimentTab: getExperimentTab
@@ -90,36 +78,8 @@ function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory
         return entityActions;
     }
 
-    function setSaveCurrentEntity(f) {
-        saveCurrentEntityFunction = f;
-    }
-
-    function getSaveCurrentEntityFunc() {
-        return saveCurrentEntityFunction;
-    }
-
-    function callSaveCurrentEntity(b) {
-        saveCurrentEntityFunction(b);
-    }
-
     function saveCurrentEntity() {
         return $q.resolve();
-    }
-
-    function setCurrentEntity(entity) {
-        activeEntity = entity;
-    }
-
-    function getCurrentEntity() {
-        return activeEntity;
-    }
-
-    function setCurrentForm(form) {
-        curForm = form;
-    }
-
-    function getCurrentForm() {
-        return curForm;
     }
 
     function goToTab(tab) {
@@ -146,11 +106,9 @@ function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory
     }
 
     function setActiveTab(tab) {
-        saveCurrentEntityFunction = null;
         activeEntity = null;
         activeTab = tab;
         entityActions = null;
-        curForm = null;
     }
 
     function getActiveTab() {
@@ -223,7 +181,7 @@ function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory
                 }
             }
 
-            setActiveTab(tabs[userId][tabKey]);
+            setActiveTab(tab);
         });
     }
 

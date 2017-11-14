@@ -40,8 +40,6 @@ function IndigoEntitiesControlsController($state, entitiesBrowser, modalHelper, 
 
         vm.onTabClick = onTabClick;
         vm.openSearch = openSearch;
-        vm.canSave = canSave;
-        vm.save = save;
         vm.canPrint = canPrint;
         vm.print = print;
         vm.canDuplicate = canDuplicate;
@@ -61,16 +59,6 @@ function IndigoEntitiesControlsController($state, entitiesBrowser, modalHelper, 
 
     function openSearch() {
         $state.go('entities.search-panel');
-    }
-
-    function save() {
-        vm.onSave();
-    }
-
-    function canSave() {
-        return !!entitiesBrowser.saveCurrentEntity
-            && !!entitiesBrowser.getCurrentForm()
-            && entitiesBrowser.getCurrentForm().$dirty;
     }
 
     function canPrint() {

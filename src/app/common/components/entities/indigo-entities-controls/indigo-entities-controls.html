@@ -64,7 +64,7 @@
             <a class="item-null-link"></a>
         </li>
         <li ng-if="!vm.isDashboard">
-            <a ng-click="vm.save()" ng-class="{'disabled' : !vm.activeTab.dirty }">
+            <a ng-click="vm.onSave()" ng-class="{'disabled' : !vm.activeTab.dirty }">
                 <span class="fa fa-floppy-o"></span>
                 <span class="tooltip-icon-header" i-translate="SAVE"></span>
             </a>

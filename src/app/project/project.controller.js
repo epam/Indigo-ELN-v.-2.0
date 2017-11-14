@@ -25,7 +25,6 @@ function ProjectController($scope, $state, projectService, notifyService, permis
             entitiesBrowser.setCurrentTabTitle(vm.project.name, $stateParams);
             initPermissions();
             initDirtyListener();
-            entitiesBrowser.setSaveCurrentEntity(save);
             entitiesBrowser.setEntityActions({
                 save: save,
                 print: vm.print
@@ -177,15 +176,10 @@ function ProjectController($scope, $state, projectService, notifyService, permis
         });
 
         $scope.$watch('vm.project', function(newEntity) {
-            entitiesBrowser.setCurrentEntity(vm.project);
             var isDirty = autorecoveryHelper.isEntityDirty(originalProject, newEntity);
             toggleDirty(vm.stateData.isNew || isDirty);
             updateRecovery(newEntity, isDirty);
         }, true);
-
-        $scope.$watch('createProjectForm', function(newValue) {
-            entitiesBrowser.setCurrentForm(newValue);
-        });
 
         $scope.$on('access-list-changed', function() {
             vm.project.accessList = permissionManagementService.getAccessList();

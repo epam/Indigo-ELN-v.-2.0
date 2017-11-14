@@ -35,7 +35,6 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
         vm.apiUrl = apiUrl;
         vm.stateData = $state.current.data;
-        vm.isCollapsed = true;
         vm.deferLoading = $q.defer();
         vm.isInit = false;
         vm.loading = $q.all([
@@ -79,7 +78,6 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         vm.onRestore = onRestore;
 
         entitiesBrowser.setCurrentTabTitle(tabName, $stateParams);
-        entitiesBrowser.setSaveCurrentEntity(save);
         entitiesBrowser.setEntityActions({
             save: save,
             duplicate: repeatExperiment,
@@ -362,9 +360,6 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
                 var isDirty = autorecoveryHelper.isEntityDirty(originalExperiment, newEntity);
                 toggleDirty(isDirty);
                 updateRecovery(newEntity, isDirty);
-                if (newEntity) {
-                    entitiesBrowser.setCurrentEntity(newEntity);
-                }
             }
         }, true);
 
