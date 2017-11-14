@@ -66,11 +66,14 @@ function principalService(accountService) {
     }
 
     function hasAuthorityIdentitySafe(authority) {
-        return this.identity().then(function(_id) {
-            return _id.authorities && _id.authorities.indexOf(authority) !== -1;
-        }, function() {
-            return false;
-        });
+        return checkIdentity()
+            .then(
+                function(_id) {
+                    return _id.authorities && _id.authorities.indexOf(authority) !== -1;
+                },
+                function() {
+                    return false;
+                });
     }
 
     function authenticate(userIdentity) {
