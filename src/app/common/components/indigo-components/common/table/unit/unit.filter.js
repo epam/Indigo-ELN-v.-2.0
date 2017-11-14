@@ -1,3 +1,4 @@
+/* @ngInject */
 function unit(unitsConverter) {
     return function(value, to) {
         if (!value) {
