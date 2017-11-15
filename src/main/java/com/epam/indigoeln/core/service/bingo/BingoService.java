@@ -27,7 +27,7 @@ import java.util.Optional;
 
 /**
  * The BingoService provides a number of methods for
- * data manipulation in BingoDB
+ * molecule's data manipulation
  *
  * @author Vladislav Alekseev
  */

@@ -65,6 +65,7 @@ public class CalculationService {
 
     /**
      * Returns <code>true</code> if the string molecule's representation is empty
+     *
      * @param molecule String molecule's representation
      * @return Returns <code>true</code> if the string molecule's representation is empty or
      * <code>false</code> if it's not empty
@@ -80,6 +81,7 @@ public class CalculationService {
 
     /**
      * Returns <code>true</code> if the string reaction's representation is empty
+     *
      * @param reaction String reaction's representation
      * @return Returns <code>true</code> if the string reaction's representation is empty or
      * <code>false</code> if it's not empty
