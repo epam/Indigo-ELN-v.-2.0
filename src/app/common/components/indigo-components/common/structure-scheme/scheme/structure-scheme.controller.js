@@ -49,15 +49,12 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
         if (!structure || !structure.molfile || structure.image) {
             return;
         }
-
-        $http({
-            url: apiUrl + 'renderer/' + vm.structureType + '/image',
-            method: 'POST',
-            data: structure.molfile
-        }).then(function(result) {
-            vm.structureModel.image = result.image;
-            onChangeStructure();
-        });
+        calculationService
+            .getImageForStructure(structure.molfile, vm.structureType)
+            .then(function(image) {
+                structure.image = image;
+                onChangeStructure();
+            });
     }
 
     function bindEvents() {

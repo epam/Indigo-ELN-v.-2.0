@@ -36,10 +36,9 @@ function IndigoReactionSchemeController($scope, $rootScope, calculationService, 
 
     function checkReaction() {
         if (_.get(vm.componentData, 'molfile') && !_.has(vm.componentData, 'molReactants')) {
-            onChangedStructure(vm.componentData).then(function() {
-                notifyService.info('The old version of reaction scheme is updated. ' +
-                    'Save Experiment for apply changes');
-            });
+            vm.modelTrigger++;
+            notifyService.info('The old version of reaction scheme is updated. ' +
+                'Save Experiment for apply changes');
         }
     }
 
@@ -86,13 +85,13 @@ function IndigoReactionSchemeController($scope, $rootScope, calculationService, 
         updateImage(structure);
 
         if (structure.molfile !== vm.componentData.molfile) {
-            vm.loading = calculationService.getReactionProductsAndReactants(structure.molfile)
+            return calculationService.getReactionProductsAndReactants(structure.molfile)
                 .then(function(response) {
                     return updateReaction(response, structure);
                 });
         }
 
-        return vm.loading;
+        return $q.reject();
     }
 
     function moleculeInfoResponseCallback(results, isProduct) {
