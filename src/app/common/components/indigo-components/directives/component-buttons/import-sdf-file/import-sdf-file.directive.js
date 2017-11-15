@@ -19,7 +19,7 @@ function importSdfFile() {
     };
 
     /* @ngInject */
-    function ImportSdfFileController(productBatchSummaryOperations) {
+    function ImportSdfFileController(productBatchSummaryOperations, notifyService, $q) {
         var vm = this;
 
         init();
@@ -29,7 +29,19 @@ function importSdfFile() {
         }
 
         function importSdfFile() {
-            vm.indigoComponents.batchOperation = productBatchSummaryOperations.importSDFile().then(successAddedBatches);
+            vm.indigoComponents.batchOperation = productBatchSummaryOperations
+                .importSDFile(vm.indigoComponents.experiment)
+                .then(function(batches) {
+                    if (batches.length > 0) {
+                        notifyService.info(batches.length + ' batches successfully imported');
+
+                        return batches;
+                    }
+
+                    return $q.reject('Error! Batch(es) not imported');
+                })
+                .then(successAddedBatches)
+                .catch(notifyService.error);
         }
 
         function successAddedBatches(batches) {

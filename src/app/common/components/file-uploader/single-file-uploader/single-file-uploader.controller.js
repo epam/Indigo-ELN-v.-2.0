@@ -12,6 +12,7 @@ function SingleFileUploaderController($uibModalInstance, $cookies, FileUploader,
         uploader = new FileUploader({
             url: url,
             alias: 'file',
+            withCredentials: true,
             headers: {
                 'X-CSRF-TOKEN': $cookies.get('CSRF-TOKEN')
             }
@@ -22,7 +23,7 @@ function SingleFileUploaderController($uibModalInstance, $cookies, FileUploader,
         uploader.filters.push({
             name: 'customFilter',
             fn: function() {
-                return vm.queue.length < 1;
+                return this.queue.length < 1;
             }
         });
 

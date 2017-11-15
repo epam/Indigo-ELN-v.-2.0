@@ -159,17 +159,13 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
         });
     }
 
-    function importSDFile() {
+    function importSDFile(experiment) {
         return sdImportService.importFile().then(function(sdUnits) {
             var promises = _.map(sdUnits, function(unit) {
                 return createBatch(unit);
             });
 
-            return successAddedBatches(promises).then(function(batches) {
-                notifyService.info(batches.length + ' batches successfully imported');
-
-                return batches;
-            });
+            return successAddedBatches(promises, experiment);
         });
     }
 
