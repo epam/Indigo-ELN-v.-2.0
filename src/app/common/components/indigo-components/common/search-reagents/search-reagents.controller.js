@@ -1,10 +1,10 @@
 SearchReagentsController.$inject = ['$rootScope', '$uibModalInstance', 'notifyService',
     'appValuesService', 'activeTabIndex', 'userReagentsService', 'searchService',
-    'searchUtil', 'searchReagentsConstant', 'stoichСolumnActions'];
+    'searchUtil', 'searchReagentsConstant', 'stoichColumnActions'];
 
 function SearchReagentsController($rootScope, $uibModalInstance, notifyService, appValuesService,
                                   activeTabIndex, userReagentsService, searchService, searchUtil,
-                                  searchReagentsConstant, stoichСolumnActions) {
+                                  searchReagentsConstant, stoichColumnActions) {
     var vm = this;
     var myReagentsSearchQuery;
 
@@ -67,7 +67,7 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         var selected = _.filter(list, {
             $$isSelected: true
         });
-        $rootScope.$broadcast('stoich-rows-changed', stoichСolumnActions.cleanReactants(selected));
+        $rootScope.$broadcast('stoich-rows-changed', stoichColumnActions.cleanReactants(selected));
     }
 
     userReagentsService.get({}, function(reagents) {
