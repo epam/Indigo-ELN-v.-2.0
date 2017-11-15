@@ -25,6 +25,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * The BingoService provides a number of methods for
+ * data manipulation in BingoDB
+ *
+ * @author  Vladislav Alekseev
+ */
 @Service
 public class BingoService {
 
@@ -37,6 +43,11 @@ public class BingoService {
 
     /* Common */
 
+    /**
+     * Returns chemical structure of molecule by id from BingoDB
+     * @param id The chemical structure's id
+     * @return a non-empty string representation of chemical structure if It's exist
+     */
     public Optional<String> getById(String id) {
         try {
             BingoResponse response = getResponse("GET", "/structures/" + id, StringUtils.EMPTY);
@@ -51,6 +62,12 @@ public class BingoService {
         return Optional.empty();
     }
 
+    /**
+     * Inserts chemical structure of molecule to BingoDB
+     * @param s String representation of chemical structure
+     * @return a non-empty string representation of chemical structure
+     * if insert was successful, otherwise it returns empty string
+     */
     public Optional<String> insert(String s) {
         try {
             BingoResponse response = getResponse("POST", "/structures", s);
@@ -65,6 +82,13 @@ public class BingoService {
         return Optional.empty();
     }
 
+    /**
+     * Updates chemical structure of molecule in BingoDB
+     * @param id The chemical structure's id
+     * @param s New string representation of chemical structure
+     * @return updated string representation of chemical structure
+     * if update was successful, otherwise it returns empty string
+     */
     public Optional<String> update(String id, String s) {
         try {
             BingoResponse response = getResponse("PUT", "/structures/" + id, s);
@@ -79,6 +103,10 @@ public class BingoService {
         return Optional.empty();
     }
 
+    /**
+     * Deletes chemical structure of molecule by id
+     * @param id The chemical structure's id
+     */
     public void delete(String id) {
         try {
             getResponse("DELETE", "/structures/" + id, StringUtils.EMPTY);
@@ -89,6 +117,13 @@ public class BingoService {
 
     /* Molecule */
 
+    /**
+     * Searches for exact molecule
+     * @param molecule Molecule structure to search for
+     * @param options Search options
+     * @return The list of string molecule's representations
+     * if search was successful, otherwise it returns empty list
+     */
     public List<String> searchMoleculeExact(String molecule, String options) {
         try {
             String opts = options == null ? StringUtils.EMPTY : options;
@@ -99,6 +134,13 @@ public class BingoService {
         return Collections.emptyList();
     }
 
+    /**
+     * Searches for molecule by substructure
+     * @param molecule Molecule substructure to search for
+     * @param options Search options
+     * @return The list of string molecule's representations
+     * if search was successful, otherwise it returns empty list
+     */
     public List<String> searchMoleculeSub(String molecule, String options) {
         try {
             String opts = options == null ? StringUtils.EMPTY : options;
@@ -109,6 +151,15 @@ public class BingoService {
         return Collections.emptyList();
     }
 
+    /**
+     * Searches for molecule by similarity
+     * @param molecule Molecule substructure to search for
+     * @param min Min similarity
+     * @param max Max similarity
+     * @param metric Search options
+     * @return The list of string molecule's representations
+     * if search was successful, otherwise it returns empty list
+     */
     public List<String> searchMoleculeSim(String molecule, Float min, Float max, String metric) {
         try {
             String mtrc = metric == null ? StringUtils.EMPTY : metric;
@@ -119,6 +170,13 @@ public class BingoService {
         return Collections.emptyList();
     }
 
+    /**
+     * Searches for molecule by formula
+     * @param formula Molecule formula to search for
+     * @param options Search options
+     * @return The list of string molecule's representations
+     * if search was successful, otherwise it returns empty list
+     */
     public List<String> searchMoleculeMolFormula(String formula, String options) {
         try {
             String opts = options == null ? StringUtils.EMPTY : options;
@@ -131,6 +189,13 @@ public class BingoService {
 
     /* Reaction */
 
+    /**
+     * Searches for exact reaction
+     * @param reaction Reaction structure to search for
+     * @param options Search options
+     * @return The list of string reaction's representations
+     * if search was successful, otherwise it returns empty list
+     */
     public List<String> searchReactionExact(String reaction, String options) {
         try {
             String opts = options == null ? StringUtils.EMPTY : options;
@@ -141,6 +206,13 @@ public class BingoService {
         return Collections.emptyList();
     }
 
+    /**
+     * Searches for reaction by substructure
+     * @param reaction Reaction substructure to search for
+     * @param options Search options
+     * @return The list of string reaction's representations
+     * if search was successful, otherwise it returns empty list
+     */
     public List<String> searchReactionSub(String reaction, String options) {
         try {
             String opts = options == null ? StringUtils.EMPTY : options;
@@ -151,6 +223,15 @@ public class BingoService {
         return Collections.emptyList();
     }
 
+    /**
+     * Searches for reaction by similarity
+     * @param reaction Reaction substructure to search for
+     * @param min Min similarity
+     * @param max Max similarity
+     * @param metric Search options
+     * @return The list of string reaction's representations
+     * if search was successful, otherwise it returns empty list
+     */
     public List<String> searchReactionSim(String reaction, Float min, Float max, String metric) {
         try {
             String mtrc = metric == null ? StringUtils.EMPTY : metric;
@@ -161,6 +242,13 @@ public class BingoService {
         return Collections.emptyList();
     }
 
+    /**
+     * Searches for reaction by formula
+     * @param formula Reaction formula to search for
+     * @param options Search options
+     * @return The list of string reaction's representations
+     * if search was successful, otherwise it returns empty list
+     */
     public List<String> searchReactionMolFormula(String formula, String options) {
         try {
             String opts = options == null ? StringUtils.EMPTY : options;
