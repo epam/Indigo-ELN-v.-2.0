@@ -47,9 +47,18 @@ function batchHelperService(appUnits, calculationService, columnActionsService,
     }
 
     function recalculateSalt(reagent) {
+        if (reagent.saltCode.value === 0) {
+            reagent.saltEq.value = 0;
+        } else {
+            reagent.saltEq.value = Math.abs(reagent.saltEq.value);
+        }
         calculationService.recalculateSalt(reagent).then(function() {
             calculationService.recalculateStoich();
         });
+    }
+
+    function canEditSaltEq(batch) {
+        return batch && batch.saltCode && batch.saltCode.value !== 0;
     }
 
     var compounds = [
@@ -61,6 +70,8 @@ function batchHelperService(appUnits, calculationService, columnActionsService,
         close: close,
         hasCheckedRow: hasCheckedRow,
         getCheckedBatches: getCheckedBatches,
+        recalculateSalt: recalculateSalt,
+        canEditSaltEq: canEditSaltEq,
         compounds: compounds,
         columns: {
             structure: {

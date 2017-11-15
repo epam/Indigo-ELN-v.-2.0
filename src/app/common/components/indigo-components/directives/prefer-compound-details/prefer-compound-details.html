@@ -75,10 +75,6 @@
                     </div>
                 </div>
             </div>
-            <div class="structure-preview-wrapper" ng-if="vm.showStructure">
-                <img ng-src="data:image/svg+xml;base64,{{vm.selectedBatch.structure.image}}"
-                     alt="Image is unavailable.">
-            </div>
             <div class="row">
                 <div class="col-xs-6">
                     <simple-input>
@@ -127,7 +123,7 @@
                                type="number"
                                ng-model="vm.selectedBatch.saltEq.value"
                                ng-change="vm.recalculateSalt(vm.selectedBatch)"
-                               ng-disabled="vm.isEditDisabled || !vm.canEditSaltEq()">
+                               ng-disabled="vm.isEditDisabled || !vm.canEditSaltEq(vm.selectedBatch)">
                     </simple-input>
                 </div>
             </div>
