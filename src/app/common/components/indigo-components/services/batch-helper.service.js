@@ -1,8 +1,8 @@
-batchHelper.$inject = ['appUnits', 'calculationService', 'columnActions', 'scalarService', 'unitService',
-    'selectService', 'inputService', '$q'];
+batchHelperService.$inject = ['appUnits', 'calculationService', 'columnActionsService', 'scalarService', 'unitService',
+    'selectService', 'setInputService', '$q'];
 
-function batchHelper(appUnits, calculationService, columnActions, scalarService, unitService, selectService,
-                     inputService, $q) {
+function batchHelperService(appUnits, calculationService, columnActionsService,
+                            scalarService, unitService, selectService, setInputService, $q) {
     var columnCloseFunction = {
         totalWeight: onClose1,
         totalVolume: onClose1,
@@ -155,7 +155,7 @@ function batchHelper(appUnits, calculationService, columnActions, scalarService,
                 name: 'Structure Comments',
                 type: 'input',
                 bulkAssignment: true,
-                actions: inputService.getActions('Structure Comments')
+                actions: setInputService.getActions('Structure Comments')
             },
             registrationDate: {
                 id: 'registrationDate',
@@ -167,7 +167,7 @@ function batchHelper(appUnits, calculationService, columnActions, scalarService,
                 name: 'Batch Comments',
                 type: 'input',
                 bulkAssignment: true,
-                actions: inputService.getActions('Batch Comments')
+                actions: setInputService.getActions('Batch Comments')
             },
             $$batchType: {
                 id: '$$batchType',
@@ -186,7 +186,7 @@ function batchHelper(appUnits, calculationService, columnActions, scalarService,
                 name: 'Mol Formula',
                 type: 'input',
                 readonly: true,
-                actions: inputService.getActions('Mol Formula')
+                actions: setInputService.getActions('Mol Formula')
             },
             conversationalBatchNumber: {
                 id: 'conversationalBatchNumber',
@@ -196,7 +196,7 @@ function batchHelper(appUnits, calculationService, columnActions, scalarService,
                 id: 'virtualCompoundId',
                 name: 'Virtual Compound Id',
                 type: 'input',
-                actions: inputService.getActions('Virtual Compound Id')
+                actions: setInputService.getActions('Virtual Compound Id')
             },
             stereoisomer: {
                 id: 'stereoisomer',
@@ -234,7 +234,7 @@ function batchHelper(appUnits, calculationService, columnActions, scalarService,
                 name: 'Precursor/Reactant IDs',
                 type: 'input',
                 readonly: true,
-                actions: inputService.getActions('Precursor/Reactant IDs')
+                actions: setInputService.getActions('Precursor/Reactant IDs')
             },
             select: {
                 id: '$$select',
@@ -267,13 +267,13 @@ function batchHelper(appUnits, calculationService, columnActions, scalarService,
                 name: 'Purity',
                 type: 'string',
                 onClick: function(data) {
-                    columnActions.editPurity(data.row);
+                    columnActionsService.editPurity(data.row);
                 },
                 actions: [{
                     name: 'Set value for Purity',
                     title: 'Purity',
                     action: function(rows) {
-                        columnActions.editPurityForAllRows(rows);
+                        columnActionsService.editPurityForAllRows(rows);
                     }
                 }]
             },
@@ -283,13 +283,13 @@ function batchHelper(appUnits, calculationService, columnActions, scalarService,
                 name: 'Melting Point',
                 type: 'string',
                 onClick: function(data) {
-                    columnActions.editMeltingPoint(data.row);
+                    columnActionsService.editMeltingPoint(data.row);
                 },
                 actions: [{
                     name: 'Set value for Melting Point',
                     title: 'Melting Point',
                     action: function(rows) {
-                        columnActions.editMeltingPointForAllRows(rows);
+                        columnActionsService.editMeltingPointForAllRows(rows);
                     }
                 }]
             },
@@ -303,7 +303,7 @@ function batchHelper(appUnits, calculationService, columnActions, scalarService,
                     name: 'Set value for Source',
                     title: 'Source',
                     action: function(rows) {
-                        columnActions.openProductBatchSummaryModal(rows, this.title);
+                        columnActionsService.openProductBatchSummaryModal(rows, this.title);
                     }
                 }]
             },
@@ -317,7 +317,7 @@ function batchHelper(appUnits, calculationService, columnActions, scalarService,
                     name: 'Set value for Source Detail',
                     title: 'Source Detail',
                     action: function(rows) {
-                        columnActions.openProductBatchSummaryModal(rows, this.title);
+                        columnActionsService.openProductBatchSummaryModal(rows, this.title);
                     }
                 }]
             },
@@ -327,12 +327,12 @@ function batchHelper(appUnits, calculationService, columnActions, scalarService,
                 name: 'External Supplier',
                 type: 'string',
                 onClick: function(data) {
-                    columnActions.editExternalSupplier(data.row);
+                    columnActionsService.editExternalSupplier(data.row);
                 },
                 actions: [{
                     name: 'Set value for External Supplier',
                     title: 'External Supplier',
-                    action: columnActions.editExternalSupplierForAllRows
+                    action: columnActionsService.editExternalSupplierForAllRows
                 }]
             },
             $$healthHazards: {
@@ -341,12 +341,12 @@ function batchHelper(appUnits, calculationService, columnActions, scalarService,
                 name: 'Health Hazards',
                 type: 'string',
                 onClick: function(data) {
-                    columnActions.editHealthHazards(data.row);
+                    columnActionsService.editHealthHazards(data.row);
                 },
                 actions: [{
                     name: 'Set value for Health Hazards',
                     title: 'Health Hazards',
-                    action: columnActions.editHealthHazardsForAllRows
+                    action: columnActionsService.editHealthHazardsForAllRows
                 }]
             },
             $$residualSolvents: {
@@ -355,13 +355,13 @@ function batchHelper(appUnits, calculationService, columnActions, scalarService,
                 name: 'Residual Solvents',
                 type: 'string',
                 onClick: function(data) {
-                    columnActions.editResidualSolvents([data.row]);
+                    columnActionsService.editResidualSolvents([data.row]);
                 },
                 actions: [{
                     name: 'Set value for Residual Solvents',
                     title: 'Residual Solvents',
                     action: function(rows) {
-                        columnActions.editResidualSolvents(rows);
+                        columnActionsService.editResidualSolvents(rows);
                     }
                 }]
             },
@@ -371,13 +371,13 @@ function batchHelper(appUnits, calculationService, columnActions, scalarService,
                 name: 'Solubility in Solvents',
                 type: 'string',
                 onClick: function(data) {
-                    columnActions.editSolubility([data.row]);
+                    columnActionsService.editSolubility([data.row]);
                 },
                 actions: [{
                     name: 'Set value for Solubility in Solvents',
                     title: 'Solubility in Solvents',
                     action: function(rows) {
-                        columnActions.editSolubility(rows);
+                        columnActionsService.editSolubility(rows);
                     }
                 }]
             },
@@ -387,13 +387,13 @@ function batchHelper(appUnits, calculationService, columnActions, scalarService,
                 name: 'Storage Instructions',
                 type: 'string',
                 onClick: function(data) {
-                    columnActions.editStorageInstructions([data.row]);
+                    columnActionsService.editStorageInstructions([data.row]);
                 },
                 actions: [{
                     name: 'Set value for Storage Instructions',
                     title: 'Storage Instructions',
                     action: function(rows) {
-                        columnActions.editStorageInstructions(rows);
+                        columnActionsService.editStorageInstructions(rows);
                     }
                 }]
             },
@@ -403,13 +403,13 @@ function batchHelper(appUnits, calculationService, columnActions, scalarService,
                 name: 'Handling Precautions',
                 type: 'string',
                 onClick: function(data) {
-                    columnActions.editHandlingPrecautions([data.row]);
+                    columnActionsService.editHandlingPrecautions([data.row]);
                 },
                 actions: [{
                     name: 'Set value for Handling Precautions',
                     title: 'Handling Precautions',
                     action: function(rows) {
-                        columnActions.editHandlingPrecautions(rows);
+                        columnActionsService.editHandlingPrecautions(rows);
                     }
                 }]
             }
@@ -429,4 +429,4 @@ function batchHelper(appUnits, calculationService, columnActions, scalarService,
     }
 }
 
-module.exports = batchHelper;
+module.exports = batchHelperService;

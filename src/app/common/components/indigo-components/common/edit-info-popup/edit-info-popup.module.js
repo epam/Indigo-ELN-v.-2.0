@@ -5,7 +5,7 @@ var EditResidualSolventsController = require('./edit-residual-solvents/edit-resi
 var EditSolubilityController = require('./edit-solubility/edit-solubility.controller');
 var SelectFromDictionaryController = require('./select-from-dictionary/select-from-dictionary.controller');
 
-var infoEditor = require('./info-editor.service');
+var infoEditorService = require('./info-editor.service');
 
 module.exports = angular
     .module('indigoeln.editInfoPopup', [])
@@ -17,6 +17,6 @@ module.exports = angular
     .controller('EditSolubilityController', EditSolubilityController)
     .controller('SelectFromDictionaryController', SelectFromDictionaryController)
 
-    .factory('infoEditor', infoEditor)
+    .factory('infoEditorService', infoEditorService)
 
     .name;

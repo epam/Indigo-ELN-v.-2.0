@@ -1,5 +1,5 @@
 /* @ngInject */
-function sidebarCache(CacheFactory, principalService) {
+function sidebarCacheService(CacheFactory, principalService) {
     var aDay = 86400000;
     var aMinute = 3600;
 
@@ -24,4 +24,4 @@ function sidebarCache(CacheFactory, principalService) {
     }
 }
 
-module.exports = sidebarCache;
+module.exports = sidebarCacheService;

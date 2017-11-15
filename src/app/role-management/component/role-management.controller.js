@@ -1,7 +1,8 @@
 var roleManagementSaveDialogTemplate = require('../save-dialog/role-management-save-dialog.html');
 
 /* @ngInject */
-function RoleManagementController($scope, roleService, accountRole, $filter, $uibModal, pageInfo, notifyService) {
+function RoleManagementController($scope, roleService, accountRoleService,
+                                  $filter, $uibModal, pageInfo, notifyService) {
     var ROLE_EDITOR_AUTHORITY = 'ROLE_EDITOR';
     var vm = this;
     vm.roles = pageInfo.roles;
@@ -89,7 +90,7 @@ function RoleManagementController($scope, roleService, accountRole, $filter, $ui
     }
 
     function loadAll() {
-        accountRole.query({}, function(result) {
+        accountRoleService.query({}, function(result) {
             vm.accountRoles = result;
         });
         roleService.query({}, function(result) {

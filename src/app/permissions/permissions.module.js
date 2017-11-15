@@ -1,26 +1,26 @@
-var PermissionManagementController = require('./component/permission-management.controller');
-var PermissionViewManagementController = require('./permissions-view/permission-view.controller');
-var permissionsConstants = require('./permissions.constant');
-var permissionManagementConfig = require('./component/permission-management.constant');
-var permissionViewManagementConfig = require('./permissions-view/permission-view.constant');
-var userRemovableFromNotebook = require('./resources/user-removable-from-notebook.service');
-var userRemovableFromProject = require('./resources/user-removable-from-project.service');
-var userWithAuthority = require('./resources/user-with-authority.service');
-var permissionManagementService = require('./services/permission-management.service');
+var PermissionsController = require('./component/permissions.controller');
+var PermissionViewController = require('./permissions-view/permission-view.controller');
+var permissionsConstant = require('./permissions.constant');
+var permissionsConfig = require('./component/permissions.constant');
+var permissionViewConfig = require('./permissions-view/permission-view.constant');
+var userRemovableFromNotebookService = require('./resources/user-removable-from-notebook.service');
+var userRemovableFromProjectService = require('./resources/user-removable-from-project.service');
+var userWithAuthorityService = require('./resources/user-with-authority.service');
+var permissionService = require('./services/permissions.service');
 
 module.exports = angular
     .module('indigoeln.permissions', [])
 
-    .controller('PermissionManagementController', PermissionManagementController)
-    .controller('PermissionViewManagementController', PermissionViewManagementController)
+    .controller('PermissionsController', PermissionsController)
+    .controller('PermissionViewController', PermissionViewController)
 
-    .factory('userRemovableFromNotebook', userRemovableFromNotebook)
-    .factory('userRemovableFromProject', userRemovableFromProject)
-    .factory('userWithAuthority', userWithAuthority)
-    .factory('permissionManagementService', permissionManagementService)
+    .factory('userRemovableFromNotebookService', userRemovableFromNotebookService)
+    .factory('userRemovableFromProjectService', userRemovableFromProjectService)
+    .factory('userWithAuthorityService', userWithAuthorityService)
+    .factory('permissionService', permissionService)
 
-    .constant('permissionsConstants', permissionsConstants)
-    .constant('permissionManagementConfig', permissionManagementConfig)
-    .constant('permissionViewManagementConfig', permissionViewManagementConfig)
+    .constant('permissionsConstant', permissionsConstant)
+    .constant('permissionsConfig', permissionsConfig)
+    .constant('permissionViewConfig', permissionViewConfig)
 
     .name;

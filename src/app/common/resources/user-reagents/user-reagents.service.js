@@ -1,5 +1,5 @@
 /* @ngInject */
-function userReagents($resource, apiUrl) {
+function userReagentsService($resource, apiUrl) {
     return $resource(apiUrl + 'user_reagents', {}, {
         get: {
             method: 'GET', isArray: true
@@ -10,4 +10,4 @@ function userReagents($resource, apiUrl) {
     });
 }
 
-module.exports = userReagents;
+module.exports = userReagentsService;

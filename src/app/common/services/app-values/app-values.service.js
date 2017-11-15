@@ -1,5 +1,5 @@
 /* @ngInject */
-function appValuesFactory(appUnits) {
+function appValuesService(appUnits) {
     var grams = angular.copy(appUnits.grams);
     var liters = angular.copy(appUnits.liters);
     var moles = angular.copy(appUnits.moles);
@@ -83,4 +83,4 @@ function appValuesFactory(appUnits) {
     }
 }
 
-module.exports = appValuesFactory;
+module.exports = appValuesService;

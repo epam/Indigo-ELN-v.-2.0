@@ -1,8 +1,8 @@
 var template = require('./two-toggle.html');
 
-indigoTwoToggle.$inject = ['formUtils'];
+indigoTwoToggle.$inject = ['formUtilsService'];
 
-function indigoTwoToggle(formUtils) {
+function indigoTwoToggle(formUtilsService) {
     return {
         restrict: 'E',
         replace: true,
@@ -21,7 +21,7 @@ function indigoTwoToggle(formUtils) {
 
     /* @ngInject */
     function compile($element, tAttrs) {
-        formUtils.doVertical(tAttrs, $element);
+        formUtilsService.doVertical(tAttrs, $element);
         if (tAttrs.indigoLabelVertical) {
             angular.element('<br/>').insertAfter($element.find('label').first());
         }

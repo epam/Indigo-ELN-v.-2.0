@@ -1,5 +1,5 @@
 /* @ngInject */
-function notebookSummaryExperiments($resource, apiUrl) {
+function notebookSummaryExperimentsService($resource, apiUrl) {
     function toModel(experiment) {
         if (_.isArray(experiment.components)) {
             var components = {};
@@ -27,4 +27,4 @@ function notebookSummaryExperiments($resource, apiUrl) {
         });
 }
 
-module.exports = notebookSummaryExperiments;
+module.exports = notebookSummaryExperimentsService;

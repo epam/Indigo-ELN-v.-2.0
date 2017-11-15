@@ -1,21 +1,21 @@
 require('./component-buttons.less');
 
-var addNewBatchDirective = require('./add-new-batch/add-new-batch');
-var deleteBatchesDirective = require('./delete-batches/delete-batches');
-var duplicateBatchesDirective = require('./duplicate-batches/duplicate-batches');
-var exportSdfFileDirective = require('./export-sdf-file/export-sdf-file');
-var importSdfFileDirective = require('./import-sdf-file/import-sdf-file');
+var addNewBatch = require('./add-new-batch/add-new-batch.directive');
+var deleteBatches = require('./delete-batches/delete-batches.directive');
+var duplicateBatches = require('./duplicate-batches/duplicate-batches.directive');
+var exportSdfFile = require('./export-sdf-file/export-sdf-file.directive');
+var importSdfFile = require('./import-sdf-file/import-sdf-file.directive');
 var syncWithIntendedProducts = require('./sync-with-intended-products/sync-with-intended-products.directive');
 var registerBatches = require('./register-batches/register-batches.directive');
 
 module.exports = angular
     .module('indigoeln.componentButtons', [])
 
-    .directive('addNewBatch', addNewBatchDirective)
-    .directive('deleteBatches', deleteBatchesDirective)
-    .directive('duplicateBatches', duplicateBatchesDirective)
-    .directive('exportSdfFile', exportSdfFileDirective)
-    .directive('importSdfFile', importSdfFileDirective)
+    .directive('addNewBatch', addNewBatch)
+    .directive('deleteBatches', deleteBatches)
+    .directive('duplicateBatches', duplicateBatches)
+    .directive('exportSdfFile', exportSdfFile)
+    .directive('importSdfFile', importSdfFile)
     .directive('syncWithIntendedProducts', syncWithIntendedProducts)
     .directive('registerBatches', registerBatches)
 

@@ -1,5 +1,5 @@
 /* @ngInject */
-function allExperiments($resource, apiUrl) {
+function allExperimentsService($resource, apiUrl) {
     return $resource(apiUrl + 'projects/:projectId/notebooks/:notebookId/experiments/all',
         {
             projectId: '@projectId',
@@ -11,4 +11,4 @@ function allExperiments($resource, apiUrl) {
         });
 }
 
-module.exports = allExperiments;
+module.exports = allExperimentsService;

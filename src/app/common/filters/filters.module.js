@@ -2,7 +2,7 @@ var capitalize = require('./capitalize.filter');
 var containValue = require('./contain-value.filter');
 var joinBy = require('./join-by.filter');
 var round = require('./round.filter');
-var prettyBytes = require('./pretty-bytes');
+var prettyBytes = require('./pretty-bytes.filter');
 var filtersConfig = require('./filters.config');
 
 module.exports = angular

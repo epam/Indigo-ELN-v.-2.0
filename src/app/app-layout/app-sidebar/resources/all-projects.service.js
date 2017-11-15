@@ -1,5 +1,5 @@
 /* @ngInject */
-function allProjects($resource, apiUrl) {
+function allProjectsService($resource, apiUrl) {
     return $resource(apiUrl + 'projects/all', {}, {
         query: {
             method: 'GET', isArray: true
@@ -7,4 +7,4 @@ function allProjects($resource, apiUrl) {
     });
 }
 
-module.exports = allProjects;
+module.exports = allProjectsService;

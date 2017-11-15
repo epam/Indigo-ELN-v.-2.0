@@ -1,5 +1,5 @@
 /* @ngInject */
-function userRemovableFromProject($resource, apiUrl) {
+function userRemovableFromProjectService($resource, apiUrl) {
     return $resource(apiUrl + 'projects/permissions/user-removable', {}, {
         get: {
             method: 'GET'
@@ -7,4 +7,4 @@ function userRemovableFromProject($resource, apiUrl) {
     });
 }
 
-module.exports = userRemovableFromProject;
+module.exports = userRemovableFromProjectService;

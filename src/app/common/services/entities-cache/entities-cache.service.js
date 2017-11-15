@@ -1,7 +1,7 @@
-entitiesCache.$inject = ['CacheFactory', 'tabKeyUtils'];
+entitiesCacheService.$inject = ['CacheFactory', 'tabKeyService'];
 
-function entitiesCache(CacheFactory, tabKeyUtils) {
-    var cache = CacheFactory('entitiesCache');
+function entitiesCacheService(CacheFactory, tabKeyService) {
+    var cache = CacheFactory('entitiesCacheService');
 
     return {
         put: put,
@@ -14,11 +14,11 @@ function entitiesCache(CacheFactory, tabKeyUtils) {
     };
 
     function put(stateParams, data) {
-        cache.put(tabKeyUtils.getTabKeyFromParams(stateParams), data);
+        cache.put(tabKeyService.getTabKeyFromParams(stateParams), data);
     }
 
     function get(stateParams) {
-        return cache.get(tabKeyUtils.getTabKeyFromParams(stateParams));
+        return cache.get(tabKeyService.getTabKeyFromParams(stateParams));
     }
 
     function getByKey(key) {
@@ -34,7 +34,7 @@ function entitiesCache(CacheFactory, tabKeyUtils) {
     }
 
     function removeByParams(stateParams) {
-        cache.remove(tabKeyUtils.getTabKeyFromParams(stateParams));
+        cache.remove(tabKeyService.getTabKeyFromParams(stateParams));
     }
 
     function clearAll() {
@@ -42,4 +42,4 @@ function entitiesCache(CacheFactory, tabKeyUtils) {
     }
 }
 
-module.exports = entitiesCache;
+module.exports = entitiesCacheService;

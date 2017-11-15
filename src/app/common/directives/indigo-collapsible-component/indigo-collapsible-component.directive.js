@@ -1,5 +1,5 @@
 /* @ngInject */
-function indigoCollapsibleComponent($state, simpleLocalCache, principalService) {
+function indigoCollapsibleComponent($state, simpleLocalCacheService, principalService) {
     return {
         restrict: 'A',
         link: link
@@ -36,7 +36,7 @@ function indigoCollapsibleComponent($state, simpleLocalCache, principalService) 
                 var isCollapsed = false;
                 var $heading = $element.find('.panel-heading:first');
                 var componentId = $element.parents('.my-component:first').attr('indigo-component-id');
-                var collapsedComponents = simpleLocalCache.getByKey(user.id + '.collapsed-components');
+                var collapsedComponents = simpleLocalCacheService.getByKey(user.id + '.collapsed-components');
                 var entityId = compactIds($state.params);
                 if (collapsedComponents && collapsedComponents[entityId]) {
                     isCollapsed = collapsedComponents[entityId][componentId];
@@ -62,11 +62,11 @@ function indigoCollapsibleComponent($state, simpleLocalCache, principalService) 
                         $icon.removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
                     }
                     isCollapsed = !isCollapsed;
-                    collapsedComponents = simpleLocalCache.getByKey(user.id + '.collapsed-components');
+                    collapsedComponents = simpleLocalCacheService.getByKey(user.id + '.collapsed-components');
                     collapsedComponents = collapsedComponents || {};
                     collapsedComponents[entityId] = collapsedComponents[entityId] || {};
                     collapsedComponents[entityId][componentId] = isCollapsed;
-                    simpleLocalCache.putByKey(user.id + '.collapsed-components', collapsedComponents);
+                    simpleLocalCacheService.putByKey(user.id + '.collapsed-components', collapsedComponents);
                 });
             });
     }

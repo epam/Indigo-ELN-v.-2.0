@@ -1,6 +1,7 @@
+/* eslint no-shadow: "off"*/
 var template = require('./duplicate-batches.html');
 
-function duplicateBatchesDirective() {
+function duplicateBatches() {
     return {
         restrict: 'E',
         require: ['^^indigoComponents', 'duplicateBatches'],
@@ -19,9 +20,9 @@ function duplicateBatchesDirective() {
     };
 }
 
-DuplicateBatchesController.$inject = ['productBatchSummaryOperations', 'batchHelper'];
+DuplicateBatchesController.$inject = ['productBatchSummaryOperations', 'batchHelperService'];
 
-function DuplicateBatchesController(productBatchSummaryOperations, batchHelper) {
+function DuplicateBatchesController(productBatchSummaryOperations, batchHelperService) {
     var vm = this;
 
     init();
@@ -32,7 +33,7 @@ function DuplicateBatchesController(productBatchSummaryOperations, batchHelper) 
 
     function duplicateBatches() {
         vm.indigoComponents.batchOperation = productBatchSummaryOperations
-            .duplicateBatches(batchHelper.getCheckedBatches(vm.batches), false, vm.indigoComponents.experiment)
+            .duplicateBatches(batchHelperService.getCheckedBatches(vm.batches), false, vm.indigoComponents.experiment)
             .then(successAddedBatches);
     }
 
@@ -46,4 +47,4 @@ function DuplicateBatchesController(productBatchSummaryOperations, batchHelper) 
     }
 }
 
-module.exports = duplicateBatchesDirective;
+module.exports = duplicateBatches;

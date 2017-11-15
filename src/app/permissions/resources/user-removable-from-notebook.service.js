@@ -1,5 +1,5 @@
 /* @ngInject */
-function userRemovableFromNotebook($resource, apiUrl) {
+function userRemovableFromNotebookService($resource, apiUrl) {
     return $resource(apiUrl + 'notebooks/permissions/user-removable', {}, {
         get: {
             method: 'GET'
@@ -7,4 +7,4 @@ function userRemovableFromNotebook($resource, apiUrl) {
     });
 }
 
-module.exports = userRemovableFromNotebook;
+module.exports = userRemovableFromNotebookService;

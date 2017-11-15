@@ -22,7 +22,7 @@ function entityTree() {
 }
 
 /* @ngInject */
-function EntityTreeController(entityTreeService, $timeout, experimentService, $scope, scrollService, $q) {
+function EntityTreeController(entityTreeService, $timeout, experimentService, $scope, scrollToService, $q) {
     var vm = this;
 
     init();
@@ -46,7 +46,7 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
         if (vm.selectedFullId) {
             checkParents(vm.selectedFullId).then(function() {
                 $timeout(function() {
-                    scrollService.scrollTo('#' + vm.elementId + '_' + vm.selectedFullId, {
+                    scrollToService.scrollTo('#' + vm.elementId + '_' + vm.selectedFullId, {
                         container: vm.$element,
                         offset: 200
                     });

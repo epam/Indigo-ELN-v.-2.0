@@ -1,6 +1,6 @@
 /* @ngInject */
-function permissionManagementService($q, principalService, userRemovableFromProject, userRemovableFromNotebook,
-                                     permissionsConstants) {
+function permissionService($q, principalService, userRemovableFromProjectService, userRemovableFromNotebookService,
+                                     permissionsConstant) {
     var accessList;
     var author;
     var entity;
@@ -118,9 +118,9 @@ function permissionManagementService($q, principalService, userRemovableFromProj
     }
 
     function hasAuthorityForProjectPermission(member, permission) {
-        var projectOwnerAuthoritySet = permissionsConstants.PROJECT_OWNER_AUTHORITY_SET;
-        var projectUserAuthoritySet = permissionsConstants.PROJECT_USER_AUTHORITY_SET;
-        var projectViewerAuthoritySet = permissionsConstants.PROJECT_VIEWER_AUTHORITY_SET;
+        var projectOwnerAuthoritySet = permissionsConstant.PROJECT_OWNER_AUTHORITY_SET;
+        var projectUserAuthoritySet = permissionsConstant.PROJECT_USER_AUTHORITY_SET;
+        var projectViewerAuthoritySet = permissionsConstant.PROJECT_VIEWER_AUTHORITY_SET;
 
         if (permission === 'OWNER') {
             return _.every(projectOwnerAuthoritySet, function(authority) {
@@ -138,9 +138,9 @@ function permissionManagementService($q, principalService, userRemovableFromProj
     }
 
     function hasAuthorityForNotebookPermission(member, permission) {
-        var notebookOwnerAuthoritySet = permissionsConstants.NOTEBOOK_OWNER_AUTHORITY_SET;
-        var notebookUserAuthoritySet = permissionsConstants.NOTEBOOK_USER_AUTHORITY_SET;
-        var notebookViewerAuthoritySet = permissionsConstants.NOTEBOOK_VIEWER_AUTHORITY_SET;
+        var notebookOwnerAuthoritySet = permissionsConstant.NOTEBOOK_OWNER_AUTHORITY_SET;
+        var notebookUserAuthoritySet = permissionsConstant.NOTEBOOK_USER_AUTHORITY_SET;
+        var notebookViewerAuthoritySet = permissionsConstant.NOTEBOOK_VIEWER_AUTHORITY_SET;
 
         if (permission === 'OWNER') {
             return _.every(notebookOwnerAuthoritySet, function(authority) {
@@ -158,8 +158,8 @@ function permissionManagementService($q, principalService, userRemovableFromProj
     }
 
     function hasAuthorityForExperimentPermission(member, permission) {
-        var experimentOwnerAuthoritySet = permissionsConstants.EXPERIMENT_OWNER_AUTHORITY_SET;
-        var experimentViewerAuthoritySet = permissionsConstants.EXPERIMENT_VIEWER_AUTHORITY_SET;
+        var experimentOwnerAuthoritySet = permissionsConstant.EXPERIMENT_OWNER_AUTHORITY_SET;
+        var experimentViewerAuthoritySet = permissionsConstant.EXPERIMENT_VIEWER_AUTHORITY_SET;
 
         if (permission === 'OWNER') {
             return _.every(experimentOwnerAuthoritySet, function(authority) {
@@ -188,14 +188,14 @@ function permissionManagementService($q, principalService, userRemovableFromProj
         }
 
         if (entity === 'Project') {
-            return userRemovableFromProject.get({
+            return userRemovableFromProjectService.get({
                 projectId: entityId,
                 userId: member.user.id
             })
                 .$promise
                 .then(success);
         } else if (entity === 'Notebook') {
-            return userRemovableFromNotebook.get({
+            return userRemovableFromNotebookService.get({
                 projectId: parentId,
                 notebookId: entityId,
                 userId: member.user.id
@@ -212,4 +212,4 @@ function permissionManagementService($q, principalService, userRemovableFromProj
     }
 }
 
-module.exports = permissionManagementService;
+module.exports = permissionService;

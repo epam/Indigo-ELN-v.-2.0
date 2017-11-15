@@ -1,11 +1,12 @@
-productBatchSummaryOperations.$inject = ['$q', 'productBatchSummaryCache', 'registrationUtil', 'stoichTableCache',
-    'appValues', 'notifyService', '$timeout', 'entitiesBrowser', 'registrationService', 'sdImportService',
-    'sdExportService', 'alertModal', '$http', '$stateParams', 'notebookService', 'calculationService',
-    'apiUrl', '$document'];
+productBatchSummaryOperations.$inject = ['$q', 'productBatchSummaryCacheService', 'registrationUtilService',
+    'stoichTableCacheService', 'appValuesService', 'notifyService', 'registrationService', 'sdImportService',
+    'sdExportService', 'alertModalService', '$http', '$stateParams',
+    'notebookService', 'calculationService', 'apiUrl', '$document'];
 
-function productBatchSummaryOperations($q, productBatchSummaryCache, registrationUtil, stoichTableCache, appValues,
-                                       notifyService, $timeout, entitiesBrowser, registrationService, sdImportService,
-                                       sdExportService, alertModal, $http, $stateParams, notebookService,
+function productBatchSummaryOperations($q, productBatchSummaryCacheService, registrationUtilService,
+                                       stoichTableCacheService, appValuesService, notifyService,
+                                       registrationService, sdImportService,
+                                       sdExportService, alertModalService, $http, $stateParams, notebookService,
                                        calculationService, apiUrl, $document) {
     var curNbkOperation = $q.when();
 
@@ -41,7 +42,7 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
     }
 
     function getNonEditableBatches(batches) {
-        return _.map(_.filter(batches, registrationUtil.isRegistered), 'fullNbkBatch');
+        return _.map(_.filter(batches, registrationUtilService.isRegistered), 'fullNbkBatch');
     }
 
     function chainPromises(fn) {
@@ -101,11 +102,11 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
     }
 
     function getIntendedNotInActual(stoich) {
-        var stoichTable = stoich || stoichTableCache.getStoicTable();
+        var stoichTable = stoich || stoichTableCacheService.getStoicTable();
         if (stoichTable) {
             var intended = stoichTable.products;
             var intendedCandidateHashes = _.map(intended, '$$batchHash');
-            var actual = productBatchSummaryCache.getProductBatchSummary();
+            var actual = productBatchSummaryCacheService.getProductBatchSummary();
             var actualHashes = _.compact(_.map(actual, '$$batchHash'));
             _.each(intendedCandidateHashes, function(intendedCandidateHash, i) {
                 removeItemFromBothArrays(intendedCandidateHash, actualHashes, intendedCandidateHashes, i);
@@ -137,10 +138,10 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
 
         if (stoichTable && stoichTable.products && stoichTable.products.length) {
             if (!batchesQueueToAdd.length) {
-                alertModal.info('Product Batch Summary is synchronized', 'sm');
+                alertModalService.info('Product Batch Summary is synchronized', 'sm');
             } else {
                 _.map(batchesQueueToAdd, function(batch) {
-                    return _.extend(appValues.getDefaultBatch(), batch);
+                    return _.extend(appValuesService.getDefaultBatch(), batch);
                 });
 
                 return duplicateBatches(batchesQueueToAdd, true, experiment);
@@ -192,8 +193,8 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
     }
 
     function createBatch(sdUnit, isSyncWithIntended) {
-        var batch = appValues.getDefaultBatch();
-        var stoichTable = stoichTableCache.getStoicTable();
+        var batch = appValuesService.getDefaultBatch();
+        var stoichTable = stoichTableCacheService.getStoicTable();
         if (stoichTable) {
             _.extend(batch, angular.copy(calculationService.createBatch(stoichTable, true)));
         }
@@ -259,13 +260,13 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
             checkNonRemovableBatches(batches);
 
             _.remove(batches, function(batch) {
-                return !registrationUtil.isRegistered(batch) && _.includes(batchesForRemove, batch);
+                return !registrationUtilService.isRegistered(batch) && _.includes(batchesForRemove, batch);
             });
         }
     }
 
     function getLatestNbkBatch() {
-        var batches = productBatchSummaryCache.getProductBatchSummary();
+        var batches = productBatchSummaryCacheService.getProductBatchSummary();
         var last = _.last(batches);
 
         return (last && last.nbkBatch) || 0;

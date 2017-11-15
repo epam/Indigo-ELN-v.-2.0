@@ -18,17 +18,17 @@ function registerBatchesDirective() {
     };
 }
 
-RegisterBatchesController.$inject = ['productBatchSummaryOperations', 'batchHelper', 'notifyService', 'alertModal',
-    'registrationUtil'];
+RegisterBatchesController.$inject = ['productBatchSummaryOperations', 'batchHelperService',
+    'notifyService', 'alertModalService', 'registrationUtilService'];
 
-function RegisterBatchesController(productBatchSummaryOperations, batchHelper, notifyService, alertModal,
-                                   registrationUtil) {
+function RegisterBatchesController(productBatchSummaryOperations, batchHelperService,
+                                   notifyService, alertModalService, registrationUtilService) {
     var vm = this;
 
     init();
 
     function init() {
-        registrationUtil.hasRegistrationService().then(function(hasRegService) {
+        registrationUtilService.hasRegistrationService().then(function(hasRegService) {
             vm.hasRegService = hasRegService;
         });
 
@@ -36,8 +36,8 @@ function RegisterBatchesController(productBatchSummaryOperations, batchHelper, n
     }
 
     function registerBatches() {
-        var batches = batchHelper.getCheckedBatches(vm.indigoComponents.batches);
-        var notFullBatches = registrationUtil.getNotFullForRegistrationBatches(batches);
+        var batches = batchHelperService.getCheckedBatches(vm.indigoComponents.batches);
+        var notFullBatches = registrationUtilService.getNotFullForRegistrationBatches(batches);
 
         if (notFullBatches.length) {
             return showError(notFullBatches);
@@ -70,7 +70,7 @@ function RegisterBatchesController(productBatchSummaryOperations, batchHelper, n
             message = message + '<br><b>Batch '
                 + notFullBatch.nbkBatch + ':</b><br>' + notFullBatch.emptyFields.join('<br>');
         });
-        alertModal.error(message);
+        alertModalService.error(message);
     }
 }
 

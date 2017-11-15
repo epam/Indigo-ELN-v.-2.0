@@ -1,12 +1,12 @@
 var template = require('./permission-view.html');
 
-var permissionViewManagementConfig = {
+var permissionViewConfig = {
     url: '/permissions-view',
-    onEnter: ['$rootScope', '$stateParams', '$state', '$uibModal', 'permissionManagementService',
+    onEnter: ['$rootScope', '$stateParams', '$state', '$uibModal', 'permissionService',
         function($rootScope, $stateParams, $state, $uibModal) {
             $uibModal.open({
                 template: template,
-                controller: 'PermissionViewManagementController',
+                controller: 'PermissionViewController',
                 controllerAs: 'vm',
                 size: 'lg'
             }).result.then(function() {
@@ -17,4 +17,4 @@ var permissionViewManagementConfig = {
         }]
 };
 
-module.exports = permissionViewManagementConfig;
+module.exports = permissionViewConfig;

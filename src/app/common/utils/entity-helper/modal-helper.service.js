@@ -2,7 +2,7 @@ var newExperimentModal = require('../../../experiment/create-new-experiment-moda
 var newNotebookModal = require('../../../notebook/select-parent/notebook-select-parent.html');
 
 /* @ngInject */
-function modalHelper($uibModal) {
+function modalHelperService($uibModal) {
     return {
         openCreateNewExperimentModal: openCreateNewExperimentModal,
         openCreateNewNotebookModal: openCreateNewNotebookModal
@@ -31,4 +31,4 @@ function modalHelper($uibModal) {
     }
 }
 
-module.exports = modalHelper;
+module.exports = modalHelperService;

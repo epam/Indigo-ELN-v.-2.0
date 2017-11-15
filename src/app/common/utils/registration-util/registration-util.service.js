@@ -1,5 +1,5 @@
 /* @ngInject */
-function registrationUtil(appValues, registrationMsg, registrationService) {
+function registrationUtilService(appValuesService, registrationMsg, registrationService) {
     var regServiceInfo;
 
     var isStereoisomerNeedComment = function(stereoisomer) {
@@ -45,7 +45,7 @@ function registrationUtil(appValues, registrationMsg, registrationService) {
             message: registrationMsg.SALT_EQ_ERROR,
             test: function(batch) {
                 return _.get(batch.saltCode, 'value')
-                    && batch.saltCode.value !== appValues.getDefaultSaltCode().value
+                    && batch.saltCode.value !== appValuesService.getDefaultSaltCode().value
                     && !_.get(batch.saltEq, 'value');
             }
         },
@@ -101,4 +101,4 @@ function registrationUtil(appValues, registrationMsg, registrationService) {
     }
 }
 
-module.exports = registrationUtil;
+module.exports = registrationUtilService;

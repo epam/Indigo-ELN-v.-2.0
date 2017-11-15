@@ -154,7 +154,7 @@ function DictionaryManagementController($scope, $filter, $uibModal,
         $uibModal.open({
             animation: true,
             template: dictionaryManagementDeleteWordDialogTemplate,
-            controller: 'DictionaryManagementDeleteWordController',
+            controller: 'DictionaryManagementDeleteWordDialogController',
             controllerAs: 'vm'
         }).result.then(function() {
             // remove the word

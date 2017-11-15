@@ -1,6 +1,6 @@
-editorUtils.$inject = ['$document'];
+structureEditorService.$inject = ['$document'];
 
-function editorUtils($document) {
+function structureEditorService($document) {
     return {
         getEditor: function(frame) {
             var editor = null;
@@ -19,5 +19,5 @@ function editorUtils($document) {
     };
 }
 
-module.exports = editorUtils;
+module.exports = structureEditorService;
 

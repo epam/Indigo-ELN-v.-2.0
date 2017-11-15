@@ -1,6 +1,6 @@
-run.$inject = ['$templateCache', 'typeComponents'];
+run.$inject = ['$templateCache', 'typeOfComponents'];
 
-function run($templateCache, typeComponents) {
+function run($templateCache, typeOfComponents) {
     var defaultAttributes = ' model="vm.model"' +
         ' reactants="vm.reactants"' +
         ' reactants-trigger="vm.reactantsTrigger"' +
@@ -25,7 +25,7 @@ function run($templateCache, typeComponents) {
         ' info-reactants="vm.model.reaction.infoReactants"' +
         ' info-products="vm.model.reaction.infoProducts"';
 
-    _.forEach(typeComponents, function(component) {
+    _.forEach(typeOfComponents, function(component) {
         $templateCache.put(component.id, getTemplate(component));
     });
 
@@ -37,7 +37,7 @@ function run($templateCache, typeComponents) {
     }
 
     function getComponentAttributes(id) {
-        var component = _.find(typeComponents, {id: id});
+        var component = _.find(typeOfComponents, {id: id});
         if (component.isBatch) {
             return batchAttributes;
         }

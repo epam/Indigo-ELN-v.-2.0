@@ -1,9 +1,9 @@
 var template = require('./detail/notebook-detail.html');
 
-notebookConfig.$inject = ['$stateProvider', 'permissionManagementConfig', 'permissionViewManagementConfig',
+notebookConfig.$inject = ['$stateProvider', 'permissionsConfig', 'permissionViewConfig',
     'userPermissions'];
 
-function notebookConfig($stateProvider, permissionManagementConfig, permissionViewManagementConfig, userPermissions) {
+function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig, userPermissions) {
     var permissions = [
         userPermissions.VIEWER,
         userPermissions.USER,
@@ -24,7 +24,7 @@ function notebookConfig($stateProvider, permissionManagementConfig, permissionVi
             views: {
                 tabContent: {
                     template: template,
-                    controller: 'NotebookDialogController',
+                    controller: 'NotebookDetailController',
                     controllerAs: 'vm'
                 }
             },
@@ -72,7 +72,7 @@ function notebookConfig($stateProvider, permissionManagementConfig, permissionVi
             views: {
                 tabContent: {
                     template: template,
-                    controller: 'NotebookDialogController',
+                    controller: 'NotebookDetailController',
                     controllerAs: 'vm'
                 }
             },
@@ -124,22 +124,22 @@ function notebookConfig($stateProvider, permissionManagementConfig, permissionVi
                 authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR']
             }
         })
-        .state('entities.notebook-new.permissions', _.extend({}, permissionManagementConfig, {
+        .state('entities.notebook-new.permissions', _.extend({}, permissionsConfig, {
             parent: 'entities.notebook-new',
             data: data,
             permissions: permissions
         }))
-        .state('entities.notebook-new.permissions-view', _.extend({}, permissionViewManagementConfig, {
+        .state('entities.notebook-new.permissions-view', _.extend({}, permissionViewConfig, {
             parent: 'entities.notebook-new',
             data: data,
             permissions: permissions
         }))
-        .state('entities.notebook-detail.permissions', _.extend({}, permissionManagementConfig, {
+        .state('entities.notebook-detail.permissions', _.extend({}, permissionsConfig, {
             parent: 'entities.notebook-detail',
             data: data,
             permissions: permissions
         }))
-        .state('entities.notebook-detail.permissions-view', _.extend({}, permissionViewManagementConfig, {
+        .state('entities.notebook-detail.permissions-view', _.extend({}, permissionViewConfig, {
             parent: 'entities.notebook-detail',
             data: data,
             permissions: permissions

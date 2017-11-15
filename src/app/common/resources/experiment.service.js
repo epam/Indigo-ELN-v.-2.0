@@ -1,7 +1,7 @@
 var moment = require('moment-timezone');
 
 /* @ngInject */
-function experimentService($resource, permissionManagementService, entityTreeService, apiUrl) {
+function experimentService($resource, permissionService, entityTreeService, apiUrl) {
     var interceptor = {
         response: function(response) {
             entityTreeService.updateExperiment(response.data);
@@ -89,7 +89,7 @@ function experimentService($resource, permissionManagementService, entityTreeSer
     function transformRequest(data) {
         var copiedRequest = angular.copy(data);
         copiedRequest.components = toComponents(copiedRequest.components);
-        copiedRequest.accessList = permissionManagementService.expandPermission(copiedRequest.accessList);
+        copiedRequest.accessList = permissionService.expandPermission(copiedRequest.accessList);
 
         return angular.toJson(copiedRequest);
     }

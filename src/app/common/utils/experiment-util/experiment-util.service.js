@@ -3,8 +3,8 @@ var experimentSelectSignatureTemplateModal =
     require('../../../experiment/select-signature-template-modal/experiment-select-signature-template-modal.html');
 
 /* @ngInject */
-function experimentUtil($state, $uibModal, $q, experimentService, permissionManagementService, signatureTemplates,
-                        signatureDocument, componentsUtils, notifyService) {
+function experimentUtilService($state, $uibModal, $q, experimentService, permissionService, signatureTemplatesService,
+                        signatureDocumentService, componentsUtilService, notifyService) {
     return {
         versionExperiment: versionExperiment,
         repeatExperiment: repeatExperiment,
@@ -29,7 +29,7 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionMana
     }
 
     function repeatExperiment(experiment, params) {
-        experiment.accessList = permissionManagementService.expandPermission(experiment.accessList);
+        experiment.accessList = permissionService.expandPermission(experiment.accessList);
         var ec = experiment.components;
         var components = {
             reactionDetails: ec.reactionDetails,
@@ -69,7 +69,7 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionMana
 
     function completeExperiment(experiment, params, notebookName) {
         return openCompleteConfirmationModal(experiment, notebookName).result.then(function() {
-            experiment.accessList = permissionManagementService.expandPermission(experiment.accessList);
+            experiment.accessList = permissionService.expandPermission(experiment.accessList);
             var experimentForSave = _.extend({}, experiment, {
                 status: 'Completed'
             });
@@ -107,7 +107,7 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionMana
     }
 
     function selectTemplate(componentTemplates, filename, stateParams) {
-        return signatureTemplates.query({})
+        return signatureTemplatesService.query({})
             .$promise
             .then(function(result) {
                 return $uibModal
@@ -125,9 +125,9 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionMana
                     .result
                     .then(function(template) {
                         if (template) {
-                            var templates = componentsUtils.getComponentsFromTemplateContent(componentTemplates);
+                            var templates = componentsUtilService.getComponentsFromTemplateContent(componentTemplates);
 
-                            return signatureDocument.upload(
+                            return signatureDocumentService.upload(
                                 {
                                     fileName: filename + '.pdf',
                                     components: getComponentsForPrint(templates),
@@ -148,4 +148,4 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionMana
     }
 }
 
-module.exports = experimentUtil;
+module.exports = experimentUtilService;

@@ -1,5 +1,5 @@
 /* @ngInject */
-function scrollService() {
+function scrollToService() {
     return {
         scrollTo: scrollTo
     };
@@ -16,4 +16,4 @@ function scrollService() {
     }
 }
 
-module.exports = scrollService;
+module.exports = scrollToService;

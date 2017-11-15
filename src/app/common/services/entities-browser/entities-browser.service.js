@@ -1,6 +1,6 @@
-entitiesBrowser.$inject = ['$q', '$state', 'principalService', 'tabKeyUtils', 'CacheFactory'];
+entitiesBrowserService.$inject = ['$q', '$state', 'principalService', 'tabKeyService', 'CacheFactory'];
 
-function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory) {
+function entitiesBrowserService($q, $state, principalService, tabKeyService, CacheFactory) {
     var tabs = {};
     var activeTab = {};
     var entityActions;
@@ -60,7 +60,7 @@ function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory
     }
 
     function getTabKey(tab) {
-        return tab && tab.tabKey ? tab.tabKey : tabKeyUtils.getTabKeyFromTab(tab);
+        return tab && tab.tabKey ? tab.tabKey : tabKeyService.getTabKeyFromTab(tab);
     }
 
     function getTabs(success) {
@@ -111,7 +111,7 @@ function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory
 
     function getTab(user, stateParams) {
         var userId = getUserId(user);
-        var result = tabKeyUtils.getTabKeyFromParams(stateParams);
+        var result = tabKeyService.getTabKeyFromParams(stateParams);
 
         return tabs[userId][result];
     }
@@ -165,7 +165,7 @@ function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory
     function addTab(tab) {
         return resolvePrincipal(function(user) {
             var userId = getUserId(user);
-            var tabKey = tabKeyUtils.getTabKeyFromTab(tab);
+            var tabKey = tabKeyService.getTabKeyFromTab(tab);
 
             if (!tabs[userId][tabKey]) {
                 tab.tabKey = tabKey;
@@ -182,7 +182,7 @@ function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory
     function getTabByParams(params) {
         return resolvePrincipal(function(user) {
             var userId = getUserId(user);
-            var tabKey = tabKeyUtils.getTabKeyFromParams(params);
+            var tabKey = tabKeyService.getTabKeyFromParams(params);
 
             return tabs[userId][tabKey];
         });
@@ -217,4 +217,4 @@ function entitiesBrowser($q, $state, principalService, tabKeyUtils, CacheFactory
     }
 }
 
-module.exports = entitiesBrowser;
+module.exports = entitiesBrowserService;

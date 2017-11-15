@@ -2,7 +2,7 @@ var experimentsTemplate = require('./component/experiment.html');
 var experimentDeleteDialogTemplate = require('./delete-dialog/experiment-delete-dialog.html');
 
 /* @ngInject */
-function experimentConfig($stateProvider, permissionManagementConfig, permissionViewManagementConfig,
+function experimentConfig($stateProvider, permissionsConfig, permissionViewConfig,
                           userPermissions) {
     var permissions = [
         userPermissions.VIEWER,
@@ -54,7 +54,7 @@ function experimentConfig($stateProvider, permissionManagementConfig, permission
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
                     template: experimentDeleteDialogTemplate,
-                    controller: 'ExperimentDeleteController',
+                    controller: 'ExperimentDeleteDialogController',
                     controllerAs: 'vm',
                     size: 'md',
                     resolve: {
@@ -74,14 +74,14 @@ function experimentConfig($stateProvider, permissionManagementConfig, permission
                 });
             }]
         })
-        .state('entities.experiment-detail.permissions', _.extend({}, permissionManagementConfig, {
+        .state('entities.experiment-detail.permissions', _.extend({}, permissionsConfig, {
             parent: 'entities.experiment-detail',
             data: {
                 authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR']
             },
             permissions: permissions
         }))
-        .state('entities.experiment-detail.permissions-view', _.extend({}, permissionViewManagementConfig, {
+        .state('entities.experiment-detail.permissions-view', _.extend({}, permissionViewConfig, {
             parent: 'entities.experiment-detail',
             data: {
                 authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR']

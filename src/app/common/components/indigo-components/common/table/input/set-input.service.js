@@ -1,8 +1,8 @@
 var template = require('./set-input-value.html');
 
-inputService.$inject = ['$uibModal', 'registrationUtil'];
+setInputService.$inject = ['$uibModal', 'registrationUtilService'];
 
-function inputService($uibModal, registrationUtil) {
+function setInputService($uibModal, registrationUtilService) {
     return {
         getActions: function(name) {
             return [{
@@ -28,7 +28,7 @@ function inputService($uibModal, registrationUtil) {
             }
         }).result.then(function(result) {
             _.each(rows, function(row) {
-                if (!registrationUtil.isRegistered(row)) {
+                if (!registrationUtilService.isRegistered(row)) {
                     row[columnId] = result;
                 }
             });
@@ -36,4 +36,4 @@ function inputService($uibModal, registrationUtil) {
     }
 }
 
-module.exports = inputService;
+module.exports = setInputService;

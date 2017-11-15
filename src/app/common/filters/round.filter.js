@@ -1,5 +1,5 @@
 /* @ngInject */
-function round(stoichTableCache, calculationService, unitsConverter) {
+function round(stoichTableCacheService, calculationService, unitsConverterService) {
     var DEFAULT_PRECISION = 3;
     var MAX_PRECISION = 10;
 
@@ -64,7 +64,7 @@ function round(stoichTableCache, calculationService, unitsConverter) {
     }
 
     function getBaseUnit(targetUnit) {
-        return _.get(unitsConverter.table[targetUnit], 'indigoBase');
+        return _.get(unitsConverterService.table[targetUnit], 'indigoBase');
     }
 
     function isMolColumn(column) {
@@ -80,7 +80,7 @@ function round(stoichTableCache, calculationService, unitsConverter) {
         var sourceBatch = row;
         // round for mol depends on entered weight/volume precision
         if (column.id === 'mol' && column.isIntended) {
-            sourceBatch = calculationService.findLimiting(stoichTableCache.getStoicTable());
+            sourceBatch = calculationService.findLimiting(stoichTableCacheService.getStoicTable());
         }
 
         var weightOrVolume = angular.copy(sourceBatch.weight || sourceBatch.volume);

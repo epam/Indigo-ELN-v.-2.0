@@ -19,9 +19,9 @@ function indigoReactionScheme() {
 }
 
 IndigoReactionSchemeController.$inject = ['$scope', '$rootScope', 'calculationService', '$q', 'notifyService',
-    'appValues'];
+    'appValuesService'];
 
-function IndigoReactionSchemeController($scope, $rootScope, calculationService, $q, notifyService, appValues) {
+function IndigoReactionSchemeController($scope, $rootScope, calculationService, $q, notifyService, appValuesService) {
     var vm = this;
 
     init();
@@ -101,7 +101,7 @@ function IndigoReactionSchemeController($scope, $rootScope, calculationService, 
         }
 
         return _.map(results, function(result, index) {
-            var batch = appValues.getDefaultBatch();
+            var batch = appValuesService.getDefaultBatch();
             batch.chemicalName = isProduct ? getDefaultChemicalName(index) : result.name;
             batch.formula = result.molecularFormula;
             batch.molWeight.value = result.molecularWeight;

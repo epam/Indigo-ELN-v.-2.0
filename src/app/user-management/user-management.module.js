@@ -1,5 +1,5 @@
-var UserManagementController = require('./user-management.controller');
-var UserManagementDeleteController = require('./user-management-delete-dialog.controller');
+var UserManagementController = require('./component/user-management.controller');
+var UserManagementDeleteController = require('./delete-dialog/user-management-delete-dialog.controller');
 var userManagementConfig = require('./user-management.config');
 
 module.exports = angular

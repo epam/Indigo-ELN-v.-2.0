@@ -1,5 +1,5 @@
 /* @ngInject */
-function simpleLocalCache(CacheFactory) {
+function simpleLocalCacheService(CacheFactory) {
     var cache = CacheFactory('simpleLocalCache', {
         storageMode: 'localStorage'
     });
@@ -23,4 +23,4 @@ function simpleLocalCache(CacheFactory) {
     }
 }
 
-module.exports = simpleLocalCache;
+module.exports = simpleLocalCacheService;

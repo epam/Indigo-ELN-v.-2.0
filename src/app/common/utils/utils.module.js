@@ -1,26 +1,26 @@
-var commonHelper = require('./component-helper/component-helper');
-var entityHelper = require('./entity-helper/entity-helper.service');
-var modalHelper = require('./entity-helper/modal-helper.service');
-var experimentUtil = require('./experiment-util/experiment-util.service');
+var commonHelperService = require('./component-helper/component-helper.service');
+var entityHelperService = require('./entity-helper/entity-helper.service');
+var modalHelperService = require('./entity-helper/modal-helper.service');
+var experimentUtilService = require('./experiment-util/experiment-util.service');
 var registrationMsg = require('./registration-util/registration-msg.constant');
-var registrationUtil = require('./registration-util/registration-util.service');
+var registrationUtilService = require('./registration-util/registration-util.service');
 var parseLinksService = require('./parse-links.service');
 var searchUtilService = require('./search-util.service');
-var tabKeyUtils = require('./tab-key.service');
-var unitsConverter = require('./units-converter');
+var tabKeyService = require('./tab-key.service');
+var unitsConverterService = require('./units-converter.service');
 
 module.exports = angular
     .module('indigoeln.common.utils', [])
 
-    .factory('commonHelper', commonHelper)
-    .factory('entityHelper', entityHelper)
-    .factory('modalHelper', modalHelper)
-    .factory('experimentUtil', experimentUtil)
-    .factory('registrationUtil', registrationUtil)
+    .factory('commonHelperService', commonHelperService)
+    .factory('entityHelperService', entityHelperService)
+    .factory('modalHelperService', modalHelperService)
+    .factory('experimentUtilService', experimentUtilService)
+    .factory('registrationUtilService', registrationUtilService)
     .factory('parseLinksService', parseLinksService)
     .factory('searchUtilService', searchUtilService)
-    .factory('tabKeyUtils', tabKeyUtils)
-    .factory('unitsConverter', unitsConverter)
+    .factory('tabKeyService', tabKeyService)
+    .factory('unitsConverterService', unitsConverterService)
 
     .constant('registrationMsg', registrationMsg)
 

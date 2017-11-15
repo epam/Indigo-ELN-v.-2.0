@@ -1,8 +1,8 @@
-AnalyzeRxnController.$inject = ['$uibModalInstance', 'reactants', 'searchService', 'appValues', 'onStoichRowsChanged',
-    'stoichColumnActions', '$q'];
+AnalyzeRxnController.$inject = ['$uibModalInstance', 'reactants', 'searchService',
+    'appValuesService', 'onStoichRowsChanged', 'stoichColumnActionsService', '$q'];
 
-function AnalyzeRxnController($uibModalInstance, reactants, searchService, appValues, onStoichRowsChanged,
-                              stoichColumnActions, $q) {
+function AnalyzeRxnController($uibModalInstance, reactants, searchService, appValuesService, onStoichRowsChanged,
+                              stoichColumnActionsService, $q) {
     var vm = this;
 
     vm.addToStoichTable = addToStoichTable;
@@ -24,7 +24,7 @@ function AnalyzeRxnController($uibModalInstance, reactants, searchService, appVa
     }
 
     function addToStoichTable() {
-        onStoichRowsChanged(stoichColumnActions.cleanReactants(vm.model.selectedReactants));
+        onStoichRowsChanged(stoichColumnActionsService.cleanReactants(vm.model.selectedReactants));
     }
 
     function updateStoicAndExit() {
@@ -34,7 +34,7 @@ function AnalyzeRxnController($uibModalInstance, reactants, searchService, appVa
                 formula: knownReactant.formula
             }), knownReactant);
         });
-        onStoichRowsChanged(stoichColumnActions.cleanReactants(result));
+        onStoichRowsChanged(stoichColumnActionsService.cleanReactants(result));
         $uibModalInstance.close({});
     }
 
@@ -78,8 +78,8 @@ function AnalyzeRxnController($uibModalInstance, reactants, searchService, appVa
             batchDetails.$$isSelected = false;
             batchDetails.nbkBatch = item.notebookBatchNumber;
             batchDetails.database = databases.join(', ');
-            batchDetails.rxnRole = batchDetails.rxnRole || appValues.getRxnRoleReactant();
-            batchDetails.saltCode = batchDetails.saltCode || appValues.getDefaultSaltCode();
+            batchDetails.rxnRole = batchDetails.rxnRole || appValuesService.getRxnRoleReactant();
+            batchDetails.saltCode = batchDetails.saltCode || appValuesService.getDefaultSaltCode();
 
             return batchDetails;
         });

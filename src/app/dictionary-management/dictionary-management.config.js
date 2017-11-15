@@ -36,7 +36,7 @@ function dictionaryManagementConfig($stateProvider) {
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
                     template: dictionaryManagementDeleteDialogTemplate,
-                    controller: 'DictionaryManagementDeleteController',
+                    controller: 'DictionaryManagementDeleteDialogController',
                     controllerAs: 'vm',
                     size: 'md',
                     resolve: {

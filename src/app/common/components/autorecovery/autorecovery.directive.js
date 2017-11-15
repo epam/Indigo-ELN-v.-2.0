@@ -15,7 +15,7 @@ function autorecovery() {
     };
 
     /* @ngInject */
-    function AutoRecoveryController($stateParams, autorecoveryCache) {
+    function AutoRecoveryController($stateParams, autorecoveryCacheService) {
         var vm = this;
 
         var recoveryData;
@@ -24,19 +24,19 @@ function autorecovery() {
         init();
 
         function init() {
-            recoveryData = autorecoveryCache.get($stateParams);
-            tempRecoveryData = autorecoveryCache.getTempRecoveryData($stateParams);
+            recoveryData = autorecoveryCacheService.get($stateParams);
+            tempRecoveryData = autorecoveryCacheService.getTempRecoveryData($stateParams);
 
             if (recoveryData && !tempRecoveryData) {
-                autorecoveryCache.tryToVisible($stateParams);
-                autorecoveryCache.putTempRecoveryData($stateParams, recoveryData);
+                autorecoveryCacheService.tryToVisible($stateParams);
+                autorecoveryCacheService.putTempRecoveryData($stateParams, recoveryData);
             }
 
-            if (!recoveryData && !autorecoveryCache.isVisible($stateParams)) {
-                autorecoveryCache.hide($stateParams);
+            if (!recoveryData && !autorecoveryCacheService.isVisible($stateParams)) {
+                autorecoveryCacheService.hide($stateParams);
             }
 
-            vm.isVisible = (tempRecoveryData || recoveryData) && autorecoveryCache.isVisible($stateParams);
+            vm.isVisible = (tempRecoveryData || recoveryData) && autorecoveryCacheService.isVisible($stateParams);
 
             vm.restore = restore;
             vm.remove = remove;
@@ -48,9 +48,9 @@ function autorecovery() {
         }
 
         function remove() {
-            autorecoveryCache.hide($stateParams);
-            autorecoveryCache.remove($stateParams);
-            autorecoveryCache.removeTempRecoveryData($stateParams);
+            autorecoveryCacheService.hide($stateParams);
+            autorecoveryCacheService.remove($stateParams);
+            autorecoveryCacheService.removeTempRecoveryData($stateParams);
             recoveryData = null;
             tempRecoveryData = null;
             vm.isVisible = false;

@@ -1,5 +1,5 @@
 var projectConfig = require('./project.config');
-var ProjectController = require('./project.controller');
+var ProjectController = require('./component/project.controller');
 
 var permissions = require('../permissions/permissions.module');
 

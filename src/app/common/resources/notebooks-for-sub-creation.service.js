@@ -1,5 +1,5 @@
 /* @ngInject */
-function notebooksForSubCreation($resource, apiUrl) {
+function notebooksForSubCreationService($resource, apiUrl) {
     return $resource(apiUrl + 'notebooks/sub-creations', {
         projectId: '@projectId'
     }, {
@@ -9,4 +9,4 @@ function notebooksForSubCreation($resource, apiUrl) {
     });
 }
 
-module.exports = notebooksForSubCreation;
+module.exports = notebooksForSubCreationService;

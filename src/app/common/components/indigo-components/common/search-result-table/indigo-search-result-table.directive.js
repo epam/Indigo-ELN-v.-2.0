@@ -19,9 +19,9 @@ function indigoSearchResultTable() {
     };
 }
 
-IndigoSearchResultTableController.$inject = ['userReagents', 'appValues', 'calculationService'];
+IndigoSearchResultTableController.$inject = ['userReagentsService', 'appValuesService', 'calculationService'];
 
-function IndigoSearchResultTableController(userReagents, appValues, calculationService) {
+function IndigoSearchResultTableController(userReagentsService, appValuesService, calculationService) {
     var vm = this;
 
     var itemBeforeEdit;
@@ -29,8 +29,8 @@ function IndigoSearchResultTableController(userReagents, appValues, calculationS
     $onInit();
 
     function $onInit() {
-        vm.rxnValues = appValues.getRxnValues();
-        vm.saltCodeValues = appValues.getSaltCodeValues();
+        vm.rxnValues = appValuesService.getRxnValues();
+        vm.saltCodeValues = appValuesService.getSaltCodeValues();
 
         vm.finishEdit = finishEdit;
         vm.cancelEdit = cancelEdit;
@@ -47,7 +47,7 @@ function IndigoSearchResultTableController(userReagents, appValues, calculationS
 
     function finishEdit() {
         vm.isEditMode = false;
-        userReagents.save(vm.indigoTableContent);
+        userReagentsService.save(vm.indigoTableContent);
     }
 
     function cancelEdit(index) {

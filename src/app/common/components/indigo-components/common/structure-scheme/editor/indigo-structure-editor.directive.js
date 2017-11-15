@@ -1,8 +1,8 @@
 var template = require('./structure-editor-template.html');
 
-indigoEditor.$inject = ['editorUtils', 'authService', '$timeout'];
+indigoEditor.$inject = ['structureEditorService', 'authService', '$timeout'];
 
-function indigoEditor(editorUtils, authService, $timeout) {
+function indigoEditor(structureEditorService, authService, $timeout) {
     return {
         restrict: 'E',
         replace: true,
@@ -26,7 +26,7 @@ function indigoEditor(editorUtils, authService, $timeout) {
             });
 
             frame.onload = function() {
-                editorInstance = editorUtils.getEditor(frame);
+                editorInstance = structureEditorService.getEditor(frame);
                 // initialize editor
                 if (vm.indigoStructure.molfile) {
                     editorInstance.setMolecule(vm.indigoStructure.molfile);

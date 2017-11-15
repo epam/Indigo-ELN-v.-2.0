@@ -1,5 +1,5 @@
 /* @ngInject */
-function userWithAuthority($resource, apiUrl) {
+function userWithAuthorityService($resource, apiUrl) {
     return $resource(apiUrl + 'users/permission-management', {}, {
         query: {
             method: 'GET', isArray: true
@@ -7,4 +7,4 @@ function userWithAuthority($resource, apiUrl) {
     });
 }
 
-module.exports = userWithAuthority;
+module.exports = userWithAuthorityService;

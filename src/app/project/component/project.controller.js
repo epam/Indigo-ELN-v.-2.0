@@ -1,7 +1,8 @@
 /* @ngInject */
-function ProjectController($scope, $state, projectService, notifyService, permissionManagementService, fileUploaderCash,
-                           pageInfo, entitiesBrowser, $timeout, $stateParams, tabKeyUtils, autorecoveryHelper,
-                           autorecoveryCache, entitiesCache, confirmationModal, $q, entityHelper, apiUrl) {
+function ProjectController($scope, $state, projectService, notifyService, permissionService, fileUploaderService,
+                           pageInfo, entitiesBrowserService, $timeout, $stateParams, tabKeyService,
+                           autorecoveryHelperService, autorecoveryCacheService, entitiesCacheService,
+                           confirmationModalService, $q, entityHelperService, apiUrl) {
     var vm = this;
     var identity = pageInfo.identity;
     var isContentEditor = pageInfo.isContentEditor;
@@ -14,7 +15,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
     init();
 
     function init() {
-        updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
+        updateRecovery = autorecoveryHelperService.getUpdateRecoveryDebounce($stateParams);
         entityTitle = pageInfo.project.name;
 
         vm.apiUrl = apiUrl;
@@ -22,16 +23,16 @@ function ProjectController($scope, $state, projectService, notifyService, permis
 
         vm.loading = initEntity().then(function() {
             originalProject = angular.copy(pageInfo.project);
-            entitiesBrowser.setCurrentTabTitle(vm.project.name, $stateParams);
+            entitiesBrowserService.setCurrentTabTitle(vm.project.name, $stateParams);
             initPermissions();
             initDirtyListener();
-            entitiesBrowser.setEntityActions({
+            entitiesBrowserService.setEntityActions({
                 save: save,
                 print: vm.print
             });
 
             if (!vm.project.id) {
-                fileUploaderCash.setFiles([]);
+                fileUploaderService.setFiles([]);
             }
         });
 
@@ -44,18 +45,18 @@ function ProjectController($scope, $state, projectService, notifyService, permis
     }
 
     function initEntity() {
-        var restoredEntity = entitiesCache.get($stateParams);
+        var restoredEntity = entitiesCacheService.get($stateParams);
 
         if (!restoredEntity) {
             pageInfo.project.author = pageInfo.project.author || identity;
             pageInfo.project.accessList = pageInfo.project.accessList
-                || permissionManagementService.getAuthorAccessList(identity);
+                || permissionService.getAuthorAccessList(identity);
 
             vm.project = pageInfo.project;
         } else if (restoredEntity.version === pageInfo.project.version) {
             vm.project = restoredEntity;
         } else {
-            return confirmationModal
+            return confirmationModalService
                 .openEntityVersionsConflictConfirm(entityTitle)
                 .then(
                     function() {
@@ -78,11 +79,11 @@ function ProjectController($scope, $state, projectService, notifyService, permis
         if (angular.isDefined(version)) {
             vm.project.version = version;
         }
-        entitiesCache.put($stateParams, vm.project);
+        entitiesCacheService.put($stateParams, vm.project);
     }
 
     function onChanged() {
-        entitiesBrowser.changeDirtyTab($stateParams, true);
+        entitiesBrowserService.changeDirtyTab($stateParams, true);
     }
 
     function updateAttachments() {
@@ -104,7 +105,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
                 .then(function(result) {
                     vm.project = result;
                     originalProject = angular.copy(vm.project);
-                    entitiesBrowser.setCurrentTabTitle(vm.project.name, $stateParams);
+                    entitiesBrowserService.setCurrentTabTitle(vm.project.name, $stateParams);
                     onUpdateSuccess({
                         id: vm.project.id
                     });
@@ -127,7 +128,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
             .then(function(result) {
                 angular.extend(vm.project, result);
                 originalProject = angular.copy(vm.project);
-                autorecoveryCache.hide($stateParams);
+                autorecoveryCacheService.hide($stateParams);
             }, function() {
                 notifyService.error('Project not refreshed due to server error!');
             });
@@ -142,30 +143,32 @@ function ProjectController($scope, $state, projectService, notifyService, permis
     }
 
     function initPermissions() {
-        permissionManagementService.setEntity('Project');
-        permissionManagementService.setEntityId(vm.project.id);
-        permissionManagementService.setAuthor(vm.project.author);
-        permissionManagementService.setAccessList(vm.project.accessList);
+        permissionService.setEntity('Project');
+        permissionService.setEntityId(vm.project.id);
+        permissionService.setAuthor(vm.project.author);
+        permissionService.setAccessList(vm.project.accessList);
 
         vm.isEditAllowed = isContentEditor ||
-            (hasEditAuthority && permissionManagementService.hasPermission('UPDATE_ENTITY'));
+            (hasEditAuthority && permissionService.hasPermission('UPDATE_ENTITY'));
         // isCreateChildAllowed
         vm.isCreateChildAllowed = isContentEditor ||
-            (hasCreateChildAuthority && permissionManagementService.hasPermission('CREATE_SUB_ENTITY'));
+            (hasCreateChildAuthority && permissionService.hasPermission('CREATE_SUB_ENTITY'));
     }
 
     function toggleDirty(isDirty) {
         if (isDirty) {
-            entitiesCache.put($stateParams, pageInfo.project);
+            entitiesCacheService.put($stateParams, pageInfo.project);
         }
         vm.isEntityChanged = !!isDirty;
-        entitiesBrowser.changeDirtyTab($stateParams, isDirty);
+        entitiesBrowserService.changeDirtyTab($stateParams, isDirty);
     }
 
     function initDirtyListener() {
         $scope.$on('entity-updated', function(event, data) {
             vm.loading.then(function() {
-                entityHelper.checkVersion($stateParams, data, vm.project, entityTitle, vm.isEntityChanged, refresh);
+                entityHelperService.checkVersion(
+                    $stateParams, data, vm.project, entityTitle, vm.isEntityChanged, refresh
+                );
             });
         });
 
@@ -176,13 +179,13 @@ function ProjectController($scope, $state, projectService, notifyService, permis
         });
 
         $scope.$watch('vm.project', function(newEntity) {
-            var isDirty = autorecoveryHelper.isEntityDirty(originalProject, newEntity);
+            var isDirty = autorecoveryHelperService.isEntityDirty(originalProject, newEntity);
             toggleDirty(vm.stateData.isNew || isDirty);
             updateRecovery(newEntity, isDirty);
         }, true);
 
         $scope.$on('access-list-changed', function() {
-            vm.project.accessList = permissionManagementService.getAccessList();
+            vm.project.accessList = permissionService.getAccessList();
         });
     }
 
@@ -193,13 +196,13 @@ function ProjectController($scope, $state, projectService, notifyService, permis
     }
 
     function onSaveSuccess(result) {
-        entitiesBrowser.close(tabKeyUtils.getTabKeyFromParams($stateParams));
+        entitiesBrowserService.close(tabKeyService.getTabKeyFromParams($stateParams));
         $timeout(function() {
             $state.go('entities.project-detail', {
                 projectId: result.id
             });
         });
-        entitiesCache.removeByParams($stateParams);
+        entitiesCacheService.removeByParams($stateParams);
     }
 
     function onSaveError(result) {

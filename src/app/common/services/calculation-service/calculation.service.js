@@ -1,7 +1,7 @@
 /* @ngInject */
-function calculationService($rootScope, $http, $q, appValues, apiUrl,
-                            stoichTableCache, productBatchSummaryCache, capitalizeFilter) {
-    var defaultBatch = appValues.getDefaultBatch();
+function calculationService($rootScope, $http, $q, appValuesService, apiUrl,
+                            stoichTableCacheService, productBatchSummaryCacheService, capitalizeFilter) {
+    var defaultBatch = appValuesService.getDefaultBatch();
     var recalculatingStoich = false;
 
     return {
@@ -101,7 +101,7 @@ function calculationService($rootScope, $http, $q, appValues, apiUrl,
     }
 
     function createBatch(stoichTable, isProduct) {
-        var batch = appValues.getDefaultBatch();
+        var batch = appValuesService.getDefaultBatch();
         var limiting = findLimiting(stoichTable);
         var property = isProduct ? 'theoMoles' : 'mol';
         if (limiting) {
@@ -139,11 +139,11 @@ function calculationService($rootScope, $http, $q, appValues, apiUrl,
             return;
         }
         recalculatingStoich = true;
-        var stoichTable = stoichTableCache.getStoicTable();
+        var stoichTable = stoichTableCacheService.getStoicTable();
         var requestData = {
             stoicBatches: setDefaultValues(stoichTable.reactants),
             intendedProducts: setDefaultValues(stoichTable.products),
-            actualProducts: productBatchSummaryCache.getProductBatchSummary()
+            actualProducts: productBatchSummaryCacheService.getProductBatchSummary()
         };
 
         return $http.put(apiUrl + 'calculations/stoich/calculate', requestData).then(function(result) {
@@ -155,11 +155,11 @@ function calculationService($rootScope, $http, $q, appValues, apiUrl,
     }
 
     function recalculateStoichBasedOnBatch(calcData) {
-        var stoichTable = stoichTableCache.getStoicTable();
+        var stoichTable = stoichTableCacheService.getStoicTable();
         var requestData = {
             stoicBatches: setDefaultValues(stoichTable.reactants),
             intendedProducts: setDefaultValues(stoichTable.products),
-            actualProducts: setDefaultValues(productBatchSummaryCache.getProductBatchSummary()),
+            actualProducts: setDefaultValues(productBatchSummaryCacheService.getProductBatchSummary()),
             changedBatchRowNumber: _.indexOf(stoichTable.reactants, calcData.row),
             changedField: calcData.changedField || calcData.column,
             molWeightChanged: calcData.molWeightChanged
@@ -212,7 +212,7 @@ function calculationService($rootScope, $http, $q, appValues, apiUrl,
     function resetValuesToDefault(values, batch) {
         /* eslint no-shadow: "off"*/
         // TODO Can we use global defaultBatch?
-        var defaultBatch = appValues.getDefaultBatch();
+        var defaultBatch = appValuesService.getDefaultBatch();
 
         _.each(values, function(value) {
             batch[value] = angular.copy(defaultBatch[value]);
@@ -249,10 +249,10 @@ function calculationService($rootScope, $http, $q, appValues, apiUrl,
         } else if (!data.mySaltEq || data.mySaltEq.value === 0) {
             return formulaPart;
         }
-        if (data.mySaltCode && data.mySaltCode.name !== appValues.getDefaultSaltCode().name) {
+        if (data.mySaltCode && data.mySaltCode.name !== appValuesService.getDefaultSaltCode().name) {
             var saltName = data.mySaltCode.name.split('-')[1] || data.mySaltCode.name;
             descriptionPart = '(' + capitalizeFilter(saltName.trim()) + ')';
-        } else if (data.mySaltCode && data.mySaltCode.name === appValues.getDefaultSaltCode().name) {
+        } else if (data.mySaltCode && data.mySaltCode.name === appValuesService.getDefaultSaltCode().name) {
             return formulaPart;
         }
 

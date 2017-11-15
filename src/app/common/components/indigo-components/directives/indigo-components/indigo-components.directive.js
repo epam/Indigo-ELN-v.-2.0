@@ -19,11 +19,11 @@ function indigoComponents() {
     };
 }
 
-IndigoComponentsController.$inject = ['$scope', 'productBatchSummaryOperations', 'productBatchSummaryCache',
-    'entitiesBrowser', 'principalService', 'batchHelper'];
+IndigoComponentsController.$inject = ['$scope', 'productBatchSummaryOperations', 'productBatchSummaryCacheService',
+    'entitiesBrowserService', 'principalService', 'batchHelperService'];
 
-function IndigoComponentsController($scope, productBatchSummaryOperations, productBatchSummaryCache,
-                                    entitiesBrowser, principalService, batchHelper) {
+function IndigoComponentsController($scope, productBatchSummaryOperations, productBatchSummaryCacheService,
+                                    entitiesBrowserService, principalService, batchHelperService) {
     var vm = this;
     var precursors;
 
@@ -54,7 +54,7 @@ function IndigoComponentsController($scope, productBatchSummaryOperations, produ
 
     function setActive(index) {
         vm.activeTabIndex = index;
-        entitiesBrowser.setExperimentTab(vm.activeTabIndex, vm.experiment.fullId);
+        entitiesBrowserService.setExperimentTab(vm.activeTabIndex, vm.experiment.fullId);
     }
 
     function onChangedComponent(componentId) {
@@ -68,7 +68,7 @@ function IndigoComponentsController($scope, productBatchSummaryOperations, produ
 
     function updateModel() {
         vm.batches = _.get(vm.model, 'productBatchSummary.batches') || [];
-        productBatchSummaryCache.setProductBatchSummary(vm.batches);
+        productBatchSummaryCacheService.setProductBatchSummary(vm.batches);
         updateBatches();
 
         updateSelections();
@@ -96,7 +96,7 @@ function IndigoComponentsController($scope, productBatchSummaryOperations, produ
 
     function updateActiveTab() {
         if (vm.experiment) {
-            entitiesBrowser.getExperimentTab(vm.experiment.fullId).then(function(index) {
+            entitiesBrowserService.getExperimentTab(vm.experiment.fullId).then(function(index) {
                 vm.activeTabIndex = index || 0;
             });
         }
@@ -171,9 +171,9 @@ function IndigoComponentsController($scope, productBatchSummaryOperations, produ
             return null;
         }
 
-        return batchHelper.compounds[0].name === batch.batchType ?
-            batchHelper.compounds[0]
-            : batchHelper.compounds[1];
+        return batchHelperService.compounds[0].name === batch.batchType ?
+            batchHelperService.compounds[0]
+            : batchHelperService.compounds[1];
     }
 }
 

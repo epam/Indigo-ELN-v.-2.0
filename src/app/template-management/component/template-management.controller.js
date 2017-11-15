@@ -1,5 +1,5 @@
 /* @ngInject */
-function TemplateController(templateService, parseLinksService) {
+function TemplateManagementController(templateService, parseLinksService) {
     var vm = this;
 
     vm.templates = [];
@@ -45,4 +45,4 @@ function TemplateController(templateService, parseLinksService) {
     }
 }
 
-module.exports = TemplateController;
+module.exports = TemplateManagementController;

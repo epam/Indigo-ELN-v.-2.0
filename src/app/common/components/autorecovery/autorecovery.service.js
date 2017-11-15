@@ -1,6 +1,6 @@
-autorecoveryCache.$inject = ['CacheFactory', 'tabKeyUtils'];
+autorecoveryCacheService.$inject = ['CacheFactory', 'tabKeyService'];
 
-function autorecoveryCache(CacheFactory, tabKeyUtils) {
+function autorecoveryCacheService(CacheFactory, tabKeyService) {
     var cache = CacheFactory('recoveryCache', {
         storageMode: 'localStorage'
     });
@@ -70,8 +70,8 @@ function autorecoveryCache(CacheFactory, tabKeyUtils) {
     }
 
     function paramsConverter(stateParams) {
-        return tabKeyUtils.getTabKeyFromParams(_.extend({isAutorecovery: true}, stateParams));
+        return tabKeyService.getTabKeyFromParams(_.extend({isAutorecovery: true}, stateParams));
     }
 }
 
-module.exports = autorecoveryCache;
+module.exports = autorecoveryCacheService;

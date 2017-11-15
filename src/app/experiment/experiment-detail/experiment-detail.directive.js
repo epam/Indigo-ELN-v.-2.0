@@ -9,16 +9,16 @@ function experimentDetail() {
     };
 }
 
-ExperimentDetailController.$inject = ['$scope', '$state', '$stateParams', 'experimentService', 'experimentUtil',
-    'permissionManagementService', 'fileUploaderCash', 'entitiesBrowser', 'autorecoveryHelper', 'notifyService',
-    'entitiesCache', '$q', 'principalService', 'notebookService', 'typeComponents', 'autorecoveryCache',
-    'confirmationModal', 'entityHelper', 'apiUrl', 'componentsUtils'];
+ExperimentDetailController.$inject = ['$scope', '$state', '$stateParams', 'experimentService', 'experimentUtilService',
+    'permissionService', 'fileUploaderService', 'entitiesBrowserService', 'autorecoveryHelperService', 'notifyService',
+    'entitiesCacheService', '$q', 'principalService', 'notebookService', 'typeOfComponents',
+    'autorecoveryCacheService', 'confirmationModalService', 'entityHelperService', 'apiUrl', 'componentsUtilService'];
 
-function ExperimentDetailController($scope, $state, $stateParams, experimentService, experimentUtil,
-                                    permissionManagementService, fileUploaderCash, entitiesBrowser,
-                                    autorecoveryHelper, notifyService, entitiesCache, $q, principalService,
-                                    notebookService, typeComponents, autorecoveryCache, confirmationModal,
-                                    entityHelper, apiUrl, componentsUtils) {
+function ExperimentDetailController($scope, $state, $stateParams, experimentService, experimentUtilService,
+                                    permissionService, fileUploaderService, entitiesBrowserService,
+                                    autorecoveryHelperService, notifyService, entitiesCacheService, $q,
+                                    principalService, notebookService, typeOfComponents, autorecoveryCacheService,
+                                    confirmationModalService, entityHelperService, apiUrl, componentsUtilService) {
     var vm = this;
     var tabName;
     var params;
@@ -32,7 +32,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     init();
 
     function init() {
-        updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
+        updateRecovery = autorecoveryHelperService.getUpdateRecoveryDebounce($stateParams);
         vm.apiUrl = apiUrl;
         vm.stateData = $state.current.data;
         vm.deferLoading = $q.defer();
@@ -57,7 +57,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
                     updateOriginal(response.experiment);
                     updateCurrentTabTitle();
                     initPermissions();
-                    fileUploaderCash.setFiles([]);
+                    fileUploaderService.setFiles([]);
 
                     if (experiment.version > 1 || !experiment.lastVersion) {
                         tabName += ' v' + experiment.version;
@@ -77,8 +77,8 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         vm.onChangedComponent = onChangedComponent;
         vm.onRestore = onRestore;
 
-        entitiesBrowser.setCurrentTabTitle(tabName, $stateParams);
-        entitiesBrowser.setEntityActions({
+        entitiesBrowserService.setCurrentTabTitle(tabName, $stateParams);
+        entitiesBrowserService.setEntityActions({
             save: save,
             duplicate: repeatExperiment,
             print: printExperiment
@@ -95,14 +95,14 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
      * @return {Promise} resolve return the entity
      */
     function initExperiment(experiment, withoutCheckVersion) {
-        var restoredExperiment = entitiesCache.get($stateParams);
+        var restoredExperiment = entitiesCacheService.get($stateParams);
 
         if (!restoredExperiment || withoutCheckVersion) {
             vm.experiment = experiment;
         } else if (restoredExperiment.version === experiment.version) {
             vm.experiment = restoredExperiment;
         } else {
-            return confirmationModal
+            return confirmationModalService
                 .openEntityVersionsConflictConfirm(entityTitle)
                 .then(
                     function() {
@@ -129,7 +129,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     }
 
     function initComponents(experiment) {
-        componentsUtils.initComponents(
+        componentsUtilService.initComponents(
             experiment.components,
             experiment.template.templateContent
         );
@@ -139,7 +139,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         var version = lastVersion || _.get(vm.experiment, 'version') || storeData.version;
         vm.experiment = storeData;
         vm.experiment.version = version;
-        entitiesCache.put($stateParams, vm.experiment);
+        entitiesCacheService.put($stateParams, vm.experiment);
     }
 
     function getExperimentName(notebook, experiment) {
@@ -163,7 +163,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
             notebookService.get(notebookParams).$promise,
             principalService.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
             principalService.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR'),
-            entitiesBrowser.getTabByParams($stateParams)
+            entitiesBrowserService.getTabByParams($stateParams)
         ]).then(function(results) {
             return {
                 experiment: results[0],
@@ -186,9 +186,9 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     function toggleDirty(isDirty) {
         vm.isEntityChanged = !!isDirty;
         if (vm.isEntityChanged) {
-            entitiesCache.put($stateParams, vm.experiment);
+            entitiesCacheService.put($stateParams, vm.experiment);
         }
-        entitiesBrowser.changeDirtyTab($stateParams, vm.isEntityChanged);
+        entitiesBrowserService.changeDirtyTab($stateParams, vm.isEntityChanged);
     }
 
     function getSaveService(experimentForSave) {
@@ -223,7 +223,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     function completeExperiment() {
         vm.loading = save()
             .then(function() {
-                return experimentUtil
+                return experimentUtilService
                     .completeExperiment(vm.experiment, params, vm.notebook.name)
                     .then(updateExperiment);
             });
@@ -232,7 +232,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     function completeExperimentAndSign() {
         vm.loading = save()
             .then(function() {
-                return experimentUtil
+                return experimentUtilService
                     .completeExperimentAndSign(vm.experiment, params, vm.notebook.name, entityTitle)
                     .then(getExperiment)
                     .then(updateExperiment);
@@ -240,14 +240,14 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     }
 
     function reopenExperiment() {
-        vm.loading = experimentUtil
+        vm.loading = experimentUtilService
             .reopenExperiment(vm.experiment, params)
             .then(getExperiment)
             .then(updateExperiment);
     }
 
     function repeatExperiment() {
-        vm.loading = experimentUtil
+        vm.loading = experimentUtilService
             .repeatExperiment(vm.experiment, params)
             .then(updateExperiment);
     }
@@ -257,7 +257,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
      * @return { Promise } - promise of state transition
      */
     function versionExperiment() {
-        vm.loading = experimentUtil
+        vm.loading = experimentUtilService
             .versionExperiment(vm.experiment, params)
             .then(function(experiment) {
                 return getExperiment()
@@ -272,7 +272,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     }
 
     function updateCurrentTabTitle() {
-        entitiesBrowser.setCurrentTabTitle(vm.notebook.name + '-' + vm.experiment.fullName, $stateParams);
+        entitiesBrowserService.setCurrentTabTitle(vm.notebook.name + '-' + vm.experiment.fullName, $stateParams);
     }
 
     function printExperiment() {
@@ -294,8 +294,8 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     function postInitExperiment(experiment) {
         updateOriginal(experiment);
         initPermissions();
-        fileUploaderCash.setFiles([]);
-        autorecoveryCache.hide($stateParams);
+        fileUploaderService.setFiles([]);
+        autorecoveryCacheService.hide($stateParams);
     }
 
     function refresh() {
@@ -311,11 +311,11 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     }
 
     function initPermissions() {
-        permissionManagementService.setEntity('Experiment');
-        permissionManagementService.setAuthor(vm.experiment.author);
-        permissionManagementService.setAccessList(vm.experiment.accessList);
+        permissionService.setEntity('Experiment');
+        permissionService.setAuthor(vm.experiment.author);
+        permissionService.setAccessList(vm.experiment.accessList);
 
-        hasEditPermission = permissionManagementService.hasPermission('UPDATE_ENTITY');
+        hasEditPermission = permissionService.hasPermission('UPDATE_ENTITY');
         updateStatuses();
         setReadOnly();
     }
@@ -332,7 +332,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     }
 
     function onChangedComponent(componentId) {
-        if (componentId === typeComponents.attachments) {
+        if (componentId === typeOfComponents.attachments) {
             vm.loading = experimentService.get($stateParams).$promise
                 .then(function(result) {
                     vm.experiment.version = result.version;
@@ -345,7 +345,9 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     function initEventListeners() {
         $scope.$on('entity-updated', function(event, data) {
             vm.loading.then(function() {
-                entityHelper.checkVersion($stateParams, data, vm.experiment, entityTitle, vm.isEntityChanged, refresh);
+                entityHelperService.checkVersion(
+                    $stateParams, data, vm.experiment, entityTitle, vm.isEntityChanged, refresh
+                );
             });
         });
 
@@ -357,14 +359,14 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
 
         $scope.$watch('vm.experiment', function(newEntity) {
             if (vm.isStatusOpen && vm.isEditAllowed) {
-                var isDirty = autorecoveryHelper.isEntityDirty(originalExperiment, newEntity);
+                var isDirty = autorecoveryHelperService.isEntityDirty(originalExperiment, newEntity);
                 toggleDirty(isDirty);
                 updateRecovery(newEntity, isDirty);
             }
         }, true);
 
         $scope.$on('access-list-changed', function() {
-            vm.experiment.accessList = permissionManagementService.getAccessList();
+            vm.experiment.accessList = permissionService.getAccessList();
             originalExperiment.accessList = angular.copy(vm.experiment.accessList);
         });
 

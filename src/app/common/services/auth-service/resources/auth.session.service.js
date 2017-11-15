@@ -1,5 +1,5 @@
 /* @ngInject */
-function authServerProvider($http, apiUrl) {
+function authSessionService($http, apiUrl) {
     return {
         login: login,
         logout: logout,
@@ -34,4 +34,4 @@ function authServerProvider($http, apiUrl) {
     }
 }
 
-module.exports = authServerProvider;
+module.exports = authSessionService;

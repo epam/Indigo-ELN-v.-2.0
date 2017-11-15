@@ -1,4 +1,4 @@
-var permissionsConstants = {
+var permissionsConstant = {
     PROJECT_OWNER_AUTHORITY_SET: ['PROJECT_READER', 'PROJECT_CREATOR', 'NOTEBOOK_READER', 'NOTEBOOK_CREATOR'],
     PROJECT_USER_AUTHORITY_SET: ['PROJECT_READER', 'NOTEBOOK_READER', 'NOTEBOOK_CREATOR'],
     PROJECT_VIEWER_AUTHORITY_SET: ['PROJECT_READER'],
@@ -19,4 +19,4 @@ var permissionsConstants = {
     }
 };
 
-module.exports = permissionsConstants;
+module.exports = permissionsConstant;

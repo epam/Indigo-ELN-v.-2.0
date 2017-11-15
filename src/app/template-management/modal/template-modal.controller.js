@@ -1,9 +1,9 @@
 /* @ngInject */
 function TemplateModalController($scope, $stateParams, templateService, notifyService, $state, dragulaService,
-                                 typeComponents, pageInfo, entitiesBrowser, tabKeyUtils, $interval) {
+                                 typeOfComponents, pageInfo, entitiesBrowserService, tabKeyService, $interval) {
     var vm = this;
 
-    vm.components = _.values(typeComponents);
+    vm.components = _.values(typeOfComponents);
     vm.template = pageInfo.entity || {};
     vm.template.templateContent = vm.template.templateContent || [];
 
@@ -75,9 +75,9 @@ function TemplateModalController($scope, $stateParams, templateService, notifySe
     function close() {
         if (!vm.template.id) {
             var tabName = $state.$current.data.tab.name;
-            entitiesBrowser.close(tabKeyUtils.getTabKeyFromName(tabName));
+            entitiesBrowserService.close(tabKeyService.getTabKeyFromName(tabName));
         } else {
-            entitiesBrowser.close(tabKeyUtils.getTabKeyFromParams($stateParams));
+            entitiesBrowserService.close(tabKeyService.getTabKeyFromParams($stateParams));
         }
     }
 

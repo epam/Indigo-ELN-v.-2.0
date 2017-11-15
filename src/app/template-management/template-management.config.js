@@ -23,7 +23,7 @@ function templateManagementConfig($stateProvider) {
             views: {
                 tabContent: {
                     template: entitiesTemplate,
-                    controller: 'TemplateController',
+                    controller: 'TemplateManagementController',
                     controllerAs: 'vm'
                 }
             },
