@@ -9,7 +9,6 @@
                     indigo-items="vm.batches"
                     indigo-change="vm.selectBatch(vm.selectedBatch)"
                     indigo-item-prop="nbkBatch"
-                    indigo-control="vm.selectControl"
                     class="select-inline"
             ></indigo-select>
             <indigo-checkbox
@@ -33,7 +32,7 @@
                       indigo-id="product-detail-table"
                       indigo-columns="vm.productTableColumns"
                       is-readonly="vm.isReadonly || vm.selectedBatch.registrationStatus"
-                      indigo-rows="vm.detailTable"
+                      indigo-rows="[vm.selectedBatch]"
                       selected-batch="vm.selectedBatch"
                       selected-batch-trigger="vm.selectedBatchTrigger"
                       on-changed="vm.onChange()"
@@ -152,7 +151,7 @@
                            type="number"
                            ng-change="vm.recalculateSalt(vm.selectedBatch)"
                            ng-model="vm.selectedBatch.saltEq.value"
-                           ng-disabled="vm.isEditDisabled || !vm.canEditSaltEq()">
+                           ng-disabled="vm.isEditDisabled || !vm.canEditSaltEq(vm.selectedBatch)">
                 </simple-input>
                 <indigo-text-area indigo-label="Structure comments"
                                   indigo-model="vm.selectedBatch.structureComments"

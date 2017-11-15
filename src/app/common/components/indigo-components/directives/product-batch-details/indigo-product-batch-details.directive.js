@@ -9,7 +9,6 @@ function indigoProductBatchDetails() {
         controllerAs: 'vm',
         bindToController: true,
         scope: {
-            model: '=',
             batches: '=',
             experiment: '=',
             selectedBatch: '=',
@@ -28,11 +27,10 @@ function indigoProductBatchDetails() {
     };
 }
 
-IndigoProductBatchDetailsController.$inject = ['$scope', 'appValuesService', 'infoEditorService', 'calculationService',
+IndigoProductBatchDetailsController.$inject = ['$scope', 'appValuesService', 'infoEditorService',
     'entitiesBrowserService', 'batchHelper'];
 
-function IndigoProductBatchDetailsController($scope, appValuesService, infoEditorService,
-                                             calculationService, entitiesBrowserService,
+function IndigoProductBatchDetailsController($scope, appValuesService, infoEditorService, entitiesBrowserService,
                                              batchHelper) {
     var vm = this;
 
@@ -42,7 +40,6 @@ function IndigoProductBatchDetailsController($scope, appValuesService, infoEdito
         vm.productTableColumns = getDefaultColumns();
         vm.showSummary = false;
         vm.notebookId = entitiesBrowserService.getActiveTab().$$title;
-        vm.detailTable = [];
         vm.selectControl = {};
         vm.saltCodeValues = appValuesService.getSaltCodeValues();
         vm.selectBatch = selectBatch;
@@ -54,8 +51,8 @@ function IndigoProductBatchDetailsController($scope, appValuesService, infoEdito
         vm.editHealthHazards = editHealthHazards;
         vm.editHandlingPrecautions = editHandlingPrecautions;
         vm.editStorageInstructions = editStorageInstructions;
-        vm.canEditSaltEq = canEditSaltEq;
-        vm.recalculateSalt = recalculateSalt;
+        vm.canEditSaltEq = batchHelper.canEditSaltEq;
+        vm.recalculateSalt = batchHelper.recalculateSalt;
         vm.onBatchOperationChanged = onBatchOperationChanged;
         vm.isBatchLoading = false;
         vm.onClose = onClose;
@@ -141,24 +138,6 @@ function IndigoProductBatchDetailsController($scope, appValuesService, infoEdito
         infoEditorService.editStorageInstructions(vm.selectedBatch.storageInstructions, callback);
     }
 
-    function canEditSaltEq() {
-        var o = vm.selectedBatch;
-
-        return o && o.saltCode && o.saltCode.value !== 0;
-    }
-
-    function recalculateSalt(reagent) {
-        var o = vm.selectedBatch;
-        if (o.saltCode.value === 0) {
-            o.saltEq.value = 0;
-        } else {
-            o.saltEq.value = Math.abs(o.saltEq.value);
-        }
-        calculationService.recalculateSalt(reagent).then(function() {
-            calculationService.recalculateStoich();
-        });
-    }
-
     function getDefaultColumns() {
         return [
             batchHelper.columns.totalWeight,
@@ -172,49 +151,13 @@ function IndigoProductBatchDetailsController($scope, appValuesService, infoEdito
         ];
     }
 
-    function onRowSelected(batch) {
-        vm.detailTable[0] = batch;
-        vm.selectedBatch = batch;
-        if (vm.selectControl.setSelection) {
-            vm.selectControl.setSelection(batch);
-        }
-    }
-
-    function onRowDeSelected() {
-        vm.detailTable = [];
-        vm.selectedBatch = null;
-        vm.selectControl.unSelect();
-    }
-
-    function updateReactrants() {
-        if (vm.selectedBatch) {
-            vm.selectedBatch.precursors = _.filter(_.map(vm.reactants, function(item) {
-                return item.compoundId || item.fullNbkBatch;
-            }), function(val) {
-                return !!val;
-            }).join(', ');
-        }
-    }
-
     function onBatchOperationChanged(completed) {
         vm.isBatchLoading = !completed;
     }
 
     function bindEvents() {
-        $scope.$watch('vm.selectedBatchTrigger', function() {
-            if (vm.selectedBatch) {
-                onRowSelected(vm.selectedBatch);
-            } else {
-                onRowDeSelected();
-            }
-        });
-
         $scope.$watch(checkEditDisabled, function(newValue) {
             vm.isEditDisabled = newValue;
-        });
-
-        $scope.$watch('vm.reactantsTrigger', function() {
-            updateReactrants();
         });
     }
 }
