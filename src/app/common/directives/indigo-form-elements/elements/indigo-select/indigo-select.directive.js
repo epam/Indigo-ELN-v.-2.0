@@ -1,6 +1,6 @@
-indigoSelect.$inject = ['formUtilsService'];
+indigoSelect.$inject = ['formUtils'];
 
-function indigoSelect(formUtilsService) {
+function indigoSelect(formUtils) {
     return {
         restrict: 'E',
         replace: true,
@@ -58,7 +58,7 @@ function indigoSelect(formUtilsService) {
             tElement.find('ui-select').attr('multiple', true);
             tElement.find('ui-select-match').html('{{$item.' + tAttrs.indigoItemProp + '}}');
         }
-        formUtilsService.doVertical(tAttrs, tElement);
+        formUtils.doVertical(tAttrs, tElement);
         var select = tElement.find('ui-select-choices');
         var htmlContent = _.reduce(tAttrs.indigoItemProp.split(','), function(memo, num) {
             return memo + (memo.length > 0 ? ' + \' - \' + ' : '') + 'item.' + num;
@@ -66,12 +66,12 @@ function indigoSelect(formUtilsService) {
         select.append('<span ng-bind-html="' + htmlContent + ' | highlight: $select.search"></span>');
         var repeat = select.attr('repeat');
         select.attr('repeat', repeat + ' | orderBy:"' + tAttrs.indigoOrderByProp + '"');
-        formUtilsService.clearLabel(tAttrs, tElement);
-        formUtilsService.setLabelColumns(tAttrs, tElement);
+        formUtils.clearLabel(tAttrs, tElement);
+        formUtils.setLabelColumns(tAttrs, tElement);
 
         return {
             post: function(scope) {
-                formUtilsService.addOnChange(scope);
+                formUtils.addOnChange(scope);
             }
         };
     }

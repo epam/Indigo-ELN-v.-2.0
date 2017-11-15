@@ -19,11 +19,11 @@ function indigoComponents() {
     };
 }
 
-IndigoComponentsController.$inject = ['$scope', 'productBatchSummaryOperations', 'productBatchSummaryCacheService',
-    'entitiesBrowserService', 'principalService', 'batchHelperService'];
+IndigoComponentsController.$inject = ['$scope', 'productBatchSummaryOperations', 'productBatchSummaryCache',
+    'entitiesBrowserService', 'principalService', 'batchHelper'];
 
-function IndigoComponentsController($scope, productBatchSummaryOperations, productBatchSummaryCacheService,
-                                    entitiesBrowserService, principalService, batchHelperService) {
+function IndigoComponentsController($scope, productBatchSummaryOperations, productBatchSummaryCache,
+                                    entitiesBrowserService, principalService, batchHelper) {
     var vm = this;
     var precursors;
 
@@ -68,7 +68,7 @@ function IndigoComponentsController($scope, productBatchSummaryOperations, produ
 
     function updateModel() {
         vm.batches = _.get(vm.model, 'productBatchSummary.batches') || [];
-        productBatchSummaryCacheService.setProductBatchSummary(vm.batches);
+        productBatchSummaryCache.setProductBatchSummary(vm.batches);
         updateBatches();
 
         updateSelections();
@@ -171,9 +171,9 @@ function IndigoComponentsController($scope, productBatchSummaryOperations, produ
             return null;
         }
 
-        return batchHelperService.compounds[0].name === batch.batchType ?
-            batchHelperService.compounds[0]
-            : batchHelperService.compounds[1];
+        return batchHelper.compounds[0].name === batch.batchType ?
+            batchHelper.compounds[0]
+            : batchHelper.compounds[1];
     }
 }
 

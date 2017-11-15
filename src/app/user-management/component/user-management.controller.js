@@ -1,9 +1,9 @@
 var userManagementPasswordDialogTemplate = require('./user-management-password-dialog.html');
 
-UserManagementController.$inject = ['$uibModal', 'userService', 'parseLinksService', '$filter', 'pageInfo',
+UserManagementController.$inject = ['$uibModal', 'userService', 'parseLinks', '$filter', 'pageInfo',
     'notifyService'];
 
-function UserManagementController($uibModal, userService, parseLinksService, $filter, pageInfo, notifyService) {
+function UserManagementController($uibModal, userService, parseLinks, $filter, pageInfo, notifyService) {
     var vm = this;
 
     vm.users = [];
@@ -26,7 +26,7 @@ function UserManagementController($uibModal, userService, parseLinksService, $fi
         userService.query({
             page: vm.page - 1, size: vm.itemsPerPage
         }, function(result, headers) {
-            vm.links = parseLinksService.parse(headers('link'));
+            vm.links = parseLinks.parse(headers('link'));
             vm.totalItems = headers('X-Total-Count');
             vm.users = result;
         });
@@ -103,7 +103,7 @@ function UserManagementController($uibModal, userService, parseLinksService, $fi
         userService.query({
             page: vm.page - 1, size: 20
         }, function(result, headers) {
-            vm.links = parseLinksService.parse(headers('link'));
+            vm.links = parseLinks.parse(headers('link'));
             vm.totalItems = headers('X-Total-Count');
             vm.users = $filter('filter')(result, vm.searchText);
         });

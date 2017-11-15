@@ -10,12 +10,12 @@ function entities() {
     };
 }
 
-EntitiesController.$inject = ['$scope', 'entitiesBrowserService', '$q', 'principalService', 'entitiesCacheService',
-    'alertModalService', 'dialogService', 'autorecoveryCacheService',
+EntitiesController.$inject = ['$scope', 'entitiesBrowserService', '$q', 'principalService', 'entitiesCache',
+    'alertModal', 'dialogService', 'autorecoveryCache',
     'projectService', 'notebookService', 'experimentService'];
 
-function EntitiesController($scope, entitiesBrowserService, $q, principalService, entitiesCacheService,
-                            alertModalService, dialogService, autorecoveryCacheService, projectService,
+function EntitiesController($scope, entitiesBrowserService, $q, principalService, entitiesCache,
+                            alertModal, dialogService, autorecoveryCache, projectService,
                             notebookService, experimentService) {
     var vm = this;
 
@@ -39,8 +39,8 @@ function EntitiesController($scope, entitiesBrowserService, $q, principalService
 
     function closeTab(tab) {
         entitiesBrowserService.close(tab.tabKey);
-        entitiesCacheService.removeByKey(tab.tabKey);
-        autorecoveryCacheService.remove(tab.params);
+        entitiesCache.removeByKey(tab.tabKey);
+        autorecoveryCache.remove(tab.params);
     }
 
     function getService(kind) {
@@ -73,7 +73,7 @@ function EntitiesController($scope, entitiesBrowserService, $q, principalService
             return defer.promise;
         }
 
-        var entity = entitiesCacheService.get(tab.params);
+        var entity = entitiesCache.get(tab.params);
         if (entity) {
             var service = getService(tab.kind);
 
@@ -112,7 +112,7 @@ function EntitiesController($scope, entitiesBrowserService, $q, principalService
     function onCloseTabClick($event, tab) {
         $event.stopPropagation();
         if (tab.dirty) {
-            alertModalService.save('Do you want to save the changes?', null, function(isSave) {
+            alertModal.save('Do you want to save the changes?', null, function(isSave) {
                 if (isSave) {
                     saveEntity(tab).then(function() {
                         closeTab(tab);

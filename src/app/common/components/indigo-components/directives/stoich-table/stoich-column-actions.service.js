@@ -1,7 +1,7 @@
-stoichColumnActionsService.$inject = ['registrationService', 'calculationService', '$q', 'appUnits',
+stoichColumnActions.$inject = ['registrationService', 'calculationService', '$q', 'appUnits',
     'dictionaryService', 'sdImportHelperService', 'dialogService', 'searchService', 'notifyService'];
 
-function stoichColumnActionsService(registrationService, calculationService, $q, appUnits, dictionaryService,
+function stoichColumnActions(registrationService, calculationService, $q, appUnits, dictionaryService,
                              sdImportHelperService, dialogService, searchService, notifyService) {
     return {
         fetchBatchByCompoundId: fetchBatchByCompoundId,
@@ -133,4 +133,4 @@ function stoichColumnActionsService(registrationService, calculationService, $q,
     }
 }
 
-module.exports = stoichColumnActionsService;
+module.exports = stoichColumnActions;

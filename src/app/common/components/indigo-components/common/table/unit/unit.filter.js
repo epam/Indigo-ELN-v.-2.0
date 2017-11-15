@@ -1,11 +1,11 @@
 /* @ngInject */
-function unit(unitsConverterService) {
+function unit(unitsConverter) {
     return function(value, to) {
         if (!value) {
             return value;
         }
 
-        return +unitsConverterService.convert(value).as(to).val();
+        return +unitsConverter.convert(value).as(to).val();
     };
 }
 

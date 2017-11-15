@@ -1,5 +1,5 @@
 /* @ngInject */
-function commonHelperService(dictionaryService) {
+function commonHelper(dictionaryService) {
     var loadExperimentsPromise;
     var experimentsPromise;
 
@@ -32,4 +32,4 @@ function commonHelperService(dictionaryService) {
     }
 }
 
-module.exports = commonHelperService;
+module.exports = commonHelper;

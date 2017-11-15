@@ -1,6 +1,6 @@
 /* @ngInject */
 function calculationService($rootScope, $http, $q, appValuesService, apiUrl,
-                            stoichTableCacheService, productBatchSummaryCacheService, capitalizeFilter) {
+                            stoichTableCache, productBatchSummaryCache, capitalizeFilter) {
     var defaultBatch = appValuesService.getDefaultBatch();
     var recalculatingStoich = false;
 
@@ -139,11 +139,11 @@ function calculationService($rootScope, $http, $q, appValuesService, apiUrl,
             return;
         }
         recalculatingStoich = true;
-        var stoichTable = stoichTableCacheService.getStoicTable();
+        var stoichTable = stoichTableCache.getStoicTable();
         var requestData = {
             stoicBatches: setDefaultValues(stoichTable.reactants),
             intendedProducts: setDefaultValues(stoichTable.products),
-            actualProducts: productBatchSummaryCacheService.getProductBatchSummary()
+            actualProducts: productBatchSummaryCache.getProductBatchSummary()
         };
 
         return $http.put(apiUrl + 'calculations/stoich/calculate', requestData).then(function(result) {
@@ -155,11 +155,11 @@ function calculationService($rootScope, $http, $q, appValuesService, apiUrl,
     }
 
     function recalculateStoichBasedOnBatch(calcData) {
-        var stoichTable = stoichTableCacheService.getStoicTable();
+        var stoichTable = stoichTableCache.getStoicTable();
         var requestData = {
             stoicBatches: setDefaultValues(stoichTable.reactants),
             intendedProducts: setDefaultValues(stoichTable.products),
-            actualProducts: setDefaultValues(productBatchSummaryCacheService.getProductBatchSummary()),
+            actualProducts: setDefaultValues(productBatchSummaryCache.getProductBatchSummary()),
             changedBatchRowNumber: _.indexOf(stoichTable.reactants, calcData.row),
             changedField: calcData.changedField || calcData.column,
             molWeightChanged: calcData.molWeightChanged

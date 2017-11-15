@@ -1,7 +1,7 @@
-stoichReactantsColumnsService.$inject =
-    ['appUnits', 'stoichColumnActionsService', 'selectService', 'unitService', 'calculationService'];
+stoichReactantsColumns.$inject =
+    ['appUnits', 'stoichColumnActions', 'selectService', 'unitService', 'calculationService'];
 
-function stoichReactantsColumnsService(appUnits, stoichColumnActionsService,
+function stoichReactantsColumns(appUnits, stoichColumnActions,
                                        selectService, unitService, calculationService) {
     return {
         compoundId: {
@@ -28,7 +28,7 @@ function stoichReactantsColumnsService(appUnits, stoichColumnActionsService,
             hasPopup: true,
             popItemClick: function(row, item) {
                 row.fullNbkBatch = item.details.fullNbkBatch;
-                stoichColumnActionsService.populateFetchedBatch(row, item.details);
+                stoichColumnActions.populateFetchedBatch(row, item.details);
             },
             onChange: function(data) {
                 var row = data.row;
@@ -39,7 +39,7 @@ function stoichReactantsColumnsService(appUnits, stoichColumnActionsService,
                     var nbkBatch = data.model;
                     row.$$popItems = null;
                     row.$$populatedBatch = false;
-                    stoichColumnActionsService.fetchBatchByNbkNumber(nbkBatch).then(function(result) {
+                    stoichColumnActions.fetchBatchByNbkNumber(nbkBatch).then(function(result) {
                         if (result[0]) {
                             row.$$popItems = result.map(function(r) {
                                 return {
@@ -48,7 +48,7 @@ function stoichReactantsColumnsService(appUnits, stoichColumnActionsService,
                                 };
                             });
                         } else {
-                            stoichColumnActionsService.alertWrongFormat();
+                            stoichColumnActions.alertWrongFormat();
                         }
                     });
                 }
@@ -58,17 +58,17 @@ function stoichReactantsColumnsService(appUnits, stoichColumnActionsService,
                 var nbkBatch = data.model;
                 if (!row.$$populatedBatch) {
                     if (row.fullNbkBatch) {
-                        stoichColumnActionsService.fetchBatchByNbkNumber(nbkBatch).then(function(result) {
+                        stoichColumnActions.fetchBatchByNbkNumber(nbkBatch).then(function(result) {
                             var pb = result[0];
                             if (pb && pb.details.fullNbkBatch === row.fullNbkBatch) {
-                                stoichColumnActionsService.populateFetchedBatch(row, pb.details);
+                                stoichColumnActions.populateFetchedBatch(row, pb.details);
                             } else {
-                                stoichColumnActionsService.alertWrongFormat();
+                                stoichColumnActions.alertWrongFormat();
                                 row.fullNbkBatch = row.$$fullNbkBatchOld;
                             }
                         });
                     } else {
-                        stoichColumnActionsService.alertWrongFormat();
+                        stoichColumnActions.alertWrongFormat();
                         row.fullNbkBatch = row.$$fullNbkBatchOld;
                     }
                 }
@@ -198,4 +198,4 @@ function stoichReactantsColumnsService(appUnits, stoichColumnActionsService,
     }
 }
 
-module.exports = stoichReactantsColumnsService;
+module.exports = stoichReactantsColumns;

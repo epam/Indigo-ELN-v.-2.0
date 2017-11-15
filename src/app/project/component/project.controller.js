@@ -1,8 +1,8 @@
 /* @ngInject */
-function ProjectController($scope, $state, projectService, notifyService, permissionService, fileUploaderService,
+function ProjectController($scope, $state, projectService, notifyService, permissionService, fileUploader,
                            pageInfo, entitiesBrowserService, $timeout, $stateParams, tabKeyService,
-                           autorecoveryHelperService, autorecoveryCacheService, entitiesCacheService,
-                           confirmationModalService, $q, entityHelperService, apiUrl) {
+                           autorecoveryHelper, autorecoveryCache, entitiesCache,
+                           confirmationModal, $q, entityHelper, apiUrl) {
     var vm = this;
     var identity = pageInfo.identity;
     var isContentEditor = pageInfo.isContentEditor;
@@ -15,7 +15,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
     init();
 
     function init() {
-        updateRecovery = autorecoveryHelperService.getUpdateRecoveryDebounce($stateParams);
+        updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
         entityTitle = pageInfo.project.name;
 
         vm.apiUrl = apiUrl;
@@ -32,7 +32,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
             });
 
             if (!vm.project.id) {
-                fileUploaderService.setFiles([]);
+                fileUploader.setFiles([]);
             }
         });
 
@@ -45,7 +45,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
     }
 
     function initEntity() {
-        var restoredEntity = entitiesCacheService.get($stateParams);
+        var restoredEntity = entitiesCache.get($stateParams);
 
         if (!restoredEntity) {
             pageInfo.project.author = pageInfo.project.author || identity;
@@ -56,7 +56,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
         } else if (restoredEntity.version === pageInfo.project.version) {
             vm.project = restoredEntity;
         } else {
-            return confirmationModalService
+            return confirmationModal
                 .openEntityVersionsConflictConfirm(entityTitle)
                 .then(
                     function() {
@@ -79,7 +79,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
         if (angular.isDefined(version)) {
             vm.project.version = version;
         }
-        entitiesCacheService.put($stateParams, vm.project);
+        entitiesCache.put($stateParams, vm.project);
     }
 
     function onChanged() {
@@ -128,7 +128,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
             .then(function(result) {
                 angular.extend(vm.project, result);
                 originalProject = angular.copy(vm.project);
-                autorecoveryCacheService.hide($stateParams);
+                autorecoveryCache.hide($stateParams);
             }, function() {
                 notifyService.error('Project not refreshed due to server error!');
             });
@@ -157,7 +157,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
 
     function toggleDirty(isDirty) {
         if (isDirty) {
-            entitiesCacheService.put($stateParams, pageInfo.project);
+            entitiesCache.put($stateParams, pageInfo.project);
         }
         vm.isEntityChanged = !!isDirty;
         entitiesBrowserService.changeDirtyTab($stateParams, isDirty);
@@ -166,7 +166,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
     function initDirtyListener() {
         $scope.$on('entity-updated', function(event, data) {
             vm.loading.then(function() {
-                entityHelperService.checkVersion(
+                entityHelper.checkVersion(
                     $stateParams, data, vm.project, entityTitle, vm.isEntityChanged, refresh
                 );
             });
@@ -179,7 +179,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
         });
 
         $scope.$watch('vm.project', function(newEntity) {
-            var isDirty = autorecoveryHelperService.isEntityDirty(originalProject, newEntity);
+            var isDirty = autorecoveryHelper.isEntityDirty(originalProject, newEntity);
             toggleDirty(vm.stateData.isNew || isDirty);
             updateRecovery(newEntity, isDirty);
         }, true);
@@ -202,7 +202,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
                 projectId: result.id
             });
         });
-        entitiesCacheService.removeByParams($stateParams);
+        entitiesCache.removeByParams($stateParams);
     }
 
     function onSaveError(result) {

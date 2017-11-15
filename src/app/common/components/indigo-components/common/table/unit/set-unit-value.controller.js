@@ -1,6 +1,6 @@
-SetUnitValueController.$inject = ['name', 'unitNames', '$uibModalInstance', 'unitsConverterService'];
+SetUnitValueController.$inject = ['name', 'unitNames', '$uibModalInstance', 'unitsConverter'];
 
-function SetUnitValueController(name, unitNames, $uibModalInstance, unitsConverterService) {
+function SetUnitValueController(name, unitNames, $uibModalInstance, unitsConverter) {
     var vm = this;
 
     init();
@@ -16,7 +16,7 @@ function SetUnitValueController(name, unitNames, $uibModalInstance, unitsConvert
 
     function save() {
         $uibModalInstance.close({
-            value: unitsConverterService.convert(vm.value, vm.unit).val(), unit: vm.unit
+            value: unitsConverter.convert(vm.value, vm.unit).val(), unit: vm.unit
         });
     }
 

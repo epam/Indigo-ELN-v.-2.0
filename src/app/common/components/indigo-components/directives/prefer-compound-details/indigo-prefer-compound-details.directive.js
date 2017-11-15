@@ -28,10 +28,10 @@ function indigoPreferredCompoundDetails() {
 }
 
 IndigoPreferredCompoundDetailsController.$inject = ['$scope', 'entitiesBrowserService',
-    'appValuesService', 'batchHelperService'];
+    'appValuesService', 'batchHelper'];
 
-function IndigoPreferredCompoundDetailsController($scope, entitiesBrowserService, appValuesService,
-                                                  batchHelperService) {
+function IndigoPreferredCompoundDetailsController($scope, entitiesBrowserService,
+                                                  appValuesService, batchHelper) {
     var vm = this;
 
     init();
@@ -41,10 +41,10 @@ function IndigoPreferredCompoundDetailsController($scope, entitiesBrowserService
         vm.notebookId = entitiesBrowserService.getActiveTab().$$title;
         vm.saltCodeValues = appValuesService.getSaltCodeValues();
         vm.selectControl = {};
-        vm.hasCheckedRows = batchHelperService.hasCheckedRow;
+        vm.hasCheckedRows = batchHelper.hasCheckedRow;
         vm.selectBatch = selectBatch;
-        vm.canEditSaltEq = batchHelperService.canEditSaltEq;
-        vm.recalculateSalt = batchHelperService.recalculateSalt;
+        vm.canEditSaltEq = batchHelper.canEditSaltEq;
+        vm.recalculateSalt = batchHelper.recalculateSalt;
         vm.onBatchOperationChanged = onBatchOperationChanged;
         vm.isBatchLoading = false;
 

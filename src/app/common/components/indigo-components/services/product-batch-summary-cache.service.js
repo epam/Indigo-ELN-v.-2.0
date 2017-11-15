@@ -1,4 +1,4 @@
-function productBatchSummaryCacheService() {
+function productBatchSummaryCache() {
     var productBatchSummary;
 
     return {
@@ -15,4 +15,4 @@ function productBatchSummaryCacheService() {
     }
 }
 
-module.exports = productBatchSummaryCacheService;
+module.exports = productBatchSummaryCache;

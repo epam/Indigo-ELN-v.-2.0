@@ -1,8 +1,8 @@
 var template = require('./set-select-value.html');
 
-selectService.$inject = ['$uibModal', 'registrationUtilService'];
+selectService.$inject = ['$uibModal', 'registrationUtil'];
 
-function selectService($uibModal, registrationUtilService) {
+function selectService($uibModal, registrationUtil) {
     return {
         getActions: function(name, values, dictionary) {
             return [{
@@ -39,7 +39,7 @@ function selectService($uibModal, registrationUtilService) {
             }
         }).result.then(function(result) {
             _.each(rows, function(row) {
-                if (!registrationUtilService.isRegistered(row)) {
+                if (!registrationUtil.isRegistered(row)) {
                     row[columnId] = result;
                 }
             });

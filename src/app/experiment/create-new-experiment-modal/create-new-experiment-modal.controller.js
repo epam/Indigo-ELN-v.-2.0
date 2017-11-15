@@ -1,6 +1,6 @@
 /* @ngInject */
-function CreateNewExperimentModalController($scope, componentsUtilService, $uibModalInstance, experimentService,
-                                            principalService, $q, simpleLocalCacheService, fullNotebookId,
+function CreateNewExperimentModalController($scope, componentsUtil, $uibModalInstance, experimentService,
+                                            principalService, $q, simpleLocalCache, fullNotebookId,
                                             notebooksForSubCreationService, templateService) {
     var vm = this;
     var userId;
@@ -49,19 +49,19 @@ function CreateNewExperimentModalController($scope, componentsUtilService, $uibM
         $scope.$watch('vm.selectedTemplate', function() {
             // EPMLSOPELN-415 Remember last selected parent and template
             if (vm.selectedTemplate) {
-                simpleLocalCacheService.putByKey(userId + lastSelectedTemplateIdKey, vm.selectedTemplate.id);
+                simpleLocalCache.putByKey(userId + lastSelectedTemplateIdKey, vm.selectedTemplate.id);
             }
         });
 
         $scope.$watch('vm.selectedNotebook', function() {
             if (vm.selectedNotebook) {
-                simpleLocalCacheService.putByKey(userId + lastSelectedExperimentIdKey, vm.selectedNotebook.id);
+                simpleLocalCache.putByKey(userId + lastSelectedExperimentIdKey, vm.selectedNotebook.id);
             }
         });
     }
 
     function selectNotebookById() {
-        var lastNotebookId = vm.fullNotebookId || simpleLocalCacheService.getByKey(userId + lastSelectedTemplateIdKey);
+        var lastNotebookId = vm.fullNotebookId || simpleLocalCache.getByKey(userId + lastSelectedTemplateIdKey);
 
         if (lastNotebookId) {
             vm.selectedNotebook = _.find(vm.notebooks, {fullId: lastNotebookId});
@@ -69,7 +69,7 @@ function CreateNewExperimentModalController($scope, componentsUtilService, $uibM
     }
 
     function selectTemplateById() {
-        var lastSelectedTemplateId = simpleLocalCacheService.getByKey(userId + lastSelectedTemplateIdKey);
+        var lastSelectedTemplateId = simpleLocalCache.getByKey(userId + lastSelectedTemplateIdKey);
 
         if (lastSelectedTemplateId) {
             vm.selectedTemplate = _.find(vm.templates, {id: lastSelectedTemplateId});
@@ -91,7 +91,7 @@ function CreateNewExperimentModalController($scope, componentsUtilService, $uibM
     }
 
     function initComponents(experiment) {
-        componentsUtilService.initComponents(
+        componentsUtil.initComponents(
             experiment.components,
             experiment.template.templateContent
         );

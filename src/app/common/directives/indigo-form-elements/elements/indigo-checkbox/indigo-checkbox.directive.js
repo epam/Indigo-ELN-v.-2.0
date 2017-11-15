@@ -1,8 +1,8 @@
 var template = require('./indigo-checkbox.html');
 
-indigoCheckbox.$inject = ['formUtilsService'];
+indigoCheckbox.$inject = ['formUtils'];
 
-function indigoCheckbox(formUtilsService) {
+function indigoCheckbox(formUtils) {
     return {
         restrict: 'E',
         replace: true,
@@ -23,16 +23,16 @@ function indigoCheckbox(formUtilsService) {
 
     /* @ngInject */
     function compile(tElement, tAttrs) {
-        formUtilsService.clearLabel(tAttrs, tElement);
+        formUtils.clearLabel(tAttrs, tElement);
         var $checkbox = tElement.find('checkbox');
-        formUtilsService.addDirectivesByAttrs(tAttrs, $checkbox);
+        formUtils.addDirectivesByAttrs(tAttrs, $checkbox);
         if (tAttrs.indigoModel) {
             $checkbox.removeAttr('ng-model-options');
         }
 
         return {
             post: function(scope) {
-                formUtilsService.addOnChange(scope);
+                formUtils.addOnChange(scope);
             }
         };
     }

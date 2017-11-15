@@ -1,6 +1,6 @@
 /* @ngInject */
-function SearchPanelController(searchService, $state, $stateParams, searchUtilService, pageInfo,
-                               entitiesCacheService, printModal, dictionaryService, tabKeyService) {
+function SearchPanelController(searchService, $state, $stateParams, searchUtil, pageInfo,
+                               entitiesCache, printModal, dictionaryService, tabKeyService) {
     var OWN_ENTITY = 'OWN_ENTITY';
     var USERS_ENTITIES = 'USERS_ENTITIES';
     var CACHE_STATE_KEY = tabKeyService.getTabKeyFromTab($state.current.data.tab);
@@ -47,8 +47,8 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtilSe
         vm.onChangeModel = onChangeModel;
         vm.printEntity = printEntity;
 
-        if (entitiesCacheService.getByKey(CACHE_STATE_KEY)) {
-            vm.state = entitiesCacheService.getByKey(CACHE_STATE_KEY);
+        if (entitiesCache.getByKey(CACHE_STATE_KEY)) {
+            vm.state = entitiesCache.getByKey(CACHE_STATE_KEY);
         } else {
             initDefaultState();
         }
@@ -61,8 +61,8 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtilSe
     function initDefaultState() {
         vm.clearStructureTrigger = 0;
         vm.state = {
-            restrictions: searchUtilService.getStoredModel(),
-            $$isCollapsed: searchUtilService.getStoredOptions().isCollapsed,
+            restrictions: searchUtil.getStoredModel(),
+            $$isCollapsed: searchUtil.getStoredOptions().isCollapsed,
             selectedItemsFlags: {},
             selectedEntitiesFlags: {},
             selectedUsers: [],
@@ -75,7 +75,7 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtilSe
 
         initDropdownInfoForSelectSearch();
 
-        entitiesCacheService.putByKey(CACHE_STATE_KEY, vm.state);
+        entitiesCache.putByKey(CACHE_STATE_KEY, vm.state);
     }
 
     function initDropdownInfoForSelectSearch() {
@@ -92,7 +92,7 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtilSe
 
     function clear() {
         vm.clearStructureTrigger = !vm.clearStructureTrigger;
-        vm.state.restrictions = searchUtilService.getStoredModel();
+        vm.state.restrictions = searchUtil.getStoredModel();
         vm.state.searchResults = [];
         vm.state.searchResultsPaged = [];
 
@@ -100,7 +100,7 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtilSe
     }
 
     function isAdvancedSearchFilled() {
-        return searchUtilService.isAdvancedSearchFilled(vm.state.restrictions.advancedSearch);
+        return searchUtil.isAdvancedSearchFilled(vm.state.restrictions.advancedSearch);
     }
 
     function changeDomain() {
@@ -152,7 +152,7 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtilSe
 
     function search() {
         vm.loading = true;
-        var searchRequest = searchUtilService.prepareSearchRequest(vm.state.restrictions);
+        var searchRequest = searchUtil.prepareSearchRequest(vm.state.restrictions);
         searchService.searchAll(searchRequest, function(result) {
             vm.loading = false;
             vm.state.searchResults = result;

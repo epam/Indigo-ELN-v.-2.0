@@ -20,9 +20,9 @@ function duplicateBatches() {
     };
 }
 
-DuplicateBatchesController.$inject = ['productBatchSummaryOperations', 'batchHelperService'];
+DuplicateBatchesController.$inject = ['productBatchSummaryOperations', 'batchHelper'];
 
-function DuplicateBatchesController(productBatchSummaryOperations, batchHelperService) {
+function DuplicateBatchesController(productBatchSummaryOperations, batchHelper) {
     var vm = this;
 
     init();
@@ -33,7 +33,7 @@ function DuplicateBatchesController(productBatchSummaryOperations, batchHelperSe
 
     function duplicateBatches() {
         vm.indigoComponents.batchOperation = productBatchSummaryOperations
-            .duplicateBatches(batchHelperService.getCheckedBatches(vm.batches), false, vm.indigoComponents.experiment)
+            .duplicateBatches(batchHelper.getCheckedBatches(vm.batches), false, vm.indigoComponents.experiment)
             .then(successAddedBatches);
     }
 

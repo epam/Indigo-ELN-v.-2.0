@@ -2,7 +2,7 @@ var template = require('../../components/file-uploader/single-file-uploader/sing
 
 /* @ngInject */
 function sdImportService($uibModal, dictionaryService, sdConstants,
-                         alertModalService, apiUrl, sdImportHelperService, $q) {
+                         alertModal, apiUrl, sdImportHelper, $q) {
     return {
         importFile: importFile
     };
@@ -11,7 +11,7 @@ function sdImportService($uibModal, dictionaryService, sdConstants,
         var propCode = getPropertyCode(property, index);
         var value = sdUnitToImport.properties[propCode];
         if (value) {
-            var formattedProperty = sdImportHelperService.formatProperty(property, value, dicts, index);
+            var formattedProperty = sdImportHelper.formatProperty(property, value, dicts, index);
             if (itemToImport[property.name]) {
                 _.defaultsDeep(itemToImport[property.name], formattedProperty);
             } else {
@@ -80,7 +80,7 @@ function sdImportService($uibModal, dictionaryService, sdConstants,
                     return importItems(result, dicts);
                 });
         }, function() {
-            alertModalService.error('This file cannot be imported. Error occurred.');
+            alertModal.error('This file cannot be imported. Error occurred.');
         });
     }
 }

@@ -1,5 +1,5 @@
 /* @ngInject */
-function registrationUtilService(appValuesService, registrationMsg, registrationService) {
+function registrationUtil(appValuesService, registrationMsg, registrationService) {
     var regServiceInfo;
 
     var isStereoisomerNeedComment = function(stereoisomer) {
@@ -101,4 +101,4 @@ function registrationUtilService(appValuesService, registrationMsg, registration
     }
 }
 
-module.exports = registrationUtilService;
+module.exports = registrationUtil;

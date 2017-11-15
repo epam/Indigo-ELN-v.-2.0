@@ -1,26 +1,26 @@
-var commonHelperService = require('./component-helper/component-helper.service');
-var entityHelperService = require('./entity-helper/entity-helper.service');
-var modalHelperService = require('./entity-helper/modal-helper.service');
-var experimentUtilService = require('./experiment-util/experiment-util.service');
+var commonHelper = require('./component-helper/component-helper.service');
+var entityHelper = require('./entity-helper/entity-helper.service');
+var modalHelper = require('./entity-helper/modal-helper.service');
+var experimentUtil = require('./experiment-util/experiment-util.service');
 var registrationMsg = require('./registration-util/registration-msg.constant');
-var registrationUtilService = require('./registration-util/registration-util.service');
-var parseLinksService = require('./parse-links.service');
-var searchUtilService = require('./search-util.service');
+var registrationUtil = require('./registration-util/registration-util.service');
+var parseLinks = require('./parse-links.service');
+var searchUtil = require('./search-util.service');
 var tabKeyService = require('./tab-key.service');
-var unitsConverterService = require('./units-converter.service');
+var unitsConverter = require('./units-converter.service');
 
 module.exports = angular
     .module('indigoeln.common.utils', [])
 
-    .factory('commonHelperService', commonHelperService)
-    .factory('entityHelperService', entityHelperService)
-    .factory('modalHelperService', modalHelperService)
-    .factory('experimentUtilService', experimentUtilService)
-    .factory('registrationUtilService', registrationUtilService)
-    .factory('parseLinksService', parseLinksService)
-    .factory('searchUtilService', searchUtilService)
+    .factory('commonHelper', commonHelper)
+    .factory('entityHelper', entityHelper)
+    .factory('modalHelper', modalHelper)
+    .factory('experimentUtil', experimentUtil)
+    .factory('registrationUtil', registrationUtil)
+    .factory('parseLinks', parseLinks)
+    .factory('searchUtil', searchUtil)
     .factory('tabKeyService', tabKeyService)
-    .factory('unitsConverterService', unitsConverterService)
+    .factory('unitsConverter', unitsConverter)
 
     .constant('registrationMsg', registrationMsg)
 

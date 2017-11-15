@@ -1,5 +1,5 @@
 /* @ngInject */
-function componentsUtilService(principalService, typeOfComponents) {
+function componentsUtil(principalService, typeOfComponents) {
     return {
         initComponents: initComponents,
         getComponentsFromTemplateContent: getComponentsFromTemplateContent
@@ -107,4 +107,4 @@ function componentsUtilService(principalService, typeOfComponents) {
     }
 }
 
-module.exports = componentsUtilService;
+module.exports = componentsUtil;
