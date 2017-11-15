@@ -1,4 +1,4 @@
-function stoichTableCacheService() {
+function stoichTableCache() {
     var stoichTable;
 
     return {
@@ -21,5 +21,5 @@ function stoichTableCacheService() {
     }
 }
 
-module.exports = stoichTableCacheService;
+module.exports = stoichTableCache;
 

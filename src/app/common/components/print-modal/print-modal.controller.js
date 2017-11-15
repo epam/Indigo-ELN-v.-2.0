@@ -1,8 +1,8 @@
 PrintModalController.$inject = ['$uibModalInstance', 'params', 'resourceName', 'resource', 'typeOfComponents',
-    'componentsUtilService'];
+    'componentsUtil'];
 
 function PrintModalController($uibModalInstance, params, resourceName, resource,
-                              typeOfComponents, componentsUtilService) {
+                              typeOfComponents, componentsUtil) {
     var vm = this;
 
     init();
@@ -40,7 +40,7 @@ function PrintModalController($uibModalInstance, params, resourceName, resource,
     function initFromTemplate(experiment) {
         var tabs = _.get(experiment, 'template.templateContent');
 
-        _.each(componentsUtilService.getComponentsFromTemplateContent(tabs), function(component) {
+        _.each(componentsUtil.getComponentsFromTemplateContent(tabs), function(component) {
             if (typeOfComponents[component.field].isPrint) {
                 vm.components.push(buildComponentItem(component));
             }

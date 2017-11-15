@@ -1,5 +1,5 @@
 /* @ngInject */
-function entityHelperService(CacheFactory, tabKeyService, confirmationModalService, notifyService) {
+function entityHelper(CacheFactory, tabKeyService, confirmationModal, notifyService) {
     var versionCache = CacheFactory.get('versionCache') || CacheFactory('versionCache');
     var isConflictConfirmOpen = false;
 
@@ -16,7 +16,7 @@ function entityHelperService(CacheFactory, tabKeyService, confirmationModalServi
                     return;
                 }
 
-                isConflictConfirmOpen = confirmationModalService
+                isConflictConfirmOpen = confirmationModal
                     .openEntityVersionsConflictConfirm(entityTitle)
                     .then(refreshClbk, function() {
                         currentEntity.version = versionCache.get(tabKeyService.getTabKeyFromParams($stateParams));
@@ -34,4 +34,4 @@ function entityHelperService(CacheFactory, tabKeyService, confirmationModalServi
     }
 }
 
-module.exports = entityHelperService;
+module.exports = entityHelper;

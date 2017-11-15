@@ -1,8 +1,8 @@
 var template = require('./date-picker.html');
 
-indigoDatePicker.$inject = ['formUtilsService'];
+indigoDatePicker.$inject = ['formUtils'];
 
-function indigoDatePicker(formUtilsService) {
+function indigoDatePicker(formUtils) {
     return {
         restrict: 'E',
         replace: true,
@@ -23,7 +23,7 @@ function indigoDatePicker(formUtilsService) {
 
     /* @ngInject */
     function compile(tElement, tAttrs) {
-        formUtilsService.doVertical(tAttrs, tElement);
+        formUtils.doVertical(tAttrs, tElement);
         tElement.find('input').attr('timezone', moment.tz.guess());
 
         return {
@@ -35,7 +35,7 @@ function indigoDatePicker(formUtilsService) {
                         scope.indigoModel = date ? date.toISOString() : null;
                     });
                 }
-                formUtilsService.showValidation(iElement, scope, formCtrl);
+                formUtils.showValidation(iElement, scope, formCtrl);
             }
         };
     }

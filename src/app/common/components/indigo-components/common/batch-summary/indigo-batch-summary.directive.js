@@ -26,9 +26,9 @@ function indigoBatchSummary() {
     };
 }
 
-IndigoBatchSummaryController.$inject = ['$scope', 'registrationUtilService', 'batchHelperService'];
+IndigoBatchSummaryController.$inject = ['$scope', 'registrationUtil', 'batchHelper'];
 
-function IndigoBatchSummaryController($scope, registrationUtilService, batchHelperService) {
+function IndigoBatchSummaryController($scope, registrationUtil, batchHelper) {
     var vm = this;
 
     init();
@@ -36,16 +36,16 @@ function IndigoBatchSummaryController($scope, registrationUtilService, batchHelp
     function init() {
         vm.loading = false;
 
-        registrationUtilService.hasRegistrationService().then(function(hasRegService) {
+        registrationUtil.hasRegistrationService().then(function(hasRegService) {
             vm.hasRegService = hasRegService;
 
             vm.columns = getDefaultColumns(vm.hasRegService);
         });
 
-        vm.hasCheckedRows = batchHelperService.hasCheckedRow;
+        vm.hasCheckedRows = batchHelper.hasCheckedRow;
         vm.isBatchLoading = false;
         vm.onBatchOperationChanged = onBatchOperationChanged;
-        vm.onClose = batchHelperService.close;
+        vm.onClose = batchHelper.close;
         vm.onChangedVisibleColumn = onChangedVisibleColumn;
 
         bindEvents();
@@ -63,45 +63,45 @@ function IndigoBatchSummaryController($scope, registrationUtilService, batchHelp
 
     function getDefaultColumns(hasRegService) {
         return [
-            batchHelperService.columns.structure,
-            batchHelperService.columns.nbkBatch,
-            updateColumnVisible(batchHelperService.columns.registrationStatus, hasRegService),
-            batchHelperService.columns.select,
-            batchHelperService.columns.totalWeight,
-            batchHelperService.columns.totalVolume,
-            batchHelperService.columns.mol,
-            batchHelperService.columns.theoWeight,
-            batchHelperService.columns.theoMoles,
-            batchHelperService.columns.yield,
-            batchHelperService.columns.compoundState,
-            batchHelperService.columns.saltCode,
-            batchHelperService.columns.saltEq,
-            batchHelperService.columns.purity,
-            batchHelperService.columns.$$meltingPoint,
-            batchHelperService.columns.molWeight,
-            batchHelperService.columns.formula,
-            updateColumnVisible(batchHelperService.columns.conversationalBatchNumber, hasRegService),
-            batchHelperService.columns.virtualCompoundId,
-            batchHelperService.columns.stereoisomer,
-            batchHelperService.columns.source,
-            batchHelperService.columns.sourceDetail,
-            batchHelperService.columns.$$externalSupplier,
+            batchHelper.columns.structure,
+            batchHelper.columns.nbkBatch,
+            updateColumnVisible(batchHelper.columns.registrationStatus, hasRegService),
+            batchHelper.columns.select,
+            batchHelper.columns.totalWeight,
+            batchHelper.columns.totalVolume,
+            batchHelper.columns.mol,
+            batchHelper.columns.theoWeight,
+            batchHelper.columns.theoMoles,
+            batchHelper.columns.yield,
+            batchHelper.columns.compoundState,
+            batchHelper.columns.saltCode,
+            batchHelper.columns.saltEq,
+            batchHelper.columns.purity,
+            batchHelper.columns.$$meltingPoint,
+            batchHelper.columns.molWeight,
+            batchHelper.columns.formula,
+            updateColumnVisible(batchHelper.columns.conversationalBatchNumber, hasRegService),
+            batchHelper.columns.virtualCompoundId,
+            batchHelper.columns.stereoisomer,
+            batchHelper.columns.source,
+            batchHelper.columns.sourceDetail,
+            batchHelper.columns.$$externalSupplier,
             getPrecursorColumn(),
-            batchHelperService.columns.$$healthHazards,
-            batchHelperService.columns.compoundProtection,
-            batchHelperService.columns.structureComments,
-            updateColumnVisible(batchHelperService.columns.registrationDate, hasRegService),
-            batchHelperService.columns.$$residualSolvents,
-            batchHelperService.columns.$$solubility,
-            batchHelperService.columns.$$storageInstructions,
-            batchHelperService.columns.$$handlingPrecautions,
-            batchHelperService.columns.comments,
-            batchHelperService.columns.$$batchType
+            batchHelper.columns.$$healthHazards,
+            batchHelper.columns.compoundProtection,
+            batchHelper.columns.structureComments,
+            updateColumnVisible(batchHelper.columns.registrationDate, hasRegService),
+            batchHelper.columns.$$residualSolvents,
+            batchHelper.columns.$$solubility,
+            batchHelper.columns.$$storageInstructions,
+            batchHelper.columns.$$handlingPrecautions,
+            batchHelper.columns.comments,
+            batchHelper.columns.$$batchType
         ];
     }
 
     function getPrecursorColumn() {
-        return _.extend({}, batchHelperService.columns.precursors, {readonly: vm.isExistStoichTable});
+        return _.extend({}, batchHelper.columns.precursors, {readonly: vm.isExistStoichTable});
     }
 
     function onBatchOperationChanged(completed) {

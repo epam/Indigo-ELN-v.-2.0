@@ -1,4 +1,4 @@
-function fileUploaderService() {
+function fileUploader() {
     var files;
 
     return {
@@ -36,4 +36,4 @@ function fileUploaderService() {
     }
 }
 
-module.exports = fileUploaderService;
+module.exports = fileUploader;

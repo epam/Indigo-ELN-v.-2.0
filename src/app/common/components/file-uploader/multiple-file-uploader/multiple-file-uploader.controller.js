@@ -1,7 +1,7 @@
-MultipleFileUploaderController.$inject = ['$uibModalInstance', '$cookies', 'notifyService', 'fileUploaderService',
+MultipleFileUploaderController.$inject = ['$uibModalInstance', '$cookies', 'notifyService', 'fileUploader',
     'FileUploader', 'params', 'uploadUrl'];
 
-function MultipleFileUploaderController($uibModalInstance, $cookies, notifyService, fileUploaderService, FileUploader,
+function MultipleFileUploaderController($uibModalInstance, $cookies, notifyService, fileUploader, FileUploader,
                                         params, uploadUrl) {
     var vm = this;
     var formData = [];
@@ -55,7 +55,7 @@ function MultipleFileUploaderController($uibModalInstance, $cookies, notifyServi
     }
 
     function cancel() {
-        fileUploaderService.addFiles(vm.files);
+        fileUploader.addFiles(vm.files);
         $uibModalInstance.close(vm.files);
     }
 }

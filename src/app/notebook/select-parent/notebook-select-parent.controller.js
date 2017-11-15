@@ -1,5 +1,5 @@
 /* @ngInject */
-function NotebookSelectParentController($scope, $uibModalInstance, parents, principalService, simpleLocalCacheService) {
+function NotebookSelectParentController($scope, $uibModalInstance, parents, principalService, simpleLocalCache) {
     var vm = this;
     vm.parents = parents;
     vm.selectedParent = '';
@@ -22,7 +22,7 @@ function NotebookSelectParentController($scope, $uibModalInstance, parents, prin
         principalService.checkIdentity()
             .then(function(user) {
                 var pkey = user.id + '.lastSelectedProjectId';
-                var pval = simpleLocalCacheService.getByKey(pkey);
+                var pval = simpleLocalCache.getByKey(pkey);
                 if (pval) {
                     vm.selectedParent = parents.filter(function(p) {
                         return p.id === pval;
@@ -30,7 +30,7 @@ function NotebookSelectParentController($scope, $uibModalInstance, parents, prin
                 }
                 var unsubscribe = $scope.$watchGroup(['selectedParent'], function() {
                     if (vm.selectedParent) {
-                        simpleLocalCacheService.putByKey(pkey, vm.selectedParent.id);
+                        simpleLocalCache.putByKey(pkey, vm.selectedParent.id);
                     }
                 });
                 $scope.$on('$destroy', function() {

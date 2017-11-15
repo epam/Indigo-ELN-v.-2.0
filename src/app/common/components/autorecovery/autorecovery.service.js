@@ -1,6 +1,6 @@
-autorecoveryCacheService.$inject = ['CacheFactory', 'tabKeyService'];
+autorecoveryCache.$inject = ['CacheFactory', 'tabKeyService'];
 
-function autorecoveryCacheService(CacheFactory, tabKeyService) {
+function autorecoveryCache(CacheFactory, tabKeyService) {
     var cache = CacheFactory('recoveryCache', {
         storageMode: 'localStorage'
     });
@@ -74,4 +74,4 @@ function autorecoveryCacheService(CacheFactory, tabKeyService) {
     }
 }
 
-module.exports = autorecoveryCacheService;
+module.exports = autorecoveryCache;

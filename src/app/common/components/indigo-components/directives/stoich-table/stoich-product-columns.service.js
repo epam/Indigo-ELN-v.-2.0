@@ -1,6 +1,6 @@
-stoichProductColumnsService.$inject = ['appUnits', 'calculationService'];
+stoichProductColumns.$inject = ['appUnits', 'calculationService'];
 
-function stoichProductColumnsService(appUnits, calculationService) {
+function stoichProductColumns(appUnits, calculationService) {
     return {
         chemicalName: {
             id: 'chemicalName',
@@ -85,4 +85,4 @@ function stoichProductColumnsService(appUnits, calculationService) {
     }
 }
 
-module.exports = stoichProductColumnsService;
+module.exports = stoichProductColumns;

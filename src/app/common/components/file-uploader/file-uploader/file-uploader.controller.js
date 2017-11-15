@@ -1,12 +1,12 @@
 var multipleFileUploaderTemplate = require('../multiple-file-uploader/multiple-file-uploader.html');
 var deleteDialogTemplate = require('../delete-dialog/delete-dialog.html');
 
-FileUploaderController.$inject = ['$uibModal', '$filter', '$stateParams', 'fileUploaderService',
-    'parseLinksService', 'notifyService', 'projectFileUploaderService',
+FileUploaderController.$inject = ['$uibModal', '$filter', '$stateParams', 'fileUploader',
+    'parseLinks', 'notifyService', 'projectFileUploaderService',
     'experimentFileUploaderService', '$timeout', 'apiUrl'];
 
-function FileUploaderController($uibModal, $filter, $stateParams, fileUploaderService,
-                                parseLinksService, notifyService, projectFileUploaderService,
+function FileUploaderController($uibModal, $filter, $stateParams, fileUploader,
+                                parseLinks, notifyService, projectFileUploaderService,
                                 experimentFileUploaderService, $timeout, apiUrl) {
     var vm = this;
     var params = $stateParams;
@@ -38,7 +38,7 @@ function FileUploaderController($uibModal, $filter, $stateParams, fileUploaderSe
             notebookId: params.notebookId,
             experimentId: params.experimentId
         }, function(result, headers) {
-            vm.links = parseLinksService.parse(headers('link'));
+            vm.links = parseLinks.parse(headers('link'));
             vm.files = result;
             updateRowsForDisplay(vm.files);
         });
@@ -94,7 +94,7 @@ function FileUploaderController($uibModal, $filter, $stateParams, fileUploaderSe
         }).result.then(function(fileToDelete) {
             vm.files = _.without(vm.files, fileToDelete);
             updateRowsForDisplay(vm.files);
-            fileUploaderService.removeFile(fileToDelete);
+            fileUploader.removeFile(fileToDelete);
             notifyService.success('File was successfully deleted');
         });
     }

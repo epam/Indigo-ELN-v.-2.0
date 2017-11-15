@@ -26,21 +26,21 @@ function indigoCompoundSummary() {
     };
 }
 
-IndigoCompoundSummaryController.$inject = ['$scope', 'batchHelperService'];
+IndigoCompoundSummaryController.$inject = ['$scope', 'batchHelper'];
 
-function IndigoCompoundSummaryController($scope, batchHelperService) {
+function IndigoCompoundSummaryController($scope, batchHelper) {
     var vm = this;
 
     init();
 
     function init() {
         vm.columns = getDefaultColumns();
-        vm.hasCheckedRows = batchHelperService.hasCheckedRow;
+        vm.hasCheckedRows = batchHelper.hasCheckedRow;
         vm.vnv = angular.noop;
         vm.registerVC = angular.noop;
         vm.onBatchOperationChanged = onBatchOperationChanged;
         vm.isBatchLoading = false;
-        vm.onClose = batchHelperService.close;
+        vm.onClose = batchHelper.close;
         vm.onChangedVisibleColumn = onChangedVisibleColumn;
 
         bindEvents();
@@ -54,16 +54,16 @@ function IndigoCompoundSummaryController($scope, batchHelperService) {
 
     function getDefaultColumns() {
         return [
-            batchHelperService.columns.structure,
-            batchHelperService.columns.nbkBatch,
-            batchHelperService.columns.select,
-            batchHelperService.columns.virtualCompoundId,
-            batchHelperService.columns.molWeight,
-            batchHelperService.columns.formula,
-            batchHelperService.columns.stereoisomer,
-            batchHelperService.columns.structureComments,
-            batchHelperService.columns.saltCode,
-            batchHelperService.columns.saltEq
+            batchHelper.columns.structure,
+            batchHelper.columns.nbkBatch,
+            batchHelper.columns.select,
+            batchHelper.columns.virtualCompoundId,
+            batchHelper.columns.molWeight,
+            batchHelper.columns.formula,
+            batchHelper.columns.stereoisomer,
+            batchHelper.columns.structureComments,
+            batchHelper.columns.saltCode,
+            batchHelper.columns.saltEq
         ];
     }
 

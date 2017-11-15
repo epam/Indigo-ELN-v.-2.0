@@ -1,4 +1,4 @@
-var formUtilsService = require('./form-utils.service');
+var formUtils = require('./form-utils.service');
 
 var indigoCheckbox = require('./elements/indigo-checkbox/indigo-checkbox.directive');
 var indigoChecklist = require('./elements/indigo-checklist/indigo-checklist.directive');
@@ -12,7 +12,7 @@ var dependencies = [];
 module.exports = angular
     .module('indigoeln.indigoFormElements', dependencies)
 
-    .factory('formUtilsService', formUtilsService)
+    .factory('formUtils', formUtils)
 
     .directive('indigoCheckbox', indigoCheckbox)
     .directive('indigoChecklist', indigoChecklist)

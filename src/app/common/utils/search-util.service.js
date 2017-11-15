@@ -1,5 +1,5 @@
 /* @ngInject */
-function searchUtilService(modelRestrictions) {
+function searchUtil(modelRestrictions) {
     var storedOptions;
 
     return {
@@ -100,4 +100,4 @@ function searchUtilService(modelRestrictions) {
     }
 }
 
-module.exports = searchUtilService;
+module.exports = searchUtil;

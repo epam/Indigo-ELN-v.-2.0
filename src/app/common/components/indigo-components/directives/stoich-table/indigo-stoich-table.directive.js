@@ -25,14 +25,14 @@ function indigoStoichTable() {
 }
 
 IndigoStoichTableController.$inject = [
-    '$scope', '$rootScope', '$q', '$uibModal', 'appValuesService', 'stoichColumnActionsService', 'alertModalService',
-    'notifyService', 'calculationService', 'stoichTableCacheService', 'stoichReactantsColumnsService',
-    'stoichProductColumnsService'
+    '$scope', '$rootScope', '$q', '$uibModal', 'appValuesService', 'stoichColumnActions', 'alertModal',
+    'notifyService', 'calculationService', 'stoichTableCache', 'stoichReactantsColumns',
+    'stoichProductColumns'
 ];
 
-function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValuesService, stoichColumnActionsService,
-                                     alertModalService, notifyService, calculationService, stoichTableCacheService,
-                                     stoichReactantsColumnsService, stoichProductColumnsService) {
+function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValuesService, stoichColumnActions,
+                                     alertModal, notifyService, calculationService, stoichTableCache,
+                                     stoichReactantsColumns, stoichProductColumns) {
     var vm = this;
 
     var columnsWithClose = [
@@ -120,7 +120,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
                     }
                 });
             } else {
-                alertModalService.info('Stoichiometry is synchronized', 'sm');
+                alertModal.info('Stoichiometry is synchronized', 'sm');
             }
         });
     }
@@ -156,39 +156,39 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
 
     function init() {
         vm.reactantsColumns = [
-            stoichReactantsColumnsService.compoundId,
-            stoichReactantsColumnsService.casNumber,
-            stoichReactantsColumnsService.chemicalName,
-            stoichReactantsColumnsService.fullNbkBatch,
-            stoichReactantsColumnsService.molWeight,
-            stoichReactantsColumnsService.weight,
-            stoichReactantsColumnsService.volume,
-            stoichReactantsColumnsService.mol,
-            stoichReactantsColumnsService.eq,
+            stoichReactantsColumns.compoundId,
+            stoichReactantsColumns.casNumber,
+            stoichReactantsColumns.chemicalName,
+            stoichReactantsColumns.fullNbkBatch,
+            stoichReactantsColumns.molWeight,
+            stoichReactantsColumns.weight,
+            stoichReactantsColumns.volume,
+            stoichReactantsColumns.mol,
+            stoichReactantsColumns.eq,
             getLimiting(),
-            stoichReactantsColumnsService.rxnRole,
-            stoichReactantsColumnsService.density,
-            stoichReactantsColumnsService.molarity,
-            stoichReactantsColumnsService.stoicPurity,
-            stoichReactantsColumnsService.formula,
-            stoichReactantsColumnsService.saltCode,
-            stoichReactantsColumnsService.saltEq,
-            stoichReactantsColumnsService.loadFactor,
-            stoichReactantsColumnsService.hazardComments,
-            stoichReactantsColumnsService.comments
+            stoichReactantsColumns.rxnRole,
+            stoichReactantsColumns.density,
+            stoichReactantsColumns.molarity,
+            stoichReactantsColumns.stoicPurity,
+            stoichReactantsColumns.formula,
+            stoichReactantsColumns.saltCode,
+            stoichReactantsColumns.saltEq,
+            stoichReactantsColumns.loadFactor,
+            stoichReactantsColumns.hazardComments,
+            stoichReactantsColumns.comments
         ];
 
         vm.productsColumns = [
-            stoichProductColumnsService.chemicalName,
-            stoichProductColumnsService.formula,
-            stoichProductColumnsService.molWeight,
-            stoichProductColumnsService.exactMass,
-            stoichProductColumnsService.weight,
-            stoichProductColumnsService.mol,
-            stoichProductColumnsService.saltCode,
-            stoichProductColumnsService.saltEq,
-            stoichProductColumnsService.hazardComments,
-            stoichProductColumnsService.eq
+            stoichProductColumns.chemicalName,
+            stoichProductColumns.formula,
+            stoichProductColumns.molWeight,
+            stoichProductColumns.exactMass,
+            stoichProductColumns.weight,
+            stoichProductColumns.mol,
+            stoichProductColumns.saltCode,
+            stoichProductColumns.saltEq,
+            stoichProductColumns.hazardComments,
+            stoichProductColumns.eq
         ];
 
         bindEvents();
@@ -196,11 +196,11 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
 
     function onCloseCell(column, data) {
         if (_.includes(columnsWithClose, column.id)) {
-            if (column.id === stoichReactantsColumnsService.compoundId.id) {
+            if (column.id === stoichReactantsColumns.compoundId.id) {
                 onCloseCompoundId(data);
             }
             calculationService.setEntered(data);
-            if (column.id === stoichReactantsColumnsService.rxnRole.id) {
+            if (column.id === stoichReactantsColumns.rxnRole.id) {
                 onRxnRoleChange(data);
             }
             calculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
@@ -208,7 +208,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     }
 
     function getLimiting() {
-        return _.extend({}, stoichReactantsColumnsService.limiting, {
+        return _.extend({}, stoichReactantsColumns.limiting, {
             onClick: function(data) {
                 calculationService.setEntered(data);
                 calculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
@@ -219,7 +219,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     function onCloseCompoundId(data) {
         var row = data.row;
         var compoundId = data.model;
-        stoichColumnActionsService.fetchBatchByCompoundId(compoundId, row)
+        stoichColumnActions.fetchBatchByCompoundId(compoundId, row)
             .then(function() {
                 vm.onPrecursorsChanged({precursors: getPrecursors()});
             }, alertCompoundWrongFormat);
@@ -299,7 +299,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         $scope.$watch('vm.infoProducts', getReactionProductsAndReactants, true);
 
         $scope.$watch('vm.componentData', function(stoichTable) {
-            stoichTableCacheService.setStoicTable(stoichTable);
+            stoichTableCache.setStoicTable(stoichTable);
         });
 
         $scope.$watch('vm.componentData.products', function(products) {

@@ -3,8 +3,8 @@ var experimentSelectSignatureTemplateModal =
     require('../../../experiment/select-signature-template-modal/experiment-select-signature-template-modal.html');
 
 /* @ngInject */
-function experimentUtilService($state, $uibModal, $q, experimentService, permissionService, signatureTemplatesService,
-                        signatureDocumentService, componentsUtilService, notifyService) {
+function experimentUtil($state, $uibModal, $q, experimentService, permissionService, signatureTemplatesService,
+                        signatureDocumentService, componentsUtil, notifyService) {
     return {
         versionExperiment: versionExperiment,
         repeatExperiment: repeatExperiment,
@@ -125,7 +125,7 @@ function experimentUtilService($state, $uibModal, $q, experimentService, permiss
                     .result
                     .then(function(template) {
                         if (template) {
-                            var templates = componentsUtilService.getComponentsFromTemplateContent(componentTemplates);
+                            var templates = componentsUtil.getComponentsFromTemplateContent(componentTemplates);
 
                             return signatureDocumentService.upload(
                                 {
@@ -148,4 +148,4 @@ function experimentUtilService($state, $uibModal, $q, experimentService, permiss
     }
 }
 
-module.exports = experimentUtilService;
+module.exports = experimentUtil;

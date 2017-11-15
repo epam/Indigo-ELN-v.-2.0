@@ -9,16 +9,16 @@ function experimentDetail() {
     };
 }
 
-ExperimentDetailController.$inject = ['$scope', '$state', '$stateParams', 'experimentService', 'experimentUtilService',
-    'permissionService', 'fileUploaderService', 'entitiesBrowserService', 'autorecoveryHelperService', 'notifyService',
-    'entitiesCacheService', '$q', 'principalService', 'notebookService', 'typeOfComponents',
-    'autorecoveryCacheService', 'confirmationModalService', 'entityHelperService', 'apiUrl', 'componentsUtilService'];
+ExperimentDetailController.$inject = ['$scope', '$state', '$stateParams', 'experimentService', 'experimentUtil',
+    'permissionService', 'fileUploader', 'entitiesBrowserService', 'autorecoveryHelper', 'notifyService',
+    'entitiesCache', '$q', 'principalService', 'notebookService', 'typeOfComponents',
+    'autorecoveryCache', 'confirmationModal', 'entityHelper', 'apiUrl', 'componentsUtil'];
 
-function ExperimentDetailController($scope, $state, $stateParams, experimentService, experimentUtilService,
-                                    permissionService, fileUploaderService, entitiesBrowserService,
-                                    autorecoveryHelperService, notifyService, entitiesCacheService, $q,
-                                    principalService, notebookService, typeOfComponents, autorecoveryCacheService,
-                                    confirmationModalService, entityHelperService, apiUrl, componentsUtilService) {
+function ExperimentDetailController($scope, $state, $stateParams, experimentService, experimentUtil,
+                                    permissionService, fileUploader, entitiesBrowserService,
+                                    autorecoveryHelper, notifyService, entitiesCache, $q,
+                                    principalService, notebookService, typeOfComponents, autorecoveryCache,
+                                    confirmationModal, entityHelper, apiUrl, componentsUtil) {
     var vm = this;
     var tabName;
     var params;
@@ -32,7 +32,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     init();
 
     function init() {
-        updateRecovery = autorecoveryHelperService.getUpdateRecoveryDebounce($stateParams);
+        updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
         vm.apiUrl = apiUrl;
         vm.stateData = $state.current.data;
         vm.deferLoading = $q.defer();
@@ -57,7 +57,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
                     updateOriginal(response.experiment);
                     updateCurrentTabTitle();
                     initPermissions();
-                    fileUploaderService.setFiles([]);
+                    fileUploader.setFiles([]);
 
                     if (experiment.version > 1 || !experiment.lastVersion) {
                         tabName += ' v' + experiment.version;
@@ -95,14 +95,14 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
      * @return {Promise} resolve return the entity
      */
     function initExperiment(experiment, withoutCheckVersion) {
-        var restoredExperiment = entitiesCacheService.get($stateParams);
+        var restoredExperiment = entitiesCache.get($stateParams);
 
         if (!restoredExperiment || withoutCheckVersion) {
             vm.experiment = experiment;
         } else if (restoredExperiment.version === experiment.version) {
             vm.experiment = restoredExperiment;
         } else {
-            return confirmationModalService
+            return confirmationModal
                 .openEntityVersionsConflictConfirm(entityTitle)
                 .then(
                     function() {
@@ -129,7 +129,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     }
 
     function initComponents(experiment) {
-        componentsUtilService.initComponents(
+        componentsUtil.initComponents(
             experiment.components,
             experiment.template.templateContent
         );
@@ -139,7 +139,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         var version = lastVersion || _.get(vm.experiment, 'version') || storeData.version;
         vm.experiment = storeData;
         vm.experiment.version = version;
-        entitiesCacheService.put($stateParams, vm.experiment);
+        entitiesCache.put($stateParams, vm.experiment);
     }
 
     function getExperimentName(notebook, experiment) {
@@ -186,7 +186,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     function toggleDirty(isDirty) {
         vm.isEntityChanged = !!isDirty;
         if (vm.isEntityChanged) {
-            entitiesCacheService.put($stateParams, vm.experiment);
+            entitiesCache.put($stateParams, vm.experiment);
         }
         entitiesBrowserService.changeDirtyTab($stateParams, vm.isEntityChanged);
     }
@@ -223,7 +223,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     function completeExperiment() {
         vm.loading = save()
             .then(function() {
-                return experimentUtilService
+                return experimentUtil
                     .completeExperiment(vm.experiment, params, vm.notebook.name)
                     .then(updateExperiment);
             });
@@ -232,7 +232,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     function completeExperimentAndSign() {
         vm.loading = save()
             .then(function() {
-                return experimentUtilService
+                return experimentUtil
                     .completeExperimentAndSign(vm.experiment, params, vm.notebook.name, entityTitle)
                     .then(getExperiment)
                     .then(updateExperiment);
@@ -240,14 +240,14 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     }
 
     function reopenExperiment() {
-        vm.loading = experimentUtilService
+        vm.loading = experimentUtil
             .reopenExperiment(vm.experiment, params)
             .then(getExperiment)
             .then(updateExperiment);
     }
 
     function repeatExperiment() {
-        vm.loading = experimentUtilService
+        vm.loading = experimentUtil
             .repeatExperiment(vm.experiment, params)
             .then(updateExperiment);
     }
@@ -257,7 +257,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
      * @return { Promise } - promise of state transition
      */
     function versionExperiment() {
-        vm.loading = experimentUtilService
+        vm.loading = experimentUtil
             .versionExperiment(vm.experiment, params)
             .then(function(experiment) {
                 return getExperiment()
@@ -294,8 +294,8 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     function postInitExperiment(experiment) {
         updateOriginal(experiment);
         initPermissions();
-        fileUploaderService.setFiles([]);
-        autorecoveryCacheService.hide($stateParams);
+        fileUploader.setFiles([]);
+        autorecoveryCache.hide($stateParams);
     }
 
     function refresh() {
@@ -345,7 +345,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     function initEventListeners() {
         $scope.$on('entity-updated', function(event, data) {
             vm.loading.then(function() {
-                entityHelperService.checkVersion(
+                entityHelper.checkVersion(
                     $stateParams, data, vm.experiment, entityTitle, vm.isEntityChanged, refresh
                 );
             });
@@ -359,7 +359,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
 
         $scope.$watch('vm.experiment', function(newEntity) {
             if (vm.isStatusOpen && vm.isEditAllowed) {
-                var isDirty = autorecoveryHelperService.isEntityDirty(originalExperiment, newEntity);
+                var isDirty = autorecoveryHelper.isEntityDirty(originalExperiment, newEntity);
                 toggleDirty(isDirty);
                 updateRecovery(newEntity, isDirty);
             }

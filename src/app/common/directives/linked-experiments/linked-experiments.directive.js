@@ -22,7 +22,7 @@ function linkedExperiments() {
         template: template
     };
 
-    function LinkedExperimentsController(commonHelperService) {
+    function LinkedExperimentsController(commonHelper) {
         var vm = this;
 
         init();
@@ -32,7 +32,7 @@ function linkedExperiments() {
         }
 
         function refresh(query) {
-            commonHelperService.getExperiments().then(function(experiments) {
+            commonHelper.getExperiments().then(function(experiments) {
                 vm.items = _.filter(experiments, function(experiment) {
                     return experiment.name.startsWith(query);
                 });

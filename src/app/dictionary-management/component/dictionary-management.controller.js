@@ -3,7 +3,7 @@ var dictionaryManagementDeleteWordDialogTemplate =
 
 /* @ngInject */
 function DictionaryManagementController($scope, $filter, $uibModal,
-                                        notifyService, dictionaryService, parseLinksService) {
+                                        notifyService, dictionaryService, parseLinks) {
     var vm = this;
 
     vm.dictionaries = [];
@@ -65,7 +65,7 @@ function DictionaryManagementController($scope, $filter, $uibModal,
             size: vm.itemsPerPage,
             search: vm.searchText
         }, function(result, headers) {
-            vm.links = parseLinksService.parse(headers('link'));
+            vm.links = parseLinks.parse(headers('link'));
             vm.totalItems = headers('X-Total-Count');
             vm.dictionaries = result;
             vm.word = null;
@@ -98,7 +98,7 @@ function DictionaryManagementController($scope, $filter, $uibModal,
             size: vm.itemsPerPage,
             search: vm.searchText
         }, function(result, headers) {
-            vm.links = parseLinksService.parse(headers('link'));
+            vm.links = parseLinks.parse(headers('link'));
             vm.totalItems = headers('X-Total-Count');
             vm.dictionaries = $filter('filter')(result, vm.searchText);
         });

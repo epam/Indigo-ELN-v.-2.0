@@ -1,7 +1,7 @@
-entitiesCacheService.$inject = ['CacheFactory', 'tabKeyService'];
+entitiesCache.$inject = ['CacheFactory', 'tabKeyService'];
 
-function entitiesCacheService(CacheFactory, tabKeyService) {
-    var cache = CacheFactory('entitiesCacheService');
+function entitiesCache(CacheFactory, tabKeyService) {
+    var cache = CacheFactory('entitiesCache');
 
     return {
         put: put,
@@ -42,4 +42,4 @@ function entitiesCacheService(CacheFactory, tabKeyService) {
     }
 }
 
-module.exports = entitiesCacheService;
+module.exports = entitiesCache;

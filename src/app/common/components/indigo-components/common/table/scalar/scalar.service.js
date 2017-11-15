@@ -1,8 +1,8 @@
 var template = require('./set-scalar-value.html');
 
-scalarService.$inject = ['$uibModal', 'registrationUtilService', 'calculationService'];
+scalarService.$inject = ['$uibModal', 'registrationUtil', 'calculationService'];
 
-function scalarService($uibModal, registrationUtilService, calculationService) {
+function scalarService($uibModal, registrationUtil, calculationService) {
     return {
         action: action
     };
@@ -20,7 +20,7 @@ function scalarService($uibModal, registrationUtilService, calculationService) {
             }
         }).result.then(function(result) {
             return _.reduce(rows, function(array, row) {
-                if (!registrationUtilService.isRegistered(row)) {
+                if (!registrationUtil.isRegistered(row)) {
                     row[column.id].value = result;
                     row[column.id].entered = true;
                     if (column.id === 'saltEq') {

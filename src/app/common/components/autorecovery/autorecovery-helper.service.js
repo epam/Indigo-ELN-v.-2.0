@@ -1,6 +1,6 @@
-autorecoveryHelperService.$inject = ['autorecoveryCacheService'];
+autorecoveryHelper.$inject = ['autorecoveryCache'];
 
-function autorecoveryHelperService(autorecoveryCacheService) {
+function autorecoveryHelper(autorecoveryCache) {
     return {
         getUpdateRecoveryDebounce: getUpdateRecoveryDebounce,
         isEntityDirty: isEntityDirty
@@ -10,9 +10,9 @@ function autorecoveryHelperService(autorecoveryCacheService) {
         return _.debounce(function(storeData, isDirty) {
             if (storeData) {
                 if (isDirty) {
-                    autorecoveryCacheService.put($stateParams, storeData);
-                } else if (autorecoveryCacheService.isResolved($stateParams)) {
-                    autorecoveryCacheService.remove($stateParams);
+                    autorecoveryCache.put($stateParams, storeData);
+                } else if (autorecoveryCache.isResolved($stateParams)) {
+                    autorecoveryCache.remove($stateParams);
                 }
             }
         }, 10);
@@ -23,4 +23,4 @@ function autorecoveryHelperService(autorecoveryCacheService) {
     }
 }
 
-module.exports = autorecoveryHelperService;
+module.exports = autorecoveryHelper;

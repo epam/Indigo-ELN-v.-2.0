@@ -1,9 +1,9 @@
 var productBatchSummarySetSourceTemplate =
     require('../directives/product-batch-summary-set-source/product-batch-summary-set-source.html');
 
-columnActionsService.$inject = ['infoEditorService', 'registrationUtilService', '$uibModal'];
+columnActions.$inject = ['infoEditorService', 'registrationUtil', '$uibModal'];
 
-function columnActionsService(infoEditorService, registrationUtilService, $uibModal) {
+function columnActions(infoEditorService, registrationUtil, $uibModal) {
     return {
         editPurity: editPurity,
         editPurityForAllRows: editPurityForAllRows,
@@ -36,7 +36,7 @@ function columnActionsService(infoEditorService, registrationUtilService, $uibMo
 
     function iterateRegisterd(rows, iterator) {
         return _.forEach(rows, function(row) {
-            if (!registrationUtilService.isRegistered(row)) {
+            if (!registrationUtil.isRegistered(row)) {
                 iterator(row);
             }
         });
@@ -144,4 +144,4 @@ function columnActionsService(infoEditorService, registrationUtilService, $uibMo
     }
 }
 
-module.exports = columnActionsService;
+module.exports = columnActions;

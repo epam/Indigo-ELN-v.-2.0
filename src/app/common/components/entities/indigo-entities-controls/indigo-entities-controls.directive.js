@@ -18,9 +18,9 @@ function indigoEntitiesControls() {
 }
 
 IndigoEntitiesControlsController.$inject = ['$state', 'entitiesBrowserService',
-    'modalHelperService', 'projectsForSubCreationService', 'appRoles'];
+    'modalHelper', 'projectsForSubCreationService', 'appRoles'];
 
-function IndigoEntitiesControlsController($state, entitiesBrowserService, modalHelperService,
+function IndigoEntitiesControlsController($state, entitiesBrowserService, modalHelper,
                                           projectsForSubCreationService, appRoles) {
     var vm = this;
 
@@ -95,7 +95,7 @@ function IndigoEntitiesControlsController($state, entitiesBrowserService, modalH
             }
         };
 
-        modalHelperService.openCreateNewExperimentModal(resolve).then(function(result) {
+        modalHelper.openCreateNewExperimentModal(resolve).then(function(result) {
             $state.go('entities.experiment-detail', {
                 notebookId: result.notebookId,
                 projectId: result.projectId,
@@ -110,7 +110,7 @@ function IndigoEntitiesControlsController($state, entitiesBrowserService, modalH
                 return projectsForSubCreationService.query().$promise;
             }
         };
-        modalHelperService.openCreateNewNotebookModal(resolve).then(function(projectId) {
+        modalHelper.openCreateNewNotebookModal(resolve).then(function(projectId) {
             $state.go('entities.notebook-new', {
                 parentId: projectId
             });

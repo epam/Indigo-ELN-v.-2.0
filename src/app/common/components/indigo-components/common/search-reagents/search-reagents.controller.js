@@ -1,10 +1,10 @@
 SearchReagentsController.$inject = ['$rootScope', '$uibModalInstance', 'notifyService',
     'appValuesService', 'activeTabIndex', 'userReagentsService', 'searchService',
-    'searchUtilService', 'searchReagentsConstant', 'stoichColumnActionsService'];
+    'searchUtil', 'searchReagentsConstant', 'stoichСolumnActions'];
 
 function SearchReagentsController($rootScope, $uibModalInstance, notifyService, appValuesService,
-                                  activeTabIndex, userReagentsService, searchService, searchUtilService,
-                                  searchReagentsConstant, stoichColumnActionsService) {
+                                  activeTabIndex, userReagentsService, searchService, searchUtil,
+                                  searchReagentsConstant, stoichСolumnActions) {
     var vm = this;
     var myReagentsSearchQuery;
 
@@ -67,7 +67,7 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         var selected = _.filter(list, {
             $$isSelected: true
         });
-        $rootScope.$broadcast('stoich-rows-changed', stoichColumnActionsService.cleanReactants(selected));
+        $rootScope.$broadcast('stoich-rows-changed', stoichСolumnActions.cleanReactants(selected));
     }
 
     userReagentsService.get({}, function(reagents) {
@@ -121,7 +121,7 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
     }
 
     function isAdvancedSearchFilled() {
-        return searchUtilService.isAdvancedSearchFilled(vm.model.restrictions.advancedSearch);
+        return searchUtil.isAdvancedSearchFilled(vm.model.restrictions.advancedSearch);
     }
 
     function responseCallback(result) {
@@ -171,7 +171,7 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
     function search() {
         vm.loading = true;
         vm.searchResults = [];
-        var searchRequest = searchUtilService.prepareSearchRequest(vm.model.restrictions, vm.model.databases);
+        var searchRequest = searchUtil.prepareSearchRequest(vm.model.restrictions, vm.model.databases);
         searchService.search(searchRequest, function(result) {
             responseCallback(result);
             vm.loading = false;

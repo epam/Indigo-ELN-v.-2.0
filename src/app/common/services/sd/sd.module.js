@@ -2,7 +2,7 @@ var sdService = require('./sd.service');
 var sdConstants = require('./sd-constants.constant');
 var sdExportService = require('./sd-export.service');
 var sdImportService = require('./sd-import.service');
-var sdImportHelperService = require('./sd-import-helper.service');
+var sdImportHelper = require('./sd-import-helper.service');
 
 module.exports = angular
     .module('indigoeln.common.services.sd', [])
@@ -10,7 +10,7 @@ module.exports = angular
     .factory('sdService', sdService)
     .factory('sdExportService', sdExportService)
     .factory('sdImportService', sdImportService)
-    .factory('sdImportHelperService', sdImportHelperService)
+    .factory('sdImportHelper', sdImportHelper)
 
     .constant('sdConstants', sdConstants)
 

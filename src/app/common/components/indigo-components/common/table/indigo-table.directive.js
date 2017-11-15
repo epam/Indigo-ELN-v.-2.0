@@ -43,10 +43,10 @@ function indigoTable() {
     }
 }
 
-IndigoTableController.$inject = ['$scope', 'dragulaService', 'simpleLocalCacheService', 'principalService', '$timeout',
+IndigoTableController.$inject = ['$scope', 'dragulaService', 'simpleLocalCache', 'principalService', '$timeout',
     '$filter'];
 
-function IndigoTableController($scope, dragulaService, simpleLocalCacheService, principalService, $timeout, $filter) {
+function IndigoTableController($scope, dragulaService, simpleLocalCache, principalService, $timeout, $filter) {
     var vm = this;
     var searchColumns;
     var userId;
@@ -93,12 +93,12 @@ function IndigoTableController($scope, dragulaService, simpleLocalCacheService, 
     }
 
     function getVisibleColumns() {
-        return simpleLocalCacheService.getByKey(userId + '.' + vm.indigoId + '.visible.columns')
+        return simpleLocalCache.getByKey(userId + '.' + vm.indigoId + '.visible.columns')
             || buildVisibleColumns(vm.indigoColumns);
     }
 
     function saveColumnSettings() {
-        simpleLocalCacheService.putByKey(userId + '.' + vm.indigoId + '.visible.columns', vm.visibleColumns);
+        simpleLocalCache.putByKey(userId + '.' + vm.indigoId + '.visible.columns', vm.visibleColumns);
     }
 
     function getSortedColumns(columns) {
@@ -106,7 +106,7 @@ function IndigoTableController($scope, dragulaService, simpleLocalCacheService, 
             return;
         }
 
-        var sortedColumns = simpleLocalCacheService.getByKey(userId + '.' + vm.indigoId + '.columnsOrder');
+        var sortedColumns = simpleLocalCache.getByKey(userId + '.' + vm.indigoId + '.columnsOrder');
 
         if (_.isArray(sortedColumns)) {
             var resultColumns = [];
@@ -123,7 +123,7 @@ function IndigoTableController($scope, dragulaService, simpleLocalCacheService, 
     }
 
     function saveColumnsOrder() {
-        simpleLocalCacheService.putByKey(userId + '.' + vm.indigoId + '.columnsOrder', _.map(vm.columns, 'id'));
+        simpleLocalCache.putByKey(userId + '.' + vm.indigoId + '.columnsOrder', _.map(vm.columns, 'id'));
     }
 
     function onChangedColumnSetting(changedColumn, isVisible) {

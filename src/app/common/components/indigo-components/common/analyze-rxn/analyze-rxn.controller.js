@@ -1,8 +1,8 @@
 AnalyzeRxnController.$inject = ['$uibModalInstance', 'reactants', 'searchService',
-    'appValuesService', 'onStoichRowsChanged', 'stoichColumnActionsService', '$q'];
+    'appValuesService', 'onStoichRowsChanged', 'stoichСolumnActions', '$q'];
 
 function AnalyzeRxnController($uibModalInstance, reactants, searchService, appValuesService, onStoichRowsChanged,
-                              stoichColumnActionsService, $q) {
+                              stoichСolumnActions, $q) {
     var vm = this;
 
     vm.addToStoichTable = addToStoichTable;
@@ -24,7 +24,7 @@ function AnalyzeRxnController($uibModalInstance, reactants, searchService, appVa
     }
 
     function addToStoichTable() {
-        onStoichRowsChanged(stoichColumnActionsService.cleanReactants(vm.model.selectedReactants));
+        onStoichRowsChanged(stoichСolumnActions.cleanReactants(vm.model.selectedReactants));
     }
 
     function updateStoicAndExit() {
@@ -34,7 +34,7 @@ function AnalyzeRxnController($uibModalInstance, reactants, searchService, appVa
                 formula: knownReactant.formula
             }), knownReactant);
         });
-        onStoichRowsChanged(stoichColumnActionsService.cleanReactants(result));
+        onStoichRowsChanged(stoichСolumnActions.cleanReactants(result));
         $uibModalInstance.close({});
     }
 

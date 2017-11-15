@@ -29,11 +29,11 @@ function indigoProductBatchDetails() {
 }
 
 IndigoProductBatchDetailsController.$inject = ['$scope', 'appValuesService', 'infoEditorService', 'calculationService',
-    'entitiesBrowserService', 'batchHelperService'];
+    'entitiesBrowserService', 'batchHelper'];
 
 function IndigoProductBatchDetailsController($scope, appValuesService, infoEditorService,
                                              calculationService, entitiesBrowserService,
-                                             batchHelperService) {
+                                             batchHelper) {
     var vm = this;
 
     init();
@@ -64,7 +64,7 @@ function IndigoProductBatchDetailsController($scope, appValuesService, infoEdito
     }
 
     function onClose(column, data) {
-        batchHelperService.close(column, data);
+        batchHelper.close(column, data);
     }
 
     function selectBatch(batch) {
@@ -161,14 +161,14 @@ function IndigoProductBatchDetailsController($scope, appValuesService, infoEdito
 
     function getDefaultColumns() {
         return [
-            batchHelperService.columns.totalWeight,
-            batchHelperService.columns.totalVolume,
-            batchHelperService.columns.mol,
-            batchHelperService.columns.theoWeight,
-            batchHelperService.columns.theoMoles,
-            batchHelperService.columns.yield,
-            batchHelperService.columns.registrationDate,
-            batchHelperService.columns.registrationStatus
+            batchHelper.columns.totalWeight,
+            batchHelper.columns.totalVolume,
+            batchHelper.columns.mol,
+            batchHelper.columns.theoWeight,
+            batchHelper.columns.theoMoles,
+            batchHelper.columns.yield,
+            batchHelper.columns.registrationDate,
+            batchHelper.columns.registrationStatus
         ];
     }
 

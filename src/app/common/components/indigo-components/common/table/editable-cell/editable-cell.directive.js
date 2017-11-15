@@ -16,9 +16,9 @@ function editableCell() {
     };
 }
 
-EditableCellController.$inject = ['$scope', 'unitsConverterService', 'roundFilter', 'notifyService'];
+EditableCellController.$inject = ['$scope', 'unitsConverter', 'roundFilter', 'notifyService'];
 
-function EditableCellController($scope, unitsConverterService, roundFilter, notifyService) {
+function EditableCellController($scope, unitsConverter, roundFilter, notifyService) {
     var vm = this;
     var oldVal;
     var isChanged;
@@ -32,11 +32,11 @@ function EditableCellController($scope, unitsConverterService, roundFilter, noti
         vm.isCheckEnabled = true;
 
         vm.unitParsers = [function(viewValue) {
-            return +unitsConverterService.convert(viewValue, vm.row[vm.column.id].unit).val();
+            return +unitsConverter.convert(viewValue, vm.row[vm.column.id].unit).val();
         }];
 
         vm.unitFormatters = [function(modelValue) {
-            return +roundFilter(unitsConverterService.convert(modelValue)
+            return +roundFilter(unitsConverter.convert(modelValue)
                 .as(vm.row[vm.column.id].unit)
                 .val(), vm.row[vm.column.id].sigDigits, vm.column, vm.row);
         }];

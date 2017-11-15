@@ -1,7 +1,7 @@
-batchHelperService.$inject = ['appUnits', 'calculationService', 'columnActionsService', 'scalarService', 'unitService',
+batchHelper.$inject = ['appUnits', 'calculationService', 'columnActions', 'scalarService', 'unitService',
     'selectService', 'setInputService', '$q'];
 
-function batchHelperService(appUnits, calculationService, columnActionsService,
+function batchHelper(appUnits, calculationService, columnActions,
                             scalarService, unitService, selectService, setInputService, $q) {
     var columnCloseFunction = {
         totalWeight: onClose1,
@@ -267,13 +267,13 @@ function batchHelperService(appUnits, calculationService, columnActionsService,
                 name: 'Purity',
                 type: 'string',
                 onClick: function(data) {
-                    columnActionsService.editPurity(data.row);
+                    columnActions.editPurity(data.row);
                 },
                 actions: [{
                     name: 'Set value for Purity',
                     title: 'Purity',
                     action: function(rows) {
-                        columnActionsService.editPurityForAllRows(rows);
+                        columnActions.editPurityForAllRows(rows);
                     }
                 }]
             },
@@ -283,13 +283,13 @@ function batchHelperService(appUnits, calculationService, columnActionsService,
                 name: 'Melting Point',
                 type: 'string',
                 onClick: function(data) {
-                    columnActionsService.editMeltingPoint(data.row);
+                    columnActions.editMeltingPoint(data.row);
                 },
                 actions: [{
                     name: 'Set value for Melting Point',
                     title: 'Melting Point',
                     action: function(rows) {
-                        columnActionsService.editMeltingPointForAllRows(rows);
+                        columnActions.editMeltingPointForAllRows(rows);
                     }
                 }]
             },
@@ -303,7 +303,7 @@ function batchHelperService(appUnits, calculationService, columnActionsService,
                     name: 'Set value for Source',
                     title: 'Source',
                     action: function(rows) {
-                        columnActionsService.openProductBatchSummaryModal(rows, this.title);
+                        columnActions.openProductBatchSummaryModal(rows, this.title);
                     }
                 }]
             },
@@ -317,7 +317,7 @@ function batchHelperService(appUnits, calculationService, columnActionsService,
                     name: 'Set value for Source Detail',
                     title: 'Source Detail',
                     action: function(rows) {
-                        columnActionsService.openProductBatchSummaryModal(rows, this.title);
+                        columnActions.openProductBatchSummaryModal(rows, this.title);
                     }
                 }]
             },
@@ -327,12 +327,12 @@ function batchHelperService(appUnits, calculationService, columnActionsService,
                 name: 'External Supplier',
                 type: 'string',
                 onClick: function(data) {
-                    columnActionsService.editExternalSupplier(data.row);
+                    columnActions.editExternalSupplier(data.row);
                 },
                 actions: [{
                     name: 'Set value for External Supplier',
                     title: 'External Supplier',
-                    action: columnActionsService.editExternalSupplierForAllRows
+                    action: columnActions.editExternalSupplierForAllRows
                 }]
             },
             $$healthHazards: {
@@ -341,12 +341,12 @@ function batchHelperService(appUnits, calculationService, columnActionsService,
                 name: 'Health Hazards',
                 type: 'string',
                 onClick: function(data) {
-                    columnActionsService.editHealthHazards(data.row);
+                    columnActions.editHealthHazards(data.row);
                 },
                 actions: [{
                     name: 'Set value for Health Hazards',
                     title: 'Health Hazards',
-                    action: columnActionsService.editHealthHazardsForAllRows
+                    action: columnActions.editHealthHazardsForAllRows
                 }]
             },
             $$residualSolvents: {
@@ -355,13 +355,13 @@ function batchHelperService(appUnits, calculationService, columnActionsService,
                 name: 'Residual Solvents',
                 type: 'string',
                 onClick: function(data) {
-                    columnActionsService.editResidualSolvents([data.row]);
+                    columnActions.editResidualSolvents([data.row]);
                 },
                 actions: [{
                     name: 'Set value for Residual Solvents',
                     title: 'Residual Solvents',
                     action: function(rows) {
-                        columnActionsService.editResidualSolvents(rows);
+                        columnActions.editResidualSolvents(rows);
                     }
                 }]
             },
@@ -371,13 +371,13 @@ function batchHelperService(appUnits, calculationService, columnActionsService,
                 name: 'Solubility in Solvents',
                 type: 'string',
                 onClick: function(data) {
-                    columnActionsService.editSolubility([data.row]);
+                    columnActions.editSolubility([data.row]);
                 },
                 actions: [{
                     name: 'Set value for Solubility in Solvents',
                     title: 'Solubility in Solvents',
                     action: function(rows) {
-                        columnActionsService.editSolubility(rows);
+                        columnActions.editSolubility(rows);
                     }
                 }]
             },
@@ -387,13 +387,13 @@ function batchHelperService(appUnits, calculationService, columnActionsService,
                 name: 'Storage Instructions',
                 type: 'string',
                 onClick: function(data) {
-                    columnActionsService.editStorageInstructions([data.row]);
+                    columnActions.editStorageInstructions([data.row]);
                 },
                 actions: [{
                     name: 'Set value for Storage Instructions',
                     title: 'Storage Instructions',
                     action: function(rows) {
-                        columnActionsService.editStorageInstructions(rows);
+                        columnActions.editStorageInstructions(rows);
                     }
                 }]
             },
@@ -403,13 +403,13 @@ function batchHelperService(appUnits, calculationService, columnActionsService,
                 name: 'Handling Precautions',
                 type: 'string',
                 onClick: function(data) {
-                    columnActionsService.editHandlingPrecautions([data.row]);
+                    columnActions.editHandlingPrecautions([data.row]);
                 },
                 actions: [{
                     name: 'Set value for Handling Precautions',
                     title: 'Handling Precautions',
                     action: function(rows) {
-                        columnActionsService.editHandlingPrecautions(rows);
+                        columnActions.editHandlingPrecautions(rows);
                     }
                 }]
             }
@@ -429,4 +429,4 @@ function batchHelperService(appUnits, calculationService, columnActionsService,
     }
 }
 
-module.exports = batchHelperService;
+module.exports = batchHelper;

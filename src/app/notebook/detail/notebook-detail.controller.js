@@ -1,16 +1,16 @@
 /* @ngInject */
 function NotebookDetailController($scope, $state, notebookService, notifyService, permissionService,
-                                  modalHelperService, experimentUtilService, pageInfo, entitiesBrowserService,
-                                  $timeout, $stateParams, tabKeyService, autorecoveryHelperService,
-                                  notebookSummaryExperimentsService, $q, entitiesCacheService,
-                                  autorecoveryCacheService, confirmationModalService, entityHelperService) {
+                                  modalHelper, experimentUtil, pageInfo, entitiesBrowserService,
+                                  $timeout, $stateParams, tabKeyService, autorecoveryHelper,
+                                  notebookSummaryExperimentsService, $q, entitiesCache,
+                                  autorecoveryCache, confirmationModal, entityHelper) {
     var vm = this;
     var identity = pageInfo.identity;
     var isContentEditor = pageInfo.isContentEditor;
     var hasEditAuthority = pageInfo.hasEditAuthority;
     var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
     var originalNotebook;
-    var updateRecovery = autorecoveryHelperService.getUpdateRecoveryDebounce($stateParams);
+    var updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
     var entityTitle;
 
     init();
@@ -49,7 +49,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
     }
 
     function initEntity() {
-        var restoredEntity = entitiesCacheService.get($stateParams);
+        var restoredEntity = entitiesCache.get($stateParams);
 
         if (!restoredEntity) {
             pageInfo.notebook.author = pageInfo.notebook.author || identity;
@@ -60,7 +60,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
         } else if (restoredEntity.version === pageInfo.notebook.version) {
             vm.notebook = restoredEntity;
         } else {
-            return confirmationModalService
+            return confirmationModal
                 .openEntityVersionsConflictConfirm(entityTitle)
                 .then(
                     function() {
@@ -93,7 +93,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
     function bindEvents() {
         $scope.$on('entity-updated', function(event, data) {
             vm.loading.then(function() {
-                entityHelperService.checkVersion(
+                entityHelper.checkVersion(
                     $stateParams, data, vm.notebook, entityTitle, vm.isEntityChanged, refresh
                 );
             });
@@ -108,7 +108,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
         $scope.$watch(function() {
             return vm.notebook;
         }, function(newEntity) {
-            var isDirty = autorecoveryHelperService.isEntityDirty(originalNotebook, newEntity);
+            var isDirty = autorecoveryHelper.isEntityDirty(originalNotebook, newEntity);
             toggleDirty(vm.stateData.isNew || isDirty);
             updateRecovery(newEntity, isDirty);
         }, true);
@@ -125,7 +125,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
         if (angular.isDefined(version)) {
             vm.notebook.version = version;
         }
-        entitiesCacheService.put($stateParams, vm.notebook);
+        entitiesCache.put($stateParams, vm.notebook);
     }
 
     function createExperiment() {
@@ -135,7 +135,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
             }
         };
 
-        modalHelperService.openCreateNewExperimentModal(resolve).then(function(result) {
+        modalHelper.openCreateNewExperimentModal(resolve).then(function(result) {
             $state.go('entities.experiment-detail', {
                 notebookId: result.notebookId,
                 projectId: result.projectId,
@@ -187,7 +187,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
     }
 
     function repeatExperiment(experiment, params) {
-        experimentUtilService.repeatExperiment(experiment, params);
+        experimentUtil.repeatExperiment(experiment, params);
     }
 
     function onSaveSuccess(result) {
@@ -197,7 +197,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
                 projectId: vm.projectId, notebookId: result.id
             });
         });
-        entitiesCacheService.removeByParams($stateParams);
+        entitiesCache.removeByParams($stateParams);
     }
 
     function onSaveError(result) {
@@ -223,7 +223,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
     function toggleDirty(isDirty) {
         vm.isEntityChanged = !!isDirty;
         if (vm.isEntityChanged) {
-            entitiesCacheService.put($stateParams, vm.notebook);
+            entitiesCache.put($stateParams, vm.notebook);
         }
         entitiesBrowserService.changeDirtyTab($stateParams, vm.isEntityChanged);
     }
@@ -239,7 +239,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
         vm.loading = notebookService.get($stateParams).$promise.then(function(response) {
             vm.notebook = response;
             originalNotebook = angular.copy(vm.notebook);
-            autorecoveryCacheService.hide($stateParams);
+            autorecoveryCache.hide($stateParams);
         });
 
         return vm.loading;
@@ -264,8 +264,8 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
         if (vm.notebook.id) {
             vm.loading = notebookService.update($stateParams, vm.notebook).$promise
                 .then(function(result) {
-                    entitiesCacheService.removeByParams($stateParams);
-                    autorecoveryCacheService.remove($stateParams);
+                    entitiesCache.removeByParams($stateParams);
+                    autorecoveryCache.remove($stateParams);
                     vm.notebook.version = result.version;
                     originalNotebook = angular.copy(vm.notebook);
                     entitiesBrowserService.setCurrentTabTitle(vm.notebook.name, $stateParams);

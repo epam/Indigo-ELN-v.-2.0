@@ -1,5 +1,5 @@
 /* @ngInject */
-function sdImportHelperService(appValuesService) {
+function sdImportHelper(appValuesService) {
     var additionalFormatFunctions = {
         GLOBAL_SALT_CODE: function(property, value) {
             return getItem(appValuesService.getSaltCodeValues(), property.subPropName, value);
@@ -66,4 +66,4 @@ function sdImportHelperService(appValuesService) {
     }
 }
 
-module.exports = sdImportHelperService;
+module.exports = sdImportHelper;

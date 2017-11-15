@@ -1,10 +1,10 @@
 var indigoStoichTable = require('./indigo-stoich-table.directive');
 
-var stoichColumnActionsService = require('./stoich-column-actions.service');
-var stoichProductColumnsService = require('./stoich-product-columns.service');
-var stoichReactantsColumnsService = require('./stoich-reactants-columns.service');
+var stoichColumnActions = require('./stoich-column-actions.service');
+var stoichProductColumns = require('./stoich-product-columns.service');
+var stoichReactantsColumns = require('./stoich-reactants-columns.service');
 
-var stoichTableCacheService = require('./stoich-table-cache.service');
+var stoichTableCache = require('./stoich-table-cache.service');
 
 var dependencies = [];
 
@@ -13,9 +13,9 @@ module.exports = angular
 
     .directive('indigoStoichTable', indigoStoichTable)
 
-    .factory('stoichColumnActionsService', stoichColumnActionsService)
-    .factory('stoichProductColumnsService', stoichProductColumnsService)
-    .factory('stoichReactantsColumnsService', stoichReactantsColumnsService)
-    .factory('stoichTableCacheService', stoichTableCacheService)
+    .factory('stoichColumnActions', stoichColumnActions)
+    .factory('stoichProductColumns', stoichProductColumns)
+    .factory('stoichReactantsColumns', stoichReactantsColumns)
+    .factory('stoichTableCache', stoichTableCache)
 
     .name;

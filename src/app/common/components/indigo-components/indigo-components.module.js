@@ -34,12 +34,12 @@ var SomethingDetailsController = require('./common/something-details/something-d
 var typeOfComponents = require('./constants/type-of-components.constant');
 var searchReagentsConstant = require('./common/search-reagents/search-reagents.constant');
 
-var productBatchSummaryCacheService = require('./services/product-batch-summary-cache.service');
+var productBatchSummaryCache = require('./services/product-batch-summary-cache.service');
 var productBatchSummaryOperations = require('./services/product-batch-summary-operations.service');
-var batchHelperService = require('./services/batch-helper.service');
-var columnActionsService = require('./services/column-actions.service');
+var batchHelper = require('./services/batch-helper.service');
+var columnActions = require('./services/column-actions.service');
 var dialogService = require('./services/dialog-service/dialog.service');
-var componentsUtilService = require('./utils/components-util.service');
+var componentsUtil = require('./utils/components-util.service');
 
 var run = require('./indigo-components.run');
 
@@ -79,12 +79,12 @@ module.exports = angular
     .constant('typeOfComponents', typeOfComponents)
     .constant('searchReagentsConstant', searchReagentsConstant)
 
-    .factory('productBatchSummaryCacheService', productBatchSummaryCacheService)
+    .factory('productBatchSummaryCache', productBatchSummaryCache)
     .factory('productBatchSummaryOperations', productBatchSummaryOperations)
-    .factory('batchHelperService', batchHelperService)
-    .factory('columnActionsService', columnActionsService)
+    .factory('batchHelper', batchHelper)
+    .factory('columnActions', columnActions)
     .factory('dialogService', dialogService)
-    .factory('componentsUtilService', componentsUtilService)
+    .factory('componentsUtil', componentsUtil)
 
     .run(run)
 

@@ -1,8 +1,8 @@
 var template = require('./set-unit-value.html');
 
-unitService.$inject = ['$uibModal', 'calculationService', 'registrationUtilService'];
+unitService.$inject = ['$uibModal', 'calculationService', 'registrationUtil'];
 
-function unitService($uibModal, calculationService, registrationUtilService) {
+function unitService($uibModal, calculationService, registrationUtil) {
     return {
         getActions: function(name, unitItems) {
             var actions = [{
@@ -40,7 +40,7 @@ function unitService($uibModal, calculationService, registrationUtilService) {
             }
         }).result.then(function(result) {
             _.each(rows, function(row) {
-                if (!registrationUtilService.isRegistered(row)) {
+                if (!registrationUtil.isRegistered(row)) {
                     row[id] = row[id] || {};
                     row[id].value = result.value;
                     row[id].unit = result.unit;

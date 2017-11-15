@@ -1,9 +1,9 @@
 /* @ngInject */
-function projectService($resource, fileUploaderService, permissionService, entityTreeService, apiUrl) {
+function projectService($resource, fileUploader, permissionService, entityTreeService, apiUrl) {
     function transformRequest(data) {
         var newData = angular.copy(data);
         newData.tags = _.map(newData.tags, 'text');
-        newData.fileIds = _.map(fileUploaderService.getFiles(), 'id');
+        newData.fileIds = _.map(fileUploader.getFiles(), 'id');
         newData.accessList = permissionService.expandPermission(newData.accessList);
 
         return angular.toJson(newData);

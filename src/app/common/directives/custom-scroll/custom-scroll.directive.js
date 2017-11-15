@@ -1,6 +1,6 @@
-customScroll.$inject = ['simpleLocalCacheService', '$timeout'];
+customScroll.$inject = ['simpleLocalCache', '$timeout'];
 
-function customScroll(simpleLocalCacheService, $timeout) {
+function customScroll(simpleLocalCache, $timeout) {
     return {
         restrict: 'A',
         scope: {
@@ -13,7 +13,7 @@ function customScroll(simpleLocalCacheService, $timeout) {
     };
 
     function link($scope, $element, $attributes, vm) {
-        var scrollLocation = simpleLocalCacheService.getByKey(vm.customScroll) || 0;
+        var scrollLocation = simpleLocalCache.getByKey(vm.customScroll) || 0;
         var el = $element[0];
         var scrollPosition = 0;
 
@@ -29,7 +29,7 @@ function customScroll(simpleLocalCacheService, $timeout) {
         });
 
         $scope.$on('$destroy', function() {
-            simpleLocalCacheService.putByKey(vm.customScroll, scrollPosition);
+            simpleLocalCache.putByKey(vm.customScroll, scrollPosition);
         });
     }
 }

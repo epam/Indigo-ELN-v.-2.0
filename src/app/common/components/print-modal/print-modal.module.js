@@ -1,4 +1,4 @@
-var printModal = require('./print-modal.factory');
+var printModal = require('./print-modal.service');
 var PrintModalController = require('./print-modal.controller');
 
 module.exports = angular

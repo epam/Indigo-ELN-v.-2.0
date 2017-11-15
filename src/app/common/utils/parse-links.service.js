@@ -1,5 +1,5 @@
 /* @ngInject */
-function parseLinksService() {
+function parseLinks() {
     return {
         parse: parse
     };
@@ -38,4 +38,4 @@ function parseLinksService() {
     }
 }
 
-module.exports = parseLinksService;
+module.exports = parseLinks;
