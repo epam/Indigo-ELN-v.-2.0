@@ -1,6 +1,6 @@
-var template = require('./stoich-table.html');
-var analyzeRxnTemplate = require('../../common/analyze-rxn/analyze-rxn.html');
-var searchReagentsTemplate = require('../../common/search-reagents/search-reagents.html');
+var template = require('./indigo-stoich-table.html');
+var analyzeRxnTemplate = require('../../../../common/analyze-rxn/analyze-rxn.html');
+var searchReagentsTemplate = require('../../../../common/search-reagents/search-reagents.html');
 
 function indigoStoichTable() {
     return {

@@ -1,10 +1,10 @@
-var indigoStoichTable = require('./indigo-stoich-table.directive');
+var indigoStoichTable = require('./directives/stoich-table/indigo-stoich-table.directive');
 
-var stoichColumnActions = require('./stoich-column-actions.service');
-var stoichProductColumns = require('./stoich-product-columns.service');
-var stoichReactantsColumns = require('./stoich-reactants-columns.service');
+var stoichColumnActions = require('./services/stoich-column-actions.service');
+var stoichProductColumns = require('./services/stoich-product-columns.service');
+var stoichReactantsColumns = require('./services/stoich-reactants-columns.service');
 
-var stoichTableCache = require('./stoich-table-cache.service');
+var stoichTableCache = require('./services/stoich-table-cache.service');
 
 var dependencies = [];
 
