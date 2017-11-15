@@ -1,4 +1,4 @@
-var typeComponents = {
+var typeOfComponents = {
     conceptDetails: {
         field: 'conceptDetails',
         name: 'Concept Details',
@@ -94,4 +94,4 @@ var typeComponents = {
     }
 };
 
-module.exports = typeComponents;
+module.exports = typeOfComponents;

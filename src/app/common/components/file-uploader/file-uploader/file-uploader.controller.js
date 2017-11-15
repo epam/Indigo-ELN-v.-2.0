@@ -1,11 +1,11 @@
 var multipleFileUploaderTemplate = require('../multiple-file-uploader/multiple-file-uploader.html');
 var deleteDialogTemplate = require('../delete-dialog/delete-dialog.html');
 
-FileUploaderController.$inject = ['$uibModal', '$filter', '$stateParams', 'fileUploaderCash',
+FileUploaderController.$inject = ['$uibModal', '$filter', '$stateParams', 'fileUploaderService',
     'parseLinksService', 'notifyService', 'projectFileUploaderService',
     'experimentFileUploaderService', '$timeout', 'apiUrl'];
 
-function FileUploaderController($uibModal, $filter, $stateParams, fileUploaderCash,
+function FileUploaderController($uibModal, $filter, $stateParams, fileUploaderService,
                                 parseLinksService, notifyService, projectFileUploaderService,
                                 experimentFileUploaderService, $timeout, apiUrl) {
     var vm = this;
@@ -94,7 +94,7 @@ function FileUploaderController($uibModal, $filter, $stateParams, fileUploaderCa
         }).result.then(function(fileToDelete) {
             vm.files = _.without(vm.files, fileToDelete);
             updateRowsForDisplay(vm.files);
-            fileUploaderCash.removeFile(fileToDelete);
+            fileUploaderService.removeFile(fileToDelete);
             notifyService.success('File was successfully deleted');
         });
     }

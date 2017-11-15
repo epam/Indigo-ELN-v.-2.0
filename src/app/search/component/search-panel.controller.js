@@ -1,9 +1,9 @@
 /* @ngInject */
 function SearchPanelController(searchService, $state, $stateParams, searchUtilService, pageInfo,
-                               entitiesCache, printModal, dictionaryService, tabKeyUtils) {
+                               entitiesCacheService, printModal, dictionaryService, tabKeyService) {
     var OWN_ENTITY = 'OWN_ENTITY';
     var USERS_ENTITIES = 'USERS_ENTITIES';
-    var CACHE_STATE_KEY = tabKeyUtils.getTabKeyFromTab($state.current.data.tab);
+    var CACHE_STATE_KEY = tabKeyService.getTabKeyFromTab($state.current.data.tab);
     var vm = this;
 
     init();
@@ -47,8 +47,8 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtilSe
         vm.onChangeModel = onChangeModel;
         vm.printEntity = printEntity;
 
-        if (entitiesCache.getByKey(CACHE_STATE_KEY)) {
-            vm.state = entitiesCache.getByKey(CACHE_STATE_KEY);
+        if (entitiesCacheService.getByKey(CACHE_STATE_KEY)) {
+            vm.state = entitiesCacheService.getByKey(CACHE_STATE_KEY);
         } else {
             initDefaultState();
         }
@@ -75,7 +75,7 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtilSe
 
         initDropdownInfoForSelectSearch();
 
-        entitiesCache.putByKey(CACHE_STATE_KEY, vm.state);
+        entitiesCacheService.putByKey(CACHE_STATE_KEY, vm.state);
     }
 
     function initDropdownInfoForSelectSearch() {

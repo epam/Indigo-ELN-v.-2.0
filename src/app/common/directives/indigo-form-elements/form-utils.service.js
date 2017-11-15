@@ -1,6 +1,6 @@
-formUtils.$inject = ['$timeout'];
+formUtilsService.$inject = ['$timeout'];
 
-function formUtils($timeout) {
+function formUtilsService($timeout) {
     return {
         doVertical: doVertical,
         clearLabel: clearLabel,
@@ -119,4 +119,4 @@ function formUtils($timeout) {
     }
 }
 
-module.exports = formUtils;
+module.exports = formUtilsService;

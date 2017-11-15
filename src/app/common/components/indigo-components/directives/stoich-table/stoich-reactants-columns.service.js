@@ -1,7 +1,8 @@
-stoichReactantsColumns.$inject =
-    ['appUnits', 'stoichColumnActions', 'selectService', 'unitService', 'calculationService'];
+stoichReactantsColumnsService.$inject =
+    ['appUnits', 'stoichColumnActionsService', 'selectService', 'unitService', 'calculationService'];
 
-function stoichReactantsColumns(appUnits, stoichColumnActions, selectService, unitService, calculationService) {
+function stoichReactantsColumnsService(appUnits, stoichColumnActionsService,
+                                       selectService, unitService, calculationService) {
     return {
         compoundId: {
             id: 'compoundId',
@@ -27,7 +28,7 @@ function stoichReactantsColumns(appUnits, stoichColumnActions, selectService, un
             hasPopup: true,
             popItemClick: function(row, item) {
                 row.fullNbkBatch = item.details.fullNbkBatch;
-                stoichColumnActions.populateFetchedBatch(row, item.details);
+                stoichColumnActionsService.populateFetchedBatch(row, item.details);
             },
             onChange: function(data) {
                 var row = data.row;
@@ -38,7 +39,7 @@ function stoichReactantsColumns(appUnits, stoichColumnActions, selectService, un
                     var nbkBatch = data.model;
                     row.$$popItems = null;
                     row.$$populatedBatch = false;
-                    stoichColumnActions.fetchBatchByNbkNumber(nbkBatch).then(function(result) {
+                    stoichColumnActionsService.fetchBatchByNbkNumber(nbkBatch).then(function(result) {
                         if (result[0]) {
                             row.$$popItems = result.map(function(r) {
                                 return {
@@ -47,7 +48,7 @@ function stoichReactantsColumns(appUnits, stoichColumnActions, selectService, un
                                 };
                             });
                         } else {
-                            stoichColumnActions.alertWrongFormat();
+                            stoichColumnActionsService.alertWrongFormat();
                         }
                     });
                 }
@@ -57,17 +58,17 @@ function stoichReactantsColumns(appUnits, stoichColumnActions, selectService, un
                 var nbkBatch = data.model;
                 if (!row.$$populatedBatch) {
                     if (row.fullNbkBatch) {
-                        stoichColumnActions.fetchBatchByNbkNumber(nbkBatch).then(function(result) {
+                        stoichColumnActionsService.fetchBatchByNbkNumber(nbkBatch).then(function(result) {
                             var pb = result[0];
                             if (pb && pb.details.fullNbkBatch === row.fullNbkBatch) {
-                                stoichColumnActions.populateFetchedBatch(row, pb.details);
+                                stoichColumnActionsService.populateFetchedBatch(row, pb.details);
                             } else {
-                                stoichColumnActions.alertWrongFormat();
+                                stoichColumnActionsService.alertWrongFormat();
                                 row.fullNbkBatch = row.$$fullNbkBatchOld;
                             }
                         });
                     } else {
-                        stoichColumnActions.alertWrongFormat();
+                        stoichColumnActionsService.alertWrongFormat();
                         row.fullNbkBatch = row.$$fullNbkBatchOld;
                     }
                 }
@@ -197,4 +198,4 @@ function stoichReactantsColumns(appUnits, stoichColumnActions, selectService, un
     }
 }
 
-module.exports = stoichReactantsColumns;
+module.exports = stoichReactantsColumnsService;

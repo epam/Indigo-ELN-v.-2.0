@@ -5,9 +5,9 @@ var editMeltingPointTemplate = require('./edit-melting-point/edit-melting-point.
 var editPurityTemplate = require('./edit-purity/edit-purity.html');
 var selectFromDictionaryTemplate = require('./select-from-dictionary/select-from-dictionary.html');
 
-infoEditor.$inject = ['$uibModal'];
+infoEditorService.$inject = ['$uibModal'];
 
-function infoEditor($uibModal) {
+function infoEditorService($uibModal) {
     return {
         editSolubility: editSolubility,
         editResidualSolvents: editResidualSolvents,
@@ -153,4 +153,4 @@ function infoEditor($uibModal) {
     }
 }
 
-module.exports = infoEditor;
+module.exports = infoEditorService;

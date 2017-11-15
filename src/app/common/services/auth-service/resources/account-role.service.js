@@ -1,5 +1,5 @@
 /* @ngInject */
-function accountRole($resource, apiUrl) {
+function accountRoleService($resource, apiUrl) {
     return $resource(apiUrl + 'accounts/account/roles', {}, {
         query: {
             method: 'GET', isArray: true
@@ -7,4 +7,4 @@ function accountRole($resource, apiUrl) {
     });
 }
 
-module.exports = accountRole;
+module.exports = accountRoleService;

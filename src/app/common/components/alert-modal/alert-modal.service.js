@@ -1,8 +1,8 @@
 var template = require('./alert-modal.html');
 
-alertModal.$inject = ['$uibModal'];
+alertModalService.$inject = ['$uibModal'];
 
-function alertModal($uibModal) {
+function alertModalService($uibModal) {
     return {
         alert: alert,
         error: error,
@@ -75,4 +75,4 @@ function alertModal($uibModal) {
     }
 }
 
-module.exports = alertModal;
+module.exports = alertModalService;

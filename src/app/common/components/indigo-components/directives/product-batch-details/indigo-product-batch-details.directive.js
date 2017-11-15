@@ -27,11 +27,12 @@ function indigoProductBatchDetails() {
     };
 }
 
-IndigoProductBatchDetailsController.$inject = ['$scope', 'appValues', 'infoEditor', 'calculationService',
-    'entitiesBrowser', 'batchHelper', 'productBatchSummaryOperations'];
+IndigoProductBatchDetailsController.$inject = ['$scope', 'appValuesService', 'infoEditorService', 'calculationService',
+    'entitiesBrowserService', 'batchHelperService', 'productBatchSummaryOperations'];
 
-function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calculationService, entitiesBrowser,
-                                             batchHelper, productBatchSummaryOperations) {
+function IndigoProductBatchDetailsController($scope, appValuesService, infoEditorService, calculationService,
+                                             entitiesBrowserService, batchHelperService,
+                                             productBatchSummaryOperations) {
     var vm = this;
 
     init();
@@ -39,10 +40,10 @@ function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calc
     function init() {
         vm.productTableColumns = getDefaultColumns();
         vm.showSummary = false;
-        vm.notebookId = entitiesBrowser.getActiveTab().$$title;
+        vm.notebookId = entitiesBrowserService.getActiveTab().$$title;
         vm.detailTable = [];
         vm.selectControl = {};
-        vm.saltCodeValues = appValues.getSaltCodeValues();
+        vm.saltCodeValues = appValuesService.getSaltCodeValues();
         vm.model = vm.model || {};
         vm.selectBatch = selectBatch;
         vm.registerBatch = registerBatch;
@@ -64,7 +65,7 @@ function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calc
     }
 
     function onClose(column, data) {
-        batchHelper.close(column, data);
+        batchHelperService.close(column, data);
     }
 
     function selectBatch(batch) {
@@ -89,11 +90,11 @@ function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calc
             vm.selectedBatch.solubility = result;
             vm.onChanged();
         };
-        infoEditor.editSolubility(vm.selectedBatch.solubility, callback);
+        infoEditorService.editSolubility(vm.selectedBatch.solubility, callback);
     }
 
     function editResidualSolvents() {
-        infoEditor.editResidualSolvents(vm.selectedBatch.residualSolvents).then(function(result) {
+        infoEditorService.editResidualSolvents(vm.selectedBatch.residualSolvents).then(function(result) {
             vm.selectedBatch.residualSolvents = result;
             vm.onChanged();
         });
@@ -104,7 +105,7 @@ function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calc
             vm.selectedBatch.externalSupplier = result;
             vm.onChanged();
         };
-        infoEditor.editExternalSupplier(vm.selectedBatch.externalSupplier, callback);
+        infoEditorService.editExternalSupplier(vm.selectedBatch.externalSupplier, callback);
     }
 
     function editMeltingPoint() {
@@ -112,7 +113,7 @@ function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calc
             vm.selectedBatch.meltingPoint = result;
             vm.onChanged();
         };
-        infoEditor.editMeltingPoint(vm.selectedBatch.meltingPoint, callback);
+        infoEditorService.editMeltingPoint(vm.selectedBatch.meltingPoint, callback);
     }
 
     function editPurity() {
@@ -120,7 +121,7 @@ function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calc
             vm.selectedBatch.purity = result;
             vm.onChanged();
         };
-        infoEditor.editPurity(vm.selectedBatch.purity, callback);
+        infoEditorService.editPurity(vm.selectedBatch.purity, callback);
     }
 
     function editHealthHazards() {
@@ -128,7 +129,7 @@ function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calc
             vm.selectedBatch.healthHazards = result;
             vm.onChanged();
         };
-        infoEditor.editHealthHazards(vm.selectedBatch.healthHazards, callback);
+        infoEditorService.editHealthHazards(vm.selectedBatch.healthHazards, callback);
     }
 
     function editHandlingPrecautions() {
@@ -136,7 +137,7 @@ function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calc
             vm.selectedBatch.handlingPrecautions = result;
             vm.onChanged();
         };
-        infoEditor.editHandlingPrecautions(vm.selectedBatch.handlingPrecautions, callback);
+        infoEditorService.editHandlingPrecautions(vm.selectedBatch.handlingPrecautions, callback);
     }
 
     function editStorageInstructions() {
@@ -144,7 +145,7 @@ function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calc
             vm.selectedBatch.storageInstructions = result;
             vm.onChanged();
         };
-        infoEditor.editStorageInstructions(vm.selectedBatch.storageInstructions, callback);
+        infoEditorService.editStorageInstructions(vm.selectedBatch.storageInstructions, callback);
     }
 
     function canEditSaltEq() {
@@ -167,14 +168,14 @@ function IndigoProductBatchDetailsController($scope, appValues, infoEditor, calc
 
     function getDefaultColumns() {
         return [
-            batchHelper.columns.totalWeight,
-            batchHelper.columns.totalVolume,
-            batchHelper.columns.mol,
-            batchHelper.columns.theoWeight,
-            batchHelper.columns.theoMoles,
-            batchHelper.columns.yield,
-            batchHelper.columns.registrationDate,
-            batchHelper.columns.registrationStatus
+            batchHelperService.columns.totalWeight,
+            batchHelperService.columns.totalVolume,
+            batchHelperService.columns.mol,
+            batchHelperService.columns.theoWeight,
+            batchHelperService.columns.theoMoles,
+            batchHelperService.columns.yield,
+            batchHelperService.columns.registrationDate,
+            batchHelperService.columns.registrationStatus
         ];
     }
 

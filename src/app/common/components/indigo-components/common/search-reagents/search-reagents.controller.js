@@ -1,8 +1,10 @@
-SearchReagentsController.$inject = ['$rootScope', '$uibModalInstance', 'notifyService', 'appValues', 'activeTabIndex',
-    'userReagents', 'searchService', 'searchUtilService', 'searchReagentsConstant', 'stoichColumnActions'];
+SearchReagentsController.$inject = ['$rootScope', '$uibModalInstance', 'notifyService',
+    'appValuesService', 'activeTabIndex', 'userReagentsService', 'searchService',
+    'searchUtilService', 'searchReagentsConstant', 'stoichColumnActionsService'];
 
-function SearchReagentsController($rootScope, $uibModalInstance, notifyService, appValues, activeTabIndex, userReagents,
-                                  searchService, searchUtilService, searchReagentsConstant, stoichColumnActions) {
+function SearchReagentsController($rootScope, $uibModalInstance, notifyService, appValuesService,
+                                  activeTabIndex, userReagentsService, searchService, searchUtilService,
+                                  searchReagentsConstant, stoichColumnActionsService) {
     var vm = this;
     var myReagentsSearchQuery;
 
@@ -65,15 +67,15 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         var selected = _.filter(list, {
             $$isSelected: true
         });
-        $rootScope.$broadcast('stoich-rows-changed', stoichColumnActions.cleanReactants(selected));
+        $rootScope.$broadcast('stoich-rows-changed', stoichColumnActionsService.cleanReactants(selected));
     }
 
-    userReagents.get({}, function(reagents) {
+    userReagentsService.get({}, function(reagents) {
         vm.myReagentList = _.map(reagents, function(reagent) {
             reagent.$$isSelected = false;
             reagent.$$isCollapsed = true;
-            reagent.rxnRole = reagent.rxnRole || appValues.getRxnRoleReactant();
-            reagent.saltCode = reagent.saltCode || appValues.getDefaultSaltCode();
+            reagent.rxnRole = reagent.rxnRole || appValuesService.getRxnRoleReactant();
+            reagent.saltCode = reagent.saltCode || appValuesService.getDefaultSaltCode();
 
             return reagent;
         });
@@ -96,7 +98,7 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
             }
         });
         if (count > 0) {
-            userReagents.save(vm.myReagentList, function() {
+            userReagentsService.save(vm.myReagentList, function() {
                 if (count === 1) {
                     notifyService.info(count + ' reagent successfully added to My Reagent List');
                 } else if (count > 0) {
@@ -115,7 +117,7 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         _.each(selected, function(item) {
             vm.myReagentList = _.without(vm.myReagentList, item);
         });
-        userReagents.save(vm.myReagentList);
+        userReagentsService.save(vm.myReagentList);
     }
 
     function isAdvancedSearchFilled() {
@@ -131,8 +133,8 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
             batchDetails.database = _.map(vm.model.databases, function(db) {
                 return db.value;
             }).join(', ');
-            batchDetails.rxnRole = batchDetails.rxnRole || appValues.getRxnRoleReactant();
-            batchDetails.saltCode = batchDetails.saltCode || appValues.getDefaultSaltCode();
+            batchDetails.rxnRole = batchDetails.rxnRole || appValuesService.getRxnRoleReactant();
+            batchDetails.saltCode = batchDetails.saltCode || appValuesService.getDefaultSaltCode();
 
             return batchDetails;
         });

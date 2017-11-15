@@ -1,6 +1,7 @@
+/* eslint no-shadow: "off"*/
 var template = require('./delete-batches.html');
 
-function deleteBatchesDirective() {
+function deleteBatches() {
     return {
         restrict: 'E',
         scope: {
@@ -45,4 +46,4 @@ function deleteBatchesDirective() {
     }
 }
 
-module.exports = deleteBatchesDirective;
+module.exports = deleteBatches;

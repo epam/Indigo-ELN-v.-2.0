@@ -1,9 +1,9 @@
 var productBatchSummarySetSourceTemplate =
     require('../directives/product-batch-summary-set-source/product-batch-summary-set-source.html');
 
-columnActions.$inject = ['infoEditor', 'registrationUtil', '$uibModal'];
+columnActionsService.$inject = ['infoEditorService', 'registrationUtilService', '$uibModal'];
 
-function columnActions(infoEditor, registrationUtil, $uibModal) {
+function columnActionsService(infoEditorService, registrationUtilService, $uibModal) {
     return {
         editPurity: editPurity,
         editPurityForAllRows: editPurityForAllRows,
@@ -21,13 +21,13 @@ function columnActions(infoEditor, registrationUtil, $uibModal) {
     };
 
     function editPurity(row) {
-        infoEditor.editPurity(row.purity, function(result) {
+        infoEditorService.editPurity(row.purity, function(result) {
             row.purity = result;
         });
     }
 
     function editPurityForAllRows(rows) {
-        infoEditor.editPurity({}, function(result) {
+        infoEditorService.editPurity({}, function(result) {
             iterateRegisterd(rows, function(row) {
                 row.purity = angular.copy(result);
             });
@@ -36,20 +36,20 @@ function columnActions(infoEditor, registrationUtil, $uibModal) {
 
     function iterateRegisterd(rows, iterator) {
         return _.forEach(rows, function(row) {
-            if (!registrationUtil.isRegistered(row)) {
+            if (!registrationUtilService.isRegistered(row)) {
                 iterator(row);
             }
         });
     }
 
     function editMeltingPoint(row) {
-        infoEditor.editMeltingPoint(row.meltingPoint, function(result) {
+        infoEditorService.editMeltingPoint(row.meltingPoint, function(result) {
             row.meltingPoint = result;
         });
     }
 
     function editMeltingPointForAllRows(rows) {
-        infoEditor.editMeltingPoint({}, function(result) {
+        infoEditorService.editMeltingPoint({}, function(result) {
             iterateRegisterd(rows, function(row) {
                 row.meltingPoint = angular.copy(result);
             });
@@ -76,13 +76,13 @@ function columnActions(infoEditor, registrationUtil, $uibModal) {
     }
 
     function editExternalSupplier(row) {
-        infoEditor.editExternalSupplier(row.externalSupplier, function(result) {
+        infoEditorService.editExternalSupplier(row.externalSupplier, function(result) {
             row.externalSupplier = result;
         });
     }
 
     function editExternalSupplierForAllRows(rows) {
-        infoEditor.editExternalSupplier({}, function(result) {
+        infoEditorService.editExternalSupplier({}, function(result) {
             iterateRegisterd(rows, function(row) {
                 row.externalSupplier = angular.copy(result);
             });
@@ -90,13 +90,13 @@ function columnActions(infoEditor, registrationUtil, $uibModal) {
     }
 
     function editHealthHazards(row) {
-        infoEditor.editHealthHazards(row.healthHazards, function(result) {
+        infoEditorService.editHealthHazards(row.healthHazards, function(result) {
             row.healthHazards = result;
         });
     }
 
     function editHealthHazardsForAllRows(rows) {
-        infoEditor.editHealthHazards({}, function(result) {
+        infoEditorService.editHealthHazards({}, function(result) {
             iterateRegisterd(rows, function(row) {
                 row.healthHazards = angular.copy(result);
             });
@@ -106,7 +106,7 @@ function columnActions(infoEditor, registrationUtil, $uibModal) {
     function editResidualSolvents(rows) {
         var data = rows.length === 1 ? rows[0].residualSolvents : {};
 
-        infoEditor.editResidualSolvents(data).then(function(result) {
+        infoEditorService.editResidualSolvents(data).then(function(result) {
             iterateRegisterd(rows, function(row) {
                 row.residualSolvents = result;
             });
@@ -116,7 +116,7 @@ function columnActions(infoEditor, registrationUtil, $uibModal) {
     function editSolubility(rows) {
         var data = rows.length === 1 ? rows[0].solubility : {};
 
-        infoEditor.editSolubility(data, function(result) {
+        infoEditorService.editSolubility(data, function(result) {
             iterateRegisterd(rows, function(row) {
                 row.solubility = result;
             });
@@ -130,7 +130,7 @@ function columnActions(infoEditor, registrationUtil, $uibModal) {
             });
         };
         var data = rows.length === 1 ? rows[0].storageInstructions : {};
-        infoEditor.editStorageInstructions(data || {}, callback);
+        infoEditorService.editStorageInstructions(data || {}, callback);
     }
 
     function editHandlingPrecautions(rows) {
@@ -140,8 +140,8 @@ function columnActions(infoEditor, registrationUtil, $uibModal) {
             });
         };
         var data = rows.length === 1 ? rows[0].handlingPrecautions : {};
-        infoEditor.editHandlingPrecautions(data || {}, callback);
+        infoEditorService.editHandlingPrecautions(data || {}, callback);
     }
 }
 
-module.exports = columnActions;
+module.exports = columnActionsService;

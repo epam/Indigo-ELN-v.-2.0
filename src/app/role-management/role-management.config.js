@@ -25,10 +25,10 @@ function roleManagementConfig($stateProvider) {
                 }
             },
             resolve: {
-                pageInfo: function($q, roleService, accountRole, authService) {
+                pageInfo: function($q, roleService, accountRoleService, authService) {
                     return $q.all([
                         roleService.query().$promise,
-                        accountRole.query().$promise,
+                        accountRoleService.query().$promise,
                         authService.getAuthorities()
                     ]).then(function(results) {
                         return {

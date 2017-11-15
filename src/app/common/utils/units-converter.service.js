@@ -1,5 +1,5 @@
 /* @ngInject */
-function unitsConverter() {
+function unitsConverterService() {
     var table = {};
     var prefixes =
         ['Y', 'Z', 'E', 'P', 'T', 'G', 'M', 'k', 'h', 'da', '', 'd', 'c', 'm', 'u', 'n', 'p', 'f', 'a', 'z', 'y'];
@@ -101,4 +101,4 @@ function unitsConverter() {
     };
 }
 
-module.exports = unitsConverter;
+module.exports = unitsConverterService;

@@ -27,9 +27,9 @@ function indigoBatchSummary() {
 }
 
 IndigoBatchSummaryController.$inject =
-    ['$scope', 'registrationService', 'productBatchSummaryOperations', 'batchHelper'];
+    ['$scope', 'registrationService', 'productBatchSummaryOperations', 'batchHelperService'];
 
-function IndigoBatchSummaryController($scope, registrationService, productBatchSummaryOperations, batchHelper) {
+function IndigoBatchSummaryController($scope, registrationService, productBatchSummaryOperations, batchHelperService) {
     var vm = this;
 
     init();
@@ -44,11 +44,11 @@ function IndigoBatchSummaryController($scope, registrationService, productBatchS
             vm.columns = getDefaultColumns(vm.hasRegService);
         });
 
-        vm.hasCheckedRows = batchHelper.hasCheckedRow;
+        vm.hasCheckedRows = batchHelperService.hasCheckedRow;
         vm.registerBatches = registerBatches;
         vm.isBatchLoading = false;
         vm.onBatchOperationChanged = onBatchOperationChanged;
-        vm.onClose = batchHelper.close;
+        vm.onClose = batchHelperService.close;
         vm.onChangedVisibleColumn = onChangedVisibleColumn;
 
         bindEvents();
@@ -66,50 +66,50 @@ function IndigoBatchSummaryController($scope, registrationService, productBatchS
 
     function getDefaultColumns(hasRegService) {
         return [
-            batchHelper.columns.structure,
-            batchHelper.columns.nbkBatch,
-            updateColumnVisible(batchHelper.columns.registrationStatus, hasRegService),
-            batchHelper.columns.select,
-            batchHelper.columns.totalWeight,
-            batchHelper.columns.totalVolume,
-            batchHelper.columns.mol,
-            batchHelper.columns.theoWeight,
-            batchHelper.columns.theoMoles,
-            batchHelper.columns.yield,
-            batchHelper.columns.compoundState,
-            batchHelper.columns.saltCode,
-            batchHelper.columns.saltEq,
-            batchHelper.columns.purity,
-            batchHelper.columns.$$meltingPoint,
-            batchHelper.columns.molWeight,
-            batchHelper.columns.formula,
-            updateColumnVisible(batchHelper.columns.conversationalBatchNumber, hasRegService),
-            batchHelper.columns.virtualCompoundId,
-            batchHelper.columns.stereoisomer,
-            batchHelper.columns.source,
-            batchHelper.columns.sourceDetail,
-            batchHelper.columns.$$externalSupplier,
+            batchHelperService.columns.structure,
+            batchHelperService.columns.nbkBatch,
+            updateColumnVisible(batchHelperService.columns.registrationStatus, hasRegService),
+            batchHelperService.columns.select,
+            batchHelperService.columns.totalWeight,
+            batchHelperService.columns.totalVolume,
+            batchHelperService.columns.mol,
+            batchHelperService.columns.theoWeight,
+            batchHelperService.columns.theoMoles,
+            batchHelperService.columns.yield,
+            batchHelperService.columns.compoundState,
+            batchHelperService.columns.saltCode,
+            batchHelperService.columns.saltEq,
+            batchHelperService.columns.purity,
+            batchHelperService.columns.$$meltingPoint,
+            batchHelperService.columns.molWeight,
+            batchHelperService.columns.formula,
+            updateColumnVisible(batchHelperService.columns.conversationalBatchNumber, hasRegService),
+            batchHelperService.columns.virtualCompoundId,
+            batchHelperService.columns.stereoisomer,
+            batchHelperService.columns.source,
+            batchHelperService.columns.sourceDetail,
+            batchHelperService.columns.$$externalSupplier,
             getPrecursorColumn(),
-            batchHelper.columns.$$healthHazards,
-            batchHelper.columns.compoundProtection,
-            batchHelper.columns.structureComments,
-            updateColumnVisible(batchHelper.columns.registrationDate, hasRegService),
-            batchHelper.columns.$$residualSolvents,
-            batchHelper.columns.$$solubility,
-            batchHelper.columns.$$storageInstructions,
-            batchHelper.columns.$$handlingPrecautions,
-            batchHelper.columns.comments,
-            batchHelper.columns.$$batchType
+            batchHelperService.columns.$$healthHazards,
+            batchHelperService.columns.compoundProtection,
+            batchHelperService.columns.structureComments,
+            updateColumnVisible(batchHelperService.columns.registrationDate, hasRegService),
+            batchHelperService.columns.$$residualSolvents,
+            batchHelperService.columns.$$solubility,
+            batchHelperService.columns.$$storageInstructions,
+            batchHelperService.columns.$$handlingPrecautions,
+            batchHelperService.columns.comments,
+            batchHelperService.columns.$$batchType
         ];
     }
 
     function getPrecursorColumn() {
-        return _.extend({}, batchHelper.columns.precursors, {readonly: vm.isExistStoichTable});
+        return _.extend({}, batchHelperService.columns.precursors, {readonly: vm.isExistStoichTable});
     }
 
     function registerBatches() {
         vm.loading = vm.saveExperimentFn().then(function() {
-            return productBatchSummaryOperations.registerBatches(batchHelper.getCheckedBatches(vm.batches));
+            return productBatchSummaryOperations.registerBatches(batchHelperService.getCheckedBatches(vm.batches));
         });
     }
 

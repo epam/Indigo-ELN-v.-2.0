@@ -1,6 +1,6 @@
 /* @ngInject */
 function PermissionsController($scope, $uibModalInstance, permissionService, users, permissions,
-                                        permissionsConstant, notifyService, alertModal) {
+                                        permissionsConstant, notifyService, alertModalService) {
     var vm = this;
 
     init();
@@ -65,7 +65,7 @@ function PermissionsController($scope, $uibModalInstance, permissionService, use
             if (isRemovable) {
                 callback();
             } else {
-                alertModal.confirm(message, null, callback);
+                alertModalService.confirm(message, null, callback);
             }
         });
     }

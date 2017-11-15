@@ -13,9 +13,9 @@ function appNavbar() {
     };
 }
 
-NavbarController.$inject = ['$scope', '$state', 'principalService', 'authService', 'entitiesCache'];
+NavbarController.$inject = ['$scope', '$state', 'principalService', 'authService', 'entitiesCacheService'];
 
-function NavbarController($scope, $state, principalService, authService, entitiesCache) {
+function NavbarController($scope, $state, principalService, authService, entitiesCacheService) {
     var vm = this;
 
     vm.logout = logout;
@@ -29,13 +29,13 @@ function NavbarController($scope, $state, principalService, authService, entitie
         });
 
         $scope.$on('$destroy', function() {
-            entitiesCache.clearAll();
+            entitiesCacheService.clearAll();
         });
     }
 
     function logout() {
         authService.logout();
-        entitiesCache.clearAll();
+        entitiesCacheService.clearAll();
         $state.go('login');
     }
 

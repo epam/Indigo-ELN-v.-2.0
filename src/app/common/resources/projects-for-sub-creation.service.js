@@ -1,5 +1,5 @@
 /* @ngInject */
-function projectsForSubCreation($resource, apiUrl) {
+function projectsForSubCreationService($resource, apiUrl) {
     return $resource(apiUrl + 'projects/sub-creations', {}, {
         query: {
             method: 'GET', isArray: true
@@ -7,4 +7,4 @@ function projectsForSubCreation($resource, apiUrl) {
     });
 }
 
-module.exports = projectsForSubCreation;
+module.exports = projectsForSubCreationService;

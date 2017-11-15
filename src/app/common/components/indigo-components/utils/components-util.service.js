@@ -1,5 +1,5 @@
 /* @ngInject */
-function componentsUtilsFactory(principalService, typeComponents) {
+function componentsUtilService(principalService, typeOfComponents) {
     return {
         initComponents: initComponents,
         getComponentsFromTemplateContent: getComponentsFromTemplateContent
@@ -8,15 +8,15 @@ function componentsUtilsFactory(principalService, typeComponents) {
     function initComponents(components, componentTemplates) {
         var templates = _.keyBy(getComponentsFromTemplateContent(componentTemplates), 'field');
 
-        initExperimentDescription(components, templates[typeComponents.experimentDescription.field]);
-        initConceptDetails(components, templates[typeComponents.conceptDetails.field]);
-        initPreferredCompoundSummary(components, templates[typeComponents.preferredCompoundSummary.field]);
-        initPreferredCompoundDetails(components, templates[typeComponents.preferredCompoundDetails.field]);
-        initProductBatchDetails(components, templates[typeComponents.productBatchDetails.field]);
+        initExperimentDescription(components, templates[typeOfComponents.experimentDescription.field]);
+        initConceptDetails(components, templates[typeOfComponents.conceptDetails.field]);
+        initPreferredCompoundSummary(components, templates[typeOfComponents.preferredCompoundSummary.field]);
+        initPreferredCompoundDetails(components, templates[typeOfComponents.preferredCompoundDetails.field]);
+        initProductBatchDetails(components, templates[typeOfComponents.productBatchDetails.field]);
         initProductBatchSummary(components, _.find(templates, {isBatch: true}));
-        initStoichTable(components, templates[typeComponents.stoichTable.field]);
-        initReactionDetails(components, templates[typeComponents.reactionDetails.field]);
-        initReaction(components, templates[typeComponents.reaction.field]);
+        initStoichTable(components, templates[typeOfComponents.stoichTable.field]);
+        initReactionDetails(components, templates[typeOfComponents.reactionDetails.field]);
+        initReaction(components, templates[typeOfComponents.reaction.field]);
     }
 
     function getComponentsFromTemplateContent(componentTemplates) {
@@ -107,4 +107,4 @@ function componentsUtilsFactory(principalService, typeComponents) {
     }
 }
 
-module.exports = componentsUtilsFactory;
+module.exports = componentsUtilService;

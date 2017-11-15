@@ -1,6 +1,7 @@
+/* eslint no-shadow: "off"*/
 var template = require('./import-sdf-file.html');
 
-function importSdfFileDirective() {
+function importSdfFile() {
     return {
         restrict: 'E',
         require: ['^^indigoComponents', 'importSdfFile'],
@@ -41,4 +42,4 @@ function importSdfFileDirective() {
     }
 }
 
-module.exports = importSdfFileDirective;
+module.exports = importSdfFile;

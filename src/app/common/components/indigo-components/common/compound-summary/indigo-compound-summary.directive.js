@@ -27,9 +27,9 @@ function indigoCompoundSummary() {
     };
 }
 
-IndigoCompoundSummaryController.$inject = ['$scope', 'batchHelper'];
+IndigoCompoundSummaryController.$inject = ['$scope', 'batchHelperService'];
 
-function IndigoCompoundSummaryController($scope, batchHelper) {
+function IndigoCompoundSummaryController($scope, batchHelperService) {
     var vm = this;
 
     init();
@@ -37,12 +37,12 @@ function IndigoCompoundSummaryController($scope, batchHelper) {
     function init() {
         vm.model = vm.model || {};
         vm.columns = getDefaultColumns();
-        vm.hasCheckedRows = batchHelper.hasCheckedRow;
+        vm.hasCheckedRows = batchHelperService.hasCheckedRow;
         vm.vnv = angular.noop;
         vm.registerVC = angular.noop;
         vm.onBatchOperationChanged = onBatchOperationChanged;
         vm.isBatchLoading = false;
-        vm.onClose = batchHelper.close;
+        vm.onClose = batchHelperService.close;
         vm.onChangedVisibleColumn = onChangedVisibleColumn;
 
         bindEvents();
@@ -56,16 +56,16 @@ function IndigoCompoundSummaryController($scope, batchHelper) {
 
     function getDefaultColumns() {
         return [
-            batchHelper.columns.structure,
-            batchHelper.columns.nbkBatch,
-            batchHelper.columns.select,
-            batchHelper.columns.virtualCompoundId,
-            batchHelper.columns.molWeight,
-            batchHelper.columns.formula,
-            batchHelper.columns.stereoisomer,
-            batchHelper.columns.structureComments,
-            batchHelper.columns.saltCode,
-            batchHelper.columns.saltEq
+            batchHelperService.columns.structure,
+            batchHelperService.columns.nbkBatch,
+            batchHelperService.columns.select,
+            batchHelperService.columns.virtualCompoundId,
+            batchHelperService.columns.molWeight,
+            batchHelperService.columns.formula,
+            batchHelperService.columns.stereoisomer,
+            batchHelperService.columns.structureComments,
+            batchHelperService.columns.saltCode,
+            batchHelperService.columns.saltEq
         ];
     }
 

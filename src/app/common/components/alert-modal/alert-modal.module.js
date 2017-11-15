@@ -1,11 +1,11 @@
 var alertModalController = require('./alert-modal.controller');
-var alertModal = require('./alert-modal.service');
+var alertModalService = require('./alert-modal.service');
 
 module.exports = angular
-    .module('indigoeln.alertModal', [])
+    .module('indigoeln.alertModalService', [])
 
     .controller('AlertModalController', alertModalController)
 
-    .factory('alertModal', alertModal)
+    .factory('alertModalService', alertModalService)
 
     .name;

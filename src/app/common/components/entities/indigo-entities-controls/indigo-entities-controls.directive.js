@@ -17,10 +17,11 @@ function indigoEntitiesControls() {
     };
 }
 
-IndigoEntitiesControlsController.$inject = ['$state', 'entitiesBrowser', 'modalHelper', 'projectsForSubCreation',
-    'appRoles'];
+IndigoEntitiesControlsController.$inject = ['$state', 'entitiesBrowserService',
+    'modalHelperService', 'projectsForSubCreationService', 'appRoles'];
 
-function IndigoEntitiesControlsController($state, entitiesBrowser, modalHelper, projectsForSubCreation, appRoles) {
+function IndigoEntitiesControlsController($state, entitiesBrowserService, modalHelperService,
+                                          projectsForSubCreationService, appRoles) {
     var vm = this;
 
     $onInit();
@@ -48,13 +49,13 @@ function IndigoEntitiesControlsController($state, entitiesBrowser, modalHelper, 
         vm.createExperiment = createExperiment;
         vm.createNotebook = createNotebook;
 
-        entitiesBrowser.getTabs(function(tabs) {
+        entitiesBrowserService.getTabs(function(tabs) {
             vm.entities = tabs;
         });
     }
 
     function onTabClick(tab) {
-        entitiesBrowser.goToTab(tab);
+        entitiesBrowserService.goToTab(tab);
     }
 
     function openSearch() {
@@ -62,23 +63,23 @@ function IndigoEntitiesControlsController($state, entitiesBrowser, modalHelper, 
     }
 
     function canPrint() {
-        var actions = entitiesBrowser.getEntityActions();
+        var actions = entitiesBrowserService.getEntityActions();
 
         return actions && actions.print;
     }
 
     function print() {
-        entitiesBrowser.getEntityActions().print();
+        entitiesBrowserService.getEntityActions().print();
     }
 
     function canDuplicate() {
-        var actions = entitiesBrowser.getEntityActions();
+        var actions = entitiesBrowserService.getEntityActions();
 
         return actions && actions.duplicate;
     }
 
     function duplicate() {
-        entitiesBrowser.getEntityActions().duplicate();
+        entitiesBrowserService.getEntityActions().duplicate();
     }
 
     function onCloseTabClick($event, tab) {
@@ -94,7 +95,7 @@ function IndigoEntitiesControlsController($state, entitiesBrowser, modalHelper, 
             }
         };
 
-        modalHelper.openCreateNewExperimentModal(resolve).then(function(result) {
+        modalHelperService.openCreateNewExperimentModal(resolve).then(function(result) {
             $state.go('entities.experiment-detail', {
                 notebookId: result.notebookId,
                 projectId: result.projectId,
@@ -106,10 +107,10 @@ function IndigoEntitiesControlsController($state, entitiesBrowser, modalHelper, 
     function createNotebook() {
         var resolve = {
             parents: function() {
-                return projectsForSubCreation.query().$promise;
+                return projectsForSubCreationService.query().$promise;
             }
         };
-        modalHelper.openCreateNewNotebookModal(resolve).then(function(projectId) {
+        modalHelperService.openCreateNewNotebookModal(resolve).then(function(projectId) {
             $state.go('entities.notebook-new', {
                 parentId: projectId
             });

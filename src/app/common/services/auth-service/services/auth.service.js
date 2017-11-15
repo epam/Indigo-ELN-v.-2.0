@@ -1,7 +1,7 @@
 var authoritiesData = require('../../../../../assets/data/authorities.json');
 
 /* @ngInject */
-function authService($rootScope, $state, $q, principalService, authServerProvider, wsService, $log, $timeout) {
+function authService($rootScope, $state, $q, principalService, authSessionService, wsService, $log, $timeout) {
     var prolongTimeout;
 
     return {
@@ -13,7 +13,7 @@ function authService($rootScope, $state, $q, principalService, authServerProvide
     };
 
     function login(credentials) {
-        return authServerProvider.login(credentials).then(function(data) {
+        return authSessionService.login(credentials).then(function(data) {
             // retrieve the logged account information
             return principalService.checkIdentity(true).then(function() {
                 return data;
@@ -30,12 +30,12 @@ function authService($rootScope, $state, $q, principalService, authServerProvide
             clearTimeout(prolongTimeout);
         }
         prolongTimeout = $timeout(function() {
-            authServerProvider.prolong();
+            authSessionService.prolong();
         }, 5000);
     }
 
     function logout() {
-        authServerProvider.logout();
+        authSessionService.logout();
         principalService.authenticate(null);
         // Reset state memory
         $rootScope.previousStateName = undefined;

@@ -28,9 +28,11 @@ function indigoPreferredCompoundDetails() {
     };
 }
 
-IndigoPreferredCompoundDetailsController.$inject = ['$scope', 'entitiesBrowser', 'appValues', 'batchHelper'];
+IndigoPreferredCompoundDetailsController.$inject = ['$scope', 'entitiesBrowserService',
+    'appValuesService', 'batchHelperService'];
 
-function IndigoPreferredCompoundDetailsController($scope, entitiesBrowser, appValues, batchHelper) {
+function IndigoPreferredCompoundDetailsController($scope, entitiesBrowserService,
+                                                  appValuesService, batchHelperService) {
     var vm = this;
 
     init();
@@ -40,10 +42,10 @@ function IndigoPreferredCompoundDetailsController($scope, entitiesBrowser, appVa
         vm.model = vm.model || {};
         vm.showStructure = false;
         vm.showSummary = false;
-        vm.notebookId = entitiesBrowser.getActiveTab().$$title;
-        vm.saltCodeValues = appValues.getSaltCodeValues();
+        vm.notebookId = entitiesBrowserService.getActiveTab().$$title;
+        vm.saltCodeValues = appValuesService.getSaltCodeValues();
         vm.selectControl = {};
-        vm.hasCheckedRows = batchHelper.hasCheckedRow;
+        vm.hasCheckedRows = batchHelperService.hasCheckedRow;
         vm.selectBatch = selectBatch;
         vm.canEditSaltEq = canEditSaltEq;
         vm.onBatchOperationChanged = onBatchOperationChanged;

@@ -1,13 +1,13 @@
 var autorecovery = require('./autorecovery.directive');
-var autorecoveryCache = require('./autorecovery.service');
-var autorecoveryHelper = require('./autorecovery-helper.service');
+var autorecoveryCacheService = require('./autorecovery.service');
+var autorecoveryHelperService = require('./autorecovery-helper.service');
 
 module.exports = angular
     .module('indigoeln.autorecovery', [])
 
     .directive('autorecovery', autorecovery)
 
-    .factory('autorecoveryCache', autorecoveryCache)
-    .factory('autorecoveryHelper', autorecoveryHelper)
+    .factory('autorecoveryCacheService', autorecoveryCacheService)
+    .factory('autorecoveryHelperService', autorecoveryHelperService)
 
     .name;

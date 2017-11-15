@@ -1,4 +1,4 @@
-function tabKeyUtils() {
+function tabKeyService() {
     return {
         getTabKeyFromTab: getTabKeyFromTab,
         getTabKeyFromName: getTabKeyFromName,
@@ -38,4 +38,4 @@ function tabKeyUtils() {
     }
 }
 
-module.exports = tabKeyUtils;
+module.exports = tabKeyService;

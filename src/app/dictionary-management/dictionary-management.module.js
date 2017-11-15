@@ -1,6 +1,7 @@
 var dictionaryManagementConfig = require('./dictionary-management.config');
 var DictionaryManagementController = require('./component/dictionary-management.controller');
-var DictionaryManagementDeleteDialogController = require('./delete-dialog/dictionary-management-delete-dialog.controller');
+var DictionaryManagementDeleteDialogController
+    = require('./delete-dialog/dictionary-management-delete-dialog.controller');
 var DictionaryManagementDeleteWordDialogController =
     require('./delete-word-dialog/dictionary-management-delete-word-dialog.controller');
 

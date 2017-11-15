@@ -11,7 +11,7 @@ var SetInputValueController = require('./input/set-input-value.controller');
 var SetSelectValueController = require('./select/set-select-value.controller');
 var SetUnitValueController = require('./unit/set-unit-value.controller');
 
-var inputService = require('./input/set-input.service');
+var setInputService = require('./input/set-input.service');
 var scalarService = require('./scalar/scalar.service');
 var selectService = require('./select/select.service');
 var unitService = require('./unit/unit.service');
@@ -33,7 +33,7 @@ module.exports = angular
     .controller('SetSelectValueController', SetSelectValueController)
     .controller('SetUnitValueController', SetUnitValueController)
 
-    .factory('inputService', inputService)
+    .factory('setInputService', setInputService)
     .factory('scalarService', scalarService)
     .factory('selectService', selectService)
     .factory('unitService', unitService)

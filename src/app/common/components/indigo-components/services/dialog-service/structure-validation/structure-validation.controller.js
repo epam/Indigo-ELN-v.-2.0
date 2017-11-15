@@ -1,6 +1,6 @@
-StructureValidationController.$inject = ['$uibModalInstance', 'batches', 'searchQuery', 'appValues'];
+StructureValidationController.$inject = ['$uibModalInstance', 'batches', 'searchQuery', 'appValuesService'];
 
-function StructureValidationController($uibModalInstance, batches, searchQuery, appValues) {
+function StructureValidationController($uibModalInstance, batches, searchQuery, appValuesService) {
     var vm = this;
 
     init();
@@ -9,7 +9,7 @@ function StructureValidationController($uibModalInstance, batches, searchQuery, 
         vm.batches = batches;
         vm.searchQuery = searchQuery;
         vm.selectedBatch = null;
-        vm.defaultSaltCodeName = appValues.getDefaultSaltCode().name;
+        vm.defaultSaltCodeName = appValuesService.getDefaultSaltCode().name;
 
         vm.save = save;
         vm.cancel = cancel;

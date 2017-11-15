@@ -1,6 +1,7 @@
+/* eslint no-shadow: "off"*/
 var template = require('./export-sdf-file.html');
 
-function exportSdfFileDirective() {
+function exportSdfFile() {
     return {
         restrict: 'E',
         require: ['^^indigoComponents', 'exportSdfFile'],
@@ -34,4 +35,4 @@ function exportSdfFileDirective() {
     }
 }
 
-module.exports = exportSdfFileDirective;
+module.exports = exportSdfFile;

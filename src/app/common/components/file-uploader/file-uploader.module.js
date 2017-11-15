@@ -6,7 +6,7 @@ var SingleFileUploaderController = require('./single-file-uploader/single-file-u
 var indigoFileUploader = require('./file-uploader/indigo-file-uploader.directive');
 var experimentFileUploaderService = require('./resources/experiment-file-uploader.service');
 var projectFileUploaderService = require('./resources/project-file-uploader.service');
-var fileUploaderCash = require('./services/file-uploader.service');
+var fileUploaderService = require('./services/file-uploader.service');
 
 var dependencies = [];
 
@@ -22,6 +22,6 @@ module.exports = angular
 
     .factory('experimentFileUploaderService', experimentFileUploaderService)
     .factory('projectFileUploaderService', projectFileUploaderService)
-    .factory('fileUploaderCash', fileUploaderCash)
+    .factory('fileUploaderService', fileUploaderService)
 
     .name;

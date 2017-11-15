@@ -1,10 +1,10 @@
-function unit(unitsConverter) {
+function unit(unitsConverterService) {
     return function(value, to) {
         if (!value) {
             return value;
         }
 
-        return +unitsConverter.convert(value).as(to).val();
+        return +unitsConverterService.convert(value).as(to).val();
     };
 }
 

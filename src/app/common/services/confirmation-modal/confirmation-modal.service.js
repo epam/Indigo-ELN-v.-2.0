@@ -1,7 +1,7 @@
 var template = require('./confirmation-modal.html');
 
 /* @ngInject */
-function confirmationModal($uibModal, $q) {
+function confirmationModalService($uibModal, $q) {
     return {
         open: open,
         openEntityVersionsConflictConfirm: openEntityVersionsConflictConfirm
@@ -46,4 +46,4 @@ function confirmationModal($uibModal, $q) {
     }
 }
 
-module.exports = confirmationModal;
+module.exports = confirmationModalService;

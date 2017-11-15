@@ -1,5 +1,5 @@
 /* @ngInject */
-function signatureTemplates($resource, apiUrl) {
+function signatureTemplatesService($resource, apiUrl) {
     return $resource(apiUrl + 'signature/template', {},
         {
             query: {
@@ -9,4 +9,4 @@ function signatureTemplates($resource, apiUrl) {
     );
 }
 
-module.exports = signatureTemplates;
+module.exports = signatureTemplatesService;

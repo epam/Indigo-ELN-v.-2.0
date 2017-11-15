@@ -1,5 +1,5 @@
 /* @ngInject */
-function TemplateDetailController($stateParams, templateService, componentsUtils) {
+function TemplateDetailController($stateParams, templateService, componentsUtilService) {
     var vm = this;
 
     vm.load = load;
@@ -16,7 +16,7 @@ function TemplateDetailController($stateParams, templateService, componentsUtils
             },
             function(result) {
                 vm.template = result;
-                componentsUtils.initComponents(vm.model, vm.template.templateContent);
+                componentsUtilService.initComponents(vm.model, vm.template.templateContent);
             }
         );
     }

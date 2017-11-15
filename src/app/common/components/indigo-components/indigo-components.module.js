@@ -31,15 +31,15 @@ var StructureValidationController =
 var SearchReagentsController = require('./common/search-reagents/search-reagents.controller');
 var SomethingDetailsController = require('./common/something-details/something-details.controller');
 
-var typeComponents = require('./constants/components.constant');
+var typeOfComponents = require('./constants/type-of-components.constant');
 var searchReagentsConstant = require('./common/search-reagents/search-reagents.constant');
 
-var productBatchSummaryCache = require('./services/product-batch-summary-cache.service');
+var productBatchSummaryCacheService = require('./services/product-batch-summary-cache.service');
 var productBatchSummaryOperations = require('./services/product-batch-summary-operations.service');
-var batchHelper = require('./services/batch-helper.factory');
-var columnActions = require('./services/column-actions.factory');
+var batchHelperService = require('./services/batch-helper.service');
+var columnActionsService = require('./services/column-actions.service');
 var dialogService = require('./services/dialog-service/dialog.service');
-var componentsUtils = require('./utils/components-utils.service');
+var componentsUtilService = require('./utils/components-util.service');
 
 var run = require('./indigo-components.run');
 
@@ -76,15 +76,15 @@ module.exports = angular
     .controller('SearchReagentsController', SearchReagentsController)
     .controller('SomethingDetailsController', SomethingDetailsController)
 
-    .constant('typeComponents', typeComponents)
+    .constant('typeOfComponents', typeOfComponents)
     .constant('searchReagentsConstant', searchReagentsConstant)
 
-    .factory('productBatchSummaryCache', productBatchSummaryCache)
+    .factory('productBatchSummaryCacheService', productBatchSummaryCacheService)
     .factory('productBatchSummaryOperations', productBatchSummaryOperations)
-    .factory('batchHelper', batchHelper)
-    .factory('columnActions', columnActions)
+    .factory('batchHelperService', batchHelperService)
+    .factory('columnActionsService', columnActionsService)
     .factory('dialogService', dialogService)
-    .factory('componentsUtils', componentsUtils)
+    .factory('componentsUtilService', componentsUtilService)
 
     .run(run)
 

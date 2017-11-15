@@ -1,7 +1,7 @@
 var indigoEditor = require('./editor/indigo-structure-editor.directive');
 var indigoStructureScheme = require('./scheme/indigo-structure-scheme.directive');
 
-var editorUtils = require('./editor/structure-editor.service');
+var structureEditorService = require('./editor/structure-editor.service');
 
 var StructureEditorModalController = require('./structure-editor-modal/structure-editor-modal.controller');
 var StructureExportModalController = require('./export/structure-export-modal.controller');
@@ -20,6 +20,6 @@ module.exports = angular
     .controller('StructureImportModalController', StructureImportModalController)
     .controller('StructureSchemeController', StructureSchemeController)
 
-    .factory('editorUtils', editorUtils)
+    .factory('structureEditorService', structureEditorService)
 
     .name;

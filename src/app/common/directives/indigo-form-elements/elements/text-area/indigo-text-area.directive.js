@@ -1,8 +1,8 @@
 var template = require('./text-area.html');
 
-indigoTextArea.$inject = ['formUtils'];
+indigoTextArea.$inject = ['formUtilsService'];
 
-function indigoTextArea(formUtils) {
+function indigoTextArea(formUtilsService) {
     return {
         restrict: 'E',
         replace: true,
@@ -22,7 +22,7 @@ function indigoTextArea(formUtils) {
 
     /* @ngInject */
     function compile(tElement, tAttrs) {
-        formUtils.addDirectivesByAttrs(tAttrs, tElement.find('textarea'));
+        formUtilsService.addDirectivesByAttrs(tAttrs, tElement.find('textarea'));
 
         if (tAttrs.indigoTrim) {
             tElement.find('textarea').attr('ng-trim', tAttrs.indigoTrim);

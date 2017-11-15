@@ -1,5 +1,5 @@
 /* @ngInject */
-function signatureDocument($resource, apiUrl) {
+function signatureDocumentService($resource, apiUrl) {
     return $resource(apiUrl + 'signature/document', {},
         {
             upload: {
@@ -9,5 +9,5 @@ function signatureDocument($resource, apiUrl) {
     );
 }
 
-module.exports = signatureDocument;
+module.exports = signatureDocumentService;
 

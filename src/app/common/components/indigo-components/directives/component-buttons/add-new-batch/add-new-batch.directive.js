@@ -1,6 +1,7 @@
+/* eslint no-shadow: "off"*/
 var template = require('./add-new-batch.html');
 
-function addNewBatchDirective() {
+function addNewBatch() {
     return {
         restrict: 'E',
         require: ['^^indigoComponents', 'addNewBatch'],
@@ -44,4 +45,4 @@ function AddNewBatchController(productBatchSummaryOperations) {
     }
 }
 
-module.exports = addNewBatchDirective;
+module.exports = addNewBatch;
