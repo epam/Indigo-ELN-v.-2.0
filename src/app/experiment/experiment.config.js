@@ -54,7 +54,7 @@ function experimentConfig($stateProvider, permissionsConfig, permissionViewConfi
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
                     template: experimentDeleteDialogTemplate,
-                    controller: 'ExperimentDeleteController',
+                    controller: 'ExperimentDeleteDialogController',
                     controllerAs: 'vm',
                     size: 'md',
                     resolve: {

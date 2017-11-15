@@ -1,5 +1,5 @@
 /* @ngInject */
-function ExperimentDeleteController($uibModalInstance, $stateParams, entity, experimentService) {
+function ExperimentDeleteDialogController($uibModalInstance, $stateParams, entity, experimentService) {
     var vm = this;
     vm.experiment = entity;
 
@@ -24,4 +24,4 @@ function ExperimentDeleteController($uibModalInstance, $stateParams, entity, exp
     }
 }
 
-module.exports = ExperimentDeleteController;
+module.exports = ExperimentDeleteDialogController;

@@ -1,5 +1,5 @@
 /* @ngInject */
-function DictionaryManagementDeleteController($uibModalInstance, dictionaryService, entity) {
+function DictionaryManagementDeleteDialogController($uibModalInstance, dictionaryService, entity) {
     var vm = this;
 
     vm.dismiss = dismiss;
@@ -24,4 +24,4 @@ function DictionaryManagementDeleteController($uibModalInstance, dictionaryServi
     }
 }
 
-module.exports = DictionaryManagementDeleteController;
+module.exports = DictionaryManagementDeleteDialogController;

@@ -24,7 +24,7 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
             views: {
                 tabContent: {
                     template: template,
-                    controller: 'NotebookDialogController',
+                    controller: 'NotebookDetailController',
                     controllerAs: 'vm'
                 }
             },
@@ -72,7 +72,7 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
             views: {
                 tabContent: {
                     template: template,
-                    controller: 'NotebookDialogController',
+                    controller: 'NotebookDetailController',
                     controllerAs: 'vm'
                 }
             },

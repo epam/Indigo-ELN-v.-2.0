@@ -1,5 +1,5 @@
 /* @ngInject */
-function NotebookDialogController($scope, $state, notebookService, notifyService, permissionService,
+function NotebookDetailController($scope, $state, notebookService, notifyService, permissionService,
                                   modalHelper, experimentUtil, pageInfo, entitiesBrowser, $timeout, $stateParams,
                                   tabKeyUtils, autorecoveryHelper, notebookSummaryExperiments, $q, entitiesCache,
                                   autorecoveryCache, confirmationModal, entityHelper) {
@@ -279,4 +279,4 @@ function NotebookDialogController($scope, $state, notebookService, notifyService
     }
 }
 
-module.exports = NotebookDialogController;
+module.exports = NotebookDetailController;

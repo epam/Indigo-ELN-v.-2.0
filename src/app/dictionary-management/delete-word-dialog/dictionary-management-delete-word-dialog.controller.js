@@ -1,5 +1,5 @@
 /* @ngInject */
-function DictionaryManagementDeleteWordController($uibModalInstance) {
+function DictionaryManagementDeleteWordDialogController($uibModalInstance) {
     var vm = this;
 
     vm.dismiss = dismiss;
@@ -14,4 +14,4 @@ function DictionaryManagementDeleteWordController($uibModalInstance) {
     }
 }
 
-module.exports = DictionaryManagementDeleteWordController;
+module.exports = DictionaryManagementDeleteWordDialogController;
