@@ -20,6 +20,8 @@ import static com.epam.indigoeln.core.chemistry.experiment.common.units.UnitType
 
 /**
  * Service for stoichiometry calculations
+ *
+ * @author Elena Polyakova
  */
 @Service
 public class StoicCalculationService {
@@ -295,6 +297,12 @@ public class StoicCalculationService {
         return result;
     }
 
+    /**
+     * Calculates batch from product batch summary table
+     *
+     * @param productTableDTO Batch from product table
+     * @return Calculated batch
+     */
     public BasicBatchModel calculateProductBatch(ProductTableDTO productTableDTO) {
         ProductCalculator productCalculator = new ProductCalculator();
         BasicBatchModel rawBatch = productTableDTO.getProductBatch();
@@ -308,6 +316,12 @@ public class StoicCalculationService {
         return convertedBatch;
     }
 
+    /**
+     * Calculate batch amounts
+     *
+     * @param productTableDTO Batch from product table
+     * @return Calculated batch
+     */
     public BasicBatchModel recalculateBatchAmounts(ProductTableDTO productTableDTO) {
         BasicBatchModel rawBatch = productTableDTO.getProductBatch();
         ProductBatchModel productBatch = createProductBatchModelForCalculation(rawBatch);

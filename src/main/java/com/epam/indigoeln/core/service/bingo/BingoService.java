@@ -29,7 +29,7 @@ import java.util.Optional;
  * The BingoService provides a number of methods for
  * data manipulation in BingoDB
  *
- * @author  Vladislav Alekseev
+ * @author Vladislav Alekseev
  */
 @Service
 public class BingoService {
@@ -45,6 +45,7 @@ public class BingoService {
 
     /**
      * Returns chemical structure of molecule by id from BingoDB
+     *
      * @param id The chemical structure's id
      * @return a non-empty string representation of chemical structure if It's exist
      */
@@ -64,6 +65,7 @@ public class BingoService {
 
     /**
      * Inserts chemical structure of molecule to BingoDB
+     *
      * @param s String representation of chemical structure
      * @return a non-empty string representation of chemical structure
      * if insert was successful, otherwise it returns empty string
@@ -84,8 +86,9 @@ public class BingoService {
 
     /**
      * Updates chemical structure of molecule in BingoDB
+     *
      * @param id The chemical structure's id
-     * @param s New string representation of chemical structure
+     * @param s  New string representation of chemical structure
      * @return updated string representation of chemical structure
      * if update was successful, otherwise it returns empty string
      */
@@ -105,6 +108,7 @@ public class BingoService {
 
     /**
      * Deletes chemical structure of molecule by id
+     *
      * @param id The chemical structure's id
      */
     public void delete(String id) {
@@ -119,8 +123,9 @@ public class BingoService {
 
     /**
      * Searches for exact molecule
+     *
      * @param molecule Molecule structure to search for
-     * @param options Search options
+     * @param options  Search options
      * @return The list of string molecule's representations
      * if search was successful, otherwise it returns empty list
      */
@@ -136,8 +141,9 @@ public class BingoService {
 
     /**
      * Searches for molecule by substructure
+     *
      * @param molecule Molecule substructure to search for
-     * @param options Search options
+     * @param options  Search options
      * @return The list of string molecule's representations
      * if search was successful, otherwise it returns empty list
      */
@@ -153,10 +159,11 @@ public class BingoService {
 
     /**
      * Searches for molecule by similarity
+     *
      * @param molecule Molecule substructure to search for
-     * @param min Min similarity
-     * @param max Max similarity
-     * @param metric Search options
+     * @param min      Min similarity
+     * @param max      Max similarity
+     * @param metric   Search options
      * @return The list of string molecule's representations
      * if search was successful, otherwise it returns empty list
      */
@@ -172,6 +179,7 @@ public class BingoService {
 
     /**
      * Searches for molecule by formula
+     *
      * @param formula Molecule formula to search for
      * @param options Search options
      * @return The list of string molecule's representations
@@ -191,8 +199,9 @@ public class BingoService {
 
     /**
      * Searches for exact reaction
+     *
      * @param reaction Reaction structure to search for
-     * @param options Search options
+     * @param options  Search options
      * @return The list of string reaction's representations
      * if search was successful, otherwise it returns empty list
      */
@@ -208,8 +217,9 @@ public class BingoService {
 
     /**
      * Searches for reaction by substructure
+     *
      * @param reaction Reaction substructure to search for
-     * @param options Search options
+     * @param options  Search options
      * @return The list of string reaction's representations
      * if search was successful, otherwise it returns empty list
      */
@@ -225,10 +235,11 @@ public class BingoService {
 
     /**
      * Searches for reaction by similarity
+     *
      * @param reaction Reaction substructure to search for
-     * @param min Min similarity
-     * @param max Max similarity
-     * @param metric Search options
+     * @param min      Min similarity
+     * @param max      Max similarity
+     * @param metric   Search options
      * @return The list of string reaction's representations
      * if search was successful, otherwise it returns empty list
      */
@@ -244,6 +255,7 @@ public class BingoService {
 
     /**
      * Searches for reaction by formula
+     *
      * @param formula Reaction formula to search for
      * @param options Search options
      * @return The list of string reaction's representations
