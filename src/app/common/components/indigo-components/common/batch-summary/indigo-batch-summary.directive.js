@@ -26,9 +26,9 @@ function indigoBatchSummary() {
     };
 }
 
-IndigoBatchSummaryController.$inject = ['$scope', 'registrationService', 'batchHelperService'];
+IndigoBatchSummaryController.$inject = ['$scope', 'registrationUtilService', 'batchHelperService'];
 
-function IndigoBatchSummaryController($scope, registrationService, batchHelperService) {
+function IndigoBatchSummaryController($scope, registrationUtilService, batchHelperService) {
     var vm = this;
 
     init();
@@ -36,7 +36,7 @@ function IndigoBatchSummaryController($scope, registrationService, batchHelperSe
     function init() {
         vm.loading = false;
 
-        registrationService.hasRegistrationService().then(function(hasRegService) {
+        registrationUtilService.hasRegistrationService().then(function(hasRegService) {
             vm.hasRegService = hasRegService;
 
             vm.columns = getDefaultColumns(vm.hasRegService);

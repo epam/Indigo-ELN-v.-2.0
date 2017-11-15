@@ -1,3 +1,7 @@
 var prettyBytes = require('pretty-bytes');
 
-module.exports = prettyBytes;
+function prettyBytesFilter() {
+    return prettyBytes;
+}
+
+module.exports = prettyBytesFilter;
