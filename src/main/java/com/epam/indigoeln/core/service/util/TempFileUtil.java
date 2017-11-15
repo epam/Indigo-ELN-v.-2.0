@@ -10,6 +10,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Util class to work with temporary files
+ */
 public class TempFileUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TempFileUtil.class);
@@ -25,9 +28,16 @@ public class TempFileUtil {
             return fileName;
         }
 
-        return String.format("%s%s", TEMP_FILE_PREFIX, fileName);
+        return TEMP_FILE_PREFIX + fileName;
     }
 
+    /**
+     * Saves fileData to file in the temp directory.
+     *
+     * @param fileData data to save
+     * @param fileName name of file to create
+     * @return created file
+     */
     public static File saveToTempDirectory(byte[] fileData, String fileName) {
         String prefixedFileName = getFileNameWithPrefix(fileName);
 
