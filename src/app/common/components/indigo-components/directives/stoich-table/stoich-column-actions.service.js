@@ -1,8 +1,8 @@
 stoichColumnActions.$inject = ['registrationService', 'calculationService', '$q', 'appUnits',
-    'dictionaryService', 'sdImportHelperService', 'dialogService', 'searchService', 'notifyService'];
+    'dictionaryService', 'sdImportHelper', 'dialogService', 'searchService', 'notifyService'];
 
 function stoichColumnActions(registrationService, calculationService, $q, appUnits, dictionaryService,
-                             sdImportHelperService, dialogService, searchService, notifyService) {
+                             sdImportHelper, dialogService, searchService, notifyService) {
     return {
         fetchBatchByCompoundId: fetchBatchByCompoundId,
         cleanReactant: cleanReactant,
@@ -52,7 +52,7 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
                             molfile: c.structure
                         },
                         formula: c.formula,
-                        stereoisomer: sdImportHelperService.getWord(
+                        stereoisomer: sdImportHelper.getWord(
                             'Stereoisomer Code',
                             'name',
                             c.stereoisomerCode,
