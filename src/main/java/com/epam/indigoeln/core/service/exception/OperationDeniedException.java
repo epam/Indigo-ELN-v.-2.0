@@ -2,9 +2,12 @@ package com.epam.indigoeln.core.service.exception;
 
 import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
 
+/**
+ * Custom exception, which displays that operation was denied.
+ */
 public class OperationDeniedException extends CustomParametrizedException {
 
-    public OperationDeniedException(String message, String... params) {
+    private OperationDeniedException(String message, String... params) {
         super(message, params);
     }
 

@@ -5,6 +5,8 @@ import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
 
 /**
  * Custom exception, which displays that File not found.
+ *
+ * @author Timofey Zubkov
  */
 public class FileNotFoundException extends CustomParametrizedException {
 
