@@ -141,8 +141,11 @@ public class CalculationService {
         float saltWeight = Optional.ofNullable(saltMetadata.get(SALT_WEIGHT)).map(Float::valueOf).orElse(0.0f);
         float molecularWeightCalculated = molecularWeightOriginal + saltEq * saltWeight;
 
+        String image = getStructureWithImage(molecule).getImageBase64();
+
         result.put("name", handle.name());
         result.put("molecule", molecule);
+        result.put("image", image);
         result.put("molecularFormula", handle.grossFormula());
         result.put("molecularWeightOriginal", String.valueOf(molecularWeightOriginal));
         result.put("exactMolecularWeight", String.valueOf(handle.monoisotopicMass()));
