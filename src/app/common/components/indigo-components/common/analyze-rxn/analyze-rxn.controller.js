@@ -9,40 +9,55 @@ function AnalyzeRxnController($uibModalInstance, reactants, searchService, appVa
     vm.search = search;
     vm.cancel = cancel;
 
-    init();
+    $onInit();
 
-    function init() {
+    function $onInit() {
         vm.model = getDefaultModel();
-        vm.reactants = reactants;
+        vm.tabs = buildTabs();
+        vm.selectedReactants = [];
 
-        vm.tabs = _.map(vm.reactants, function(reactant) {
+        vm.onSelected = onSelected;
+    }
+
+    function onSelected(tab, item) {
+        tab.selectedReactant = item;
+
+        vm.selectedReactants = buildReactantsFromSelected();
+    }
+
+    function buildTabs() {
+        return _.map(reactants, function(reactant, id) {
             return {
-                formula: reactant.formula, searchResult: [], selectedReactant: null
+                formula: reactant.formula,
+                searchResult: [],
+                selectedReactant: null,
+                id: id
             };
         });
     }
 
     function addToStoichTable() {
-        onStoichRowsChanged(stoichColumnActions.cleanReactants(vm.model.selectedReactants));
+        onStoichRowsChanged(vm.selectedReactants);
+    }
+
+    function buildReactantsFromSelected() {
+        return _.map(_.filter(vm.tabs, 'selectedReactant'), function(tab) {
+            return stoichColumnActions.cleanReactant(_.extend(angular.copy(reactants[tab.id]), tab.selectedReactant));
+        });
     }
 
     function updateStoicAndExit() {
-        var result = angular.copy(vm.reactants);
-        _.each(vm.model.selectedReactants, function(knownReactant) {
-            _.extend(_.find(result, {
-                formula: knownReactant.formula
-            }), knownReactant);
-        });
-        onStoichRowsChanged(stoichColumnActions.cleanReactants(result));
+        onStoichRowsChanged(buildReactantsFromSelected());
         $uibModalInstance.close({});
     }
 
     function search() {
         vm.loading = true;
         $q.all(_.map(vm.tabs, function(tab) {
-            return getSearchResult(tab.formula).then(function(searchResult) {
-                tab.searchResult = responseCallback(searchResult);
-            });
+            return getSearchResult(tab.formula)
+                .then(function(searchResult) {
+                    tab.searchResult = responseCallback(searchResult);
+                });
         })).finally(function() {
             vm.loading = false;
             vm.isSearchCompleted = true;

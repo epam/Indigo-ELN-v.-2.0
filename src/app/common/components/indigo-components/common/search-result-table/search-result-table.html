@@ -7,11 +7,12 @@
         <div class="t-item t-head" i-translate="CHEMICAL_NAME"></div>
         <div class="t-item t-head" i-translate="COMPOUND_ID"></div>
     </div>
-    <div class="search-table-body">
-        <div
-                ng-repeat="item in vm.indigoTableContent | filter : vm.indigoTableFilter as filteredTableContent track by $index"
+    <div class="search-table-body" ng-form="$id">
+        <div ng-repeat="item in vm.indigoTableContent | filter
+            : vm.indigoTableFilter as filteredTableContent track by $index"
              class="search-table-wrap">
-            <div class="search-table-row" ng-class="{'search-table-row-highlight':item.$$isSelected}"
+            <div class="search-table-row"
+                 ng-class="{'search-table-row-highlight':item.$$isSelected || vm.selectedReactant === item}"
                  ng-click="item.$$isCollapsed = !item.$$isCollapsed">
                 <a class="t-item">
                     <span ng-class="{'fa fa-angle-right':item.$$isCollapsed,
@@ -19,12 +20,15 @@
                     </span>
                 </a>
                 <div class="t-item" ng-click="$event.stopPropagation()">
-                    <indigo-checkbox ng-if="!vm.indigoSingleItemPerTab"
-                                     class="checkbox-inline" indigo-model="item.$$isSelected"
+                    <indigo-checkbox ng-if="::vm.isMultiple"
+                                     class="checkbox-inline"
+                                     indigo-model="item.$$isSelected"
                                      indigo-change="vm.onSelectItems(filteredTableContent)"></indigo-checkbox>
-                    <indigo-checkbox ng-if="vm.indigoSingleItemPerTab"
-                                     class="checkbox-inline" indigo-model="item.$$isSelected"
-                                     indigo-change="vm.selectSingleItemtPerTab(vm.indigoTab, item, $index, !item.$$isSelected)"></indigo-checkbox>
+                    <simple-radio ng-if="::!vm.isMultiple">
+                        <input name="reactantSelected"
+                               ng-click="vm.selectSingleItem(item);"
+                               ng-checked="vm.selectedReactant === item">
+                    </simple-radio>
                 </div>
                 <div class="t-item" ng-bind="item.molWeight.value | round"></div>
                 <div class="t-item" ng-bind="item.formula"></div>

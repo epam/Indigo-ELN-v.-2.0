@@ -80,7 +80,7 @@ function round(stoichTableCache, calculationService, unitsConverter) {
         var sourceBatch = row;
         // round for mol depends on entered weight/volume precision
         if (column.id === 'mol' && column.isIntended) {
-            sourceBatch = calculationService.findLimiting(stoichTableCache.getStoicTable());
+            sourceBatch = calculationService.findLimiting(stoichTableCache.getStoicTable().reactants);
         }
 
         var weightOrVolume = angular.copy(sourceBatch.weight || sourceBatch.volume);

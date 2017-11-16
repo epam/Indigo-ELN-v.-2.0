@@ -28,6 +28,7 @@
                 <div class="m-b20">
                     <indigo-search-result-table indigo-table-content="vm.myReagentList"
                                                 indigo-table-filter="vm.filterMyReagents"
+                                                is-multiple="true"
                                                 indigo-editable-info="true"></indigo-search-result-table>
                 </div>
                 <div class="btn-group pull-right">
@@ -510,6 +511,7 @@
                     <div class="m-b20">
                         <indigo-search-result-table indigo-table-content="vm.searchResults"
                                                     indigo-editable-info="false"
+                                                    is-multiple="true"
                                                     on-change-selected-items="vm.selectedItems = items"></indigo-search-result-table>
                     </div>
                     <div class="btn-group pull-right">

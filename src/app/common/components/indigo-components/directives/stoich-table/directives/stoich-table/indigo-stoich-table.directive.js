@@ -70,13 +70,13 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     }
 
     function appendRow() {
-        var reactant = calculationService.createBatch(vm.componentData);
+        var reactant = calculationService.createBatch(vm.componentData, false);
         addStoicReactant(reactant);
     }
 
     function removeRow() {
-        setStoicReactants(_.without(getStoicReactants(), vm.selectedRow));
-        updateReactants(vm.componentData.reactants);
+        setStoicReactants(_.without(vm.componentData.reactants, vm.selectedRow));
+        calculationService.recalculateStoich();
         vm.onChanged();
     }
 
@@ -85,12 +85,12 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     }
 
     function noReactantsInStoic() {
-        return getReactantsWithMolfile(getStoicReactants()).length === 0;
+        return getReactantsWithMolfile(vm.componentData.reactants).length === 0;
     }
 
     function analyzeRxn() {
-        getMissingReactionReactantsInStoic(vm.infoReactants).then(function(batchesToSearch) {
-            if (batchesToSearch && batchesToSearch.length) {
+        getMissingReactionReactantsInStoic(vm.infoReactants).then(function(reactantsToSearch) {
+            if (!_.isEmpty(reactantsToSearch)) {
                 $uibModal.open({
                     animation: true,
                     size: 'lg',
@@ -99,23 +99,15 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
                     template: analyzeRxnTemplate,
                     resolve: {
                         reactants: function() {
-                            var reactants = _.map(batchesToSearch, function(batch) {
-                                var batchCopy = angular.copy(batch);
-                                calculationService.getImageForStructure(
-                                    batchCopy.structure.molfile,
-                                    'molecule',
-                                    function(image) {
-                                        batchCopy.structure.image = image;
-                                    }
-                                );
-
-                                return batchCopy;
-                            });
-
-                            return reactants.length ? reactants : vm.infoReactants;
+                            return reactantsToSearch;
                         },
                         onStoichRowsChanged: function() {
-                            return updateReactants;
+                            return function(reactants) {
+                                _.forEach(reactants, function(reactant) {
+                                    vm.componentData.reactants.push(angular.copy(reactant));
+                                });
+                                checkLimiting();
+                            };
                         }
                     }
                 });
@@ -125,9 +117,16 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         });
     }
 
+    function checkLimiting() {
+        var limiting = calculationService.findLimiting(vm.componentData.reactants);
+        if (!limiting && vm.componentData.reactants.length) {
+            _.first(vm.componentData.reactants).limiting = true;
+        }
+    }
+
     function createRxn() {
         var REACTANT = appValuesService.getRxnRoleReactant().name;
-        var stoicReactantsMolfiles = _.compact(_.map(getStoicReactants(), function(batch) {
+        var stoicReactantsMolfiles = _.compact(_.map(vm.componentData.reactants, function(batch) {
             return batch.rxnRole.name === REACTANT && batch.structure.molfile;
         }));
         var intendedProductsMolfiles = _.compact(_.map(getIntendedProducts(), function(batch) {
@@ -229,17 +228,15 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         notifyService.error('Compound does not exist or in the wrong format');
     }
 
-    function getStoicReactants() {
-        return vm.componentData.reactants;
-    }
-
     function getIntendedProducts() {
         return vm.componentData.products;
     }
 
     function setStoicReactants(reactants) {
         vm.componentData.reactants = reactants;
+        checkLimiting();
         vm.onChangedReactants({reactants: reactants});
+        vm.onPrecursorsChanged({precursors: getPrecursors()});
         vm.onChanged();
     }
 
@@ -312,15 +309,16 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         }, true);
 
         $scope.$on('stoich-rows-changed', function(event, data) {
-            updateReactants(data);
+            addStoicReactant(data);
+            calculationService.recalculateStoich();
         });
     }
 
     function updateReactantsAndProducts(data) {
         var newReactants = data.stoicBatches;
         var newProducts = data.intendedProducts;
-        if (getStoicReactants() && newReactants.length === getStoicReactants().length) {
-            _.each(getStoicReactants(), function(reactant, i) {
+        if (vm.componentData.reactants && newReactants.length === vm.componentData.reactants.length) {
+            _.each(vm.componentData.reactants, function(reactant, i) {
                 _.extend(reactant, newReactants[i]);
             });
         }
@@ -331,24 +329,19 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         }
     }
 
-    function updateReactants(reactants) {
-        if (reactants && getStoicReactants() && reactants.length === getStoicReactants().length) {
-            return;
-        }
-        setStoicReactants(_.unionWith(getStoicReactants(), reactants, angular.equals));
-        vm.onPrecursorsChanged({precursors: getPrecursors()});
-        calculationService.recalculateStoich();
-    }
-
     function getPrecursors() {
-        return _.compact(_.map(getReactantsWithMolfile(getStoicReactants()), function(r) {
+        return _.compact(_.map(getReactantsWithMolfile(vm.componentData.reactants), function(r) {
             return r.compoundId || r.fullNbkBatch;
         })).join(', ');
     }
 
+    function isReactantWithMolfile(item) {
+        return item.structure && item.structure.molfile && isReactant(item);
+    }
+
     function getReactantsWithMolfile(stoichReactants) {
         return _.filter(stoichReactants, function(item) {
-            return item.structure && item.structure.molfile && isReactant(item);
+            return isReactantWithMolfile(item);
         });
     }
 
@@ -360,15 +353,27 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         return _.some(responces);
     }
 
+    function findLikedReactant(reactant) {
+        return !!_.find(vm.componentData.reactants, function(infoReactant) {
+            return infoReactant.formula === reactant.formula;
+        });
+    }
+
     function getMissingReactionReactantsInStoic(reactantsInfo) {
         var reactantsToSearch = [];
-        var stoicReactants = getReactantsWithMolfile(getStoicReactants());
+        var stoicReactants = getReactantsWithMolfile(vm.componentData.reactants);
 
         if (_.isEmpty(reactantsInfo) || stoicReactants.length !== reactantsInfo.length) {
-            return $q.resolve(reactantsInfo);
+            _.forEach(reactantsInfo, function(reactant) {
+                if (!findLikedReactant(reactant) && isReactantWithMolfile(reactant)) {
+                    reactantsToSearch.push(reactant);
+                }
+            });
+
+            return $q.resolve(reactantsToSearch);
         }
 
-        var allPromises = _.map(reactantsInfo, function(reactantInfo) {
+        var allPromises = _.map(reactantsInfo, function(reactantInfo, index) {
             var reactantsEqualityPromises = _.map(stoicReactants, function(stoicReactant) {
                 return calculationService.isMoleculesEqual(
                     stoicReactant.structure.molfile,
@@ -378,7 +383,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
 
             return $q.all(reactantsEqualityPromises).then(function(responces) {
                 if (!isReactantAlreadyInStoic(responces)) {
-                    reactantsToSearch.push(reactantInfo);
+                    reactantsToSearch[index] = reactantInfo;
                 }
             });
         });

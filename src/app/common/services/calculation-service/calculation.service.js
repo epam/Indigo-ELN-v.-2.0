@@ -94,8 +94,8 @@ function calculationService($rootScope, $http, $q, appValuesService, apiUrl,
         });
     }
 
-    function findLimiting(stoichTable) {
-        return _.find(stoichTable.reactants, {
+    function findLimiting(reactants) {
+        return _.find(reactants, {
             limiting: true
         });
     }

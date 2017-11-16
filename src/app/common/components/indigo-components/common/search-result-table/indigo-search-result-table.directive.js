@@ -1,3 +1,4 @@
+require('./indigo-search-result-table.less');
 var template = require('./search-result-table.html');
 
 function indigoSearchResultTable() {
@@ -8,10 +9,10 @@ function indigoSearchResultTable() {
             indigoTableContent: '=',
             indigoTableFilter: '=',
             indigoEditableInfo: '=',
-            indigoSingleItemPerTab: '=',
+            isMultiple: '=',
             indigoTab: '=',
-            indigoSelectedItemsPerTab: '=',
-            onChangeSelectedItems: '&'
+            onChangeSelectedItems: '&',
+            onSelected: '&'
         },
         controller: IndigoSearchResultTableController,
         controllerAs: 'vm',
@@ -31,11 +32,12 @@ function IndigoSearchResultTableController(userReagentsService, appValuesService
     function $onInit() {
         vm.rxnValues = appValuesService.getRxnValues();
         vm.saltCodeValues = appValuesService.getSaltCodeValues();
+        vm.selectedReactant = _.find(vm.indigoTableContent, '$$isSelected');
 
         vm.finishEdit = finishEdit;
         vm.cancelEdit = cancelEdit;
         vm.onSelectItems = onSelectItems;
-        vm.selectSingleItemtPerTab = selectSingleItemtPerTab;
+        vm.selectSingleItem = selectSingleItem;
         vm.recalculateSalt = recalculateSalt;
         vm.editInfo = editInfo;
     }
@@ -59,25 +61,15 @@ function IndigoSearchResultTableController(userReagentsService, appValuesService
         vm.onChangeSelectedItems({items: _.filter(items, {$$isSelected: true})});
     }
 
-    function selectSingleItemtPerTab(tab, reactant, reactantIndex, isDeselected) {
-        if (!isDeselected) {
-            // only one reactant can be selected from each tab
-            var reactantToReplaceIndex = _.findIndex(vm.indigoSelectedItemsPerTab, {
-                formula: reactant.formula
-            });
-            if (reactantToReplaceIndex > -1) {
-                _.each(tab.searchResult, function(item, index) {
-                    if (index !== reactantIndex) {
-                        item.$$isSelected = false;
-                    }
-                });
-                vm.indigoSelectedItemsPerTab[reactantToReplaceIndex] = reactant;
-            } else {
-                vm.indigoSelectedItemsPerTab.push(reactant);
-            }
-        } else {
-            vm.indigoSelectedItemsPerTab = _.without(vm.indigoSelectedItemsPerTab, reactant);
-        }
+    function selectSingleItem(reactant) {
+        // _.forEach(vm.indigoTableContent, function(item) {
+        //     if (reactant !== item) {
+        //         item.$$isSelected = false;
+        //     }
+        // });
+        vm.selectedReactant = reactant;
+
+        vm.onSelected({item: reactant || null});
     }
 
     function recalculateSalt(reagent) {

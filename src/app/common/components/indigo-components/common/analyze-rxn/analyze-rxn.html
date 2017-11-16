@@ -28,20 +28,20 @@
     <br>
     <div ng-if="vm.isSearchCompleted" class="search-result-container">
         <div class="row">
-            <div class="col-xs-3 reagent-search-collapse" ng-init="$$isSelectedReactantsCollapsed=true">
-                <a ng-click="$$isSelectedReactantsCollapsed = !$$isSelectedReactantsCollapsed"
+            <div class="col-xs-3 reagent-search-collapse" ng-init="isSelectedReactantsCollapsed=true">
+                <a ng-click="isSelectedReactantsCollapsed = !isSelectedReactantsCollapsed"
                    class="reagent-search-collapse-link">
-                        <span ng-class="{'fa fa-angle-right':$$isSelectedReactantsCollapsed,
-                             'fa fa-angle-down':!$$isSelectedReactantsCollapsed}"></span>
-                    Selected reactants ({{vm.model.selectedReactants.length}})
+                        <span ng-class="{'fa fa-angle-right':isSelectedReactantsCollapsed,
+                             'fa fa-angle-down':!isSelectedReactantsCollapsed}"></span>
+                    Selected reactants ({{vm.selectedReactants.length}})
                 </a>
             </div>
             <div class="col-xs-9">
                 <div class="btn-group pull-right">
                     <button class="btn btn-info"
                             type="button"
-                            ng-click="vm.addToStoichTable(searchResult)"
-                            ng-disabled="!vm.model.selectedReactants.length">
+                            ng-click="vm.addToStoichTable()"
+                            ng-disabled="!vm.selectedReactants.length">
                         <span class="fa fa-trash"></span><span class="m-l5" i-translate="ADD_TO_STOICH_TABLE"></span>
                     </button>
                     <button class="btn btn-info"
@@ -70,7 +70,7 @@
                             <indigo-search-result-table indigo-table-content="tab.searchResult"
                                                         indigo-editable-info="false"
                                                         indigo-single-item-per-tab="true"
-                                                        indigo-selected-items-per-tab="vm.model.selectedReactants"
+                                                        on-selected="vm.onSelected(tab, item)"
                                                         indigo-tab="tab"></indigo-search-result-table>
                         </div>
                     </div>
