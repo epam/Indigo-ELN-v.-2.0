@@ -3,6 +3,7 @@ package com.epam.indigoeln.core.service.bingo.dto;
 public class BingoStructure {
 
     private String id;
+
     private String structure;
 
     public String getId() {

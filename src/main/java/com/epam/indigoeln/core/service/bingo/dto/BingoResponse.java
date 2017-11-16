@@ -5,6 +5,7 @@ import java.util.List;
 public class BingoResponse {
 
     private String message;
+
     private List<BingoStructure> structures;
 
     public String getMessage() {
