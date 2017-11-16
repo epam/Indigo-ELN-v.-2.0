@@ -11,12 +11,17 @@ public class EntityNotFoundException extends CustomParametrizedException {
 
     private static final String EXCEPTION_MESSAGE = " isn't found";
 
+    /**
+     * Creates instance of EntityNotFoundException
+     * @param message Exception message
+     * @param params Exception parameters
+     */
     private EntityNotFoundException(String message, String params) {
         super(message, params);
     }
 
     /**
-     * Creates instance of <class>EntityNotFoundException</class> class with project's id
+     * Creates instance of EntityNotFoundException class with project's id
      * if such id not found
      *
      * @param projectId Project's identifier
@@ -27,7 +32,7 @@ public class EntityNotFoundException extends CustomParametrizedException {
     }
 
     /**
-     * Creates instance of <class>EntityNotFoundException</class> class with notebook's id
+     * Creates instance of EntityNotFoundException class with notebook's id
      * if such id not found
      *
      * @param notebookId Notebook's identifier
@@ -38,7 +43,7 @@ public class EntityNotFoundException extends CustomParametrizedException {
     }
 
     /**
-     * Creates instance of <class>EntityNotFoundException</class> class with experiment's id
+     * Creates instance of EntityNotFoundException class with experiment's id
      * if such id not found
      *
      * @param experimentId Experiment's identifier
@@ -50,7 +55,7 @@ public class EntityNotFoundException extends CustomParametrizedException {
     }
 
     /**
-     * Creates instance of <class>EntityNotFoundException</class> class with child's id
+     * Creates instance of EntityNotFoundException class with child's id
      * if such id for project not found
      *
      * @param childId Child's identifier
@@ -61,7 +66,7 @@ public class EntityNotFoundException extends CustomParametrizedException {
     }
 
     /**
-     * Creates instance of <class>EntityNotFoundException</class> class with child's id
+     * Creates instance of EntityNotFoundException class with child's id
      * if such id for notebook not found
      *
      * @param childId Child's identifier
@@ -72,11 +77,11 @@ public class EntityNotFoundException extends CustomParametrizedException {
     }
 
     /**
-     * Creates instance of <class>EntityNotFoundException</class> class with experiment's name
+     * Creates instance of EntityNotFoundException class with experiment's name
      * if such name not found
      *
      * @param experimentName Experiment's name
-     * @return Instance of <class>EntityNotFoundException</class> class with experiment's name
+     * @return Instance of EntityNotFoundException class with experiment's name
      */
     public static EntityNotFoundException createWithExperimentName(String experimentName) {
         return new EntityNotFoundException("The latest version of experiment with name = "
@@ -84,62 +89,62 @@ public class EntityNotFoundException extends CustomParametrizedException {
     }
 
     /**
-     * Creates instance of <class>EntityNotFoundException</class> class with file's id
+     * Creates instance of EntityNotFoundException class with file's id
      * if such id not found
      *
      * @param fileId File's identifier
-     * @return Instance of <class>EntityNotFoundException</class> class with file's id
+     * @return Instance of EntityNotFoundException class with file's id
      */
     public static EntityNotFoundException createWithExperimentFileId(String fileId) {
         return new EntityNotFoundException("The experiment for file with id = " + fileId + EXCEPTION_MESSAGE, fileId);
     }
 
     /**
-     * Creates instance of <class>EntityNotFoundException</class> class with login
+     * Creates instance of EntityNotFoundException class with login
      * if such login not found
      *
      * @param login Username
-     * @return Instance of <class>EntityNotFoundException</class> class with login
+     * @return Instance of EntityNotFoundException class with login
      */
     public static EntityNotFoundException createWithUserLogin(String login) {
         return new EntityNotFoundException("The user with login = " + login + EXCEPTION_MESSAGE, login);
     }
 
     /**
-     * Creates instance of <class>EntityNotFoundException</class> class with user's id
+     * Creates instance of EntityNotFoundException class with user's id
      * if such id not found
      *
      * @param userId User's identifier
-     * @return Instance of <class>EntityNotFoundException</class> class with user's id
+     * @return Instance of EntityNotFoundException class with user's id
      */
     public static EntityNotFoundException createWithUserId(String userId) {
         return new EntityNotFoundException("The user with id = " + userId + EXCEPTION_MESSAGE, userId);
     }
 
     /**
-     * Creates instance of <class>EntityNotFoundException</class> class with role's id
+     * Creates instance of EntityNotFoundException class with role's id
      * if such id not found
      *
      * @param roleId Role's identifier
-     * @return Instance of <class>EntityNotFoundException</class> class with role's id
+     * @return Instance of EntityNotFoundException class with role's id
      */
     public static EntityNotFoundException createWithRoleId(String roleId) {
         return new EntityNotFoundException("The role with id = " + roleId + EXCEPTION_MESSAGE, roleId);
     }
 
     /**
-     * Creates instance of <class>EntityNotFoundException</class> class with template's id
+     * Creates instance of EntityNotFoundException class with template's id
      * if such id not found
      *
      * @param templateId Template's identifier
-     * @return Instance of <class>EntityNotFoundException</class> class with template's id
+     * @return Instance of EntityNotFoundException class with template's id
      */
     public static EntityNotFoundException createWithTemplateId(String templateId) {
         return new EntityNotFoundException("The template with id = " + templateId + EXCEPTION_MESSAGE, templateId);
     }
 
     /**
-     * Creates instance of <class>EntityNotFoundException</class> class with dictionary's id
+     * Creates instance of EntityNotFoundException class with dictionary's id
      * if such id not found
      *
      * @param dictionaryId Dictionary's identifier

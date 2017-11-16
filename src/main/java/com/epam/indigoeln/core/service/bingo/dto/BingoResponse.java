@@ -2,6 +2,11 @@ package com.epam.indigoeln.core.service.bingo.dto;
 
 import java.util.List;
 
+/**
+ * Describes <class>BingoResponse</class> object
+ *
+ * @author Vladislav Alekseev
+ */
 public class BingoResponse {
 
     private String message;

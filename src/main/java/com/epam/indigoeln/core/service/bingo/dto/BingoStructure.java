@@ -1,5 +1,10 @@
 package com.epam.indigoeln.core.service.bingo.dto;
 
+/**
+ * Describes <class>BingoStructure</class> object
+ *
+ * @author Vladislav Alekseev
+ */
 public class BingoStructure {
 
     private String id;
