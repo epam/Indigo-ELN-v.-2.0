@@ -1,5 +1,6 @@
 var template = require('./permissions.html');
 
+/* @ngInject */
 var permissionsConfig = {
     url: '/permissions',
     onEnter: ['$rootScope', '$stateParams', '$state', '$uibModal', 'permissionService',
