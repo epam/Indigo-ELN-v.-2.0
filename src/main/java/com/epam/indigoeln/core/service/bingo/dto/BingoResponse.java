@@ -3,7 +3,7 @@ package com.epam.indigoeln.core.service.bingo.dto;
 import java.util.List;
 
 /**
- * Describes <class>BingoResponse</class> object
+ * Describes BingoResponse object
  *
  * @author Vladislav Alekseev
  */

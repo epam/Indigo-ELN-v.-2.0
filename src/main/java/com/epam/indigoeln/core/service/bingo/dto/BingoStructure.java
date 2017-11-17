@@ -1,7 +1,7 @@
 package com.epam.indigoeln.core.service.bingo.dto;
 
 /**
- * Describes <class>BingoStructure</class> object
+ * Describes BingoStructure object
  *
  * @author Vladislav Alekseev
  */
