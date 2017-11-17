@@ -43,14 +43,31 @@ public class UserService {
     @Autowired
     private RoleRepository roleRepository;
 
+    /**
+     * Gets users from DB according to given pagination information
+     *
+     * @param pageable pagination information to retrieve users
+     * @return page with found users
+     */
     public Page<User> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable);
     }
 
+    /**
+     * Gets all users from DB
+     *
+     * @return list of all users
+     */
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
+    /**
+     * Saves new user in DB
+     *
+     * @param user user to save
+     * @return created user
+     */
     public User createUser(User user) {
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
@@ -72,6 +89,13 @@ public class UserService {
         return savedUser;
     }
 
+    /**
+     * Updates user information in DB
+     *
+     * @param user user to update
+     * @param executingUser user performing action
+     * @return updated user
+     */
     public User updateUser(User user, User executingUser) {
         User userFromDB = userRepository.findOneByLogin(user.getLogin());
         if (userFromDB == null) {
@@ -105,6 +129,13 @@ public class UserService {
         return user;
     }
 
+    /**
+     * Deletes the user from DB if the user exists and it is allowed to delete that user.
+     * It is not allowed to delete system users and user cannot delete himself.
+     *
+     * @param login login of the user to delete
+     * @param executingUser user performing action
+     */
     public void deleteUserByLogin(String login, User executingUser) {
         User userByLogin = userRepository.findOneByLogin(login);
         if (userByLogin == null) {
@@ -124,12 +155,23 @@ public class UserService {
         LOGGER.debug("Deleted User: {}", userByLogin);
     }
 
+    /**
+     * Gets current user from DB with eagerly loaded authorities
+     *
+     * @return current user
+     */
     public User getUserWithAuthorities() {
         User user = userRepository.findOneByLogin(SecurityUtils.getCurrentUser().getUsername());
         user.getRoles().size(); // eagerly load the association
         return user;
     }
 
+    /**
+     * Gets user from DB by ID with eagerly loaded authorities
+     *
+     * @param id user ID
+     * @return user with given ID
+     */
     public User getUserWithAuthorities(String id) {
         User user = userRepository.findOne(id);
         if (user == null) {
@@ -140,6 +182,12 @@ public class UserService {
         return user;
     }
 
+    /**
+     * Gets user from DB by login with eagerly loaded authorities
+     *
+     * @param login login of the user
+     * @return user with given login
+     */
     public User getUserWithAuthoritiesByLogin(String login) {
         User user = userRepository.findOneByLogin(login);
         if (user == null) {
