@@ -1,3 +1,4 @@
+require('./indigo-select.less');
 indigoSelect.$inject = ['formUtils'];
 
 function indigoSelect(formUtils) {
@@ -19,6 +20,8 @@ function indigoSelect(formUtils) {
             indigoClasses: '@',
             indigoChange: '&',
             indigoRemove: '&',
+            indigoName: '@',
+            indigoRequired: '=',
             indigoReadonly: '='
         },
         controller: IndigoSelectController,
@@ -38,7 +41,9 @@ function indigoSelect(formUtils) {
             return '<div class="form-group {{vm.indigoClasses}}">' +
                 '<label ng-bind="vm.indigoLabel"></label>' +
                 // '<div class="col-xs-10">' +
-                '<ui-select ng-model="vm.indigoModel" theme="bootstrap" ng-disabled="vm.indigoReadonly"' +
+                '<ui-select ng-model="vm.indigoModel" name="{{vm.indigoName}}"' +
+                ' indigo-select-required="{{vm.indigoRequired}}" theme="bootstrap"' +
+                ' ng-disabled="vm.indigoReadonly"' +
                 ' onkeypress="return false;" on-select="vm.indigoChange()" on-remove="vm.indigoRemove()"' +
                 ' append-to-body="true">' +
                 '<ui-select-match placeholder="{{vm.indigoPlaceHolder}}" >' + content + '</ui-select-match>' +

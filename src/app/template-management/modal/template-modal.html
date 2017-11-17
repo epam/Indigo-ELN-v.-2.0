@@ -84,8 +84,8 @@
     </div>
         <div class="panel panel-info panel-info-collapse">
             <div class="panel-heading clickable" ng-init="vm.showPreview = false" ng-click="vm.showPreview = !vm.showPreview">
-                <span class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': !vm.isCollapsed, 'glyphicon-chevron-up': vm.isCollapsed}"
-                    ng-click="vm.isCollapsed = !vm.isCollapsed"></span>
+                <span class="pull-right glyphicon"
+                      ng-class="{'glyphicon-chevron-down': !vm.showPreview, 'glyphicon-chevron-up': vm.showPreview}"></span>
                 <span i-translate="SHOW_PREVIEW"></span>
             </div>
             <div class="preview-components panel-body panel-body-nopad" ng-if="vm.showPreview && vm.template.templateContent.length">
