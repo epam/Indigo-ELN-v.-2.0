@@ -122,12 +122,6 @@ public class BingoService {
         }
     }
 
-    /**
-     * Insert a new structure
-     *
-     * @param s molecule or reaction in Molfile/Rxnfile/Smiles format
-     * @return inserted structure with its ID
-     */
     public BingoStructure insert(String s) {
         synchronized (lock) {
             if (isMolecule(s)) {
