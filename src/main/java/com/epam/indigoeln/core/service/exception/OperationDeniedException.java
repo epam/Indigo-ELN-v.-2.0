@@ -123,6 +123,7 @@ public class OperationDeniedException extends CustomParametrizedException {
     /**
      * Creates instance of OperationDeniedException with entity's id
      * if user tried to create notebook
+     *
      * @param entityId Entity's identifier
      * @return Instance of OperationDeniedException with entity's id
      */
@@ -133,6 +134,7 @@ public class OperationDeniedException extends CustomParametrizedException {
     /**
      * Creates instance of OperationDeniedException with entity's id
      * if user tried to update project
+     *
      * @param entityId Entity's identifier
      * @return Instance of OperationDeniedException with entity's id
      */
@@ -143,6 +145,7 @@ public class OperationDeniedException extends CustomParametrizedException {
     /**
      * Creates instance of OperationDeniedException with entity's id
      * if user tried to update notebook
+     *
      * @param entityId Entity's identifier
      * @return Instance of OperationDeniedException with entity's id
      */
@@ -153,6 +156,7 @@ public class OperationDeniedException extends CustomParametrizedException {
     /**
      * Creates instance of OperationDeniedException with entity's id
      * if user tried to update experiment
+     *
      * @param entityId Entity's identifier
      * @return Instance of OperationDeniedException with entity's id
      */
@@ -163,7 +167,8 @@ public class OperationDeniedException extends CustomParametrizedException {
     /**
      * Creates instance of OperationDeniedException with entity's id and name
      * if user tried to read sub entities
-     * @param entityId Entity's identifier
+     *
+     * @param entityId   Entity's identifier
      * @param entityName Entity's name
      * @return Instance of OperationDeniedException with entity's id and name
      */
@@ -176,7 +181,8 @@ public class OperationDeniedException extends CustomParametrizedException {
     /**
      * Creates instance of OperationDeniedException with entity's id and name
      * if user tried to read entity
-     * @param entityId Entity's identifier
+     *
+     * @param entityId   Entity's identifier
      * @param entityName Entity's name
      * @return Instance of OperationDeniedException with entity's id and name
      */
@@ -188,7 +194,8 @@ public class OperationDeniedException extends CustomParametrizedException {
     /**
      * Creates instance of OperationDeniedException with entity's id and name
      * if user tried to create sub entity
-     * @param entityId Entity's identifier
+     *
+     * @param entityId   Entity's identifier
      * @param entityName Entity's name
      * @return Instance of OperationDeniedException with entity's id and name
      */
@@ -200,7 +207,8 @@ public class OperationDeniedException extends CustomParametrizedException {
     /**
      * Creates instance of OperationDeniedException with entity's id and name
      * if user tried to update
-     * @param entityId Entity's identifier
+     *
+     * @param entityId   Entity's identifier
      * @param entityName Entity's name
      * @return Instance of OperationDeniedException with entity's id and name
      */
@@ -212,6 +220,7 @@ public class OperationDeniedException extends CustomParametrizedException {
     /**
      * Creates instance of OperationDeniedException with entity's id
      * if user tried to create version of experiment
+     *
      * @param entityId Entity's identifier
      * @return Entity's name
      */
@@ -223,6 +232,7 @@ public class OperationDeniedException extends CustomParametrizedException {
     /**
      * Creates instance of OperationDeniedException with entity's ids
      * if user tried to update notebook if there is at least one batch
+     *
      * @param entityIds Entity's identifiers
      * @return Instance of OperationDeniedException with entity's ids
      */

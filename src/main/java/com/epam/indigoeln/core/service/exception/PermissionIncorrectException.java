@@ -9,8 +9,9 @@ public class PermissionIncorrectException extends CustomParametrizedException {
 
     /**
      * Creates instance of PermissionIncorrectException
+     *
      * @param message Exception message
-     * @param params Exception parameters
+     * @param params  Exception parameters
      */
     private PermissionIncorrectException(String message, String params) {
         super(message, params);
@@ -18,7 +19,8 @@ public class PermissionIncorrectException extends CustomParametrizedException {
 
     /**
      * Creates instance of PermissionIncorrectException if user permission is incorrect
-     * @param userId User's id
+     *
+     * @param userId     User's id
      * @param permission User's permission
      * @return Instance of PermissionIncorrectException
      */
@@ -30,6 +32,7 @@ public class PermissionIncorrectException extends CustomParametrizedException {
 
     /**
      * Creates instance of PermissionIncorrectException if user permission can't be with unspecified user id
+     *
      * @return Instance of PermissionIncorrectException
      */
     public static PermissionIncorrectException createWithoutUserId() {

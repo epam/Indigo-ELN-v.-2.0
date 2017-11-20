@@ -12,6 +12,7 @@ public class FileNotFoundException extends CustomParametrizedException {
 
     /**
      * Creates instance of FileNotFoundException
+     *
      * @param fileId File's identifier
      */
     public FileNotFoundException(String fileId) {
