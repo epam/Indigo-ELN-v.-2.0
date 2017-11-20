@@ -55,11 +55,13 @@
                         <indigo-select
                                 indigo-label="System Roles"
                                 indigo-name="role"
+                                indigo-classes="required"
+                                indigo-required="true"
                                 indigo-model="vm.user.roles"
                                 indigo-items="vm.roles"
                                 indigo-multiple="true"
                         ></indigo-select>
-                        <p class="help-block" ng-if="editForm.role.$dirty && !vm.user.roles.length"
+                        <p class="help-block" ng-if="editForm.role.$invalid && editForm.role.$dirty"
                            i-translate="THIS_FIELD_IS_REQUIRED"></p>
                     </div>
                     <div class="col-xs-6">
@@ -106,7 +108,8 @@
             <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
                 <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
             </button>
-            <button ng-click="vm.save()" form="editForm" ng-disabled="editForm.$invalid || vm.isSaving || !vm.user.roles.length"
+            <button ng-click="vm.save()" form="editForm"
+                    ng-disabled="editForm.$invalid || vm.isSaving"
                     class="btn btn-primary m-l5">
                 <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
             </button>
