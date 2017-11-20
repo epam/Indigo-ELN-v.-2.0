@@ -1,9 +1,9 @@
 <form id="select-parent-dialog" name="selectParentDialog" role="form" novalidate ng-submit="vm.ok()" autocomplete="off">
     <div>
-		<div class="modal-header">
+        <div class="modal-header">
             <h5 class="modal-title" i-translate="EXPERIMENT_CREATION"></h5>
-		</div>
-		<div class="modal-body">
+        </div>
+        <div class="modal-body">
             <indigo-select indigo-label="Please select a Template for new experiment"
                            indigo-label-vertical="true"
                            indigo-model="vm.selectedTemplate"
@@ -11,7 +11,7 @@
                            indigo-item-prop="name"
             ></indigo-select>
             <indigo-select ng-if="!vm.fullNotebookId"
-                    indigo-label="Please select a Notebook for new experiment"
+                           indigo-label="Please select a Notebook for new experiment"
                            indigo-label-vertical="true"
                            indigo-model="vm.selectedNotebook"
                            indigo-items="vm.notebooks"
@@ -37,8 +37,8 @@
                     </tbody>
                 </table>
             </div>
-		</div>
-		<div class="modal-footer">
+        </div>
+        <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.cancel()">
                 <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
             </button>
@@ -46,6 +46,6 @@
                     ng-disabled="selectParentDialog.$invalid || !vm.selectedNotebook.id ||
                     !vm.selectedTemplate.id || vm.isSaving" class="btn btn-primary" i-translate="OK">
             </button>
-		</div>
-	</div>
+        </div>
+    </div>
 </form>

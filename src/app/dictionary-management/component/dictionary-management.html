@@ -18,7 +18,8 @@
     <div ng-if="vm.dictionary" class="panel panel-info edit-form animated m-t20">
         <div class="panel-heading" i-translate="CREATE_EDIT_DICTIONARY"></div>
         <div class="panel-body ">
-            <form id="editForm" name="editForm" role="form" novalidate ng-submit="vm.saveDictionary()" autocomplete="off">
+            <form id="editForm" name="editForm" role="form" novalidate ng-submit="vm.saveDictionary()"
+                  autocomplete="off">
                 <div class="row">
                     <div class="col-xs-6">
                         <simple-input>
@@ -32,8 +33,8 @@
                     </div>
                     <div class="col-xs-6">
                         <indigo-text-area
-                                indigo-label="Description"
-                                indigo-model="vm.dictionary.description">
+                            indigo-label="Description"
+                            indigo-model="vm.dictionary.description">
                         </indigo-text-area>
                     </div>
                 </div>
@@ -43,7 +44,8 @@
             <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clearDictionary()">
                 <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
             </button>
-            <button type="submit" form="editForm" ng-disabled="editForm.$invalid || vm.isSaving" class="btn btn-primary m-l5">
+            <button type="submit" form="editForm" ng-disabled="editForm.$invalid || vm.isSaving"
+                    class="btn btn-primary m-l5">
                 <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
             </button>
         </div>
@@ -87,18 +89,20 @@
         </table>
     </div>
     <div class="text-center">
-        <uib-pagination class="pagination-sm" total-items="vm.totalItems"
-                        items-per-page="vm.itemsPerPage"
-                        ng-model="vm.page"
-                        ng-change="vm.loadAllDictionaries()">
-        </uib-pagination>
+        <div uib-pagination
+             class="pagination-sm"
+             total-items="vm.totalItems"
+             items-per-page="vm.itemsPerPage"
+             ng-model="vm.page"
+             ng-change="vm.loadAllDictionaries()">
+        </div>
     </div>
 
     <div class="panel panel-info panel-info-collapse words">
         <div class="panel-heading">
             <span class="pull-right glyphicon"
-                ng-class="{'glyphicon-chevron-down': !vm.isCollapsed, 'glyphicon-chevron-up': vm.isCollapsed}"
-                ng-click="vm.isCollapsed = !vm.isCollapsed"></span>
+                  ng-class="{'glyphicon-chevron-down': !vm.isCollapsed, 'glyphicon-chevron-up': vm.isCollapsed}"
+                  ng-click="vm.isCollapsed = !vm.isCollapsed"></span>
             Words
         </div>
 
@@ -134,14 +138,14 @@
                             </div>
                             <div class="col-xs-6">
                                 <indigo-text-area
-                                        indigo-label="Description"
-                                        indigo-model="vm.word.description">
+                                    indigo-label="Description"
+                                    indigo-model="vm.word.description">
                                 </indigo-text-area>
                             </div>
                         </div>
                         <indigo-checkbox
-                                indigo-label="Active"
-                                indigo-model="vm.word.enable">
+                            indigo-label="Active"
+                            indigo-model="vm.word.enable">
                         </indigo-checkbox>
                     </form>
                 </div>
@@ -170,11 +174,12 @@
                     <tbody dragula='"dragableWords"' dragula-model="vm.selectedDictionary.words">
                     <tr ng-repeat="word in vm.selectedDictionary.words track by $index"
                         title="{{word.description}}"
-                    class="cursor-move">
+                        class="cursor-move">
                         <td class="dictionary-col-width dictionary-col-elipsis" ng-bind="word.name"></td>
                         <td class="dictionary-col-width dictionary-col-elipsis" ng-bind="word.description"></td>
                         <td>
-                            <span ng-class="{'glyphicon glyphicon-ok': word.enable, 'glyphicon glyphicon-remove': !word.enable}"></span>
+                            <span
+                                ng-class="{'glyphicon glyphicon-ok': word.enable, 'glyphicon glyphicon-remove': !word.enable}"></span>
                         </td>
                         <td ng-bind="word.rank"></td>
                         <td ng-bind="word.creationDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>

@@ -43,7 +43,7 @@
                                    maxlength="50"
                                    ng-model="vm.user.firstName">
                         </simple-input>
-                        <simple-input >
+                        <simple-input>
                             <span i-translate="LAST_NAME"></span>
                             <input class="form-control"
                                    name="lastName"
@@ -53,13 +53,13 @@
                                    ng-model="vm.user.lastName">
                         </simple-input>
                         <indigo-select
-                                indigo-label="System Roles"
-                                indigo-name="role"
-                                indigo-classes="required"
-                                indigo-required="true"
-                                indigo-model="vm.user.roles"
-                                indigo-items="vm.roles"
-                                indigo-multiple="true"
+                            indigo-label="System Roles"
+                            indigo-name="role"
+                            indigo-classes="required"
+                            indigo-required="true"
+                            indigo-model="vm.user.roles"
+                            indigo-items="vm.roles"
+                            indigo-multiple="true"
                         ></indigo-select>
                         <p class="help-block" ng-if="editForm.role.$invalid && editForm.role.$dirty"
                            i-translate="THIS_FIELD_IS_REQUIRED"></p>
@@ -97,8 +97,8 @@
                             <span i-translate="PASSWORD_SUCCESSFULLY_CHANGED"></span>
                         </normal>
                         <indigo-checkbox
-                                indigo-label="Activated"
-                                indigo-model="vm.user.activated"
+                            indigo-label="Activated"
+                            indigo-model="vm.user.activated"
                         ></indigo-checkbox>
                     </div>
                 </div>
@@ -154,11 +154,11 @@
                     </button>
                     <!--Deactivate for all now (Task EPMLSOPELN-629)-->
                     <!--<button type="submit"-->
-                            <!--ui-sref="entities.user-management.delete({login:user.login})"-->
-                            <!--ng-if="!user.system"-->
-                            <!--class="btn btn-info btn-small">-->
-                        <!--<span class="fa fa-trash"></span>-->
-                        <!--<span class="m-l5">delete</span>-->
+                    <!--ui-sref="entities.user-management.delete({login:user.login})"-->
+                    <!--ng-if="!user.system"-->
+                    <!--class="btn btn-info btn-small">-->
+                    <!--<span class="fa fa-trash"></span>-->
+                    <!--<span class="m-l5">delete</span>-->
                     <!--</button>-->
                 </td>
             </tr>
@@ -166,9 +166,13 @@
         </table>
     </div>
     <div class="text-center">
-        <uib-pagination class="pagination-sm" total-items="vm.totalItems"
-                        items-per-page="vm.itemsPerPage" ng-model="vm.page"
-                        ng-change="vm.loadAll()"></uib-pagination>
+        <div uib-pagination
+             class="pagination-sm"
+             total-items="vm.totalItems"
+             items-per-page="vm.itemsPerPage"
+             ng-model="vm.page"
+             ng-change="vm.loadAll()">
+        </div>
     </div>
 </div>
 
