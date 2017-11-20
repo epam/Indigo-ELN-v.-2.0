@@ -68,6 +68,7 @@ var i18n = {
     COMMENT: 'Comment',
     ADD_RESIDUAL_SOLVENT: 'Add residual solvent',
     REMOVE_ALL: 'Remove all',
+    REMOVE: 'Remove',
     ADD_SOLVENT: 'Add solvent',
     SOLUBILITY_TYPE: 'Solubility Type',
     SOLUBILITY_VALUE: 'Solubility Value',

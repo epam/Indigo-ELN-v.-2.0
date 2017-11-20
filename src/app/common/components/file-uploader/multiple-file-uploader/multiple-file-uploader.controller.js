@@ -26,6 +26,7 @@ function MultipleFileUploaderController($uibModalInstance, $cookies, notifyServi
         uploader = new FileUploader({
             url: uploadUrl,
             alias: 'file',
+            withCredentials: true,
             headers: {
                 'X-CSRF-TOKEN': $cookies.get('CSRF-TOKEN')
             },
