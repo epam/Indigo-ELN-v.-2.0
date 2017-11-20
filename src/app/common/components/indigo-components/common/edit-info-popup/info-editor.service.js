@@ -87,7 +87,6 @@ function infoEditorService($uibModal) {
         });
     }
 
-    /* @ngInject */
     function editPurity(data, callback) {
         $uibModal.open({
             animation: true,
@@ -100,6 +99,8 @@ function infoEditorService($uibModal) {
                     return data;
                 },
                 dictionary: function(dictionaryService) {
+                    'ngInject';
+
                     return dictionaryService.get({
                         id: 'purity'
                     }).$promise;
@@ -128,7 +129,6 @@ function infoEditorService($uibModal) {
         selectFromDictionary(dictionary, data, title, callback);
     }
 
-    /* @ngInject */
     function selectFromDictionary(dictionary, model, title, callback) {
         $uibModal.open({
             animation: true,
@@ -141,6 +141,8 @@ function infoEditorService($uibModal) {
                     return model;
                 },
                 dictionary: function(dictionaryService) {
+                    'ngInject';
+
                     return dictionaryService.get({
                         id: dictionary
                     }).$promise;
