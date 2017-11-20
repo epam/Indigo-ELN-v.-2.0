@@ -99,6 +99,8 @@ function infoEditorService($uibModal) {
                     return data;
                 },
                 dictionary: function(dictionaryService) {
+                    'ngInject';
+
                     return dictionaryService.get({
                         id: 'purity'
                     }).$promise;
@@ -139,6 +141,8 @@ function infoEditorService($uibModal) {
                     return model;
                 },
                 dictionary: function(dictionaryService) {
+                    'ngInject';
+
                     return dictionaryService.get({
                         id: dictionary
                     }).$promise;
