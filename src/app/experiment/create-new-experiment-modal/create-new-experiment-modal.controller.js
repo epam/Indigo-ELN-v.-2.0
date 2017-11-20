@@ -5,7 +5,7 @@ function CreateNewExperimentModalController($scope, componentsUtil, $uibModalIns
     var vm = this;
     var userId;
     var lastSelectedTemplateIdKey = '.lastSelectedTemplateId';
-    var lastSelectedExperimentIdKey = '.lastSelectedExperimentId';
+    var lastSelectedNotebookIdKey = '.lastSelectedNotebookIdKey';
 
     init();
 
@@ -47,7 +47,6 @@ function CreateNewExperimentModalController($scope, componentsUtil, $uibModalIns
 
     function bindEvents() {
         $scope.$watch('vm.selectedTemplate', function() {
-            // EPMLSOPELN-415 Remember last selected parent and template
             if (vm.selectedTemplate) {
                 simpleLocalCache.putByKey(userId + lastSelectedTemplateIdKey, vm.selectedTemplate.id);
             }
@@ -55,13 +54,13 @@ function CreateNewExperimentModalController($scope, componentsUtil, $uibModalIns
 
         $scope.$watch('vm.selectedNotebook', function() {
             if (vm.selectedNotebook) {
-                simpleLocalCache.putByKey(userId + lastSelectedExperimentIdKey, vm.selectedNotebook.id);
+                simpleLocalCache.putByKey(userId + lastSelectedNotebookIdKey, vm.selectedNotebook.fullId);
             }
         });
     }
 
     function selectNotebookById() {
-        var lastNotebookId = vm.fullNotebookId || simpleLocalCache.getByKey(userId + lastSelectedTemplateIdKey);
+        var lastNotebookId = vm.fullNotebookId || simpleLocalCache.getByKey(userId + lastSelectedNotebookIdKey);
 
         if (lastNotebookId) {
             vm.selectedNotebook = _.find(vm.notebooks, {fullId: lastNotebookId});
