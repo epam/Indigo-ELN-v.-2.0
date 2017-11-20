@@ -48,7 +48,8 @@ public class NotebookResource {
      * GET  /notebooks?:projectId -> Returns all notebooks of specified project for <b>current user</b>
      * for tree representation according to his User permissions
      */
-    @ApiOperation(value = "Returns all notebooks of specified project for current user for tree representation according to his permissions.")
+    @ApiOperation(value = "Returns all notebooks of specified project " +
+            "for current user for tree representation according to his permissions.")
     @RequestMapping(
             value = PARENT_PATH_ID,
             method = RequestMethod.GET,

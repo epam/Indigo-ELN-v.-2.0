@@ -55,7 +55,7 @@ public class TemplateService {
 
     public TemplateDTO updateTemplate(TemplateDTO templateDTO) {
         Template template = Optional.ofNullable(templateRepository.findOne(templateDTO.getId())).
-                orElseThrow(() -> new EntityNotFoundException("Template with id does not exists", templateDTO.getId()));
+                orElseThrow(() -> EntityNotFoundException.createWithTemplateId(templateDTO.getId()));
 
         template.setName(templateDTO.getName());
         template.setTemplateContent(templateDTO.getTemplateContent());

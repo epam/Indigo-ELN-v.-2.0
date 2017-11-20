@@ -35,25 +35,58 @@ import java.util.stream.Collectors;
 
 import static com.epam.indigoeln.core.util.BatchComponentUtil.*;
 
+/**
+ * The ExperimentService provides methods for
+ * experiment's data manipulation
+ */
 @Service
 public class ExperimentService {
 
+    /**
+     * Instance of CustomDtoMapper for mapping entity to dto to document
+     */
     @Autowired
     private CustomDtoMapper dtoMapper;
+
+    /**
+     * Repository for project's data manipulation
+     */
     @Autowired
     private ProjectRepository projectRepository;
+
+    /**
+     * Repository for notebook's data manipulation
+     */
     @Autowired
     private NotebookRepository notebookRepository;
+
+    /**
+     * Repository for experiment's data manipulation
+     */
     @Autowired
     private ExperimentRepository experimentRepository;
+
+    /**
+     * Repository for component's data manipulation
+     */
     @Autowired
     private ComponentRepository componentRepository;
+
+    /**
+     * Repository for file manipulation
+     */
     @Autowired
     private FileRepository fileRepository;
+
+    /**
+     * Repository for user's data manipulation
+     */
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private SequenceIdService sequenceIdService;
+
     @Autowired
     private WebSocketUtil webSocketUtil;
 
@@ -65,15 +98,38 @@ public class ExperimentService {
                         experiment.getAccessList(), userId) != null).collect(Collectors.toList());
     }
 
+    /**
+     * Returns all experiments of specified notebook for tree representation
+     *
+     * @param projectId  Project's identifier
+     * @param notebookId Notebook's identifier
+     * @return List with tree representation of experiments of specified notebook
+     */
     public List<TreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId) {
         return getAllExperimentTreeNodes(projectId, notebookId, null);
     }
 
+    /**
+     * Returns all experiments of specified notebook for user for tree representation
+     *
+     * @param projectId  Project's identifier
+     * @param notebookId Notebook's identifier
+     * @param user       User
+     * @return List with tree representation of experiments of specified notebook for user
+     */
     public List<TreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId, User user) {
         Collection<Experiment> experiments = getAllExperiments(projectId, notebookId, user);
         return experiments.stream().map(ExperimentTreeNodeDTO::new).sorted(TreeNodeDTO.NAME_COMPARATOR).collect(Collectors.toList());
     }
 
+    /**
+     * Returns all experiments of specified notebook for user
+     *
+     * @param projectId  Project's identifier
+     * @param notebookId Notebook's identifier
+     * @param user       User
+     * @return List with experiments of specified notebook
+     */
     public List<ExperimentDTO> getAllExperimentNotebookSummary(String projectId, String notebookId, User user) {
         Collection<Experiment> experiments = getAllExperiments(projectId, notebookId, PermissionUtil.isContentEditor(user) ? null : user);
         return experiments.stream().sorted((e1, e2) -> {
@@ -106,6 +162,15 @@ public class ExperimentService {
         return getExperimentsWithAccess(notebook.getExperiments(), user.getId());
     }
 
+    /**
+     * Returns experiment with specified experiment's id according to User permissions
+     *
+     * @param projectId  Project's identifier
+     * @param notebookId Notebook's identifier
+     * @param id         Experiment's identifier
+     * @param user       User
+     * @return Experiment with specified experiment's id
+     */
     public ExperimentDTO getExperiment(String projectId, String notebookId, String id, User user) {
         Experiment experiment = Optional
                 .ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, id)))
@@ -128,10 +193,25 @@ public class ExperimentService {
         return new ExperimentDTO(experiment);
     }
 
+    /**
+     * Returns all experiments which author is user
+     *
+     * @param user User
+     * @return Collection of experiments by author
+     */
     public Collection<ExperimentDTO> getExperimentsByAuthor(User user) {
         return experimentRepository.findByAuthor(user).stream().map(ExperimentDTO::new).collect(Collectors.toList());
     }
 
+    /**
+     * Creates experiment with OWNER's permissions for current user
+     *
+     * @param experimentDTO Experiment to create
+     * @param projectId     Project's identifier
+     * @param notebookId    Notebook's identifier
+     * @param user          User
+     * @return Created experiment's DTO object
+     */
     public ExperimentDTO createExperiment(ExperimentDTO experimentDTO, String projectId, String notebookId, User user) {
         Project project = projectRepository.findOne(projectId);
         if (project == null) {
@@ -188,7 +268,7 @@ public class ExperimentService {
         Notebook savedNotebook = notebookRepository.save(notebook);
         webSocketUtil.updateNotebook(user, projectId, savedNotebook);
 
-        if (updateProject){
+        if (updateProject) {
             Project savedProject = projectRepository.save(project);
             webSocketUtil.updateProject(user, savedProject);
         }
@@ -196,6 +276,15 @@ public class ExperimentService {
         return new ExperimentDTO(experiment);
     }
 
+    /**
+     * Creates experiment's version with OWNER's permissions for current user
+     *
+     * @param experimentName Experiment's name
+     * @param projectId      Project's identifier
+     * @param notebookId     Notebook's identifier
+     * @param user           User
+     * @return Created experiment's version
+     */
     public ExperimentDTO versionExperiment(String experimentName, String projectId, String notebookId, User user) {
         if (StringUtils.isEmpty(experimentName)) {
             throw new IllegalArgumentException("Experiment name cannot be null.");
@@ -216,7 +305,7 @@ public class ExperimentService {
 
         notebook.getExperiments().stream()
                 .filter(e -> experimentName.equals(e.getName()) && ExperimentStatus.OPEN.equals(e.getStatus()))
-                .findAny().ifPresent((e) -> {
+                .findAny().ifPresent(e -> {
             throw OperationDeniedException.createVersionExperimentOperation(e.getId());
         });
 
@@ -257,6 +346,15 @@ public class ExperimentService {
         return new ExperimentDTO(savedNewVersion);
     }
 
+    /**
+     * Updates experiment according to permissions
+     *
+     * @param projectId     Project's identifier
+     * @param notebookId    Notebook's identifier
+     * @param experimentDTO Experiment to create
+     * @param user          User
+     * @return Created experiment's DTO object
+     */
     public ExperimentDTO updateExperiment(String projectId, String notebookId, ExperimentDTO experimentDTO, User user) {
         Lock lock = locks.get(projectId);
         ExperimentDTO result;
@@ -326,11 +424,11 @@ public class ExperimentService {
 
             webSocketUtil.updateExperiment(user, projectId, notebookId, savedExperiment);
 
-            if (update.getLeft()){
+            if (update.getLeft()) {
                 Notebook savedNotebook = notebookRepository.save(notebook);
                 webSocketUtil.updateNotebook(user, projectId, savedNotebook);
             }
-            if (update.getRight()){
+            if (update.getRight()) {
                 Project savedProject = projectRepository.save(project);
                 webSocketUtil.updateProject(user, savedProject);
             }
@@ -356,7 +454,17 @@ public class ExperimentService {
         }
     }
 
-    public ExperimentDTO reopenExperiment(String projectId, String notebookId, String experimentId, Long version, User user){
+    /**
+     * Reopen experiment according to permissions
+     *
+     * @param projectId    Project's identifier
+     * @param notebookId   Notebook's identifier
+     * @param experimentId Experiment's identifier
+     * @param version      Experiment's version
+     * @param user         User
+     * @return Experiment's DTO object
+     */
+    public ExperimentDTO reopenExperiment(String projectId, String notebookId, String experimentId, Long version, User user) {
         Lock lock = locks.get(projectId);
         ExperimentDTO result;
         try {
@@ -392,6 +500,7 @@ public class ExperimentService {
         }
         return result;
     }
+
     private List<Component> updateComponents(List<Component> oldComponents, List<Component> newComponents, String experimentId) {
 
         List<Component> componentsFromDb = oldComponents != null ? oldComponents : Collections.emptyList();
@@ -445,26 +554,34 @@ public class ExperimentService {
                 String num2 = (String) o2.get(COMPONENT_FIELD_NBK_BATCH);
                 return num1.compareTo(num2);
             }));
-            if (!newBatches.isEmpty()){
-                newComponent.getContent().put(COMPONENT_FIELD_BATCHES,newBatches);
+            if (!newBatches.isEmpty()) {
+                newComponent.getContent().put(COMPONENT_FIELD_BATCHES, newBatches);
             }
         }
     }
 
-    private void updateBatch(Map<String, Object> oldBatch, List<Map<String, Object>> newBatches){
+    private void updateBatch(Map<String, Object> oldBatch, List<Map<String, Object>> newBatches) {
         String nbkBatch = (String) oldBatch.get(COMPONENT_FIELD_NBK_BATCH);
         Optional<Map<String, Object>> batch = newBatches.stream()
                 .filter(b -> b.get(COMPONENT_FIELD_NBK_BATCH) != null && b.get(COMPONENT_FIELD_NBK_BATCH).equals(nbkBatch))
                 .findAny();
 
-        if (batch.isPresent()){
+        if (batch.isPresent()) {
             Map<String, Object> newBatch = batch.get();
             newBatch.clear();
             newBatch.putAll(oldBatch);
-        }else {
+        } else {
             newBatches.add(oldBatch);
         }
     }
+
+    /**
+     * Removes experiment
+     *
+     * @param id         Experiment's identifier
+     * @param projectId  Project's identifier
+     * @param notebookId Notebook's identifier
+     */
     public void deleteExperiment(String id, String projectId, String notebookId) {
         Experiment experiment = Optional.ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, id))).
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(id));

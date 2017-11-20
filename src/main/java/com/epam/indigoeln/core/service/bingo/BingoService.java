@@ -34,10 +34,21 @@ import java.util.Optional;
 @Service
 public class BingoService {
 
+    /**
+     * Logger instance
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(BingoService.class);
 
+    /**
+     * ObjectMapper instance for reading JSON
+     */
     @Autowired
     private ObjectMapper objectMapper;
+
+
+    /**
+     * BingoProperties instance for getting BingoDB properties
+     */
     @Autowired
     private BingoProperties bingoProperties;
 

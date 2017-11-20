@@ -22,6 +22,9 @@ import java.util.*;
 @Service
 public class CalculationService {
 
+    /**
+     * Logger instance
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(CalculationService.class);
 
     private static final String SALT_CODE = "SALT_CODE";

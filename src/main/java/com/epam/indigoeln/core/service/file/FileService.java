@@ -22,34 +22,65 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.Optional;
 
+/**
+ * Provides a number of methods for access to files in database
+ */
 @Service
 public class FileService {
 
+    /**
+     * Repository for access to files in database
+     */
     @Autowired
     FileRepository fileRepository;
 
+    /**
+     * Repository for access to projects in database
+     */
     @Autowired
     ProjectRepository projectRepository;
 
+    /**
+     * Repository for access to experiments in database
+     */
     @Autowired
     ExperimentRepository experimentRepository;
 
+    /**
+     * Returns all project files (with paging)
+     *
+     * @param projectId Project's identifier
+     * @param pageable  Pagination information
+     * @return Page with GridFS files
+     */
     public Page<GridFSDBFile> getAllFilesByProjectId(String projectId, Pageable pageable) {
         Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
                 orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
         return fileRepository.findAll(project.getFileIds(), pageable);
     }
 
+    /**
+     * Returns all experiment files
+     *
+     * @param experimentId Experiment's identifier
+     * @return Page with GridFS files
+     */
     public Page<GridFSDBFile> getAllFilesByExperimentId(String experimentId) {
         Experiment experiment = Optional.ofNullable(experimentRepository.findOne(experimentId)).
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentId));
-        if (experiment.getFileIds().isEmpty()){
+        if (experiment.getFileIds().isEmpty()) {
             return new PageImpl<>(Collections.emptyList());
-        }else {
+        } else {
             return fileRepository.findAll(experiment.getFileIds(), new PageRequest(0, experiment.getFileIds().size()));
         }
     }
 
+    /**
+     * Returns GridFS file by id
+     *
+     * @param id File's identifier
+     * @return GridFS file
+     */
     public GridFSDBFile getFileById(String id) {
         GridFSDBFile gridFSDBFile = fileRepository.findOneById(id);
         if (gridFSDBFile == null) {
@@ -58,6 +89,16 @@ public class FileService {
         return gridFSDBFile;
     }
 
+    /**
+     * Creates a new file for the project
+     *
+     * @param projectId   Project's identifier
+     * @param content     Input stream of bytes for file
+     * @param filename    File's name
+     * @param contentType Content type of file
+     * @param user        User
+     * @return Created GridFS file
+     */
     public GridFSFile saveFileForProject(String projectId, InputStream content,
                                          String filename, String contentType, User user) {
         Project project = null;
@@ -74,6 +115,16 @@ public class FileService {
         return gridFSFile;
     }
 
+    /**
+     * Creates new file for the experiment
+     *
+     * @param experimentId Experiment's identifier
+     * @param content      Input stream of bytes for file
+     * @param filename     File's name
+     * @param contentType  Content type of file
+     * @param user         User
+     * @return Created GridFS file
+     */
     public GridFSFile saveFileForExperiment(String experimentId, InputStream content,
                                             String filename, String contentType, User user) {
         Experiment experiment = Optional.ofNullable(experimentRepository.findOne(experimentId)).
@@ -86,6 +137,11 @@ public class FileService {
         return gridFSFile;
     }
 
+    /**
+     * Removes project file
+     *
+     * @param id Project's identifier
+     */
     public void deleteProjectFile(String id) {
         Project project = projectRepository.findByFileId(id);
         if (project != null) {
@@ -95,6 +151,11 @@ public class FileService {
         fileRepository.delete(id);
     }
 
+    /**
+     * Removes experiment file
+     *
+     * @param id Experiment file's identifier
+     */
     public void deleteExperimentFile(String id) {
         Experiment experiment = experimentRepository.findByFileId(id);
         if (experiment == null) {

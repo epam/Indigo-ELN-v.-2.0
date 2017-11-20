@@ -78,7 +78,7 @@ public class DictionaryService {
     public DictionaryDTO updateDictionary(DictionaryDTO dictionaryDTO) {
 
         Dictionary dictionary = Optional.ofNullable(dictionaryRepository.findOne(dictionaryDTO.getId())).
-                orElseThrow(() -> new EntityNotFoundException("Dictionary with id does not exists", dictionaryDTO.getId()));
+                orElseThrow(() -> EntityNotFoundException.createWithDictionaryId(dictionaryDTO.getId()));
 
         dictionary.setName(dictionaryDTO.getName());
         dictionary.setDescription(dictionaryDTO.getDescription());
@@ -128,13 +128,16 @@ public class DictionaryService {
         final boolean contentEditor = PermissionUtil.isContentEditor(user);
         List<Notebook> notebooks = contentEditor ?
                 notebookRepository.findAll() :
-                notebookRepository.findByUserIdAndPermissions(user.getId(), Collections.singletonList(UserPermission.READ_ENTITY));
+                notebookRepository.findByUserIdAndPermissions(user.getId(),
+                        Collections.singletonList(UserPermission.READ_ENTITY));
         AtomicInteger counter = new AtomicInteger(0);
         final Set<ExperimentDictionaryDTO.ExperimentDictionaryItemDTO> experiments = notebooks.stream().flatMap(
                 n -> n.getExperiments().stream().filter(
-                        e -> contentEditor || PermissionUtil.hasPermissions(user.getId(), e.getAccessList(), UserPermission.READ_ENTITY)
+                        e -> contentEditor || PermissionUtil.hasPermissions(user.getId(), e.getAccessList(),
+                                UserPermission.READ_ENTITY)
                 ).map(e -> {
-                    ExperimentDictionaryDTO.ExperimentDictionaryItemDTO experiment = new ExperimentDictionaryDTO.ExperimentDictionaryItemDTO();
+                    ExperimentDictionaryDTO.ExperimentDictionaryItemDTO experiment = new ExperimentDictionaryDTO
+                            .ExperimentDictionaryItemDTO();
                     String name = n.getName() + "-" + e.getName();
                     if (e.getExperimentVersion() > 1 || !e.isLastVersion()) {
                         name += " v" + e.getExperimentVersion();

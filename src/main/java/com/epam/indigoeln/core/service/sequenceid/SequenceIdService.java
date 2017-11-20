@@ -44,7 +44,8 @@ public class SequenceIdService {
     public String getNextProjectId() {
         Pageable request = new PageRequest(0, 1, new Sort(Sort.Direction.DESC, FIELD_SEQ_ID));
         Page<SequenceId> page = repository.findAll(request);
-        SequenceId newSequenceId = new SequenceId(page.getContent().isEmpty() ? 1L : page.getContent().get(0).getSequence() + 1L);
+        SequenceId newSequenceId = new SequenceId(page.getContent().isEmpty()
+                ? 1L : page.getContent().get(0).getSequence() + 1L);
         return  repository.save(newSequenceId).getSequence().toString();
     }
 
@@ -62,7 +63,10 @@ public class SequenceIdService {
             projectSequenceId.setChildren(new ArrayList<>());
         }
 
-        Long nextNotebookId = projectSequenceId.getChildren().stream().mapToLong(SequenceId::getSequence).max().orElse(0L) + 1L;
+        Long nextNotebookId = projectSequenceId.getChildren().stream()
+                .mapToLong(SequenceId::getSequence)
+                .max()
+                .orElse(0L) + 1L;
         projectSequenceId.getChildren().add(new SequenceId(ObjectId.get().toHexString(), nextNotebookId));
         repository.save(projectSequenceId);
 
@@ -70,7 +74,8 @@ public class SequenceIdService {
     }
 
     /**
-     * Generates next experiment id and persists it as new embedded sub document within project notebook into sequence collection
+     * Generates next experiment id and persists it as new embedded sub document within project notebook
+     * into sequence collection
      * Full experiment id looks like "{projectId}-{notebookSeqId}-{nextExperimentSeqId}"
      *
      * @param projectId project id
@@ -87,7 +92,10 @@ public class SequenceIdService {
             notebookSequenceId.setChildren(new ArrayList<>());
         }
 
-        Long nextExperimentId = notebookSequenceId.getChildren().stream().mapToLong(SequenceId::getSequence).max().orElse(0L) + 1L;
+        Long nextExperimentId = notebookSequenceId.getChildren().stream()
+                .mapToLong(SequenceId::getSequence)
+                .max()
+                .orElse(0L) + 1L;
         notebookSequenceId.getChildren().add(new SequenceId(ObjectId.get().toHexString(), nextExperimentId));
         repository.save(projectSequenceId);
 
@@ -102,11 +110,13 @@ public class SequenceIdService {
      * @param clientLatestBatchNumberStr latest batch number received from client
      * @return next batch number value
      */
-    public String getNotebookBatchNumber(String projectId, String notebookId, String experimentId, String clientLatestBatchNumberStr) {
+    public String getNotebookBatchNumber(String projectId, String notebookId, String experimentId,
+                                         String clientLatestBatchNumberStr) {
         batchNumberLock.lock();
         try {
             ExperimentDTO experiment = Optional.ofNullable(
-                    experimentService.getExperiment(projectId, notebookId, experimentId, userService.getUserWithAuthorities())).
+                    experimentService.getExperiment(projectId, notebookId, experimentId,
+                            userService.getUserWithAuthorities())).
                     orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentId));
 
             int dbLastBatchNumber = BatchComponentUtil.getLastBatchNumber(experiment).orElse(0);
@@ -125,14 +135,15 @@ public class SequenceIdService {
 
     private SequenceId getProjectSequenceId(String projectId) {
         return repository.findBySequence(Long.valueOf(projectId)).
-                orElseThrow(() -> new EntityNotFoundException("Can't find sequence id for project", projectId));
+                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
     }
 
     private SequenceId getNotebookSequenceId(SequenceId projectSequenceId, String notebookId) {
-        List<SequenceId> children = projectSequenceId.getChildren() != null ? projectSequenceId.getChildren() : Collections.emptyList();
+        List<SequenceId> children = projectSequenceId.getChildren() != null
+                ? projectSequenceId.getChildren() : Collections.emptyList();
 
         return  children.stream().filter(s -> notebookId.equals(s.getSequence().toString())).findAny().
-                     orElseThrow(() -> new EntityNotFoundException("Can't find sequence id for notebook", notebookId));
+                     orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
 
     }
 }
