@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 public class AutosaveService {
 
     /**
-     *
+     * AutosaveRepository instance for access to database
      */
     @Autowired
     private AutosaveRepository autosaveRepository;
