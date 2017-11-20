@@ -49,7 +49,7 @@
                 <div class="col-lg-4 text-align-lg">
                     <div class="btn-group">
                         <button type="button" ng-click="vm.analyzeRxn()"
-                                ng-disabled="vm.isReadonly || !vm.componentData.products"
+                                ng-disabled="vm.isReadonly || !vm.infoReactants.length"
                                 class="btn btn-info btn-small">
                             <span class="fa fa-line-chart"></span>
                             <span class="m-l5" i-translate="ANALYZE_RXN"></span>

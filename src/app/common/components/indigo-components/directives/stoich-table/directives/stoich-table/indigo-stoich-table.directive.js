@@ -5,7 +5,6 @@ var searchReagentsTemplate = require('../../../../common/search-reagents/search-
 function indigoStoichTable() {
     return {
         restrict: 'E',
-        replace: true,
         template: template,
         controller: IndigoStoichTableController,
         controllerAs: 'vm',
@@ -49,17 +48,25 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         'compoundId'
     ];
 
-    vm.clear = clear;
-    vm.appendRow = appendRow;
-    vm.removeRow = removeRow;
-    vm.onRowSelected = onRowSelected;
-    vm.noReactantsInStoic = noReactantsInStoic;
-    vm.analyzeRxn = analyzeRxn;
-    vm.createRxn = createRxn;
-    vm.searchReagents = searchReagents;
-    vm.onCloseCell = onCloseCell;
-
     init();
+
+    function init() {
+        vm.reactantsColumns = getReactantColumns();
+        vm.productsColumns = getProductColumns();
+        vm.limitingRow = null;
+
+        vm.clear = clear;
+        vm.appendRow = appendRow;
+        vm.removeRow = removeRow;
+        vm.onRowSelected = onRowSelected;
+        vm.noReactantsInStoic = noReactantsInStoic;
+        vm.analyzeRxn = analyzeRxn;
+        vm.createRxn = createRxn;
+        vm.searchReagents = searchReagents;
+        vm.onCloseCell = onCloseCell;
+
+        bindEvents();
+    }
 
     function clear() {
         _.remove(vm.selectedRow, function(value, key) {
@@ -75,8 +82,10 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     }
 
     function removeRow() {
-        setStoicReactants(_.without(vm.componentData.reactants, vm.selectedRow));
-        calculationService.recalculateStoich();
+        _.remove(vm.componentData.reactants, vm.selectedRow);
+        vm.selectedRow = null;
+        updateReactants();
+        calculationService.recalculateStoich(vm.componentData);
         vm.onChanged();
     }
 
@@ -118,9 +127,10 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     }
 
     function checkLimiting() {
-        var limiting = calculationService.findLimiting(vm.componentData.reactants);
+        var limiting = vm.limitingRow || calculationService.findLimiting(vm.componentData.reactants);
         if (!limiting && vm.componentData.reactants.length) {
-            _.first(vm.componentData.reactants).limiting = true;
+            vm.limitingRow = _.first(vm.componentData.reactants);
+            vm.limitingRow.limiting = true;
         }
     }
 
@@ -129,7 +139,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         var stoicReactantsMolfiles = _.compact(_.map(vm.componentData.reactants, function(batch) {
             return batch.rxnRole.name === REACTANT && batch.structure.molfile;
         }));
-        var intendedProductsMolfiles = _.compact(_.map(getIntendedProducts(), function(batch) {
+        var intendedProductsMolfiles = _.compact(_.map(vm.componentData.products, function(batch) {
             return batch.structure.molfile;
         }));
         calculationService.combineReactionComponents(stoicReactantsMolfiles, intendedProductsMolfiles)
@@ -153,8 +163,8 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         });
     }
 
-    function init() {
-        vm.reactantsColumns = [
+    function getReactantColumns() {
+        return [
             stoichReactantsColumns.compoundId,
             stoichReactantsColumns.casNumber,
             stoichReactantsColumns.chemicalName,
@@ -164,7 +174,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             stoichReactantsColumns.volume,
             stoichReactantsColumns.mol,
             stoichReactantsColumns.eq,
-            getLimiting(),
+            getLimitingColumn(),
             stoichReactantsColumns.rxnRole,
             stoichReactantsColumns.density,
             stoichReactantsColumns.molarity,
@@ -176,8 +186,10 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             stoichReactantsColumns.hazardComments,
             stoichReactantsColumns.comments
         ];
+    }
 
-        vm.productsColumns = [
+    function getProductColumns() {
+        return [
             stoichProductColumns.chemicalName,
             stoichProductColumns.formula,
             stoichProductColumns.molWeight,
@@ -189,8 +201,6 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             stoichProductColumns.hazardComments,
             stoichProductColumns.eq
         ];
-
-        bindEvents();
     }
 
     function onCloseCell(column, data) {
@@ -206,7 +216,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         }
     }
 
-    function getLimiting() {
+    function getLimitingColumn() {
         return _.extend({}, stoichReactantsColumns.limiting, {
             onClick: function(data) {
                 calculationService.setEntered(data);
@@ -228,30 +238,22 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         notifyService.error('Compound does not exist or in the wrong format');
     }
 
-    function getIntendedProducts() {
-        return vm.componentData.products;
-    }
-
-    function setStoicReactants(reactants) {
-        vm.componentData.reactants = reactants;
+    function updateReactants() {
         checkLimiting();
-        vm.onChangedReactants({reactants: reactants});
         vm.onPrecursorsChanged({precursors: getPrecursors()});
-        vm.onChanged();
-    }
-
-    function setIntendedProducts(products) {
-        vm.componentData.products = products;
     }
 
     function addStoicReactant(reactant) {
         vm.componentData.reactants.push(reactant);
+        checkLimiting();
         vm.onChangedReactants({reactants: vm.componentData.reactants});
+        calculationService.recalculateStoich(vm.componentData);
         vm.onChanged();
     }
 
     function onRxnRoleChange(data) {
         var SOLVENT = appValuesService.getRxnRoleSolvent().name;
+        checkLimiting();
         if (data.model.name === SOLVENT) {
             var valuesToDefault = ['weight', 'mol', 'eq', 'density', 'stoicPurity'];
             calculationService.resetValuesToDefault(valuesToDefault, data.row);
@@ -263,7 +265,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     }
 
     function getStructureImagesForIntendedProducts() {
-        _.each(getIntendedProducts(), function(item) {
+        _.forEach(vm.componentData.products, function(item) {
             if (!item.structure.image) {
                 calculationService.getImageForStructure(item.structure.molfile, 'molecule', function(image) {
                     item.structure.image = image;
@@ -285,11 +287,11 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         }
 
         if (vm.infoProducts && vm.infoProducts.length) {
-            setIntendedProducts(vm.infoProducts);
+            vm.componentData.products = vm.infoProducts;
             getStructureImagesForIntendedProducts();
         }
 
-        calculationService.recalculateStoich();
+        calculationService.recalculateStoich(vm.componentData);
     }
 
     function bindEvents() {
@@ -300,7 +302,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         });
 
         $scope.$watch('vm.componentData.products', function(products) {
-            _.each(products, function(batch) {
+            _.forEach(products, function(batch) {
                 if (!batch.$$batchHash) {
                     batch.$$batchHash = batch.formula + batch.exactMass;
                 }
@@ -308,9 +310,9 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             vm.onChangedProducts({products: products});
         }, true);
 
-        $scope.$on('stoich-rows-changed', function(event, data) {
-            addStoicReactant(data);
-            calculationService.recalculateStoich();
+        $scope.$on('stoich-rows-changed', function(event, reactants) {
+            _.forEach(reactants, addStoicReactant);
+            calculationService.recalculateStoich(vm.componentData);
         });
     }
 
@@ -318,12 +320,12 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         var newReactants = data.stoicBatches;
         var newProducts = data.intendedProducts;
         if (vm.componentData.reactants && newReactants.length === vm.componentData.reactants.length) {
-            _.each(vm.componentData.reactants, function(reactant, i) {
+            _.forEach(vm.componentData.reactants, function(reactant, i) {
                 _.extend(reactant, newReactants[i]);
             });
         }
-        if (getIntendedProducts() && newProducts.length === getIntendedProducts().length) {
-            _.each(getIntendedProducts(), function(product, i) {
+        if (vm.componentData.products && newProducts.length === vm.componentData.products.length) {
+            _.forEach(vm.componentData.products, function(product, i) {
                 _.extend(product, newProducts[i]);
             });
         }

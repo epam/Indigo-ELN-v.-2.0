@@ -134,12 +134,12 @@ function calculationService($rootScope, $http, $q, appValuesService, apiUrl,
         return $q.resolve(reagent);
     }
 
-    function recalculateStoich() {
+    function recalculateStoich(stoich) {
         if (recalculatingStoich) {
             return;
         }
         recalculatingStoich = true;
-        var stoichTable = stoichTableCache.getStoicTable();
+        var stoichTable = stoich || stoichTableCache.getStoicTable();
         var requestData = {
             stoicBatches: setDefaultValues(stoichTable.reactants),
             intendedProducts: setDefaultValues(stoichTable.products),
