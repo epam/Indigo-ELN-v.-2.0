@@ -3,7 +3,6 @@ function CreateNewExperimentModalController(componentsUtil, $uibModalInstance, e
                                             principalService, $q, simpleLocalCache, fullNotebookId,
                                             notebooksForSubCreationService, templateService) {
     var vm = this;
-    var userId;
     var lastSelectedTemplateIdKey = '.lastSelectedTemplateId';
     var lastSelectedNotebookIdKey = '.lastSelectedNotebookId';
 
@@ -28,8 +27,7 @@ function CreateNewExperimentModalController(componentsUtil, $uibModalInstance, e
 
         $q.all([
             notebooksForSubCreationService.query().$promise,
-            templateService.query({size: 100000}).$promise,
-            updateUserId()
+            templateService.query({size: 100000}).$promise
         ]).then(function(responses) {
             vm.notebooks = responses[0];
             vm.templates = responses[1];
@@ -38,19 +36,16 @@ function CreateNewExperimentModalController(componentsUtil, $uibModalInstance, e
         });
     }
 
-    function updateUserId() {
-        return principalService.checkIdentity()
-            .then(function(user) {
-                userId = user.id;
-            });
+    function getKey(suffix) {
+        return principalService.getIdentity().id + suffix;
     }
 
     function onTemplateSelect() {
-        onSelect(userId + lastSelectedTemplateIdKey, vm.selectedTemplate.id);
+        onSelect(getKey(lastSelectedTemplateIdKey), vm.selectedTemplate.id);
     }
 
     function onNotebookSelect() {
-        onSelect(userId + lastSelectedNotebookIdKey, vm.selectedNotebook.fullId);
+        onSelect(getKey(lastSelectedNotebookIdKey), vm.selectedNotebook.fullId);
     }
 
     function onSelect(key, id) {
@@ -58,7 +53,8 @@ function CreateNewExperimentModalController(componentsUtil, $uibModalInstance, e
     }
 
     function selectNotebookById() {
-        var lastNotebookId = vm.fullNotebookId || simpleLocalCache.getByKey(userId + lastSelectedNotebookIdKey);
+        var lastNotebookId = vm.fullNotebookId
+            || simpleLocalCache.getByKey(getKey(lastSelectedNotebookIdKey));
 
         if (lastNotebookId) {
             vm.selectedNotebook = _.find(vm.notebooks, {fullId: lastNotebookId});
@@ -66,7 +62,7 @@ function CreateNewExperimentModalController(componentsUtil, $uibModalInstance, e
     }
 
     function selectTemplateById() {
-        var lastSelectedTemplateId = simpleLocalCache.getByKey(userId + lastSelectedTemplateIdKey);
+        var lastSelectedTemplateId = simpleLocalCache.getByKey(getKey(lastSelectedTemplateIdKey));
 
         if (lastSelectedTemplateId) {
             vm.selectedTemplate = _.find(vm.templates, {id: lastSelectedTemplateId});

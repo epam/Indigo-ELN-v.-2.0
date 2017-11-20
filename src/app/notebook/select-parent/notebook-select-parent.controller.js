@@ -1,8 +1,7 @@
 /* @ngInject */
 function NotebookSelectParentController($uibModalInstance, parents, principalService, simpleLocalCache) {
     var vm = this;
-    var lastSelectedNotebookIdKey = '.lastSelectedNotebookId';
-    var keyOfLastSelectedProject;
+    var lastSelectedProjectIdKey = '.lastSelectedProjectId';
 
     vm.parents = parents;
     vm.selectedParent = '';
@@ -22,19 +21,19 @@ function NotebookSelectParentController($uibModalInstance, parents, principalSer
     }
 
     function onSelect() {
-        simpleLocalCache.putByKey(keyOfLastSelectedProject, vm.selectedParent.id);
+        simpleLocalCache.putByKey(getKey(lastSelectedProjectIdKey), vm.selectedParent.id);
+    }
+
+    function getKey(suffix) {
+        return principalService.getIdentity().id + suffix;
     }
 
     function init() {
-        principalService.checkIdentity()
-            .then(function(user) {
-                keyOfLastSelectedProject = user.id + lastSelectedNotebookIdKey;
-                var lastSelectedProjectId = simpleLocalCache.getByKey(keyOfLastSelectedProject);
+        var lastSelectedProjectId = simpleLocalCache.getByKey(getKey(lastSelectedProjectIdKey));
 
-                if (lastSelectedProjectId) {
-                    vm.selectedParent = _.find(parents, {id: lastSelectedProjectId});
-                }
-            });
+        if (lastSelectedProjectId) {
+            vm.selectedParent = _.find(parents, {id: lastSelectedProjectId});
+        }
     }
 }
 
