@@ -50,13 +50,13 @@
         </table>
     </div>
     <div class="text-center">
-        <div
-            uib-pagination
-            class="pagination-sm"
-            total-items="vm.searchText ? vm.filteredFiles.length : vm.rowsForDisplay.length"
-            ng-model="vm.pagination.page"
-            ng-change="vm.onPageChanged()"
-            items-per-page="vm.pagination.pageSize"></div>
+        <div uib-pagination
+             class="pagination-sm"
+             total-items="vm.searchText ? vm.filteredFiles.length : vm.rowsForDisplay.length"
+             ng-model="vm.pagination.page"
+             ng-change="vm.onPageChanged()"
+             items-per-page="vm.pagination.pageSize">
+        </div>
     </div>
 </div>
 

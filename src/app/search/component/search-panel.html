@@ -240,12 +240,13 @@
             </tbody>
         </table>
         <div class="text-center" ng-if="vm.state.searchResults.length > vm.state.searchResultsPaged.length">
-            <div
-                uib-pagination
-                class="pagination-sm"
-                total-items="vm.state.searchResults.length"
-                items-per-page="vm.state.itemsPerPage"
-                ng-model="vm.state.page" ng-change="vm.doPage()"></div>
+            <div uib-pagination
+                 class="pagination-sm"
+                 total-items="vm.state.searchResults.length"
+                 items-per-page="vm.state.itemsPerPage"
+                 ng-model="vm.state.page"
+                 ng-change="vm.doPage()">
+            </div>
         </div>
     </div>
 </div>
