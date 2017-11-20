@@ -92,6 +92,8 @@ function experimentConfig($stateProvider, permissionsConfig, permissionViewConfi
             parent: 'entities.experiment-detail',
             url: '/print',
             onEnter: function(printModal, $stateParams, $state) {
+                'ngInject';
+
                 printModal
                     .showPopup($stateParams, 'experimentService')
                     .catch(function() {

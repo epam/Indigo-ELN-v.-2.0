@@ -114,6 +114,8 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
             parent: 'entities.notebook-detail',
             url: '/print',
             onEnter: function(printModal, $stateParams, $state) {
+                'ngInject';
+
                 printModal
                     .showPopup($stateParams, 'notebookService')
                     .catch(function() {

@@ -107,6 +107,8 @@ function projectConfig($stateProvider, permissionsConfig, permissionViewConfig, 
             parent: 'entities.project-detail',
             url: '/print',
             onEnter: function(printModal, $stateParams, $state) {
+                'ngInject';
+
                 printModal
                     .showPopup($stateParams, 'projectService')
                     .catch(function() {
