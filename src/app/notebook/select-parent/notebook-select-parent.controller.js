@@ -1,5 +1,5 @@
 /* @ngInject */
-function NotebookSelectParentController($scope, $uibModalInstance, parents, principalService, simpleLocalCache) {
+function NotebookSelectParentController($uibModalInstance, parents, principalService, simpleLocalCache) {
     var vm = this;
     var lastSelectedNotebookIdKey = '.lastSelectedNotebookId';
     var keyOfLastSelectedProject;
@@ -9,6 +9,7 @@ function NotebookSelectParentController($scope, $uibModalInstance, parents, prin
 
     vm.ok = okPressed;
     vm.cancel = cancelPressed;
+    vm.onSelect = onSelect;
 
     init();
 
@@ -20,6 +21,10 @@ function NotebookSelectParentController($scope, $uibModalInstance, parents, prin
         $uibModalInstance.dismiss();
     }
 
+    function onSelect() {
+        simpleLocalCache.putByKey(keyOfLastSelectedProject, vm.selectedParent.id);
+    }
+
     function init() {
         principalService.checkIdentity()
             .then(function(user) {
@@ -29,17 +34,7 @@ function NotebookSelectParentController($scope, $uibModalInstance, parents, prin
                 if (lastSelectedProjectId) {
                     vm.selectedParent = _.find(parents, {id: lastSelectedProjectId});
                 }
-
-                bindEvents();
             });
-    }
-
-    function bindEvents() {
-        $scope.$watch('vm.selectedParent', function() {
-            if (vm.selectedParent) {
-                simpleLocalCache.putByKey(keyOfLastSelectedProject, vm.selectedParent.id);
-            }
-        });
     }
 }
 

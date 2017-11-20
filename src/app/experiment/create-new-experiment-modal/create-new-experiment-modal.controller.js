@@ -1,11 +1,11 @@
 /* @ngInject */
-function CreateNewExperimentModalController($scope, componentsUtil, $uibModalInstance, experimentService,
+function CreateNewExperimentModalController(componentsUtil, $uibModalInstance, experimentService,
                                             principalService, $q, simpleLocalCache, fullNotebookId,
                                             notebooksForSubCreationService, templateService) {
     var vm = this;
     var userId;
     var lastSelectedTemplateIdKey = '.lastSelectedTemplateId';
-    var lastSelectedNotebookIdKey = '.lastSelectedNotebookIdKey';
+    var lastSelectedNotebookIdKey = '.lastSelectedNotebookId';
 
     init();
 
@@ -23,6 +23,8 @@ function CreateNewExperimentModalController($scope, componentsUtil, $uibModalIns
 
         vm.ok = save;
         vm.cancel = cancelPressed;
+        vm.onTemplateSelect = onTemplateSelect;
+        vm.onNotebookSelect = onNotebookSelect;
 
         $q.all([
             notebooksForSubCreationService.query().$promise,
@@ -34,8 +36,6 @@ function CreateNewExperimentModalController($scope, componentsUtil, $uibModalIns
             selectNotebookById();
             selectTemplateById();
         });
-
-        bindEvents();
     }
 
     function updateUserId() {
@@ -45,18 +45,16 @@ function CreateNewExperimentModalController($scope, componentsUtil, $uibModalIns
             });
     }
 
-    function bindEvents() {
-        $scope.$watch('vm.selectedTemplate', function() {
-            if (vm.selectedTemplate) {
-                simpleLocalCache.putByKey(userId + lastSelectedTemplateIdKey, vm.selectedTemplate.id);
-            }
-        });
+    function onTemplateSelect() {
+        onSelect(userId + lastSelectedTemplateIdKey, vm.selectedTemplate.id);
+    }
 
-        $scope.$watch('vm.selectedNotebook', function() {
-            if (vm.selectedNotebook) {
-                simpleLocalCache.putByKey(userId + lastSelectedNotebookIdKey, vm.selectedNotebook.fullId);
-            }
-        });
+    function onNotebookSelect() {
+        onSelect(userId + lastSelectedNotebookIdKey, vm.selectedNotebook.fullId);
+    }
+
+    function onSelect(key, id) {
+        simpleLocalCache.putByKey(key, id);
     }
 
     function selectNotebookById() {
