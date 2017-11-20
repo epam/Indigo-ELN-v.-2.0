@@ -15,13 +15,14 @@ function AnalyzeRxnController($uibModalInstance, reactants, searchService, appVa
         vm.model = getDefaultModel();
         vm.tabs = buildTabs();
         vm.selectedReactants = [];
+        vm.countSelectedReactants = 0;
 
         vm.onSelected = onSelected;
     }
 
     function onSelected(tab, item) {
         tab.selectedReactant = item;
-
+        vm.countSelectedReactants += (item ? 1 : -1);
         vm.selectedReactants = buildReactantsFromSelected();
     }
 
@@ -41,8 +42,12 @@ function AnalyzeRxnController($uibModalInstance, reactants, searchService, appVa
     }
 
     function buildReactantsFromSelected() {
-        return _.map(_.filter(vm.tabs, 'selectedReactant'), function(tab) {
-            return stoichColumnActions.cleanReactant(_.extend(angular.copy(reactants[tab.id]), tab.selectedReactant));
+        return _.map(vm.tabs, function(tab) {
+            var copied = angular.copy(reactants[tab.id]);
+
+            return stoichColumnActions.cleanReactant(tab.selectedReactant ?
+                _.extend(copied, tab.selectedReactant)
+                : copied);
         });
     }
 

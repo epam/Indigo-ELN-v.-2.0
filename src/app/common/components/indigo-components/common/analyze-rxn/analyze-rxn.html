@@ -33,7 +33,7 @@
                    class="reagent-search-collapse-link">
                         <span ng-class="{'fa fa-angle-right':isSelectedReactantsCollapsed,
                              'fa fa-angle-down':!isSelectedReactantsCollapsed}"></span>
-                    Selected reactants ({{vm.selectedReactants.length}})
+                    Selected reactants ({{vm.countSelectedReactants}})
                 </a>
             </div>
             <div class="col-xs-9">
@@ -41,7 +41,7 @@
                     <button class="btn btn-info"
                             type="button"
                             ng-click="vm.addToStoichTable()"
-                            ng-disabled="!vm.selectedReactants.length">
+                            ng-disabled="!vm.countSelectedReactants">
                         <span class="fa fa-trash"></span><span class="m-l5" i-translate="ADD_TO_STOICH_TABLE"></span>
                     </button>
                     <button class="btn btn-info"
