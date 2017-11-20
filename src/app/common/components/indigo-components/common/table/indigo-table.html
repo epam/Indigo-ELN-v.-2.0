@@ -75,7 +75,8 @@
 </div>
 <div class="row" ng-if="vm.pagination.pageSize < vm.totalFilteredRowsLength">
     <div class="col-xs-12 text-center">
-        <div uib-pagination class="pagination-sm"
+        <div uib-pagination
+             class="pagination-sm"
              total-items="vm.totalFilteredRowsLength"
              ng-change="vm.onPageChanged()"
              ng-model="vm.pagination.page"

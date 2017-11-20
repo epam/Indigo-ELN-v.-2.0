@@ -27,7 +27,7 @@
             </thead>
             <tbody>
             <tr
-                    ng-repeat="file in vm.filteredFiles ? vm.filteredFiles : vm.files | limitTo:  vm.pagination.pageSize : vm.limit - vm.pagination.pageSize track by file.id">
+                ng-repeat="file in vm.filteredFiles ? vm.filteredFiles : vm.files | limitTo:  vm.pagination.pageSize : vm.limit - vm.pagination.pageSize track by file.id">
                 <td ng-bind="file.filename"></td>
                 <td ng-bind="file.author.login  || file.author.firstName"></td>
                 <td ng-bind="file.length | prettyBytes"></td>
@@ -50,10 +50,13 @@
         </table>
     </div>
     <div class="text-center">
-        <uib-pagination class="pagination-sm"
-                        total-items="vm.searchText ? vm.filteredFiles.length : vm.rowsForDisplay.length"
-                        ng-model="vm.pagination.page"
-                        ng-change="vm.onPageChanged()" items-per-page="vm.pagination.pageSize"></uib-pagination>
+        <div
+            uib-pagination
+            class="pagination-sm"
+            total-items="vm.searchText ? vm.filteredFiles.length : vm.rowsForDisplay.length"
+            ng-model="vm.pagination.page"
+            ng-change="vm.onPageChanged()"
+            items-per-page="vm.pagination.pageSize"></div>
     </div>
 </div>
 
