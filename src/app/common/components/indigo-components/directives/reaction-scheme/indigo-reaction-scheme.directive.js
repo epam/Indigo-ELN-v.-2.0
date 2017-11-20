@@ -18,10 +18,9 @@ function indigoReactionScheme() {
     };
 }
 
-IndigoReactionSchemeController.$inject = ['$scope', '$rootScope', 'calculationService', '$q', 'notifyService',
-    'appValuesService'];
+IndigoReactionSchemeController.$inject = ['$scope', 'calculationService', '$q', 'notifyService', 'appUnits'];
 
-function IndigoReactionSchemeController($scope, $rootScope, calculationService, $q, notifyService, appValuesService) {
+function IndigoReactionSchemeController($scope, calculationService, $q, notifyService, appUnits) {
     var vm = this;
 
     init();
@@ -67,7 +66,6 @@ function IndigoReactionSchemeController($scope, $rootScope, calculationService, 
         ]).then(function(results) {
             vm.componentData.infoReactants = moleculeInfoResponseCallback(results[0]);
             vm.componentData.infoProducts = moleculeInfoResponseCallback(results[1], true);
-            $rootScope.$broadcast('REACTION_CHANGED', vm.componentData);
             vm.onChanged();
         });
     }
@@ -94,25 +92,36 @@ function IndigoReactionSchemeController($scope, $rootScope, calculationService, 
         return $q.reject();
     }
 
+    function createReactant(isProduct, index, result) {
+        return _.extend({}, appUnits.defaultBatch, {
+            chemicalName: isProduct ? getDefaultChemicalName(index) : result.name,
+            formula: result.molecularFormula,
+            molWeight: {
+                value: result.molecularWeight
+            },
+            exactMass: result.exactMolecularWeight,
+            structure: {
+                image: result.image,
+                molfile: result.molecule,
+                structureType: 'molecule'
+            }
+        });
+    }
+
     function moleculeInfoResponseCallback(results, isProduct) {
         if (!results || results.length === 0) {
             return null;
         }
 
-        return _.map(results, function(result, index) {
-            var batch = appValuesService.getDefaultBatch();
-            batch.chemicalName = isProduct ? getDefaultChemicalName(index) : result.name;
-            batch.formula = result.molecularFormula;
-            batch.molWeight.value = result.molecularWeight;
-            batch.exactMass = result.exactMolecularWeight;
-            batch.structure = {
-                image: result.image,
-                molfile: result.molecule,
-                structureType: 'molecule'
-            };
+        var moleculeInfo = [];
 
-            return batch;
+        _.forEach(results, function(result, index) {
+            if (!_.isEmpty(result.molecularFormula)) {
+                moleculeInfo.push(createReactant(isProduct, index, result));
+            }
         });
+
+        return moleculeInfo;
     }
 
     function getDefaultChemicalName(index) {
