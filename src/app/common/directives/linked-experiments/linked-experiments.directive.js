@@ -21,23 +21,24 @@ function linkedExperiments() {
         },
         template: template
     };
+}
 
-    function LinkedExperimentsController(commonHelper) {
-        var vm = this;
+/* @ngInject */
+function LinkedExperimentsController(commonHelper) {
+    var vm = this;
 
-        init();
+    init();
 
-        function init() {
-            vm.refresh = refresh;
-        }
+    function init() {
+        vm.refresh = refresh;
+    }
 
-        function refresh(query) {
-            commonHelper.getExperiments().then(function(experiments) {
-                vm.items = _.filter(experiments, function(experiment) {
-                    return experiment.name.startsWith(query);
-                });
+    function refresh(query) {
+        commonHelper.getExperiments().then(function(experiments) {
+            vm.items = _.filter(experiments, function(experiment) {
+                return experiment.name.startsWith(query);
             });
-        }
+        });
     }
 }
 

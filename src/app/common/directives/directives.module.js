@@ -19,6 +19,7 @@ var pressEnter = require('./press-enter/press-enter.directive');
 var simpleRadio = require('./simple-radio/simple-radio.directive');
 var detectRendered = require('./detect-rendered/detect-rendered.directive');
 var simpleInput = require('./simple-input/simple-input.directive');
+var linkedExperiments = require('./linked-experiments/linked-experiments.directive');
 
 var entityTree = require('./entity-tree/entity-tree.module');
 var indigoFormElements = require('./indigo-form-elements/indigo-form-elements.module');
@@ -52,5 +53,6 @@ module.exports = angular
     .directive('simpleRadio', simpleRadio)
     .directive('detectRendered', detectRendered)
     .directive('simpleInput', simpleInput)
+    .directive('linkedExperiments', linkedExperiments)
 
     .name;
