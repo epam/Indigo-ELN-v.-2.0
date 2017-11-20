@@ -64,7 +64,9 @@ function IndigoTableController($scope, dragulaService, simpleLocalCache, princip
         };
 
         vm.startEdit = startEdit;
-        vm.searchDebounce = _.debounce(search, 300);
+        vm.searchDebounce = _.debounce(function() {
+            $timeout(search());
+        }, 300);
         vm.onRowSelect = onRowSelect;
         vm.onPageChanged = onPageChanged;
         vm.onChangedColumnSetting = onChangedColumnSetting;
@@ -231,8 +233,8 @@ function IndigoTableController($scope, dragulaService, simpleLocalCache, princip
     }
 
     function updateRowsForDisplay() {
-        if (!vm.filteredRows || vm.filteredRows.length === 0) {
-            vm.rowsForDisplay = null;
+        if ((!vm.filteredRows || vm.filteredRows.length === 0) && vm.rowsForDisplay) {
+            vm.rowsForDisplay.length = 0;
 
             return;
         }
