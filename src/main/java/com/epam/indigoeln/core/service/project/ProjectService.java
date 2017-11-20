@@ -23,21 +23,39 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Provides a number of methods for access to project's data in database
+ */
 @Service
 public class ProjectService {
 
+    /**
+     * Instance of ProjectRepository for access to projects in database
+     */
     @Autowired
     private ProjectRepository projectRepository;
 
+    /**
+     * Instance of NotebookRepository for access to notebooks in database
+     */
     @Autowired
     private NotebookRepository notebookRepository;
 
+    /**
+     * Instance of FileRepository for access to files in database
+     */
     @Autowired
     private FileRepository fileRepository;
 
+    /**
+     * Instance of UserRepository for access to users in database
+     */
     @Autowired
     private UserRepository userRepository;
 
+    /**
+     * Instance of CustomDtoMapper for conversion from dto object
+     */
     @Autowired
     private CustomDtoMapper mapper;
 
@@ -47,6 +65,11 @@ public class ProjectService {
     @Autowired
     private WebSocketUtil webSocketUtil;
 
+    /**
+     * Returns all projects without checking for UserPermissions
+     *
+     * @return List with projects
+     */
     public List<TreeNodeDTO> getAllProjectsAsTreeNodes() {
         return getAllProjectsAsTreeNodes(null);
     }
@@ -63,6 +86,13 @@ public class ProjectService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Returns project by id according to permissions
+     *
+     * @param id   Project's identifier
+     * @param user User
+     * @return Project by id
+     */
     public ProjectDTO getProjectById(String id, User user) {
         Optional<Project> projectOpt = Optional.ofNullable(projectRepository.findOne(id));
         Project project = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(id));
@@ -80,6 +110,7 @@ public class ProjectService {
      * Fetch all projects for current user available when create sub entity
      * return notebooks where users is in accessList and has permission CREATE_SUB_ENTITY,
      * or has authority CONTENT_EDITOR (but not in accessLIst)
+     *
      * @param user user
      * @return list of projects available for notebook creation
      */
@@ -91,6 +122,12 @@ public class ProjectService {
         return projects.stream().map(ShortEntityDTO::new).sorted(Comparator.comparing(ShortEntityDTO::getName)).collect(Collectors.toList());
     }
 
+    /**
+     * Creates project with OWNER's permissions for current user
+     *
+     * @param projectDTO Project to create
+     * @return Created project
+     */
     public ProjectDTO createProject(ProjectDTO projectDTO) {
         Project project = mapper.convertFromDTO(projectDTO);
 
@@ -111,8 +148,15 @@ public class ProjectService {
         return new ProjectDTO(project);
     }
 
+    /**
+     * Updates project according to permissions
+     *
+     * @param projectDTO Project to update
+     * @param user       User
+     * @return Updated project
+     */
     public ProjectDTO updateProject(ProjectDTO projectDTO, User user) {
-        Optional<Project> projectOpt =  Optional.ofNullable(projectRepository.findOne(projectDTO.getId()));
+        Optional<Project> projectOpt = Optional.ofNullable(projectRepository.findOne(projectDTO.getId()));
         Project projectFromDb = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectDTO.getId()));
 
         // check of EntityAccess (User must have "Update Entity" permission in project's access list,
@@ -141,8 +185,13 @@ public class ProjectService {
         return new ProjectDTO(project);
     }
 
+    /**
+     * Removes project
+     *
+     * @param id Project's identifier
+     */
     public void deleteProject(String id) {
-        Optional<Project> projectOpt =  Optional.ofNullable(projectRepository.findOne(id));
+        Optional<Project> projectOpt = Optional.ofNullable(projectRepository.findOne(id));
         Project project = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(id));
 
         if (project.getNotebooks() != null && !project.getNotebooks().isEmpty()) {
@@ -156,12 +205,13 @@ public class ProjectService {
     /**
      * Checks if user can be deleted from project's access list with all the permissions without any problems.
      * It checks all the notebooks and experiments and if any has this user added, then it will return false.
+     *
      * @param projectId project id
-     * @param userId user id
+     * @param userId    user id
      * @return true if none of notebooks or experiments has user added to it, true otherwise
      */
     public boolean isUserRemovable(String projectId, String userId) {
-        Optional<Project> projectOpt =  Optional.ofNullable(projectRepository.findOne(projectId));
+        Optional<Project> projectOpt = Optional.ofNullable(projectRepository.findOne(projectId));
         Project project = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
 
         List<Notebook> notebooks = project.getNotebooks();
