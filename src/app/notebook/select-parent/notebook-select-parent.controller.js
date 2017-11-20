@@ -1,11 +1,14 @@
 /* @ngInject */
-function NotebookSelectParentController($scope, $uibModalInstance, parents, principalService, simpleLocalCache) {
+function NotebookSelectParentController($uibModalInstance, parents, principalService, simpleLocalCache) {
     var vm = this;
+    var lastSelectedProjectIdKey = '.lastSelectedProjectId';
+
     vm.parents = parents;
     vm.selectedParent = '';
 
     vm.ok = okPressed;
     vm.cancel = cancelPressed;
+    vm.onSelect = onSelect;
 
     init();
 
@@ -17,26 +20,20 @@ function NotebookSelectParentController($scope, $uibModalInstance, parents, prin
         $uibModalInstance.dismiss();
     }
 
+    function onSelect() {
+        simpleLocalCache.putByKey(getKey(lastSelectedProjectIdKey), vm.selectedParent.id);
+    }
+
+    function getKey(suffix) {
+        return principalService.getIdentity().id + suffix;
+    }
+
     function init() {
-        // EPMLSOPELN-415 Remember last selected parent and template
-        principalService.checkIdentity()
-            .then(function(user) {
-                var pkey = user.id + '.lastSelectedProjectId';
-                var pval = simpleLocalCache.getByKey(pkey);
-                if (pval) {
-                    vm.selectedParent = parents.filter(function(p) {
-                        return p.id === pval;
-                    })[0];
-                }
-                var unsubscribe = $scope.$watchGroup(['selectedParent'], function() {
-                    if (vm.selectedParent) {
-                        simpleLocalCache.putByKey(pkey, vm.selectedParent.id);
-                    }
-                });
-                $scope.$on('$destroy', function() {
-                    unsubscribe();
-                });
-            });
+        var lastSelectedProjectId = simpleLocalCache.getByKey(getKey(lastSelectedProjectIdKey));
+
+        if (lastSelectedProjectId) {
+            vm.selectedParent = _.find(parents, {id: lastSelectedProjectId});
+        }
     }
 }
 

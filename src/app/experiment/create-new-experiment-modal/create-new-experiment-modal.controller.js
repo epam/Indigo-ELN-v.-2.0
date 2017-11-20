@@ -1,11 +1,10 @@
 /* @ngInject */
-function CreateNewExperimentModalController($scope, componentsUtil, $uibModalInstance, experimentService,
+function CreateNewExperimentModalController(componentsUtil, $uibModalInstance, experimentService,
                                             principalService, $q, simpleLocalCache, fullNotebookId,
                                             notebooksForSubCreationService, templateService) {
     var vm = this;
-    var userId;
     var lastSelectedTemplateIdKey = '.lastSelectedTemplateId';
-    var lastSelectedExperimentIdKey = '.lastSelectedExperimentId';
+    var lastSelectedNotebookIdKey = '.lastSelectedNotebookId';
 
     init();
 
@@ -23,45 +22,39 @@ function CreateNewExperimentModalController($scope, componentsUtil, $uibModalIns
 
         vm.ok = save;
         vm.cancel = cancelPressed;
+        vm.onTemplateSelect = onTemplateSelect;
+        vm.onNotebookSelect = onNotebookSelect;
 
         $q.all([
             notebooksForSubCreationService.query().$promise,
-            templateService.query({size: 100000}).$promise,
-            updateUserId()
+            templateService.query({size: 100000}).$promise
         ]).then(function(responses) {
             vm.notebooks = responses[0];
             vm.templates = responses[1];
             selectNotebookById();
             selectTemplateById();
         });
-
-        bindEvents();
     }
 
-    function updateUserId() {
-        return principalService.checkIdentity()
-            .then(function(user) {
-                userId = user.id;
-            });
+    function getKey(suffix) {
+        return principalService.getIdentity().id + suffix;
     }
 
-    function bindEvents() {
-        $scope.$watch('vm.selectedTemplate', function() {
-            // EPMLSOPELN-415 Remember last selected parent and template
-            if (vm.selectedTemplate) {
-                simpleLocalCache.putByKey(userId + lastSelectedTemplateIdKey, vm.selectedTemplate.id);
-            }
-        });
+    function onTemplateSelect() {
+        onSelect(getKey(lastSelectedTemplateIdKey), vm.selectedTemplate.id);
+    }
 
-        $scope.$watch('vm.selectedNotebook', function() {
-            if (vm.selectedNotebook) {
-                simpleLocalCache.putByKey(userId + lastSelectedExperimentIdKey, vm.selectedNotebook.id);
-            }
-        });
+    function onNotebookSelect() {
+        onSelect(getKey(lastSelectedNotebookIdKey), vm.selectedNotebook.fullId);
+    }
+
+    function onSelect(key, id) {
+        simpleLocalCache.putByKey(key, id);
     }
 
     function selectNotebookById() {
-        var lastNotebookId = vm.fullNotebookId || simpleLocalCache.getByKey(userId + lastSelectedTemplateIdKey);
+        var lastNotebookId = vm.fullNotebookId
+            || simpleLocalCache.getByKey(getKey(lastSelectedNotebookIdKey));
 
         if (lastNotebookId) {
             vm.selectedNotebook = _.find(vm.notebooks, {fullId: lastNotebookId});
@@ -69,7 +62,7 @@ function CreateNewExperimentModalController($scope, componentsUtil, $uibModalIns
     }
 
     function selectTemplateById() {
-        var lastSelectedTemplateId = simpleLocalCache.getByKey(userId + lastSelectedTemplateIdKey);
+        var lastSelectedTemplateId = simpleLocalCache.getByKey(getKey(lastSelectedTemplateIdKey));
 
         if (lastSelectedTemplateId) {
             vm.selectedTemplate = _.find(vm.templates, {id: lastSelectedTemplateId});

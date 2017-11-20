@@ -7,6 +7,7 @@
             <indigo-select indigo-label="Please select a Template for new experiment"
                            indigo-label-vertical="true"
                            indigo-model="vm.selectedTemplate"
+                           indigo-change="vm.onTemplateSelect()"
                            indigo-items="vm.templates"
                            indigo-item-prop="name"
             ></indigo-select>
@@ -14,6 +15,7 @@
                            indigo-label="Please select a Notebook for new experiment"
                            indigo-label-vertical="true"
                            indigo-model="vm.selectedNotebook"
+                           indigo-change="vm.onNotebookSelect()"
                            indigo-items="vm.notebooks"
                            indigo-item-prop="name"
             ></indigo-select>
