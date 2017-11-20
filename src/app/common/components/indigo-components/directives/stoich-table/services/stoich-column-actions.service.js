@@ -106,7 +106,8 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
             formula: batch.formula,
             saltCode: batch.saltCode,
             saltEq: batch.saltEq,
-            rxnRole: batch.rxnRole
+            rxnRole: batch.rxnRole,
+            chemicalName: batch.chemicalName
         };
     }
 
