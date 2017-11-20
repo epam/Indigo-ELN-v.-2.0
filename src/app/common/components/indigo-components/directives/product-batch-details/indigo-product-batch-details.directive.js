@@ -53,8 +53,6 @@ function IndigoProductBatchDetailsController($scope, appValuesService, infoEdito
         vm.editStorageInstructions = editStorageInstructions;
         vm.canEditSaltEq = batchHelper.canEditSaltEq;
         vm.recalculateSalt = batchHelper.recalculateSalt;
-        vm.onBatchOperationChanged = onBatchOperationChanged;
-        vm.isBatchLoading = false;
         vm.onClose = onClose;
 
         bindEvents();
@@ -149,10 +147,6 @@ function IndigoProductBatchDetailsController($scope, appValuesService, infoEdito
             batchHelper.columns.registrationDate,
             batchHelper.columns.registrationStatus
         ];
-    }
-
-    function onBatchOperationChanged(completed) {
-        vm.isBatchLoading = !completed;
     }
 
     function bindEvents() {

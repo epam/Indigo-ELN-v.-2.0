@@ -31,15 +31,13 @@
                 <sync-with-intended-products is-readonly="vm.isReadonly"></sync-with-intended-products>
                 <button type="button" class="btn btn-info btn-small" disabled i-translate="VNV"></button>
                 <register-batches is-readonly="vm.isReadonly"></register-batches>
-                <indigo-inline-loader promise="vm.batchOperation"
-                                      on-status-changed="vm.onBatchOperationChanged(completed)">
-                </indigo-inline-loader>
+                <indigo-inline-loader promise="vm.batchOperation"></indigo-inline-loader>
             </div>
         </div>
         <div class="action-panel__right">
             <span class="txt-small bold m-r5" i-translate="SD_FILE" i-end=":"></span>
             <div class="btn-group">
-                <import-sdf-file is-readonly="vm.isReadonly || vm.isBatchLoading"></import-sdf-file>
+                <import-sdf-file is-readonly="vm.isReadonly"></import-sdf-file>
                 <export-sdf-file is-readonly="!vm.hasCheckedRows(vm.batches)"></export-sdf-file>
             </div>
         </div>

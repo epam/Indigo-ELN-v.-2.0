@@ -43,8 +43,6 @@ function IndigoBatchSummaryController($scope, registrationUtil, batchHelper) {
         });
 
         vm.hasCheckedRows = batchHelper.hasCheckedRow;
-        vm.isBatchLoading = false;
-        vm.onBatchOperationChanged = onBatchOperationChanged;
         vm.onClose = batchHelper.close;
         vm.onChangedVisibleColumn = onChangedVisibleColumn;
 
@@ -102,10 +100,6 @@ function IndigoBatchSummaryController($scope, registrationUtil, batchHelper) {
 
     function getPrecursorColumn() {
         return _.extend({}, batchHelper.columns.precursors, {readonly: vm.isExistStoichTable});
-    }
-
-    function onBatchOperationChanged(completed) {
-        vm.isBatchLoading = !completed;
     }
 
     function bindEvents() {

@@ -45,8 +45,6 @@ function IndigoPreferredCompoundDetailsController($scope, entitiesBrowserService
         vm.selectBatch = selectBatch;
         vm.canEditSaltEq = batchHelper.canEditSaltEq;
         vm.recalculateSalt = batchHelper.recalculateSalt;
-        vm.onBatchOperationChanged = onBatchOperationChanged;
-        vm.isBatchLoading = false;
 
         bindEvents();
     }
@@ -60,10 +58,6 @@ function IndigoPreferredCompoundDetailsController($scope, entitiesBrowserService
             || !vm.selectedBatch
             || !vm.selectedBatch.nbkBatch
             || !!vm.selectedBatch.registrationStatus;
-    }
-
-    function onBatchOperationChanged(completed) {
-        vm.isBatchLoading = !completed;
     }
 
     function bindEvents() {

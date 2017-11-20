@@ -3,17 +3,17 @@
     <div class="panel-body collapsible">
         <div class="form-inline form-batch-details">
             <label><span i-translate="NOTEBOOK_BATCH_N"></span>: <span
-                    ng-bind="vm.selectedBatch.fullNbkImmutablePart"></span></label>
+                ng-bind="vm.selectedBatch.fullNbkImmutablePart"></span></label>
             <indigo-select
-                    indigo-model="vm.selectedBatch"
-                    indigo-items="vm.batches"
-                    indigo-change="vm.selectBatch(vm.selectedBatch)"
-                    indigo-item-prop="nbkBatch"
-                    class="select-inline"
+                indigo-model="vm.selectedBatch"
+                indigo-items="vm.batches"
+                indigo-change="vm.selectBatch(vm.selectedBatch)"
+                indigo-item-prop="nbkBatch"
+                class="select-inline"
             ></indigo-select>
             <indigo-checkbox
-                    indigo-model="vm.showSummary"
-                    indigo-label="Show summary table"
+                indigo-model="vm.showSummary"
+                indigo-label="Show summary table"
             ></indigo-checkbox>
         </div>
         <indigo-batch-summary ng-if="vm.showSummary"
@@ -58,8 +58,7 @@
                         <sync-with-intended-products is-readonly="vm.isReadonly"></sync-with-intended-products>
                         <button type="button" class="btn btn-info btn-small" disabled i-translate="VNV"></button>
                         <register-batches is-readonly="vm.isReadonly"></register-batches>
-                        <indigo-inline-loader promise="vm.batchOperation" class="product-batch-details__loader"
-                                              on-status-changed="vm.onBatchOperationChanged(completed)"></indigo-inline-loader>
+                        <indigo-inline-loader promise="vm.batchOperation"></indigo-inline-loader>
                         <simple-radio>
                             <input name="batchDetailsRadio"
                                    ng-disabled="vm.isEditDisabled"
@@ -80,7 +79,7 @@
                     <span class="txt-small bold m-r5"> <span i-translate="SD_FILE"></span>:</span>
 
                     <div class="btn-group">
-                        <import-sdf-file is-readonly="vm.isReadonly || vm.isBatchLoading"></import-sdf-file>
+                        <import-sdf-file is-readonly="vm.isReadonly"></import-sdf-file>
                         <export-sdf-file is-readonly="!vm.selectedBatch"
                                          is-selected-batch="true">
                         </export-sdf-file>

@@ -38,8 +38,6 @@ function IndigoCompoundSummaryController($scope, batchHelper) {
         vm.hasCheckedRows = batchHelper.hasCheckedRow;
         vm.vnv = angular.noop;
         vm.registerVC = angular.noop;
-        vm.onBatchOperationChanged = onBatchOperationChanged;
-        vm.isBatchLoading = false;
         vm.onClose = batchHelper.close;
         vm.onChangedVisibleColumn = onChangedVisibleColumn;
 
@@ -65,10 +63,6 @@ function IndigoCompoundSummaryController($scope, batchHelper) {
             batchHelper.columns.saltCode,
             batchHelper.columns.saltEq
         ];
-    }
-
-    function onBatchOperationChanged(completed) {
-        vm.isBatchLoading = !completed;
     }
 
     function bindEvents() {
