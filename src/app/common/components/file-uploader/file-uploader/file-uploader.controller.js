@@ -69,7 +69,7 @@ function FileUploaderController($uibModal, $filter, $stateParams, fileUploader,
             vm.files = _.union(result, vm.files);
             updateRowsForDisplay(vm.files);
             if (vm.files.length) {
-                vm.onChanged({files: vm.files});
+                vm.onChanged();
             }
         });
     }
