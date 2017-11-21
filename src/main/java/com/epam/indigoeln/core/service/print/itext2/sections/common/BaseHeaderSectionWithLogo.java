@@ -16,6 +16,10 @@ import java.awt.*;
 
 import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.BOLD_FONT_FAMILY;
 
+/**
+ * Abstract class which describes base functionality for section with header and logo
+ * @param <T>
+ */
 public abstract class BaseHeaderSectionWithLogo<T extends BaseHeaderModel>
         extends BasePdfSectionWithTableAndTitle<T>
         implements HeaderPdfSection {

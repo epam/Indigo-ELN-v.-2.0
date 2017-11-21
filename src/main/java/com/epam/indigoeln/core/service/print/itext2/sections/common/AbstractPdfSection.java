@@ -9,6 +9,10 @@ import com.lowagie.text.pdf.PdfWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Abstract class which provide base functionality for sections
+ * @param <T>
+ */
 public abstract class AbstractPdfSection<T extends SectionModel> implements PdfSection {
     protected final T model;
     protected final List<PdfPTable> elements = new ArrayList<>();

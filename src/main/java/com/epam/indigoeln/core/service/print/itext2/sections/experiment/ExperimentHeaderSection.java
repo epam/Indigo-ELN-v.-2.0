@@ -7,6 +7,9 @@ import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.ExperimentHeaderModel;
 import com.lowagie.text.pdf.PdfPTable;
 
+/**
+ * Extension of BaseHeaderSectionWithLogo for batch for experiment header
+ */
 public class ExperimentHeaderSection extends BaseHeaderSectionWithLogo <ExperimentHeaderModel> {
 
     private static final float[] COLUMNS_WIDTH = new float[]{1, 1, 1, 1.15f};

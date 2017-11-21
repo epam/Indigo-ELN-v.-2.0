@@ -15,13 +15,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Abstract class which describes base functionality for pdf section with title and table
+ * @param <T> Class which implements SectionModel interface
+ */
 public abstract class BasePdfSectionWithTableAndTitle<T extends SectionModel> extends AbstractPdfSection<T> {
     private PdfPTable titleTable;
     private PdfPTable contentTable;
 
     private static final int MIN_SPACE_FOR_CONTENT_ON_PAGE = 40;
 
-    public BasePdfSectionWithTableAndTitle(T model) {
+    BasePdfSectionWithTableAndTitle(T model) {
         super(model);
     }
 

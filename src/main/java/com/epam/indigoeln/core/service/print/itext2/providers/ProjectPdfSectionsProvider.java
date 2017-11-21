@@ -27,6 +27,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * The class is responsible for mapping project to a list of pdf sections used by pdf generator.
+ */
 public class ProjectPdfSectionsProvider implements PdfSectionsProvider {
     private Project project;
     private FileRepository fileRepository;
