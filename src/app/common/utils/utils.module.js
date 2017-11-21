@@ -7,7 +7,7 @@ var registrationUtil = require('./registration-util/registration-util.service');
 var parseLinks = require('./parse-links.service');
 var searchUtil = require('./search-util.service');
 var tabKeyService = require('./tab-key.service');
-var unitsConverter = require('./units-converter.service');
+var unitsConverter = require('./unit-converter/units-converter.service');
 
 module.exports = angular
     .module('indigoeln.common.utils', [])
