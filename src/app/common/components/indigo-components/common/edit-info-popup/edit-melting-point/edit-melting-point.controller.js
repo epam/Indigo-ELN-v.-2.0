@@ -14,7 +14,7 @@ function EditMeltingPointController($uibModalInstance, data) {
 
     function resultToString() {
         if (vm.meltingPoint.lower && vm.meltingPoint.upper) {
-            return 'Range ' + vm.meltingPoint.lower + ' ~ ' + vm.meltingPoint.upper + '\xB0C' + addCommentIfExist();
+            return vm.meltingPoint.lower + ' ~ ' + vm.meltingPoint.upper + '\xB0C' + addCommentIfExist();
         }
 
         return null;
