@@ -17,16 +17,20 @@ function SomethingDetailsController($scope, usersService) {
     }
 
     function bindEvents() {
-        $scope.$watch('vm.componentData.experimentCreator', function() {
-            userPromise.then(function() {
-                vm.experimentCreator = _.find(vm.users, {id: vm.componentData.experimentCreator});
-            });
+        $scope.$watch('vm.componentData.experimentCreator', function(experimentCreator) {
+            if (experimentCreator) {
+                userPromise.then(function() {
+                    vm.experimentCreator = _.find(vm.users, {id: vm.componentData.experimentCreator});
+                });
+            }
         });
 
-        $scope.$watch('vm.componentData.coAuthors', function() {
-            userPromise.then(function() {
-                vm.coAuthors = usersService.getUsersById(vm.componentData.coAuthors);
-            });
+        $scope.$watch('vm.componentData.coAuthors', function(coAuthors) {
+            if (coAuthors) {
+                userPromise.then(function() {
+                    vm.coAuthors = usersService.getUsersById(vm.componentData.coAuthors);
+                });
+            }
         });
 
         $scope.$watch('vm.componentData.designers', function(designers) {

@@ -58,7 +58,7 @@ function indigoTextEditor($timeout) {
                 }
             });
 
-            $scope.$watch('indigoReadonly', function(newValue) {
+            $scope.$watch('vm.indigoReadonly', function(newValue) {
                 editor.body.attr('contenteditable', !newValue);
             });
 
