@@ -95,6 +95,7 @@ function appRun($rootScope, $window, $state, $uibModal, editableOptions, authSer
 
         $http.defaults.headers.post['X-CSRF-TOKEN'] = csrfToken;
         $http.defaults.headers.put['X-CSRF-TOKEN'] = csrfToken;
+        $http.defaults.headers.delete = {'X-CSRF-TOKEN': csrfToken};
     }
 }
 

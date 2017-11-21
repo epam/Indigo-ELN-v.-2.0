@@ -331,8 +331,8 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         vm.isStatusSigning = status === 'Signing';
     }
 
-    function onChangedComponent(componentId) {
-        if (componentId === typeOfComponents.attachments) {
+    function onChangedComponent(component) {
+        if (component.componentId === typeOfComponents.attachments.id) {
             vm.loading = experimentService.get($stateParams).$promise
                 .then(function(result) {
                     vm.experiment.version = result.version;
