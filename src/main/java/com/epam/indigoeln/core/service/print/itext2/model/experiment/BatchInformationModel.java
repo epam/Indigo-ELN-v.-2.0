@@ -5,6 +5,9 @@ import com.epam.indigoeln.core.service.print.itext2.model.common.image.PdfImage;
 
 import java.util.List;
 
+/**
+ * Implementation of SectionModel interface for batch information
+ */
 public class BatchInformationModel implements SectionModel {
     private List<BatchInformationRow> rows;
 

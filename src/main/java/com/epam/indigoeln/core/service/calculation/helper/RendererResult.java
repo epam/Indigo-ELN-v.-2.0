@@ -6,6 +6,9 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Base64;
 
+/**
+ * Describes RenderResult object
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RendererResult implements Serializable {
 

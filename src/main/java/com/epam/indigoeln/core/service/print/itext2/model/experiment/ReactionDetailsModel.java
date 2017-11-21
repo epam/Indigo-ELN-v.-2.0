@@ -4,6 +4,9 @@ import com.epam.indigoeln.core.service.print.itext2.model.common.SectionModel;
 import java.time.ZonedDateTime;
 import java.util.List;
 
+/**
+ * Implementation of SectionModel interface for reaction details
+ */
 public class ReactionDetailsModel implements SectionModel {
     private ZonedDateTime creationDate;
     private String therapeuticArea;

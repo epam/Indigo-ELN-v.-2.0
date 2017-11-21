@@ -1,6 +1,9 @@
 package com.epam.indigoeln.core.service.print.itext2.model.common;
 import com.epam.indigoeln.core.service.print.itext2.model.common.image.PdfImage;
 
+/**
+ * Abstract representation for base header
+ */
 public abstract class BaseHeaderModel implements SectionModel {
     private static final int DEFAULT_PAGE = -1;
 

@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Provides methods for getting information from csv files
+ */
 @Service
 public class CodeTableService implements InitializingBean {
 

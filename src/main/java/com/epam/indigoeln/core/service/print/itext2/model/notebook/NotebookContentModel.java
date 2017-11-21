@@ -7,6 +7,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementation of SectionModel interface for notebook content
+ */
 public class NotebookContentModel implements SectionModel {
 
     private List<ContentModelRow> contentModelRows;
@@ -19,6 +22,9 @@ public class NotebookContentModel implements SectionModel {
         return contentModelRows;
     }
 
+    /**
+     * Inner class which describes content's row
+     */
     public static class ContentModelRow {
         private String notebookExperiment;
         private Details details;

@@ -7,6 +7,9 @@ import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 import java.util.Optional;
 
+/**
+ * Implementation of PdfImage
+ */
 public class SvgPdfImage implements PdfImage {
     private static  float PIXELS_PER_POINT = 3;
 
