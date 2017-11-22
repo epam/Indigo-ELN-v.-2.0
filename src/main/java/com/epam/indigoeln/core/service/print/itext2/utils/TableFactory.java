@@ -6,13 +6,16 @@ import com.lowagie.text.pdf.PdfPTable;
 
 import java.util.Arrays;
 
+/**
+ * Table factory for creating and format table
+ */
 public class TableFactory {
     private TableFactory() {
     }
 
     /**
      * @param headerCellHorizontalAlignment horizontal alignment for table header cells. <br>
-     *                                  <CODE>Element.ALIGN_CENTER</CODE> for example.
+     *                                      <CODE>Element.ALIGN_CENTER</CODE> for example.
      */
     public static PdfPTable createDefaultTable(String[] headers, float[] columnWidth,
                                                float width, int headerCellHorizontalAlignment) {
@@ -32,21 +35,54 @@ public class TableFactory {
         return table;
     }
 
+    /**
+     * Creates default table
+     *
+     * @param headers     Array with headers
+     * @param columnWidth Width of column
+     * @param width       Width
+     * @return Created table
+     * @see com.lowagie.text.pdf.PdfPTable
+     */
     public static PdfPTable createDefaultTable(String[] headers, float[] columnWidth, float width) {
         return createDefaultTable(headers, columnWidth, width, Element.ALIGN_CENTER);
     }
 
+    /**
+     * Creates default table
+     *
+     * @param headers Array with headers
+     * @param width   Width
+     * @return Created table
+     * @see com.lowagie.text.pdf.PdfPTable
+     */
     public static PdfPTable createDefaultTable(String[] headers, float width) {
         float[] columnWidth = new float[headers.length];
         Arrays.fill(columnWidth, 1f);
         return createDefaultTable(headers, columnWidth, width);
     }
 
+    /**
+     * Creates default table
+     *
+     * @param columnWidth Width of column
+     * @param width       Width
+     * @return Created table
+     * @see com.lowagie.text.pdf.PdfPTable
+     */
     public static PdfPTable createDefaultTable(float[] columnWidth, float width) {
         PdfPTable table = new PdfPTable(columnWidth);
         return withDefaultSettings(width, table);
     }
 
+    /**
+     * Creates default table
+     *
+     * @param contentColumns The amount of columns
+     * @param width          Width
+     * @return Created table
+     * @see com.lowagie.text.pdf.PdfPTable
+     */
     public static PdfPTable createDefaultTable(int contentColumns, float width) {
         PdfPTable table = new PdfPTable(contentColumns);
         return withDefaultSettings(width, table);
