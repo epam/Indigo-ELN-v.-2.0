@@ -13,6 +13,9 @@ import one.util.streamex.DoubleStreamEx;
 import org.apache.commons.lang3.StringUtils;
 import static com.epam.indigoeln.core.service.print.itext2.model.experiment.BatchInformationModel.*;
 
+/**
+ * Extension of BasePdfSectionWithSimpleTitle for batch information section
+ */
 public class BatchInformationSection extends BasePdfSectionWithSimpleTitle<BatchInformationModel> {
     public static final String SPACE = " ";
     public static final String COMMA = ", ";

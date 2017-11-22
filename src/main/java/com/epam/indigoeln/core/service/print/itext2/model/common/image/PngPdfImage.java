@@ -2,6 +2,9 @@ package com.epam.indigoeln.core.service.print.itext2.model.common.image;
 
 import java.util.Optional;
 
+/**
+ * Implements interface PdfImage for png
+ */
 public class PngPdfImage implements PdfImage {
     private byte[] pngBytes;
 

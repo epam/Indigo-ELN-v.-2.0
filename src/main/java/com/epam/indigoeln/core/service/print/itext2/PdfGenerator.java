@@ -9,6 +9,7 @@ import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.PageSize;
 import com.lowagie.text.pdf.*;
+
 import java.io.*;
 import java.util.List;
 
@@ -30,6 +31,11 @@ public class PdfGenerator {
     private final HeaderPdfSection headerSection;
     private final List<InputStream> extraPdf;
 
+    /**
+     * Creates instance of PdfGenerator
+     *
+     * @param sectionsProvider Instance of class which implements PdfSectionProvider
+     */
     public PdfGenerator(PdfSectionsProvider sectionsProvider) {
         this.headerSection = sectionsProvider.getHeaderSection();
         this.contentSections = sectionsProvider.getContentSections();
@@ -37,6 +43,11 @@ public class PdfGenerator {
         this.extraPdf = sectionsProvider.getExtraPdf();
     }
 
+    /**
+     * Generates pdf document
+     *
+     * @param output Output stream of bytes
+     */
     public void generate(OutputStream output) {
         try {
             generateImpl(output);
@@ -65,18 +76,18 @@ public class PdfGenerator {
         ByteArrayOutputStream pdfWithHeader = new ByteArrayOutputStream();
         addDocumentHeaders(pdfWithHeader, new ByteArrayInputStream(tempBaos.toByteArray()));
 
-        extraPdf.add(0,new ByteArrayInputStream(pdfWithHeader.toByteArray()));
+        extraPdf.add(0, new ByteArrayInputStream(pdfWithHeader.toByteArray()));
         addExtraPdf(extraPdf, output);
     }
 
     private void fillDocument(Document document, PdfWriter writer) throws DocumentException {
-        if (!contentSections.isEmpty()){
+        if (!contentSections.isEmpty()) {
             float contentWidth = layout.getContentAvailableWidth();
             for (AbstractPdfSection section : contentSections) {
                 section.init(contentWidth);
                 section.addToDocument(document, writer);
             }
-        }else {
+        } else {
             document.newPage();
             writer.setPageEmpty(false);
         }

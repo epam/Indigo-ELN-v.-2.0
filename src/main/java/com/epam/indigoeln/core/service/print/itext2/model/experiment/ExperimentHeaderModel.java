@@ -6,6 +6,9 @@ import com.epam.indigoeln.core.service.print.itext2.model.common.image.PdfImage;
 
 import java.time.Instant;
 
+/**
+ * Implementation of SectionModel interface for experiment header
+ */
 public class ExperimentHeaderModel extends BaseHeaderModel implements SectionModel {
     private Instant printDate;
     private String author;

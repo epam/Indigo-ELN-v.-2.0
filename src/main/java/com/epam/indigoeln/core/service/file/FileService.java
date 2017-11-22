@@ -32,19 +32,19 @@ public class FileService {
      * Repository for access to files in database
      */
     @Autowired
-    FileRepository fileRepository;
+    private FileRepository fileRepository;
 
     /**
      * Repository for access to projects in database
      */
     @Autowired
-    ProjectRepository projectRepository;
+    private ProjectRepository projectRepository;
 
     /**
      * Repository for access to experiments in database
      */
     @Autowired
-    ExperimentRepository experimentRepository;
+    private ExperimentRepository experimentRepository;
 
     /**
      * Returns all project files (with paging)

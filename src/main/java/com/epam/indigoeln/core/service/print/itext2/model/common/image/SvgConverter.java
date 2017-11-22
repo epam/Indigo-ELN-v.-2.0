@@ -10,10 +10,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/**
+ * Provides method for converting svg image format
+ */
 class SvgConverter {
     private SvgConverter() {
     }
 
+    /**
+     * Converts svg to png format
+     * @param input Input stream of bytes
+     * @param output Output stream of bytes
+     * @param widthPx Image extension
+     */
     static void convertSvg2Png(InputStream input, OutputStream output, float widthPx) {
         TranscoderInput transcoderInput = new TranscoderInput(input);
         TranscoderOutput transcoderOutput = new TranscoderOutput(output);

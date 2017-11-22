@@ -15,6 +15,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import static com.epam.indigoeln.core.service.print.itext2.model.experiment.StoichiometryModel.*;
 
+/**
+ * Extension of BasePdfSectionWithSimpleTitle for stoichiometry
+ */
 public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<StoichiometryModel> {
 
     private static final String[] HEADERS = new String[]{

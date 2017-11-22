@@ -38,6 +38,7 @@ public class BingoService {
      * Logger instance
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(BingoService.class);
+    private static final String STRUCTURES = "/structures/";
 
     /**
      * ObjectMapper instance for reading JSON
@@ -62,7 +63,7 @@ public class BingoService {
      */
     public Optional<String> getById(String id) {
         try {
-            BingoResponse response = getResponse("GET", "/structures/" + id, StringUtils.EMPTY);
+            BingoResponse response = getResponse("GET", STRUCTURES + id, StringUtils.EMPTY);
 
             if (response.getStructures() != null && !response.getStructures().isEmpty()) {
                 return Optional.of(response.getStructures().get(0).getStructure());
@@ -105,7 +106,7 @@ public class BingoService {
      */
     public Optional<String> update(String id, String s) {
         try {
-            BingoResponse response = getResponse("PUT", "/structures/" + id, s);
+            BingoResponse response = getResponse("PUT", STRUCTURES + id, s);
 
             if (response.getStructures() != null && !response.getStructures().isEmpty()) {
                 return Optional.of(response.getStructures().get(0).getId());
@@ -124,7 +125,7 @@ public class BingoService {
      */
     public void delete(String id) {
         try {
-            getResponse("DELETE", "/structures/" + id, StringUtils.EMPTY);
+            getResponse("DELETE", STRUCTURES + id, StringUtils.EMPTY);
         } catch (Exception e) {
             LOGGER.warn("Cannot delete by id=" + id + ": " + e.getMessage(), e);
         }
