@@ -96,7 +96,7 @@ function experimentConfig($stateProvider, permissionsConfig, permissionViewConfi
 
                 printModal
                     .showPopup($stateParams, 'experimentService')
-                    .catch(function() {
+                    .finally(function() {
                         $state.go('^');
                     });
             },

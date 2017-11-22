@@ -19,13 +19,15 @@ var permissionsConfig = {
                         return that.permissions;
                     }
                 }
-            }).result.then(function(result) {
-                permissionService.setAccessList(result);
-                $rootScope.$broadcast('access-list-changed');
-                $state.go('^');
-            }, function() {
-                $state.go('^');
-            });
+            })
+                .result
+                .then(function(result) {
+                    permissionService.setAccessList(result);
+                    $rootScope.$broadcast('access-list-changed');
+                })
+                .finally(function() {
+                    $state.go('^');
+                });
         }]
 };
 

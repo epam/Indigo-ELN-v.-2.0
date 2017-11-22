@@ -111,7 +111,7 @@ function projectConfig($stateProvider, permissionsConfig, permissionViewConfig, 
 
                 printModal
                     .showPopup($stateParams, 'projectService')
-                    .catch(function() {
+                    .finally(function() {
                         $state.go('^');
                     });
             },

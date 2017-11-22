@@ -9,11 +9,11 @@ var permissionViewConfig = {
                 controller: 'PermissionViewController',
                 controllerAs: 'vm',
                 size: 'lg'
-            }).result.then(function() {
-                $state.go('^');
-            }, function() {
-                $state.go('^');
-            });
+            })
+                .result
+                .finally(function() {
+                    $state.go('^');
+                });
         }]
 };
 

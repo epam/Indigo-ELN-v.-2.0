@@ -118,7 +118,7 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
 
                 printModal
                     .showPopup($stateParams, 'notebookService')
-                    .catch(function() {
+                    .finally(function() {
                         $state.go('^');
                     });
             },
