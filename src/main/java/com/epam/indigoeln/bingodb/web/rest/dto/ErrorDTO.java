@@ -12,6 +12,11 @@ import java.io.Serializable;
 public class ErrorDTO implements Serializable {
 
     /**
+     * Serialization version field.
+     */
+    private static final long serialVersionUID = -5553970958183749770L;
+
+    /**
      * Error message.
      */
     private String message;

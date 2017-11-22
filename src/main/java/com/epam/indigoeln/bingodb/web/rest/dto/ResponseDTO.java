@@ -14,6 +14,11 @@ import java.util.List;
 public class ResponseDTO implements Serializable {
 
     /**
+     * Serialization version field.
+     */
+    private static final long serialVersionUID = -3540471508460123577L;
+
+    /**
      * Structures to response.
      */
     private List<BingoStructure> structures;

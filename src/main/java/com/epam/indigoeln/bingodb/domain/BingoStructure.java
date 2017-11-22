@@ -12,6 +12,11 @@ import java.io.Serializable;
 public class BingoStructure implements Serializable {
 
     /**
+     * Serialization version field.
+     */
+    private static final long serialVersionUID = 2900530361336251030L;
+
+    /**
      * Structure ID.
      */
     private String id;
