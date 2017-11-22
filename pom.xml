@@ -327,6 +327,28 @@
         <plugins>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.17</version>
+                <configuration>
+                    <consoleOutput>true</consoleOutput>
+                    <configLocation>${project.basedir}/src/main/resources/validate/checkstyle.xml</configLocation>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>checkstyle</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <failOnViolation>false</failOnViolation>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.bsc.maven</groupId>
                 <artifactId>maven-processor-plugin</artifactId>
                 <version>2.2.4</version>
@@ -349,6 +371,27 @@
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>process</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>3.0.5</version>
+                <configuration>
+                    <effort>Max</effort>
+                    <threshold>Low</threshold>
+                    <xmlOutput>true</xmlOutput>
+                    <failOnError>false</failOnError>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>findbugs</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -378,28 +421,6 @@
                         </resource>
                     </resources>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.15</version>
-                <configuration>
-                    <consoleOutput>true</consoleOutput>
-                    <configLocation>src/main/resources/IndigoELN_checks.xml</configLocation>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>checkstyle</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <configuration>
-                            <failOnViolation>false</failOnViolation>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
 
         </plugins>
