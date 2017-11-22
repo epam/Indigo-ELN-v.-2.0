@@ -29,12 +29,13 @@ import org.springframework.data.domain.PageRequest;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.epam.indigoeln.core.service.print.itext2.model.experiment.PreferredCompoundsModel.Structure;
 import static com.epam.indigoeln.core.util.BatchComponentUtil.*;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 
 /**
  * The class is responsible for mapping experiment to a list of pdf sections used by pdf generator.
@@ -69,14 +70,18 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
      * @return list of raw uninitialized pdf sections corresponding to experiment components.
      */
     public List<AbstractPdfSection> getContentSections() {
-        List<AbstractPdfSection> list = StreamEx.of(experiment.getComponents())
-                .filter(c -> printRequest.getComponents().contains(c.getName()))
+        List<AbstractPdfSection> contentSections = printRequest.getComponents()
+                .stream()
+                .flatMap(printedComponentName ->
+                        experiment.getComponents().stream()
+                                .filter(component ->
+                                        printedComponentName.equals(component.getName())))
                 .flatMap(this::sections)
-                .toList();
+                .collect(toList());
         if (printRequest.getComponents().contains(ATTACHMENTS)) {
-            list.add(getAttachmentsSection());
+            contentSections.add(getAttachmentsSection());
         }
-        return list;
+        return contentSections;
     }
 
     private Stream<AbstractPdfSection> sections(Component component) {
@@ -106,7 +111,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                 .setProjectAlias(content.getString("projectAliasName"))
                 .setLinkedExperiment(content.streamObjects("linkedExperiments").map(m -> m.getString("text")).toList())
                 .setLiteratureReference(content.getString("literature"))
-                .setCoauthors(userRepository.findAll(content.streamStrings("coAuthors").toList()).stream().map(User::getFullName).collect(Collectors.toList()))
+                .setCoauthors(userRepository.findAll(content.streamStrings("coAuthors").toList()).stream().map(User::getFullName).collect(toList()))
         )));
     }
 
@@ -117,8 +122,8 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                 content.streamObjects("linkedExperiments").map(m -> m.getString("text")).toList(),
                 content.getString("codeAndName", "name"),
                 content.getString("keywords"),
-                userRepository.findAll(content.streamStrings("designers").toList()).stream().map(User::getFullName).collect(Collectors.toList()),
-                userRepository.findAll(content.streamStrings("coAuthors").toList()).stream().map(User::getFullName).collect(Collectors.toList())
+                userRepository.findAll(content.streamStrings("designers").toList()).stream().map(User::getFullName).collect(toList()),
+                userRepository.findAll(content.streamStrings("coAuthors").toList()).stream().map(User::getFullName).collect(toList())
         ))));
     }
 
@@ -139,8 +144,8 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
             List<PreferredCompoundsRow> rows = content.streamObjects("batches")
                     .map(ExperimentPdfSectionsProvider::getPreferredCompoundsRow)
                     .toList();
-            return singletonList(((AbstractPdfSection)new PreferedCompoundsSection(new PreferredCompoundsModel(rows))));
-        }).orElse(Collections.emptyList());
+            return singletonList(((AbstractPdfSection) new PreferedCompoundsSection(new PreferredCompoundsModel(rows))));
+        }).orElse(emptyList());
     }
 
     private static PreferredCompoundsRow getPreferredCompoundsRow(MongoExt compound) {
@@ -203,7 +208,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         Optional<List<String>> batchOwner = p.getRight().getComponents().stream()
                 .filter(component -> REACTION_DETAILS.equals(component.getName()))
                 .map(MongoExt::of)
-                .map(m -> userRepository.findAll(m.streamStrings("batchOwner").toList()).stream().map(User::getFullName).collect(Collectors.toList()))
+                .map(m -> userRepository.findAll(m.streamStrings("batchOwner").toList()).stream().map(User::getFullName).collect(toList()))
                 .findAny();
 
         List<BatchInformationRow> batchInfoRows = MongoExt.of(p.getLeft())
@@ -247,7 +252,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                         batch.getString("exactMass"),
                         batch.getString("saltCode", "name"),
                         batch.getString("saltEq", "value"),
-                        batchOwner.orElse(Collections.emptyList()),
+                        batchOwner.orElse(emptyList()),
                         batch.getString("comments")
                 ));
     }
@@ -262,7 +267,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         Optional<List<String>> batchOwner = p.getRight().getComponents().stream()
                 .filter(component -> REACTION_DETAILS.equals(component.getName()))
                 .map(MongoExt::of)
-                .map(m -> userRepository.findAll(m.streamStrings("batchOwner").toList()).stream().map(User::getFullName).collect(Collectors.toList()))
+                .map(m -> userRepository.findAll(m.streamStrings("batchOwner").toList()).stream().map(User::getFullName).collect(toList()))
                 .findAny();
 
         Optional<List<AbstractPdfSection>> sections = content.map(m -> m.streamObjects("batches")
@@ -272,7 +277,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                         .setStructureComments(batch.getString("structureComments"))
                         .setSource(batch.getString("source", "name"))
                         .setSourceDetail(batch.getString("sourceDetail", "name"))
-                        .setBatchOwner(batchOwner.orElse(Collections.emptyList()))
+                        .setBatchOwner(batchOwner.orElse(emptyList()))
                         .setMolWeight(batch.getString("molWeight", "value"))
                         .setFormula(batch.getString("formula"))
                         .setResidualSolvent(batch.getString("residualSolvents", "asString"))
@@ -284,21 +289,21 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                         .setStorageInstructions(batch.getString("storageInstructions", "asString"))
                 ))
                 .toList());
-        return sections.orElse(Collections.emptyList());
+        return sections.orElse(emptyList());
     }
 
     private List<GridFSDBFile> getFiles(Set<String> fileIds) {
         if (!fileIds.isEmpty()) {
             return fileRepository.findAll(fileIds, new PageRequest(0, fileIds.size())).getContent();
         } else {
-            return Collections.emptyList();
+            return emptyList();
         }
     }
 
     private AttachmentsSection getAttachmentsSection() {
         List<FileDTO> list = files.stream()
                 .map(FileDTO::new)
-                .collect(Collectors.toList());
+                .collect(toList());
         return new AttachmentsSection(new AttachmentsModel(list));
     }
 
@@ -308,7 +313,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
             return files.stream()
                     .filter(f -> "application/pdf".equals(f.getContentType()))
                     .map(GridFSDBFile::getInputStream)
-                    .collect(Collectors.toList());
+                    .collect(toList());
         } else {
             return PdfSectionsProvider.super.getExtraPdf();
         }
