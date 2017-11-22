@@ -7,30 +7,36 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.io.Serializable;
 
 /**
- * Entity for holding structure with its ID
+ * Entity for holding structure with its ID.
  */
 public class BingoStructure implements Serializable {
 
     /**
-     * Structure ID
+     * Serialization version field.
+     */
+    private static final long serialVersionUID = 2900530361336251030L;
+
+    /**
+     * Structure ID.
      */
     private String id;
 
     /**
-     * Structure
+     * Structure.
      */
     private String structure;
 
     /**
-     * Create a new BingoStructure instance
+     * Create a new BingoStructure instance.
      */
     public BingoStructure() {
         // Empty constructor for JSON deserialize
     }
 
     /**
-     * Create a new BingoStructure instance
-     * @param id structure id
+     * Create a new BingoStructure instance.
+     *
+     * @param id        structure id
      * @param structure structure
      */
     public BingoStructure(String id, String structure) {
@@ -38,18 +44,38 @@ public class BingoStructure implements Serializable {
         this.structure = structure;
     }
 
+    /**
+     * Get an existing structure id value.
+     *
+     * @return existing structure id value
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Set a new structure id value.
+     *
+     * @param id new structure id value to set
+     */
     public void setId(String id) {
         this.id = id;
     }
 
+    /**
+     * Get an existing list of structures.
+     *
+     * @return existing list of structures
+     */
     public String getStructure() {
         return structure;
     }
 
+    /**
+     * Set a new list of structures.
+     *
+     * @param structure new list of structures to set
+     */
     public void setStructure(String structure) {
         this.structure = structure;
     }

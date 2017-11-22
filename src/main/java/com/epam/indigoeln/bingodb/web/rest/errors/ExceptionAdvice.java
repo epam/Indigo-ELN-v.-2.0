@@ -9,15 +9,18 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 /**
- * REST exceptions handler
+ * REST exceptions handler.
  */
 @ControllerAdvice
 public class ExceptionAdvice {
 
+    /**
+     * Logger instance.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionAdvice.class);
 
     /**
-     * Handler for all exceptions
+     * Handler for all exceptions.
      *
      * @param e exception to handle
      * @return Error which will be returned to client

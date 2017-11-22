@@ -9,24 +9,29 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Simple DTO for REST response
+ * Simple DTO for REST response.
  */
 public class ResponseDTO implements Serializable {
 
     /**
-     * Structures to response
+     * Serialization version field.
+     */
+    private static final long serialVersionUID = -3540471508460123577L;
+
+    /**
+     * Structures to response.
      */
     private List<BingoStructure> structures;
 
     /**
-     * Create a new ResponseDTO instance
+     * Create a new ResponseDTO instance.
      */
     public ResponseDTO() {
         // Empty constructor for JSON deserialize
     }
 
     /**
-     * Create a new ResponseDTO instance
+     * Create a new ResponseDTO instance.
      *
      * @param structures structures to response
      */
@@ -34,10 +39,20 @@ public class ResponseDTO implements Serializable {
         this.structures = structures;
     }
 
+    /**
+     * Get an existing list of structures.
+     *
+     * @return existing list of structures
+     */
     public List<BingoStructure> getStructures() {
         return structures;
     }
 
+    /**
+     * Set a new list of structures.
+     *
+     * @param structures new list of structures to set
+     */
     public void setStructures(List<BingoStructure> structures) {
         this.structures = structures;
     }

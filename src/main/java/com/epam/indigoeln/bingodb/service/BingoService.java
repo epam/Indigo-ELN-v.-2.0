@@ -17,73 +17,73 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Service for work with structure databases
+ * Service for work with structure databases.
  */
 @Service
 public class BingoService {
 
     /**
-     * Logger instance
+     * Logger instance.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(BingoService.class);
 
     /**
-     * Prefix for molecule IDs
+     * Prefix for molecule IDs.
      */
     private static final String PREFIX_MOL = "MOL";
 
     /**
-     * Prefix for reaction IDs
+     * Prefix for reaction IDs.
      */
     private static final String PREFIX_RXN = "RXN";
 
     /**
-     * Error text for case if structure is not a molecule or reaction
+     * Error text for case if structure is not a molecule or reaction.
      */
     private static final String ERROR_NOT_A_MOLECULE_OR_REACTION = "Not a molecule or reaction";
 
     /**
-     * Error text for case if structure is not a molecule
+     * Error text for case if structure is not a molecule.
      */
     private static final String ERROR_NOT_A_MOLECULE = "Not a molecule";
 
     /**
-     * Error text for case if structure is not a reaction
+     * Error text for case if structure is not a reaction.
      */
     private static final String ERROR_NOT_A_REACTION = "Not a reaction";
 
     /**
-     * IndigoProvider instance which provides Indigo instances with common properties
+     * IndigoProvider instance which provides Indigo instances with common properties.
      */
     private final IndigoProvider indigoProvider;
 
     /**
-     * Indigo instance for molecule database Bingo instance
+     * Indigo instance for molecule database Bingo instance.
      */
     private final Indigo moleculeIndigo;
 
     /**
-     * Indigo instance for reaction database Bingo instance
+     * Indigo instance for reaction database Bingo instance.
      */
     private final Indigo reactionIndigo;
 
     /**
-     * Bingo instance for molecule database
+     * Bingo instance for molecule database.
      */
     private final Bingo moleculeBingo;
 
     /**
-     * Bingo instance for reaction database
+     * Bingo instance for reaction database.
      */
     private final Bingo reactionBingo;
 
     /**
-     * Mutex for locking Bingo databases simultaneous usage
+     * Mutex for locking Bingo databases simultaneous usage.
      */
     private final Object lock = new Object();
 
     /**
-     * Create a new BingoService instance
+     * Create a new BingoService instance.
      *
      * @param indigoProvider IndigoProvider instance which provides Indigo instances with common properties
      * @param moleculeIndigo Indigo instance for molecule database Bingo instance
@@ -105,7 +105,7 @@ public class BingoService {
     }
 
     /**
-     * Retrieve structure with given ID
+     * Retrieve structure with given ID.
      *
      * @param id structure ID
      * @return found structure with its ID
@@ -123,7 +123,7 @@ public class BingoService {
     }
 
     /**
-     * Insert a new structure
+     * Insert a new structure.
      *
      * @param s molecule or reaction in Molfile/Rxnfile/Smiles format
      * @return inserted structure with its ID
@@ -141,7 +141,7 @@ public class BingoService {
     }
 
     /**
-     * Update structure with given ID
+     * Update structure with given ID.
      *
      * @param id structure ID
      * @param s  molecule or reaction in Molfile/Rxnfile/Smiles format
@@ -158,7 +158,7 @@ public class BingoService {
     }
 
     /**
-     * Delete structure with given ID
+     * Delete structure with given ID.
      *
      * @param id structure ID
      */
@@ -174,7 +174,7 @@ public class BingoService {
     }
 
     /**
-     * Search molecules with exact match
+     * Search molecules with exact match.
      *
      * @param s       molecule in Molfile/Smiles format
      * @param options search options
@@ -190,7 +190,7 @@ public class BingoService {
     }
 
     /**
-     * Search molecules with substructure match
+     * Search molecules with substructure match.
      *
      * @param s       molecule in Molfile/Smiles format
      * @param options search options
@@ -206,7 +206,7 @@ public class BingoService {
     }
 
     /**
-     * Search molecules with similarity match
+     * Search molecules with similarity match.
      *
      * @param s      molecule in Molfile/Smiles format
      * @param min    similarity min value
@@ -224,7 +224,7 @@ public class BingoService {
     }
 
     /**
-     * Search molecules by molecular formula
+     * Search molecules by molecular formula.
      *
      * @param molFormula molecular formula
      * @param options    search options
@@ -237,7 +237,7 @@ public class BingoService {
     }
 
     /**
-     * Search reactions with exact match
+     * Search reactions with exact match.
      *
      * @param s       molecule or reaction in Molfile/Rxnfile/Smiles format
      * @param options search options
@@ -266,7 +266,7 @@ public class BingoService {
     }
 
     /**
-     * Search reactions with substructure match
+     * Search reactions with substructure match.
      *
      * @param s       molecule or reaction in Molfile/Rxnfile/Smiles format
      * @param options search options
@@ -295,7 +295,7 @@ public class BingoService {
     }
 
     /**
-     * Search reactions with similarity match
+     * Search reactions with similarity match.
      *
      * @param s      molecule or reaction in Molfile/Rxnfile/Smiles format
      * @param min    similarity min
@@ -326,7 +326,7 @@ public class BingoService {
     }
 
     /**
-     * Create search results mapping Bingo search result to structures and create IDs
+     * Create search results mapping Bingo search result to structures and create IDs.
      *
      * @param o      Bingo search result
      * @param prefix prefix to create ID
@@ -343,7 +343,7 @@ public class BingoService {
     }
 
     /**
-     * Get structure Bingo ID from string ID
+     * Get structure Bingo ID from string ID.
      *
      * @param id structure string ID
      * @return structure Bingo ID
@@ -359,7 +359,7 @@ public class BingoService {
     }
 
     /**
-     * Create structure string ID from Bingo ID with prefix
+     * Create structure string ID from Bingo ID with prefix.
      *
      * @param id structure Bingo ID
      * @param s  string prefix (for molecule or reaction)
@@ -376,7 +376,7 @@ public class BingoService {
     }
 
     /**
-     * Check if structure string ID is a molecule ID
+     * Check if structure string ID is a molecule ID.
      *
      * @param id structure string ID
      * @return true if structure string ID is a molecule ID and false otherwise
@@ -386,7 +386,7 @@ public class BingoService {
     }
 
     /**
-     * Check if structure string ID is a reaction ID
+     * Check if structure string ID is a reaction ID.
      *
      * @param id structure string ID
      * @return true if structure string ID is a reaction ID and false otherwise
@@ -396,7 +396,7 @@ public class BingoService {
     }
 
     /**
-     * Check if structure is a molecule
+     * Check if structure is a molecule.
      *
      * @param s structure to check
      * @return true if structure is a molecule and false otherwise
@@ -412,7 +412,7 @@ public class BingoService {
     }
 
     /**
-     * Check if structure is a reaction
+     * Check if structure is a reaction.
      *
      * @param s structure to check
      * @return true if structure is a reaction and false otherwise

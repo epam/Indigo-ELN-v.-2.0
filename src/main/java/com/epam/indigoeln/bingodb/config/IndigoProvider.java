@@ -4,13 +4,13 @@ import com.epam.indigo.Indigo;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Provider for Indigo instances creation with common properties
+ * Provider for Indigo instances creation with common properties.
  */
 @Configuration
 public class IndigoProvider {
 
     /**
-     * Create a new Indigo instance with common properties
+     * Create a new Indigo instance with common properties.
      *
      * @return Indigo instance with common properties
      */

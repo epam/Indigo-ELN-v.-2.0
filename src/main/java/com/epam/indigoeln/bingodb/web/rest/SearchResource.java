@@ -15,19 +15,19 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * REST API for search operations
+ * REST API for search operations.
  */
 @RestController
 @RequestMapping("api/search")
 public class SearchResource {
 
     /**
-     * Service instance for work with structure databases
+     * Service instance for work with structure databases.
      */
     private final BingoService bingoService;
 
     /**
-     * Create a new SearchResource instance
+     * Create a new SearchResource instance.
      *
      * @param bingoService service instance for work with structure databases
      */
@@ -37,7 +37,7 @@ public class SearchResource {
     }
 
     /**
-     * Search molecules with exact match
+     * Search molecules with exact match.
      *
      * @param structure molecule in Molfile/Smiles format
      * @param options   search options
@@ -46,16 +46,23 @@ public class SearchResource {
     @ApiOperation("Search molecules with exact match")
     @ApiResponses({
             @ApiResponse(code = HttpServletResponse.SC_OK, message = "Found molecules"),
-            @ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Server error occurred", response = ErrorDTO.class)
+            @ApiResponse(
+                    code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    message = "Server error occurred",
+                    response = ErrorDTO.class)
     })
-    @PostMapping(value = "molecule/exact", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseDTO> searchMoleculeExact(@ApiParam("Molecule in Molfile/Smiles format") @RequestBody String structure,
-                                                           @ApiParam("Search options") @RequestParam(required = false) String options) {
+    @PostMapping(
+            value = "molecule/exact",
+            consumes = MediaType.TEXT_PLAIN_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseDTO> searchMoleculeExact(
+            @ApiParam("Molecule in Molfile/Smiles format") @RequestBody String structure,
+            @ApiParam("Search options") @RequestParam(required = false) String options) {
         return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchMoleculeExact(structure, options)));
     }
 
     /**
-     * Search molecules with substructure match
+     * Search molecules with substructure match.
      *
      * @param structure molecule in Molfile/Smiles format
      * @param options   search options
@@ -64,16 +71,23 @@ public class SearchResource {
     @ApiOperation("Search molecules with substructure match")
     @ApiResponses({
             @ApiResponse(code = HttpServletResponse.SC_OK, message = "Found molecules"),
-            @ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Server error occurred", response = ErrorDTO.class)
+            @ApiResponse(
+                    code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    message = "Server error occurred",
+                    response = ErrorDTO.class)
     })
-    @PostMapping(value = "molecule/substructure", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseDTO> searchMoleculeSub(@ApiParam("Molecule in Molfile/Smiles format") @RequestBody String structure,
-                                                         @ApiParam("Search options") @RequestParam(required = false) String options) {
+    @PostMapping(
+            value = "molecule/substructure",
+            consumes = MediaType.TEXT_PLAIN_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseDTO> searchMoleculeSub(
+            @ApiParam("Molecule in Molfile/Smiles format") @RequestBody String structure,
+            @ApiParam("Search options") @RequestParam(required = false) String options) {
         return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchMoleculeSub(structure, options)));
     }
 
     /**
-     * Search molecules with similarity match
+     * Search molecules with similarity match.
      *
      * @param structure molecule in Molfile/Smiles format
      * @param min       similarity min value
@@ -84,18 +98,25 @@ public class SearchResource {
     @ApiOperation("Search molecules with similarity match")
     @ApiResponses({
             @ApiResponse(code = HttpServletResponse.SC_OK, message = "Found molecules"),
-            @ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Server error occurred", response = ErrorDTO.class)
+            @ApiResponse(
+                    code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    message = "Server error occurred",
+                    response = ErrorDTO.class)
     })
-    @PostMapping(value = "molecule/similarity", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseDTO> searchMoleculeSimilarity(@ApiParam("Molecule in Molfile/Smiles format") @RequestBody String structure,
-                                                                @ApiParam("Similarity min") @RequestParam Float min,
-                                                                @ApiParam("Similarity max") @RequestParam Float max,
-                                                                @ApiParam("Similarity metric (default is 'tanimoto')") @RequestParam(required = false) String metric) {
+    @PostMapping(
+            value = "molecule/similarity",
+            consumes = MediaType.TEXT_PLAIN_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseDTO> searchMoleculeSimilarity(
+            @ApiParam("Molecule in Molfile/Smiles format") @RequestBody String structure,
+            @ApiParam("Similarity min") @RequestParam Float min,
+            @ApiParam("Similarity max") @RequestParam Float max,
+            @ApiParam("Similarity metric (default is 'tanimoto')") @RequestParam(required = false) String metric) {
         return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchMoleculeSim(structure, min, max, metric)));
     }
 
     /**
-     * Search molecules by molecular formula
+     * Search molecules by molecular formula.
      *
      * @param molFormula molecular formula
      * @param options    search options
@@ -104,16 +125,23 @@ public class SearchResource {
     @ApiOperation("Search molecules by molecular formula")
     @ApiResponses({
             @ApiResponse(code = HttpServletResponse.SC_OK, message = "Found molecules"),
-            @ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Server error occurred", response = ErrorDTO.class)
+            @ApiResponse(
+                    code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    message = "Server error occurred",
+                    response = ErrorDTO.class)
     })
-    @PostMapping(value = "molecule/molformula", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseDTO> searchMoleculeMolFormula(@ApiParam("Molecular formula") @RequestBody String molFormula,
-                                                                @ApiParam("Search options") @RequestParam(required = false) String options) {
+    @PostMapping(
+            value = "molecule/molformula",
+            consumes = MediaType.TEXT_PLAIN_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseDTO> searchMoleculeMolFormula(
+            @ApiParam("Molecular formula") @RequestBody String molFormula,
+            @ApiParam("Search options") @RequestParam(required = false) String options) {
         return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchMoleculeMolFormula(molFormula, options)));
     }
 
     /**
-     * Search reactions with exact match
+     * Search reactions with exact match.
      *
      * @param structure molecule or reaction in Molfile/Rxnfile/Smiles format
      * @param options   search options
@@ -122,16 +150,23 @@ public class SearchResource {
     @ApiOperation("Search reactions with exact match")
     @ApiResponses({
             @ApiResponse(code = HttpServletResponse.SC_OK, message = "Found reactions"),
-            @ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Server error occurred", response = ErrorDTO.class)
+            @ApiResponse(
+                    code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    message = "Server error occurred",
+                    response = ErrorDTO.class)
     })
-    @PostMapping(value = "reaction/exact", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseDTO> searchReactionExact(@ApiParam("Molecule or reaction in Molfile/Rxnfile/Smiles format") @RequestBody String structure,
-                                                           @ApiParam("Search options") @RequestParam(required = false) String options) {
+    @PostMapping(
+            value = "reaction/exact",
+            consumes = MediaType.TEXT_PLAIN_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseDTO> searchReactionExact(
+            @ApiParam("Molecule or reaction in Molfile/Rxnfile/Smiles format") @RequestBody String structure,
+            @ApiParam("Search options") @RequestParam(required = false) String options) {
         return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchReactionExact(structure, options)));
     }
 
     /**
-     * Search reactions with substructure match
+     * Search reactions with substructure match.
      *
      * @param structure molecule or reaction in Molfile/Rxnfile/Smiles format
      * @param options   search options
@@ -140,16 +175,23 @@ public class SearchResource {
     @ApiOperation("Search reactions with substructure match")
     @ApiResponses({
             @ApiResponse(code = HttpServletResponse.SC_OK, message = "Found reactions"),
-            @ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Server error occurred", response = ErrorDTO.class)
+            @ApiResponse(
+                    code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    message = "Server error occurred",
+                    response = ErrorDTO.class)
     })
-    @PostMapping(value = "reaction/substructure", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseDTO> searchReactionSub(@ApiParam("Molecule or reaction in Molfile/Rxnfile/Smiles format") @RequestBody String structure,
-                                                         @ApiParam("Search options") @RequestParam(required = false) String options) {
+    @PostMapping(
+            value = "reaction/substructure",
+            consumes = MediaType.TEXT_PLAIN_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseDTO> searchReactionSub(
+            @ApiParam("Molecule or reaction in Molfile/Rxnfile/Smiles format") @RequestBody String structure,
+            @ApiParam("Search options") @RequestParam(required = false) String options) {
         return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchReactionSub(structure, options)));
     }
 
     /**
-     * Search reactions with similarity match
+     * Search reactions with similarity match.
      *
      * @param structure molecule or reaction in Molfile/Rxnfile/Smiles format
      * @param min       similarity min
@@ -160,13 +202,20 @@ public class SearchResource {
     @ApiOperation("Search reactions with similarity match")
     @ApiResponses({
             @ApiResponse(code = HttpServletResponse.SC_OK, message = "Found reactions"),
-            @ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Server error occurred", response = ErrorDTO.class)
+            @ApiResponse(
+                    code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    message = "Server error occurred",
+                    response = ErrorDTO.class)
     })
-    @PostMapping(value = "reaction/similarity", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseDTO> searchReactionSimilarity(@ApiParam("Molecule or reaction in Molfile/Rxnfile/Smiles format") @RequestBody String structure,
-                                                                @ApiParam("Similarity min") @RequestParam Float min,
-                                                                @ApiParam("Similarity max") @RequestParam Float max,
-                                                                @ApiParam("Similarity metric (default is 'tanimoto')") @RequestParam(required = false) String metric) {
+    @PostMapping(
+            value = "reaction/similarity",
+            consumes = MediaType.TEXT_PLAIN_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseDTO> searchReactionSimilarity(
+            @ApiParam("Molecule or reaction in Molfile/Rxnfile/Smiles format") @RequestBody String structure,
+            @ApiParam("Similarity min") @RequestParam Float min,
+            @ApiParam("Similarity max") @RequestParam Float max,
+            @ApiParam("Similarity metric (default is 'tanimoto')") @RequestParam(required = false) String metric) {
         return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchReactionSim(structure, min, max, metric)));
     }
 }
