@@ -51,6 +51,13 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
 
     private static final HashMap<String, ComponentToPdfSectionsConverter> componentNameToConverter = new HashMap<>();
 
+    static {
+        put(REACTION, ExperimentPdfSectionsProvider::reactionConverter);
+        put(PREFERRED_COMPOUND_SUMMARY, ExperimentPdfSectionsProvider::preferredCompoundSummaryConverter);
+        put(STOICH_TABLE, ExperimentPdfSectionsProvider::stoichTableConverter);
+        put(EXPERIMENT_DESCRIPTION, ExperimentPdfSectionsProvider::experimentDescriptionConverter);
+    }
+
     public ExperimentPdfSectionsProvider(Project project, Notebook notebook, Experiment experiment, FileRepository fileRepository,
                                          PrintRequest printRequest, UserRepository userRepository) {
         this.project = project;
@@ -70,7 +77,9 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
      * @return list of raw uninitialized pdf sections corresponding to experiment components.
      */
     public List<AbstractPdfSection> getContentSections() {
-        List<AbstractPdfSection> contentSections = printRequest.getComponents()
+        List<String> components = printRequest.getComponents();
+
+        List<AbstractPdfSection> contentSections = components
                 .stream()
                 .flatMap(printedComponentName ->
                         experiment.getComponents().stream()
@@ -78,7 +87,10 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                                         printedComponentName.equals(component.getName())))
                 .flatMap(this::sections)
                 .collect(toList());
-        if (printRequest.getComponents().contains(ATTACHMENTS)) {
+        if (components.contains(PREFERRED_COMPOUND_SUMMARY)) {
+            contentSections.addAll(preferredCompoundSummaryConverter(Pair.of(null, experiment)));
+        }
+        if (components.contains(ATTACHMENTS)) {
             contentSections.add(getAttachmentsSection());
         }
         return contentSections;
@@ -88,13 +100,6 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         return Optional.ofNullable(componentNameToConverter.get(component.getName()))
                 .map(converter -> converter.convert(Pair.of(component, experiment)).stream())
                 .orElseGet(Stream::empty);
-    }
-
-    static {
-        put(REACTION, ExperimentPdfSectionsProvider::reactionConverter);
-        put(PREFERRED_COMPOUND_SUMMARY, ExperimentPdfSectionsProvider::preferredCompoundSummaryConverter);
-        put(STOICH_TABLE, ExperimentPdfSectionsProvider::stoichTableConverter);
-        put(EXPERIMENT_DESCRIPTION, ExperimentPdfSectionsProvider::experimentDescriptionConverter);
     }
 
     private static void put(String name, ComponentToPdfSectionsConverter builder) {
@@ -144,7 +149,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
             List<PreferredCompoundsRow> rows = content.streamObjects("batches")
                     .map(ExperimentPdfSectionsProvider::getPreferredCompoundsRow)
                     .toList();
-            return singletonList(((AbstractPdfSection) new PreferedCompoundsSection(new PreferredCompoundsModel(rows))));
+            return singletonList((AbstractPdfSection) new PreferedCompoundsSection(new PreferredCompoundsModel(rows)));
         }).orElse(emptyList());
     }
 
