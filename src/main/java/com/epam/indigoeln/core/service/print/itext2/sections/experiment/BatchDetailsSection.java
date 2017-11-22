@@ -9,6 +9,9 @@ import com.lowagie.text.Element;
 import com.lowagie.text.pdf.PdfPTable;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Extension of BasePdfSectionWithSimpleTitle for batch details section
+ */
 public class BatchDetailsSection extends BasePdfSectionWithSimpleTitle<BatchDetailsModel> {
     private static final float[] columnWidth = new float[]{1, 2};
 

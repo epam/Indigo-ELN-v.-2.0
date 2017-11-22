@@ -24,6 +24,13 @@ public class MongoExt {
         this.origin = origin;
     }
 
+    /**
+     * Used for getting MongoExt from input object
+     *
+     * @param origin BasicDBObject's instance
+     * @return Returns instance of MongoExt for origin
+     * @see com.mongodb.BasicDBObject
+     */
     public static MongoExt of(BasicDBObject origin) {
         if (origin != null) {
             return new MongoExt(origin);
@@ -32,6 +39,13 @@ public class MongoExt {
         }
     }
 
+    /**
+     * Used for getting MongoExt from input object
+     *
+     * @param component Component's instance
+     * @return Returns instance of MongoExt for origin for component
+     * @see com.epam.indigoeln.core.model.Component
+     */
     public static MongoExt of(Component component) {
         if (component.getContent() != null) {
             return new MongoExt(component.getContent());
@@ -73,7 +87,7 @@ public class MongoExt {
         return streamObjects(arrayFieldName).map(o -> o.getString(entryFieldName));
     }
 
-    public String joinArray(String arrayFieldName, String entryFieldName, String delimeter) {
+    private String joinArray(String arrayFieldName, String entryFieldName, String delimeter) {
         return arrayFields(arrayFieldName, entryFieldName).joining(delimeter);
     }
 
@@ -90,7 +104,7 @@ public class MongoExt {
         return MongoExt.of(object);
     }
 
-    public Date getDate(String field){
+    public Date getDate(String field) {
         return origin.getDate(field);
     }
 

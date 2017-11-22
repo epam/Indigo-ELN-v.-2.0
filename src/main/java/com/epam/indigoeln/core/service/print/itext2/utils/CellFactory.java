@@ -22,6 +22,9 @@ import java.util.Optional;
 import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.BOLD_FONT_FAMILY;
 import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.MAIN_FONT_FAMILY;
 
+/**
+ * Cell factory for creating cell with special format and color
+ */
 public class CellFactory {
     private static final Color FONT_COLOR = new Color(100, 100, 100);
     private static final Color CELL_BORDER_COLOR = new Color(170, 170, 170);
@@ -70,6 +73,13 @@ public class CellFactory {
         return cell;
     }
 
+    /**
+     * Returns pdf cell with vertical padding
+     *
+     * @param innerTable      Pdf table
+     * @param verticalPadding Value of vertical padding
+     * @return Returns pdf cell with vertical padding
+     */
     public static PdfPCell getCommonCell(PdfPTable innerTable, float verticalPadding) {
         PdfPCell pdfPCell = new PdfPCell(innerTable);
         withCommonBorder(pdfPCell);
@@ -80,6 +90,14 @@ public class CellFactory {
         return pdfPCell;
     }
 
+    /**
+     * Returns pdf cell with vertical and horizontal padding
+     *
+     * @param innerTable        Pdf table
+     * @param verticalPadding   Value of vertical padding
+     * @param horizontalPadding Value of horizontal padding
+     * @return Returns pdf cell with vertical and horizontal padding
+     */
     public static PdfPCell getCommonCell(PdfPTable innerTable, float verticalPadding, float horizontalPadding) {
         PdfPCell pdfPCell = new PdfPCell(innerTable);
         withCommonBorder(pdfPCell);
@@ -90,6 +108,12 @@ public class CellFactory {
         return pdfPCell;
     }
 
+    /**
+     * Returns pdf cell
+     *
+     * @param innerTable Pdf table
+     * @return Returns pdf cell
+     */
     public static PdfPCell getCommonCell(PdfPTable innerTable) {
         PdfPCell pdfPCell = withCommonStyle(new PdfPCell(innerTable));
         pdfPCell.setPaddingLeft(0);
@@ -99,10 +123,21 @@ public class CellFactory {
         return pdfPCell;
     }
 
+    /**
+     * Returns pdf cell with default style
+     *
+     * @return Pdf cell
+     */
     public static PdfPCell getCommonCell() {
         return withCommonStyle(new PdfPCell());
     }
 
+    /**
+     * Returns pdf cell with default style with content
+     *
+     * @param content Pdf cell
+     * @return Returns pdf cell with content
+     */
     public static PdfPCell getCommonCell(String content) {
         return getCommonCell(content, false);
     }
@@ -135,16 +170,37 @@ public class CellFactory {
         chunk.setFont(FontFactory.getFont(MAIN_FONT_FAMILY, BaseFont.IDENTITY_H, true, FONT_SIZE, oldFont.getStyle(), FONT_COLOR));
     }
 
+    /**
+     * Returns pdf cell with setting for bold font
+     *
+     * @param content Content for cell
+     * @param isBold  Bold font or not
+     * @return Returns pdf cell
+     */
     public static PdfPCell getCommonCell(String content, boolean isBold) {
         Font fontToUse = isBold ? FONT_BOLD : FONT;
         return getCommonCell(content, fontToUse);
     }
 
+    /**
+     * Returns pdf cell with setting for font
+     *
+     * @param content Content for cell
+     * @param font    Font object
+     * @return Returns pdf cell
+     */
     public static PdfPCell getCommonCell(String content, Font font) {
         Phrase phrase = getCommonPhrase(content, font);
         return withCommonStyle(new PdfPCell(phrase));
     }
 
+    /**
+     * Returns pdf cell with image
+     *
+     * @param image    Pdf image
+     * @param fitWidth Extension's value
+     * @return Returns pdf cell with image
+     */
     public static PdfPCell getImageCell(PdfImage image, float fitWidth) {
         return getImageCell(image, fitWidth, fitWidth * IMAGE_MAX_HEIGHT_WIDTH_RATIO);
     }
@@ -164,6 +220,12 @@ public class CellFactory {
         return withCommonStyle(cell);
     }
 
+    /**
+     * Returns pdf cell with title
+     *
+     * @param title Title
+     * @return Returns pdf cell
+     */
     public static PdfPCell getSimpleTitleCell(String title) {
         PdfPCell cell = getCommonCell(title.toUpperCase());
         cell.setPadding(SIMPLE_TITLE_CELL_PADDING);
@@ -173,11 +235,7 @@ public class CellFactory {
         return cell;
     }
 
-    public static Phrase getCommonPhrase(String content) {
-        return getCommonPhrase(content, FONT);
-    }
-
-    public static Phrase getCommonPhrase(String content, Font font) {
+    private static Phrase getCommonPhrase(String content, Font font) {
         Phrase phrase = new Phrase(content, font);
         phrase.setLeading(0);
         return phrase;

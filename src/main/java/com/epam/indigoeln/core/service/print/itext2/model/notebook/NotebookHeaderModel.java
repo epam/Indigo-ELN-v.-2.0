@@ -6,6 +6,9 @@ import com.epam.indigoeln.core.service.print.itext2.model.common.image.PdfImage;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 
+/**
+ * Implementation of SectionModel interface for notebook header
+ */
 public class NotebookHeaderModel extends BaseHeaderModel implements SectionModel {
     private String author;
     private ZonedDateTime creationDate;

@@ -148,8 +148,8 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
             List<PreferredCompoundsRow> rows = content.streamObjects("batches")
                     .map(ExperimentPdfSectionsProvider::getPreferredCompoundsRow)
                     .toList();
-            return singletonList((AbstractPdfSection) new PreferedCompoundsSection(new PreferredCompoundsModel(rows)));
-        }).orElse(emptyList());
+            return singletonList(((AbstractPdfSection)new PreferredCompoundsSection(new PreferredCompoundsModel(rows))));
+        }).orElse(Collections.emptyList());
     }
 
     private static PreferredCompoundsRow getPreferredCompoundsRow(MongoExt compound) {

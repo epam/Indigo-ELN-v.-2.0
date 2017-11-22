@@ -7,6 +7,9 @@ import com.epam.indigoeln.core.service.print.itext2.utils.PdfPTableHelper;
 import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.lowagie.text.pdf.PdfPTable;
 
+/**
+ * Extension of BaseHeaderSectionWithLogo for notebook header
+ */
 public class NotebookHeaderSection extends BaseHeaderSectionWithLogo<NotebookHeaderModel> {
 
     private static final float[] COLUMN_WIDTH = new float[]{1, 1, 1, 1.15f};

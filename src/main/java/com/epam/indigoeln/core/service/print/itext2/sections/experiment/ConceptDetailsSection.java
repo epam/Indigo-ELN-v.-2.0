@@ -8,6 +8,9 @@ import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.lowagie.text.pdf.PdfPTable;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Extension of BasePdfSectionWithSimpleTitle for concept details section
+ */
 public class ConceptDetailsSection extends BasePdfSectionWithSimpleTitle<ConceptDetailsModel> {
     private static final String COMMA = ", ";
     private static final float[] COLUMNS_WIDTH = new float[]{4, 5, 4, 5};

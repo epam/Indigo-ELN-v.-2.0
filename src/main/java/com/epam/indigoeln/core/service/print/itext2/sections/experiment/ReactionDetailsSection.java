@@ -8,6 +8,9 @@ import com.epam.indigoeln.core.service.print.itext2.model.experiment.ReactionDet
 import com.lowagie.text.pdf.PdfPTable;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Extension of BasePdfSectionWithSimpleTitle for reaction's details
+ */
 public class ReactionDetailsSection extends BasePdfSectionWithSimpleTitle<ReactionDetailsModel> {
     private static final String COMMA = ", ";
 

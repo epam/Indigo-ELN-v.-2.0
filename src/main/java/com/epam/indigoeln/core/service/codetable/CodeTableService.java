@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Provides methods for getting information from csv files
+ */
 @Service
 public class CodeTableService implements InitializingBean {
 
@@ -21,12 +24,23 @@ public class CodeTableService implements InitializingBean {
 
     private Map<String, List<Map>> codeTablesMap;
 
+    /**
+     * @throws Exception in the event of misconfiguration (such
+     *                   as failure to set an essential property) or if initialization fails
+     * @see org.springframework.beans.factory.InitializingBean
+     */
     @Override
     public void afterPropertiesSet() throws Exception {
         codeTablesMap = new HashMap<>();
         codeTablesMap.put(TABLE_SALT_CODE, parseTableValues(TABLE_SALT_CODE));
     }
 
+    /**
+     * Returns data from table by table's name
+     *
+     * @param tableName Name of table
+     * @return Returns data from table
+     */
     public List<Map> getCodeTable(String tableName) {
         if (!codeTablesMap.containsKey(tableName)) {
             throw new CustomParametrizedException("Table with name='" + tableName + "' does not exist");
@@ -37,7 +51,8 @@ public class CodeTableService implements InitializingBean {
     private List<Map> parseTableValues(String tableName) throws IOException {
         List<Map> result = new ArrayList<>();
         URL resource = getClass().getResource("/data/" + tableName + ".csv");
-        try (CSVParser csvRecords = CSVParser.parse(resource, Charset.defaultCharset(), CSVFormat.DEFAULT.withHeader())) {
+        try (CSVParser csvRecords = CSVParser.parse(resource, Charset.defaultCharset(),
+                CSVFormat.DEFAULT.withHeader())) {
             csvRecords.forEach(
                     csvRecord -> result.add(csvRecord.toMap())
             );
