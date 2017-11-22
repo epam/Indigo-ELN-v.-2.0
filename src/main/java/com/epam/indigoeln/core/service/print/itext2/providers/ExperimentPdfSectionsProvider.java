@@ -81,18 +81,27 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
 
         List<AbstractPdfSection> contentSections = components
                 .stream()
-                .flatMap(printedComponentName ->
-                        printedComponentName.equals(PREFERRED_COMPOUND_SUMMARY) ?
-                                Stream.of((new Component()).setName(PREFERRED_COMPOUND_SUMMARY)) :
-                                experiment.getComponents().stream()
-                                        .filter(component ->
-                                                printedComponentName.equals(component.getName())))
+                .map(this::getComponentOfExperiment)
                 .flatMap(this::sections)
                 .collect(toList());
         if (components.contains(ATTACHMENTS)) {
             contentSections.add(getAttachmentsSection());
         }
         return contentSections;
+    }
+
+    private Component getComponentOfExperiment(String printedComponentName) {
+        Component matchedComponent = experiment.getComponents().stream()
+                .filter(component -> PREFERRED_COMPOUND_SUMMARY.equals(printedComponentName) ?
+                        printedComponentName.equals(PRODUCT_BATCH_SUMMARY) :
+                        printedComponentName.equals(component.getName()))
+                .findAny()
+                .orElseThrow(IllegalArgumentException::new);
+
+        if (PREFERRED_COMPOUND_SUMMARY.equals(printedComponentName)) {
+            return matchedComponent.setName(PREFERRED_COMPOUND_SUMMARY);
+        }
+        return matchedComponent;
     }
 
     private Stream<AbstractPdfSection> sections(Component component) {
@@ -138,18 +147,11 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     }
 
     private static List<AbstractPdfSection> preferredCompoundSummaryConverter(Pair<Component, Experiment> p) {
-        Optional<MongoExt> productBatchSummary = p.getRight().getComponents().stream()
-                .filter(component -> PRODUCT_BATCH_SUMMARY.equals(component.getName()))
-                .map(Component::getContent)
-                .map(MongoExt::of)
-                .findAny();
-
-        return productBatchSummary.map(content -> {
-            List<PreferredCompoundsRow> rows = content.streamObjects("batches")
-                    .map(ExperimentPdfSectionsProvider::getPreferredCompoundsRow)
-                    .toList();
-            return singletonList(((AbstractPdfSection)new PreferredCompoundsSection(new PreferredCompoundsModel(rows))));
-        }).orElse(Collections.emptyList());
+        return MongoExt.of(p.getLeft()).map(content ->
+                singletonList(new PreferredCompoundsSection(new PreferredCompoundsModel(
+                        content.streamObjects("batches")
+                                .map(ExperimentPdfSectionsProvider::getPreferredCompoundsRow)
+                                .toList()))));
     }
 
     private static PreferredCompoundsRow getPreferredCompoundsRow(MongoExt compound) {
