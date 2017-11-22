@@ -82,14 +82,13 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         List<AbstractPdfSection> contentSections = components
                 .stream()
                 .flatMap(printedComponentName ->
-                        experiment.getComponents().stream()
-                                .filter(component ->
-                                        printedComponentName.equals(component.getName())))
+                        printedComponentName.equals(PREFERRED_COMPOUND_SUMMARY) ?
+                                Stream.of((new Component()).setName(PREFERRED_COMPOUND_SUMMARY)) :
+                                experiment.getComponents().stream()
+                                        .filter(component ->
+                                                printedComponentName.equals(component.getName())))
                 .flatMap(this::sections)
                 .collect(toList());
-        if (components.contains(PREFERRED_COMPOUND_SUMMARY)) {
-            contentSections.addAll(preferredCompoundSummaryConverter(Pair.of(null, experiment)));
-        }
         if (components.contains(ATTACHMENTS)) {
             contentSections.add(getAttachmentsSection());
         }
