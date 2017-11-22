@@ -11,14 +11,14 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
- * Configuration for API documentation (Swagger)
+ * Configuration for Swagger API documentation.
  */
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
 
     /**
-     * Create a new Swagger API instance
+     * Create a new Swagger API instance.
      *
      * @return Swagger API instance
      */

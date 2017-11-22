@@ -6,13 +6,13 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 
 /**
- * Application main class
+ * Application main class.
  */
 @SpringBootApplication
 public class BingoDB extends SpringBootServletInitializer {
 
     /**
-     * Application entry point
+     * Application entry point.
      *
      * @param args command line arguments
      */
@@ -21,7 +21,7 @@ public class BingoDB extends SpringBootServletInitializer {
     }
 
     /**
-     * web.xml replacement with Spring Boot's Servlet Initializer
+     * web.xml replacement with Spring Boot's Servlet Initializer.
      *
      * @param builder Builder for SpringApplication
      * @return Builder for SpringApplication

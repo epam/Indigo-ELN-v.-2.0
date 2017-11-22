@@ -6,18 +6,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Configuration for Indigo instances beans
+ * Configuration for Indigo instances beans.
  */
 @Configuration
 public class IndigoConfig {
 
     /**
-     * IndigoProvider instance which provides Indigo instances with common properties
+     * IndigoProvider instance which provides Indigo instances with common properties.
      */
     private final IndigoProvider indigoProvider;
 
     /**
-     * Create a new IndigoConfig instance
+     * Create a new IndigoConfig instance.
      *
      * @param indigoProvider IndigoProvider instance
      */
@@ -27,7 +27,7 @@ public class IndigoConfig {
     }
 
     /**
-     * Create a new Indigo instance for molecule database Bingo instance
+     * Create a new Indigo instance for molecule database Bingo instance.
      *
      * @return Indigo instance for reaction database Bingo instance
      */
@@ -37,7 +37,7 @@ public class IndigoConfig {
     }
 
     /**
-     * Create a new Indigo instance for reaction database Bingo instance
+     * Create a new Indigo instance for reaction database Bingo instance.
      *
      * @return Indigo instance for reaction database Bingo instance
      */

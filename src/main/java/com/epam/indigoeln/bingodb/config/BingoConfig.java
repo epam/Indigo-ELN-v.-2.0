@@ -12,7 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 /**
- * Configuration for Bingo library for molecule/reaction databases
+ * Configuration for Bingo library for molecule/reaction databases.
  * <p>
  * According to Bingo library restrictions:
  * <p>
@@ -26,22 +26,22 @@ import java.nio.file.Paths;
 public class BingoConfig {
 
     /**
-     * Configuration properties for databases
+     * Configuration properties for databases.
      */
     private final BingoProperties bingoProperties;
 
     /**
-     * Indigo instance for molecule database Bingo instance
+     * Indigo instance for molecule database Bingo instance.
      */
     private final Indigo moleculeIndigo;
 
     /**
-     * Indigo instance for reaction database Bingo instance
+     * Indigo instance for reaction database Bingo instance.
      */
     private final Indigo reactionIndigo;
 
     /**
-     * Create a new BingoConfig instance
+     * Create a new BingoConfig instance.
      *
      * @param bingoProperties Configuration properties for databases
      * @param moleculeIndigo  Indigo instance for molecule database Bingo instance
@@ -57,7 +57,7 @@ public class BingoConfig {
     }
 
     /**
-     * Create a new Bingo instance for molecule database
+     * Create a new Bingo instance for molecule database.
      *
      * @return Bingo instance for molecule database
      * @throws IOException if database creation failed
@@ -68,7 +68,7 @@ public class BingoConfig {
     }
 
     /**
-     * Create a new Bingo instance for reaction database
+     * Create a new Bingo instance for reaction database.
      *
      * @return Bingo instance for reaction database
      * @throws IOException if database creation failed
@@ -79,7 +79,7 @@ public class BingoConfig {
     }
 
     /**
-     * Create a new Bingo instance for specified structure type
+     * Create a new Bingo instance for specified structure type.
      *
      * @param type   structure type - molecule or reaction
      * @param indigo Indigo instance to use
