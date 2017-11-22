@@ -38,7 +38,7 @@ public class BingoService {
      * Logger instance
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(BingoService.class);
-    public static final String STRUCTURES = "/structures/";
+    private static final String STRUCTURES = "/structures/";
 
     /**
      * ObjectMapper instance for reading JSON
