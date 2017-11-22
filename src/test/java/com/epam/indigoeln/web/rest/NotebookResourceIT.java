@@ -16,7 +16,7 @@ import java.net.URISyntaxException;
 import static com.epam.indigoeln.core.security.CookieConstants.CSRF_TOKEN_HEADER;
 import static org.junit.Assert.*;
 
-public class NotebookResourceTest extends RestBase {
+public class NotebookResourceIT extends RestBaseIT {
 
     @Autowired
     NotebookRepository notebookRepository;
