@@ -20,6 +20,7 @@
         <jasper.version>6.4.1</jasper.version>
         <batik.version>1.9</batik.version>
         <streamex.version>0.6.5</streamex.version>
+        <skipTests>true</skipTests>
     </properties>
 
     <parent>
@@ -427,7 +428,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.20.1</version>
                 <configuration>
-                    <skipITs>true</skipITs>
+                    <skipITs>${skipTests}</skipITs>
                 </configuration>
             </plugin>
         </plugins>
