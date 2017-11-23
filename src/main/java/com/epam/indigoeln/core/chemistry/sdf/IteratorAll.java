@@ -18,8 +18,12 @@
  ***************************************************************************/
 package com.epam.indigoeln.core.chemistry.sdf;
 
-import java.io.*;
+import lombok.extern.slf4j.Slf4j;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+
+@Slf4j
 class IteratorAll implements SdfileIterator {
 
     private static final String M_END = "M  END";
@@ -33,8 +37,11 @@ class IteratorAll implements SdfileIterator {
         buffer = null;
         index = 0;
         toUpper = allKeysToUpperCase;
-        FileInputStream fis = new FileInputStream(f);
-        init(fis);
+        try (FileInputStream fis = new FileInputStream(f)) {
+            init(fis);
+        } catch (IOException e) {
+            log.error("Got IOException: {}", e);
+        }
     }
 
     IteratorAll(String filename, boolean allKeysToUpperCase)
@@ -42,8 +49,11 @@ class IteratorAll implements SdfileIterator {
         buffer = null;
         index = 0;
         toUpper = allKeysToUpperCase;
-        FileInputStream fis = new FileInputStream(filename);
-        init(fis);
+        try (FileInputStream fis = new FileInputStream(filename)) {
+            init(fis);
+        } catch (IOException e) {
+            log.error("Got IOException: {}", e);
+        }
     }
 
     IteratorAll(InputStream is, boolean allKeysToUpperCase) {
@@ -71,7 +81,7 @@ class IteratorAll implements SdfileIterator {
     }
 
     private void init(InputStream is) {
-        InputStreamReader isr = new InputStreamReader(is);
+        InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
         buffer = new BufferedReader(isr);
     }
 

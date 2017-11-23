@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.chemistry.experiment.common.units;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -8,14 +9,14 @@ import java.util.TreeMap;
  */
 class UnitCache {
     private static UnitCache instance;
-    private TreeMap unitsByType = null;
+    private TreeMap<UnitType, Map<String, Unit>> unitsByType = null;
     private TreeMap<Object, Unit> units = null; // Cached by code
     private TreeMap<String, Unit> unitsByDisplayName = null;
 
     // Constructor
     private UnitCache() {
         units = new TreeMap<>();
-        unitsByType = new TreeMap();
+        unitsByType = new TreeMap<>();
         unitsByDisplayName = new TreeMap<>();
         init();
     }
@@ -45,8 +46,8 @@ class UnitCache {
 
         if (units.containsKey(uc))
             result = units.get(uc);
-        if (units.containsKey(uc.toUpperCase()))
-            result = units.get(uc.toUpperCase());
+        if (units.containsKey(uc.toUpperCase(Locale.getDefault())))
+            result = units.get(uc.toUpperCase(Locale.getDefault()));
         if (unitsByDisplayName.containsKey(uc))
             result = unitsByDisplayName.get(uc);
 
@@ -59,16 +60,15 @@ class UnitCache {
         }
     }
 
-    private void addMap(UnitType type, Map<String,Unit> mp) {
+    private void addMap(UnitType type, Map<String, Unit> mp) {
         if (!unitsByType.containsKey(type))
             unitsByType.put(type, mp);
-        Unit tempUnit;
-        for (String key : mp.keySet()) {
+
+        mp.forEach((key, value) -> {
             if (!units.containsKey(key)) {
-                tempUnit = mp.get(key);
-                unitsByDisplayName.put(tempUnit.getDisplayValue(), tempUnit);
-                units.put(key, tempUnit);
+                unitsByDisplayName.put(value.getDisplayValue(), value);
+                units.put(key, value);
             }
-        }
+        });
     }
 }

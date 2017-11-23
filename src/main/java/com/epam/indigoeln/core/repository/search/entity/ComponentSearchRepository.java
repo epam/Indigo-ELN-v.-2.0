@@ -29,8 +29,9 @@ public class ComponentSearchRepository implements InitializingBean {
     private static final String FIELD_PURITY_VALUE = "value";
     private static final String FIELD_PURITY_OPERATOR = "operator.name";
 
-    public static final Collection<String> AVAILABLE_FIELDS = Arrays.asList("therapeuticArea", "projectCode", "batchYield", FIELD_PURITY, "name", "description", "compoundId",
-            "references", "keywords", "chemicalName");
+    public static final Collection<String> AVAILABLE_FIELDS = Collections.unmodifiableList(
+            Arrays.asList("therapeuticArea", "projectCode", "batchYield", FIELD_PURITY, "name", "description",
+                    "compoundId", "references", "keywords", "chemicalName"));
     private static final Collection<String> SEARCH_QUERY_EQ_FIELDS = Arrays.asList("batchYield", FIELD_PURITY);
     private static final Collection<String> SEARCH_QUERY_CON_FIELDS = Arrays.asList("therapeuticArea", "projectCode", "name", "description", "compoundId", "references", "keywords", "chemicalName");
 

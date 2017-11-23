@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -308,7 +309,7 @@ public class BingoService {
 
             connection.setRequestMethod(method);
 
-            connection.setRequestProperty(HttpHeaders.AUTHORIZATION, "Basic " + Base64.encodeBase64String(basic.getBytes()));
+            connection.setRequestProperty(HttpHeaders.AUTHORIZATION, "Basic " + Base64.encodeBase64String(basic.getBytes(StandardCharsets.UTF_8)));
             connection.setRequestProperty(HttpHeaders.CONTENT_TYPE, "text/plain");
             connection.setRequestProperty(HttpHeaders.ACCEPT, "*/*");
 

@@ -61,7 +61,7 @@ public class SDResource {
 
                 return ResponseEntity.ok(result);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new IndigoRuntimeException("Error occurred while parsing SD file.", e);
         }
     }
@@ -97,7 +97,7 @@ public class SDResource {
             HttpHeaders headers = HeaderUtil.createAttachmentDescription(EXPORT_FILE_NAME);
 
             return ResponseEntity.ok().headers(headers).body(bytes);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new IndigoRuntimeException(e);
         } finally {
             FileUtils.deleteQuietly(file);

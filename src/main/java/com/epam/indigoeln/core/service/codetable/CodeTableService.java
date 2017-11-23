@@ -42,7 +42,7 @@ public class CodeTableService implements InitializingBean {
      * @return Returns data from table
      */
     public List<Map> getCodeTable(String tableName) {
-        if (!codeTablesMap.containsKey(tableName)) {
+        if (codeTablesMap != null && !codeTablesMap.containsKey(tableName)) {
             throw new CustomParametrizedException("Table with name='" + tableName + "' does not exist");
         }
         return codeTablesMap.get(tableName);

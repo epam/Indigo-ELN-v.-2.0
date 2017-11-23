@@ -12,6 +12,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Locale;
+
 /**
  * Authenticate a user from the database.
  */
@@ -27,7 +29,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Transactional
     public UserDetails loadUserByUsername(final String login) {
         LOGGER.debug("Authenticating {}", login);
-        String lowercaseLogin = login.toLowerCase();
+        String lowercaseLogin = login.toLowerCase(Locale.getDefault());
         User user = userRepository.findOneByLoginAndActivated(lowercaseLogin, true);
         if (user == null) {
             throw new UsernameNotFoundException("User " + lowercaseLogin + " was not found in the database");

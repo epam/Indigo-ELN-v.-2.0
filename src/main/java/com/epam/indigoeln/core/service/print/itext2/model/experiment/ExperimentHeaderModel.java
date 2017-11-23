@@ -9,7 +9,7 @@ import java.time.Instant;
 /**
  * Implementation of SectionModel interface for experiment header
  */
-public class ExperimentHeaderModel extends BaseHeaderModel implements SectionModel {
+public class ExperimentHeaderModel extends BaseHeaderModel {
     private Instant printDate;
     private String author;
     private String notebookExperiment;

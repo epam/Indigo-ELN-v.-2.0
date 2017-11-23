@@ -5,6 +5,7 @@ import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 public final class ResourceUtils {
@@ -24,7 +25,7 @@ public final class ResourceUtils {
         } catch (IOException e) {
             throw new IndigoRuntimeException(String.format("Cannot read file %s!", resource), e);
         }
-        try (Scanner scanner = new Scanner(inputStream)) {
+        try (Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8.name())) {
             return scanner.useDelimiter("\\A").next();
         }
     }

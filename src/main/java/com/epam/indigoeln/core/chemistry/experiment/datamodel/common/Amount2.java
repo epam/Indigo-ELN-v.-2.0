@@ -252,7 +252,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
      */
     public void setValue(String val, boolean isCalc) {
         if (StringUtils.isNotBlank(val)) {
-            Double tstVal = new Double(val);
+            Double tstVal = Double.valueOf(val);
             if (!(tstVal.isInfinite() || tstVal.isNaN())) {
                 value.setLength(0);
                 if (!doubleEqZero(tstVal)) {

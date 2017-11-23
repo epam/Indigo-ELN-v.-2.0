@@ -394,8 +394,7 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
 
     public void setTheoreticalMoleAmount(AmountModel theoreticalMoleAmount) {
         if (getBatchType().getOrdinal() == BatchType.ACTUAL_PRODUCT_ORDINAL) {
-            for (E batchModel1 : batchModels) {
-                ProductBatchModel batchModel = (ProductBatchModel) batchModel1;
+            for (E batchModel : batchModels) {
                 batchModel.setTheoreticalMoleAmount(theoreticalMoleAmount);
             }
         }

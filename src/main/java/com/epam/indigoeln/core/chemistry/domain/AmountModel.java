@@ -48,7 +48,10 @@ public class AmountModel extends Amount2 {
 
     @Override
     public boolean equals(Object amtObj) {
-        if (amtObj == null){
+        if (amtObj == null) {
+            return false;
+        }
+        if (getClass() != amtObj.getClass()) {
             return false;
         }
         AmountModel amtModel = (AmountModel) amtObj;
@@ -66,7 +69,7 @@ public class AmountModel extends Amount2 {
     @Override
     public int hashCode() {
         int result = 17;
-        result = 31 * result + (this.getValue() != null ? this.getValue().hashCode() : 0);
+        result = 31 * result + this.getValue().hashCode();
         result = 31 * result + (this.isCalculated() ? 1 : 0);
         result = 31 * result + this.getSigDigits();
         result = 31 * result + (this.getUnit().getCode() != null ? this.getUnit().getCode().hashCode() : 0);

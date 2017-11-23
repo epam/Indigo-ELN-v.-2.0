@@ -73,7 +73,6 @@ class SdfUtil {
     }
 
     public static String getNthLine(String s, int n) {
-        String nthLine = "";
         LineNumberReader lnr = new LineNumberReader(new StringReader(s));
         int line = n;
         line--;
@@ -85,11 +84,11 @@ class SdfUtil {
             }
         }
         try {
-            nthLine = lnr.readLine().trim();
+            String result = lnr.readLine();
+            return result != null ? result.trim() : "";
         } catch (IOException ignored) {
             LOGGER.error("Error occurred.", ignored);
         }
-        return nthLine;
+        return "";
     }
-    
 }
