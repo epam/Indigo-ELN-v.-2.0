@@ -7,6 +7,7 @@ var indigoSelectRequired = require('./elements/indigo-select/indigo-select-requi
 var indigoSimpleText = require('./elements/simple-text/indigo-simple-text.directive');
 var indigoTextArea = require('./elements/text-area/indigo-text-area.directive');
 var indigoTwoToggle = require('./elements/two-toggle/indigo-two-toggle.directive');
+var indigoDatePicker = require('./elements/date-picker/indigo-date-picker.directive');
 
 var dependencies = [];
 
@@ -22,5 +23,6 @@ module.exports = angular
     .directive('indigoSimpleText', indigoSimpleText)
     .directive('indigoTextArea', indigoTextArea)
     .directive('indigoTwoToggle', indigoTwoToggle)
+    .directive('indigoDatePicker', indigoDatePicker)
 
     .name;

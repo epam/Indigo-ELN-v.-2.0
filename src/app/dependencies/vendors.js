@@ -13,7 +13,7 @@ require('./malihu-custom-scrollbar-plugin');
 require('./jquery-ui');
 require('bootstrap/dist/js/bootstrap.min');
 require('angular');
-require('moment-timezone');
+require('expose-loader?moment!moment-timezone');
 require('sockjs-client');
 require('./simditor');
 require('pretty-bytes');

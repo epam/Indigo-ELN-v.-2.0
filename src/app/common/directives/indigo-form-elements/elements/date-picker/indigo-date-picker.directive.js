@@ -1,3 +1,4 @@
+var moment = require('moment');
 var template = require('./date-picker.html');
 
 indigoDatePicker.$inject = ['formUtils'];

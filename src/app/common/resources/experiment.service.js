@@ -1,4 +1,4 @@
-var moment = require('moment-timezone');
+var moment = require('moment');
 
 /* @ngInject */
 function experimentService($resource, permissionService, entityTreeService, apiUrl) {
