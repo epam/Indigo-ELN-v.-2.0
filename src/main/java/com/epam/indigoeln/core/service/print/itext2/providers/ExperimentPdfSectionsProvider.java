@@ -81,8 +81,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
 
         List<AbstractPdfSection> contentSections = components
                 .stream()
-                .map(this::getComponentOfExperiment)
-                .flatMap(this::sections)
+                .flatMap(this::sectionOfComponent)
                 .collect(toList());
         if (components.contains(ATTACHMENTS)) {
             contentSections.add(getAttachmentsSection());
@@ -90,25 +89,21 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         return contentSections;
     }
 
+    private Stream<AbstractPdfSection> sectionOfComponent(String printedComponentName) {
+        Optional<Component> componentOfExperiment = getComponentOfExperiment(printedComponentName);
+        if (componentOfExperiment.isPresent()) {
+            return Optional.ofNullable(componentNameToConverter.get(printedComponentName))
+                    .map(converter -> converter.convert(Pair.of(componentOfExperiment.get(), experiment)).stream())
+                    .orElse(Stream.empty());
+        }
+        return Stream.empty();
+    }
+
     private Optional<Component> getComponentOfExperiment(String printedComponentName) {
-        Optional<Component> matchedComponent = experiment.getComponents().stream()
+        return experiment.getComponents().stream()
                 .filter(component -> (PREFERRED_COMPOUND_SUMMARY.equals(printedComponentName) && PRODUCT_BATCH_SUMMARY.equals(component.getName()))
                         || printedComponentName.equals(component.getName()))
                 .findAny();
-        if (PREFERRED_COMPOUND_SUMMARY.equals(printedComponentName)) {
-            return matchedComponent.map(c -> c.setName(PREFERRED_COMPOUND_SUMMARY));
-        }
-        return matchedComponent;
-    }
-
-    private Stream<AbstractPdfSection> sections(Optional<Component> component) {
-        if (component.isPresent()) {
-            Component left = component.get();
-            return Optional.ofNullable(componentNameToConverter.get(left.getName()))
-                    .map(converter -> converter.convert(Pair.of(left, experiment)).stream())
-                    .orElseGet(Stream::empty);
-        }
-        return Stream.empty();
     }
 
     private static void put(String name, ComponentToPdfSectionsConverter builder) {
