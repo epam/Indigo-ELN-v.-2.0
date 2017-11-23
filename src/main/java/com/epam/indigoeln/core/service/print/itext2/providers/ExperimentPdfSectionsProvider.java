@@ -90,24 +90,25 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         return contentSections;
     }
 
-    private Component getComponentOfExperiment(String printedComponentName) {
-        Component matchedComponent = experiment.getComponents().stream()
-                .filter(component -> PREFERRED_COMPOUND_SUMMARY.equals(printedComponentName) ?
-                        printedComponentName.equals(PRODUCT_BATCH_SUMMARY) :
-                        printedComponentName.equals(component.getName()))
-                .findAny()
-                .orElseThrow(IllegalArgumentException::new);
-
+    private Optional<Component> getComponentOfExperiment(String printedComponentName) {
+        Optional<Component> matchedComponent = experiment.getComponents().stream()
+                .filter(component -> (PREFERRED_COMPOUND_SUMMARY.equals(printedComponentName) && PRODUCT_BATCH_SUMMARY.equals(component.getName()))
+                        || printedComponentName.equals(component.getName()))
+                .findAny();
         if (PREFERRED_COMPOUND_SUMMARY.equals(printedComponentName)) {
-            return matchedComponent.setName(PREFERRED_COMPOUND_SUMMARY);
+            return matchedComponent.map(c -> c.setName(PREFERRED_COMPOUND_SUMMARY));
         }
         return matchedComponent;
     }
 
-    private Stream<AbstractPdfSection> sections(Component component) {
-        return Optional.ofNullable(componentNameToConverter.get(component.getName()))
-                .map(converter -> converter.convert(Pair.of(component, experiment)).stream())
-                .orElseGet(Stream::empty);
+    private Stream<AbstractPdfSection> sections(Optional<Component> component) {
+        if (component.isPresent()) {
+            Component left = component.get();
+            return Optional.ofNullable(componentNameToConverter.get(left.getName()))
+                    .map(converter -> converter.convert(Pair.of(left, experiment)).stream())
+                    .orElseGet(Stream::empty);
+        }
+        return Stream.empty();
     }
 
     private static void put(String name, ComponentToPdfSectionsConverter builder) {
