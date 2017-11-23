@@ -20,7 +20,6 @@
         <jasper.version>6.4.1</jasper.version>
         <batik.version>1.9</batik.version>
         <streamex.version>0.6.5</streamex.version>
-        <skipTests>true</skipTests>
     </properties>
 
     <parent>
@@ -427,9 +426,20 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.20.1</version>
-                <configuration>
-                    <skipITs>${skipTests}</skipITs>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>verify</id>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
