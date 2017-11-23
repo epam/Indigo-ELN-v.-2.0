@@ -311,7 +311,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
             BigDecimal bd = BigDecimal.valueOf(val / unit.getStdConversionFactor());
             // Get a grip on the proper number of sig figs to display.
             // If scale is 1/1000 then we will get a value of 0.001
-            bd = bd.setScale(getFixedFigs(), ROUNDING_PREFERENCE);
+            bd.setScale(getFixedFigs(), ROUNDING_PREFERENCE);
             setValue(bd);
         } else {
             setCalculated(true);
