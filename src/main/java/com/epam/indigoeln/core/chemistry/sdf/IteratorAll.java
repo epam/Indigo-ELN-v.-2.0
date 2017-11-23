@@ -32,7 +32,6 @@ class IteratorAll implements SdfileIterator {
             throws FileNotFoundException {
         buffer = null;
         index = 0;
-        toUpper = false;
         toUpper = allKeysToUpperCase;
         FileInputStream fis = new FileInputStream(f);
         init(fis);
@@ -42,7 +41,6 @@ class IteratorAll implements SdfileIterator {
             throws FileNotFoundException {
         buffer = null;
         index = 0;
-        toUpper = false;
         toUpper = allKeysToUpperCase;
         FileInputStream fis = new FileInputStream(filename);
         init(fis);
@@ -51,7 +49,6 @@ class IteratorAll implements SdfileIterator {
     IteratorAll(InputStream is, boolean allKeysToUpperCase) {
         buffer = null;
         index = 0;
-        toUpper = false;
         toUpper = allKeysToUpperCase;
         init(is);
     }
@@ -85,12 +82,14 @@ class IteratorAll implements SdfileIterator {
     @Override
     public SdUnit getNext() throws IOException {
         String line;
-        String out = "";
+        StringBuilder outStringBuilder = new StringBuilder();
         boolean hasMEND = false;
         int lineCount = 0;
         while ((line = buffer.readLine()) != null) {
             lineCount++;
-            out += line + "\n";
+            outStringBuilder
+                    .append(line)
+                    .append("\n");
             if (M_END.equals(line.trim()))
                 hasMEND = true;
             if (lineCount > 4000 && !hasMEND)
@@ -98,7 +97,7 @@ class IteratorAll implements SdfileIterator {
                         "\"M  END\" was never encountered and the maximum length of a mol file was reached");
             if ("$$$$".equals(line.trim())) {
                 index++;
-                return new SdUnit(out, toUpper, false);
+                return new SdUnit(outStringBuilder.toString(), toUpper, false);
             }
         }
         if (hasMEND) {

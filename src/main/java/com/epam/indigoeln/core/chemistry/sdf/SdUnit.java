@@ -77,11 +77,11 @@ public class SdUnit implements Serializable, Externalizable {
         StringReader sr = new StringReader(in);
         BufferedReader br = new BufferedReader(sr);
         String line;
-        String out = "";
+        StringBuilder outStringBuilder = new StringBuilder();
         while ((line = br.readLine()) != null) {
-            out += line + "\n";
+            outStringBuilder.append(line).append("\n");
         }
-        return out;
+        return outStringBuilder.toString();
     }
 
     private static String validateDetail(String mol) {

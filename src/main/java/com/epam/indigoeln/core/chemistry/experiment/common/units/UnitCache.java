@@ -59,13 +59,13 @@ class UnitCache {
         }
     }
 
-    private void addMap(UnitType type, Map mp) {
+    private void addMap(UnitType type, Map<String,Unit> mp) {
         if (!unitsByType.containsKey(type))
             unitsByType.put(type, mp);
         Unit tempUnit;
-        for (Object key : mp.keySet()) {
+        for (String key : mp.keySet()) {
             if (!units.containsKey(key)) {
-                tempUnit = (Unit) mp.get(key);
+                tempUnit = mp.get(key);
                 unitsByDisplayName.put(tempUnit.getDisplayValue(), tempUnit);
                 units.put(key, tempUnit);
             }

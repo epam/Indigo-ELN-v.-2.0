@@ -113,7 +113,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
     /**
      * Returns the value as if the amount object were set to that unit. Does not change the value or unit in the amount object. Does
      * not change the sig figs of the value.
-     *
+     * <p>
      * Side-effect: value is set to new value and unit is updated.
      */
     private String convertValue(Unit2 toUnit) {
@@ -311,7 +311,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
             BigDecimal bd = BigDecimal.valueOf(val / unit.getStdConversionFactor());
             // Get a grip on the proper number of sig figs to display.
             // If scale is 1/1000 then we will get a value of 0.001
-            bd.setScale(getFixedFigs(), ROUNDING_PREFERENCE);
+            bd = bd.setScale(getFixedFigs(), ROUNDING_PREFERENCE);
             setValue(bd);
         } else {
             setCalculated(true);
@@ -392,7 +392,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
      * Setting this value will cause it to override any default values.
      *
      * @param fixedFigs -
-     *            number of places after the decimal to display
+     *                  number of places after the decimal to display
      */
     public void setFixedFigs(int fixedFigs) {
         displayedFigs = fixedFigs;
@@ -403,9 +403,8 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
     }
 
     /**
-     *
      * @param fixedFigs -
-     *            fixed number of places after decimal point to display figures.
+     *                  fixed number of places after decimal point to display figures.
      */
     public void setUserPrefFigs(int fixedFigs) {
         userPrefFigs = fixedFigs;
@@ -415,9 +414,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
     }
 
     /**
-     *
-     * @param val
-     *            the string representing the number.
+     * @param val the string representing the number.
      * @return number of digits behind the decimal point or 0.
      */
     private int getFixedFigsBasedOnString(String val) {
@@ -440,7 +437,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
      * Does trigger modified events
      *
      * @param calc =
-     *            true if this amount is calculated or false if it was set by a user.
+     *             true if this amount is calculated or false if it was set by a user.
      */
     public void setCalculated(boolean calc) {
         if (calc != calculated) {
