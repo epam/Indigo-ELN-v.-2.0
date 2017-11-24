@@ -324,12 +324,12 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     public ExperimentHeaderSection getHeaderSection() {
         List<Component> components = experiment.getComponents();
         Optional<String> title1 = StreamEx.of(components)
-                .findFirst(c -> c.getName().equals(REACTION_DETAILS))
+                .findAny(c -> REACTION_DETAILS.equals(c.getName()))
                 .map(Component::getContent)
                 .map(MongoExt::of)
                 .map(c -> c.getString("title"));
         Optional<String> title2 = StreamEx.of(components)
-                .findFirst(c -> c.getName().equals(CONCEPT_DETAILS))
+                .findAny(c -> CONCEPT_DETAILS.equals(c.getName()))
                 .map(Component::getContent)
                 .map(MongoExt::of)
                 .map(c -> c.getString("title"));
