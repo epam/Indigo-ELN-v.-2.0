@@ -153,15 +153,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
             nonZeroValue.append(val.substring(0, dotIndex));
         } else {
             // Trims the additional decimal places greater than MAX_FIGS
-            int index = val.indexOf('.');
-            String fraction = val.substring(index, val.length());
-            if (fraction.length() > 10) {
-                //SignificantFigures was removed here, lib org.ostermiller
-                nonZeroValue.append(val);
-            } else {
-                nonZeroValue.append(val);
-            }
-
+            nonZeroValue.append(val);
         }
         return nonZeroValue.toString();
     }

@@ -116,7 +116,7 @@ public class SDService {
             final String molfile = item.getMolfile();
             if (molfile != null) {
                 // Check if it is not mol format already
-                if (molfile.indexOf("M END") <= 0) {
+                if (molfile.indexOf("M END") < 1) {
                     String molformat = Decoder.decodeString(molfile);
                     sDunit = new SdUnit(molformat, true);
                 } else {

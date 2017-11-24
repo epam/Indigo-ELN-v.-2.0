@@ -42,12 +42,12 @@ public class ProductCalculator {
         syncUnitsAndSigDigits(objectList, amount, VOLUME_AMOUNT);
     }
 
-    private static void setTotalMoles(BatchModel batch, AmountModel totalMolesAmountModel) {
+    private static void setTotalMoles(ProductBatchModel batch, AmountModel totalMolesAmountModel) {
         double totalWeightInStdUnits = totalMolesAmountModel.getValueInStdUnitsAsDouble() * batch.getMolWgt();
         AmountModel newTotalWeightAmountModel = new AmountModel(MASS, totalWeightInStdUnits);
         newTotalWeightAmountModel.setUnit(batch.getTotalWeight().getUnit()); //Do not change unit based on moles. Total wt unit takes precedence.
         newTotalWeightAmountModel.setSigDigits(batch.getTotalWeight().getSigDigits());
-        setTotalAmountMadeWeight((ProductBatchModel) batch, newTotalWeightAmountModel, true);
+        setTotalAmountMadeWeight(batch, newTotalWeightAmountModel, true);
         batch.getTheoreticalMoleAmount().setUnit(totalMolesAmountModel.getUnit());
         batch.getMoleAmount().setCalculated(false);
     }

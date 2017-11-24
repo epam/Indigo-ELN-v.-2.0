@@ -1,6 +1,7 @@
 package com.epam.indigoeln.core.repository.signature;
 
 import com.epam.indigoeln.config.signature.SignatureProperties;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -56,12 +57,7 @@ public class SignatureRepository {
         LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         map.add("username", username);
         map.add("templateId", templateId);
-        ByteArrayResource fileResource = new ByteArrayResource(file) {
-            @Override
-            public String getFilename() {
-                return fileName;
-            }
-        };
+        ByteArrayResource fileResource = new ByteArrayResourceImpl(file, fileName);
         map.add("file", fileResource);
 
         return exchange(signatureProperties.getUrl() + "/api/uploadDocument", HttpMethod.POST, map,
@@ -188,6 +184,21 @@ public class SignatureRepository {
     private void setSignatureSessionId(String signatureSessionId) {
         synchronized (signatureSessionIdLock) {
             this.signatureSessionId = signatureSessionId;
+        }
+    }
+
+    @EqualsAndHashCode
+    private static class ByteArrayResourceImpl extends ByteArrayResource {
+        private final String fileName;
+
+        ByteArrayResourceImpl(byte[] byteArray, String fileName) {
+            super(byteArray);
+            this.fileName = fileName;
+        }
+
+        @Override
+        public String getFilename() {
+            return fileName;
         }
     }
 }

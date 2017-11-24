@@ -16,7 +16,7 @@ public class ReactionDetailsModel implements SectionModel {
     private String projectAlias;
     private List<String> linkedExperiment;
     private String literatureReference;
-    private List<String> coauthors;
+    private List<String> coAuthors;
 
     public ZonedDateTime getCreationDate() {
         return creationDate;
@@ -50,8 +50,8 @@ public class ReactionDetailsModel implements SectionModel {
         return literatureReference;
     }
 
-    public List<String> getCoauthors() {
-        return coauthors;
+    public List<String> getCoAuthors() {
+        return coAuthors;
     }
 
     public ReactionDetailsModel setCreationDate(ZonedDateTime creationDate) {
@@ -94,8 +94,8 @@ public class ReactionDetailsModel implements SectionModel {
         return this;
     }
 
-    public ReactionDetailsModel setCoauthors(List<String> coauthors) {
-        this.coauthors = coauthors;
+    public ReactionDetailsModel setCoAuthors(List<String> coAuthors) {
+        this.coAuthors = coAuthors;
         return this;
     }
 }

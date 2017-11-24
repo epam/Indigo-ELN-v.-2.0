@@ -424,7 +424,7 @@ public class SdUnit implements Serializable, Externalizable {
             String thisValue;
 
             do {
-                if (attrPortion.indexOf(">") != 0 || attrPortion.indexOf("<") <= 0) {
+                if (attrPortion.indexOf(">") != 0 || attrPortion.indexOf("<") < 1) {
                     break;
                 }
 

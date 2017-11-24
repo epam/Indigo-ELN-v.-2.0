@@ -29,7 +29,7 @@ public class ConceptDetailsSection extends BasePdfSectionWithSimpleTitle<Concept
         wrapper.addKeyValueCells("Linked Experiment", StringUtils.join(model.getLinkedExperiment(), COMMA));
         wrapper.addKeyValueCells("Project Code", model.getProjectCode());
         wrapper.addKeyValueCells("Designers", StringUtils.join(model.getDesigners(), COMMA));
-        wrapper.addKeyValueCells("Co-authors", StringUtils.join(model.getCoauthors(), COMMA));
+        wrapper.addKeyValueCells("Co-authors", StringUtils.join(model.getCoAuthors(), COMMA));
         wrapper.addKeyValueCells("Concept Keyword", model.getConceptKeywords(), 3);
 
         return table;

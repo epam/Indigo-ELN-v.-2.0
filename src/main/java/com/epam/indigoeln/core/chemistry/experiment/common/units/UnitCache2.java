@@ -6,7 +6,7 @@ import java.util.TreeMap;
 
 public class UnitCache2 {
 
-    private static UnitCache2 instance;
+    private static volatile UnitCache2 instance;
     private TreeMap<UnitType, Map<String, Unit2>> unitsByType = null;
     private TreeMap<String, Unit2> units = null; // Cached by code
     private TreeMap<String, Unit2> unitsByDisplayName = null;

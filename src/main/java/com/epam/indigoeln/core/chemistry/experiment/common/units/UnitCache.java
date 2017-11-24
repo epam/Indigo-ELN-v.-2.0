@@ -8,7 +8,7 @@ import java.util.TreeMap;
  * Unit types are based on (T)ime, (M)ass, (L)ength, (W)eight, (D)ensity
  */
 class UnitCache {
-    private static UnitCache instance;
+    private static volatile UnitCache instance;
     private TreeMap<UnitType, Map<String, Unit>> unitsByType = null;
     private TreeMap<Object, Unit> units = null; // Cached by code
     private TreeMap<String, Unit> unitsByDisplayName = null;

@@ -106,7 +106,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                 .setProjectAlias(content.getString("projectAliasName"))
                 .setLinkedExperiment(content.streamObjects("linkedExperiments").map(m -> m.getString("text")).toList())
                 .setLiteratureReference(content.getString("literature"))
-                .setCoauthors(userRepository.findAll(content.streamStrings("coAuthors").toList()).stream().map(User::getFullName).collect(Collectors.toList()))
+                .setCoAuthors(userRepository.findAll(content.streamStrings("coAuthors").toList()).stream().map(User::getFullName).collect(Collectors.toList()))
         )));
     }
 
