@@ -1,4 +1,4 @@
-const path = require('path');
+var path = require('path');
 
 function copy(DIRS) {
     return [

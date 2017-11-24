@@ -12,6 +12,8 @@ var copy = require('./webpack/copy');
 module.exports = function(env) {
     var IS_PROD = env.build === 'prod';
     var IS_DEV = env.build === 'dev';
+    var IS_TEST = env.build === 'test';
+
     var apiUrl = _.isArray(env.apiUrl) ? _.last(env.apiUrl) : env.apiUrl;
 
     var DIRS = {
@@ -21,37 +23,36 @@ module.exports = function(env) {
         dist: path.join(__dirname, 'dist')
     };
 
-    return {
+    //TODO: delete babel loader when phantomjs 2.5 will be available
+    var commonConfig = {
         entry: {
             app: path.join(DIRS.app, 'app.module.js'),
             vendors: path.join(DIRS.app, 'dependencies/vendors.js')
         },
         plugins: [
             new CleanWebpackPlugin([DIRS.dist]),
-
-            new ExtractTextPlugin({filename: '[name].bundle.css', allChunks: true}),
             new webpack.DefinePlugin({
                 apiUrl: JSON.stringify(apiUrl)
             }),
-            new CopyWebpackPlugin(copy(DIRS)),
-            new webpack.optimize.CommonsChunkPlugin({
-                name: 'vendors',
-                minChunks: Infinity
-            }),
-            new HtmlWebpackPlugin({
-                favicon: path.join(DIRS.assets, 'images', 'favicon.ico'),
-                template: path.join(DIRS.src, 'index.html'),
-                filename: 'index.html',
-                hash: true,
-                chunks: ['vendors', 'app']
-            })
+            new CopyWebpackPlugin(copy(DIRS))
         ],
         output: {
             filename: '[name].bundle.js',
             path: DIRS.dist
         },
+        devtool: 'inline-source-map',
         module: {
             rules: [
+                {
+                    test: /\.js$/,
+                    include: path.resolve(__dirname, 'node_modules/pretty-bytes'),
+                    use: {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: ['es2015']
+                        }
+                    }
+                },
                 {
                     test: /\.js$/,
                     exclude: /(node_modules)/,
@@ -59,7 +60,7 @@ module.exports = function(env) {
                 },
                 {
                     test: /\.css$/,
-                    loader: ExtractTextPlugin.extract({
+                    loader: IS_TEST ? 'null-loader' : ExtractTextPlugin.extract({
                         fallback: 'style-loader',
                         use: [
                             {
@@ -73,7 +74,7 @@ module.exports = function(env) {
                 },
                 {
                     test: /\.less$/,
-                    loader: ExtractTextPlugin.extract({
+                    loader: IS_TEST ? 'null-loader' : ExtractTextPlugin.extract({
                         fallback: 'style-loader',
                         use: [
                             {
@@ -118,4 +119,39 @@ module.exports = function(env) {
             ]
         }
     };
+
+    if (!IS_TEST) {
+        commonConfig.plugins.push(
+            new webpack.optimize.CommonsChunkPlugin({
+                    name: 'vendors',
+                    minChunks: Infinity
+                }
+            ),
+            new ExtractTextPlugin({filename: '[name].bundle.css', allChunks: true}),
+            new HtmlWebpackPlugin({
+                    favicon: path.join(DIRS.assets, 'images', 'favicon.ico'),
+                    template: path.join(DIRS.src, 'index.html'),
+                    filename: 'index.html',
+                    hash: true,
+                    chunks: ['vendors', 'app']
+                }
+            )
+        );
+    }
+
+    if (IS_TEST) {
+        commonConfig.module.rules.push(
+            {
+                test: /\.js$/,
+                enforce: 'post',
+                exclude: [
+                    /(node_modules|webpack|dependencies)/,
+                    /\.(spec|constant|config|module|run)\.js$/
+                ],
+                loader: 'istanbul-instrumenter-loader'
+            }
+        );
+    }
+
+    return commonConfig;
 };

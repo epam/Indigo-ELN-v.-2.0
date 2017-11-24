@@ -4,7 +4,6 @@ var merge = require('webpack-merge');
 
 module.exports = function(env) {
     var devConfig = {
-        devtool: 'inline-source-map',
         devServer: {
             contentBase: './dist',
             stats: 'minimal',

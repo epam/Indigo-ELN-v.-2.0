@@ -167,11 +167,12 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
                 });
             });
         } else if (isNotebook(node)) {
-            entityTreeService.getExperiments(node.params[0], node.params[1], node.params[2], vm.isAll).then(function(children) {
-                $timeout(function() {
-                    node.children = children;
+            entityTreeService.getExperiments(node.params[0], node.params[1], node.params[2], vm.isAll)
+                .then(function(children) {
+                    $timeout(function() {
+                        node.children = children;
+                    });
                 });
-            });
         } else if (isExperiment(node)) {
             return;
         }
