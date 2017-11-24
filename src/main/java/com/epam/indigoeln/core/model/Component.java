@@ -1,9 +1,9 @@
 package com.epam.indigoeln.core.model;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBRef;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import com.mongodb.DBRef;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
