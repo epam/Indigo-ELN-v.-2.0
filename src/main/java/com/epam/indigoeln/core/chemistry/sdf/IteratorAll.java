@@ -24,7 +24,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 @Slf4j
-class IteratorAll implements SdfileIterator {
+class IteratorAll implements SDFileIterator {
 
     private static final String M_END = "M  END";
 
@@ -37,11 +37,8 @@ class IteratorAll implements SdfileIterator {
         buffer = null;
         index = 0;
         toUpper = allKeysToUpperCase;
-        try (FileInputStream fis = new FileInputStream(f)) {
-            init(fis);
-        } catch (IOException e) {
-            log.error("Got IOException: {}", e);
-        }
+        InputStreamReader isr = new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8);
+        buffer = new BufferedReader(isr);
     }
 
     IteratorAll(String filename, boolean allKeysToUpperCase)
@@ -49,18 +46,16 @@ class IteratorAll implements SdfileIterator {
         buffer = null;
         index = 0;
         toUpper = allKeysToUpperCase;
-        try (FileInputStream fis = new FileInputStream(filename)) {
-            init(fis);
-        } catch (IOException e) {
-            log.error("Got IOException: {}", e);
-        }
+        InputStreamReader isr = new InputStreamReader(new FileInputStream(filename), StandardCharsets.UTF_8);
+        buffer = new BufferedReader(isr);
     }
 
     IteratorAll(InputStream is, boolean allKeysToUpperCase) {
         buffer = null;
         index = 0;
         toUpper = allKeysToUpperCase;
-        init(is);
+        InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
+        buffer = new BufferedReader(isr);
     }
 
     IteratorAll(Reader r) {
@@ -78,11 +73,6 @@ class IteratorAll implements SdfileIterator {
     @Override
     public int getCurrentIndex() {
         return index;
-    }
-
-    private void init(InputStream is) {
-        InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
-        buffer = new BufferedReader(isr);
     }
 
     private void init(Reader r) {
