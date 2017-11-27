@@ -58,6 +58,11 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         put(EXPERIMENT_DESCRIPTION, ExperimentPdfSectionsProvider::experimentDescriptionConverter);
     }
 
+    private final String[] THERAPEUTIC_AREA_NAME = {"therapeuticArea", "name"};
+    private final String[] CODE_AND_NAME_NAME = {"codeAndName", "name"};
+    private final String[] CONTINUED_FROM_NAME = {"contFromRxn", "name"};
+    private final String[] CONTINUED_TO_NAME = {"contToRxn", "name"};
+
     public ExperimentPdfSectionsProvider(Project project, Notebook notebook, Experiment experiment, FileRepository fileRepository,
                                          PrintRequest printRequest, UserRepository userRepository) {
         this.project = project;
@@ -111,25 +116,25 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     }
 
     private List<AbstractPdfSection> reactionDetailsConverter(Pair<Component, Experiment> p) {
-        return MongoExt.of(p.getLeft()).map(content -> singletonList(new ReactionDetailsSection(new ReactionDetailsModel()
-                .setCreationDate(p.getRight().getCreationDate())
-                .setTherapeuticArea(content.getString("therapeuticArea", "name"))
-                .setContinuedFrom(content.streamObjects("contFromRxn").map(m -> m.getString("text")).toList())
-                .setContinuedTo(content.streamObjects("contToRxn").map(m -> m.getString("text")).toList())
-                .setProjectCode(content.getString("codeAndName", "name"))
-                .setProjectAlias(content.getString("projectAliasName"))
-                .setLinkedExperiment(content.streamObjects("linkedExperiments").map(m -> m.getString("text")).toList())
-                .setLiteratureReference(content.getString("literature"))
-                .setCoAuthors(userRepository.findAll(content.streamStrings("coAuthors").toList()).stream().map(User::getFullName).collect(toList()))
+        return MongoExt.of(p.getLeft()).map(content -> singletonList(new ReactionDetailsSection(new ReactionDetailsModel(
+                p.getRight().getCreationDate(),
+                content.getString(THERAPEUTIC_AREA_NAME),
+                content.getString(CONTINUED_FROM_NAME),
+                content.getString(CONTINUED_TO_NAME),
+                content.getString(CODE_AND_NAME_NAME),
+                content.getString("projectAliasName"),
+                content.streamObjects("linkedExperiments").map(m -> m.getString("text")).toList(),
+                content.getString("literature"),
+                userRepository.findAll(content.streamStrings("coAuthors").toList()).stream().map(User::getFullName).collect(toList()))
         )));
     }
 
     private List<AbstractPdfSection> conceptDetailsConverter(Pair<Component, Experiment> p) {
         return MongoExt.of(p.getLeft()).map(content -> singletonList(new ConceptDetailsSection(new ConceptDetailsModel(
                 p.getRight().getCreationDate(),
-                content.getString("therapeuticArea", "name"),
+                content.getString(THERAPEUTIC_AREA_NAME),
                 content.streamObjects("linkedExperiments").map(m -> m.getString("text")).toList(),
-                content.getString("codeAndName", "name"),
+                content.getString(CODE_AND_NAME_NAME),
                 content.getString("keywords"),
                 userRepository.findAll(content.streamStrings("designers").toList()).stream().map(User::getFullName).collect(toList()),
                 userRepository.findAll(content.streamStrings("coAuthors").toList()).stream().map(User::getFullName).collect(toList())
