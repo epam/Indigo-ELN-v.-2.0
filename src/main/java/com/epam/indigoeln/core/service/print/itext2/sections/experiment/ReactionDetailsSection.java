@@ -25,12 +25,12 @@ public class ReactionDetailsSection extends BasePdfSectionWithSimpleTitle<Reacti
         PdfPTableHelper wrapper = new PdfPTableHelper(table);
         wrapper.addKeyValueCells("Created Date", FormatUtils.formatSafe(model.getCreationDate()));
         wrapper.addKeyValueCells("Therapeutic Area", model.getTherapeuticArea());
-        wrapper.addKeyValueCells("Continued From", StringUtils.join(model.getContinuedFrom(),COMMA));
+        wrapper.addKeyValueCells("Continued From", model.getContinuedFrom());
         wrapper.addKeyValueCells("Project Code", model.getProjectCode());
-        wrapper.addKeyValueCells("Continued To", StringUtils.join(model.getContinuedTo(),COMMA));
+        wrapper.addKeyValueCells("Continued To", model.getContinuedTo());
         wrapper.addKeyValueCells("Project Alias", model.getProjectAlias());
-        wrapper.addKeyValueCells("Linked Experiment", StringUtils.join(model.getLinkedExperiment(),COMMA));
-        wrapper.addKeyValueCells("Co-authors", StringUtils.join(model.getCoauthors(),COMMA));
+        wrapper.addKeyValueCells("Linked Experiment", StringUtils.join(model.getLinkedExperiment(), COMMA));
+        wrapper.addKeyValueCells("Co-authors", StringUtils.join(model.getCoauthors(), COMMA));
         wrapper.addKeyValueCells("Literature Reference", model.getLiteratureReference(), 3);
 
         return table;

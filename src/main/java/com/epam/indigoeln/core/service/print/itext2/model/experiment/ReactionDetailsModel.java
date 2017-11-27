@@ -10,8 +10,8 @@ import java.util.List;
 public class ReactionDetailsModel implements SectionModel {
     private ZonedDateTime creationDate;
     private String therapeuticArea;
-    private List<String> continuedFrom;
-    private List<String> continuedTo;
+    private String continuedFrom;
+    private String continuedTo;
     private String projectCode;
     private String projectAlias;
     private List<String> linkedExperiment;
@@ -26,11 +26,11 @@ public class ReactionDetailsModel implements SectionModel {
         return therapeuticArea;
     }
 
-    public List<String> getContinuedFrom() {
+    public String getContinuedFrom() {
         return continuedFrom;
     }
 
-    public List<String> getContinuedTo() {
+    public String getContinuedTo() {
         return continuedTo;
     }
 
@@ -64,12 +64,12 @@ public class ReactionDetailsModel implements SectionModel {
         return this;
     }
 
-    public ReactionDetailsModel setContinuedFrom(List<String> continuedFrom) {
+    public ReactionDetailsModel setContinuedFrom(String continuedFrom) {
         this.continuedFrom = continuedFrom;
         return this;
     }
 
-    public ReactionDetailsModel setContinuedTo(List<String> continuedTo) {
+    public ReactionDetailsModel setContinuedTo(String continuedTo) {
         this.continuedTo = continuedTo;
         return this;
     }
@@ -97,5 +97,17 @@ public class ReactionDetailsModel implements SectionModel {
     public ReactionDetailsModel setCoauthors(List<String> coauthors) {
         this.coauthors = coauthors;
         return this;
+    }
+
+    public ReactionDetailsModel(ZonedDateTime creationDate, String therapeuticArea, String continuedFrom, String continuedTo, String projectCode, String projectAlias, List<String> linkedExperiment, String literatureReference, List<String> coauthors) {
+        this.creationDate = creationDate;
+        this.therapeuticArea = therapeuticArea;
+        this.continuedFrom = continuedFrom;
+        this.continuedTo = continuedTo;
+        this.projectCode = projectCode;
+        this.projectAlias = projectAlias;
+        this.linkedExperiment = linkedExperiment;
+        this.literatureReference = literatureReference;
+        this.coauthors = coauthors;
     }
 }
