@@ -119,8 +119,8 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
                     url: apiUrl + 'bingodb/' + vm.structureType + '/',
                     method: 'POST',
                     data: structure
-                }).then(function(structureId) {
-                    setStructure(structure, structureId);
+                }).then(function(response) {
+                    setStructure(structure, response.data);
                 }).catch(function() {
                     notifyService.error('Cannot save the structure!');
                 });
