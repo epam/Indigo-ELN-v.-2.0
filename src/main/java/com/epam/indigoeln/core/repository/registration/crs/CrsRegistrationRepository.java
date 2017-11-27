@@ -58,7 +58,7 @@ public class CrsRegistrationRepository implements RegistrationRepository {
     @Override
     public RegistrationStatus getRegisterJobStatus(String jobId) throws RegistrationException {
         try {
-            CompoundRegistrationStatus status = registration.checkRegistrationStatus(getToken(), Long.valueOf(jobId));
+            CompoundRegistrationStatus status = registration.checkRegistrationStatus(getToken(), Long.parseLong(jobId));
             final RegistrationStatus result = convert(status, new Date());
             if (RegistrationStatus.Status.PASSED.equals(result.getStatus())) {
                 final List<FullCompoundInfo> compounds = search.getCompoundByJobId(String.valueOf(jobId));

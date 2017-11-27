@@ -14,18 +14,18 @@ public class ConceptDetailsModel implements SectionModel {
     private String projectCode;
     private String conceptKeywords;
     private List<String> designers;
-    private List<String> coauthors;
+    private List<String> coAuthors;
 
     public ConceptDetailsModel(ZonedDateTime creationDate, String therapeuticArea,
                                List<String> linkedExperiment, String projectCode,
-                               String conceptKeywords,  List<String> designers,  List<String> coauthors) {
+                               String conceptKeywords,  List<String> designers,  List<String> coAuthors) {
         this.creationDate = creationDate;
         this.therapeuticArea = therapeuticArea;
         this.linkedExperiment = linkedExperiment;
         this.projectCode = projectCode;
         this.conceptKeywords = conceptKeywords;
         this.designers = designers;
-        this.coauthors = coauthors;
+        this.coAuthors = coAuthors;
     }
 
     public ZonedDateTime getCreationDate() {
@@ -52,7 +52,7 @@ public class ConceptDetailsModel implements SectionModel {
         return designers;
     }
 
-    public  List<String> getCoauthors() {
-        return coauthors;
+    public  List<String> getCoAuthors() {
+        return coAuthors;
     }
 }

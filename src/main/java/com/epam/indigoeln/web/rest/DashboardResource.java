@@ -248,7 +248,7 @@ public class DashboardResource {
 
         if (document != null) {
             result.setWitnesses(document.getWitnesses().stream().map(
-                    u -> new DashboardRowDTO.UserDTO(u.getFirstname(), u.getLastname())
+                    u -> new DashboardRowDTO.UserDTO(u.getFirstName(), u.getLastName())
             ).collect(Collectors.toList()));
             result.setComments(document.getWitnesses().stream().map(SignatureService.User::getComment)
                     .collect(Collectors.toList()));

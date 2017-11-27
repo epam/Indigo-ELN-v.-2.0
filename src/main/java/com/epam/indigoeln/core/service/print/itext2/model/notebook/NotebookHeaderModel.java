@@ -9,7 +9,7 @@ import java.time.ZonedDateTime;
 /**
  * Implementation of SectionModel interface for notebook header
  */
-public class NotebookHeaderModel extends BaseHeaderModel implements SectionModel {
+public class NotebookHeaderModel extends BaseHeaderModel {
     private String author;
     private ZonedDateTime creationDate;
     private String notebookName;

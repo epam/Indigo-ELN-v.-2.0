@@ -23,10 +23,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriTemplate;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -109,12 +106,12 @@ public class RequestSender {
             ResponseEntity<String> responseEntity = restTemplate.exchange(requestEntity, String.class);
             if (responseEntity.getStatusCode() == HttpStatus.OK) {
                 String body = responseEntity.getBody();
-                try (InputStream is = new ByteArrayInputStream(body.getBytes())){
+                try (InputStream is = new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8))){
                     try (Reader r = new InputStreamReader(is, StandardCharsets.UTF_8)) {
                         Collection<SdUnit> parse = sdService.parse(r);
                         return parse.stream().map(this::convert).collect(Collectors.toList());
                     }
-                } catch (Exception e) {
+                } catch (IOException e) {
                     throw new IndigoRuntimeException("Error occurred while parsing SD file.", e);
                 }
             }

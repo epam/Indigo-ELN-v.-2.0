@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -77,11 +78,11 @@ public class SdUnit implements Serializable, Externalizable {
         StringReader sr = new StringReader(in);
         BufferedReader br = new BufferedReader(sr);
         String line;
-        String out = "";
+        StringBuilder outStringBuilder = new StringBuilder();
         while ((line = br.readLine()) != null) {
-            out += line + "\n";
+            outStringBuilder.append(line).append("\n");
         }
-        return out;
+        return outStringBuilder.toString();
     }
 
     private static String validateDetail(String mol) {
@@ -133,7 +134,7 @@ public class SdUnit implements Serializable, Externalizable {
             if (Objects.isNull(line)) {
                 return "Molecule has too few lines";
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             LOGGER.error("Unexpected error parsing molecule", e);
             return "Unexpected error parsing molecule";
         }
@@ -275,7 +276,7 @@ public class SdUnit implements Serializable, Externalizable {
 
     public String getValue(String key) {
         if (valid)
-            return infoPortion.get(key.toUpperCase());
+            return infoPortion.get(key.toUpperCase(Locale.getDefault()));
         else
             return "";
     }
@@ -284,9 +285,9 @@ public class SdUnit implements Serializable, Externalizable {
         if (valid)
             if (value == null || "".equals(value.trim())) {
                 removeKey(key);
-                infoPortion.remove(key.toUpperCase());
+                infoPortion.remove(key.toUpperCase(Locale.getDefault()));
             } else {
-                infoPortion.put(key.toUpperCase(), value);
+                infoPortion.put(key.toUpperCase(Locale.getDefault()), value);
                 replaceKey(key);
             }
     }
@@ -330,7 +331,7 @@ public class SdUnit implements Serializable, Externalizable {
 
     public void removeItem(String key) {
         if (valid) {
-            infoPortion.remove(key.toUpperCase());
+            infoPortion.remove(key.toUpperCase(Locale.getDefault()));
             removeKey(key);
         }
     }
@@ -423,7 +424,7 @@ public class SdUnit implements Serializable, Externalizable {
             String thisValue;
 
             do {
-                if (attrPortion.indexOf(">") != 0 || attrPortion.indexOf("<") <= 0) {
+                if (attrPortion.indexOf(">") != 0 || attrPortion.indexOf("<") < 1) {
                     break;
                 }
 
@@ -431,7 +432,7 @@ public class SdUnit implements Serializable, Externalizable {
                 thisName = attrPortion.substring(0, attrPortion.indexOf(">")).trim();
 
                 thisOrigName = thisName;
-                thisName = thisName.toUpperCase();
+                thisName = thisName.toUpperCase(Locale.getDefault());
 
                 attrPortion = attrPortion.substring(attrPortion.indexOf("\n")).trim();
 
@@ -516,10 +517,11 @@ public class SdUnit implements Serializable, Externalizable {
         GZIPInputStream gis = new GZIPInputStream(bais);
         ByteArrayOutputStream unit = new ByteArrayOutputStream();
         int chunk;
-        while ((chunk = gis.read()) >= 0)
+        while ((chunk = gis.read()) >= 0) {
             unit.write(chunk);
+        }
         unit.close();
-        String info = new String(unit.toByteArray());
+        String info = new String(unit.toByteArray(), StandardCharsets.UTF_8);
         bais.close();
         gis.close();
         init(info, true, false);
@@ -528,7 +530,7 @@ public class SdUnit implements Serializable, Externalizable {
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         String text = getUnit();
-        byte[] btext = text.getBytes();
+        byte[] btext = text.getBytes(StandardCharsets.UTF_8);
         ByteArrayOutputStream baos = new ByteArrayOutputStream(btext.length);
         GZIPOutputStream gzo = new GZIPOutputStream(baos);
         gzo.write(btext);

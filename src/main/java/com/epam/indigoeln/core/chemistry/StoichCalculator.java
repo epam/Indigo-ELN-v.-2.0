@@ -477,12 +477,9 @@ public class StoichCalculator {
     }
 
     private void recalculateVolumeForSolvent(AmountModel limitingMole, StoicModelInterface rb, List<AmountModel> volumeAmounts) {
-        ArrayList<AmountModel> amts = new ArrayList<>();
         AmountModel tempVolumeAmt;
         double tempMolarAmtValue = rb.getStoicMolarAmount().getValueInStdUnitsAsDouble();
         double calcVolume;
-        amts.add(limitingMole);
-        amts.add(rb.getStoicMolarAmount());
 
         if (tempMolarAmtValue > 0) {
             calcVolume = limitingMole.getValueInStdUnitsAsDouble() / tempMolarAmtValue;
@@ -493,17 +490,15 @@ public class StoichCalculator {
             tempVolumeAmt = volumeAmount;
             if (!tempVolumeAmt.equals(rb.getStoicVolumeAmount())) {
                 calcVolume -= tempVolumeAmt.getValueInStdUnitsAsDouble();
-                amts.add(tempVolumeAmt);
                 if (!doubleEqZero(tempVolumeAmt.getValueInStdUnitsAsDouble()))
                     tempVolumeAmt.setCalculated(false);
             }
         }
-        AmountModel actaulVolumeAmt = rb.getStoicVolumeAmount();
-        AmountModel volumeAmt = (AmountModel) actaulVolumeAmt.deepClone();
+        AmountModel actualVolumeAmt = rb.getStoicVolumeAmount();
+        AmountModel volumeAmt = (AmountModel) actualVolumeAmt.deepClone();
         volumeAmt.setValueInStdUnits(calcVolume, true);
         volumeAmt.setSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
         rb.setStoicVolumeAmount(volumeAmt);
-        amts.clear();
     }
 
     private void applySigDigitsToAllSolventMolarites(AmountModel molarAmt) {

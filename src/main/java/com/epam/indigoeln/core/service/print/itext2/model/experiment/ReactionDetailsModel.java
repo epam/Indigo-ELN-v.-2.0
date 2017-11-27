@@ -1,6 +1,7 @@
 package com.epam.indigoeln.core.service.print.itext2.model.experiment;
 
 import com.epam.indigoeln.core.service.print.itext2.model.common.SectionModel;
+
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -16,7 +17,7 @@ public class ReactionDetailsModel implements SectionModel {
     private String projectAlias;
     private List<String> linkedExperiment;
     private String literatureReference;
-    private List<String> coauthors;
+    private List<String> coAuthors;
 
     public ZonedDateTime getCreationDate() {
         return creationDate;
@@ -50,8 +51,8 @@ public class ReactionDetailsModel implements SectionModel {
         return literatureReference;
     }
 
-    public List<String> getCoauthors() {
-        return coauthors;
+    public List<String> getCoAuthors() {
+        return coAuthors;
     }
 
     public ReactionDetailsModel setCreationDate(ZonedDateTime creationDate) {
@@ -94,12 +95,12 @@ public class ReactionDetailsModel implements SectionModel {
         return this;
     }
 
-    public ReactionDetailsModel setCoauthors(List<String> coauthors) {
-        this.coauthors = coauthors;
+    public ReactionDetailsModel setCoAuthors(List<String> coAuthors) {
+        this.coAuthors = coAuthors;
         return this;
     }
 
-    public ReactionDetailsModel(ZonedDateTime creationDate, String therapeuticArea, String continuedFrom, String continuedTo, String projectCode, String projectAlias, List<String> linkedExperiment, String literatureReference, List<String> coauthors) {
+    public ReactionDetailsModel(ZonedDateTime creationDate, String therapeuticArea, String continuedFrom, String continuedTo, String projectCode, String projectAlias, List<String> linkedExperiment, String literatureReference, List<String> coAuthors) {
         this.creationDate = creationDate;
         this.therapeuticArea = therapeuticArea;
         this.continuedFrom = continuedFrom;
@@ -108,6 +109,6 @@ public class ReactionDetailsModel implements SectionModel {
         this.projectAlias = projectAlias;
         this.linkedExperiment = linkedExperiment;
         this.literatureReference = literatureReference;
-        this.coauthors = coauthors;
+        this.coAuthors = coAuthors;
     }
 }

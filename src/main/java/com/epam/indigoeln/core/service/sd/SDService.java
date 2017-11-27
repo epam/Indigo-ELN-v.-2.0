@@ -21,12 +21,13 @@ package com.epam.indigoeln.core.service.sd;
 import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.chemistry.domain.SDFileInfo;
 import com.epam.indigoeln.core.chemistry.sdf.SdUnit;
-import com.epam.indigoeln.core.chemistry.sdf.SdfileIterator;
-import com.epam.indigoeln.core.chemistry.sdf.SdfileIteratorFactory;
+import com.epam.indigoeln.core.chemistry.sdf.SDFileIterator;
+import com.epam.indigoeln.core.chemistry.sdf.SDFileIteratorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,9 +53,8 @@ public class SDService {
      */
     public Collection<SdUnit> parse(Reader reader) throws IndigoRuntimeException {
         List<SdUnit> result = new ArrayList<>();
-        try {
+        try (SDFileIterator it = SDFileIteratorFactory.getIterator(reader)) {
             SdUnit sdu;
-            SdfileIterator it = SdfileIteratorFactory.getIterator(reader);
             int offset = 0;
             while ((sdu = it.getNext()) != null) {
                 offset++;
@@ -67,7 +67,7 @@ public class SDService {
                 // add to list
                 result.add(sdu);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             LOGGER.error("Error while extracting batch from SD file: " + e);
             throw new IndigoRuntimeException(e);
         }
@@ -116,7 +116,7 @@ public class SDService {
             final String molfile = item.getMolfile();
             if (molfile != null) {
                 // Check if it is not mol format already
-                if (molfile.indexOf("M END") <= 0) {
+                if (molfile.indexOf("M END") < 1) {
                     String molformat = Decoder.decodeString(molfile);
                     sDunit = new SdUnit(molformat, true);
                 } else {

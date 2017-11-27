@@ -24,13 +24,14 @@ public class AbstractSearchAggregationBuilder {
     }
 
     protected AbstractSearchAggregationBuilder withSearchQuery(String searchQuery) {
-        List<Criteria> querySearch = searchQueryFields.stream()
-                .filter(f -> !advancedFields.contains(f))
-                .map(f -> new SearchCriterion(f, f, "contains", searchQuery))
-                .map(c -> AggregationUtils.createCriterion(c, contextPrefix))
-                .collect(toList());
-
-        AggregationUtils.orCriteria(querySearch).ifPresent(c -> aggregationOperations.add(Aggregation.match(c)));
+        if (searchQueryFields!=null) {
+            List<Criteria> querySearch = searchQueryFields.stream()
+                    .filter(f -> !advancedFields.contains(f))
+                    .map(f -> new SearchCriterion(f, f, "contains", searchQuery))
+                    .map(c -> AggregationUtils.createCriterion(c, contextPrefix))
+                    .collect(toList());
+            AggregationUtils.orCriteria(querySearch).ifPresent(c -> aggregationOperations.add(Aggregation.match(c)));
+        }
         return this;
     }
 

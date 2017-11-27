@@ -17,6 +17,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Optional;
 
 import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.BOLD_FONT_FAMILY;
@@ -227,7 +228,7 @@ public class CellFactory {
      * @return Returns pdf cell
      */
     public static PdfPCell getSimpleTitleCell(String title) {
-        PdfPCell cell = getCommonCell(title.toUpperCase());
+        PdfPCell cell = getCommonCell(title.toUpperCase(Locale.getDefault()));
         cell.setPadding(SIMPLE_TITLE_CELL_PADDING);
         cell.setPaddingTop(SIMPLE_TITLE_CELL_PADDING_TOP);
         cell.setPaddingLeft(0);

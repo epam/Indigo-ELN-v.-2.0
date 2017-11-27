@@ -155,7 +155,6 @@ public class User implements Serializable {
     }
 
     public Set<Authority> getAuthorities() {
-        roles.size();
         Set<Authority> authorities = new HashSet<>();
         for (Role role : roles) {
             authorities.addAll(role.getAuthorities());

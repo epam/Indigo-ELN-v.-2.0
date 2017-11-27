@@ -1,10 +1,10 @@
 package com.epam.indigoeln.core.service.print.itext2.sections.experiment;
 
+import com.epam.indigoeln.core.service.print.itext2.model.experiment.ReactionDetailsModel;
 import com.epam.indigoeln.core.service.print.itext2.sections.common.BasePdfSectionWithSimpleTitle;
 import com.epam.indigoeln.core.service.print.itext2.utils.FormatUtils;
-import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.epam.indigoeln.core.service.print.itext2.utils.PdfPTableHelper;
-import com.epam.indigoeln.core.service.print.itext2.model.experiment.ReactionDetailsModel;
+import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.lowagie.text.pdf.PdfPTable;
 import org.apache.commons.lang3.StringUtils;
 
@@ -30,7 +30,7 @@ public class ReactionDetailsSection extends BasePdfSectionWithSimpleTitle<Reacti
         wrapper.addKeyValueCells("Continued To", model.getContinuedTo());
         wrapper.addKeyValueCells("Project Alias", model.getProjectAlias());
         wrapper.addKeyValueCells("Linked Experiment", StringUtils.join(model.getLinkedExperiment(), COMMA));
-        wrapper.addKeyValueCells("Co-authors", StringUtils.join(model.getCoauthors(), COMMA));
+        wrapper.addKeyValueCells("Co-authors", StringUtils.join(model.getCoAuthors(), COMMA));
         wrapper.addKeyValueCells("Literature Reference", model.getLiteratureReference(), 3);
 
         return table;

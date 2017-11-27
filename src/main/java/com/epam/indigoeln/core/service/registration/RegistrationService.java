@@ -346,7 +346,7 @@ public class RegistrationService {
     /**
      * Internal batch representation
      */
-    private class BatchSummary {
+    private static class BatchSummary {
 
         /**
          * Batch representation in Mongo

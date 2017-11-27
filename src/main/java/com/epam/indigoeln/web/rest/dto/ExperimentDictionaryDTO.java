@@ -2,6 +2,8 @@ package com.epam.indigoeln.web.rest.dto;
 
 
 import com.epam.indigoeln.core.model.Word;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.Set;
 
@@ -55,6 +57,36 @@ public class ExperimentDictionaryDTO {
 
         public void setProjectId(String projectId) {
             this.projectId = projectId;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (obj == this) {
+                return true;
+            }
+            if (obj.getClass() != getClass()) {
+                return false;
+            }
+            ExperimentDictionaryItemDTO rhs = (ExperimentDictionaryItemDTO) obj;
+            return new EqualsBuilder()
+                    .appendSuper(super.equals(obj))
+                    .append(this.id, rhs.id)
+                    .append(this.notebookId, rhs.notebookId)
+                    .append(this.projectId, rhs.projectId)
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder()
+                    .appendSuper(super.hashCode())
+                    .append(id)
+                    .append(notebookId)
+                    .append(projectId)
+                    .toHashCode();
         }
     }
 }

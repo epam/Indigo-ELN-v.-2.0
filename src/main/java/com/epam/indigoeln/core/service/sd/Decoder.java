@@ -24,6 +24,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 /**
@@ -72,8 +75,8 @@ class Decoder {
                     bos.write(buf, 0, count);
                 }
 
-                result = bos.toString();
-            } catch (Exception e) {
+                result = bos.toString(StandardCharsets.UTF_8.name());
+            } catch (IOException | DataFormatException e) {
                 LOGGER.debug("Unable to decode Mol String - may be it is already decoded: " + e);
             } finally {
                 decompressor.reset();

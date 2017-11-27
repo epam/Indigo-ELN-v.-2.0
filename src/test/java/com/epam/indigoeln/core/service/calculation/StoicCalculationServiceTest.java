@@ -27,25 +27,25 @@ public class StoicCalculationServiceTest {
     private static final double TOTAL_WEIGHT = 40;
 
     @Before
-    public void setUp(){
+    public void setUp() {
         stoicCalculationService = new StoicCalculationService();
     }
 
     @Test
-    public void calculateStoicTable(){
+    public void calculateStoicTable() {
         StoicTableDTO stoicTableDTO = getStoicTableDTO();
-        assertEquals(false,stoicTableDTO.getStoicBatches().get(0).isLimiting());
-        assertEquals(false,stoicTableDTO.getStoicBatches().get(1).isLimiting());
-        assertEquals(false,stoicTableDTO.getStoicBatches().get(2).isLimiting());
+        assertEquals(false, stoicTableDTO.getStoicBatches().get(0).isLimiting());
+        assertEquals(false, stoicTableDTO.getStoicBatches().get(1).isLimiting());
+        assertEquals(false, stoicTableDTO.getStoicBatches().get(2).isLimiting());
 
         StoicTableDTO result = stoicCalculationService.calculateStoicTable(stoicTableDTO);
-        assertEquals(true,result.getStoicBatches().get(0).isLimiting());
-        assertEquals(false,result.getStoicBatches().get(1).isLimiting());
-        assertEquals(false,result.getStoicBatches().get(2).isLimiting());
+        assertEquals(true, result.getStoicBatches().get(0).isLimiting());
+        assertEquals(false, result.getStoicBatches().get(1).isLimiting());
+        assertEquals(false, result.getStoicBatches().get(2).isLimiting());
     }
 
     @Test
-    public void calculateStoicTableBasedOnBatch(){
+    public void calculateStoicTableBasedOnBatch() {
         StoicTableDTO stoicTableDTO = getStoicTableDTO();
 
         stoicTableDTO.getStoicBatches().get(0).setLimiting(true);
@@ -85,29 +85,29 @@ public class StoicCalculationServiceTest {
         double actualWeight3 = result.getStoicBatches().get(2).getWeight().getValue();
         double actualTheoWeight = result.getIntendedProducts().get(0).getWeight().getValue();
 
-        assertEquals(expectedWeight2, actualWeight2,EqualsUtil.PRECISION);
-        assertEquals(expectedWeight3, actualWeight3,EqualsUtil.PRECISION);
-        assertEquals(expectedTheoWeight, actualTheoWeight,EqualsUtil.PRECISION);
+        assertEquals(expectedWeight2, actualWeight2, EqualsUtil.PRECISION);
+        assertEquals(expectedWeight3, actualWeight3, EqualsUtil.PRECISION);
+        assertEquals(expectedTheoWeight, actualTheoWeight, EqualsUtil.PRECISION);
     }
 
     @Test
-    public void calculateProductBatch(){
+    public void calculateProductBatch() {
         ProductTableDTO productTableDTO = getProductTableDTO();
         BasicBatchModel productBatch = productTableDTO.getProductBatch();
 
         double expectedTotalMol = productBatch.getTotalWeight().getValue() / productBatch.getMolWeight().getValue();
-        double expectedYield =  expectedTotalMol / productBatch.getTheoMoles().getValue() * 100;
+        double expectedYield = expectedTotalMol / productBatch.getTheoMoles().getValue() * 100;
 
-        assertNotEquals(expectedTotalMol,productBatch.getTotalMoles().getValue(), EqualsUtil.PRECISION);
-        assertNotEquals(expectedYield,productBatch.getYield(), EqualsUtil.PRECISION);
+        assertNotEquals(expectedTotalMol, productBatch.getTotalMoles().getValue(), EqualsUtil.PRECISION);
+        assertNotEquals(expectedYield, productBatch.getYield(), EqualsUtil.PRECISION);
 
         BasicBatchModel result = stoicCalculationService.calculateProductBatch(productTableDTO);
 
-        assertEquals(expectedTotalMol,result.getMol().getValue(), EqualsUtil.PRECISION);
-        assertEquals(Math.round(expectedYield),result.getYield());
+        assertEquals(expectedTotalMol, result.getMol().getValue(), EqualsUtil.PRECISION);
+        assertEquals(Math.round(expectedYield), result.getYield());
     }
 
-    private StoicTableDTO getStoicTableDTO(){
+    private StoicTableDTO getStoicTableDTO() {
         BasicBatchModel reactant1 = new BasicBatchModel();
         reactant1.setMolWeight(new ScalarValueDTO(REC_MW_1, null, false, false));
         reactant1.setMol(new UnitValueDTO(0, null, "mmol", false, false));
@@ -199,7 +199,7 @@ public class StoicCalculationServiceTest {
         return stoicTableDTO;
     }
 
-    private ProductTableDTO getProductTableDTO(){
+    private ProductTableDTO getProductTableDTO() {
         double mol = WEIGHT / REC_MW_1;
         double weight = PROD_MW * mol;
 

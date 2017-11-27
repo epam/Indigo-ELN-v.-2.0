@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.websocket.server.PathParam;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 @Api
@@ -55,7 +56,7 @@ public class PrintResource {
             byte[] bytes = IOUtils.toByteArray(is);
             HttpHeaders headers = HeaderUtil.createAttachmentDescription(fn);
             return ResponseEntity.ok().headers(headers).body(bytes);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new IndigoRuntimeException(e);
         } finally {
             FileUtils.deleteQuietly(file);
