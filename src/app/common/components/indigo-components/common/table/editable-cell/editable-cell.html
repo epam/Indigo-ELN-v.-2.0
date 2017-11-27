@@ -9,7 +9,7 @@
         </span>
 
         <a ng-switch-when="false"
-           ng-click="vm.isReadonly || vm.onStartEdit()"
+           ng-click="vm.isReadonly || !vm.isCheckEnabled || vm.onStartEdit()"
            ng-switch="vm.column.type">
                 <span ng-switch-when="input"
                       ng-switch="::!vm.column.hasStructurePopover">
@@ -26,7 +26,8 @@
                       ng-bind="vm.row[vm.column.id]"></span>
                 </span>
             <span ng-switch-when="select"
-                  ng-class="{'entered-value': vm.row[vm.column.id].entered}"
+                  ng-class="{'entered-value': vm.row[vm.column.id].entered, disabled: !vm.isCheckEnabled}"
+                  title="{{!vm.isCheckEnabled ? vm.column.disableTitle : ''}}"
                   ng-bind="vm.row[vm.column.id].description ? vm.row[vm.column.id].name + ' - ' + vm.row[vm.column.id].description : vm.row[vm.column.id].name"></span>
             <span ng-switch-when="unit"
                   ng-class="{'entered-value': vm.row[vm.column.id].entered}"

@@ -2,13 +2,13 @@ batchHelper.$inject = ['appUnits', 'calculationService', 'columnActions', 'scala
     'selectService', 'setInputService', '$q'];
 
 function batchHelper(appUnits, calculationService, columnActions,
-                            scalarService, unitService, selectService, setInputService, $q) {
+                     scalarService, unitService, selectService, setInputService, $q) {
     var columnCloseFunction = {
         totalWeight: onClose1,
         totalVolume: onClose1,
         mol: onClose1,
         saltCode: onCloseSaltCode,
-        onCloseSaltEq: onCloseSaltEq,
+        saltEq: onCloseSaltEq,
         $$batchType: onCloseBatchType
     };
 
@@ -58,7 +58,7 @@ function batchHelper(appUnits, calculationService, columnActions,
     }
 
     function canEditSaltEq(batch) {
-        return batch && batch.saltCode && batch.saltCode.value !== 0;
+        return batch && batch.saltCode && batch.saltCode.value !== 0 && hasMolfile(batch);
     }
 
     var compounds = [
@@ -66,12 +66,21 @@ function batchHelper(appUnits, calculationService, columnActions,
         {name: 'Test Compound'}
     ];
 
+    function hasMolfile(o) {
+        return !!_.get(o, 'structure.molfile');
+    }
+
+    function canEditSaltCode(row) {
+        return hasMolfile(row);
+    }
+
     return {
         close: close,
         hasCheckedRow: hasCheckedRow,
         getCheckedBatches: getCheckedBatches,
         recalculateSalt: recalculateSalt,
         canEditSaltEq: canEditSaltEq,
+        canEditSaltCode: canEditSaltCode,
         compounds: compounds,
         columns: {
             structure: {
@@ -152,7 +161,9 @@ function batchHelper(appUnits, calculationService, columnActions,
                 type: 'select',
                 showDefault: true,
                 values: appUnits.saltCodeValues,
-                actions: selectService.getActions('Salt Code', appUnits.saltCodeValues)
+                actions: selectService.getActions('Salt Code', appUnits.saltCodeValues),
+                checkEnabled: canEditSaltCode,
+                disableTitle: 'Batch hasn\'t structure'
             },
             compoundProtection: {
                 id: 'compoundProtection',
@@ -224,9 +235,7 @@ function batchHelper(appUnits, calculationService, columnActions,
                 name: 'Salt EQ',
                 type: 'scalar',
                 bulkAssignment: true,
-                checkEnabled: function(o) {
-                    return o.saltCode && o.saltCode.value > 0;
-                },
+                checkEnabled: canEditSaltEq,
                 actions: [
                     {
                         name: 'Set value for scalar',

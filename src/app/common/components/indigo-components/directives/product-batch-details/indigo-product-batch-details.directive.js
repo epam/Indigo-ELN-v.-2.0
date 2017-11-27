@@ -52,6 +52,7 @@ function IndigoProductBatchDetailsController($scope, appValuesService, infoEdito
         vm.editHandlingPrecautions = editHandlingPrecautions;
         vm.editStorageInstructions = editStorageInstructions;
         vm.canEditSaltEq = batchHelper.canEditSaltEq;
+        vm.canEditSaltCode = batchHelper.canEditSaltCode;
         vm.recalculateSalt = batchHelper.recalculateSalt;
         vm.onClose = onClose;
 

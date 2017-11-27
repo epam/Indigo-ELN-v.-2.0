@@ -44,6 +44,7 @@ function IndigoPreferredCompoundDetailsController($scope, entitiesBrowserService
         vm.hasCheckedRows = batchHelper.hasCheckedRow;
         vm.selectBatch = selectBatch;
         vm.canEditSaltEq = batchHelper.canEditSaltEq;
+        vm.canEditSaltCode = batchHelper.canEditSaltCode;
         vm.recalculateSalt = batchHelper.recalculateSalt;
 
         bindEvents();

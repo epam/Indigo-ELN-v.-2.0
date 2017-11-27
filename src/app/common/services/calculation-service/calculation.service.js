@@ -1,5 +1,5 @@
 /* @ngInject */
-function calculationService($rootScope, $http, $q, appValuesService, apiUrl,
+function calculationService($rootScope, $http, $q, appValuesService, apiUrl, $log,
                             stoichTableCache, productBatchSummaryCache, capitalizeFilter) {
     var defaultBatch = appValuesService.getDefaultBatch();
     var recalculatingStoich = false;
@@ -130,6 +130,7 @@ function calculationService($rootScope, $http, $q, appValuesService, apiUrl,
                     return reagent;
                 });
         }
+        $log.error('Bathc hasn\'t a structure or molfile');
 
         return $q.resolve(reagent);
     }

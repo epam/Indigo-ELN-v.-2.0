@@ -142,7 +142,7 @@
                                indigo-items="vm.saltCodeValues"
                                indigo-model="vm.selectedBatch.saltCode"
                                indigo-change="vm.recalculateSalt(vm.selectedBatch)"
-                               indigo-readonly="vm.isEditDisabled"
+                               indigo-readonly="vm.isEditDisabled || !vm.canEditSaltCode(vm.selectedBatch)"
                 ></indigo-select>
                 <simple-input>
                     <span i-translate="SALT_EQUIVALENT"></span>
