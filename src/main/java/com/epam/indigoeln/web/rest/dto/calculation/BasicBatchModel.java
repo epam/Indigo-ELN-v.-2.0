@@ -106,6 +106,7 @@ public class BasicBatchModel {
     public void setRxnRole(StringValueDTO rxnRole) {
         this.rxnRole = rxnRole;
     }
+
     public ScalarValueDTO getMolWeight() {
         return molWeight;
     }

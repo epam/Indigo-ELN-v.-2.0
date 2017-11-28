@@ -59,7 +59,7 @@ public class CalculationResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> isMoleculeChiral(
             @ApiParam("Molecule") @RequestBody String molecule
-        ) {
+    ) {
         return ResponseEntity.ok(calculationService.isMoleculeChiral(normalizeMolFile(molecule)));
     }
 
@@ -73,7 +73,7 @@ public class CalculationResource {
             consumes = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<Boolean> isEmptyMolecule(
             @ApiParam("Molecule") @RequestBody String molecule
-        ) {
+    ) {
         return ResponseEntity.ok(calculationService.isMoleculeEmpty(normalizeMolFile(molecule)));
     }
 
@@ -86,7 +86,7 @@ public class CalculationResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> moleculesEquals(
             @ApiParam("Molecules") @RequestBody List<String> molecules
-        ) {
+    ) {
         return ResponseEntity.ok(calculationService.chemistryEquals(molecules));
     }
 
@@ -99,7 +99,7 @@ public class CalculationResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ReactionPropertiesDTO> extractReactionComponents(
             @ApiParam("Reaction") @RequestBody String reaction
-        ) {
+    ) {
         return ResponseEntity.ok(calculationService.extractReactionComponents(normalizeMolFile(reaction)));
     }
 
@@ -112,7 +112,7 @@ public class CalculationResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ReactionPropertiesDTO> combineReactionComponents(
             @ApiParam("Reaction data") @RequestBody ReactionPropertiesDTO reaction
-        ) {
+    ) {
         return ResponseEntity.ok(calculationService.combineReactionComponents(reaction));
     }
 
@@ -125,7 +125,7 @@ public class CalculationResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> reactionsEquals(
             @ApiParam("Reactions") @RequestBody List<String> reactions
-        ) {
+    ) {
         return ResponseEntity.ok(calculationService.chemistryEquals(reactions));
     }
 
@@ -138,11 +138,11 @@ public class CalculationResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> isValidReaction(
             @ApiParam("Reaction") @RequestBody String reaction
-        ) {
+    ) {
         return ResponseEntity.ok(calculationService.isValidReaction(normalizeMolFile(reaction)));
     }
 
-    private String normalizeMolFile(String structure){
+    private String normalizeMolFile(String structure) {
         return StringUtils.replace(structure, "\\n", System.getProperty("line.separator"));
     }
 
@@ -178,7 +178,7 @@ public class CalculationResource {
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BasicBatchModel> calculateProductBatch(
-            @ApiParam("Batch from product table")@RequestBody ProductTableDTO productTableDTO) {
+            @ApiParam("Batch from product table") @RequestBody ProductTableDTO productTableDTO) {
         return ResponseEntity.ok(stoicCalculationService.calculateProductBatch(productTableDTO));
     }
 

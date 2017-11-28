@@ -68,9 +68,9 @@ public class ShortEntityDTO {
 
     @Override
     public String toString() {
-        return "ShortEntityDTO{" +
-                ", fullId='" + fullId + '\'' +
-                ", name='" + name + '\'' +
-                '}';
+        return "ShortEntityDTO{"
+                + ", fullId='" + fullId + '\''
+                + ", name='" + name + '\''
+                + '}';
     }
 }

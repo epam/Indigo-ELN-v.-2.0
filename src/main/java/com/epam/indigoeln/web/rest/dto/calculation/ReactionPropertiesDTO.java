@@ -48,10 +48,10 @@ public class ReactionPropertiesDTO {
 
     @Override
     public String toString() {
-        return "ReactionPropertiesDTO{" +
-                "structure='" + structure + '\'' +
-                ", reactants=" + reactants +
-                ", products=" + products +
-                '}';
+        return "ReactionPropertiesDTO{"
+                + "structure='" + structure + '\''
+                + ", reactants=" + reactants
+                + ", products=" + products
+                + '}';
     }
 }

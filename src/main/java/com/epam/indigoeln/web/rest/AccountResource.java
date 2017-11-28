@@ -70,8 +70,8 @@ public class AccountResource {
     }
 
     @ApiOperation(value = "Prolongs user's session.")
-    @RequestMapping(value = "/prolong" , method = RequestMethod.GET)
-    public ResponseEntity<Void> prolongSession(){
+    @RequestMapping(value = "/prolong", method = RequestMethod.GET)
+    public ResponseEntity<Void> prolongSession() {
         return ResponseEntity.ok().build();
     }
 }
