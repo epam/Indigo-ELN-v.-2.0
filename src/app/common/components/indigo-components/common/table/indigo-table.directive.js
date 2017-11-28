@@ -20,7 +20,8 @@ function indigoTable() {
             onRemoveBatches: '&',
             onChanged: '&',
             onChangedVisibleColumn: '&',
-            onCloseCell: '&'
+            onCloseCell: '&',
+            onColumnValueChanged: '&'
         },
         controller: IndigoTableController,
         controllerAs: 'vm',
@@ -152,7 +153,9 @@ function IndigoTableController($scope, dragulaService, simpleLocalCache, princip
 
     function onClose(column, data) {
         vm.editingCellId = null;
-        vm.onCloseCell({column: column, data: data});
+        // vm.onCloseCell({column: column, data: data});
+
+        vm.onColumnValueChanged({data: data});
     }
 
     function startEdit(id) {

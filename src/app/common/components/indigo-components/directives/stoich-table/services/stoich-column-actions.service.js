@@ -1,3 +1,5 @@
+var StoichRow = require('../domain/stoich-row');
+
 stoichColumnActions.$inject = ['registrationService', 'calculationService', '$q', 'appUnits',
     'dictionaryService', 'sdImportHelper', 'dialogService', 'searchService', 'notifyService'];
 
@@ -41,7 +43,7 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
         return dictionaryService.all().$promise
             .then(function(dicts) {
                 return _.map(compounds, function(c) {
-                    return {
+                    var test = {
                         chemicalName: c.chemicalName,
                         compoundId: c.compoundNo,
                         conversationalBatchNumber: c.conversationalBatchNo,
@@ -66,6 +68,11 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
                         },
                         comments: c.comment
                     };
+
+                    var stoichRow = new StoichRow();
+                    var row = _.assign(stoichRow, test);
+
+                    return row;
                 });
             })
             .then(function(result) {

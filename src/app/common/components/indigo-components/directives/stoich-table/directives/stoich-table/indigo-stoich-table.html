@@ -11,7 +11,8 @@
                       indigo-label="Reactants, Reagents, Solvents"
                       on-changed="vm.onChange()"
                       on-close-cell="vm.onCloseCell(column, data)"
-                      selected-batch="vm.selectedRow">
+                      selected-batch="vm.selectedRow"
+                      on-column-value-changed="vm.onColumnValueChanged(data)">
             <div class="row m-b20">
                 <div class="col-lg-8 m-bt-lg">
                     <div class="btn-group">
