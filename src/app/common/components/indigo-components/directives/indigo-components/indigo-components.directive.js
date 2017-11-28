@@ -20,17 +20,16 @@ function indigoComponents() {
 }
 
 IndigoComponentsController.$inject = ['$scope', 'productBatchSummaryOperations', 'productBatchSummaryCache',
-    'entitiesBrowserService', 'principalService', 'batchHelper'];
+    'entitiesBrowserService', 'principalService', 'batchHelper', 'stoichTableHelper'];
 
 function IndigoComponentsController($scope, productBatchSummaryOperations, productBatchSummaryCache,
-                                    entitiesBrowserService, principalService, batchHelper) {
+                                    entitiesBrowserService, principalService, batchHelper, stoichTableHelper) {
     var vm = this;
     var precursors;
 
     init();
 
     function init() {
-        precursors = '';
         vm.wasOpen = {};
         vm.batches = null;
         vm.batchesTrigger = 0;
@@ -52,6 +51,15 @@ function IndigoComponentsController($scope, productBatchSummaryOperations, produ
         bindEvents();
     }
 
+    function getPrecursorsFromStoich() {
+        let stoichTable = _.get(vm.experiment, 'components.stoichTable');
+        if (!stoichTable) {
+            return '';
+        }
+
+        return stoichTableHelper.getPrecursors(stoichTable.reactants);
+    }
+
     function setActive(index) {
         vm.activeTabIndex = index;
         entitiesBrowserService.setExperimentTab(vm.activeTabIndex, vm.experiment.fullId);
@@ -67,6 +75,7 @@ function IndigoComponentsController($scope, productBatchSummaryOperations, produ
     }
 
     function updateModel() {
+        precursors = getPrecursorsFromStoich();
         vm.batches = _.get(vm.model, 'productBatchSummary.batches') || [];
         productBatchSummaryCache.setProductBatchSummary(vm.batches);
         updateBatches();

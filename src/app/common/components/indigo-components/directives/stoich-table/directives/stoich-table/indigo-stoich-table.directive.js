@@ -26,12 +26,12 @@ function indigoStoichTable() {
 IndigoStoichTableController.$inject = [
     '$scope', '$rootScope', '$q', '$uibModal', 'appValuesService', 'stoichColumnActions', 'alertModal',
     'notifyService', 'calculationService', 'stoichTableCache', 'stoichReactantsColumns',
-    'stoichProductColumns'
+    'stoichProductColumns', 'stoichTableHelper'
 ];
 
 function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValuesService, stoichColumnActions,
                                      alertModal, notifyService, calculationService, stoichTableCache,
-                                     stoichReactantsColumns, stoichProductColumns) {
+                                     stoichReactantsColumns, stoichProductColumns, stoichTableHelper) {
     var vm = this;
 
     var columnsWithClose = [
@@ -94,7 +94,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     }
 
     function noReactantsInStoic() {
-        return getReactantsWithMolfile(vm.componentData.reactants).length === 0;
+        return stoichTableHelper.getReactantsWithMolfile(vm.componentData.reactants).length === 0;
     }
 
     function analyzeRxn() {
@@ -332,23 +332,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     }
 
     function getPrecursors() {
-        return _.compact(_.map(getReactantsWithMolfile(vm.componentData.reactants), function(r) {
-            return r.compoundId || r.fullNbkBatch;
-        })).join(', ');
-    }
-
-    function isReactantWithMolfile(item) {
-        return item.structure && item.structure.molfile && isReactant(item);
-    }
-
-    function getReactantsWithMolfile(stoichReactants) {
-        return _.filter(stoichReactants, function(item) {
-            return isReactantWithMolfile(item);
-        });
-    }
-
-    function isReactant(item) {
-        return item.rxnRole.name === 'REACTANT';
+        return stoichTableHelper.getPrecursors(vm.componentData.reactants);
     }
 
     function isReactantAlreadyInStoic(responces) {
@@ -363,11 +347,11 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
 
     function getMissingReactionReactantsInStoic(reactantsInfo) {
         var reactantsToSearch = [];
-        var stoicReactants = getReactantsWithMolfile(vm.componentData.reactants);
+        var stoicReactants = stoichTableHelper.getReactantsWithMolfile(vm.componentData.reactants);
 
         if (_.isEmpty(reactantsInfo) || stoicReactants.length !== reactantsInfo.length) {
             _.forEach(reactantsInfo, function(reactant) {
-                if (!findLikedReactant(reactant) && isReactantWithMolfile(reactant)) {
+                if (!findLikedReactant(reactant) && stoichTableHelper.isReactantWithMolfile(reactant)) {
                     reactantsToSearch.push(reactant);
                 }
             });
