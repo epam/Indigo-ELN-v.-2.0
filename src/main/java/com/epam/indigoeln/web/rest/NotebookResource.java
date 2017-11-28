@@ -48,8 +48,8 @@ public class NotebookResource {
      * GET  /notebooks?:projectId -> Returns all notebooks of specified project for <b>current user</b>
      * for tree representation according to his User permissions
      */
-    @ApiOperation(value = "Returns all notebooks of specified project " +
-            "for current user for tree representation according to his permissions.")
+    @ApiOperation(value = "Returns all notebooks of specified project "
+            + "for current user for tree representation according to his permissions.")
     @RequestMapping(
             value = PARENT_PATH_ID,
             method = RequestMethod.GET,
@@ -72,8 +72,8 @@ public class NotebookResource {
     public ResponseEntity<List<TreeNodeDTO>> getAllNotebooks(
             @ApiParam("Project id") @PathVariable String projectId) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("REST request to get all notebooks of project: {} " +
-                    "without checking for permissions", projectId);
+            LOGGER.debug("REST request to get all notebooks of project: {} "
+                    + "without checking for permissions", projectId);
         }
         List<TreeNodeDTO> result = notebookService.getAllNotebookTreeNodes(projectId);
         return ResponseEntity.ok(result);
@@ -89,7 +89,7 @@ public class NotebookResource {
             @ApiParam("Project id") String projectId,
             @ApiParam("Notebook id") String notebookId,
             @ApiParam("User id") String userId
-        ) {
+    ) {
         LOGGER.debug("REST request to check if user can be deleted from notebook's access list without problems");
         boolean result = notebookService.isUserRemovable(projectId, notebookId, userId);
         return ResponseEntity.ok(ImmutableMap.of("isUserRemovable", result));
@@ -99,11 +99,12 @@ public class NotebookResource {
      * GET /notebooks/sub-creations -> Returns all notebooks available for experiment creation
      */
     @ApiOperation(value = "Returns all notebooks available for experiment creation.")
-    @RequestMapping(value = "notebooks/sub-creations",method = RequestMethod.GET,
+    @RequestMapping(value = "notebooks/sub-creations", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ShortEntityDTO>> getNotebooksForExperimentCreation() {
         LOGGER.debug("REST request to get all notebooks available for experiment creation");
-        List<ShortEntityDTO> result = notebookService.getNotebooksForExperimentCreation(userService.getUserWithAuthorities());
+        List<ShortEntityDTO> result = notebookService
+                .getNotebooksForExperimentCreation(userService.getUserWithAuthorities());
         return ResponseEntity.ok(result);
     }
 
@@ -116,13 +117,12 @@ public class NotebookResource {
     public ResponseEntity<NotebookDTO> getNotebook(
             @ApiParam("Project id") @PathVariable String projectId,
             @ApiParam("Notebook id") @PathVariable String id
-        ) {
+    ) {
         LOGGER.debug("REST request to get notebook: {}", id);
         User user = userService.getUserWithAuthorities();
         NotebookDTO notebook = notebookService.getNotebookById(projectId, id, user);
         return ResponseEntity.ok(notebook);
     }
-
 
 
     /**
@@ -155,12 +155,12 @@ public class NotebookResource {
     public ResponseEntity<NotebookDTO> updateNotebook(
             @ApiParam("Project id") @PathVariable String projectId,
             @ApiParam("Notebook to update") @RequestBody @Valid NotebookDTO notebook
-        ) {
+    ) {
         LOGGER.debug("REST request to update notebook: {}", notebook);
         User user = userService.getUserWithAuthorities();
         NotebookDTO updatedNotebook = notebookService.updateNotebook(notebook, projectId, user);
         HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, updatedNotebook.getName());
-        return ResponseEntity.ok().headers(headers).body(updatedNotebook) ;
+        return ResponseEntity.ok().headers(headers).body(updatedNotebook);
     }
 
     /**
@@ -176,5 +176,4 @@ public class NotebookResource {
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, null);
         return ResponseEntity.ok().headers(headers).build();
     }
-
 }

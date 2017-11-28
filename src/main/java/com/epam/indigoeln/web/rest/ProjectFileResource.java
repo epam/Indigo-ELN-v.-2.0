@@ -66,7 +66,7 @@ public class ProjectFileResource {
         LOGGER.debug("REST request to get files's metadata for project: {}", projectId);
         Page<GridFSDBFile> page;
         if (StringUtils.isEmpty(projectId)) {
-            page = new PageImpl<>(new ArrayList<>() );
+            page = new PageImpl<>(new ArrayList<>());
         } else {
             page = fileService.getAllFilesByProjectId(projectId, pageable);
         }
@@ -86,7 +86,7 @@ public class ProjectFileResource {
     public ResponseEntity<FileDTO> saveFile(
             @ApiParam("Experiment file.") @RequestParam MultipartFile file,
             @ApiParam("Identifier of the project.") @RequestParam String projectId
-        ) throws URISyntaxException {
+    ) throws URISyntaxException {
         LOGGER.debug("REST request to save file for project: {}", projectId);
         InputStream inputStream;
         try {
@@ -109,7 +109,7 @@ public class ProjectFileResource {
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<InputStreamResource> getFile(
             @ApiParam("Project file id.") @PathVariable("id") String id
-        ) {
+    ) {
         LOGGER.debug("REST request to get project file: {}", id);
         GridFSDBFile file = fileService.getFileById(id);
 
@@ -124,7 +124,7 @@ public class ProjectFileResource {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteFile(
             @ApiParam("Project file id.") @PathVariable("id") String id
-        ) {
+    ) {
         LOGGER.debug("REST request to remove project file: {}", id);
         fileService.deleteProjectFile(id);
         return ResponseEntity.ok().build();

@@ -56,13 +56,14 @@ public class ExperimentResource {
      * GET  /notebooks/:notebookId/experiments -> Returns all experiments of specified notebook for <b>current user</b>
      * for tree representation according to his User permissions
      */
-    @ApiOperation(value = "Returns all experiments, or experiments for specified notebook, which author is current user.")
+    @ApiOperation(value = "Returns all experiments, or experiments for specified notebook, "
+            + "which author is current user.")
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getAllExperimentsByPermissions(
             @ApiParam("Project id") @PathVariable String projectId,
             @ApiParam("Notebook id") @PathVariable String notebookId
-        ) {
+    ) {
         User user = userService.getUserWithAuthorities();
         if (notebookId == null) {
             LOGGER.debug("REST request to get all experiments, which author is current user");
@@ -70,8 +71,8 @@ public class ExperimentResource {
             return ResponseEntity.ok(experiments); //TODO May be use DTO only with required fields for Experiment?
         } else {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("REST request to get all experiments of notebook: {} " +
-                        "according to user permissions", notebookId);
+                LOGGER.debug("REST request to get all experiments of notebook: {} "
+                        + "according to user permissions", notebookId);
             }
             List<TreeNodeDTO> result = experimentService.getAllExperimentTreeNodes(projectId, notebookId, user);
             return ResponseEntity.ok(result);
@@ -83,7 +84,8 @@ public class ExperimentResource {
      * GET  /notebooks/:notebookId/experiments -> Returns all experiments of specified notebook for <b>current user</b>
      * for tree representation according to his User permissions
      */
-    @ApiOperation(value = "Returns all experiments, or experiments for specified notebook, which author is current user.")
+    @ApiOperation(value = "Returns all experiments, "
+            + "or experiments for specified notebook, which author is current user.")
     @RequestMapping(value = "/notebook-summary", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getAllExperimentsForNotebookSummary(
@@ -127,7 +129,7 @@ public class ExperimentResource {
             @ApiParam("Project id") @PathVariable String projectId,
             @ApiParam("Notebook id") @PathVariable String notebookId,
             @ApiParam("Experiment id") @PathVariable String id
-        ) throws IOException {
+    ) throws IOException {
         LOGGER.debug("REST request to get experiment: {}", id);
         User user = userService.getUserWithAuthorities();
         ExperimentDTO experimentDTO = experimentService.getExperiment(projectId, notebookId, id, user);
@@ -145,9 +147,11 @@ public class ExperimentResource {
             @ApiParam("Project id") @PathVariable String projectId,
             @ApiParam("Notebook id") @PathVariable String notebookId,
             @ApiParam("Experiment id") @PathVariable String id,
-            @ApiParam("If latest number should be returned") @RequestParam(required = false, name = "latest") String clientLatestBatchNumber
-        ) {
-        String batchNumber = sequenceIdService.getNotebookBatchNumber(projectId, notebookId, id, clientLatestBatchNumber);
+            @ApiParam("If latest number should be returned")
+            @RequestParam(required = false, name = "latest") String clientLatestBatchNumber
+    ) {
+        String batchNumber = sequenceIdService.getNotebookBatchNumber(projectId, notebookId,
+                id, clientLatestBatchNumber);
         LOGGER.debug("REST request to get batch number: {}", batchNumber);
         return ResponseEntity.ok(ImmutableMap.of("batchNumber", batchNumber));
     }
@@ -165,12 +169,14 @@ public class ExperimentResource {
             @ApiParam("Experiment to create") @RequestBody ExperimentDTO experimentDTO,
             @ApiParam("Project id") @PathVariable String projectId,
             @ApiParam("Notebook id") @PathVariable String notebookId
-        ) throws URISyntaxException {
+    ) throws URISyntaxException {
         LOGGER.debug("REST request to create experiment: {} for notebook: {}", experimentDTO, notebookId);
         User user = userService.getUserWithAuthorities();
-        ExperimentDTO savedExperimentDTO = experimentService.createExperiment(experimentDTO, projectId, notebookId, user);
+        ExperimentDTO savedExperimentDTO = experimentService.createExperiment(experimentDTO, projectId,
+                notebookId, user);
         HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, null);
-        return ResponseEntity.created(new URI("/api/projects/" + projectId + "/notebooks/" + notebookId + "/experiments" + experimentDTO.getId()))
+        return ResponseEntity.created(new URI("/api/projects/" + projectId
+                + "/notebooks/" + notebookId + "/experiments" + experimentDTO.getId()))
                 .headers(headers).body(savedExperimentDTO);
     }
 
@@ -188,12 +194,15 @@ public class ExperimentResource {
             @ApiParam("Experiment name") @RequestBody String experimentName,
             @ApiParam("Project id") @PathVariable String projectId,
             @ApiParam("Notebook id") @PathVariable String notebookId
-        ) throws URISyntaxException {
-        LOGGER.debug("REST request to create a version of an experiment: {} for notebook: {}", experimentName, notebookId);
+    ) throws URISyntaxException {
+        LOGGER.debug("REST request to create a version of an experiment: {} for notebook: {}",
+                experimentName, notebookId);
         User user = userService.getUserWithAuthorities();
-        ExperimentDTO createdExperimentDTO = experimentService.versionExperiment(experimentName, projectId, notebookId, user);
+        ExperimentDTO createdExperimentDTO = experimentService.versionExperiment(experimentName,
+                projectId, notebookId, user);
         HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, null);
-        return ResponseEntity.created(new URI("/api/projects/" + projectId + "/notebooks/" + notebookId + "/experiments" + createdExperimentDTO.getId()))
+        return ResponseEntity.created(new URI("/api/projects/" + projectId + "/notebooks/" + notebookId
+                + "/experiments" + createdExperimentDTO.getId()))
                 .headers(headers).body(createdExperimentDTO);
     }
 
@@ -209,10 +218,11 @@ public class ExperimentResource {
             @ApiParam("Experiment to update") @RequestBody ExperimentDTO experimentDTO,
             @ApiParam("Project id") @PathVariable String projectId,
             @ApiParam("Notebook id") @PathVariable String notebookId
-        ) {
+    ) {
         LOGGER.debug("REST request to update experiment: {}", experimentDTO);
         User user = userService.getUserWithAuthorities();
-        ExperimentDTO updatedExperimentDTO = experimentService.updateExperiment(projectId, notebookId, experimentDTO, user);
+        ExperimentDTO updatedExperimentDTO = experimentService
+                .updateExperiment(projectId, notebookId, experimentDTO, user);
         HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, null);
         return ResponseEntity.ok().headers(headers).body(updatedExperimentDTO);
     }
@@ -234,7 +244,8 @@ public class ExperimentResource {
     ) {
         LOGGER.debug("REST request to reopen experiment: {}", SequenceIdUtil.buildFullId(projectId, notebookId, id));
         User user = userService.getUserWithAuthorities();
-        ExperimentDTO updatedExperimentDTO = experimentService.reopenExperiment(projectId, notebookId, id, version, user);
+        ExperimentDTO updatedExperimentDTO = experimentService
+                .reopenExperiment(projectId, notebookId, id, version, user);
         HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, null);
         return ResponseEntity.ok().headers(headers).body(updatedExperimentDTO);
     }
@@ -248,7 +259,7 @@ public class ExperimentResource {
             @ApiParam("Project id") @PathVariable String projectId,
             @ApiParam("Notebook id") @PathVariable String notebookId,
             @ApiParam("Experiment id") @PathVariable String id
-        ) {
+    ) {
         LOGGER.debug("REST request to remove experiment: {}", id);
         experimentService.deleteExperiment(id, projectId, notebookId);
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, null);

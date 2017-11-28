@@ -34,7 +34,7 @@ public class RoleResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RoleResource.class);
     @Autowired
-    CustomDtoMapper dtoMapper;
+    private CustomDtoMapper dtoMapper;
     @Autowired
     private RoleService roleService;
 
@@ -116,5 +116,4 @@ public class RoleResource {
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, null);
         return ResponseEntity.ok().headers(headers).build();
     }
-
 }

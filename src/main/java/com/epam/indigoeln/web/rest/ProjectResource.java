@@ -59,7 +59,7 @@ public class ProjectResource {
      * GET  /projects/all -> Returns all projects without checking for User permissions
      */
     @ApiOperation(value = "Returns all projects for current user for tree representation.")
-    @RequestMapping(value = "/all",method = RequestMethod.GET,
+    @RequestMapping(value = "/all", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TreeNodeDTO>> getAllProjects() {
         LOGGER.debug("REST request to get all projects without checking for permissions");
@@ -76,7 +76,7 @@ public class ProjectResource {
     public ResponseEntity<Map> isUserRemovable(
             @ApiParam("Project id") String projectId,
             @ApiParam("User id") String userId
-        ) {
+    ) {
         LOGGER.debug("REST request to check if user can be deleted from project's access list without problems");
         boolean result = projectService.isUserRemovable(projectId, userId);
         return ResponseEntity.ok(ImmutableMap.of("isUserRemovable", result));
@@ -86,11 +86,12 @@ public class ProjectResource {
      * GET /notebooks/sub-creations -> Returns all notebooks available for experiment creation
      */
     @ApiOperation(value = "Returns all projects available for notebook creation.")
-    @RequestMapping(value = "/sub-creations",method = RequestMethod.GET,
+    @RequestMapping(value = "/sub-creations", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ShortEntityDTO>> getProjectsForNotebookCreation() {
         LOGGER.debug("REST request to get all projects available for notebook creation");
-        List<ShortEntityDTO> result = projectService.getProjectsForNotebookCreation(userService.getUserWithAuthorities());
+        List<ShortEntityDTO> result = projectService
+                .getProjectsForNotebookCreation(userService.getUserWithAuthorities());
         return ResponseEntity.ok(result);
     }
 
@@ -102,7 +103,7 @@ public class ProjectResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProjectDTO> getProject(
             @ApiParam("Project id") @PathVariable String id
-        ) {
+    ) {
         LOGGER.debug("REST request to get project: {}", id);
         User user = userService.getUserWithAuthorities();
         ProjectDTO project = projectService.getProjectById(id, user);
@@ -118,7 +119,7 @@ public class ProjectResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProjectDTO> createProject(
             @ApiParam("Project to create") @RequestBody ProjectDTO project
-        ) throws URISyntaxException {
+    ) throws URISyntaxException {
         LOGGER.debug("REST request to create project: {}", project);
         ProjectDTO createdProject = projectService.createProject(project);
         HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, createdProject.getName());
@@ -135,7 +136,7 @@ public class ProjectResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProjectDTO> updateProject(
             @ApiParam("Project to update") @RequestBody ProjectDTO project
-        ) {
+    ) {
         LOGGER.debug("REST request to update project: {}", project);
         User user = userService.getUserWithAuthorities();
         ProjectDTO updatedProject = projectService.updateProject(project, user);
@@ -150,7 +151,7 @@ public class ProjectResource {
     @RequestMapping(value = PATH_ID, method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteProject(
             @ApiParam("Project id") @PathVariable String id
-        ) {
+    ) {
         LOGGER.debug("REST request to remove project: {}", id);
         projectService.deleteProject(id);
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, null);
