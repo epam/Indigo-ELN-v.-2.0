@@ -32,8 +32,9 @@ public class ProjectDTO extends BasicDTO {
         this.description = project.getDescription();
         this.fileIds = project.getFileIds();
         this.keywords = project.getKeywords();
-        this.notebooks = project.getNotebooks() != null ?
-                project.getNotebooks().stream().map(NotebookDTO::new).collect(Collectors.toList()) : new ArrayList<>();
+        this.notebooks = project.getNotebooks() != null
+                ? project.getNotebooks().stream().map(NotebookDTO::new).collect(Collectors.toList())
+                : new ArrayList<>();
         this.references = project.getReferences();
         this.tags = project.getTags();
     }

@@ -33,7 +33,7 @@ public class TemplateDTO extends BasicDTO {
         try {
             return templateContent != null ? new JSONArray(templateContent) : null;
         } catch (JSONException e) {
-            LOGGER.error("Get template content error",e);
+            LOGGER.error("Get template content error", e);
             return null;
         }
     }

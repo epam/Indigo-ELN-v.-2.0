@@ -36,8 +36,9 @@ public class ExperimentDTO extends BasicDTO {
         if (experiment.getTemplate() != null) {
             this.template = new TemplateDTO(experiment.getTemplate());
         }
-        this.components = experiment.getComponents() != null ?
-                experiment.getComponents().stream().map(ComponentDTO::new).collect(Collectors.toList()) : new ArrayList<>();
+        this.components = experiment.getComponents() != null
+                ? experiment.getComponents().stream().map(ComponentDTO::new).collect(Collectors.toList())
+                : new ArrayList<>();
         this.status = experiment.getStatus();
         this.documentId = experiment.getDocumentId();
         this.experimentVersion = experiment.getExperimentVersion();

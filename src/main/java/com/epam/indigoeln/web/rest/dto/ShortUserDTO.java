@@ -16,7 +16,7 @@ public class ShortUserDTO {
         super();
     }
 
-    public ShortUserDTO(User user) {
+    ShortUserDTO(User user) {
         this.id = user.getId();
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
@@ -41,11 +41,11 @@ public class ShortUserDTO {
 
     @Override
     public String toString() {
-        return "ShortUserDTO{" +
-                "id='" + id + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                '}';
+        return "ShortUserDTO{"
+                + "id='" + id + '\''
+                + ", firstName='" + firstName + '\''
+                + ", lastName='" + lastName + '\''
+                + ", email='" + email + '\''
+                + '}';
     }
 }
