@@ -11,11 +11,11 @@ import java.text.MessageFormat;
  * Utility class for handling pagination.
  * <p>
  * <p>
- * Pagination uses the same principles as the <a href="https://developer.github.com/v3/#pagination">Github API</api>,
+ * Pagination uses the same principles as the <a href="https://developer.github.com/v3/#pagination">Github API</a>,
  * and follow <a href="http://tools.ietf.org/html/rfc5988">RFC 5988 (Link header)</a>.
  * </p>
  */
-public class PaginationUtil {
+public final class PaginationUtil {
 
     private static final String URI_PATTERN = "{0}?page={1,number,#}&size={2,number,#}";
     private static final String LINK_PATTERN = "<{0}>; rel=\"{1}\"";
@@ -47,7 +47,7 @@ public class PaginationUtil {
         return headers;
     }
 
-    private static String getLink(String url, String rel) throws URISyntaxException {
+    private static String getLink(String url, String rel){
         return MessageFormat.format(LINK_PATTERN, url, rel);
     }
 
