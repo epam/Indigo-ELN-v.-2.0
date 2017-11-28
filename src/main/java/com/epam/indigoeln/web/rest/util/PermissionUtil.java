@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.HashSet;
 import java.util.Set;
 
-public class PermissionUtil {
+public final class PermissionUtil {
 
     private PermissionUtil() {
     }
@@ -48,8 +48,8 @@ public class PermissionUtil {
                                          String parentPermission,
                                          Set<UserPermission> childAccessList,
                                          String childPermission) {
-        return hasPermissions(userId, parentAccessList, parentPermission) &&
-                hasPermissions(userId, childAccessList, childPermission);
+        return hasPermissions(userId, parentAccessList, parentPermission)
+                && hasPermissions(userId, childAccessList, childPermission);
     }
 
     /**
@@ -62,13 +62,14 @@ public class PermissionUtil {
      /**
      * Adding Project Author as VIEWER to Experiment Access List if Experiment creator is another User
      */
-    public static void addProjectAuthorToAccessList(Set<UserPermission> accessList, User projectAuthor, User experimentCreator) {
+    public static void addProjectAuthorToAccessList(Set<UserPermission> accessList,
+                                                    User projectAuthor, User experimentCreator) {
         if (!StringUtils.equals(projectAuthor.getId(), experimentCreator.getId())) {
             setUserPermissions(accessList, projectAuthor, UserPermission.VIEWER_PERMISSIONS);
         }
     }
 
-    public static void setUserPermissions(Set<UserPermission> accessList, User user, Set<String> permissions) {
+    private static void setUserPermissions(Set<UserPermission> accessList, User user, Set<String> permissions) {
         UserPermission userPermission = findPermissionsByUserId(accessList, user.getId());
         if (userPermission != null) {
             userPermission.setPermissions(permissions);
