@@ -47,7 +47,7 @@ public final class PaginationUtil {
         return headers;
     }
 
-    private static String getLink(String url, String rel){
+    private static String getLink(String url, String rel) {
         return MessageFormat.format(LINK_PATTERN, url, rel);
     }
 

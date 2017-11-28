@@ -39,8 +39,8 @@ public final class PermissionUtil {
     }
 
     public static boolean hasEditorAuthorityOrPermissions(User user,
-                                         Set<UserPermission> accessList,
-                                         String permission) {
+                                                          Set<UserPermission> accessList,
+                                                          String permission) {
         return isContentEditor(user) || hasPermissions(user.getId(), accessList, permission);
     }
 
@@ -59,7 +59,7 @@ public final class PermissionUtil {
         setUserPermissions(accessList, user, UserPermission.OWNER_PERMISSIONS);
     }
 
-     /**
+    /**
      * Adding Project Author as VIEWER to Experiment Access List if Experiment creator is another User
      */
     public static void addProjectAuthorToAccessList(Set<UserPermission> accessList,

@@ -12,8 +12,8 @@ import org.mapstruct.Mapping;
 public interface CustomDtoMapper {
 
     String ACCESS_LIST_MAPPER = "java(dto.getAccessList().stream()."
-            + "map(s -> new com.epam.indigoeln.core.model.UserPermission(s.getUser(), s.getPermissions()))." +
-            "collect(java.util.stream.Collectors.toSet()))";
+            + "map(s -> new com.epam.indigoeln.core.model.UserPermission(s.getUser(), s.getPermissions()))."
+            + "collect(java.util.stream.Collectors.toSet()))";
 
     @Mapping(target = "authorities", ignore = true)
     User convertFromDTO(UserDTO userDTO);
