@@ -50,7 +50,6 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     private final UserRepository userRepository;
 
     private static final HashMap<String, ComponentToPdfSectionsConverter> componentNameToConverter = new HashMap<>();
-
     static {
         put(REACTION, ExperimentPdfSectionsProvider::reactionConverter);
         put(PREFERRED_COMPOUND_SUMMARY, ExperimentPdfSectionsProvider::preferredCompoundSummaryConverter);
@@ -58,13 +57,17 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         put(EXPERIMENT_DESCRIPTION, ExperimentPdfSectionsProvider::experimentDescriptionConverter);
     }
 
-    private final String[] THERAPEUTIC_AREA_NAME = {"therapeuticArea", "name"};
-    private final String[] CODE_AND_NAME_NAME = {"codeAndName", "name"};
-    private final String[] CONTINUED_FROM_NAME = {"contFromRxn", "name"};
-    private final String[] CONTINUED_TO_NAME = {"contToRxn", "name"};
 
-    public ExperimentPdfSectionsProvider(Project project, Notebook notebook, Experiment experiment, FileRepository fileRepository,
-                                         PrintRequest printRequest, UserRepository userRepository) {
+    private static final String[] THERAPEUTIC_AREA_NAME = {"therapeuticArea", "name"};
+    private static final String[] CODE_AND_NAME_NAME = {"codeAndName", "name"};
+    private static final String[] CONTINUED_FROM_NAME = {"contFromRxn", "name"};
+    private static final String[] CONTINUED_TO_NAME = {"contToRxn", "name"};
+    private static final String[] SOURCE_NAME = {"source", "name"};
+    private static final String[] MOL_WEIGHT_VALUE = {"molWeight", "value"};
+
+    public ExperimentPdfSectionsProvider(Project project, Notebook notebook, Experiment experiment,
+                                         FileRepository fileRepository, PrintRequest printRequest,
+                                         UserRepository userRepository) {
         this.project = project;
         this.notebook = notebook;
         this.experiment = experiment;
@@ -106,7 +109,8 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
 
     private Optional<Component> getComponentOfExperiment(String printedComponentName) {
         return experiment.getComponents().stream()
-                .filter(component -> (PREFERRED_COMPOUND_SUMMARY.equals(printedComponentName) && PRODUCT_BATCH_SUMMARY.equals(component.getName()))
+                .filter(component -> (PREFERRED_COMPOUND_SUMMARY.equals(printedComponentName)
+                        && PRODUCT_BATCH_SUMMARY.equals(component.getName()))
                         || printedComponentName.equals(component.getName()))
                 .findAny();
     }
@@ -116,17 +120,20 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     }
 
     private List<AbstractPdfSection> reactionDetailsConverter(Pair<Component, Experiment> p) {
-        return MongoExt.of(p.getLeft()).map(content -> singletonList(new ReactionDetailsSection(new ReactionDetailsModel(
-                p.getRight().getCreationDate(),
-                content.getString(THERAPEUTIC_AREA_NAME),
-                content.getString(CONTINUED_FROM_NAME),
-                content.getString(CONTINUED_TO_NAME),
-                content.getString(CODE_AND_NAME_NAME),
-                content.getString("projectAliasName"),
-                content.streamObjects("linkedExperiments").map(m -> m.getString("text")).toList(),
-                content.getString("literature"),
-                userRepository.findAll(content.streamStrings("coAuthors").toList()).stream().map(User::getFullName).collect(toList()))
-        )));
+        return MongoExt.of(p.getLeft()).map(content -> singletonList(new ReactionDetailsSection(
+                new ReactionDetailsModel()
+                        .setCreationDate(p.getRight().getCreationDate())
+                        .setTherapeuticArea(content.getString(THERAPEUTIC_AREA_NAME))
+                        .setContinuedFrom(content.getString(CONTINUED_FROM_NAME))
+                        .setContinuedTo(content.getString(CONTINUED_TO_NAME))
+                        .setProjectCode(content.getString(CODE_AND_NAME_NAME))
+                        .setProjectAlias(content.getString("projectAliasName"))
+                        .setLinkedExperiment(content.streamObjects("linkedExperiments")
+                                .map(m -> m.getString("text")).toList())
+                        .setLiteratureReference(content.getString("literature"))
+                        .setCoAuthors(userRepository.findAll(content.streamStrings("coAuthors").toList())
+                                .stream().map(User::getFullName).collect(toList())))
+        ));
     }
 
     private List<AbstractPdfSection> conceptDetailsConverter(Pair<Component, Experiment> p) {
@@ -136,8 +143,10 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                 content.streamObjects("linkedExperiments").map(m -> m.getString("text")).toList(),
                 content.getString(CODE_AND_NAME_NAME),
                 content.getString("keywords"),
-                userRepository.findAll(content.streamStrings("designers").toList()).stream().map(User::getFullName).collect(toList()),
-                userRepository.findAll(content.streamStrings("coAuthors").toList()).stream().map(User::getFullName).collect(toList())
+                userRepository.findAll(content.streamStrings("designers").toList())
+                        .stream().map(User::getFullName).collect(toList()),
+                userRepository.findAll(content.streamStrings("coAuthors").toList())
+                        .stream().map(User::getFullName).collect(toList())
         ))));
     }
 
@@ -165,7 +174,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         return new PreferredCompoundsRow(
                 structure,
                 compound.getString("fullNbkBatch"),
-                compound.getString("molWeight", "value"),
+                compound.getString(MOL_WEIGHT_VALUE),
                 compound.getString("formula"),
                 compound.getString("structureComments")
         );
@@ -184,8 +193,9 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         return new StoichiometryRow()
                 .setFullNbkBatch(reactant.getString("fullNbkBatch"))
                 .setCompoundId(reactant.getString("compoundId"))
-                .setStructure(new StoichiometryModel.Structure(new SvgPdfImage(reactant.getString("structure", "image"))))
-                .setMolecularWeight(reactant.getString("molWeight", "value"))
+                .setStructure(new StoichiometryModel.Structure(
+                        new SvgPdfImage(reactant.getString("structure", "image"))))
+                .setMolecularWeight(reactant.getString(MOL_WEIGHT_VALUE))
                 .setWeight(reactant.getString("weight", "value"))
                 .setWeightUnit(reactant.getString("weight", "unit"))
                 .setMoles(reactant.getString("mol", "value"))
@@ -215,7 +225,8 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         Optional<List<String>> batchOwner = p.getRight().getComponents().stream()
                 .filter(component -> REACTION_DETAILS.equals(component.getName()))
                 .map(MongoExt::of)
-                .map(m -> userRepository.findAll(m.streamStrings("batchOwner").toList()).stream().map(User::getFullName).collect(toList()))
+                .map(m -> userRepository.findAll(m.streamStrings("batchOwner").toList())
+                        .stream().map(User::getFullName).collect(toList()))
                 .findAny();
 
         List<BatchInformationRow> batchInfoRows = MongoExt.of(p.getLeft())
@@ -255,7 +266,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                 .setYield(batch.getString("yield"))
                 .setPurity(batch.getString("purity", "asString"))
                 .setBatchInformation(new BatchInformation(
-                        batch.getString("molWeight", "value"),
+                        batch.getString(MOL_WEIGHT_VALUE),
                         batch.getString("exactMass"),
                         batch.getString("saltCode", "name"),
                         batch.getString("saltEq", "value"),
@@ -274,7 +285,8 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         Optional<List<String>> batchOwner = p.getRight().getComponents().stream()
                 .filter(component -> REACTION_DETAILS.equals(component.getName()))
                 .map(MongoExt::of)
-                .map(m -> userRepository.findAll(m.streamStrings("batchOwner").toList()).stream().map(User::getFullName).collect(toList()))
+                .map(m -> userRepository.findAll(m.streamStrings("batchOwner").toList())
+                        .stream().map(User::getFullName).collect(toList()))
                 .findAny();
 
         Optional<List<AbstractPdfSection>> sections = content.map(m -> m.streamObjects("batches")
@@ -282,10 +294,10 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                         .setFullNbkBatch(batch.getString("fullNbkBatch"))
                         .setRegistrationDate(batch.getDate("registrationDate"))
                         .setStructureComments(batch.getString("structureComments"))
-                        .setSource(batch.getString("source", "name"))
+                        .setSource(batch.getString(SOURCE_NAME))
                         .setSourceDetail(batch.getString("sourceDetail", "name"))
                         .setBatchOwner(batchOwner.orElse(emptyList()))
-                        .setMolWeight(batch.getString("molWeight", "value"))
+                        .setMolWeight(batch.getString(MOL_WEIGHT_VALUE))
                         .setFormula(batch.getString("formula"))
                         .setResidualSolvent(batch.getString("residualSolvents", "asString"))
                         .setSolubility(batch.getString("solubility", "asString"))
