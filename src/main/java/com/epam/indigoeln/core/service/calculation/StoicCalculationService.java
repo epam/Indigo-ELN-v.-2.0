@@ -345,7 +345,7 @@ public class StoicCalculationService {
     }
 
     /**
-     * Calculate batch amounts
+     * Calculate batch amounts.
      *
      * @param productTableDTO Batch from product table.
      * @return Calculated batch

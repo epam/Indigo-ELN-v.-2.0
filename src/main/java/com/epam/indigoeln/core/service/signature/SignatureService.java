@@ -90,9 +90,9 @@ public class SignatureService {
     public ExperimentStatus checkExperimentStatus(ExperimentDTO experimentDTO)
             throws IOException {
         // check experiment in status Submitted or Signing
-        if (ExperimentStatus.SUBMITTED.equals(experimentDTO.getStatus()) ||
-                ExperimentStatus.SINGING.equals(experimentDTO.getStatus()) ||
-                ExperimentStatus.SINGED.equals(experimentDTO.getStatus())) {
+        if (ExperimentStatus.SUBMITTED.equals(experimentDTO.getStatus())
+                || ExperimentStatus.SINGING.equals(experimentDTO.getStatus())
+                || ExperimentStatus.SINGED.equals(experimentDTO.getStatus())) {
 
             if (experimentDTO.getDocumentId() == null) {
                 throw DocumentUploadException.createNullDocumentId(experimentDTO.getId());

@@ -122,8 +122,8 @@ public class SequenceIdService {
                     orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentId));
 
             int dbLastBatchNumber = BatchComponentUtil.getLastBatchNumber(experiment).orElse(0);
-            int clientLastBatchNumber = BatchComponentUtil.isValidBatchNumber(clientLatestBatchNumberStr) ?
-                    Integer.parseInt(clientLatestBatchNumberStr) : 0;
+            int clientLastBatchNumber = BatchComponentUtil.isValidBatchNumber(clientLatestBatchNumberStr)
+                    ? Integer.parseInt(clientLatestBatchNumberStr) : 0;
 
             //compare last values from Client and Database, increment biggest
             int nextBatchNumber = Math.max(dbLastBatchNumber, clientLastBatchNumber) + 1;

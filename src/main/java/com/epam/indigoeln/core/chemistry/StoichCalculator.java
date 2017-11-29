@@ -65,7 +65,7 @@ public class StoichCalculator {
                 recalculateSolventAmounts(rb, limitingReag);
                 // to recalculate Molarity or Volume
             }
-            if (limitingReag != null) {// vb 5/8 limitingBatch is null if the user hasn't entered stoic info and is in
+            if (limitingReag != null) { // vb 5/8 limitingBatch is null if the user hasn't entered stoic info and is in
                 if (CeNNumberUtils.doubleEquals(limitingReag.getStoicRxnEquivsAmount()
                                 .getValueInStdUnitsAsDouble(), 0.0,
                         0.0001)) {
@@ -158,15 +158,16 @@ public class StoichCalculator {
         if (result == null) {
             for (StoicModelInterface test : getReagentBatches()) {
                 test.setStoicLimiting(false);
-                if (canBeLimiting(test) && (result == null ||
-                        test.getStoicMoleAmount().doubleValue() < result.getStoicMoleAmount().doubleValue())) {
+                if (canBeLimiting(test) && (result == null
+                        || test.getStoicMoleAmount().doubleValue() < result.getStoicMoleAmount().doubleValue())) {
                     result = test;
                 }
             }
             if (result != null) {
                 result.setStoicLimiting(true);
-                if (result.getStoicRxnEquivsAmount().isValueDefault())
+                if (result.getStoicRxnEquivsAmount().isValueDefault()) {
                     resetRxnEquivs(result);
+                }
             }
         }
         return result;
@@ -246,7 +247,8 @@ public class StoichCalculator {
 
         if (!doubleNumEq(tempMolarAmt.getValueInStdUnitsAsDouble(), molarAmount.getValueInStdUnitsAsDouble())) {
             // Molarity entered by the user
-            updateMolarAmountsForSolvent(rb.getStoicMolarAmount().getValueInStdUnitsAsDouble(), rb.getStoicMolarAmount().getSigDigits());
+            updateMolarAmountsForSolvent(rb.getStoicMolarAmount().getValueInStdUnitsAsDouble(),
+                    rb.getStoicMolarAmount().getSigDigits());
             applySigDigitsToAllSolventMolarites(rb.getStoicMolarAmount());
             rb.getStoicMolarAmount().setCalculated(false);
 
@@ -351,8 +353,8 @@ public class StoichCalculator {
 
             Function<StoicModelInterface, Boolean> amountsGreaterThanZero = (b) ->
                     b.getStoicMoleAmount().doubleValue() > 0.0
-                            || CeNNumberUtils.doubleEquals(b.getStoicMoleAmount().doubleValue(), 0.0) &&
-                            b.getStoicVolumeAmount().doubleValue() > 0.0;
+                            || CeNNumberUtils.doubleEquals(b.getStoicMoleAmount().doubleValue(), 0.0)
+                            && b.getStoicVolumeAmount().doubleValue() > 0.0;
 
             getReagentBatches()
                     .stream()
@@ -445,9 +447,10 @@ public class StoichCalculator {
             // if moleAmount are not = limiting moleAmount and not set by the user, set it.
             // send to recalc based on moleAmount. Need to be sure that weightAmount isn't
             // edited by the user either.
-            if (!prodBatch.getStoicRxnEquivsAmount().isCalculated() ||
-                    (prodBatch.getStoicWeightAmount().isCalculated() && prodBatch.getStoicMoleAmount().isCalculated()
-                            && !limitingReag.getStoicMoleAmount().equals(prodBatch.getStoicMoleAmount()))) {
+            if (!prodBatch.getStoicRxnEquivsAmount().isCalculated()
+                    || (prodBatch.getStoicWeightAmount().isCalculated()
+                    && prodBatch.getStoicMoleAmount().isCalculated()
+                    && !limitingReag.getStoicMoleAmount().equals(prodBatch.getStoicMoleAmount()))) {
                 // Need to set calc flag regardless of limitingReag state.
                 AmountModel amtTemp = (AmountModel) limitingReag.getStoicMoleAmount().deepClone();
                 double targetMoles = amtTemp.doubleValue() * prodBatch.getStoicRxnEquivsAmount()
@@ -475,7 +478,7 @@ public class StoichCalculator {
                 .equals(BatchType.SOLVENT.toString())).map(StoicModelInterface::getStoicVolumeAmount)
                 .collect(Collectors.toList()));
         return list;
-    }// end of method
+    } // end of method
 
     private void updateMolarAmountsForSolvent(double value, int sigDigits) {
         List<StoicModelInterface> reagents = getReagentBatches();
@@ -547,7 +550,7 @@ public class StoichCalculator {
                 .equals(BatchType.SOLVENT.toString())).map(StoicModelInterface::getStoicMolarAmount)
                 .collect(Collectors.toList()));
         return list;
-    }// end of method
+    } // end of method
 
     private void recalculateMoleAmountForBatch(StoicModelInterface limtReag, StoicModelInterface targetReag) {
         // The last check here is literal: sourceReag != the same object as targetReag
@@ -558,8 +561,9 @@ public class StoichCalculator {
             double limitingMoles = limtReag.getStoicMoleAmount().getValueInStdUnitsAsDouble();
             if (targetReag instanceof BatchesList<?>) {
                 BatchesList<MonomerBatchModel> blist = (BatchesList<MonomerBatchModel>) targetReag;
-                if (blist.getBatchModels() == null)
+                if (blist.getBatchModels() == null) {
                     return;
+                }
                 for (MonomerBatchModel batchModel : blist.getBatchModels()) {
                     ArrayList<AmountModel> amts = new ArrayList<>();
                     // RxnEquivsAmount is scalar, hence no need for std units.
@@ -671,7 +675,8 @@ public class StoichCalculator {
         }
 
         if (batchModel.getStoicRxnEquivsAmount().isCalculated() && targetReagMoles > 0.0) {
-            // need to use version from Singleton in else clause below.  This version creates multiples when limiting rxn equivs < 0.
+            // need to use version from Singleton in else clause below.  This version creates
+            // multiples when limiting rxn equivs < 0.
             // (targetReagMoles * targetReag.getRxnEquivs()) = (sourceMoles * sourceReag.getRxnEquivs())
             // (targetReagMoles / sourceMoles) = (targetReag.getRxnEquivs() / sourceReag.getRxnEquivs())
             // RxnEquivsAmount is scalar, hence no need for std units.
@@ -745,7 +750,9 @@ public class StoichCalculator {
     private List<StoicModelInterface> getIntendedProductBatches() {
         ArrayList<StoicModelInterface> result = new ArrayList<>();
         if (rxnStepModel != null) {
-            result.addAll(rxnStepModel.getProductBatches().stream().filter(productBatchModel -> productBatchModel.getBatchType() == BatchType.INTENDED_PRODUCT).collect(Collectors.toList()));
+            result.addAll(rxnStepModel.getProductBatches().stream()
+                    .filter(productBatchModel -> productBatchModel.getBatchType() == BatchType.INTENDED_PRODUCT)
+                    .collect(Collectors.toList()));
         }
         return result;
     }

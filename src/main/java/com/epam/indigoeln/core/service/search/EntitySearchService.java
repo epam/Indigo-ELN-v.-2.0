@@ -25,7 +25,8 @@ public class EntitySearchService {
     private BingoService bingoService;
 
     public List<EntitySearchResultDTO> find(User user, EntitySearchRequest searchRequest) {
-        final List<String> bingoIds = searchRequest.getStructure().map(this::searchByBingoDb).orElse(Collections.emptyList());
+        final List<String> bingoIds = searchRequest.getStructure().map(this::searchByBingoDb)
+                .orElse(Collections.emptyList());
         return repository.findEntities(user, searchRequest, bingoIds);
     }
 
@@ -85,7 +86,8 @@ public class EntitySearchService {
                 break;
 
             case CHEMISTRY_SEARCH_SIMILARITY:
-                bingoIds = bingoService.searchMoleculeSim(molFile, structure.getSimilarity(), 1f, StringUtils.EMPTY);
+                bingoIds = bingoService.searchMoleculeSim(molFile,
+                        structure.getSimilarity(), 1f, StringUtils.EMPTY);
                 break;
 
             case CHEMISTRY_SEARCH_MOLFORMULA:

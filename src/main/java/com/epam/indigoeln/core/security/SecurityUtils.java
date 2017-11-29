@@ -114,7 +114,8 @@ public final class SecurityUtils {
         }
     }
 
-    private static void checkAndInvalidate(SessionRegistry sessionRegistry, com.epam.indigoeln.core.model.User modifiedUser, UserDetails userDetails) {
+    private static void checkAndInvalidate(SessionRegistry sessionRegistry,
+                                           com.epam.indigoeln.core.model.User modifiedUser, UserDetails userDetails) {
         Set<String> newAuthorities = modifiedUser.getAuthorities().stream().map(Authority::getAuthority).
                 collect(Collectors.toSet());
         Set<String> existingAuthorities = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).

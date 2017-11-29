@@ -80,8 +80,8 @@ public class ProjectService {
      */
     public List<TreeNodeDTO> getAllProjectsAsTreeNodes(User user) {
         // if user is null, then get all projects
-        Collection<Project> projects = user == null ? projectRepository.findAll() :
-                projectRepository.findByUserId(user.getId());
+        Collection<Project> projects = user == null ? projectRepository.findAll()
+                : projectRepository.findByUserId(user.getId());
         return projects.stream().map(TreeNodeDTO::new).sorted(TreeNodeDTO.NAME_COMPARATOR)
                 .collect(Collectors.toList());
     }
@@ -115,10 +115,10 @@ public class ProjectService {
      * @return list of projects available for notebook creation
      */
     public List<ShortEntityDTO> getProjectsForNotebookCreation(User user) {
-        List<Project> projects = PermissionUtil.isContentEditor(user) ?
-                projectRepository.findAllIgnoreChildren() :
-                projectRepository.findByUserIdAndPermissions(user.getId(),
-                        Collections.singletonList(UserPermission.CREATE_SUB_ENTITY));
+        List<Project> projects = PermissionUtil.isContentEditor(user)
+                ? projectRepository.findAllIgnoreChildren()
+                : projectRepository.findByUserIdAndPermissions(user.getId(),
+                Collections.singletonList(UserPermission.CREATE_SUB_ENTITY));
 
         return projects.stream().map(ShortEntityDTO::new)
                 .sorted(Comparator.comparing(ShortEntityDTO::getName)).collect(Collectors.toList());

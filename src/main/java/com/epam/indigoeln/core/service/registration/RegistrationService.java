@@ -151,8 +151,8 @@ public class RegistrationService {
                     .map(BatchSummary::getFullNbkBatch)
                     .collect(Collectors.toSet());
 
-            throw new RegistrationException("Unable to find batches for registration: " +
-                    CollectionUtils.subtract(fullBatchNumbers, foundFullNbkBatches));
+            throw new RegistrationException("Unable to find batches for registration: "
+                    + CollectionUtils.subtract(fullBatchNumbers, foundFullNbkBatches));
         }
 
         Optional<BatchSummary> inProgressOpt = batches.keySet()

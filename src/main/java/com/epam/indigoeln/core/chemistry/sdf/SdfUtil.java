@@ -66,8 +66,9 @@ class SdfUtil {
             ib = line1.lastIndexOf(">");
             isField = is >= 0 && ib > 0;
             isField &= is < ib;
-            if (isField)
+            if (isField) {
                 keyField = line1.substring(is + 1, ib).trim();
+            }
         }
         return keyField;
     }

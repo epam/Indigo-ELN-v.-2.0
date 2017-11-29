@@ -44,7 +44,9 @@ public class ITextPrintService {
     @Autowired
     public ITextPrintService(ExperimentRepository experimentRepository,
                              NotebookRepository notebookRepository,
-                             ProjectRepository projectRepository, FileRepository fileRepository, ExperimentService experimentService, UserService userService, UserRepository userRepository) {
+                             ProjectRepository projectRepository,
+                             FileRepository fileRepository, ExperimentService experimentService,
+                             UserService userService, UserRepository userRepository) {
         this.experimentRepository = experimentRepository;
         this.notebookRepository = notebookRepository;
         this.projectRepository = projectRepository;

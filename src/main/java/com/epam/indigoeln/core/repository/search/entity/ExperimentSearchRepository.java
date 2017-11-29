@@ -5,7 +5,6 @@ import com.epam.indigoeln.core.repository.search.ResourceUtils;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
 import com.mongodb.BasicDBList;
-import com.mongodb.DBRef;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

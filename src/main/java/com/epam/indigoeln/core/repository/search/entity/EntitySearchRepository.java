@@ -78,8 +78,10 @@ public class EntitySearchRepository {
                             .forEach(e -> notebookNameMap.put(e.getId(), n.getName())));
 
                     return StreamSupport.stream(experiments.spliterator(), false).filter(
-                            p -> PermissionUtil.hasPermissions(user.getId(), p.getAccessList(), UserPermission.READ_ENTITY)
-                    ).map(ExperimentDTO::new).map(e -> convert(notebookNameMap.get(e.getFullId()), e)).collect(Collectors.toList());
+                            p -> PermissionUtil.hasPermissions(user.getId(), p.getAccessList(),
+                                    UserPermission.READ_ENTITY)
+                    ).map(ExperimentDTO::new).map(e -> convert(notebookNameMap.get(e.getFullId()), e))
+                            .collect(Collectors.toList());
 
                 });
         return merge(projectResult, notebookResult, experimentResult);

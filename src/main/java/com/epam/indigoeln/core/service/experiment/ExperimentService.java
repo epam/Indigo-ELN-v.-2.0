@@ -269,8 +269,11 @@ public class ExperimentService {
         // add all users as VIEWER to notebook & project
         Boolean updateProject = experiment.getAccessList().stream()
                 .map(up -> {
-                    PermissionUtil.addUserPermissions(notebook.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
-                    return PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
+                    PermissionUtil.addUserPermissions(notebook.getAccessList(), up.getUser(),
+                            UserPermission.VIEWER_PERMISSIONS);
+                    return PermissionUtil
+                            .addUserPermissions(project.getAccessList(), up.getUser(),
+                                    UserPermission.VIEWER_PERMISSIONS);
                 })
                 .reduce(false, Boolean::logicalOr);
 
@@ -526,14 +529,16 @@ public class ExperimentService {
                                              String experimentId) {
 
         List<Component> componentsFromDb = oldComponents != null ? oldComponents : Collections.emptyList();
-        List<String> componentIdsForRemove = componentsFromDb.stream().filter(Objects::nonNull).map(Component::getId).collect(Collectors.toList());
+        List<String> componentIdsForRemove = componentsFromDb.stream().filter(Objects::nonNull).map(Component::getId)
+                .collect(Collectors.toList());
         DBRef dbRef = new DBRef(Experiment.COLLECTION_NAME, experimentId);
 
         List<Component> componentsForSave = new ArrayList<>();
         for (Component component : newComponents) {
             updateRegistrationStatus(component, componentsFromDb);
             if (component.getId() != null) {
-                Optional<Component> existing = componentsFromDb.stream().filter(Objects::nonNull).filter(c -> c.getId().equals(component.getId())).findFirst();
+                Optional<Component> existing = componentsFromDb.stream().filter(Objects::nonNull)
+                        .filter(c -> c.getId().equals(component.getId())).findFirst();
                 if (existing.isPresent()) {
                     Component componentForSave = existing.get();
                     componentForSave.setContent(component.getContent());

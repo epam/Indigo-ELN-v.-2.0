@@ -46,7 +46,7 @@ import java.util.Arrays;
  * <li><a href="http://jaspan.com/improved_persistent_login_cookie_best_practice">Improved Persistent Login Cookie
  * Best Practice</a></li>
  * <a href="https://github.com/blog/1661-modeling-your-app-s-user-session">
- * Github's "Modeling your App's User Session"</a></li></li>
+ * Github's "Modeling your App's User Session"</a>
  * </ul>
  * <p>
  * The main algorithm comes from Spring Security's PersistentTokenBasedRememberMeServices, but this class

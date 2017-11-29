@@ -50,7 +50,7 @@ public class ProjectFileResource {
     private UserService userService;
 
     /**
-     * GET  /project_files?projectId -> Returns metadata for all files of specified project<br/>
+     * GET  /project_files?projectId -> Returns metadata for all files of specified project<br/>.
      * Also use a <b>pageable</b> interface: <b>page</b>, <b>size</b>, <b>sort</b><br/>
      * <b>Example</b>: page=0&size=30&sort=firstname&sort=lastname,asc - retrieves all elements in specified order
      * (<b>firstname</b>: ASC, <b>lastname</b>: ASC) from 0 page with size equals to 30<br/>

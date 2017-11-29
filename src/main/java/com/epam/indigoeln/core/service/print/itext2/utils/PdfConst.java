@@ -1,7 +1,7 @@
 package com.epam.indigoeln.core.service.print.itext2.utils;
 
 /**
- * Contains constants for working with pdf
+ * Contains constants for working with pdf.
  */
 public final class PdfConst {
 

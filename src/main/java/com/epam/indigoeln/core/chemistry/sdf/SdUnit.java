@@ -47,11 +47,12 @@ public class SdUnit implements Serializable, Externalizable {
     private static final Log LOGGER = LogFactory.getLog(SdUnit.class);
 
     public SdUnit(String molecule, boolean molFilePortionOnly) {
-        this(molecule, true, molFilePortionOnly);
+        this(molecule, true,
+                molFilePortionOnly);
     }
 
-    public SdUnit(String molecule, boolean allKeysToUpperCase,
-                  boolean molFilePortionOnly) {
+    SdUnit(String molecule, boolean allKeysToUpperCase,
+           boolean molFilePortionOnly) {
         molPortion = "";
         infoPortion = null;
         keyList = new ArrayList<>();
@@ -241,8 +242,9 @@ public class SdUnit implements Serializable, Externalizable {
             }
             upperCase = allKeysToUpperCase;
             String mol = molecule;
-            if (mol.contains("\r"))
+            if (mol.contains("\r")) {
                 mol = createConsistentLineTermination(mol);
+            }
             if (molFilePortionOnly) {
                 mol = mol.substring(0, mol.indexOf("M  END") + 6);
                 mol = mol + "\n\n$$$$";
@@ -252,19 +254,22 @@ public class SdUnit implements Serializable, Externalizable {
                 validString = "Does not contain \"M  END\" or \"$$$$\"";
                 molPortion = "Not a valid molecule!";
             }
-            if (mol.contains("M  END"))
+            if (mol.contains("M  END")) {
                 setMol(mol.substring(0, mol.indexOf("M  END") + 6) + "\n");
+            }
             validString = validateDetail(molPortion);
-            if (!validString.startsWith(OK))
+            if (!validString.startsWith(OK)) {
                 valid = false;
+            }
             infoPortion = parseInfo(mol, keyList);
         } catch (IllegalArgumentException e) {
             LOGGER.error("SDUnit init error", e);
             valid = false;
-            if (validString.startsWith(OK))
+            if (validString.startsWith(OK)) {
                 validString = e.getMessage();
-            else
+            } else {
                 validString = validString + " AND " + e.getMessage();
+            }
         } catch (Exception e) {
             LOGGER.error("SDUnit init error", e);
         }
@@ -275,10 +280,11 @@ public class SdUnit implements Serializable, Externalizable {
     }
 
     public String getValue(String key) {
-        if (valid)
+        if (valid) {
             return infoPortion.get(key.toUpperCase(Locale.getDefault()));
-        else
+        } else {
             return "";
+        }
     }
 
     public void setValue(String key, String value) {
@@ -296,8 +302,9 @@ public class SdUnit implements Serializable, Externalizable {
         int len = keyList.size();
         for (int x = len - 1; x >= 0; x--) {
             String s = keyList.get(x);
-            if (s.equalsIgnoreCase(key))
+            if (s.equalsIgnoreCase(key)) {
                 keyList.remove(x);
+            }
         }
 
     }
@@ -337,10 +344,11 @@ public class SdUnit implements Serializable, Externalizable {
     }
 
     public String getMol() {
-        if (valid)
+        if (valid) {
             return molPortion;
-        else
+        } else {
             return "";
+        }
     }
 
     public void setMol(String mol) {
@@ -353,8 +361,9 @@ public class SdUnit implements Serializable, Externalizable {
         }
         String tmp = validateDetail(mol1);
         if (tmp.startsWith(OK)) {
-            if (tmp.contains("3D"))
+            if (tmp.contains("3D")) {
                 is3D = true;
+            }
             String num = tmp.substring(tmp.lastIndexOf(" ") + 1).trim();
             try {
                 numAtoms = Integer.parseInt(num);
@@ -363,11 +372,12 @@ public class SdUnit implements Serializable, Externalizable {
             }
             tmp = OK;
         }
-        if (!OK.equals(tmp))
-            if (validString.startsWith(OK))
+        if (!OK.equals(tmp)) {
+            if (validString.startsWith(OK)) {
                 validString = tmp;
-            else
-                validString = validString + " AND UPON MOL MODIFICATION " + tmp;
+            }
+        } else
+            validString = validString + " AND UPON MOL MODIFICATION " + tmp;
         if (valid)
             try {
                 molPortion = createConsistentLineTermination(mol);
@@ -384,11 +394,12 @@ public class SdUnit implements Serializable, Externalizable {
         return validString;
     }
 
-    public String[] getKeys() {
+    private String[] getKeys() {
         Object[] o = keyList.toArray();
         String[] out = new String[o.length];
-        for (int x = 0; x <= o.length - 1; x++)
+        for (int x = 0; x <= o.length - 1; x++) {
             out[x] = (String) o[x];
+        }
 
         return out;
     }
@@ -457,7 +468,8 @@ public class SdUnit implements Serializable, Externalizable {
         return out;
     }
 
-    private void parseInfoAddOrigNames(Map<String, String> out, List<String> origNames, String thisOrigName, String thisName, String thisValue) {
+    private void parseInfoAddOrigNames(Map<String, String> out, List<String> origNames,
+                                       String thisOrigName, String thisName, String thisValue) {
         if (!"".equals(thisValue.trim())) {
             if (out.containsKey(thisName)) {
                 String tmp = out.get(thisName);
@@ -508,8 +520,9 @@ public class SdUnit implements Serializable, Externalizable {
     public void readExternal(ObjectInput in) throws IOException,
             ClassNotFoundException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(4000);
-        for (int byt; (byt = in.read()) != -1; )
+        for (int byt; (byt = in.read()) != -1; ) {
             baos.write(byt);
+        }
 
         baos.close();
         byte[] bytes = baos.toByteArray();

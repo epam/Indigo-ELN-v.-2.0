@@ -256,7 +256,7 @@ public class NotebookService {
                 notebookFromDB.setName(notebookDTO.getName());
             }
             notebookFromDB.setDescription(notebookDTO.getDescription());
-            notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's
+            notebookFromDB.setAccessList(notebook.getAccessList()); // Stay old notebook's
             // experiments for updated notebook
             notebookFromDB.setVersion(notebook.getVersion());
 

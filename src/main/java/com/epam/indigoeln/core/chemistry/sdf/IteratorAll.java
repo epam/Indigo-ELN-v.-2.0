@@ -28,9 +28,9 @@ class IteratorAll implements SDFileIterator {
 
     private static final String M_END = "M  END";
 
-    BufferedReader buffer;
-    int index;
-    boolean toUpper;
+    private BufferedReader buffer;
+    private int index;
+    private boolean toUpper;
 
     IteratorAll(File f, boolean allKeysToUpperCase)
             throws FileNotFoundException {
@@ -90,11 +90,13 @@ class IteratorAll implements SDFileIterator {
             outStringBuilder
                     .append(line)
                     .append("\n");
-            if (M_END.equals(line.trim()))
+            if (M_END.equals(line.trim())) {
                 hasMEND = true;
-            if (lineCount > 4000 && !hasMEND)
+            }
+            if (lineCount > 4000 && !hasMEND) {
                 throw new IOException(
                         "\"M  END\" was never encountered and the maximum length of a mol file was reached");
+            }
             if ("$$$$".equals(line.trim())) {
                 index++;
                 return new SdUnit(outStringBuilder.toString(), toUpper, false);
