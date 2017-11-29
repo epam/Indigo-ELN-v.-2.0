@@ -6,7 +6,9 @@
     </div>
     <a class="logo" href="#"></a>
     <div class="uui-header-tools">
-        <form class="navbar-form" ng-submit="vm.search()">
+        <form class="navbar-form"
+              ng-submit="vm.search()"
+              indigo-has-authority="GLOBAL_SEARCH">
             <div class="search-field search-field-main" ng-class="{active: vm.focused}">
                 <span class="fa fa-search" ng-click="vm.search()"></span>
                 <input type="search"
