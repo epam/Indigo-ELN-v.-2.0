@@ -41,8 +41,7 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
     @Version
     private Long version;
 
-    transient
-    private HashSet<UserPermission> accessList = new HashSet<>();
+    private transient HashSet<UserPermission> accessList = new HashSet<>();
 
     @Override
     public String getId() {

@@ -18,7 +18,8 @@ public class RegistrationException extends Exception {
         super(cause);
     }
 
-    public RegistrationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public RegistrationException(String message, Throwable cause, boolean enableSuppression,
+                                 boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

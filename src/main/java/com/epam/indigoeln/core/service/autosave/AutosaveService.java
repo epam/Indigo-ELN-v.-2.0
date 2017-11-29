@@ -8,19 +8,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * The AutosaveService provides methods for auto saving
+ * The AutosaveService provides methods for auto saving.
  */
 @Service
 public class AutosaveService {
 
     /**
-     * AutosaveRepository instance for access to database
+     * AutosaveRepository instance for access to database.
      */
     @Autowired
     private AutosaveRepository autosaveRepository;
 
     /**
-     * Saves object
+     * Saves object.
+     *
      * @param item Object for saving
      */
     public void save(AutosaveItem item) {
@@ -33,7 +34,8 @@ public class AutosaveService {
     }
 
     /**
-     * Removes object
+     * Removes object.
+     *
      * @param id Object's identifier
      */
     public void delete(String id) {

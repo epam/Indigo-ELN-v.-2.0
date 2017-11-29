@@ -26,7 +26,7 @@ public class CrsRegistrationRepository implements RegistrationRepository {
     private static final String NAME = "CRS Service";
     private static final String STATUS_PASSED = "PASSED";
     private static final String STATUS_FAILED = "FAILED";
-    private static RegistrationRepositoryInfo INFO = new RegistrationRepositoryInfo(ID, NAME);
+    private static RegistrationRepositoryInfo info = new RegistrationRepositoryInfo(ID, NAME);
 
     @Autowired
     private CrsProperties crsProperties;
@@ -87,7 +87,8 @@ public class CrsRegistrationRepository implements RegistrationRepository {
     }
 
     @Override
-    public List<Integer> searchSim(String structure, String similarity, Double var3, Double var4) throws RegistrationException {
+    public List<Integer> searchSim(String structure, String similarity, Double var3, Double var4)
+            throws RegistrationException {
         try {
             return search.searchSim(structure, similarity, var3, var4);
         } catch (CRSException e) {
@@ -171,7 +172,7 @@ public class CrsRegistrationRepository implements RegistrationRepository {
 
     @Override
     public RegistrationRepositoryInfo getInfo() {
-        return INFO;
+        return info;
     }
 
     private RegistrationStatus convert(CompoundRegistrationStatus status, Date date) {
@@ -206,8 +207,9 @@ public class CrsRegistrationRepository implements RegistrationRepository {
     }
 
     public Compound convert(FullCompoundInfo compoundInfo) {
-        if (compoundInfo == null)
+        if (compoundInfo == null) {
             return null;
+        }
 
         Compound compound = new Compound();
 

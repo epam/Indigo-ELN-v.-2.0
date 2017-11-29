@@ -7,7 +7,7 @@ import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
  *
  * @author Evgeny Romanov
  */
-public class ConcurrencyException extends CustomParametrizedException {
+public final class ConcurrencyException extends CustomParametrizedException {
 
     private static final String EXCEPTION_MESSAGE = " already exists. Please reopen it.";
 
@@ -16,7 +16,7 @@ public class ConcurrencyException extends CustomParametrizedException {
     }
 
     /**
-     * Creates instance of ConcurrencyException with project's name
+     * Creates instance of ConcurrencyException with project's name.
      *
      * @param projectName Project's name
      * @param e           Exception
@@ -27,36 +27,38 @@ public class ConcurrencyException extends CustomParametrizedException {
     }
 
     /**
-     * Creates instance of ConcurrencyException with template's name
+     * Creates instance of ConcurrencyException with template's name.
      *
      * @param templateName Template's name
      * @param e            Exception
      * @return Instance of ConcurrencyException with template's name
      */
     public static ConcurrencyException createWithTemplateName(String templateName, Exception e) {
-        return new ConcurrencyException("Newer version of template " + templateName + EXCEPTION_MESSAGE, e, templateName);
+        return new ConcurrencyException("Newer version of template " + templateName
+                + EXCEPTION_MESSAGE, e, templateName);
     }
 
     /**
-     * Creates instance of ConcurrencyException with notebook's name
+     * Creates instance of ConcurrencyException with notebook's name.
      *
      * @param notebookName Notebook's name
      * @param e            Exception
      * @return Instance of ConcurrencyException with notebook's name
      */
     public static ConcurrencyException createWithNotebookName(String notebookName, Exception e) {
-        return new ConcurrencyException("Newer version of notebook " + notebookName + EXCEPTION_MESSAGE, e, notebookName);
+        return new ConcurrencyException("Newer version of notebook " + notebookName
+                + EXCEPTION_MESSAGE, e, notebookName);
     }
 
     /**
-     * Creates instance of ConcurrencyException with experiment's name
+     * Creates instance of ConcurrencyException with experiment's name.
      *
      * @param experimentName Experiment's name
      * @param e              Exception
      * @return Instance of ConcurrencyException with experiment's name
      */
     public static ConcurrencyException createWithExperimentName(String experimentName, Exception e) {
-        return new ConcurrencyException("Newer version of experiment " + experimentName + EXCEPTION_MESSAGE, e, experimentName);
+        return new ConcurrencyException("Newer version of experiment " + experimentName
+                + EXCEPTION_MESSAGE, e, experimentName);
     }
-
 }

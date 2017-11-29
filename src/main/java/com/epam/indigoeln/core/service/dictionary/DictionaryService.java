@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 /**
  * The DictionaryService provides a number od methods for
- * dictionary's data manipulation
+ * dictionary's data manipulation.
  *
  * @author Anton Pikhtin
  */
@@ -38,7 +38,7 @@ public class DictionaryService {
     private CustomDtoMapper dtoMapper;
 
     /**
-     * Returns dictionary by it's id
+     * Returns dictionary by it's id.
      *
      * @param id Identifier of the dictionary
      * @return The dictionary by identifier
@@ -48,7 +48,7 @@ public class DictionaryService {
     }
 
     /**
-     * Returns dictionary by it's name
+     * Returns dictionary by it's name.
      *
      * @param name Name of the dictionary
      * @return The dictionary by name
@@ -58,7 +58,7 @@ public class DictionaryService {
     }
 
     /**
-     * Creates new dictionary
+     * Creates new dictionary.
      *
      * @param dictionaryDTO Dictionary to create
      * @return Created dictionary
@@ -70,7 +70,7 @@ public class DictionaryService {
     }
 
     /**
-     * Updates dictionary
+     * Updates dictionary.
      *
      * @param dictionaryDTO New dictionary for update
      * @return Updated dictionary
@@ -89,7 +89,7 @@ public class DictionaryService {
     }
 
     /**
-     * Deletes dictionary
+     * Deletes dictionary.
      *
      * @param dictionaryId Identifier of the dictionary to delete
      */
@@ -98,7 +98,7 @@ public class DictionaryService {
     }
 
     /**
-     * Returns all dictionaries
+     * Returns all dictionaries.
      *
      * @return The list o dictionaries
      */
@@ -107,7 +107,7 @@ public class DictionaryService {
     }
 
     /**
-     * Returns all found dictionaries (with paging)
+     * Returns all found dictionaries (with paging).
      *
      * @param pageable Pageable object which contains page and size
      * @param search   Search string
@@ -118,7 +118,7 @@ public class DictionaryService {
     }
 
     /**
-     * Returns experiments dictionary
+     * Returns experiments dictionary.
      *
      * @param user User with authorities
      * @return Experiments dictionary
@@ -126,10 +126,10 @@ public class DictionaryService {
     public ExperimentDictionaryDTO getExperiments(User user) {
 
         final boolean contentEditor = PermissionUtil.isContentEditor(user);
-        List<Notebook> notebooks = contentEditor ?
-                notebookRepository.findAll() :
-                notebookRepository.findByUserIdAndPermissions(user.getId(),
-                        Collections.singletonList(UserPermission.READ_ENTITY));
+        List<Notebook> notebooks = contentEditor
+                ? notebookRepository.findAll()
+                : notebookRepository.findByUserIdAndPermissions(user.getId(),
+                Collections.singletonList(UserPermission.READ_ENTITY));
         AtomicInteger counter = new AtomicInteger(0);
         final Set<ExperimentDictionaryDTO.ExperimentDictionaryItemDTO> experiments = notebooks.stream().flatMap(
                 n -> n.getExperiments().stream().filter(

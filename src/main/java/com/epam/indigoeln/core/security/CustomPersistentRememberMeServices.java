@@ -45,7 +45,8 @@ import java.util.Arrays;
  * <ul>
  * <li><a href="http://jaspan.com/improved_persistent_login_cookie_best_practice">Improved Persistent Login Cookie
  * Best Practice</a></li>
- * <li><a href="https://github.com/blog/1661-modeling-your-app-s-user-session">Github's "Modeling your App's User Session"</a></li></li>
+ * <a href="https://github.com/blog/1661-modeling-your-app-s-user-session">
+ * Github's "Modeling your App's User Session"</a></li></li>
  * </ul>
  * <p>
  * The main algorithm comes from Spring Security's PersistentTokenBasedRememberMeServices, but this class
@@ -77,7 +78,8 @@ public class CustomPersistentRememberMeServices extends AbstractRememberMeServic
     private UserRepository userRepository;
 
     @Autowired
-    public CustomPersistentRememberMeServices(IntSecurityProperties securityProperties, UserDetailsService userDetailsService) {
+    public CustomPersistentRememberMeServices(IntSecurityProperties securityProperties,
+                                              UserDetailsService userDetailsService) {
 
         super(securityProperties.getRemembermeKey(), userDetailsService);
         random = new SecureRandom();
@@ -140,6 +142,10 @@ public class CustomPersistentRememberMeServices extends AbstractRememberMeServic
      * <p>
      * The standard Spring Security implementations are too basic: they invalidate all tokens for the
      * current user, so when he logs out from one browser, all his other sessions are destroyed.
+     *
+     * @param request        Request
+     * @param response       Response
+     * @param authentication Authentication
      */
     @Override
     @Transactional
@@ -161,11 +167,14 @@ public class CustomPersistentRememberMeServices extends AbstractRememberMeServic
 
     /**
      * Validate the token and return it.
+     *
+     * @param cookieTokens Cookie tokens
+     * @return Token
      */
     private PersistentToken getPersistentToken(String[] cookieTokens) {
         if (cookieTokens.length != COOKIE_TOKENS_LENGTH) {
-            throw new InvalidCookieException("Cookie token did not contain " + 2 +
-                    " tokens, but contained '" + Arrays.asList(cookieTokens) + "'");
+            throw new InvalidCookieException("Cookie token did not contain " + 2
+                    + " tokens, but contained '" + Arrays.asList(cookieTokens) + "'");
         }
         String presentedSeries = cookieTokens[0];
         PersistentToken token = persistentTokenRepository.findOne(presentedSeries);
@@ -181,8 +190,8 @@ public class CustomPersistentRememberMeServices extends AbstractRememberMeServic
         if (!presentedToken.equals(token.getTokenValue())) {
             // Token doesn't match series value. Delete this session and throw an exception.
             persistentTokenRepository.delete(token);
-            throw new CookieTheftException("Invalid remember-me token (Series/token) mismatch. Implies previous " +
-                    "cookie theft attack.");
+            throw new CookieTheftException("Invalid remember-me token (Series/token) mismatch. Implies previous "
+                    + "cookie theft attack.");
         }
 
         if (token.getTokenDate().plusDays(TOKEN_VALIDITY_DAYS).isBefore(LocalDate.now())) {

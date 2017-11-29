@@ -5,10 +5,10 @@ import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
 /**
  * Custom exception, which displays, that permissions are incorrect.
  */
-public class PermissionIncorrectException extends CustomParametrizedException {
+public final class PermissionIncorrectException extends CustomParametrizedException {
 
     /**
-     * Creates instance of PermissionIncorrectException
+     * Creates instance of PermissionIncorrectException.
      *
      * @param message Exception message
      * @param params  Exception parameters
@@ -18,7 +18,7 @@ public class PermissionIncorrectException extends CustomParametrizedException {
     }
 
     /**
-     * Creates instance of PermissionIncorrectException if user permission is incorrect
+     * Creates instance of PermissionIncorrectException if user permission is incorrect.
      *
      * @param userId     User's id
      * @param permission User's permission
@@ -26,12 +26,12 @@ public class PermissionIncorrectException extends CustomParametrizedException {
      */
     public static PermissionIncorrectException createWithUserIdAndPermission(
             String userId, String permission) {
-        return new PermissionIncorrectException("The user permission = " + permission +
-                " for user with id = " + userId + " isn't correct", userId);
+        return new PermissionIncorrectException("The user permission = " + permission
+                + " for user with id = " + userId + " isn't correct", userId);
     }
 
     /**
-     * Creates instance of PermissionIncorrectException if user permission can't be with unspecified user id
+     * Creates instance of PermissionIncorrectException if user permission can't be with unspecified user id.
      *
      * @return Instance of PermissionIncorrectException
      */

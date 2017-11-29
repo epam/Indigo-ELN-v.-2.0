@@ -19,7 +19,7 @@ import java.util.List;
 import static com.epam.indigoeln.core.chemistry.experiment.common.units.UnitType.*;
 
 /**
- * Service for stoichiometry calculations
+ * Service for stoichiometry calculations.
  *
  * @author Elena Polyakova
  */
@@ -34,7 +34,7 @@ public class StoicCalculationService {
     }
 
     /**
-     * Recalculates stoic table batches, actual product and intended product batches
+     * Recalculates stoic table batches, actual product and intended product batches.
      *
      * @param stoicTableDTO contains stoic table batches, actual product batches (product batch summary)
      *                      and intended product batches
@@ -45,7 +45,8 @@ public class StoicCalculationService {
 
         String changedField = stoicTableDTO.getChangedField();
         BasicBatchModel sourceBatch = stoicTableDTO.getStoicBatches().get(stoicTableDTO.getChangedBatchRowNumber());
-        MonomerBatchModel batchModel = (MonomerBatchModel) reactionStepModel.getStoicElementListInTransactionOrder().get(stoicTableDTO.getChangedBatchRowNumber());
+        MonomerBatchModel batchModel = (MonomerBatchModel) reactionStepModel
+                .getStoicElementListInTransactionOrder().get(stoicTableDTO.getChangedBatchRowNumber());
         callRecalculatingSetterForChangedField(sourceBatch, batchModel, changedField);
         //Force to reacalc Amounts like Weight etc when MWT changes
         if ("molWeight".equals(stoicTableDTO.getChangedField())) {
@@ -58,39 +59,47 @@ public class StoicCalculationService {
     }
 
     // mimic changes on the field by resetting value and calling setter
-    private void callRecalculatingSetterForChangedField(BasicBatchModel sourceBatch, MonomerBatchModel batchModel, String changedField) {
+    private void callRecalculatingSetterForChangedField(BasicBatchModel sourceBatch,
+                                                        MonomerBatchModel batchModel, String changedField) {
         if (changedField == null) {
             return;
         }
         switch (changedField) {
             case "weight":
                 batchModel.setWeightAmountQuitly(new AmountModel(MASS, 0));
-                batchModel.setWeightAmount(new AmountModel(MASS, sourceBatch.getWeight().getValue(), !sourceBatch.getWeight().isEntered()));
+                batchModel.setWeightAmount(new AmountModel(MASS, sourceBatch.getWeight().getValue(),
+                        !sourceBatch.getWeight().isEntered()));
                 break;
             case "volume":
                 batchModel.setVolumeAmountQuitly(new AmountModel(VOLUME, 0));
-                AmountModel volume = new AmountModel(VOLUME, sourceBatch.getVolume().getValue(), !sourceBatch.getVolume().isEntered());
+                AmountModel volume = new AmountModel(VOLUME, sourceBatch.getVolume().getValue(),
+                        !sourceBatch.getVolume().isEntered());
                 batchModel.setVolumeAmount(volume);
                 break;
             case "molarity":
                 batchModel.setMolarAmountQuitly(new AmountModel(MOLAR, 0));
-                batchModel.setMolarAmount(new AmountModel(MOLAR, sourceBatch.getMolarity().getValue(), !sourceBatch.getMolarity().isEntered()));
+                batchModel.setMolarAmount(new AmountModel(MOLAR, sourceBatch.getMolarity().getValue(),
+                        !sourceBatch.getMolarity().isEntered()));
                 break;
             case "mol":
                 batchModel.setMoleAmountQuitly(new AmountModel(MOLES, 0));
-                batchModel.setMoleAmount(new AmountModel(MOLES, sourceBatch.getMol().getValue(), !sourceBatch.getMol().isEntered()));
+                batchModel.setMoleAmount(new AmountModel(MOLES, sourceBatch.getMol().getValue(),
+                        !sourceBatch.getMol().isEntered()));
                 break;
             case "eq":
                 batchModel.setRxnEquivsAmountQuitly(new AmountModel(SCALAR, 1));
-                batchModel.setRxnEquivsAmount(new AmountModel(SCALAR, sourceBatch.getEq().getValue(), !sourceBatch.getEq().isEntered()));
+                batchModel.setRxnEquivsAmount(new AmountModel(SCALAR, sourceBatch.getEq().getValue(),
+                        !sourceBatch.getEq().isEntered()));
                 break;
             case "stoicPurity":
                 batchModel.setPurityAmountQuitly(new AmountModel(SCALAR, 100));
-                batchModel.setPurityAmount(new AmountModel(SCALAR, sourceBatch.getStoicPurity().getValue(), !sourceBatch.getStoicPurity().isEntered()));
+                batchModel.setPurityAmount(new AmountModel(SCALAR, sourceBatch.getStoicPurity().getValue(),
+                        !sourceBatch.getStoicPurity().isEntered()));
                 break;
             case "density":
                 batchModel.setDensityAmountQuitly(new AmountModel(DENSITY, 0));
-                batchModel.setDensityAmount(new AmountModel(DENSITY, sourceBatch.getDensity().getValue(), !sourceBatch.getDensity().isEntered()));
+                batchModel.setDensityAmount(new AmountModel(DENSITY, sourceBatch.getDensity().getValue(),
+                        !sourceBatch.getDensity().isEntered()));
                 break;
             default:
                 break;
@@ -103,7 +112,8 @@ public class StoicCalculationService {
         List<BasicBatchModel> actualProducts = data.getActualProducts();
 
         BatchesList<MonomerBatchModel> stoicBatchesList = prepareStoicBatchesList(stoicBatches);
-        ArrayList<BatchesList<ProductBatchModel>> productBatchesList = prepareProductBatchesList(intendedProducts, actualProducts);
+        ArrayList<BatchesList<ProductBatchModel>> productBatchesList =
+                prepareProductBatchesList(intendedProducts, actualProducts);
 
         ReactionStepModel reactionStepModel = new ReactionStepModel();
         reactionStepModel.setStoicBatchesList(stoicBatchesList);
@@ -125,7 +135,8 @@ public class StoicCalculationService {
         return stoicBatchesList;
     }
 
-    private ArrayList<BatchesList<ProductBatchModel>> prepareProductBatchesList(List<BasicBatchModel> intendedProducts, List<BasicBatchModel> actualProducts) {
+    private ArrayList<BatchesList<ProductBatchModel>> prepareProductBatchesList(List<BasicBatchModel> intendedProducts,
+                                                                                List<BasicBatchModel> actualProducts) {
         ArrayList<BatchesList<ProductBatchModel>> productBatchesList = new ArrayList<>();
         int intendedOrder = 0;
         int stoicOrder = 0;
@@ -157,14 +168,19 @@ public class StoicCalculationService {
         return productBatchesList;
     }
 
-    private StoicTableDTO prepareStoicTableForResponse(ReactionStepModel reactionStepModel, StoicTableDTO stoicTableDTO) {
-        List<BasicBatchModel> stoicBatches = convertMonomerBatchesListForResponse(reactionStepModel.getBatchesFromStoicBatchesList(), stoicTableDTO.getStoicBatches());
-        List<BasicBatchModel> intendedProducts = convertProductBatchesListForResponse(reactionStepModel.getIntendedProductBatches(), stoicTableDTO.getIntendedProducts());
-        List<BasicBatchModel> actualProducts = convertProductBatchesListForResponse(reactionStepModel.getActualProductBatches(), stoicTableDTO.getActualProducts());
+    private StoicTableDTO prepareStoicTableForResponse(ReactionStepModel reactionStepModel,
+                                                       StoicTableDTO stoicTableDTO) {
+        List<BasicBatchModel> stoicBatches = convertMonomerBatchesListForResponse(reactionStepModel
+                .getBatchesFromStoicBatchesList(), stoicTableDTO.getStoicBatches());
+        List<BasicBatchModel> intendedProducts = convertProductBatchesListForResponse(reactionStepModel
+                .getIntendedProductBatches(), stoicTableDTO.getIntendedProducts());
+        List<BasicBatchModel> actualProducts = convertProductBatchesListForResponse(reactionStepModel
+                .getActualProductBatches(), stoicTableDTO.getActualProducts());
         return new StoicTableDTO(stoicBatches, intendedProducts, actualProducts);
     }
 
-    private List<BasicBatchModel> convertProductBatchesListForResponse(List<ProductBatchModel> calculatedBatches, List<BasicBatchModel> rawBatches) {
+    private List<BasicBatchModel> convertProductBatchesListForResponse(List<ProductBatchModel> calculatedBatches,
+                                                                       List<BasicBatchModel> rawBatches) {
         List<BasicBatchModel> myBatches = new ArrayList<>();
         int index = 0;
         for (ProductBatchModel calculatedBatch : calculatedBatches) {
@@ -177,7 +193,8 @@ public class StoicCalculationService {
         return myBatches;
     }
 
-    private List<BasicBatchModel> convertMonomerBatchesListForResponse(List<MonomerBatchModel> sourceBatches, List<BasicBatchModel> rawBatches) {
+    private List<BasicBatchModel> convertMonomerBatchesListForResponse(List<MonomerBatchModel> sourceBatches,
+                                                                       List<BasicBatchModel> rawBatches) {
         List<BasicBatchModel> myBatches = new ArrayList<>();
         int index = 0;
         for (MonomerBatchModel sourceBatch : sourceBatches) {
@@ -192,7 +209,8 @@ public class StoicCalculationService {
 
         batch.copyAmounts(rawBatch);
         batch.setLastUpdatedType(getLastUpdatedType(rawBatch));
-        batch.setPreviousMolarAmount(new AmountModel(MOLAR, rawBatch.getPrevMolarAmount().getValue(), !rawBatch.getPrevMolarAmount().isEntered()));
+        batch.setPreviousMolarAmount(new AmountModel(MOLAR, rawBatch.getPrevMolarAmount().getValue(),
+                !rawBatch.getPrevMolarAmount().isEntered()));
 
         return batch;
     }
@@ -202,7 +220,8 @@ public class StoicCalculationService {
 
         batch.copyAmounts(rawBatch);
         batch.setLastUpdatedType(getLastUpdatedType(rawBatch));
-        batch.setPreviousMolarAmount(new AmountModel(MOLAR, rawBatch.getPrevMolarAmount().getValue(), !rawBatch.getPrevMolarAmount().isEntered()));
+        batch.setPreviousMolarAmount(new AmountModel(MOLAR, rawBatch.getPrevMolarAmount().getValue(),
+                !rawBatch.getPrevMolarAmount().isEntered()));
 
         return batch;
     }
@@ -215,36 +234,45 @@ public class StoicCalculationService {
         rawBatch.setWeight(createUnitValue(calculatedBatch.getWeightAmount(), rawBatch.getWeight()));
         rawBatch.setVolume(createUnitValue(calculatedBatch.getVolumeAmount(), rawBatch.getVolume()));
         rawBatch.setDensity(createUnitValue(calculatedBatch.getDensityAmount(), rawBatch.getDensity()));
-        rawBatch.setRxnRole(new StringValueDTO(rawBatch.getRxnRole().getName(), rawBatch.getRxnRole().getName(), false, false));
+        rawBatch.setRxnRole(new StringValueDTO(rawBatch.getRxnRole().getName(),
+                rawBatch.getRxnRole().getName(), false, false));
         rawBatch.setEq(createScalarValue(calculatedBatch.getRxnEquivsAmount(), rawBatch.getEq()));
         rawBatch.setLimiting(calculatedBatch.isLimiting());
         rawBatch.setTotalWeight(createUnitValue(calculatedBatch.getTotalWeight(), rawBatch.getTotalWeight()));
         rawBatch.setTotalVolume(createUnitValue(calculatedBatch.getTotalVolume(), rawBatch.getTotalVolume()));
         rawBatch.setTotalMoles(createUnitValue(calculatedBatch.getTotalMolarity(), rawBatch.getTotalMoles()));
-        if (calculatedBatch instanceof ProductBatchModel && calculatedBatch.getBatchType().equals(BatchType.ACTUAL_PRODUCT)) {
-            rawBatch.setTheoMoles(createUnitValue(calculatedBatch.getTheoreticalMoleAmount(), rawBatch.getTheoMoles()));
-            rawBatch.setTheoWeight(createUnitValue(calculatedBatch.getTheoreticalWeightAmount(), rawBatch.getTheoWeight()));
-        } else if (calculatedBatch instanceof ProductBatchModel && calculatedBatch.getBatchType().equals(BatchType.INTENDED_PRODUCT)) {
+        if (calculatedBatch instanceof ProductBatchModel && calculatedBatch.getBatchType()
+                .equals(BatchType.ACTUAL_PRODUCT)) {
+            rawBatch.setTheoMoles(createUnitValue(calculatedBatch.getTheoreticalMoleAmount(),
+                    rawBatch.getTheoMoles()));
+            rawBatch.setTheoWeight(createUnitValue(calculatedBatch.getTheoreticalWeightAmount(),
+                    rawBatch.getTheoWeight()));
+        } else if (calculatedBatch instanceof ProductBatchModel && calculatedBatch.getBatchType()
+                .equals(BatchType.INTENDED_PRODUCT)) {
             // to sync intended products with actual products
             rawBatch.setTheoMoles(createUnitValue(calculatedBatch.getMoleAmount(), rawBatch.getMol()));
             rawBatch.setTheoWeight(createUnitValue(calculatedBatch.getWeightAmount(), rawBatch.getWeight()));
         }
         rawBatch.setLastUpdatedType(convertLastUpdatedTypeForResponse(calculatedBatch.getLastUpdatedType()));
-        rawBatch.setPrevMolarAmount(createUnitValue(calculatedBatch.getPreviousMolarAmount(), rawBatch.getPrevMolarAmount()));
+        rawBatch.setPrevMolarAmount(createUnitValue(calculatedBatch.getPreviousMolarAmount(),
+                rawBatch.getPrevMolarAmount()));
         return rawBatch;
     }
 
     private ScalarValueDTO createScalarValue(AmountModel calculatedBatchValue, ScalarValueDTO rawBatchValue) {
-        return new ScalarValueDTO(calculatedBatchValue.doubleValue(), rawBatchValue.getDisplayValue(), !calculatedBatchValue.isCalculated(), rawBatchValue.isReadonly());
+        return new ScalarValueDTO(calculatedBatchValue.doubleValue(), rawBatchValue.getDisplayValue(),
+                !calculatedBatchValue.isCalculated(), rawBatchValue.isReadonly());
     }
 
     private UnitValueDTO createUnitValue(AmountModel calculatedBatchValue, UnitValueDTO rawBatchValue) {
         return new UnitValueDTO(calculatedBatchValue.doubleValue(), rawBatchValue.getDisplayValue(),
-                getUnit(calculatedBatchValue, rawBatchValue), !calculatedBatchValue.isCalculated(), rawBatchValue.isReadonly());
+                getUnit(calculatedBatchValue, rawBatchValue), !calculatedBatchValue.isCalculated(),
+                rawBatchValue.isReadonly());
     }
 
     private String getUnit(AmountModel calculatedBatchValue, UnitValueDTO rawBatchValue) {
-        return StringUtils.isBlank(rawBatchValue.getUnit()) ? calculatedBatchValue.getUnit().getDisplayValue() : rawBatchValue.getUnit();
+        return StringUtils.isBlank(rawBatchValue.getUnit()) ? calculatedBatchValue.getUnit().getDisplayValue()
+                : rawBatchValue.getUnit();
     }
 
     private int getLastUpdatedType(BasicBatchModel rawBatch) {
@@ -298,7 +326,7 @@ public class StoicCalculationService {
     }
 
     /**
-     * Calculates batch from product batch summary table
+     * Calculates batch from product batch summary table.
      *
      * @param productTableDTO Batch from product table
      * @return Calculated batch
@@ -319,7 +347,7 @@ public class StoicCalculationService {
     /**
      * Calculate batch amounts
      *
-     * @param productTableDTO Batch from product table
+     * @param productTableDTO Batch from product table.
      * @return Calculated batch
      */
     public BasicBatchModel recalculateBatchAmounts(ProductTableDTO productTableDTO) {

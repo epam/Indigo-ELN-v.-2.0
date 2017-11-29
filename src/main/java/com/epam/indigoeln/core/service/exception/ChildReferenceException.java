@@ -11,7 +11,7 @@ import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
 public class ChildReferenceException extends CustomParametrizedException {
 
     /**
-     * Creates instance of ChildReferenceException with parent's id
+     * Creates instance of ChildReferenceException with parent's id.
      *
      * @param parentId parent's identifier
      */

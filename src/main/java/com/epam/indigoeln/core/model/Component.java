@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.io.Serializable;
 
 /**
- * Component model object
+ * Component model object.
  */
 @ToString
 @EqualsAndHashCode

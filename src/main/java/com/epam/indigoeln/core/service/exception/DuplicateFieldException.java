@@ -7,7 +7,7 @@ import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
  *
  * @author Evgeny Romanov
  */
-public class DuplicateFieldException extends CustomParametrizedException {
+public final class DuplicateFieldException extends CustomParametrizedException {
 
     private static final long serialVersionUID = -2792167348160969142L;
 
@@ -23,7 +23,7 @@ public class DuplicateFieldException extends CustomParametrizedException {
 
     /**
      * Creates instance of DuplicateFieldException class with notebook's
-     * name if such name is already exists
+     * name if such name is already exists.
      *
      * @param name The name of notebook
      * @param e    Exception
@@ -36,7 +36,7 @@ public class DuplicateFieldException extends CustomParametrizedException {
 
     /**
      * Creates instance of DuplicateFieldException class with project's
-     * name if such name is already exists
+     * name if such name is already exists.
      *
      * @param name Project's name
      * @param e    Exception
@@ -48,7 +48,7 @@ public class DuplicateFieldException extends CustomParametrizedException {
 
     /**
      * Creates instance of DuplicateFieldException class with template's
-     * name if such name is already exists
+     * name if such name is already exists.
      *
      * @param name Template's name
      * @param e    Exception
@@ -60,7 +60,7 @@ public class DuplicateFieldException extends CustomParametrizedException {
 
     /**
      * Creates instance of DuplicateFieldException class with user's
-     * login if such login is already exists
+     * login if such login is already exists.
      *
      * @param login Username
      * @return Instance of DuplicateFieldException class with user's
@@ -72,7 +72,7 @@ public class DuplicateFieldException extends CustomParametrizedException {
 
     /**
      * Creates instance of DuplicateFieldException class with role if such role's name
-     * is already exists
+     * is already exists.
      *
      * @param name Role's name
      * @param e    Exception
@@ -81,5 +81,4 @@ public class DuplicateFieldException extends CustomParametrizedException {
     public static DuplicateFieldException createWithRoleName(String name, Exception e) {
         return new DuplicateFieldException("Role name " + name + EXCEPTION_MESSAGE, e, name);
     }
-
 }

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 /**
- * Service for calculations under reaction or molecular structures defined in special text format
+ * Service for calculations under reaction or molecular structures defined in special text format.
  *
  * @author Sergei Bolbin
  */
@@ -23,7 +23,7 @@ import java.util.*;
 public class CalculationService {
 
     /**
-     * Logger instance
+     * Logger instance.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(CalculationService.class);
 
@@ -67,7 +67,7 @@ public class CalculationService {
     }
 
     /**
-     * Returns <code>true</code> if the string molecule's representation is empty
+     * Returns <code>true</code> if the string molecule's representation is empty.
      *
      * @param molecule String molecule's representation
      * @return Returns <code>true</code> if the string molecule's representation is empty or
@@ -83,7 +83,7 @@ public class CalculationService {
     }
 
     /**
-     * Returns <code>true</code> if the string reaction's representation is empty
+     * Returns <code>true</code> if the string reaction's representation is empty.
      *
      * @param reaction String reaction's representation
      * @return Returns <code>true</code> if the string reaction's representation is empty or
@@ -107,7 +107,7 @@ public class CalculationService {
     }
 
     /**
-     * Check, that chemistry structures of reactions or molecules are equals
+     * Check, that chemistry structures of reactions or molecules are equals.
      *
      * @param chemistryItems list of chemistry structures
      * @return true if all chemistry items equals
@@ -116,7 +116,8 @@ public class CalculationService {
         Indigo indigo = indigoProvider.indigo();
         IndigoObject prevHandle = null;
         for (String chemistry : chemistryItems) {
-            IndigoObject handle = isReaction(chemistry) ? indigo.loadReaction(chemistry) : indigo.loadMolecule(chemistry);
+            IndigoObject handle = isReaction(chemistry) ? indigo.loadReaction(chemistry)
+                    : indigo.loadMolecule(chemistry);
             if (prevHandle != null && indigo.exactMatch(handle, prevHandle) == null) {
                 return false;
             }
@@ -127,13 +128,16 @@ public class CalculationService {
 
     /**
      * Return calculated information for molecular structure
-     * (name, formula, molecular weight, exact molecular weight, is chiral)
+     * (name, formula, molecular weight, exact molecular weight, is chiral).
      *
-     * @param molecule structure of molecule
+     * @param molecule    structure of molecule
+     * @param saltCodeOpt Salt Code
+     * @param saltEqOpt   Salt Eq
      * @return map of calculated attributes
      */
     @SuppressWarnings("unchecked")
-    public Map<String, String> getMolecularInformation(String molecule, Optional<String> saltCodeOpt, Optional<Float> saltEqOpt) {
+    public Map<String, String> getMolecularInformation(String molecule,
+                                                       Optional<String> saltCodeOpt, Optional<Float> saltEqOpt) {
         Map<String, String> result = new HashMap<>();
 
         IndigoObject handle = indigoProvider.indigo().loadMolecule(molecule);
@@ -164,7 +168,7 @@ public class CalculationService {
     }
 
     /**
-     * Check, that molecule is empty (does not contains any atoms)
+     * Check, that molecule is empty (does not contains any atoms).
      *
      * @param molecule structure of molecule
      * @return true if molecule empty
@@ -174,7 +178,7 @@ public class CalculationService {
     }
 
     /**
-     * Check, that molecule is chiral
+     * Check, that molecule is chiral.
      *
      * @param molecule structure of molecule
      * @return true if molecule is chiral
@@ -184,7 +188,7 @@ public class CalculationService {
     }
 
     /**
-     * Extract components (products and reactants) of given reaction
+     * Extract components (products and reactants) of given reaction.
      *
      * @param reaction reaction structure
      * @return reaction components
@@ -211,9 +215,9 @@ public class CalculationService {
     }
 
     /**
-     * Combine reaction components (products and reactants) with existing reaction structure
+     * Combine reaction components (products and reactants) with existing reaction structure.
      * Reaction structure received as string field of DTO and will be enriched by reactants and products received in
-     * DTO list fields
+     * DTO list fields.
      *
      * @param reactionDTO reaction DTO
      * @return reaction DTO enriched by reactants and products
@@ -237,7 +241,7 @@ public class CalculationService {
     }
 
     /**
-     * Method to determine if chemistry contains a valid reaction (any products and reactants present)
+     * Method to determine if chemistry contains a valid reaction (any products and reactants present).
      *
      * @param reaction structure of reaction
      * @return is reaction valid
@@ -248,7 +252,7 @@ public class CalculationService {
     }
 
     /**
-     * Render molecule/reaction by its string representation
+     * Render molecule/reaction by its string representation.
      *
      * @param structure string structure representation (Mol, Smiles etc.)
      * @return RendererResult
@@ -267,5 +271,4 @@ public class CalculationService {
         List<Map> codeTable = codeTableService.getCodeTable(CodeTableService.TABLE_SALT_CODE);
         return codeTable.stream().filter(tableRow -> saltCode.get().equals(tableRow.get(SALT_CODE))).findAny();
     }
-
 }

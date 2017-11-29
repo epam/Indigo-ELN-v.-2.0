@@ -13,8 +13,10 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.script.ExecutableMongoScript;
 import org.springframework.stereotype.Component;
+
 import java.util.*;
 import java.util.stream.Collectors;
+
 import static java.util.stream.Collectors.toList;
 
 @Component
@@ -28,7 +30,8 @@ public class NotebookSearchRepository implements InitializingBean {
     private static final String NOTEBOOK = "Notebook";
 
     private static final List<String> SEARCH_QUERY_FIELDS = Arrays.asList(FIELD_DESCRIPTION, FIELD_NAME);
-    private static final List<String> AVAILABLE_FIELDS = Arrays.asList(FIELD_DESCRIPTION, FIELD_NAME, FIELD_AUTHOR_ID, FIELD_KIND);
+    private static final List<String> AVAILABLE_FIELDS = Arrays
+            .asList(FIELD_DESCRIPTION, FIELD_NAME, FIELD_AUTHOR_ID, FIELD_KIND);
 
     private final MongoTemplate template;
 
@@ -49,11 +52,11 @@ public class NotebookSearchRepository implements InitializingBean {
 
     @SuppressWarnings("unchecked")
     public Optional<Set<String>> search(EntitySearchRequest request) {
-        if (checkConditions(request)){
+        if (checkConditions(request)) {
             Optional<Criteria> advancedCriteria = getAdvancedCriteria(request);
             Optional<Criteria> queryCriteria = getQueryCriteria(request);
             return AggregationUtils.andCriteria(advancedCriteria, queryCriteria).map(this::find);
-        }else {
+        } else {
             return Optional.empty();
         }
     }
@@ -79,9 +82,9 @@ public class NotebookSearchRepository implements InitializingBean {
         return AggregationUtils.orCriteria(querySearch);
     }
 
-    private boolean checkConditions(EntitySearchRequest request){
+    private boolean checkConditions(EntitySearchRequest request) {
         boolean correct = request.getAdvancedSearch().stream().allMatch(c -> AVAILABLE_FIELDS.contains(c.getField()));
-        if (correct){
+        if (correct) {
             return request.getAdvancedSearch().stream()
                     .filter(FIELD_KIND::equals)
                     .findAny()
@@ -98,5 +101,4 @@ public class NotebookSearchRepository implements InitializingBean {
                 .map(o -> (String) o)
                 .collect(Collectors.toSet());
     }
-
 }
