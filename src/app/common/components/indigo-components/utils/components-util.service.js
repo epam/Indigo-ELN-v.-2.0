@@ -86,7 +86,7 @@ function componentsUtil(principalService, typeOfComponents) {
             _.defaultsDeep(
                 components, {
                     reactionDetails: {
-                        batchOwner: [],
+                        batchOwner: [principalService.getIdentity().id],
                         coAuthors: [],
                         experimentCreator: principalService.getIdentity().id
                     }
