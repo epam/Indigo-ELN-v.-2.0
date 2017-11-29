@@ -1,4 +1,5 @@
 var template = require('./permissions.html');
+var infinity = 10000;
 
 /* @ngInject */
 var permissionsConfig = {
@@ -13,7 +14,7 @@ var permissionsConfig = {
                 size: 'lg',
                 resolve: {
                     users: function(userWithAuthorityService) {
-                        return userWithAuthorityService.query().$promise;
+                        return userWithAuthorityService.query({page: 0, size: infinity}).$promise;
                     },
                     permissions: function() {
                         return that.permissions;

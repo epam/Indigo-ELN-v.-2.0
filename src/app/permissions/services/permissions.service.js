@@ -1,6 +1,6 @@
 /* @ngInject */
 function permissionService($q, principalService, userRemovableFromProjectService, userRemovableFromNotebookService,
-                                     permissionsConstant) {
+                           permissionsConstant) {
     var accessList;
     var author;
     var entity;
@@ -173,6 +173,9 @@ function permissionService($q, principalService, userRemovableFromProjectService
     }
 
     function hasAuthorityForPermission(member, permission) {
+        if (_.includes(member.user.authorities, 'CONTENT_EDITOR')) {
+            return true;
+        }
         if (entity === 'Project') {
             return hasAuthorityForProjectPermission(member, permission);
         } else if (entity === 'Notebook') {
