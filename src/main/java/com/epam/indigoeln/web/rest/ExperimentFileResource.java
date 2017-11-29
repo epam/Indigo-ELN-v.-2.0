@@ -47,20 +47,26 @@ public class ExperimentFileResource {
     private UserService userService;
 
     /**
-     * GET  /experiment_files?experimentId -> Returns metadata for all files of specified experiment<br/>
+     * GET  /experiment_files?experimentId -> Returns metadata for all files of specified experiment<br/>.
      * Also use a <b>pageable</b> interface: <b>page</b>, <b>size</b>, <b>sort</b><br/>
      * <b>Example</b>: page=0&size=30&sort=firstname&sort=lastname,asc - retrieves all elements in specified order
      * (<b>firstname</b>: ASC, <b>lastname</b>: ASC) from 0 page with size equals to 30<br/>
      * <b>By default</b>: page = 0, size = 20 and no sort<br/>
      * <b>Available sort options</b>: filename, contentType, length, uploadDate
+     *
+     * @param experimentId Experiment id
+     * @param notebookId   Notebook id
+     * @param projectId    Project id
+     * @return Returns all experiment files
+     * @throws URISyntaxException If URI is not correct
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Returns all experiment files.")
     public ResponseEntity<List<FileDTO>> getAllFiles(
-            @ApiParam("Project id") @RequestParam String experimentId,
+            @ApiParam("Experiment id") @RequestParam String experimentId,
             @ApiParam("Notebook id") @RequestParam String notebookId,
-            @ApiParam("Experiment id") @RequestParam String projectId)throws URISyntaxException {
+            @ApiParam("Project id") @RequestParam String projectId) throws URISyntaxException {
         String fullId = SequenceIdUtil.buildFullId(projectId, notebookId, experimentId);
         LOGGER.debug("REST request to get files's metadata for experiment: {}", fullId);
         Page<GridFSDBFile> page = fileService.getAllFilesByExperimentId(fullId);
@@ -73,14 +79,17 @@ public class ExperimentFileResource {
     }
 
     /**
-     * GET  /experiment_files/:id -> Returns file with specified id
+     * GET  /experiment_files/:id -> Returns file with specified id.
+     *
+     * @param id Experiment file id
+     * @return Returns experiment file by it's id
      */
     @ApiOperation(value = "Returns experiment file by it's id.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<InputStreamResource> getFile(
             @ApiParam("Experiment file id.") @PathVariable("id") String id
-        ) {
+    ) {
         LOGGER.debug("REST request to get experiment file: {}", id);
         GridFSDBFile file = fileService.getFileById(id);
 
@@ -89,7 +98,12 @@ public class ExperimentFileResource {
     }
 
     /**
-     * POST  /experiment_files?experimentId -> Saves file for specified experiment
+     * POST  /experiment_files?experimentId -> Saves file for specified experiment.
+     *
+     * @param file         Experiment file
+     * @param experimentId Identifier of the experiment
+     * @return Created file
+     * @throws URISyntaxException If URI is not correct
      */
     @ApiOperation(value = "Creates new file for the experiment.")
     @RequestMapping(method = RequestMethod.POST,
@@ -97,7 +111,7 @@ public class ExperimentFileResource {
     public ResponseEntity<FileDTO> saveFile(
             @ApiParam("Experiment file.") @RequestParam MultipartFile file,
             @ApiParam("Identifier of the experiment.") @RequestParam String experimentId
-        ) throws URISyntaxException {
+    ) throws URISyntaxException {
         LOGGER.debug("REST request to save file for experiment: {}", experimentId);
         InputStream inputStream;
         try {
@@ -113,13 +127,15 @@ public class ExperimentFileResource {
     }
 
     /**
-     * DELETE  /experiment_files/:id -> Removes file with specified id
+     * DELETE  /experiment_files/:id -> Removes file with specified id.
+     *
+     * @param id Experiment file id
      */
     @ApiOperation(value = "Removes experiment file.")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteFile(
             @ApiParam("Experiment file id.") @PathVariable("id") String id
-        ) {
+    ) {
         LOGGER.debug("REST request to remove experiment file: {}", id);
         fileService.deleteExperimentFile(id);
         return ResponseEntity.ok().build();

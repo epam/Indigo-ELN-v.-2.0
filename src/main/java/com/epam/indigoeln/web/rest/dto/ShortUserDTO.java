@@ -3,7 +3,7 @@ package com.epam.indigoeln.web.rest.dto;
 import com.epam.indigoeln.core.model.User;
 
 /**
- * Short transfer object for User
+ * Short transfer object for User.
  */
 public class ShortUserDTO {
 

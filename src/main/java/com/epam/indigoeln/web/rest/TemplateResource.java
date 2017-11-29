@@ -23,7 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * REST controller for managing Resources
+ * REST controller for managing Resources.
  */
 @Api
 @RestController
@@ -35,7 +35,10 @@ public class TemplateResource {
     private TemplateService templateService;
 
     /**
-     * GET /templates/:id -> get template by id
+     * GET /templates/:id -> get template by id.
+     *
+     * @param id Template's identifier
+     * @return Template
      */
     @ApiOperation(value = "Returns template by it's id.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
@@ -50,7 +53,11 @@ public class TemplateResource {
 
 
     /**
-     * GET /templates -> fetch all template list
+     * GET /templates -> fetch all template list.
+     *
+     * @param pageable Pagination information
+     * @return List with templates
+     * @throws URISyntaxException if URI is not correct
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -64,7 +71,7 @@ public class TemplateResource {
     }
 
     /**
-     * PUT /templates -> create new template
+     * PUT /templates -> create new template.
      * <p>
      * <p>
      * Creates new Template.
@@ -75,6 +82,7 @@ public class TemplateResource {
      *
      * @param templateDTO template for save
      * @return saved template item wrapped to ResponseEntity
+     * @throws URISyntaxException if URI is not correct
      */
     @ApiOperation(value = "Creates new template.")
     @RequestMapping(method = RequestMethod.POST,
@@ -91,7 +99,7 @@ public class TemplateResource {
 
 
     /**
-     * PUT /templates/:id -> create new template
+     * PUT /templates/:id -> create new template.
      * <p>
      * <p>
      * Edit existing Template.
@@ -120,7 +128,7 @@ public class TemplateResource {
     }
 
     /**
-     * DELETE /templates/:id -> delete template
+     * DELETE /templates/:id -> delete template.
      * <p>
      * <p>
      * Delete Template.

@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * DTO for Project
+ * DTO for Project.
  */
 @JsonTypeName("Project")
 public class ProjectDTO extends BasicDTO {

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Simple transfer object for Reaction parameters
+ * Simple transfer object for Reaction parameters.
  */
 public class ReactionPropertiesDTO {
 

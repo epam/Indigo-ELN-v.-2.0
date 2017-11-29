@@ -43,7 +43,9 @@ public class ProjectResource {
 
     /**
      * GET  /projects -> Returns all projects for <b>current user</b>
-     * for tree representation according to his User permissions
+     * for tree representation according to his User permissions.
+     *
+     * @return Returns all projects for current user for tree representation according to his permissions
      */
     @ApiOperation(value = "Returns all projects for current user for tree representation according to his permissions.")
     @RequestMapping(method = RequestMethod.GET,
@@ -56,7 +58,9 @@ public class ProjectResource {
     }
 
     /**
-     * GET  /projects/all -> Returns all projects without checking for User permissions
+     * GET  /projects/all -> Returns all projects without checking for User permissions.
+     *
+     * @return Returns all projects for current user for tree representation
      */
     @ApiOperation(value = "Returns all projects for current user for tree representation.")
     @RequestMapping(value = "/all", method = RequestMethod.GET,
@@ -68,7 +72,11 @@ public class ProjectResource {
     }
 
     /**
-     * GET  /projects/permissions/user-removable -> Returns true if user can be removed from project without problems
+     * GET  /projects/permissions/user-removable -> Returns true if user can be removed from project without problems.
+     *
+     * @param projectId Project's identifier
+     * @param userId    User's identifier
+     * @return Returns true if user can be removed from project without problems
      */
     @ApiOperation(value = "Returns true if user can be removed from project without problems.")
     @RequestMapping(value = "/permissions/user-removable", method = RequestMethod.GET,
@@ -83,7 +91,9 @@ public class ProjectResource {
     }
 
     /**
-     * GET /notebooks/sub-creations -> Returns all notebooks available for experiment creation
+     * GET /notebooks/sub-creations -> Returns all notebooks available for experiment creation.
+     *
+     * @return List wit notebooks
      */
     @ApiOperation(value = "Returns all projects available for notebook creation.")
     @RequestMapping(value = "/sub-creations", method = RequestMethod.GET,
@@ -96,7 +106,10 @@ public class ProjectResource {
     }
 
     /**
-     * GET  /projects/:id -> Returns project with specified id according to User permissions
+     * GET  /projects/:id -> Returns project with specified id according to User permissions.
+     *
+     * @param id Identifier
+     * @return Project
      */
     @ApiOperation(value = "Returns project by it's id according to permissions.")
     @RequestMapping(value = PATH_ID, method = RequestMethod.GET,
@@ -111,7 +124,11 @@ public class ProjectResource {
     }
 
     /**
-     * POST  /projects -> Creates project with OWNER's permissions for current User
+     * POST  /projects -> Creates project with OWNER's permissions for current User.
+     *
+     * @param project Project
+     * @return Created project
+     * @throws URISyntaxException If URI is not correct
      */
     @ApiOperation(value = "Creates project with OWNER's permissions for current user.")
     @RequestMapping(method = RequestMethod.POST,
@@ -128,7 +145,10 @@ public class ProjectResource {
     }
 
     /**
-     * PUT  /projects -> Updates project according to User permissions
+     * PUT  /projects -> Updates project according to User permissions.
+     *
+     * @param project Project to update
+     * @return Updated project
      */
     @ApiOperation(value = "Updates project according to permissions.")
     @RequestMapping(method = RequestMethod.PUT,
@@ -145,7 +165,9 @@ public class ProjectResource {
     }
 
     /**
-     * DELETE  /projects/:id -> Removes project with specified id
+     * DELETE  /projects/:id -> Removes project with specified id.
+     *
+     * @param id Identifier
      */
     @ApiOperation(value = "Removes project.")
     @RequestMapping(value = PATH_ID, method = RequestMethod.DELETE)

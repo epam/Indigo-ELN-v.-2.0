@@ -46,7 +46,10 @@ public class NotebookResource {
 
     /**
      * GET  /notebooks?:projectId -> Returns all notebooks of specified project for <b>current user</b>
-     * for tree representation according to his User permissions
+     * for tree representation according to his User permissions.
+     *
+     * @param projectId Project id
+     * @return List with notebooks
      */
     @ApiOperation(value = "Returns all notebooks of specified project "
             + "for current user for tree representation according to his permissions.")
@@ -63,8 +66,11 @@ public class NotebookResource {
     }
 
     /**
-     * GET  /notebooks/all?:projectId -> Returns all notebooks of specified project
-     * without checking for User permissions
+     * GET  /notebooks/all?:projectId -> Returns all notebooks of specified project.
+     * without checking for User permissions.
+     *
+     * @param projectId Project's identifier
+     * @return List with notebooks
      */
     @ApiOperation(value = "Returns all notebooks of specified project for current user for tree representation.")
     @RequestMapping(value = PARENT_PATH_ID + "/all", method = RequestMethod.GET,
@@ -80,7 +86,13 @@ public class NotebookResource {
     }
 
     /**
-     * GET  /notebooks/permissions/user-removable -> Returns true if user can be removed from notebook without problems
+     * GET  /notebooks/permissions/user-removable -> Returns true if user can be removed
+     * from notebook without problems.
+     *
+     * @param projectId  Project id
+     * @param notebookId Notebook id
+     * @param userId     User id
+     * @return Returns true if user can be removed from notebook without problems
      */
     @ApiOperation(value = "Returns true if user can be removed from notebook without problems.")
     @RequestMapping(value = "notebooks/permissions/user-removable", method = RequestMethod.GET,
@@ -96,7 +108,9 @@ public class NotebookResource {
     }
 
     /**
-     * GET /notebooks/sub-creations -> Returns all notebooks available for experiment creation
+     * GET /notebooks/sub-creations -> Returns all notebooks available for experiment creation.
+     *
+     * @return List with notebooks
      */
     @ApiOperation(value = "Returns all notebooks available for experiment creation.")
     @RequestMapping(value = "notebooks/sub-creations", method = RequestMethod.GET,
@@ -109,7 +123,11 @@ public class NotebookResource {
     }
 
     /**
-     * GET  /notebooks/:id -> Returns notebook with specified id according to User permissions
+     * GET  /notebooks/:id -> Returns notebook with specified id according to User permissions.
+     *
+     * @param projectId Project id
+     * @param id        Notebook id
+     * @return Returns notebook with specified id according to User permissions
      */
     @ApiOperation(value = "Returns notebook by it's id according to permissions.")
     @RequestMapping(value = PATH_ID, method = RequestMethod.GET,
@@ -126,8 +144,13 @@ public class NotebookResource {
 
 
     /**
-     * POST  /notebooks?:projectId -> Creates notebook with OWNER's permissions for current User
+     * POST  /notebooks?:projectId -> Creates notebook with OWNER's permissions for current User.
      * as child for specified Project
+     *
+     * @param projectId Project's identifier
+     * @param notebook  Notebook
+     * @return Created notebook
+     * @throws URISyntaxException If URI is not correct
      */
     @ApiOperation(value = "Creates notebook with OWNER's permissions for current user.")
     @RequestMapping(value = PARENT_PATH_ID, method = RequestMethod.POST,
@@ -146,7 +169,11 @@ public class NotebookResource {
     }
 
     /**
-     * PUT  /notebooks/:id -> Updates notebook according to User permissions
+     * PUT  /notebooks/:id -> Updates notebook according to User permissions.
+     *
+     * @param projectId Project's identifier
+     * @param notebook  Notebook
+     * @return Updated notebook
      */
     @ApiOperation(value = "Updates notebook according to permissions.")
     @RequestMapping(value = PARENT_PATH_ID, method = RequestMethod.PUT,
@@ -164,7 +191,10 @@ public class NotebookResource {
     }
 
     /**
-     * DELETE  /notebooks/:id -> Removes notebook with specified id
+     * DELETE  /notebooks/:id -> Removes notebook with specified id.
+     *
+     * @param projectId Project's identifier
+     * @param id        Identifier
      */
     @ApiOperation(value = "Removes notebook.")
     @RequestMapping(value = PATH_ID, method = RequestMethod.DELETE)

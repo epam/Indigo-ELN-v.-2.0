@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
  * </p>
  * <p>
  * We use a DTO for 3 reasons:
- * <ul>
+ * <ul></ul>
  * <li>We want to keep a lazy association between the user and the authorities, because people will
  * quite often do relationships with the user, and we don't want them to get the authorities all
  * the time for nothing (for performance reasons). This is the #1 goal: we should not impact our users'
@@ -66,12 +66,16 @@ public class UserResource {
 
     /**
      * TODO Think about using UserDTO for all users, but ManagedUserDTO only for USER_EDITOR
-     * GET  /users -> Returns all users<br/>
+     * GET  /users -> Returns all users<br/>.
      * Also use a <b>pageable</b> interface: <b>page</b>, <b>size</b>, <b>sort</b><br/>
      * <b>Example</b>: page=0&size=30&sort=firstname&sort=lastname,asc - retrieves all elements in specified order
      * (<b>firstname</b>: ASC, <b>lastname</b>: ASC) from 0 page with size equals to 30<br/>
      * <b>By default</b>: page = 0, size = 20 and no sort<br/>
      * <b>Available sort options</b>: login, firstName, lastName, email, activated
+     *
+     * @param pageable Pagination information
+     * @return List with users
+     * @throws URISyntaxException If URI is not correct
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -91,6 +95,10 @@ public class UserResource {
     /**
      * GET  api/users/permission-management -> Returns users for Entity Permission Management
      * Don't use it for Authority-management operations!
+     *
+     * @param pageable Pagination information
+     * @return List with users
+     * @throws URISyntaxException If URI is not correct
      */
     @ApiOperation(value = "Returns users for Entity Permission Management (with paging).")
     @RequestMapping(value = "/permission-management", method = RequestMethod.GET,
@@ -110,6 +118,9 @@ public class UserResource {
     /**
      * TODO Think about using UserDTO for all users, but ManagedUserDTO only for USER_EDITOR
      * GET  /users/:login -> Returns specified user.
+     *
+     * @param login Login
+     * @return User
      */
     @ApiOperation(value = "Returns user by it's login.")
     @RequestMapping(value = "/{login:[_'.@a-z0-9-]+}", method = RequestMethod.GET,
@@ -129,6 +140,10 @@ public class UserResource {
      * mail with an activation link.
      * The user needs to be activated on creation.
      * </p>
+     *
+     * @param managedUserDTO User
+     * @return User
+     * @throws URISyntaxException If URI is not correct
      */
     @ApiOperation(value = "Creates user.")
     @RequestMapping(method = RequestMethod.POST,
@@ -147,6 +162,9 @@ public class UserResource {
 
     /**
      * PUT  /users -> Updates an existing User.
+     *
+     * @param managedUserDTO User
+     * @return User
      */
     @ApiOperation(value = "Updates user.")
     @RequestMapping(method = RequestMethod.PUT,
@@ -165,6 +183,8 @@ public class UserResource {
 
     /**
      * DELETE  USER :login -> delete the "login" User.
+     *
+     * @param login Login
      */
     @ApiOperation(value = "Removes user.")
     @RequestMapping(value = "/{login}", method = RequestMethod.DELETE)

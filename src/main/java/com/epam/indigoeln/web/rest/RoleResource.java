@@ -39,7 +39,10 @@ public class RoleResource {
     private RoleService roleService;
 
     /**
-     * GET  /roles -> Returns all roles
+     * GET  /roles -> Returns all roles.
+     *
+     * @return Returns all roles
+     * @throws URISyntaxException if URI is not correct
      */
     @ApiOperation(value = "Returns all roles.")
     @RequestMapping(method = RequestMethod.GET,
@@ -56,13 +59,16 @@ public class RoleResource {
 
     /**
      * GET  /roles/:id -> Returns specified role.
+     *
+     * @param id Identifier
+     * @return Role by id
      */
     @ApiOperation(value = "Returns specified role.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RoleDTO> getRole(
             @ApiParam("Role id.") @PathVariable("id") String id
-        ) {
+    ) {
         LOGGER.debug("REST request to get role : {}", id);
         Role role = roleService.getRole(id);
         return ResponseEntity.ok(dtoMapper.convertToDTO(role));
@@ -70,6 +76,10 @@ public class RoleResource {
 
     /**
      * POST  /roles -> Creates a new role.
+     *
+     * @param roleDTO Role
+     * @return Created role
+     * @throws URISyntaxException If URI is not correct
      */
     @ApiOperation(value = "Creates a new role.")
     @RequestMapping(method = RequestMethod.POST,
@@ -77,7 +87,7 @@ public class RoleResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RoleDTO> createRole(
             @ApiParam("Role to create.") @RequestBody @Valid RoleDTO roleDTO
-        ) throws URISyntaxException {
+    ) throws URISyntaxException {
         LOGGER.debug("REST request to create role: {}", roleDTO);
         Role role = dtoMapper.convertFromDTO(roleDTO);
         role = roleService.createRole(role);
@@ -88,6 +98,9 @@ public class RoleResource {
 
     /**
      * PUT  /roles -> Updates an existing role.
+     *
+     * @param roleDTO Role
+     * @return Role
      */
     @ApiOperation(value = "Updates existing role.")
     @RequestMapping(method = RequestMethod.PUT,
@@ -95,7 +108,7 @@ public class RoleResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RoleDTO> updateRole(
             @ApiParam("Role to update.") @RequestBody @Valid RoleDTO roleDTO
-        ) {
+    ) {
         LOGGER.debug("REST request to update role: {}", roleDTO);
         Role role = dtoMapper.convertFromDTO(roleDTO);
         role = roleService.updateRole(role);
@@ -104,13 +117,15 @@ public class RoleResource {
     }
 
     /**
-     * DELETE  /roles/:id -> Removes role with specified id
+     * DELETE  /roles/:id -> Removes role with specified id.
+     *
+     * @param id Id
      */
     @ApiOperation(value = "Deletes role.")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteRole(
             @ApiParam("Role id to delete") @PathVariable String id
-        ) {
+    ) {
         LOGGER.debug("REST request to delete role: {}", id);
         roleService.deleteRole(id);
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, null);

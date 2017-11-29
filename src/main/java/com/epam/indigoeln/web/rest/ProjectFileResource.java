@@ -56,6 +56,11 @@ public class ProjectFileResource {
      * (<b>firstname</b>: ASC, <b>lastname</b>: ASC) from 0 page with size equals to 30<br/>
      * <b>By default</b>: page = 0, size = 20 and no sort<br/>
      * <b>Available sort options</b>: filename, contentType, length, uploadDate
+     *
+     * @param projectId Project's identifier
+     * @param pageable  Pagination information
+     * @return Returns metadata for all files of specified project
+     * @throws URISyntaxException If URI is not correct
      */
     @ApiOperation(value = "Returns all project files (with paging).")
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -78,7 +83,12 @@ public class ProjectFileResource {
     }
 
     /**
-     * POST  /project_files?projectId -> Saves file for specified project
+     * POST  /project_files?projectId -> Saves file for specified project.
+     *
+     * @param file      File
+     * @param projectId Project's identifier
+     * @return File
+     * @throws URISyntaxException If URI is nor correct
      */
     @ApiOperation(value = "Creates new file for the project.")
     @RequestMapping(method = RequestMethod.POST,
@@ -102,7 +112,10 @@ public class ProjectFileResource {
     }
 
     /**
-     * GET  /project_files/:id -> Returns file with specified id
+     * GET  /project_files/:id -> Returns file with specified id.
+     *
+     * @param id Identifier
+     * @return Returns file with specified id
      */
     @ApiOperation(value = "Returns project file by it's id.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
@@ -118,7 +131,9 @@ public class ProjectFileResource {
     }
 
     /**
-     * DELETE  /project_files/:id -> Removes file with specified id
+     * DELETE  /project_files/:id -> Removes file with specified id.
+     *
+     * @param id Identifier
      */
     @ApiOperation(value = "Removes project file.")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)

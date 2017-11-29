@@ -64,9 +64,11 @@ public class DashboardResource {
     private UserRepository userRepository;
 
     /**
-     * GET  /dashboard -> Returns dashboard experiments
+     * GET  /dashboard -> Returns dashboard experiments.
      * 1. Experiments created by current user during one month which are in one of following statuses:
-     * 'Open', 'Completed'
+     * 'Open', 'Completed'.
+     *
+     * @return Returns dashboard content
      */
     @ApiOperation(value = "Returns dashboard content.")
     @RequestMapping(method = RequestMethod.GET,
@@ -91,7 +93,7 @@ public class DashboardResource {
 
     private List<DashboardRowDTO> getCurrentRows(User user, ZonedDateTime threshold) {
         // Open and Completed Experiments
-        Map<String, Experiment>  experiments = experimentRepository
+        Map<String, Experiment> experiments = experimentRepository
                 .findByAuthorAndStatusAndCreationDateAfter(user, ExperimentStatus.OPEN, threshold)
                 .collect(Collectors.toMap(Experiment::getId, Function.identity()));
 
@@ -101,7 +103,7 @@ public class DashboardResource {
                 .collect(Collectors.toList());
     }
 
-    private Stream<Triple<Project, Notebook, Experiment>> getEntities(Map<String, Experiment>  experiments) {
+    private Stream<Triple<Project, Notebook, Experiment>> getEntities(Map<String, Experiment> experiments) {
         List<DBRef> experimentIds = experiments.keySet().stream()
                 .map(k -> new DBRef("experiment", k))
                 .collect(Collectors.toList());
@@ -185,7 +187,7 @@ public class DashboardResource {
     }
 
     /**
-     * Checks if user has access to all entities
+     * Checks if user has access to all entities.
      *
      * @param user user to check access for
      * @param t    entities to check (project, notebook, experiment)
@@ -193,19 +195,25 @@ public class DashboardResource {
      */
     private boolean hasAccess(User user, Triple<Project, Notebook, Experiment> t) {
         final Project project = t.getLeft();
-        if (project == null || !PermissionUtil.hasEditorAuthorityOrPermissions(user, project.getAccessList(), UserPermission.READ_ENTITY)) {
+        if (project == null
+                || !PermissionUtil.hasEditorAuthorityOrPermissions(user, project.getAccessList(),
+                UserPermission.READ_ENTITY)) {
             return false;
         }
         final Notebook notebook = t.getMiddle();
-        if (notebook == null || !PermissionUtil.hasEditorAuthorityOrPermissions(user, notebook.getAccessList(), UserPermission.READ_ENTITY)) {
+        if (notebook == null
+                || !PermissionUtil.hasEditorAuthorityOrPermissions(user, notebook.getAccessList(),
+                UserPermission.READ_ENTITY)) {
             return false;
         }
         final Experiment experiment = t.getRight();
-        return experiment != null && PermissionUtil.hasEditorAuthorityOrPermissions(user, experiment.getAccessList(), UserPermission.READ_ENTITY);
+        return experiment != null
+                && PermissionUtil.hasEditorAuthorityOrPermissions(user, experiment.getAccessList(),
+                UserPermission.READ_ENTITY);
     }
 
     /**
-     * Creates new dashboard row DTO
+     * Creates new dashboard row DTO.
      *
      * @param project    experiment project
      * @param notebook   experiment notebook
@@ -267,5 +275,4 @@ public class DashboardResource {
 
         return result;
     }
-
 }

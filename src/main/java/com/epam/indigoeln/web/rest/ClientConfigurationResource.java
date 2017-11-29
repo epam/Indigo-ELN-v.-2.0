@@ -19,7 +19,9 @@ public class ClientConfigurationResource {
     private ClientConfiguration clientConfiguration;
 
     /**
-     * GET  /client_configuration -> Returns client configuration
+     * GET  /client_configuration -> Returns client configuration.
+     *
+     * @return Returns client configuration
      */
     @ApiOperation(value = "Returns client configuration.",
             produces = "application/json")
@@ -28,5 +30,4 @@ public class ClientConfigurationResource {
     public ResponseEntity getClientConfiguration() {
         return ResponseEntity.ok(clientConfiguration.getProperties());
     }
-
 }

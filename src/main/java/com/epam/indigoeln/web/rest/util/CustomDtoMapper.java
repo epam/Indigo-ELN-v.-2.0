@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 /**
- * Custom MapStruct mapper for converting DTO/Model objects
+ * Custom MapStruct mapper for converting DTO/Model objects.
  */
 @Mapper
 public interface CustomDtoMapper {

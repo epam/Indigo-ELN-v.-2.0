@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * DTO for Experiment
+ * DTO for Experiment.
  */
 @JsonTypeName("Experiment")
 public class ExperimentDTO extends BasicDTO {

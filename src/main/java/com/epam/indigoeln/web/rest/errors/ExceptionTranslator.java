@@ -125,9 +125,10 @@ public class ExceptionTranslator {
 
 
     /**
-     * Default Error handler for Database Issues
+     * Default Error handler for Database Issues.
      * Database constraint violations and business logic issues, such as duplicate key exception, unique index etc.,
-     * should be handed other way
+     * should be handed other way.
+     * @return Error
      */
     @ExceptionHandler(DataAccessException.class)
     @ResponseBody

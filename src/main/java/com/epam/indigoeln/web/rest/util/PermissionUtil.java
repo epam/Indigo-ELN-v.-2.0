@@ -53,14 +53,20 @@ public final class PermissionUtil {
     }
 
     /**
-     * Adding of OWNER's permissions to Entity Access List for specified User, if it is absent
+     * Adding of OWNER's permissions to Entity Access List for specified User, if it is absent.
+     * @param accessList Access list
+     * @param user User
      */
     public static void addOwnerToAccessList(Set<UserPermission> accessList, User user) {
         setUserPermissions(accessList, user, UserPermission.OWNER_PERMISSIONS);
     }
 
     /**
-     * Adding Project Author as VIEWER to Experiment Access List if Experiment creator is another User
+     * Adding Project Author as VIEWER to Experiment Access List if Experiment creator is another User.
+     *
+     * @param accessList        Access list
+     * @param projectAuthor     Project's author
+     * @param experimentCreator Experiment's creator
      */
     public static void addProjectAuthorToAccessList(Set<UserPermission> accessList,
                                                     User projectAuthor, User experimentCreator) {
