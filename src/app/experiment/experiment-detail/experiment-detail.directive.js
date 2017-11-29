@@ -205,6 +205,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         vm.loading = getSaveService(_.extend({}, vm.experiment))
             .then(function(result) {
                 _.merge(vm.experiment, result);
+                entitiesCache.removeByParams($stateParams);
                 updateOriginal(vm.experiment);
             }, function() {
                 notifyService.error('Experiment is not saved due to server error!');

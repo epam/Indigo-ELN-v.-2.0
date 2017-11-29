@@ -105,6 +105,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
                 .then(function(result) {
                     vm.project = result;
                     originalProject = angular.copy(vm.project);
+                    entitiesCache.removeByParams($stateParams);
                     entitiesBrowserService.setCurrentTabTitle(vm.project.name, $stateParams);
                     onUpdateSuccess({
                         id: vm.project.id
