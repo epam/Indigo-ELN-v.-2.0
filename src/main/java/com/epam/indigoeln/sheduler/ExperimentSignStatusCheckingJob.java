@@ -54,15 +54,18 @@ public class ExperimentSignStatusCheckingJob {
                         updatedExperimentStatuses.put(experiment.getId(), newStatus);
                     }
 
-                    ExperimentStatus finalStatus = signatureService.getExperimentStatus(SignatureService.ISSStatus.valueOf(signatureService.getFinalStatus()));
+                    ExperimentStatus finalStatus = signatureService
+                            .getExperimentStatus(SignatureService.ISSStatus.valueOf(signatureService.getFinalStatus()));
 
-                    if (Objects.equals(newStatus, finalStatus) || Objects.equals(newStatus, ExperimentStatus.SUBMIT_FAIL)) {
+                    if (Objects.equals(newStatus, finalStatus)
+                            || Objects.equals(newStatus, ExperimentStatus.SUBMIT_FAIL)) {
                         signatureJob.setExperimentStatus(newStatus);
                     } else {
                         signatureJob.setExperimentStatus(ExperimentStatus.SUBMITTED);
                     }
                 } catch (Exception e) {
-                    LOGGER.error("Error executing experiment sign status checking job! Experiment = " + signatureJob.getExperimentId(), e);
+                    LOGGER.error("Error executing experiment sign status checking job! Experiment = "
+                            + signatureJob.getExperimentId(), e);
                 }
             }
             signatureJobRepository.save(signatureJob);

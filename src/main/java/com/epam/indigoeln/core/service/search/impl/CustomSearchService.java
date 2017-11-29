@@ -35,7 +35,7 @@ public class CustomSearchService implements SearchServiceAPI {
 
     @Override
     public Collection<ProductBatchDetailsDTO> findBatches(BatchSearchRequest searchRequest) {
-        if(searchRequest.getStructure().isPresent()) {
+        if (searchRequest.getStructure().isPresent()) {
             List<String> bingoIds = searchByBingoDb(searchRequest.getStructure().get());
             return bingoIds.isEmpty() ? Collections.emptyList() :
                     searchComponentsRepository.findBatches(searchRequest, bingoIds);

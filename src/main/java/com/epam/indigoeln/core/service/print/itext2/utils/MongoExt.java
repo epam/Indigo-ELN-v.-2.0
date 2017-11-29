@@ -17,7 +17,7 @@ import java.util.Optional;
  * Helper wrapper for mongo 'BasicDBObject' class.
  * Used to eliminate boilerplate code while mapping mongo jsons to pdf section models.
  */
-public class MongoExt {
+public final class MongoExt {
     private BasicDBObject origin;
 
     private MongoExt(BasicDBObject origin) {
@@ -25,7 +25,7 @@ public class MongoExt {
     }
 
     /**
-     * Used for getting MongoExt from input object
+     * Used for getting MongoExt from input object.
      *
      * @param origin BasicDBObject's instance
      * @return Returns instance of MongoExt for origin
@@ -40,7 +40,7 @@ public class MongoExt {
     }
 
     /**
-     * Used for getting MongoExt from input object
+     * Used for getting MongoExt from input object.
      *
      * @param component Component's instance
      * @return Returns instance of MongoExt for origin for component
@@ -80,8 +80,12 @@ public class MongoExt {
 
     /**
      * example:
-     * json: {array: [{field: "1"}, {field: "2"}, {field: "3"}]}
-     * arrayFields("array", "field") -> List(1, 2, 3)
+     * json: {array: [{field: "1"}, {field: "2"}, {field: "3"}]}.
+     * arrayFields("array", "field") -> List(1, 2, 3).
+     *
+     * @param arrayFieldName Array's name
+     * @param entryFieldName Field's name
+     * @return Stream of fields.
      */
     private StreamEx<String> arrayFields(String arrayFieldName, String entryFieldName) {
         return streamObjects(arrayFieldName).map(o -> o.getString(entryFieldName));

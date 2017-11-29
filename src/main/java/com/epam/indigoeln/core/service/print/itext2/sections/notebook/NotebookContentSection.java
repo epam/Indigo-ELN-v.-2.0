@@ -13,7 +13,7 @@ import one.util.streamex.DoubleStreamEx;
 import static com.epam.indigoeln.core.service.print.itext2.model.notebook.NotebookContentModel.*;
 
 /**
- * Extension of BasePdfSectionWithSimpleTitle for notebook content
+ * Extension of BasePdfSectionWithSimpleTitle for notebook content.
  */
 public class NotebookContentSection extends BasePdfSectionWithSimpleTitle<NotebookContentModel> {
 

@@ -41,6 +41,13 @@ import static java.util.stream.Collectors.toList;
  * The class is responsible for mapping experiment to a list of pdf sections used by pdf generator.
  */
 public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider {
+    private static final String BATCHES = "batches";
+    private static final String STRUCTURE = "structure";
+    private static final String DESCRIPTION = "description";
+    private static final String FULL_NBK_BATCH = "fullNbkBatch";
+    private static final String STRING = "asString";
+    private static final String IMAGE = "image";
+    private static final String TOTAL_WEIGHT = "totalWeight";
     private final Project project;
     private final Notebook notebook;
     private final Experiment experiment;
@@ -49,7 +56,8 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     private final PrintRequest printRequest;
     private final UserRepository userRepository;
 
-    private static final HashMap<String, ComponentToPdfSectionsConverter> componentNameToConverter = new HashMap<>();
+    private static final HashMap<String, ComponentToPdfSectionsConverter> COMPONENT_NAME_TO_CONVERTER = new HashMap<>();
+
     static {
         put(REACTION, ExperimentPdfSectionsProvider::reactionConverter);
         put(PREFERRED_COMPOUND_SUMMARY, ExperimentPdfSectionsProvider::preferredCompoundSummaryConverter);
@@ -63,7 +71,8 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     private static final String[] CONTINUED_FROM_NAME = {"contFromRxn", "name"};
     private static final String[] CONTINUED_TO_NAME = {"contToRxn", "name"};
     private static final String[] SOURCE_NAME = {"source", "name"};
-    private static final String[] MOL_WEIGHT_VALUE = {"molWeight", "value"};
+    private static final String VALUE = "value";
+    private static final String[] MOL_WEIGHT_VALUE = {"molWeight", VALUE};
 
     public ExperimentPdfSectionsProvider(Project project, Notebook notebook, Experiment experiment,
                                          FileRepository fileRepository, PrintRequest printRequest,
@@ -100,7 +109,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     private Stream<AbstractPdfSection> sectionOfComponent(String printedComponentName) {
         Optional<Component> componentOfExperiment = getComponentOfExperiment(printedComponentName);
         if (componentOfExperiment.isPresent()) {
-            return Optional.ofNullable(componentNameToConverter.get(printedComponentName))
+            return Optional.ofNullable(COMPONENT_NAME_TO_CONVERTER.get(printedComponentName))
                     .map(converter -> converter.convert(Pair.of(componentOfExperiment.get(), experiment)).stream())
                     .orElse(Stream.empty());
         }
@@ -116,7 +125,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     }
 
     private static void put(String name, ComponentToPdfSectionsConverter builder) {
-        componentNameToConverter.put(name, builder);
+        COMPONENT_NAME_TO_CONVERTER.put(name, builder);
     }
 
     private List<AbstractPdfSection> reactionDetailsConverter(Pair<Component, Experiment> p) {
@@ -152,14 +161,14 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
 
     private static List<AbstractPdfSection> reactionConverter(Pair<Component, Experiment> p) {
         return MongoExt.of(p.getLeft()).map(content -> singletonList(new ReactionSchemeSection(new ReactionSchemeModel(
-                new SvgPdfImage(content.getString("image"))
+                new SvgPdfImage(content.getString(IMAGE))
         ))));
     }
 
     private static List<AbstractPdfSection> preferredCompoundSummaryConverter(Pair<Component, Experiment> p) {
         return MongoExt.of(p.getLeft()).map(content ->
                 singletonList(new PreferredCompoundsSection(new PreferredCompoundsModel(
-                        content.streamObjects("batches")
+                        content.streamObjects(BATCHES)
                                 .map(ExperimentPdfSectionsProvider::getPreferredCompoundsRow)
                                 .toList()))));
     }
@@ -167,13 +176,13 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     private static PreferredCompoundsRow getPreferredCompoundsRow(MongoExt compound) {
         MongoExt stereoisomerObj = compound.getObject("stereoisomer");
         Structure structure = new Structure(
-                new SvgPdfImage(compound.getString("structure", "image")),
+                new SvgPdfImage(compound.getString(STRUCTURE, IMAGE)),
                 compound.getString("virtualCompoundId"),
                 stereoisomerObj.getString("name"),
-                stereoisomerObj.getString("description"));
+                stereoisomerObj.getString(DESCRIPTION));
         return new PreferredCompoundsRow(
                 structure,
-                compound.getString("fullNbkBatch"),
+                compound.getString(FULL_NBK_BATCH),
                 compound.getString(MOL_WEIGHT_VALUE),
                 compound.getString("formula"),
                 compound.getString("structureComments")
@@ -191,32 +200,32 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
 
     private static StoichiometryRow getStoichiometryModel(MongoExt reactant) {
         return new StoichiometryRow()
-                .setFullNbkBatch(reactant.getString("fullNbkBatch"))
+                .setFullNbkBatch(reactant.getString(FULL_NBK_BATCH))
                 .setCompoundId(reactant.getString("compoundId"))
                 .setStructure(new StoichiometryModel.Structure(
-                        new SvgPdfImage(reactant.getString("structure", "image"))))
+                        new SvgPdfImage(reactant.getString(STRUCTURE, IMAGE))))
                 .setMolecularWeight(reactant.getString(MOL_WEIGHT_VALUE))
-                .setWeight(reactant.getString("weight", "value"))
+                .setWeight(reactant.getString("weight", VALUE))
                 .setWeightUnit(reactant.getString("weight", "unit"))
-                .setMoles(reactant.getString("mol", "value"))
+                .setMoles(reactant.getString("mol", VALUE))
                 .setMolesUnit(reactant.getString("mol", "unit"))
-                .setVolume(reactant.getString("volume", "value"))
+                .setVolume(reactant.getString("volume", VALUE))
                 .setVolumeUnit(reactant.getString("volume", "unit"))
-                .setEq(reactant.getString("eq", "value"))
+                .setEq(reactant.getString("eq", VALUE))
                 .setChemicalName(reactant.getString("chemicalName"))
                 .setRxnRole(reactant.getString("rxnRole", "name"))
-                .setStoicPurity(reactant.getString("stoicPurity", "value"))
-                .setMolarity(reactant.getString("molarity", "value"))
+                .setStoicPurity(reactant.getString("stoicPurity", VALUE))
+                .setMolarity(reactant.getString("molarity", VALUE))
                 .setMolesUnit(reactant.getString("molarity", "unit"))
                 .setHazardComments(reactant.getString("hazardComments"))
                 .setSaltCode(reactant.getString("saltCode", "name"))
-                .setSaltEq(reactant.getString("saltEq", "value"))
+                .setSaltEq(reactant.getString("saltEq", VALUE))
                 .setComments(reactant.getString("comments"));
     }
 
     private static List<AbstractPdfSection> experimentDescriptionConverter(Pair<Component, Experiment> p) {
         return MongoExt.of(p.getLeft()).map(content -> {
-            String description = content.getString("description");
+            String description = content.getString(DESCRIPTION);
             return singletonList(new DescriptionSection(new DescriptionModel(description, "EXPERIMENT")));
         });
     }
@@ -230,15 +239,15 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                 .findAny();
 
         List<BatchInformationRow> batchInfoRows = MongoExt.of(p.getLeft())
-                .streamObjects("batches")
+                .streamObjects(BATCHES)
                 .map(batch -> getBatchInformationRow(batch, batchOwner)).toList();
 
         List<RegistrationSummaryRow> regSummaryRows = MongoExt.of(p.getLeft())
-                .streamObjects("batches")
+                .streamObjects(BATCHES)
                 .map(batch -> new RegistrationSummaryRow(
-                        batch.getString("fullNbkBatch"),
-                        batch.getString("totalWeight", "value"),
-                        batch.getString("totalWeight", "unit"),
+                        batch.getString(FULL_NBK_BATCH),
+                        batch.getString(TOTAL_WEIGHT, VALUE),
+                        batch.getString(TOTAL_WEIGHT, "unit"),
                         batch.getString("registrationStatus"),
                         batch.getString("conversationalBatchNumber")
                 ))
@@ -255,21 +264,21 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         return new BatchInformationRow()
                 .setNbkBatch(batch.getString("nbkBatch"))
                 .setStructure(new BatchInformationModel.Structure(
-                        new SvgPdfImage(batch.getString("structure", "image")),
+                        new SvgPdfImage(batch.getString(STRUCTURE, IMAGE)),
                         stereoisomer.getString("name"),
-                        stereoisomer.getString("description")
+                        stereoisomer.getString(DESCRIPTION)
                 ))
-                .setAmountMade(batch.getString("totalWeight", "value"))
-                .setAmountMadeUnit(batch.getString("totalWeight", "unit"))
-                .setTheoWeight(batch.getString("theoWeight", "value"))
+                .setAmountMade(batch.getString(TOTAL_WEIGHT, VALUE))
+                .setAmountMadeUnit(batch.getString(TOTAL_WEIGHT, "unit"))
+                .setTheoWeight(batch.getString("theoWeight", VALUE))
                 .setTheoWeightUnit(batch.getString("theoWeight", "unit"))
                 .setYield(batch.getString("yield"))
-                .setPurity(batch.getString("purity", "asString"))
+                .setPurity(batch.getString("purity", STRING))
                 .setBatchInformation(new BatchInformation(
                         batch.getString(MOL_WEIGHT_VALUE),
                         batch.getString("exactMass"),
                         batch.getString("saltCode", "name"),
-                        batch.getString("saltEq", "value"),
+                        batch.getString("saltEq", VALUE),
                         batchOwner.orElse(emptyList()),
                         batch.getString("comments")
                 ));
@@ -289,9 +298,9 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                         .stream().map(User::getFullName).collect(toList()))
                 .findAny();
 
-        Optional<List<AbstractPdfSection>> sections = content.map(m -> m.streamObjects("batches")
+        Optional<List<AbstractPdfSection>> sections = content.map(m -> m.streamObjects(BATCHES)
                 .map(batch -> (AbstractPdfSection) new BatchDetailsSection(new BatchDetailsModel()
-                        .setFullNbkBatch(batch.getString("fullNbkBatch"))
+                        .setFullNbkBatch(batch.getString(FULL_NBK_BATCH))
                         .setRegistrationDate(batch.getDate("registrationDate"))
                         .setStructureComments(batch.getString("structureComments"))
                         .setSource(batch.getString(SOURCE_NAME))
@@ -299,13 +308,13 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                         .setBatchOwner(batchOwner.orElse(emptyList()))
                         .setMolWeight(batch.getString(MOL_WEIGHT_VALUE))
                         .setFormula(batch.getString("formula"))
-                        .setResidualSolvent(batch.getString("residualSolvents", "asString"))
-                        .setSolubility(batch.getString("solubility", "asString"))
+                        .setResidualSolvent(batch.getString("residualSolvents", STRING))
+                        .setSolubility(batch.getString("solubility", STRING))
                         .setPrecursors(batch.getString("precursors"))
-                        .setExternalSupplier(batch.getString("externalSupplier", "asString"))
-                        .setHealthHazards(batch.getString("healthHazards", "asString"))
-                        .setHandlingPrecautions(batch.getString("handlingPrecautions", "asString"))
-                        .setStorageInstructions(batch.getString("storageInstructions", "asString"))
+                        .setExternalSupplier(batch.getString("externalSupplier", STRING))
+                        .setHealthHazards(batch.getString("healthHazards", STRING))
+                        .setHandlingPrecautions(batch.getString("handlingPrecautions", STRING))
+                        .setStorageInstructions(batch.getString("storageInstructions", STRING))
                 ))
                 .toList());
         return sections.orElse(emptyList());
@@ -363,7 +372,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     }
 
     /**
-     * All inheritors are responsible for building a list of pdf sections
+     * All inheritors are responsible for building a list of pdf sections.
      * (one component can correspond to several pdf sections)
      */
     @FunctionalInterface

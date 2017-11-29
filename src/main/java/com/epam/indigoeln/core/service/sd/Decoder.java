@@ -30,9 +30,9 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 /**
- * Util class to decode zipped base64 encoded strings
+ * Util class to decode zipped base64 encoded strings.
  */
-class Decoder {
+final class Decoder {
 
     /**
      * Logger instance

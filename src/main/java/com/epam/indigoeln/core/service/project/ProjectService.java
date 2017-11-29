@@ -24,37 +24,37 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Provides a number of methods for access to project's data in database
+ * Provides a number of methods for access to project's data in database.
  */
 @Service
 public class ProjectService {
 
     /**
-     * Instance of ProjectRepository for access to projects in database
+     * Instance of ProjectRepository for access to projects in database.
      */
     @Autowired
     private ProjectRepository projectRepository;
 
     /**
-     * Instance of NotebookRepository for access to notebooks in database
+     * Instance of NotebookRepository for access to notebooks in database.
      */
     @Autowired
     private NotebookRepository notebookRepository;
 
     /**
-     * Instance of FileRepository for access to files in database
+     * Instance of FileRepository for access to files in database.
      */
     @Autowired
     private FileRepository fileRepository;
 
     /**
-     * Instance of UserRepository for access to users in database
+     * Instance of UserRepository for access to users in database.
      */
     @Autowired
     private UserRepository userRepository;
 
     /**
-     * Instance of CustomDtoMapper for conversion from dto object
+     * Instance of CustomDtoMapper for conversion from dto object.
      */
     @Autowired
     private CustomDtoMapper mapper;
@@ -66,7 +66,7 @@ public class ProjectService {
     private WebSocketUtil webSocketUtil;
 
     /**
-     * Returns all projects without checking for UserPermissions
+     * Returns all projects without checking for UserPermissions.
      *
      * @return List with projects
      */
@@ -76,7 +76,7 @@ public class ProjectService {
 
     /**
      * If user is null, then retrieve projects without checking for UserPermissions
-     * Otherwise, use checking for UserPermissions
+     * Otherwise, use checking for UserPermissions.
      */
     public List<TreeNodeDTO> getAllProjectsAsTreeNodes(User user) {
         // if user is null, then get all projects
@@ -87,7 +87,7 @@ public class ProjectService {
     }
 
     /**
-     * Returns project by id according to permissions
+     * Returns project by id according to permissions.
      *
      * @param id   Project's identifier
      * @param user User
@@ -109,7 +109,7 @@ public class ProjectService {
     /**
      * Fetch all projects for current user available when create sub entity
      * return notebooks where users is in accessList and has permission CREATE_SUB_ENTITY,
-     * or has authority CONTENT_EDITOR (but not in accessLIst)
+     * or has authority CONTENT_EDITOR (but not in accessLIst).
      *
      * @param user user
      * @return list of projects available for notebook creation
@@ -117,13 +117,15 @@ public class ProjectService {
     public List<ShortEntityDTO> getProjectsForNotebookCreation(User user) {
         List<Project> projects = PermissionUtil.isContentEditor(user) ?
                 projectRepository.findAllIgnoreChildren() :
-                projectRepository.findByUserIdAndPermissions(user.getId(), Collections.singletonList(UserPermission.CREATE_SUB_ENTITY));
+                projectRepository.findByUserIdAndPermissions(user.getId(),
+                        Collections.singletonList(UserPermission.CREATE_SUB_ENTITY));
 
-        return projects.stream().map(ShortEntityDTO::new).sorted(Comparator.comparing(ShortEntityDTO::getName)).collect(Collectors.toList());
+        return projects.stream().map(ShortEntityDTO::new)
+                .sorted(Comparator.comparing(ShortEntityDTO::getName)).collect(Collectors.toList());
     }
 
     /**
-     * Creates project with OWNER's permissions for current user
+     * Creates project with OWNER's permissions for current user.
      *
      * @param projectDTO Project to create
      * @return Created project
@@ -157,7 +159,8 @@ public class ProjectService {
      */
     public ProjectDTO updateProject(ProjectDTO projectDTO, User user) {
         Optional<Project> projectOpt = Optional.ofNullable(projectRepository.findOne(projectDTO.getId()));
-        Project projectFromDb = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectDTO.getId()));
+        Project projectFromDb = projectOpt
+                .orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectDTO.getId()));
 
         // check of EntityAccess (User must have "Update Entity" permission in project's access list,
         // or must have CONTENT_EDITOR authority)

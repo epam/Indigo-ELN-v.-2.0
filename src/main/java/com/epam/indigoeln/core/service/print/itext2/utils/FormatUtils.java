@@ -12,9 +12,9 @@ import java.util.Date;
 import java.util.Optional;
 
 /**
- * Provides functionality for working with information's format
+ * Provides functionality for working with information's format.
  */
-public class FormatUtils {
+public final class FormatUtils {
     private static final String DELIMITER = " ";
     private static final SimpleDateFormat ATTACHMENTS_FORMAT = new SimpleDateFormat("d MMMM yyyy");
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.####");
@@ -29,7 +29,7 @@ public class FormatUtils {
     }
 
     /**
-     * Returns input object in the default string format
+     * Returns input object in the default string format.
      *
      * @param temporalAccessor Object which defines access to a temporal object,
      *                         such as a date, time and etc.
@@ -43,7 +43,7 @@ public class FormatUtils {
     }
 
     /**
-     * Returns date in the string format
+     * Returns date in the string format.
      *
      * @param date Date
      * @return Returns date in the string format
@@ -57,7 +57,7 @@ public class FormatUtils {
     }
 
     /**
-     * Returns string formatted number
+     * Returns string formatted number.
      *
      * @param number Number
      * @return Returns string formatted number
@@ -75,7 +75,7 @@ public class FormatUtils {
     }
 
     /**
-     * Returns string formatted number
+     * Returns string formatted number.
      *
      * @param number Number
      * @param unit   Unit
@@ -91,7 +91,7 @@ public class FormatUtils {
     }
 
     /**
-     * Returns formatted size
+     * Returns formatted size.
      *
      * @param size Size
      * @return Returns formatted size

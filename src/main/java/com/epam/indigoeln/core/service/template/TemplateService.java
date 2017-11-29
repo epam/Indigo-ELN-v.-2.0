@@ -8,6 +8,7 @@ import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.web.rest.dto.TemplateDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.core.service.exception.*;
+
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
 
 /**
- * Service class for managing Templates
+ * Service class for managing Templates.
  */
 @Service
 public class TemplateService {
@@ -30,7 +31,7 @@ public class TemplateService {
     private SequenceIdRepository sequenceIdRepository;
 
     @Autowired
-    ExperimentRepository experimentRepository;
+    private ExperimentRepository experimentRepository;
 
     @Autowired
     private CustomDtoMapper dtoMapper;
@@ -76,5 +77,4 @@ public class TemplateService {
             throw ConcurrencyException.createWithTemplateName(template.getName(), e);
         }
     }
-
 }

@@ -23,11 +23,13 @@ import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.UserDTO;
 import com.epam.indigoeln.web.rest.dto.print.PrintRequest;
 import org.apache.commons.lang3.StringUtils;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import static com.epam.indigoeln.core.service.print.itext2.model.notebook.NotebookContentModel.*;
 import static com.epam.indigoeln.core.util.BatchComponentUtil.CONCEPT_DETAILS;
 import static com.epam.indigoeln.core.util.BatchComponentUtil.REACTION;
@@ -57,7 +59,7 @@ public final class NotebookPdfSectionsProvider implements PdfSectionsProvider {
     public List<AbstractPdfSection> getContentSections() {
         ArrayList<AbstractPdfSection> list = new ArrayList<>();
         list.add(new DescriptionSection(new DescriptionModel(notebook.getDescription(), "NOTEBOOK")));
-        if (printRequest.withContent()){
+        if (printRequest.withContent()) {
             list.add(getContentSection());
         }
         return list;
@@ -75,9 +77,10 @@ public final class NotebookPdfSectionsProvider implements PdfSectionsProvider {
         return new NotebookHeaderSection(model);
     }
 
-    private AbstractPdfSection getContentSection(){
+    private AbstractPdfSection getContentSection() {
         User user = userService.getUserWithAuthorities();
-        List<ExperimentDTO> experiments = experimentService.getAllExperimentNotebookSummary(project.getId(), SequenceIdUtil.extractShortId(notebook), user);
+        List<ExperimentDTO> experiments = experimentService
+                .getAllExperimentNotebookSummary(project.getId(), SequenceIdUtil.extractShortId(notebook), user);
         List<ContentModelRow> rows = experiments.stream()
                 .map(this::getContentRow)
                 .collect(Collectors.toList());
@@ -85,7 +88,7 @@ public final class NotebookPdfSectionsProvider implements PdfSectionsProvider {
         return new NotebookContentSection(new NotebookContentModel(rows));
     }
 
-    private ContentModelRow getContentRow(ExperimentDTO experiment){
+    private ContentModelRow getContentRow(ExperimentDTO experiment) {
         Optional<String> title1 = experiment.getComponents().stream()
                 .filter(e -> REACTION_DETAILS.equals(e.getName()))
                 .map(ComponentDTO::getContent)
@@ -108,7 +111,7 @@ public final class NotebookPdfSectionsProvider implements PdfSectionsProvider {
                 .findAny();
 
         return new ContentModelRow(
-            notebook.getName() + "-" + experiment.getFullName(),
+                notebook.getName() + "-" + experiment.getFullName(),
                 new Details(
                         experiment.getCreationDate(),
                         title1.orElse(title2.orElse(StringUtils.EMPTY)),

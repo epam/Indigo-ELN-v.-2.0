@@ -7,7 +7,7 @@ import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.lowagie.text.pdf.PdfPTable;
 
 /**
- * Extension of BasePdfSectionWithSimpleTitle for project's summary
+ * Extension of BasePdfSectionWithSimpleTitle for project's summary.
  */
 public class ProjectSummarySection extends BasePdfSectionWithSimpleTitle<ProjectSummaryModel> {
     public ProjectSummarySection(ProjectSummaryModel model) {

@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class TempFileUtil {
+public final class TempFileUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TempFileUtil.class);
 

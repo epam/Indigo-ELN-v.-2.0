@@ -43,7 +43,7 @@ public class WebSocketUtil {
         template.convertAndSend(DESTINATION, data);
     }
 
-    public void updateNotebook(User user, String projectId, Notebook notebook){
+    public void updateNotebook(User user, String projectId, Notebook notebook) {
         Map<String, Object> data = new HashMap<>();
         data.put(USER, user.getId());
         Map<String, Object> entity = new HashMap<>();
@@ -54,7 +54,7 @@ public class WebSocketUtil {
         template.convertAndSend(DESTINATION, data);
     }
 
-    public void updateExperiment(User user, String projectId, String notebookId, Experiment experiment){
+    public void updateExperiment(User user, String projectId, String notebookId, Experiment experiment) {
         Map<String, Object> data = new HashMap<>();
         data.put(USER, user.getId());
         Map<String, Object> entity = new HashMap<>();
@@ -66,7 +66,7 @@ public class WebSocketUtil {
         template.convertAndSend(DESTINATION, data);
     }
 
-    public static String getHostName(){
+    public static String getHostName() {
         try {
             return InetAddress.getLocalHost().getCanonicalHostName();
         } catch (UnknownHostException e) {

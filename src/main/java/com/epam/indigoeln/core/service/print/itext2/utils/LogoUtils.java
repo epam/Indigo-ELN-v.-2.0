@@ -9,16 +9,17 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 
 /**
- * Class provides functionality for loading logo
+ * Class provides functionality for loading logo.
  */
-public class LogoUtils {
+public final class LogoUtils {
     private static final String LOGO_FILE_NAME = "pdf/logo_new_blue.png";
 
     private LogoUtils() {
     }
 
     /**
-     * Loads logo from resources
+     * Loads logo from resources.
+     *
      * @return Logo's pdf image
      */
     public static PdfImage loadDefaultLogo() {

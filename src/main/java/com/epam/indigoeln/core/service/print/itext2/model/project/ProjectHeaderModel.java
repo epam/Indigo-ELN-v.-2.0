@@ -7,9 +7,9 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 
 /**
- * Extension BaseHeaderModel for project header
+ * Extension BaseHeaderModel for project header.
  */
-public class ProjectHeaderModel extends BaseHeaderModel{
+public class ProjectHeaderModel extends BaseHeaderModel {
     private String author;
     private ZonedDateTime creationDate;
     private String projectName;

@@ -25,7 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.Optional;
 
 /**
- * Provides methods for working with pdf
+ * Provides methods for working with pdf.
  */
 @Service
 public class ITextPrintService {
@@ -55,7 +55,7 @@ public class ITextPrintService {
     }
 
     /**
-     * Generates pdf for experiment by id
+     * Generates pdf for experiment by id.
      *
      * @param projectId    Project's identifier
      * @param notebookId   Notebook's identifier
@@ -64,7 +64,8 @@ public class ITextPrintService {
      * @param user         User user
      * @return Generated pdf for experiment
      */
-    public byte[] generateExperimentPdf(String projectId, String notebookId, String experimentId, PrintRequest printRequest, User user) {
+    public byte[] generateExperimentPdf(String projectId, String notebookId,
+                                        String experimentId, PrintRequest printRequest, User user) {
         String notebookFullId = SequenceIdUtil.buildFullId(projectId, notebookId);
         String experimentFullId = SequenceIdUtil.buildFullId(projectId, notebookId, experimentId);
 
@@ -74,7 +75,8 @@ public class ITextPrintService {
 
         checkAccess(experiment, user, notebook);
 
-        ExperimentPdfSectionsProvider provider = new ExperimentPdfSectionsProvider(project, notebook, experiment, fileRepository, printRequest, userRepository);
+        ExperimentPdfSectionsProvider provider = new ExperimentPdfSectionsProvider(project, notebook,
+                experiment, fileRepository, printRequest, userRepository);
         PdfGenerator pdfGenerator = new PdfGenerator(provider);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         pdfGenerator.generate(byteArrayOutputStream);
@@ -82,7 +84,7 @@ public class ITextPrintService {
     }
 
     /**
-     * Generates pdf for experiment
+     * Generates pdf for experiment.
      *
      * @param projectId    Project's identifier
      * @param notebookId   Notebook's identifier
@@ -91,7 +93,8 @@ public class ITextPrintService {
      * @param user         User
      * @return Generated pdf for experiment
      */
-    public byte[] generateExperimentPdf(String projectId, String notebookId, Experiment experiment, PrintRequest printRequest, User user) {
+    public byte[] generateExperimentPdf(String projectId, String notebookId,
+                                        Experiment experiment, PrintRequest printRequest, User user) {
         String notebookFullId = SequenceIdUtil.buildFullId(projectId, notebookId);
 
         Project project = findChecked(projectRepository, projectId, PROJECT);
@@ -99,7 +102,8 @@ public class ITextPrintService {
 
         checkAccess(experiment, user, notebook);
 
-        ExperimentPdfSectionsProvider provider = new ExperimentPdfSectionsProvider(project, notebook, experiment, fileRepository, printRequest, userRepository);
+        ExperimentPdfSectionsProvider provider = new ExperimentPdfSectionsProvider(project,
+                notebook, experiment, fileRepository, printRequest, userRepository);
         PdfGenerator pdfGenerator = new PdfGenerator(provider);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         pdfGenerator.generate(byteArrayOutputStream);
@@ -121,7 +125,7 @@ public class ITextPrintService {
     }
 
     /**
-     * Generates pdf for notebook
+     * Generates pdf for notebook.
      *
      * @param projectId    Project's identifier
      * @param notebookId   Notebook's identifier
@@ -146,7 +150,8 @@ public class ITextPrintService {
             }
         }
 
-        NotebookPdfSectionsProvider provider = new NotebookPdfSectionsProvider(project, notebook, experimentService, userService, printRequest);
+        NotebookPdfSectionsProvider provider = new NotebookPdfSectionsProvider(project,
+                notebook, experimentService, userService, printRequest);
         PdfGenerator pdfGenerator = new PdfGenerator(provider);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         pdfGenerator.generate(byteArrayOutputStream);
@@ -154,7 +159,7 @@ public class ITextPrintService {
     }
 
     /**
-     * Generates pdf for project
+     * Generates pdf for project.
      *
      * @param projectId    Project's identifier
      * @param printRequest Print parameters

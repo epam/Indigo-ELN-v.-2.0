@@ -15,28 +15,28 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 
 /**
- * Service class to work with user roles
+ * Service class to work with user roles.
  */
 @Service
 public class RoleService {
 
     /**
-     * SessionRegistry instance to work with user sessions
+     * SessionRegistry instance to work with user sessions.
      */
     private final SessionRegistry sessionRegistry;
 
     /**
-     * RoleRepository instance to work with roles in DB
+     * RoleRepository instance to work with roles in DB.
      */
     private final RoleRepository roleRepository;
 
     /**
-     * UserRepository instance to work with users in DB
+     * UserRepository instance to work with users in DB.
      */
     private final UserRepository userRepository;
 
     /**
-     * Create a new RoleService instance
+     * Create a new RoleService instance.
      *
      * @param sessionRegistry SessionRegistry instance to work with user sessions
      * @param roleRepository  RoleRepository instance to work with roles in DB
@@ -52,7 +52,7 @@ public class RoleService {
     }
 
     /**
-     * Retrieve all roles from DB
+     * Retrieve all roles from DB.
      *
      * @return all roles in application
      */
@@ -61,7 +61,7 @@ public class RoleService {
     }
 
     /**
-     * Retrieve one role by given ID
+     * Retrieve one role by given ID.
      *
      * @param id role ID
      * @return role with given ID
@@ -71,7 +71,7 @@ public class RoleService {
     }
 
     /**
-     * Create a new role in DB
+     * Create a new role in DB.
      *
      * @param role role to create
      * @return created role with new ID
@@ -87,7 +87,7 @@ public class RoleService {
     }
 
     /**
-     * Update an existing role in DB
+     * Update an existing role in DB.
      *
      * @param role role to update
      * @return updated role
@@ -108,7 +108,7 @@ public class RoleService {
     }
 
     /**
-     * Delete role with given ID from DB
+     * Delete role with given ID from DB.
      *
      * @param id role ID
      */

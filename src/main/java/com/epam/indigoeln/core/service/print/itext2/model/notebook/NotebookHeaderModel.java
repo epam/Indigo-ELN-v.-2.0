@@ -3,11 +3,12 @@ package com.epam.indigoeln.core.service.print.itext2.model.notebook;
 import com.epam.indigoeln.core.service.print.itext2.model.common.BaseHeaderModel;
 import com.epam.indigoeln.core.service.print.itext2.model.common.SectionModel;
 import com.epam.indigoeln.core.service.print.itext2.model.common.image.PdfImage;
+
 import java.time.Instant;
 import java.time.ZonedDateTime;
 
 /**
- * Implementation of SectionModel interface for notebook header
+ * Implementation of SectionModel interface for notebook header.
  */
 public class NotebookHeaderModel extends BaseHeaderModel {
     private String author;

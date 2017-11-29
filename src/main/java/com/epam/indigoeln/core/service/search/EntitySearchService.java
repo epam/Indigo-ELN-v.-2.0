@@ -56,7 +56,8 @@ public class EntitySearchService {
                 break;
 
             case CHEMISTRY_SEARCH_SIMILARITY:
-                bingoIds = bingoService.searchReactionSim(molFile, structure.getSimilarity(), 1f, StringUtils.EMPTY);
+                bingoIds = bingoService.searchReactionSim(molFile, structure.getSimilarity(),
+                        1f, StringUtils.EMPTY);
                 break;
 
             case CHEMISTRY_SEARCH_MOLFORMULA:
@@ -96,5 +97,4 @@ public class EntitySearchService {
         }
         return bingoIds;
     }
-
 }

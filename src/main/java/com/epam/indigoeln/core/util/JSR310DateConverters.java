@@ -13,7 +13,7 @@ public final class JSR310DateConverters {
     private JSR310DateConverters() {
     }
 
-    public static class LocalDateToDateConverter implements Converter<LocalDate, Date> {
+    public static final class LocalDateToDateConverter implements Converter<LocalDate, Date> {
 
         public static final LocalDateToDateConverter INSTANCE = new LocalDateToDateConverter();
 
@@ -26,7 +26,7 @@ public final class JSR310DateConverters {
         }
     }
 
-    public static class DateToLocalDateConverter implements Converter<Date, LocalDate> {
+    public static final class DateToLocalDateConverter implements Converter<Date, LocalDate> {
         public static final DateToLocalDateConverter INSTANCE = new DateToLocalDateConverter();
 
         private DateToLocalDateConverter() {
@@ -34,11 +34,12 @@ public final class JSR310DateConverters {
 
         @Override
         public LocalDate convert(Date source) {
-            return source == null ? null : ZonedDateTime.ofInstant(source.toInstant(), ZoneId.systemDefault()).toLocalDate();
+            return source == null ? null : ZonedDateTime.ofInstant(source.toInstant(),
+                    ZoneId.systemDefault()).toLocalDate();
         }
     }
 
-    public static class ZonedDateTimeToDateConverter implements Converter<ZonedDateTime, Date> {
+    public static final class ZonedDateTimeToDateConverter implements Converter<ZonedDateTime, Date> {
         public static final ZonedDateTimeToDateConverter INSTANCE = new ZonedDateTimeToDateConverter();
 
         private ZonedDateTimeToDateConverter() {
@@ -50,7 +51,7 @@ public final class JSR310DateConverters {
         }
     }
 
-    public static class DateToZonedDateTimeConverter implements Converter<Date, ZonedDateTime> {
+    public static final class DateToZonedDateTimeConverter implements Converter<Date, ZonedDateTime> {
         public static final DateToZonedDateTimeConverter INSTANCE = new DateToZonedDateTimeConverter();
 
         private DateToZonedDateTimeConverter() {
@@ -62,7 +63,7 @@ public final class JSR310DateConverters {
         }
     }
 
-    public static class LocalDateTimeToDateConverter implements Converter<LocalDateTime, Date> {
+    public static final class LocalDateTimeToDateConverter implements Converter<LocalDateTime, Date> {
         public static final LocalDateTimeToDateConverter INSTANCE = new LocalDateTimeToDateConverter();
 
         private LocalDateTimeToDateConverter() {
@@ -74,7 +75,7 @@ public final class JSR310DateConverters {
         }
     }
 
-    public static class DateToLocalDateTimeConverter implements Converter<Date, LocalDateTime> {
+    public static final class DateToLocalDateTimeConverter implements Converter<Date, LocalDateTime> {
         public static final DateToLocalDateTimeConverter INSTANCE = new DateToLocalDateTimeConverter();
 
         private DateToLocalDateTimeConverter() {

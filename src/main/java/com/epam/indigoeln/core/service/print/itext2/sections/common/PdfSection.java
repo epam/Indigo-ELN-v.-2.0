@@ -8,7 +8,7 @@ import com.lowagie.text.pdf.PdfWriter;
 import java.util.List;
 
 /**
- * Provides methods for working with pdf sections
+ * Provides methods for working with pdf sections.
  */
 public interface PdfSection {
     void init(float availableWidth);
