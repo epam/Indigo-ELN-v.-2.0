@@ -18,7 +18,7 @@ public interface ComponentRepository extends MongoRepository<Component, String> 
     @Query("{ 'name' :'preferredCompoundSummary', 'content.compounds' : {$elemMatch : {'fullNbkBatch' : {$in : ?0}}}}")
     List<Component> findPreferredCompoundSummariesByFullBatchNumbers(List<String> fullNbkBatchNumbers);
 
-    @Query(value="{'id' : { $in : ?0}}", delete = true)
+    @Query(value = "{'id' : { $in : ?0}}", delete = true)
     void deleteAllById(List<String> componentIds);
 
 }

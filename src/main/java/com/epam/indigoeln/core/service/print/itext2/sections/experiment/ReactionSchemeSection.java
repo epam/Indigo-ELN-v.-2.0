@@ -8,7 +8,7 @@ import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 
 /**
- * Extension of BasePdfSectionWithSimpleTitle for reaction's scheme
+ * Extension of BasePdfSectionWithSimpleTitle for reaction's scheme.
  */
 public class ReactionSchemeSection extends BasePdfSectionWithSimpleTitle<ReactionSchemeModel> {
     public ReactionSchemeSection(ReactionSchemeModel model) {
@@ -22,5 +22,4 @@ public class ReactionSchemeSection extends BasePdfSectionWithSimpleTitle<Reactio
         table.addCell(cell);
         return table;
     }
-
 }

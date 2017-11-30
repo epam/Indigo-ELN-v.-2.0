@@ -4,7 +4,7 @@ public class BatchSearchStructure {
 
     private String name;
     private String searchMode;
-    private float  similarity;
+    private float similarity;
     private String molfile;
     private String formula;
 
@@ -45,6 +45,6 @@ public class BatchSearchStructure {
     }
 
     public void setFormula(String formula) {
-        this.formula =formula;
+        this.formula = formula;
     }
 }

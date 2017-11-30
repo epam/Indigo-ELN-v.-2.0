@@ -16,7 +16,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Abstract class which describes base functionality for pdf section with title and table
+ * Abstract class which describes base functionality for pdf section with title and table.
  * @param <T> Class which implements SectionModel interface
  */
 public abstract class BasePdfSectionWithTableAndTitle<T extends SectionModel> extends AbstractPdfSection<T> {

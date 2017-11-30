@@ -23,25 +23,25 @@ import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
 /**
- * Provides a number of methods for notebook's data manipulation
+ * Provides a number of methods for notebook's data manipulation.
  */
 @Service
 public class NotebookService {
 
     /**
-     * Instance of ProjectRepository for access to projects in database
+     * Instance of ProjectRepository for access to projects in database.
      */
     @Autowired
     private ProjectRepository projectRepository;
 
     /**
-     * Instance of NotebookRepository for access to notebooks in database
+     * Instance of NotebookRepository for access to notebooks in database.
      */
     @Autowired
     private NotebookRepository notebookRepository;
 
     /**
-     * Instance of UserRepository for access to user in database
+     * Instance of UserRepository for access to user in database.
      */
     @Autowired
     private UserRepository userRepository;
@@ -50,7 +50,7 @@ public class NotebookService {
     private SequenceIdService sequenceIdService;
 
     /**
-     * Instance of CustomerDtoMapper for conversion from DTO object
+     * Instance of CustomerDtoMapper for conversion from DTO object.
      */
     @Autowired
     private CustomDtoMapper dtoMapper;
@@ -59,7 +59,7 @@ public class NotebookService {
     private WebSocketUtil webSocketUtil;
 
     /**
-     * Instance of ExperimentService class for working with experiment's data
+     * Instance of ExperimentService class for working with experiment's data.
      */
     @Autowired
     private ExperimentService experimentService;
@@ -70,7 +70,7 @@ public class NotebookService {
     }
 
     /**
-     * Returns all notebooks of specified project for tree representation
+     * Returns all notebooks of specified project for tree representation.
      *
      * @param projectId Project's identifier
      * @return List with notebooks for tree representation
@@ -80,7 +80,7 @@ public class NotebookService {
     }
 
     /**
-     * Returns all notebooks of specified project for current user
+     * Returns all notebooks of specified project for current user.
      * for tree representation according to his permissions.
      *
      * @param projectId Project's identifier
@@ -94,8 +94,12 @@ public class NotebookService {
     }
 
     /**
-     * If user is null, then retrieve notebooks without checking for UserPermissions
+     * If user is null, then retrieve notebooks without checking for UserPermissions.
      * Otherwise, use checking for UserPermissions
+     *
+     * @param projectId Project's identifier
+     * @param user      User
+     * @return All notebooks
      */
     private Collection<Notebook> getAllNotebooks(String projectId, User user) {
         Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
@@ -118,20 +122,22 @@ public class NotebookService {
     /**
      * Fetch all notebooks for current user available when create sub entity
      * return notebooks where users is in accessList and has permission CREATE_SUB_ENTITY,
-     * or has authority CONTENT_EDITOR (but not in accessLIst)
+     * or has authority CONTENT_EDITOR (but not in accessLIst).
      *
      * @param user user
      * @return list of notebooks available for experiment creation
      */
     public List<ShortEntityDTO> getNotebooksForExperimentCreation(User user) {
-        List<Notebook> notebooks = PermissionUtil.isContentEditor(user) ?
-                notebookRepository.findAllIgnoreChildren() :
-                notebookRepository.findByUserIdAndPermissionsShort(user.getId(), Collections.singletonList(UserPermission.CREATE_SUB_ENTITY));
-        return notebooks.stream().map(ShortEntityDTO::new).sorted(Comparator.comparing(ShortEntityDTO::getName)).collect(Collectors.toList());
+        List<Notebook> notebooks = PermissionUtil.isContentEditor(user)
+                ? notebookRepository.findAllIgnoreChildren()
+                : notebookRepository.findByUserIdAndPermissionsShort(user.getId(),
+                Collections.singletonList(UserPermission.CREATE_SUB_ENTITY));
+        return notebooks.stream().map(ShortEntityDTO::new)
+                .sorted(Comparator.comparing(ShortEntityDTO::getName)).collect(Collectors.toList());
     }
 
     /**
-     * Returns notebook by id according to permissions
+     * Returns notebook by id according to permissions.
      *
      * @param projectId Project's identifier
      * @param id        Notebook's identifier
@@ -162,7 +168,7 @@ public class NotebookService {
     }
 
     /**
-     * Creates notebook with OWNER's permissions for current user
+     * Creates notebook with OWNER's permissions for current user.
      *
      * @param notebookDTO Notebook to create
      * @param projectId   Project's identifier
@@ -196,7 +202,8 @@ public class NotebookService {
 
         // add all users as VIEWER to project
         notebook.getAccessList().forEach(up ->
-                PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS));
+                PermissionUtil.addUserPermissions(project.getAccessList(),
+                        up.getUser(), UserPermission.VIEWER_PERMISSIONS));
 
         project.getNotebooks().add(notebook);
         Project savedProject = projectRepository.save(project);
@@ -206,7 +213,7 @@ public class NotebookService {
     }
 
     /**
-     * Updates notebook with OWNER's permissions for current user
+     * Updates notebook with OWNER's permissions for current user.
      *
      * @param notebookDTO Notebook to update
      * @param projectId   Project's identifier
@@ -243,12 +250,14 @@ public class NotebookService {
             if (!notebookFromDB.getName().equals(notebookDTO.getName())) {
                 List<String> numbers = BatchComponentUtil.hasBatches(notebookFromDB);
                 if (!numbers.isEmpty()) {
-                    throw OperationDeniedException.createNotebookUpdateNameOperation(numbers.toArray(new String[numbers.size()]));
+                    throw OperationDeniedException
+                            .createNotebookUpdateNameOperation(numbers.toArray(new String[numbers.size()]));
                 }
                 notebookFromDB.setName(notebookDTO.getName());
             }
             notebookFromDB.setDescription(notebookDTO.getDescription());
-            notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's experiments for updated notebook
+            notebookFromDB.setAccessList(notebook.getAccessList()); // Stay old notebook's
+            // experiments for updated notebook
             notebookFromDB.setVersion(notebook.getVersion());
 
             Notebook savedNotebook = saveNotebookAndHandleError(notebookFromDB);
@@ -257,7 +266,8 @@ public class NotebookService {
                     orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
             // add all users as VIEWER to project
             Boolean updateProject = notebook.getAccessList().stream()
-                    .map(up -> PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS))
+                    .map(up -> PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(),
+                            UserPermission.VIEWER_PERMISSIONS))
                     .reduce(false, Boolean::logicalOr);
 
             webSocketUtil.updateNotebook(user, projectId, savedNotebook);
@@ -274,7 +284,7 @@ public class NotebookService {
     }
 
     /**
-     * Removes notebook
+     * Removes notebook.
      *
      * @param projectId Project's identifier
      * @param id        Notebook's identifier

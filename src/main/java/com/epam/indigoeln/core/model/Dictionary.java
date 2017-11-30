@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A dictionary model
+ * A dictionary model.
  */
 @ToString
 @EqualsAndHashCode

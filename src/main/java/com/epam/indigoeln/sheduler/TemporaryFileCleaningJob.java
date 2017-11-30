@@ -32,7 +32,8 @@ public class TemporaryFileCleaningJob {
             final LocalDateTime threshold = LocalDateTime.now().minus(1, ChronoUnit.WEEKS);
             final List<GridFSDBFile> temporaryFiles = fileRepository.findAllTemporary();
             final Set<String> fileIdsToDelete = temporaryFiles.stream().filter(tf -> {
-                final LocalDateTime uploadDate = tf.getUploadDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                final LocalDateTime uploadDate = tf.getUploadDate().toInstant()
+                        .atZone(ZoneId.systemDefault()).toLocalDateTime();
                 return uploadDate.isBefore(threshold);
             }).map(tf -> (String) tf.getId()).collect(Collectors.toSet());
             if (!fileIdsToDelete.isEmpty()) {

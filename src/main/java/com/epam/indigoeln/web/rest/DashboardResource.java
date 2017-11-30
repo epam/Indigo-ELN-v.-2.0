@@ -46,6 +46,7 @@ public class DashboardResource {
     static final String URL_MAPPING = "/api/dashboard";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DashboardResource.class);
+    private static final String EXCEPTION_MESSAGE = "Unable to get list of documents from signature service.";
 
     @Autowired
     private ExperimentRepository experimentRepository;
@@ -63,8 +64,11 @@ public class DashboardResource {
     private UserRepository userRepository;
 
     /**
-     * GET  /dashboard -> Returns dashboard experiments
-     * 1. Experiments created by current user during one month which are in one of following statuses: 'Open', 'Completed'
+     * GET  /dashboard -> Returns dashboard experiments.
+     * 1. Experiments created by current user during one month which are in one of following statuses:
+     * 'Open', 'Completed'.
+     *
+     * @return Returns dashboard content
      */
     @ApiOperation(value = "Returns dashboard content.")
     @RequestMapping(method = RequestMethod.GET,
@@ -77,7 +81,8 @@ public class DashboardResource {
         User user = userService.getUserWithAuthorities();
         DashboardDTO dashboardDTO = new DashboardDTO();
 
-        ZonedDateTime threshold = ZonedDateTime.now().minus(dashboardProperties.getThresholdLevel(), dashboardProperties.getThresholdUnit());
+        ZonedDateTime threshold = ZonedDateTime.now()
+                .minus(dashboardProperties.getThresholdLevel(), dashboardProperties.getThresholdUnit());
 
         dashboardDTO.setOpenAndCompletedExp(getCurrentRows(user, threshold));
         dashboardDTO.setWaitingSignatureExp(getWaitingRows());
@@ -88,7 +93,8 @@ public class DashboardResource {
 
     private List<DashboardRowDTO> getCurrentRows(User user, ZonedDateTime threshold) {
         // Open and Completed Experiments
-        Map<String, Experiment>  experiments = experimentRepository.findByAuthorAndStatusAndCreationDateAfter(user, ExperimentStatus.OPEN, threshold)
+        Map<String, Experiment> experiments = experimentRepository
+                .findByAuthorAndStatusAndCreationDateAfter(user, ExperimentStatus.OPEN, threshold)
                 .collect(Collectors.toMap(Experiment::getId, Function.identity()));
 
         return getEntities(experiments)
@@ -97,7 +103,7 @@ public class DashboardResource {
                 .collect(Collectors.toList());
     }
 
-    private Stream<Triple<Project, Notebook, Experiment>> getEntities(Map<String, Experiment>  experiments) {
+    private Stream<Triple<Project, Notebook, Experiment>> getEntities(Map<String, Experiment> experiments) {
         List<DBRef> experimentIds = experiments.keySet().stream()
                 .map(k -> new DBRef("experiment", k))
                 .collect(Collectors.toList());
@@ -124,11 +130,13 @@ public class DashboardResource {
         final Map<String, SignatureService.Document> waitingDocuments;
         try {
             waitingDocuments = signatureService.getDocumentsByUser().stream()
-                    .filter(d -> d.isActionRequired() && (d.getStatus() == SignatureService.ISSStatus.SIGNING || d.getStatus() == SignatureService.ISSStatus.SUBMITTED))
+                    .filter(d -> d.isActionRequired()
+                            && (d.getStatus() == SignatureService.ISSStatus.SIGNING
+                            || d.getStatus() == SignatureService.ISSStatus.SUBMITTED))
                     .collect(Collectors.toMap(SignatureService.Document::getId, d -> d));
         } catch (IOException e) {
-            LOGGER.error("Unable to get list of documents from signature service.", e);
-            throw new IndigoRuntimeException("Unable to get list of documents from signature service.");
+            LOGGER.error(EXCEPTION_MESSAGE, e);
+            throw new IndigoRuntimeException(EXCEPTION_MESSAGE);
         }
         Map<String, Experiment> waitingExperiments = experimentRepository.findByDocumentIdIn(waitingDocuments.keySet())
                 .collect(Collectors.toMap(Experiment::getId, Function.identity()));
@@ -143,15 +151,18 @@ public class DashboardResource {
         final Collection<Experiment> submittedExp = experimentRepository.findByAuthorOrSubmittedBy(user, user).stream()
                 .filter(e -> e.getStatus() != ExperimentStatus.OPEN && e.getStatus() != ExperimentStatus.COMPLETED)
                 .collect(Collectors.toList());
-        final Set<String> submittedDocumentsIds = submittedExp.stream().map(Experiment::getDocumentId).collect(Collectors.toSet());
+        final Set<String> submittedDocumentsIds = submittedExp
+                .stream()
+                .map(Experiment::getDocumentId)
+                .collect(Collectors.toSet());
         Map<String, SignatureService.Document> submittedDocuments;
         if (!submittedDocumentsIds.isEmpty()) {
             try {
                 submittedDocuments = signatureService.getDocumentsByIds(submittedDocumentsIds).stream()
                         .collect(Collectors.toMap(SignatureService.Document::getId, d -> d));
             } catch (IOException e) {
-                LOGGER.error("Unable to get list of documents from signature service.", e);
-                throw new IndigoRuntimeException("Unable to get list of documents from signature service.");
+                LOGGER.error(EXCEPTION_MESSAGE, e);
+                throw new IndigoRuntimeException(EXCEPTION_MESSAGE);
             }
         } else {
             submittedDocuments = new HashMap<>();
@@ -166,7 +177,8 @@ public class DashboardResource {
                 .collect(Collectors.toList());
     }
 
-    private DashboardRowDTO convert(Triple<Project, Notebook, Experiment> t, Map<String, SignatureService.Document> documents) {
+    private DashboardRowDTO convert(Triple<Project, Notebook, Experiment> t,
+                                    Map<String, SignatureService.Document> documents) {
         final Project project = t.getLeft();
         final Notebook middle = t.getMiddle();
         final Experiment experiment = t.getRight();
@@ -175,7 +187,7 @@ public class DashboardResource {
     }
 
     /**
-     * Checks if user has access to all entities
+     * Checks if user has access to all entities.
      *
      * @param user user to check access for
      * @param t    entities to check (project, notebook, experiment)
@@ -183,19 +195,25 @@ public class DashboardResource {
      */
     private boolean hasAccess(User user, Triple<Project, Notebook, Experiment> t) {
         final Project project = t.getLeft();
-        if (project == null || !PermissionUtil.hasEditorAuthorityOrPermissions(user, project.getAccessList(), UserPermission.READ_ENTITY)) {
+        if (project == null
+                || !PermissionUtil.hasEditorAuthorityOrPermissions(user, project.getAccessList(),
+                UserPermission.READ_ENTITY)) {
             return false;
         }
         final Notebook notebook = t.getMiddle();
-        if (notebook == null || !PermissionUtil.hasEditorAuthorityOrPermissions(user, notebook.getAccessList(), UserPermission.READ_ENTITY)) {
+        if (notebook == null
+                || !PermissionUtil.hasEditorAuthorityOrPermissions(user, notebook.getAccessList(),
+                UserPermission.READ_ENTITY)) {
             return false;
         }
         final Experiment experiment = t.getRight();
-        return experiment != null && PermissionUtil.hasEditorAuthorityOrPermissions(user, experiment.getAccessList(), UserPermission.READ_ENTITY);
+        return experiment != null
+                && PermissionUtil.hasEditorAuthorityOrPermissions(user, experiment.getAccessList(),
+                UserPermission.READ_ENTITY);
     }
 
     /**
-     * Creates new dashboard row DTO
+     * Creates new dashboard row DTO.
      *
      * @param project    experiment project
      * @param notebook   experiment notebook
@@ -203,7 +221,8 @@ public class DashboardResource {
      * @param document   experiment document (in signature service)
      * @return dashboard row DTO
      */
-    private DashboardRowDTO convert(Project project, Notebook notebook, Experiment experiment, SignatureService.Document document) {
+    private DashboardRowDTO convert(Project project, Notebook notebook, Experiment experiment,
+                                    SignatureService.Document document) {
         DashboardRowDTO result = new DashboardRowDTO();
 
         final List<ComponentDTO> components =
@@ -256,5 +275,4 @@ public class DashboardResource {
 
         return result;
     }
-
 }

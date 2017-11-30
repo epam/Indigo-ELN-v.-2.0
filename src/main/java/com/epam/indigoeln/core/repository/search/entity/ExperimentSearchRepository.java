@@ -5,7 +5,6 @@ import com.epam.indigoeln.core.repository.search.ResourceUtils;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
 import com.mongodb.BasicDBList;
-import com.mongodb.DBRef;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,12 +48,13 @@ public class ExperimentSearchRepository implements InitializingBean {
 
     @SuppressWarnings("unchecked")
     public Optional<Set<String>> search(EntitySearchRequest request, List<String> bingoIds) {
-        if (checkConditions(request)){
+        if (checkConditions(request)) {
             Optional<Criteria> advancedCriteria = getAdvancedCriteria(request);
             Optional<Criteria> queryCriteria = getQueryCriteria(request);
             Optional<Criteria> experimentIdsWithBingoIds = getExperimentIdsWithBingoIds(request, bingoIds);
-            return AggregationUtils.andCriteria(advancedCriteria, queryCriteria, experimentIdsWithBingoIds).map(this::find);
-        }else {
+            return AggregationUtils.andCriteria(advancedCriteria, queryCriteria, experimentIdsWithBingoIds)
+                    .map(this::find);
+        } else {
             return Optional.empty();
         }
     }
@@ -84,7 +84,7 @@ public class ExperimentSearchRepository implements InitializingBean {
         return AggregationUtils.andCriteria(advancedSearch);
     }
 
-    private Optional<Criteria> getExperimentIdsWithBingoIds(EntitySearchRequest request, List<String> bingoIds){
+    private Optional<Criteria> getExperimentIdsWithBingoIds(EntitySearchRequest request, List<String> bingoIds) {
         Optional<Criteria> componentWithBingoIds = getComponentWithBingoIds(request, bingoIds);
         return componentWithBingoIds.map(this::find).map(ids -> Criteria.where("_id").in(ids));
     }
@@ -105,11 +105,12 @@ public class ExperimentSearchRepository implements InitializingBean {
         return AggregationUtils.orCriteria(querySearch);
     }
 
-    private boolean checkConditions(EntitySearchRequest request){
+    private boolean checkConditions(EntitySearchRequest request) {
         boolean correct = request.getAdvancedSearch().stream()
-                .allMatch(c -> AVAILABLE_FIELDS.contains(c.getField()) || ComponentSearchRepository.AVAILABLE_FIELDS.contains(c.getField()));
+                .allMatch(c -> AVAILABLE_FIELDS.contains(c.getField())
+                        || ComponentSearchRepository.AVAILABLE_FIELDS.contains(c.getField()));
 
-        if (correct){
+        if (correct) {
             return request.getAdvancedSearch().stream()
                     .filter("kind"::equals)
                     .findAny()
@@ -126,6 +127,4 @@ public class ExperimentSearchRepository implements InitializingBean {
                 .map(o -> (String) o)
                 .collect(Collectors.toSet());
     }
-
 }
-

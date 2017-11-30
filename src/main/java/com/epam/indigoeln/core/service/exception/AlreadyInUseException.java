@@ -7,7 +7,7 @@ import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
  *
  * @author Timofey Zubkov
  */
-public class AlreadyInUseException extends CustomParametrizedException {
+public final class AlreadyInUseException extends CustomParametrizedException {
 
     private static final long serialVersionUID = 5641713615602592557L;
 
@@ -16,7 +16,7 @@ public class AlreadyInUseException extends CustomParametrizedException {
     }
 
     /**
-     * Creates instance of AlreadyInUseException class with role's id
+     * Creates instance of AlreadyInUseException class with role's id.
      *
      * @param roleId Role's identifier
      * @return Instance of AlreadyInUseException class with role's id
@@ -26,7 +26,7 @@ public class AlreadyInUseException extends CustomParametrizedException {
     }
 
     /**
-     * Creates instance of AlreadyInUseException class with user's id
+     * Creates instance of AlreadyInUseException class with user's id.
      *
      * @param userId User's identifier
      * @return Instance of AlreadyInUseException class with user's id
@@ -36,13 +36,13 @@ public class AlreadyInUseException extends CustomParametrizedException {
     }
 
     /**
-     * Creates instance of AlreadyInUseException class with template's id
+     * Creates instance of AlreadyInUseException class with template's id.
      *
      * @param templateId Template's identifier
      * @return Instance of AlreadyInUseException class with template's id
      */
     public static AlreadyInUseException createWithTemplateId(String templateId) {
-        return new AlreadyInUseException("The template with id = " + templateId + " already in use", String.valueOf(templateId));
+        return new AlreadyInUseException("The template with id = " + templateId + " already in use",
+                String.valueOf(templateId));
     }
-
 }

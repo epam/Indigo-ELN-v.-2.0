@@ -8,7 +8,7 @@ import com.epam.indigoeln.web.rest.dto.FileDTO;
 import com.lowagie.text.pdf.PdfPTable;
 
 /**
- * Extension of BasePdfSectionWithSimpleTitle class for attachments
+ * Extension of BasePdfSectionWithSimpleTitle class for attachments.
  */
 public class AttachmentsSection extends BasePdfSectionWithSimpleTitle<AttachmentsModel> {
     private static final String[] HEADERS = new String[]{

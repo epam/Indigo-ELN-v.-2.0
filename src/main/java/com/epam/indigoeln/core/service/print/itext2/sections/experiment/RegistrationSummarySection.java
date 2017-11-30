@@ -11,10 +11,10 @@ import com.lowagie.text.pdf.PdfPTable;
 import one.util.streamex.StreamEx;
 
 public class RegistrationSummarySection extends BasePdfSectionWithSimpleTitle<RegistrationSummaryModel> {
-    private static final String[] headers = new String[]{
+    private static final String[] HEADERS = new String[]{
             "Nbk Batch", "Total Amount Made", "Registration Status", "Conversational Batch #"
     };
-    private static final float[] columnWidth = new float[]{3, 3, 3, 4};
+    private static final float[] COLUMN_WIDTH = new float[]{3, 3, 3, 4};
 
     public RegistrationSummarySection(RegistrationSummaryModel model) {
         super(model, "REGISTRATION SUMMARY");
@@ -22,11 +22,12 @@ public class RegistrationSummarySection extends BasePdfSectionWithSimpleTitle<Re
 
     @Override
     protected PdfPTable generateContentTable(float width) {
-        PdfPTable table = TableFactory.createDefaultTable(headers, columnWidth, width);
+        PdfPTable table = TableFactory.createDefaultTable(HEADERS, COLUMN_WIDTH, width);
         for (RegistrationSummaryRow row : model.getRows()) {
             StreamEx.of(
                     CellFactory.getCommonCell(row.getFullNbkBatch()),
-                    CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getTotalAmountMade(), row.getTotalAmountMadeUnit())),
+                    CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getTotalAmountMade(),
+                            row.getTotalAmountMadeUnit())),
                     CellFactory.getCommonCell(row.getRegistrationStatus()),
                     CellFactory.getCommonCell(row.getConversationalBatch())
             ).forEach(cell -> {

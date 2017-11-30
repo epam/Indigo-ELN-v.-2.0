@@ -36,8 +36,7 @@ public class Experiment extends ExperimentShort {
     private List<Component> components;
 
     @JsonIgnore
-    transient
-    private Set<String> fileIds = new HashSet<>();
+    private transient Set<String> fileIds = new HashSet<>();
 
     public String getComments() {
         return comments;

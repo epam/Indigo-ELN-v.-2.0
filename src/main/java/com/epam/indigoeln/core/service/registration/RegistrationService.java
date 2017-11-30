@@ -22,43 +22,43 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
- * Service class to work with compound registration services
+ * Service class to work with compound registration services.
  */
 @Service
 public class RegistrationService {
 
     /**
-     * Logger instance
+     * Logger instance.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistrationService.class);
 
     /**
-     * Default method name for similarity search
+     * Default method name for similarity search.
      */
     private static final String DEFAULT_SIMILARITY = "tanimoto";
 
     /**
-     * List of external registration services
+     * List of external registration services.
      */
     private final List<RegistrationRepository> repositories;
 
     /**
-     * ComponentRepository instance for work with components
+     * ComponentRepository instance for work with components.
      */
     private final ComponentRepository componentRepository;
 
     /**
-     * RegistrationJobRepository instance for work with registration jobs
+     * RegistrationJobRepository instance for work with registration jobs.
      */
     private final RegistrationJobRepository registrationJobRepository;
 
     /**
-     * SimpMessagingTemplate instance for sending messages to websocket
+     * SimpMessagingTemplate instance for sending messages to websocket.
      */
     private final SimpMessagingTemplate template;
 
     /**
-     * Create a new RegistrationService instance
+     * Create a new RegistrationService instance.
      *
      * @param repositories              List of external registration services
      * @param componentRepository       ComponentRepository instance for work with components
@@ -77,7 +77,7 @@ public class RegistrationService {
     }
 
     /**
-     * Get external registration services information
+     * Get external registration services information.
      *
      * @return external registration services information
      */
@@ -89,7 +89,7 @@ public class RegistrationService {
     }
 
     /**
-     * Get external registration service by given id
+     * Get external registration service by given id.
      *
      * @param id external registration service id
      * @return external registration service with given id
@@ -109,13 +109,14 @@ public class RegistrationService {
     }
 
     /**
-     * Get batch->component map from given component supplier filtered with given predicate
+     * Get batch->component map from given component supplier filtered with given predicate.
      *
      * @param supplier  should provide components
      * @param predicate for filtering batches
      * @return batch->component map
      */
-    private Map<BatchSummary, Component> getBatches(Supplier<Collection<Component>> supplier, Predicate<BatchSummary> predicate) {
+    private Map<BatchSummary, Component> getBatches(Supplier<Collection<Component>> supplier,
+                                                    Predicate<BatchSummary> predicate) {
         Map<BatchSummary, Component> batchesMap = new HashMap<>();
 
         supplier.get()
@@ -132,7 +133,7 @@ public class RegistrationService {
     }
 
     /**
-     * Register batches with given batch numbers in external registration service with given ID
+     * Register batches with given batch numbers in external registration service with given ID.
      *
      * @param id               external registration service ID
      * @param fullBatchNumbers batch numbers to register
@@ -150,8 +151,8 @@ public class RegistrationService {
                     .map(BatchSummary::getFullNbkBatch)
                     .collect(Collectors.toSet());
 
-            throw new RegistrationException("Unable to find batches for registration: " +
-                    CollectionUtils.subtract(fullBatchNumbers, foundFullNbkBatches));
+            throw new RegistrationException("Unable to find batches for registration: "
+                    + CollectionUtils.subtract(fullBatchNumbers, foundFullNbkBatches));
         }
 
         Optional<BatchSummary> inProgressOpt = batches.keySet()
@@ -160,7 +161,8 @@ public class RegistrationService {
                 .findFirst();
 
         if (inProgressOpt.isPresent()) {
-            throw new RegistrationException("Batch " + inProgressOpt.get().getFullNbkBatch() + " is already on registration.");
+            throw new RegistrationException("Batch " + inProgressOpt.get().getFullNbkBatch()
+                    + " is already on registration.");
         }
 
         List<Compound> compounds = batches.keySet()
@@ -188,13 +190,14 @@ public class RegistrationService {
 
         registrationJobRepository.save(registrationJob);
 
-        template.convertAndSend("/topic/registration_status", fullBatchNumbers.stream().collect(Collectors.toMap(fbn -> fbn, fbn -> RegistrationStatus.inProgress())));
+        template.convertAndSend("/topic/registration_status", fullBatchNumbers.stream()
+                .collect(Collectors.toMap(fbn -> fbn, fbn -> RegistrationStatus.inProgress())));
 
         return jobId;
     }
 
     /**
-     * Get registration status for registration job with given ID in external registration service with given ID
+     * Get registration status for registration job with given ID in external registration service with given ID.
      *
      * @param id    external registration service ID
      * @param jobId registration job ID
@@ -221,7 +224,8 @@ public class RegistrationService {
                                 if (registrationStatus.getStatus() == RegistrationStatus.Status.PASSED) {
                                     b.setRegistrationDate(registrationStatus.getDate());
                                     b.setCompoundId(registrationStatus.getCompoundNumbers().get(b.getFullNbkBatch()));
-                                    b.setConversationalBatchNumber(registrationStatus.getConversationalBatchNumbers().get(b.getFullNbkBatch()));
+                                    b.setConversationalBatchNumber(registrationStatus.getConversationalBatchNumbers()
+                                            .get(b.getFullNbkBatch()));
                                 }
                             }
                     );
@@ -233,7 +237,7 @@ public class RegistrationService {
     }
 
     /**
-     * Get registered compounds for registration job with given ID from external registration service with given ID
+     * Get registered compounds for registration job with given ID from external registration service with given ID.
      *
      * @param id    external registration service ID
      * @param jobId registration job ID
@@ -245,7 +249,7 @@ public class RegistrationService {
     }
 
     /**
-     * Get compound info for compound with given compound number in external registration service with given ID
+     * Get compound info for compound with given compound number in external registration service with given ID.
      *
      * @param id         external registration service ID
      * @param compoundNo compound number
@@ -257,7 +261,7 @@ public class RegistrationService {
     }
 
     /**
-     * Perform substructure search for given structure in external registration service with given ID
+     * Perform substructure search for given structure in external registration service with given ID.
      *
      * @param id           external registration service ID
      * @param structure    structure to search
@@ -265,12 +269,13 @@ public class RegistrationService {
      * @return found structure IDs
      * @throws RegistrationException if external registration service is not found in initial list
      */
-    public List<Integer> searchSubstructure(String id, String structure, String searchOption) throws RegistrationException {
+    public List<Integer> searchSubstructure(String id, String structure, String searchOption)
+            throws RegistrationException {
         return getRegistrationRepository(id).searchSub(structure, searchOption);
     }
 
     /**
-     * Perform similarity search for given structure in external registration service with given ID
+     * Perform similarity search for given structure in external registration service with given ID.
      *
      * @param id           external registration service ID
      * @param structure    structure to search
@@ -278,12 +283,14 @@ public class RegistrationService {
      * @return found structure IDs
      * @throws RegistrationException if external registration service is not found in initial list
      */
-    public List<Integer> searchSimilarity(String id, String structure, String searchOption) throws RegistrationException {
-        return getRegistrationRepository(id).searchSim(structure, DEFAULT_SIMILARITY, Double.parseDouble(searchOption) / 100, (double) 1);
+    public List<Integer> searchSimilarity(String id, String structure, String searchOption)
+            throws RegistrationException {
+        return getRegistrationRepository(id).searchSim(structure,
+                DEFAULT_SIMILARITY, Double.parseDouble(searchOption) / 100, (double) 1);
     }
 
     /**
-     * Perform smarts search for given structure in external registration service with given ID
+     * Perform smarts search for given structure in external registration service with given ID.
      *
      * @param id        external registration service ID
      * @param structure structure to search
@@ -295,7 +302,7 @@ public class RegistrationService {
     }
 
     /**
-     * Perform exact search for given structure in external registration service with given ID
+     * Perform exact search for given structure in external registration service with given ID.
      *
      * @param id           external registration service ID
      * @param structure    structure to search
@@ -308,7 +315,7 @@ public class RegistrationService {
     }
 
     /**
-     * Convert batch representation in Mongo to Compound
+     * Convert batch representation in Mongo to Compound.
      *
      * @param batch batch representation in Mongo
      * @return converted Compound
@@ -335,26 +342,28 @@ public class RegistrationService {
         result.setComment(batch.getString("comments"));
 
         BasicDBObject healthHazards = (BasicDBObject) batch.get("healthHazards");
-        result.setHazardComment(Optional.ofNullable(healthHazards).map(hh -> hh.getString("asString")).orElse(null));
+        result.setHazardComment(Optional.ofNullable(healthHazards)
+                .map(hh -> hh.getString("asString")).orElse(null));
 
         BasicDBObject storageInstructions = (BasicDBObject) batch.get("storageInstructions");
-        result.setStorageComment(Optional.ofNullable(storageInstructions).map(hh -> hh.getString("asString")).orElse(null));
+        result.setStorageComment(Optional.ofNullable(storageInstructions)
+                .map(hh -> hh.getString("asString")).orElse(null));
 
         return result;
     }
 
     /**
-     * Internal batch representation
+     * Internal batch representation.
      */
     private static class BatchSummary {
 
         /**
-         * Batch representation in Mongo
+         * Batch representation in Mongo.
          */
         private BasicDBObject delegate;
 
         /**
-         * Create a new BatchSummary instance
+         * Create a new BatchSummary instance.
          *
          * @param delegate Batch representation in Mongo
          */
@@ -363,7 +372,7 @@ public class RegistrationService {
         }
 
         /**
-         * Get batch representation in Mongo
+         * Get batch representation in Mongo.
          *
          * @return batch representation in Mongo
          */
@@ -372,7 +381,7 @@ public class RegistrationService {
         }
 
         /**
-         * Get full nbk batch number from Mongo representation
+         * Get full nbk batch number from Mongo representation.
          *
          * @return full nbk batch number
          */
@@ -381,7 +390,7 @@ public class RegistrationService {
         }
 
         /**
-         * Get registration status from Mongo representation
+         * Get registration status from Mongo representation.
          *
          * @return registration status
          */
@@ -390,7 +399,7 @@ public class RegistrationService {
         }
 
         /**
-         * Set registration status to Mongo representation
+         * Set registration status to Mongo representation.
          *
          * @param registrationStatus registration status
          */
@@ -399,7 +408,7 @@ public class RegistrationService {
         }
 
         /**
-         * Get registration job ID from Mongo representation
+         * Get registration job ID from Mongo representation.
          *
          * @return registration job ID
          */
@@ -408,7 +417,7 @@ public class RegistrationService {
         }
 
         /**
-         * Set registration job ID to Mongo representation
+         * Set registration job ID to Mongo representation.
          *
          * @param registrationJobId registration job ID
          */
@@ -417,7 +426,7 @@ public class RegistrationService {
         }
 
         /**
-         * Set external registration service ID to Mongo representation
+         * Set external registration service ID to Mongo representation.
          *
          * @param registrationRepositoryId external registration service ID
          */
@@ -426,7 +435,7 @@ public class RegistrationService {
         }
 
         /**
-         * Set registration date to Mongo representation
+         * Set registration date to Mongo representation.
          *
          * @param registrationDate registration date
          */
@@ -435,7 +444,7 @@ public class RegistrationService {
         }
 
         /**
-         * Set compound ID to Mongo representation
+         * Set compound ID to Mongo representation.
          *
          * @param compoundId compound ID
          */
@@ -444,7 +453,7 @@ public class RegistrationService {
         }
 
         /**
-         * Set conversational batch number to Mongo representation
+         * Set conversational batch number to Mongo representation.
          *
          * @param conversationalBatchNumber conversational batch number
          */

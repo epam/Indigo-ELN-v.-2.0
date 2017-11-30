@@ -11,7 +11,7 @@ import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
 public class FileNotFoundException extends CustomParametrizedException {
 
     /**
-     * Creates instance of FileNotFoundException
+     * Creates instance of FileNotFoundException.
      *
      * @param fileId File's identifier
      */

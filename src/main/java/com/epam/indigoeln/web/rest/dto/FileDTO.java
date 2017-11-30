@@ -16,7 +16,7 @@ public class FileDTO {
     private User author;
 
 
-    public FileDTO(){
+    public FileDTO() {
         super();
     }
 

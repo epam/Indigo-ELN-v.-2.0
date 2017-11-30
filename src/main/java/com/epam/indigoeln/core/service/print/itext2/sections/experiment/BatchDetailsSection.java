@@ -10,10 +10,10 @@ import com.lowagie.text.pdf.PdfPTable;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Extension of BasePdfSectionWithSimpleTitle for batch details section
+ * Extension of BasePdfSectionWithSimpleTitle for batch details section.
  */
 public class BatchDetailsSection extends BasePdfSectionWithSimpleTitle<BatchDetailsModel> {
-    private static final float[] columnWidth = new float[]{1, 2};
+    private static final float[] COLUMN_WIDTH = new float[]{1, 2};
 
     public BatchDetailsSection(BatchDetailsModel model) {
         super(model, "BATCH DETAILS");
@@ -22,10 +22,11 @@ public class BatchDetailsSection extends BasePdfSectionWithSimpleTitle<BatchDeta
     @Override
     protected PdfPTable generateContentTable(float width) {
         String[] headers = {"For Notebook Batch:", model.getFullNbkBatch()};
-        PdfPTable table = TableFactory.createDefaultTable(headers, columnWidth, width, Element.ALIGN_LEFT);
+        PdfPTable table = TableFactory.createDefaultTable(headers, COLUMN_WIDTH, width, Element.ALIGN_LEFT);
 
         PdfPTableHelper pdfPTableHelper = new PdfPTableHelper(table);
-        pdfPTableHelper.addKeyValueCellsNoBold("Registered Date", FormatUtils.formatBatchDetails(model.getRegistrationDate()));
+        pdfPTableHelper.addKeyValueCellsNoBold("Registered Date", FormatUtils.formatBatchDetails(model
+                .getRegistrationDate()));
         pdfPTableHelper.addKeyValueCellsNoBold("Structure Comments", model.getStructureComments());
         pdfPTableHelper.addKeyValueCellsNoBold("Compound Source", model.getSource());
         pdfPTableHelper.addKeyValueCellsNoBold("Source Detail", model.getSourceDetail());

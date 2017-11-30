@@ -27,7 +27,10 @@ public class DictionaryDTO {
         this.name = dictionary.getName();
         this.description = dictionary.getDescription();
         if (dictionary.getAccessList() != null) {
-            this.accessList.addAll(dictionary.getAccessList().stream().map(UserPermissionDTO::new).collect(Collectors.toList()));
+            this.accessList.addAll(dictionary.getAccessList()
+                    .stream()
+                    .map(UserPermissionDTO::new)
+                    .collect(Collectors.toList()));
         }
     }
 

@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
- * Implementation of SectionModel interface for reaction details
+ * Implementation of SectionModel interface for reaction details.
  */
 @Data
 @Accessors(chain = true)

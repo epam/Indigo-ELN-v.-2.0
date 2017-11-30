@@ -56,10 +56,10 @@ public class RoleDTO {
 
     @Override
     public String toString() {
-        return "RoleDTO{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", authorities=" + authorities +
-                "}";
+        return "RoleDTO{"
+                + "id='" + id + '\''
+                + ", name='" + name + '\''
+                + ", authorities=" + authorities
+                + "}";
     }
 }

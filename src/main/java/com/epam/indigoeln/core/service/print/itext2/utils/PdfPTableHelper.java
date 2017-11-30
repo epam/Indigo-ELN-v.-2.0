@@ -29,7 +29,7 @@ public class PdfPTableHelper {
 
 
     /**
-     * Added key and value cells to table
+     * Added key and value cells to table.
      *
      * @param key          Key title
      * @param value        Value

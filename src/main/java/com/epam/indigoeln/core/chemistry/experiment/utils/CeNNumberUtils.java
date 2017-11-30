@@ -14,10 +14,11 @@ public class CeNNumberUtils {
 
     public static boolean doubleEquals(double x, double y, double delta) {
         boolean result;
-        if (Math.abs(x) < Math.abs(y))
+        if (Math.abs(x) < Math.abs(y)) {
             result = (Math.abs(Math.abs(x) - Math.abs(y)) <= delta);
-        else
+        } else {
             result = (Math.abs(Math.abs(y) - Math.abs(x)) <= delta);
+        }
         return result;
     }
 
@@ -30,16 +31,19 @@ public class CeNNumberUtils {
     /**
      * Note on Significant Figures:
      * <p>
-     * Online: http://chemed.chem.purdue.edu/genchem/topicreview/bp/ch1/sigfigs.html#determ 1) All nonzero digits are
-     * significant--457 cm (three significant figures); 0.25 g (two significant figures). 2) Zeros between nonzero digits are
-     * significant--1005 kg (four significant figures); 1.03 cm (three significant figures). 3) Zeros within a number are always
-     * significant. Both 4308 and 40.05 contain four significant figures 4) Zeros to the left of the first nonzero digits in a
-     * number are not significant; they merely indicate the position of the decimal point--0.02 g (one significant figure); 0.0026
-     * cm (two significant figures). 5) When a number ends in zeros that are to the right of the decimal point, they are
-     * significant--0.0200 g (three significant figures); 3.0 cm (two significant figures).
+     * Online: http://chemed.chem.purdue.edu/genchem/topicreview/bp/ch1/sigfigs.html#determ 1)
+     * All nonzero digits are significant--457 cm (three significant figures); 0.25 g (two significant figures).
+     * 2) Zeros between nonzero digits are significant--1005 kg (four significant figures);
+     * 1.03 cm (three significant figures). 3) Zeros within a number are always significant.
+     * Both 4308 and 40.05 contain four significant figures 4) Zeros to the left of the first nonzero digits in
+     * a number are not significant; they merely indicate the position of the decimal point--0.02 g
+     * (one significant figure); 0.0026 cm (two significant figures). 5)
+     * When a number ends in zeros that are to the right of the decimal point, they are significant--0.0200 g
+     * (three significant figures); 3.0 cm (two significant figures).
      * <p>
-     * Scientist override on standard rules above. 1) Scientists do not want to deal with the "." when there are trailing zeros in a
-     * number. Instead they wish to have the decimal point understood. Making "10" two sig figs and "1100" four sig figs.
+     * Scientist override on standard rules above.
+     * 1) Scientists do not want to deal with the "." when there are trailing zeros in a number.
+     * Instead they wish to have the decimal point understood. Making "10" two sig figs and "1100" four sig figs.
      * <p>
      * Does not deal with negative values.
      *
@@ -73,8 +77,9 @@ public class CeNNumberUtils {
     public static int getSmallestSigFigsFromAmountModelList(List<AmountModel> amounts) {
         int smallestSigFig = 9999;
         for (AmountModel amt : amounts) {
-            if (amt.getSigDigitsSet() && amt.getSigDigits() < smallestSigFig)
+            if (amt.getSigDigitsSet() && amt.getSigDigits() < smallestSigFig) {
                 smallestSigFig = amt.getSigDigits();
+            }
         }
         return (smallestSigFig == 9999 ? DEFAULT_SIG_DIGITS : smallestSigFig);
     }

@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import com.epam.indigo.IndigoException;
 import org.springframework.web.multipart.MultipartException;
 
@@ -49,14 +51,15 @@ public class ExceptionTranslator {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ErrorDTO processJpaValidationError(ValidationException exception) {
-        return (exception instanceof ConstraintViolationException) ?
-                    processConstraintViolationError((ConstraintViolationException)exception) :
-                    new ErrorDTO(ErrorConstants.ERR_VALIDATION, exception.getMessage());
+        return (exception instanceof ConstraintViolationException)
+                ? processConstraintViolationError((ConstraintViolationException) exception)
+                : new ErrorDTO(ErrorConstants.ERR_VALIDATION, exception.getMessage());
     }
 
     private ErrorDTO processConstraintViolationError(ConstraintViolationException exception) {
         List<FieldErrorDTO> fieldErrors = exception.getConstraintViolations().stream().
-                map(v -> new FieldErrorDTO(v.getRootBeanClass().getName(), v.getPropertyPath().toString(), v.getMessage())).
+                map(v -> new FieldErrorDTO(v.getRootBeanClass().getName(), v.getPropertyPath().toString(),
+                        v.getMessage())).
                 collect(Collectors.toList());
         return new ErrorDTO(ErrorConstants.ERR_VALIDATION, null, fieldErrors);
     }
@@ -122,9 +125,10 @@ public class ExceptionTranslator {
 
 
     /**
-     * Default Error handler for Database Issues
+     * Default Error handler for Database Issues.
      * Database constraint violations and business logic issues, such as duplicate key exception, unique index etc.,
-     * should be handed other way
+     * should be handed other way.
+     * @return Error
      */
     @ExceptionHandler(DataAccessException.class)
     @ResponseBody

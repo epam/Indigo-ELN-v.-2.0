@@ -9,7 +9,7 @@ import com.lowagie.text.pdf.PdfPTable;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Extension of BasePdfSectionWithSimpleTitle for reaction's details
+ * Extension of BasePdfSectionWithSimpleTitle for reaction's details.
  */
 public class ReactionDetailsSection extends BasePdfSectionWithSimpleTitle<ReactionDetailsModel> {
     private static final String COMMA = ", ";
@@ -35,5 +35,4 @@ public class ReactionDetailsSection extends BasePdfSectionWithSimpleTitle<Reacti
 
         return table;
     }
-
 }

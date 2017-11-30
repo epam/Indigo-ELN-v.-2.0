@@ -4,7 +4,7 @@ import com.epam.indigoeln.core.service.print.itext2.sections.common.HeaderPdfSec
 import com.lowagie.text.Rectangle;
 
 /**
- * Describes format parameters for pdf layout
+ * Describes format parameters for pdf layout.
  */
 public class PdfLayout {
     private Rectangle pageSize;

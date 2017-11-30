@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
  * Service class for managing user reagents.
  */
 @Service
-public class UserReagentsService {
+public final class UserReagentsService {
 
     @Autowired
     private UserReagentsRepository userReagentsRepository;
@@ -30,5 +30,4 @@ public class UserReagentsService {
         userReagents.setReagents(reagents);
         userReagentsRepository.save(userReagents);
     }
-
 }

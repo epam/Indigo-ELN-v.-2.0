@@ -1,11 +1,12 @@
 package com.epam.indigoeln.core.service.print.itext2.model.experiment;
 
 import com.epam.indigoeln.core.service.print.itext2.model.common.SectionModel;
+
 import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
- * Implementation of SectionModel interface for concept details
+ * Implementation of SectionModel interface for concept details.
  */
 public class ConceptDetailsModel implements SectionModel {
     private ZonedDateTime creationDate;
@@ -18,7 +19,7 @@ public class ConceptDetailsModel implements SectionModel {
 
     public ConceptDetailsModel(ZonedDateTime creationDate, String therapeuticArea,
                                List<String> linkedExperiment, String projectCode,
-                               String conceptKeywords,  List<String> designers,  List<String> coAuthors) {
+                               String conceptKeywords, List<String> designers, List<String> coAuthors) {
         this.creationDate = creationDate;
         this.therapeuticArea = therapeuticArea;
         this.linkedExperiment = linkedExperiment;
@@ -36,7 +37,7 @@ public class ConceptDetailsModel implements SectionModel {
         return therapeuticArea;
     }
 
-    public  List<String> getLinkedExperiment() {
+    public List<String> getLinkedExperiment() {
         return linkedExperiment;
     }
 
@@ -48,11 +49,11 @@ public class ConceptDetailsModel implements SectionModel {
         return conceptKeywords;
     }
 
-    public  List<String> getDesigners() {
+    public List<String> getDesigners() {
         return designers;
     }
 
-    public  List<String> getCoAuthors() {
+    public List<String> getCoAuthors() {
         return coAuthors;
     }
 }

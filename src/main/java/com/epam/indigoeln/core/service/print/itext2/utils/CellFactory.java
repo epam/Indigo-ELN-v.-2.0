@@ -24,15 +24,17 @@ import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.BOLD_F
 import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.MAIN_FONT_FAMILY;
 
 /**
- * Cell factory for creating cell with special format and color
+ * Cell factory for creating cell with special format and color.
  */
-public class CellFactory {
+public final class CellFactory {
     private static final Color FONT_COLOR = new Color(100, 100, 100);
     private static final Color CELL_BORDER_COLOR = new Color(170, 170, 170);
 
     private static final float FONT_SIZE = 10f;
-    private static final Font FONT = FontFactory.getFont(MAIN_FONT_FAMILY, BaseFont.IDENTITY_H, true, FONT_SIZE, Font.NORMAL, FONT_COLOR);
-    private static final Font FONT_BOLD = FontFactory.getFont(BOLD_FONT_FAMILY, BaseFont.IDENTITY_H, true, FONT_SIZE, Font.BOLD, FONT_COLOR);
+    private static final Font FONT = FontFactory.getFont(MAIN_FONT_FAMILY,
+            BaseFont.IDENTITY_H, true, FONT_SIZE, Font.NORMAL, FONT_COLOR);
+    private static final Font FONT_BOLD = FontFactory.getFont(BOLD_FONT_FAMILY,
+            BaseFont.IDENTITY_H, true, FONT_SIZE, Font.BOLD, FONT_COLOR);
 
     private static final float CELL_HORIZONTAL_PADDING = 6;
     private static final float CELL_VERTICAL_PADDING = 9;
@@ -75,7 +77,7 @@ public class CellFactory {
     }
 
     /**
-     * Returns pdf cell with vertical padding
+     * Returns pdf cell with vertical padding.
      *
      * @param innerTable      Pdf table
      * @param verticalPadding Value of vertical padding
@@ -92,7 +94,7 @@ public class CellFactory {
     }
 
     /**
-     * Returns pdf cell with vertical and horizontal padding
+     * Returns pdf cell with vertical and horizontal padding.
      *
      * @param innerTable        Pdf table
      * @param verticalPadding   Value of vertical padding
@@ -110,7 +112,7 @@ public class CellFactory {
     }
 
     /**
-     * Returns pdf cell
+     * Returns pdf cell.
      *
      * @param innerTable Pdf table
      * @return Returns pdf cell
@@ -125,7 +127,7 @@ public class CellFactory {
     }
 
     /**
-     * Returns pdf cell with default style
+     * Returns pdf cell with default style.
      *
      * @return Pdf cell
      */
@@ -134,7 +136,7 @@ public class CellFactory {
     }
 
     /**
-     * Returns pdf cell with default style with content
+     * Returns pdf cell with default style with content.
      *
      * @param content Pdf cell
      * @return Returns pdf cell with content
@@ -168,11 +170,12 @@ public class CellFactory {
 
     private static void setFont(Chunk chunk) {
         Font oldFont = chunk.getFont();
-        chunk.setFont(FontFactory.getFont(MAIN_FONT_FAMILY, BaseFont.IDENTITY_H, true, FONT_SIZE, oldFont.getStyle(), FONT_COLOR));
+        chunk.setFont(FontFactory.getFont(MAIN_FONT_FAMILY, BaseFont.IDENTITY_H, true, FONT_SIZE,
+                oldFont.getStyle(), FONT_COLOR));
     }
 
     /**
-     * Returns pdf cell with setting for bold font
+     * Returns pdf cell with setting for bold font.
      *
      * @param content Content for cell
      * @param isBold  Bold font or not
@@ -184,7 +187,7 @@ public class CellFactory {
     }
 
     /**
-     * Returns pdf cell with setting for font
+     * Returns pdf cell with setting for font.
      *
      * @param content Content for cell
      * @param font    Font object
@@ -196,7 +199,7 @@ public class CellFactory {
     }
 
     /**
-     * Returns pdf cell with image
+     * Returns pdf cell with image.
      *
      * @param image    Pdf image
      * @param fitWidth Extension's value
@@ -222,7 +225,7 @@ public class CellFactory {
     }
 
     /**
-     * Returns pdf cell with title
+     * Returns pdf cell with title.
      *
      * @param title Title
      * @return Returns pdf cell

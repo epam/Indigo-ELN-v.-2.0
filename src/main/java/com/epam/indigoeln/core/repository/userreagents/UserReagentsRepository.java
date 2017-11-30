@@ -8,7 +8,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
  * Spring Data MongoDB repository for the UserReagents entity.
  */
 public interface UserReagentsRepository extends MongoRepository<UserReagents, String> {
-
     UserReagents findByUser(User user);
-
 }

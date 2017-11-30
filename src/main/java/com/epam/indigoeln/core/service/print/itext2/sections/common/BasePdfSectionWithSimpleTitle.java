@@ -7,7 +7,8 @@ import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 
 /**
- * Abstract class which describes base functionality for pdf section with simple title
+ * Abstract class which describes base functionality for pdf section with simple title.
+ *
  * @param <T> Class which implement SectionModel interface
  */
 public abstract class BasePdfSectionWithSimpleTitle<T extends SectionModel> extends BasePdfSectionWithTableAndTitle<T> {

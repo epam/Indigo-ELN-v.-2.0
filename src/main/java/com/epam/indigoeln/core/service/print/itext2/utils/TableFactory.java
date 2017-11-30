@@ -7,15 +7,21 @@ import com.lowagie.text.pdf.PdfPTable;
 import java.util.Arrays;
 
 /**
- * Table factory for creating and format table
+ * Table factory for creating and format table.
  */
-public class TableFactory {
+public final class TableFactory {
     private TableFactory() {
     }
 
     /**
+     * Creates default table.
+     *
+     * @param headers                       Headers
+     * @param columnWidth                   Column's width
+     * @param width                         Wight
      * @param headerCellHorizontalAlignment horizontal alignment for table header cells. <br>
      *                                      <CODE>Element.ALIGN_CENTER</CODE> for example.
+     * @return Created table
      */
     public static PdfPTable createDefaultTable(String[] headers, float[] columnWidth,
                                                float width, int headerCellHorizontalAlignment) {
@@ -36,7 +42,7 @@ public class TableFactory {
     }
 
     /**
-     * Creates default table
+     * Creates default table.
      *
      * @param headers     Array with headers
      * @param columnWidth Width of column
@@ -49,7 +55,7 @@ public class TableFactory {
     }
 
     /**
-     * Creates default table
+     * Creates default table.
      *
      * @param headers Array with headers
      * @param width   Width
@@ -63,7 +69,7 @@ public class TableFactory {
     }
 
     /**
-     * Creates default table
+     * Creates default table.
      *
      * @param columnWidth Width of column
      * @param width       Width
@@ -76,7 +82,7 @@ public class TableFactory {
     }
 
     /**
-     * Creates default table
+     * Creates default table.
      *
      * @param contentColumns The amount of columns
      * @param width          Width

@@ -17,12 +17,12 @@ import java.util.Optional;
 import static com.epam.indigoeln.core.service.search.impl.pubchem.PubChemConst.*;
 
 @Repository
-public class PubChemRepository {
+class PubChemRepository {
 
     @Autowired
     private RequestSender requestSender;
 
-    public Collection<ProductBatchDetailsDTO> searchByFormula(BatchSearchRequest searchRequest) {
+    Collection<ProductBatchDetailsDTO> searchByFormula(BatchSearchRequest searchRequest) {
         String searchURI = addBatchesLimit(SEARCH_BY_FORMULA_URI, searchRequest.getBatchesLimit());
         String formula = searchRequest.getStructure().get().getFormula();
         URI uri = new UriTemplate(searchURI).expand(formula);
@@ -31,7 +31,7 @@ public class PubChemRepository {
         return requestSender.sendRequest(requestEntity);
     }
 
-    public Collection<ProductBatchDetailsDTO> searchBySimilarity(BatchSearchRequest searchRequest) {
+    Collection<ProductBatchDetailsDTO> searchBySimilarity(BatchSearchRequest searchRequest) {
         String searchURI = addBatchesLimit(SEARCH_BY_SIMILARITY_URI, searchRequest.getBatchesLimit());
         URI uri = new UriTemplate(searchURI).expand();
 
@@ -46,7 +46,7 @@ public class PubChemRepository {
         return requestSender.sendRequest(requestEntity);
     }
 
-    public Collection<ProductBatchDetailsDTO> searchByIdentity(BatchSearchRequest searchRequest){
+    Collection<ProductBatchDetailsDTO> searchByIdentity(BatchSearchRequest searchRequest) {
         String searchURI = addBatchesLimit(SEARCH_BY_IDENTITY_URI, searchRequest.getBatchesLimit());
         URI uri = new UriTemplate(searchURI).expand();
 
@@ -60,7 +60,7 @@ public class PubChemRepository {
         return requestSender.sendRequest(requestEntity);
     }
 
-    public Collection<ProductBatchDetailsDTO> searchBySubStructure(BatchSearchRequest searchRequest){
+    Collection<ProductBatchDetailsDTO> searchBySubStructure(BatchSearchRequest searchRequest) {
         String searchURI = addBatchesLimit(SEARCH_BY_SUBSTRUCTURE_URI, searchRequest.getBatchesLimit());
         URI uri = new UriTemplate(searchURI).expand();
 
