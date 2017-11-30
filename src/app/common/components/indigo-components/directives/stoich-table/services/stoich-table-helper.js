@@ -2,7 +2,8 @@
 function stoichTableHelper() {
     return {
         getPrecursors: getPrecursors,
-        getReactantsWithMolfile: getReactantsWithMolfile
+        getReactantsWithMolfile: getReactantsWithMolfile,
+        isReactantWithMolfile: isReactantWithMolfile
     };
 
     function getPrecursors(rows) {
