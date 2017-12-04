@@ -140,6 +140,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 HeaderUtil.TOTAL_COUNT,
                 HttpHeaders.LINK,
                 HttpHeaders.CONTENT_TYPE,
+                HttpHeaders.COOKIE,
                 HttpHeaders.SET_COOKIE,
                 HttpHeaders.CONTENT_DISPOSITION));
 
