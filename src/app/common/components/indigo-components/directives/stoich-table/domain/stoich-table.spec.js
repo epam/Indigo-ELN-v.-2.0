@@ -720,6 +720,8 @@ describe('stoichTable', function() {
 
                 service.onColumnValueChanged(stoichRow, 'density');
 
+                expect(stoichRow.volume.value).toBe(0.005);
+                expect(stoichRow.volume.entered).toBeTruthy();
                 expect(stoichRow.weight.value).toBe(0);
                 expect(stoichRow.mol.value).toBe(0);
             });

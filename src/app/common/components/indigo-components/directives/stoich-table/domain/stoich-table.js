@@ -91,7 +91,7 @@ function stoichTable(table) {
             return;
         }
 
-        if (row.areFieldsPresent(['weight', 'density'])) {
+        if (row.areFieldsPresent(['weight', 'density']) && !row.volume.entered) {
             row.updateVolume();
 
             return;
