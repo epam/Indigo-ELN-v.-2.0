@@ -1,3 +1,4 @@
+var roles = require('../../permissions/permission-roles.json');
 /* @ngInject */
 function NotebookDetailController($scope, $state, notebookService, notifyService, permissionService,
                                   modalHelper, experimentUtil, pageInfo, entitiesBrowserService,
@@ -83,11 +84,11 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
 
         // isEditAllowed
         vm.isEditAllowed = isContentEditor ||
-            (hasEditAuthority && permissionService.hasPermission('UPDATE_ENTITY'));
+            (hasEditAuthority && permissionService.hasPermission(roles.UPDATE_ENTITY));
 
         // isCreateChildAllowed
         vm.isCreateChildAllowed = isContentEditor ||
-            (hasCreateChildAuthority && permissionService.hasPermission('CREATE_SUB_ENTITY'));
+            (hasCreateChildAuthority && permissionService.hasPermission(roles.CREATE_SUB_ENTITY));
     }
 
     function bindEvents() {

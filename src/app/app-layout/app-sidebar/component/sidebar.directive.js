@@ -1,4 +1,5 @@
 var template = require('./sidebar.html');
+var roles = require('../../../permissions/permission-roles.json');
 
 function sidebar() {
     return {
@@ -15,11 +16,11 @@ SidebarController.$inject = ['$scope', '$state', '$stateParams', 'sidebarCache',
 function SidebarController($scope, $state, $stateParams, sidebarCache, entityTreeService) {
     var vm = this;
 
-    vm.CONTENT_EDITOR = 'CONTENT_EDITOR';
-    vm.USER_EDITOR = 'USER_EDITOR';
-    vm.ROLE_EDITOR = 'ROLE_EDITOR';
-    vm.TEMPLATE_EDITOR = 'TEMPLATE_EDITOR';
-    vm.DICTIONARY_EDITOR = 'DICTIONARY_EDITOR';
+    vm.CONTENT_EDITOR = roles.CONTENT_EDITOR;
+    vm.USER_EDITOR = roles.USER_EDITOR;
+    vm.ROLE_EDITOR = roles.ROLE_EDITOR;
+    vm.TEMPLATE_EDITOR = roles.TEMPLATE_EDITOR;
+    vm.DICTIONARY_EDITOR = roles.DICTIONARY_EDITOR;
     vm.ADMINISTRATION_AUTHORITIES = [vm.USER_EDITOR, vm.ROLE_EDITOR, vm.TEMPLATE_EDITOR, vm.DICTIONARY_EDITOR]
         .join(',');
     vm.$state = $state;

@@ -1,6 +1,7 @@
 var PermissionsController = require('./component/permissions.controller');
 var PermissionViewController = require('./permissions-view/permission-view.controller');
 var permissionsConstant = require('./permissions.constant');
+var permissionRolesConstant = require('./permission-roles.json');
 var permissionsConfig = require('./component/permissions.constant');
 var permissionViewConfig = require('./permissions-view/permission-view.constant');
 var userRemovableFromNotebookService = require('./resources/user-removable-from-notebook.service');
@@ -22,5 +23,6 @@ module.exports = angular
     .constant('permissionsConstant', permissionsConstant)
     .constant('permissionsConfig', permissionsConfig)
     .constant('permissionViewConfig', permissionViewConfig)
+    .constant('permissionRoles', permissionRolesConstant)
 
     .name;

@@ -35,7 +35,7 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
                 vm.accessList.push({
                     user: member,
                     permissions: [],
-                    permissionView: vm.permissions[0].id
+                    permissionView: permissionService.getPermissionView(member.authorities)
                 });
             }
         }

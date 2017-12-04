@@ -1,5 +1,6 @@
 var experimentsTemplate = require('./component/experiment.html');
 var experimentDeleteDialogTemplate = require('./delete-dialog/experiment-delete-dialog.html');
+var roles = require('../permissions/permission-roles.json');
 
 /* @ngInject */
 function experimentConfig($stateProvider, permissionsConfig, permissionViewConfig,
@@ -29,7 +30,7 @@ function experimentConfig($stateProvider, permissionsConfig, permissionViewConfi
         .state('entities.experiment-detail', {
             url: '/project/{projectId}/notebook/{notebookId}/experiment/{experimentId}',
             data: {
-                authorities: ['EXPERIMENT_READER', 'EXPERIMENT_CREATOR', 'CONTENT_EDITOR'],
+                authorities: [roles.EXPERIMENT_READER, roles.EXPERIMENT_CREATOR, roles.CONTENT_EDITOR],
                 pageTitle: 'Experiment',
                 tab: {
                     name: 'Experiment',
@@ -49,7 +50,7 @@ function experimentConfig($stateProvider, permissionsConfig, permissionViewConfi
             parent: 'experiment',
             url: '/delete',
             data: {
-                authorities: ['EXPERIMENT_REMOVER', 'CONTENT_EDITOR']
+                authorities: [roles.EXPERIMENT_REMOVER, roles.CONTENT_EDITOR]
             },
             onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                 $uibModal.open({
@@ -77,14 +78,14 @@ function experimentConfig($stateProvider, permissionsConfig, permissionViewConfi
         .state('entities.experiment-detail.permissions', _.extend({}, permissionsConfig, {
             parent: 'entities.experiment-detail',
             data: {
-                authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR']
+                authorities: [roles.CONTENT_EDITOR, roles.EXPERIMENT_CREATOR]
             },
             permissions: permissions
         }))
         .state('entities.experiment-detail.permissions-view', _.extend({}, permissionViewConfig, {
             parent: 'entities.experiment-detail',
             data: {
-                authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR']
+                authorities: [roles.CONTENT_EDITOR, roles.EXPERIMENT_CREATOR]
             },
             permissions: permissions
         }))
@@ -101,7 +102,7 @@ function experimentConfig($stateProvider, permissionsConfig, permissionViewConfi
                     });
             },
             data: {
-                authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR']
+                authorities: [roles.CONTENT_EDITOR, roles.EXPERIMENT_READER, roles.EXPERIMENT_CREATOR]
             }
         });
 }

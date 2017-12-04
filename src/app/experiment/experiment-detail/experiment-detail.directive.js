@@ -1,4 +1,5 @@
 var template = require('./experiment-detail.html');
+var roles = require('../../permissions/permission-roles.json');
 
 function experimentDetail() {
     return {
@@ -161,8 +162,8 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         return $q.all([
             getExperimentPromise(),
             notebookService.get(notebookParams).$promise,
-            principalService.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
-            principalService.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR'),
+            principalService.hasAuthorityIdentitySafe(roles.CONTENT_EDITOR),
+            principalService.hasAuthorityIdentitySafe(roles.EXPERIMENT_CREATOR),
             entitiesBrowserService.getTabByParams($stateParams)
         ]).then(function(results) {
             return {
@@ -316,7 +317,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         permissionService.setAuthor(vm.experiment.author);
         permissionService.setAccessList(vm.experiment.accessList);
 
-        hasEditPermission = permissionService.hasPermission('UPDATE_ENTITY');
+        hasEditPermission = permissionService.hasPermission(roles.UPDATE_ENTITY);
         updateStatuses();
         setReadOnly();
     }

@@ -1,4 +1,5 @@
 var projectTemplate = require('./component/project.html');
+var roles = require('../permissions/permission-roles.json');
 
 projectConfig.$inject = ['$stateProvider', 'permissionsConfig', 'permissionViewConfig',
     'userPermissions'];
@@ -28,7 +29,7 @@ function projectConfig($stateProvider, permissionsConfig, permissionViewConfig, 
                 isNewEntity: true
             },
             data: {
-                authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR'],
+                authorities: [roles.CONTENT_EDITOR, roles.PROJECT_CREATOR],
                 pageTitle: 'indigoeln',
                 tab: {
                     name: 'New Project',
@@ -43,9 +44,9 @@ function projectConfig($stateProvider, permissionsConfig, permissionViewConfig, 
                 pageInfo: function($q, principalService) {
                     return $q.all([
                         principalService.checkIdentity(),
-                        principalService.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
-                        principalService.hasAuthorityIdentitySafe('PROJECT_CREATOR'),
-                        principalService.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR')
+                        principalService.hasAuthorityIdentitySafe(roles.CONTENT_EDITOR),
+                        principalService.hasAuthorityIdentitySafe(roles.PROJECT_CREATOR),
+                        principalService.hasAuthorityIdentitySafe(roles.NOTEBOOK_CREATOR)
                     ]).then(function(results) {
                         return {
                             project: {
@@ -73,7 +74,7 @@ function projectConfig($stateProvider, permissionsConfig, permissionViewConfig, 
                 }
             },
             data: {
-                authorities: ['CONTENT_EDITOR', 'PROJECT_READER', 'PROJECT_CREATOR'],
+                authorities: [roles.CONTENT_EDITOR, roles.PROJECT_READER, roles.PROJECT_CREATOR],
                 pageTitle: 'indigoeln',
                 tab: {
                     name: 'Project',
@@ -88,9 +89,9 @@ function projectConfig($stateProvider, permissionsConfig, permissionViewConfig, 
                     return $q.all([
                         projectService.get($stateParams).$promise,
                         principalService.checkIdentity(),
-                        principalService.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
-                        principalService.hasAuthorityIdentitySafe('PROJECT_CREATOR'),
-                        principalService.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR')
+                        principalService.hasAuthorityIdentitySafe(roles.CONTENT_EDITOR),
+                        principalService.hasAuthorityIdentitySafe(roles.PROJECT_CREATOR),
+                        principalService.hasAuthorityIdentitySafe(roles.NOTEBOOK_CREATOR)
                     ]).then(function(results) {
                         return {
                             project: results[0],
@@ -116,34 +117,34 @@ function projectConfig($stateProvider, permissionsConfig, permissionViewConfig, 
                     });
             },
             data: {
-                authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR']
+                authorities: [roles.CONTENT_EDITOR, roles.EXPERIMENT_READER, roles.EXPERIMENT_CREATOR]
             }
         })
         .state('entities.project-new.permissions', _.extend({}, permissionsConfig, {
             parent: 'entities.project-new',
             data: {
-                authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
+                authorities: [roles.CONTENT_EDITOR, roles.PROJECT_CREATOR]
             },
             permissions: permissions
         }))
         .state('entities.project-new.permissions-view', _.extend({}, permissionViewConfig, {
             parent: 'entities.project-new',
             data: {
-                authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
+                authorities: [roles.CONTENT_EDITOR, roles.PROJECT_CREATOR]
             },
             permissions: permissions
         }))
         .state('entities.project-detail.permissions-view', _.extend({}, permissionViewConfig, {
             parent: 'entities.project-detail',
             data: {
-                authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
+                authorities: [roles.CONTENT_EDITOR, roles.PROJECT_CREATOR]
             },
             permissions: permissions
         }))
         .state('entities.project-detail.permissions', _.extend({}, permissionsConfig, {
             parent: 'entities.project-detail',
             data: {
-                authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
+                authorities: [roles.CONTENT_EDITOR, roles.PROJECT_CREATOR]
             },
             permissions: permissions
         }))

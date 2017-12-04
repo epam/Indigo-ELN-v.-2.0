@@ -1,3 +1,4 @@
+var roles = require('../../permissions/permission-roles.json');
 /* @ngInject */
 function ProjectController($scope, $state, projectService, notifyService, permissionService, fileUploader,
                            pageInfo, entitiesBrowserService, $timeout, $stateParams, tabKeyService,
@@ -150,10 +151,10 @@ function ProjectController($scope, $state, projectService, notifyService, permis
         permissionService.setAccessList(vm.project.accessList);
 
         vm.isEditAllowed = isContentEditor ||
-            (hasEditAuthority && permissionService.hasPermission('UPDATE_ENTITY'));
+            (hasEditAuthority && permissionService.hasPermission(roles.UPDATE_ENTITY));
         // isCreateChildAllowed
         vm.isCreateChildAllowed = isContentEditor ||
-            (hasCreateChildAuthority && permissionService.hasPermission('CREATE_SUB_ENTITY'));
+            (hasCreateChildAuthority && permissionService.hasPermission(roles.CREATE_SUB_ENTITY));
     }
 
     function toggleDirty(isDirty) {

@@ -1,4 +1,5 @@
 var template = require('./detail/notebook-detail.html');
+var roles = require('../permissions/permission-roles.json');
 
 notebookConfig.$inject = ['$stateProvider', 'permissionsConfig', 'permissionViewConfig',
     'userPermissions'];
@@ -11,7 +12,7 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
     ];
 
     var data = {
-        authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
+        authorities: [roles.CONTENT_EDITOR, roles.NOTEBOOK_CREATOR]
     };
 
     $stateProvider
@@ -32,7 +33,7 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
                 isNewEntity: true
             },
             data: {
-                authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR'],
+                authorities: [roles.CONTENT_EDITOR, roles.NOTEBOOK_CREATOR],
                 pageTitle: 'indigoeln',
                 tab: {
                     name: 'New Notebook',
@@ -47,9 +48,9 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
                 pageInfo: function($q, $stateParams, principalService) {
                     return $q.all([
                         principalService.checkIdentity(),
-                        principalService.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
-                        principalService.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
-                        principalService.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')
+                        principalService.hasAuthorityIdentitySafe(roles.CONTENT_EDITOR),
+                        principalService.hasAuthorityIdentitySafe(roles.NOTEBOOK_CREATOR),
+                        principalService.hasAuthorityIdentitySafe(roles.EXPERIMENT_CREATOR)
                     ]).then(function(results) {
                         return {
                             notebook: {
@@ -77,7 +78,7 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
                 }
             },
             data: {
-                authorities: ['CONTENT_EDITOR', 'NOTEBOOK_READER', 'NOTEBOOK_CREATOR'],
+                authorities: [roles.CONTENT_EDITOR, roles.NOTEBOOK_READER, roles.NOTEBOOK_CREATOR],
                 pageTitle: 'indigoeln',
                 tab: {
                     name: 'Notebook',
@@ -93,9 +94,9 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
                         .all([
                             notebookService.get($stateParams).$promise,
                             principalService.checkIdentity(),
-                            principalService.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
-                            principalService.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
-                            principalService.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')
+                            principalService.hasAuthorityIdentitySafe(roles.CONTENT_EDITOR),
+                            principalService.hasAuthorityIdentitySafe(roles.NOTEBOOK_CREATOR),
+                            principalService.hasAuthorityIdentitySafe(roles.EXPERIMENT_CREATOR)
                         ])
                         .then(function(results) {
                             return {
@@ -123,7 +124,7 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
                     });
             },
             data: {
-                authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR']
+                authorities: [roles.CONTENT_EDITOR, roles.EXPERIMENT_READER, roles.EXPERIMENT_CREATOR]
             }
         })
         .state('entities.notebook-new.permissions', _.extend({}, permissionsConfig, {

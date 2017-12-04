@@ -1,15 +1,16 @@
+var roles = require('../permission-roles.json');
 /* @ngInject */
 function permissionService($q, principalService, userRemovableFromProjectService, userRemovableFromNotebookService,
-                           permissionsConstant) {
+                           permissionsConstant, userPermissions) {
     var accessList;
     var author;
     var entity;
     var entityId;
     var parentId;
 
-    var VIEWER = ['READ_ENTITY'];
-    var USER = ['READ_ENTITY', 'CREATE_SUB_ENTITY'];
-    var OWNER = ['READ_ENTITY', 'CREATE_SUB_ENTITY', 'UPDATE_ENTITY'];
+    var VIEWER = [roles.READ_ENTITY];
+    var USER = [roles.READ_ENTITY, roles.CREATE_SUB_ENTITY];
+    var OWNER = [roles.READ_ENTITY, roles.CREATE_SUB_ENTITY, roles.UPDATE_ENTITY];
 
     return {
         expandPermission: expandPermission,
@@ -29,14 +30,19 @@ function permissionService($q, principalService, userRemovableFromProjectService
         hasAuthorityForNotebookPermission: hasAuthorityForNotebookPermission,
         hasAuthorityForExperimentPermission: hasAuthorityForExperimentPermission,
         hasAuthorityForPermission: hasAuthorityForPermission,
-        isUserRemovableFromAccessList: isUserRemovableFromAccessList
+        isUserRemovableFromAccessList: isUserRemovableFromAccessList,
+        getPermissionView: getPermissionView
     };
+
+    function getPermissionView(authorities) {
+        return _.includes(authorities, roles.CONTENT_EDITOR) ? userPermissions.OWNER.id : userPermissions.VIEWER.id;
+    }
 
     function expandPermission(list) {
         _.each(list, function(item) {
-            if (item.permissionView === 'OWNER') {
+            if (item.permissionView === userPermissions.OWNER.id) {
                 item.permissions = OWNER;
-            } else if (item.permissionView === 'USER') {
+            } else if (item.permissionView === userPermissions.USER.id) {
                 item.permissions = USER;
             } else {
                 item.permissions = VIEWER;
@@ -61,14 +67,14 @@ function permissionService($q, principalService, userRemovableFromProjectService
     function getAuthorAccessList(entityAuthor, projectAuthor) {
         var experimentCreatorPermissions = {
             user: entityAuthor,
-            permissions: ['READ_ENTITY', 'CREATE_SUB_ENTITY', 'UPDATE_ENTITY'],
-            permissionView: 'OWNER'
+            permissions: [roles.READ_ENTITY, roles.CREATE_SUB_ENTITY, roles.UPDATE_ENTITY],
+            permissionView: userPermissions.OWNER.id
         };
         if (projectAuthor && projectAuthor.id !== entityAuthor.id) {
             var projectCreatorPermissions = {
                 user: projectAuthor,
-                permissions: ['READ_ENTITY'],
-                permissionView: 'VIEWER'
+                permissions: [roles.READ_ENTITY],
+                permissionView: userPermissions.VIEWER.id
             };
 
             return [experimentCreatorPermissions, projectCreatorPermissions];
@@ -122,15 +128,15 @@ function permissionService($q, principalService, userRemovableFromProjectService
         var projectUserAuthoritySet = permissionsConstant.PROJECT_USER_AUTHORITY_SET;
         var projectViewerAuthoritySet = permissionsConstant.PROJECT_VIEWER_AUTHORITY_SET;
 
-        if (permission === 'OWNER') {
+        if (permission === userPermissions.OWNER.id) {
             return _.every(projectOwnerAuthoritySet, function(authority) {
                 return _.includes(member.user.authorities, authority);
             });
-        } else if (permission === 'USER') {
+        } else if (permission === userPermissions.USER.id) {
             return _.every(projectUserAuthoritySet, function(authority) {
                 return _.includes(member.user.authorities, authority);
             });
-        } else if (permission === 'VIEWER') {
+        } else if (permission === userPermissions.VIEWER.id) {
             return _.every(projectViewerAuthoritySet, function(authority) {
                 return _.includes(member.user.authorities, authority);
             });
@@ -142,15 +148,15 @@ function permissionService($q, principalService, userRemovableFromProjectService
         var notebookUserAuthoritySet = permissionsConstant.NOTEBOOK_USER_AUTHORITY_SET;
         var notebookViewerAuthoritySet = permissionsConstant.NOTEBOOK_VIEWER_AUTHORITY_SET;
 
-        if (permission === 'OWNER') {
+        if (permission === userPermissions.OWNER.id) {
             return _.every(notebookOwnerAuthoritySet, function(authority) {
                 return _.includes(member.user.authorities, authority);
             });
-        } else if (permission === 'USER') {
+        } else if (permission === userPermissions.USER.id) {
             return _.every(notebookUserAuthoritySet, function(authority) {
                 return _.includes(member.user.authorities, authority);
             });
-        } else if (permission === 'VIEWER') {
+        } else if (permission === userPermissions.VIEWER.id) {
             return _.every(notebookViewerAuthoritySet, function(authority) {
                 return _.includes(member.user.authorities, authority);
             });
@@ -161,11 +167,11 @@ function permissionService($q, principalService, userRemovableFromProjectService
         var experimentOwnerAuthoritySet = permissionsConstant.EXPERIMENT_OWNER_AUTHORITY_SET;
         var experimentViewerAuthoritySet = permissionsConstant.EXPERIMENT_VIEWER_AUTHORITY_SET;
 
-        if (permission === 'OWNER') {
+        if (permission === userPermissions.OWNER.id) {
             return _.every(experimentOwnerAuthoritySet, function(authority) {
                 return _.includes(member.user.authorities, authority);
             });
-        } else if (permission === 'VIEWER') {
+        } else if (permission === userPermissions.VIEWER.id) {
             return _.every(experimentViewerAuthoritySet, function(authority) {
                 return _.includes(member.user.authorities, authority);
             });
@@ -173,7 +179,7 @@ function permissionService($q, principalService, userRemovableFromProjectService
     }
 
     function hasAuthorityForPermission(member, permission) {
-        if (_.includes(member.user.authorities, 'CONTENT_EDITOR')) {
+        if (_.includes(member.user.authorities, roles.CONTENT_EDITOR)) {
             return true;
         }
         if (entity === 'Project') {

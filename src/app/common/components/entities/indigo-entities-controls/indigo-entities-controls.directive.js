@@ -1,4 +1,5 @@
 var template = require('./indigo-entities-controls.html');
+var roles = require('../../../../permissions/permission-roles.json');
 
 function indigoEntitiesControls() {
     return {
@@ -18,20 +19,20 @@ function indigoEntitiesControls() {
 }
 
 IndigoEntitiesControlsController.$inject = ['$state', 'entitiesBrowserService',
-    'modalHelper', 'projectsForSubCreationService', 'appRoles'];
+    'modalHelper', 'projectsForSubCreationService'];
 
 function IndigoEntitiesControlsController($state, entitiesBrowserService, modalHelper,
-                                          projectsForSubCreationService, appRoles) {
+                                          projectsForSubCreationService) {
     var vm = this;
 
     $onInit();
 
     function $onInit() {
-        vm.CONTENT_EDITOR = appRoles.CONTENT_EDITOR;
-        vm.PROJECT_CREATOR = appRoles.PROJECT_CREATOR;
-        vm.NOTEBOOK_CREATOR = appRoles.NOTEBOOK_CREATOR;
-        vm.EXPERIMENT_CREATOR = appRoles.EXPERIMENT_CREATOR;
-        vm.GLOBAL_SEARCH = appRoles.GLOBAL_SEARCH;
+        vm.CONTENT_EDITOR = roles.CONTENT_EDITOR;
+        vm.PROJECT_CREATOR = roles.PROJECT_CREATOR;
+        vm.NOTEBOOK_CREATOR = roles.NOTEBOOK_CREATOR;
+        vm.EXPERIMENT_CREATOR = roles.EXPERIMENT_CREATOR;
+        vm.GLOBAL_SEARCH = roles.GLOBAL_SEARCH;
         vm.PROJECT_CREATORS = [vm.CONTENT_EDITOR, vm.PROJECT_CREATOR].join(',');
         vm.NOTEBOOK_CREATORS = [vm.CONTENT_EDITOR, vm.NOTEBOOK_CREATOR].join(',');
         vm.EXPERIMENT_CREATORS = [vm.CONTENT_EDITOR, vm.EXPERIMENT_CREATOR].join(',');
