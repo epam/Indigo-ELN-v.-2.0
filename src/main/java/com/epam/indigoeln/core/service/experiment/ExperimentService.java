@@ -403,9 +403,12 @@ public class ExperimentService {
                 experimentForSave.setTemplate(tmpl);
             }
 
+            Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
+                    orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
+
             // check of user permissions's correctness in access control list
             PermissionUtil.checkCorrectnessOfAccessList(userRepository, experimentForSave.getAccessList());
-            PermissionUtil.checkAndSetPermissions(experimentForSave.getAccessList(), projectRepository.findOne(projectId));
+            PermissionUtil.checkAndSetPermissions(experimentForSave.getAccessList(), project);
 
             experimentFromDB.setTemplate(experimentForSave.getTemplate());
             experimentFromDB.setAccessList(experimentForSave.getAccessList());
@@ -426,8 +429,7 @@ public class ExperimentService {
             }
             result = new ExperimentDTO(savedExperiment);
 
-            Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
-                    orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
+
             Notebook notebook = Optional.ofNullable(notebookRepository.findOne(SequenceIdUtil
                     .buildFullId(projectId, notebookId))).
                     orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
