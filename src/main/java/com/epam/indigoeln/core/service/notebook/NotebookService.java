@@ -233,17 +233,15 @@ public class NotebookService {
             // Check of EntityAccess (User must have "Read Entity" permission in project access list and
             // "Update Entity" permission in notebook access list, or must have CONTENT_EDITOR authority)
 
-            if (!PermissionUtil.isContentEditor(user)) {
-                Project project = projectRepository.findByNotebookId(fullNotebookId);
-                if (project == null) {
-                    throw EntityNotFoundException.createWithNotebookChildId(notebookFromDB.getId());
-                }
+            Project project = projectRepository.findByNotebookId(fullNotebookId);
+            if (project == null) {
+                throw EntityNotFoundException.createWithNotebookChildId(notebookFromDB.getId());
+            }
 
-                if (!PermissionUtil.hasPermissions(user.getId(),
-                        project.getAccessList(), UserPermission.READ_ENTITY,
-                        notebookFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
-                    throw OperationDeniedException.createNotebookUpdateOperation(notebookFromDB.getId());
-                }
+            if (!PermissionUtil.isContentEditor(user) && !PermissionUtil.hasPermissions(user.getId(),
+                    project.getAccessList(), UserPermission.READ_ENTITY,
+                    notebookFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
+                throw OperationDeniedException.createNotebookUpdateOperation(notebookFromDB.getId());
             }
 
             Notebook notebook = dtoMapper.convertFromDTO(notebookDTO);
@@ -262,9 +260,6 @@ public class NotebookService {
             notebookFromDB.setAccessList(notebook.getAccessList()); // Stay old notebook's
             // experiments for updated notebook
             notebookFromDB.setVersion(notebook.getVersion());
-
-            Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
-                    orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
 
             PermissionUtil.checkAndSetPermissions(notebook.getAccessList(), project);
             notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's experiments for updated notebook

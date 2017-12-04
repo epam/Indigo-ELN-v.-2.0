@@ -55,8 +55,9 @@ public final class PermissionUtil {
 
     /**
      * Adding of OWNER's permissions to Entity Access List for specified User, if it is absent.
+     *
      * @param accessList Access list
-     * @param user User
+     * @param user       User
      */
     public static void addOwnerToAccessList(Set<UserPermission> accessList, User user) {
         setUserPermissions(accessList, user, UserPermission.OWNER_PERMISSIONS);
@@ -137,13 +138,9 @@ public final class PermissionUtil {
                 }
             }
 
-            for(UserPermission up: accessList){
-                if(up.getUser().getAuthorities().contains(Authority.CONTENT_EDITOR)){
-                    up.setPermissions(UserPermission.OWNER_PERMISSIONS);
-                }
+            if (userPermission.getUser().getAuthorities().contains(Authority.CONTENT_EDITOR)) {
+                userPermission.setPermissions(UserPermission.OWNER_PERMISSIONS);
             }
-
-
         }
     }
 }

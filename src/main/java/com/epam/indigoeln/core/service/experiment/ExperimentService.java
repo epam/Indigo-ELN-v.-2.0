@@ -252,7 +252,7 @@ public class ExperimentService {
         // add VIEWER's permissions for Project Author to experiment, if Experiment creator is another User
         PermissionUtil.addProjectAuthorToAccessList(experiment.getAccessList(), project.getAuthor(), user);
 
-        PermissionUtil.checkAndSetPermissions(experiment.getAccessList(), projectRepository.findOne(projectId));
+        PermissionUtil.checkAndSetPermissions(experiment.getAccessList(), project);
 
         //increment sequence Id
         experiment.setId(sequenceIdService.getNextExperimentId(projectId, notebookId));
