@@ -34,9 +34,9 @@ public class ProductBatchDetailsDTO {
 
     @Override
     public String toString() {
-        return "ProductBatchDetailsDTO{" +
-                "notebookBatchNumber='" + notebookBatchNumber + '\'' +
-                ", details=" + details +
-                '}';
+        return "ProductBatchDetailsDTO{"
+                + "notebookBatchNumber='" + notebookBatchNumber + '\''
+                + ", details=" + details
+                + '}';
     }
 }

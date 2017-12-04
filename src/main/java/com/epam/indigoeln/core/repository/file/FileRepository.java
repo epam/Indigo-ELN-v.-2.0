@@ -80,8 +80,8 @@ public class FileRepository {
             for (Sort.Order order : pageable.getSort()) {
                 Optional<Comparator<GridFSFile>> optional = GridFSFileUtil.getComparator(order.getProperty());
                 if (optional.isPresent()) {
-                    Comparator<GridFSFile> comparator = order.isAscending() ?
-                            optional.get() : optional.get().reversed();
+                    Comparator<GridFSFile> comparator = order.isAscending()
+                            ? optional.get() : optional.get().reversed();
                     ordering = ordering != null ? ordering.compound(comparator) : Ordering.from(comparator);
                 }
             }

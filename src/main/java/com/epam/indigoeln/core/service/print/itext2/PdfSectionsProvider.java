@@ -2,6 +2,7 @@ package com.epam.indigoeln.core.service.print.itext2;
 
 import com.epam.indigoeln.core.service.print.itext2.sections.common.HeaderPdfSection;
 import com.epam.indigoeln.core.service.print.itext2.sections.common.AbstractPdfSection;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ public interface PdfSectionsProvider {
     /**
      * @return streams with extra Pdf
      */
-    default List<InputStream> getExtraPdf(){
+    default List<InputStream> getExtraPdf() {
         return new ArrayList<>(1);
     }
 }

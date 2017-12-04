@@ -27,7 +27,7 @@ public class UserReagentsResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserReagentsResource.class);
     @Autowired
-    CustomDtoMapper dtoMapper;
+    private CustomDtoMapper dtoMapper;
     @Autowired
     private UserReagentsService userReagentsService;
     @Autowired
@@ -53,5 +53,4 @@ public class UserReagentsResource {
         userReagentsService.saveUserReagents(currentUser, reagents);
         return ResponseEntity.ok().build();
     }
-
 }

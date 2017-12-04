@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import static com.epam.indigoeln.core.service.print.itext2.model.experiment.PreferredCompoundsModel.*;
 
 /**
- * Extension of BasePdfSectionWithSimpleTitle for preferred compounds
+ * Extension of BasePdfSectionWithSimpleTitle for preferred compounds.
  */
 public class PreferredCompoundsSection extends BasePdfSectionWithSimpleTitle<PreferredCompoundsModel> {
     private static final String[] HEADERS = new String[]{

@@ -52,14 +52,14 @@ public class ProjectPdfSectionsProvider implements PdfSectionsProvider {
         );
     }
 
-    private AbstractPdfSection getSummarySection(){
+    private AbstractPdfSection getSummarySection() {
         return new ProjectSummarySection(new ProjectSummaryModel(
                 project.getKeywords(),
                 project.getReferences()
         ));
     }
 
-    private AbstractPdfSection getDescriptionSection(){
+    private AbstractPdfSection getDescriptionSection() {
         return new DescriptionSection(new DescriptionModel(project.getDescription(), "PROJECT"));
     }
 
@@ -92,12 +92,12 @@ public class ProjectPdfSectionsProvider implements PdfSectionsProvider {
 
     @Override
     public List<InputStream> getExtraPdf() {
-        if (printRequest.includeAttachments()){
+        if (printRequest.includeAttachments()) {
             return files.stream()
                     .filter(f -> "application/pdf".equals(f.getContentType()))
                     .map(GridFSDBFile::getInputStream)
                     .collect(Collectors.toList());
-        }else {
+        } else {
             return PdfSectionsProvider.super.getExtraPdf();
         }
     }

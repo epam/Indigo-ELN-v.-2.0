@@ -3,7 +3,7 @@ package com.epam.indigoeln.core.service.print.itext2.model.project;
 import com.epam.indigoeln.core.service.print.itext2.model.common.SectionModel;
 
 /**
- * Implementation of SectionModel for project summary
+ * Implementation of SectionModel for project summary.
  */
 public class ProjectSummaryModel implements SectionModel {
     private String keywords;

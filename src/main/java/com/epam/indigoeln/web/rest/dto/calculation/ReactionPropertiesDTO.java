@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Simple transfer object for Reaction parameters
+ * Simple transfer object for Reaction parameters.
  */
 public class ReactionPropertiesDTO {
 
@@ -48,10 +48,10 @@ public class ReactionPropertiesDTO {
 
     @Override
     public String toString() {
-        return "ReactionPropertiesDTO{" +
-                "structure='" + structure + '\'' +
-                ", reactants=" + reactants +
-                ", products=" + products +
-                '}';
+        return "ReactionPropertiesDTO{"
+                + "structure='" + structure + '\''
+                + ", reactants=" + reactants
+                + ", products=" + products
+                + '}';
     }
 }

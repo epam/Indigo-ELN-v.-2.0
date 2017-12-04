@@ -7,13 +7,13 @@ import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
  *
  * @author Timofey Zubkov
  */
-public class OperationDeniedException extends CustomParametrizedException {
+public final class OperationDeniedException extends CustomParametrizedException {
 
     private static final String PROJECT_ENTITY_NAME = "project";
     private static final String NOTEBOOK_ENTITY_NAME = "notebook";
 
     /**
-     * Creates instance of OperationDeniedException
+     * Creates instance of OperationDeniedException.
      *
      * @param message Exception message
      * @param params  Exception parameters
@@ -23,7 +23,7 @@ public class OperationDeniedException extends CustomParametrizedException {
     }
 
     /**
-     * Creates instance of OperationDeniedException with user's id if current user tried to delete himself
+     * Creates instance of OperationDeniedException with user's id if current user tried to delete himself.
      *
      * @param userId User's identifier
      * @return Instance of OperationDeniedException with user's id
@@ -34,7 +34,7 @@ public class OperationDeniedException extends CustomParametrizedException {
 
     /**
      * Creates instance of OperationDeniedException with entity's id
-     * if current user doesn't have permissions for reading
+     * if current user doesn't have permissions for reading.
      *
      * @param entityId Entity's id
      * @return Instance of OperationDeniedException with entity's id
@@ -45,7 +45,7 @@ public class OperationDeniedException extends CustomParametrizedException {
 
     /**
      * Creates instance of OperationDeniedException with entity's id
-     * if current user doesn't have permissions for reading
+     * if current user doesn't have permissions for reading.
      *
      * @param entityId Entity's identifier
      * @return Instance of OperationDeniedException with entity's id
@@ -56,7 +56,7 @@ public class OperationDeniedException extends CustomParametrizedException {
 
     /**
      * Creates instance of OperationDeniedException with entity's id
-     * if current user doesn't have permissions for reading
+     * if current user doesn't have permissions for reading.
      *
      * @param entityId Entity's identifier
      * @return Instance of OperationDeniedException with entity's id
@@ -67,7 +67,7 @@ public class OperationDeniedException extends CustomParametrizedException {
 
     /**
      * Creates instance of OperationDeniedException with entity's id
-     * if current user doesn't have permissions for reading
+     * if current user doesn't have permissions for reading.
      *
      * @param entityId Entity's identifier
      * @return Instance of OperationDeniedException with entity's id
@@ -78,7 +78,7 @@ public class OperationDeniedException extends CustomParametrizedException {
 
     /**
      * Creates instance of OperationDeniedException with entity's id
-     * if current user doesn't have permissions for reading
+     * if current user doesn't have permissions for reading.
      *
      * @param entityId Entity's identifier
      * @return Instance of OperationDeniedException with entity's id
@@ -89,7 +89,7 @@ public class OperationDeniedException extends CustomParametrizedException {
 
     /**
      * Creates instance of OperationDeniedException with entity's id
-     * if current user doesn't have permissions for creating
+     * if current user doesn't have permissions for creating.
      *
      * @param entityId Entity's identifier
      * @return Instance of OperationDeniedException with entity's id
@@ -100,7 +100,7 @@ public class OperationDeniedException extends CustomParametrizedException {
 
     /**
      * Creates instance of OperationDeniedException with entity's id
-     * if user tried to update experiment which's status isn't 'OPEN'
+     * if user tried to update experiment which's status isn't 'OPEN'.
      *
      * @param entityId Entity's identifier
      * @return Instance of OperationDeniedException with entity's id
@@ -111,7 +111,7 @@ public class OperationDeniedException extends CustomParametrizedException {
 
     /**
      * Creates instance of OperationDeniedException with entity's id
-     * if user tried to reopen experiment
+     * if user tried to reopen experiment.
      *
      * @param entityId Entity's identifier
      * @return Instance of OperationDeniedException with entity's id
@@ -122,7 +122,7 @@ public class OperationDeniedException extends CustomParametrizedException {
 
     /**
      * Creates instance of OperationDeniedException with entity's id
-     * if user tried to create notebook
+     * if user tried to create notebook.
      *
      * @param entityId Entity's identifier
      * @return Instance of OperationDeniedException with entity's id
@@ -133,7 +133,7 @@ public class OperationDeniedException extends CustomParametrizedException {
 
     /**
      * Creates instance of OperationDeniedException with entity's id
-     * if user tried to update project
+     * if user tried to update project.
      *
      * @param entityId Entity's identifier
      * @return Instance of OperationDeniedException with entity's id
@@ -144,7 +144,7 @@ public class OperationDeniedException extends CustomParametrizedException {
 
     /**
      * Creates instance of OperationDeniedException with entity's id
-     * if user tried to update notebook
+     * if user tried to update notebook.
      *
      * @param entityId Entity's identifier
      * @return Instance of OperationDeniedException with entity's id
@@ -155,7 +155,7 @@ public class OperationDeniedException extends CustomParametrizedException {
 
     /**
      * Creates instance of OperationDeniedException with entity's id
-     * if user tried to update experiment
+     * if user tried to update experiment.
      *
      * @param entityId Entity's identifier
      * @return Instance of OperationDeniedException with entity's id
@@ -166,7 +166,7 @@ public class OperationDeniedException extends CustomParametrizedException {
 
     /**
      * Creates instance of OperationDeniedException with entity's id and name
-     * if user tried to read sub entities
+     * if user tried to read sub entities.
      *
      * @param entityId   Entity's identifier
      * @param entityName Entity's name
@@ -180,7 +180,7 @@ public class OperationDeniedException extends CustomParametrizedException {
 
     /**
      * Creates instance of OperationDeniedException with entity's id and name
-     * if user tried to read entity
+     * if user tried to read entity.
      *
      * @param entityId   Entity's identifier
      * @param entityName Entity's name
@@ -193,45 +193,45 @@ public class OperationDeniedException extends CustomParametrizedException {
 
     /**
      * Creates instance of OperationDeniedException with entity's id and name
-     * if user tried to create sub entity
+     * if user tried to create sub entity.
      *
      * @param entityId   Entity's identifier
      * @param entityName Entity's name
      * @return Instance of OperationDeniedException with entity's id and name
      */
     private static OperationDeniedException createSubEntityCreateOperation(String entityId, String entityName) {
-        return new OperationDeniedException(String.format("The current user doesn't have permissions" +
-                " to create sub-entity of %s with id = %s", entityName, entityId), entityId);
+        return new OperationDeniedException(String.format("The current user doesn't have permissions"
+                + " to create sub-entity of %s with id = %s", entityName, entityId), entityId);
     }
 
     /**
      * Creates instance of OperationDeniedException with entity's id and name
-     * if user tried to update
+     * if user tried to update.
      *
      * @param entityId   Entity's identifier
      * @param entityName Entity's name
      * @return Instance of OperationDeniedException with entity's id and name
      */
     private static OperationDeniedException createEntityUpdateOperation(String entityId, String entityName) {
-        return new OperationDeniedException(String.format("The current user doesn't have permissions " +
-                "to update %s with id = %s", entityName, entityId), entityId);
+        return new OperationDeniedException(String.format("The current user doesn't have permissions "
+                + "to update %s with id = %s", entityName, entityId), entityId);
     }
 
     /**
      * Creates instance of OperationDeniedException with entity's id
-     * if user tried to create version of experiment
+     * if user tried to create version of experiment.
      *
      * @param entityId Entity's identifier
      * @return Entity's name
      */
     public static OperationDeniedException createVersionExperimentOperation(String entityId) {
-        return new OperationDeniedException("A new version of experiment can't be created" +
-                " while there is open experiment", entityId);
+        return new OperationDeniedException("A new version of experiment can't be created"
+                + " while there is open experiment", entityId);
     }
 
     /**
      * Creates instance of OperationDeniedException with entity's ids
-     * if user tried to update notebook if there is at least one batch
+     * if user tried to update notebook if there is at least one batch.
      *
      * @param entityIds Entity's identifiers
      * @return Instance of OperationDeniedException with entity's ids

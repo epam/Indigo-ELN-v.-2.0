@@ -32,7 +32,7 @@ public class PdfGenerator {
     private final List<InputStream> extraPdf;
 
     /**
-     * Creates instance of PdfGenerator
+     * Creates instance of PdfGenerator.
      *
      * @param sectionsProvider Instance of class which implements PdfSectionProvider
      */
@@ -44,7 +44,7 @@ public class PdfGenerator {
     }
 
     /**
-     * Generates pdf document
+     * Generates pdf document.
      *
      * @param output Output stream of bytes
      */
@@ -118,6 +118,8 @@ public class PdfGenerator {
      *
      * @param input  input stream with already built document
      * @param output output stream where to flush final pdf document.
+     * @throws IOException       If there is a problem with pdf handling
+     * @throws DocumentException If there is a problem with pdf handling
      */
     private void addDocumentHeaders(OutputStream output, InputStream input) throws IOException, DocumentException {
         try (PdfPostProcessor processor = new PdfPostProcessor(output, input, layout)) {

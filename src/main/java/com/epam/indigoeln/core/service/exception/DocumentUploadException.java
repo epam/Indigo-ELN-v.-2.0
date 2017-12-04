@@ -7,7 +7,7 @@ import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
  *
  * @author Anton Pikhtin
  */
-public class DocumentUploadException extends CustomParametrizedException {
+public final class DocumentUploadException extends CustomParametrizedException {
 
     private DocumentUploadException(String message, String params) {
         super(message, params);
@@ -15,18 +15,19 @@ public class DocumentUploadException extends CustomParametrizedException {
 
     /**
      * Creates instance of DocumentUploadException class with experiment's id
-     * if uploading is failed
+     * if uploading is failed.
      *
      * @param experimentId Experiment's identifier
      * @return Instance of DocumentUploadException class with experiment's id
      */
     public static DocumentUploadException createFailedUploading(String experimentId) {
-        return new DocumentUploadException("Document for the experiment " + experimentId + " failed uploading to signature service.", experimentId);
+        return new DocumentUploadException("Document for the experiment " + experimentId
+                + " failed uploading to signature service.", experimentId);
     }
 
     /**
      * Creates instance of DocumentUploadException class with experiment's id
-     * if document for the experiment is missed
+     * if document for the experiment is missed.
      *
      * @param experimentId Experiment's identifier
      * @return Instance of DocumentUploadException class with experiment's id

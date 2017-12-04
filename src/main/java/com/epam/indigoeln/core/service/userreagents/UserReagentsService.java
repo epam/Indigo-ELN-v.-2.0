@@ -30,5 +30,4 @@ public class UserReagentsService {
         userReagents.setReagents(reagents);
         userReagentsRepository.save(userReagents);
     }
-
 }

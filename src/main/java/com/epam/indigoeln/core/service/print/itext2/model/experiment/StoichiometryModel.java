@@ -6,7 +6,7 @@ import com.epam.indigoeln.core.service.print.itext2.model.common.image.PdfImage;
 import java.util.List;
 
 /**
- * Implementation of SectionModel interface for Stoichiometry
+ * Implementation of SectionModel interface for Stoichiometry.
  */
 public class StoichiometryModel implements SectionModel {
     private List<StoichiometryRow> rows;

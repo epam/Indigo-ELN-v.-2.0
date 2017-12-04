@@ -26,6 +26,8 @@ public final class SecurityUtils {
 
     /**
      * Get the login of the current user.
+     *
+     * @return User login
      */
     public static String getCurrentUserLogin() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
@@ -78,7 +80,10 @@ public final class SecurityUtils {
     /**
      * If the current user has a specific authority (security role).
      * <p>
-     * <p>The name of this method comes from the isUserInRole() method in the Servlet API</p>
+     * <p>The name of this method comes from the isUserInRole() method in the Servlet API</p>.
+     *
+     * @param authority Authority
+     * @return REturns true if current user has authority
      */
     public static boolean isCurrentUserHasAuthority(Authority authority) {
         SecurityContext securityContext = SecurityContextHolder.getContext();
@@ -91,12 +96,15 @@ public final class SecurityUtils {
     }
 
     /**
-     * Check for significant changes of authorities and perform logout for each user, if these exist
+     * Check for significant changes of authorities and perform logout for each user, if these exist.
+     *
+     * @param modifiedUsers   Users
+     * @param sessionRegistry Session registry
      */
     public static void checkAndLogoutUsers(Collection<com.epam.indigoeln.core.model.User> modifiedUsers,
-                                    SessionRegistry sessionRegistry) {
+                                           SessionRegistry sessionRegistry) {
         final List<Object> allPrincipals = sessionRegistry.getAllPrincipals();
-        for (com.epam.indigoeln.core.model.User modifiedUser: modifiedUsers) {
+        for (com.epam.indigoeln.core.model.User modifiedUser : modifiedUsers) {
             for (Object principal : allPrincipals) {
                 UserDetails userDetails = (UserDetails) principal;
                 if (modifiedUser.getLogin().equals(userDetails.getUsername())) {
@@ -106,7 +114,8 @@ public final class SecurityUtils {
         }
     }
 
-    private static void checkAndInvalidate(SessionRegistry sessionRegistry, com.epam.indigoeln.core.model.User modifiedUser, UserDetails userDetails) {
+    private static void checkAndInvalidate(SessionRegistry sessionRegistry,
+                                           com.epam.indigoeln.core.model.User modifiedUser, UserDetails userDetails) {
         Set<String> newAuthorities = modifiedUser.getAuthorities().stream().map(Authority::getAuthority).
                 collect(Collectors.toSet());
         Set<String> existingAuthorities = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).
@@ -119,7 +128,10 @@ public final class SecurityUtils {
     }
 
     /**
-     * Check for significant changes of authorities and perform logout for user, if these exist
+     * Check for significant changes of authorities and perform logout for user, if these exist.
+     *
+     * @param user            User
+     * @param sessionRegistry Session registry
      */
     public static void checkAndLogoutUser(com.epam.indigoeln.core.model.User user, SessionRegistry sessionRegistry) {
         checkAndLogoutUsers(Collections.singletonList(user), sessionRegistry);

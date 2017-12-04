@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Base64;
 
 /**
- * Describes RenderResult object
+ * Describes RenderResult object.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RendererResult implements Serializable {
@@ -25,8 +25,8 @@ public class RendererResult implements Serializable {
     }
 
     public String getImageBase64() {
-            return Base64.getEncoder().encodeToString(image);
-        }
+        return Base64.getEncoder().encodeToString(image);
+    }
 
     public void setImage(byte[] image) {
         this.image = Arrays.copyOf(image, image.length);

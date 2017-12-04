@@ -3,7 +3,7 @@ package com.epam.indigoeln.web.rest.dto;
 import com.epam.indigoeln.core.model.Experiment;
 
 /**
- * A DTO for representing Experiment like a Tree Node with its properties
+ * A DTO for representing Experiment like a Tree Node with its properties.
  */
 public class ExperimentTreeNodeDTO extends TreeNodeDTO {
 
@@ -26,5 +26,4 @@ public class ExperimentTreeNodeDTO extends TreeNodeDTO {
     public void setStatus(String status) {
         this.status = status;
     }
-
 }

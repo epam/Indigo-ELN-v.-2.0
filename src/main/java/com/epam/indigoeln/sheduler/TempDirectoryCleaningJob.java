@@ -42,7 +42,8 @@ public class TempDirectoryCleaningJob {
     private void deleteFiles(File[] directoryListing) throws java.io.IOException {
         for (File file : directoryListing) {
             BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
-            boolean isOlderThanOneDay = new Date().getTime() - attr.creationTime().toMillis() > TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS);
+            boolean isOlderThanOneDay = new Date().getTime() - attr.creationTime().toMillis()
+                    > TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS);
 
             if (isOlderThanOneDay && StringUtils.startsWith(file.getName(), TempFileUtil.TEMP_FILE_PREFIX)) {
                 FileUtils.deleteQuietly(file);

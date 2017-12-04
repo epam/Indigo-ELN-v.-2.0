@@ -6,8 +6,8 @@ import com.epam.indigoeln.core.util.SequenceIdUtil;
 import java.time.ZonedDateTime;
 
 /**
- * Short data for Model Entities : Experiments, Notebooks and Projects
- * Could be used in case, when all items should be fetched from database
+ * Short data for Model Entities : Experiments, Notebooks and Projects.
+ * Could be used in case, when all items should be fetched from database.
  */
 public class ShortEntityDTO {
 
@@ -68,9 +68,9 @@ public class ShortEntityDTO {
 
     @Override
     public String toString() {
-        return "ShortEntityDTO{" +
-                ", fullId='" + fullId + '\'' +
-                ", name='" + name + '\'' +
-                '}';
+        return "ShortEntityDTO{"
+                + ", fullId='" + fullId + '\''
+                + ", name='" + name + '\''
+                + '}';
     }
 }

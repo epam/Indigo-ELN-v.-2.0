@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A DTO for representing a Project, Notebook or an Experiment like a Tree Node with its properties
+ * A DTO for representing a Project, Notebook or an Experiment like a Tree Node with its properties.
  */
 public class TreeNodeDTO {
 
@@ -20,7 +20,7 @@ public class TreeNodeDTO {
             (o1, o2) -> o1.getName().compareTo(o2.getName());
     private HashSet<UserPermission> accessList;
 
-    public TreeNodeDTO() {
+    TreeNodeDTO() {
         super();
     }
 

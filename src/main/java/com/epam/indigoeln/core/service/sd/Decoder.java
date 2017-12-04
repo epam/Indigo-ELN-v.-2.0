@@ -30,24 +30,24 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 /**
- * Util class to decode zipped base64 encoded strings
+ * Util class to decode zipped base64 encoded strings.
  */
-class Decoder {
+final class Decoder {
 
     /**
-     * Logger instance
+     * Logger instance.
      */
     private static final Log LOGGER = LogFactory.getLog(Decoder.class);
 
     /**
-     * Hidden default constructor
+     * Hidden default constructor.
      */
     private Decoder() {
         // Hide the default constructor
     }
 
     /**
-     * Decode base64 and unzip string
+     * Decode base64 and unzip string.
      *
      * @param molRecord string to decode and unzip
      * @return base64 decoded and unzipped string

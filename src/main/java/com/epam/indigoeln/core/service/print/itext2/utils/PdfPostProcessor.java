@@ -13,7 +13,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 /**
- * Provides functionality for working with pdf after generating
+ * Provides functionality for working with pdf after generating.
  */
 public class PdfPostProcessor implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfPostProcessor.class);
@@ -21,14 +21,15 @@ public class PdfPostProcessor implements AutoCloseable {
     private final PdfStamper stamper;
     private final PdfLayout layout;
 
-    public PdfPostProcessor(OutputStream output, InputStream input, PdfLayout layout) throws IOException, DocumentException {
+    public PdfPostProcessor(OutputStream output, InputStream input, PdfLayout layout)
+            throws IOException, DocumentException {
         PdfReader reader = new PdfReader(input);
         this.stamper = new PdfStamper(reader, output);
         this.layout = layout;
     }
 
     /**
-     * Draws input elements
+     * Draws input elements.
      *
      * @param elements List with elements to draw
      * @param page     Page of file
@@ -45,7 +46,7 @@ public class PdfPostProcessor implements AutoCloseable {
     }
 
     /**
-     * Draws input element
+     * Draws input element.
      *
      * @param table Table
      * @param page  Page of file

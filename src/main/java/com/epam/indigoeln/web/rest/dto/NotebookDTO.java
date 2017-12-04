@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.List;
 
 /**
- * DTO for Notebook
+ * DTO for Notebook.
  */
 @JsonTypeName("Notebook")
 public class NotebookDTO extends BasicDTO {

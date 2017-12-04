@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Provides methods for getting information from csv files
+ * Provides methods for getting information from csv files.
  */
 @Service
 public class CodeTableService implements InitializingBean {
@@ -36,7 +36,7 @@ public class CodeTableService implements InitializingBean {
     }
 
     /**
-     * Returns data from table by table's name
+     * Returns data from table by table's name.
      *
      * @param tableName Name of table
      * @return Returns data from table

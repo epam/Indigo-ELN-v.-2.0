@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Implementation of SectionModel interface for batch details
+ * Implementation of SectionModel interface for batch details.
  */
 public class BatchDetailsModel implements SectionModel {
     private String fullNbkBatch;

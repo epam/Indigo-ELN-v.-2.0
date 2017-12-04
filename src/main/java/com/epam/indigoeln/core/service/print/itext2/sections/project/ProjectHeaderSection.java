@@ -8,7 +8,7 @@ import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.lowagie.text.pdf.PdfPTable;
 
 /**
- * Extension of BaseHeaderSectionWithLogo for project's header
+ * Extension of BaseHeaderSectionWithLogo for project's header.
  */
 public class ProjectHeaderSection extends BaseHeaderSectionWithLogo<ProjectHeaderModel> {
 

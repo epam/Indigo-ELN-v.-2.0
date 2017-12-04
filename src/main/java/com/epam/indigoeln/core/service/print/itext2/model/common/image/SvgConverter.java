@@ -11,16 +11,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Provides method for converting svg image format
+ * Provides method for converting svg image format.
  */
-class SvgConverter {
+final class SvgConverter {
     private SvgConverter() {
     }
 
     /**
-     * Converts svg to png format
-     * @param input Input stream of bytes
-     * @param output Output stream of bytes
+     * Converts svg to png format.
+     *
+     * @param input   Input stream of bytes
+     * @param output  Output stream of bytes
      * @param widthPx Image extension
      */
     static void convertSvg2Png(InputStream input, OutputStream output, float widthPx) {

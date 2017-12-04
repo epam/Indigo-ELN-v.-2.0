@@ -36,6 +36,9 @@ public class AccountResource {
 
     /**
      * GET  /authenticate -> check if the user is authenticated, and return its login.
+     *
+     * @param request Request for authentication
+     * @return Returns the login of the user making this request
      */
     @ApiOperation(value = "Checks if user is authenticated and returns it's login.")
     @RequestMapping(value = "/authenticate", method = RequestMethod.GET)
@@ -46,6 +49,8 @@ public class AccountResource {
 
     /**
      * GET  /account -> get the current user.
+     *
+     * @return Returns current user
      */
     @ApiOperation(value = "Returns current user.")
     @RequestMapping(value = "/account", method = RequestMethod.GET,
@@ -57,6 +62,8 @@ public class AccountResource {
 
     /**
      * GET  /account/roles -> get the current user.
+     *
+     * @return Returns current user roles
      */
     @ApiOperation(value = "Returns current user roles.", responseContainer = "List")
     @RequestMapping(value = "/account/roles", method = RequestMethod.GET,
@@ -70,8 +77,8 @@ public class AccountResource {
     }
 
     @ApiOperation(value = "Prolongs user's session.")
-    @RequestMapping(value = "/prolong" , method = RequestMethod.GET)
-    public ResponseEntity<Void> prolongSession(){
+    @RequestMapping(value = "/prolong", method = RequestMethod.GET)
+    public ResponseEntity<Void> prolongSession() {
         return ResponseEntity.ok().build();
     }
 }

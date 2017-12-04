@@ -47,7 +47,9 @@ public class DictionaryResource {
     private UserService userService;
 
     /**
-     * GET /dictionaries/experiments -> get experiments dictionary
+     * GET /dictionaries/experiments -> get experiments dictionary.
+     *
+     * @return Returns experiments dictionary
      */
     @ApiOperation(value = "Returns experiments dictionary.")
     @RequestMapping(value = "/experiments", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -58,7 +60,9 @@ public class DictionaryResource {
     }
 
     /**
-     * GET /dictionaries/users -> get users dictionary
+     * GET /dictionaries/users -> get users dictionary.
+     *
+     * @return Returns users dictionary
      */
     @ApiOperation(value = "Returns users dictionary.")
     @RequestMapping(value = "/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -79,7 +83,9 @@ public class DictionaryResource {
     }
 
     /**
-     * GET /dictionaries -> get all dictionaries
+     * GET /dictionaries -> get all dictionaries.
+     *
+     * @return Returns all dictionaries
      */
     @ApiOperation(value = "Returns all dictionaries.")
     @RequestMapping(value = "/all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -89,7 +95,10 @@ public class DictionaryResource {
     }
 
     /**
-     * GET /dictionaries/:id -> get dictionary by id
+     * GET /dictionaries/:id -> get dictionary by id.
+     *
+     * @param id Identifier of the dictionary
+     * @return Returns dictionary by it's id
      */
     @ApiOperation(value = "Returns dictionary by it's id.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -103,7 +112,10 @@ public class DictionaryResource {
     }
 
     /**
-     * GET /dictionaries/byName/:name -> get dictionary by name
+     * GET /dictionaries/byName/:name -> get dictionary by name.
+     *
+     * @param name Name of the dictionary
+     * @return Returns dictionary by it's name
      */
     @ApiOperation(value = "Returns dictionary by it's name.")
     @RequestMapping(value = "/byName/{name}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -117,7 +129,13 @@ public class DictionaryResource {
     }
 
     /**
-     * GET /dictionaries -> fetch all dictionary list
+     * GET /dictionaries -> fetch all dictionary list.
+     *
+     * @param pageno Page number
+     * @param size   Page size
+     * @param search Search string
+     * @return Returns all found dictionaries (with paging)
+     * @throws URISyntaxException If URI is not correct
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -134,7 +152,11 @@ public class DictionaryResource {
     }
 
     /**
-     * POST /dictionaries -> create new dictionary
+     * POST /dictionaries -> create new dictionary.
+     *
+     * @param dictionaryDTO Dictionary to create
+     * @return Created dictionary
+     * @throws URISyntaxException if URI is not correct
      */
     @ApiOperation(value = "Creates new dictionary.")
     @RequestMapping(method = RequestMethod.POST,
@@ -152,6 +174,9 @@ public class DictionaryResource {
 
     /**
      * PUT  /dictionaries -> Updates an existing dictionary.
+     *
+     * @param dictionaryDTO Dictionary to create
+     * @return Updated dictionary
      */
     @ApiOperation(value = "Updates dictionary.")
     @RequestMapping(method = RequestMethod.PUT,
@@ -167,7 +192,9 @@ public class DictionaryResource {
     }
 
     /**
-     * DELETE  /dictionaries/:id -> Removes dictionary with specified id
+     * DELETE  /dictionaries/:id -> Removes dictionary with specified id.
+     *
+     * @param id Id of the dictionary to delete
      */
     @ApiOperation(value = "Deletes dictionary.")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
@@ -179,6 +206,4 @@ public class DictionaryResource {
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, null);
         return ResponseEntity.ok().headers(headers).build();
     }
-
-
 }

@@ -32,8 +32,10 @@ public class ProjectSearchRepository implements InitializingBean {
 
     private static final String FIELD_AUTHOR_ID = FIELD_AUTHOR + "._id";
 
-    private static final List<String> SEARCH_QUERY_FIELDS = Arrays.asList(FIELD_DESCRIPTION, FIELD_NAME, FIELD_KEYWORDS, FIELD_REFERENCES);
-    private static final List<String> AVAILABLE_FIELDS = Arrays.asList(FIELD_DESCRIPTION, FIELD_NAME, FIELD_KEYWORDS, FIELD_REFERENCES, FIELD_AUTHOR_ID, FIELD_KIND);
+    private static final List<String> SEARCH_QUERY_FIELDS = Arrays
+            .asList(FIELD_DESCRIPTION, FIELD_NAME, FIELD_KEYWORDS, FIELD_REFERENCES);
+    private static final List<String> AVAILABLE_FIELDS = Arrays
+            .asList(FIELD_DESCRIPTION, FIELD_NAME, FIELD_KEYWORDS, FIELD_REFERENCES, FIELD_AUTHOR_ID, FIELD_KIND);
 
     private final MongoTemplate template;
 
@@ -54,11 +56,11 @@ public class ProjectSearchRepository implements InitializingBean {
 
     @SuppressWarnings("unchecked")
     public Optional<Set<String>> search(EntitySearchRequest request) {
-        if (checkConditions(request)){
+        if (checkConditions(request)) {
             Optional<Criteria> advancedCriteria = getAdvancedCriteria(request);
             Optional<Criteria> queryCriteria = getQueryCriteria(request);
             return AggregationUtils.andCriteria(advancedCriteria, queryCriteria).map(this::find);
-        }else {
+        } else {
             return Optional.empty();
         }
     }
@@ -84,9 +86,9 @@ public class ProjectSearchRepository implements InitializingBean {
         return AggregationUtils.orCriteria(querySearch);
     }
 
-    private boolean checkConditions(EntitySearchRequest request){
+    private boolean checkConditions(EntitySearchRequest request) {
         boolean correct = request.getAdvancedSearch().stream().allMatch(c -> AVAILABLE_FIELDS.contains(c.getField()));
-        if (correct){
+        if (correct) {
             return request.getAdvancedSearch().stream()
                     .filter(FIELD_KIND::equals)
                     .findAny()
@@ -103,5 +105,4 @@ public class ProjectSearchRepository implements InitializingBean {
                 .map(o -> (String) o)
                 .collect(Collectors.toSet());
     }
-
 }

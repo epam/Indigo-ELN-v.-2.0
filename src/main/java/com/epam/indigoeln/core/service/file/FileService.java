@@ -23,31 +23,31 @@ import java.util.Collections;
 import java.util.Optional;
 
 /**
- * Provides a number of methods for access to files in database
+ * Provides a number of methods for access to files in database.
  */
 @Service
 public class FileService {
 
     /**
-     * Repository for access to files in database
+     * Repository for access to files in database.
      */
     @Autowired
     private FileRepository fileRepository;
 
     /**
-     * Repository for access to projects in database
+     * Repository for access to projects in database.
      */
     @Autowired
     private ProjectRepository projectRepository;
 
     /**
-     * Repository for access to experiments in database
+     * Repository for access to experiments in database.
      */
     @Autowired
     private ExperimentRepository experimentRepository;
 
     /**
-     * Returns all project files (with paging)
+     * Returns all project files (with paging).
      *
      * @param projectId Project's identifier
      * @param pageable  Pagination information
@@ -60,7 +60,7 @@ public class FileService {
     }
 
     /**
-     * Returns all experiment files
+     * Returns all experiment files.
      *
      * @param experimentId Experiment's identifier
      * @return Page with GridFS files
@@ -76,7 +76,7 @@ public class FileService {
     }
 
     /**
-     * Returns GridFS file by id
+     * Returns GridFS file by id.
      *
      * @param id File's identifier
      * @return GridFS file
@@ -90,7 +90,7 @@ public class FileService {
     }
 
     /**
-     * Creates a new file for the project
+     * Creates a new file for the project.
      *
      * @param projectId   Project's identifier
      * @param content     Input stream of bytes for file
@@ -116,7 +116,7 @@ public class FileService {
     }
 
     /**
-     * Creates new file for the experiment
+     * Creates new file for the experiment.
      *
      * @param experimentId Experiment's identifier
      * @param content      Input stream of bytes for file
@@ -138,7 +138,7 @@ public class FileService {
     }
 
     /**
-     * Removes project file
+     * Removes project file.
      *
      * @param id Project's identifier
      */
@@ -152,7 +152,7 @@ public class FileService {
     }
 
     /**
-     * Removes experiment file
+     * Removes experiment file.
      *
      * @param id Experiment file's identifier
      */

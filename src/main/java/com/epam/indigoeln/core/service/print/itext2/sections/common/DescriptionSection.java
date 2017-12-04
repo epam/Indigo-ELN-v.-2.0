@@ -6,7 +6,7 @@ import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.lowagie.text.pdf.PdfPTable;
 
 /**
- * Extension of BasePdfSectionWithSimpleTitle class for descriptions
+ * Extension of BasePdfSectionWithSimpleTitle class for descriptions.
  */
 public class DescriptionSection extends BasePdfSectionWithSimpleTitle<DescriptionModel> {
     public DescriptionSection(DescriptionModel model) {

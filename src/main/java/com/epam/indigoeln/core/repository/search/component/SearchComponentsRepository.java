@@ -29,7 +29,8 @@ public class SearchComponentsRepository {
     @SuppressWarnings("unchecked")
     private static Function<DBObject, ProductBatchDetailsDTO> convertResult = dbObject -> {
         Map map = (Map) dbObject.toMap().getOrDefault("batches", Collections.emptyMap());
-        String fullBatchNumber = map.getOrDefault(BatchComponentUtil.COMPONENT_FIELD_NBK_BATCH, "").toString();
+        String fullBatchNumber = map.getOrDefault(BatchComponentUtil.COMPONENT_FIELD_NBK_BATCH, "")
+                .toString();
         return new ProductBatchDetailsDTO(fullBatchNumber, map);
     };
     private final MongoTemplate mongoTemplate;

@@ -13,8 +13,8 @@ import java.util.Set;
  */
 public class ManagedUserDTO extends UserDTO {
 
-    public static final int PASSWORD_MIN_LENGTH = 5;
-    public static final int PASSWORD_MAX_LENGTH = 100;
+    private static final int PASSWORD_MIN_LENGTH = 5;
+    private static final int PASSWORD_MAX_LENGTH = 100;
 
     private String id;
 
@@ -107,10 +107,10 @@ public class ManagedUserDTO extends UserDTO {
 
     @Override
     public String toString() {
-        return "ManagedUserDTO{" +
-                "id=" + id +
-                ", createdDate=" + createdDate +
-                ", lastModifiedBy='" + lastModifiedBy + '\'' +
-                "} " + super.toString();
+        return "ManagedUserDTO{"
+                + "id=" + id
+                + ", createdDate=" + createdDate
+                + ", lastModifiedBy='" + lastModifiedBy + '\''
+                + "} " + super.toString();
     }
 }

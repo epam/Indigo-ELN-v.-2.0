@@ -7,14 +7,15 @@ import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
  *
  * @author Timofey Zubkov
  */
-public class EntityNotFoundException extends CustomParametrizedException {
+public final class EntityNotFoundException extends CustomParametrizedException {
 
     private static final String EXCEPTION_MESSAGE = " isn't found";
 
     /**
-     * Creates instance of EntityNotFoundException
+     * Creates instance of EntityNotFoundException.
+     *
      * @param message Exception message
-     * @param params Exception parameters
+     * @param params  Exception parameters
      */
     private EntityNotFoundException(String message, String params) {
         super(message, params);
@@ -22,7 +23,7 @@ public class EntityNotFoundException extends CustomParametrizedException {
 
     /**
      * Creates instance of EntityNotFoundException class with project's id
-     * if such id is not found
+     * if such id is not found.
      *
      * @param projectId Project's identifier
      * @return Instance of EntityNotFoundException class with project's id
@@ -33,7 +34,7 @@ public class EntityNotFoundException extends CustomParametrizedException {
 
     /**
      * Creates instance of EntityNotFoundException class with notebook's id
-     * if such id is not found
+     * if such id is not found.
      *
      * @param notebookId Notebook's identifier
      * @return Instance of EntityNotFoundException class with notebook's id
@@ -44,10 +45,10 @@ public class EntityNotFoundException extends CustomParametrizedException {
 
     /**
      * Creates instance of EntityNotFoundException class with experiment's id
-     * if such id is not found
+     * if such id is not found.
      *
      * @param experimentId Experiment's identifier
-     * @return Instance of <class>EntityNotFoundException</class> class with experiment's id
+     * @return Instance of EntityNotFoundException class with experiment's id
      */
     public static EntityNotFoundException createWithExperimentId(String experimentId) {
         return new EntityNotFoundException("The experiment with id = " + experimentId
@@ -56,10 +57,10 @@ public class EntityNotFoundException extends CustomParametrizedException {
 
     /**
      * Creates instance of EntityNotFoundException class with child's id
-     * if such id is not found
+     * if such id is not found.
      *
      * @param childId Child's identifier
-     * @return Instance of <class>EntityNotFoundException</class> class with child's id
+     * @return Instance of EntityNotFoundException class with child's id
      */
     public static EntityNotFoundException createWithProjectChildId(String childId) {
         return new EntityNotFoundException("The project for child with id = " + childId + EXCEPTION_MESSAGE, childId);
@@ -67,10 +68,10 @@ public class EntityNotFoundException extends CustomParametrizedException {
 
     /**
      * Creates instance of EntityNotFoundException class with child's id
-     * if such id is not found
+     * if such id is not found.
      *
      * @param childId Child's identifier
-     * @return Instance of <class>EntityNotFoundException</class> class with child's id
+     * @return Instance of EntityNotFoundException class with child's id
      */
     public static EntityNotFoundException createWithNotebookChildId(String childId) {
         return new EntityNotFoundException("The notebook for child with id = " + childId + EXCEPTION_MESSAGE, childId);
@@ -78,7 +79,7 @@ public class EntityNotFoundException extends CustomParametrizedException {
 
     /**
      * Creates instance of EntityNotFoundException class with experiment's name
-     * if such name is not found
+     * if such name is not found.
      *
      * @param experimentName Experiment's name
      * @return Instance of EntityNotFoundException class with experiment's name
@@ -90,7 +91,7 @@ public class EntityNotFoundException extends CustomParametrizedException {
 
     /**
      * Creates instance of EntityNotFoundException class with file's id
-     * if such id is not found
+     * if such id is not found.
      *
      * @param fileId File's identifier
      * @return Instance of EntityNotFoundException class with file's id
@@ -101,7 +102,7 @@ public class EntityNotFoundException extends CustomParametrizedException {
 
     /**
      * Creates instance of EntityNotFoundException class with login
-     * if such login is not found
+     * if such login is not found.
      *
      * @param login Username
      * @return Instance of EntityNotFoundException class with login
@@ -112,7 +113,7 @@ public class EntityNotFoundException extends CustomParametrizedException {
 
     /**
      * Creates instance of EntityNotFoundException class with user's id
-     * if such id is not found
+     * if such id is not found.
      *
      * @param userId User's identifier
      * @return Instance of EntityNotFoundException class with user's id
@@ -123,7 +124,7 @@ public class EntityNotFoundException extends CustomParametrizedException {
 
     /**
      * Creates instance of EntityNotFoundException class with role's id
-     * if such id is not found
+     * if such id is not found.
      *
      * @param roleId Role's identifier
      * @return Instance of EntityNotFoundException class with role's id
@@ -134,7 +135,7 @@ public class EntityNotFoundException extends CustomParametrizedException {
 
     /**
      * Creates instance of EntityNotFoundException class with template's id
-     * if such id is not found
+     * if such id is not found.
      *
      * @param templateId Template's identifier
      * @return Instance of EntityNotFoundException class with template's id
@@ -145,10 +146,10 @@ public class EntityNotFoundException extends CustomParametrizedException {
 
     /**
      * Creates instance of EntityNotFoundException class with dictionary's id
-     * if such id is not found
+     * if such id is not found.
      *
      * @param dictionaryId Dictionary's identifier
-     * @return Instance of <class>EntityNotFoundException</class> class with dictionary's id
+     * @return Instance of EntityNotFoundException class with dictionary's id
      */
     public static EntityNotFoundException createWithDictionaryId(String dictionaryId) {
         return new EntityNotFoundException("The dictionary with id = " + dictionaryId

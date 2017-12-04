@@ -34,18 +34,18 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Service class for exporting and importing SDFiles
+ * Service class for exporting and importing SDFiles.
  */
 @Service
 public class SDService {
 
     /**
-     * Logger instance
+     * Logger instance.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(SDService.class);
 
     /**
-     * Read SDFile to collection of item representation
+     * Read SDFile to collection of item representation.
      *
      * @param reader reader for SDFile
      * @return collection of items (structures with properties) from SDFile
@@ -75,7 +75,7 @@ public class SDService {
     }
 
     /**
-     * Create SDFile representation from given collection of SDFile items
+     * Create SDFile representation from given collection of SDFile items.
      *
      * @param items collection of SDFile items
      * @return SDFile representation
@@ -103,7 +103,7 @@ public class SDService {
     }
 
     /**
-     * Create string representation of given SDFile item
+     * Create string representation of given SDFile item.
      *
      * @param item SDFile item
      * @return string representation of given SDFile item

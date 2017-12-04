@@ -6,7 +6,7 @@ import com.epam.indigoeln.core.service.print.itext2.model.common.image.PdfImage;
 import java.util.List;
 
 /**
- * Implementation of SectionModel interface for preferred compounds
+ * Implementation of SectionModel interface for preferred compounds.
  */
 public class PreferredCompoundsModel implements SectionModel {
     private List<PreferredCompoundsRow> rows;
@@ -52,7 +52,6 @@ public class PreferredCompoundsModel implements SectionModel {
         public String getStructureComments() {
             return structureComments;
         }
-
 
 
         public Structure getStructure() {

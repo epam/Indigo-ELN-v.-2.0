@@ -9,7 +9,7 @@ import com.lowagie.text.pdf.PdfPTable;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Extension of BasePdfSectionWithSimpleTitle for concept details section
+ * Extension of BasePdfSectionWithSimpleTitle for concept details section.
  */
 public class ConceptDetailsSection extends BasePdfSectionWithSimpleTitle<ConceptDetailsModel> {
     private static final String COMMA = ", ";
@@ -34,5 +34,4 @@ public class ConceptDetailsSection extends BasePdfSectionWithSimpleTitle<Concept
 
         return table;
     }
-
 }
