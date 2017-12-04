@@ -2,7 +2,6 @@ var calculationUtil = require('../calculation/calculation-util');
 
 function stoichTable(table) {
     var stoichTable = table;
-    var fieldsToReset = ['weight', 'mol', 'eq', 'molarity', 'density', 'limiting', 'stoicPurity', 'saltCode', 'saltEq'];
 
     return {
         addRow: addRow,
@@ -13,7 +12,7 @@ function stoichTable(table) {
 
     function addRow(newRow) {
         if (newRow.isSolventRow()) {
-            newRow.setReadonly(fieldsToReset, true);
+            newRow.setReadonly(newRow.getResetFieldsForSolvent(), true);
         } else {
             isLimitingRowExist()
                 ? newRow.updateMol(getLimitingRow().mol.value, onMolChanged)
@@ -152,6 +151,8 @@ function stoichTable(table) {
     }
 
     function onRxnRoleChanged(row, previousValue) {
+        var fieldsToReset = row.getResetFieldsForSolvent();
+
         if (row.isSolventRow()) {
             var isLimiting = row.isLimiting();
             var nextRow = getRowAfterLimiting();
@@ -160,6 +161,7 @@ function stoichTable(table) {
             row.setReadonly(fieldsToReset, true);
 
             if (isLimiting && nextRow) {
+                row.limiting = false;
                 nextRow.limiting = true;
             }
         } else if (!row.isSolventRow() && previousValue === 'SOLVENT') {

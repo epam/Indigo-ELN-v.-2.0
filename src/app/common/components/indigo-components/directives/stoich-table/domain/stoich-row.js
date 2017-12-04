@@ -10,6 +10,7 @@ StoichRow.prototype.isFieldPresent = isFieldPresent;
 StoichRow.prototype.areFieldsPresent = areFieldsPresent;
 StoichRow.prototype.isLimiting = isLimiting;
 StoichRow.prototype.getResetFieldsForDensity = getResetFieldsForDensity;
+StoichRow.prototype.getResetFieldsForSolvent = getResetFieldsForSolvent;
 StoichRow.prototype.updateMolWeight = updateMolWeight;
 StoichRow.prototype.updateVolume = updateVolume;
 StoichRow.prototype.updateEQ = updateEQ;
@@ -177,6 +178,10 @@ function setReadonly(fields, isReadonly) {
 
 function clear() {
     _.assign(this, getDefaultFields());
+}
+
+function getResetFieldsForSolvent() {
+    return ['weight', 'mol', 'eq', 'molarity', 'density', 'stoicPurity', 'saltCode', 'saltEq'];
 }
 
 //TODO create object on every call
