@@ -23,6 +23,9 @@ function AlertModalController($uibModalInstance, title, message, okText, noText,
 
     function cancel() {
         $uibModalInstance.dismiss('cancel');
+        if (noCallback) {
+            noCallback();
+        }
     }
 
     function ok() {
@@ -33,7 +36,7 @@ function AlertModalController($uibModalInstance, title, message, okText, noText,
     }
 
     function no() {
-        $uibModalInstance.close();
+        $uibModalInstance.dismiss('cancel');
         if (noCallback) {
             noCallback();
         }

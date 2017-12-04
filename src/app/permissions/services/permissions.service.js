@@ -196,7 +196,7 @@ function permissionService($q, principalService, userRemovableFromProjectService
                 userId: member.user.id
             })
                 .$promise
-                .then(success);
+                .then(isRemovable);
         } else if (entity === 'Notebook') {
             return userRemovableFromNotebookService.get({
                 projectId: parentId,
@@ -204,14 +204,14 @@ function permissionService($q, principalService, userRemovableFromProjectService
                 userId: member.user.id
             })
                 .$promise
-                .then(success);
+                .then(isRemovable);
         }
 
         return $q.reject();
     }
 
-    function success(result) {
-        return result.isUserRemovable;
+    function isRemovable(result) {
+        return result.isUserRemovable ? $q.resolve() : $q.reject();
     }
 }
 

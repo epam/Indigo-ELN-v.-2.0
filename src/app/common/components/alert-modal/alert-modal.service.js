@@ -30,7 +30,7 @@ function alertModal($uibModal) {
     }
 
     function confirm(msg, size, okCallback) {
-        openAlertModal('Confirm', msg, size, okCallback, null);
+        return openAlertModal('Confirm', msg, size, okCallback, null);
     }
 
     function save(msg, size, callback) {
@@ -42,7 +42,7 @@ function alertModal($uibModal) {
     }
 
     function openAlertModal(title, message, size, okCallback, noCallback, okText, hideCancel, noText) {
-        $uibModal.open({
+        return $uibModal.open({
             size: size || 'md',
             resolve: {
                 title: function() {
@@ -71,7 +71,7 @@ function alertModal($uibModal) {
             controller: 'AlertModalController',
             bindToController: true,
             controllerAs: 'vm'
-        });
+        }).result;
     }
 }
 

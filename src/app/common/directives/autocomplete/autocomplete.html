@@ -1,0 +1,23 @@
+<div class="form-group">
+    <label ng-bind="vm.label"></label>
+
+    <ui-select ng-model="vm.model"
+               multiple="vm.multiple"
+               theme="bootstrap"
+               ng-disabled="vm.readonly"
+               spinner-enabled="true"
+               on-select="vm.onSelect({item: $item})"
+               on-remove="vm.onRemove({item: $item})">
+        <ui-select-match placeholder="{{::vm.placeholder}}">
+            {{$item[vm.field] || $select.selected[vm.field]}}
+        </ui-select-match>
+        <ui-select-choices refresh="vm.refresh($select.search)"
+                           refresh-delay="300"
+                           repeat="item in vm.filteredItems">
+            <span ng-bind-html="item[[vm.field]] | highlight: $select.search" class="tag-item"></span>
+        </ui-select-choices>
+        <ui-select-no-choice>
+            Found nothing
+        </ui-select-no-choice>
+    </ui-select>
+</div>

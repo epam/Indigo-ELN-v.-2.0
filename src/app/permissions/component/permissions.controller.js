@@ -1,6 +1,6 @@
 /* @ngInject */
-function PermissionsController($scope, $uibModalInstance, permissionService, users, permissions,
-                                        permissionsConstant, notifyService, alertModal) {
+function PermissionsController($uibModalInstance, permissionService, users, permissions,
+                               permissionsConstant, notifyService, alertModal) {
     var vm = this;
 
     init();
@@ -25,14 +25,6 @@ function PermissionsController($scope, $uibModalInstance, permissionService, use
         vm.checkAuthority = checkAuthority;
         vm.ok = ok;
         vm.clear = clear;
-
-        bindEvents();
-    }
-
-    function bindEvents() {
-        $scope.$watch('vm.selectedMembers', function(user) {
-            vm.addMember(user);
-        });
     }
 
     function addMember(member) {
@@ -51,9 +43,6 @@ function PermissionsController($scope, $uibModalInstance, permissionService, use
 
     function removeMember(member) {
         var message;
-        var callback = function() {
-            vm.accessList = _.without(vm.accessList, member);
-        };
 
         if (vm.entity === 'Project') {
             message = permissionsConstant.removeProjectWarning;
@@ -61,13 +50,14 @@ function PermissionsController($scope, $uibModalInstance, permissionService, use
             message = permissionsConstant.removeNotebookWarning;
         }
 
-        permissionService.isUserRemovableFromAccessList(member).then(function(isRemovable) {
-            if (isRemovable) {
-                callback();
-            } else {
-                alertModal.confirm(message, null, callback);
-            }
-        });
+        permissionService
+            .isUserRemovableFromAccessList(member)
+            .catch(function() {
+                return alertModal.confirm(message, null, angular.noop);
+            })
+            .then(function() {
+                _.remove(vm.accessList, member);
+            });
     }
 
     function isAuthor(member) {

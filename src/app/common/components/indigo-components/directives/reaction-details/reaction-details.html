@@ -29,24 +29,22 @@
                            disabled="disabled"
                            ng-attr-title="vm.experiment.author.fullName">
                 </simple-input>
-                <indigo-select indigo-label="Co-authors"
-                               indigo-label-vertical="true"
-                               indigo-readonly="vm.isReadonly"
-                               indigo-items="vm.users"
-                               indigo-model="vm.coAuthors"
-                               indigo-change="vm.updateIds('coAuthors', vm.coAuthors)"
-                               indigo-remove="vm.updateIds('coAuthors', vm.coAuthors)"
-                               indigo-multiple="true"
-                ></indigo-select>
+                <autocomplete label="Co-authors"
+                              readonly="vm.isReadonly"
+                              items="vm.users"
+                              model="vm.coAuthors"
+                              on-remove="vm.updateIds('coAuthors', vm.coAuthors)"
+                              on-select="vm.updateIds('coAuthors', vm.coAuthors)"
+                              multiple>
+                </autocomplete>
                 <!--Experiment Creator field is hidden for current release; to make it visible, remove ng-if and add
                 attributes: indigo-change, indigo-remove -->
-                <indigo-select ng-if="false"
-                               indigo-label="Experiment Creator (Author)"
-                               indigo-label-vertical="true"
-                               indigo-model="vm.experimentCreator"
-                               indigo-readonly="vm.isReadonly"
-                               indigo-items="vm.users"
-                ></indigo-select>
+                <autocomple ng-if="false"
+                            label="Experiment Creator (Author)"
+                            model="vm.experimentCreator"
+                            readonly="vm.isReadonly"
+                            items="vm.users"
+                ></autocomple>
             </div>
             <div class="col-xs-6">
                 <indigo-date-picker indigo-label="Creation Date" indigo-label-vertical="true"
@@ -73,15 +71,14 @@
                            ng-disabled="vm.isReadonly"
                            ng-attr-title="vm.componentData.projectAliasName">
                 </simple-input>
-                <indigo-select indigo-label="Batch Owner"
-                               indigo-label-vertical="true"
-                               indigo-readonly="vm.isReadonly"
-                               indigo-items="vm.users"
-                               indigo-model="vm.batchOwner"
-                               indigo-change="vm.updateIds('batchOwner', vm.batchOwner)"
-                               indigo-remove="vm.updateIds('batchOwner', vm.batchOwner)"
-                               indigo-multiple="true"
-                ></indigo-select>
+                <autocomplete label="Batch Owner"
+                              readonly="vm.isReadonly"
+                              items="vm.users"
+                              model="vm.batchOwner"
+                              on-remove="vm.updateIds('batchOwner', vm.batchOwner)"
+                              on-select="vm.updateIds('batchOwner', vm.batchOwner)"
+                              multiple>
+                </autocomplete>
             </div>
         </div>
         <indigo-text-area indigo-label="Literature Ref" indigo-no-elastic="true"
