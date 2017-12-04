@@ -2,6 +2,7 @@ package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.service.calculation.CalculationService;
 import com.epam.indigoeln.core.service.calculation.StoicCalculationService;
+import com.epam.indigoeln.core.service.codetable.CodeTableService;
 import com.epam.indigoeln.web.rest.dto.calculation.BasicBatchModel;
 import com.epam.indigoeln.web.rest.dto.calculation.ProductTableDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
@@ -53,6 +54,17 @@ public class CalculationResource {
         }
         return ResponseEntity.ok(calculationService.getMolecularInformation(normalizeMolFile(molecule),
                 Optional.ofNullable(saltCode), Optional.ofNullable(saltEq)));
+    }
+
+    /**
+     * GET  /api/calculations/salt-code -> Returns all salt information.
+     *
+     * @return Salt information from {@code CodeTableService.TABLE_SALT_CODE} table
+     */
+    @ApiOperation(value = "Returns all salt information.")
+    @RequestMapping(value = "salt-code", method = RequestMethod.GET)
+    public List<CodeTableService.SaltDTO> getAllSaltCode() {
+        return calculationService.getAllSaltCode();
     }
 
     /**
