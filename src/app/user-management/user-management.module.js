@@ -1,3 +1,5 @@
+require('./component/user-management.less');
+
 var UserManagementController = require('./component/user-management.controller');
 var UserManagementDeleteController = require('./delete-dialog/user-management-delete-dialog.controller');
 var userManagementConfig = require('./user-management.config');

@@ -118,14 +118,36 @@
     <div class="table-responsive" indigo-scroller="x">
         <table class="table table-striped">
             <thead>
-            <tr>
-                <th i-translate="USERNAME"></th>
-                <th i-translate="FIRST_NAME"></th>
-                <th i-translate="LAST_NAME"></th>
-                <th i-translate="SYSTEM_ROLES"></th>
-                <th i-translate="EMAIL"></th>
-                <th i-translate="ACTIVE"></th>
-                <th i-translate="ACTION"></th>
+            <tr indigo-sort="vm.sortBy.field"
+                ascending="!vm.sortBy.reverse"
+                callback="vm.sortUsers(predicate, reverse)">
+                <th indigo-sort-by="login">
+                    <span i-translate="USERNAME"></span>
+                    <span class="glyphicon glyphicon-sort user-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="firstName">
+                    <span i-translate="FIRST_NAME"></span>
+                    <span class="glyphicon glyphicon-sort user-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="lastName">
+                    <span i-translate="LAST_NAME"></span>
+                    <span class="glyphicon glyphicon-sort user-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="roles">
+                    <span i-translate="SYSTEM_ROLES"></span>
+                    <span class="glyphicon glyphicon-sort user-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="email">
+                    <span i-translate="EMAIL"></span>
+                    <span class="glyphicon glyphicon-sort user-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="activated">
+                    <span i-translate="ACTIVE"></span>
+                    <span class="glyphicon glyphicon-sort user-management__icon-sort"></span>
+                </th>
+                <th>
+                    <span i-translate="ACTION"></span>
+                </th>
             </tr>
             </thead>
             <tbody>

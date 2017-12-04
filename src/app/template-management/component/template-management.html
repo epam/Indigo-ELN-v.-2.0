@@ -1,4 +1,4 @@
-<div class="tab-content-pad templates">
+<div class="tab-content-pad template-management">
     <div class="m-b20">
         <button class="btn btn-primary" ui-sref="entities.template-new">
             <span class="fa fa-plus" aria-hidden="true"></span>
@@ -8,13 +8,28 @@
     <div class="table-responsive" indigo-scroller="x">
         <table class="table table-striped">
             <thead>
-            <tr indigo-sort="vm.predicate" ascending="vm.reverse" callback="vm.loadAll()">
-                <th indigo-sort-by="name" i-translate="TEMPLATE_NAME">
-                    <span class="glyphicon glyphicon-sort"></span></th>
-                <th i-translate="CREATED_BY"></th>
-                <th i-translate="CREATION_DATE"></th>
-                <th i-translate="LAST_EDIT_DATE"></th>
-                <th i-translate="ACTIONS"></th>
+            <tr indigo-sort="vm.sortBy.field"
+                ascending="!vm.sortBy.reverse"
+                callback="vm.sortTemplates(predicate, reverse)">
+                <th indigo-sort-by="name">
+                    <span i-translate="TEMPLATE_NAME"></span>
+                    <span class="glyphicon glyphicon-sort template-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="author">
+                    <span i-translate="CREATED_BY"></span>
+                    <span class="glyphicon glyphicon-sort template-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="creationDate">
+                    <span i-translate="CREATION_DATE"></span>
+                    <span class="glyphicon glyphicon-sort template-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="lastEditDate">
+                    <span i-translate="LAST_EDIT_DATE"></span>
+                    <span class="glyphicon glyphicon-sort template-management__icon-sort"></span>
+                </th>
+                <th>
+                    <span i-translate="ACTIONS"></span>
+                </th>
             </tr>
             </thead>
             <tbody>

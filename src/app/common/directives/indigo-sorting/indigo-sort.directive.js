@@ -27,7 +27,7 @@ function indigoSort() {
                 vm.ascending = !vm.ascending;
             }
             vm.indigoSort = field;
-            vm.callback();
+            vm.callback({predicate: field, reverse: !vm.ascending});
         }
     }
 }

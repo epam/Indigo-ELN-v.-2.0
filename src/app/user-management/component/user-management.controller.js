@@ -1,8 +1,6 @@
 var userManagementPasswordDialogTemplate = require('./user-management-password-dialog.html');
 
-UserManagementController.$inject = ['$uibModal', 'userService', 'parseLinks', '$filter', 'pageInfo',
-    'notifyService'];
-
+/* @ngInject */
 function UserManagementController($uibModal, userService, parseLinks, $filter, pageInfo, notifyService) {
     var vm = this;
 
@@ -10,6 +8,10 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
     vm.roles = pageInfo.roles;
     vm.page = 1;
     vm.itemsPerPage = 10;
+    vm.sortBy = {
+        field: 'login',
+        reverse: false
+    };
 
     vm.loadAll = loadAll;
     vm.setActive = setActive;
@@ -19,12 +21,15 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
     vm.edit = edit;
     vm.search = search;
     vm.changePassword = changePassword;
+    vm.sortUsers = sortUsers;
 
     vm.loadAll();
 
     function loadAll() {
         userService.query({
-            page: vm.page - 1, size: vm.itemsPerPage
+            page: vm.page - 1,
+            size: vm.itemsPerPage,
+            sort: vm.sortBy.field + ',' + (vm.sortBy.reverse ? 'desc' : 'asc')
         }, function(result, headers) {
             vm.links = parseLinks.parse(headers('link'));
             vm.totalItems = headers('X-Total-Count');
@@ -132,6 +137,12 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
         }).result.then(function(password) {
             vm.user.password = password;
         });
+    }
+
+    function sortUsers(predicate, reverse) {
+        vm.sortBy.field = predicate;
+        vm.sortBy.reverse = reverse;
+        loadAll();
     }
 }
 

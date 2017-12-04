@@ -130,7 +130,7 @@ function calculationService($rootScope, $http, $q, appValuesService, apiUrl, $lo
                     return reagent;
                 });
         }
-        $log.error('Bathc hasn\'t a structure or molfile');
+        $log.error('Batch does not contain structure or molfile');
 
         return $q.resolve(reagent);
     }

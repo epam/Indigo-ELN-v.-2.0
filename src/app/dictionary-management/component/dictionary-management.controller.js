@@ -13,6 +13,10 @@ function DictionaryManagementController($scope, $filter, $uibModal,
     vm.itemsPerPage = 5;
     vm.searchText = '';
     vm.isCollapsed = true;
+    vm.sortBy = {
+        field: 'name',
+        reverse: false
+    };
 
     vm.loadAllDictionaries = loadAllDictionaries;
     vm.saveDictionary = saveDictionary;
@@ -27,6 +31,7 @@ function DictionaryManagementController($scope, $filter, $uibModal,
     vm.saveWord = saveWord;
     vm.editWord = editWord;
     vm.deleteWord = deleteWord;
+    vm.sortDictionaries = sortDictionaries;
 
     init();
 
@@ -63,7 +68,8 @@ function DictionaryManagementController($scope, $filter, $uibModal,
         dictionaryService.query({
             page: vm.page - 1,
             size: vm.itemsPerPage,
-            search: vm.searchText
+            search: vm.searchText,
+            sort: vm.sortBy.field + ',' + (vm.sortBy.reverse ? 'desc' : 'asc')
         }, function(result, headers) {
             vm.links = parseLinks.parse(headers('link'));
             vm.totalItems = headers('X-Total-Count');
@@ -198,6 +204,12 @@ function DictionaryManagementController($scope, $filter, $uibModal,
                 dictionaryService.update(vm.selectedDictionary, onSaveSuccess, onSaveError);
             }
         }
+    }
+
+    function sortDictionaries(predicate, reverse) {
+        vm.sortBy.field = predicate;
+        vm.sortBy.reverse = reverse;
+        loadAllDictionaries();
     }
 }
 

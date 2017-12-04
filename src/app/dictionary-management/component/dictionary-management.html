@@ -1,4 +1,4 @@
-<div class="tab-content-pad dictionary">
+<div class="tab-content-pad dictionary-management">
     <div class="row m-b20">
         <div class="col-sm-6">
             <button class="btn btn-primary" ng-click="vm.createDictionary()">
@@ -50,16 +50,35 @@
             </button>
         </div>
     </div>
-    <div class="table-responsive dictionary__description" indigo-scroller="x">
+    <div class="table-responsive dictionary-management__description" indigo-scroller="x">
         <table class="table table-striped">
             <thead>
-            <tr>
-                <th i-translate="NAME"></th>
-                <th i-translate="DESCRIPTION"></th>
-                <th i-translate="CREATED_BY"></th>
-                <th i-translate="CREATION_DATE"></th>
-                <th i-translate="LAST_EDIT_DATE"></th>
-                <th i-translate="ACTION"></th>
+            <tr indigo-sort="vm.sortBy.field"
+                ascending="!vm.sortBy.reverse"
+                callback="vm.sortDictionaries(predicate, reverse)">
+                <th indigo-sort-by="name">
+                    <span i-translate="NAME"></span>
+                    <span class="glyphicon glyphicon-sort template-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="description">
+                    <span i-translate="DESCRIPTION"></span>
+                    <span class="glyphicon glyphicon-sort template-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="author">
+                    <span i-translate="CREATED_BY"></span>
+                    <span class="glyphicon glyphicon-sort template-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="creationDate">
+                    <span i-translate="CREATION_DATE"></span>
+                    <span class="glyphicon glyphicon-sort template-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="lastEditDate">
+                    <span i-translate="LAST_EDIT_DATE"></span>
+                    <span class="glyphicon glyphicon-sort template-management__icon-sort"></span>
+                </th>
+                <th>
+                    <span i-translate="ACTION"></span>
+                </th>
             </tr>
             </thead>
             <tbody>
