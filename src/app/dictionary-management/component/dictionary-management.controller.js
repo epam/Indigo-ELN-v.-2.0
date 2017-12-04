@@ -102,11 +102,12 @@ function DictionaryManagementController($scope, $filter, $uibModal,
         dictionaryService.query({
             page: vm.page - 1,
             size: vm.itemsPerPage,
-            search: vm.searchText
+            search: vm.searchText,
+            sort: vm.sortBy.field + ',' + (vm.sortBy.reverse ? 'desc' : 'asc')
         }, function(result, headers) {
             vm.links = parseLinks.parse(headers('link'));
             vm.totalItems = headers('X-Total-Count');
-            vm.dictionaries = $filter('filter')(result, vm.searchText);
+            vm.dictionaries = result;
         });
     }
 

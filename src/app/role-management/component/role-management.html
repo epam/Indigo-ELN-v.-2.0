@@ -10,7 +10,13 @@
         <div class="col-sm-6 text-right">
             <div class="search-field m-t5">
                 <span class="fa fa-search"></span>
-                <input type="search" class="uui-search" placeholder="Search" ng-change="vm.search()" id="searchRole" ng-model="vm.searchText">
+                <input type="search"
+                       class="uui-search"
+                       placeholder="Search"
+                       ng-change="vm.search()"
+                       id="searchRole"
+                       ng-model="vm.searchText"
+                       ng-model-options="{ debounce: 300 }">
             </div>
         </div>
     </div>

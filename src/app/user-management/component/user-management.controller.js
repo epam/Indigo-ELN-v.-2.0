@@ -3,6 +3,7 @@ var userManagementPasswordDialogTemplate = require('./user-management-password-d
 /* @ngInject */
 function UserManagementController($uibModal, userService, parseLinks, $filter, pageInfo, notifyService) {
     var vm = this;
+    var usersModel = [];
 
     vm.users = [];
     vm.roles = pageInfo.roles;
@@ -34,6 +35,7 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
             vm.links = parseLinks.parse(headers('link'));
             vm.totalItems = headers('X-Total-Count');
             vm.users = result;
+            usersModel = result;
         });
     }
 
@@ -105,13 +107,8 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
     }
 
     function search() {
-        userService.query({
-            page: vm.page - 1, size: 20
-        }, function(result, headers) {
-            vm.links = parseLinks.parse(headers('link'));
-            vm.totalItems = headers('X-Total-Count');
-            vm.users = $filter('filter')(result, vm.searchText);
-        });
+        // Filtering through current table page
+        vm.users = $filter('filter')(usersModel, vm.searchText);
     }
 
     function changePassword() {
