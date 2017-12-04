@@ -249,6 +249,21 @@ describe('stoichTable', function() {
                 expect(otherRow.weight.value).toBe(10);
             });
 
+            it('molarity is entered, volume is computed, mol set to 0, should reset volume and weight', function() {
+                var stoichRow = new StoichRow();
+                stoichRow.molWeight.value = 10;
+                stoichRow.weight.value = 22;
+                stoichRow.volume.value = 2;
+                stoichRow.molarity.value = 2;
+
+                stoichRow.mol.value = 0;
+
+                service.onColumnValueChanged(stoichRow, 'mol');
+
+                expect(stoichRow.weight.value).toBe(0);
+                expect(stoichRow.volume.value).toBe(0);
+            });
+
             it('mol weight is not defined, but weight is defined, should compute mol weight', function() {
                 var stoichRow = new StoichRow();
                 stoichRow.molWeight.value = 0;
@@ -488,11 +503,9 @@ describe('stoichTable', function() {
                 expect(secondRow.weight.value).toBe(33);
             });
 
-            it('molarity is defined, mol is defined, should compute mol, weight and eq', function() {
+            it('molarity, molWeight are defined, should compute mol, weight and eq', function() {
                 var stoichRow = new StoichRow();
                 stoichRow.molWeight.value = 2;
-                stoichRow.weight.value = 30;
-                stoichRow.mol.value = 15;
                 stoichRow.molarity.value = 4;
 
                 stoichRow.volume.value = 5;
@@ -503,6 +516,24 @@ describe('stoichTable', function() {
                 expect(stoichRow.volume.value).toBe(5);
                 expect(stoichRow.mol.value).toBe(20);
                 expect(stoichRow.weight.value).toBe(40);
+                expect(stoichRow.eq.value).toBe(1);
+            });
+
+            it('molarity, molWeight, mol are defined, set volume to 0, should remove mol, weight', function() {
+                var stoichRow = new StoichRow();
+                stoichRow.molWeight.value = 2;
+                stoichRow.molarity.value = 4;
+                stoichRow.mol.value = 20;
+                stoichRow.weight.value = 40;
+
+                stoichRow.volume.value = 0;
+
+                service.onColumnValueChanged(stoichRow, 'volume');
+
+                expect(stoichRow.molarity.value).toBe(4);
+                expect(stoichRow.volume.value).toBe(0);
+                expect(stoichRow.mol.value).toBe(0);
+                expect(stoichRow.weight.value).toBe(0);
                 expect(stoichRow.eq.value).toBe(1);
             });
 
@@ -586,17 +617,37 @@ describe('stoichTable', function() {
                 expect(otherRow.volume.value).toBe(4);
             });
 
-            it('volume is defined, mol is defined, volume should be 0', function() {
+            it('volume is computed, mol is manually entered, volume should be 0', function() {
                 var stoichRow = new StoichRow();
                 stoichRow.molWeight.value = 2;
                 stoichRow.weight.value = 30;
                 stoichRow.mol.value = 15;
-                stoichRow.molarity.value = 0;
+                stoichRow.mol.entered = true;
                 stoichRow.volume.value = 5;
+                stoichRow.molarity.value = 0;
 
                 service.onColumnValueChanged(stoichRow, 'molarity');
 
                 expect(stoichRow.volume.value).toBe(0);
+                expect(stoichRow.mol.value).toBe(15);
+                expect(stoichRow.mol.entered).toBeTruthy();
+            });
+
+            it('mol is computed, volume is manually entered, mol should be 0', function() {
+                var stoichRow = new StoichRow();
+                stoichRow.molWeight.value = 2;
+                stoichRow.weight.value = 30;
+                stoichRow.mol.value = 15;
+                stoichRow.volume.value = 5;
+                stoichRow.volume.entered = true;
+                stoichRow.molarity.value = 0;
+
+                service.onColumnValueChanged(stoichRow, 'molarity');
+
+                expect(stoichRow.volume.value).toBe(5);
+                expect(stoichRow.volume.entered).toBeTruthy();
+                expect(stoichRow.mol.value).toBe(0);
+                expect(stoichRow.weight.value).toBe(0);
             });
 
             it('volume is not defined, mol is defined, should compute volume', function() {

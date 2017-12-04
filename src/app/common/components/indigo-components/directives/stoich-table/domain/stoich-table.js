@@ -77,7 +77,7 @@ function stoichTable(table) {
     }
 
     function onWeightChanged(row) {
-        if (row.areFieldsPresent(['weight', 'molWeight'])) {
+        if (row.areValuesPresent(['weight', 'molWeight'])) {
             var mol = calculationUtil.computePureMol(row.weight.value, row.molWeight.value);
             row.setComputedMol(mol);
 
@@ -91,13 +91,13 @@ function stoichTable(table) {
             return;
         }
 
-        if (row.areFieldsPresent(['weight', 'density']) && !row.volume.entered) {
+        if (row.areValuesPresent(['weight', 'density'])) {
             row.updateVolume();
 
             return;
         }
 
-        if (!row.isFieldPresent('weight')) {
+        if (!row.isValuePresent('weight')) {
             row.setDefaultValues(['mol', 'eq']);
             return;
         }
@@ -106,12 +106,7 @@ function stoichTable(table) {
     }
 
     function onMolChanged(row) {
-        if (!row.mol.value) {
-            row.setDefaultValues(['weight', 'eq']);
-            return;
-        }
-
-        if (row.areFieldsPresent(['molWeight', 'mol'])) {
+        if (row.areValuesPresent(['molWeight', 'mol'])) {
             var weight = calculationUtil.computeWeight(row.mol.value, row.molWeight.value);
             row.setComputedWeight(weight);
             if (row.limiting) {
@@ -124,27 +119,32 @@ function stoichTable(table) {
             return;
         }
 
+        if (!row.isValuePresent('mol')) {
+            row.resetFields(row.getResetFieldsForMol());
+            return;
+        }
+
         row.updateMolWeight();
     }
 
     function onEqChanged(row) {
         //TODO: remove this case in the future
         if (!row.eq.value) {
-             row.eq.value = 1;
-             return;
+            row.eq.value = 1;
+            return;
         }
 
-        if (row.isLimiting() && row.isFieldPresent('mol')) {
+        if (row.isLimiting() && row.isValuePresent('mol')) {
             var molByEq = calculationUtil.computeMolByEq(row.mol.value, row.eq.value);
             updateRowsWithNewMol(molByEq);
         }
 
-        if (!row.isLimiting() && row.isFieldPresent('weight')) {
+        if (!row.isLimiting() && row.isValuePresent('weight')) {
             var weight = calculationUtil.multiply(row.weight.value, row.eq.value);
             row.setComputedWeight(weight);
         }
 
-        if (!row.isLimiting() && row.isFieldPresent('mol')) {
+        if (!row.isLimiting() && row.isValuePresent('mol')) {
             var mol = calculationUtil.multiply(row.mol.value, row.eq.value);
             row.setComputedMol(mol);
         }
@@ -176,19 +176,19 @@ function stoichTable(table) {
     }
 
     function onVolumeChanged(row) {
-        if (row.areFieldsPresent(['volume', 'mol', 'molarity'])) {
+        if (row.areValuesPresent(['volume', 'molarity'])) {
             var mol = calculationUtil.computeDissolvedMol(row.molarity.value, row.volume.value);
             row.setComputedMol(mol, onMolChanged);
             return;
         }
 
-        if (row.areFieldsPresent(['volume', 'density'])) {
+        if (row.areValuesPresent(['volume', 'density'])) {
             var weight = calculationUtil.computeWeightByDensity(row.volume.value, row.density.value);
             row.setComputedWeight(weight, onWeightChanged);
             return;
         }
 
-        if (row.isFieldPresent('volume') && !row.isSolventRow()) {
+        if (row.isValuePresent('volume') && !row.isSolventRow()) {
             if (row.isLimiting()) {
                 var nextRow = getRowAfterLimiting();
                 if (nextRow) {
@@ -203,17 +203,17 @@ function stoichTable(table) {
             return;
         }
 
-        if (!row.isFieldPresent('volume') && row.areFieldsPresent(['mol', 'molarity'])) {
+        if (!row.isValuePresent('volume') && row.areValuesPresent(['mol', 'molarity'])) {
             row.resetFields(['mol'], onMolChanged);
             return;
         }
 
-        if (!row.isFieldPresent('volume') && row.isFieldPresent('density')) {
+        if (!row.isValuePresent('volume') && row.isValuePresent('density')) {
             row.resetFields(['weight'], onWeightChanged);
             return;
         }
 
-        if (!row.isFieldPresent('volume') && !row.isSolventRow()) {
+        if (!row.isValuePresent('volume') && !row.isSolventRow()) {
             var limitingRow = getLimitingRow();
             if (limitingRow) {
                 row.setComputedMol(limitingRow.mol.value, onMolChanged);
@@ -222,12 +222,7 @@ function stoichTable(table) {
     }
 
     function onMolarityChanged(row) {
-        if (!row.molarity.value) {
-            row.setDefaultValues(['volume']);
-            return;
-        }
-
-        if (row.volume.value && row.molarity.value) {
+        if (row.areValuesPresent(['volume', 'molarity'])) {
             var mol = calculationUtil.computeDissolvedMol(row.molarity.value, row.volume.value);
             row.setComputedMol(mol, onMolChanged);
 
@@ -238,10 +233,16 @@ function stoichTable(table) {
             return;
         }
 
-        if (!row.volume.value && row.mol.value) {
+        if (!row.isValuePresent('volume') && row.isValuePresent('mol')) {
             var volume = calculationUtil.computeVolume(row.mol.value, row.molarity.value);
             row.setComputedVolume(volume);
             return;
+        }
+
+        if (!row.isValuePresent('molarity')) {
+            var fieldToReset = row.getResetFieldForMolarity();
+            var callback = fieldToReset === 'mol' ? onMolChanged : null;
+            row.resetFields([fieldToReset], callback);
         }
     }
 
@@ -269,21 +270,21 @@ function stoichTable(table) {
     }
 
     function onDensityChanged(row) {
-        if (row.areFieldsPresent(['density', 'volume'])) {
+        if (row.areValuesPresent(['density', 'volume'])) {
             var weight = calculationUtil.computeWeightByDensity(row.volume.value, row.density.value);
             row.setComputedWeight(weight, onWeightChanged);
             return;
         }
 
-        if (row.areFieldsPresent(['density', 'weight'])) {
+        if (row.areValuesPresent(['density', 'weight'])) {
             var volume = calculationUtil.computeVolumeByDensity(row.weight.value, row.density.value);
             row.setComputedVolume(volume);
             return;
         }
 
-        if (!row.isFieldPresent('density')) {
+        if (!row.isValuePresent('density')) {
             var fieldToReset = row.getResetFieldForDensity();
-            var callback = fieldToReset === 'weight' ? onWeightChanged: null;
+            var callback = fieldToReset === 'weight' ? onWeightChanged : null;
             row.resetFields([fieldToReset], callback);
         }
     }

@@ -12,13 +12,13 @@ describe('stoichRow', function() {
         expect(row).toBeDefined();
     });
 
-    describe('areFieldsPresent function', function() {
+    describe('areValuesPresent function', function() {
         it('purity and eq should be present', function() {
-            expect(row.areFieldsPresent(['stoicPurity', 'eq'])).toBe(true);
+            expect(row.areValuesPresent(['stoicPurity', 'eq'])).toBe(true);
         });
 
         it('mol and weight should not be present', function() {
-            expect(row.areFieldsPresent(['mol', 'weight'])).toBe(false);
+            expect(row.areValuesPresent(['mol', 'weight'])).toBe(false);
         });
     });
 });

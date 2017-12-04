@@ -6,11 +6,13 @@ function StoichRow() {
 }
 
 StoichRow.prototype.isSolventRow = isSolventRow;
-StoichRow.prototype.isFieldPresent = isFieldPresent;
-StoichRow.prototype.areFieldsPresent = areFieldsPresent;
+StoichRow.prototype.isValuePresent = isValuePresent;
+StoichRow.prototype.areValuesPresent = areValuesPresent;
 StoichRow.prototype.isLimiting = isLimiting;
 StoichRow.prototype.getResetFieldForDensity = getResetFieldForDensity;
 StoichRow.prototype.getResetFieldsForSolvent = getResetFieldsForSolvent;
+StoichRow.prototype.getResetFieldForMolarity = getResetFieldForMolarity;
+StoichRow.prototype.getResetFieldsForMol = getResetFieldsForMol;
 StoichRow.prototype.updateMolWeight = updateMolWeight;
 StoichRow.prototype.updateVolume = updateVolume;
 StoichRow.prototype.updateEQ = updateEQ;
@@ -35,15 +37,13 @@ function updateMolWeight() {
 
 //TODO: refactor
 function updateVolume() {
-    if (this.molarity.value) {
-        this.resetEntered(['volume']);
+    if (this.molarity.value && !this.volume.entered) {
         this.volume.value = calculationUtil.computeVolume(this.mol.value, this.molarity.value);
 
         return;
     }
 
-    if (this.density.value) {
-        this.resetEntered(['volume']);
+    if (this.density.value && !this.volume.entered) {
         this.volume.value = calculationUtil.computeVolumeByDensity(this.weight.value, this.density.value);
 
         return;
@@ -96,11 +96,11 @@ function isSolventRow() {
     return this.rxnRole.name === 'SOLVENT';
 }
 
-function isFieldPresent(field) {
+function isValuePresent(field) {
     return this[field].value;
 }
 
-function areFieldsPresent(fields) {
+function areValuesPresent(fields) {
     var self = this;
 
     return _.every(fields, function(fieldId) {
@@ -120,6 +120,25 @@ function getResetFieldForDensity() {
     if (!this.weight.entered) {
         return 'weight';
     }
+}
+
+function getResetFieldForMolarity() {
+    if (!this.volume.entered) {
+        return 'volume';
+    }
+
+    if (!this.mol.entered) {
+        return 'mol';
+    }
+}
+
+function getResetFieldsForMol() {
+    var resetFields = ['weight', 'eq'];
+    if (!this.volume.entered) {
+        resetFields.push('volume');
+    }
+
+    return resetFields;
 }
 
 function setComputedMolWeight(molWeight, callback) {
@@ -150,6 +169,7 @@ function setComputedWeight(weight, callback) {
 }
 
 function setComputedMol(mol, callback) {
+    //TODO: set limiting true if limitingRow doesn't exist
     this.mol.value = mol;
     this.resetEntered(['mol']);
 
