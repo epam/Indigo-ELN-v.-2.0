@@ -1,5 +1,6 @@
 package com.epam.indigoeln.web.rest.util;
 
+import com.epam.indigoeln.core.model.Project;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.repository.user.UserRepository;
@@ -39,8 +40,8 @@ public class PermissionUtil {
     }
 
     public static boolean hasEditorAuthorityOrPermissions(User user,
-                                         Set<UserPermission> accessList,
-                                         String permission) {
+                                                          Set<UserPermission> accessList,
+                                                          String permission) {
         return isContentEditor(user) || hasPermissions(user.getId(), accessList, permission);
     }
 
@@ -59,7 +60,7 @@ public class PermissionUtil {
         setUserPermissions(accessList, user, UserPermission.OWNER_PERMISSIONS);
     }
 
-     /**
+    /**
      * Adding Project Author as VIEWER to Experiment Access List if Experiment creator is another User
      */
     public static void addProjectAuthorToAccessList(Set<UserPermission> accessList, User projectAuthor, User experimentCreator) {
@@ -94,6 +95,20 @@ public class PermissionUtil {
         }
     }
 
+    public static void checkAndSetPermissions(Set<UserPermission> accessList, Project project) {
+        if (project != null) {
+            for (UserPermission userPermission : project.getAccessList()) {
+                UserPermission projectUserPermission =
+                        findPermissionsByUserId(project.getAccessList(), userPermission.getUser().getId());
+                if (projectUserPermission != null
+                        && projectUserPermission.getPermissionView() != null
+                        && !accessList.contains(userPermission)) {
+                    accessList.add(userPermission);
+                }
+            }
+        }
+    }
+
     public static void checkCorrectnessOfAccessList(UserRepository userRepository,
                                                     Set<UserPermission> accessList) {
         for (UserPermission userPermission : accessList) {
@@ -114,6 +129,14 @@ public class PermissionUtil {
                             userPermission.getUser().getId(), permission);
                 }
             }
+
+            for(UserPermission up: accessList){
+                if(up.getUser().getAuthorities().contains(Authority.CONTENT_EDITOR)){
+                    up.setPermissions(UserPermission.OWNER_PERMISSIONS);
+                }
+            }
+
+
         }
     }
 }

@@ -192,6 +192,8 @@ public class NotebookService {
         // add VIEWER's permissions for Project Author to notebook, if notebook creator is another User
         PermissionUtil.addProjectAuthorToAccessList(notebook.getAccessList(), project.getAuthor(), user);
 
+        PermissionUtil.checkAndSetPermissions(notebook.getAccessList(), project);
+
         Notebook savedNotebook = saveNotebookAndHandleError(notebook);
 
         // add all users as VIEWER to project
@@ -223,6 +225,7 @@ public class NotebookService {
 
             // Check of EntityAccess (User must have "Read Entity" permission in project access list and
             // "Update Entity" permission in notebook access list, or must have CONTENT_EDITOR authority)
+
             if (!PermissionUtil.isContentEditor(user)) {
                 Project project = projectRepository.findByNotebookId(fullNotebookId);
                 if (project == null) {
@@ -248,13 +251,15 @@ public class NotebookService {
                 notebookFromDB.setName(notebookDTO.getName());
             }
             notebookFromDB.setDescription(notebookDTO.getDescription());
-            notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's experiments for updated notebook
             notebookFromDB.setVersion(notebook.getVersion());
-
-            Notebook savedNotebook = saveNotebookAndHandleError(notebookFromDB);
 
             Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
                     orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
+
+            PermissionUtil.checkAndSetPermissions(notebook.getAccessList(), project);
+            notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's experiments for updated notebook
+            Notebook savedNotebook = saveNotebookAndHandleError(notebookFromDB);
+
             // add all users as VIEWER to project
             Boolean updateProject = notebook.getAccessList().stream()
                     .map(up -> PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS))
