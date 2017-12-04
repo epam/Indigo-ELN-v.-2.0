@@ -711,6 +711,8 @@ describe('stoichTable', function() {
 
             it('set density 0, volume is entered, weight should be 0', function() {
                 var stoichRow = new StoichRow();
+                stoichRow.molWeight.value = 1;
+                stoichRow.mol.value = 2;
                 stoichRow.volume.value = 0.005;
                 stoichRow.volume.entered = true;
                 stoichRow.weight.value = 2;
@@ -719,6 +721,7 @@ describe('stoichTable', function() {
                 service.onColumnValueChanged(stoichRow, 'density');
 
                 expect(stoichRow.weight.value).toBe(0);
+                expect(stoichRow.mol.value).toBe(0);
             });
         });
     });

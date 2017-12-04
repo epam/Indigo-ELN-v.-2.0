@@ -9,7 +9,7 @@ StoichRow.prototype.isSolventRow = isSolventRow;
 StoichRow.prototype.isFieldPresent = isFieldPresent;
 StoichRow.prototype.areFieldsPresent = areFieldsPresent;
 StoichRow.prototype.isLimiting = isLimiting;
-StoichRow.prototype.getResetFieldsForDensity = getResetFieldsForDensity;
+StoichRow.prototype.getResetFieldForDensity = getResetFieldForDensity;
 StoichRow.prototype.getResetFieldsForSolvent = getResetFieldsForSolvent;
 StoichRow.prototype.updateMolWeight = updateMolWeight;
 StoichRow.prototype.updateVolume = updateVolume;
@@ -82,6 +82,7 @@ function setDefaultValues(fields) {
 function setEntered(field) {
     this[field].entered = true;
 }
+
 //TODO: maybe it useless? just setDefaultValues
 function resetEntered(fields) {
     var self = this;
@@ -111,15 +112,14 @@ function isLimiting() {
     return this.limiting;
 }
 
-function getResetFieldsForDensity() {
-    var resetFields = [];
+function getResetFieldForDensity() {
     if (!this.volume.entered) {
-        resetFields.push('volume');
-    } else if (!this.weight.entered) {
-        resetFields.push('weight');
+        return 'volume';
     }
 
-    return resetFields;
+    if (!this.weight.entered) {
+        return 'weight';
+    }
 }
 
 function setComputedMolWeight(molWeight, callback) {

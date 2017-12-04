@@ -204,7 +204,7 @@ function stoichTable(table) {
         }
 
         if (!row.isFieldPresent('volume') && row.areFieldsPresent(['mol', 'molarity'])) {
-            row.resetFields([mol], onMolChanged);
+            row.resetFields(['mol'], onMolChanged);
             return;
         }
 
@@ -282,7 +282,9 @@ function stoichTable(table) {
         }
 
         if (!row.isFieldPresent('density')) {
-            row.setDefaultValues(row.getResetFieldsForDensity());
+            var fieldToReset = row.getResetFieldForDensity();
+            var callback = fieldToReset === 'weight' ? onWeightChanged: null;
+            row.resetFields([fieldToReset], callback);
         }
     }
 
