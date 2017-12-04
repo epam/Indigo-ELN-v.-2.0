@@ -401,7 +401,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <outputDirectory>${project.build.directory}/build</outputDirectory>
                     <fork>false</fork>
                 </configuration>
             </plugin>
