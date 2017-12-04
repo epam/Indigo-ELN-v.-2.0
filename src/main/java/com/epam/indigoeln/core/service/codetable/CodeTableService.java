@@ -109,7 +109,7 @@ public class CodeTableService implements InitializingBean {
         Double saltWeight;
         String saltFormula;
 
-        public String getValue() {
+        public String getName() {
             return String.format("%s - %s", saltCode, saltDescription);
         }
     }
