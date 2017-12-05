@@ -1,3 +1,5 @@
+require('./component/template-management.less');
+
 var entitiesTemplate = require('./component/template-management.html');
 var templateDetail = require('./detail/template-detail.html');
 var templateModal = require('./modal/template-modal.html');

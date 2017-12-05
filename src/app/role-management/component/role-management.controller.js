@@ -5,7 +5,8 @@ function RoleManagementController($scope, roleService, accountRoleService,
                                   $filter, $uibModal, pageInfo, notifyService) {
     var ROLE_EDITOR_AUTHORITY = 'ROLE_EDITOR';
     var vm = this;
-    vm.roles = pageInfo.roles;
+
+    vm.roles = [];
     vm.accountRoles = pageInfo.accountRoles;
     vm.authorities = pageInfo.authorities;
 
@@ -18,12 +19,23 @@ function RoleManagementController($scope, roleService, accountRoleService,
     vm.edit = edit;
     vm.resetAuthorities = resetAuthorities;
 
-    function search() {
-        roleService.query({}, function(result) {
-            vm.roles = $filter('filter')(result, {
-                name: vm.searchText
-            });
+    init();
+
+    function init() {
+        vm.roles = $filter('orderBy')(pageInfo.roles, 'name');
+
+        $scope.$watch('vm.role', function(role) {
+            initAuthorities(role);
         });
+    }
+
+    function search() {
+        // Filtering through current table page
+        var searchResult = $filter('filter')(pageInfo.roles, {
+            name: vm.searchText
+        });
+
+        vm.roles = $filter('orderBy')(searchResult, 'name');
     }
 
     function hasAuthority(role, authority) {
@@ -140,14 +152,6 @@ function RoleManagementController($scope, roleService, accountRoleService,
 
         return lastRoleWithRoleEditorAuthority;
     }
-
-    var unsubscribe = $scope.$watch('vm.role', function(role) {
-        initAuthorities(role);
-    });
-
-    $scope.$on('$destroy', function() {
-        unsubscribe();
-    });
 }
 
 module.exports = RoleManagementController;

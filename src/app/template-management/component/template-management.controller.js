@@ -7,11 +7,16 @@ function TemplateManagementController(templateService, parseLinks) {
     vm.reverse = true;
     vm.page = 1;
     vm.itemsPerPage = 10;
+    vm.sortBy = {
+        field: 'name',
+        isAscending: true
+    };
 
     vm.loadAll = loadAll;
     vm.loadPage = loadPage;
     vm.refresh = refresh;
     vm.clear = clear;
+    vm.sortTemplates = sortTemplates;
 
     vm.loadAll();
 
@@ -19,7 +24,7 @@ function TemplateManagementController(templateService, parseLinks) {
         templateService.query({
             page: vm.page - 1,
             size: vm.itemsPerPage,
-            sort: [vm.predicate + ',' + (vm.reverse ? 'asc' : 'desc'), 'id']
+            sort: vm.sortBy.field + ',' + (vm.sortBy.isAscending ? 'asc' : 'desc')
         }, function(result, headers) {
             vm.links = parseLinks.parse(headers('link'));
             vm.totalItems = headers('X-Total-Count');
@@ -42,6 +47,12 @@ function TemplateManagementController(templateService, parseLinks) {
             name: null,
             id: null
         };
+    }
+
+    function sortTemplates(predicate, isAscending) {
+        vm.sortBy.field = predicate;
+        vm.sortBy.isAscending = isAscending;
+        loadAll();
     }
 }
 

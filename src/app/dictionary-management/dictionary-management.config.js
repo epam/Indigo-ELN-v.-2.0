@@ -1,3 +1,5 @@
+require('./component/dictionary-management.less');
+
 var dictionaryManagementTemplate = require('./component/dictionary-management.html');
 var dictionaryManagementDeleteDialogTemplate = require('./delete-dialog/dictionary-management-delete-dialog.html');
 

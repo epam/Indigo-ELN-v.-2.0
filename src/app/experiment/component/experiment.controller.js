@@ -10,6 +10,10 @@ function ExperimentController($scope, dashboardService, configService, $filter, 
     vm.dView = 'open';
     vm.itemsPerPage = 20;
     vm.signatureServiceUrl = configService.getConfiguration()['indigoeln.client.signatureservice.url'];
+    vm.sortBy = {
+        field: 'lastEditDate',
+        isAscending: false
+    };
 
     vm.loadAll = loadAll;
     vm.onViewChange = onViewChange;
@@ -45,11 +49,13 @@ function ExperimentController($scope, dashboardService, configService, $filter, 
             vm.curExperiments = submittedExperiments;
         }
         vm.totalItems = vm.curExperiments.length;
-        vm.sort('lastEditDate', true, true);
+        vm.sort(vm.sortBy.field, false, true);
     }
 
-    function sort(predicate, reverse, noDigest) {
-        vm.curExperiments = $filter('orderBy')(vm.curExperiments, predicate, reverse);
+    function sort(predicate, isAscending, noDigest) {
+        vm.sortBy.field = predicate;
+        vm.sortBy.isAscending = isAscending;
+        vm.curExperiments = $filter('orderBy')(vm.curExperiments, predicate, !isAscending);
         vm.doPage(1);
         if (!noDigest) {
             $scope.$apply();

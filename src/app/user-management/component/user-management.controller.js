@@ -1,15 +1,18 @@
 var userManagementPasswordDialogTemplate = require('./user-management-password-dialog.html');
 
-UserManagementController.$inject = ['$uibModal', 'userService', 'parseLinks', '$filter', 'pageInfo',
-    'notifyService'];
-
+/* @ngInject */
 function UserManagementController($uibModal, userService, parseLinks, $filter, pageInfo, notifyService) {
     var vm = this;
+    var usersModel = [];
 
     vm.users = [];
     vm.roles = pageInfo.roles;
     vm.page = 1;
     vm.itemsPerPage = 10;
+    vm.sortBy = {
+        field: 'login',
+        isAscending: true
+    };
 
     vm.loadAll = loadAll;
     vm.setActive = setActive;
@@ -19,16 +22,20 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
     vm.edit = edit;
     vm.search = search;
     vm.changePassword = changePassword;
+    vm.sortUsers = sortUsers;
 
     vm.loadAll();
 
     function loadAll() {
         userService.query({
-            page: vm.page - 1, size: vm.itemsPerPage
+            page: vm.page - 1,
+            size: vm.itemsPerPage,
+            sort: vm.sortBy.field + ',' + (vm.sortBy.isAscending ? 'asc' : 'desc')
         }, function(result, headers) {
             vm.links = parseLinks.parse(headers('link'));
             vm.totalItems = headers('X-Total-Count');
             vm.users = result;
+            usersModel = result;
         });
     }
 
@@ -100,13 +107,8 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
     }
 
     function search() {
-        userService.query({
-            page: vm.page - 1, size: 20
-        }, function(result, headers) {
-            vm.links = parseLinks.parse(headers('link'));
-            vm.totalItems = headers('X-Total-Count');
-            vm.users = $filter('filter')(result, vm.searchText);
-        });
+        // Filtering through current table page
+        vm.users = $filter('filter')(usersModel, vm.searchText);
     }
 
     function changePassword() {
@@ -132,6 +134,12 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
         }).result.then(function(password) {
             vm.user.password = password;
         });
+    }
+
+    function sortUsers(predicate, isAscending) {
+        vm.sortBy.field = predicate;
+        vm.sortBy.isAscending = isAscending;
+        loadAll();
     }
 }
 

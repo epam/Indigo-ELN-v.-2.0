@@ -59,24 +59,46 @@
             <div class="table-responsive">
                 <table class="main-table table table-striped table-condensed dash-table">
                     <thead class="main-table__header">
-                    <tr indigo-sort="predicate" ascending="reverse" callback="vm.sort(predicate, reverse)"
+                    <tr indigo-sort="vm.sortBy.field"
+                        is-ascending="vm.sortBy.isAscending"
+                        on-sort="vm.sort(predicate, isAscending)"
                         class="table-list">
-                        <th indigo-sort-by="id" class="table-list__item table-list__item_header dash-exp-id">Experiment
-                            ID <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
-                        <th indigo-sort-by="name" class="table-list__item table-list__item_header dash-exp-name">Title
-                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
-                        <th indigo-sort-by="author.firstName" class="table-list__item table-list__item_header">Author
-                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
-                        <th class="table-list__item table-list__item_header">Co-authors</th>
-                        <th indigo-sort-by="project" class="table-list__item table-list__item_header">Project <span
-                                class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
+                        <th indigo-sort-by="id"
+                            class="table-list__item table-list__item_header dash-exp-id">
+                            Experiment ID
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
+                        <th indigo-sort-by="name"
+                            class="table-list__item table-list__item_header dash-exp-name">
+                            Title
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
+                        <th indigo-sort-by="author.firstName"
+                            class="table-list__item table-list__item_header">
+                            Author
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
+                        <th class="table-list__item table-list__item_header">
+                            Co-authors
+                        </th>
+                        <th indigo-sort-by="project"
+                            class="table-list__item table-list__item_header">
+                            Project
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
                         <th indigo-sort-by="creationDate"
-                            class="table-list__item table-list__item_header dash-exp-date">Creation Date <span
-                                class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
+                            class="table-list__item table-list__item_header dash-exp-date">
+                            Creation Date
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
                         <th indigo-sort-by="lastEditDate"
-                            class="table-list__item table-list__item_header dash-exp-date">Last Edit Date <span
-                                class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
-                        <th class="table-list__item table-list__item_header">Idle Workdays </span></th>
+                            class="table-list__item table-list__item_header dash-exp-date">
+                            Last Edit Date
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
+                        <th class="table-list__item table-list__item_header">
+                            Idle Workdays
+                        </th>
                     </tr>
                     </thead>
                     <tbody class="main-table__body">
@@ -124,24 +146,51 @@
             <div class="table-responsive" indigo-scroller="x">
                 <table class="main-table table table-striped table-condensed">
                     <thead class="main-table__header">
-                    <tr indigo-sort="predicate" ascending="reverse" callback="vm.sort(predicate, reverse)"
+                    <tr indigo-sort="vm.sortBy.field"
+                        is-ascending="vm.sortBy.isAscending"
+                        on-sort="vm.sort(predicate, isAscending)"
                         class="table-list">
-                        <th indigo-sort-by="id" class="table-list__item table-list__item_header dash-exp-id">Experiment
-                            ID <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
-                        <th indigo-sort-by="name" class="table-list__item table-list__item_header">Title <span
-                                class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
-                        <th indigo-sort-by="status" class="table-list__item table-list__item_header">Status <span
-                                class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
-                        <th indigo-sort-by="author.firstName" class="table-list__item table-list__item_header">Author
-                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
-                        <th indigo-sort-by="submitter.firstName" class="table-list__item table-list__item_header">
-                            Submitter <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
-                        <th class="table-list__item table-list__item_header">Witness</th>
-                        <th indigo-sort-by="creationDate" class="table-list__item table-list__item_header">Creation Date
-                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
-                        <th indigo-sort-by="lastEditDate" class="table-list__item table-list__item_header">Last Action
-                            Date <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
-                        <th class="table-list__item table-list__item_header">Idle Workdays</th>
+                        <th indigo-sort-by="id"
+                            class="table-list__item table-list__item_header dash-exp-id">
+                            Experiment ID
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
+                        <th indigo-sort-by="name"
+                            class="table-list__item table-list__item_header">
+                            Title
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
+                        <th indigo-sort-by="status"
+                            class="table-list__item table-list__item_header">
+                            Status
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
+                        <th indigo-sort-by="author.firstName"
+                            class="table-list__item table-list__item_header">
+                            Author
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
+                        <th indigo-sort-by="submitter.firstName"
+                            class="table-list__item table-list__item_header">
+                            Submitter
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
+                        <th class="table-list__item table-list__item_header">
+                            Witness
+                        </th>
+                        <th indigo-sort-by="creationDate"
+                            class="table-list__item table-list__item_header">
+                            Creation Date
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
+                        <th indigo-sort-by="lastEditDate"
+                            class="table-list__item table-list__item_header">
+                            Last Action Date
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
+                        <th class="table-list__item table-list__item_header">
+                            Idle Workdays
+                        </th>
                     </tr>
                     </thead>
                     <tbody class="main-table__body">
@@ -186,24 +235,47 @@
             <div class="table-responsive" indigo-scroller="x">
                 <table class="main-table table table-striped table-condensed">
                     <thead class="main-table__header">
-                    <tr indigo-sort="predicate" ascending="reverse" callback="vm.sort(predicate, reverse)"
+                    <tr indigo-sort="vm.sortBy.field"
+                        is-ascending="vm.sortBy.isAscending"
+                        on-sort="vm.sort(predicate, isAscending)"
                         class="table-list">
-                        <th indigo-sort-by="id" class="table-list__item table-list__item_header dash-exp-id">Experiment
-                            ID <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
-                        <th indigo-sort-by="name" class="table-list__item table-list__item_header">Title <span
-                                class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
-                        <th indigo-sort-by="status" class="table-list__item table-list__item_header">Status <span
-                                class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
-                        <th indigo-sort-by="author.firstName" class="table-list__item table-list__item_header">Author
-                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
-                        <th indigo-sort-by="submitter.firstName" class="table-list__item table-list__item_header">
-                            Submitter <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
-                        <th class="table-list__item table-list__item_header">Witness</th>
-                        <th indigo-sort-by="creationDate" class="table-list__item table-list__item_header">Creation Date
-                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
-                        <th indigo-sort-by="lastEditDate" class="table-list__item table-list__item_header">Last Edit
-                            Date <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
-                        <th class="table-list__item table-list__item_header">Comments</th>
+                        <th indigo-sort-by="id"
+                            class="table-list__item table-list__item_header dash-exp-id">
+                            Experiment ID
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
+                        <th indigo-sort-by="name"
+                            class="table-list__item table-list__item_header">
+                            Title
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
+                        <th indigo-sort-by="status"
+                            class="table-list__item table-list__item_header">Status
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
+                        <th indigo-sort-by="author.firstName"
+                            class="table-list__item table-list__item_header">Author
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
+                        <th indigo-sort-by="submitter.firstName"
+                            class="table-list__item table-list__item_header">
+                            Submitter
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
+                        <th class="table-list__item table-list__item_header">Witness
+                        </th>
+                        <th indigo-sort-by="creationDate"
+                            class="table-list__item table-list__item_header">
+                            Creation Date
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
+                        <th indigo-sort-by="lastEditDate"
+                            class="table-list__item table-list__item_header">
+                            Last Edit Date
+                            <span class="glyphicon glyphicon-sort experiments__icon-sort"></span>
+                        </th>
+                        <th class="table-list__item table-list__item_header">Comments
+                        </th>
                     </tr>
                     </thead>
                     <tbody class="main-table__body">
