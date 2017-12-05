@@ -2,8 +2,7 @@ var dictionaryManagementDeleteWordDialogTemplate =
     require('../../dictionary-management/delete-word-dialog/dictionary-management-delete-word-dialog.html');
 
 /* @ngInject */
-function DictionaryManagementController($scope, $filter, $uibModal,
-                                        notifyService, dictionaryService, parseLinks) {
+function DictionaryManagementController($scope, $uibModal, notifyService, dictionaryService, parseLinks) {
     var vm = this;
 
     vm.dictionaries = [];
@@ -15,7 +14,7 @@ function DictionaryManagementController($scope, $filter, $uibModal,
     vm.isCollapsed = true;
     vm.sortBy = {
         field: 'name',
-        reverse: false
+        isAscending: true
     };
 
     vm.loadAllDictionaries = loadAllDictionaries;
@@ -69,7 +68,7 @@ function DictionaryManagementController($scope, $filter, $uibModal,
             page: vm.page - 1,
             size: vm.itemsPerPage,
             search: vm.searchText,
-            sort: vm.sortBy.field + ',' + (vm.sortBy.reverse ? 'desc' : 'asc')
+            sort: vm.sortBy.field + ',' + (vm.sortBy.isAscending ? 'asc' : 'desc')
         }, function(result, headers) {
             vm.links = parseLinks.parse(headers('link'));
             vm.totalItems = headers('X-Total-Count');
@@ -103,7 +102,7 @@ function DictionaryManagementController($scope, $filter, $uibModal,
             page: vm.page - 1,
             size: vm.itemsPerPage,
             search: vm.searchText,
-            sort: vm.sortBy.field + ',' + (vm.sortBy.reverse ? 'desc' : 'asc')
+            sort: vm.sortBy.field + ',' + (vm.sortBy.isAscending ? 'asc' : 'desc')
         }, function(result, headers) {
             vm.links = parseLinks.parse(headers('link'));
             vm.totalItems = headers('X-Total-Count');
@@ -207,9 +206,9 @@ function DictionaryManagementController($scope, $filter, $uibModal,
         }
     }
 
-    function sortDictionaries(predicate, reverse) {
+    function sortDictionaries(predicate, isAscending) {
         vm.sortBy.field = predicate;
-        vm.sortBy.reverse = reverse;
+        vm.sortBy.isAscending = isAscending;
         loadAllDictionaries();
     }
 }

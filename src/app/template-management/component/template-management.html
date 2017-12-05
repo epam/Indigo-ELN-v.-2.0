@@ -9,8 +9,8 @@
         <table class="table table-striped">
             <thead>
             <tr indigo-sort="vm.sortBy.field"
-                ascending="!vm.sortBy.reverse"
-                callback="vm.sortTemplates(predicate, reverse)">
+                is-ascending="vm.sortBy.isAscending"
+                on-sort="vm.sortTemplates(predicate, isAscending)">
                 <th indigo-sort-by="name">
                     <span i-translate="TEMPLATE_NAME"></span>
                     <span class="glyphicon glyphicon-sort template-management__icon-sort"></span>

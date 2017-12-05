@@ -59,9 +59,9 @@
             <div class="table-responsive">
                 <table class="main-table table table-striped table-condensed dash-table">
                     <thead class="main-table__header">
-                    <tr indigo-sort="vm.sortBy"
-                        ascending="reverse"
-                        callback="vm.sort(predicate, reverse)"
+                    <tr indigo-sort="vm.sortBy.field"
+                        is-ascending="vm.sortBy.isAscending"
+                        on-sort="vm.sort(predicate, isAscending)"
                         class="table-list">
                         <th indigo-sort-by="id"
                             class="table-list__item table-list__item_header dash-exp-id">
@@ -146,9 +146,9 @@
             <div class="table-responsive" indigo-scroller="x">
                 <table class="main-table table table-striped table-condensed">
                     <thead class="main-table__header">
-                    <tr indigo-sort="vm.sortBy"
-                        ascending="reverse"
-                        callback="vm.sort(vm.sortBy, reverse)"
+                    <tr indigo-sort="vm.sortBy.field"
+                        is-ascending="vm.sortBy.isAscending"
+                        on-sort="vm.sort(predicate, isAscending)"
                         class="table-list">
                         <th indigo-sort-by="id"
                             class="table-list__item table-list__item_header dash-exp-id">
@@ -235,9 +235,9 @@
             <div class="table-responsive" indigo-scroller="x">
                 <table class="main-table table table-striped table-condensed">
                     <thead class="main-table__header">
-                    <tr indigo-sort="vm.sortBy"
-                        ascending="reverse"
-                        callback="vm.sort(vm.sortBy, reverse)"
+                    <tr indigo-sort="vm.sortBy.field"
+                        is-ascending="vm.sortBy.isAscending"
+                        on-sort="vm.sort(predicate, isAscending)"
                         class="table-list">
                         <th indigo-sort-by="id"
                             class="table-list__item table-list__item_header dash-exp-id">

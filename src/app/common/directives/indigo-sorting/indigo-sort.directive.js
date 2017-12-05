@@ -3,8 +3,8 @@ function indigoSort() {
         restrict: 'A',
         scope: {
             indigoSort: '=',
-            ascending: '=',
-            callback: '&'
+            isAscending: '=',
+            onSort: '&'
         },
         controller: IndigoSortController,
         controllerAs: 'vm',
@@ -22,12 +22,13 @@ function indigoSort() {
 
         function sort(field) {
             if (field !== vm.indigoSort) {
-                vm.ascending = true;
+                vm.isAscending = true;
             } else {
-                vm.ascending = !vm.ascending;
+                vm.isAscending = !vm.isAscending;
             }
+
             vm.indigoSort = field;
-            vm.callback({predicate: field, reverse: !vm.ascending});
+            vm.onSort({predicate: field, isAscending: vm.isAscending});
         }
     }
 }

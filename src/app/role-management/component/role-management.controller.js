@@ -24,12 +24,8 @@ function RoleManagementController($scope, roleService, accountRoleService,
     function init() {
         vm.roles = $filter('orderBy')(pageInfo.roles, 'name');
 
-        var unsubscribe = $scope.$watch('vm.role', function(role) {
+        $scope.$watch('vm.role', function(role) {
             initAuthorities(role);
-        });
-
-        $scope.$on('$destroy', function() {
-            unsubscribe();
         });
     }
 

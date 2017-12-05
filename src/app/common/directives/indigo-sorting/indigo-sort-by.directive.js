@@ -14,13 +14,13 @@ function indigoSortBy() {
         });
 
         $scope.$watch(function() {
-            return parentCtrl.ascending + parentCtrl.indigoSort;
+            return parentCtrl.isAscending + parentCtrl.indigoSort;
         }, updateClasses);
 
         function updateClasses() {
             var isCurrent = parentCtrl.indigoSort === $attr.indigoSortBy;
-            iconElement.toggleClass('glyphicon-sort-by-attributes', isCurrent && parentCtrl.ascending);
-            iconElement.toggleClass('glyphicon-sort-by-attributes-alt', isCurrent && !parentCtrl.ascending);
+            iconElement.toggleClass('glyphicon-sort-by-attributes', isCurrent && parentCtrl.isAscending);
+            iconElement.toggleClass('glyphicon-sort-by-attributes-alt', isCurrent && !parentCtrl.isAscending);
         }
     }
 }

@@ -11,7 +11,7 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
     vm.itemsPerPage = 10;
     vm.sortBy = {
         field: 'login',
-        reverse: false
+        isAscending: true
     };
 
     vm.loadAll = loadAll;
@@ -30,7 +30,7 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
         userService.query({
             page: vm.page - 1,
             size: vm.itemsPerPage,
-            sort: vm.sortBy.field + ',' + (vm.sortBy.reverse ? 'desc' : 'asc')
+            sort: vm.sortBy.field + ',' + (vm.sortBy.isAscending ? 'asc' : 'desc')
         }, function(result, headers) {
             vm.links = parseLinks.parse(headers('link'));
             vm.totalItems = headers('X-Total-Count');
@@ -136,9 +136,9 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
         });
     }
 
-    function sortUsers(predicate, reverse) {
+    function sortUsers(predicate, isAscending) {
         vm.sortBy.field = predicate;
-        vm.sortBy.reverse = reverse;
+        vm.sortBy.isAscending = isAscending;
         loadAll();
     }
 }
