@@ -739,6 +739,22 @@ describe('stoichTable', function() {
                 expect(stoichRow.weight.value).toBe(225);
                 expect(stoichRow.mol.value).toBe(15);
             });
+
+            // it('row is not limiting, should set original mol weight', function() {
+            //     var stoichRow = new StoichRow();
+            //     stoichRow.molWeight.value = 3;
+            //     stoichRow.weight.value = 45;
+            //     stoichRow.mol.value = 15;
+            //     stoichRow.saltCode = {name: '01 - HYDROCHLORIDE', value: 1, regValue: '01', weight: 1};
+            //     stoichRow.saltEq.value = 12;
+            //     stoichRow.limiting = false;
+            //
+            //     service.onColumnValueChanged(stoichRow, 'saltEq');
+            //
+            //     expect(stoichRow.molWeight.value).toBe(15);
+            //     expect(stoichRow.weight.value).toBe(225);
+            //     expect(stoichRow.mol.value).toBe(15);
+            // });
         });
 
         describe('Change density', function() {

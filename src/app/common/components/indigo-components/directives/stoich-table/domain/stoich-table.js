@@ -57,11 +57,9 @@ function stoichTable(table) {
                 onPurityChanged(row);
                 break;
             case 'saltCode':
-                row.setEntered(fieldId);
                 onSaltChanged(row);
                 break;
             case 'saltEq':
-                row.setEntered(fieldId);
                 onSaltChanged(row);
                 break;
             case 'density':

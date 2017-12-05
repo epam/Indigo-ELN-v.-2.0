@@ -51,7 +51,8 @@ function updateVolume() {
 }
 
 function updateEQ(limitingRow) {
-    if (limitingRow && !limitingRow.eq.entered) {
+    var canUpdateEq = limitingRow && !limitingRow.eq.entered && this.mol.value && limitingRow.mol.value;
+    if (canUpdateEq) {
         this.resetEntered(['eq']);
         this.eq.value = calculationUtil.computeEQ(this.mol.value, limitingRow.mol.value);
     }
@@ -221,8 +222,8 @@ function getDefaultFields() {
         molarity: new StoichField(0, 'M'),
         stoicPurity: new StoichField(100),
         formula: '',
-        saltCode: {name: '00 - Parent Structure', value: '0', regValue: '00', entered: false, weight: 0},
-        saltEq: new StoichField(),
+        saltCode: {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0},
+        saltEq: {value: 0},
         loadFactor: '',
         hazardComments: '',
         comments: ''
