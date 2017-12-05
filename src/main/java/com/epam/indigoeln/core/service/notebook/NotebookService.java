@@ -198,7 +198,7 @@ public class NotebookService {
         // add VIEWER's permissions for Project Author to notebook, if notebook creator is another User
         PermissionUtil.addProjectAuthorToAccessList(notebook.getAccessList(), project.getAuthor(), user);
 
-        PermissionUtil.checkAndSetPermissions(notebook.getAccessList(), project);
+        PermissionUtil.addUserPermissions(notebook.getAccessList(), project);
 
         Notebook savedNotebook = saveNotebookAndHandleError(notebook);
 
@@ -261,7 +261,7 @@ public class NotebookService {
             // experiments for updated notebook
             notebookFromDB.setVersion(notebook.getVersion());
 
-            PermissionUtil.checkAndSetPermissions(notebook.getAccessList(), project);
+            PermissionUtil.addUserPermissions(notebook.getAccessList(), project);
             notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's experiments for updated notebook
             Notebook savedNotebook = saveNotebookAndHandleError(notebookFromDB);
 
