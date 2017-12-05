@@ -228,16 +228,16 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     }
 
     function onCloseCell(column, data) {
-        if (_.includes(columnsWithClose, column.id)) {
-            if (column.id === stoichReactantsColumns.compoundId.id) {
-                onCloseCompoundId(data);
-            }
-            calculationService.setEntered(data);
-            if (column.id === stoichReactantsColumns.rxnRole.id) {
-                onRxnRoleChange(data);
-            }
-            calculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
-        }
+        // if (_.includes(columnsWithClose, column.id)) {
+        //     if (column.id === stoichReactantsColumns.compoundId.id) {
+        //         onCloseCompoundId(data);
+        //     }
+        //     calculationService.setEntered(data);
+        //     if (column.id === stoichReactantsColumns.rxnRole.id) {
+        //         onRxnRoleChange(data);
+        //     }
+        //     calculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
+        // }
     }
 
     function getLimitingColumn() {

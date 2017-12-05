@@ -51,7 +51,7 @@ function updateVolume() {
 }
 
 function updateEQ(limitingRow) {
-    if (limitingRow) {
+    if (limitingRow && !limitingRow.eq.entered) {
         this.resetEntered(['eq']);
         this.eq.value = calculationUtil.computeEQ(this.mol.value, limitingRow.mol.value);
     }

@@ -321,6 +321,7 @@ describe('stoichTable', function() {
                 limitingRow.weight.entered = true;
                 limitingRow.mol.value = 10;
                 limitingRow.eq.value = 2;
+                limitingRow.eq.entered = true;
                 service.addRow(limitingRow);
 
                 var otherRow = new StoichRow();
@@ -331,6 +332,7 @@ describe('stoichTable', function() {
 
                 expect(otherRow.weight.value).toBe(50);
                 expect(otherRow.mol.value).toBe(5);
+                expect(otherRow.eq.value).toBe(1);
             });
         });
 

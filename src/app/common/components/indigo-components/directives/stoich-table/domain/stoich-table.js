@@ -26,47 +26,47 @@ function stoichTable(table) {
         //TODO: refactor it
         switch (fieldId) {
             case 'molWeight':
-                onMolWeightChanged(row);
                 row.setEntered(fieldId);
+                onMolWeightChanged(row);
                 break;
             case 'weight':
-                onWeightChanged(row);
                 row.setEntered(fieldId);
+                onWeightChanged(row);
                 break;
             case 'mol':
-                onMolChanged(row);
                 row.setEntered(fieldId);
+                onMolChanged(row);
                 break;
             case 'eq':
-                onEqChanged(row);
                 row.setEntered(fieldId);
+                onEqChanged(row);
                 break;
             case 'rxnRole':
                 onRxnRoleChanged(row, previousValue);
                 break;
             case 'volume':
-                onVolumeChanged(row);
                 row.setEntered(fieldId);
+                onVolumeChanged(row);
                 break;
             case 'molarity':
-                onMolarityChanged(row);
                 row.setEntered(fieldId);
+                onMolarityChanged(row);
                 break;
             case 'stoicPurity':
-                onPurityChanged(row);
                 row.setEntered(fieldId);
+                onPurityChanged(row);
                 break;
             case 'saltCode':
-                onSaltChanged(row);
                 row.setEntered(fieldId);
+                onSaltChanged(row);
                 break;
             case 'saltEq':
-                onSaltChanged(row);
                 row.setEntered(fieldId);
+                onSaltChanged(row);
                 break;
             case 'density':
-                onDensityChanged(row);
                 row.setEntered(fieldId);
+                onDensityChanged(row);
                 break;
         }
     }
@@ -118,21 +118,17 @@ function stoichTable(table) {
         if (row.areValuesPresent(['molWeight', 'mol'])) {
             var weight = calculationUtil.computeWeight(row.mol.value, row.molWeight.value);
             row.setComputedWeight(weight);
-            if (row.limiting) {
+            if (row.isLimiting()) {
                 updateRowsWithNewMol(row.mol.value);
             }
-
-            row.updateVolume();
-            row.updateEQ(getLimitingRow());
-
-            return;
         }
 
         if (!row.isValuePresent('mol')) {
             row.resetFields(row.getResetFieldsForMol());
-            return;
         }
 
+        row.updateVolume();
+        row.updateEQ(getLimitingRow());
         row.updateMolWeight();
     }
 
