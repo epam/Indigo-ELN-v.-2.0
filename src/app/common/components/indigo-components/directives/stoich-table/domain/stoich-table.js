@@ -23,43 +23,52 @@ function stoichTable(table) {
     }
 
     function onColumnValueChanged(row, fieldId, previousValue) {
+        //TODO: refactor it
         switch (fieldId) {
             case 'molWeight':
                 onMolWeightChanged(row);
+                row.setEntered(fieldId);
                 break;
             case 'weight':
                 onWeightChanged(row);
+                row.setEntered(fieldId);
                 break;
             case 'mol':
                 onMolChanged(row);
+                row.setEntered(fieldId);
                 break;
             case 'eq':
                 onEqChanged(row);
+                row.setEntered(fieldId);
                 break;
             case 'rxnRole':
                 onRxnRoleChanged(row, previousValue);
                 break;
             case 'volume':
                 onVolumeChanged(row);
+                row.setEntered(fieldId);
                 break;
             case 'molarity':
                 onMolarityChanged(row);
+                row.setEntered(fieldId);
                 break;
             case 'stoicPurity':
                 onPurityChanged(row);
+                row.setEntered(fieldId);
                 break;
             case 'saltCode':
                 onSaltChanged(row);
+                row.setEntered(fieldId);
                 break;
             case 'saltEq':
                 onSaltChanged(row);
+                row.setEntered(fieldId);
                 break;
             case 'density':
                 onDensityChanged(row);
+                row.setEntered(fieldId);
                 break;
         }
-
-        row.setEntered(fieldId);
     }
 
     function onMolWeightChanged(row) {
