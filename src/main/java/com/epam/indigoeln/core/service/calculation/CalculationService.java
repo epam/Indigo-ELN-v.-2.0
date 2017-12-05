@@ -165,10 +165,14 @@ public class CalculationService {
     }
 
     /**
-     * @return Salt information from {@code CodeTableService.TABLE_SALT_CODE} table
+     * Returns rows from table with name {@code tableName}.
+     * <p>
+     * Table should be stored in data/{@code tableName}.csv.
+     *
+     * @return Data rows from {@code tableName} table
      */
-    public List<CodeTableService.SaltDTO> getAllSaltCode() {
-        return codeTableService.convert(codeTableService.getCodeTable(CodeTableService.TABLE_SALT_CODE));
+    public List<Map<String, String>> getCodeTableRows(String tableName) {
+        return codeTableService.getCodeTable(tableName);
     }
 
     /**

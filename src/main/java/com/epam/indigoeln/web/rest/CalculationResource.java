@@ -2,7 +2,6 @@ package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.service.calculation.CalculationService;
 import com.epam.indigoeln.core.service.calculation.StoicCalculationService;
-import com.epam.indigoeln.core.service.codetable.CodeTableService;
 import com.epam.indigoeln.web.rest.dto.calculation.BasicBatchModel;
 import com.epam.indigoeln.web.rest.dto.calculation.ProductTableDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
@@ -57,14 +56,14 @@ public class CalculationResource {
     }
 
     /**
-     * GET  /api/calculations/salt-code -> Returns all salt information.
+     * GET  /api/calculations/salt_code_table?tableName=GCM_SALT_CDT -> Returns all data from csv file salt information.
      *
-     * @return Salt information from {@code CodeTableService.TABLE_SALT_CODE} table
+     * @return Data from {@code tableName}
      */
-    @ApiOperation(value = "Returns all salt information.")
-    @RequestMapping(value = "salt-code", method = RequestMethod.GET)
-    public List<CodeTableService.SaltDTO> getAllSaltCode() {
-        return calculationService.getAllSaltCode();
+    @ApiOperation(value = "Returns all data from csv file.")
+    @RequestMapping(value = "salt_code_table", method = RequestMethod.GET)
+    public List<Map<String, String>> getAllSaltCode(@RequestParam String tableName) {
+        return calculationService.getCodeTableRows(tableName);
     }
 
     /**
