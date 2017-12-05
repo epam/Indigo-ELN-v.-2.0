@@ -21,7 +21,8 @@ public final class PermissionUtil {
         return user.getAuthorities().contains(Authority.CONTENT_EDITOR);
     }
 
-    public static UserPermission findPermissionsByUserId(Set<UserPermission> accessList, String userId) {
+    public static UserPermission findPermissionsByUserId(
+            Set<UserPermission> accessList, String userId) {
         for (UserPermission userPermission : accessList) {
             if (userPermission.getUser().getId().equals(userId)) {
                 return userPermission;
@@ -102,7 +103,7 @@ public final class PermissionUtil {
         }
     }
 
-    public static void addUserPermissions(Set<UserPermission> accessList, Project project) {
+    public static void checkAndSetPermissions(Set<UserPermission> accessList, Project project) {
         if (project != null) {
             for (UserPermission userPermission : project.getAccessList()) {
                 UserPermission projectUserPermission =
