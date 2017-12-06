@@ -39,7 +39,8 @@
   {
     "name": "PROJECT_REMOVER",
     "description": "Project remover",
-    "tooltip": "Allow to remove Project"
+    "tooltip": "Allow to remove Project",
+    "readonly": true
   },
   {
     "name": "NOTEBOOK_READER",
@@ -54,7 +55,8 @@
   {
     "name": "NOTEBOOK_REMOVER",
     "description": "Notebook remover",
-    "tooltip": "Allow to remove Notebook"
+    "tooltip": "Allow to remove Notebook",
+    "readonly": true
   },
   {
     "name": "EXPERIMENT_READER",
@@ -69,7 +71,8 @@
   {
     "name": "EXPERIMENT_REMOVER",
     "description": "Experiment remover",
-    "tooltip": "Allow to remove Experiment"
+    "tooltip": "Allow to remove Experiment",
+    "readonly": true
   },
   {
     "name": "GLOBAL_SEARCH",
