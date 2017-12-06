@@ -89,7 +89,7 @@ function stoichTable(table) {
             row.setComputedMol(mol);
 
             if (row.isLimiting()) {
-                updateRowsWithNewMol(row.mol.value);
+                updateRows(row.mol.value);
             }
         }
 
@@ -98,7 +98,7 @@ function stoichTable(table) {
         }
 
         row.updateVolume();
-        row.updateEQ(getLimitingRow());
+        row.updateEq(getLimitingRow());
         row.updateMolWeight();
     }
 
@@ -108,7 +108,7 @@ function stoichTable(table) {
             row.setComputedWeight(weight);
 
             if (row.isLimiting()) {
-                updateRowsWithNewMol(row.mol.value);
+                updateRows(row.mol.value);
             }
         }
 
@@ -117,7 +117,7 @@ function stoichTable(table) {
         }
 
         row.updateVolume();
-        row.updateEQ(getLimitingRow());
+        row.updateEq(getLimitingRow());
         row.updateMolWeight();
     }
 
@@ -130,7 +130,7 @@ function stoichTable(table) {
 
         if (row.isLimiting() && row.isValuePresent('mol')) {
             var molByEq = calculationUtil.computeMolByEq(row.mol.value, row.eq.value);
-            updateRowsWithNewMol(molByEq);
+            updateRows(molByEq);
         }
 
         if (!row.isLimiting() && row.isValuePresent('weight')) {
@@ -296,10 +296,19 @@ function stoichTable(table) {
         }
     }
 
-    function updateRowsWithNewMol(mol) {
+    function updateRows(mol) {
         if (isLimitingRowExist()) {
             _.forEach(stoichTable.reactants, function(row) {
-                row.updateMol(mol, onMolChanged);
+                var canUpdateMol = !row.isLimiting() && !row.weight.entered;
+                var canUpdateEq = !row.isLimiting() && row.weight.entered;
+
+                if (canUpdateMol) {
+                    row.updateMol(mol, onMolChanged);
+                }
+
+                if (canUpdateEq) {
+                    row.updateEqDependingOnLimitingEq(getLimitingRow());
+                }
             });
         }
     }

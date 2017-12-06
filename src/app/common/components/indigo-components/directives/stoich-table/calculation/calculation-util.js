@@ -12,7 +12,7 @@ calculationUtil.computeMolByPurity = computeMolByPurity;
 calculationUtil.computeMolByEq = computeMolByEq;
 calculationUtil.computeWeight = computeWeight;
 calculationUtil.computeWeightByPurity = computeWeightByPurity;
-calculationUtil.computeEQ = computeEQ;
+calculationUtil.computeEq = computeEq;
 calculationUtil.computeMolWeight = computeMolWeight;
 calculationUtil.computeMolWeightBySalt = computeMolWeightBySalt;
 calculationUtil.computeVolumeByMolarity = computeVolumeByMolarity;
@@ -97,7 +97,7 @@ function computeWeightByPurity(purity, currentWeight) {
  * @param molOfLimiting
  * @returns {number}
  */
-function computeEQ(mol, molOfLimiting) {
+function computeEq(mol, molOfLimiting) {
     return divide(mol, molOfLimiting);
 }
 

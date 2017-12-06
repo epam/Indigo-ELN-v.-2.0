@@ -382,6 +382,53 @@ describe('stoichTable', function() {
                 expect(otherRow.mol.value).toBe(5);
                 expect(otherRow.eq.value).toBe(1);
             });
+
+
+            it('complex test.' +
+                '1. Apply new EQ in Limiting row - non limiting Mol and Weight are updated,' +
+                '2. Enter manual weight in non limiting row - Mols are recalculated for this particular row' +
+                '3. Update EQ for Limiting' +
+                'Expected results: Mols are not update in Limiting and Non limiting row.' +
+                'EQ of non limiting row is adjusted by formula:' +
+                '(Non Limiting Mol* Limiting EQ)/Limiting Mol', function() {
+                var limitingRow = new StoichRow();
+                limitingRow.molWeight.value = 10;
+                limitingRow.weight.value = 100;
+                limitingRow.weight.entered = true;
+                limitingRow.mol.value = 10;
+                limitingRow.eq.value = 2;
+                limitingRow.eq.entered = true;
+                service.addRow(limitingRow);
+
+                var otherRow = new StoichRow();
+                otherRow.molWeight.value = 10;
+                service.addRow(otherRow);
+
+                service.onColumnValueChanged(limitingRow, 'eq');
+
+                expect(otherRow.weight.value).toBe(50);
+                expect(otherRow.mol.value).toBe(5);
+                expect(otherRow.eq.value).toBe(1);
+
+                otherRow.weight.value = 5;
+                otherRow.weight.entered = true;
+
+                service.onColumnValueChanged(otherRow, 'weight');
+
+                expect(otherRow.weight.value).toBe(5);
+                expect(otherRow.weight.entered).toBeTruthy();
+                expect(otherRow.mol.value).toBe(0.5);
+                expect(otherRow.eq.value).toBe(0.05);
+
+                limitingRow.eq.value = 4;
+
+                service.onColumnValueChanged(limitingRow, 'eq');
+
+                expect(otherRow.weight.value).toBe(5);
+                expect(otherRow.weight.entered).toBeTruthy();
+                expect(otherRow.mol.value).toBe(0.5);
+                expect(otherRow.eq.value).toBe(0.2);
+            });
         });
 
         describe('Change rxnRole', function() {

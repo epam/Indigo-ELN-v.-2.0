@@ -16,7 +16,8 @@ StoichRow.prototype.getResetFieldsForMol = getResetFieldsForMol;
 StoichRow.prototype.getResetFieldsForWeight = getResetFieldsForWeight;
 StoichRow.prototype.updateMolWeight = updateMolWeight;
 StoichRow.prototype.updateVolume = updateVolume;
-StoichRow.prototype.updateEQ = updateEQ;
+StoichRow.prototype.updateEq = updateEq;
+StoichRow.prototype.updateEqDependingOnLimitingEq = updateEqDependingOnLimitingEq;
 StoichRow.prototype.updateMol = updateMol;
 StoichRow.prototype.setComputedMolWeight = setComputedMolWeight;
 StoichRow.prototype.setComputedVolume = setComputedVolume;
@@ -49,25 +50,27 @@ function updateVolume() {
     }
 }
 
-function updateEQ(limitingRow) {
-    var canUpdateEq = limitingRow && !limitingRow.eq.entered && this.mol.value && limitingRow.mol.value;
-    if (canUpdateEq) {
+function updateEq(limitingRow) {
+    var isArgsExist = limitingRow && this.mol.value && limitingRow.mol.value;
+    var canUpdateEq = this.weight.entered || this.mol.entered || this.molarity.entered;
+
+    if (isArgsExist && canUpdateEq) {
         this.resetEntered(['eq']);
-        this.eq.value = calculationUtil.computeEQ(this.mol.value, limitingRow.mol.value);
+        this.eq.value = calculationUtil.computeEq(this.mol.value, limitingRow.mol.value);
     }
 }
 
+function updateEqDependingOnLimitingEq(limitingRow) {
+    this.updateEq(limitingRow);
+    this.eq.value = calculationUtil.multiply(this.eq.value, limitingRow.eq.value);
+}
+
 function updateMol(mol, callback) {
-    var canUpdateMol = !this.isLimiting() && !this.weight.entered;
+    this.isSolventRow()
+        ? this.mol.value = 0
+        : this.mol.value = mol;
 
-    if (canUpdateMol) {
-
-        this.isSolventRow()
-            ? this.mol.value = 0
-            : this.mol.value = mol;
-
-        callback(this);
-    }
+    callback(this);
 }
 
 function setDefaultValues(fields) {

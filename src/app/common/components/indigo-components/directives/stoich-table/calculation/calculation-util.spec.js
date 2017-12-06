@@ -44,9 +44,9 @@ describe('service: calculationUtil', function() {
         });
     });
 
-    describe('computeEQ function', function() {
+    describe('computeEq function', function() {
         it('should be 1.5', function() {
-            var res = calculationUtil.computeEQ(0.3, 0.2);
+            var res = calculationUtil.computeEq(0.3, 0.2);
             expect(res).toBe(1.5);
         });
     });
