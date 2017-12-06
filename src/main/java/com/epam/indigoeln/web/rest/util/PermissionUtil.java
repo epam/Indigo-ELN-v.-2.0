@@ -140,7 +140,7 @@ public final class PermissionUtil {
             }
 
             if (userPermission.getUser().getAuthorities().contains(Authority.CONTENT_EDITOR)
-                    && !"OWNER".equals(userPermission.getPermissionView())) {
+                    && !UserPermission.OWNER.equals(userPermission.getPermissionView())) {
                 throw PermissionIncorrectException
                         .createWithUserIdAndPermission(userPermission.getUser().getId(),
                                 userPermission.getPermissionView());
