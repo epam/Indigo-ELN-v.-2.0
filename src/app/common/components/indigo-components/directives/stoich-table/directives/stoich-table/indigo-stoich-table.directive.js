@@ -211,9 +211,16 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             calculationService.setEntered(data);
             if (column.id === stoichReactantsColumns.rxnRole.id) {
                 onRxnRoleChange(data);
+                updatePrecursors();
             }
             calculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
+        } else if (column.id === stoichReactantsColumns.fullNbkBatch.id) {
+            stoichColumnActions.onCloseFullNbkBatch(data).then(updatePrecursors);
         }
+    }
+
+    function updatePrecursors() {
+        vm.onPrecursorsChanged({precursors: getPrecursors()});
     }
 
     function getLimitingColumn() {
@@ -228,19 +235,25 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     function onCloseCompoundId(data) {
         var row = data.row;
         var compoundId = data.model;
-        stoichColumnActions.fetchBatchByCompoundId(compoundId, row)
-            .then(function() {
-                vm.onPrecursorsChanged({precursors: getPrecursors()});
-            }, alertCompoundWrongFormat);
+
+        if (!_.isEmpty(compoundId)) {
+            stoichColumnActions.fetchBatchByCompoundId(compoundId, row)
+                .catch(alertCompoundWrongFormat)
+                .finally(updatePrecursors);
+        }
     }
 
-    function alertCompoundWrongFormat() {
+    function alertCompoundWrongFormat(event) {
+        if (event === 'cancel') {
+            return;
+        }
+
         notifyService.error('Compound does not exist or in the wrong format');
     }
 
     function updateReactants() {
         checkLimiting();
-        vm.onPrecursorsChanged({precursors: getPrecursors()});
+        updatePrecursors();
     }
 
     function addStoicReactant(reactant) {
@@ -312,6 +325,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
 
         $scope.$on('stoich-rows-changed', function(event, reactants) {
             _.forEach(reactants, addStoicReactant);
+            updatePrecursors();
             calculationService.recalculateStoich(vm.componentData);
         });
     }

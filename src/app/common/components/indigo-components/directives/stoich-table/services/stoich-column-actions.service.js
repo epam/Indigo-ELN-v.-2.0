@@ -9,8 +9,32 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
         cleanReactants: cleanReactants,
         fetchBatchByNbkNumber: fetchBatchByNbkNumber,
         alertWrongFormat: alertWrongFormat,
-        populateFetchedBatch: populateFetchedBatch
+        populateFetchedBatch: populateFetchedBatch,
+        onCloseFullNbkBatch: onCloseFullNbkBatch
     };
+
+    function onCloseFullNbkBatch(data) {
+        var row = data.row;
+        var nbkBatch = data.model;
+        if (!row.$$populatedBatch) {
+            if (row.fullNbkBatch) {
+                return fetchBatchByNbkNumber(nbkBatch).then(function(result) {
+                    var pb = result[0];
+                    if (pb && pb.details.fullNbkBatch === row.fullNbkBatch) {
+                        pb.details.compoundId = row.compoundId;
+                        populateFetchedBatch(row, pb.details);
+                    } else {
+                        alertWrongFormat();
+                        row.fullNbkBatch = row.$$fullNbkBatchOld;
+                    }
+                });
+            }
+            alertWrongFormat();
+            row.fullNbkBatch = row.$$fullNbkBatchOld;
+        }
+
+        return $q.resolve();
+    }
 
     function fetchBatchByCompoundId(compoundId, row) {
         var searchRequest = {compoundNo: compoundId};
