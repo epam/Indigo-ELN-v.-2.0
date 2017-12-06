@@ -401,6 +401,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <executable>true</executable>
                     <fork>false</fork>
                 </configuration>
             </plugin>
