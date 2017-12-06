@@ -76,11 +76,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
     }
 
     function initPermissions() {
-        permissionService.setEntity('Notebook');
-        permissionService.setEntityId(vm.notebook.id);
-        permissionService.setParentId(vm.projectId);
-        permissionService.setAuthor(vm.notebook.author);
-        permissionService.setAccessList(vm.notebook.accessList);
+        permissionService.setNotebook(vm.notebook, vm.projectId);
 
         // isEditAllowed
         vm.isEditAllowed = isContentEditor ||
@@ -123,6 +119,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
     function onRestore(storeData) {
         var version = vm.notebook.version;
         vm.notebook = storeData;
+        initPermissions();
         if (angular.isDefined(version)) {
             vm.notebook.version = version;
         }

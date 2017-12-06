@@ -139,6 +139,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     function onRestore(storeData, lastVersion) {
         var version = lastVersion || _.get(vm.experiment, 'version') || storeData.version;
         vm.experiment = storeData;
+        initPermissions();
         vm.experiment.version = version;
         entitiesCache.put($stateParams, vm.experiment);
     }
@@ -313,9 +314,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     }
 
     function initPermissions() {
-        permissionService.setEntity('Experiment');
-        permissionService.setAuthor(vm.experiment.author);
-        permissionService.setAccessList(vm.experiment.accessList);
+        permissionService.setExperiment(vm.experiment);
 
         hasEditPermission = permissionService.hasPermission(roles.UPDATE_ENTITY);
         updateStatuses();
@@ -369,7 +368,6 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
 
         $scope.$on('access-list-changed', function() {
             vm.experiment.accessList = permissionService.getAccessList();
-            originalExperiment.accessList = angular.copy(vm.experiment.accessList);
         });
 
         $scope.$on('experiment-status-changed', function(event, experiments) {

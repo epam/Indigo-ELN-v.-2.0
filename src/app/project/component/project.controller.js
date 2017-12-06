@@ -76,6 +76,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
     function onRestore(storeData) {
         var version = vm.project.version;
         vm.project = storeData;
+        permissionService.setProject(vm.project);
 
         if (angular.isDefined(version)) {
             vm.project.version = version;
@@ -145,10 +146,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
     }
 
     function initPermissions() {
-        permissionService.setEntity('Project');
-        permissionService.setEntityId(vm.project.id);
-        permissionService.setAuthor(vm.project.author);
-        permissionService.setAccessList(vm.project.accessList);
+        permissionService.setProject(vm.project);
 
         vm.isEditAllowed = isContentEditor ||
             (hasEditAuthority && permissionService.hasPermission(roles.UPDATE_ENTITY));

@@ -6,7 +6,7 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
     init();
 
     function init() {
-        vm.accessList = permissionService.getAccessList();
+        vm.accessList = angular.copy(permissionService.getAccessList());
         vm.permissions = permissions;
         vm.entity = permissionService.getEntity();
         vm.entityId = permissionService.getEntityId();

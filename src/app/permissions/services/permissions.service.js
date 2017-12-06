@@ -31,7 +31,10 @@ function permissionService($q, principalService, userRemovableFromProjectService
         hasAuthorityForExperimentPermission: hasAuthorityForExperimentPermission,
         hasAuthorityForPermission: hasAuthorityForPermission,
         isUserRemovableFromAccessList: isUserRemovableFromAccessList,
-        getPermissionView: getPermissionView
+        getPermissionView: getPermissionView,
+        setProject: setProject,
+        setNotebook: setNotebook,
+        setExperiment: setExperiment
     };
 
     function getPermissionView(authorities) {
@@ -101,6 +104,27 @@ function permissionService($q, principalService, userRemovableFromProjectService
 
     function getEntity() {
         return entity;
+    }
+
+    function setNotebook(notebook, projectId) {
+        setEntity('Notebook');
+        setEntityId(notebook.id);
+        setParentId(projectId);
+        setAuthor(notebook.author);
+        setAccessList(notebook.accessList);
+    }
+
+    function setExperiment(experiment) {
+        setEntity('Experiment');
+        setAuthor(experiment.author);
+        setAccessList(experiment.accessList);
+    }
+
+    function setProject(project) {
+        setEntity('Project');
+        setEntityId(project.id);
+        setAuthor(project.author);
+        setAccessList(project.accessList);
     }
 
     function setEntity(newEntity) {
