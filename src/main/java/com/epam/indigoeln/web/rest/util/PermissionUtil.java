@@ -87,34 +87,35 @@ public final class PermissionUtil {
         }
     }
 
-    public static boolean addUserPermissions(Set<UserPermission> accessList, User user, Set<String> permissions) {
-        UserPermission userPermission = findPermissionsByUserId(accessList, user.getId());
-        if (userPermission != null) {
-            Set<String> existingPermissions = userPermission.getPermissions();
-            if (existingPermissions == null) {
-                existingPermissions = new HashSet<>();
-                userPermission.setPermissions(existingPermissions);
+    public static boolean addUsersFromLowLevelToUp(Set<UserPermission> accessList,
+                                                   UserPermission up, Set<String> permissions,
+                                                   Set<User> usersWhichHasAlreadyExist) {
+        if (!usersWhichHasAlreadyExist.contains(up.getUser())) {
+            UserPermission userPermission = findPermissionsByUserId(accessList, up.getUser().getId());
+            if(!"OWNER".equals(up.getPermissionView())) {
+                if (userPermission != null) {
+                    Set<String> existingPermissions = userPermission.getPermissions();
+                    if (existingPermissions == null) {
+                        existingPermissions = new HashSet<>();
+                        userPermission.setPermissions(existingPermissions);
+                    }
+                    return existingPermissions.addAll(permissions);
+                } else {
+                    userPermission = new UserPermission(up.getUser(), permissions);
+                    accessList.add(userPermission);
+                    return true;
+                }
+            }else{
+                return accessList.add(up);
             }
-            return existingPermissions.addAll(permissions);
-        } else {
-            userPermission = new UserPermission(user, permissions);
-            accessList.add(userPermission);
-            return true;
         }
+        return false;
     }
 
-    public static void checkAndSetPermissions(Set<UserPermission> accessList, Project project) {
-        if (project != null) {
-            for (UserPermission userPermission : project.getAccessList()) {
-                UserPermission projectUserPermission =
-                        findPermissionsByUserId(project.getAccessList(), userPermission.getUser().getId());
-                if (projectUserPermission != null
-                        && projectUserPermission.getPermissionView() != null
-                        && !accessList.contains(userPermission)) {
+    public static void importUsersFromUpperLevel(Set<UserPermission> accessList, UserPermission userPermission) {
+                if (userPermission != null && userPermission.getPermissionView() != null) {
                     accessList.add(userPermission);
                 }
-            }
-        }
     }
 
     public static void checkCorrectnessOfAccessList(UserRepository userRepository,
@@ -138,8 +139,11 @@ public final class PermissionUtil {
                 }
             }
 
-            if (userPermission.getUser().getAuthorities().contains(Authority.CONTENT_EDITOR)) {
-                userPermission.setPermissions(UserPermission.OWNER_PERMISSIONS);
+            if (userPermission.getUser().getAuthorities().contains(Authority.CONTENT_EDITOR)
+                    && !"OWNER".equals(userPermission.getPermissionView())) {
+                throw PermissionIncorrectException
+                        .createWithUserIdAndPermission(userPermission.getUser().getId(),
+                                userPermission.getPermissionView());
             }
         }
     }

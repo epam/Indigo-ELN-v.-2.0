@@ -195,17 +195,16 @@ public class NotebookService {
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
         // add OWNER's permissions for specified User to notebook
         PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user);
-        // add VIEWER's permissions for Project Author to notebook, if notebook creator is another User
-        PermissionUtil.addProjectAuthorToAccessList(notebook.getAccessList(), project.getAuthor(), user);
 
-        PermissionUtil.checkAndSetPermissions(notebook.getAccessList(), project);
+        project.getAccessList().forEach(up -> PermissionUtil.importUsersFromUpperLevel(notebook.getAccessList(), up));
 
         Notebook savedNotebook = saveNotebookAndHandleError(notebook);
 
         // add all users as VIEWER to project
+        Set<User> projectUsers = project.getAccessList().stream().map(UserPermission::getUser).collect(Collectors.toSet());
         notebook.getAccessList().forEach(up ->
-                PermissionUtil.addUserPermissions(project.getAccessList(),
-                        up.getUser(), UserPermission.VIEWER_PERMISSIONS));
+                PermissionUtil.addUsersFromLowLevelToUp(project.getAccessList(),
+                        up, UserPermission.VIEWER_PERMISSIONS, projectUsers));
 
         project.getNotebooks().add(notebook);
         Project savedProject = projectRepository.save(project);
@@ -261,14 +260,15 @@ public class NotebookService {
             // experiments for updated notebook
             notebookFromDB.setVersion(notebook.getVersion());
 
-            PermissionUtil.checkAndSetPermissions(notebook.getAccessList(), project);
+            project.getAccessList().forEach(up -> PermissionUtil.importUsersFromUpperLevel(notebook.getAccessList(), up));
             notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's experiments for updated notebook
             Notebook savedNotebook = saveNotebookAndHandleError(notebookFromDB);
 
             // add all users as VIEWER to project
+            Set<User> projectUsers = project.getAccessList().stream().map(UserPermission::getUser).collect(Collectors.toSet());
             Boolean updateProject = notebook.getAccessList().stream()
-                    .map(up -> PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(),
-                            UserPermission.VIEWER_PERMISSIONS))
+                    .map(up -> PermissionUtil.addUsersFromLowLevelToUp(project.getAccessList(), up,
+                            UserPermission.VIEWER_PERMISSIONS, projectUsers))
                     .reduce(false, Boolean::logicalOr);
 
             webSocketUtil.updateNotebook(user, projectId, savedNotebook);
