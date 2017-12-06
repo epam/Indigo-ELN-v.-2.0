@@ -13,6 +13,7 @@ StoichRow.prototype.getResetFieldForDensity = getResetFieldForDensity;
 StoichRow.prototype.getResetFieldsForSolvent = getResetFieldsForSolvent;
 StoichRow.prototype.getResetFieldForMolarity = getResetFieldForMolarity;
 StoichRow.prototype.getResetFieldsForMol = getResetFieldsForMol;
+StoichRow.prototype.getResetFieldsForWeight = getResetFieldsForWeight;
 StoichRow.prototype.updateMolWeight = updateMolWeight;
 StoichRow.prototype.updateVolume = updateVolume;
 StoichRow.prototype.updateEQ = updateEQ;
@@ -37,16 +38,14 @@ function updateMolWeight() {
 
 //TODO: refactor
 function updateVolume() {
-    if (this.molarity.value && !this.volume.entered) {
-        this.volume.value = calculationUtil.computeVolume(this.mol.value, this.molarity.value);
-
-        return;
+    if (this.molarity.value && this.mol.value) {
+        this.volume.value = calculationUtil.computeVolumeByMolarity(this.mol.value, this.molarity.value);
+    } else if (this.density.value && this.weight.value) {
+        this.volume.value = calculationUtil.computeVolumeByDensity(this.weight.value, this.density.value);
     }
 
-    if (this.density.value && !this.volume.entered) {
-        this.volume.value = calculationUtil.computeVolumeByDensity(this.weight.value, this.density.value);
-
-        return;
+    if (this.weight.entered || this.mol.entered) {
+        this.resetEntered(['volume']);
     }
 }
 
@@ -131,6 +130,15 @@ function getResetFieldForMolarity() {
     if (!this.mol.entered) {
         return 'mol';
     }
+}
+
+function getResetFieldsForWeight() {
+    var resetFields = ['mol', 'eq'];
+    if (!this.volume.entered) {
+        resetFields.push('volume');
+    }
+
+    return resetFields;
 }
 
 function getResetFieldsForMol() {

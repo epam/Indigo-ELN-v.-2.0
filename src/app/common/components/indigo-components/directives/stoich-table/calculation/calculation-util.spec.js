@@ -65,9 +65,9 @@ describe('service: calculationUtil', function() {
         });
     });
 
-    describe('computeVolume function', function() {
+    describe('computeVolumeByMolarity function', function() {
         it('should be 1.5', function() {
-            var res = calculationUtil.computeVolume(0.3, 0.2);
+            var res = calculationUtil.computeVolumeByMolarity(0.3, 0.2);
             expect(res).toBe(1.5);
         });
     });

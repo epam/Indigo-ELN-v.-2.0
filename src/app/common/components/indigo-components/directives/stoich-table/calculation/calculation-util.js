@@ -15,7 +15,7 @@ calculationUtil.computeWeightByPurity = computeWeightByPurity;
 calculationUtil.computeEQ = computeEQ;
 calculationUtil.computeMolWeight = computeMolWeight;
 calculationUtil.computeMolWeightBySalt = computeMolWeightBySalt;
-calculationUtil.computeVolume = computeVolume;
+calculationUtil.computeVolumeByMolarity = computeVolumeByMolarity;
 calculationUtil.computeVolumeByDensity = computeVolumeByDensity;
 calculationUtil.computeWeightByDensity = computeWeightByDensity;
 // calculationUtil.computeYield = computeYield;
@@ -134,7 +134,7 @@ function computeMolWeightBySalt(currentMolWeight, saltCodeWeight, saltEQ) {
  * @param molarity
  * @returns {number}
  */
-function computeVolume(mol, molarity) {
+function computeVolumeByMolarity(mol, molarity) {
     return divide(mol, molarity);
 }
 

@@ -91,24 +91,14 @@ function stoichTable(table) {
             if (row.isLimiting()) {
                 updateRowsWithNewMol(row.mol.value);
             }
-
-            row.updateVolume();
-            row.updateEQ(getLimitingRow());
-
-            return;
-        }
-
-        if (row.areValuesPresent(['weight', 'density'])) {
-            row.updateVolume();
-
-            return;
         }
 
         if (!row.isValuePresent('weight')) {
-            row.setDefaultValues(['mol', 'eq']);
-            return;
+            row.resetFields(row.getResetFieldsForWeight());
         }
 
+        row.updateVolume();
+        row.updateEQ(getLimitingRow());
         row.updateMolWeight();
     }
 
@@ -116,6 +106,7 @@ function stoichTable(table) {
         if (row.areValuesPresent(['molWeight', 'mol'])) {
             var weight = calculationUtil.computeWeight(row.mol.value, row.molWeight.value);
             row.setComputedWeight(weight);
+
             if (row.isLimiting()) {
                 updateRowsWithNewMol(row.mol.value);
             }
@@ -237,7 +228,7 @@ function stoichTable(table) {
         }
 
         if (!row.isValuePresent('volume') && row.isValuePresent('mol')) {
-            var volume = calculationUtil.computeVolume(row.mol.value, row.molarity.value);
+            var volume = calculationUtil.computeVolumeByMolarity(row.mol.value, row.molarity.value);
             row.setComputedVolume(volume);
             return;
         }
