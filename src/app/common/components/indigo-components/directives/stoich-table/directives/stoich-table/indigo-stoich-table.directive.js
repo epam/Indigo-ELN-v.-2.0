@@ -220,7 +220,8 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     }
 
     function updatePrecursors() {
-        vm.onPrecursorsChanged({precursors: stoichTableHelper.getPrecursors(vm.componentData.reactants)});
+        var precursors = stoichTableHelper.getPrecursors(vm.componentData.reactants);
+        vm.onPrecursorsChanged({precursors: precursors});
     }
 
     function getLimitingColumn() {
