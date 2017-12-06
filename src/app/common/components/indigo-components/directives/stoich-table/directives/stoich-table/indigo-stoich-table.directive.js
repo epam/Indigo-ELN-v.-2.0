@@ -220,7 +220,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     }
 
     function updatePrecursors() {
-        vm.onPrecursorsChanged({precursors: getPrecursors()});
+        vm.onPrecursorsChanged({precursors: stoichTableHelper.getPrecursors(vm.componentData.reactants)});
     }
 
     function getLimitingColumn() {
@@ -343,10 +343,6 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
                 _.extend(product, newProducts[i]);
             });
         }
-    }
-
-    function getPrecursors() {
-        return stoichTableHelper.getPrecursors(vm.componentData.reactants);
     }
 
     function isReactantAlreadyInStoic(responces) {

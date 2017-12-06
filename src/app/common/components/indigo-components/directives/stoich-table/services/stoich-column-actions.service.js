@@ -19,10 +19,10 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
         if (!row.$$populatedBatch) {
             if (row.fullNbkBatch) {
                 return fetchBatchByNbkNumber(nbkBatch).then(function(result) {
-                    var pb = result[0];
-                    if (pb && pb.details.fullNbkBatch === row.fullNbkBatch) {
-                        pb.details.compoundId = row.compoundId;
-                        populateFetchedBatch(row, pb.details);
+                    var populatedBatch = result[0];
+                    if (populatedBatch && populatedBatch.details.fullNbkBatch === row.fullNbkBatch) {
+                        populatedBatch.details.compoundId = row.compoundId;
+                        populateFetchedBatch(row, populatedBatch.details);
                     } else {
                         alertWrongFormat();
                         row.fullNbkBatch = row.$$fullNbkBatchOld;
