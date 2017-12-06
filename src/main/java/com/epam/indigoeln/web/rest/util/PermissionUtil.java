@@ -92,7 +92,7 @@ public final class PermissionUtil {
                                                    Set<User> usersWhichHasAlreadyExist) {
         if (!usersWhichHasAlreadyExist.contains(up.getUser())) {
             UserPermission userPermission = findPermissionsByUserId(accessList, up.getUser().getId());
-            if(!"OWNER".equals(up.getPermissionView())) {
+            if(!UserPermission.OWNER.equals(up.getPermissionView())) {
                 if (userPermission != null) {
                     Set<String> existingPermissions = userPermission.getPermissions();
                     if (existingPermissions == null) {
