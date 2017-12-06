@@ -249,8 +249,8 @@ public class ExperimentService {
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, experiment.getAccessList());
         // add OWNER's permissions for specified User to experiment
         PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), user);
-        // add VIEWER's permissions for Project Author to experiment, if Experiment creator is another User
-        PermissionUtil.addProjectAuthorToAccessList(experiment.getAccessList(), project.getAuthor(), user);
+
+        project.getAccessList().forEach(up -> PermissionUtil.importUsersFromUpperLevel(experiment.getAccessList(), up));
 
         //increment sequence Id
         experiment.setId(sequenceIdService.getNextExperimentId(projectId, notebookId));
@@ -263,21 +263,26 @@ public class ExperimentService {
         //set latest version
         experiment.setExperimentVersion(1);
         experiment.setLastVersion(true);
-
-        experiment = experimentRepository.save(experiment);
+        project.getAccessList().forEach(up -> PermissionUtil.importUsersFromUpperLevel(experiment.getAccessList(), up));
+        Experiment savedExperiment = experimentRepository.save(experiment);
 
         // add all users as VIEWER to notebook & project
-        Boolean updateProject = experiment.getAccessList().stream()
+        Set<User> projectUsers = project.getAccessList().stream()
+                .map(UserPermission::getUser).collect(Collectors.toSet());
+        Set<User> notebookUsers = notebook.getAccessList().stream()
+                .map(UserPermission::getUser).collect(Collectors.toSet());
+
+        Boolean updateProject = savedExperiment.getAccessList().stream()
                 .map(up -> {
-                    PermissionUtil.addUserPermissions(notebook.getAccessList(), up.getUser(),
-                            UserPermission.VIEWER_PERMISSIONS);
+                    PermissionUtil.addUsersFromLowLevelToUp(notebook.getAccessList(), up,
+                            UserPermission.VIEWER_PERMISSIONS, notebookUsers);
                     return PermissionUtil
-                            .addUserPermissions(project.getAccessList(), up.getUser(),
-                                    UserPermission.VIEWER_PERMISSIONS);
+                            .addUsersFromLowLevelToUp(project.getAccessList(), up,
+                                    UserPermission.VIEWER_PERMISSIONS, projectUsers);
                 })
                 .reduce(false, Boolean::logicalOr);
 
-        notebook.getExperiments().add(experiment);
+        notebook.getExperiments().add(savedExperiment);
         Notebook savedNotebook = notebookRepository.save(notebook);
         webSocketUtil.updateNotebook(user, projectId, savedNotebook);
 
@@ -286,7 +291,7 @@ public class ExperimentService {
             webSocketUtil.updateProject(user, savedProject);
         }
 
-        return new ExperimentDTO(experiment);
+        return new ExperimentDTO(savedExperiment);
     }
 
     /**
@@ -401,8 +406,12 @@ public class ExperimentService {
                 experimentForSave.setTemplate(tmpl);
             }
 
+            Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
+                    orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
+
             // check of user permissions's correctness in access control list
             PermissionUtil.checkCorrectnessOfAccessList(userRepository, experimentForSave.getAccessList());
+            project.getAccessList().forEach(up -> PermissionUtil.importUsersFromUpperLevel(experimentForSave.getAccessList(), up));
 
             experimentFromDB.setTemplate(experimentForSave.getTemplate());
             experimentFromDB.setAccessList(experimentForSave.getAccessList());
@@ -423,18 +432,21 @@ public class ExperimentService {
             }
             result = new ExperimentDTO(savedExperiment);
 
-            Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
-                    orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
+
             Notebook notebook = Optional.ofNullable(notebookRepository.findOne(SequenceIdUtil
                     .buildFullId(projectId, notebookId))).
                     orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
             // add all users as VIEWER to project
-            Pair<Boolean, Boolean> update = experimentDTO.getAccessList().stream()
+            Set<User> projectUsers = project.getAccessList().stream()
+                    .map(UserPermission::getUser).collect(Collectors.toSet());
+            Set<User> notebookUsers = notebook.getAccessList().stream()
+                    .map(UserPermission::getUser).collect(Collectors.toSet());
+            Pair<Boolean, Boolean> update = savedExperiment.getAccessList().stream()
                     .map(up -> {
-                        boolean updateNotebook = PermissionUtil.addUserPermissions(notebook.getAccessList(),
-                                up.getUser(), UserPermission.VIEWER_PERMISSIONS);
-                        boolean updateProject = PermissionUtil.addUserPermissions(project.getAccessList(),
-                                up.getUser(), UserPermission.VIEWER_PERMISSIONS);
+                        boolean updateNotebook = PermissionUtil.addUsersFromLowLevelToUp(notebook.getAccessList(),
+                                up, UserPermission.VIEWER_PERMISSIONS, notebookUsers);
+                        boolean updateProject = PermissionUtil.addUsersFromLowLevelToUp(project.getAccessList(),
+                                up, UserPermission.VIEWER_PERMISSIONS, projectUsers);
                         return Pair.of(updateNotebook, updateProject);
                     })
                     .reduce(Pair.of(false, false), (pair1, pair2) -> {

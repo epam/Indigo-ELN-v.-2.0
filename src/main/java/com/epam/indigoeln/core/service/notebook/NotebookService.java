@@ -195,15 +195,16 @@ public class NotebookService {
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
         // add OWNER's permissions for specified User to notebook
         PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user);
-        // add VIEWER's permissions for Project Author to notebook, if notebook creator is another User
-        PermissionUtil.addProjectAuthorToAccessList(notebook.getAccessList(), project.getAuthor(), user);
+
+        project.getAccessList().forEach(up -> PermissionUtil.importUsersFromUpperLevel(notebook.getAccessList(), up));
 
         Notebook savedNotebook = saveNotebookAndHandleError(notebook);
 
         // add all users as VIEWER to project
+        Set<User> projectUsers = project.getAccessList().stream().map(UserPermission::getUser).collect(Collectors.toSet());
         notebook.getAccessList().forEach(up ->
-                PermissionUtil.addUserPermissions(project.getAccessList(),
-                        up.getUser(), UserPermission.VIEWER_PERMISSIONS));
+                PermissionUtil.addUsersFromLowLevelToUp(project.getAccessList(),
+                        up, UserPermission.VIEWER_PERMISSIONS, projectUsers));
 
         project.getNotebooks().add(notebook);
         Project savedProject = projectRepository.save(project);
@@ -230,17 +231,16 @@ public class NotebookService {
 
             // Check of EntityAccess (User must have "Read Entity" permission in project access list and
             // "Update Entity" permission in notebook access list, or must have CONTENT_EDITOR authority)
-            if (!PermissionUtil.isContentEditor(user)) {
-                Project project = projectRepository.findByNotebookId(fullNotebookId);
-                if (project == null) {
-                    throw EntityNotFoundException.createWithNotebookChildId(notebookFromDB.getId());
-                }
 
-                if (!PermissionUtil.hasPermissions(user.getId(),
-                        project.getAccessList(), UserPermission.READ_ENTITY,
-                        notebookFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
-                    throw OperationDeniedException.createNotebookUpdateOperation(notebookFromDB.getId());
-                }
+            Project project = projectRepository.findByNotebookId(fullNotebookId);
+            if (project == null) {
+                throw EntityNotFoundException.createWithNotebookChildId(notebookFromDB.getId());
+            }
+
+            if (!PermissionUtil.isContentEditor(user) && !PermissionUtil.hasPermissions(user.getId(),
+                    project.getAccessList(), UserPermission.READ_ENTITY,
+                    notebookFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
+                throw OperationDeniedException.createNotebookUpdateOperation(notebookFromDB.getId());
             }
 
             Notebook notebook = dtoMapper.convertFromDTO(notebookDTO);
@@ -260,14 +260,15 @@ public class NotebookService {
             // experiments for updated notebook
             notebookFromDB.setVersion(notebook.getVersion());
 
+            project.getAccessList().forEach(up -> PermissionUtil.importUsersFromUpperLevel(notebook.getAccessList(), up));
+            notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's experiments for updated notebook
             Notebook savedNotebook = saveNotebookAndHandleError(notebookFromDB);
 
-            Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
-                    orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
             // add all users as VIEWER to project
+            Set<User> projectUsers = project.getAccessList().stream().map(UserPermission::getUser).collect(Collectors.toSet());
             Boolean updateProject = notebook.getAccessList().stream()
-                    .map(up -> PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(),
-                            UserPermission.VIEWER_PERMISSIONS))
+                    .map(up -> PermissionUtil.addUsersFromLowLevelToUp(project.getAccessList(), up,
+                            UserPermission.VIEWER_PERMISSIONS, projectUsers))
                     .reduce(false, Boolean::logicalOr);
 
             webSocketUtil.updateNotebook(user, projectId, savedNotebook);
