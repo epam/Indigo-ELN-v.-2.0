@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -63,6 +64,9 @@ public class UserResource {
 
     @Autowired
     private CustomDtoMapper dtoMapper;
+
+    @Value("${password.validation}")
+    private String passwordValidationRegex;
 
     /**
      * TODO Think about using UserDTO for all users, but ManagedUserDTO only for USER_EDITOR
@@ -196,5 +200,17 @@ public class UserResource {
         userService.deleteUserByLogin(login, currentUser);
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert("User", login);
         return ResponseEntity.ok().headers(headers).build();
+    }
+
+
+    /**
+     * GET /api/users/passwordValidationRegex -> Returns regex for users' password validation
+     *
+     * @return password validation regex
+     */
+    @ApiOperation(value = "Returns password validation regex.")
+    @RequestMapping(value = "/passwordValidationRegex", method = RequestMethod.GET)
+    public String getUserPasswordValidationRegex() {
+        return passwordValidationRegex;
     }
 }
