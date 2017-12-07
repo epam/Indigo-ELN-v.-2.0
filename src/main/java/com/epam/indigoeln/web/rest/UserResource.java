@@ -65,7 +65,7 @@ public class UserResource {
     @Autowired
     private CustomDtoMapper dtoMapper;
 
-    @Value("${password.check}")
+    @Value("${password.validation}")
     private String passwordValidationRegex;
 
     /**

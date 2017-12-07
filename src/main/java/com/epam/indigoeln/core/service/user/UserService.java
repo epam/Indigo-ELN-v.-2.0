@@ -45,7 +45,7 @@ public class UserService {
     @Autowired
     private RoleRepository roleRepository;
 
-    @Value("${password.check}")
+    @Value("${password.validation}")
     private String passwordRegex;
 
     public Page<User> getAllUsers(Pageable pageable) {

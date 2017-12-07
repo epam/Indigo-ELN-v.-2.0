@@ -33,7 +33,7 @@ public final class OperationDeniedException extends CustomParametrizedException 
     }
 
     public static OperationDeniedException createUserWithNotValidPassword() {
-        return new OperationDeniedException("User password should contains min length 6, " +
+        return new OperationDeniedException("User password should have min length 6, and contains" +
                 "at least one capital and at least one digit");
     }
 
