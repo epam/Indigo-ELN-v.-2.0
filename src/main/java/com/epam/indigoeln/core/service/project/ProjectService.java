@@ -1,6 +1,7 @@
 package com.epam.indigoeln.core.service.project;
 
 import com.epam.indigoeln.core.model.*;
+import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.file.GridFSFileUtil;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
@@ -40,6 +41,9 @@ public class ProjectService {
      */
     @Autowired
     private NotebookRepository notebookRepository;
+
+    @Autowired
+    private ExperimentRepository experimentRepository;
 
     /**
      * Instance of FileRepository for access to files in database.
@@ -181,9 +185,17 @@ public class ProjectService {
         projectFromDb.setReferences(project.getReferences());
         projectFromDb.setAccessList(project.getAccessList());
         projectFromDb.setVersion(project.getVersion());
-
+        List<Notebook> notebooks = project.getNotebooks();
+        Set<String> usersIds = project.getAccessList().stream()
+                .map(up -> up.getUser().getId()).collect(Collectors.toSet());
+        notebooks = PermissionUtil.updateInnerPermissionsLists(notebooks, usersIds, project);
+        notebookRepository.save(notebooks);
+        for(Notebook notebook: notebooks){
+            List<Experiment> experiments = notebook.getExperiments();
+            experiments = PermissionUtil.updateInnerPermissionsLists(experiments, usersIds, project);
+            experimentRepository.save(experiments);
+        }
         project = saveProjectAndHandleError(projectFromDb);
-
         webSocketUtil.updateProject(user, project);
         return new ProjectDTO(project);
     }
