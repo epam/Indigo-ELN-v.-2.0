@@ -1,6 +1,7 @@
 package com.epam.indigoeln.core.service.notebook;
 
 import com.epam.indigoeln.core.model.*;
+import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
@@ -45,6 +46,9 @@ public class NotebookService {
      */
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ExperimentRepository experimentRepository;
 
     @Autowired
     private SequenceIdService sequenceIdService;
@@ -262,6 +266,14 @@ public class NotebookService {
 
             project.getAccessList().forEach(up -> PermissionUtil.importUsersFromUpperLevel(notebook.getAccessList(), up));
             notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's experiments for updated notebook
+
+            //Update access list for experiments
+            Set<String> usersIds = notebookFromDB.getAccessList().stream()
+                    .map(up -> up.getUser().getId()).collect(Collectors.toSet());
+            List<Experiment> experiments = notebookFromDB.getExperiments();
+            experiments = PermissionUtil.updateInnerPermissionsLists(experiments, usersIds, notebook);
+            experimentRepository.save(experiments);
+
             Notebook savedNotebook = saveNotebookAndHandleError(notebookFromDB);
 
             // add all users as VIEWER to project

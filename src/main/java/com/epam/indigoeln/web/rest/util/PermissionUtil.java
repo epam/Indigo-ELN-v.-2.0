@@ -1,8 +1,6 @@
 package com.epam.indigoeln.web.rest.util;
 
-import com.epam.indigoeln.core.model.Project;
-import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.security.Authority;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
@@ -10,7 +8,9 @@ import com.epam.indigoeln.core.service.exception.PermissionIncorrectException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class PermissionUtil {
 
@@ -92,7 +92,7 @@ public final class PermissionUtil {
                                                    Set<User> usersWhichHasAlreadyExist) {
         if (!usersWhichHasAlreadyExist.contains(up.getUser())) {
             UserPermission userPermission = findPermissionsByUserId(accessList, up.getUser().getId());
-            if(!UserPermission.OWNER.equals(up.getPermissionView())) {
+            if (!UserPermission.OWNER.equals(up.getPermissionView())) {
                 if (userPermission != null) {
                     Set<String> existingPermissions = userPermission.getPermissions();
                     if (existingPermissions == null) {
@@ -105,7 +105,7 @@ public final class PermissionUtil {
                     accessList.add(userPermission);
                     return true;
                 }
-            }else{
+            } else {
                 return accessList.add(up);
             }
         }
@@ -113,9 +113,26 @@ public final class PermissionUtil {
     }
 
     public static void importUsersFromUpperLevel(Set<UserPermission> accessList, UserPermission userPermission) {
-                if (userPermission != null && userPermission.getPermissionView() != null) {
-                    accessList.add(userPermission);
-                }
+        if (userPermission != null && userPermission.getPermissionView() != null) {
+            accessList.removeIf(up -> up.getUser().getId().equals(userPermission.getUser().getId()));
+            accessList.add(userPermission);
+        }
+    }
+
+    public static <T extends BasicModelObject, E extends BasicModelObject>
+    List<T> updateInnerPermissionsLists(List<T> entities,
+                                        Set<String> usersIds,
+                                        E upperEntity) {
+        if(entities != null) {
+            for (T entity : entities) {
+                Set<UserPermission> filtered = entity.getAccessList().stream()
+                        .filter(up -> usersIds.contains(up.getUser().getId()))
+                        .collect(Collectors.toSet());
+                upperEntity.getAccessList().forEach(up -> importUsersFromUpperLevel(filtered, up));
+                entity.setAccessList(filtered);
+            }
+        }
+        return entities;
     }
 
     public static void checkCorrectnessOfAccessList(UserRepository userRepository,
