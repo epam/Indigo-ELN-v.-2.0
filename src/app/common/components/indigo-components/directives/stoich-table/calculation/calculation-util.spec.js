@@ -92,4 +92,11 @@ describe('service: calculationUtil', function() {
             expect(res).toBe(0.02);
         });
     });
+
+    describe('divide function', function() {
+        it('should be 0.005', function() {
+            var res = calculationUtil.divide(0.02, 4);
+            expect(res).toBe(0.005);
+        });
+    });
 });

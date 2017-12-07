@@ -57,12 +57,14 @@ function updateEq(limitingRow) {
     if (isArgsExist && canUpdateEq) {
         this.resetEntered(['eq']);
         this.eq.value = calculationUtil.computeEq(this.mol.value, limitingRow.mol.value);
+        this.eq.prevValue = this.eq.value;
     }
 }
 
 function updateEqDependingOnLimitingEq(limitingRow) {
     this.updateEq(limitingRow);
     this.eq.value = calculationUtil.multiply(this.eq.value, limitingRow.eq.value);
+    this.eq.prevValue = this.eq.value;
 }
 
 function updateMol(mol, callback) {
@@ -226,7 +228,7 @@ function getDefaultFields() {
         weight: new StoichField(0, 'mg'),
         volume: new StoichField(0, 'mL'),
         mol: new StoichField(0, 'mmol'),
-        eq: new StoichField(1),
+        eq: {value: 1, prevValue: 1, entered: false},
         limiting: false,
         rxnRole: {name: 'REACTANT', entered: false},
         density: new StoichField(0, 'g/mL'),

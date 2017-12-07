@@ -122,9 +122,11 @@ function stoichTable(table) {
     }
 
     function onEqChanged(row) {
-        //TODO: remove this case in the future
+        var multiplier = calculationUtil.divide(row.eq.value, row.eq.prevValue);
+        row.eq.prevValue = row.eq.value;
+
         if (!row.eq.value) {
-            row.eq.value = 1;
+            row.setDefaultValues(['eq']);
             return;
         }
 
@@ -134,12 +136,12 @@ function stoichTable(table) {
         }
 
         if (!row.isLimiting() && row.isValuePresent('weight')) {
-            var weight = calculationUtil.multiply(row.weight.value, row.eq.value);
+            var weight = calculationUtil.multiply(row.weight.value, multiplier);
             row.setComputedWeight(weight);
         }
 
         if (!row.isLimiting() && row.isValuePresent('mol')) {
-            var mol = calculationUtil.multiply(row.mol.value, row.eq.value);
+            var mol = calculationUtil.multiply(row.mol.value, multiplier);
             row.setComputedMol(mol);
         }
     }

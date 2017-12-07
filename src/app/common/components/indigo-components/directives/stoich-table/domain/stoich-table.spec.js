@@ -383,7 +383,6 @@ describe('stoichTable', function() {
                 expect(otherRow.eq.value).toBe(1);
             });
 
-
             it('complex test.' +
                 '1. Apply new EQ in Limiting row - non limiting Mol and Weight are updated,' +
                 '2. Enter manual weight in non limiting row - Mols are recalculated for this particular row' +
@@ -428,6 +427,31 @@ describe('stoichTable', function() {
                 expect(otherRow.weight.entered).toBeTruthy();
                 expect(otherRow.mol.value).toBe(0.5);
                 expect(otherRow.eq.value).toBe(0.2);
+            });
+
+            it('row is not limiting, set eq to 2 and then to 1, should return original values', function() {
+                var stoichRow = new StoichRow();
+                stoichRow.molWeight.value = 10;
+                stoichRow.weight.value = 100;
+                stoichRow.weight.entered = true;
+                stoichRow.mol.value = 10;
+                stoichRow.eq.value = 2;
+                stoichRow.eq.entered = true;
+
+
+                service.onColumnValueChanged(stoichRow, 'eq');
+
+                expect(stoichRow.weight.value).toBe(200);
+                expect(stoichRow.mol.value).toBe(20);
+                expect(stoichRow.eq.value).toBe(2);
+
+                stoichRow.eq.value = 1;
+
+                service.onColumnValueChanged(stoichRow, 'eq');
+
+                expect(stoichRow.weight.value).toBe(100);
+                expect(stoichRow.mol.value).toBe(10);
+                expect(stoichRow.eq.value).toBe(1);
             });
         });
 

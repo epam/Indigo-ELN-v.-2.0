@@ -20,6 +20,7 @@ calculationUtil.computeVolumeByDensity = computeVolumeByDensity;
 calculationUtil.computeWeightByDensity = computeWeightByDensity;
 // calculationUtil.computeYield = computeYield;
 calculationUtil.multiply = multiply;
+calculationUtil.divide = divide;
 
 /**
  * Compute pure mol: Mol = Weight / Mol weight
