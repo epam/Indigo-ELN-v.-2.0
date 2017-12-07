@@ -4,7 +4,7 @@
         <div class="row">
             <div class="col-xs-6">
                 <simple-input>
-                    <span i-translate="EXPERIMENT_SUBJECT_TITLE"></span>
+                    <label i-translate="EXPERIMENT_SUBJECT_TITLE"></label>
                     <input class="form-control"
                            ng-model="vm.componentData.title"
                            ng-disabled="vm.isReadonly"
@@ -23,7 +23,7 @@
                                indigo-readonly="vm.isReadonly">
                 </indigo-select>
                 <simple-input>
-                    <span i-translate="BATCH_CREATOR"></span>
+                    <label i-translate="BATCH_CREATOR"></label>
                     <input class="form-control"
                            ng-model="vm.experiment.author.fullName"
                            disabled="disabled"
@@ -33,9 +33,9 @@
                               readonly="vm.isReadonly"
                               items="vm.users"
                               model="vm.coAuthors"
+                              is-multiple="true"
                               on-remove="vm.updateIds('coAuthors', vm.coAuthors)"
-                              on-select="vm.updateIds('coAuthors', vm.coAuthors)"
-                              multiple>
+                              on-select="vm.updateIds('coAuthors', vm.coAuthors)">
                 </autocomplete>
                 <!--Experiment Creator field is hidden for current release; to make it visible, remove ng-if and add
                 attributes: indigo-change, indigo-remove -->
@@ -47,7 +47,8 @@
                 ></autocomple>
             </div>
             <div class="col-xs-6">
-                <indigo-date-picker indigo-label="Creation Date" indigo-label-vertical="true"
+                <indigo-date-picker indigo-label="Creation Date"
+                                    indigo-label-vertical="true"
                                     indigo-model="vm.experiment.creationDate"
                                     indigo-readonly="true"></indigo-date-picker>
                 <linked-experiments indigo-label="Cont. FROM Rxn"
@@ -65,7 +66,7 @@
                                     indigo-readonly="vm.isReadonly"
                                     indigo-placeholder="11112222-0003, 11112222-0005"></linked-experiments>
                 <simple-input>
-                    <span i-translate="PROJECT_ALIAS_NAME"></span>
+                    <label i-translate="PROJECT_ALIAS_NAME"></label>
                     <input class="form-control"
                            ng-model="vm.componentData.projectAliasName"
                            ng-disabled="vm.isReadonly"
@@ -75,9 +76,9 @@
                               readonly="vm.isReadonly"
                               items="vm.users"
                               model="vm.batchOwner"
+                              is-multiple="true"
                               on-remove="vm.updateIds('batchOwner', vm.batchOwner)"
-                              on-select="vm.updateIds('batchOwner', vm.batchOwner)"
-                              multiple>
+                              on-select="vm.updateIds('batchOwner', vm.batchOwner)">
                 </autocomplete>
             </div>
         </div>

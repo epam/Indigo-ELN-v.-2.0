@@ -25,9 +25,9 @@
                               readonly="vm.isReadonly"
                               items="vm.users"
                               model="vm.coAuthors"
+                              is-multiple="true"
                               on-remove="vm.updateIds('coAuthors', vm.coAuthors)"
-                              on-select="vm.updateIds('coAuthors', vm.coAuthors)"
-                              multiple>
+                              on-select="vm.updateIds('coAuthors', vm.coAuthors)">
                 </autocomplete>
                 <!--Experiment Creator field is hidden for current release; to make it visible, remove ng-if and add
                 attributes: indigo-change, indigo-remove -->
@@ -52,9 +52,9 @@
                               readonly="vm.isReadonly"
                               items="vm.users"
                               model="vm.designers"
+                              is-multiple="true"
                               on-remove="vm.updateIds('designers', vm.designers)"
-                              on-select="vm.updateIds('designers', vm.designers)"
-                              multiple>
+                              on-select="vm.updateIds('designers', vm.designers)">
                 </autocomplete>
             </div>
         </div>
