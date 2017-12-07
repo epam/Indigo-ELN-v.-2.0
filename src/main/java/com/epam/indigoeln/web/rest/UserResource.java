@@ -202,7 +202,13 @@ public class UserResource {
         return ResponseEntity.ok().headers(headers).build();
     }
 
-    @ApiOperation(value = "Removes user.")
+
+    /**
+     * GET /api/users/passwordValidationRegex -> Returns regex for users' password validation
+     *
+     * @return password validation regex
+     */
+    @ApiOperation(value = "Returns password validation regex.")
     @RequestMapping(value = "/passwordValidationRegex", method = RequestMethod.GET)
     public String getUserPasswordValidationRegex() {
         return passwordValidationRegex;
