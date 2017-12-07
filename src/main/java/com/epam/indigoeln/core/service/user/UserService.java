@@ -32,21 +32,24 @@ import java.util.regex.Pattern;
 public class UserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
+    private final SessionRegistry sessionRegistry;
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final Pattern passwordValidationPattern;
 
     @Autowired
-    private SessionRegistry sessionRegistry;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
-
-    @Value("${password.validation}")
-    private String passwordRegex;
+    public UserService(SessionRegistry sessionRegistry,
+                       PasswordEncoder passwordEncoder,
+                       UserRepository userRepository,
+                       RoleRepository roleRepository,
+                       @Value("${password.validation}") String passwordRegex) {
+        this.sessionRegistry = sessionRegistry;
+        this.passwordEncoder = passwordEncoder;
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        passwordValidationPattern = Pattern.compile(passwordRegex);
+    }
 
     public Page<User> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable);
@@ -114,7 +117,7 @@ public class UserService {
     }
 
     private void checkUserPassword(String password) {
-        if (!Pattern.compile(passwordRegex).matcher(password).matches()) {
+        if (!passwordValidationPattern.matcher(password).matches()) {
             throw OperationDeniedException.createUserWithNotValidPassword();
         }
     }
