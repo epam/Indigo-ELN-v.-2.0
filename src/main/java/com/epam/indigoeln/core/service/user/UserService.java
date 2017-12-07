@@ -12,6 +12,7 @@ import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Service class for managing users.
@@ -43,6 +45,9 @@ public class UserService {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Value("${password.check}")
+    private String passwordRegex;
+
     public Page<User> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable);
     }
@@ -52,6 +57,8 @@ public class UserService {
     }
 
     public User createUser(User user) {
+        checkUserPassword(user.getPassword());
+
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
         user.setActivated(user.getActivated());
@@ -83,6 +90,7 @@ public class UserService {
         // encoding of user's password, or getting from DB entity
         String encryptedPassword;
         if (!Strings.isNullOrEmpty(user.getPassword())) {
+            checkUserPassword(user.getPassword());
             encryptedPassword = passwordEncoder.encode(user.getPassword());
         } else {
             encryptedPassword = userFromDB.getPassword();
@@ -93,7 +101,7 @@ public class UserService {
         user.setRoles(checkRolesExistenceAndGet(user.getRoles()));
         if (user.getId().equals(executingUser.getId())
                 && (user.getRoles().size() != executingUser.getRoles().size()
-                        || !user.getRoles().containsAll(executingUser.getRoles()))) {
+                || !user.getRoles().containsAll(executingUser.getRoles()))) {
             throw OperationDeniedException.createUserDeleteOperation(executingUser.getId());
         }
 
@@ -103,6 +111,12 @@ public class UserService {
         // check for significant changes and perform logout for user
         SecurityUtils.checkAndLogoutUser(savedUser, sessionRegistry);
         return user;
+    }
+
+    private void checkUserPassword(String password) {
+        if (!Pattern.compile(passwordRegex).matcher(password).matches()) {
+            throw OperationDeniedException.createUserWithNotValidPassword();
+        }
     }
 
     public void deleteUserByLogin(String login, User executingUser) {

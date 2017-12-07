@@ -32,6 +32,11 @@ public final class OperationDeniedException extends CustomParametrizedException 
         return new OperationDeniedException("The current user can't delete himself", userId);
     }
 
+    public static OperationDeniedException createUserWithNotValidPassword() {
+        return new OperationDeniedException("User password should contains min length 6, " +
+                "at least one capital and at least one digit");
+    }
+
     /**
      * Creates instance of OperationDeniedException with entity's id
      * if current user doesn't have permissions for reading.
