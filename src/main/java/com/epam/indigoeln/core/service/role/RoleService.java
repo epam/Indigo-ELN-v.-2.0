@@ -62,6 +62,15 @@ public class RoleService {
     }
 
     /**
+     * Retrieve roles with name like {@code nameLike} from DB.
+     *
+     * @return all roles in application
+     */
+    public Collection<Role> getRolesWithNameLike(String nameLike, Pageable pageable) {
+        return roleRepository.findByNameLikeIgnoreCase(nameLike, pageable).getContent();
+    }
+
+    /**
      * Retrieve one role by given ID.
      *
      * @param id role ID

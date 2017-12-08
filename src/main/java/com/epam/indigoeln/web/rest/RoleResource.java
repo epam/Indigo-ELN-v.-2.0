@@ -59,6 +59,28 @@ public class RoleResource {
     }
 
     /**
+     * GET  /roles?search=nameLike -> Returns roles with name like {@code nameLike}.
+     *
+     * @return Returns with name like {@code nameLike}
+     */
+    @ApiOperation(value = "Returns all roles.")
+    @RequestMapping(method = RequestMethod.GET,
+            params = "search",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Collection<RoleDTO>> getRolesLike(
+            @ApiParam("Paging data.") Pageable pageable,
+            @ApiParam("Searching role name") @RequestParam("search") String nameLike
+    ) {
+        LOGGER.debug("REST request to get roles with liked names");
+        Collection<Role> roles = roleService.getRolesWithNameLike(nameLike, pageable);
+        List<RoleDTO> result = new ArrayList<>(roles.size());
+        result.addAll(roles.stream().map(
+                role -> dtoMapper.convertToDTO(role)).collect(Collectors.toList())
+        );
+        return ResponseEntity.ok(result);
+    }
+
+    /**
      * GET  /roles/:id -> Returns specified role.
      *
      * @param id Identifier
