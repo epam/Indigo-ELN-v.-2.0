@@ -465,7 +465,7 @@ describe('stoichTable', function() {
                 stoichRow.density.value = 3;
                 stoichRow.stoicPurity.value = 11;
                 stoichRow.molarity.value = 11;
-                stoichRow.saltCode = {name: '01 - HYDROCHLORIDE', value: 1, regValue: '01', weight: 1};
+                stoichRow.saltCode = {name: '01 - HYDROCHLORIDE', weight: 1, prevWeight: 0};
                 stoichRow.saltEq.value = 11;
                 stoichRow.rxnRole = {name: 'SOLVENT', entered: true};
 
@@ -862,6 +862,7 @@ describe('stoichTable', function() {
             it('row is limiting, should compute mol, then weight and update mol in other rows', function() {
                 var limitingRow = new StoichRow();
                 limitingRow.molWeight.value = 3;
+                limitingRow.molWeight.originalValue = 3;
                 limitingRow.weight.value = 45;
                 limitingRow.mol.value = 15;
                 limitingRow.saltCode = {name: '01 - HYDROCHLORIDE', value: 1, regValue: '01', weight: 1};
@@ -881,6 +882,7 @@ describe('stoichTable', function() {
             it('row is not limiting, should compute weight', function() {
                 var stoichRow = new StoichRow();
                 stoichRow.molWeight.value = 3;
+                stoichRow.molWeight.originalValue = 3;
                 stoichRow.weight.value = 45;
                 stoichRow.mol.value = 15;
                 stoichRow.saltCode = {name: '01 - HYDROCHLORIDE', value: 1, regValue: '01', weight: 1};
@@ -894,21 +896,30 @@ describe('stoichTable', function() {
                 expect(stoichRow.mol.value).toBe(15);
             });
 
-            // it('row is not limiting, should set original mol weight', function() {
-            //     var stoichRow = new StoichRow();
-            //     stoichRow.molWeight.value = 3;
-            //     stoichRow.weight.value = 45;
-            //     stoichRow.mol.value = 15;
-            //     stoichRow.saltCode = {name: '01 - HYDROCHLORIDE', value: 1, regValue: '01', weight: 1};
-            //     stoichRow.saltEq.value = 12;
-            //     stoichRow.limiting = false;
-            //
-            //     service.onColumnValueChanged(stoichRow, 'saltEq');
-            //
-            //     expect(stoichRow.molWeight.value).toBe(15);
-            //     expect(stoichRow.weight.value).toBe(225);
-            //     expect(stoichRow.mol.value).toBe(15);
-            // });
+            it('row is not limiting, should set original mol weight', function() {
+                var stoichRow = new StoichRow();
+                stoichRow.molWeight.value = 3;
+                stoichRow.molWeight.originalValue = 3;
+                stoichRow.weight.value = 45;
+                stoichRow.mol.value = 15;
+                stoichRow.saltCode = {name: '01 - HYDROCHLORIDE', value: 1, regValue: '01', weight: 1};
+                stoichRow.saltEq.value = 12;
+                stoichRow.limiting = false;
+
+                service.onColumnValueChanged(stoichRow, 'saltEq');
+
+                expect(stoichRow.molWeight.value).toBe(15);
+                expect(stoichRow.weight.value).toBe(225);
+                expect(stoichRow.mol.value).toBe(15);
+
+                stoichRow.saltCode = {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0};
+
+                service.onColumnValueChanged(stoichRow, 'saltEq');
+
+                expect(stoichRow.molWeight.value).toBe(3);
+                expect(stoichRow.weight.value).toBe(45);
+                expect(stoichRow.mol.value).toBe(15);
+            });
         });
 
         describe('Change density', function() {

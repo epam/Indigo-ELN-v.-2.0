@@ -34,6 +34,7 @@ function updateMolWeight() {
     if (!this.molWeight.value && this.mol.value && this.weight.value) {
         this.resetEntered(['molWeight']);
         this.molWeight.value = calculationUtil.computeMolWeight(this.weight.value, this.mol.value);
+        this.molWeight.originalValue = this.molWeight.value;
     }
 }
 
@@ -155,13 +156,15 @@ function getResetFieldsForMol() {
     return resetFields;
 }
 
-function setComputedMolWeight(molWeight, callback) {
+function setComputedMolWeight(molWeight, originalValue, callback) {
     this.molWeight.value = molWeight;
     this.resetEntered(['molWeight']);
 
     if (callback) {
         callback(this);
     }
+
+    this.molWeight.originalValue = originalValue;
 }
 
 function setComputedVolume(volume, callback) {
@@ -224,7 +227,7 @@ function getDefaultFields() {
         compoundId: '',
         chemicalName: '',
         fullNbkBatch: '',
-        molWeight: new StoichField(),
+        molWeight: {value: 0, originalValue: 0, entered: false},
         weight: new StoichField(0, 'mg'),
         volume: new StoichField(0, 'mL'),
         mol: new StoichField(0, 'mmol'),

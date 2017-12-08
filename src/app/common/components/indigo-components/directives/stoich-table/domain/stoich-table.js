@@ -70,6 +70,8 @@ function stoichTable(table) {
     }
 
     function onMolWeightChanged(row) {
+        row.molWeight.originalValue = row.molWeight.value;
+
         if (row.molWeight.value) {
             if (row.isLimiting() && row.weight.value) {
                 var mol = calculationUtil.computePureMol(row.weight.value, row.molWeight.value);
@@ -262,12 +264,17 @@ function stoichTable(table) {
     }
 
     function onSaltChanged(row) {
-        if (!row.saltCode.weight && !row.saltEq.value && !row.molWeight.value && !row.weight.value) {
+        //TODO just disable this field if molWeight doesn't exist
+        if (!row.molWeight.originalValue) {
             return;
         }
 
-        var molWeight = calculationUtil.computeMolWeightBySalt(row.molWeight.value, row.saltCode.weight, row.saltEq.value);
-        row.setComputedMolWeight(molWeight, onMolWeightChanged);
+        if (row.saltCode.weight === 0) {
+            row.setDefaultValues(['saltEq']);
+        }
+
+        var molWeight = calculationUtil.computeMolWeightBySalt(row.molWeight.originalValue, row.saltCode.weight, row.saltEq.value);
+        row.setComputedMolWeight(molWeight, row.molWeight.originalValue, onMolWeightChanged);
     }
 
     function onDensityChanged(row) {
