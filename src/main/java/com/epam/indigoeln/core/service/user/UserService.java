@@ -167,6 +167,14 @@ public class UserService {
         return user;
     }
 
+    public Page<User> searchUserByLoginOrFirstNameOrLastNameWithPaging(String loginOrFirstNameOrLastName, Pageable pageable) {
+        return userRepository.findByLoginIgnoreCaseLikeOrFirstNameIgnoreCaseLikeOrLastNameIgnoreCaseLike(
+                loginOrFirstNameOrLastName,
+                loginOrFirstNameOrLastName,
+                loginOrFirstNameOrLastName,
+                pageable);
+    }
+
     private Set<Role> checkRolesExistenceAndGet(Set<Role> roles) {
         Set<Role> checkedRoles = new HashSet<>(roles.size());
         for (Role role : roles) {
