@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -47,9 +48,9 @@ public class RoleResource {
     @ApiOperation(value = "Returns all roles.")
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<RoleDTO>> getAllRoles() throws URISyntaxException {
+    public ResponseEntity<Collection<RoleDTO>> getAllRoles(@ApiParam("Paging data.") Pageable pageable) {
         LOGGER.debug("REST request to get all roles");
-        Collection<Role> roles = roleService.getAllRoles();
+        Collection<Role> roles = roleService.getAllRoles(pageable);
         List<RoleDTO> result = new ArrayList<>(roles.size());
         result.addAll(roles.stream().map(
                 role -> dtoMapper.convertToDTO(role)).collect(Collectors.toList())

@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -131,9 +131,8 @@ public class DictionaryResource {
     /**
      * GET /dictionaries -> fetch all dictionary list.
      *
-     * @param pageno Page number
-     * @param size   Page size
-     * @param search Search string
+     * @param pageable Paging data
+     * @param search   Search string
      * @return Returns all found dictionaries (with paging)
      * @throws URISyntaxException If URI is not correct
      */
@@ -141,12 +140,11 @@ public class DictionaryResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Returns all found dictionaries (with paging).")
     public ResponseEntity<List<DictionaryDTO>> getAllDictionaries(
-            @ApiParam("Page number.") @RequestParam(value = "page") Integer pageno,
-            @ApiParam("Page size.") @RequestParam(value = "size") Integer size,
-            @ApiParam("Search string.") @RequestParam(value = "search") String search
+            @ApiParam("Paging data. Allows to sort by name of field within query params sort=<fieldName>,<asc|desc>.") Pageable pageable,
+            @ApiParam("Search string. Allows search dictionaries by name.") @RequestParam(value = "search") String search
     ) throws URISyntaxException {
         LOGGER.debug("REST request to get all dictionaries");
-        Page<DictionaryDTO> page = dictionaryService.getAllDictionaries(new PageRequest(pageno, size), search);
+        Page<DictionaryDTO> page = dictionaryService.getAllDictionaries(pageable, search);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING);
         return new ResponseEntity<>(new LinkedList<>(page.getContent()), headers, HttpStatus.OK);
     }
@@ -164,8 +162,7 @@ public class DictionaryResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity createDictionary(
             @ApiParam("Dictionary to create.") @RequestBody @Valid DictionaryDTO dictionaryDTO
-    )
-            throws URISyntaxException {
+    ) {
         LOGGER.debug("REST request to create new dictionary: {}", dictionaryDTO);
         DictionaryDTO result = dictionaryService.createDictionary(dictionaryDTO);
         HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, dictionaryDTO.getName());
