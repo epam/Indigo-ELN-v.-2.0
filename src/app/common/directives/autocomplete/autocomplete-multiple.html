@@ -7,8 +7,8 @@
                theme="bootstrap"
                ng-disabled="vm.readonly"
                spinner-enabled="true"
-               on-select="vm.onSelect({ item: $item })"
-               on-remove="vm.onRemove({ item: $item })">
+               on-select="vm.onSelect({item: $item})"
+               on-remove="vm.onRemove({item: $item})">
         <ui-select-match placeholder="{{ ::vm.placeholder }}"
                          allow-clear="{{ ::vm.allowClear }}">
             {{ $item[vm.field] }}

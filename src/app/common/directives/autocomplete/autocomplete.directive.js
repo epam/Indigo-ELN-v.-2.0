@@ -13,7 +13,7 @@ function autocomplete() {
             model: '=',
             items: '=',
             readonly: '=',
-            isMultiple: '=',
+            isMultiple: '@',
             allowClear: '=',
             onSelect: '&',
             onRemove: '&',
