@@ -253,7 +253,7 @@ function stoichTable(table) {
 
         if (row.isLimiting()) {
             var mol = calculationUtil.computeMolByPurity(divider, row.mol.value);
-            row.setComputedMol(mol, onMolChanged);
+            updateMol(row, mol);
         }
 
         if (!row.isLimiting()) {
@@ -331,6 +331,15 @@ function stoichTable(table) {
         row.updateVolume();
         row.updateEq(getLimitingRow());
         row.updateMolWeight();
+    }
+
+    function updateMol(row, mol) {
+        if (row.weight.entered) {
+            row.setComputedMol(mol, updateDependencies);
+            updateRows(mol);
+        } else {
+            row.setComputedMol(mol, onMolChanged);
+        }
     }
 
     function isLimitingRowExist() {

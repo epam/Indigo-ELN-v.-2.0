@@ -438,7 +438,6 @@ describe('stoichTable', function() {
                 stoichRow.eq.value = 2;
                 stoichRow.eq.entered = true;
 
-
                 service.onColumnValueChanged(stoichRow, 'eq');
 
                 expect(stoichRow.weight.value).toBe(200);
@@ -804,6 +803,29 @@ describe('stoichTable', function() {
 
                 expect(limitingRow.mol.value).toBe(1.5);
                 expect(limitingRow.weight.value).toBe(3);
+                expect(otherRow.mol.value).toBe(1.5);
+                expect(otherRow.weight.value).toBe(4.5);
+            });
+
+            it('row is limiting, weight is manually set, should compute mol and update mol in other rows', function() {
+                var limitingRow = new StoichRow();
+                limitingRow.molWeight.value = 2;
+                limitingRow.weight.value = 30;
+                limitingRow.weight.entered = true;
+                limitingRow.mol.value = 15;
+                limitingRow.stoicPurity.value = 10;
+                service.addRow(limitingRow);
+
+                var otherRow = new StoichRow();
+                otherRow.molWeight.value = 3;
+                otherRow.weight.value = 45;
+                otherRow.mol.value = 15;
+                service.addRow(otherRow);
+
+                service.onColumnValueChanged(limitingRow, 'stoicPurity');
+
+                expect(limitingRow.mol.value).toBe(1.5);
+                expect(limitingRow.weight.value).toBe(30);
                 expect(otherRow.mol.value).toBe(1.5);
                 expect(otherRow.weight.value).toBe(4.5);
             });
