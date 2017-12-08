@@ -785,12 +785,14 @@ describe('stoichTable', function() {
         });
 
         describe('Change stoicPurity', function() {
+            //TODO: 839
             it('row is limiting, should compute mol, then weight and update mol in other rows', function() {
                 var limitingRow = new StoichRow();
                 limitingRow.molWeight.value = 2;
                 limitingRow.weight.value = 30;
                 limitingRow.mol.value = 15;
                 limitingRow.stoicPurity.value = 10;
+                limitingRow.stoicPurity.entered = true;
                 service.addRow(limitingRow);
 
                 var otherRow = new StoichRow();

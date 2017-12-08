@@ -103,13 +103,21 @@ function stoichTable(table) {
     }
 
     function onMolChanged(row) {
-        if (row.areValuesPresent(['molWeight', 'mol'])) {
+        if (row.stoicPurity.entered) {
+            var k = calculationUtil.divide(row.stoicPurity.value, row.stoicPurity.prevValue);
+            var divider = calculationUtil.multiply(k, 100);
+            row.stoicPurity.prevValue = row.stoicPurity.value;
+            var weight = calculationUtil.computeWeightByPurity(divider, row.weight.value);
+            row.setComputedWeight(weight);
+        }
+
+        if (row.areValuesPresent(['molWeight', 'mol']) && !row.stoicPurity.entered) {
             var weight = calculationUtil.computeWeight(row.mol.value, row.molWeight.value);
             row.setComputedWeight(weight);
+        }
 
-            if (row.isLimiting()) {
-                updateRows(row.mol.value);
-            }
+        if (row.isLimiting()) {
+            updateRows(row.mol.value);
         }
 
         if (!row.isValuePresent('mol')) {
