@@ -808,7 +808,7 @@ describe('stoichTable', function() {
                 expect(otherRow.weight.value).toBe(4.5);
             });
 
-            it('row is not limiting, should compute weight and update mol', function() {
+            it('row is not limiting, should compute only weight', function() {
                 var stoichRow = new StoichRow();
                 stoichRow.molWeight.value = 3;
                 stoichRow.weight.value = 45;
@@ -818,8 +818,43 @@ describe('stoichTable', function() {
 
                 service.onColumnValueChanged(stoichRow, 'stoicPurity');
 
-                expect(stoichRow.mol.value).toBe(150);
+                expect(stoichRow.mol.value).toBe(15);
                 expect(stoichRow.weight.value).toBe(450);
+            });
+
+            it('row is not limiting, set purity to 50 and to 100, weight should be original', function() {
+                var stoichRow = new StoichRow();
+                stoichRow.molWeight.value = 2;
+                stoichRow.weight.value = 30;
+                stoichRow.mol.value = 15;
+                stoichRow.stoicPurity.value = 50;
+                stoichRow.limiting = false;
+
+                service.onColumnValueChanged(stoichRow, 'stoicPurity');
+
+                expect(stoichRow.mol.value).toBe(15);
+                expect(stoichRow.weight.value).toBe(60);
+
+                stoichRow.stoicPurity.value = 100;
+                service.onColumnValueChanged(stoichRow, 'stoicPurity');
+
+                expect(stoichRow.mol.value).toBe(15);
+                expect(stoichRow.weight.value).toBe(30);
+            });
+
+            it('row is not limiting, weight is manually set, should compute mol and update eq', function() {
+                var stoichRow = new StoichRow();
+                stoichRow.molWeight.value = 3;
+                stoichRow.weight.value = 45;
+                stoichRow.weight.entered = true;
+                stoichRow.mol.value = 15;
+                stoichRow.stoicPurity.value = 10;
+                stoichRow.limiting = false;
+
+                service.onColumnValueChanged(stoichRow, 'stoicPurity');
+
+                expect(stoichRow.mol.value).toBe(1.5);
+                expect(stoichRow.weight.value).toBe(45);
             });
         });
 

@@ -233,7 +233,8 @@ function getDefaultFields() {
         rxnRole: {name: 'REACTANT', entered: false},
         density: new StoichField(0, 'g/mL'),
         molarity: new StoichField(0, 'M'),
-        stoicPurity: new StoichField(100),
+        //TODO: rename to purity
+        stoicPurity: {value: 100, prevValue: 100, entered: false},
         formula: '',
         saltCode: {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0},
         saltEq: {value: 0},

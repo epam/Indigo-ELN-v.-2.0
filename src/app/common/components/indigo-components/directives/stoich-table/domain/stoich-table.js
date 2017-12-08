@@ -97,9 +97,7 @@ function stoichTable(table) {
             row.resetFields(row.getResetFieldsForWeight());
         }
 
-        row.updateVolume();
-        row.updateEq(getLimitingRow());
-        row.updateMolWeight();
+        updateDependencies(row);
     }
 
     function onMolChanged(row) {
@@ -116,19 +114,17 @@ function stoichTable(table) {
             row.resetFields(row.getResetFieldsForMol());
         }
 
-        row.updateVolume();
-        row.updateEq(getLimitingRow());
-        row.updateMolWeight();
+        updateDependencies(row);
     }
 
     function onEqChanged(row) {
-        var multiplier = calculationUtil.divide(row.eq.value, row.eq.prevValue);
-        row.eq.prevValue = row.eq.value;
-
         if (!row.eq.value) {
-            row.setDefaultValues(['eq']);
+            row.eq.value = row.eq.prevValue;
             return;
         }
+
+        var multiplier = calculationUtil.divide(row.eq.value, row.eq.prevValue);
+        row.eq.prevValue = row.eq.value;
 
         if (row.isLimiting() && row.isValuePresent('mol')) {
             var molByEq = calculationUtil.computeMolByEq(row.mol.value, row.eq.value);
@@ -243,16 +239,25 @@ function stoichTable(table) {
     }
 
     function onPurityChanged(row) {
-        if (row.stoicPurity.value) {
-            if (row.isLimiting()) {
-                var mol = calculationUtil.computeMolByPurity(row.stoicPurity.value, row.mol.value);
-                row.setComputedMol(mol, onMolChanged);
-            }
+        if (!row.stoicPurity.value) {
+            row.stoicPurity.value = row.stoicPurity.prevValue;
+            return;
+        }
 
-            if (!row.isLimiting()) {
-                var weight = calculationUtil.computeWeightByPurity(row.stoicPurity.value, row.weight.value);
-                row.setComputedWeight(weight, onWeightChanged);
-            }
+        //TODO: discuss with Evgenia
+        var k = calculationUtil.divide(row.stoicPurity.value, row.stoicPurity.prevValue);
+        var divider = calculationUtil.multiply(k, 100);
+        row.stoicPurity.prevValue = row.stoicPurity.value;
+
+        if (row.isLimiting()) {
+            var mol = calculationUtil.computeMolByPurity(divider, row.mol.value);
+            row.setComputedMol(mol, onMolChanged);
+        }
+
+        if (!row.isLimiting()) {
+            row.weight.entered
+                ? row.setComputedMol(calculationUtil.computeMolByPurity(divider, row.mol.value), updateDependencies)
+                : row.weight.value = calculationUtil.computeWeightByPurity(divider, row.weight.value);
         }
     }
 
@@ -313,6 +318,12 @@ function stoichTable(table) {
                 }
             });
         }
+    }
+
+    function updateDependencies(row) {
+        row.updateVolume();
+        row.updateEq(getLimitingRow());
+        row.updateMolWeight();
     }
 
     function isLimitingRowExist() {
