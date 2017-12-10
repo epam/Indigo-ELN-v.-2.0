@@ -1,11 +1,11 @@
-var calculationUtil = require('../calculation/calculation-util');
+var calculationUtil = require('../../calculation/calculation-util');
 
 function stoichTable(table) {
     var stoichTable = table;
 
     return {
         addRow: addRow,
-        onColumnValueChanged: onColumnValueChanged,
+        onFieldValueChanged: onFieldValueChanged,
         setStoichTable: setStoichTable,
         getStoichTable: getStoichTable
     };
@@ -22,7 +22,7 @@ function stoichTable(table) {
         stoichTable.reactants.push(newRow);
     }
 
-    function onColumnValueChanged(row, fieldId, previousValue) {
+    function onFieldValueChanged(row, fieldId, previousValue) {
         //TODO: refactor it
         switch (fieldId) {
             case 'molWeight':

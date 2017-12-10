@@ -1,7 +1,7 @@
 var template = require('./indigo-stoich-table.html');
 var analyzeRxnTemplate = require('../../../../common/analyze-rxn/analyze-rxn.html');
 var searchReagentsTemplate = require('../../../../common/search-reagents/search-reagents.html');
-var stoichTableContainer = require('../../domain/stoich-table');
+var stoichTableContainer = require('../../domain/stoich-table/stoich-table');
 var StoichRow = require('../../domain/stoich-row');
 
 function indigoStoichTable() {
@@ -96,7 +96,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     }
 
     function onColumnValueChanged(data) {
-        stoichTable.onColumnValueChanged(data.row, data.column, data.oldVal);
+        stoichTable.onFieldValueChanged(data.row, data.column);
 
         //TODO: MOVE TO CONTAINER
         if (data.column === 'compoundId') {
