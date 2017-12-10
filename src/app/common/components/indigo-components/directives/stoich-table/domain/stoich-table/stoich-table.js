@@ -12,6 +12,7 @@ function stoichTable(table) {
 
     function addRow(newRow) {
         if (newRow.isSolventRow()) {
+            newRow.prevRxnRole.name = 'SOLVENT';
             newRow.setReadonly(newRow.getResetFieldsForSolvent(), true);
         } else {
             isLimitingRowExist()
@@ -22,7 +23,7 @@ function stoichTable(table) {
         stoichTable.reactants.push(newRow);
     }
 
-    function onFieldValueChanged(row, fieldId, previousValue) {
+    function onFieldValueChanged(row, fieldId) {
         //TODO: refactor it
         switch (fieldId) {
             case 'molWeight':
@@ -42,7 +43,7 @@ function stoichTable(table) {
                 onEqChanged(row);
                 break;
             case 'rxnRole':
-                onRxnRoleChanged(row, previousValue);
+                onRxnRoleChanged(row);
                 break;
             case 'volume':
                 row.setEntered(fieldId);
@@ -152,7 +153,7 @@ function stoichTable(table) {
         }
     }
 
-    function onRxnRoleChanged(row, previousValue) {
+    function onRxnRoleChanged(row) {
         var fieldsToReset = row.getResetFieldsForSolvent();
 
         if (row.isSolventRow()) {
@@ -166,15 +167,16 @@ function stoichTable(table) {
                 row.limiting = false;
                 nextRow.limiting = true;
             }
-        } else if (!row.isSolventRow() && previousValue === 'SOLVENT') {
-            //TODO it doesn't work because previous value is always undefined
+        } else if (!row.isSolventRow() && row.prevRxnRole.name === 'SOLVENT') {
             row.resetFields(['volume']);
             row.setReadonly(fieldsToReset, false);
 
             if (isLimitingRowExist()) {
-                row.setComputedMol(getLimitingRow().mol.value);
+                row.setComputedMol(getLimitingRow().mol.value, onMolChanged);
             }
         }
+
+        row.prevRxnRole.name = row.rxnRole.name;
     }
 
     function onVolumeChanged(row) {

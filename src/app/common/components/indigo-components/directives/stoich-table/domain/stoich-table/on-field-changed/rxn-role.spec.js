@@ -18,9 +18,9 @@ function changeRxnRole() {
             stoichRow.density.value = 3;
             stoichRow.stoicPurity.value = 11;
             stoichRow.molarity.value = 11;
-            stoichRow.saltCode = {name: '01 - HYDROCHLORIDE', weight: 1, prevWeight: 0};
+            stoichRow.saltCode = {name: '01 - HYDROCHLORIDE', weight: 1};
             stoichRow.saltEq.value = 11;
-            stoichRow.rxnRole = {name: 'SOLVENT', entered: true};
+            stoichRow.rxnRole = {name: 'SOLVENT'};
 
             service.onFieldValueChanged(stoichRow, 'rxnRole');
 
@@ -47,7 +47,7 @@ function changeRxnRole() {
             limitingRow.molWeight.value = 10;
             limitingRow.weight.value = 110;
             limitingRow.mol.value = 11;
-            limitingRow.rxnRole = {name: 'SOLVENT', entered: true};
+            limitingRow.rxnRole = {name: 'SOLVENT'};
             service.addRow(limitingRow);
 
             var otherRow = new StoichRow();
@@ -73,9 +73,11 @@ function changeRxnRole() {
             otherRow.molWeight.value = 5;
             otherRow.volume.value = 5;
             otherRow.setReadonly(readonlyFields, true);
+            otherRow.rxnRole = {name: 'REACTANT'};
+            otherRow.prevRxnRole = {name: 'SOLVENT'};
             service.addRow(otherRow);
 
-            service.onFieldValueChanged(otherRow, 'rxnRole', 'SOLVENT');
+            service.onFieldValueChanged(otherRow, 'rxnRole');
 
             expect(otherRow.volume.value).toBe(0);
             expect(otherRow.weight.value).toBe(50);

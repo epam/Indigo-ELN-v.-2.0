@@ -73,7 +73,9 @@ function updateMol(mol, callback) {
         ? this.mol.value = 0
         : this.mol.value = mol;
 
-    callback(this);
+    if (callback) {
+        callback(this);
+    }
 }
 
 function setDefaultValues(fields) {
@@ -197,8 +199,6 @@ function setComputedMol(mol, callback) {
 
 function resetFields(fields, callback) {
     this.setDefaultValues(fields);
-    //TODO: remove
-    // this.resetEntered(fields);
 
     if (callback) {
         callback(this);
@@ -233,7 +233,8 @@ function getDefaultFields() {
         mol: new StoichField(0, 'mmol'),
         eq: {value: 1, prevValue: 1, entered: false},
         limiting: false,
-        rxnRole: {name: 'REACTANT', entered: false},
+        rxnRole: {name: 'REACTANT'},
+        prevRxnRole: {name: 'REACTANT'},
         density: new StoichField(0, 'g/mL'),
         molarity: new StoichField(0, 'M'),
         //TODO: rename to purity
