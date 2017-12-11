@@ -29,28 +29,31 @@
                         <div class="criteria-search-block">
                             <h5><span i-translate="FIELD_SEARCH_CRITERIA"></span>:</h5>
 
-                            <div class="row" ng-repeat="(key, obj) in vm.state.restrictions.advancedSearch">
-                                <div ng-if="!obj.$$skipList">
-                                    <div class="col-xs-3"><label class="control-label" ng-bind="::obj.name"></label>
+                            <div class="row"
+                                 ng-repeat="(key, searchCriteria) in vm.state.restrictions.advancedSearch">
+                                <div ng-if="!searchCriteria.$$skipList">
+                                    <div class="col-xs-3">
+                                        <label class="control-label"
+                                               ng-bind="::searchCriteria.name"></label>
+                                    </div>
+                                    <div class="col-xs-3"
+                                         ng-if="searchCriteria.$$conditionList && searchCriteria.$$conditionList.length">
+                                        <autocomplete items="searchCriteria.$$conditionList"
+                                                      model="searchCriteria.condition">
+                                        </autocomplete>
                                     </div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="obj.$$conditionList"
-                                                       indigo-model="obj.condition">
-                                        </indigo-select>
-                                    </div>
-                                    <div class="col-xs-3">
-                                        <form ng-submit="vm.search()" ng-switch="!!obj.value">
-                                            <div ng-switch-when="false">
-                                                <simple-input>
-                                                    <input class="form-control"
-                                                           ng-model="obj.value">
-                                                </simple-input>
-                                            </div>
-                                            <indigo-select ng-switch-when="true"
-                                                           indigo-items="obj.searchConditions"
-                                                           indigo-model="obj.selectedValue">
-                                            </indigo-select>
-                                        </form>
+                                        <autocomplete ng-if="searchCriteria.isSelect"
+                                                      allow-clear="true"
+                                                      items="searchCriteria.searchConditions"
+                                                      model="searchCriteria.selectedValue">
+                                        </autocomplete>
+
+                                        <simple-input ng-if="!searchCriteria.isSelect">
+                                            <input class="form-control"
+                                                   type="{{ searchCriteria.type }}"
+                                                   ng-model="searchCriteria.value">
+                                        </simple-input>
                                     </div>
                                 </div>
                             </div>

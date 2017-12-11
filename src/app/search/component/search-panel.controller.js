@@ -151,8 +151,11 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtil, 
     }
 
     function search() {
-        vm.loading = true;
         var searchRequest = searchUtil.prepareSearchRequest(vm.state.restrictions);
+
+        vm.state.restrictions.advancedSummary = searchRequest.advancedSearch;
+        vm.loading = true;
+
         searchService.searchAll(searchRequest, function(result) {
             vm.loading = false;
             vm.state.searchResults = result;

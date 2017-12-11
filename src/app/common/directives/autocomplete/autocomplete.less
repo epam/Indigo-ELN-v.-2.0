@@ -1,7 +1,33 @@
-@import "../../../../assets/less/mixin";
-@import "../../../../assets/less/variables";
+@import "../../../../assets/less/component-base";
 
 autocomplete {
+  display: block;
+}
+
+.autocomplete {
+  .ui-select-container {
+    .ui-select-toggle {
+      > a.btn {
+        border: none;
+        height: auto;
+        top: 3px;
+      }
+    }
+
+    .ui-select-no-choice {
+      li {
+        padding: 3px 20px;
+      }
+    }
+
+    .ui-select-toggle {
+      &:hover,
+      &:active {
+        background-color: transparent;
+      }
+    }
+  }
+
   .ui-select-multiple.ui-select-bootstrap {
     height: auto;
   }

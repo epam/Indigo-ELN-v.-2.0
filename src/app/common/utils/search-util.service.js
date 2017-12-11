@@ -40,27 +40,34 @@ function searchUtil(modelRestrictions) {
     }
 
     function prepareAdvancedSearch(restrictions) {
-        var advancedSearch = restrictions.advancedSearch;
         var advancedSummary = [];
-        restrictions.advancedSummary = advancedSummary;
 
-        _.each(advancedSearch, function(restriction) {
-            restriction.value = _.isUndefined(restriction.selectedValue)
-                ? restriction.value
-                : restriction.selectedValue.name;
+        _.each(restrictions.advancedSearch, function(restriction) {
+            restriction.value = restriction.selectedValue
+                ? restriction.selectedValue.name
+                : restriction.value;
 
-            var value = _.isArray(restriction.value) && restriction.value.length === 0 ? null : restriction.value;
-            if (value) {
-                var restrictionCopy = angular.copy(restriction);
-                if (restrictionCopy.condition) {
-                    restrictionCopy.condition = restrictionCopy.condition.name;
+            var hasValue = _.isArray(restriction.value) && restriction.value.length === 0
+                ? false
+                : restriction.value;
+
+            if (hasValue) {
+                var requestRestriction = {
+                    field: restriction.field,
+                    value: restriction.value
+                };
+
+                if (restriction.condition) {
+                    requestRestriction.condition = restriction.condition.name;
                 } else {
-                    restrictionCopy.condition = '';
+                    requestRestriction.condition = '';
                 }
-                if (restrictionCopy.getValue) {
-                    restrictionCopy.value = restrictionCopy.getValue(restrictionCopy.value);
+
+                if (restriction.getValue) {
+                    requestRestriction.value = restriction.getValue(restriction.value);
                 }
-                advancedSummary.push(restrictionCopy);
+
+                advancedSummary.push(requestRestriction);
             }
         });
 
