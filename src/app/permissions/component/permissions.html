@@ -1,7 +1,8 @@
 <div name="permissionsForm" ng-submit="managePermissions()">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                ng-click="vm.clear()">&times;</button>
+                ng-click="vm.clear()">&times;
+        </button>
         <h5 class="modal-title">
             <span ng-bind="vm.entity"></span> <span i-translate="MEMBERS"></span>
         </h5>
@@ -34,7 +35,8 @@
                     <td>
                         <div>
                             <a ng-class="{disabled: vm.isAuthor(member)}" e-form="perm"
-                               ng-click="vm.show(perm, member)"
+                               ng-click="!member.isContentEditor && vm.show(perm, member)"
+                               ng-disabled="member.isContentEditor"
                                onbeforesave="vm.saveOldPermission(member.permissionView)"
                                onaftersave="vm.checkAuthority(member, member.permissionView)"
                                editable-select="member.permissionView"
