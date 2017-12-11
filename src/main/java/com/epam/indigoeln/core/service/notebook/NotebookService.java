@@ -7,6 +7,7 @@ import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.*;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
+import com.epam.indigoeln.core.service.project.ProjectService;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.core.util.BatchComponentUtil;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
@@ -34,6 +35,9 @@ public class NotebookService {
      */
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private ProjectService projectService;
 
     /**
      * Instance of NotebookRepository for access to notebooks in database.
