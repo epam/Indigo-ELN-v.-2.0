@@ -7,7 +7,6 @@ import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.*;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
-import com.epam.indigoeln.core.service.project.ProjectService;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.core.util.BatchComponentUtil;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
@@ -206,7 +205,8 @@ public class NotebookService {
         Notebook savedNotebook = saveNotebookAndHandleError(notebook);
 
         // add all users as VIEWER to project
-        Set<User> projectUsers = project.getAccessList().stream().map(UserPermission::getUser).collect(Collectors.toSet());
+        Set<User> projectUsers = project.getAccessList()
+                .stream().map(UserPermission::getUser).collect(Collectors.toSet());
         notebook.getAccessList().forEach(up ->
                 PermissionUtil.addUsersFromLowLevelToUp(project.getAccessList(),
                         up, UserPermission.VIEWER_PERMISSIONS, projectUsers));
@@ -265,8 +265,10 @@ public class NotebookService {
             // experiments for updated notebook
             notebookFromDB.setVersion(notebook.getVersion());
 
-            project.getAccessList().forEach(up -> PermissionUtil.importUsersFromUpperLevel(notebook.getAccessList(), up));
-            notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's experiments for updated notebook
+            project.getAccessList().forEach(up -> PermissionUtil
+                    .importUsersFromUpperLevel(notebook.getAccessList(), up));
+            notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's
+            // experiments for updated notebook
 
             //Update access list for experiments
             Set<String> usersIds = notebookFromDB.getAccessList().stream()
@@ -278,7 +280,8 @@ public class NotebookService {
             Notebook savedNotebook = saveNotebookAndHandleError(notebookFromDB);
 
             // add all users as VIEWER to project
-            Set<User> projectUsers = project.getAccessList().stream().map(UserPermission::getUser).collect(Collectors.toSet());
+            Set<User> projectUsers = project.getAccessList()
+                    .stream().map(UserPermission::getUser).collect(Collectors.toSet());
             Boolean updateProject = notebook.getAccessList().stream()
                     .map(up -> PermissionUtil.addUsersFromLowLevelToUp(project.getAccessList(), up,
                             UserPermission.VIEWER_PERMISSIONS, projectUsers))

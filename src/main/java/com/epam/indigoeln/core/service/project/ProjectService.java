@@ -1,7 +1,6 @@
 package com.epam.indigoeln.core.service.project;
 
 import com.epam.indigoeln.core.model.*;
-import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.file.GridFSFileUtil;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
