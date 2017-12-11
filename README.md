@@ -1,12 +1,19 @@
 # BingoDB
 
-Simple chemical structure database
+Simple chemical structure database.
 
 ## Build dependencies
 
 - Java 1.8
-- Maven 3.1
-- GIT
+- Maven 3.1+
+
+## Build procedure
+
+Configure folder for storing files and security properties in `src/main/resources/application.properties`
+
+Execute `mvn spring-boot:run` to start BingoDB in development mode.
+
+Execute `mvn clean package -P release` to create production `.war` file.
 
 ## Maven profiles
 
@@ -28,3 +35,7 @@ Example run:
 `-v` is necessary to specify BingoDB storage folder in the host system.
 
 See Docker options for details.
+
+## Code Style
+
+You should check your code with `CheckStyle` and `FindBugs` maven plugins executing `mvn clean compile` command. 
