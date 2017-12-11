@@ -1,10 +1,21 @@
 # Indigo ELN server part
 
+Server part for Indigo ELN. Indigo ELN is the open-source Chemistry Electronic Lab Notebook, provides scientists with
+a proven way to create, store, retrieve, and share electronic records of chemistry and biology-related information
+in the way of meeting legal, regulatory, technical, and scientific requirements.
+
 ## Build dependencies
 
 - Java 1.8
-- Maven 3.1
-- GIT
+- Maven 3.1+
+
+## Build procedure
+
+Configure DB and external service urls in `src/main/resources/application.properties`.
+
+Execute `mvn spring-boot:run` to start Indigo ELN in development mode.
+
+Execute `mvn clean package -P release` to create production `.war` file.
 
 ## Profiles
 
@@ -39,8 +50,4 @@ See Docker options for details.
 
 ## Code Style
 
-Before start edit code, you should:
-
-- Install plugin `SonarLint` and config its serverUrl as `https://sonar.epam.com/sonarqube/overview?id=com.epam.indigoeln`
-- Import to `IndigoELN/code-style.xml` to settings `Editor/Code Style`
-- Enable `Eslint` with `IndigoELN/.eslintrc.json` in `/Languages &  Frameworks/JavaScript/Code Quality Tools` 
+You should check your code with `CheckStyle` and `FindBugs` maven plugins executing `mvn clean compile` command. 
