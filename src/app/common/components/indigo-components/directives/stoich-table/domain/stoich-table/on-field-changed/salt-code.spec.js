@@ -6,7 +6,11 @@ function changeSaltCode() {
         var service;
 
         beforeEach(function() {
-            service = stoichTable({product: [], reactants: []});
+            var config = {
+                table: {product: [], reactants: []}
+            };
+
+            service = stoichTable(config);
         });
 
         it('row is limiting, should compute mol, then weight and update mol in other rows', function() {

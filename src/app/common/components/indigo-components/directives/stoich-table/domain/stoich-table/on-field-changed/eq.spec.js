@@ -6,7 +6,11 @@ function changeEq() {
         var service;
 
         beforeEach(function() {
-            service = stoichTable({product: [], reactants: []});
+            var config = {
+                table: {product: [], reactants: []}
+            };
+
+            service = stoichTable(config);
         });
 
         it('row is not limiting, should update mol and weight', function() {

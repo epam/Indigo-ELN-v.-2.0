@@ -6,7 +6,11 @@ function changeDensity() {
         var service;
 
         beforeEach(function() {
-            service = stoichTable({product: [], reactants: []});
+            var config = {
+                table: {product: [], reactants: []}
+            };
+
+            service = stoichTable(config);
         });
 
         it('weight is defined, should compute volume', function() {

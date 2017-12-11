@@ -6,7 +6,11 @@ function changePurity() {
         var service;
 
         beforeEach(function() {
-            service = stoichTable({product: [], reactants: []});
+            var config = {
+                table: {product: [], reactants: []}
+            };
+
+            service = stoichTable(config);
         });
 
         it('row is limiting, weight is manually set, should compute mol and update mol in other rows', function() {

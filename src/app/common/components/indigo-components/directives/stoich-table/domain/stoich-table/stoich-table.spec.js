@@ -15,7 +15,7 @@ describe('stoichTable', function() {
     var service;
 
     beforeEach(function() {
-        service = stoichTable();
+        service = stoichTable({table: {}});
     });
 
     it('should be defined', function() {
@@ -23,19 +23,19 @@ describe('stoichTable', function() {
     });
 
     describe('setStoichTable function', function() {
-        it('stoichTable should not be defined', function() {
-            expect(service.getStoichTable()).toBeUndefined();
-        });
-
         it('stoichTable should be defined', function() {
-            service.setStoichTable({});
-            expect(service.getStoichTable()).toBeDefined();
+            service.setStoichTable({product: [], reactants: []});
+            expect(service.getStoichTable().reactants).toBeDefined();
         });
     });
 
     describe('addRow function', function() {
         beforeEach(function() {
-            service.setStoichTable({product: [], reactants: []});
+            var config = {
+                table: {product: [], reactants: []}
+            };
+
+            service = stoichTable(config);
         });
 
         it('should add new row to stoichTable', function() {

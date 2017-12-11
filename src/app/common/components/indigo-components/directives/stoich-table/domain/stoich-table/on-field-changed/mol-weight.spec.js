@@ -6,7 +6,11 @@ function changeMolWeight() {
         var service;
 
         beforeEach(function() {
-            service = stoichTable({product: [], reactants: []});
+            var config = {
+                table: {product: [], reactants: []}
+            };
+
+            service = stoichTable(config);
         });
 
         it('weight is defined, row is limiting, should compute mol', function() {

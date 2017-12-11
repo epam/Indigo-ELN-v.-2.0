@@ -2,7 +2,7 @@ var StoichField = require('./stoich-field');
 var calculationUtil = require('../calculation/calculation-util');
 
 function StoichRow() {
-    _.defaults(this, getDefaultFields());
+    _.defaults(this, getDefaultStoichRow());
 }
 
 StoichRow.prototype.isSolventRow = isSolventRow;
@@ -29,6 +29,7 @@ StoichRow.prototype.setReadonly = setReadonly;
 StoichRow.prototype.resetFields = resetFields;
 StoichRow.prototype.resetEntered = resetEntered;
 StoichRow.prototype.clear = clear;
+StoichRow.fromJson = fromJson;
 
 function updateMolWeight() {
     if (!this.molWeight.value && this.mol.value && this.weight.value) {
@@ -80,7 +81,7 @@ function updateMol(mol, callback) {
 
 function setDefaultValues(fields) {
     var self = this;
-    var defaultFields = getDefaultFields();
+    var defaultFields = getDefaultStoichRow();
 
     _.forEach(fields, function(id) {
         self[id] = defaultFields[id];
@@ -214,15 +215,19 @@ function setReadonly(fields, isReadonly) {
 }
 
 function clear() {
-    _.assign(this, getDefaultFields());
+    _.assign(this, getDefaultStoichRow());
 }
 
 function getResetFieldsForSolvent() {
     return ['weight', 'mol', 'eq', 'molarity', 'density', 'stoicPurity', 'saltCode', 'saltEq'];
 }
 
-//TODO create object on every call
-function getDefaultFields() {
+function fromJson(json) {
+    var defaultStoich = getDefaultStoichRow();
+    return _.assign(defaultStoich, json);
+}
+
+function getDefaultStoichRow() {
     return {
         compoundId: '',
         chemicalName: '',

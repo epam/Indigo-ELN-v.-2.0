@@ -1,7 +1,8 @@
 var calculationUtil = require('../../calculation/calculation-util');
 
-function stoichTable(table) {
-    var stoichTable = table;
+function stoichTable(config) {
+    var stoichTable = config.table;
+    var onCompoundIdChanged = config.onCompoundIdChanged;
 
     return {
         addRow: addRow,
@@ -67,6 +68,9 @@ function stoichTable(table) {
                 row.setEntered(fieldId);
                 onDensityChanged(row);
                 break;
+            case 'compoundId':
+                onCompoundIdChanged(row, row[fieldId]);
+                break;
         }
     }
 
@@ -76,7 +80,7 @@ function stoichTable(table) {
         if (row.molWeight.value) {
             if (row.isLimiting() && row.weight.value) {
                 var mol = calculationUtil.computePureMol(row.weight.value, row.molWeight.value);
-                row.setComputedMol(mol, onMolChanged);
+                updateMol(row, mol);
                 return;
             }
             if (row.mol.value) {

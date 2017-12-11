@@ -14,94 +14,38 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
         populateFetchedBatch: populateFetchedBatch
     };
 
-    function fetchBatchByCompoundId(compoundId, row) {
+    function fetchBatchByCompoundId(row, compoundId) {
         var searchRequest = {compoundNo: compoundId};
 
         return registrationService
             .compounds(searchRequest)
             .$promise
             .then(function(result) {
-                return convertCompoundsToBatches(result.slice(0, 20)).then(function(batches) {
-                    if (batches.length === 1) {
-                        populateFetchedBatch(row, batches[0]);
-                    } else if (batches.length > 1) {
-                        return dialogService
-                            .structureValidation(batches, compoundId)
-                            .then(function(selectedBatch) {
-                                populateFetchedBatch(row, selectedBatch);
-                            });
-                    } else {
-                        return $q.reject(batches);
-                    }
-
-                    return batches;
-                });
+                return convertCompoundsToBatches(result.slice(0, 20));
+            })
+            .then(function(batches) {
+                return processingBatches(row, compoundId, batches);
             });
     }
 
     function convertCompoundsToBatches(compounds) {
-        return dictionaryService.all().$promise
+        return dictionaryService.all()
+            .$promise
             .then(function(dicts) {
-                return _.map(compounds, function(c) {
-                    var test = {
-                        chemicalName: c.chemicalName,
-                        compoundId: c.compoundNo,
-                        conversationalBatchNumber: c.conversationalBatchNo,
-                        fullNbkBatch: c.batchNo,
-                        casNumber: c.casNo,
-                        structure: {
-                            structureType: 'molecule',
-                            molfile: c.structure
-                        },
-                        formula: c.formula,
-                        stereoisomer: sdImportHelper.getWord(
-                            'Stereoisomer Code',
-                            'name',
-                            c.stereoisomerCode,
-                            dicts
-                        ),
-                        saltCode: _.find(appUnits.saltCodeValues, function(sc) {
-                            return sc.regValue === c.saltCode;
-                        }),
-                        saltEq: {
-                            value: c.saltEquivs, entered: false
-                        },
-                        comments: c.comment
-                    };
-
-                    var stoichRow = new StoichRow();
-                    var row = _.assign(stoichRow, test);
-
-                    return row;
+                return _.map(compounds, function(compound) {
+                    return getStoichRow(compound, dicts);
                 });
             })
-            .then(function(result) {
-                return $q.all(_.map(result, function(item) {
-                    return $q.all([
-                        calculationService.getMoleculeInfo(item).then(function(molInfo) {
-                            item.formula = molInfo.molecularFormula;
-                            item.molWeight = item.molWeight || {};
-                            item.molWeight.value = molInfo.molecularWeight;
-                        }),
-                        calculationService.getImageForStructure(item.structure.molfile, 'molecule')
-                            .then(function(image) {
-                                item.structure.image = image;
-                            })
-                    ]);
-                })).then(function() {
-                    return result;
-                });
+            .then(function(stoichRows) {
+                return updateFieldsWhichRelatedToMolecule(stoichRows);
             });
     }
 
     function populateFetchedBatch(row, source) {
-        var cleanedBatch = cleanReactant(source);
+        var isLimiting = row.isLimiting();
+        _.extend(row, source);
         row.$$populatedBatch = true;
-        _.extend(row, cleanedBatch);
-        row.rxnRole = row.rxnRole || angular.copy(appUnits.rxnRoleReactant);
-        row.weight = null;
-        row.volume = null;
-        calculationService.recalculateStoich();
+        row.limiting = isLimiting;
     }
 
     function cleanReactant(batch) {
@@ -138,6 +82,79 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
     function alertWrongFormat() {
         notifyService.error('Notebook batch number does not exist or in the wrong format- format should be "nbk. ' +
             'number-exp. number-batch number"');
+    }
+
+    function getStoichRow(compound, dicts) {
+        var json = {
+            chemicalName: compound.chemicalName,
+            compoundId: compound.compoundNo,
+            conversationalBatchNumber: compound.conversationalBatchNo,
+            fullNbkBatch: compound.batchNo,
+            casNumber: compound.casNo,
+            structure: {
+                structureType: 'molecule',
+                molfile: compound.structure
+            },
+            formula: compound.formula,
+            stereoisomer: sdImportHelper.getWord(
+                'Stereoisomer Code',
+                'name',
+                compound.stereoisomerCode,
+                dicts
+            ),
+            saltCode: _.find(appUnits.saltCodeValues, function(sc) {
+                return sc.regValue === compound.saltCode;
+            }),
+            saltEq: {
+                value: compound.saltEquivs, entered: false
+            },
+            comments: compound.comment
+        };
+
+        return StoichRow.fromJson(json);
+    }
+
+    function processingBatches(row, compoundId, batches) {
+        if (batches.length === 1) {
+            populateFetchedBatch(row, batches[0]);
+        } else if (batches.length > 1) {
+            return dialogService
+                .structureValidation(batches, compoundId)
+                .then(function(selectedBatch) {
+                    populateFetchedBatch(row, selectedBatch);
+                });
+        } else {
+            return $q.reject(batches);
+        }
+
+        return batches;
+    }
+
+    function updateFieldsWhichRelatedToMolecule(stoichRows) {
+        return $q.all(_.map(stoichRows, function(row) {
+            return $q.all([
+                getMoleculaInfoPromise(row),
+                getImagePromise(row)
+            ]);
+        })).then(function() {
+            return stoichRows;
+        });
+
+        function getMoleculaInfoPromise(row) {
+            return calculationService.getMoleculeInfo(row)
+                .then(function(molInfo) {
+                    row.formula = molInfo.molecularFormula;
+                    row.molWeight.value = molInfo.molecularWeight;
+                    row.molWeight.originalValue = molInfo.molecularWeight;
+                });
+        }
+
+        function getImagePromise(row) {
+            return calculationService.getImageForStructure(row.structure.molfile, 'molecule')
+                .then(function(image) {
+                    row.structure.image = image;
+                });
+        }
     }
 }
 

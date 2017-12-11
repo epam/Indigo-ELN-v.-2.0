@@ -1,7 +1,7 @@
 var template = require('./indigo-stoich-table.html');
 var analyzeRxnTemplate = require('../../../../common/analyze-rxn/analyze-rxn.html');
 var searchReagentsTemplate = require('../../../../common/search-reagents/search-reagents.html');
-var stoichTableContainer = require('../../domain/stoich-table/stoich-table');
+var stoichTable = require('../../domain/stoich-table/stoich-table');
 var StoichRow = require('../../domain/stoich-row');
 
 function indigoStoichTable() {
@@ -35,7 +35,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
                                      alertModal, notifyService, calculationService, stoichTableCache,
                                      stoichReactantsColumns, stoichProductColumns, stoichTableHelper) {
     var vm = this;
-    var stoichTable = stoichTableContainer(vm.componentData);
+    var stoichTableContainer;
 
     var columnsWithClose = [
         'molWeight',
@@ -69,6 +69,13 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         vm.onCloseCell = onCloseCell;
         vm.onColumnValueChanged = onColumnValueChanged;
 
+        var config = {
+            table: vm.componentData,
+            onCompoundIdChanged: onCompoundIdChanged
+        };
+
+        stoichTableContainer = stoichTable(config);
+
         bindEvents();
     }
 
@@ -92,16 +99,11 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     function addRow() {
         var stoichRow = new StoichRow();
         addStoicReactant(stoichRow);
-        console.log(vm.componentData.reactants)
+        console.log(vm.componentData.reactants);
     }
 
     function onColumnValueChanged(data) {
-        stoichTable.onFieldValueChanged(data.row, data.column);
-
-        //TODO: MOVE TO CONTAINER
-        if (data.column === 'compoundId') {
-            onCloseCompoundId(data.row, data.row[data.column]);
-        }
+        stoichTableContainer.onFieldValueChanged(data.row, data.column);
     }
 
     function removeRow() {
@@ -249,10 +251,8 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         });
     }
 
-    function onCloseCompoundId(row, model) {
-        var row = row;
-        var compoundId = model;
-        stoichColumnActions.fetchBatchByCompoundId(compoundId, row)
+    function onCompoundIdChanged(row, compoundId) {
+        stoichColumnActions.fetchBatchByCompoundId(row, compoundId)
             .then(function() {
                 vm.onPrecursorsChanged({precursors: getPrecursors()});
             }, alertCompoundWrongFormat);
@@ -268,7 +268,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     }
 
     function addStoicReactant(reactant) {
-        stoichTable.addRow(reactant);
+        stoichTableContainer.addRow(reactant);
         // checkLimiting();
 
         vm.onChangedReactants({reactants: vm.componentData.reactants});
@@ -346,7 +346,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
 
     function convertToStoichRow(item) {
         var stoichRow = new StoichRow();
-        return  _.assign(stoichRow, item);
+        return _.assign(stoichRow, item);
     }
 
     function updateReactantsAndProducts(data) {

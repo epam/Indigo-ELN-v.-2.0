@@ -6,7 +6,11 @@ function changeVolume() {
         var service;
 
         beforeEach(function() {
-            service = stoichTable({product: [], reactants: []});
+            var config = {
+                table: {product: [], reactants: []}
+            };
+
+            service = stoichTable(config);
         });
 
         it('should set mol, weight to 0 and limiting to false, set limiting to next line with solvent role and' +
