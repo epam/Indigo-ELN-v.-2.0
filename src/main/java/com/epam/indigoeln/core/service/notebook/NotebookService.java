@@ -36,9 +36,6 @@ public class NotebookService {
     @Autowired
     private ProjectRepository projectRepository;
 
-    @Autowired
-    private ProjectService projectService;
-
     /**
      * Instance of NotebookRepository for access to notebooks in database.
      */

@@ -189,17 +189,19 @@ public class ProjectService {
         projectFromDb.setAccessList(project.getAccessList());
         projectFromDb.setVersion(project.getVersion());
         List<Notebook> notebooks = projectFromDb.getNotebooks();
+        String projectId = project.getId();
+        project = saveProjectAndHandleError(projectFromDb);
         Set<String> usersIds = project.getAccessList().stream()
                 .map(up -> up.getUser().getId()).collect(Collectors.toSet());
-        notebooks = PermissionUtil.updateInnerPermissionsLists(notebooks, usersIds, projectFromDb);
+        notebooks = PermissionUtil.updateInnerPermissionsLists(notebooks, usersIds, project);
         for (Notebook notebook : notebooks) {
             String notebookId = notebook.getId().substring(notebook.getId().lastIndexOf("-") + 1);
             List<Experiment> experiments = notebook.getExperiments();
             experiments = PermissionUtil.updateInnerPermissionsLists(experiments, usersIds, project);
             experiments.forEach(experiment -> experimentService
-                    .updateExperiment(projectFromDb.getId(), notebookId, new ExperimentDTO(experiment), user));
+                    .updateExperiment(projectId, notebookId, new ExperimentDTO(experiment), user));
             notebook.setExperiments(experiments);
-            notebookService.updateNotebook(new NotebookDTO(notebook), projectFromDb.getId(), user);
+            notebookService.updateNotebook(new NotebookDTO(notebook), projectId, user);
         }
 
         projectFromDb.setNotebooks(notebooks);
