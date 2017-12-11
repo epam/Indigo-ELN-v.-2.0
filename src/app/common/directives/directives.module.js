@@ -22,6 +22,8 @@ var simpleInput = require('./simple-input/simple-input.directive');
 var linkedExperiments = require('./linked-experiments/linked-experiments.directive');
 var unitSelect = require('./unit-select/unit-select.directive');
 var autocomplete = require('./autocomplete/autocomplete.directive');
+var dynamicValidators = require('./dynamic-validators/dynamic-validators');
+var dynamicAsyncValidators = require('./dynamic-async-validators/dynamic-async-validators');
 
 var entityTree = require('./entity-tree/entity-tree.module');
 var indigoFormElements = require('./indigo-form-elements/indigo-form-elements.module');
@@ -58,5 +60,7 @@ module.exports = angular
     .directive('linkedExperiments', linkedExperiments)
     .directive('unitSelect', unitSelect)
     .directive('autocomplete', autocomplete)
+    .directive('dynamicValidators', dynamicValidators)
+    .directive('dynamicAsyncValidators', dynamicAsyncValidators)
 
     .name;

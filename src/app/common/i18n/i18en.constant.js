@@ -284,7 +284,8 @@ var i18n = {
     LOWER: 'Lower',
     UPPER: 'Upper',
     COMMENTS: 'Comments',
-    VALUE: 'Value'
+    VALUE: 'Value',
+    NAME_ALREADY_EXIST: 'Name already in use'
 };
 
 module.exports = i18n;

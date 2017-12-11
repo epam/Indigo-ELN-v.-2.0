@@ -18,6 +18,7 @@ function RoleManagementController($scope, roleService, accountRoleService,
     vm.create = create;
     vm.edit = edit;
     vm.resetAuthorities = resetAuthorities;
+    vm.roleExistValidation = roleExistValidation;
 
     init();
 
@@ -27,6 +28,10 @@ function RoleManagementController($scope, roleService, accountRoleService,
         $scope.$watch('vm.role', function(role) {
             initAuthorities(role);
         });
+    }
+
+    function roleExistValidation(modelValue) {
+        return !_.find(vm.roles, {name: modelValue});
     }
 
     function search() {
