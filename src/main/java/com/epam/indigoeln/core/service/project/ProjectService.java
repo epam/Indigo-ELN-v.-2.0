@@ -1,18 +1,17 @@
 package com.epam.indigoeln.core.service.project;
 
 import com.epam.indigoeln.core.model.*;
-import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.file.GridFSFileUtil;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.*;
+import com.epam.indigoeln.core.service.experiment.ExperimentService;
+import com.epam.indigoeln.core.service.notebook.NotebookService;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.core.util.WebSocketUtil;
-import com.epam.indigoeln.web.rest.dto.ProjectDTO;
-import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
-import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
+import com.epam.indigoeln.web.rest.dto.*;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.mongodb.gridfs.GridFSDBFile;
@@ -43,7 +42,10 @@ public class ProjectService {
     private NotebookRepository notebookRepository;
 
     @Autowired
-    private ExperimentRepository experimentRepository;
+    private ExperimentService experimentService;
+
+    @Autowired
+    private NotebookService notebookService;
 
     /**
      * Instance of FileRepository for access to files in database.
@@ -185,16 +187,23 @@ public class ProjectService {
         projectFromDb.setReferences(project.getReferences());
         projectFromDb.setAccessList(project.getAccessList());
         projectFromDb.setVersion(project.getVersion());
-        List<Notebook> notebooks = project.getNotebooks();
+        List<Notebook> notebooks = projectFromDb.getNotebooks();
+        String projectId = project.getId();
+        project = saveProjectAndHandleError(projectFromDb);
         Set<String> usersIds = project.getAccessList().stream()
                 .map(up -> up.getUser().getId()).collect(Collectors.toSet());
         notebooks = PermissionUtil.updateInnerPermissionsLists(notebooks, usersIds, project);
-        notebookRepository.save(notebooks);
-        for(Notebook notebook: notebooks){
+        for (Notebook notebook : notebooks) {
+            String notebookId = notebook.getId().substring(notebook.getId().lastIndexOf("-") + 1);
             List<Experiment> experiments = notebook.getExperiments();
             experiments = PermissionUtil.updateInnerPermissionsLists(experiments, usersIds, project);
-            experimentRepository.save(experiments);
+            experiments.forEach(experiment -> experimentService
+                    .updateExperiment(projectId, notebookId, new ExperimentDTO(experiment), user));
+            notebook.setExperiments(experiments);
+            notebookService.updateNotebook(new NotebookDTO(notebook), projectId, user);
         }
+
+        projectFromDb.setNotebooks(notebooks);
         project = saveProjectAndHandleError(projectFromDb);
         webSocketUtil.updateProject(user, project);
         return new ProjectDTO(project);
