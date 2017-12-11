@@ -56,6 +56,17 @@ public class CalculationResource {
     }
 
     /**
+     * GET  /api/calculations/salt_code_table?tableName=GCM_SALT_CDT -> Returns all data from csv file salt information.
+     *
+     * @return Data from {@code tableName}
+     */
+    @ApiOperation(value = "Returns all data from csv file.")
+    @RequestMapping(value = "salt_code_table", method = RequestMethod.GET)
+    public List<Map<String, String>> getAllSaltCode(@RequestParam String tableName) {
+        return calculationService.getCodeTableRows(tableName);
+    }
+
+    /**
      * PUT /molecule/chiral/ -> get is molecule chiral.
      *
      * @param molecule Molecule

@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static com.epam.indigoeln.core.service.codetable.CodeTableService.*;
+
 /**
  * Service for calculations under reaction or molecular structures defined in special text format.
  *
@@ -26,11 +28,6 @@ public class CalculationService {
      * Logger instance.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(CalculationService.class);
-
-    private static final String SALT_CODE = "SALT_CODE";
-    private static final String SALT_DESC = "SALT_DESC";
-    private static final String SALT_WEIGHT = "SALT_WEIGHT";
-    private static final String SALT_FORMULA = "SALT_FORMULA";
 
     private static final String EXCEPTION_OCCURRED = "Exception occurred: ";
 
@@ -168,6 +165,17 @@ public class CalculationService {
     }
 
     /**
+     * Returns rows from table with name {@code tableName}.
+     * <p>
+     * Table should be stored in data/{@code tableName}.csv.
+     *
+     * @return Data rows from {@code tableName} table
+     */
+    public List<Map<String, String>> getCodeTableRows(String tableName) {
+        return codeTableService.getCodeTable(tableName);
+    }
+
+    /**
      * Check, that molecule is empty (does not contains any atoms).
      *
      * @param molecule structure of molecule
@@ -263,12 +271,12 @@ public class CalculationService {
         return new RendererResult(indigoProvider.renderer(indigo).renderToBuffer(io));
     }
 
-    private Optional<Map> getSaltMetadata(Optional<String> saltCode) {
+    private Optional<Map<String, String>> getSaltMetadata(Optional<String> saltCode) {
         if (!saltCode.isPresent()) {
             return Optional.empty();
         }
 
-        List<Map> codeTable = codeTableService.getCodeTable(CodeTableService.TABLE_SALT_CODE);
+        List<Map<String, String>> codeTable = codeTableService.getCodeTable(CodeTableService.TABLE_SALT_CODE);
         return codeTable.stream().filter(tableRow -> saltCode.get().equals(tableRow.get(SALT_CODE))).findAny();
     }
 }

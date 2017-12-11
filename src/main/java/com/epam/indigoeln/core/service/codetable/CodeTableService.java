@@ -21,8 +21,12 @@ import java.util.Map;
 public class CodeTableService implements InitializingBean {
 
     public static final String TABLE_SALT_CODE = "GCM_SALT_CDT";
+    public static final String SALT_CODE = "SALT_CODE";
+    public static final String SALT_DESC = "SALT_DESC";
+    public static final String SALT_WEIGHT = "SALT_WEIGHT";
+    public static final String SALT_FORMULA = "SALT_FORMULA";
 
-    private Map<String, List<Map>> codeTablesMap;
+    private Map<String, List<Map<String, String>>> codeTablesMap;
 
     /**
      * @throws Exception in the event of misconfiguration (such
@@ -41,16 +45,16 @@ public class CodeTableService implements InitializingBean {
      * @param tableName Name of table
      * @return Returns data from table
      */
-    public List<Map> getCodeTable(String tableName) {
+    public List<Map<String, String>> getCodeTable(String tableName) {
         if (codeTablesMap == null || !codeTablesMap.containsKey(tableName)) {
             throw new CustomParametrizedException("Table with name='" + tableName + "' does not exist");
         }
         return codeTablesMap.get(tableName);
     }
 
-    private List<Map> parseTableValues(String tableName) throws IOException {
-        List<Map> result = new ArrayList<>();
-        URL resource = getClass().getResource("/data/" + tableName + ".csv");
+    private List<Map<String, String>> parseTableValues(String tableName) throws IOException {
+        List<Map<String, String>> result = new ArrayList<>();
+        URL resource = getClass().getResource(String.format("/data/%s.csv", tableName));
         try (CSVParser csvRecords = CSVParser.parse(resource, Charset.defaultCharset(),
                 CSVFormat.DEFAULT.withHeader())) {
             csvRecords.forEach(
