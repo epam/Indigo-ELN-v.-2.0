@@ -15,10 +15,10 @@ public class AuthoritiesUtil {
             throw IncorrectAuthoritiesException.create(Authority.PROJECT_READER);
         } else if (authorities.contains(Authority.NOTEBOOK_CREATOR)
                 && !authorities.contains(Authority.NOTEBOOK_READER)) {
-            throw IncorrectAuthoritiesException.create(Authority.NOTEBOOK_CREATOR);
+            throw IncorrectAuthoritiesException.create(Authority.NOTEBOOK_READER);
         } else if (authorities.contains(Authority.EXPERIMENT_CREATOR)
                 && !authorities.contains(Authority.EXPERIMENT_READER)) {
-            throw IncorrectAuthoritiesException.create(Authority.EXPERIMENT_CREATOR);
+            throw IncorrectAuthoritiesException.create(Authority.EXPERIMENT_READER);
         }
     }
 }
