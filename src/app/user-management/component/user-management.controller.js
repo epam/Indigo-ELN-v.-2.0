@@ -71,12 +71,12 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
         loadAll();
 
         if (!isEmailCorrect(result)) {
-            notifyService.error('Email address is incorrect!');
+            notifyService.error($filter('translate')('NOTIFY_INCORRECT_EMAIL'));
 
             return;
         }
 
-        notifyService.error('User is not saved due to server error!');
+        notifyService.error($filter('translate')('NOTIFY_USER_SAVE_ERROR'));
     }
 
     function isEmailCorrect(result) {
@@ -157,12 +157,13 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
 
             save()
                 .then(function() {
-                    vm.isSaving = false;
                     notifyService.success($filter('translate')('PASSWORD_CHANGE_SUCCESS'));
                 })
                 .catch(function() {
+                    notifyService.error($filter('translate')('NOTIFY_USER_SAVE_ERROR'));
+                })
+                .finally(function() {
                     vm.isSaving = false;
-                    notifyService.error('User is not saved due to server error!');
                 });
         });
     }

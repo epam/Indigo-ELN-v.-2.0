@@ -294,7 +294,11 @@ var i18n = {
     EMAIL_HINT: 'Please specify valid email address.',
     FIELD_REQUIRED_HINT: 'This field is required.',
     MAXLENGTH_HINT: 'This field can\'t be longer than',
-    CHARACTERS: 'characters.'
+    CHARACTERS: 'characters.',
+
+    // Notifications
+    NOTIFY_INCORRECT_EMAIL: 'Email address is incorrect!',
+    NOTIFY_USER_SAVE_ERROR: 'User is not saved due to server error!'
 };
 
 module.exports = i18n;
