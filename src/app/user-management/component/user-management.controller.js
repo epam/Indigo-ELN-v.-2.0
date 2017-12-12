@@ -1,7 +1,7 @@
 var userManagementPasswordDialogTemplate = require('./user-management-password-dialog.html');
 
 /* @ngInject */
-function UserManagementController($uibModal, userService, parseLinks, $filter, pageInfo, notifyService) {
+function UserManagementController($uibModal, userService, parseLinks, $filter, pageInfo, passwordRegex, notifyService) {
     var vm = this;
     var usersModel = [];
 
@@ -13,11 +13,14 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
         field: 'login',
         isAscending: true
     };
+    vm.passwordRegex = passwordRegex;
+    vm.loginValidationText = $filter('translate')('LOGIN_HINT');
+    vm.passwordValidationText = $filter('translate')('PASSWORD_HINT');
 
     vm.loadAll = loadAll;
     vm.setActive = setActive;
     vm.clear = clear;
-    vm.save = save;
+    vm.saveUser = saveUser;
     vm.create = create;
     vm.edit = edit;
     vm.search = search;
@@ -51,6 +54,12 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
         vm.user = null;
     }
 
+    function saveUser() {
+        save()
+            .then(onSaveSuccess)
+            .catch(onSaveError);
+    }
+
     function onSaveSuccess() {
         vm.isSaving = false;
         vm.user = null;
@@ -76,11 +85,12 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
 
     function save() {
         vm.isSaving = true;
+
         if (vm.user.id) {
-            userService.update(vm.user, onSaveSuccess, onSaveError);
-        } else {
-            userService.save(vm.user, onSaveSuccess, onSaveError);
+            return userService.update(vm.user).$promise;
         }
+
+        return userService.save(vm.user).$promise;
     }
 
     function create() {
@@ -114,11 +124,14 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
     function changePassword() {
         $uibModal.open({
             animation: true,
-            size: 'sm',
+            size: 'md',
             template: userManagementPasswordDialogTemplate,
             controllerAs: 'vm',
-            controller: function($scope, $uibModalInstance) {
+            controller: function($scope, $uibModalInstance, passwordValidationRegex, passwordValidationText) {
                 var vm = this;
+
+                vm.passwordRegex = passwordValidationRegex;
+                vm.passwordValidationText = passwordValidationText;
 
                 vm.cancel = cancel;
                 vm.ok = ok;
@@ -130,9 +143,27 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
                 function ok() {
                     $uibModalInstance.close(vm.password);
                 }
+            },
+            resolve: {
+                passwordValidationRegex: function() {
+                    return vm.passwordRegex;
+                },
+                passwordValidationText: function() {
+                    return vm.passwordValidationText;
+                }
             }
         }).result.then(function(password) {
             vm.user.password = password;
+
+            save()
+                .then(function() {
+                    vm.isSaving = false;
+                    notifyService.success($filter('translate')('PASSWORD_CHANGE_SUCCESS'));
+                })
+                .catch(function() {
+                    vm.isSaving = false;
+                    notifyService.error('User is not saved due to server error!');
+                });
         });
     }
 
