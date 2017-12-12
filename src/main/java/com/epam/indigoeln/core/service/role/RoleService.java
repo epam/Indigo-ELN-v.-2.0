@@ -7,6 +7,7 @@ import com.epam.indigoeln.core.security.SecurityUtils;
 import com.epam.indigoeln.core.service.exception.AlreadyInUseException;
 import com.epam.indigoeln.core.service.exception.DuplicateFieldException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
+import com.epam.indigoeln.web.rest.util.AuthoritiesUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.core.session.SessionRegistry;
@@ -78,6 +79,7 @@ public class RoleService {
      */
     public Role createRole(Role role) {
         //reset role's id
+        AuthoritiesUtil.checkAuthorities(role.getAuthorities());
         role.setId(null);
         try {
             return roleRepository.save(role);
@@ -100,6 +102,7 @@ public class RoleService {
         if (roleFromDB.isSystem()) {
             throw new IllegalArgumentException("Cannot update system role.");
         }
+        AuthoritiesUtil.checkAuthorities(role.getAuthorities());
         Role savedRole = roleRepository.save(role);
 
         // check for significant changes and perform logout for users
