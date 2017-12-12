@@ -14,43 +14,34 @@ function changeVolume() {
             service = stoichTable(config);
         });
 
-        it('should set mol, weight to 0 and limiting to false, set limiting to next line with solvent role and' +
-            ' eq=1, should not update rows with new limiting mol', function() {
+        it('should set mol, weight to 0, limiting to false and eq to 0, set limiting to next line with' +
+            ' reactant/reaction role and eq=1, should not update rows with new limiting mol', function() {
             var limitingRow = new StoichRow();
             limitingRow.molWeight.value = 10;
-            limitingRow.weight.value = 22;
+            limitingRow.weight.value = 220;
+            limitingRow.weight.entered = true;
             limitingRow.mol.value = 11;
-            limitingRow.limiting = true;
+            limitingRow.eq.value = 2;
             limitingRow.volume.value = 4;
-            service.getStoichTable().reactants.push(limitingRow);
+            limitingRow.volume.entered = true;
 
             var secondRow = new StoichRow();
             secondRow.molWeight.value = 1;
-            secondRow.mol.value = 10;
-            secondRow.weight.value = 10;
-            secondRow.eq.value = 2;
-            service.getStoichTable().reactants.push(secondRow);
 
-            var thirdRow = new StoichRow();
-            thirdRow.molWeight.value = 1;
-            thirdRow.mol.value = 5;
-            thirdRow.weight.value = 5;
-            service.getStoichTable().reactants.push(thirdRow);
+            service.addRow(limitingRow);
+            service.addRow(secondRow);
 
             service.onFieldValueChanged(limitingRow, fieldTypes.volume);
 
             expect(limitingRow.weight.value).toBe(0);
             expect(limitingRow.mol.value).toBe(0);
+            expect(limitingRow.eq.value).toBe(1);
             expect(limitingRow.limiting).toBeFalsy();
             expect(limitingRow.molWeight.value).toBe(10);
 
-            expect(secondRow.limiting).toBeFalsy();
-            expect(secondRow.weight.value).toBe(10);
-            expect(secondRow.mol.value).toBe(10);
-
-            expect(thirdRow.limiting).toBeTruthy();
-            expect(thirdRow.mol.value).toBe(5);
-            expect(thirdRow.weight.value).toBe(5);
+            expect(secondRow.limiting).toBeTruthy();
+            expect(secondRow.weight.value).toBe(11);
+            expect(secondRow.mol.value).toBe(11);
         });
 
         it('row is not limiting; should set mol, weight to 0', function() {

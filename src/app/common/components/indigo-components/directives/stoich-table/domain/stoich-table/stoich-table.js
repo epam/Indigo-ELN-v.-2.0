@@ -208,7 +208,7 @@ function stoichTable(config) {
                 row.limiting = false;
             }
 
-            row.resetFields([fieldTypes.weight, fieldTypes.mol]);
+            row.resetFields([fieldTypes.weight, fieldTypes.mol, fieldTypes.eq]);
 
             return;
         }
