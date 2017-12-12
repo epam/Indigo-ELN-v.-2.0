@@ -52,7 +52,7 @@ function IndigoComponentsController($scope, productBatchSummaryOperations, produ
     }
 
     function getPrecursorsFromStoich() {
-        let stoichTable = _.get(vm.experiment, 'components.stoichTable');
+        var stoichTable = _.get(vm.experiment, 'components.stoichTable');
         if (!stoichTable) {
             return '';
         }
