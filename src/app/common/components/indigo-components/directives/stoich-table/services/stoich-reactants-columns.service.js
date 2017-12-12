@@ -52,26 +52,6 @@ function stoichReactantsColumns(appUnits, stoichColumnActions,
                         }
                     });
                 }
-            },
-            onClose: function(data) {
-                var row = data.row;
-                var nbkBatch = data.model;
-                if (!row.$$populatedBatch) {
-                    if (row.fullNbkBatch) {
-                        stoichColumnActions.fetchBatchByNbkNumber(nbkBatch).then(function(result) {
-                            var pb = result[0];
-                            if (pb && pb.details.fullNbkBatch === row.fullNbkBatch) {
-                                stoichColumnActions.populateFetchedBatch(row, pb.details);
-                            } else {
-                                stoichColumnActions.alertWrongFormat();
-                                row.fullNbkBatch = row.$$fullNbkBatchOld;
-                            }
-                        });
-                    } else {
-                        stoichColumnActions.alertWrongFormat();
-                        row.fullNbkBatch = row.$$fullNbkBatchOld;
-                    }
-                }
             }
         },
         molWeight: {

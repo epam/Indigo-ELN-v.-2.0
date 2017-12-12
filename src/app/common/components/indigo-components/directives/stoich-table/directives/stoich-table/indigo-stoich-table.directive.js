@@ -237,9 +237,17 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         //     calculationService.setEntered(data);
         //     if (column.id === stoichReactantsColumns.rxnRole.id) {
         //         onRxnRoleChange(data);
+        //         updatePrecursors();
         //     }
         //     calculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
+        // } else if (column.id === stoichReactantsColumns.fullNbkBatch.id) {
+        //     stoichColumnActions.onCloseFullNbkBatch(data).then(updatePrecursors);
         // }
+    }
+
+    function updatePrecursors() {
+        var precursors = stoichTableHelper.getPrecursors(vm.componentData.reactants);
+        vm.onPrecursorsChanged({precursors: precursors});
     }
 
     function getLimitingColumn() {
@@ -252,19 +260,24 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     }
 
     function onCompoundIdChanged(row, compoundId) {
-        stoichColumnActions.fetchBatchByCompoundId(row, compoundId)
-            .then(function() {
-                vm.onPrecursorsChanged({precursors: getPrecursors()});
-            }, alertCompoundWrongFormat);
+        if (!_.isEmpty(compoundId)) {
+            stoichColumnActions.fetchBatchByCompoundId(compoundId, row)
+                .catch(alertCompoundWrongFormat)
+                .finally(updatePrecursors);
+        }
     }
 
-    function alertCompoundWrongFormat() {
+    function alertCompoundWrongFormat(event) {
+        if (event === 'cancel') {
+            return;
+        }
+
         notifyService.error('Compound does not exist or in the wrong format');
     }
 
     function updateReactants() {
         checkLimiting();
-        vm.onPrecursorsChanged({precursors: getPrecursors()});
+        updatePrecursors();
     }
 
     function addStoicReactant(reactant) {
@@ -340,6 +353,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
                 var row = convertToStoichRow(item);
                 addStoicReactant(row);
             });
+            updatePrecursors();
             // calculationService.recalculateStoich(vm.componentData);
         });
     }
@@ -362,10 +376,6 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
                 _.extend(product, newProducts[i]);
             });
         }
-    }
-
-    function getPrecursors() {
-        return stoichTableHelper.getPrecursors(vm.componentData.reactants);
     }
 
     function isReactantAlreadyInStoic(responces) {
