@@ -75,9 +75,7 @@ function updateEqDependingOnLimitingEq(limitingRow) {
 }
 
 function updateMol(mol, callback) {
-    this.isSolventRow()
-        ? this.mol.value = 0
-        : this.mol.value = mol;
+    this.mol.value = this.isSolventRow() ? 0 : mol;
 
     if (callback) {
         callback(this);
@@ -147,21 +145,23 @@ function getResetFieldForMolarity() {
 }
 
 function getResetFieldsForWeight() {
-    var resetFields = [fieldTypes.mol, fieldTypes.eq];
+    var fields = [fieldTypes.mol, fieldTypes.eq];
+
     if (!this.volume.entered) {
-        resetFields.push(fieldTypes.volume);
+        fields.push(fieldTypes.volume);
     }
 
-    return resetFields;
+    return fields;
 }
 
 function getResetFieldsForMol() {
-    var resetFields = [fieldTypes.weight, fieldTypes.eq];
+    var fields = [fieldTypes.weight, fieldTypes.eq];
+
     if (!this.volume.entered) {
-        resetFields.push(fieldTypes.volume);
+        fields.push(fieldTypes.volume);
     }
 
-    return resetFields;
+    return fields;
 }
 
 function setComputedMolWeight(molWeight, originalValue, callback) {
@@ -247,18 +247,14 @@ function fromJson(json) {
         } else if (fieldTypes.isStoichField(key)) {
             defaultRow[key].value = value.value;
             defaultRow[key].entered = value.entered;
-        } else if (fieldTypes.isEq(key)) {
-            defaultRow[key].value = value.value;
-            defaultRow[key].prevValue = value.prevValue ? value.prevValue : value.value;
-            defaultRow[key].entered = value.entered;
-        } else if (fieldTypes.isStoicPurity(key)) {
+        } else if (fieldTypes.isEq(key) || fieldTypes.isStoicPurity(key)) {
             defaultRow[key].value = value.value;
             defaultRow[key].prevValue = value.prevValue ? value.prevValue : value.value;
             defaultRow[key].entered = value.entered;
         } else if (fieldTypes.isRxnRole(key)) {
             defaultRow[key].name = value.name;
 
-            if (json.hasOwnProperty(fieldTypes.prevRxnRole)) {
+            if (_.has(json, fieldTypes.prevRxnRole)) {
                 defaultRow.prevRxnRole.name = json.prevRxnRole.name;
             } else {
                 defaultRow.prevRxnRole.name = defaultRow[key].name;
@@ -266,17 +262,21 @@ function fromJson(json) {
         }
     });
 
-    _.defaults(defaultRow, json);
-    console.log(defaultRow);
+    // Replace default values and add missing from json
+    _.assignInWith(defaultRow, json, function(defaultValue, valueFromJson) {
+        return _.isNull(defaultValue) || _.isUndefined(defaultValue)
+            ? valueFromJson
+            : defaultValue;
+    });
 
     return defaultRow;
 }
 
 function getDefaultStoichRow() {
     return {
-        compoundId: '',
-        chemicalName: '',
-        fullNbkBatch: '',
+        compoundId: null,
+        chemicalName: null,
+        fullNbkBatch: null,
         molWeight: {value: 0, originalValue: 0, entered: false},
         weight: new StoichField(0, 'mg'),
         volume: new StoichField(0, 'mL'),
@@ -289,12 +289,12 @@ function getDefaultStoichRow() {
         molarity: new StoichField(0, 'M'),
         //TODO: rename to purity
         stoicPurity: {value: 100, prevValue: 100, entered: false},
-        formula: '',
+        formula: null,
         saltCode: {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0},
         saltEq: {value: 0},
-        loadFactor: '',
-        hazardComments: '',
-        comments: ''
+        loadFactor: null,
+        hazardComments: null,
+        comments: null
     };
 }
 
