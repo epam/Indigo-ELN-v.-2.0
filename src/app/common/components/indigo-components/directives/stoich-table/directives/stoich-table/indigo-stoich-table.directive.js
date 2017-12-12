@@ -138,7 +138,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
                         onStoichRowsChanged: function() {
                             return function(reactants) {
                                 _.forEach(reactants, function(reactant) {
-                                    var row = convertToStoichRow(reactant);
+                                    var row = StoichRow.fromJson(reactant);
                                     addStoicReactant(row);
                                 });
                                 // checkLimiting();
@@ -350,17 +350,12 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
 
         $scope.$on('stoich-rows-changed', function(event, reactants) {
             _.forEach(reactants, function(item) {
-                var row = convertToStoichRow(item);
+                var row = StoichRow.fromJson(item);
                 addStoicReactant(row);
             });
             updatePrecursors();
             // calculationService.recalculateStoich(vm.componentData);
         });
-    }
-
-    function convertToStoichRow(item) {
-        var stoichRow = new StoichRow();
-        return _.assign(stoichRow, item);
     }
 
     function updateReactantsAndProducts(data) {

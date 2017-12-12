@@ -237,8 +237,39 @@ function getResetFieldsForSolvent() {
 }
 
 function fromJson(json) {
-    var defaultStoich = getDefaultStoichRow();
-    return _.assign(defaultStoich, json);
+    var defaultRow = new StoichRow();
+
+    _.forEach(json, function(value, key) {
+        if (fieldTypes.isMolWeight(key)) {
+            defaultRow[key].value = value.value;
+            defaultRow[key].originalValue = value.value;
+            defaultRow[key].entered = value.entered;
+        } else if (fieldTypes.isStoichField(key)) {
+            defaultRow[key].value = value.value;
+            defaultRow[key].entered = value.entered;
+        } else if (fieldTypes.isEq(key)) {
+            defaultRow[key].value = value.value;
+            defaultRow[key].prevValue = value.prevValue ? value.prevValue : value.value;
+            defaultRow[key].entered = value.entered;
+        } else if (fieldTypes.isStoicPurity(key)) {
+            defaultRow[key].value = value.value;
+            defaultRow[key].prevValue = value.prevValue ? value.prevValue : value.value;
+            defaultRow[key].entered = value.entered;
+        } else if (fieldTypes.isRxnRole(key)) {
+            defaultRow[key].name = value.name;
+
+            if (json.hasOwnProperty(fieldTypes.prevRxnRole)) {
+                defaultRow.prevRxnRole.name = json.prevRxnRole.name;
+            } else {
+                defaultRow.prevRxnRole.name = defaultRow[key].name;
+            }
+        }
+    });
+
+    _.defaults(defaultRow, json);
+    console.log(defaultRow);
+
+    return defaultRow;
 }
 
 function getDefaultStoichRow() {
