@@ -1,5 +1,6 @@
 var StoichRow = require('../../stoich-row');
 var stoichTable = require('../stoich-table');
+var fieldTypes = require('../../field-types');
 
 function changeWeight() {
     describe('Change weight', function() {
@@ -19,7 +20,7 @@ function changeWeight() {
             stoichRow.weight.value = 23;
             service.addRow(stoichRow);
 
-            service.onFieldValueChanged(stoichRow, 'weight');
+            service.onFieldValueChanged(stoichRow, fieldTypes.weight);
 
             expect(stoichRow.mol.value).toBe(1);
         });
@@ -34,7 +35,7 @@ function changeWeight() {
             otherRow.molWeight.value = 5;
             service.addRow(otherRow);
 
-            service.onFieldValueChanged(limitingRow, 'weight');
+            service.onFieldValueChanged(limitingRow, fieldTypes.weight);
 
             expect(limitingRow.mol.value).toBe(1);
             expect(otherRow.weight.value).toBe(5);
@@ -46,7 +47,7 @@ function changeWeight() {
             stoichRow.weight.value = 20;
             stoichRow.mol.value = 10;
 
-            service.onFieldValueChanged(stoichRow, 'weight');
+            service.onFieldValueChanged(stoichRow, fieldTypes.weight);
 
             expect(stoichRow.molWeight.value).toBe(2);
         });
@@ -65,7 +66,7 @@ function changeWeight() {
             otherRow.weight.value = 10;
             service.addRow(otherRow);
 
-            service.onFieldValueChanged(limitingRow, 'weight');
+            service.onFieldValueChanged(limitingRow, fieldTypes.weight);
 
             expect(limitingRow.mol.value).toBe(0);
             expect(limitingRow.eq.value).toBe(1);
@@ -78,7 +79,7 @@ function changeWeight() {
             stoichRow.weight.value = 0;
             stoichRow.mol.value = 10;
 
-            service.onFieldValueChanged(stoichRow, 'weight');
+            service.onFieldValueChanged(stoichRow, fieldTypes.weight);
 
             expect(stoichRow.mol.value).toBe(0);
             expect(stoichRow.eq.value).toBe(1);
@@ -89,7 +90,7 @@ function changeWeight() {
             stoichRow.density.value = 10;
             stoichRow.weight.value = 2;
 
-            service.onFieldValueChanged(stoichRow, 'weight');
+            service.onFieldValueChanged(stoichRow, fieldTypes.weight);
 
             expect(stoichRow.volume.value).toBe(0.0002);
         });
@@ -105,7 +106,7 @@ function changeWeight() {
             limitingRow.weight.value = 10;
             limitingRow.weight.entered = true;
 
-            service.onFieldValueChanged(limitingRow, 'weight');
+            service.onFieldValueChanged(limitingRow, fieldTypes.weight);
 
             expect(limitingRow.mol.value).toBe(5);
             expect(limitingRow.volume.value).toBe(1);
@@ -126,7 +127,7 @@ function changeWeight() {
             limitingRow.weight.value = 0;
             limitingRow.weight.entered = true;
 
-            service.onFieldValueChanged(limitingRow, 'weight');
+            service.onFieldValueChanged(limitingRow, fieldTypes.weight);
 
             expect(limitingRow.mol.value).toBe(0);
             expect(limitingRow.volume.value).toBe(0);
@@ -149,7 +150,7 @@ function changeWeight() {
             limitingRow.weight.value = 12;
             limitingRow.weight.entered = true;
 
-            service.onFieldValueChanged(limitingRow, 'weight');
+            service.onFieldValueChanged(limitingRow, fieldTypes.weight);
 
             expect(limitingRow.mol.value).toBe(6);
             expect(limitingRow.volume.value).toBe(1.2);

@@ -1,5 +1,6 @@
 var StoichRow = require('../../stoich-row');
 var stoichTable = require('../stoich-table');
+var fieldTypes = require('../../field-types');
 
 function changeEq() {
     describe('Change eq', function() {
@@ -23,7 +24,7 @@ function changeEq() {
             stoichRow.eq.value = 2;
             stoichRow.limiting = false;
 
-            service.onFieldValueChanged(stoichRow, 'eq');
+            service.onFieldValueChanged(stoichRow, fieldTypes.eq);
 
             expect(stoichRow.weight.value).toBe(220);
             expect(stoichRow.weight.entered).toBeFalsy();
@@ -44,7 +45,7 @@ function changeEq() {
             otherRow.molWeight.value = 10;
             service.addRow(otherRow);
 
-            service.onFieldValueChanged(limitingRow, 'eq');
+            service.onFieldValueChanged(limitingRow, fieldTypes.eq);
 
             expect(otherRow.weight.value).toBe(50);
             expect(otherRow.mol.value).toBe(5);
@@ -71,7 +72,7 @@ function changeEq() {
             otherRow.molWeight.value = 10;
             service.addRow(otherRow);
 
-            service.onFieldValueChanged(limitingRow, 'eq');
+            service.onFieldValueChanged(limitingRow, fieldTypes.eq);
 
             expect(otherRow.weight.value).toBe(50);
             expect(otherRow.mol.value).toBe(5);
@@ -89,7 +90,7 @@ function changeEq() {
 
             limitingRow.eq.value = 4;
 
-            service.onFieldValueChanged(limitingRow, 'eq');
+            service.onFieldValueChanged(limitingRow, fieldTypes.eq);
 
             expect(otherRow.weight.value).toBe(5);
             expect(otherRow.weight.entered).toBeTruthy();
@@ -106,7 +107,7 @@ function changeEq() {
             stoichRow.eq.value = 2;
             stoichRow.eq.entered = true;
 
-            service.onFieldValueChanged(stoichRow, 'eq');
+            service.onFieldValueChanged(stoichRow, fieldTypes.eq);
 
             expect(stoichRow.weight.value).toBe(200);
             expect(stoichRow.mol.value).toBe(20);
@@ -114,7 +115,7 @@ function changeEq() {
 
             stoichRow.eq.value = 1;
 
-            service.onFieldValueChanged(stoichRow, 'eq');
+            service.onFieldValueChanged(stoichRow, fieldTypes.eq);
 
             expect(stoichRow.weight.value).toBe(100);
             expect(stoichRow.mol.value).toBe(10);

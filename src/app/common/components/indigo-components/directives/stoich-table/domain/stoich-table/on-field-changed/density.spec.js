@@ -1,5 +1,6 @@
 var StoichRow = require('../../stoich-row');
 var stoichTable = require('../stoich-table');
+var fieldTypes = require('../../field-types');
 
 function changeDensity() {
     describe('Change density', function() {
@@ -18,7 +19,7 @@ function changeDensity() {
             stoichRow.weight.value = 20;
             stoichRow.density.value = 4;
 
-            service.onFieldValueChanged(stoichRow, 'density');
+            service.onFieldValueChanged(stoichRow, fieldTypes.density);
 
             expect(stoichRow.volume.value).toBe(0.005);
         });
@@ -28,7 +29,7 @@ function changeDensity() {
             stoichRow.volume.value = 0.005;
             stoichRow.density.value = 4;
 
-            service.onFieldValueChanged(stoichRow, 'density');
+            service.onFieldValueChanged(stoichRow, fieldTypes.density);
 
             expect(stoichRow.weight.value).toBe(20);
         });
@@ -42,7 +43,7 @@ function changeDensity() {
             stoichRow.weight.value = 2;
             stoichRow.density.value = 0;
 
-            service.onFieldValueChanged(stoichRow, 'density');
+            service.onFieldValueChanged(stoichRow, fieldTypes.density);
 
             expect(stoichRow.volume.value).toBe(0.005);
             expect(stoichRow.volume.entered).toBeTruthy();

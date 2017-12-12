@@ -1,5 +1,6 @@
 var StoichRow = require('../../stoich-row');
 var stoichTable = require('../stoich-table');
+var fieldTypes = require('../../field-types');
 
 function changeSaltCode() {
     describe('Change salt code/eq', function() {
@@ -26,7 +27,7 @@ function changeSaltCode() {
             var otherRow = new StoichRow();
             service.addRow(otherRow);
 
-            service.onFieldValueChanged(limitingRow, 'saltEq');
+            service.onFieldValueChanged(limitingRow, fieldTypes.saltEq);
 
             expect(limitingRow.molWeight.value).toBe(15);
             expect(limitingRow.mol.value).toBe(3);
@@ -43,7 +44,7 @@ function changeSaltCode() {
             stoichRow.saltEq.value = 12;
             stoichRow.limiting = false;
 
-            service.onFieldValueChanged(stoichRow, 'saltEq');
+            service.onFieldValueChanged(stoichRow, fieldTypes.saltEq);
 
             expect(stoichRow.molWeight.value).toBe(15);
             expect(stoichRow.weight.value).toBe(225);
@@ -60,7 +61,7 @@ function changeSaltCode() {
             stoichRow.saltEq.value = 12;
             stoichRow.limiting = false;
 
-            service.onFieldValueChanged(stoichRow, 'saltEq');
+            service.onFieldValueChanged(stoichRow, fieldTypes.saltEq);
 
             expect(stoichRow.molWeight.value).toBe(15);
             expect(stoichRow.weight.value).toBe(225);
@@ -68,7 +69,7 @@ function changeSaltCode() {
 
             stoichRow.saltCode = {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0};
 
-            service.onFieldValueChanged(stoichRow, 'saltEq');
+            service.onFieldValueChanged(stoichRow, fieldTypes.saltEq);
 
             expect(stoichRow.molWeight.value).toBe(3);
             expect(stoichRow.weight.value).toBe(45);

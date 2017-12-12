@@ -1,5 +1,6 @@
 var StoichRow = require('../../stoich-row');
 var stoichTable = require('../stoich-table');
+var fieldTypes = require('../../field-types');
 
 function changeRxnRole() {
     describe('Change rxnRole', function() {
@@ -26,7 +27,7 @@ function changeRxnRole() {
             stoichRow.saltEq.value = 11;
             stoichRow.rxnRole = {name: 'SOLVENT'};
 
-            service.onFieldValueChanged(stoichRow, 'rxnRole');
+            service.onFieldValueChanged(stoichRow, fieldTypes.rxnRole);
 
             expect(stoichRow.weight.value).toBe(0);
             expect(stoichRow.weight.readonly).toBeTruthy();
@@ -58,7 +59,7 @@ function changeRxnRole() {
             otherRow.molWeight.value = 5;
             service.addRow(otherRow);
 
-            service.onFieldValueChanged(limitingRow, 'rxnRole');
+            service.onFieldValueChanged(limitingRow, fieldTypes.rxnRole);
 
             expect(limitingRow.limiting).toBeFalsy();
             expect(otherRow.limiting).toBeTruthy();
@@ -81,7 +82,7 @@ function changeRxnRole() {
             otherRow.prevRxnRole = {name: 'SOLVENT'};
             service.addRow(otherRow);
 
-            service.onFieldValueChanged(otherRow, 'rxnRole');
+            service.onFieldValueChanged(otherRow, fieldTypes.rxnRole);
 
             expect(otherRow.volume.value).toBe(0);
             expect(otherRow.weight.value).toBe(50);

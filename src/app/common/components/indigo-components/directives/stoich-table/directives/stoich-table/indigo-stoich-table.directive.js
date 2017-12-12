@@ -261,7 +261,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
 
     function onCompoundIdChanged(row, compoundId) {
         if (!_.isEmpty(compoundId)) {
-            stoichColumnActions.fetchBatchByCompoundId(compoundId, row)
+            stoichColumnActions.fetchBatchByCompoundId(row, compoundId)
                 .catch(alertCompoundWrongFormat)
                 .finally(updatePrecursors);
         }

@@ -1,3 +1,4 @@
+var fieldTypes = require('../field-types');
 var calculationUtil = require('../../calculation/calculation-util');
 
 function stoichTable(config) {
@@ -27,48 +28,48 @@ function stoichTable(config) {
     function onFieldValueChanged(row, fieldId) {
         //TODO: refactor it
         switch (fieldId) {
-            case 'molWeight':
+            case fieldTypes.molWeight:
                 row.setEntered(fieldId);
                 onMolWeightChanged(row);
                 break;
-            case 'weight':
+            case fieldTypes.weight:
                 row.setEntered(fieldId);
                 onWeightChanged(row);
                 break;
-            case 'mol':
+            case fieldTypes.mol:
                 row.setEntered(fieldId);
                 onMolChanged(row);
                 break;
-            case 'eq':
+            case fieldTypes.eq:
                 row.setEntered(fieldId);
                 onEqChanged(row);
                 break;
-            case 'rxnRole':
+            case fieldTypes.rxnRole:
                 onRxnRoleChanged(row);
                 break;
-            case 'volume':
+            case fieldTypes.volume:
                 row.setEntered(fieldId);
                 onVolumeChanged(row);
                 break;
-            case 'molarity':
+            case fieldTypes.molarity:
                 row.setEntered(fieldId);
                 onMolarityChanged(row);
                 break;
-            case 'stoicPurity':
+            case fieldTypes.stoicPurity:
                 row.setEntered(fieldId);
                 onPurityChanged(row);
                 break;
-            case 'saltCode':
+            case fieldTypes.saltCode:
                 onSaltChanged(row);
                 break;
-            case 'saltEq':
+            case fieldTypes.saltEq:
                 onSaltChanged(row);
                 break;
-            case 'density':
+            case fieldTypes.density:
                 row.setEntered(fieldId);
                 onDensityChanged(row);
                 break;
-            case 'compoundId':
+            case fieldTypes.compoundId:
                 onCompoundIdChanged(row, row[fieldId]);
                 break;
         }
@@ -91,7 +92,7 @@ function stoichTable(config) {
     }
 
     function onWeightChanged(row) {
-        if (row.areValuesPresent(['weight', 'molWeight'])) {
+        if (row.areValuesPresent([fieldTypes.weight, fieldTypes.molWeight])) {
             var mol = calculationUtil.computePureMol(row.weight.value, row.molWeight.value);
             row.setComputedMol(mol);
 
@@ -100,7 +101,7 @@ function stoichTable(config) {
             }
         }
 
-        if (!row.isValuePresent('weight')) {
+        if (!row.isValuePresent(fieldTypes.weight)) {
             row.resetFields(row.getResetFieldsForWeight());
         }
 
@@ -109,6 +110,7 @@ function stoichTable(config) {
 
     function onMolChanged(row) {
         if (row.stoicPurity.entered) {
+            //TODO: discuss with Evgenia
             var k = calculationUtil.divide(row.stoicPurity.value, row.stoicPurity.prevValue);
             var divider = calculationUtil.multiply(k, 100);
             row.stoicPurity.prevValue = row.stoicPurity.value;
@@ -116,7 +118,7 @@ function stoichTable(config) {
             row.setComputedWeight(weight);
         }
 
-        if (row.areValuesPresent(['molWeight', 'mol']) && !row.stoicPurity.entered) {
+        if (row.areValuesPresent([fieldTypes.molWeight, fieldTypes.mol]) && !row.stoicPurity.entered) {
             var weight = calculationUtil.computeWeight(row.mol.value, row.molWeight.value);
             row.setComputedWeight(weight);
         }
@@ -125,7 +127,7 @@ function stoichTable(config) {
             updateRows(row.mol.value);
         }
 
-        if (!row.isValuePresent('mol')) {
+        if (!row.isValuePresent(fieldTypes.mol)) {
             row.resetFields(row.getResetFieldsForMol());
         }
 
@@ -141,17 +143,17 @@ function stoichTable(config) {
         var multiplier = calculationUtil.divide(row.eq.value, row.eq.prevValue);
         row.eq.prevValue = row.eq.value;
 
-        if (row.isLimiting() && row.isValuePresent('mol')) {
+        if (row.isLimiting() && row.isValuePresent(fieldTypes.mol)) {
             var molByEq = calculationUtil.computeMolByEq(row.mol.value, row.eq.value);
             updateRows(molByEq);
         }
 
-        if (!row.isLimiting() && row.isValuePresent('weight')) {
+        if (!row.isLimiting() && row.isValuePresent(fieldTypes.weight)) {
             var weight = calculationUtil.multiply(row.weight.value, multiplier);
             row.setComputedWeight(weight);
         }
 
-        if (!row.isLimiting() && row.isValuePresent('mol')) {
+        if (!row.isLimiting() && row.isValuePresent(fieldTypes.mol)) {
             var mol = calculationUtil.multiply(row.mol.value, multiplier);
             row.setComputedMol(mol);
         }
@@ -172,7 +174,7 @@ function stoichTable(config) {
                 nextRow.limiting = true;
             }
         } else if (!row.isSolventRow() && row.prevRxnRole.name === 'SOLVENT') {
-            row.resetFields(['volume']);
+            row.resetFields([fieldTypes.volume]);
             row.setReadonly(fieldsToReset, false);
 
             if (isLimitingRowExist()) {
@@ -184,19 +186,19 @@ function stoichTable(config) {
     }
 
     function onVolumeChanged(row) {
-        if (row.areValuesPresent(['volume', 'molarity'])) {
+        if (row.areValuesPresent([fieldTypes.volume, fieldTypes.molarity])) {
             var mol = calculationUtil.computeDissolvedMol(row.molarity.value, row.volume.value);
             row.setComputedMol(mol, onMolChanged);
             return;
         }
 
-        if (row.areValuesPresent(['volume', 'density'])) {
+        if (row.areValuesPresent([fieldTypes.volume, fieldTypes.density])) {
             var weight = calculationUtil.computeWeightByDensity(row.volume.value, row.density.value);
             row.setComputedWeight(weight, onWeightChanged);
             return;
         }
 
-        if (row.isValuePresent('volume') && !row.isSolventRow()) {
+        if (row.isValuePresent(fieldTypes.volume) && !row.isSolventRow()) {
             if (row.isLimiting()) {
                 var nextRow = getRowAfterLimiting();
                 if (nextRow) {
@@ -206,22 +208,22 @@ function stoichTable(config) {
                 row.limiting = false;
             }
 
-            row.resetFields(['weight', 'mol']);
+            row.resetFields([fieldTypes.weight, fieldTypes.mol]);
 
             return;
         }
 
-        if (!row.isValuePresent('volume') && row.areValuesPresent(['mol', 'molarity'])) {
-            row.resetFields(['mol'], onMolChanged);
+        if (!row.isValuePresent(fieldTypes.volume) && row.areValuesPresent([fieldTypes.mol, fieldTypes.molarity])) {
+            row.resetFields([fieldTypes.mol], onMolChanged);
             return;
         }
 
-        if (!row.isValuePresent('volume') && row.isValuePresent('density')) {
-            row.resetFields(['weight'], onWeightChanged);
+        if (!row.isValuePresent(fieldTypes.volume) && row.isValuePresent(fieldTypes.density)) {
+            row.resetFields([fieldTypes.weight], onWeightChanged);
             return;
         }
 
-        if (!row.isValuePresent('volume') && !row.isSolventRow()) {
+        if (!row.isValuePresent(fieldTypes.volume) && !row.isSolventRow()) {
             var limitingRow = getLimitingRow();
             if (limitingRow) {
                 row.setComputedMol(limitingRow.mol.value, onMolChanged);
@@ -230,7 +232,7 @@ function stoichTable(config) {
     }
 
     function onMolarityChanged(row) {
-        if (row.areValuesPresent(['volume', 'molarity'])) {
+        if (row.areValuesPresent([fieldTypes.volume, fieldTypes.molarity])) {
             var mol = calculationUtil.computeDissolvedMol(row.molarity.value, row.volume.value);
             row.setComputedMol(mol, onMolChanged);
 
@@ -241,15 +243,15 @@ function stoichTable(config) {
             return;
         }
 
-        if (!row.isValuePresent('volume') && row.isValuePresent('mol')) {
+        if (!row.isValuePresent(fieldTypes.volume) && row.isValuePresent(fieldTypes.mol)) {
             var volume = calculationUtil.computeVolumeByMolarity(row.mol.value, row.molarity.value);
             row.setComputedVolume(volume);
             return;
         }
 
-        if (!row.isValuePresent('molarity')) {
+        if (!row.isValuePresent(fieldTypes.molarity)) {
             var fieldToReset = row.getResetFieldForMolarity();
-            var callback = fieldToReset === 'mol' ? onMolChanged : null;
+            var callback = fieldToReset === fieldTypes.mol ? onMolChanged : null;
             row.resetFields([fieldToReset], callback);
         }
     }
@@ -284,7 +286,7 @@ function stoichTable(config) {
         }
 
         if (row.saltCode.weight === 0) {
-            row.setDefaultValues(['saltEq']);
+            row.setDefaultValues([fieldTypes.saltEq]);
         }
 
         var molWeight = calculationUtil.computeMolWeightBySalt(row.molWeight.originalValue, row.saltCode.weight, row.saltEq.value);
@@ -292,21 +294,21 @@ function stoichTable(config) {
     }
 
     function onDensityChanged(row) {
-        if (row.areValuesPresent(['density', 'volume'])) {
+        if (row.areValuesPresent([fieldTypes.density, fieldTypes.volume])) {
             var weight = calculationUtil.computeWeightByDensity(row.volume.value, row.density.value);
             row.setComputedWeight(weight, onWeightChanged);
             return;
         }
 
-        if (row.areValuesPresent(['density', 'weight'])) {
+        if (row.areValuesPresent([fieldTypes.density, fieldTypes.weight])) {
             var volume = calculationUtil.computeVolumeByDensity(row.weight.value, row.density.value);
             row.setComputedVolume(volume);
             return;
         }
 
-        if (!row.isValuePresent('density')) {
+        if (!row.isValuePresent(fieldTypes.density)) {
             var fieldToReset = row.getResetFieldForDensity();
-            var callback = fieldToReset === 'weight' ? onWeightChanged : null;
+            var callback = fieldToReset === fieldTypes.weight ? onWeightChanged : null;
             row.resetFields([fieldToReset], callback);
         }
     }

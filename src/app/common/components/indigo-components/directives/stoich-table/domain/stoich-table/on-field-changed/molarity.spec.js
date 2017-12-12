@@ -1,5 +1,6 @@
 var StoichRow = require('../../stoich-row');
 var stoichTable = require('../stoich-table');
+var fieldTypes = require('../../field-types');
 
 function changeMolarity() {
     describe('Change molarity', function() {
@@ -24,7 +25,7 @@ function changeMolarity() {
             stoichRow.limiting = false;
             service.addRow(stoichRow);
 
-            service.onFieldValueChanged(stoichRow, 'molarity');
+            service.onFieldValueChanged(stoichRow, fieldTypes.molarity);
 
             expect(stoichRow.mol.value).toBe(12);
             expect(stoichRow.weight.value).toBe(24);
@@ -48,7 +49,7 @@ function changeMolarity() {
             otherRow.molarity.value = 3;
             service.getStoichTable().reactants.push(otherRow);
 
-            service.onFieldValueChanged(otherRow, 'molarity');
+            service.onFieldValueChanged(otherRow, fieldTypes.molarity);
 
             expect(otherRow.mol.value).toBe(12);
             expect(otherRow.weight.value).toBe(24);
@@ -67,7 +68,7 @@ function changeMolarity() {
             stoichRow.volume.value = 5;
             stoichRow.molarity.value = 0;
 
-            service.onFieldValueChanged(stoichRow, 'molarity');
+            service.onFieldValueChanged(stoichRow, fieldTypes.molarity);
 
             expect(stoichRow.volume.value).toBe(0);
             expect(stoichRow.mol.value).toBe(15);
@@ -83,7 +84,7 @@ function changeMolarity() {
             stoichRow.volume.entered = true;
             stoichRow.molarity.value = 0;
 
-            service.onFieldValueChanged(stoichRow, 'molarity');
+            service.onFieldValueChanged(stoichRow, fieldTypes.molarity);
 
             expect(stoichRow.volume.value).toBe(5);
             expect(stoichRow.volume.entered).toBeTruthy();
@@ -99,7 +100,7 @@ function changeMolarity() {
 
             stoichRow.molarity.value = 3;
 
-            service.onFieldValueChanged(stoichRow, 'molarity');
+            service.onFieldValueChanged(stoichRow, fieldTypes.molarity);
 
             expect(stoichRow.volume.value).toBe(5);
         });

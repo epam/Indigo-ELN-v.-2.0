@@ -1,5 +1,6 @@
 var StoichRow = require('../../stoich-row');
 var stoichTable = require('../stoich-table');
+var fieldTypes = require('../../field-types');
 
 function changePurity() {
     describe('Change stoicPurity', function() {
@@ -28,7 +29,7 @@ function changePurity() {
             otherRow.mol.value = 15;
             service.addRow(otherRow);
 
-            service.onFieldValueChanged(limitingRow, 'stoicPurity');
+            service.onFieldValueChanged(limitingRow, fieldTypes.stoicPurity);
 
             expect(limitingRow.mol.value).toBe(1.5);
             expect(limitingRow.weight.value).toBe(30);
@@ -56,7 +57,7 @@ function changePurity() {
             otherRow.stoicPurity.value = 50;
             otherRow.stoicPurity.entered = true;
 
-            service.onFieldValueChanged(otherRow, 'stoicPurity');
+            service.onFieldValueChanged(otherRow, fieldTypes.stoicPurity);
 
             expect(otherRow.mol.value).toBe(1);
             expect(otherRow.weight.value).toBe(42);
@@ -64,7 +65,7 @@ function changePurity() {
             limitingRow.stoicPurity.value = 50;
             limitingRow.stoicPurity.entered = true;
 
-            service.onFieldValueChanged(limitingRow, 'stoicPurity');
+            service.onFieldValueChanged(limitingRow, fieldTypes.stoicPurity);
 
             expect(limitingRow.mol.value).toBe(0.5);
             expect(limitingRow.weight.value).toBe(21);
@@ -74,7 +75,7 @@ function changePurity() {
             otherRow.stoicPurity.value = 100;
             otherRow.stoicPurity.entered = true;
 
-            service.onFieldValueChanged(otherRow, 'stoicPurity');
+            service.onFieldValueChanged(otherRow, fieldTypes.stoicPurity);
 
             expect(otherRow.mol.value).toBe(0.5);
             expect(otherRow.weight.value).toBe(21);
@@ -88,7 +89,7 @@ function changePurity() {
             stoichRow.stoicPurity.value = 10;
             stoichRow.limiting = false;
 
-            service.onFieldValueChanged(stoichRow, 'stoicPurity');
+            service.onFieldValueChanged(stoichRow, fieldTypes.stoicPurity);
 
             expect(stoichRow.mol.value).toBe(15);
             expect(stoichRow.weight.value).toBe(450);
@@ -102,13 +103,13 @@ function changePurity() {
             stoichRow.stoicPurity.value = 50;
             stoichRow.limiting = false;
 
-            service.onFieldValueChanged(stoichRow, 'stoicPurity');
+            service.onFieldValueChanged(stoichRow, fieldTypes.stoicPurity);
 
             expect(stoichRow.mol.value).toBe(15);
             expect(stoichRow.weight.value).toBe(60);
 
             stoichRow.stoicPurity.value = 100;
-            service.onFieldValueChanged(stoichRow, 'stoicPurity');
+            service.onFieldValueChanged(stoichRow, fieldTypes.stoicPurity);
 
             expect(stoichRow.mol.value).toBe(15);
             expect(stoichRow.weight.value).toBe(30);
@@ -123,7 +124,7 @@ function changePurity() {
             stoichRow.stoicPurity.value = 10;
             stoichRow.limiting = false;
 
-            service.onFieldValueChanged(stoichRow, 'stoicPurity');
+            service.onFieldValueChanged(stoichRow, fieldTypes.stoicPurity);
 
             expect(stoichRow.mol.value).toBe(1.5);
             expect(stoichRow.weight.value).toBe(45);

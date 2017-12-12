@@ -1,5 +1,6 @@
 var StoichRow = require('../../stoich-row');
 var stoichTable = require('../stoich-table');
+var fieldTypes = require('../../field-types');
 
 function changeVolume() {
     describe('Change volume', function() {
@@ -36,7 +37,7 @@ function changeVolume() {
             thirdRow.weight.value = 5;
             service.getStoichTable().reactants.push(thirdRow);
 
-            service.onFieldValueChanged(limitingRow, 'volume');
+            service.onFieldValueChanged(limitingRow, fieldTypes.volume);
 
             expect(limitingRow.weight.value).toBe(0);
             expect(limitingRow.mol.value).toBe(0);
@@ -61,7 +62,7 @@ function changeVolume() {
 
             stoichRow.volume.value = 4;
 
-            service.onFieldValueChanged(stoichRow, 'volume');
+            service.onFieldValueChanged(stoichRow, fieldTypes.volume);
 
             expect(stoichRow.weight.value).toBe(0);
             expect(stoichRow.mol.value).toBe(0);
@@ -82,7 +83,7 @@ function changeVolume() {
             secondRow.weight.value = 0;
             service.addRow(secondRow);
 
-            service.onFieldValueChanged(secondRow, 'volume');
+            service.onFieldValueChanged(secondRow, fieldTypes.volume);
 
             expect(limitingRow.limiting).toBeTruthy();
             expect(limitingRow.mol.value).toBe(11);
@@ -99,7 +100,7 @@ function changeVolume() {
 
             stoichRow.volume.value = 5;
 
-            service.onFieldValueChanged(stoichRow, 'volume');
+            service.onFieldValueChanged(stoichRow, fieldTypes.volume);
 
             expect(stoichRow.molarity.value).toBe(4);
             expect(stoichRow.volume.value).toBe(5);
@@ -117,7 +118,7 @@ function changeVolume() {
 
             stoichRow.volume.value = 0;
 
-            service.onFieldValueChanged(stoichRow, 'volume');
+            service.onFieldValueChanged(stoichRow, fieldTypes.volume);
 
             expect(stoichRow.molarity.value).toBe(4);
             expect(stoichRow.volume.value).toBe(0);
@@ -131,7 +132,7 @@ function changeVolume() {
             stoichRow.volume.value = 5;
             stoichRow.density.value = 20;
 
-            service.onFieldValueChanged(stoichRow, 'volume');
+            service.onFieldValueChanged(stoichRow, fieldTypes.volume);
 
             expect(stoichRow.weight.value).toBe(100000);
         });
@@ -142,7 +143,7 @@ function changeVolume() {
             stoichRow.volume.value = 5;
             stoichRow.density.value = 20;
 
-            service.onFieldValueChanged(stoichRow, 'volume');
+            service.onFieldValueChanged(stoichRow, fieldTypes.volume);
 
             expect(stoichRow.mol.value).toBe(100);
             expect(stoichRow.weight.value).toBe(100000);
@@ -154,7 +155,7 @@ function changeVolume() {
             stoichRow.weight.value = 3;
             stoichRow.density.value = 20;
 
-            service.onFieldValueChanged(stoichRow, 'volume');
+            service.onFieldValueChanged(stoichRow, fieldTypes.volume);
 
             expect(stoichRow.weight.value).toBe(0);
         });

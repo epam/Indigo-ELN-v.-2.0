@@ -1,39 +1,44 @@
 var StoichField = require('./stoich-field');
+var fieldTypes = require('./field-types');
 var calculationUtil = require('../calculation/calculation-util');
 
 function StoichRow() {
     _.defaults(this, getDefaultStoichRow());
 }
 
-StoichRow.prototype.isSolventRow = isSolventRow;
-StoichRow.prototype.isValuePresent = isValuePresent;
-StoichRow.prototype.areValuesPresent = areValuesPresent;
-StoichRow.prototype.isLimiting = isLimiting;
-StoichRow.prototype.getResetFieldForDensity = getResetFieldForDensity;
-StoichRow.prototype.getResetFieldsForSolvent = getResetFieldsForSolvent;
-StoichRow.prototype.getResetFieldForMolarity = getResetFieldForMolarity;
-StoichRow.prototype.getResetFieldsForMol = getResetFieldsForMol;
-StoichRow.prototype.getResetFieldsForWeight = getResetFieldsForWeight;
-StoichRow.prototype.updateMolWeight = updateMolWeight;
-StoichRow.prototype.updateVolume = updateVolume;
-StoichRow.prototype.updateEq = updateEq;
-StoichRow.prototype.updateEqDependingOnLimitingEq = updateEqDependingOnLimitingEq;
-StoichRow.prototype.updateMol = updateMol;
-StoichRow.prototype.setComputedMolWeight = setComputedMolWeight;
-StoichRow.prototype.setComputedVolume = setComputedVolume;
-StoichRow.prototype.setComputedWeight = setComputedWeight;
-StoichRow.prototype.setComputedMol = setComputedMol;
-StoichRow.prototype.setDefaultValues = setDefaultValues;
-StoichRow.prototype.setEntered = setEntered;
-StoichRow.prototype.setReadonly = setReadonly;
-StoichRow.prototype.resetFields = resetFields;
-StoichRow.prototype.resetEntered = resetEntered;
-StoichRow.prototype.clear = clear;
+StoichRow.prototype = {
+    isSolventRow: isSolventRow,
+    isValuePresent: isValuePresent,
+    areValuesPresent: areValuesPresent,
+    isLimiting: isLimiting,
+    getResetFieldForDensity: getResetFieldForDensity,
+    getResetFieldsForSolvent: getResetFieldsForSolvent,
+    getResetFieldForMolarity: getResetFieldForMolarity,
+    getResetFieldsForMol: getResetFieldsForMol,
+    getResetFieldsForWeight: getResetFieldsForWeight,
+    updateMolWeight: updateMolWeight,
+    updateVolume: updateVolume,
+    updateEq: updateEq,
+    updateEqDependingOnLimitingEq: updateEqDependingOnLimitingEq,
+    updateMol: updateMol,
+    setComputedMolWeight: setComputedMolWeight,
+    setComputedVolume: setComputedVolume,
+    setComputedWeight: setComputedWeight,
+    setComputedMol: setComputedMol,
+    setDefaultValues: setDefaultValues,
+    setEntered: setEntered,
+    setReadonly: setReadonly,
+    resetFields: resetFields,
+    resetEntered: resetEntered,
+    clear: clear
+};
+
+StoichRow.prototype.constructor = StoichRow;
 StoichRow.fromJson = fromJson;
 
 function updateMolWeight() {
     if (!this.molWeight.value && this.mol.value && this.weight.value) {
-        this.resetEntered(['molWeight']);
+        this.resetEntered([fieldTypes.molWeight]);
         this.molWeight.value = calculationUtil.computeMolWeight(this.weight.value, this.mol.value);
         this.molWeight.originalValue = this.molWeight.value;
     }
@@ -48,7 +53,7 @@ function updateVolume() {
     }
 
     if (this.weight.entered || this.mol.entered) {
-        this.resetEntered(['volume']);
+        this.resetEntered([fieldTypes.volume]);
     }
 }
 
@@ -57,7 +62,7 @@ function updateEq(limitingRow) {
     var canUpdateEq = this.weight.entered || this.mol.entered || this.molarity.entered;
 
     if (isArgsExist && canUpdateEq) {
-        this.resetEntered(['eq']);
+        this.resetEntered([fieldTypes.eq]);
         this.eq.value = calculationUtil.computeEq(this.mol.value, limitingRow.mol.value);
         this.eq.prevValue = this.eq.value;
     }
@@ -123,37 +128,37 @@ function isLimiting() {
 
 function getResetFieldForDensity() {
     if (!this.volume.entered) {
-        return 'volume';
+        return fieldTypes.volume;
     }
 
     if (!this.weight.entered) {
-        return 'weight';
+        return fieldTypes.weight;
     }
 }
 
 function getResetFieldForMolarity() {
     if (!this.volume.entered) {
-        return 'volume';
+        return fieldTypes.volume;
     }
 
     if (!this.mol.entered) {
-        return 'mol';
+        return fieldTypes.mol;
     }
 }
 
 function getResetFieldsForWeight() {
-    var resetFields = ['mol', 'eq'];
+    var resetFields = [fieldTypes.mol, fieldTypes.eq];
     if (!this.volume.entered) {
-        resetFields.push('volume');
+        resetFields.push(fieldTypes.volume);
     }
 
     return resetFields;
 }
 
 function getResetFieldsForMol() {
-    var resetFields = ['weight', 'eq'];
+    var resetFields = [fieldTypes.weight, fieldTypes.eq];
     if (!this.volume.entered) {
-        resetFields.push('volume');
+        resetFields.push(fieldTypes.volume);
     }
 
     return resetFields;
@@ -161,7 +166,7 @@ function getResetFieldsForMol() {
 
 function setComputedMolWeight(molWeight, originalValue, callback) {
     this.molWeight.value = molWeight;
-    this.resetEntered(['molWeight']);
+    this.resetEntered([fieldTypes.molWeight]);
 
     if (callback) {
         callback(this);
@@ -172,7 +177,7 @@ function setComputedMolWeight(molWeight, originalValue, callback) {
 
 function setComputedVolume(volume, callback) {
     this.volume.value = volume;
-    this.resetEntered(['volume']);
+    this.resetEntered([fieldTypes.volume]);
 
     if (callback) {
         callback(this);
@@ -181,7 +186,7 @@ function setComputedVolume(volume, callback) {
 
 function setComputedWeight(weight, callback) {
     this.weight.value = weight;
-    this.resetEntered(['weight']);
+    this.resetEntered([fieldTypes.weight]);
 
     if (callback) {
         callback(this);
@@ -191,7 +196,7 @@ function setComputedWeight(weight, callback) {
 function setComputedMol(mol, callback) {
     //TODO: set limiting true if limitingRow doesn't exist
     this.mol.value = mol;
-    this.resetEntered(['mol']);
+    this.resetEntered([fieldTypes.mol]);
 
     if (callback) {
         callback(this);
@@ -219,7 +224,16 @@ function clear() {
 }
 
 function getResetFieldsForSolvent() {
-    return ['weight', 'mol', 'eq', 'molarity', 'density', 'stoicPurity', 'saltCode', 'saltEq'];
+    return [
+        fieldTypes.weight,
+        fieldTypes.mol,
+        fieldTypes.eq,
+        fieldTypes.molarity,
+        fieldTypes.density,
+        fieldTypes.stoicPurity,
+        fieldTypes.saltCode,
+        fieldTypes.saltEq
+    ];
 }
 
 function fromJson(json) {

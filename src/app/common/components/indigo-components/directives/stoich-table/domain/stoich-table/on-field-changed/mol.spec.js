@@ -1,5 +1,6 @@
 var StoichRow = require('../../stoich-row');
 var stoichTable = require('../stoich-table');
+var fieldTypes = require('../../field-types');
 
 function changeMol() {
     describe('Change mol', function() {
@@ -19,7 +20,7 @@ function changeMol() {
             stoichRow.mol.value = 11;
             stoichRow.limiting = false;
 
-            service.onFieldValueChanged(stoichRow, 'mol');
+            service.onFieldValueChanged(stoichRow, fieldTypes.mol);
 
             expect(stoichRow.weight.value).toBe(110);
         });
@@ -30,7 +31,7 @@ function changeMol() {
             stoichRow.mol.value = 0;
             stoichRow.limiting = false;
 
-            service.onFieldValueChanged(stoichRow, 'mol');
+            service.onFieldValueChanged(stoichRow, fieldTypes.mol);
 
             expect(stoichRow.weight.value).toBe(0);
         });
@@ -46,7 +47,7 @@ function changeMol() {
             otherRow.weight.value = 32;
             service.addRow(otherRow);
 
-            service.onFieldValueChanged(limitingRow, 'mol');
+            service.onFieldValueChanged(limitingRow, fieldTypes.mol);
 
             expect(limitingRow.weight.value).toBe(110);
             expect(otherRow.mol.value).toBe(11);
@@ -67,7 +68,7 @@ function changeMol() {
             otherRow.weight.value = 10;
             service.getStoichTable().reactants.push(otherRow);
 
-            service.onFieldValueChanged(limitingRow, 'mol');
+            service.onFieldValueChanged(limitingRow, fieldTypes.mol);
 
             expect(limitingRow.weight.value).toBe(0);
             expect(otherRow.mol.value).toBe(10);
@@ -83,7 +84,7 @@ function changeMol() {
 
             stoichRow.mol.value = 0;
 
-            service.onFieldValueChanged(stoichRow, 'mol');
+            service.onFieldValueChanged(stoichRow, fieldTypes.mol);
 
             expect(stoichRow.weight.value).toBe(0);
             expect(stoichRow.volume.value).toBe(0);
@@ -95,7 +96,7 @@ function changeMol() {
             stoichRow.mol.value = 11;
             stoichRow.weight.value = 11;
 
-            service.onFieldValueChanged(stoichRow, 'mol');
+            service.onFieldValueChanged(stoichRow, fieldTypes.mol);
 
             expect(stoichRow.molWeight.value).toBe(1);
         });
@@ -110,7 +111,7 @@ function changeMol() {
 
             limitingRow.mol.value = 10;
 
-            service.onFieldValueChanged(limitingRow, 'mol');
+            service.onFieldValueChanged(limitingRow, fieldTypes.mol);
 
             expect(limitingRow.weight.value).toBe(20);
             expect(limitingRow.volume.value).toBe(5);
@@ -130,7 +131,7 @@ function changeMol() {
             limitingRow.stoicPurity.entered = true;
             service.addRow(limitingRow);
 
-            service.onFieldValueChanged(limitingRow, 'mol');
+            service.onFieldValueChanged(limitingRow, fieldTypes.mol);
 
             expect(limitingRow.weight.value).toBe(20);
             expect(limitingRow.mol.value).toBe(5);

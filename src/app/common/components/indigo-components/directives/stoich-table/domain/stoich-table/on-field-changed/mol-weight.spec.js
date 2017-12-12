@@ -1,5 +1,6 @@
 var StoichRow = require('../../stoich-row');
 var stoichTable = require('../stoich-table');
+var fieldTypes = require('../../field-types');
 
 function changeMolWeight() {
     describe('Change mol weight', function() {
@@ -19,7 +20,7 @@ function changeMolWeight() {
             stoichRow.weight.value = 23;
             service.addRow(stoichRow);
 
-            service.onFieldValueChanged(stoichRow, 'molWeight');
+            service.onFieldValueChanged(stoichRow, fieldTypes.molWeight);
 
             expect(stoichRow.mol.value).toBe(1);
         });
@@ -30,7 +31,7 @@ function changeMolWeight() {
             stoichRow.mol.value = 2;
             stoichRow.limiting = false;
 
-            service.onFieldValueChanged(stoichRow, 'molWeight');
+            service.onFieldValueChanged(stoichRow, fieldTypes.molWeight);
 
             expect(stoichRow.weight.value).toBe(46);
         });
