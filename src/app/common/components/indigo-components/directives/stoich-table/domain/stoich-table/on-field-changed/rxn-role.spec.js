@@ -47,7 +47,8 @@ function changeRxnRole() {
             expect(stoichRow.saltEq.readonly).toBeTruthy();
         });
 
-        it('row is limiting, set solvent role, should reset and disable fields and set limiting to the next line', function() {
+        it('row is limiting, set solvent role, should reset and disable fields' +
+            ' and set limiting to the next line', function() {
             var limitingRow = new StoichRow();
             limitingRow.molWeight.value = 10;
             limitingRow.weight.value = 110;
@@ -67,7 +68,16 @@ function changeRxnRole() {
 
         it('previous role was solvent, set reactant, should reset volume, enable fields and set mol of limiting' +
             ' row', function() {
-            var readonlyFields = ['weight', 'mol', 'eq', 'molarity', 'density', 'limiting', 'stoicPurity', 'saltCode', 'saltEq'];
+            var readonlyFields = [
+                fieldTypes.weight,
+                fieldTypes.mol,
+                fieldTypes.eq,
+                fieldTypes.molarity,
+                fieldTypes.density,
+                fieldTypes.stoicPurity,
+                fieldTypes.saltCode,
+                fieldTypes.saltEq
+            ];
             var limitingRow = new StoichRow();
             limitingRow.molWeight.value = 10;
             limitingRow.weight.value = 100;

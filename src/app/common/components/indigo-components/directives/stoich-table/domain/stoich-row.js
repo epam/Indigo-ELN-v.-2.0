@@ -44,7 +44,7 @@ function updateMolWeight() {
     }
 }
 
-//TODO: refactor
+// TODO: refactor
 function updateVolume() {
     if (this.molarity.value && this.mol.value) {
         this.volume.value = calculationUtil.computeVolumeByMolarity(this.mol.value, this.molarity.value);
@@ -95,7 +95,7 @@ function setEntered(field) {
     this[field].entered = true;
 }
 
-//TODO: maybe it useless? just setDefaultValues
+// TODO: maybe it useless? just setDefaultValues
 function resetEntered(fields) {
     var self = this;
 
@@ -194,7 +194,7 @@ function setComputedWeight(weight, callback) {
 }
 
 function setComputedMol(mol, callback) {
-    //TODO: set limiting true if limitingRow doesn't exist
+    // TODO: set limiting true if limitingRow doesn't exist
     this.mol.value = mol;
     this.resetEntered([fieldTypes.mol]);
 
@@ -287,7 +287,7 @@ function getDefaultStoichRow() {
         prevRxnRole: {name: 'REACTANT'},
         density: new StoichField(0, 'g/mL'),
         molarity: new StoichField(0, 'M'),
-        //TODO: rename to purity
+        // TODO: rename to purity
         stoicPurity: {value: 100, prevValue: 100, entered: false},
         formula: null,
         saltCode: {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0},

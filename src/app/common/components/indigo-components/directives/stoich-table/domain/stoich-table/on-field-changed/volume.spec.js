@@ -61,7 +61,8 @@ function changeVolume() {
             expect(stoichRow.molWeight.value).toBe(10);
         });
 
-        it('row is not limiting; weight, mol are 0, set volume to 0 or remove, should set mol from limiting row', function() {
+        it('row is not limiting; weight, mol are 0, set volume to 0 or remove,' +
+            ' should set mol from limiting row', function() {
             var limitingRow = new StoichRow();
             limitingRow.molWeight.value = 2;
             limitingRow.weight.value = 22;

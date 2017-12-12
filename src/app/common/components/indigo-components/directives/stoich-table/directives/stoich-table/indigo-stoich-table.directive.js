@@ -37,19 +37,19 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     var vm = this;
     var stoichTableContainer;
 
-    var columnsWithClose = [
-        'molWeight',
-        'weight',
-        'volume',
-        'mol',
-        'eq',
-        'density',
-        'molarity',
-        'stoicPurity',
-        'loadFactor',
-        'rxnRole',
-        'compoundId'
-    ];
+    // var columnsWithClose = [
+    //     'molWeight',
+    //     'weight',
+    //     'volume',
+    //     'mol',
+    //     'eq',
+    //     'density',
+    //     'molarity',
+    //     'stoicPurity',
+    //     'loadFactor',
+    //     'rxnRole',
+    //     'compoundId'
+    // ];
 
     init();
 
@@ -99,7 +99,6 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     function addRow() {
         var stoichRow = new StoichRow();
         addStoicReactant(stoichRow);
-        console.log(vm.componentData.reactants);
     }
 
     function onColumnValueChanged(data) {
@@ -229,7 +228,9 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         ];
     }
 
+    /* eslint no-unused-vars: "off"*/
     function onCloseCell(column, data) {
+
         // if (_.includes(columnsWithClose, column.id)) {
         //     if (column.id === stoichReactantsColumns.compoundId.id) {
         //         onCloseCompoundId(data);
@@ -335,8 +336,8 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     function bindEvents() {
         $scope.$watch('vm.infoProducts', getReactionProductsAndReactants, true);
 
-        $scope.$watch('vm.componentData', function(stoichTable) {
-            stoichTableCache.setStoicTable(stoichTable);
+        $scope.$watch('vm.componentData', function(table) {
+            stoichTableCache.setStoicTable(table);
         });
 
         $scope.$watch('vm.componentData.products', function(products) {

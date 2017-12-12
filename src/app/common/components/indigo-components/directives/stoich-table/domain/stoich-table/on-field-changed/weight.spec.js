@@ -73,7 +73,8 @@ function changeWeight() {
             expect(otherRow.mol.value).toBe(10);
         });
 
-        it('mol weight is defined, row is not limiting, weight is removed or 0; mol and eq should be default', function() {
+        it('mol weight is defined, row is not limiting, weight is removed or 0;' +
+            ' mol and eq should be default', function() {
             var stoichRow = new StoichRow();
             stoichRow.molWeight.value = 10;
             stoichRow.weight.value = 0;

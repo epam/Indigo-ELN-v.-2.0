@@ -1,7 +1,6 @@
 var calculationUtil = require('./calculation-util');
 
 describe('service: calculationUtil', function() {
-
     describe('computePureMol function', function() {
         it('should be 1.5', function() {
             var res = calculationUtil.computePureMol(0.3, 0.2);

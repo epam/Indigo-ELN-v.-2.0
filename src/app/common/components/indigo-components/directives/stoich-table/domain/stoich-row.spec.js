@@ -1,7 +1,7 @@
 var StoichRow = require('./stoich-row');
 var fieldTypes = require('./field-types');
 
-//TODO: add tests
+// TODO: add tests
 describe('stoichRow', function() {
     var row;
 

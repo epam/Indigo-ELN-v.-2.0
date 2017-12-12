@@ -35,7 +35,8 @@ function changeMolarity() {
             expect(stoichRow.volume.value).toBe(4);
         });
 
-        it('volume is defined, should compute mol, weight; eq should be 6, therefore there is limiting row', function() {
+        it('volume is defined, should compute mol, weight; eq should be 6,' +
+            ' therefore there is limiting row', function() {
             var limitingRow = new StoichRow();
             limitingRow.molWeight.value = 5;
             limitingRow.weight.value = 10;

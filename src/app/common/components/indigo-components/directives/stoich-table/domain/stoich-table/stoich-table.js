@@ -2,7 +2,7 @@ var fieldTypes = require('../field-types');
 var calculationUtil = require('../../calculation/calculation-util');
 
 function stoichTable(config) {
-    var stoichTable = config.table;
+    var table = config.table;
     var onCompoundIdChanged = config.onCompoundIdChanged;
 
     return {
@@ -16,17 +16,17 @@ function stoichTable(config) {
         if (newRow.isSolventRow()) {
             newRow.prevRxnRole.name = 'SOLVENT';
             newRow.setReadonly(newRow.getResetFieldsForSolvent(), true);
+        } else if (isLimitingRowExist()) {
+            newRow.updateMol(getLimitingRow().mol.value, onMolChanged);
         } else {
-            isLimitingRowExist()
-                ? newRow.updateMol(getLimitingRow().mol.value, onMolChanged)
-                : newRow.limiting = true;
+            newRow.limiting = true;
         }
 
-        stoichTable.reactants.push(newRow);
+        table.reactants.push(newRow);
     }
 
     function onFieldValueChanged(row, fieldId) {
-        //TODO: refactor it
+        // TODO: refactor it
         switch (fieldId) {
             case fieldTypes.molWeight:
                 row.setEntered(fieldId);
@@ -72,6 +72,8 @@ function stoichTable(config) {
             case fieldTypes.compoundId:
                 onCompoundIdChanged(row, row[fieldId]);
                 break;
+            default:
+                break;
         }
     }
 
@@ -82,6 +84,7 @@ function stoichTable(config) {
             if (row.isLimiting() && row.weight.value) {
                 var mol = calculationUtil.computePureMol(row.weight.value, row.molWeight.value);
                 updateMol(row, mol);
+
                 return;
             }
             if (row.mol.value) {
@@ -110,12 +113,12 @@ function stoichTable(config) {
 
     function onMolChanged(row) {
         if (row.stoicPurity.entered) {
-            //TODO: discuss with Evgenia
+            // TODO: discuss with Evgenia should be in calculation-util
             var k = calculationUtil.divide(row.stoicPurity.value, row.stoicPurity.prevValue);
             var divider = calculationUtil.multiply(k, 100);
             row.stoicPurity.prevValue = row.stoicPurity.value;
-            var weight = calculationUtil.computeWeightByPurity(divider, row.weight.value);
-            row.setComputedWeight(weight);
+            var weightByPurity = calculationUtil.computeWeightByPurity(divider, row.weight.value);
+            row.setComputedWeight(weightByPurity);
         }
 
         if (row.areValuesPresent([fieldTypes.molWeight, fieldTypes.mol]) && !row.stoicPurity.entered) {
@@ -137,6 +140,7 @@ function stoichTable(config) {
     function onEqChanged(row) {
         if (!row.eq.value) {
             row.eq.value = row.eq.prevValue;
+
             return;
         }
 
@@ -189,12 +193,14 @@ function stoichTable(config) {
         if (row.areValuesPresent([fieldTypes.volume, fieldTypes.molarity])) {
             var mol = calculationUtil.computeDissolvedMol(row.molarity.value, row.volume.value);
             row.setComputedMol(mol, onMolChanged);
+
             return;
         }
 
         if (row.areValuesPresent([fieldTypes.volume, fieldTypes.density])) {
             var weight = calculationUtil.computeWeightByDensity(row.volume.value, row.density.value);
             row.setComputedWeight(weight, onWeightChanged);
+
             return;
         }
 
@@ -215,11 +221,13 @@ function stoichTable(config) {
 
         if (!row.isValuePresent(fieldTypes.volume) && row.areValuesPresent([fieldTypes.mol, fieldTypes.molarity])) {
             row.resetFields([fieldTypes.mol], onMolChanged);
+
             return;
         }
 
         if (!row.isValuePresent(fieldTypes.volume) && row.isValuePresent(fieldTypes.density)) {
             row.resetFields([fieldTypes.weight], onWeightChanged);
+
             return;
         }
 
@@ -246,6 +254,7 @@ function stoichTable(config) {
         if (!row.isValuePresent(fieldTypes.volume) && row.isValuePresent(fieldTypes.mol)) {
             var volume = calculationUtil.computeVolumeByMolarity(row.mol.value, row.molarity.value);
             row.setComputedVolume(volume);
+
             return;
         }
 
@@ -259,10 +268,11 @@ function stoichTable(config) {
     function onPurityChanged(row) {
         if (!row.stoicPurity.value) {
             row.stoicPurity.value = row.stoicPurity.prevValue;
+
             return;
         }
 
-        //TODO: discuss with Evgenia
+        // TODO: discuss with Evgenia
         var k = calculationUtil.divide(row.stoicPurity.value, row.stoicPurity.prevValue);
         var divider = calculationUtil.multiply(k, 100);
         row.stoicPurity.prevValue = row.stoicPurity.value;
@@ -273,14 +283,16 @@ function stoichTable(config) {
         }
 
         if (!row.isLimiting()) {
-            row.weight.entered
-                ? row.setComputedMol(calculationUtil.computeMolByPurity(divider, row.mol.value), updateDependencies)
-                : row.weight.value = calculationUtil.computeWeightByPurity(divider, row.weight.value);
+            if (row.weight.entered) {
+                row.setComputedMol(calculationUtil.computeMolByPurity(divider, row.mol.value), updateDependencies);
+            } else {
+                row.weight.value = calculationUtil.computeWeightByPurity(divider, row.weight.value);
+            }
         }
     }
 
     function onSaltChanged(row) {
-        //TODO just disable this field if molWeight doesn't exist
+        // TODO just disable this field if molWeight doesn't exist
         if (!row.molWeight.originalValue) {
             return;
         }
@@ -289,7 +301,9 @@ function stoichTable(config) {
             row.setDefaultValues([fieldTypes.saltEq]);
         }
 
-        var molWeight = calculationUtil.computeMolWeightBySalt(row.molWeight.originalValue, row.saltCode.weight, row.saltEq.value);
+        var molWeight = calculationUtil.computeMolWeightBySalt(
+            row.molWeight.originalValue, row.saltCode.weight, row.saltEq.value
+        );
         row.setComputedMolWeight(molWeight, row.molWeight.originalValue, onMolWeightChanged);
     }
 
@@ -297,12 +311,14 @@ function stoichTable(config) {
         if (row.areValuesPresent([fieldTypes.density, fieldTypes.volume])) {
             var weight = calculationUtil.computeWeightByDensity(row.volume.value, row.density.value);
             row.setComputedWeight(weight, onWeightChanged);
+
             return;
         }
 
         if (row.areValuesPresent([fieldTypes.density, fieldTypes.weight])) {
             var volume = calculationUtil.computeVolumeByDensity(row.weight.value, row.density.value);
             row.setComputedVolume(volume);
+
             return;
         }
 
@@ -314,11 +330,11 @@ function stoichTable(config) {
     }
 
     function getRowAfterLimiting() {
-        var indexOfLimitingRow = _.findIndex(stoichTable.reactants, {limiting: true});
+        var indexOfLimitingRow = _.findIndex(table.reactants, {limiting: true});
         var indexOfNextRow = indexOfLimitingRow + 1;
 
-        if (stoichTable.reactants.length > indexOfNextRow) {
-            var rowsAfterLimiting = stoichTable.reactants.slice(indexOfNextRow, stoichTable.reactants.length);
+        if (table.reactants.length > indexOfNextRow) {
+            var rowsAfterLimiting = table.reactants.slice(indexOfNextRow, table.reactants.length);
 
             return _.find(rowsAfterLimiting, function(row) {
                 return !row.isSolventRow() && row.eq.value === 1;
@@ -328,7 +344,7 @@ function stoichTable(config) {
 
     function updateRows(mol) {
         if (isLimitingRowExist()) {
-            _.forEach(stoichTable.reactants, function(row) {
+            _.forEach(table.reactants, function(row) {
                 var canUpdate = !row.isLimiting() && !row.isSolventRow();
                 var canUpdateMol = !row.weight.entered && canUpdate;
                 var canUpdateEq = row.weight.entered && canUpdate;
@@ -360,19 +376,19 @@ function stoichTable(config) {
     }
 
     function isLimitingRowExist() {
-        return _.some(stoichTable.reactants, {limiting: true});
+        return _.some(table.reactants, {limiting: true});
     }
 
     function getLimitingRow() {
-        return _.find(stoichTable.reactants, {limiting: true});
+        return _.find(table.reactants, {limiting: true});
     }
 
-    function setStoichTable(table) {
-        stoichTable = table;
+    function setStoichTable(newTable) {
+        table = newTable;
     }
 
     function getStoichTable() {
-        return stoichTable;
+        return table;
     }
 }
 
