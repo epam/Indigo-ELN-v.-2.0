@@ -327,8 +327,9 @@ function stoichTable(config) {
     function updateRows(mol) {
         if (isLimitingRowExist()) {
             _.forEach(stoichTable.reactants, function(row) {
-                var canUpdateMol = !row.isLimiting() && !row.weight.entered;
-                var canUpdateEq = !row.isLimiting() && row.weight.entered;
+                var canUpdate = !row.isLimiting() && !row.isSolventRow();
+                var canUpdateMol = !row.weight.entered && canUpdate;
+                var canUpdateEq = row.weight.entered && canUpdate;
 
                 if (canUpdateMol) {
                     row.updateMol(mol, onMolChanged);

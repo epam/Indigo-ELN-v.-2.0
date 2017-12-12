@@ -101,6 +101,31 @@ function changeRxnRole() {
             expect(otherRow.saltEq.value).toBe(0);
             expect(otherRow.saltEq.readonly).toBeFalsy();
         });
+
+        it('stoichTable has solvent row, change weight of limiting it should not effect on solvent row', function() {
+            var limitingRow = new StoichRow();
+            limitingRow.molWeight.value = 10;
+            limitingRow.weight.value = 100;
+            limitingRow.weight.entered = true;
+            limitingRow.mol.value = 10;
+            service.addRow(limitingRow);
+
+            var otherRow = new StoichRow();
+            otherRow.molWeight.value = 5;
+            otherRow.rxnRole = {name: 'SOLVENT'};
+            service.addRow(otherRow);
+
+            service.onFieldValueChanged(limitingRow, 'weight');
+
+            expect(otherRow.weight.readonly).toBeTruthy();
+            expect(otherRow.mol.readonly).toBeTruthy();
+            expect(otherRow.eq.readonly).toBeTruthy();
+            expect(otherRow.density.readonly).toBeTruthy();
+            expect(otherRow.stoicPurity.readonly).toBeTruthy();
+            expect(otherRow.molarity.readonly).toBeTruthy();
+            expect(otherRow.saltCode.readonly).toBeTruthy();
+            expect(otherRow.saltEq.readonly).toBeTruthy();
+        });
     });
 }
 
