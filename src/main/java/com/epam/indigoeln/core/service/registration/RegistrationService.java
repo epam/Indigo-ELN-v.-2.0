@@ -115,7 +115,8 @@ public class RegistrationService {
      * @param predicate for filtering batches
      * @return batch->component map
      */
-    private Map<BatchSummary, Component> getBatches(Supplier<Collection<Component>> supplier, Predicate<BatchSummary> predicate) {
+    private Map<BatchSummary, Component> getBatches(Supplier<Collection<Component>> supplier,
+                                                    Predicate<BatchSummary> predicate) {
         Map<BatchSummary, Component> batchesMap = new HashMap<>();
 
         supplier.get()
@@ -221,7 +222,8 @@ public class RegistrationService {
                                 if (registrationStatus.getStatus() == RegistrationStatus.Status.PASSED) {
                                     b.setRegistrationDate(registrationStatus.getDate());
                                     b.setCompoundId(registrationStatus.getCompoundNumbers().get(b.getFullNbkBatch()));
-                                    b.setConversationalBatchNumber(registrationStatus.getConversationalBatchNumbers().get(b.getFullNbkBatch()));
+                                    b.setConversationalBatchNumber(registrationStatus.getConversationalBatchNumbers()
+                                            .get(b.getFullNbkBatch()));
                                 }
                             }
                     );
@@ -265,7 +267,8 @@ public class RegistrationService {
      * @return found structure IDs
      * @throws RegistrationException if external registration service is not found in initial list
      */
-    public List<Integer> searchSubstructure(String id, String structure, String searchOption) throws RegistrationException {
+    public List<Integer> searchSubstructure(String id, String structure, String searchOption)
+            throws RegistrationException {
         return getRegistrationRepository(id).searchSub(structure, searchOption);
     }
 
@@ -278,8 +281,10 @@ public class RegistrationService {
      * @return found structure IDs
      * @throws RegistrationException if external registration service is not found in initial list
      */
-    public List<Integer> searchSimilarity(String id, String structure, String searchOption) throws RegistrationException {
-        return getRegistrationRepository(id).searchSim(structure, DEFAULT_SIMILARITY, Double.parseDouble(searchOption) / 100, (double) 1);
+    public List<Integer> searchSimilarity(String id, String structure, String searchOption)
+            throws RegistrationException {
+        return getRegistrationRepository(id)
+                .searchSim(structure, DEFAULT_SIMILARITY, Double.parseDouble(searchOption) / 100, (double) 1);
     }
 
     /**
@@ -335,10 +340,12 @@ public class RegistrationService {
         result.setComment(batch.getString("comments"));
 
         BasicDBObject healthHazards = (BasicDBObject) batch.get("healthHazards");
-        result.setHazardComment(Optional.ofNullable(healthHazards).map(hh -> hh.getString("asString")).orElse(null));
+        result.setHazardComment(Optional.ofNullable(healthHazards)
+                .map(hh -> hh.getString("asString")).orElse(null));
 
         BasicDBObject storageInstructions = (BasicDBObject) batch.get("storageInstructions");
-        result.setStorageComment(Optional.ofNullable(storageInstructions).map(hh -> hh.getString("asString")).orElse(null));
+        result.setStorageComment(Optional.ofNullable(storageInstructions)
+                .map(hh -> hh.getString("asString")).orElse(null));
 
         return result;
     }
