@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RegistrationStatus {
+public final class RegistrationStatus {
 
     private Status status;
 

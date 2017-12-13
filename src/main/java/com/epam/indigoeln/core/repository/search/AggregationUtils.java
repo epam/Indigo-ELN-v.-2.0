@@ -21,7 +21,7 @@ public final class AggregationUtils {
         return createCriteria(criteria, "");
     }
 
-    public static List<Criteria> createCriteria(Collection<SearchCriterion> criteria, String prefix) {
+    private static List<Criteria> createCriteria(Collection<SearchCriterion> criteria, String prefix) {
         return criteria.stream()
                 .map(c -> createCriterion(c, prefix))
                 .collect(toList());
@@ -31,8 +31,9 @@ public final class AggregationUtils {
         return createCriterion(searchCriterion, "");
     }
 
-    public static Criteria createCriterion(SearchCriterion searchCriterion, String prefix) {
-        return createCriterion(searchCriterion.getCondition(), prefix + searchCriterion.getField(), searchCriterion.getValue());
+    static Criteria createCriterion(SearchCriterion searchCriterion, String prefix) {
+        return createCriterion(searchCriterion.getCondition(), prefix + searchCriterion.getField(),
+                searchCriterion.getValue());
     }
 
     private static Criteria createCriterion(String condition, String key, Object value) {
@@ -83,7 +84,8 @@ public final class AggregationUtils {
 
     public static Optional<Criteria> andCriteria(Collection<Criteria> criteriaCollection) {
         if (!criteriaCollection.isEmpty()) {
-            return Optional.of(new Criteria().andOperator(criteriaCollection.toArray(new Criteria[criteriaCollection.size()])));
+            return Optional.of(new Criteria().andOperator(criteriaCollection
+                    .toArray(new Criteria[criteriaCollection.size()])));
         } else {
             return Optional.empty();
         }
@@ -91,7 +93,8 @@ public final class AggregationUtils {
 
     public static Optional<Criteria> orCriteria(Collection<Criteria> criteriaCollection) {
         if (!criteriaCollection.isEmpty()) {
-            return Optional.of(new Criteria().orOperator(criteriaCollection.toArray(new Criteria[criteriaCollection.size()])));
+            return Optional.of(new Criteria().orOperator(criteriaCollection
+                    .toArray(new Criteria[criteriaCollection.size()])));
         } else {
             return Optional.empty();
         }

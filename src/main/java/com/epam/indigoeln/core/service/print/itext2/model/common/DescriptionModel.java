@@ -1,5 +1,8 @@
 package com.epam.indigoeln.core.service.print.itext2.model.common;
 
+/**
+ * Model representation for description.
+ */
 public class DescriptionModel implements SectionModel {
     private String description;
     private String entity;

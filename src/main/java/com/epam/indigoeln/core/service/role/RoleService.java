@@ -7,6 +7,7 @@ import com.epam.indigoeln.core.security.SecurityUtils;
 import com.epam.indigoeln.core.service.exception.AlreadyInUseException;
 import com.epam.indigoeln.core.service.exception.DuplicateFieldException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
+import com.epam.indigoeln.web.rest.util.AuthoritiesUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.core.session.SessionRegistry;
@@ -15,28 +16,28 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 
 /**
- * Service class to work with user roles
+ * Service class to work with user roles.
  */
 @Service
 public class RoleService {
 
     /**
-     * SessionRegistry instance to work with user sessions
+     * SessionRegistry instance to work with user sessions.
      */
     private final SessionRegistry sessionRegistry;
 
     /**
-     * RoleRepository instance to work with roles in DB
+     * RoleRepository instance to work with roles in DB.
      */
     private final RoleRepository roleRepository;
 
     /**
-     * UserRepository instance to work with users in DB
+     * UserRepository instance to work with users in DB.
      */
     private final UserRepository userRepository;
 
     /**
-     * Create a new RoleService instance
+     * Create a new RoleService instance.
      *
      * @param sessionRegistry SessionRegistry instance to work with user sessions
      * @param roleRepository  RoleRepository instance to work with roles in DB
@@ -52,7 +53,7 @@ public class RoleService {
     }
 
     /**
-     * Retrieve all roles from DB
+     * Retrieve all roles from DB.
      *
      * @return all roles in application
      */
@@ -61,7 +62,7 @@ public class RoleService {
     }
 
     /**
-     * Retrieve one role by given ID
+     * Retrieve one role by given ID.
      *
      * @param id role ID
      * @return role with given ID
@@ -71,13 +72,14 @@ public class RoleService {
     }
 
     /**
-     * Create a new role in DB
+     * Create a new role in DB.
      *
      * @param role role to create
      * @return created role with new ID
      */
     public Role createRole(Role role) {
         //reset role's id
+        AuthoritiesUtil.checkAuthorities(role.getAuthorities());
         role.setId(null);
         try {
             return roleRepository.save(role);
@@ -87,7 +89,7 @@ public class RoleService {
     }
 
     /**
-     * Update an existing role in DB
+     * Update an existing role in DB.
      *
      * @param role role to update
      * @return updated role
@@ -100,6 +102,7 @@ public class RoleService {
         if (roleFromDB.isSystem()) {
             throw new IllegalArgumentException("Cannot update system role.");
         }
+        AuthoritiesUtil.checkAuthorities(role.getAuthorities());
         Role savedRole = roleRepository.save(role);
 
         // check for significant changes and perform logout for users
@@ -108,7 +111,7 @@ public class RoleService {
     }
 
     /**
-     * Delete role with given ID from DB
+     * Delete role with given ID from DB.
      *
      * @param id role ID
      */

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import static com.epam.indigoeln.core.security.CookieConstants.CSRF_TOKEN_HEADER;
 import static org.junit.Assert.*;
 
-public class ExperimentResourceTest extends RestBase {
+public class ExperimentResourceIT extends RestBaseIT {
 
     @Autowired
     ExperimentRepository experimentRepository;

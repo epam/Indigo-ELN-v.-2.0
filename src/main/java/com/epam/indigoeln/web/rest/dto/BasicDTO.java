@@ -31,20 +31,24 @@ public abstract class BasicDTO {
 
     private Long version;
 
-    public BasicDTO() {
+    BasicDTO() {
     }
 
-    protected BasicDTO(BasicModelObject modelObject) {
+    BasicDTO(BasicModelObject modelObject) {
         this.fullId = modelObject.getId();
         this.id = SequenceIdUtil.extractShortId(modelObject);
         this.parentId = SequenceIdUtil.extractParentId(modelObject);
         this.name = modelObject.getName();
         this.author = modelObject.getAuthor() != null ? new UserDTO(modelObject.getAuthor()) : null;
-        this.lastModifiedBy = modelObject.getLastModifiedBy() != null ? new UserDTO(modelObject.getLastModifiedBy()) : null;
+        this.lastModifiedBy = modelObject.getLastModifiedBy() != null
+                ? new UserDTO(modelObject.getLastModifiedBy()) : null;
         this.lastEditDate = modelObject.getLastEditDate();
         this.creationDate = modelObject.getCreationDate();
         if (modelObject.getAccessList() != null) {
-            this.accessList.addAll(modelObject.getAccessList().stream().map(UserPermissionDTO::new).collect(Collectors.toList()));
+            this.accessList.addAll(modelObject.getAccessList()
+                    .stream()
+                    .map(UserPermissionDTO::new)
+                    .collect(Collectors.toList()));
         }
         this.version = modelObject.getVersion();
     }
@@ -103,10 +107,10 @@ public abstract class BasicDTO {
 
     @Override
     public String toString() {
-        return "BasicDTO{" +
-                "id=" + id +
-                ", fullId='" + fullId + '\'' +
-                ", name='" + name + '\'' +
-                '}';
+        return "BasicDTO{"
+                + "id=" + id
+                + ", fullId='" + fullId + '\''
+                + ", name='" + name + '\''
+                + '}';
     }
 }

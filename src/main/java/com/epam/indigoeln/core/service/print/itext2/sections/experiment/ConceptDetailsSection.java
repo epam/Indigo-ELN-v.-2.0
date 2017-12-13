@@ -8,6 +8,9 @@ import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.lowagie.text.pdf.PdfPTable;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Extension of BasePdfSectionWithSimpleTitle for concept details section.
+ */
 public class ConceptDetailsSection extends BasePdfSectionWithSimpleTitle<ConceptDetailsModel> {
     private static final String COMMA = ", ";
     private static final float[] COLUMNS_WIDTH = new float[]{4, 5, 4, 5};
@@ -26,10 +29,9 @@ public class ConceptDetailsSection extends BasePdfSectionWithSimpleTitle<Concept
         wrapper.addKeyValueCells("Linked Experiment", StringUtils.join(model.getLinkedExperiment(), COMMA));
         wrapper.addKeyValueCells("Project Code", model.getProjectCode());
         wrapper.addKeyValueCells("Designers", StringUtils.join(model.getDesigners(), COMMA));
-        wrapper.addKeyValueCells("Co-authors", StringUtils.join(model.getCoauthors(), COMMA));
+        wrapper.addKeyValueCells("Co-authors", StringUtils.join(model.getCoAuthors(), COMMA));
         wrapper.addKeyValueCells("Concept Keyword", model.getConceptKeywords(), 3);
 
         return table;
     }
-
 }

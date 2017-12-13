@@ -11,11 +11,12 @@ import org.json.JSONArray;
 import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
 
 /**
- * Utility class for Json Conversion
+ * Utility class for Json Conversion.
  */
 public final class JsonUtil {
 
-    private JsonUtil() {}
+    private JsonUtil() {
+    }
 
 
     public static BasicDBList basicDBListFromJsonArray(JSONArray jsonArray) {

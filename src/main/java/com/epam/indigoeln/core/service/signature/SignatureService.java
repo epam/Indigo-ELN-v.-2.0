@@ -47,7 +47,8 @@ public class SignatureService {
     }
 
     public String uploadDocument(String templateId, String fileName, byte[] file) {
-        return signatureRepository.uploadDocument(SecurityUtils.getCurrentUser().getUsername(), templateId, fileName, file);
+        return signatureRepository.uploadDocument(SecurityUtils.getCurrentUser().getUsername(),
+                templateId, fileName, file);
     }
 
     public String getDocumentInfo(String documentId) {
@@ -80,14 +81,18 @@ public class SignatureService {
     }
 
     /**
-     * Check experiment's status on Signature Service and update in DB if changed
+     * Check experiment's status on Signature Service and update in DB if changed.
+     *
+     * @param experimentDTO Experiment
+     * @return Experiment's status
+     * @throws IOException If there is a low-level I/O problem
      */
     public ExperimentStatus checkExperimentStatus(ExperimentDTO experimentDTO)
             throws IOException {
         // check experiment in status Submitted or Signing
-        if (ExperimentStatus.SUBMITTED.equals(experimentDTO.getStatus()) ||
-                ExperimentStatus.SINGING.equals(experimentDTO.getStatus()) ||
-                ExperimentStatus.SINGED.equals(experimentDTO.getStatus())) {
+        if (ExperimentStatus.SUBMITTED.equals(experimentDTO.getStatus())
+                || ExperimentStatus.SINGING.equals(experimentDTO.getStatus())
+                || ExperimentStatus.SINGED.equals(experimentDTO.getStatus())) {
 
             if (experimentDTO.getDocumentId() == null) {
                 throw DocumentUploadException.createNullDocumentId(experimentDTO.getId());
@@ -126,9 +131,11 @@ public class SignatureService {
         ExperimentStatus expectedStatus;
         if (SignatureService.ISSStatus.SUBMITTED.equals(status)) {
             expectedStatus = ExperimentStatus.SUBMITTED;
-        } else if (SignatureService.ISSStatus.SIGNING.equals(status) || SignatureService.ISSStatus.WAITING.equals(status)) {
+        } else if (SignatureService.ISSStatus.SIGNING.equals(status)
+                || SignatureService.ISSStatus.WAITING.equals(status)) {
             expectedStatus = ExperimentStatus.SINGING;
-        } else if (SignatureService.ISSStatus.SIGNED.equals(status) || SignatureService.ISSStatus.ARCHIVING.equals(status)) {
+        } else if (SignatureService.ISSStatus.SIGNED.equals(status)
+                || SignatureService.ISSStatus.ARCHIVING.equals(status)) {
             expectedStatus = ExperimentStatus.SINGED;
         } else if (SignatureService.ISSStatus.ARCHIVED.equals(status)) {
             expectedStatus = ExperimentStatus.ARCHIVED;
@@ -151,7 +158,7 @@ public class SignatureService {
     }
 
     /**
-     * Indigo Signature Service statuses
+     * Indigo Signature Service statuses.
      */
     public enum ISSStatus {
         SUBMITTED(1),
@@ -189,7 +196,7 @@ public class SignatureService {
         @JsonProperty("Documents")
         private List<Document> documents;
 
-        public List<Document> getDocuments() {
+        List<Document> getDocuments() {
             return documents;
         }
 
@@ -243,26 +250,26 @@ public class SignatureService {
 
     public static class User {
 
-        private String firstname;
+        private String firstName;
 
-        private String lastname;
+        private String lastName;
 
         private String comment;
 
-        public String getFirstname() {
-            return firstname;
+        public String getFirstName() {
+            return firstName;
         }
 
-        public void setFirstname(String firstname) {
-            this.firstname = firstname;
+        public void setFirstName(String firstName) {
+            this.firstName = firstName;
         }
 
-        public String getLastname() {
-            return lastname;
+        public String getLastName() {
+            return lastName;
         }
 
-        public void setLastname(String lastname) {
-            this.lastname = lastname;
+        public void setLastName(String lastName) {
+            this.lastName = lastName;
         }
 
         public String getComment() {

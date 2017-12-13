@@ -16,6 +16,7 @@ import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.mongodb.DBRef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -45,11 +46,12 @@ public class EntitySearchRepository {
     @Autowired
     private ExperimentRepository experimentRepository;
 
-    public List<EntitySearchResultDTO> findEntities(User user, EntitySearchRequest searchRequest, List<String> bingoIds) {
+    public List<EntitySearchResultDTO> findEntities(User user, EntitySearchRequest searchRequest,
+                                                    List<String> bingoIds) {
         Optional<List<EntitySearchResultDTO>> projectResult = Optional.empty();
         Optional<List<EntitySearchResultDTO>> notebookResult = Optional.empty();
 
-        if (bingoIds.isEmpty()){
+        if (bingoIds.isEmpty()) {
             projectResult = projectSearchRepository.search(searchRequest).map(ids -> {
                 final Iterable<Project> projects = projectRepository.findAll(ids);
                 return StreamSupport.stream(projects.spliterator(), false).filter(
@@ -65,23 +67,29 @@ public class EntitySearchRepository {
             });
         }
 
-        final Optional<List<EntitySearchResultDTO>> experimentResult = experimentSearchRepository.search(searchRequest, bingoIds).map(ids -> {
-            final Iterable<Experiment> experiments = experimentRepository.findAll(ids);
+        final Optional<List<EntitySearchResultDTO>> experimentResult = experimentSearchRepository
+                .search(searchRequest, bingoIds).map(ids -> {
+                    final Iterable<Experiment> experiments = experimentRepository.findAll(ids);
 
-            Map<String, String> notebookNameMap = new HashMap<>();
-            final Set<DBRef> dbRefs = ids.stream().map(id -> new DBRef("experiment", id)).collect(Collectors.toSet());
-            notebookRepository.findByExperimentsIds(dbRefs).forEach(n -> n.getExperiments().stream().forEach(e -> notebookNameMap.put(e.getId(), n.getName())));
+                    Map<String, String> notebookNameMap = new HashMap<>();
+                    final Set<DBRef> dbRefs = ids.stream().map(id -> new DBRef("experiment", id))
+                            .collect(Collectors.toSet());
+                    notebookRepository.findByExperimentsIds(dbRefs).forEach(n -> n.getExperiments().stream()
+                            .forEach(e -> notebookNameMap.put(e.getId(), n.getName())));
 
-            return StreamSupport.stream(experiments.spliterator(), false).filter(
-                    p -> PermissionUtil.hasPermissions(user.getId(), p.getAccessList(), UserPermission.READ_ENTITY)
-            ).map(ExperimentDTO::new).map(e -> convert(notebookNameMap.get(e.getFullId()), e)).collect(Collectors.toList());
+                    return StreamSupport.stream(experiments.spliterator(), false).filter(
+                            p -> PermissionUtil.hasPermissions(user.getId(), p.getAccessList(),
+                                    UserPermission.READ_ENTITY)
+                    ).map(ExperimentDTO::new).map(e -> convert(notebookNameMap.get(e.getFullId()), e))
+                            .collect(Collectors.toList());
 
-        });
+                });
         return merge(projectResult, notebookResult, experimentResult);
 
     }
 
-    private List<EntitySearchResultDTO> merge(Optional<List<EntitySearchResultDTO>> projectResult, Optional<List<EntitySearchResultDTO>> notebookResult,
+    private List<EntitySearchResultDTO> merge(Optional<List<EntitySearchResultDTO>> projectResult,
+                                              Optional<List<EntitySearchResultDTO>> notebookResult,
                                               Optional<List<EntitySearchResultDTO>> experimentResult) {
         List<EntitySearchResultDTO> result = new ArrayList<>();
         projectResult.ifPresent(result::addAll);
@@ -123,9 +131,11 @@ public class EntitySearchRepository {
     private EntitySearchResultDTO.Details getDetails(ExperimentDTO experiment) {
         final EntitySearchResultDTO.Details details = getDetails((BasicDTO) experiment);
 
-        String title = BatchComponentUtil.getConceptDetails(experiment.getComponents()).map(cd -> cd.getContent().getString("title"))
+        String title = BatchComponentUtil
+                .getConceptDetails(experiment.getComponents()).map(cd -> cd.getContent().getString("title"))
                 .orElseGet(
-                        () -> BatchComponentUtil.getReactionDetails(experiment.getComponents()).map(cd -> cd.getContent().getString("title"))
+                        () -> BatchComponentUtil.getReactionDetails(experiment.getComponents())
+                                .map(cd -> cd.getContent().getString("title"))
                                 .orElse(null)
                 );
         details.setTitle(title);
@@ -135,11 +145,10 @@ public class EntitySearchRepository {
     private EntitySearchResultDTO.Details getDetails(BasicDTO dto) {
         EntitySearchResultDTO.Details details = new EntitySearchResultDTO.Details();
         details.setCreationDate(dto.getCreationDate());
-        if (dto.getAuthor() != null){
+        if (dto.getAuthor() != null) {
             details.setAuthor(dto.getAuthor().getFullName());
 
         }
         return details;
     }
-
 }

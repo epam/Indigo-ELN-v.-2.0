@@ -4,6 +4,7 @@ import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -23,14 +24,14 @@ public class SearchServiceFacade {
 
     public Collection<ProductBatchDetailsDTO> findBatches(BatchSearchRequest searchRequest) {
         Collection<ProductBatchDetailsDTO> result = new ArrayList<>();
-        for(SearchServiceAPI provider : getSearchProviders(searchRequest.getDatabases())) {
+        for (SearchServiceAPI provider : getSearchProviders(searchRequest.getDatabases())) {
             Collection<ProductBatchDetailsDTO> batches = provider.findBatches(searchRequest);
             result.addAll(batches);
             Optional<Integer> batchesLeft = searchRequest.getBatchesLimit();
-            if (batchesLeft.isPresent()){
-                if (batches.size() == batchesLeft.get()){
+            if (batchesLeft.isPresent()) {
+                if (batches.size() == batchesLeft.get()) {
                     break;
-                }else {
+                } else {
                     searchRequest.setBatchesLimit(batchesLeft.get() - batches.size());
                 }
             }
@@ -39,7 +40,8 @@ public class SearchServiceFacade {
     }
 
     private Collection<SearchServiceAPI> getSearchProviders(List<String> dataSourceNames) {
-        return catalogues.stream().filter(p -> dataSourceNames.contains(p.getInfo().getValue())).collect(Collectors.toList());
+        return catalogues.stream().filter(p -> dataSourceNames.contains(p.getInfo().getValue()))
+                .collect(Collectors.toList());
     }
 
 }

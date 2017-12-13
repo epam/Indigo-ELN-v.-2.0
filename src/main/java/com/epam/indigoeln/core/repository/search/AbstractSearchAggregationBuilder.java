@@ -4,6 +4,7 @@ import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
+
 import java.util.*;
 
 import static java.util.stream.Collectors.toList;
@@ -15,7 +16,7 @@ public class AbstractSearchAggregationBuilder {
     private Set<String> advancedFields = new HashSet<>();
     private String contextPrefix = "";
 
-    public AbstractSearchAggregationBuilder() {
+    protected AbstractSearchAggregationBuilder() {
         aggregationOperations = new ArrayList<>();
     }
 
@@ -24,13 +25,14 @@ public class AbstractSearchAggregationBuilder {
     }
 
     protected AbstractSearchAggregationBuilder withSearchQuery(String searchQuery) {
-        List<Criteria> querySearch = searchQueryFields.stream()
-                .filter(f -> !advancedFields.contains(f))
-                .map(f -> new SearchCriterion(f, f, "contains", searchQuery))
-                .map(c -> AggregationUtils.createCriterion(c, contextPrefix))
-                .collect(toList());
-
-        AggregationUtils.orCriteria(querySearch).ifPresent(c -> aggregationOperations.add(Aggregation.match(c)));
+        if (searchQueryFields != null) {
+            List<Criteria> querySearch = searchQueryFields.stream()
+                    .filter(f -> !advancedFields.contains(f))
+                    .map(f -> new SearchCriterion(f, f, "contains", searchQuery))
+                    .map(c -> AggregationUtils.createCriterion(c, contextPrefix))
+                    .collect(toList());
+            AggregationUtils.orCriteria(querySearch).ifPresent(c -> aggregationOperations.add(Aggregation.match(c)));
+        }
         return this;
     }
 

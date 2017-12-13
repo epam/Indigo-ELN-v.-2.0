@@ -13,7 +13,7 @@ import java.io.InputStream;
 /**
  * Util class to work with temporary files
  */
-public class TempFileUtil {
+public final class TempFileUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TempFileUtil.class);
 
@@ -28,7 +28,7 @@ public class TempFileUtil {
             return fileName;
         }
 
-        return TEMP_FILE_PREFIX + fileName;
+        return String.format("%s%s", TEMP_FILE_PREFIX, fileName);
     }
 
     /**

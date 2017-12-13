@@ -20,11 +20,12 @@ package com.epam.indigoeln.core.chemistry.sdf;
 
 import java.io.IOException;
 
-public interface SdfileIterator {
+public interface SDFileIterator extends AutoCloseable {
 
     SdUnit getNext() throws IOException;
 
     int getCurrentIndex();
 
+    @Override
     void close() throws IOException;
 }

@@ -5,12 +5,14 @@ import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.Collection;
 import java.util.Collections;
+
 import static com.epam.indigoeln.core.service.search.SearchServiceConstants.*;
 
 @Service
-public class PubChemSearchService implements SearchServiceAPI{
+public class PubChemSearchService implements SearchServiceAPI {
 
     private static final String NAME = "PubChem";
 
@@ -19,9 +21,9 @@ public class PubChemSearchService implements SearchServiceAPI{
 
     @Override
     public Collection<ProductBatchDetailsDTO> findBatches(BatchSearchRequest searchRequest) {
-        if(searchRequest.getStructure().isPresent()) {
+        if (searchRequest.getStructure().isPresent()) {
             return search(searchRequest);
-        }else {
+        } else {
             return Collections.emptyList();
         }
     }

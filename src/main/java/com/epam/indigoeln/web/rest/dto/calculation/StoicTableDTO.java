@@ -14,7 +14,8 @@ public class StoicTableDTO {
     public StoicTableDTO() {
     }
 
-    public StoicTableDTO(List<BasicBatchModel> stoicBatches, List<BasicBatchModel> intendedProducts, List<BasicBatchModel> actualProducts) {
+    public StoicTableDTO(List<BasicBatchModel> stoicBatches, List<BasicBatchModel> intendedProducts,
+                         List<BasicBatchModel> actualProducts) {
         this.stoicBatches = stoicBatches;
         this.intendedProducts = intendedProducts;
         this.actualProducts = actualProducts;

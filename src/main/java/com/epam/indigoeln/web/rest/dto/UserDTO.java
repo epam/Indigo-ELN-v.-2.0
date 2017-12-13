@@ -33,7 +33,7 @@ public class UserDTO {
     private boolean activated;
     private String fullName;
 
-    public UserDTO() {
+    UserDTO() {
         super();
     }
 
@@ -123,15 +123,15 @@ public class UserDTO {
 
     @Override
     public String toString() {
-        return "UserDTO{" +
-                "id='" + id + '\'' +
-                ", login='" + login + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                ", activated=" + activated +
-                ", authorities=" + authorities +
-                ", fullName=" + fullName +
-                '}';
+        return "UserDTO{"
+                + "id='" + id + '\''
+                + ", login='" + login + '\''
+                + ", firstName='" + firstName + '\''
+                + ", lastName='" + lastName + '\''
+                + ", email='" + email + '\''
+                + ", activated=" + activated
+                + ", authorities=" + authorities
+                + ", fullName=" + fullName
+                + '}';
     }
 }

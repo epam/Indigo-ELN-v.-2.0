@@ -9,9 +9,6 @@ import com.lowagie.text.pdf.PdfPTable;
 public class PdfPTableHelper {
     private final PdfPTable originTable;
 
-    /**
-     * @param originTable the table which state will be really modified by the wrapper
-     */
     public PdfPTableHelper(PdfPTable originTable) {
         this.originTable = originTable;
     }
@@ -27,11 +24,21 @@ public class PdfPTableHelper {
     }
 
     public PdfPTableHelper addKeyValueCells(String key, String value, int valueColspan) {
-        return addKeyValueCells(key, value , valueColspan, true);
+        return addKeyValueCells(key, value, valueColspan, true);
     }
 
 
-    public PdfPTableHelper addKeyValueCells(String key, String value, int valueColspan, boolean bold) {
+    /**
+     * Added key and value cells to table.
+     *
+     * @param key          Key title
+     * @param value        Value
+     * @param valueColspan Span for column
+     * @param bold         True if it should be bold
+     * @return PdfPTableHelper instance
+     * @see com.lowagie.text.pdf.PdfPCell
+     */
+    private PdfPTableHelper addKeyValueCells(String key, String value, int valueColspan, boolean bold) {
         PdfPCell keyCell = CellFactory.getCommonCell(key, bold);
         PdfPCell valueCell = CellFactory.getCommonCell(value);
 

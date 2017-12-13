@@ -7,25 +7,28 @@ import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 import java.util.Optional;
 
+/**
+ * Implementation of PdfImage.
+ */
 public class SvgPdfImage implements PdfImage {
-    private static  float PIXELS_PER_POINT = 3;
+    private static float pixelsPerPoint = 3;
 
-    private  byte[] svgBytes;
+    private byte[] svgBytes;
 
     public SvgPdfImage(String svgBase64) {
-        if (!StringUtils.isBlank(svgBase64)){
+        if (!StringUtils.isBlank(svgBase64)) {
             svgBytes = Base64.getDecoder().decode(svgBase64);
         }
     }
 
     @Override
     public Optional<byte[]> getPngBytes(float widthPt) {
-        if (svgBytes != null){
+        if (svgBytes != null) {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             ByteArrayInputStream input = new ByteArrayInputStream(svgBytes);
-            SvgConverter.convertSvg2Png(input, output, PIXELS_PER_POINT * widthPt);
+            SvgConverter.convertSvg2Png(input, output, pixelsPerPoint * widthPt);
             return Optional.of(output.toByteArray());
-        }else {
+        } else {
             return Optional.empty();
         }
     }

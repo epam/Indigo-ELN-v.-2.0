@@ -23,10 +23,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriTemplate;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -39,12 +36,13 @@ public class RequestSender {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestSender.class);
 
-    private static final RestTemplate restTemplate;
+    private static final RestTemplate REST_TEMPLATE;
+
     static {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setReadTimeout(TIMEOUT);
         factory.setConnectTimeout(TIMEOUT);
-        restTemplate = new RestTemplate(factory);
+        REST_TEMPLATE = new RestTemplate(factory);
     }
 
     private final SDService sdService;
@@ -57,64 +55,65 @@ public class RequestSender {
         this.calculationService = calculationService;
     }
 
-    public Collection<ProductBatchDetailsDTO> sendRequest(RequestEntity requestEntity){
+    public Collection<ProductBatchDetailsDTO> sendRequest(RequestEntity requestEntity) {
         WaitingDTO waitingDTO = sendAsyncRequest(requestEntity);
         return sendCheckRequest(waitingDTO);
     }
 
-    private WaitingDTO sendAsyncRequest(RequestEntity requestEntity){
-        ResponseEntity<WaitingDTO> response = restTemplate.exchange(requestEntity, WaitingDTO.class);
-        if (response.getStatusCode() == HttpStatus.ACCEPTED){
+    private WaitingDTO sendAsyncRequest(RequestEntity requestEntity) {
+        ResponseEntity<WaitingDTO> response = REST_TEMPLATE.exchange(requestEntity, WaitingDTO.class);
+        if (response.getStatusCode() == HttpStatus.ACCEPTED) {
             return response.getBody();
-        }else {
+        } else {
             throw new IndigoRuntimeException("PubChem answered with " + response.getStatusCode() + "status code");
         }
     }
 
-    private Collection<ProductBatchDetailsDTO> sendCheckRequest(WaitingDTO waitingDTO){
+    private Collection<ProductBatchDetailsDTO> sendCheckRequest(WaitingDTO waitingDTO) {
         URI uri = new UriTemplate(GET_BY_KEY_URI).expand(waitingDTO.getListKey());
         RequestEntity<Void> requestEntity = RequestEntity.get(uri).build();
-        ResponseEntity<CidsDTO> response = restTemplate.exchange(requestEntity, CidsDTO.class);
+        ResponseEntity<CidsDTO> response = REST_TEMPLATE.exchange(requestEntity, CidsDTO.class);
         long time = 0;
-        while (response.getStatusCode() != HttpStatus.OK){
-            if (time > TIMEOUT){
+        while (response.getStatusCode() != HttpStatus.OK) {
+            if (time > TIMEOUT) {
                 throw new IndigoRuntimeException("PubChem timeout exceed exception");
             }
             try {
                 Thread.sleep(DELAY);
                 time += DELAY;
             } catch (InterruptedException e) {
-                LOGGER.error("PubChem sleep exception",e);
+                LOGGER.error("PubChem sleep exception", e);
             }
-            response = restTemplate.exchange(requestEntity, CidsDTO.class);
+            response = REST_TEMPLATE.exchange(requestEntity, CidsDTO.class);
         }
-        //parallel stream can't be used here because of async request. If request is interrupted rest template continues to work
+        //parallel stream can't be used here because of async request.
+        // If request is interrupted rest template continues to work
         return Lists.partition(response.getBody().getCids(), CHUNK_COUNT).stream()
                 .flatMap(cids -> getByCids(cids).stream())
                 .collect(Collectors.toList());
     }
 
-    private Collection<ProductBatchDetailsDTO> getByCids(List<String> cids){
+    private Collection<ProductBatchDetailsDTO> getByCids(List<String> cids) {
         if (!cids.isEmpty()) {
             Optional<String> value = cids.stream().reduce((cid1, cid2) -> cid1 + "," + cid2);
             URI uri = new UriTemplate(GET_BY_CIDS_URI).expand();
 
             LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-            params.add(CID_PARAM,value.get());
+            params.add(CID_PARAM, value.get());
 
             RequestEntity<LinkedMultiValueMap<String, String>> requestEntity = RequestEntity.post(uri)
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .body(params);
 
-            ResponseEntity<String> responseEntity = restTemplate.exchange(requestEntity, String.class);
+            ResponseEntity<String> responseEntity = REST_TEMPLATE.exchange(requestEntity, String.class);
             if (responseEntity.getStatusCode() == HttpStatus.OK) {
                 String body = responseEntity.getBody();
-                try (InputStream is = new ByteArrayInputStream(body.getBytes())){
+                try (InputStream is = new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8))) {
                     try (Reader r = new InputStreamReader(is, StandardCharsets.UTF_8)) {
                         Collection<SdUnit> parse = sdService.parse(r);
                         return parse.stream().map(this::convert).collect(Collectors.toList());
                     }
-                } catch (Exception e) {
+                } catch (IOException e) {
                     throw new IndigoRuntimeException("Error occurred while parsing SD file.", e);
                 }
             }
@@ -122,19 +121,20 @@ public class RequestSender {
         return Collections.emptyList();
     }
 
-    private ProductBatchDetailsDTO convert(SdUnit sdUnit){
+    private ProductBatchDetailsDTO convert(SdUnit sdUnit) {
         HashMap<String, Object> properties = new HashMap<>();
 
         Structure structure = new Structure();
         structure.setImage(calculationService.getStructureWithImage(sdUnit.getMol()).getImage());
         structure.setMolfile(sdUnit.getMol());
 
-        properties.put("structure",structure);
-        properties.put("compoundId",sdUnit.getInfoPortion().get(COMPOUND_CID));
-        properties.put("formula",sdUnit.getInfoPortion().get(MOLECULAR_FORMULA));
-        properties.put("chemicalName",sdUnit.getInfoPortion().get(IUPAC_CAS_NAME));
+        properties.put("structure", structure);
+        properties.put("compoundId", sdUnit.getInfoPortion().get(COMPOUND_CID));
+        properties.put("formula", sdUnit.getInfoPortion().get(MOLECULAR_FORMULA));
+        properties.put("chemicalName", sdUnit.getInfoPortion().get(IUPAC_CAS_NAME));
         String weight = sdUnit.getInfoPortion().get(MOLECULAR_WEIGHT);
-        properties.put("molWeight",new ScalarValueDTO(Double.valueOf(weight), null, false, false));
+        properties.put("molWeight", new ScalarValueDTO(Double.valueOf(weight),
+                null, false, false));
 
         ProductBatchDetailsDTO productBatchDetailsDTO = new ProductBatchDetailsDTO();
         productBatchDetailsDTO.setDetails(properties);

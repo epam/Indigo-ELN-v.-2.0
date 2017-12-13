@@ -67,8 +67,7 @@ public class User implements Serializable {
 
     @JsonIgnore
     @DBRef(lazy = true)
-    transient
-    private HashSet<Role> roles = new HashSet<>();
+    private transient HashSet<Role> roles = new HashSet<>();
 
     public String getId() {
         return id;
@@ -151,11 +150,11 @@ public class User implements Serializable {
     }
 
     public String getFullName() {
-        return CharMatcher.whitespace().trimFrom(Joiner.on(' ').skipNulls().join(ImmutableList.of(lastName, firstName)));
+        return CharMatcher.whitespace().trimFrom(Joiner.on(' ').skipNulls()
+                .join(ImmutableList.of(lastName, firstName)));
     }
 
     public Set<Authority> getAuthorities() {
-        roles.size();
         Set<Authority> authorities = new HashSet<>();
         for (Role role : roles) {
             authorities.addAll(role.getAuthorities());

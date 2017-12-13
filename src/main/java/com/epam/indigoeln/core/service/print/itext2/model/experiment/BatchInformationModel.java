@@ -5,6 +5,9 @@ import com.epam.indigoeln.core.service.print.itext2.model.common.image.PdfImage;
 
 import java.util.List;
 
+/**
+ * Implementation of SectionModel interface for batch information.
+ */
 public class BatchInformationModel implements SectionModel {
     private List<BatchInformationRow> rows;
 
@@ -134,7 +137,7 @@ public class BatchInformationModel implements SectionModel {
 
     }
 
-    public static class BatchInformation{
+    public static class BatchInformation {
         private String molWeight;
         private String exactMass;
         private String saltCode;
@@ -142,7 +145,8 @@ public class BatchInformationModel implements SectionModel {
         private List<String> batchOwner;
         private String comments;
 
-        public BatchInformation(String molWeight, String exactMass, String saltCode, String saltEq, List<String> batchOwner, String comments) {
+        public BatchInformation(String molWeight, String exactMass, String saltCode,
+                                String saltEq, List<String> batchOwner, String comments) {
             this.molWeight = molWeight;
             this.exactMass = exactMass;
             this.saltCode = saltCode;

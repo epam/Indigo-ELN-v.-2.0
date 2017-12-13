@@ -20,26 +20,51 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * The BingoService provides a number of methods for
+ * molecule's data manipulation.
+ *
+ * @author Vladislav Alekseev
+ */
 @Service
 public class BingoService {
 
+    /**
+     * Logger instance.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(BingoService.class);
+    private static final String STRUCTURES = "/structures/";
 
+    /**
+     * ObjectMapper instance for reading JSON.
+     */
     @Autowired
     private ObjectMapper objectMapper;
+
+
+    /**
+     * BingoProperties instance for getting BingoDB properties.
+     */
     @Autowired
     private BingoProperties bingoProperties;
 
     /* Common */
 
+    /**
+     * Returns chemical structure of molecule by id from BingoDB.
+     *
+     * @param id The chemical structure's id
+     * @return a non-empty string representation of chemical structure if It's exist
+     */
     public Optional<String> getById(String id) {
         try {
-            BingoResponse response = getResponse("GET", "/structures/" + id, StringUtils.EMPTY);
+            BingoResponse response = getResponse("GET", STRUCTURES + id, StringUtils.EMPTY);
 
             if (response.getStructures() != null && !response.getStructures().isEmpty()) {
                 return Optional.of(response.getStructures().get(0).getStructure());
@@ -51,6 +76,13 @@ public class BingoService {
         return Optional.empty();
     }
 
+    /**
+     * Inserts chemical structure of molecule to BingoDB.
+     *
+     * @param s String representation of chemical structure
+     * @return a non-empty string representation of chemical structure
+     * if insert was successful, otherwise it returns empty string
+     */
     public Optional<String> insert(String s) {
         try {
             BingoResponse response = getResponse("POST", "/structures", s);
@@ -65,9 +97,17 @@ public class BingoService {
         return Optional.empty();
     }
 
+    /**
+     * Updates chemical structure of molecule in BingoDB.
+     *
+     * @param id The chemical structure's id
+     * @param s  New string representation of chemical structure
+     * @return updated string representation of chemical structure
+     * if update was successful, otherwise it returns empty string
+     */
     public Optional<String> update(String id, String s) {
         try {
-            BingoResponse response = getResponse("PUT", "/structures/" + id, s);
+            BingoResponse response = getResponse("PUT", STRUCTURES + id, s);
 
             if (response.getStructures() != null && !response.getStructures().isEmpty()) {
                 return Optional.of(response.getStructures().get(0).getId());
@@ -79,9 +119,14 @@ public class BingoService {
         return Optional.empty();
     }
 
+    /**
+     * Deletes chemical structure of molecule by id.
+     *
+     * @param id The chemical structure's id
+     */
     public void delete(String id) {
         try {
-            getResponse("DELETE", "/structures/" + id, StringUtils.EMPTY);
+            getResponse("DELETE", STRUCTURES + id, StringUtils.EMPTY);
         } catch (Exception e) {
             LOGGER.warn("Cannot delete by id=" + id + ": " + e.getMessage(), e);
         }
@@ -89,6 +134,14 @@ public class BingoService {
 
     /* Molecule */
 
+    /**
+     * Searches for exact molecule.
+     *
+     * @param molecule Molecule structure to search for
+     * @param options  Search options
+     * @return The list of string molecule's representations
+     * if search was successful, otherwise it returns empty list
+     */
     public List<String> searchMoleculeExact(String molecule, String options) {
         try {
             String opts = options == null ? StringUtils.EMPTY : options;
@@ -99,26 +152,54 @@ public class BingoService {
         return Collections.emptyList();
     }
 
+    /**
+     * Searches for molecule by substructure.
+     *
+     * @param molecule Molecule substructure to search for
+     * @param options  Search options
+     * @return The list of string molecule's representations
+     * if search was successful, otherwise it returns empty list
+     */
     public List<String> searchMoleculeSub(String molecule, String options) {
         try {
             String opts = options == null ? StringUtils.EMPTY : options;
-            return result(getResponse("POST", "/search/molecule/substructure?options=" + opts, molecule));
+            return result(getResponse("POST", "/search/molecule/substructure?options="
+                    + opts, molecule));
         } catch (Exception e) {
             LOGGER.warn("Cannot search sub molecule: " + e.getMessage(), e);
         }
         return Collections.emptyList();
     }
 
+    /**
+     * Searches for molecule by similarity.
+     *
+     * @param molecule Molecule substructure to search for
+     * @param min      Min similarity
+     * @param max      Max similarity
+     * @param metric   Search options
+     * @return The list of string molecule's representations
+     * if search was successful, otherwise it returns empty list
+     */
     public List<String> searchMoleculeSim(String molecule, Float min, Float max, String metric) {
         try {
             String mtrc = metric == null ? StringUtils.EMPTY : metric;
-            return result(getResponse("POST", "/search/molecule/similarity?min=" + min + "&max=" + max + "&metric=" + mtrc, molecule));
+            return result(getResponse("POST", "/search/molecule/similarity?min=" + min + "&max="
+                    + max + "&metric=" + mtrc, molecule));
         } catch (Exception e) {
             LOGGER.warn("Cannot search sim molecule: " + e.getMessage(), e);
         }
         return Collections.emptyList();
     }
 
+    /**
+     * Searches for molecule by formula.
+     *
+     * @param formula Molecule formula to search for
+     * @param options Search options
+     * @return The list of string molecule's representations
+     * if search was successful, otherwise it returns empty list
+     */
     public List<String> searchMoleculeMolFormula(String formula, String options) {
         try {
             String opts = options == null ? StringUtils.EMPTY : options;
@@ -131,6 +212,14 @@ public class BingoService {
 
     /* Reaction */
 
+    /**
+     * Searches for exact reaction.
+     *
+     * @param reaction Reaction structure to search for
+     * @param options  Search options
+     * @return The list of string reaction's representations
+     * if search was successful, otherwise it returns empty list
+     */
     public List<String> searchReactionExact(String reaction, String options) {
         try {
             String opts = options == null ? StringUtils.EMPTY : options;
@@ -141,26 +230,54 @@ public class BingoService {
         return Collections.emptyList();
     }
 
+    /**
+     * Searches for reaction by substructure.
+     *
+     * @param reaction Reaction substructure to search for
+     * @param options  Search options
+     * @return The list of string reaction's representations
+     * if search was successful, otherwise it returns empty list
+     */
     public List<String> searchReactionSub(String reaction, String options) {
         try {
             String opts = options == null ? StringUtils.EMPTY : options;
-            return result(getResponse("POST", "/search/reaction/substructure?options=" + opts, reaction));
+            return result(getResponse("POST", "/search/reaction/substructure?options=" + opts,
+                    reaction));
         } catch (Exception e) {
             LOGGER.warn("Cannot search sub reaction: " + e.getMessage(), e);
         }
         return Collections.emptyList();
     }
 
+    /**
+     * Searches for reaction by similarity.
+     *
+     * @param reaction Reaction substructure to search for
+     * @param min      Min similarity
+     * @param max      Max similarity
+     * @param metric   Search options
+     * @return The list of string reaction's representations
+     * if search was successful, otherwise it returns empty list
+     */
     public List<String> searchReactionSim(String reaction, Float min, Float max, String metric) {
         try {
             String mtrc = metric == null ? StringUtils.EMPTY : metric;
-            return result(getResponse("POST", "/search/reaction/similarity?min=" + min + "&max=" + max + "&metric=" + mtrc, reaction));
+            return result(getResponse("POST", "/search/reaction/similarity?min=" + min + "&max="
+                    + max + "&metric=" + mtrc, reaction));
         } catch (Exception e) {
             LOGGER.warn("Cannot search sim reaction: " + e.getMessage(), e);
         }
         return Collections.emptyList();
     }
 
+    /**
+     * Searches for reaction by formula.
+     *
+     * @param formula Reaction formula to search for
+     * @param options Search options
+     * @return The list of string reaction's representations
+     * if search was successful, otherwise it returns empty list
+     */
     public List<String> searchReactionMolFormula(String formula, String options) {
         try {
             String opts = options == null ? StringUtils.EMPTY : options;
@@ -189,14 +306,16 @@ public class BingoService {
         String basic = bingoProperties.getUsername() + ":" + bingoProperties.getPassword();
 
         try {
-            HttpURLConnection connection = (HttpURLConnection) new URL(bingoProperties.getApiUrl() + endpoint).openConnection();
+            HttpURLConnection connection = (HttpURLConnection) new URL(bingoProperties.getApiUrl() + endpoint)
+                    .openConnection();
 
             connection.setConnectTimeout(60 * 1000);
             connection.setReadTimeout(60 * 1000);
 
             connection.setRequestMethod(method);
 
-            connection.setRequestProperty(HttpHeaders.AUTHORIZATION, "Basic " + Base64.encodeBase64String(basic.getBytes()));
+            connection.setRequestProperty(HttpHeaders.AUTHORIZATION, "Basic " + Base64
+                    .encodeBase64String(basic.getBytes(StandardCharsets.UTF_8)));
             connection.setRequestProperty(HttpHeaders.CONTENT_TYPE, "text/plain");
             connection.setRequestProperty(HttpHeaders.ACCEPT, "*/*");
 

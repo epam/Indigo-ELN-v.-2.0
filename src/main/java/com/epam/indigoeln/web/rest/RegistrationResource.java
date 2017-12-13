@@ -77,7 +77,8 @@ public class RegistrationResource {
             @ApiParam("Registration repository id") String id,
             @ApiParam("Compound id") @PathVariable("compoundNo") String compoundNo
     ) throws RegistrationException {
-        return registrationService.getCompoundInfoByCompoundNo(StringUtils.isBlank(id) ? getRepositoryId() : id, compoundNo);
+        return registrationService.getCompoundInfoByCompoundNo(StringUtils.isBlank(id)
+                ? getRepositoryId() : id, compoundNo);
     }
 
     @ApiOperation(value = "Searches for compounds by substructure.")
@@ -88,7 +89,8 @@ public class RegistrationResource {
             @ApiParam("Substructure") String structure,
             @ApiParam("Search options") String searchOption
     ) throws RegistrationException {
-        return ResponseEntity.ok(registrationService.searchSubstructure(StringUtils.isBlank(id) ? getRepositoryId() : id, structure, searchOption));
+        return ResponseEntity.ok(registrationService.searchSubstructure(StringUtils.isBlank(id)
+                ? getRepositoryId() : id, structure, searchOption));
     }
 
     @ApiOperation(value = "Searches for compounds by similarity.")
@@ -99,7 +101,8 @@ public class RegistrationResource {
             @ApiParam("Structure") String structure,
             @ApiParam("Search options") String searchOption
     ) throws RegistrationException {
-        return ResponseEntity.ok(registrationService.searchSimilarity(StringUtils.isBlank(id) ? getRepositoryId() : id, structure, searchOption));
+        return ResponseEntity.ok(registrationService.searchSimilarity(StringUtils.isBlank(id)
+                ? getRepositoryId() : id, structure, searchOption));
     }
 
     @ApiOperation(value = "Smarts search.")
@@ -109,7 +112,8 @@ public class RegistrationResource {
             @ApiParam("Registration repository id") String id,
             @ApiParam("Structure") String structure
     ) throws RegistrationException {
-        return ResponseEntity.ok(registrationService.searchSmarts(StringUtils.isBlank(id) ? getRepositoryId() : id, structure));
+        return ResponseEntity.ok(registrationService.searchSmarts(StringUtils.isBlank(id)
+                ? getRepositoryId() : id, structure));
     }
 
     @ApiOperation(value = "Exact search.")
@@ -120,7 +124,8 @@ public class RegistrationResource {
             @ApiParam("Structure") String structure,
             @ApiParam("Search options") String searchOption
     ) throws RegistrationException {
-        return ResponseEntity.ok(registrationService.searchExact(StringUtils.isBlank(id) ? getRepositoryId() : id, structure, searchOption));
+        return ResponseEntity.ok(registrationService.searchExact(StringUtils.isBlank(id)
+                ? getRepositoryId() : id, structure, searchOption));
     }
 
     private String getRepositoryId() throws RegistrationException {
@@ -128,8 +133,8 @@ public class RegistrationResource {
         if (repositoriesInfo != null && repositoriesInfo.size() == 1) {
             return repositoriesInfo.get(0).getId();
         } else {
-            throw new RegistrationException("More than one registration repository found, please specify repository id.");
+            throw new RegistrationException("More than one registration repository found, "
+                    + "please specify repository id.");
         }
     }
-
 }

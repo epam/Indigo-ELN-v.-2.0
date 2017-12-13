@@ -66,14 +66,14 @@ class SdfUtil {
             ib = line1.lastIndexOf(">");
             isField = is >= 0 && ib > 0;
             isField &= is < ib;
-            if (isField)
+            if (isField) {
                 keyField = line1.substring(is + 1, ib).trim();
+            }
         }
         return keyField;
     }
 
     public static String getNthLine(String s, int n) {
-        String nthLine = "";
         LineNumberReader lnr = new LineNumberReader(new StringReader(s));
         int line = n;
         line--;
@@ -85,11 +85,11 @@ class SdfUtil {
             }
         }
         try {
-            nthLine = lnr.readLine().trim();
+            String result = lnr.readLine();
+            return result != null ? result.trim() : "";
         } catch (IOException ignored) {
             LOGGER.error("Error occurred.", ignored);
         }
-        return nthLine;
+        return "";
     }
-    
 }

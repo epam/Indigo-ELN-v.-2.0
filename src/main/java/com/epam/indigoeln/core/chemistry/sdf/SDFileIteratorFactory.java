@@ -23,35 +23,35 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
-public class SdfileIteratorFactory {
-    private SdfileIteratorFactory() {
+public final class SDFileIteratorFactory {
+    private SDFileIteratorFactory() {
     }
 
-    public static SdfileIterator getIterator(String fileName) throws IOException {
+    public static SDFileIterator getIterator(String fileName) throws IOException {
         return new IteratorAll(fileName, true);
     }
 
-    public static SdfileIterator getIterator(File f) throws IOException {
+    public static SDFileIterator getIterator(File f) throws IOException {
         return new IteratorAll(f, true);
     }
 
-    public static SdfileIterator getIterator(InputStream is) throws IOException {
+    public static SDFileIterator getIterator(InputStream is) throws IOException {
         return new IteratorAll(is, true);
     }
 
-    public static SdfileIterator getIterator(Reader r) throws IOException {
+    public static SDFileIterator getIterator(Reader r) throws IOException {
         return new IteratorAll(r);
     }
 
-    public static SdfileIterator getIterator(String fileName, boolean allKeysToUpperCase) throws IOException {
+    public static SDFileIterator getIterator(String fileName, boolean allKeysToUpperCase) throws IOException {
         return new IteratorAll(fileName, allKeysToUpperCase);
     }
 
-    public static SdfileIterator getIterator(File f, boolean allKeysToUpperCase) throws IOException {
+    public static SDFileIterator getIterator(File f, boolean allKeysToUpperCase) throws IOException {
         return new IteratorAll(f, allKeysToUpperCase);
     }
 
-    public static SdfileIterator getIterator(InputStream is, boolean allKeysToUpperCase) throws IOException {
+    public static SDFileIterator getIterator(InputStream is, boolean allKeysToUpperCase) throws IOException {
         return new IteratorAll(is, allKeysToUpperCase);
     }
 

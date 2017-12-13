@@ -15,7 +15,7 @@ import java.util.*;
 import static com.epam.indigoeln.core.security.CookieConstants.CSRF_TOKEN_HEADER;
 import static org.junit.Assert.*;
 
-public class ProjectResourceTest extends RestBase {
+public class ProjectResourceIT extends RestBaseIT {
 
     @Autowired
     private ProjectRepository projectRepository;

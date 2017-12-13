@@ -2,11 +2,11 @@ package com.epam.indigoeln.core.service.search.impl.pubchem.dto;
 
 public class Structure {
 
-    boolean entered = false;
-    byte[]  image;
-    String molfile;
-    String structureId;
-    String structureType = "molecule";
+    private boolean entered = false;
+    private byte[] image;
+    private String molfile;
+    private String structureId;
+    private String structureType = "molecule";
 
     public boolean isEntered() {
         return entered;
@@ -16,11 +16,11 @@ public class Structure {
         this.entered = entered;
     }
 
-    public  byte[]  getImage() {
+    public byte[] getImage() {
         return image;
     }
 
-    public void setImage(byte[]  image) {
+    public void setImage(byte[] image) {
         this.image = image;
     }
 

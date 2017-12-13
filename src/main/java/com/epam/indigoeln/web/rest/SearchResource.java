@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
- * REST Controller for Custom Search Implementation
+ * REST Controller for Custom Search Implementation.
  */
 @Api
 @RestController
@@ -42,7 +42,9 @@ public class SearchResource {
     private UserService userService;
 
     /**
-     * GET /catalogue -> returns a list of search catalogues
+     * GET /catalogue -> returns a list of search catalogues.
+     *
+     * @return Returns a list of search catalogues
      */
     @ApiOperation(value = "Returns a list of search catalogues.")
     @RequestMapping(
@@ -55,7 +57,10 @@ public class SearchResource {
     }
 
     /**
-     * POST /batch -> find batch Components by specified criteria
+     * POST /batch -> find batch Components by specified criteria.
+     *
+     * @param searchRequest Search request
+     * @return Batch components
      */
     @ApiOperation(value = "Searches for batch components by specified criteria.")
     @RequestMapping(
@@ -71,7 +76,10 @@ public class SearchResource {
     }
 
     /**
-     * POST / -> find entities by specified criteria
+     * POST / -> find entities by specified criteria.
+     *
+     * @param searchRequest Search requesy
+     * @return List with search result
      */
     @ApiOperation(value = "Searches for entities by specified criteria.")
     @RequestMapping(

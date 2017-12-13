@@ -32,7 +32,12 @@ public class CalculationResource {
     private StoicCalculationService stoicCalculationService;
 
     /**
-     * PUT /molecule/info/ -> get calculated molecular fields
+     * PUT /molecule/info/ -> get calculated molecular fields.
+     *
+     * @param molecule Molecule
+     * @param saltCode Salt Code
+     * @param saltEq   Salt Eq
+     * @return Returns calculated molecular fields
      */
     @ApiOperation(value = "Gets calculated molecular fields.")
     @RequestMapping(value = "/molecule/info",
@@ -51,7 +56,21 @@ public class CalculationResource {
     }
 
     /**
-     * PUT /molecule/chiral/ -> get is molecule chiral
+     * GET  /api/calculations/salt_code_table?tableName=GCM_SALT_CDT -> Returns all data from csv file salt information.
+     *
+     * @return Data from {@code tableName}
+     */
+    @ApiOperation(value = "Returns all data from csv file.")
+    @RequestMapping(value = "salt_code_table", method = RequestMethod.GET)
+    public List<Map<String, String>> getAllSaltCode(@RequestParam String tableName) {
+        return calculationService.getCodeTableRows(tableName);
+    }
+
+    /**
+     * PUT /molecule/chiral/ -> get is molecule chiral.
+     *
+     * @param molecule Molecule
+     * @return Return true is molecule is chiral
      */
     @ApiOperation(value = "Checks if molecule is chiral.")
     @RequestMapping(value = "/molecule/chiral",
@@ -59,12 +78,15 @@ public class CalculationResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> isMoleculeChiral(
             @ApiParam("Molecule") @RequestBody String molecule
-        ) {
+    ) {
         return ResponseEntity.ok(calculationService.isMoleculeChiral(normalizeMolFile(molecule)));
     }
 
     /**
-     * PUT /molecule/empty/ -> get is molecule empty
+     * PUT /molecule/empty/ -> get is molecule empty.
+     *
+     * @param molecule Molecule
+     * @return Returns true if molecule is empty
      */
     @ApiOperation(value = "Checks if molecule is empty.")
     @RequestMapping(value = "/molecule/empty",
@@ -73,12 +95,15 @@ public class CalculationResource {
             consumes = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<Boolean> isEmptyMolecule(
             @ApiParam("Molecule") @RequestBody String molecule
-        ) {
+    ) {
         return ResponseEntity.ok(calculationService.isMoleculeEmpty(normalizeMolFile(molecule)));
     }
 
     /**
-     * PUT /molecule/equals/ -> check, that all molecules has equal structure
+     * PUT /molecule/equals/ -> check, that all molecules has equal structure.
+     *
+     * @param molecules Molecules
+     * @return Returns true if molecules have equal structure
      */
     @ApiOperation(value = "Checks that all molecules have equal structure.")
     @RequestMapping(value = "/molecule/equals",
@@ -86,12 +111,15 @@ public class CalculationResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> moleculesEquals(
             @ApiParam("Molecules") @RequestBody List<String> molecules
-        ) {
+    ) {
         return ResponseEntity.ok(calculationService.chemistryEquals(molecules));
     }
 
     /**
-     * PUT /reaction/extract/ -> extract reaction components (structure, reactants and products)
+     * PUT /reaction/extract/ -> extract reaction components (structure, reactants and products).
+     *
+     * @param reaction Reaction
+     * @return Extracted reaction components
      */
     @ApiOperation(value = "Extracts reaction components (structure, reactants and products).")
     @RequestMapping(value = "/reaction/extract",
@@ -99,12 +127,15 @@ public class CalculationResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ReactionPropertiesDTO> extractReactionComponents(
             @ApiParam("Reaction") @RequestBody String reaction
-        ) {
+    ) {
         return ResponseEntity.ok(calculationService.extractReactionComponents(normalizeMolFile(reaction)));
     }
 
     /**
-     * PUT /reaction/combine/ -> combine reaction components (structure, reactants and products)
+     * PUT /reaction/combine/ -> combine reaction components (structure, reactants and products).
+     *
+     * @param reaction Reaction data
+     * @return Reaction properties
      */
     @ApiOperation(value = "Combine reaction components (structure, reactants and products.")
     @RequestMapping(value = "/reaction/combine",
@@ -112,12 +143,15 @@ public class CalculationResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ReactionPropertiesDTO> combineReactionComponents(
             @ApiParam("Reaction data") @RequestBody ReactionPropertiesDTO reaction
-        ) {
+    ) {
         return ResponseEntity.ok(calculationService.combineReactionComponents(reaction));
     }
 
     /**
-     * PUT /reaction/equals/ -> check, that all reactions has equal structure
+     * PUT /reaction/equals/ -> check, that all reactions has equal structure.
+     *
+     * @param reactions Reactions
+     * @return Returns true if all reactions have equal structure
      */
     @ApiOperation(value = "Checks that all reactions have equal structure.")
     @RequestMapping(value = "/reaction/equals",
@@ -125,12 +159,15 @@ public class CalculationResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> reactionsEquals(
             @ApiParam("Reactions") @RequestBody List<String> reactions
-        ) {
+    ) {
         return ResponseEntity.ok(calculationService.chemistryEquals(reactions));
     }
 
     /**
-     * PUT /reaction/valid/ -> check, that reaction structure is valid
+     * PUT /reaction/valid/ -> check, that reaction structure is valid.
+     *
+     * @param reaction Reaction
+     * @return Returns true if reaction structure is valid
      */
     @ApiOperation(value = "Checks that reaction structure is valid.")
     @RequestMapping(value = "/reaction/valid",
@@ -138,16 +175,19 @@ public class CalculationResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> isValidReaction(
             @ApiParam("Reaction") @RequestBody String reaction
-        ) {
+    ) {
         return ResponseEntity.ok(calculationService.isValidReaction(normalizeMolFile(reaction)));
     }
 
-    private String normalizeMolFile(String structure){
+    private String normalizeMolFile(String structure) {
         return StringUtils.replace(structure, "\\n", System.getProperty("line.separator"));
     }
 
     /**
-     * PUT /stoich/calculate -> calcalate stoich table
+     * PUT /stoich/calculate -> calcalate stoich table.
+     *
+     * @param stoicTableDTO Stoichiometry table
+     * @return Returns calculated stoichiometry table
      */
     @ApiOperation(value = "Calculate stoichiometry table.")
     @RequestMapping(value = "/stoich/calculate",
@@ -159,7 +199,10 @@ public class CalculationResource {
     }
 
     /**
-     * PUT /stoich/calculate -> calcalate stoich table based on batch
+     * PUT /stoich/calculate -> calcalate stoich table based on batch.
+     *
+     * @param stoicTableDTO Stoichiometry table
+     * @return Returns calculated stoichiometry table based on batch
      */
     @ApiOperation(value = "Calculate stoichiometry table based on batch.")
     @RequestMapping(value = "/stoich/calculate/batch",
@@ -171,19 +214,25 @@ public class CalculationResource {
     }
 
     /**
-     * PUT /product/calculate/batch -> calculate batch from product batch summary table
+     * PUT /product/calculate/batch -> calculate batch from product batch summary table.
+     *
+     * @param productTableDTO Batch from product table
+     * @return Returns calculated batch from product batch summary table
      */
     @ApiOperation(value = "Calculate batch from product batch summary table.")
     @RequestMapping(value = "/product/calculate/batch",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BasicBatchModel> calculateProductBatch(
-            @ApiParam("Batch from product table")@RequestBody ProductTableDTO productTableDTO) {
+            @ApiParam("Batch from product table") @RequestBody ProductTableDTO productTableDTO) {
         return ResponseEntity.ok(stoicCalculationService.calculateProductBatch(productTableDTO));
     }
 
     /**
-     * PUT /product/calculate/batch/amounts -> calcalate batch batch amounts
+     * PUT /product/calculate/batch/amounts -> calcalate batch batch amounts.
+     *
+     * @param productTableDTO Batch from product table
+     * @return Returns calculated batch batch amounts
      */
     @ApiOperation(value = "Calculate batch batch amounts.")
     @RequestMapping(value = "/product/calculate/batch/amounts",
@@ -193,5 +242,4 @@ public class CalculationResource {
             @ApiParam("Batch from product table") @RequestBody ProductTableDTO productTableDTO) {
         return ResponseEntity.ok(stoicCalculationService.recalculateBatchAmounts(productTableDTO));
     }
-
 }

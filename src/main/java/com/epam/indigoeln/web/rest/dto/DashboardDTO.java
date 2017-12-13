@@ -4,9 +4,9 @@ import java.util.Collection;
 
 public class DashboardDTO {
 
-    Collection<DashboardRowDTO> openAndCompletedExp;
-    Collection<DashboardRowDTO> waitingSignatureExp;
-    Collection<DashboardRowDTO> submittedAndSigningExp;
+    private Collection<DashboardRowDTO> openAndCompletedExp;
+    private Collection<DashboardRowDTO> waitingSignatureExp;
+    private Collection<DashboardRowDTO> submittedAndSigningExp;
 
     public Collection<DashboardRowDTO> getOpenAndCompletedExp() {
         return openAndCompletedExp;

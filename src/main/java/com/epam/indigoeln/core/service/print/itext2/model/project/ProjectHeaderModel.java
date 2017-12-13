@@ -6,7 +6,10 @@ import com.epam.indigoeln.core.service.print.itext2.model.common.image.PdfImage;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 
-public class ProjectHeaderModel extends BaseHeaderModel{
+/**
+ * Extension BaseHeaderModel for project header.
+ */
+public class ProjectHeaderModel extends BaseHeaderModel {
     private String author;
     private ZonedDateTime creationDate;
     private String projectName;

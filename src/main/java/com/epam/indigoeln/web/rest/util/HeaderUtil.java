@@ -6,7 +6,7 @@ import org.springframework.http.MediaType;
 /**
  * Utility class for http header creation.
  */
-public class HeaderUtil {
+public final class HeaderUtil {
 
     public static final String SUCCESS_ALERT = "X-indigoeln-success-alert";
     public static final String TOTAL_COUNT = "X-Total-Count";

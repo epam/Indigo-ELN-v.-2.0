@@ -1,6 +1,7 @@
 package com.epam.indigoeln.core.repository.signature;
 
 import com.epam.indigoeln.config.signature.SignatureProperties;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -44,7 +45,8 @@ public class SignatureRepository {
     }
 
     public String getSignatureTemplates(String username) {
-        return exchange(signatureProperties.getUrl() + "/api/getTemplates?username={username}", HttpMethod.GET, null,
+        return exchange(signatureProperties.getUrl() + "/api/getTemplates?username={username}",
+                HttpMethod.GET, null,
                 String.class, Collections.singletonMap("username", username)).getBody();
     }
 
@@ -56,12 +58,7 @@ public class SignatureRepository {
         LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         map.add("username", username);
         map.add("templateId", templateId);
-        ByteArrayResource fileResource = new ByteArrayResource(file) {
-            @Override
-            public String getFilename() {
-                return fileName;
-            }
-        };
+        ByteArrayResource fileResource = new ByteArrayResourceImpl(file, fileName);
         map.add("file", fileResource);
 
         return exchange(signatureProperties.getUrl() + "/api/uploadDocument", HttpMethod.POST, map,
@@ -74,8 +71,8 @@ public class SignatureRepository {
         }
 
         try {
-            return exchange(signatureProperties.getUrl() + "/api/getDocumentInfo?id={id}", HttpMethod.GET, null,
-                    String.class, Collections.singletonMap("id", documentId)).getBody();
+            return exchange(signatureProperties.getUrl() + "/api/getDocumentInfo?id={id}", HttpMethod.GET,
+                    null, String.class, Collections.singletonMap("id", documentId)).getBody();
         } catch (Exception e) {
             LOGGER.error("Couldn't get document info, document id = " + documentId, e);
             return StringUtils.EMPTY;
@@ -91,7 +88,8 @@ public class SignatureRepository {
             return exchange(signatureProperties.getUrl() + "/api/getDocumentsByIds", HttpMethod.POST,
                     Collections.singletonMap("documentsIds", documentIds), String.class, new HashMap<>()).getBody();
         } catch (Exception e) {
-            LOGGER.error("Couldn't get documents info, document ids = " + documentIds.stream().reduce("", (s1, s2) -> s1 + ", " + s2), e);
+            LOGGER.error("Couldn't get documents info, document ids = " + documentIds.stream()
+                    .reduce("", (s1, s2) -> s1 + ", " + s2), e);
             return StringUtils.EMPTY;
         }
     }
@@ -102,7 +100,8 @@ public class SignatureRepository {
         }
 
         try {
-            return exchange(signatureProperties.getUrl() + "/api/getDocuments?username={username}", HttpMethod.GET, null,
+            return exchange(signatureProperties.getUrl() + "/api/getDocuments?username={username}",
+                    HttpMethod.GET, null,
                     String.class, Collections.singletonMap("username", username)).getBody();
         } catch (Exception e) {
             LOGGER.error("Couldn't get documents, username = " + username, e);
@@ -116,7 +115,8 @@ public class SignatureRepository {
         }
 
         try {
-            return exchange(signatureProperties.getUrl() + "/api/downloadDocument?id={id}", HttpMethod.GET, null,
+            return exchange(signatureProperties.getUrl() + "/api/downloadDocument?id={id}",
+                    HttpMethod.GET, null,
                     byte[].class, Collections.singletonMap("id", documentId)).getBody();
         } catch (Exception e) {
             LOGGER.error("Couldn't download document, document id = " + documentId, e);
@@ -124,7 +124,8 @@ public class SignatureRepository {
         }
     }
 
-    private <E> ResponseEntity<E> exchange(String url, HttpMethod method, Object body, Class<E> clazz, Map<String, Object> args) {
+    private <E> ResponseEntity<E> exchange(String url, HttpMethod method, Object body, Class<E> clazz,
+                                           Map<String, Object> args) {
         try {
             return restTemplate.exchange(
                     url,
@@ -139,11 +140,13 @@ public class SignatureRepository {
                 return restTemplate.exchange(
                         url,
                         method,
-                        new HttpEntity<>(body, header(HttpHeaders.COOKIE, "JSESSIONID=" + getSignatureSessionId())),
+                        new HttpEntity<>(body, header(HttpHeaders.COOKIE, "JSESSIONID="
+                                + getSignatureSessionId())),
                         clazz,
                         args);
             } else {
-                LOGGER.warn("Error occurred while exchanging with signature service:" + e.getResponseBodyAsString(), e);
+                LOGGER.warn("Error occurred while exchanging with signature service:"
+                        + e.getResponseBodyAsString(), e);
                 throw e;
             }
         }
@@ -160,7 +163,8 @@ public class SignatureRepository {
         o.put("username", username);
         o.put("password", password);
 
-        ResponseEntity<Object> responseEntity = restTemplate.postForEntity(signatureProperties.getUrl() + "/loginProcess", o, Object.class);
+        ResponseEntity<Object> responseEntity = restTemplate
+                .postForEntity(signatureProperties.getUrl() + "/loginProcess", o, Object.class);
 
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             return responseEntity.getHeaders()
@@ -188,6 +192,21 @@ public class SignatureRepository {
     private void setSignatureSessionId(String signatureSessionId) {
         synchronized (signatureSessionIdLock) {
             this.signatureSessionId = signatureSessionId;
+        }
+    }
+
+    @EqualsAndHashCode
+    private static class ByteArrayResourceImpl extends ByteArrayResource {
+        private final String fileName;
+
+        ByteArrayResourceImpl(byte[] byteArray, String fileName) {
+            super(byteArray);
+            this.fileName = fileName;
+        }
+
+        @Override
+        public String getFilename() {
+            return fileName;
         }
     }
 }

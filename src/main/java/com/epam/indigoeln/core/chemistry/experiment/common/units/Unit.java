@@ -83,12 +83,11 @@ public class Unit extends GenericCode implements Comparable {
 
     @Override
     public boolean equals(Object obj) {
-        boolean result = false;
-        if (obj instanceof Unit) {
-            Unit test = (Unit) obj;
-            result = (type.equals(test.type) && code.equals(test.code));
+        if ((obj == null) || getClass() != obj.getClass()) {
+            return false;
         }
-        return result;
+        Unit test = (Unit) obj;
+        return (type.equals(test.type) && code.equals(test.code));
     }
 
     @Override

@@ -97,7 +97,8 @@ public class SignatureResource {
         User user = userService.getUserWithAuthorities();
         ExperimentDTO experimentDto = experimentService.getExperiment(projectId, notebookId, experimentId, user);
         Experiment experiment = dtoMapper.convertFromDTO(experimentDto);
-        if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, experiment.getAccessList(), UserPermission.UPDATE_ENTITY)){
+        if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, experiment.getAccessList(),
+                UserPermission.UPDATE_ENTITY)) {
             throw OperationDeniedException.createExperimentUpdateOperation(experiment.getId());
         }
         experiment.setStatus(ExperimentStatus.COMPLETED);

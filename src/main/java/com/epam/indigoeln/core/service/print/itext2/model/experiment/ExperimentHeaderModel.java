@@ -1,12 +1,14 @@
 package com.epam.indigoeln.core.service.print.itext2.model.experiment;
 
 import com.epam.indigoeln.core.service.print.itext2.model.common.BaseHeaderModel;
-import com.epam.indigoeln.core.service.print.itext2.model.common.SectionModel;
 import com.epam.indigoeln.core.service.print.itext2.model.common.image.PdfImage;
 
 import java.time.Instant;
 
-public class ExperimentHeaderModel extends BaseHeaderModel implements SectionModel {
+/**
+ * Implementation of SectionModel interface for experiment header.
+ */
+public class ExperimentHeaderModel extends BaseHeaderModel {
     private Instant printDate;
     private String author;
     private String notebookExperiment;

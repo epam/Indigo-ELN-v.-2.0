@@ -18,42 +18,44 @@
  ***************************************************************************/
 package com.epam.indigoeln.core.chemistry.sdf;
 
-import java.io.*;
+import lombok.extern.slf4j.Slf4j;
 
-class IteratorAll implements SdfileIterator {
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+
+@Slf4j
+class IteratorAll implements SDFileIterator {
 
     private static final String M_END = "M  END";
 
-    BufferedReader buffer;
-    int index;
-    boolean toUpper;
+    private BufferedReader buffer;
+    private int index;
+    private boolean toUpper;
 
     IteratorAll(File f, boolean allKeysToUpperCase)
             throws FileNotFoundException {
         buffer = null;
         index = 0;
-        toUpper = false;
         toUpper = allKeysToUpperCase;
-        FileInputStream fis = new FileInputStream(f);
-        init(fis);
+        InputStreamReader isr = new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8);
+        buffer = new BufferedReader(isr);
     }
 
     IteratorAll(String filename, boolean allKeysToUpperCase)
             throws FileNotFoundException {
         buffer = null;
         index = 0;
-        toUpper = false;
         toUpper = allKeysToUpperCase;
-        FileInputStream fis = new FileInputStream(filename);
-        init(fis);
+        InputStreamReader isr = new InputStreamReader(new FileInputStream(filename), StandardCharsets.UTF_8);
+        buffer = new BufferedReader(isr);
     }
 
     IteratorAll(InputStream is, boolean allKeysToUpperCase) {
         buffer = null;
         index = 0;
-        toUpper = false;
         toUpper = allKeysToUpperCase;
-        init(is);
+        InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
+        buffer = new BufferedReader(isr);
     }
 
     IteratorAll(Reader r) {
@@ -73,11 +75,6 @@ class IteratorAll implements SdfileIterator {
         return index;
     }
 
-    private void init(InputStream is) {
-        InputStreamReader isr = new InputStreamReader(is);
-        buffer = new BufferedReader(isr);
-    }
-
     private void init(Reader r) {
         buffer = new BufferedReader(r);
     }
@@ -85,20 +82,24 @@ class IteratorAll implements SdfileIterator {
     @Override
     public SdUnit getNext() throws IOException {
         String line;
-        String out = "";
+        StringBuilder outStringBuilder = new StringBuilder();
         boolean hasMEND = false;
         int lineCount = 0;
         while ((line = buffer.readLine()) != null) {
             lineCount++;
-            out += line + "\n";
-            if (M_END.equals(line.trim()))
+            outStringBuilder
+                    .append(line)
+                    .append("\n");
+            if (M_END.equals(line.trim())) {
                 hasMEND = true;
-            if (lineCount > 4000 && !hasMEND)
+            }
+            if (lineCount > 4000 && !hasMEND) {
                 throw new IOException(
                         "\"M  END\" was never encountered and the maximum length of a mol file was reached");
+            }
             if ("$$$$".equals(line.trim())) {
                 index++;
-                return new SdUnit(out, toUpper, false);
+                return new SdUnit(outStringBuilder.toString(), toUpper, false);
             }
         }
         if (hasMEND) {

@@ -140,6 +140,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 HeaderUtil.TOTAL_COUNT,
                 HttpHeaders.LINK,
                 HttpHeaders.CONTENT_TYPE,
+                HttpHeaders.COOKIE,
                 HttpHeaders.SET_COOKIE,
                 HttpHeaders.CONTENT_DISPOSITION));
 
@@ -292,7 +293,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 //restrictions for swagger
                 .antMatchers("/swagger-ui.html").authenticated()
-                .antMatchers("/indigoeln/v2/api-docs").authenticated()
+                .antMatchers("/v2/api-docs").authenticated()
 
                 .antMatchers("/websocket/**").authenticated()
 

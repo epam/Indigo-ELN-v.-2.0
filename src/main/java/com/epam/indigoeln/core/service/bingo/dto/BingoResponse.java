@@ -2,9 +2,15 @@ package com.epam.indigoeln.core.service.bingo.dto;
 
 import java.util.List;
 
+/**
+ * Describes BingoResponse object
+ *
+ * @author Vladislav Alekseev
+ */
 public class BingoResponse {
 
     private String message;
+
     private List<BingoStructure> structures;
 
     public String getMessage() {

@@ -29,10 +29,13 @@ public class ComponentSearchRepository implements InitializingBean {
     private static final String FIELD_PURITY_VALUE = "value";
     private static final String FIELD_PURITY_OPERATOR = "operator.name";
 
-    public static final Collection<String> AVAILABLE_FIELDS = Arrays.asList("therapeuticArea", "projectCode", "batchYield", FIELD_PURITY, "name", "description", "compoundId",
-            "references", "keywords", "chemicalName");
+    static final Collection<String> AVAILABLE_FIELDS = Collections.unmodifiableList(
+            Arrays.asList("therapeuticArea", "projectCode", "batchYield", FIELD_PURITY, "name", "description",
+                    "compoundId", "references", "keywords", "chemicalName"));
     private static final Collection<String> SEARCH_QUERY_EQ_FIELDS = Arrays.asList("batchYield", FIELD_PURITY);
-    private static final Collection<String> SEARCH_QUERY_CON_FIELDS = Arrays.asList("therapeuticArea", "projectCode", "name", "description", "compoundId", "references", "keywords", "chemicalName");
+    private static final Collection<String> SEARCH_QUERY_CON_FIELDS = Arrays
+            .asList("therapeuticArea", "projectCode", "name", "description",
+                    "compoundId", "references", "keywords", "chemicalName");
 
     private final MongoTemplate mongoTemplate;
 
@@ -51,7 +54,7 @@ public class ComponentSearchRepository implements InitializingBean {
         searchScript = new ExecutableMongoScript(ResourceUtils.loadFunction(scriptResource));
     }
 
-    public Optional<Set<Object>> searchWithQuery(EntitySearchRequest request) {
+    Optional<Set<Object>> searchWithQuery(EntitySearchRequest request) {
         List<String> fields = request.getAdvancedSearch().stream()
                 .filter(c -> AVAILABLE_FIELDS.contains(c.getField()))
                 .map(SearchCriterion::getField)
@@ -75,7 +78,7 @@ public class ComponentSearchRepository implements InitializingBean {
         return AggregationUtils.orCriteria(querySearch).map(this::find);
     }
 
-    public Optional<Set<Object>> searchWithAdvanced(EntitySearchRequest request) {
+    Optional<Set<Object>> searchWithAdvanced(EntitySearchRequest request) {
         List<Criteria> advancedSearch = request.getAdvancedSearch().stream()
                 .filter(c -> AVAILABLE_FIELDS.contains(c.getField()))
                 .filter(c -> !FIELD_PURITY.equals(c.getField()))
@@ -95,7 +98,7 @@ public class ComponentSearchRepository implements InitializingBean {
         return AggregationUtils.andCriteria(advancedSearch).map(this::find);
     }
 
-    public Optional<Set<Object>> searchWithBingoIds(EntitySearchRequest request, List<String> bingoIds) {
+    Optional<Set<Object>> searchWithBingoIds(EntitySearchRequest request, List<String> bingoIds) {
         if (!bingoIds.isEmpty()) {
             StructureSearchType type = request.getStructure().get().getType().getName();
             if (type == StructureSearchType.PRODUCT) {
@@ -115,5 +118,4 @@ public class ComponentSearchRepository implements InitializingBean {
                 .collect(Collectors.toSet()
                 );
     }
-
 }

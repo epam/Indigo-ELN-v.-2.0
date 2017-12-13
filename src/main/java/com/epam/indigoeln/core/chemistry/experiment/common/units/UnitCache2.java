@@ -1,11 +1,12 @@
 package com.epam.indigoeln.core.chemistry.experiment.common.units;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class UnitCache2 {
 
-    private static UnitCache2 instance;
+    private static volatile UnitCache2 instance;
     private TreeMap<UnitType, Map<String, Unit2>> unitsByType = null;
     private TreeMap<String, Unit2> units = null; // Cached by code
     private TreeMap<String, Unit2> unitsByDisplayName = null;
@@ -43,8 +44,8 @@ public class UnitCache2 {
 
         if (units.containsKey(uc))
             result = units.get(uc);
-        if (units.containsKey(uc.toUpperCase()))
-            result = units.get(uc.toUpperCase());
+        if (units.containsKey(uc.toUpperCase(Locale.getDefault())))
+            result = units.get(uc.toUpperCase(Locale.getDefault()));
         if (unitsByDisplayName.containsKey(uc))
             result = unitsByDisplayName.get(uc);
 
@@ -60,14 +61,13 @@ public class UnitCache2 {
     private void addMap(UnitType type, Map<String, Unit2> mp) {
         if (!unitsByType.containsKey(type))
             unitsByType.put(type, mp);
-        Unit2 tempUnit;
-        for (String key : mp.keySet()) {
+
+        mp.forEach((key, value) -> {
             if (!units.containsKey(key)) {
-                tempUnit = mp.get(key);
-                unitsByDisplayName.put(tempUnit.getDisplayValue(), tempUnit);
-                units.put(key, tempUnit);
+                unitsByDisplayName.put(value.getDisplayValue(), value);
+                units.put(key, value);
             }
-        }
+        });
     }
 }
 

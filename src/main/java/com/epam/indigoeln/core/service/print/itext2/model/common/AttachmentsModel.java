@@ -4,6 +4,9 @@ import com.epam.indigoeln.web.rest.dto.FileDTO;
 
 import java.util.List;
 
+/**
+ * Model representation for attachment.
+ */
 public class AttachmentsModel implements SectionModel {
 
     private List<FileDTO> files;

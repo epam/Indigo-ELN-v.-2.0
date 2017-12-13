@@ -14,18 +14,20 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static com.epam.indigoeln.core.service.codetable.CodeTableService.*;
+
 /**
- * Service for calculations under reaction or molecular structures defined in special text format
+ * Service for calculations under reaction or molecular structures defined in special text format.
+ *
+ * @author Sergei Bolbin
  */
 @Service
 public class CalculationService {
 
+    /**
+     * Logger instance.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(CalculationService.class);
-
-    private static final String SALT_CODE    = "SALT_CODE";
-    private static final String SALT_DESC    = "SALT_DESC";
-    private static final String SALT_WEIGHT  = "SALT_WEIGHT";
-    private static final String SALT_FORMULA = "SALT_FORMULA";
 
     private static final String EXCEPTION_OCCURRED = "Exception occurred: ";
 
@@ -41,7 +43,7 @@ public class CalculationService {
     @Autowired
     private CodeTableService codeTableService;
 
-    public boolean isMolecule(String s) {
+    private boolean isMolecule(String s) {
         try {
             indigoProvider.indigo().loadMolecule(s);
             return true;
@@ -51,7 +53,7 @@ public class CalculationService {
         }
     }
 
-    public boolean isReaction(String s) {
+    private boolean isReaction(String s) {
         try {
             indigoProvider.indigo().loadReaction(s);
             return true;
@@ -61,6 +63,13 @@ public class CalculationService {
         }
     }
 
+    /**
+     * Returns <code>true</code> if the string molecule's representation is empty.
+     *
+     * @param molecule String molecule's representation
+     * @return Returns <code>true</code> if the string molecule's representation is empty or
+     * <code>false</code> if it's not empty
+     */
     public Optional<Boolean> isEmptyMolecule(String molecule) {
         try {
             return Optional.of(indigoProvider.indigo().loadMolecule(molecule).countComponents() == 0);
@@ -70,6 +79,13 @@ public class CalculationService {
         }
     }
 
+    /**
+     * Returns <code>true</code> if the string reaction's representation is empty.
+     *
+     * @param reaction String reaction's representation
+     * @return Returns <code>true</code> if the string reaction's representation is empty or
+     * <code>false</code> if it's not empty
+     */
     public Optional<Boolean> isEmptyReaction(String reaction) {
         try {
             indigoProvider.indigo().loadReaction(reaction);
@@ -88,7 +104,7 @@ public class CalculationService {
     }
 
     /**
-     * Check, that chemistry structures of reactions or molecules are equals
+     * Check, that chemistry structures of reactions or molecules are equals.
      *
      * @param chemistryItems list of chemistry structures
      * @return true if all chemistry items equals
@@ -96,8 +112,9 @@ public class CalculationService {
     public boolean chemistryEquals(List<String> chemistryItems) {
         Indigo indigo = indigoProvider.indigo();
         IndigoObject prevHandle = null;
-        for(String chemistry : chemistryItems) {
-            IndigoObject handle = isReaction(chemistry) ? indigo.loadReaction(chemistry) : indigo.loadMolecule(chemistry);
+        for (String chemistry : chemistryItems) {
+            IndigoObject handle = isReaction(chemistry) ? indigo.loadReaction(chemistry)
+                    : indigo.loadMolecule(chemistry);
             if (prevHandle != null && indigo.exactMatch(handle, prevHandle) == null) {
                 return false;
             }
@@ -108,13 +125,16 @@ public class CalculationService {
 
     /**
      * Return calculated information for molecular structure
-     * (name, formula, molecular weight, exact molecular weight, is chiral)
+     * (name, formula, molecular weight, exact molecular weight, is chiral).
      *
-     * @param molecule structure of molecule
+     * @param molecule    structure of molecule
+     * @param saltCodeOpt Salt Code
+     * @param saltEqOpt   Salt Eq
      * @return map of calculated attributes
      */
     @SuppressWarnings("unchecked")
-    public Map<String, String> getMolecularInformation(String molecule, Optional<String> saltCodeOpt, Optional<Float> saltEqOpt) {
+    public Map<String, String> getMolecularInformation(String molecule,
+                                                       Optional<String> saltCodeOpt, Optional<Float> saltEqOpt) {
         Map<String, String> result = new HashMap<>();
 
         IndigoObject handle = indigoProvider.indigo().loadMolecule(molecule);
@@ -122,11 +142,14 @@ public class CalculationService {
         Map<String, String> saltMetadata = getSaltMetadata(saltCodeOpt).orElse(SALT_METADATA_DEFAULT);
         float saltEq = saltEqOpt.orElse(1.0f);
         float molecularWeightOriginal = handle.molecularWeight();
-        float saltWeight =  Optional.ofNullable(saltMetadata.get(SALT_WEIGHT)).map(Float::valueOf).orElse(0.0f);
+        float saltWeight = Optional.ofNullable(saltMetadata.get(SALT_WEIGHT)).map(Float::valueOf).orElse(0.0f);
         float molecularWeightCalculated = molecularWeightOriginal + saltEq * saltWeight;
+
+        String image = getStructureWithImage(molecule).getImageBase64();
 
         result.put("name", handle.name());
         result.put("molecule", molecule);
+        result.put("image", image);
         result.put("molecularFormula", handle.grossFormula());
         result.put("molecularWeightOriginal", String.valueOf(molecularWeightOriginal));
         result.put("exactMolecularWeight", String.valueOf(handle.monoisotopicMass()));
@@ -142,7 +165,18 @@ public class CalculationService {
     }
 
     /**
-     * Check, that molecule is empty (does not contains any atoms)
+     * Returns rows from table with name {@code tableName}.
+     * <p>
+     * Table should be stored in data/{@code tableName}.csv.
+     *
+     * @return Data rows from {@code tableName} table
+     */
+    public List<Map<String, String>> getCodeTableRows(String tableName) {
+        return codeTableService.getCodeTable(tableName);
+    }
+
+    /**
+     * Check, that molecule is empty (does not contains any atoms).
      *
      * @param molecule structure of molecule
      * @return true if molecule empty
@@ -152,7 +186,7 @@ public class CalculationService {
     }
 
     /**
-     * Check, that molecule is chiral
+     * Check, that molecule is chiral.
      *
      * @param molecule structure of molecule
      * @return true if molecule is chiral
@@ -162,7 +196,8 @@ public class CalculationService {
     }
 
     /**
-     * Extract components (products and reactants) of given reaction
+     * Extract components (products and reactants) of given reaction.
+     *
      * @param reaction reaction structure
      * @return reaction components
      */
@@ -188,9 +223,10 @@ public class CalculationService {
     }
 
     /**
-     * Combine reaction components (products and reactants) with existing reaction structure
+     * Combine reaction components (products and reactants) with existing reaction structure.
      * Reaction structure received as string field of DTO and will be enriched by reactants and products received in
-     * DTO list fields
+     * DTO list fields.
+     *
      * @param reactionDTO reaction DTO
      * @return reaction DTO enriched by reactants and products
      */
@@ -213,7 +249,7 @@ public class CalculationService {
     }
 
     /**
-     * Method to determine if chemistry contains a valid reaction (any products and reactants present)
+     * Method to determine if chemistry contains a valid reaction (any products and reactants present).
      *
      * @param reaction structure of reaction
      * @return is reaction valid
@@ -224,7 +260,8 @@ public class CalculationService {
     }
 
     /**
-     * Render molecule/reaction by its string representation
+     * Render molecule/reaction by its string representation.
+     *
      * @param structure string structure representation (Mol, Smiles etc.)
      * @return RendererResult
      */
@@ -234,13 +271,12 @@ public class CalculationService {
         return new RendererResult(indigoProvider.renderer(indigo).renderToBuffer(io));
     }
 
-    private Optional<Map> getSaltMetadata(Optional<String> saltCode) {
-        if(!saltCode.isPresent()) {
+    private Optional<Map<String, String>> getSaltMetadata(Optional<String> saltCode) {
+        if (!saltCode.isPresent()) {
             return Optional.empty();
         }
 
-        List<Map> codeTable = codeTableService.getCodeTable(CodeTableService.TABLE_SALT_CODE);
+        List<Map<String, String>> codeTable = codeTableService.getCodeTable(CodeTableService.TABLE_SALT_CODE);
         return codeTable.stream().filter(tableRow -> saltCode.get().equals(tableRow.get(SALT_CODE))).findAny();
     }
-
 }

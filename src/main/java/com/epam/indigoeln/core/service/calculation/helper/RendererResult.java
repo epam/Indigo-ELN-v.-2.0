@@ -4,7 +4,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Base64;
 
+/**
+ * Describes RenderResult object.
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RendererResult implements Serializable {
 
@@ -18,6 +22,10 @@ public class RendererResult implements Serializable {
 
     public byte[] getImage() {
         return Arrays.copyOf(image, image.length);
+    }
+
+    public String getImageBase64() {
+        return Base64.getEncoder().encodeToString(image);
     }
 
     public void setImage(byte[] image) {

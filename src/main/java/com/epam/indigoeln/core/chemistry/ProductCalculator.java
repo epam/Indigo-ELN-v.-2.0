@@ -1,7 +1,6 @@
 package com.epam.indigoeln.core.chemistry;
 
 import com.epam.indigoeln.core.chemistry.domain.AmountModel;
-import com.epam.indigoeln.core.chemistry.domain.BatchModel;
 import com.epam.indigoeln.core.chemistry.domain.MonomerBatchModel;
 import com.epam.indigoeln.core.chemistry.domain.ProductBatchModel;
 import com.epam.indigoeln.core.chemistry.experiment.common.units.Unit2;
@@ -42,12 +41,13 @@ public class ProductCalculator {
         syncUnitsAndSigDigits(objectList, amount, VOLUME_AMOUNT);
     }
 
-    private static void setTotalMoles(BatchModel batch, AmountModel totalMolesAmountModel) {
+    private static void setTotalMoles(ProductBatchModel batch, AmountModel totalMolesAmountModel) {
         double totalWeightInStdUnits = totalMolesAmountModel.getValueInStdUnitsAsDouble() * batch.getMolWgt();
         AmountModel newTotalWeightAmountModel = new AmountModel(MASS, totalWeightInStdUnits);
-        newTotalWeightAmountModel.setUnit(batch.getTotalWeight().getUnit()); //Do not change unit based on moles. Total wt unit takes precedence.
+        newTotalWeightAmountModel.setUnit(batch.getTotalWeight().getUnit()); //Do not change unit based on moles.
+        // Total wt unit takes precedence.
         newTotalWeightAmountModel.setSigDigits(batch.getTotalWeight().getSigDigits());
-        setTotalAmountMadeWeight((ProductBatchModel) batch, newTotalWeightAmountModel, true);
+        setTotalAmountMadeWeight(batch, newTotalWeightAmountModel, true);
         batch.getTheoreticalMoleAmount().setUnit(totalMolesAmountModel.getUnit());
         batch.getMoleAmount().setCalculated(false);
     }
@@ -87,8 +87,9 @@ public class ProductCalculator {
         };
 
         for (Object object : objectList) {
-            if (object == null)
+            if (object == null) {
                 continue;
+            }
 
             switch (property) {
                 case WEIGHT_AMOUNT:
@@ -113,11 +114,13 @@ public class ProductCalculator {
         AmountModel amount;
         switch (changedField) {
             case "totalWeight":
-                amount = new AmountModel(MASS, rawBatch.getTotalWeight().getValue(), !rawBatch.getTotalWeight().isEntered());
+                amount = new AmountModel(MASS, rawBatch.getTotalWeight().getValue(),
+                        !rawBatch.getTotalWeight().isEntered());
                 setTotalAmountMadeWeight(batch, amount, false);
                 break;
             case "totalVolume":
-                amount = new AmountModel(VOLUME, rawBatch.getTotalVolume().getValue(), !rawBatch.getTotalVolume().isEntered());
+                amount = new AmountModel(VOLUME, rawBatch.getTotalVolume().getValue(),
+                        !rawBatch.getTotalVolume().isEntered());
                 setTotalAmountMadeVolume(batch, amount);
                 break;
             case "mol":
@@ -130,5 +133,4 @@ public class ProductCalculator {
         }
 
     }
-
 }

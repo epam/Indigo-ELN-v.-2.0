@@ -21,30 +21,31 @@ package com.epam.indigoeln.core.service.sd;
 import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.chemistry.domain.SDFileInfo;
 import com.epam.indigoeln.core.chemistry.sdf.SdUnit;
-import com.epam.indigoeln.core.chemistry.sdf.SdfileIterator;
-import com.epam.indigoeln.core.chemistry.sdf.SdfileIteratorFactory;
+import com.epam.indigoeln.core.chemistry.sdf.SDFileIterator;
+import com.epam.indigoeln.core.chemistry.sdf.SDFileIteratorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 /**
- * Service class for exporting and importing SDFiles
+ * Service class for exporting and importing SDFiles.
  */
 @Service
 public class SDService {
 
     /**
-     * Logger instance
+     * Logger instance.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(SDService.class);
 
     /**
-     * Read SDFile to collection of item representation
+     * Read SDFile to collection of item representation.
      *
      * @param reader reader for SDFile
      * @return collection of items (structures with properties) from SDFile
@@ -52,9 +53,8 @@ public class SDService {
      */
     public Collection<SdUnit> parse(Reader reader) {
         List<SdUnit> result = new ArrayList<>();
-        try {
+        try (SDFileIterator it = SDFileIteratorFactory.getIterator(reader)) {
             SdUnit sdu;
-            SdfileIterator it = SdfileIteratorFactory.getIterator(reader);
             int offset = 0;
             while ((sdu = it.getNext()) != null) {
                 offset++;
@@ -67,7 +67,7 @@ public class SDService {
                 // add to list
                 result.add(sdu);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             LOGGER.error("Error while extracting batch from SD file: " + e);
             throw new IndigoRuntimeException(e);
         }
@@ -75,7 +75,7 @@ public class SDService {
     }
 
     /**
-     * Create SDFile representation from given collection of SDFile items
+     * Create SDFile representation from given collection of SDFile items.
      *
      * @param items collection of SDFile items
      * @return SDFile representation
@@ -103,7 +103,7 @@ public class SDService {
     }
 
     /**
-     * Create string representation of given SDFile item
+     * Create string representation of given SDFile item.
      *
      * @param item SDFile item
      * @return string representation of given SDFile item
@@ -116,7 +116,7 @@ public class SDService {
             final String molfile = item.getMolfile();
             if (molfile != null) {
                 // Check if it is not mol format already
-                if (molfile.indexOf("M END") <= 0) {
+                if (molfile.indexOf("M END") < 1) {
                     String molformat = Decoder.decodeString(molfile);
                     sDunit = new SdUnit(molformat, true);
                 } else {

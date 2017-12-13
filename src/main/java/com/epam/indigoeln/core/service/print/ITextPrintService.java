@@ -24,6 +24,9 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.util.Optional;
 
+/**
+ * Provides methods for working with pdf.
+ */
 @Service
 public class ITextPrintService {
     private final ExperimentRepository experimentRepository;
@@ -41,7 +44,9 @@ public class ITextPrintService {
     @Autowired
     public ITextPrintService(ExperimentRepository experimentRepository,
                              NotebookRepository notebookRepository,
-                             ProjectRepository projectRepository, FileRepository fileRepository, ExperimentService experimentService, UserService userService, UserRepository userRepository) {
+                             ProjectRepository projectRepository,
+                             FileRepository fileRepository, ExperimentService experimentService,
+                             UserService userService, UserRepository userRepository) {
         this.experimentRepository = experimentRepository;
         this.notebookRepository = notebookRepository;
         this.projectRepository = projectRepository;
@@ -51,7 +56,18 @@ public class ITextPrintService {
         this.userRepository = userRepository;
     }
 
-    public byte[] generateExperimentPdf(String projectId, String notebookId, String experimentId, PrintRequest printRequest, User user) {
+    /**
+     * Generates pdf for experiment by id.
+     *
+     * @param projectId    Project's identifier
+     * @param notebookId   Notebook's identifier
+     * @param experimentId Experiment's identifier
+     * @param printRequest Print parameters
+     * @param user         User user
+     * @return Generated pdf for experiment
+     */
+    public byte[] generateExperimentPdf(String projectId, String notebookId,
+                                        String experimentId, PrintRequest printRequest, User user) {
         String notebookFullId = SequenceIdUtil.buildFullId(projectId, notebookId);
         String experimentFullId = SequenceIdUtil.buildFullId(projectId, notebookId, experimentId);
 
@@ -61,14 +77,26 @@ public class ITextPrintService {
 
         checkAccess(experiment, user, notebook);
 
-        ExperimentPdfSectionsProvider provider = new ExperimentPdfSectionsProvider(project, notebook, experiment, fileRepository, printRequest, userRepository);
+        ExperimentPdfSectionsProvider provider = new ExperimentPdfSectionsProvider(project, notebook,
+                experiment, fileRepository, printRequest, userRepository);
         PdfGenerator pdfGenerator = new PdfGenerator(provider);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         pdfGenerator.generate(byteArrayOutputStream);
         return byteArrayOutputStream.toByteArray();
     }
 
-    public byte[] generateExperimentPdf(String projectId, String notebookId, Experiment experiment, PrintRequest printRequest, User user) {
+    /**
+     * Generates pdf for experiment.
+     *
+     * @param projectId    Project's identifier
+     * @param notebookId   Notebook's identifier
+     * @param experiment   Experiment for which need to generate pdf
+     * @param printRequest Print parameters
+     * @param user         User
+     * @return Generated pdf for experiment
+     */
+    public byte[] generateExperimentPdf(String projectId, String notebookId,
+                                        Experiment experiment, PrintRequest printRequest, User user) {
         String notebookFullId = SequenceIdUtil.buildFullId(projectId, notebookId);
 
         Project project = findChecked(projectRepository, projectId, PROJECT);
@@ -76,7 +104,8 @@ public class ITextPrintService {
 
         checkAccess(experiment, user, notebook);
 
-        ExperimentPdfSectionsProvider provider = new ExperimentPdfSectionsProvider(project, notebook, experiment, fileRepository, printRequest, userRepository);
+        ExperimentPdfSectionsProvider provider = new ExperimentPdfSectionsProvider(project,
+                notebook, experiment, fileRepository, printRequest, userRepository);
         PdfGenerator pdfGenerator = new PdfGenerator(provider);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         pdfGenerator.generate(byteArrayOutputStream);
@@ -97,6 +126,15 @@ public class ITextPrintService {
         }
     }
 
+    /**
+     * Generates pdf for notebook.
+     *
+     * @param projectId    Project's identifier
+     * @param notebookId   Notebook's identifier
+     * @param printRequest Print parameters
+     * @param user         User
+     * @return Generated pdf for notebook
+     */
     public byte[] generateNotebookPdf(String projectId, String notebookId, PrintRequest printRequest, User user) {
         String notebookFullId = SequenceIdUtil.buildFullId(projectId, notebookId);
         Project project = findChecked(projectRepository, projectId, PROJECT);
@@ -114,13 +152,22 @@ public class ITextPrintService {
             }
         }
 
-        NotebookPdfSectionsProvider provider = new NotebookPdfSectionsProvider(project, notebook, experimentService, userService, printRequest);
+        NotebookPdfSectionsProvider provider = new NotebookPdfSectionsProvider(project,
+                notebook, experimentService, userService, printRequest);
         PdfGenerator pdfGenerator = new PdfGenerator(provider);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         pdfGenerator.generate(byteArrayOutputStream);
         return byteArrayOutputStream.toByteArray();
     }
 
+    /**
+     * Generates pdf for project.
+     *
+     * @param projectId    Project's identifier
+     * @param printRequest Print parameters
+     * @param user         User
+     * @return Generated pdf for project
+     */
     public byte[] generateProjectPdf(String projectId, PrintRequest printRequest, User user) {
         Project project = findChecked(projectRepository, projectId, PROJECT);
         if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, project.getAccessList(),

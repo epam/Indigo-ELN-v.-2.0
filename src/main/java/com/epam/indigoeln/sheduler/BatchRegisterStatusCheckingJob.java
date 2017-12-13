@@ -56,16 +56,19 @@ public class BatchRegisterStatusCheckingJob {
                                 .stream()
                                 .map(ExperimentDTO::new)
                                 .flatMap(e -> BatchComponentUtil.retrieveBatches(e.getComponents()).stream())
-                                .filter(b -> jobId.equals(b.get("registrationJobId")) && repositoryId.equals(b.get("registrationRepositoryId")))
+                                .filter(b -> jobId.equals(b.get("registrationJobId"))
+                                        && repositoryId.equals(b.get("registrationRepositoryId")))
                                 .collect(Collectors.toList());
 
-                        batchesOnRegistration.forEach(b -> updatedBatchesStatuses.put(String.valueOf(b.get("fullNbkBatch")), status));
+                        batchesOnRegistration.forEach(b -> updatedBatchesStatuses
+                                .put(String.valueOf(b.get("fullNbkBatch")), status));
                     }
 
                     registrationJob.setRegistrationStatus(status.getStatus());
                     registrationJobRepository.save(registrationJob);
                 } catch (RegistrationException e) {
-                    LOGGER.error("Error occurred while checking registration status, job id: " + jobId + ", repository id: " + repositoryId, e);
+                    LOGGER.error("Error occurred while checking registration status, job id: "
+                            + jobId + ", repository id: " + repositoryId, e);
                 }
             }
         }

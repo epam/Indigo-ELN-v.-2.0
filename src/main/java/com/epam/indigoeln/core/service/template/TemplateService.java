@@ -8,6 +8,7 @@ import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.web.rest.dto.TemplateDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.core.service.exception.*;
+
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +19,19 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
 
 /**
- * Service class for managing Templates
+ * Service class for managing Templates.
  */
 @Service
 public class TemplateService {
 
     @Autowired
     private TemplateRepository templateRepository;
+
+    @Autowired
+    private SequenceIdRepository sequenceIdRepository;
+
+    @Autowired
+    private ExperimentRepository experimentRepository;
 
     @Autowired
     private CustomDtoMapper dtoMapper;
@@ -79,7 +86,7 @@ public class TemplateService {
      */
     public TemplateDTO updateTemplate(TemplateDTO templateDTO) {
         Template template = Optional.ofNullable(templateRepository.findOne(templateDTO.getId())).
-                orElseThrow(() -> new EntityNotFoundException("Template with id does not exists", templateDTO.getId()));
+                orElseThrow(() -> EntityNotFoundException.createWithTemplateId(templateDTO.getId()));
 
         template.setName(templateDTO.getName());
         template.setTemplateContent(templateDTO.getTemplateContent());

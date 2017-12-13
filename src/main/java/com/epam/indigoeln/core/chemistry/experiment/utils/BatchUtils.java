@@ -4,7 +4,7 @@ import com.epam.indigoeln.core.chemistry.domain.AmountModel;
 
 import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 
-public class BatchUtils {
+public final class BatchUtils {
 
     private BatchUtils() {
         // Hide the default constructor
@@ -12,7 +12,8 @@ public class BatchUtils {
 
     public static boolean isUnitOnlyChanged(AmountModel from, AmountModel to) {
         boolean result;
-        result = (CeNNumberUtils.doubleEquals(from.getValueInStdUnitsAsDouble(), to.getValueInStdUnitsAsDouble()) && !(from
+        result = (CeNNumberUtils.doubleEquals(from.getValueInStdUnitsAsDouble(),
+                to.getValueInStdUnitsAsDouble()) && !(from
                 .getUnit().equals(to.getUnit())));
 
         return result;
@@ -27,10 +28,9 @@ public class BatchUtils {
     }
 
     public static double calcEquivalentsWithMoles(AmountModel moles, AmountModel reagentMoles) {
-        if (doubleEqZero(reagentMoles.getValueInStdUnitsAsDouble() )) {
+        if (doubleEqZero(reagentMoles.getValueInStdUnitsAsDouble())) {
             return moles.getValueInStdUnitsAsDouble();
         }
         return moles.getValueInStdUnitsAsDouble() / reagentMoles.getValueInStdUnitsAsDouble();
     }
-
 }

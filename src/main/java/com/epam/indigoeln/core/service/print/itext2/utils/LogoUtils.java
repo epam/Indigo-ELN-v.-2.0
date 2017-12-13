@@ -8,12 +8,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 
-public class LogoUtils {
+/**
+ * Class provides functionality for loading logo.
+ */
+public final class LogoUtils {
     private static final String LOGO_FILE_NAME = "pdf/logo_new_blue.png";
 
     private LogoUtils() {
     }
 
+    /**
+     * Loads logo from resources.
+     *
+     * @return Logo's pdf image
+     */
     public static PdfImage loadDefaultLogo() {
         try {
             ClassLoader cl = LogoUtils.class.getClassLoader();

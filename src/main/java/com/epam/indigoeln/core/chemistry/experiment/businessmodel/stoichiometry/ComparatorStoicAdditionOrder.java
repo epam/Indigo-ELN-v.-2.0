@@ -2,9 +2,12 @@ package com.epam.indigoeln.core.chemistry.experiment.businessmodel.stoichiometry
 
 import com.epam.indigoeln.core.chemistry.domain.StoicModelInterface;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
-public class ComparatorStoicAdditionOrder implements Comparator<StoicModelInterface> {
+public class ComparatorStoicAdditionOrder implements Comparator<StoicModelInterface>, Serializable {
+
+    private static final long serialVersionUID = 8301635693659204235L;
 
     public ComparatorStoicAdditionOrder() {
         super();

@@ -15,6 +15,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import static com.epam.indigoeln.core.service.print.itext2.model.experiment.StoichiometryModel.*;
 
+/**
+ * Extension of BasePdfSectionWithSimpleTitle for stoichiometry.
+ */
 public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<StoichiometryModel> {
 
     private static final String[] HEADERS = new String[]{
@@ -40,15 +43,15 @@ public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<Stoichio
             PdfPTable reagentTable = TableFactory.createDefaultTable(1, reagentCellWidth);
 
             Structure structure = row.getStructure();
-            if (structure.getImage().getPngBytes(reagentCellWidth).isPresent()){
+            if (structure.getImage().getPngBytes(reagentCellWidth).isPresent()) {
                 PdfPCell imageCell = CellFactory.getImageCell(structure.getImage(), reagentCellWidth);
                 reagentTable.addCell(getStructureCell(imageCell));
             }
-            if (!StringUtils.isBlank(row.getFullNbkBatch())){
+            if (!StringUtils.isBlank(row.getFullNbkBatch())) {
                 PdfPCell fullNbkBatch = CellFactory.getCommonCell(row.getFullNbkBatch());
                 reagentTable.addCell(getStructureCell(fullNbkBatch));
             }
-            if (!StringUtils.isBlank(row.getFullNbkBatch())){
+            if (!StringUtils.isBlank(row.getFullNbkBatch())) {
                 PdfPCell compoundId = CellFactory.getCommonCell(row.getCompoundId());
                 reagentTable.addCell(getStructureCell(compoundId));
             }
@@ -109,7 +112,7 @@ public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<Stoichio
         return cell;
     }
 
-    private PdfPCell getInfoCell(String content){
+    private PdfPCell getInfoCell(String content) {
         PdfPCell commonCell = CellFactory.getCommonCell(content);
         commonCell.setBorder(Rectangle.NO_BORDER);
         commonCell.setPaddingLeft(CELL_HORIZONTAL_PADDING);

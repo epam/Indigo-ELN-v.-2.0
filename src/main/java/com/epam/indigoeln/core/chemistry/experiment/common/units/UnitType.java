@@ -75,6 +75,9 @@ public class UnitType implements Serializable, Comparable<UnitType> {
     // Override-prevention methods
     // changed from reference compare vb 11/15
     public final boolean equals(Object that) {
+        if ((that == null) || getClass() != that.getClass()) {
+            return false;
+        }
         return ordinal == ((UnitType) that).ordinal;
     }
 

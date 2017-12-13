@@ -14,7 +14,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import static com.epam.indigoeln.core.service.print.itext2.model.experiment.PreferredCompoundsModel.*;
 
-public class PreferedCompoundsSection extends BasePdfSectionWithSimpleTitle<PreferredCompoundsModel> {
+/**
+ * Extension of BasePdfSectionWithSimpleTitle for preferred compounds.
+ */
+public class PreferredCompoundsSection extends BasePdfSectionWithSimpleTitle<PreferredCompoundsModel> {
     private static final String[] HEADERS = new String[]{
             "Structure", "Notebook Batch #", "Mol Weight", "Mol Formula", "Structure Comments"
     };
@@ -23,7 +26,7 @@ public class PreferedCompoundsSection extends BasePdfSectionWithSimpleTitle<Pref
 
     private static final float CELL_VERTICAL_PADDING = 4;
 
-    public PreferedCompoundsSection(PreferredCompoundsModel model) {
+    public PreferredCompoundsSection(PreferredCompoundsModel model) {
         super(model, "PREFERRED COMPOUNDS");
     }
 

@@ -49,9 +49,9 @@ public class ComponentDTO {
 
     @Override
     public String toString() {
-        return "ComponentDTO{" +
-                "id='" + id + '\'' +
-                ", content=" + content +
-                '}';
+        return "ComponentDTO{"
+                + "id='" + id + '\''
+                + ", content=" + content
+                + '}';
     }
 }

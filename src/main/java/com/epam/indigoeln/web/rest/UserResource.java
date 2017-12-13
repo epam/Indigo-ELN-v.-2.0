@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
  * </p>
  * <p>
  * We use a DTO for 3 reasons:
- * <ul>
+ * <ul></ul>
  * <li>We want to keep a lazy association between the user and the authorities, because people will
  * quite often do relationships with the user, and we don't want them to get the authorities all
  * the time for nothing (for performance reasons). This is the #1 goal: we should not impact our users'
@@ -62,23 +63,30 @@ public class UserResource {
     private UserService userService;
 
     @Autowired
-    CustomDtoMapper dtoMapper;
+    private CustomDtoMapper dtoMapper;
+
+    @Value("${password.validation}")
+    private String passwordValidationRegex;
 
     /**
      * TODO Think about using UserDTO for all users, but ManagedUserDTO only for USER_EDITOR
-     * GET  /users -> Returns all users<br/>
+     * GET  /users -> Returns all users<br/>.
      * Also use a <b>pageable</b> interface: <b>page</b>, <b>size</b>, <b>sort</b><br/>
      * <b>Example</b>: page=0&size=30&sort=firstname&sort=lastname,asc - retrieves all elements in specified order
      * (<b>firstname</b>: ASC, <b>lastname</b>: ASC) from 0 page with size equals to 30<br/>
      * <b>By default</b>: page = 0, size = 20 and no sort<br/>
      * <b>Available sort options</b>: login, firstName, lastName, email, activated
+     *
+     * @param pageable Pagination information
+     * @return List with users
+     * @throws URISyntaxException If URI is not correct
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Returns all users (with paging).")
     public ResponseEntity<List<ManagedUserDTO>> getAllUsers(
             @ApiParam("Paging data.") Pageable pageable
-        ) throws URISyntaxException {
+    ) throws URISyntaxException {
         LOGGER.debug("REST request to get all users");
         Page<User> page = userService.getAllUsers(pageable);
 
@@ -91,13 +99,17 @@ public class UserResource {
     /**
      * GET  api/users/permission-management -> Returns users for Entity Permission Management
      * Don't use it for Authority-management operations!
+     *
+     * @param pageable Pagination information
+     * @return List with users
+     * @throws URISyntaxException If URI is not correct
      */
     @ApiOperation(value = "Returns users for Entity Permission Management (with paging).")
-    @RequestMapping(value= "/permission-management", method = RequestMethod.GET,
+    @RequestMapping(value = "/permission-management", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDTO>> getAllUsersWithAuthorities(
             @ApiParam("Paging data.") Pageable pageable
-        ) throws URISyntaxException {
+    ) throws URISyntaxException {
         LOGGER.debug("REST request to get all users for permission management");
         Page<User> page = userService.getAllUsers(pageable);
 
@@ -110,13 +122,16 @@ public class UserResource {
     /**
      * TODO Think about using UserDTO for all users, but ManagedUserDTO only for USER_EDITOR
      * GET  /users/:login -> Returns specified user.
+     *
+     * @param login Login
+     * @return User
      */
     @ApiOperation(value = "Returns user by it's login.")
     @RequestMapping(value = "/{login:[_'.@a-z0-9-]+}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ManagedUserDTO> getUser(
             @ApiParam("User login") @PathVariable String login
-        ) {
+    ) {
         LOGGER.debug("REST request to get user : {}", login);
         User user = userService.getUserWithAuthoritiesByLogin(login);
         return ResponseEntity.ok(new ManagedUserDTO(user));
@@ -129,6 +144,10 @@ public class UserResource {
      * mail with an activation link.
      * The user needs to be activated on creation.
      * </p>
+     *
+     * @param managedUserDTO User
+     * @return User
+     * @throws URISyntaxException If URI is not correct
      */
     @ApiOperation(value = "Creates user.")
     @RequestMapping(method = RequestMethod.POST,
@@ -136,7 +155,7 @@ public class UserResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ManagedUserDTO> createUser(
             @ApiParam("User to create") @RequestBody ManagedUserDTO managedUserDTO
-        ) throws URISyntaxException {
+    ) throws URISyntaxException {
         LOGGER.debug("REST request to create user: {}", managedUserDTO);
         User user = dtoMapper.convertFromDTO(managedUserDTO);
         user = userService.createUser(user);
@@ -147,6 +166,9 @@ public class UserResource {
 
     /**
      * PUT  /users -> Updates an existing User.
+     *
+     * @param managedUserDTO User
+     * @return User
      */
     @ApiOperation(value = "Updates user.")
     @RequestMapping(method = RequestMethod.PUT,
@@ -154,7 +176,7 @@ public class UserResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ManagedUserDTO> updateUser(
             @ApiParam("User to update") @RequestBody ManagedUserDTO managedUserDTO
-        ) {
+    ) {
         LOGGER.debug("REST request to update user: {}", managedUserDTO);
         User currentUser = userService.getUserWithAuthorities();
         User user = dtoMapper.convertFromDTO(managedUserDTO);
@@ -165,12 +187,14 @@ public class UserResource {
 
     /**
      * DELETE  USER :login -> delete the "login" User.
+     *
+     * @param login Login
      */
     @ApiOperation(value = "Removes user.")
     @RequestMapping(value = "/{login}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteUser(
             @ApiParam("User login to delete") @PathVariable String login
-        ) {
+    ) {
         LOGGER.debug("REST request to delete user: {}", login);
         User currentUser = userService.getUserWithAuthorities();
         userService.deleteUserByLogin(login, currentUser);
@@ -178,4 +202,15 @@ public class UserResource {
         return ResponseEntity.ok().headers(headers).build();
     }
 
+
+    /**
+     * GET /api/users/passwordValidationRegex -> Returns regex for users' password validation
+     *
+     * @return password validation regex
+     */
+    @ApiOperation(value = "Returns password validation regex.")
+    @RequestMapping(value = "/passwordValidationRegex", method = RequestMethod.GET)
+    public String getUserPasswordValidationRegex() {
+        return passwordValidationRegex;
+    }
 }

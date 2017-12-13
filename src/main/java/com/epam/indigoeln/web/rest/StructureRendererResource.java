@@ -19,14 +19,18 @@ public class StructureRendererResource {
     private CalculationService calculationService;
 
     /**
-     * POST /molecule/image -> get molecule's graphical representation
+     * POST /molecule/image -> get molecule's graphical representation.
+     *
+     * @param type      Representation type
+     * @param structure Molecule's structure
+     * @return Renderer result
      */
     @ApiOperation(value = "Returns molecule's graphical representation.")
     @RequestMapping(value = "/{type}/image", method = RequestMethod.POST)
     public ResponseEntity<RendererResult> getMoleculeImagePOST(
             @ApiParam("Representation type.") @PathVariable String type,
             @ApiParam("Molecule structure.") @RequestBody String structure
-        ) {
+    ) {
         RendererResult result = calculationService.getStructureWithImage(structure);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 
 /**
- * Entity class presents Template
+ * Entity class presents Template.
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)

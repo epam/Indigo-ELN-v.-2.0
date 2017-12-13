@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.websocket.server.PathParam;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 @Api
@@ -33,7 +34,8 @@ import java.io.InputStream;
 public class PrintResource {
 
     public static final String HEADER =
-            "<table width=\"100%\" border=\"0\"><tr><td>HeaderPageEvent</td><td align=\"right\">Some title</td></tr></table>";
+            "<table width=\"100%\" border=\"0\"><tr><td>HeaderPageEvent</td>"
+                    + "<td align=\"right\">Some title</td></tr></table>";
 
     @Autowired
     private ITextPrintService iTextPrintService;
@@ -55,7 +57,7 @@ public class PrintResource {
             byte[] bytes = IOUtils.toByteArray(is);
             HttpHeaders headers = HeaderUtil.createAttachmentDescription(fn);
             return ResponseEntity.ok().headers(headers).body(bytes);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new IndigoRuntimeException(e);
         } finally {
             FileUtils.deleteQuietly(file);
@@ -69,9 +71,9 @@ public class PrintResource {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<byte[]> createExperimentPdf(@ApiParam("project id") @PathVariable String projectId,
-                                    @ApiParam("notebook id") @PathVariable String notebookId,
-                                    @ApiParam("experiment id") @PathVariable String experimentId,
-                                    @ApiParam("print params") PrintRequest printRequest) {
+                                                      @ApiParam("notebook id") @PathVariable String notebookId,
+                                                      @ApiParam("experiment id") @PathVariable String experimentId,
+                                                      @ApiParam("print params") PrintRequest printRequest) {
         String fileName = "report-" + SequenceIdUtil.buildFullId(projectId, notebookId, experimentId) + ".pdf";
         User user = userService.getUserWithAuthorities();
         byte[] bytes = iTextPrintService.generateExperimentPdf(projectId, notebookId, experimentId, printRequest, user);
@@ -89,7 +91,7 @@ public class PrintResource {
                                                    @ApiParam("print params") PrintRequest printRequest) {
         String fileName = "report-" + SequenceIdUtil.buildFullId(projectId) + ".pdf";
         User user = userService.getUserWithAuthorities();
-        byte[] bytes =  iTextPrintService.generateProjectPdf(projectId, printRequest, user);
+        byte[] bytes = iTextPrintService.generateProjectPdf(projectId, printRequest, user);
         HttpHeaders headers = HeaderUtil.createPdfPreviewHeaders(fileName);
         return ResponseEntity.ok().headers(headers).body(bytes);
     }

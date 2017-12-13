@@ -61,7 +61,7 @@ public class SDResource {
 
                 return ResponseEntity.ok(result);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new IndigoRuntimeException("Error occurred while parsing SD file.", e);
         }
     }
@@ -78,7 +78,8 @@ public class SDResource {
             String fileName = user.getLogin() + "_" + System.currentTimeMillis() + ".sdf";
             String sdfileStr = sdFileInfo.getSdfileStr();
 
-            File file = TempFileUtil.saveToTempDirectory(sdfileStr == null ? new byte[]{} : sdfileStr.getBytes(StandardCharsets.UTF_8), fileName);
+            File file = TempFileUtil.saveToTempDirectory(sdfileStr == null
+                    ? new byte[]{} : sdfileStr.getBytes(StandardCharsets.UTF_8), fileName);
 
             return ResponseEntity.ok(ImmutableMap.of("fileName", file.getName()));
         } catch (Exception e) {
@@ -88,7 +89,8 @@ public class SDResource {
 
     @ApiOperation(value = "Download file.")
     @GetMapping(value = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<byte[]> downloadFile(@ApiParam("File name") @PathParam("fileName") String fileName) throws IOException {
+    public ResponseEntity<byte[]> downloadFile(@ApiParam("File name") @PathParam("fileName") String fileName)
+            throws IOException {
         File file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
 
         try (InputStream is = new FileInputStream(file)) {
@@ -97,7 +99,7 @@ public class SDResource {
             HttpHeaders headers = HeaderUtil.createAttachmentDescription(EXPORT_FILE_NAME);
 
             return ResponseEntity.ok().headers(headers).body(bytes);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new IndigoRuntimeException(e);
         } finally {
             FileUtils.deleteQuietly(file);

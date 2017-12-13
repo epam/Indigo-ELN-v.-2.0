@@ -9,8 +9,8 @@ import java.text.DecimalFormat;
 
 public final class SequenceIdUtil {
 
-    public static final String EXPERIMENT_NAME_FORMAT = "0000";
-    public static final String DELIMITER = "-";
+    private static final String EXPERIMENT_NAME_FORMAT = "0000";
+    private static final String DELIMITER = "-";
 
     private SequenceIdUtil() {
     }
@@ -31,7 +31,7 @@ public final class SequenceIdUtil {
         return split.length > 1 ? split[split.length - 2] : null;
     }
 
-    public static String buildFullId(String ... ids) {
+    public static String buildFullId(String... ids) {
         return StringUtils.arrayToDelimitedString(ids, DELIMITER);
     }
 
@@ -40,8 +40,8 @@ public final class SequenceIdUtil {
         return shortId != null ? new DecimalFormat(EXPERIMENT_NAME_FORMAT).format(Long.valueOf(shortId)) : null;
     }
 
-    public static String extractFirstId(BasicDTO notebook){
-        if (notebook.getFullId() == null){
+    public static String extractFirstId(BasicDTO notebook) {
+        if (notebook.getFullId() == null) {
             return null;
         }
         String[] split = notebook.getFullId().split(DELIMITER);
