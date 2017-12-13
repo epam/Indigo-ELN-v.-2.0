@@ -30,7 +30,13 @@ StoichRow.prototype = {
     setReadonly: setReadonly,
     resetFields: resetFields,
     resetEntered: resetEntered,
-    clear: clear
+    clear: clear,
+    isMolPresent: isMolPresent,
+    isVolumePresent: isVolumePresent,
+    isMolarityPresent: isMolarityPresent,
+    isDensityPresent: isDensityPresent,
+    isWeightManuallyEntered: isWeightManuallyEntered,
+    isVolumeManuallyEntered: isVolumeManuallyEntered
 };
 
 StoichRow.prototype.constructor = StoichRow;
@@ -234,6 +240,30 @@ function getResetFieldsForSolvent() {
         fieldTypes.saltCode,
         fieldTypes.saltEq
     ];
+}
+
+function isMolPresent() {
+    return this.mol.value;
+}
+
+function isVolumePresent() {
+    return this.volume.value;
+}
+
+function isMolarityPresent() {
+    return this.molarity.value;
+}
+
+function isDensityPresent() {
+    return this.density.value;
+}
+
+function isWeightManuallyEntered() {
+    return this.weight.entered;
+}
+
+function isVolumeManuallyEntered() {
+    return this.volume.entered;
 }
 
 function fromJson(json) {

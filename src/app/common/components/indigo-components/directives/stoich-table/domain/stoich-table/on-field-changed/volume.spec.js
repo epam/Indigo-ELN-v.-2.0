@@ -85,6 +85,29 @@ function changeVolume() {
             expect(secondRow.weight.value).toBe(33);
         });
 
+        it('row is limiting; volume is entered for non limiting row, should not update mol of this row', function() {
+            var limitingRow = new StoichRow();
+            limitingRow.molWeight.value = 2;
+            limitingRow.weight.value = 22;
+            limitingRow.mol.value = 11;
+            service.addRow(limitingRow);
+
+            var secondRow = new StoichRow();
+            secondRow.molWeight.value = 3;
+            secondRow.volume.value = 3;
+            secondRow.volume.entered = true;
+            service.addRow(secondRow);
+
+            service.onFieldValueChanged(secondRow, fieldTypes.volume);
+
+            expect(limitingRow.limiting).toBeTruthy();
+            expect(limitingRow.mol.value).toBe(11);
+
+            expect(secondRow.limiting).toBeFalsy();
+            expect(secondRow.mol.value).toBe(0);
+            expect(secondRow.weight.value).toBe(0);
+        });
+
         it('molarity, molWeight are defined, should compute mol, weight and eq', function() {
             var stoichRow = new StoichRow();
             stoichRow.molWeight.value = 2;

@@ -190,51 +190,58 @@ function stoichTable(config) {
     }
 
     function onVolumeChanged(row) {
-        if (row.areValuesPresent([fieldTypes.volume, fieldTypes.molarity])) {
-            var mol = calculationUtil.computeDissolvedMol(row.molarity.value, row.volume.value);
-            row.setComputedMol(mol, onMolChanged);
+        if (row.isVolumePresent()) {
+            if (row.isMolarityPresent()) {
+                var mol = calculationUtil.computeDissolvedMol(row.molarity.value, row.volume.value);
+                row.setComputedMol(mol, onMolChanged);
 
-            return;
-        }
-
-        if (row.areValuesPresent([fieldTypes.volume, fieldTypes.density])) {
-            var weight = calculationUtil.computeWeightByDensity(row.volume.value, row.density.value);
-            row.setComputedWeight(weight, onWeightChanged);
-
-            return;
-        }
-
-        if (row.isValuePresent(fieldTypes.volume) && !row.isSolventRow()) {
-            if (row.isLimiting()) {
-                var nextRow = getRowAfterLimiting();
-                if (nextRow) {
-                    nextRow.limiting = true;
-                }
-
-                row.limiting = false;
+                return;
             }
 
-            row.resetFields([fieldTypes.weight, fieldTypes.mol, fieldTypes.eq]);
+            if (row.isDensityPresent()) {
+                var weight = calculationUtil.computeWeightByDensity(row.volume.value, row.density.value);
+                row.setComputedWeight(weight, onWeightChanged);
 
-            return;
+                return;
+            }
+
+            if (!row.isSolventRow()) {
+                if (row.isLimiting()) {
+                    var nextRow = getRowAfterLimiting();
+                    if (nextRow) {
+                        nextRow.limiting = true;
+                    }
+
+                    row.limiting = false;
+                }
+
+                row.resetFields([fieldTypes.weight, fieldTypes.mol, fieldTypes.eq]);
+
+                return;
+            }
         }
 
-        if (!row.isValuePresent(fieldTypes.volume) && row.areValuesPresent([fieldTypes.mol, fieldTypes.molarity])) {
-            row.resetFields([fieldTypes.mol], onMolChanged);
+        if (!row.isVolumePresent()) {
+            row.resetFields([fieldTypes.volume]);
 
-            return;
-        }
+            if (row.isMolarityPresent() && row.isMolPresent()) {
+                row.resetFields([fieldTypes.mol], onMolChanged);
 
-        if (!row.isValuePresent(fieldTypes.volume) && row.isValuePresent(fieldTypes.density)) {
-            row.resetFields([fieldTypes.weight], onWeightChanged);
+                return;
+            }
 
-            return;
-        }
+            if (row.isDensityPresent()) {
+                row.resetFields([fieldTypes.weight, fieldTypes.volume], onWeightChanged);
 
-        if (!row.isValuePresent(fieldTypes.volume) && !row.isSolventRow()) {
-            var limitingRow = getLimitingRow();
-            if (limitingRow) {
-                row.setComputedMol(limitingRow.mol.value, onMolChanged);
+                return;
+            }
+
+            if (!row.isSolventRow()) {
+                var limitingRow = getLimitingRow();
+
+                if (limitingRow) {
+                    row.setComputedMol(limitingRow.mol.value, onMolChanged);
+                }
             }
         }
     }
@@ -346,14 +353,15 @@ function stoichTable(config) {
         if (isLimitingRowExist()) {
             _.forEach(table.reactants, function(row) {
                 var canUpdate = !row.isLimiting() && !row.isSolventRow();
-                var canUpdateMol = !row.weight.entered && canUpdate;
-                var canUpdateEq = row.weight.entered && canUpdate;
+                var isManuallyEnteredExist = row.isWeightManuallyEntered() || row.isVolumeManuallyEntered();
+                var shouldUpdateRowWithNewMol = !isManuallyEnteredExist && canUpdate;
+                var shouldUpdateOnlyEq = isManuallyEnteredExist && canUpdate;
 
-                if (canUpdateMol) {
+                if (shouldUpdateRowWithNewMol) {
                     row.updateMol(mol, onMolChanged);
                 }
 
-                if (canUpdateEq) {
+                if (shouldUpdateOnlyEq) {
                     row.updateEqDependingOnLimitingEq(getLimitingRow());
                 }
             });
