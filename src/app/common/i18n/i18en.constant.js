@@ -285,7 +285,8 @@ var i18n = {
     UPPER: 'Upper',
     COMMENTS: 'Comments',
     VALUE: 'Value',
-    NAME_ALREADY_EXIST: 'Name already in use'
+    NAME_ALREADY_EXIST: 'Name already in use',
+    THE_ROLE_ALREADY_IN_USE: 'The role already in use'
 };
 
 module.exports = i18n;

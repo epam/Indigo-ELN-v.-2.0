@@ -82,7 +82,7 @@
                         <th i-translate="ROLE_NAME"></th>
                     </tr>
                     <tbody>
-                    <tr ng-repeat="role in vm.roles track by role.id">
+                    <tr ng-repeat="role in vm.filteredRoles track by role.id">
                         <td>
                             <div class="role-name" uib-tooltip="{{role.name}}" ng-bind="role.name"></div>
                         </td>
@@ -103,7 +103,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="role in vm.roles track by role.id">
+                    <tr ng-repeat="role in vm.filteredRoles track by role.id">
                         <td ng-repeat="authority in vm.authorities track by $index">
                                 <span ng-class="{'glyphicon glyphicon-ok-sign': vm.hasAuthority(role, authority)}"
                                       class="role-check-icon"></span>
@@ -117,7 +117,7 @@
                                 <span class="m-l5" i-translate="EDIT"></span>
                             </button>
                             <button type="submit"
-                                    ui-sref="entities.role-management.delete({id:role.id})"
+                                    ng-click="vm.deleteRole(role)"
                                     ng-if="!role.system"
                                     class="btn btn-info btn-small">
                                 <span class="fa fa-trash"></span>
