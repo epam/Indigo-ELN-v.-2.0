@@ -1,4 +1,5 @@
 var roles = require('../permission-roles.json');
+
 /* @ngInject */
 function permissionService($q, principalService, userRemovableFromProjectService, userRemovableFromNotebookService,
                            permissionsConstant, userPermissions) {
@@ -34,11 +35,16 @@ function permissionService($q, principalService, userRemovableFromProjectService
         getPermissionView: getPermissionView,
         setProject: setProject,
         setNotebook: setNotebook,
-        setExperiment: setExperiment
+        setExperiment: setExperiment,
+        isContentEditor: isContentEditor
     };
 
     function getPermissionView(authorities) {
         return _.includes(authorities, roles.CONTENT_EDITOR) ? userPermissions.OWNER.id : userPermissions.VIEWER.id;
+    }
+
+    function isContentEditor(user) {
+        return user.authorities.includes(roles.CONTENT_EDITOR);
     }
 
     function expandPermission(list) {
