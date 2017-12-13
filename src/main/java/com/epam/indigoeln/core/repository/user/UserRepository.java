@@ -27,5 +27,11 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     List<User> findAll(Iterable<String> ids);
 
-    Page<User> findByLoginIgnoreCaseLikeOrFirstNameIgnoreCaseLikeOrLastNameIgnoreCaseLike(String login, String firstName, String lastName, Pageable pageable);
+    Page<User> findByLoginIgnoreCaseLikeOrFirstNameIgnoreCaseLikeOrLastNameIgnoreCaseLikeOrRolesIdIn(
+            String login,
+            String firstName,
+            String lastName,
+            List<String> roleId,
+            Pageable pageable
+    );
 }

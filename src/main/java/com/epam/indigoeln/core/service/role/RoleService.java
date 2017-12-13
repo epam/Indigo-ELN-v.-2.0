@@ -14,6 +14,7 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.stream.Stream;
 
 /**
  * Service class to work with user roles.
@@ -66,8 +67,8 @@ public class RoleService {
      *
      * @return all roles in application
      */
-    public Collection<Role> getRolesWithNameLike(String nameLike, Pageable pageable) {
-        return roleRepository.findByNameLikeIgnoreCase(nameLike, pageable).getContent();
+    public Stream<Role> getRolesWithNameLike(String nameLike) {
+        return roleRepository.findByNameLikeIgnoreCase(nameLike);
     }
 
     /**

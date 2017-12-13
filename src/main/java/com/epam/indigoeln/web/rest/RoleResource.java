@@ -23,7 +23,9 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 @Api
 @RestController
@@ -43,7 +45,6 @@ public class RoleResource {
      * GET  /roles -> Returns all roles.
      *
      * @return Returns all roles
-     * @throws URISyntaxException if URI is not correct
      */
     @ApiOperation(value = "Returns all roles.")
     @RequestMapping(method = RequestMethod.GET,
@@ -53,7 +54,7 @@ public class RoleResource {
         Collection<Role> roles = roleService.getAllRoles(pageable);
         List<RoleDTO> result = new ArrayList<>(roles.size());
         result.addAll(roles.stream().map(
-                role -> dtoMapper.convertToDTO(role)).collect(Collectors.toList())
+                role -> dtoMapper.convertToDTO(role)).collect(toList())
         );
         return ResponseEntity.ok(result);
     }
@@ -68,15 +69,11 @@ public class RoleResource {
             params = "search",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<RoleDTO>> getRolesLike(
-            @ApiParam("Paging data.") Pageable pageable,
             @ApiParam("Searching role name") @RequestParam("search") String nameLike
     ) {
         LOGGER.debug("REST request to get roles with liked names");
-        Collection<Role> roles = roleService.getRolesWithNameLike(nameLike, pageable);
-        List<RoleDTO> result = new ArrayList<>(roles.size());
-        result.addAll(roles.stream().map(
-                role -> dtoMapper.convertToDTO(role)).collect(Collectors.toList())
-        );
+        Stream<Role> roles = roleService.getRolesWithNameLike(nameLike);
+        List<RoleDTO> result = roles.map(dtoMapper::convertToDTO).collect(toList());
         return ResponseEntity.ok(result);
     }
 

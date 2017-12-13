@@ -9,6 +9,7 @@ import com.epam.indigoeln.core.service.exception.DuplicateFieldException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.google.common.base.Strings;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Service class for managing users.
@@ -141,12 +144,14 @@ public class UserService {
         LOGGER.debug("Deleted User: {}", userByLogin);
     }
 
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
     public User getUserWithAuthorities() {
         User user = userRepository.findOneByLogin(SecurityUtils.getCurrentUser().getUsername());
         user.getRoles().size(); // eagerly load the association
         return user;
     }
 
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
     public User getUserWithAuthorities(String id) {
         User user = userRepository.findOne(id);
         if (user == null) {
@@ -157,6 +162,7 @@ public class UserService {
         return user;
     }
 
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
     public User getUserWithAuthoritiesByLogin(String login) {
         User user = userRepository.findOneByLogin(login);
         if (user == null) {
@@ -167,11 +173,18 @@ public class UserService {
         return user;
     }
 
-    public Page<User> searchUserByLoginOrFirstNameOrLastNameWithPaging(String loginOrFirstNameOrLastName, Pageable pageable) {
-        return userRepository.findByLoginIgnoreCaseLikeOrFirstNameIgnoreCaseLikeOrLastNameIgnoreCaseLike(
-                loginOrFirstNameOrLastName,
-                loginOrFirstNameOrLastName,
-                loginOrFirstNameOrLastName,
+    public Page<User> searchUserByLoginOrFirstNameOrLastNameOrSystemRoleNameWithPaging(
+            String loginOrFirstNameOrLastNameOrRoleName, Pageable pageable
+    ) {
+        List<String> roleIds = roleRepository
+                .findByNameLikeIgnoreCase(loginOrFirstNameOrLastNameOrRoleName)
+                .map(Role::getId).collect(toList());
+
+        return userRepository.findByLoginIgnoreCaseLikeOrFirstNameIgnoreCaseLikeOrLastNameIgnoreCaseLikeOrRolesIdIn(
+                loginOrFirstNameOrLastNameOrRoleName,
+                loginOrFirstNameOrLastNameOrRoleName,
+                loginOrFirstNameOrLastNameOrRoleName,
+                roleIds,
                 pageable);
     }
 

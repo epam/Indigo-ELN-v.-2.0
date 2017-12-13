@@ -138,10 +138,11 @@ public class UserResource {
     }
 
     /**
-     * Returns users with login firstName of lastName like query param {@code search}.
+     * GET  /users?search=loginOrFirstNameOrLastNameOrSystemRoleName ->
+     * returns users with login firstName of lastName like query param {@code loginOrFirstNameOrLastNameOrSystemRoleName}.
      *
-     * @param pageable                   Pagination information
-     * @param loginOrFirstNameOrLastName string to find like in login firstName of lastName
+     * @param pageable                                   Pagination information
+     * @param loginOrFirstNameOrLastNameOrSystemRoleName string to find like in login firstName of lastName
      * @return users with login firstName of lastName like query param {@code search}
      * @throws URISyntaxException If URI is not correct
      */
@@ -151,10 +152,12 @@ public class UserResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ManagedUserDTO>> getUserByLoginOrFirstNameOrLastName(
             @ApiParam("Paging data.") Pageable pageable,
-            @ApiParam("User login or firstName or lastName") @RequestParam("search") String loginOrFirstNameOrLastName
+            @ApiParam("User login or firstName or lastName") @RequestParam("search") String loginOrFirstNameOrLastNameOrSystemRoleName
     ) throws URISyntaxException {
         LOGGER.debug("REST request to search users");
-        Page<User> page = userService.searchUserByLoginOrFirstNameOrLastNameWithPaging(loginOrFirstNameOrLastName, pageable);
+        Page<User> page = userService.searchUserByLoginOrFirstNameOrLastNameOrSystemRoleNameWithPaging(
+                loginOrFirstNameOrLastNameOrSystemRoleName,
+                pageable);
 
         List<ManagedUserDTO> managedUserDTOs = page.getContent().stream()
                 .map(ManagedUserDTO::new).collect(Collectors.toList());
