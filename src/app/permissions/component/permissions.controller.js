@@ -1,6 +1,6 @@
 /* @ngInject */
 function PermissionsController($uibModalInstance, permissionService, users, permissions,
-                               permissionsConstant, notifyService, alertModal) {
+                               permissionsConstant, notifyService, alertModal, i18en) {
     var vm = this;
 
     init();
@@ -19,7 +19,6 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
 
         vm.addMember = addMember;
         vm.removeMember = removeMember;
-        vm.isAuthor = isAuthor;
         vm.show = show;
         vm.saveOldPermission = saveOldPermission;
         vm.checkAuthority = checkAuthority;
@@ -27,19 +26,30 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
         vm.clear = clear;
     }
 
-    function addMember(member) {
-        if (member) {
-            var members = _.map(vm.accessList, 'user');
-            var memberIds = _.map(members, 'id');
-            if (!_.includes(memberIds, member.id)) {
-                vm.accessList.push({
-                    user: member,
-                    permissions: [],
-                    permissionView: permissionService.getPermissionView(member.authorities),
-                    isContentEditor: permissionService.isContentEditor(member)
-                });
-            }
+    function findUserInAccessList(user) {
+        return _.find(vm.accessList, function(permission) {
+            return permission.user.id === user.id;
+        });
+    }
+
+    function addMember(user) {
+        if (!user) {
+            return;
         }
+
+        if (findUserInAccessList(user)) {
+            notifyService.info(i18en.USER_ALREADY_ADDED);
+
+            return;
+        }
+
+        vm.accessList.push({
+            user: user,
+            permissions: [],
+            permissionView: permissionService.getPermissionView(user.authorities),
+            isContentEditor: permissionService.isContentEditor(user),
+            isAuthor: permissionService.isAuthor(user)
+        });
     }
 
     function removeMember(member) {
@@ -61,12 +71,8 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
             });
     }
 
-    function isAuthor(member) {
-        return member.user.login === vm.author.login;
-    }
-
     function show(form, member) {
-        if (!vm.isAuthor(member) && !member.isContentEditor) {
+        if (!member.isAuthor && !member.isContentEditor) {
             form.$show();
         }
     }
@@ -82,8 +88,18 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
         }
     }
 
+    function convertToAccessList(list) {
+        return _.map(list, function(member) {
+            return {
+                user: member.user,
+                permissions: member.permissions,
+                permissionView: member.permissionView
+            };
+        });
+    }
+
     function ok() {
-        $uibModalInstance.close(vm.accessList);
+        $uibModalInstance.close(convertToAccessList(vm.accessList));
     }
 
     function clear() {

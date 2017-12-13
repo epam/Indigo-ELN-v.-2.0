@@ -36,7 +36,8 @@ function permissionService($q, principalService, userRemovableFromProjectService
         setProject: setProject,
         setNotebook: setNotebook,
         setExperiment: setExperiment,
-        isContentEditor: isContentEditor
+        isContentEditor: isContentEditor,
+        isAuthor: isAuthor
     };
 
     function getPermissionView(authorities) {
@@ -45,6 +46,10 @@ function permissionService($q, principalService, userRemovableFromProjectService
 
     function isContentEditor(user) {
         return user.authorities.includes(roles.CONTENT_EDITOR);
+    }
+
+    function isAuthor(user) {
+        return user.login === getAuthor();
     }
 
     function expandPermission(list) {

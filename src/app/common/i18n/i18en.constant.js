@@ -284,7 +284,8 @@ var i18n = {
     LOWER: 'Lower',
     UPPER: 'Upper',
     COMMENTS: 'Comments',
-    VALUE: 'Value'
+    VALUE: 'Value',
+    USER_ALREADY_ADDED: 'The user already added'
 };
 
 module.exports = i18n;
