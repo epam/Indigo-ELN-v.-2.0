@@ -1,9 +1,15 @@
 AlertModalController.$inject = ['$uibModalInstance', 'title', 'message', 'okText', 'noText', 'cancelVisible',
-    'okCallback', 'noCallback'];
+    'okCallback', 'noCallback', 'type'];
 
 function AlertModalController($uibModalInstance, title, message, okText, noText, cancelVisible, okCallback,
-                              noCallback) {
+                              noCallback, type) {
     var vm = this;
+
+    var btnClasses = {
+        ERROR: 'btn-danger',
+        WARNING: 'btn-danger',
+        NORMAL: 'btn-primary'
+    };
 
     $onInit();
 
@@ -19,8 +25,12 @@ function AlertModalController($uibModalInstance, title, message, okText, noText,
         vm.cancel = cancel;
         vm.ok = ok;
         vm.no = no;
+        vm.getBtnClass = getBtnClass;
     }
 
+    function getBtnClass() {
+        return btnClasses[type] || 'btn-default';
+    }
     function cancel() {
         $uibModalInstance.dismiss('cancel');
         if (noCallback) {
@@ -30,14 +40,14 @@ function AlertModalController($uibModalInstance, title, message, okText, noText,
 
     function ok() {
         $uibModalInstance.close();
-        if (okCallback) {
+        if (_.isFunction(okCallback)) {
             okCallback();
         }
     }
 
     function no() {
         $uibModalInstance.dismiss('cancel');
-        if (noCallback) {
+        if (_.isFunction(noCallback)) {
             noCallback();
         }
     }
