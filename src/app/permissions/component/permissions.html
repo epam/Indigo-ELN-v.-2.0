@@ -34,9 +34,9 @@
                     <td ng-bind="member.user.login"></td>
                     <td>
                         <div>
-                            <a ng-class="{disabled: vm.isAuthor(member)}" e-form="perm"
-                               ng-click="!member.isContentEditor && vm.show(perm, member)"
-                               ng-disabled="member.isContentEditor"
+                            <a ng-class="{disabled: vm.isAuthor(member) || member.isContentEditor}"
+                               ng-click="vm.show(perm, member)"
+                               e-form="perm"
                                onbeforesave="vm.saveOldPermission(member.permissionView)"
                                onaftersave="vm.checkAuthority(member, member.permissionView)"
                                editable-select="member.permissionView"

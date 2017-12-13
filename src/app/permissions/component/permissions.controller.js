@@ -66,7 +66,7 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
     }
 
     function show(form, member) {
-        if (!vm.isAuthor(member)) {
+        if (!vm.isAuthor(member) && !member.isContentEditor) {
             form.$show();
         }
     }
