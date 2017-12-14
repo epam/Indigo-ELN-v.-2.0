@@ -105,6 +105,25 @@ function changeMolarity() {
 
             expect(stoichRow.volume.value).toBe(5);
         });
+
+        it('set molarity 0, volume is 0, should update mol from limiting row', function() {
+            var limitingRow = new StoichRow();
+            limitingRow.molWeight.value = 1;
+            limitingRow.weight.value = 2;
+            limitingRow.weight.entered = true;
+            limitingRow.mol.value = 2;
+            service.addRow(limitingRow);
+
+            var otherRow = new StoichRow();
+            otherRow.molWeight.value = 1;
+            otherRow.density.value = 0;
+            service.addRow(otherRow);
+
+            service.onFieldValueChanged(otherRow, fieldTypes.molarity);
+
+            expect(otherRow.weight.value).toBe(2);
+            expect(otherRow.mol.value).toBe(2);
+        });
     });
 }
 

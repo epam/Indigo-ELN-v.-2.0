@@ -80,14 +80,14 @@ function stoichTable(config) {
     function onMolWeightChanged(row) {
         row.molWeight.originalValue = row.molWeight.value;
 
-        if (row.molWeight.value) {
-            if (row.isLimiting() && row.weight.value) {
+        if (row.isMolWeightPresent()) {
+            if (row.isLimiting() && row.isWeightPresent()) {
                 var mol = calculationUtil.computePureMol(row.weight.value, row.molWeight.value);
                 updateMol(row, mol);
 
                 return;
             }
-            if (row.mol.value) {
+            if (row.isMolPresent()) {
                 var weight = calculationUtil.computeWeight(row.mol.value, row.molWeight.value);
                 row.setComputedWeight(weight, onWeightChanged);
             }
@@ -231,7 +231,7 @@ function stoichTable(config) {
             }
 
             if (row.isDensityPresent()) {
-                row.resetFields([fieldTypes.weight, fieldTypes.volume], onWeightChanged);
+                row.resetFields([fieldTypes.weight], onWeightChanged);
 
                 return;
             }
@@ -268,7 +268,8 @@ function stoichTable(config) {
         if (!row.isValuePresent(fieldTypes.molarity)) {
             var fieldToReset = row.getResetFieldForMolarity();
             var callback = fieldToReset === fieldTypes.mol ? onMolChanged : null;
-            row.resetFields([fieldToReset], callback);
+            row.resetFields([fieldToReset, fieldTypes.molarity], callback);
+            setMolFromLimitingRow(row, row.isMolPresent());
         }
     }
 
@@ -332,7 +333,8 @@ function stoichTable(config) {
         if (!row.isValuePresent(fieldTypes.density)) {
             var fieldToReset = row.getResetFieldForDensity();
             var callback = fieldToReset === fieldTypes.weight ? onWeightChanged : null;
-            row.resetFields([fieldToReset], callback);
+            row.resetFields([fieldToReset, fieldTypes.density], callback);
+            setMolFromLimitingRow(row, row.isWeightPresent());
         }
     }
 
@@ -365,6 +367,16 @@ function stoichTable(config) {
                     row.updateEqDependingOnLimitingEq(getLimitingRow());
                 }
             });
+        }
+    }
+
+    function setMolFromLimitingRow(row, isMolOrWeightPresent) {
+        var shouldSetMolFromLimitingRow = !isMolOrWeightPresent
+            && !row.isVolumePresent()
+            && getLimitingRow().isMolPresent();
+
+        if (shouldSetMolFromLimitingRow) {
+            row.setComputedMol(getLimitingRow().mol.value, onMolChanged);
         }
     }
 

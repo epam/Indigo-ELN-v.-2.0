@@ -50,6 +50,47 @@ function changeDensity() {
             expect(stoichRow.weight.value).toBe(0);
             expect(stoichRow.mol.value).toBe(0);
         });
+
+        it('volume is entered, set density, should recalculate eq', function() {
+            var limitingRow = new StoichRow();
+            limitingRow.molWeight.value = 1;
+            limitingRow.weight.value = 2;
+            limitingRow.weight.entered = true;
+            limitingRow.mol.value = 2;
+            service.addRow(limitingRow);
+
+            var otherRow = new StoichRow();
+            otherRow.molWeight.value = 1;
+            service.addRow(otherRow);
+            otherRow.volume.value = 4;
+            otherRow.volume.entered = true;
+            otherRow.density.value = 1;
+            otherRow.density.entered = true;
+
+            service.onFieldValueChanged(otherRow, fieldTypes.density);
+
+            expect(otherRow.weight.value).toBe(4000);
+            expect(otherRow.eq.value).toBe(2000);
+        });
+
+        it('set density 0, volume is 0, should update mol from limiting row', function() {
+            var limitingRow = new StoichRow();
+            limitingRow.molWeight.value = 1;
+            limitingRow.weight.value = 2;
+            limitingRow.weight.entered = true;
+            limitingRow.mol.value = 2;
+            service.addRow(limitingRow);
+
+            var otherRow = new StoichRow();
+            otherRow.molWeight.value = 1;
+            otherRow.density.value = 0;
+            service.addRow(otherRow);
+
+            service.onFieldValueChanged(otherRow, fieldTypes.density);
+
+            expect(otherRow.weight.value).toBe(2);
+            expect(otherRow.mol.value).toBe(2);
+        });
     });
 }
 

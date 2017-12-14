@@ -31,7 +31,9 @@ StoichRow.prototype = {
     resetFields: resetFields,
     resetEntered: resetEntered,
     clear: clear,
+    isMolWeightPresent: isMolWeightPresent,
     isMolPresent: isMolPresent,
+    isWeightPresent: isWeightPresent,
     isVolumePresent: isVolumePresent,
     isMolarityPresent: isMolarityPresent,
     isDensityPresent: isDensityPresent,
@@ -65,7 +67,7 @@ function updateVolume() {
 
 function updateEq(limitingRow) {
     var isArgsExist = limitingRow && this.mol.value && limitingRow.mol.value;
-    var canUpdateEq = this.weight.entered || this.mol.entered || this.molarity.entered;
+    var canUpdateEq = this.weight.entered || this.mol.entered || this.molarity.entered || this.density.entered;
 
     if (isArgsExist && canUpdateEq) {
         this.resetEntered([fieldTypes.eq]);
@@ -244,6 +246,14 @@ function getResetFieldsForSolvent() {
 
 function isMolPresent() {
     return this.mol.value;
+}
+
+function isWeightPresent() {
+    return this.weight.value;
+}
+
+function isMolWeightPresent() {
+    return this.molWeight.value;
 }
 
 function isVolumePresent() {
