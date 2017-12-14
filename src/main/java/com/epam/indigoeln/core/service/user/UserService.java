@@ -51,15 +51,16 @@ public class UserService {
         functionMap.put("group", User::getGroup);
         functionMap.put(
                 "role",
-                u -> u.getRoles().stream().findAny().map(Role::getName).orElse(""));
+                u -> u.getRoles().stream().findFirst().map(Role::getName).orElse(""));
 
-        Function<String, Comparator<User>> ascComparator = field -> (user1, user2) ->
-                (functionMap.get(field).apply(user1)
-                        .compareToIgnoreCase(functionMap.get(field).apply(user2)));
+        userByFieldAscComparator = field -> (user1, user2) ->
+        {
+            String user1Field = functionMap.getOrDefault(field, user -> "").apply(user1);
+            return user1Field == null ? 1 :
+                    user1Field.compareToIgnoreCase(functionMap.getOrDefault(field, user -> "").apply(user2));
+        };
 
-        userByFieldAscComparator = ascComparator;
-
-        userByFieldDescComparator = field -> ascComparator.apply(field).reversed();
+        userByFieldDescComparator = field -> UserService.userByFieldAscComparator.apply(field).reversed();
     }
 
     private static final Function<String, Comparator<User>> userByFieldAscComparator;
