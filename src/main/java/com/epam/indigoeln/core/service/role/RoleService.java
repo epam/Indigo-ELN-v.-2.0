@@ -9,11 +9,10 @@ import com.epam.indigoeln.core.service.exception.DuplicateFieldException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -58,8 +57,8 @@ public class RoleService {
      *
      * @return all roles in application
      */
-    public Collection<Role> getAllRoles(Pageable pageable) {
-        return roleRepository.findAll(pageable).getContent();
+    public List<Role> getAllRoles() {
+        return roleRepository.findAll();
     }
 
     /**

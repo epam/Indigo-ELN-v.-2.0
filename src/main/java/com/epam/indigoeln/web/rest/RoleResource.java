@@ -11,7 +11,6 @@ import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
@@ -48,14 +46,12 @@ public class RoleResource {
      */
     @ApiOperation(value = "Returns all roles.")
     @RequestMapping(method = RequestMethod.GET,
+            params = "page",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<RoleDTO>> getAllRoles(@ApiParam("Paging data.") Pageable pageable) {
+    public ResponseEntity<Collection<RoleDTO>> getAllRoles() {
         LOGGER.debug("REST request to get all roles");
-        Collection<Role> roles = roleService.getAllRoles(pageable);
-        List<RoleDTO> result = new ArrayList<>(roles.size());
-        result.addAll(roles.stream().map(
-                role -> dtoMapper.convertToDTO(role)).collect(toList())
-        );
+        List<RoleDTO> result = roleService.getAllRoles().stream()
+                .map(dtoMapper::convertToDTO).collect(toList());
         return ResponseEntity.ok(result);
     }
 
@@ -64,7 +60,7 @@ public class RoleResource {
      *
      * @return Returns with name like {@code nameLike}
      */
-    @ApiOperation(value = "Returns all roles.")
+    @ApiOperation(value = "Returns roles with name like a string in a parameter.")
     @RequestMapping(method = RequestMethod.GET,
             params = "search",
             produces = MediaType.APPLICATION_JSON_VALUE)
