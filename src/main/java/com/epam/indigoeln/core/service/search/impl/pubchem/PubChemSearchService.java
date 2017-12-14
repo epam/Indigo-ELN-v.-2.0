@@ -11,6 +11,9 @@ import java.util.Collections;
 
 import static com.epam.indigoeln.core.service.search.SearchServiceConstants.*;
 
+/**
+ *
+ */
 @Service
 public class PubChemSearchService implements SearchServiceAPI {
 

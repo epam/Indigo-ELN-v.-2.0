@@ -16,12 +16,20 @@ import java.util.Optional;
 
 import static com.epam.indigoeln.core.service.search.impl.pubchem.PubChemConst.*;
 
+/**
+ * Provides repository methods for searching
+ */
 @Repository
 class PubChemRepository {
 
     @Autowired
     private RequestSender requestSender;
 
+    /**
+     * Searches Product
+     * @param searchRequest
+     * @return
+     */
     Collection<ProductBatchDetailsDTO> searchByFormula(BatchSearchRequest searchRequest) {
         String searchURI = addBatchesLimit(SEARCH_BY_FORMULA_URI, searchRequest.getBatchesLimit());
         String formula = searchRequest.getStructure().get().getFormula();
