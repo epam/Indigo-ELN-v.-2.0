@@ -8,8 +8,8 @@ import com.epam.indigoeln.core.security.SecurityUtils;
 import com.epam.indigoeln.core.service.exception.DuplicateFieldException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
+import com.epam.indigoeln.core.util.SortedPageUtil;
 import com.google.common.base.Strings;
-import com.mongodb.Function;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,14 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.toList;
@@ -53,18 +52,11 @@ public class UserService {
                 "role",
                 u -> u.getRoles().stream().findFirst().map(Role::getName).orElse(""));
 
-        userByFieldAscComparator = field -> (user1, user2) ->
-        {
-            String user1Field = functionMap.getOrDefault(field, user -> "").apply(user1);
-            return user1Field == null ? 1 :
-                    user1Field.compareToIgnoreCase(functionMap.getOrDefault(field, user -> "").apply(user2));
-        };
-
-        userByFieldDescComparator = field -> UserService.userByFieldAscComparator.apply(field).reversed();
+        userSortedPageUtil = new SortedPageUtil<>(functionMap);
     }
 
-    private static final Function<String, Comparator<User>> userByFieldAscComparator;
-    private static final Function<String, Comparator<User>> userByFieldDescComparator;
+    private static final SortedPageUtil<User> userSortedPageUtil;
+
 
     @Autowired
     public UserService(SessionRegistry sessionRegistry,
@@ -211,38 +203,7 @@ public class UserService {
                 loginOrFirstNameOrLastNameOrRoleName,
                 roleIds);
 
-        return getUsersPage(users, pageable);
-    }
-
-    private Page<User> getUsersPage(List<User> users, Pageable pageable) {
-        if (pageable.getSort() != null) {
-            Comparator<User> comparator = sortToUserComparator(pageable);
-            users.sort(comparator);
-        }
-
-        int fromIndex = pageable.getPageNumber() * pageable.getPageSize();
-        if (fromIndex > users.size()) {
-            fromIndex = users.size();
-        }
-
-        int toIndex = fromIndex + pageable.getPageSize();
-        if (toIndex > users.size()) {
-            toIndex = users.size();
-        }
-
-        return new PageImpl<>(users.subList(fromIndex, toIndex), pageable, users.size());
-    }
-
-    private Comparator<User> sortToUserComparator(Pageable pageable) {
-        Comparator<User> comparator = null;
-        for (Sort.Order order : pageable.getSort()) {
-            String property = order.getProperty();
-            Comparator<User> userComparator = order.isAscending() ?
-                    userByFieldAscComparator.apply(property) :
-                    userByFieldDescComparator.apply(property);
-            comparator = (comparator == null) ? userComparator : comparator.thenComparing(userComparator);
-        }
-        return comparator;
+        return userSortedPageUtil.getPage(users, pageable);
     }
 
     private Set<Role> checkRolesExistenceAndGet(Set<Role> roles) {
