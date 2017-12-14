@@ -103,8 +103,7 @@ public class UserService {
         // checking for roles existence and for disallowed operation for current user
         user.setRoles(checkRolesExistenceAndGet(user.getRoles()));
         if (user.getId().equals(executingUser.getId())
-                && (user.getRoles().size() != executingUser.getRoles().size()
-                || !user.getRoles().containsAll(executingUser.getRoles()))) {
+                && !user.getRoles().containsAll(executingUser.getRoles())) {
             throw OperationDeniedException.createUserDeleteOperation(executingUser.getId());
         }
 
