@@ -364,7 +364,8 @@ function stoichTable(config) {
         if (isLimitingRowExist()) {
             _.forEach(table.reactants, function(row) {
                 var canUpdate = !row.isLimiting() && !row.isSolventRow();
-                var isManuallyEnteredExist = row.isWeightManuallyEntered() || row.isVolumeManuallyEntered();
+                var isManuallyEnteredExist =
+                    row.isWeightManuallyEntered() || row.isVolumeManuallyEntered() || row.isMolManuallyEntered();
                 var shouldUpdateRowWithNewMol = !isManuallyEnteredExist && canUpdate;
                 var shouldUpdateOnlyEq = isManuallyEnteredExist && canUpdate;
 

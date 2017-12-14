@@ -163,6 +163,27 @@ function changeWeight() {
             expect(limitingRow.eq.value).toBe(1);
             expect(limitingRow.molWeight.value).toBe(2);
         });
+
+        it('row is limiting, non limiting row has manually entered mol, should not update this row with new mol', function() {
+            var limitingRow = new StoichRow();
+            limitingRow.molWeight.value = 3;
+            limitingRow.weight.value = 15;
+            limitingRow.weight.entered = true;
+            limitingRow.mol.value = 5;
+            service.addRow(limitingRow);
+
+            var otherRow = new StoichRow();
+            otherRow.molWeight.value = 10;
+            service.addRow(otherRow);
+            otherRow.mol.value = 10;
+            otherRow.mol.entered = true;
+
+            service.onFieldValueChanged(limitingRow, fieldTypes.weight);
+
+            expect(otherRow.mol.value).toBe(10);
+            expect(otherRow.mol.entered).toBeTruthy();
+            expect(otherRow.eq.value).toBe(2);
+        });
     });
 }
 
