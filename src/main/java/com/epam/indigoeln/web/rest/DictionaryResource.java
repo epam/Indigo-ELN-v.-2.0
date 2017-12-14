@@ -132,19 +132,39 @@ public class DictionaryResource {
      * GET /dictionaries -> fetch all dictionary list.
      *
      * @param pageable Paging data
+     * @return Returns all found dictionaries (with paging)
+     * @throws URISyntaxException If URI is not correct
+     */
+    @RequestMapping(method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Returns all dictionaries.")
+    public ResponseEntity<List<DictionaryDTO>> getAllDictionaries(
+            @ApiParam("Paging data. Allows to sort by name of field within query params sort=<fieldName>,<asc|desc>.") Pageable pageable
+    ) throws URISyntaxException {
+        LOGGER.debug("REST request to get all dictionaries");
+        Page<DictionaryDTO> page = dictionaryService.getAllDictionaries("", pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING);
+        return new ResponseEntity<>(new LinkedList<>(page.getContent()), headers, HttpStatus.OK);
+    }
+
+    /**
+     * GET /dictionaries?search={@code search} -> fetch all dictionary with name or description like {@code search}.
+     *
+     * @param pageable Paging data
      * @param search   Search string
      * @return Returns all found dictionaries (with paging)
      * @throws URISyntaxException If URI is not correct
      */
     @RequestMapping(method = RequestMethod.GET,
+            params = "search",
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Returns all found dictionaries (with paging).")
     public ResponseEntity<List<DictionaryDTO>> getAllDictionaries(
             @ApiParam("Paging data. Allows to sort by name of field within query params sort=<fieldName>,<asc|desc>.") Pageable pageable,
             @ApiParam("Search string. Allows search dictionaries by name.") @RequestParam(value = "search") String search
     ) throws URISyntaxException {
-        LOGGER.debug("REST request to get all dictionaries");
-        Page<DictionaryDTO> page = dictionaryService.getAllDictionaries(pageable, search);
+        LOGGER.debug("REST request to to search for dictionaries");
+        Page<DictionaryDTO> page = dictionaryService.getAllDictionaries(search, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING);
         return new ResponseEntity<>(new LinkedList<>(page.getContent()), headers, HttpStatus.OK);
     }
@@ -154,7 +174,6 @@ public class DictionaryResource {
      *
      * @param dictionaryDTO Dictionary to create
      * @return Created dictionary
-     * @throws URISyntaxException if URI is not correct
      */
     @ApiOperation(value = "Creates new dictionary.")
     @RequestMapping(method = RequestMethod.POST,
