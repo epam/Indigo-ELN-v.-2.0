@@ -9,6 +9,7 @@ import com.epam.indigoeln.core.service.exception.DuplicateFieldException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.google.common.base.Strings;
+import com.mongodb.Function;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,14 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.toList;
@@ -40,6 +41,29 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final Pattern passwordValidationPattern;
+
+    static {
+        Map<String, Function<User, String>> functionMap = new HashMap<>();
+        functionMap.put("login", User::getLogin);
+        functionMap.put("firstName", User::getFirstName);
+        functionMap.put("lastName", User::getLastName);
+        functionMap.put("email", User::getEmail);
+        functionMap.put("group", User::getGroup);
+        functionMap.put(
+                "role",
+                u -> u.getRoles().stream().findAny().map(Role::getName).orElse(""));
+
+        Function<String, Comparator<User>> ascComparator = field -> (user1, user2) ->
+                (functionMap.get(field).apply(user1)
+                        .compareToIgnoreCase(functionMap.get(field).apply(user2)));
+
+        userByFieldAscComparator = ascComparator;
+
+        userByFieldDescComparator = field -> ascComparator.apply(field).reversed();
+    }
+
+    private static final Function<String, Comparator<User>> userByFieldAscComparator;
+    private static final Function<String, Comparator<User>> userByFieldDescComparator;
 
     @Autowired
     public UserService(SessionRegistry sessionRegistry,
@@ -180,12 +204,44 @@ public class UserService {
                 .findByNameLikeIgnoreCase(loginOrFirstNameOrLastNameOrRoleName)
                 .map(Role::getId).collect(toList());
 
-        return userRepository.findByLoginIgnoreCaseLikeOrFirstNameIgnoreCaseLikeOrLastNameIgnoreCaseLikeOrRolesIdIn(
+        List<User> users = userRepository.findByLoginIgnoreCaseLikeOrFirstNameIgnoreCaseLikeOrLastNameIgnoreCaseLikeOrRolesIdIn(
                 loginOrFirstNameOrLastNameOrRoleName,
                 loginOrFirstNameOrLastNameOrRoleName,
                 loginOrFirstNameOrLastNameOrRoleName,
-                roleIds,
-                pageable);
+                roleIds);
+
+        return getUsersPage(users, pageable);
+    }
+
+    private Page<User> getUsersPage(List<User> users, Pageable pageable) {
+        if (pageable.getSort() != null) {
+            Comparator<User> comparator = sortToUserComparator(pageable);
+            users.sort(comparator);
+        }
+
+        int fromIndex = pageable.getPageNumber() * pageable.getPageSize();
+        if (fromIndex > users.size()) {
+            fromIndex = users.size();
+        }
+
+        int toIndex = fromIndex + pageable.getPageSize();
+        if (toIndex > users.size()) {
+            toIndex = users.size();
+        }
+
+        return new PageImpl<>(users.subList(fromIndex, toIndex), pageable, users.size());
+    }
+
+    private Comparator<User> sortToUserComparator(Pageable pageable) {
+        Comparator<User> comparator = null;
+        for (Sort.Order order : pageable.getSort()) {
+            String property = order.getProperty();
+            Comparator<User> userComparator = order.isAscending() ?
+                    userByFieldAscComparator.apply(property) :
+                    userByFieldDescComparator.apply(property);
+            comparator = (comparator == null) ? userComparator : comparator.thenComparing(userComparator);
+        }
+        return comparator;
     }
 
     private Set<Role> checkRolesExistenceAndGet(Set<Role> roles) {

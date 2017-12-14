@@ -2,8 +2,6 @@ package com.epam.indigoeln.core.repository.user;
 
 import com.epam.indigoeln.core.model.Role;
 import com.epam.indigoeln.core.model.User;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
@@ -27,11 +25,10 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     List<User> findAll(Iterable<String> ids);
 
-    Page<User> findByLoginIgnoreCaseLikeOrFirstNameIgnoreCaseLikeOrLastNameIgnoreCaseLikeOrRolesIdIn(
+    List<User> findByLoginIgnoreCaseLikeOrFirstNameIgnoreCaseLikeOrLastNameIgnoreCaseLikeOrRolesIdIn(
             String login,
             String firstName,
             String lastName,
-            List<String> roleId,
-            Pageable pageable
+            List<String> roleId
     );
 }
