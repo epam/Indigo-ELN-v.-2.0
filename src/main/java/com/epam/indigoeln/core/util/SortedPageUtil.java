@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.util;
 
+import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -18,10 +19,13 @@ public class SortedPageUtil<T> {
 
     public SortedPageUtil(Map<String, Function<T, String>> functionMap) {
 
-        ascComparator = field -> (entity1, entity2) ->
-                String.CASE_INSENSITIVE_ORDER.compare(
-                        Optional.ofNullable(functionMap.getOrDefault(field, entity -> "").apply(entity1)).orElse(""),
-                        Optional.ofNullable(functionMap.getOrDefault(field, user -> "").apply(entity2)).orElse(""));
+        ascComparator = field -> (entity1, entity2) -> {
+            Function<T, String> getValue = Optional.ofNullable(functionMap.get(field)).orElseThrow(() ->
+                    new FieldParseException(String.format("Cant parse field %s", field)));
+            return String.CASE_INSENSITIVE_ORDER.compare(
+                    Optional.ofNullable(getValue.apply(entity1)).orElse(""),
+                    Optional.ofNullable(getValue.apply(entity2)).orElse(""));
+        };
 
         descComparator = field -> this.ascComparator.apply(field).reversed();
     }
@@ -55,5 +59,11 @@ public class SortedPageUtil<T> {
             comparator = (comparator == null) ? userComparator : comparator.thenComparing(userComparator);
         }
         return comparator;
+    }
+
+    private static class FieldParseException extends CustomParametrizedException {
+        FieldParseException(String message, String... params) {
+            super(message, params);
+        }
     }
 }
