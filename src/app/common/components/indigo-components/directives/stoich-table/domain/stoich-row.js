@@ -38,6 +38,8 @@ StoichRow.prototype = {
     isMolarityPresent: isMolarityPresent,
     isDensityPresent: isDensityPresent,
     isWeightManuallyEntered: isWeightManuallyEntered,
+    isMolManuallyEntered: isMolManuallyEntered,
+    isEqManuallyEntered: isEqManuallyEntered,
     isVolumeManuallyEntered: isVolumeManuallyEntered
 };
 
@@ -54,13 +56,17 @@ function updateMolWeight() {
 
 // TODO: refactor
 function updateVolume() {
-    if (this.molarity.value && this.mol.value) {
+    var areMolarityAndMolPreset = this.isMolarityPresent() && this.isMolPresent();
+    var areDensityAndWeightPresent = this.isDensityPresent() && this.isWeightPresent();
+    var isManuallyEntered = this.isWeightManuallyEntered() || this.isMolManuallyEntered() || this.isEqManuallyEntered();
+
+    if (areMolarityAndMolPreset) {
         this.volume.value = calculationUtil.computeVolumeByMolarity(this.mol.value, this.molarity.value);
-    } else if (this.density.value && this.weight.value) {
+    } else if (areDensityAndWeightPresent) {
         this.volume.value = calculationUtil.computeVolumeByDensity(this.weight.value, this.density.value);
     }
 
-    if (this.weight.entered || this.mol.entered) {
+    if (isManuallyEntered) {
         this.resetEntered([fieldTypes.volume]);
     }
 }
@@ -270,6 +276,14 @@ function isDensityPresent() {
 
 function isWeightManuallyEntered() {
     return this.weight.entered;
+}
+
+function isMolManuallyEntered() {
+    return this.mol.entered;
+}
+
+function isEqManuallyEntered() {
+    return this.eq.entered;
 }
 
 function isVolumeManuallyEntered() {

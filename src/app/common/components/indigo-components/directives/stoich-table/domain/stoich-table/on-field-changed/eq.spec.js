@@ -121,6 +121,63 @@ function changeEq() {
             expect(stoichRow.mol.value).toBe(10);
             expect(stoichRow.eq.value).toBe(1);
         });
+
+        describe('row is not limiting', function() {
+            var limitingRow;
+            var otherRow;
+            beforeEach(function() {
+                limitingRow = new StoichRow();
+                limitingRow.molWeight.value = 10;
+                limitingRow.weight.value = 100;
+                limitingRow.weight.entered = true;
+                limitingRow.mol.value = 10;
+                service.addRow(limitingRow);
+
+                otherRow = new StoichRow();
+                otherRow.molWeight.value = 10;
+                otherRow.volume.value = 2;
+                service.addRow(otherRow);
+            });
+            it('should delete volume', function() {
+                otherRow.eq.value = 2;
+                otherRow.eq.entered = true;
+
+                service.onFieldValueChanged(otherRow, fieldTypes.eq);
+
+                expect(otherRow.weight.value).toBe(200);
+                expect(otherRow.mol.value).toBe(20);
+                expect(otherRow.eq.value).toBe(2);
+                expect(otherRow.volume.value).toBe(0);
+            });
+
+            it('molarity is defined, should recalculate volume', function() {
+                otherRow.molarity.value = 2;
+                otherRow.molarity.entered = true;
+                otherRow.eq.value = 2;
+                otherRow.eq.entered = true;
+
+                service.onFieldValueChanged(otherRow, fieldTypes.eq);
+
+                expect(otherRow.weight.value).toBe(200);
+                expect(otherRow.mol.value).toBe(20);
+                expect(otherRow.eq.value).toBe(2);
+                expect(otherRow.volume.value).toBe(10);
+            });
+
+            it('density is defined, should recalculate volume', function() {
+                otherRow.density.value = 2;
+                otherRow.density.entered = true;
+                otherRow.eq.value = 2;
+                otherRow.eq.entered = true;
+
+                service.onFieldValueChanged(otherRow, fieldTypes.eq);
+
+                expect(otherRow.weight.value).toBe(200);
+                expect(otherRow.mol.value).toBe(20);
+                expect(otherRow.eq.value).toBe(2);
+                expect(otherRow.volume.value).toBe(0.1);
+            });
+        });
     });
 }
 
