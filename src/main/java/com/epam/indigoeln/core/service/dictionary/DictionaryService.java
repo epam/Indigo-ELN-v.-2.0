@@ -120,7 +120,7 @@ public class DictionaryService {
      */
     public Page<DictionaryDTO> getAllDictionaries(Pageable pageable, String search) {
         return dictionaryRepository
-                .findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, search, pageable)
+                .findByNameIgnoreCaseLikeOrDescriptionIgnoreCaseLike(search, search, pageable)
                 .map(DictionaryDTO::new);
     }
 

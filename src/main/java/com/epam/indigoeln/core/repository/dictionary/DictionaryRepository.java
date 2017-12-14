@@ -9,6 +9,5 @@ public interface DictionaryRepository extends MongoRepository<Dictionary, String
 
     Dictionary findByName(String name);
 
-    Page<Dictionary> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String nameLike, String descriptionLike, Pageable pageable);
-
+    Page<Dictionary> findByNameIgnoreCaseLikeOrDescriptionIgnoreCaseLike(String nameLike, String descriptionLike, Pageable pageable);
 }
