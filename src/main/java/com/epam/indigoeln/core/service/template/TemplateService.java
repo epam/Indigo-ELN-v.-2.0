@@ -59,7 +59,9 @@ public class TemplateService {
     }
 
     public Page<TemplateDTO> getTemplatesNameLike(String nameLike, Pageable pageable) {
-        return templateRepository.findByNameLikeIgnoreCase(nameLike, pageable).map(TemplateDTO::new);
+        return templateSortedPageUtil
+                .getPage(templateRepository.findByNameLikeIgnoreCase(nameLike), pageable)
+                .map(TemplateDTO::new);
     }
 
     public TemplateDTO createTemplate(TemplateDTO templateDTO) {
