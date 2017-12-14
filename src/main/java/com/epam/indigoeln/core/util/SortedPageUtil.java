@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class SortedPageUtil<T> {
@@ -18,11 +19,9 @@ public class SortedPageUtil<T> {
     public SortedPageUtil(Map<String, Function<T, String>> functionMap) {
 
         ascComparator = field -> (entity1, entity2) ->
-        {
-            String user1Field = functionMap.getOrDefault(field, entity -> "").apply(entity1);
-            return user1Field == null ? 1 :
-                    user1Field.compareToIgnoreCase(functionMap.getOrDefault(field, user -> "").apply(entity2));
-        };
+                String.CASE_INSENSITIVE_ORDER.compare(
+                        Optional.ofNullable(functionMap.getOrDefault(field, entity -> "").apply(entity1)).orElse(""),
+                        Optional.ofNullable(functionMap.getOrDefault(field, user -> "").apply(entity2)).orElse(""));
 
         descComparator = field -> this.ascComparator.apply(field).reversed();
     }
