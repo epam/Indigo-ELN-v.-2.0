@@ -21,14 +21,14 @@
     <div ng-if="vm.user" class="panel panel-info edit-form animated">
         <div class="panel-heading" i-translate="CREATE_EDIT_USER"></div>
         <div class="panel-body ">
-            <form id="editForm" name="editForm" role="form" novalidate autocomplete="off">
-
+            <form id="editForm"
+                  name="editForm"
+                  role="form"
+                  novalidate
+                  autocomplete="off">
                 <div class="row">
                     <div class="col-xs-6">
-                        <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
-                        <input type="password" name="password" id="password_fake" class="hidden" autocomplete="off">
-                        <input class="hidden" type="password" name="fakepasswordremembered"/>
-                        <simple-input validation-pattern-text="Login should not contain symbols in upper case.">
+                        <simple-input validation-pattern-text="{{ ::vm.loginValidationText}}">
                             <span i-translate="LOGIN"></span>
                             <input class="form-control"
                                    name="login"
@@ -78,14 +78,18 @@
                                    maxlength="100"
                                    ng-model="vm.user.email">
                         </simple-input>
-                        <simple-input ng-if="!vm.user.id">
+
+                        <simple-input ng-if="!vm.user.id"
+                                      validation-pattern-text="{{ ::vm.passwordValidationText }}">
                             <span i-translate="PASSWORD"></span>
                             <input class="form-control"
                                    name="password"
-                                   ng-required="!vm.user.id"
                                    type="password"
+                                   autocomplete="new-password"
                                    maxlength="50"
-                                   ng-model="vm.user.password">
+                                   ng-model="vm.user.password"
+                                   ng-required="!vm.user.id"
+                                   ng-pattern="vm.passwordRegex">
                         </simple-input>
                         <indigo-select indigo-label="Groups"
                                        indigo-items="[{name:'Group 1'}, {name:'Group 2'}]"
@@ -94,12 +98,10 @@
 
                         <button class="btn btn-info"
                                 ng-if="vm.user.id"
-                                ng-click="vm.changePassword()" i-translate="CHANGE_PASSWORD">
+                                ng-click="vm.changePassword()"
+                                i-translate="CHANGE_PASSWORD">
                         </button>
-                        <normal class="user-management__password-success" ng-if="vm.user.password && vm.user.id">
-                            <span class="glyphicon glyphicon-alert">&nbsp;</span>
-                            <span i-translate="PASSWORD_SUCCESSFULLY_CHANGED"></span>
-                        </normal>
+
                         <indigo-checkbox
                             indigo-label="Activated"
                             indigo-model="vm.user.activated"
@@ -112,7 +114,7 @@
             <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
                 <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
             </button>
-            <button ng-click="vm.save()" form="editForm"
+            <button ng-click="vm.saveUser()" form="editForm"
                     ng-disabled="editForm.$invalid || vm.isSaving"
                     class="btn btn-primary m-l5">
                 <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>

@@ -1,12 +1,10 @@
-iTranslate.$inject = ['i18en', '$log'];
-
-function iTranslate(i18en, $log) {
+/* @ngInject */
+function iTranslate(translateService) {
     return {
         compile: function(element, $attr) {
-            if (!i18en[$attr.iTranslate]) {
-                $log.error('Translate didn\'t find', $attr.iTranslate, element[0]);
-            }
-            element.html(i18en[$attr.iTranslate] + ($attr.iEnd || ''));
+            var translatedStr = translateService.translate($attr.iTranslate);
+
+            element.html(translatedStr + ($attr.iEnd || ''));
         }
     };
 }

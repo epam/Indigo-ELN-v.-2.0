@@ -96,13 +96,13 @@
                                indigo-readonly="vm.isEditDisabled"
                 ></indigo-select>
                 <simple-input>
-                    <label i-translate="CONVERSATIONAL_BATCH_NUMBER"></label>
+                    <span i-translate="CONVERSATIONAL_BATCH_NUMBER"></span>
                     <input class="form-control" ng-model="vm.selectedBatch.conversationalBatchNumber"
                            ng-disabled="vm.isReadonly"
                            ng-attr-title="vm.selectedBatch.conversationalBatchNumber">
                 </simple-input>
                 <simple-input>
-                    <label i-translate="VIRTUAL_COMPOUND_ID"></label>
+                    <span i-translate="VIRTUAL_COMPOUND_ID"></span>
                     <input class="form-control"
                            ng-model="vm.selectedBatch.virtualCompoundId"
                            ng-disabled="vm.isEditDisabled"
@@ -143,7 +143,7 @@
                                indigo-readonly="vm.isEditDisabled || !vm.canEditSaltCode(vm.selectedBatch)"
                 ></indigo-select>
                 <simple-input>
-                    <label i-translate="SALT_EQUIVALENT"></label>
+                    <span i-translate="SALT_EQUIVALENT"></span>
                     <input class="form-control"
                            type="number"
                            ng-change="vm.recalculateSalt(vm.selectedBatch)"
@@ -163,7 +163,7 @@
                                indigo-readonly="vm.isEditDisabled"
                 ></indigo-select>
                 <simple-input>
-                    <label i-translate="PRECURSOR_REACTANT_IDS"></label>
+                    <span i-translate="PRECURSOR_REACTANT_IDS"></span>
                     <input class="form-control"
                            ng-model="vm.selectedBatch.precursors"
                            ng-disabled="vm.isEditDisabled || vm.isExistStoichTable">
