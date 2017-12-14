@@ -3,7 +3,6 @@ var containValue = require('./contain-value.filter');
 var joinBy = require('./join-by.filter');
 var round = require('./round.filter');
 var prettyBytes = require('./pretty-bytes.filter');
-var translate = require('./translate.filter');
 var filtersConfig = require('./filters.config');
 
 module.exports = angular
@@ -14,7 +13,6 @@ module.exports = angular
     .filter('joinBy', joinBy)
     .filter('round', round)
     .filter('prettyBytes', prettyBytes)
-    .filter('translate', translate)
 
     .config(filtersConfig)
 

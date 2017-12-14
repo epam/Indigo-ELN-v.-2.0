@@ -1,7 +1,8 @@
 var userManagementPasswordDialogTemplate = require('./user-management-password-dialog.html');
 
 /* @ngInject */
-function UserManagementController($uibModal, userService, parseLinks, $filter, pageInfo, passwordRegex, notifyService) {
+function UserManagementController($uibModal, userService, parseLinks, $filter, pageInfo, passwordRegex, notifyService,
+                                  translateService) {
     var vm = this;
     var usersModel = [];
 
@@ -14,8 +15,8 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
         isAscending: true
     };
     vm.passwordRegex = passwordRegex;
-    vm.loginValidationText = $filter('translate')('LOGIN_HINT');
-    vm.passwordValidationText = $filter('translate')('PASSWORD_HINT');
+    vm.loginValidationText = translateService.translate('LOGIN_HINT');
+    vm.passwordValidationText = translateService.translate('PASSWORD_HINT');
 
     vm.loadAll = loadAll;
     vm.setActive = setActive;
@@ -71,12 +72,12 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
         loadAll();
 
         if (!isEmailCorrect(result)) {
-            notifyService.error($filter('translate')('NOTIFY_INCORRECT_EMAIL'));
+            notifyService.error(translateService.translate('NOTIFY_INCORRECT_EMAIL'));
 
             return;
         }
 
-        notifyService.error($filter('translate')('NOTIFY_USER_SAVE_ERROR'));
+        notifyService.error(translateService.translate('NOTIFY_USER_SAVE_ERROR'));
     }
 
     function isEmailCorrect(result) {
@@ -157,10 +158,10 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
 
             save()
                 .then(function() {
-                    notifyService.success($filter('translate')('PASSWORD_CHANGE_SUCCESS'));
+                    notifyService.success(translateService.translate('PASSWORD_CHANGE_SUCCESS'));
                 })
                 .catch(function() {
-                    notifyService.error($filter('translate')('NOTIFY_USER_SAVE_ERROR'));
+                    notifyService.error(translateService.translate('NOTIFY_USER_SAVE_ERROR'));
                 })
                 .finally(function() {
                     vm.isSaving = false;

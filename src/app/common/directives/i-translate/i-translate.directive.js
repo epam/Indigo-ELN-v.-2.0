@@ -1,8 +1,8 @@
 /* @ngInject */
-function iTranslate($filter) {
+function iTranslate(translateService) {
     return {
         compile: function(element, $attr) {
-            var translatedStr = $filter('translate')($attr.iTranslate);
+            var translatedStr = translateService.translate($attr.iTranslate);
 
             element.html(translatedStr + ($attr.iEnd || ''));
         }
