@@ -26,7 +26,6 @@ public class SortedPageUtil<T> {
                     Optional.ofNullable(getValue.apply(entity1)).orElse(""),
                     Optional.ofNullable(getValue.apply(entity2)).orElse(""));
         };
-
         descComparator = field -> this.ascComparator.apply(field).reversed();
     }
 

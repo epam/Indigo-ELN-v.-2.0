@@ -46,7 +46,6 @@ public class RoleResource {
      */
     @ApiOperation(value = "Returns all roles.")
     @RequestMapping(method = RequestMethod.GET,
-            params = "page",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<RoleDTO>> getAllRoles() {
         LOGGER.debug("REST request to get all roles");

@@ -1,6 +1,8 @@
 package com.epam.indigoeln.web.rest.errors;
 
+import com.epam.indigo.IndigoException;
 import com.epam.indigoeln.IndigoRuntimeException;
+import com.epam.indigoeln.core.service.exception.UriProcessingException;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.multipart.MultipartException;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
@@ -20,9 +23,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.epam.indigo.IndigoException;
-import org.springframework.web.multipart.MultipartException;
 
 /**
  * Controller advice to translate the server side exceptions to client-friendly json structures.
@@ -75,6 +75,13 @@ public class ExceptionTranslator {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ParametrizedErrorDTO processParametrizedValidationError(CustomParametrizedException ex) {
+        return ex.getErrorDTO();
+    }
+
+    @ExceptionHandler(UriProcessingException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ParametrizedErrorDTO processUriProcessingError(UriProcessingException ex) {
         return ex.getErrorDTO();
     }
 
