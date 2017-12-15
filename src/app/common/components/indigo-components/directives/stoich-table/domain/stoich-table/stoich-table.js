@@ -95,12 +95,12 @@ function stoichTable(config) {
     }
 
     function onWeightChanged(row) {
-        if (row.areValuesPresent([fieldTypes.weight, fieldTypes.molWeight])) {
+        if (row.isWeightPresent() && row.isMolWeightPresent()) {
             var mol = calculationUtil.computePureMol(row.weight.value, row.molWeight.value);
             row.setComputedMol(mol);
 
             if (row.isLimiting()) {
-                updateRows(row.mol.value);
+                updateRows();
             }
         }
 
@@ -121,16 +121,16 @@ function stoichTable(config) {
             row.setComputedWeight(weightByPurity);
         }
 
-        if (row.areValuesPresent([fieldTypes.molWeight, fieldTypes.mol]) && !row.stoicPurity.entered) {
+        if (row.isMolWeightPresent() && row.isMolPresent() && !row.stoicPurity.entered) {
             var weight = calculationUtil.computeWeight(row.mol.value, row.molWeight.value);
             row.setComputedWeight(weight);
         }
 
         if (row.isLimiting()) {
-            updateRows(row.mol.value);
+            updateRows();
         }
 
-        if (!row.isValuePresent(fieldTypes.mol)) {
+        if (!row.isMolPresent()) {
             row.resetFields(row.getResetFieldsForMol());
         }
 
@@ -144,32 +144,38 @@ function stoichTable(config) {
             return;
         }
 
-        var multiplier = calculationUtil.divide(row.eq.value, row.eq.prevValue);
         var shouldResetVolume = row.isVolumePresent() && !row.isDensityPresent() && !row.isMolarityPresent();
-        row.eq.prevValue = row.eq.value;
 
         if (shouldResetVolume) {
             row.resetFields([fieldTypes.volume]);
         }
 
-        if (row.isLimiting() && row.isMolPresent()) {
-            var molByEq = calculationUtil.computeMolByEq(row.mol.value, row.eq.value);
-            updateRows(molByEq);
+        if (row.isLimiting()) {
+            if (row.isMolManuallyEntered() && row.isWeightPresent()) {
+                var limitingWeight = calculationUtil.computeWeightByEq(row.weight.value, row.eq.value, row.eq.prevValue);
+                row.setComputedWeight(limitingWeight);
+            }
+
+            if (row.isMolPresent()) {
+                updateRows();
+            }
         }
 
         if (!row.isLimiting()) {
             if (row.isWeightPresent()) {
-                var weight = calculationUtil.multiply(row.weight.value, multiplier);
+                var weight = calculationUtil.computeWeightByEq(row.weight.value, row.eq.value, row.eq.prevValue);
                 row.setComputedWeight(weight);
             }
 
             if (row.isMolPresent()) {
-                var mol = calculationUtil.multiply(row.mol.value, multiplier);
+                var mol = calculationUtil.computeMolByEq(row.mol.value, row.eq.value, row.eq.prevValue);
                 row.setComputedMol(mol);
             }
 
             row.updateVolume();
         }
+
+        row.eq.prevValue = row.eq.value;
     }
 
     function onRxnRoleChanged(row) {
@@ -256,7 +262,7 @@ function stoichTable(config) {
     }
 
     function onMolarityChanged(row) {
-        if (!row.isValuePresent(fieldTypes.molarity)) {
+        if (!row.isMolarityPresent()) {
             var fieldToReset = row.getResetFieldForMolarity();
             var callback = fieldToReset === fieldTypes.mol ? onMolChanged : null;
             row.resetFields([fieldToReset, fieldTypes.molarity], callback);
@@ -360,8 +366,9 @@ function stoichTable(config) {
         }
     }
 
-    function updateRows(mol) {
+    function updateRows() {
         if (isLimitingRowExist()) {
+            var limitingRow = getLimitingRow();
             _.forEach(table.reactants, function(row) {
                 var canUpdate = !row.isLimiting() && !row.isSolventRow();
                 var isManuallyEnteredExist =
@@ -370,6 +377,9 @@ function stoichTable(config) {
                 var shouldUpdateOnlyEq = isManuallyEnteredExist && canUpdate;
 
                 if (shouldUpdateRowWithNewMol) {
+                    var mol = calculationUtil.computeNonLimitingMolByEq(
+                        limitingRow.mol.value, row.eq.value, limitingRow.eq.value
+                    );
                     row.updateMol(mol, onMolChanged);
                 }
 
@@ -399,7 +409,7 @@ function stoichTable(config) {
     function updateMol(row, mol) {
         if (row.isWeightManuallyEntered()) {
             row.setComputedMol(mol, updateDependencies);
-            updateRows(mol);
+            updateRows();
         } else {
             row.setComputedMol(mol, onMolChanged);
         }

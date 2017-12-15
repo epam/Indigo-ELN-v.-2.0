@@ -27,8 +27,26 @@ function changeEq() {
             service.onFieldValueChanged(stoichRow, fieldTypes.eq);
 
             expect(stoichRow.weight.value).toBe(220);
+            expect(stoichRow.mol.value).toBe(22);
             expect(stoichRow.weight.entered).toBeFalsy();
             expect(stoichRow.mol.entered).toBeFalsy();
+        });
+
+        it('row is limiting, mol is manually entered, should update weight', function() {
+            var stoichRow = new StoichRow();
+            stoichRow.molWeight.value = 10;
+            stoichRow.weight.value = 110;
+            stoichRow.mol.value = 11;
+            stoichRow.mol.entered = true;
+            stoichRow.eq.value = 2;
+            stoichRow.eq.entered = true;
+            stoichRow.limiting = true;
+
+            service.onFieldValueChanged(stoichRow, fieldTypes.eq);
+
+            expect(stoichRow.weight.value).toBe(220);
+            expect(stoichRow.mol.value).toBe(11);
+            expect(stoichRow.mol.entered).toBeTruthy();
         });
 
         it('row is limiting, should update mol in other lines', function() {
@@ -53,7 +71,7 @@ function changeEq() {
         });
 
         it('complex test.' +
-            '1. Apply new EQ in Limiting row - non limiting Mol and Weight are updated,' +
+            '1. Apply new EQ in Limiting row - non limiting Mol and Weight are updated' +
             '2. Enter manual weight in non limiting row - Mols are recalculated for this particular row' +
             '3. Update EQ for Limiting' +
             'Expected results: Mols are not update in Limiting and Non limiting row.' +

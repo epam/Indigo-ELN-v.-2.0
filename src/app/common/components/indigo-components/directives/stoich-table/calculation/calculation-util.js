@@ -10,7 +10,9 @@ calculationUtil.computePureMol = computePureMol;
 calculationUtil.computeDissolvedMol = computeDissolvedMol;
 calculationUtil.computeMolByPurity = computeMolByPurity;
 calculationUtil.computeMolByEq = computeMolByEq;
+calculationUtil.computeNonLimitingMolByEq = computeNonLimitingMolByEq;
 calculationUtil.computeWeight = computeWeight;
+calculationUtil.computeWeightByEq = computeWeightByEq;
 calculationUtil.computeWeightByPurity = computeWeightByPurity;
 calculationUtil.computeEq = computeEq;
 calculationUtil.computeMolWeight = computeMolWeight;
@@ -58,13 +60,30 @@ function computeMolByPurity(purity, currentMol) {
 }
 
 /**
- * Compute mol by eq: Mol = MolOfLimiting / EqOfLimiting
+ * Compute mol by eq: Mol = Mol * (currentEq / prevEq)
+ * @param mol
+ * @param currentEq
+ * @param prevEq
+ * @returns {number}
+ */
+function computeMolByEq(mol, currentEq, prevEq) {
+    return computeByEq(mol, currentEq, prevEq);
+}
+
+/**
+ * Compute mol by eq: Mol = (MolOfLimiting * EqOfNonLimiting) / EqOfLimiting
  * @param molOfLimiting
+ * @param eqOfNonLimiting
  * @param eqOfLimiting
  * @returns {number}
  */
-function computeMolByEq(molOfLimiting, eqOfLimiting) {
-    return divide(molOfLimiting, eqOfLimiting);
+function computeNonLimitingMolByEq(molOfLimiting, eqOfNonLimiting, eqOfLimiting) {
+    return math
+        .chain(bignumber(molOfLimiting))
+        .multiply(bignumber(eqOfNonLimiting))
+        .divide(bignumber(eqOfLimiting))
+        .done()
+        .toNumber();
 }
 
 /**
@@ -90,6 +109,17 @@ function computeWeightByPurity(purity, currentWeight) {
         .multiply(bignumber(ONE_HUNDRED))
         .done()
         .toNumber();
+}
+
+/**
+ * Compute weight by eq: Weight = Weight * (currentEq / prevEq)
+ * @param weight
+ * @param currentEq
+ * @param prevEq
+ * @returns {number}
+ */
+function computeWeightByEq(weight, currentEq, prevEq) {
+    return computeByEq(weight, currentEq, prevEq);
 }
 
 /**
@@ -183,6 +213,15 @@ function multiply(x, y) {
 function divide(x, y) {
     return math
         .divide(bignumber(x), bignumber(y))
+        .toNumber();
+}
+
+function computeByEq(weightOrMol, currentEq, prevEq) {
+    return math
+        .chain(bignumber(currentEq))
+        .divide(bignumber(prevEq))
+        .multiply(bignumber(weightOrMol))
+        .done()
         .toNumber();
 }
 

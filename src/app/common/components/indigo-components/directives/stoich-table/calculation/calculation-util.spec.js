@@ -23,8 +23,15 @@ describe('service: calculationUtil', function() {
     });
 
     describe('computeMolByEq function', function() {
+        it('should be 4', function() {
+            var res = calculationUtil.computeMolByEq(2, 4, 2);
+            expect(res).toBe(4);
+        });
+    });
+
+    describe('computeNonLimitingMolByEq function', function() {
         it('should be 2', function() {
-            var res = calculationUtil.computeMolByEq(10, 5);
+            var res = calculationUtil.computeNonLimitingMolByEq(10, 1, 5);
             expect(res).toBe(2);
         });
     });
@@ -40,6 +47,13 @@ describe('service: calculationUtil', function() {
         it('should be 1500', function() {
             var res = calculationUtil.computeWeightByPurity(5, 75);
             expect(res).toBe(1500);
+        });
+    });
+
+    describe('computeWeightByEq function', function() {
+        it('should be 8', function() {
+            var res = calculationUtil.computeWeightByEq(4, 4, 2);
+            expect(res).toBe(8);
         });
     });
 
