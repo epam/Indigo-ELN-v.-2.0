@@ -10,7 +10,6 @@ import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.util.SortedPageUtil;
 import com.google.common.base.Strings;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,14 +70,31 @@ public class UserService {
         passwordValidationPattern = Pattern.compile(passwordRegex);
     }
 
+    /**
+     * Gets users from DB according to given pagination information.
+     *
+     * @param pageable pagination information to retrieve users
+     * @return page with found users
+     */
     public Page<User> getAllUsers(Pageable pageable) {
         return userSortedPageUtil.getPage(userRepository.findAll(), pageable);
     }
 
+    /**
+     * Gets all users from DB.
+     *
+     * @return list of all users
+     */
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
+    /**
+     * Saves new user in DB.
+     *
+     * @param user user to save
+     * @return created user
+     */
     public User createUser(User user) {
         checkUserPassword(user.getPassword());
 
@@ -102,6 +118,13 @@ public class UserService {
         return savedUser;
     }
 
+    /**
+     * Updates user information in DB.
+     *
+     * @param user          user to update
+     * @param executingUser user performing action
+     * @return updated user
+     */
     public User updateUser(User user, User executingUser) {
         User userFromDB = userRepository.findOneByLogin(user.getLogin());
         if (userFromDB == null) {
@@ -141,6 +164,13 @@ public class UserService {
         }
     }
 
+    /**
+     * Deletes the user from DB if the user exists and it is allowed to delete that user.
+     * It is not allowed to delete system users and user cannot delete himself.
+     *
+     * @param login         login of the user to delete
+     * @param executingUser user performing action
+     */
     public void deleteUserByLogin(String login, User executingUser) {
         User userByLogin = userRepository.findOneByLogin(login);
         if (userByLogin == null) {
@@ -160,14 +190,23 @@ public class UserService {
         LOGGER.debug("Deleted User: {}", userByLogin);
     }
 
-    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
+    /**
+     * Gets current user from DB with eagerly loaded authorities.
+     *
+     * @return current user
+     */
     public User getUserWithAuthorities() {
         User user = userRepository.findOneByLogin(SecurityUtils.getCurrentUser().getUsername());
         user.getRoles().size(); // eagerly load the association
         return user;
     }
 
-    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
+    /**
+     * Gets user from DB by ID with eagerly loaded authorities.
+     *
+     * @param id user ID
+     * @return user with given ID
+     */
     public User getUserWithAuthorities(String id) {
         User user = userRepository.findOne(id);
         if (user == null) {
@@ -178,7 +217,12 @@ public class UserService {
         return user;
     }
 
-    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
+    /**
+     * Gets user from DB by login with eagerly loaded authorities.
+     *
+     * @param login login of the user
+     * @return user with given login
+     */
     public User getUserWithAuthoritiesByLogin(String login) {
         User user = userRepository.findOneByLogin(login);
         if (user == null) {
@@ -189,6 +233,13 @@ public class UserService {
         return user;
     }
 
+    /**
+     * Search user by parameters.
+     *
+     * @param loginOrFirstNameOrLastNameOrRoleName parameter
+     * @param pageable                             Pagination information
+     * @return Found user
+     */
     public Page<User> searchUserByLoginOrFirstNameOrLastNameOrSystemRoleNameWithPaging(
             String loginOrFirstNameOrLastNameOrRoleName, Pageable pageable
     ) {
@@ -196,11 +247,12 @@ public class UserService {
                 .findByNameLikeIgnoreCase(loginOrFirstNameOrLastNameOrRoleName)
                 .map(Role::getId).collect(toList());
 
-        List<User> users = userRepository.findByLoginIgnoreCaseLikeOrFirstNameIgnoreCaseLikeOrLastNameIgnoreCaseLikeOrRolesIdIn(
-                loginOrFirstNameOrLastNameOrRoleName,
-                loginOrFirstNameOrLastNameOrRoleName,
-                loginOrFirstNameOrLastNameOrRoleName,
-                roleIds);
+        List<User> users = userRepository
+                .findByLoginIgnoreCaseLikeOrFirstNameIgnoreCaseLikeOrLastNameIgnoreCaseLikeOrRolesIdIn(
+                        loginOrFirstNameOrLastNameOrRoleName,
+                        loginOrFirstNameOrLastNameOrRoleName,
+                        loginOrFirstNameOrLastNameOrRoleName,
+                        roleIds);
 
         return userSortedPageUtil.getPage(users, pageable);
     }
