@@ -8,7 +8,9 @@ import com.epam.indigoeln.core.security.SecurityUtils;
 import com.epam.indigoeln.core.service.exception.DuplicateFieldException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
+import com.epam.indigoeln.core.util.SortedPageUtil;
 import com.google.common.base.Strings;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +22,11 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Pattern;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Service class for managing users.
@@ -38,6 +41,23 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final Pattern passwordValidationPattern;
 
+    static {
+        Map<String, Function<User, String>> functionMap = new HashMap<>();
+        functionMap.put("login", User::getLogin);
+        functionMap.put("firstName", User::getFirstName);
+        functionMap.put("lastName", User::getLastName);
+        functionMap.put("email", User::getEmail);
+        functionMap.put("group", User::getGroup);
+        functionMap.put(
+                "role",
+                u -> u.getRoles().stream().findFirst().map(Role::getName).orElse(""));
+
+        userSortedPageUtil = new SortedPageUtil<>(functionMap);
+    }
+
+    private static final SortedPageUtil<User> userSortedPageUtil;
+
+
     @Autowired
     public UserService(SessionRegistry sessionRegistry,
                        PasswordEncoder passwordEncoder,
@@ -51,31 +71,14 @@ public class UserService {
         passwordValidationPattern = Pattern.compile(passwordRegex);
     }
 
-    /**
-     * Gets users from DB according to given pagination information.
-     *
-     * @param pageable pagination information to retrieve users
-     * @return page with found users
-     */
     public Page<User> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable);
+        return userSortedPageUtil.getPage(userRepository.findAll(), pageable);
     }
 
-    /**
-     * Gets all users from DB.
-     *
-     * @return list of all users
-     */
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    /**
-     * Saves new user in DB.
-     *
-     * @param user user to save
-     * @return created user
-     */
     public User createUser(User user) {
         checkUserPassword(user.getPassword());
 
@@ -99,13 +102,6 @@ public class UserService {
         return savedUser;
     }
 
-    /**
-     * Updates user information in DB.
-     *
-     * @param user          user to update
-     * @param executingUser user performing action
-     * @return updated user
-     */
     public User updateUser(User user, User executingUser) {
         User userFromDB = userRepository.findOneByLogin(user.getLogin());
         if (userFromDB == null) {
@@ -127,8 +123,7 @@ public class UserService {
         // checking for roles existence and for disallowed operation for current user
         user.setRoles(checkRolesExistenceAndGet(user.getRoles()));
         if (user.getId().equals(executingUser.getId())
-                && (user.getRoles().size() != executingUser.getRoles().size()
-                || !user.getRoles().containsAll(executingUser.getRoles()))) {
+                && !user.getRoles().containsAll(executingUser.getRoles())) {
             throw OperationDeniedException.createUserDeleteOperation(executingUser.getId());
         }
 
@@ -146,13 +141,6 @@ public class UserService {
         }
     }
 
-    /**
-     * Deletes the user from DB if the user exists and it is allowed to delete that user.
-     * It is not allowed to delete system users and user cannot delete himself.
-     *
-     * @param login         login of the user to delete
-     * @param executingUser user performing action
-     */
     public void deleteUserByLogin(String login, User executingUser) {
         User userByLogin = userRepository.findOneByLogin(login);
         if (userByLogin == null) {
@@ -172,23 +160,14 @@ public class UserService {
         LOGGER.debug("Deleted User: {}", userByLogin);
     }
 
-    /**
-     * Gets current user from DB with eagerly loaded authorities.
-     *
-     * @return current user
-     */
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
     public User getUserWithAuthorities() {
         User user = userRepository.findOneByLogin(SecurityUtils.getCurrentUser().getUsername());
         user.getRoles().size(); // eagerly load the association
         return user;
     }
 
-    /**
-     * Gets user from DB by ID with eagerly loaded authorities.
-     *
-     * @param id user ID
-     * @return user with given ID
-     */
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
     public User getUserWithAuthorities(String id) {
         User user = userRepository.findOne(id);
         if (user == null) {
@@ -199,12 +178,7 @@ public class UserService {
         return user;
     }
 
-    /**
-     * Gets user from DB by login with eagerly loaded authorities.
-     *
-     * @param login login of the user
-     * @return user with given login
-     */
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
     public User getUserWithAuthoritiesByLogin(String login) {
         User user = userRepository.findOneByLogin(login);
         if (user == null) {
@@ -213,6 +187,22 @@ public class UserService {
 
         user.getRoles().size(); // eagerly load the association
         return user;
+    }
+
+    public Page<User> searchUserByLoginOrFirstNameOrLastNameOrSystemRoleNameWithPaging(
+            String loginOrFirstNameOrLastNameOrRoleName, Pageable pageable
+    ) {
+        List<String> roleIds = roleRepository
+                .findByNameLikeIgnoreCase(loginOrFirstNameOrLastNameOrRoleName)
+                .map(Role::getId).collect(toList());
+
+        List<User> users = userRepository.findByLoginIgnoreCaseLikeOrFirstNameIgnoreCaseLikeOrLastNameIgnoreCaseLikeOrRolesIdIn(
+                loginOrFirstNameOrLastNameOrRoleName,
+                loginOrFirstNameOrLastNameOrRoleName,
+                loginOrFirstNameOrLastNameOrRoleName,
+                roleIds);
+
+        return userSortedPageUtil.getPage(users, pageable);
     }
 
     private Set<Role> checkRolesExistenceAndGet(Set<Role> roles) {

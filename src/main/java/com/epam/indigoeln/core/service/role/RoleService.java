@@ -13,7 +13,8 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
+import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Service class to work with user roles.
@@ -57,8 +58,17 @@ public class RoleService {
      *
      * @return all roles in application
      */
-    public Collection<Role> getAllRoles() {
+    public List<Role> getAllRoles() {
         return roleRepository.findAll();
+    }
+
+    /**
+     * Retrieve roles with name like {@code nameLike} from DB.
+     *
+     * @return all roles in application
+     */
+    public Stream<Role> getRolesWithNameLike(String nameLike) {
+        return roleRepository.findByNameLikeIgnoreCase(nameLike);
     }
 
     /**

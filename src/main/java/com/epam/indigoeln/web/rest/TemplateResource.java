@@ -51,7 +51,6 @@ public class TemplateResource {
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-
     /**
      * GET /templates -> fetch all template list.
      *
@@ -66,6 +65,27 @@ public class TemplateResource {
             @ApiParam("Paging data") Pageable pageable
     ) throws URISyntaxException {
         Page<TemplateDTO> page = templateService.getAllTemplates(pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/templates");
+        return new ResponseEntity<>(new LinkedList<>(page.getContent()), headers, HttpStatus.OK);
+    }
+
+    /**
+     * GET /templates?search=nameLike -> fetch template list with likely name.
+     *
+     * @param pageable Pagination information
+     * @param nameLike Name to search liked
+     * @return List with templates
+     * @throws URISyntaxException if URI is not correct
+     */
+    @RequestMapping(method = RequestMethod.GET,
+            params = "search",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Returns templates with likely name(with paging).")
+    public ResponseEntity<List<TemplateDTO>> getTemplatesByNameLike(
+            @ApiParam("Paging data") Pageable pageable,
+            @ApiParam("Name to search") @RequestParam("search") String nameLike
+    ) throws URISyntaxException {
+        Page<TemplateDTO> page = templateService.getTemplatesNameLike(nameLike, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/templates");
         return new ResponseEntity<>(new LinkedList<>(page.getContent()), headers, HttpStatus.OK);
     }
