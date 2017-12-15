@@ -76,8 +76,13 @@
                 <div class="wrapper-authorities-col">
                     <table class="table table-striped authorities-table authorities-column">
                         <thead>
-                            <tr>
-                                <th i-translate="ROLE_NAME"></th>
+                            <tr indigo-sort="vm.sortBy.field"
+                                is-ascending="vm.sortBy.isAscending"
+                                on-sort="vm.sortRoles(predicate, isAscending)">
+                                <th indigo-sort-by="name">
+                                    <span i-translate="ROLE_NAME"></span>
+                                    <span class="glyphicon glyphicon-sort role-management__icon-sort"></span>
+                                </th>
                             </tr>
                         <tbody>
                             <tr ng-repeat="role in vm.roles track by role.id">
@@ -89,11 +94,16 @@
                 <div indigo-scroller="x">
                     <table class="table table-striped authorities-table">
                         <thead>
-                        <tr>
+                        <tr indigo-sort="vm.sortBy.field"
+                            is-ascending="vm.sortBy.isAscending"
+                            on-sort="vm.sortByAuthorities(predicate, isAscending)">
                             <th ng-repeat="authority in vm.authorities track by $index"
-                                uib-tooltip="{{authority.tooltip}}" tooltip-placement="top"
-                                tooltip-append-to-body="true">
-                                <p ng-bind="authority.description"></p>
+                                uib-tooltip="{{authority.tooltip}}"
+                                tooltip-placement="top"
+                                tooltip-append-to-body="true"
+                                indigo-sort-by="{{ authority.name }}">
+                                <span ng-bind="authority.description"></span>
+                                <span class="glyphicon glyphicon-sort role-management__icon-sort"></span>
                             </th>
                             <th i-translate="ACTION"></th>
                         </tr>
