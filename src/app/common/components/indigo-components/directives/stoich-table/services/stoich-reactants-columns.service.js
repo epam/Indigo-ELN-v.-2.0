@@ -1,7 +1,5 @@
-stoichReactantsColumns.$inject =
-    ['appUnits', 'stoichColumnActions', 'selectService', 'unitService', 'calculationService'];
-
-function stoichReactantsColumns(appUnits, stoichColumnActions,
+/* @ngInject */
+function stoichReactantsColumns(appUnits, stoichColumnActions, notifyService,
                                        selectService, unitService, calculationService) {
     return {
         compoundId: {
@@ -27,30 +25,49 @@ function stoichReactantsColumns(appUnits, stoichColumnActions,
             hasStructurePopover: true,
             hasPopup: true,
             popItemClick: function(row, item) {
+                // Queueing changes to apply to row, re-wring whole queue for now.
+                row.changesQueue = [item];
+
+                // Making immediate changes to update view (consider separating view model)
                 row.fullNbkBatch = item.details.fullNbkBatch;
-                stoichColumnActions.populateFetchedBatch(row, item.details);
             },
             onChange: function(data) {
                 var row = data.row;
+
                 if (row) {
+                    // TODO: rework editable cell to mutate separate view model to be able to retrieve previous value
                     if (!row.$$fullNbkBatchOld && row.fullNbkImmutablePart) {
                         row.$$fullNbkBatchOld = data.oldVal;
                     }
                     var nbkBatch = data.model;
+
                     row.$$popItems = null;
                     row.$$populatedBatch = false;
-                    stoichColumnActions.fetchBatchByNbkNumber(nbkBatch).then(function(result) {
-                        if (result[0]) {
+
+                    stoichColumnActions.fetchBatchByNbkNumber(nbkBatch)
+                        .then(function(result) {
+                            if (result.length === 1) {
+                                // If only one batch has been found queue it to be applied to row
+                                row.changesQueue = [result[0]];
+                            } else {
+                                // Do not autoselect anything otherwise
+                                row.changesQueue = [];
+                            }
+
                             row.$$popItems = result.map(function(r) {
                                 return {
                                     item: r,
                                     title: r.details.fullNbkBatch
                                 };
                             });
-                        } else {
-                            stoichColumnActions.alertWrongFormat();
-                        }
-                    });
+                        })
+                        .catch(function() {
+                            // Removing queued changes is nothing is found
+                            // The intention is to restore previous state
+                            row.changesQueue = [];
+                            // TODO: Add translated string
+                            notifyService.error('NOTIFY_BATCH_NUMBER_FORMAT_ERROR');
+                        });
                 }
             }
         },

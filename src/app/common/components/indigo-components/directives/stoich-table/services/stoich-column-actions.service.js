@@ -1,42 +1,15 @@
 var StoichRow = require('../domain/stoich-row');
 
-stoichColumnActions.$inject = ['registrationService', 'calculationService', '$q', 'appUnits',
-    'dictionaryService', 'sdImportHelper', 'dialogService', 'searchService', 'notifyService'];
-
+/* @ngInject */
 function stoichColumnActions(registrationService, calculationService, $q, appUnits, dictionaryService,
-                             sdImportHelper, dialogService, searchService, notifyService) {
+                             sdImportHelper, dialogService, searchService) {
     return {
         fetchBatchByCompoundId: fetchBatchByCompoundId,
         cleanReactant: cleanReactant,
         cleanReactants: cleanReactants,
         fetchBatchByNbkNumber: fetchBatchByNbkNumber,
-        alertWrongFormat: alertWrongFormat,
-        populateFetchedBatch: populateFetchedBatch,
-        onCloseFullNbkBatch: onCloseFullNbkBatch
+        getRowFromNbkBatch: getRowFromNbkBatch
     };
-
-    function onCloseFullNbkBatch(data) {
-        var row = data.row;
-        var nbkBatch = data.model;
-        if (!row.$$populatedBatch) {
-            if (row.fullNbkBatch) {
-                return fetchBatchByNbkNumber(nbkBatch).then(function(result) {
-                    var populatedBatch = result[0];
-                    if (populatedBatch && populatedBatch.details.fullNbkBatch === row.fullNbkBatch) {
-                        populatedBatch.details.compoundId = row.compoundId;
-                        populateFetchedBatch(row, populatedBatch.details);
-                    } else {
-                        alertWrongFormat();
-                        row.fullNbkBatch = row.$$fullNbkBatchOld;
-                    }
-                });
-            }
-            alertWrongFormat();
-            row.fullNbkBatch = row.$$fullNbkBatchOld;
-        }
-
-        return $q.resolve();
-    }
 
     function fetchBatchByCompoundId(row, compoundId) {
         var searchRequest = {compoundNo: compoundId};
@@ -65,11 +38,14 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
             });
     }
 
-    function populateFetchedBatch(row, source) {
-        var isLimiting = row.isLimiting();
-        _.extend(row, source);
-        row.$$populatedBatch = true;
-        row.limiting = isLimiting;
+    function populateFetchedBatch(originalRow, newRow) {
+        // Updates original table row with the one generated from batch or
+        // fetched by compoundId
+        var isLimiting = originalRow.isLimiting();
+
+        _.extend(originalRow, newRow);
+        originalRow.$$populatedBatch = true;
+        originalRow.limiting = isLimiting;
     }
 
     function cleanReactant(batch) {
@@ -90,26 +66,58 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
         return _.map(reactants, cleanReactant);
     }
 
-    function fetchBatchByNbkNumber(nbkBatch) {
+    function fetchBatchByNbkNumber(batchNumber) {
         var searchRequest = {
             advancedSearch: [{
-                condition: 'contains', field: 'fullNbkBatch', name: 'NBK batch #', value: nbkBatch
+                condition: 'contains',
+                field: 'fullNbkBatch',
+                name: 'NBK batch #',
+                value: batchNumber
             }],
             databases: ['Indigo ELN']
         };
 
-        return searchService.search(searchRequest).$promise.then(function(result) {
-            return result.slice(0, 5);
-        });
+        return searchService.search(searchRequest).$promise
+            .then(function(result) {
+                if (!_.isArray(result) || _.isEmpty(result)) {
+                    return $q.reject('Nothing found');
+                }
+
+                return result.slice(0, 5);
+            });
     }
 
-    function alertWrongFormat() {
-        notifyService.error('Notebook batch number does not exist or in the wrong format- format should be "nbk. ' +
-            'number-exp. number-batch number"');
+    function getRowFromNbkBatch(row, batchObj) {
+        // Select some properies from fetched batch object
+        // And create new table row with them
+        var propertiesToPick = [
+            'compoundId',
+            'density',
+            'eq',
+            'formula',
+            'fullNbkBatch',
+            'fullNbkImmutablePart',
+            'loadFactor',
+            'mol',
+            'molWeight',
+            'molarity',
+            'rxnRole',
+            'saltCode',
+            'saltEq',
+            'stoicPurity',
+            'structure',
+            'structureComments',
+            'volume',
+            'weight'
+        ];
+
+        var newRow = new StoichRow(_.pick(batchObj, propertiesToPick));
+
+        populateFetchedBatch(row, newRow);
     }
 
     function getStoichRow(compound, dicts) {
-        var json = {
+        var rowProps = {
             chemicalName: compound.chemicalName,
             compoundId: compound.compoundNo,
             conversationalBatchNumber: compound.conversationalBatchNo,
@@ -135,20 +143,22 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
             comments: compound.comment
         };
 
-        return StoichRow.fromJson(json);
+        return new StoichRow(rowProps);
     }
 
     function processingBatches(row, compoundId, batches) {
+        if (_.isEmpty(batches)) {
+            return $q.reject(batches);
+        }
+
         if (batches.length === 1) {
             populateFetchedBatch(row, batches[0]);
-        } else if (batches.length > 1) {
+        } else {
             return dialogService
                 .structureValidation(batches, compoundId)
                 .then(function(selectedBatch) {
                     populateFetchedBatch(row, selectedBatch);
                 });
-        } else {
-            return $q.reject(batches);
         }
 
         return batches;

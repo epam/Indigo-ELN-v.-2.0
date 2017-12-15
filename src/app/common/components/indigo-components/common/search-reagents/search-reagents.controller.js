@@ -1,10 +1,7 @@
-SearchReagentsController.$inject = ['$rootScope', '$uibModalInstance', 'notifyService',
-    'appValuesService', 'activeTabIndex', 'userReagentsService', 'searchService',
-    'searchUtil', 'searchReagentsConstant', 'stoichColumnActions'];
-
-function SearchReagentsController($rootScope, $uibModalInstance, notifyService, appValuesService,
+/* @ngInject */
+function SearchReagentsController($uibModalInstance, notifyService, appValuesService,
                                   activeTabIndex, userReagentsService, searchService, searchUtil,
-                                  searchReagentsConstant, stoichColumnActions) {
+                                  searchReagentsConstant, stoichColumnActions, addTableRowsCallback) {
     var vm = this;
     var myReagentsSearchQuery;
 
@@ -67,7 +64,9 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         var selected = _.filter(list, {
             $$isSelected: true
         });
-        $rootScope.$broadcast('stoich-rows-changed', stoichColumnActions.cleanReactants(selected));
+        var cleanedReactants = stoichColumnActions.cleanReactants(selected);
+
+        addTableRowsCallback(cleanedReactants);
     }
 
     userReagentsService.get({}, function(reagents) {
@@ -180,7 +179,7 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
     }
 
     function cancel() {
-        $uibModalInstance.close({});
+        $uibModalInstance.dismiss('cancel');
     }
 
     function onChangedStructure(structure) {

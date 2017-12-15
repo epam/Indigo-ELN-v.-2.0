@@ -284,7 +284,12 @@ var i18n = {
     LOWER: 'Lower',
     UPPER: 'Upper',
     COMMENTS: 'Comments',
-    VALUE: 'Value'
+    VALUE: 'Value',
+
+    // Notifications
+    NOTIFY_COMPOUND_ERROR: 'Compound does not exist or in the wrong format',
+    NOTIFY_BATCH_NUMBER_ERROR: 'Notebook batch number does not exist or in the wrong format- format should be "nbk. ' +
+    'number-exp. number-batch number"'
 };
 
 module.exports = i18n;

@@ -25,12 +25,7 @@ function indigoStoichTable() {
     };
 }
 
-IndigoStoichTableController.$inject = [
-    '$scope', '$rootScope', '$q', '$uibModal', 'appValuesService', 'stoichColumnActions', 'alertModal',
-    'notifyService', 'calculationService', 'stoichTableCache', 'stoichReactantsColumns',
-    'stoichProductColumns', 'stoichTableHelper'
-];
-
+/* @ngInject */
 function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValuesService, stoichColumnActions,
                                      alertModal, notifyService, calculationService, stoichTableCache,
                                      stoichReactantsColumns, stoichProductColumns, stoichTableHelper) {
@@ -70,8 +65,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         vm.onColumnValueChanged = onColumnValueChanged;
 
         var config = {
-            table: vm.componentData,
-            onCompoundIdChanged: onCompoundIdChanged
+            table: vm.componentData
         };
 
         stoichTableContainer = stoichTable(config);
@@ -101,8 +95,23 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         addStoicReactant(stoichRow);
     }
 
-    function onColumnValueChanged(data) {
-        stoichTableContainer.onFieldValueChanged(data.row, data.column);
+    function onColumnValueChanged(change) {
+        var tableRow = change.row;
+        var tableColumnId = change.column;
+
+        // Handle value change
+        if (tableColumnId === stoichReactantsColumns.fullNbkBatch.id) {
+            // Update row based on selected notebook batch number
+            onNbkBatchNumberChanged(tableRow);
+        }
+
+        if (tableColumnId === stoichReactantsColumns.compoundId.id) {
+            // Update row based on selected compoundId
+            onCompoundIdChanged(tableRow, tableRow[tableColumnId]);
+        }
+
+        // Pass changed row model to table model to recalculate related values
+        stoichTableContainer.onFieldValueChanged(tableRow, tableColumnId);
     }
 
     function removeRow() {
@@ -122,8 +131,14 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     }
 
     function analyzeRxn() {
-        getMissingReactionReactantsInStoic(vm.infoReactants).then(function(reactantsToSearch) {
-            if (!_.isEmpty(reactantsToSearch)) {
+        getMissingReactionReactantsInStoic(vm.infoReactants)
+            .then(function(reactantsToSearch) {
+                if (_.isEmpty(reactantsToSearch)) {
+                    alertModal.info('Stoichiometry is synchronized', 'sm');
+
+                    return;
+                }
+
                 $uibModal.open({
                     animation: true,
                     size: 'lg',
@@ -134,10 +149,11 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
                         reactants: function() {
                             return reactantsToSearch;
                         },
-                        onStoichRowsChanged: function() {
+                        addTableRowsCallback: function() {
                             return function(reactants) {
+                                // Inserting new rows into table
                                 _.forEach(reactants, function(reactant) {
-                                    var row = StoichRow.fromJson(reactant);
+                                    var row = new StoichRow(reactant);
                                     addStoicReactant(row);
                                 });
                                 // checkLimiting();
@@ -145,10 +161,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
                         }
                     }
                 });
-            } else {
-                alertModal.info('Stoichiometry is synchronized', 'sm');
-            }
-        });
+            });
     }
 
     function checkLimiting() {
@@ -183,6 +196,16 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             resolve: {
                 activeTabIndex: function() {
                     return activeTabIndex;
+                },
+                addTableRowsCallback: function() {
+                    return function(reactants) {
+                        // Inserting new rows into table
+                        _.forEach(reactants, function(item) {
+                            var row = new StoichRow(item);
+                            addStoicReactant(row);
+                        });
+                        updatePrecursors();
+                    };
                 }
             }
         });
@@ -260,12 +283,30 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         });
     }
 
-    function onCompoundIdChanged(row, compoundId) {
-        if (!_.isEmpty(compoundId)) {
-            stoichColumnActions.fetchBatchByCompoundId(row, compoundId)
-                .catch(alertCompoundWrongFormat)
-                .finally(updatePrecursors);
+    function onNbkBatchNumberChanged(row) {
+        // If nothing has been selected, revert changes
+        if (!row.fullNbkBatch || _.isEmpty(row.changesQueue)) {
+            alertWrongButchNumberFormat();
+            row.fullNbkBatch = row.$$fullNbkBatchOld;
+
+            return;
         }
+
+        // Update table row
+        var changes = row.changesQueue.pop().details;
+
+        stoichColumnActions.getRowFromNbkBatch(row, changes);
+        updatePrecursors();
+    }
+
+    function onCompoundIdChanged(row, compoundId) {
+        if (!row || !compoundId) {
+            return;
+        }
+
+        stoichColumnActions.fetchBatchByCompoundId(row, compoundId)
+            .catch(alertCompoundWrongFormat)
+            .finally(updatePrecursors);
     }
 
     function alertCompoundWrongFormat(event) {
@@ -273,7 +314,13 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             return;
         }
 
-        notifyService.error('Compound does not exist or in the wrong format');
+        // TODO: Add translated string
+        notifyService.error('NOTIFY_COMPOUND_ERROR');
+    }
+
+    function alertWrongButchNumberFormat() {
+        // TODO: Add translated string
+        notifyService.error('NOTIFY_BATCH_NUMBER_FORMAT_ERROR');
     }
 
     function updateReactants() {
@@ -283,10 +330,8 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
 
     function addStoicReactant(reactant) {
         stoichTableContainer.addRow(reactant);
-        // checkLimiting();
 
         vm.onChangedReactants({reactants: vm.componentData.reactants});
-        // calculationService.recalculateStoich(vm.componentData);
         vm.onChanged();
     }
 
@@ -348,15 +393,6 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             });
             vm.onChangedProducts({products: products});
         }, true);
-
-        $scope.$on('stoich-rows-changed', function(event, reactants) {
-            _.forEach(reactants, function(item) {
-                var row = StoichRow.fromJson(item);
-                addStoicReactant(row);
-            });
-            updatePrecursors();
-            // calculationService.recalculateStoich(vm.componentData);
-        });
     }
 
     function updateReactantsAndProducts(data) {
