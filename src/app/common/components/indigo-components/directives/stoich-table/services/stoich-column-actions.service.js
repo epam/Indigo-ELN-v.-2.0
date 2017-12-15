@@ -12,6 +12,15 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
     };
 
     function fetchBatchByCompoundId(row, compoundId) {
+        // Validate compoundId format
+        var idIsValid = validateCompoundId(compoundId);
+
+        // If its incorrect - abort searching
+        if (!idIsValid) {
+            return $q.reject('Incorrect format');
+        }
+
+        // Perform search otherwise
         var searchRequest = {compoundNo: compoundId};
 
         return registrationService
@@ -189,6 +198,16 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
                     row.structure.image = image;
                 });
         }
+    }
+
+    function validateCompoundId(compoundId) {
+        // Regex for cmpoundId validation
+        // Matches 'STR-00000012'
+        var indigoCompoundIdFormat = /^STR-\d{8}$/;
+        // Matches 'STR-00000012-01'
+        var indigoCompoundIdFormatFull = /^STR-\d{8}-\d{2}$/;
+
+        return indigoCompoundIdFormat.test(compoundId) || indigoCompoundIdFormatFull.test(compoundId);
     }
 }
 
