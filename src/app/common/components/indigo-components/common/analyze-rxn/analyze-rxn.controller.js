@@ -1,7 +1,5 @@
-AnalyzeRxnController.$inject = ['$uibModalInstance', 'reactants', 'searchService',
-    'appValuesService', 'onStoichRowsChanged', 'stoichColumnActions', '$q'];
-
-function AnalyzeRxnController($uibModalInstance, reactants, searchService, appValuesService, onStoichRowsChanged,
+/* @ngInject */
+function AnalyzeRxnController($uibModalInstance, reactants, searchService, appValuesService, addTableRowsCallback,
                               stoichColumnActions, $q) {
     var vm = this;
     vm.addToStoichTable = addToStoichTable;
@@ -38,7 +36,7 @@ function AnalyzeRxnController($uibModalInstance, reactants, searchService, appVa
     }
 
     function addToStoichTable() {
-        onStoichRowsChanged(vm.selectedReactants);
+        addTableRowsCallback(vm.selectedReactants);
     }
 
     function buildReactantsFromSelected() {
@@ -52,7 +50,7 @@ function AnalyzeRxnController($uibModalInstance, reactants, searchService, appVa
     }
 
     function updateStoicAndExit() {
-        onStoichRowsChanged(buildReactantsFromSelected());
+        addTableRowsCallback(buildReactantsFromSelected());
         $uibModalInstance.close({});
     }
 
