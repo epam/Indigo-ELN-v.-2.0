@@ -18,7 +18,6 @@ public final class TempFileUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(TempFileUtil.class);
 
     public static final String TEMP_FILE_PREFIX = "eln-";
-    public static final String TEMP_PDF_DONE_SUFFIX = ".pdf.done";
 
     private TempFileUtil() {
     }

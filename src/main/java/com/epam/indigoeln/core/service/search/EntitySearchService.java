@@ -21,9 +21,15 @@ import static com.epam.indigoeln.core.service.search.SearchServiceConstants.*;
 @Service
 public class EntitySearchService {
 
+    /**
+     * EntitySearchRepository instance for entity search.
+     */
     @Autowired
     private EntitySearchRepository repository;
 
+    /**
+     * BingoService instance for molecule search.
+     */
     @Autowired
     private BingoService bingoService;
 

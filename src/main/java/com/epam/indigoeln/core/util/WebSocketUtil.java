@@ -15,6 +15,9 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Utility class for getting host name and updating entities.
+ */
 @Component
 public class WebSocketUtil {
 
@@ -33,6 +36,12 @@ public class WebSocketUtil {
         this.template = template;
     }
 
+    /**
+     * Updates project
+     *
+     * @param user    User
+     * @param project Project
+     */
     public void updateProject(User user, Project project) {
         Map<String, Object> data = new HashMap<>();
         data.put(USER, user.getId());
@@ -43,6 +52,13 @@ public class WebSocketUtil {
         template.convertAndSend(DESTINATION, data);
     }
 
+    /**
+     * Updates notebook
+     *
+     * @param user      User
+     * @param projectId Project's id
+     * @param notebook  Notebook
+     */
     public void updateNotebook(User user, String projectId, Notebook notebook) {
         Map<String, Object> data = new HashMap<>();
         data.put(USER, user.getId());
@@ -54,6 +70,14 @@ public class WebSocketUtil {
         template.convertAndSend(DESTINATION, data);
     }
 
+    /**
+     * Updates experiment
+     *
+     * @param user       User
+     * @param projectId  Project's id
+     * @param notebookId Notebook's id
+     * @param experiment Experiment
+     */
     public void updateExperiment(User user, String projectId, String notebookId, Experiment experiment) {
         Map<String, Object> data = new HashMap<>();
         data.put(USER, user.getId());
@@ -66,6 +90,11 @@ public class WebSocketUtil {
         template.convertAndSend(DESTINATION, data);
     }
 
+    /**
+     * Returns host name
+     *
+     * @return Host name
+     */
     public static String getHostName() {
         try {
             return InetAddress.getLocalHost().getCanonicalHostName();

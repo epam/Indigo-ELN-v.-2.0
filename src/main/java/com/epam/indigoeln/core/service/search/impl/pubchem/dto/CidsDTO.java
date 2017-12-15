@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Describes CidsDTO object.
+ */
 public class CidsDTO {
 
     private List<String> cids;

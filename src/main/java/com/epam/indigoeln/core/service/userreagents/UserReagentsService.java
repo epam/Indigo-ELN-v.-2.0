@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserReagentsService {
 
+    /**
+     * UserReagentsRepository instance.
+     */
     @Autowired
     private UserReagentsRepository userReagentsRepository;
 

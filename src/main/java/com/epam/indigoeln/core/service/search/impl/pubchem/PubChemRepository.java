@@ -22,6 +22,9 @@ import static com.epam.indigoeln.core.service.search.impl.pubchem.PubChemConst.*
 @Repository
 class PubChemRepository {
 
+    /**
+     * RequestSender instance to sending request.
+     */
     @Autowired
     private RequestSender requestSender;
 

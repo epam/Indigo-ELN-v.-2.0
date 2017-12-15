@@ -21,6 +21,9 @@ public class PubChemSearchService implements SearchServiceAPI {
 
     private static final String NAME = "PubChem";
 
+    /**
+     * PubChemRepository instance to searching.
+     */
     @Autowired
     private PubChemRepository pubChemRepository;
 

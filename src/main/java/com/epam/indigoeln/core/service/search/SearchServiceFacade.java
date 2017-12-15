@@ -17,6 +17,9 @@ import java.util.stream.Collectors;
 @Service
 public class SearchServiceFacade {
 
+    /**
+     * List of catalogues.
+     */
     @Autowired
     private List<SearchServiceAPI> catalogues;
 

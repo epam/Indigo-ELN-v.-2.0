@@ -45,10 +45,22 @@ public final class BatchComponentUtil {
     private BatchComponentUtil() {
     }
 
+    /**
+     * Returns reaction details.
+     *
+     * @param components Collection of component.
+     * @return Reaction details.
+     */
     public static Optional<ComponentDTO> getReactionDetails(Collection<ComponentDTO> components) {
         return getComponent(components, REACTION_DETAILS);
     }
 
+    /**
+     * Returns concept details.
+     *
+     * @param components Components
+     * @return Concept details
+     */
     public static Optional<ComponentDTO> getConceptDetails(Collection<ComponentDTO> components) {
         return getComponent(components, CONCEPT_DETAILS);
     }
@@ -60,6 +72,12 @@ public final class BatchComponentUtil {
         return components.stream().filter(batchFilter).findFirst();
     }
 
+    /**
+     * Returns component title.
+     *
+     * @param component Component
+     * @return Component title
+     */
     public static String getComponentTitle(ComponentDTO component) {
         return (String) getComponentField(component, COMPONENT_FIELD_TITLE);
     }
@@ -163,6 +181,12 @@ public final class BatchComponentUtil {
                 .matcher(batchNumber).matches();
     }
 
+    /**
+     * Returns batches for notebook.
+     *
+     * @param notebook Notebook
+     * @return Batches
+     */
     public static List<String> hasBatches(Notebook notebook) {
         List<ComponentDTO> components = notebook.getExperiments().stream()
                 .flatMap(e -> e.getComponents().stream().map(ComponentDTO::new))

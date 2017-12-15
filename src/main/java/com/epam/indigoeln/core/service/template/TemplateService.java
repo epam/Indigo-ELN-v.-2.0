@@ -24,15 +24,27 @@ import org.springframework.dao.OptimisticLockingFailureException;
 @Service
 public class TemplateService {
 
+    /**
+     * TemplateRepository instance for working with templates.
+     */
     @Autowired
     private TemplateRepository templateRepository;
 
+    /**
+     * SequenceIdRepository instance.
+     */
     @Autowired
     private SequenceIdRepository sequenceIdRepository;
 
+    /**
+     * ExperimentRepository instance for working with experiments.
+     */
     @Autowired
     private ExperimentRepository experimentRepository;
 
+    /**
+     * CustomDtoMapper instance for mapping.
+     */
     @Autowired
     private CustomDtoMapper dtoMapper;
 

@@ -26,10 +26,21 @@ import java.util.List;
 @Service
 public class SignatureService {
 
+    /**
+     * SignatureRepository instance.
+     */
     @Autowired
     private SignatureRepository signatureRepository;
+
+    /**
+     * ExperimentRepository instance for working with experiment.
+     */
     @Autowired
     private ExperimentRepository experimentRepository;
+
+    /**
+     * ObjectMapper instance for working with json.
+     */
     @Autowired
     private ObjectMapper objectMapper;
 

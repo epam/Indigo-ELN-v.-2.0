@@ -12,8 +12,16 @@ public interface SearchServiceAPI {
 
     Collection<ProductBatchDetailsDTO> findBatches(BatchSearchRequest searchRequest);
 
+    /**
+     * Return information.
+     *
+     * @return information
+     */
     Info getInfo();
 
+    /**
+     * Describes Info object.
+     */
     class Info {
 
         private int key;

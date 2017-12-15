@@ -26,9 +26,15 @@ public class CustomSearchService implements SearchServiceAPI {
 
     private static final String NAME = "Indigo ELN";
 
+    /**
+     * SearchComponentsRepository instance for search components.
+     */
     @Autowired
     private SearchComponentsRepository searchComponentsRepository;
 
+    /**
+     * BingoService instance for molecule search.
+     */
     @Autowired
     private BingoService bingoService;
 
