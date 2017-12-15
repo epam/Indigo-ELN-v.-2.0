@@ -71,7 +71,7 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
             method: 'POST',
             data: structure
         }).then(function(result) {
-            return result.empty;
+            return result.data;
         });
     }
 
@@ -92,40 +92,44 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
     }
 
     function setStructure(structure, structureId) {
-        if (structure) {
-            calculationService.getImageForStructure(structure, vm.structureType).then(function(image) {
-                setRenderedStructure({
-                    molfile: structure,
-                    structureId: structureId,
-                    image: image
-                });
+        isEmptyStructure(structure)
+            .then(function(result) {
+                if (!result.empty) {
+                    calculationService.getImageForStructure(structure, vm.structureType).then(function(image) {
+                        setRenderedStructure({
+                            molfile: structure,
+                            structureId: structureId,
+                            image: image
+                        });
+                    });
+                } else {
+                    setRenderedStructure({
+                        molfile: null,
+                        structureId: null,
+                        image: null
+                    });
+                }
             });
-        } else {
-            setRenderedStructure({
-                molfile: null,
-                structureId: null,
-                image: null
-            });
-        }
     }
 
     // HTTP POST to save new structure into Bingo DB and get its id
     function saveNewStructure(structure) {
-        isEmptyStructure(structure).then(function(empty) {
-            if (empty) {
-                setStructure();
-            } else {
-                $http({
-                    url: apiUrl + 'bingodb/' + vm.structureType + '/',
-                    method: 'POST',
-                    data: structure
-                }).then(function(response) {
-                    setStructure(structure, response.data);
-                }).catch(function() {
-                    notifyService.error('Cannot save the structure!');
-                });
-            }
-        });
+        isEmptyStructure(structure)
+            .then(function(result) {
+                if (result.empty) {
+                    setStructure();
+                } else {
+                    $http({
+                        url: apiUrl + 'bingodb/' + vm.structureType + '/',
+                        method: 'POST',
+                        data: structure
+                    }).then(function(response) {
+                        setStructure(structure, response.data);
+                    }).catch(function() {
+                        notifyService.error('Cannot save the structure!');
+                    });
+                }
+            });
     }
 
     function openEditor() {

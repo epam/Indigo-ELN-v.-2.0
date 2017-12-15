@@ -51,11 +51,13 @@
             </div>
         </uib-tab>
         <uib-tab heading="Reagent Catalog">
-            <div class="reagent-search-tab">
+            <div class="reagent-search-tab"
+                 ng-init="vm.isAdvancedSearchCollapsed = true">
                 <div ng-if="!vm.isSearchResultFound">
-                    <indigo-checklist indigo-items="vm.model.databases" indigo-label="Choose catalog to search in"
+                    <indigo-checklist indigo-items="vm.model.databases"
+                                      indigo-label="{{ vm.chooseDBLabel }}"
                                       class="m-b20"></indigo-checklist>
-                    <div ng-init="$$isCollapsed=true" class="m-b20">
+                    <div class="m-b20">
                         <div class="main-search-block">
                             <div class="row">
                                 <div class="col-xs-9">
@@ -65,16 +67,16 @@
                                     </simple-input>
                                 </div>
                                 <div class="col-xs-3">
-                                    <a class="link-advanced-search" ng-click="$$isCollapsed = !$$isCollapsed">
+                                    <a class="link-advanced-search" ng-click="vm.isAdvancedSearchCollapsed = !vm.isAdvancedSearchCollapsed">
                                         Advanced search
-                                        <span ng-class="{'glyphicon glyphicon-chevron-down':$$isCollapsed,
-                                                 'glyphicon glyphicon-chevron-up':!$$isCollapsed}"></span>
+                                        <span ng-class="{'glyphicon glyphicon-chevron-down':vm.isAdvancedSearchCollapsed,
+                                                 'glyphicon glyphicon-chevron-up':!vm.isAdvancedSearchCollapsed}"></span>
                                     </a>
                                 </div>
                             </div>
                             <div class="search-hint" i-translate="IF_YOU_SEARCH_A_MOLECULAR_FORMULA"></div>
                         </div>
-                        <div uib-collapse="$$isCollapsed" class="collapse-content">
+                        <div uib-collapse="vm.isAdvancedSearchCollapsed" class="collapse-content">
                             <div ng-if="!vm.isSearchResultFound">
                                 <div class="row">
                                     <div class="col-xs-3">
@@ -271,11 +273,11 @@
                 <div ng-if="vm.isSearchResultFound">
                     <div>Search results for
                         <span ng-if="vm.model.restrictions.structure.image"> structure
-                                            <div class="search-image">
-                                                <img class="full-img structure-scheme__img"
-                                                     ng-src="data:image/svg+xml;base64,{{vm.model.restrictions.structure.image}}"
-                                                     alt="Image is unavailable.">
-                                            </div>
+                            <div class="search-image">
+                                <img class="full-img structure-scheme__img"
+                                     ng-src="data:image/svg+xml;base64,{{vm.model.restrictions.structure.image}}"
+                                     alt="Image is unavailable.">
+                            </div>
                         </span>
                         <span class="semi-b"
                               ng-if="!vm.model.restrictions.structure.image && vm.model.advancedSummary.length">&quot;
@@ -295,6 +297,11 @@
                                                              'glyphicon glyphicon-triangle-bottom':!isChangeQueryCollapsed}"></span>Change
                                 search query</a></div>
                         <div uib-collapse="isChangeQueryCollapsed" class="collapse-content">
+
+                            <indigo-checklist indigo-items="vm.model.databases"
+                                              indigo-label="{{ vm.chooseDBLabel }}"
+                                              class="m-b20"></indigo-checklist>
+
                             <div class="main-search-block m-b20">
                                 <div class="row">
                                     <div class="col-xs-9">
@@ -305,17 +312,17 @@
                                         </simple-input>
                                     </div>
                                     <div class="col-xs-3">
-                                        <a class="link-advanced-search" ng-click="$$isCollapsed = !$$isCollapsed">
+                                        <a class="link-advanced-search" ng-click="vm.isAdvancedSearchCollapsed = !vm.isAdvancedSearchCollapsed">
                                             Advanced search
-                                            <span ng-class="{'glyphicon glyphicon-chevron-down':$$isCollapsed,
-                                                                 'glyphicon glyphicon-chevron-up':!$$isCollapsed}"></span>
+                                            <span ng-class="{'glyphicon glyphicon-chevron-down':vm.isAdvancedSearchCollapsed,
+                                                                 'glyphicon glyphicon-chevron-up':!vm.isAdvancedSearchCollapsed}"></span>
                                         </a>
                                     </div>
                                 </div>
                                 <div class="search-hint" i-translate="IF_YOU_SEARCH_A_MOLECULAR_FORMULA">
                                 </div>
                             </div>
-                            <div>
+                            <div uib-collapse="vm.isAdvancedSearchCollapsed" class="collapse-content">
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <label class="control-label" i-translate="COMPOUND_ID" i-end=":"></label></div>

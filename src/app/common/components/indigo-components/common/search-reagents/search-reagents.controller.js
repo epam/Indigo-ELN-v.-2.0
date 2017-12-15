@@ -1,10 +1,7 @@
-SearchReagentsController.$inject = ['$rootScope', '$uibModalInstance', 'notifyService',
-    'appValuesService', 'activeTabIndex', 'userReagentsService', 'searchService',
-    'searchUtil', 'searchReagentsConstant', 'stoichColumnActions'];
-
+/* @ngInject */
 function SearchReagentsController($rootScope, $uibModalInstance, notifyService, appValuesService,
                                   activeTabIndex, userReagentsService, searchService, searchUtil,
-                                  searchReagentsConstant, stoichColumnActions) {
+                                  searchReagentsConstant, stoichColumnActions, translateService) {
     var vm = this;
     var myReagentsSearchQuery;
 
@@ -12,7 +9,7 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
 
     function init() {
         vm.model = {};
-        vm.model.restrictions = searchReagentsConstant.restrictions;
+        vm.model.restrictions = searchReagentsConstant.getRestrictions();
         vm.model.databases = searchService.getCatalogues();
         vm.myReagents = {};
 
@@ -48,6 +45,8 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         }, {
             name: 'similarity'
         }];
+        vm.chooseDBLabel = translateService.translate('CHOOSE_DBS_LABEL');
+        vm.isAdvancedSearchCollapsed = true;
 
         myReagentsSearchQuery = '';
 
@@ -175,11 +174,16 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         var searchRequest = searchUtil.prepareSearchRequest(vm.model.restrictions, vm.model.databases);
 
         vm.model.restrictions.advancedSummary = searchRequest.advancedSearch;
-        searchService.search(searchRequest, function(result) {
-            responseCallback(result);
-            vm.loading = false;
-        });
+        searchService.search(searchRequest).$promise
+            .then(function(result) {
+                responseCallback(result);
+                vm.loading = false;
+            });
+
         vm.isSearchResultFound = true;
+
+        // Expand advanced search form if it has any restrictions set
+        vm.isAdvancedSearchCollapsed = _.isEmpty(vm.model.restrictions.advancedSummary);
     }
 
     function cancel() {

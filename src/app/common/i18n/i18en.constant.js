@@ -108,6 +108,7 @@ var i18n = {
     STOICHIOMETRY_TABLE: 'Stoichiometry Table',
     MY_REAGENT_LIST: 'My Reagent List',
     SEARCH_DBS: 'Search DBs',
+    CHOOSE_DBS_LABEL: 'Choose catalog to search in',
     MSDS_SEARCH: 'MSDS Search',
     ADD: 'Add',
     CLEAR: 'Clear',
