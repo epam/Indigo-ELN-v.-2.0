@@ -7,6 +7,9 @@ import org.springframework.util.StringUtils;
 
 import java.text.DecimalFormat;
 
+/**
+ *
+ */
 public final class SequenceIdUtil {
 
     private static final String EXPERIMENT_NAME_FORMAT = "0000";
