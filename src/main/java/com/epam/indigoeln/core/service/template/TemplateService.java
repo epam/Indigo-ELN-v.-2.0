@@ -1,22 +1,24 @@
 package com.epam.indigoeln.core.service.template;
 
 import com.epam.indigoeln.core.model.Template;
-import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
-import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
 import com.epam.indigoeln.core.repository.template.TemplateRepository;
+import com.epam.indigoeln.core.service.exception.ConcurrencyException;
+import com.epam.indigoeln.core.service.exception.DuplicateFieldException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
+import com.epam.indigoeln.core.util.SortedPageUtil;
 import com.epam.indigoeln.web.rest.dto.TemplateDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
-import com.epam.indigoeln.core.service.exception.*;
-
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.dao.OptimisticLockingFailureException;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Service class for managing Templates.
@@ -28,13 +30,19 @@ public class TemplateService {
     private TemplateRepository templateRepository;
 
     @Autowired
-    private SequenceIdRepository sequenceIdRepository;
-
-    @Autowired
-    private ExperimentRepository experimentRepository;
-
-    @Autowired
     private CustomDtoMapper dtoMapper;
+
+    private static final SortedPageUtil<Template> templateSortedPageUtil;
+
+    static {
+        Map<String, Function<Template, String>> functionMap = new HashMap<>();
+        functionMap.put("name", Template::getName);
+        functionMap.put("author", template -> template.getAuthor().getLogin());
+        functionMap.put("creationDate", template -> template.getCreationDate().toInstant().toString());
+        functionMap.put("lastEditDate", template -> template.getLastEditDate().toInstant().toString());
+
+        templateSortedPageUtil = new SortedPageUtil<>(functionMap);
+    }
 
     public Optional<TemplateDTO> getTemplateById(String id) {
         return Optional.ofNullable(templateRepository.findOne(id)).map(TemplateDTO::new);
@@ -45,7 +53,15 @@ public class TemplateService {
     }
 
     public Page<TemplateDTO> getAllTemplates(Pageable pageable) {
-        return templateRepository.findAll(pageable).map(TemplateDTO::new);
+        return templateSortedPageUtil
+                .getPage(templateRepository.findAll(), pageable)
+                .map(TemplateDTO::new);
+    }
+
+    public Page<TemplateDTO> getTemplatesNameLike(String nameLike, Pageable pageable) {
+        return templateSortedPageUtil
+                .getPage(templateRepository.findByNameLikeIgnoreCase(nameLike), pageable)
+                .map(TemplateDTO::new);
     }
 
     public TemplateDTO createTemplate(TemplateDTO templateDTO) {

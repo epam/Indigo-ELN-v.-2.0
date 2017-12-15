@@ -8,7 +8,9 @@ import com.epam.indigoeln.core.security.SecurityUtils;
 import com.epam.indigoeln.core.service.exception.DuplicateFieldException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
+import com.epam.indigoeln.core.util.SortedPageUtil;
 import com.google.common.base.Strings;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +22,11 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Pattern;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Service class for managing users.
@@ -37,6 +40,23 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final Pattern passwordValidationPattern;
+
+    static {
+        Map<String, Function<User, String>> functionMap = new HashMap<>();
+        functionMap.put("login", User::getLogin);
+        functionMap.put("firstName", User::getFirstName);
+        functionMap.put("lastName", User::getLastName);
+        functionMap.put("email", User::getEmail);
+        functionMap.put("group", User::getGroup);
+        functionMap.put(
+                "role",
+                u -> u.getRoles().stream().findFirst().map(Role::getName).orElse(""));
+
+        userSortedPageUtil = new SortedPageUtil<>(functionMap);
+    }
+
+    private static final SortedPageUtil<User> userSortedPageUtil;
+
 
     @Autowired
     public UserService(SessionRegistry sessionRegistry,
@@ -52,7 +72,7 @@ public class UserService {
     }
 
     public Page<User> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable);
+        return userSortedPageUtil.getPage(userRepository.findAll(), pageable);
     }
 
     public List<User> getAllUsers() {
@@ -140,12 +160,14 @@ public class UserService {
         LOGGER.debug("Deleted User: {}", userByLogin);
     }
 
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
     public User getUserWithAuthorities() {
         User user = userRepository.findOneByLogin(SecurityUtils.getCurrentUser().getUsername());
         user.getRoles().size(); // eagerly load the association
         return user;
     }
 
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
     public User getUserWithAuthorities(String id) {
         User user = userRepository.findOne(id);
         if (user == null) {
@@ -156,6 +178,7 @@ public class UserService {
         return user;
     }
 
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
     public User getUserWithAuthoritiesByLogin(String login) {
         User user = userRepository.findOneByLogin(login);
         if (user == null) {
@@ -164,6 +187,22 @@ public class UserService {
 
         user.getRoles().size(); // eagerly load the association
         return user;
+    }
+
+    public Page<User> searchUserByLoginOrFirstNameOrLastNameOrSystemRoleNameWithPaging(
+            String loginOrFirstNameOrLastNameOrRoleName, Pageable pageable
+    ) {
+        List<String> roleIds = roleRepository
+                .findByNameLikeIgnoreCase(loginOrFirstNameOrLastNameOrRoleName)
+                .map(Role::getId).collect(toList());
+
+        List<User> users = userRepository.findByLoginIgnoreCaseLikeOrFirstNameIgnoreCaseLikeOrLastNameIgnoreCaseLikeOrRolesIdIn(
+                loginOrFirstNameOrLastNameOrRoleName,
+                loginOrFirstNameOrLastNameOrRoleName,
+                loginOrFirstNameOrLastNameOrRoleName,
+                roleIds);
+
+        return userSortedPageUtil.getPage(users, pageable);
     }
 
     private Set<Role> checkRolesExistenceAndGet(Set<Role> roles) {

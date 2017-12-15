@@ -1,11 +1,14 @@
 package com.epam.indigoeln.core.service.dictionary;
 
-import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.model.Dictionary;
+import com.epam.indigoeln.core.model.Notebook;
+import com.epam.indigoeln.core.model.User;
+import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.repository.dictionary.DictionaryRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
+import com.epam.indigoeln.core.util.SortedPageUtil;
 import com.epam.indigoeln.web.rest.dto.DictionaryDTO;
 import com.epam.indigoeln.web.rest.dto.ExperimentDictionaryDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -36,6 +40,16 @@ public class DictionaryService {
 
     @Autowired
     private CustomDtoMapper dtoMapper;
+
+    private static SortedPageUtil<Dictionary> dictionarySortedPageUtil;
+
+    static {
+        Map<String, Function<Dictionary, String>> functionMap = new HashMap<>();
+        functionMap.put("name", Dictionary::getName);
+        functionMap.put("description", Dictionary::getDescription);
+
+        dictionarySortedPageUtil = new SortedPageUtil<>(functionMap);
+    }
 
     /**
      * Returns dictionary by it's id.
@@ -109,12 +123,15 @@ public class DictionaryService {
     /**
      * Returns all found dictionaries (with paging).
      *
-     * @param pageable Pageable object which contains page and size
      * @param search   Search string
+     * @param pageable Pageable object which contains page and size
      * @return Page with all found dictionaries
      */
-    public Page<DictionaryDTO> getAllDictionaries(Pageable pageable, String search) {
-        return dictionaryRepository.findByNameContainingIgnoreCase(search, pageable).map(DictionaryDTO::new);
+    public Page<DictionaryDTO> getAllDictionaries(String search, Pageable pageable) {
+        return dictionarySortedPageUtil.getPage(
+                dictionaryRepository.findByNameIgnoreCaseLikeOrDescriptionIgnoreCaseLike(search, search),
+                pageable)
+                .map(DictionaryDTO::new);
     }
 
     /**

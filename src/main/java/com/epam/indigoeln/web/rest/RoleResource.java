@@ -19,10 +19,11 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 @Api
 @RestController
@@ -42,18 +43,33 @@ public class RoleResource {
      * GET  /roles -> Returns all roles.
      *
      * @return Returns all roles
-     * @throws URISyntaxException if URI is not correct
      */
     @ApiOperation(value = "Returns all roles.")
     @RequestMapping(method = RequestMethod.GET,
+            params = "page",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<RoleDTO>> getAllRoles() throws URISyntaxException {
+    public ResponseEntity<Collection<RoleDTO>> getAllRoles() {
         LOGGER.debug("REST request to get all roles");
-        Collection<Role> roles = roleService.getAllRoles();
-        List<RoleDTO> result = new ArrayList<>(roles.size());
-        result.addAll(roles.stream().map(
-                role -> dtoMapper.convertToDTO(role)).collect(Collectors.toList())
-        );
+        List<RoleDTO> result = roleService.getAllRoles().stream()
+                .map(dtoMapper::convertToDTO).collect(toList());
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * GET  /roles?search=nameLike -> Returns roles with name like {@code nameLike}.
+     *
+     * @return Returns with name like {@code nameLike}
+     */
+    @ApiOperation(value = "Returns roles with name like a string in a parameter.")
+    @RequestMapping(method = RequestMethod.GET,
+            params = "search",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Collection<RoleDTO>> getRolesLike(
+            @ApiParam("Searching role name") @RequestParam("search") String nameLike
+    ) {
+        LOGGER.debug("REST request to get roles with liked names");
+        Stream<Role> roles = roleService.getRolesWithNameLike(nameLike);
+        List<RoleDTO> result = roles.map(dtoMapper::convertToDTO).collect(toList());
         return ResponseEntity.ok(result);
     }
 

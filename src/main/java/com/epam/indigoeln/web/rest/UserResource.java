@@ -138,6 +138,34 @@ public class UserResource {
     }
 
     /**
+     * GET  /users?search=loginOrFirstNameOrLastNameOrSystemRoleName ->
+     * returns users with login firstName of lastName like query param {@code loginOrFirstNameOrLastNameOrSystemRoleName}.
+     *
+     * @param pageable                                   Pagination information
+     * @param loginOrFirstNameOrLastNameOrSystemRoleName string to find like in login firstName of lastName
+     * @return users with login firstName of lastName like query param {@code search}
+     * @throws URISyntaxException If URI is not correct
+     */
+    @ApiOperation(value = "Returns users with login or firstName or lastName like in request param.")
+    @RequestMapping(method = RequestMethod.GET,
+            params = {"search"},
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ManagedUserDTO>> getUserByLoginOrFirstNameOrLastName(
+            @ApiParam("Paging data.") Pageable pageable,
+            @ApiParam("User login or firstName or lastName") @RequestParam("search") String loginOrFirstNameOrLastNameOrSystemRoleName
+    ) throws URISyntaxException {
+        LOGGER.debug("REST request to search users");
+        Page<User> page = userService.searchUserByLoginOrFirstNameOrLastNameOrSystemRoleNameWithPaging(
+                loginOrFirstNameOrLastNameOrSystemRoleName,
+                pageable);
+
+        List<ManagedUserDTO> managedUserDTOs = page.getContent().stream()
+                .map(ManagedUserDTO::new).collect(Collectors.toList());
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING);
+        return ResponseEntity.ok().headers(headers).body(managedUserDTOs);
+    }
+
+    /**
      * POST  /users -> Creates a new user.
      * <p>
      * Creates a new user if the login and email are not already used, and sends an
