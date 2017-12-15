@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Util class to work with temporary files
+ * Util class to work with temporary files.
  */
 public final class TempFileUtil {
 

@@ -70,10 +70,10 @@ public final class BatchComponentUtil {
     }
 
     /**
-     * Retrieve json content of all batches for each component in received list.
+     * Retrieves json content of all batches for each component in received list.
      * Filter components named as 'productBatchSummary' and return list of nested batches of each component.
      *
-     * @param components list of components
+     * @param components list of components.
      * @return list of batches
      */
     @SuppressWarnings("unchecked")
@@ -88,6 +88,13 @@ public final class BatchComponentUtil {
                 collect(toList());
     }
 
+    /**
+     * Retrieves batches from client.
+     * Filter components named as 'productBatchSummary' and return list of nested batches of each component.
+     *
+     * @param components Collection of components
+     * @return List of components.
+     */
     @SuppressWarnings("unchecked")
     public static List<Map<String, Object>> retrieveBatchesFromClient(Collection<Component> components) {
         Predicate<ComponentDTO> batchFilter = c -> PRODUCT_BATCH_SUMMARY.equals(c.getName())
@@ -167,7 +174,4 @@ public final class BatchComponentUtil {
         return retrieveBatches(components).stream().filter(b -> b.containsField(COMPONENT_FIELD_FULL_NBK_BATCH))
                 .map(b -> b.get(COMPONENT_FIELD_FULL_NBK_BATCH).toString()).collect(toList());
     }
-
 }
-
-

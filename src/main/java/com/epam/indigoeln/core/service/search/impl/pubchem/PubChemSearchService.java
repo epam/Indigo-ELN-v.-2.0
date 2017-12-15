@@ -12,7 +12,9 @@ import java.util.Collections;
 import static com.epam.indigoeln.core.service.search.SearchServiceConstants.*;
 
 /**
+ * Implementation of SearchServiceAPI for search product batch details.
  *
+ * @see SearchServiceAPI
  */
 @Service
 public class PubChemSearchService implements SearchServiceAPI {

@@ -17,7 +17,7 @@ public class UserReagentsService {
     private UserReagentsRepository userReagentsRepository;
 
     /**
-     * Retrieves user reagents from DB for this user if user exists
+     * Retrieves user reagents from DB for this user if user exists.
      *
      * @param user User for whom the reagents will be retrieved
      * @return Reagents for this user if user exists and {@code null} otherwise.
@@ -31,7 +31,7 @@ public class UserReagentsService {
      * Saves user reagents. Updates reagents if regents exists for this user or
      * creates new reagents if there are no reagents for this user.
      *
-     * @param user User for whom the reagents will be saved
+     * @param user     User for whom the reagents will be saved
      * @param reagents Reagents to save
      */
     public void saveUserReagents(User user, BasicDBList reagents) {

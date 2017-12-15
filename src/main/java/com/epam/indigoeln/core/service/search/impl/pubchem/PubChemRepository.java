@@ -17,7 +17,7 @@ import java.util.Optional;
 import static com.epam.indigoeln.core.service.search.impl.pubchem.PubChemConst.*;
 
 /**
- * Provides repository methods for searching
+ * Provides repository methods for search.
  */
 @Repository
 class PubChemRepository {
@@ -26,9 +26,10 @@ class PubChemRepository {
     private RequestSender requestSender;
 
     /**
-     * Searches Product
-     * @param searchRequest
-     * @return
+     * Searches product batch details by formula.
+     *
+     * @param searchRequest Search request
+     * @return Product batch details
      */
     Collection<ProductBatchDetailsDTO> searchByFormula(BatchSearchRequest searchRequest) {
         String searchURI = addBatchesLimit(SEARCH_BY_FORMULA_URI, searchRequest.getBatchesLimit());
@@ -39,6 +40,12 @@ class PubChemRepository {
         return requestSender.sendRequest(requestEntity);
     }
 
+    /**
+     * Searches product batch details by similarity.
+     *
+     * @param searchRequest Search request
+     * @return Product batch details
+     */
     Collection<ProductBatchDetailsDTO> searchBySimilarity(BatchSearchRequest searchRequest) {
         String searchURI = addBatchesLimit(SEARCH_BY_SIMILARITY_URI, searchRequest.getBatchesLimit());
         URI uri = new UriTemplate(searchURI).expand();
@@ -54,6 +61,12 @@ class PubChemRepository {
         return requestSender.sendRequest(requestEntity);
     }
 
+    /**
+     * Searches product batch details by similarity.
+     *
+     * @param searchRequest Search request
+     * @return Product batch details
+     */
     Collection<ProductBatchDetailsDTO> searchByIdentity(BatchSearchRequest searchRequest) {
         String searchURI = addBatchesLimit(SEARCH_BY_IDENTITY_URI, searchRequest.getBatchesLimit());
         URI uri = new UriTemplate(searchURI).expand();
@@ -68,6 +81,12 @@ class PubChemRepository {
         return requestSender.sendRequest(requestEntity);
     }
 
+    /**
+     * Searches product batch details by structure.
+     *
+     * @param searchRequest searchRequest
+     * @return Product batch details
+     */
     Collection<ProductBatchDetailsDTO> searchBySubStructure(BatchSearchRequest searchRequest) {
         String searchURI = addBatchesLimit(SEARCH_BY_SUBSTRUCTURE_URI, searchRequest.getBatchesLimit());
         URI uri = new UriTemplate(searchURI).expand();

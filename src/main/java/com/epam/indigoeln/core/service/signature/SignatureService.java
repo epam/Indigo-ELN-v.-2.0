@@ -20,6 +20,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Provides methods for signature experiment.
+ */
 @Service
 public class SignatureService {
 
@@ -42,15 +45,34 @@ public class SignatureService {
         return signatureRepository.getFinalStatus();
     }
 
+    /**
+     * Returns signature templates.
+     *
+     * @return Signature templates for current user
+     */
     public String getSignatureTemplates() {
         return signatureRepository.getSignatureTemplates(SecurityUtils.getCurrentUser().getUsername());
     }
 
+    /**
+     * Uploads document to signature.
+     *
+     * @param templateId Template's id
+     * @param fileName   File's name
+     * @param file       File
+     * @return Result of uploading
+     */
     public String uploadDocument(String templateId, String fileName, byte[] file) {
         return signatureRepository.uploadDocument(SecurityUtils.getCurrentUser().getUsername(),
                 templateId, fileName, file);
     }
 
+    /**
+     * Returns document's information.
+     *
+     * @param documentId Document's id
+     * @return Document's information
+     */
     public String getDocumentInfo(String documentId) {
         return signatureRepository.getDocumentInfo(documentId);
     }
@@ -61,6 +83,13 @@ public class SignatureService {
         return wrapper.getDocuments();
     }
 
+    /**
+     * Returns documents by user's id.
+     *
+     * @return List with documents
+     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     *                     network error) occurs
+     */
     public List<Document> getDocumentsByUser() throws IOException {
         final String content = signatureRepository.getDocuments(SecurityUtils.getCurrentUser().getUsername());
         if (!StringUtils.isBlank(content)) {
@@ -71,6 +100,12 @@ public class SignatureService {
         }
     }
 
+    /**
+     * Downloads document.
+     *
+     * @param documentId Document's id
+     * @return Document
+     */
     public byte[] downloadDocument(String documentId) {
         return signatureRepository.downloadDocument(documentId);
     }
@@ -112,6 +147,12 @@ public class SignatureService {
         return experimentDTO.getStatus();
     }
 
+    /**
+     * Converts signature service status to experiment status.
+     *
+     * @param status Signature service status
+     * @return Experiment status
+     */
     public ExperimentStatus getExperimentStatus(SignatureService.ISSStatus status) {
 
         // match statuses
@@ -146,6 +187,13 @@ public class SignatureService {
 
     }
 
+    /**
+     * Returns signature service status by document's id.
+     *
+     * @param documentId Document's id
+     * @return Signature service status
+     * @throws IOException If there is a low-level I/O problem
+     */
     public ISSStatus getStatus(String documentId) throws IOException {
         // get document's status
         String info = signatureRepository.getDocumentInfo(documentId);
@@ -280,5 +328,4 @@ public class SignatureService {
             this.comment = comment;
         }
     }
-
 }

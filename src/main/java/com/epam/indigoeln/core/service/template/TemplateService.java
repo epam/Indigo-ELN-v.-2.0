@@ -37,7 +37,7 @@ public class TemplateService {
     private CustomDtoMapper dtoMapper;
 
     /**
-     * Gets template from DB by id
+     * Gets template from DB by id.
      *
      * @param id ID of template to retrieve
      * @return optional template
@@ -47,7 +47,7 @@ public class TemplateService {
     }
 
     /**
-     * Gets template from DB by name
+     * Gets template from DB by name.
      *
      * @param name name of the template to retrieve
      * @return optional template
@@ -57,7 +57,7 @@ public class TemplateService {
     }
 
     /**
-     * Gets templates from DB using given pagination information
+     * Gets templates from DB using given pagination information.
      *
      * @param pageable pagination information to retrieve templates
      * @return page containing found templates
@@ -67,7 +67,7 @@ public class TemplateService {
     }
 
     /**
-     * Saves new template to DB
+     * Saves new template to DB.
      *
      * @param templateDTO template to save
      * @return created template
@@ -79,7 +79,7 @@ public class TemplateService {
     }
 
     /**
-     * Updates the template
+     * Updates the template.
      *
      * @param templateDTO template to update
      * @return updated template
@@ -95,7 +95,7 @@ public class TemplateService {
     }
 
     /**
-     * Deletes the template from DB by ID
+     * Deletes the template from DB by ID.
      *
      * @param templateId ID of the template to delete
      */

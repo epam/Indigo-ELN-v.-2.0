@@ -52,7 +52,7 @@ public class UserService {
     }
 
     /**
-     * Gets users from DB according to given pagination information
+     * Gets users from DB according to given pagination information.
      *
      * @param pageable pagination information to retrieve users
      * @return page with found users
@@ -62,7 +62,7 @@ public class UserService {
     }
 
     /**
-     * Gets all users from DB
+     * Gets all users from DB.
      *
      * @return list of all users
      */
@@ -71,7 +71,7 @@ public class UserService {
     }
 
     /**
-     * Saves new user in DB
+     * Saves new user in DB.
      *
      * @param user user to save
      * @return created user
@@ -100,9 +100,9 @@ public class UserService {
     }
 
     /**
-     * Updates user information in DB
+     * Updates user information in DB.
      *
-     * @param user user to update
+     * @param user          user to update
      * @param executingUser user performing action
      * @return updated user
      */
@@ -150,7 +150,7 @@ public class UserService {
      * Deletes the user from DB if the user exists and it is allowed to delete that user.
      * It is not allowed to delete system users and user cannot delete himself.
      *
-     * @param login login of the user to delete
+     * @param login         login of the user to delete
      * @param executingUser user performing action
      */
     public void deleteUserByLogin(String login, User executingUser) {
@@ -173,7 +173,7 @@ public class UserService {
     }
 
     /**
-     * Gets current user from DB with eagerly loaded authorities
+     * Gets current user from DB with eagerly loaded authorities.
      *
      * @return current user
      */
@@ -184,7 +184,7 @@ public class UserService {
     }
 
     /**
-     * Gets user from DB by ID with eagerly loaded authorities
+     * Gets user from DB by ID with eagerly loaded authorities.
      *
      * @param id user ID
      * @return user with given ID
@@ -200,7 +200,7 @@ public class UserService {
     }
 
     /**
-     * Gets user from DB by login with eagerly loaded authorities
+     * Gets user from DB by login with eagerly loaded authorities.
      *
      * @param login login of the user
      * @return user with given login

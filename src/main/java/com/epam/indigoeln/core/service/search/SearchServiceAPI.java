@@ -5,6 +5,9 @@ import java.util.Collection;
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
 
+/**
+ * Provides functionality for search product batch details.
+ */
 public interface SearchServiceAPI {
 
     Collection<ProductBatchDetailsDTO> findBatches(BatchSearchRequest searchRequest);
@@ -52,5 +55,4 @@ public interface SearchServiceAPI {
             this.isChecked = isChecked;
         }
     }
-
 }

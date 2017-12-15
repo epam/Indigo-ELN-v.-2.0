@@ -16,7 +16,11 @@ import java.util.List;
 
 import static com.epam.indigoeln.core.service.search.SearchServiceConstants.*;
 
-
+/**
+ * Implementation of SearchServiceAPI for custom search.
+ *
+ * @see SearchServiceAPI
+ */
 @Service
 public class CustomSearchService implements SearchServiceAPI {
 

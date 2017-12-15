@@ -23,6 +23,9 @@ import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Provides functionality for generating ids
+ */
 @Service
 public class SequenceIdService {
 
