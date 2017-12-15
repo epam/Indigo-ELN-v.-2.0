@@ -1,5 +1,5 @@
 /* @ngInject */
-function stoichReactantsColumns(appUnits, stoichColumnActions, notifyService,
+function stoichReactantsColumns(appUnits, stoichColumnActions, notifyService, i18en,
                                        selectService, unitService, calculationService) {
     return {
         compoundId: {
@@ -65,8 +65,8 @@ function stoichReactantsColumns(appUnits, stoichColumnActions, notifyService,
                             // Removing queued changes is nothing is found
                             // The intention is to restore previous state
                             row.changesQueue = [];
-                            // TODO: Add translated string
-                            notifyService.error('NOTIFY_BATCH_NUMBER_FORMAT_ERROR');
+                            // TODO: USe translate service
+                            notifyService.error(i18en.NOTIFY_BATCH_NUMBER_ERROR);
                         });
                 }
             }

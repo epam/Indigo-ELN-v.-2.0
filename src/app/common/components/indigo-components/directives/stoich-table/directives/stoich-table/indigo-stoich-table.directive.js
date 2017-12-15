@@ -28,7 +28,7 @@ function indigoStoichTable() {
 /* @ngInject */
 function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValuesService, stoichColumnActions,
                                      alertModal, notifyService, calculationService, stoichTableCache,
-                                     stoichReactantsColumns, stoichProductColumns, stoichTableHelper) {
+                                     stoichReactantsColumns, stoichProductColumns, stoichTableHelper, i18en) {
     var vm = this;
     var stoichTableContainer;
 
@@ -134,7 +134,8 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         getMissingReactionReactantsInStoic(vm.infoReactants)
             .then(function(reactantsToSearch) {
                 if (_.isEmpty(reactantsToSearch)) {
-                    alertModal.info('Stoichiometry is synchronized', 'sm');
+                    // TODO: Use translate service
+                    alertModal.info(i18en.NOTIFY_STOICHIOMETRY_SYNCHRONISED, 'sm');
 
                     return;
                 }
@@ -314,13 +315,13 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             return;
         }
 
-        // TODO: Add translated string
-        notifyService.error('NOTIFY_COMPOUND_ERROR');
+        // TODO: Use translate service
+        notifyService.error(i18en.NOTIFY_COMPOUND_ERROR);
     }
 
     function alertWrongButchNumberFormat() {
-        // TODO: Add translated string
-        notifyService.error('NOTIFY_BATCH_NUMBER_FORMAT_ERROR');
+        // TODO: Use translate service
+        notifyService.error(i18en.NOTIFY_BATCH_NUMBER_ERROR);
     }
 
     function updateReactants() {

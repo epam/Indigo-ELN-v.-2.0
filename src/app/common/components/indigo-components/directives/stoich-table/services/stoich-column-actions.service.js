@@ -1,8 +1,20 @@
 var StoichRow = require('../domain/stoich-row');
+var fieldTypes = require('../domain/field-types');
 
 /* @ngInject */
 function stoichColumnActions(registrationService, calculationService, $q, appUnits, dictionaryService,
-                             sdImportHelper, dialogService, searchService) {
+                             sdImportHelper, dialogService, searchService, formatValidation) {
+    var commonReactantProperties = [
+        fieldTypes.compoundId,
+        fieldTypes.formula,
+        fieldTypes.fullNbkBatch,
+        fieldTypes.molWeight,
+        fieldTypes.rxnRole,
+        fieldTypes.saltCode,
+        fieldTypes.saltEq,
+        fieldTypes.structure
+    ];
+
     return {
         fetchBatchByCompoundId: fetchBatchByCompoundId,
         cleanReactant: cleanReactant,
@@ -13,10 +25,10 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
 
     function fetchBatchByCompoundId(row, compoundId) {
         // Validate compoundId format
-        var idIsValid = validateCompoundId(compoundId);
+        var isIdValid = validateCompoundId(compoundId);
 
         // If its incorrect - abort searching
-        if (!idIsValid) {
+        if (!isIdValid) {
             return $q.reject('Incorrect format');
         }
 
@@ -57,20 +69,6 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
         originalRow.limiting = isLimiting;
     }
 
-    function cleanReactant(batch) {
-        return {
-            structure: batch.structure,
-            compoundId: batch.compoundId,
-            fullNbkBatch: batch.fullNbkBatch,
-            molWeight: batch.molWeight,
-            formula: batch.formula,
-            saltCode: batch.saltCode,
-            saltEq: batch.saltEq,
-            rxnRole: batch.rxnRole,
-            chemicalName: batch.chemicalName
-        };
-    }
-
     function cleanReactants(reactants) {
         return _.map(reactants, cleanReactant);
     }
@@ -96,31 +94,34 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
             });
     }
 
-    function getRowFromNbkBatch(row, batchObj) {
-        // Select some properies from fetched batch object
-        // And create new table row with them
-        var propertiesToPick = [
-            'compoundId',
-            'density',
-            'eq',
-            'formula',
-            'fullNbkBatch',
-            'fullNbkImmutablePart',
-            'loadFactor',
-            'mol',
-            'molWeight',
-            'molarity',
-            'rxnRole',
-            'saltCode',
-            'saltEq',
-            'stoicPurity',
-            'structure',
-            'structureComments',
-            'volume',
-            'weight'
-        ];
+    function cleanReactant(batch) {
+        // Collect required properties
+        var properties = commonReactantProperties.concat([
+            fieldTypes.chemicalName
+        ]);
 
-        var newRow = new StoichRow(_.pick(batchObj, propertiesToPick));
+        // Extracting required properties from given batch object
+        return _.assign({}, _.pick(batch, properties));
+    }
+
+    function getRowFromNbkBatch(row, batchObj) {
+        // Collect required properties
+        var properties = commonReactantProperties.concat([
+            fieldTypes.density,
+            fieldTypes.eq,
+            fieldTypes.fullNbkImmutablePart,
+            fieldTypes.loadFactor,
+            fieldTypes.mol,
+            fieldTypes.molarity,
+            fieldTypes.stoicPurity,
+            fieldTypes.structure,
+            fieldTypes.structureComments,
+            fieldTypes.volume,
+            fieldTypes.weight
+        ]);
+
+        // And create new table row with them
+        var newRow = new StoichRow(_.pick(batchObj, properties));
 
         populateFetchedBatch(row, newRow);
     }
@@ -201,13 +202,10 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
     }
 
     function validateCompoundId(compoundId) {
-        // Regex for cmpoundId validation
-        // Matches 'STR-00000012'
-        var indigoCompoundIdFormat = /^STR-\d{8}$/;
-        // Matches 'STR-00000012-01'
-        var indigoCompoundIdFormatFull = /^STR-\d{8}-\d{2}$/;
+        var isValid = formatValidation.indigoCompoundId.test(compoundId)
+            || formatValidation.indigoCompoundIdFull.test(compoundId);
 
-        return indigoCompoundIdFormat.test(compoundId) || indigoCompoundIdFormatFull.test(compoundId);
+        return isValid;
     }
 }
 

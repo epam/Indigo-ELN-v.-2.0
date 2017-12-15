@@ -6,41 +6,47 @@ function StoichRow(props) {
     var rowProps = getDefaultStoichRow();
 
     if (props && _.isObject(props)) {
-        // Assigning known properties from given obj
-        _.forEach(props, function(value, key) {
-            if (fieldTypes.isMolWeight(key)) {
-                rowProps[key].value = value.value;
-                rowProps[key].originalValue = value.value;
-                rowProps[key].entered = value.entered;
-            } else if (fieldTypes.isStoichField(key)) {
-                rowProps[key].value = value.value;
-                rowProps[key].entered = value.entered;
-            } else if (fieldTypes.isEq(key) || fieldTypes.isStoicPurity(key)) {
-                rowProps[key].value = value.value;
-                rowProps[key].prevValue = value.prevValue ? value.prevValue : value.value;
-                rowProps[key].entered = value.entered;
-            } else if (fieldTypes.isRxnRole(key)) {
-                rowProps[key].name = value.name;
-
-                if (_.has(props, fieldTypes.prevRxnRole)) {
-                    rowProps.prevRxnRole.name = props.prevRxnRole.name;
-                } else {
-                    rowProps.prevRxnRole.name = rowProps[key].name;
-                }
-            }
-        });
-
-        // Replace default values and add missing from given props obj
-        _.assignInWith(rowProps, props, function(defaultValue, valueFromJson) {
-            return _.isNil(defaultValue)
-                ? valueFromJson
-                : defaultValue;
-        });
+        // Assign known properties from given obj
+        // This will mutate rowProps object
+        setRowProperties(rowProps, props);
     }
 
     _.defaults(this, rowProps);
 
     return this;
+}
+
+function setRowProperties(defaultProps, customProps) {
+    // Assign known custom properties to default object
+    _.forEach(customProps, function(value, key) {
+        if (fieldTypes.isMolWeight(key)) {
+            defaultProps[key].value = value.value;
+            defaultProps[key].originalValue = value.value;
+            defaultProps[key].entered = value.entered;
+        } else if (fieldTypes.isStoichField(key)) {
+            defaultProps[key].value = value.value;
+            defaultProps[key].entered = value.entered;
+        } else if (fieldTypes.isEq(key) || fieldTypes.isStoicPurity(key)) {
+            defaultProps[key].value = value.value;
+            defaultProps[key].prevValue = value.prevValue ? value.prevValue : value.value;
+            defaultProps[key].entered = value.entered;
+        } else if (fieldTypes.isRxnRole(key)) {
+            defaultProps[key].name = value.name;
+
+            if (_.has(customProps, fieldTypes.prevRxnRole)) {
+                defaultProps.prevRxnRole.name = customProps.prevRxnRole.name;
+            } else {
+                defaultProps.prevRxnRole.name = defaultProps[key].name;
+            }
+        }
+    });
+
+    // Replace default values and add missing from given customProps obj
+    _.assignInWith(defaultProps, customProps, function(defaultValue, valueFromJson) {
+        return _.isNil(defaultValue)
+            ? valueFromJson
+            : defaultValue;
+    });
 }
 
 StoichRow.prototype = {
