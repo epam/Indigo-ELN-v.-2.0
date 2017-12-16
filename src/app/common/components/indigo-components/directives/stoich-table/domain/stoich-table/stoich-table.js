@@ -116,11 +116,10 @@ function stoichTable(config) {
 
     function onMolChanged(row) {
         if (row.stoicPurity.entered) {
-            // TODO: discuss with Evgenia should be in calculation-util
-            var k = calculationUtil.divide(row.stoicPurity.value, row.stoicPurity.prevValue);
-            var divider = calculationUtil.multiply(k, 100);
+            var weightByPurity = calculationUtil.computeWeightByPurity(
+                row.weight.value, row.stoicPurity.value, row.stoicPurity.prevValue
+            );
             row.stoicPurity.prevValue = row.stoicPurity.value;
-            var weightByPurity = calculationUtil.computeWeightByPurity(divider, row.weight.value);
             row.setComputedWeight(weightByPurity);
         }
 
@@ -158,7 +157,9 @@ function stoichTable(config) {
 
         if (row.isLimiting()) {
             if (row.isMolManuallyEntered() && row.isWeightPresent()) {
-                var limitingWeight = calculationUtil.computeWeightByEq(row.weight.value, row.eq.value, row.eq.prevValue);
+                var limitingWeight = calculationUtil.computeWeightByEq(
+                    row.weight.value, row.eq.value, row.eq.prevValue
+                );
                 row.setComputedWeight(limitingWeight);
             }
 
@@ -297,23 +298,34 @@ function stoichTable(config) {
             return;
         }
 
-        // TODO: discuss with Evgenia
-        var k = calculationUtil.divide(row.stoicPurity.value, row.stoicPurity.prevValue);
-        var divider = calculationUtil.multiply(k, 100);
-        row.stoicPurity.prevValue = row.stoicPurity.value;
+        var mol;
+        var weight;
+
+        if (row.isMolPresent()) {
+            mol = calculationUtil.computeMolByPurity(
+                row.mol.value, row.stoicPurity.value, row.stoicPurity.prevValue
+            );
+        }
+
+        if (row.isWeightPresent()) {
+            weight = calculationUtil.computeWeightByPurity(
+                row.weight.value, row.stoicPurity.value, row.stoicPurity.prevValue
+            );
+        }
 
         if (row.isLimiting()) {
-            var mol = calculationUtil.computeMolByPurity(divider, row.mol.value);
             updateMol(row, mol);
         }
 
         if (!row.isLimiting()) {
             if (row.isWeightManuallyEntered()) {
-                row.setComputedMol(calculationUtil.computeMolByPurity(divider, row.mol.value), updateDependencies);
+                row.setComputedMol(mol, updateDependencies);
             } else {
-                row.weight.value = calculationUtil.computeWeightByPurity(divider, row.weight.value);
+                row.weight.value = weight;
             }
         }
+
+        row.stoicPurity.prevValue = row.stoicPurity.value;
     }
 
     function onSaltChanged(row) {

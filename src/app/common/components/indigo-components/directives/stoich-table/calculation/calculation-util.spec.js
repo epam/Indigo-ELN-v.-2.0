@@ -17,7 +17,7 @@ describe('service: calculationUtil', function() {
 
     describe('computeMolByPurity function', function() {
         it('should be 0.6075', function() {
-            var res = calculationUtil.computeMolByPurity(81, 0.75);
+            var res = calculationUtil.computeMolByPurity(0.75, 81, 100);
             expect(res).toBe(0.6075);
         });
     });
@@ -42,10 +42,9 @@ describe('service: calculationUtil', function() {
             expect(res).toBe(0.075);
         });
     });
-
     describe('computeWeightByPurity function', function() {
         it('should be 1500', function() {
-            var res = calculationUtil.computeWeightByPurity(5, 75);
+            var res = calculationUtil.computeWeightByPurity(75, 5, 100);
             expect(res).toBe(1500);
         });
     });

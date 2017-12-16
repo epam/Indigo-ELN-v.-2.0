@@ -1,6 +1,5 @@
 var math = require('mathjs');
 
-var ONE_HUNDRED = 100;
 var ONE_THOUSAND = 1000;
 
 function calculationUtil() {
@@ -45,16 +44,17 @@ function computeDissolvedMol(molarity, volume) {
 }
 
 /**
- * Compute mol by purity: Mol = (Purity / 100) * current Mol
- * @param purity
+ * Compute mol by purity: Mol = (current Mol * Current Purity) / Prev Purity
  * @param currentMol
+ * @param currentPurity
+ * @param prevPurity
  * @returns {number}
  */
-function computeMolByPurity(purity, currentMol) {
+function computeMolByPurity(currentMol, currentPurity, prevPurity) {
     return math
-        .chain(bignumber(purity))
-        .divide(bignumber(ONE_HUNDRED))
-        .multiply(bignumber(currentMol))
+        .chain(bignumber(currentMol))
+        .multiply(bignumber(currentPurity))
+        .divide(bignumber(prevPurity))
         .done()
         .toNumber();
 }
@@ -97,16 +97,17 @@ function computeWeight(mol, molWeight) {
 }
 
 /**
- * Compute weight by purity: Weight = (current Weight / Purity) * 100
- * @param purity
+ * Compute weight by purity: Weight = (current Weight / Current Purity) * Prev Purity
  * @param currentWeight
+ * @param currentPurity
+ * @param prevPurity
  * @returns {number}
  */
-function computeWeightByPurity(purity, currentWeight) {
+function computeWeightByPurity(currentWeight, currentPurity, prevPurity) {
     return math
         .chain(bignumber(currentWeight))
-        .divide(bignumber(purity))
-        .multiply(bignumber(ONE_HUNDRED))
+        .divide(bignumber(currentPurity))
+        .multiply(bignumber(prevPurity))
         .done()
         .toNumber();
 }

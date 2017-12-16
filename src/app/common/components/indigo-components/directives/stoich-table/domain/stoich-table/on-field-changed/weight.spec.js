@@ -164,7 +164,8 @@ function changeWeight() {
             expect(limitingRow.molWeight.value).toBe(2);
         });
 
-        it('row is limiting, non limiting row has manually entered mol, should not update this row with new mol', function() {
+        it('row is limiting, non limiting row has manually entered mol, ' +
+            'should not update this row with new mol', function() {
             var limitingRow = new StoichRow();
             limitingRow.molWeight.value = 3;
             limitingRow.weight.value = 15;
