@@ -2,11 +2,55 @@ var StoichField = require('./stoich-field');
 var fieldTypes = require('./field-types');
 var calculationUtil = require('../calculation/calculation-util');
 
-function StoichRow() {
-    _.defaults(this, getDefaultStoichRow());
+function StoichRow(props) {
+    var rowProps = getDefaultStoichRow();
+
+    if (props && _.isObject(props)) {
+        // Assign known properties from given obj
+        // This will mutate rowProps object
+        setRowProperties(rowProps, props);
+    }
+
+    _.defaults(this, rowProps);
+
+    return this;
+}
+
+function setRowProperties(defaultProps, customProps) {
+    // Assign known custom properties to default object
+    _.forEach(customProps, function(value, key) {
+        if (fieldTypes.isMolWeight(key)) {
+            defaultProps[key].value = value.value;
+            defaultProps[key].originalValue = value.value;
+            defaultProps[key].entered = value.entered;
+        } else if (fieldTypes.isStoichField(key)) {
+            defaultProps[key].value = value.value;
+            defaultProps[key].entered = value.entered;
+        } else if (fieldTypes.isEq(key) || fieldTypes.isStoicPurity(key)) {
+            defaultProps[key].value = value.value;
+            defaultProps[key].prevValue = value.prevValue ? value.prevValue : value.value;
+            defaultProps[key].entered = value.entered;
+        } else if (fieldTypes.isRxnRole(key)) {
+            defaultProps[key].name = value.name;
+
+            if (_.has(customProps, fieldTypes.prevRxnRole)) {
+                defaultProps.prevRxnRole.name = customProps.prevRxnRole.name;
+            } else {
+                defaultProps.prevRxnRole.name = defaultProps[key].name;
+            }
+        }
+    });
+
+    // Replace default values and add missing from given customProps obj
+    _.assignInWith(defaultProps, customProps, function(defaultValue, valueFromJson) {
+        return _.isNil(defaultValue)
+            ? valueFromJson
+            : defaultValue;
+    });
 }
 
 StoichRow.prototype = {
+    changesQueue: [],
     isSolventRow: isSolventRow,
     isValuePresent: isValuePresent,
     areValuesPresent: areValuesPresent,
@@ -42,7 +86,6 @@ StoichRow.prototype = {
 };
 
 StoichRow.prototype.constructor = StoichRow;
-StoichRow.fromJson = fromJson;
 
 function updateMolWeight() {
     if (!this.molWeight.value && this.mol.value && this.weight.value) {
@@ -273,42 +316,6 @@ function isEqManuallyEntered() {
 
 function isVolumeManuallyEntered() {
     return this.volume.entered;
-}
-
-function fromJson(json) {
-    var defaultRow = new StoichRow();
-
-    _.forEach(json, function(value, key) {
-        if (fieldTypes.isMolWeight(key)) {
-            defaultRow[key].value = value.value;
-            defaultRow[key].originalValue = value.value;
-            defaultRow[key].entered = value.entered;
-        } else if (fieldTypes.isStoichField(key)) {
-            defaultRow[key].value = value.value;
-            defaultRow[key].entered = value.entered;
-        } else if (fieldTypes.isEq(key) || fieldTypes.isStoicPurity(key)) {
-            defaultRow[key].value = value.value;
-            defaultRow[key].prevValue = value.prevValue ? value.prevValue : value.value;
-            defaultRow[key].entered = value.entered;
-        } else if (fieldTypes.isRxnRole(key)) {
-            defaultRow[key].name = value.name;
-
-            if (_.has(json, fieldTypes.prevRxnRole)) {
-                defaultRow.prevRxnRole.name = json.prevRxnRole.name;
-            } else {
-                defaultRow.prevRxnRole.name = defaultRow[key].name;
-            }
-        }
-    });
-
-    // Replace default values and add missing from json
-    _.assignInWith(defaultRow, json, function(defaultValue, valueFromJson) {
-        return _.isNull(defaultValue) || _.isUndefined(defaultValue)
-            ? valueFromJson
-            : defaultValue;
-    });
-
-    return defaultRow;
 }
 
 function getDefaultStoichRow() {

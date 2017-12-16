@@ -108,6 +108,7 @@ var i18n = {
     STOICHIOMETRY_TABLE: 'Stoichiometry Table',
     MY_REAGENT_LIST: 'My Reagent List',
     SEARCH_DBS: 'Search DBs',
+    CHOOSE_DBS_LABEL: 'Choose catalog to search in',
     MSDS_SEARCH: 'MSDS Search',
     ADD: 'Add',
     CLEAR: 'Clear',
@@ -284,7 +285,13 @@ var i18n = {
     LOWER: 'Lower',
     UPPER: 'Upper',
     COMMENTS: 'Comments',
-    VALUE: 'Value'
+    VALUE: 'Value',
+
+    // Notifications
+    NOTIFY_COMPOUND_ERROR: 'Compound does not exist or in the wrong format',
+    NOTIFY_BATCH_NUMBER_ERROR: 'Notebook batch number does not exist or in the wrong format- format should be "nbk. ' +
+    'number-exp. number-batch number"',
+    NOTIFY_STOICHIOMETRY_SYNCHRONISED: 'Stoichiometry is synchronized'
 };
 
 module.exports = i18n;

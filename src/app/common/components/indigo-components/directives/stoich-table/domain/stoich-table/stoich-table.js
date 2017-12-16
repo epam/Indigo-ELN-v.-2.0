@@ -3,7 +3,6 @@ var calculationUtil = require('../../calculation/calculation-util');
 
 function stoichTable(config) {
     var table = config.table;
-    var onCompoundIdChanged = config.onCompoundIdChanged;
 
     return {
         addRow: addRow,
@@ -26,6 +25,7 @@ function stoichTable(config) {
     }
 
     function onFieldValueChanged(row, fieldId) {
+        // Handle necessary recalculations here
         // TODO: refactor it
         switch (fieldId) {
             case fieldTypes.molWeight:
@@ -70,7 +70,10 @@ function stoichTable(config) {
                 onDensityChanged(row);
                 break;
             case fieldTypes.compoundId:
-                onCompoundIdChanged(row, row[fieldId]);
+                // Handle changes in the table caused by change in compoundId
+                break;
+            case fieldTypes.fullNbkBatch:
+                // Handle changes in the table caused by applying notebook batch
                 break;
             default:
                 break;

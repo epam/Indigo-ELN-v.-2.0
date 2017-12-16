@@ -5,6 +5,7 @@ function fieldTypes() {
 fieldTypes.compoundId = 'compoundId';
 fieldTypes.chemicalName = 'chemicalName';
 fieldTypes.fullNbkBatch = 'fullNbkBatch';
+fieldTypes.fullNbkImmutablePart = 'fullNbkImmutablePart';
 fieldTypes.molWeight = 'molWeight';
 fieldTypes.weight = 'weight';
 fieldTypes.volume = 'volume';
@@ -22,6 +23,8 @@ fieldTypes.saltEq = 'saltEq';
 fieldTypes.loadFactor = 'loadFactor';
 fieldTypes.hazardComments = 'hazardComments';
 fieldTypes.comments = 'comments';
+fieldTypes.structure = 'structure';
+fieldTypes.structureComments = 'structureComments';
 
 fieldTypes.isMolWeight = isMolWeight;
 fieldTypes.isEq = isEq;
