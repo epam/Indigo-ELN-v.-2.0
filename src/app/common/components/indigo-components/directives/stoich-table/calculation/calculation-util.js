@@ -123,13 +123,19 @@ function computeWeightByEq(weight, currentEq, prevEq) {
 }
 
 /**
- * Compute EQ: EQ = Mol / Limiting Mol
+ * Compute EQ: EQ = ( Mol * Limiting Eq) / Limiting Mol
  * @param mol
+ * @param eqOfLimiting
  * @param molOfLimiting
  * @returns {number}
  */
-function computeEq(mol, molOfLimiting) {
-    return divide(mol, molOfLimiting);
+function computeEq(mol, eqOfLimiting, molOfLimiting) {
+    return math
+        .chain(bignumber(mol))
+        .multiply(bignumber(eqOfLimiting))
+        .divide(bignumber(molOfLimiting))
+        .done()
+        .toNumber();
 }
 
 /**

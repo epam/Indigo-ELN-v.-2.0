@@ -14,13 +14,13 @@ function changeVolume() {
             service = stoichTable(config);
         });
 
-        it('should set mol, weight to 0, limiting to false and eq to 0, set limiting to next line with' +
+        it('should set mol, weight to 0, limiting to false and eq to 1, set limiting to next line with' +
             ' reactant/reaction role and eq=1, should not update rows with new limiting mol', function() {
             var limitingRow = new StoichRow();
             limitingRow.molWeight.value = 10;
             limitingRow.weight.value = 220;
             limitingRow.weight.entered = true;
-            limitingRow.mol.value = 11;
+            limitingRow.mol.value = 22;
             limitingRow.eq.value = 2;
             limitingRow.volume.value = 4;
             limitingRow.volume.entered = true;

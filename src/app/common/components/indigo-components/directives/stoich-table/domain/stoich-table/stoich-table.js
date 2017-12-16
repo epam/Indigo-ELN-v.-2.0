@@ -17,7 +17,7 @@ function stoichTable(config) {
             newRow.prevRxnRole.name = 'SOLVENT';
             newRow.setReadonly(newRow.getResetFieldsForSolvent(), true);
         } else if (isLimitingRowExist()) {
-            newRow.updateMol(getLimitingRow().mol.value, onMolChanged);
+            setMolDependingOfLimiting(newRow, getLimitingRow());
         } else {
             newRow.limiting = true;
         }
@@ -148,6 +148,9 @@ function stoichTable(config) {
 
         if (shouldResetVolume) {
             row.resetFields([fieldTypes.volume]);
+            setMolDependingOfLimiting(row, getLimitingRow());
+
+            return;
         }
 
         if (row.isLimiting()) {
@@ -252,11 +255,7 @@ function stoichTable(config) {
             }
 
             if (!row.isSolventRow()) {
-                var limitingRow = getLimitingRow();
-
-                if (limitingRow) {
-                    row.setComputedMol(limitingRow.mol.value, onMolChanged);
-                }
+                setMolDependingOfLimiting(row, getLimitingRow());
             }
         }
     }
@@ -377,32 +376,30 @@ function stoichTable(config) {
                 var shouldUpdateOnlyEq = isManuallyEnteredExist && canUpdate;
 
                 if (shouldUpdateRowWithNewMol) {
-                    var mol = calculationUtil.computeNonLimitingMolByEq(
-                        limitingRow.mol.value, row.eq.value, limitingRow.eq.value
-                    );
-                    row.updateMol(mol, onMolChanged);
+                    setMolDependingOfLimiting(row, limitingRow);
                 }
 
                 if (shouldUpdateOnlyEq) {
-                    row.updateEqDependingOnLimitingEq(getLimitingRow());
+                    row.updateEq(getLimitingRow());
                 }
             });
         }
     }
 
     function setMolFromLimitingRow(row, isMolOrWeightPresent) {
-        var shouldSetMolFromLimitingRow = !isMolOrWeightPresent
-            && !row.isVolumePresent()
-            && getLimitingRow().isMolPresent();
+        var shouldSetMolFromLimitingRow = !isMolOrWeightPresent && !row.isVolumePresent();
 
         if (shouldSetMolFromLimitingRow) {
-            row.setComputedMol(getLimitingRow().mol.value, onMolChanged);
+            setMolDependingOfLimiting(row, getLimitingRow());
         }
     }
 
     function updateDependencies(row) {
         row.updateVolume();
-        row.updateEq(getLimitingRow());
+
+        if (!row.isLimiting()) {
+            row.updateEq(getLimitingRow());
+        }
         row.updateMolWeight();
     }
 
@@ -411,6 +408,15 @@ function stoichTable(config) {
             row.setComputedMol(mol, updateDependencies);
             updateRows();
         } else {
+            row.setComputedMol(mol, onMolChanged);
+        }
+    }
+
+    function setMolDependingOfLimiting(row, limitingRow) {
+        if (limitingRow && limitingRow.isMolPresent()) {
+            var mol = calculationUtil.computeNonLimitingMolByEq(
+                limitingRow.mol.value, row.eq.value, limitingRow.eq.value
+            );
             row.setComputedMol(mol, onMolChanged);
         }
     }

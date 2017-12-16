@@ -58,9 +58,9 @@ describe('service: calculationUtil', function() {
     });
 
     describe('computeEq function', function() {
-        it('should be 1.5', function() {
-            var res = calculationUtil.computeEq(0.3, 0.2);
-            expect(res).toBe(1.5);
+        it('should be 3', function() {
+            var res = calculationUtil.computeEq(0.3, 2, 0.2);
+            expect(res).toBe(3);
         });
     });
 

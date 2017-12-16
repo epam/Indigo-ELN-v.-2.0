@@ -184,6 +184,45 @@ function changeWeight() {
             expect(otherRow.mol.entered).toBeTruthy();
             expect(otherRow.eq.value).toBe(2);
         });
+
+        it('row is limiting, eq is manually entered, should not reset eq', function() {
+            var limitingRow = new StoichRow();
+            limitingRow.molWeight.value = 3;
+            limitingRow.eq.value = 2;
+            limitingRow.eq.entered = true;
+            service.addRow(limitingRow);
+
+            limitingRow.weight.value = 15;
+            limitingRow.weight.entered = true;
+
+            service.onFieldValueChanged(limitingRow, fieldTypes.weight);
+
+            expect(limitingRow.mol.value).toBe(5);
+            expect(limitingRow.eq.value).toBe(2);
+            expect(limitingRow.eq.entered).toBeTruthy();
+        });
+
+        it('row is not limiting, eq is manually entered, should not reset eq', function() {
+            var limitingRow = new StoichRow();
+            limitingRow.molWeight.value = 3;
+            limitingRow.weight.value = 15;
+            limitingRow.weight.entered = true;
+            limitingRow.mol.value = 5;
+            limitingRow.eq.value = 2;
+            limitingRow.eq.entered = true;
+            service.addRow(limitingRow);
+
+            var otherRow = new StoichRow();
+            otherRow.molWeight.value = 10;
+            service.addRow(otherRow);
+            otherRow.weight.value = 10;
+            otherRow.weight.entered = true;
+
+            service.onFieldValueChanged(otherRow, fieldTypes.weight);
+
+            expect(otherRow.mol.value).toBe(1);
+            expect(otherRow.eq.value).toBe(0.4);
+        });
     });
 }
 

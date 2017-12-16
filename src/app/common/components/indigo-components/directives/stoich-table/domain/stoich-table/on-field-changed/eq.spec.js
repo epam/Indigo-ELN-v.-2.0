@@ -104,7 +104,7 @@ function changeEq() {
             expect(otherRow.weight.value).toBe(5);
             expect(otherRow.weight.entered).toBeTruthy();
             expect(otherRow.mol.value).toBe(0.5);
-            expect(otherRow.eq.value).toBe(0.05);
+            expect(otherRow.eq.value).toBe(0.1);
 
             limitingRow.eq.value = 4;
 

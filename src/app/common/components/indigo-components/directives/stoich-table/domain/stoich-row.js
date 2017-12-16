@@ -19,8 +19,6 @@ StoichRow.prototype = {
     updateMolWeight: updateMolWeight,
     updateVolume: updateVolume,
     updateEq: updateEq,
-    updateEqDependingOnLimitingEq: updateEqDependingOnLimitingEq,
-    updateMol: updateMol,
     setComputedMolWeight: setComputedMolWeight,
     setComputedVolume: setComputedVolume,
     setComputedWeight: setComputedWeight,
@@ -66,7 +64,7 @@ function updateVolume() {
         this.volume.value = calculationUtil.computeVolumeByDensity(this.weight.value, this.density.value);
     }
 
-    if (isManuallyEntered) {
+    if (isManuallyEntered && (areMolarityAndMolPreset || areDensityAndWeightPresent)) {
         this.resetEntered([fieldTypes.volume]);
     }
 }
@@ -77,22 +75,9 @@ function updateEq(limitingRow) {
 
     if (isArgsExist && canUpdateEq) {
         this.resetEntered([fieldTypes.eq]);
-        this.eq.value = calculationUtil.computeEq(this.mol.value, limitingRow.mol.value);
+        this.eq.value =
+            calculationUtil.computeEq(this.mol.value, limitingRow.eq.value, limitingRow.mol.value);
         this.eq.prevValue = this.eq.value;
-    }
-}
-
-function updateEqDependingOnLimitingEq(limitingRow) {
-    this.updateEq(limitingRow);
-    this.eq.value = calculationUtil.multiply(this.eq.value, limitingRow.eq.value);
-    this.eq.prevValue = this.eq.value;
-}
-
-function updateMol(mol, callback) {
-    this.mol.value = this.isSolventRow() ? 0 : mol;
-
-    if (callback) {
-        callback(this);
     }
 }
 
@@ -209,7 +194,7 @@ function setComputedWeight(weight, callback) {
 
 function setComputedMol(mol, callback) {
     // TODO: set limiting true if limitingRow doesn't exist
-    this.mol.value = mol;
+    this.mol.value = this.isSolventRow() ? 0 : mol;
     this.resetEntered([fieldTypes.mol]);
 
     if (callback) {
