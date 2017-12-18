@@ -19,7 +19,7 @@ public class ClientConfigurationResource {
     private ClientConfiguration clientConfiguration;
 
     /**
-     * GET  /client_configuration -> Returns client configuration.
+     * * GET  /client_configuration -> Returns client configuration.
      *
      * @return Returns client configuration
      */

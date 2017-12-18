@@ -139,7 +139,8 @@ public class UserResource {
 
     /**
      * GET  /users?search=loginOrFirstNameOrLastNameOrSystemRoleName ->
-     * returns users with login firstName of lastName like query param {@code loginOrFirstNameOrLastNameOrSystemRoleName}.
+     * returns users with login firstName of lastName like query param
+     * {@code loginOrFirstNameOrLastNameOrSystemRoleName}.
      *
      * @param pageable                                   Pagination information
      * @param loginOrFirstNameOrLastNameOrSystemRoleName string to find like in login firstName of lastName
@@ -152,7 +153,8 @@ public class UserResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ManagedUserDTO>> getUserByLoginOrFirstNameOrLastName(
             @ApiParam("Paging data.") Pageable pageable,
-            @ApiParam("User login or firstName or lastName") @RequestParam("search") String loginOrFirstNameOrLastNameOrSystemRoleName
+            @ApiParam("User login or firstName or lastName")
+            @RequestParam("search") String loginOrFirstNameOrLastNameOrSystemRoleName
     ) throws URISyntaxException {
         LOGGER.debug("REST request to search users");
         Page<User> page = userService.searchUserByLoginOrFirstNameOrLastNameOrSystemRoleNameWithPaging(
@@ -232,7 +234,7 @@ public class UserResource {
 
 
     /**
-     * GET /api/users/passwordValidationRegex -> Returns regex for users' password validation
+     * GET /api/users/passwordValidationRegex -> Returns regex for users' password validation.
      *
      * @return password validation regex
      */

@@ -17,7 +17,7 @@ public class UserPermissionDTO {
         super();
     }
 
-    public UserPermissionDTO(UserPermission userPermission) {
+    UserPermissionDTO(UserPermission userPermission) {
         this.user = userPermission.getUser();
         this.permissions = userPermission.getPermissions();
         this.permissionView = userPermission.getPermissionView();

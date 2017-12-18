@@ -123,7 +123,7 @@ public final class PermissionUtil {
     List<T> updateInnerPermissionsLists(List<T> entities,
                                         Set<String> usersIds,
                                         E upperEntity) {
-        if(entities != null) {
+        if (entities != null) {
             for (T entity : entities) {
                 Set<UserPermission> filtered = entity.getAccessList().stream()
                         .filter(up -> usersIds.contains(up.getUser().getId()))
