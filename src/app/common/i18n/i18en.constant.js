@@ -300,7 +300,8 @@ var i18n = {
     NOTIFY_INCORRECT_EMAIL: 'Email address is incorrect!',
     NOTIFY_USER_SAVE_ERROR: 'User is not saved due to server error!',
     NAME_ALREADY_EXIST: 'Name already in use',
-    THE_ROLE_ALREADY_IN_USE: 'The role already in use'
+    THE_ROLE_ALREADY_IN_USE: 'The role already in use',
+    USER_ALREADY_ADDED: 'The user already added'
 };
 
 module.exports = i18n;
