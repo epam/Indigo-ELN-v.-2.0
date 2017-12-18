@@ -35,7 +35,8 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
                 vm.accessList.push({
                     user: member,
                     permissions: [],
-                    permissionView: permissionService.getPermissionView(member.authorities)
+                    permissionView: permissionService.getPermissionView(member.authorities),
+                    isContentEditor: permissionService.isContentEditor(member)
                 });
             }
         }
@@ -65,7 +66,7 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
     }
 
     function show(form, member) {
-        if (!vm.isAuthor(member)) {
+        if (!vm.isAuthor(member) && !member.isContentEditor) {
             form.$show();
         }
     }

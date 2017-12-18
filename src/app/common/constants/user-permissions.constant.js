@@ -3,10 +3,10 @@ var userPermissions = {
         id: 'VIEWER', name: 'VIEWER (read entity)'
     },
     USER: {
-        id: 'USER', name: 'USER (read entity, create experiments)'
+        id: 'USER', name: 'USER (read entity, create sub-entities)'
     },
     OWNER: {
-        id: 'OWNER', name: 'OWNER (read/update entity, create experiments)'
+        id: 'OWNER', name: 'OWNER (read/update entity, create sub-entities)'
     }
 };
 

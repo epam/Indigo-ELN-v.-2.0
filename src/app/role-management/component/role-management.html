@@ -1,5 +1,4 @@
 <div class="tab-content-pad role-management">
-    <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
     <div class="row m-b20">
         <div class="col-sm-6">
             <button class="btn btn-primary" ng-click="vm.create()">
@@ -20,14 +19,15 @@
             </div>
         </div>
     </div>
-    <form ng-if="vm.role" class="panel panel-info edit-form animated" name="editForm" role="form" ng-submit="vm.save()"
+    <form ng-if="vm.role"
+          class="panel panel-info edit-form animated"
+          name="editForm"
+          role="form"
+          ng-submit="vm.save()"
           autocomplete="off">
         <div class="panel-heading" i-translate="CREATE_UPDATE_ROLE"></div>
         <div class="panel-body ">
             <div class="row">
-                <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
-                <input class="hidden" type="text" name="fakeusernameremembered"/>
-                <input class="hidden" type="password" name="fakepasswordremembered"/>
                 <div class="col-xs-6">
                     <simple-input>
                         <span i-translate="NAME"></span>
