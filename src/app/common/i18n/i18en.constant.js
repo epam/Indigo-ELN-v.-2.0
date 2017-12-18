@@ -285,6 +285,22 @@ var i18n = {
     UPPER: 'Upper',
     COMMENTS: 'Comments',
     VALUE: 'Value',
+
+    // Form hints
+    LOGIN_HINT: 'Login should not contain letters in upper case or special symbols.',
+    PASSWORD_HINT: 'Password must be at least 6 characters long, ' +
+    'contain at least 1 uppercase letter and 1 digit. It can not contain spaces.',
+    PASSWORD_CHANGE_SUCCESS: 'User password successfully changed.',
+    EMAIL_HINT: 'Please specify valid email address.',
+    FIELD_REQUIRED_HINT: 'This field is required.',
+    MAXLENGTH_HINT: 'This field can\'t be longer than',
+    CHARACTERS: 'characters.',
+
+    // Notifications
+    NOTIFY_INCORRECT_EMAIL: 'Email address is incorrect!',
+    NOTIFY_USER_SAVE_ERROR: 'User is not saved due to server error!',
+    NAME_ALREADY_EXIST: 'Name already in use',
+    THE_ROLE_ALREADY_IN_USE: 'The role already in use',
     USER_ALREADY_ADDED: 'The user already added'
 };
 
