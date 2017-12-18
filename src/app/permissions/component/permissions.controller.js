@@ -1,12 +1,12 @@
 /* @ngInject */
 function PermissionsController($uibModalInstance, permissionService, users, permissions,
-                               permissionsConstant, notifyService, alertModal, i18en) {
+                               permissionsConstant, notifyService, alertModal, i18en, $state) {
     var vm = this;
 
     init();
 
     function init() {
-        vm.accessList = angular.copy(permissionService.getAccessList());
+        vm.accessList = buildList();
         vm.permissions = permissions;
         vm.entity = permissionService.getEntity();
         vm.entityId = permissionService.getEntityId();
@@ -43,13 +43,29 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
             return;
         }
 
+        var views = permissionService.getPossiblePermissionViews(user, $state.current.data.entityType);
+        var permissionView = _.first(views);
+
         vm.accessList.push({
             user: user,
             permissions: [],
-            permissionView: permissionService.getPermissionView(user.authorities),
+            permissionView: permissionView.id,
+            views: views,
             isContentEditor: permissionService.isContentEditor(user),
             isAuthor: permissionService.isAuthor(user)
         });
+    }
+
+    function buildList() {
+        var accessList = angular.copy(permissionService.getAccessList());
+
+        _.forEach(accessList, function(permission) {
+            permission.views = permissionService.getPossiblePermissionViews(permission.user, 'experiment');
+            permission.isContentEditor = permissionService.isContentEditor(permission.user);
+            permission.isAuthor = permissionService.isAuthor(permission.user);
+        });
+
+        return accessList;
     }
 
     function removeMember(member) {
@@ -72,7 +88,7 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
     }
 
     function show(form, member) {
-        if (!member.isAuthor && !member.isContentEditor) {
+        if (!member.isAuthor && !member.isContentEditor && member.views.length > 1) {
             form.$show();
         }
     }

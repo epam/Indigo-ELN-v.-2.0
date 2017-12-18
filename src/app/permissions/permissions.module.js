@@ -7,7 +7,7 @@ var permissionViewConfig = require('./permissions-view/permission-view.constant'
 var userRemovableFromNotebookService = require('./resources/user-removable-from-notebook.service');
 var userRemovableFromProjectService = require('./resources/user-removable-from-project.service');
 var userWithAuthorityService = require('./resources/user-with-authority.service');
-var permissionService = require('./services/permissions.service');
+var permissionService = require('./services/permission.service');
 
 module.exports = angular
     .module('indigoeln.permissions', [])

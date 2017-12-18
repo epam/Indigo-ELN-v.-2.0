@@ -9,15 +9,17 @@ function entitiesBrowserService($q, $state, principalService, tabKeyService, Cac
     var resolvePrincipal = function(func) {
         return principalService.checkIdentity().then(func);
     };
-
-    var tabCache = CacheFactory.createCache('tabCache', {
-        storageMode: 'localStorage',
-        // a week
-        maxAge: 60 * 60 * 1000 * 24 * 7,
-        deleteOnExpire: 'aggressive',
-        // 10 minutes
-        recycleFreq: 60 * 10000
-    });
+    var tabCache;
+    if (!CacheFactory.get('tabCache')) {
+        tabCache = CacheFactory.createCache('tabCache', {
+            storageMode: 'localStorage',
+            // a week
+            maxAge: 60 * 60 * 1000 * 24 * 7,
+            deleteOnExpire: 'aggressive',
+            // 10 minutes
+            recycleFreq: 60 * 10000
+        });
+    }
 
     return {
         getTabs: getTabs,
