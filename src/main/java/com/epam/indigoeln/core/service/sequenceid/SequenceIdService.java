@@ -23,6 +23,9 @@ import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Provides functionality for generating ids
+ */
 @Service
 public class SequenceIdService {
 
@@ -30,10 +33,21 @@ public class SequenceIdService {
 
     private final Lock batchNumberLock = new ReentrantLock();
 
+    /**
+     * SequenceIdRepository instance.
+     */
     @Autowired
     private SequenceIdRepository repository;
+
+    /**
+     * ExperimentService instance for working with experiments.
+     */
     @Autowired
     private ExperimentService experimentService;
+
+    /**
+     * UserService instance for working with users.
+     */
     @Autowired
     private UserService userService;
 

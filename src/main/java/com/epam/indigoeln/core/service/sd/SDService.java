@@ -51,7 +51,7 @@ public class SDService {
      * @return collection of items (structures with properties) from SDFile
      * @throws IndigoRuntimeException in case of any errors during SDFile reading
      */
-    public Collection<SdUnit> parse(Reader reader) throws IndigoRuntimeException {
+    public Collection<SdUnit> parse(Reader reader) {
         List<SdUnit> result = new ArrayList<>();
         try (SDFileIterator it = SDFileIteratorFactory.getIterator(reader)) {
             SdUnit sdu;
@@ -109,7 +109,7 @@ public class SDService {
      * @return string representation of given SDFile item
      * @throws IndigoRuntimeException in case if compound structure is empty or any other error
      */
-    public String create(SDExportItem item) throws IndigoRuntimeException {
+    public String create(SDExportItem item) {
         SdUnit sDunit;
 
         try {

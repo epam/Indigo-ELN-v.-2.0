@@ -16,15 +16,25 @@ import java.util.List;
 
 import static com.epam.indigoeln.core.service.search.SearchServiceConstants.*;
 
-
+/**
+ * Implementation of SearchServiceAPI for custom search.
+ *
+ * @see SearchServiceAPI
+ */
 @Service
 public class CustomSearchService implements SearchServiceAPI {
 
     private static final String NAME = "Indigo ELN";
 
+    /**
+     * SearchComponentsRepository instance for search components.
+     */
     @Autowired
     private SearchComponentsRepository searchComponentsRepository;
 
+    /**
+     * BingoService instance for molecule search.
+     */
     @Autowired
     private BingoService bingoService;
 

@@ -31,6 +31,9 @@ import java.util.stream.Collectors;
 
 import static com.epam.indigoeln.core.service.search.impl.pubchem.PubChemConst.*;
 
+/**
+ * Class provides method for sending requests.
+ */
 @Component
 public class RequestSender {
 
@@ -55,7 +58,13 @@ public class RequestSender {
         this.calculationService = calculationService;
     }
 
-    public Collection<ProductBatchDetailsDTO> sendRequest(RequestEntity requestEntity) {
+    /**
+     * Sends request.
+     *
+     * @param requestEntity Request for sending
+     * @return Response of request
+     */
+    Collection<ProductBatchDetailsDTO> sendRequest(RequestEntity requestEntity) {
         WaitingDTO waitingDTO = sendAsyncRequest(requestEntity);
         return sendCheckRequest(waitingDTO);
     }

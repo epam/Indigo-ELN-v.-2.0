@@ -11,10 +11,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
+/**
+ * Provides methods for search.
+ */
 @Service
 public class SearchServiceFacade {
 
+    /**
+     * List of catalogues.
+     */
     @Autowired
     private List<SearchServiceAPI> catalogues;
 
@@ -22,6 +27,12 @@ public class SearchServiceFacade {
         return catalogues.stream().map(SearchServiceAPI::getInfo).collect(Collectors.toList());
     }
 
+    /**
+     * Returns list with product batch details transfer objects.
+     *
+     * @param searchRequest Search request
+     * @return List with product batch details transfer objects
+     */
     public Collection<ProductBatchDetailsDTO> findBatches(BatchSearchRequest searchRequest) {
         Collection<ProductBatchDetailsDTO> result = new ArrayList<>();
         for (SearchServiceAPI provider : getSearchProviders(searchRequest.getDatabases())) {
@@ -43,5 +54,4 @@ public class SearchServiceFacade {
         return catalogues.stream().filter(p -> dataSourceNames.contains(p.getInfo().getValue()))
                 .collect(Collectors.toList());
     }
-
 }

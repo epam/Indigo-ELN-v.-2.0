@@ -15,15 +15,31 @@ import java.util.List;
 
 import static com.epam.indigoeln.core.service.search.SearchServiceConstants.*;
 
+/**
+ * Provides methods for search entity.
+ */
 @Service
 public class EntitySearchService {
 
+    /**
+     * EntitySearchRepository instance for entity search.
+     */
     @Autowired
     private EntitySearchRepository repository;
 
+    /**
+     * BingoService instance for molecule search.
+     */
     @Autowired
     private BingoService bingoService;
 
+    /**
+     * Searches entity by search request.
+     *
+     * @param user          Current user
+     * @param searchRequest Search request
+     * @return Entities which were found
+     */
     public List<EntitySearchResultDTO> find(User user, EntitySearchRequest searchRequest) {
         final List<String> bingoIds = searchRequest.getStructure().map(this::searchByBingoDb)
                 .orElse(Collections.emptyList());

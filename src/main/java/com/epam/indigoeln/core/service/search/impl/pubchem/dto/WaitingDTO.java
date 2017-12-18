@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Map;
 
+/**
+ * Describes WaitingDTO object.
+ */
 public class WaitingDTO {
 
     private String listKey;

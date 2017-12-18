@@ -45,10 +45,22 @@ public final class BatchComponentUtil {
     private BatchComponentUtil() {
     }
 
+    /**
+     * Returns reaction details.
+     *
+     * @param components Collection of component.
+     * @return Reaction details.
+     */
     public static Optional<ComponentDTO> getReactionDetails(Collection<ComponentDTO> components) {
         return getComponent(components, REACTION_DETAILS);
     }
 
+    /**
+     * Returns concept details.
+     *
+     * @param components Components
+     * @return Concept details
+     */
     public static Optional<ComponentDTO> getConceptDetails(Collection<ComponentDTO> components) {
         return getComponent(components, CONCEPT_DETAILS);
     }
@@ -60,6 +72,12 @@ public final class BatchComponentUtil {
         return components.stream().filter(batchFilter).findFirst();
     }
 
+    /**
+     * Returns component title.
+     *
+     * @param component Component
+     * @return Component title
+     */
     public static String getComponentTitle(ComponentDTO component) {
         return (String) getComponentField(component, COMPONENT_FIELD_TITLE);
     }
@@ -70,10 +88,10 @@ public final class BatchComponentUtil {
     }
 
     /**
-     * Retrieve json content of all batches for each component in received list.
+     * Retrieves json content of all batches for each component in received list.
      * Filter components named as 'productBatchSummary' and return list of nested batches of each component.
      *
-     * @param components list of components
+     * @param components list of components.
      * @return list of batches
      */
     @SuppressWarnings("unchecked")
@@ -88,6 +106,13 @@ public final class BatchComponentUtil {
                 collect(toList());
     }
 
+    /**
+     * Retrieves batches from client.
+     * Filter components named as 'productBatchSummary' and return list of nested batches of each component.
+     *
+     * @param components Collection of components
+     * @return List of components.
+     */
     @SuppressWarnings("unchecked")
     public static List<Map<String, Object>> retrieveBatchesFromClient(Collection<Component> components) {
         Predicate<ComponentDTO> batchFilter = c -> PRODUCT_BATCH_SUMMARY.equals(c.getName())
@@ -156,6 +181,12 @@ public final class BatchComponentUtil {
                 .matcher(batchNumber).matches();
     }
 
+    /**
+     * Returns batches for notebook.
+     *
+     * @param notebook Notebook
+     * @return Batches
+     */
     public static List<String> hasBatches(Notebook notebook) {
         List<ComponentDTO> components = notebook.getExperiments().stream()
                 .flatMap(e -> e.getComponents().stream().map(ComponentDTO::new))
@@ -167,7 +198,4 @@ public final class BatchComponentUtil {
         return retrieveBatches(components).stream().filter(b -> b.containsField(COMPONENT_FIELD_FULL_NBK_BATCH))
                 .map(b -> b.get(COMPONENT_FIELD_FULL_NBK_BATCH).toString()).collect(toList());
     }
-
 }
-
-

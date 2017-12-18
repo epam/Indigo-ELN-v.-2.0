@@ -8,11 +8,19 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
+/**
+ * Contains classes for date conversion.
+ */
 public final class JSR310DateConverters {
 
     private JSR310DateConverters() {
     }
 
+    /**
+     * Implementation of Converter for conversion from LocalDate to Date.
+     *
+     * @see Converter
+     */
     public static final class LocalDateToDateConverter implements Converter<LocalDate, Date> {
 
         public static final LocalDateToDateConverter INSTANCE = new LocalDateToDateConverter();
@@ -26,6 +34,11 @@ public final class JSR310DateConverters {
         }
     }
 
+    /**
+     * Implementation of Converter for conversion from Date to LocalDate.
+     *
+     * @see Converter
+     */
     public static final class DateToLocalDateConverter implements Converter<Date, LocalDate> {
         public static final DateToLocalDateConverter INSTANCE = new DateToLocalDateConverter();
 
@@ -39,6 +52,11 @@ public final class JSR310DateConverters {
         }
     }
 
+    /**
+     * Implementation of Converter for conversion from ZonedDateTime to Date.
+     *
+     * @see Converter
+     */
     public static final class ZonedDateTimeToDateConverter implements Converter<ZonedDateTime, Date> {
         public static final ZonedDateTimeToDateConverter INSTANCE = new ZonedDateTimeToDateConverter();
 
@@ -51,6 +69,11 @@ public final class JSR310DateConverters {
         }
     }
 
+    /**
+     * Implementation of Converter for conversion from Date to ZonedDateTime.
+     *
+     * @see Converter
+     */
     public static final class DateToZonedDateTimeConverter implements Converter<Date, ZonedDateTime> {
         public static final DateToZonedDateTimeConverter INSTANCE = new DateToZonedDateTimeConverter();
 
@@ -63,6 +86,11 @@ public final class JSR310DateConverters {
         }
     }
 
+    /**
+     * Implementation of Converter for conversion from LocalDateTime to Date.
+     *
+     * @see Converter
+     */
     public static final class LocalDateTimeToDateConverter implements Converter<LocalDateTime, Date> {
         public static final LocalDateTimeToDateConverter INSTANCE = new LocalDateTimeToDateConverter();
 
@@ -75,6 +103,11 @@ public final class JSR310DateConverters {
         }
     }
 
+    /**
+     * Implementation of Converter for conversion from Date to LocalDateTime.
+     *
+     * @see Converter
+     */
     public static final class DateToLocalDateTimeConverter implements Converter<Date, LocalDateTime> {
         public static final DateToLocalDateTimeConverter INSTANCE = new DateToLocalDateTimeConverter();
 

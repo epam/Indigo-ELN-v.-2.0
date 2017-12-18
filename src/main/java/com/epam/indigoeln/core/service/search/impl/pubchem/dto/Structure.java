@@ -1,5 +1,8 @@
 package com.epam.indigoeln.core.service.search.impl.pubchem.dto;
 
+/**
+ * Describes structure object.
+ */
 public class Structure {
 
     private boolean entered = false;

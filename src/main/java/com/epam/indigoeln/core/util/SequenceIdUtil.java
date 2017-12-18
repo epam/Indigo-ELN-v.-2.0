@@ -7,6 +7,9 @@ import org.springframework.util.StringUtils;
 
 import java.text.DecimalFormat;
 
+/**
+ * Utility class that provides for extraction and generating id.
+ */
 public final class SequenceIdUtil {
 
     private static final String EXPERIMENT_NAME_FORMAT = "0000";
@@ -15,6 +18,12 @@ public final class SequenceIdUtil {
     private SequenceIdUtil() {
     }
 
+    /**
+     * Extracts short id from entity.
+     *
+     * @param entity Entity
+     * @return Id
+     */
     public static String extractShortId(BasicModelObject entity) {
         if (entity.getId() == null) {
             return null;
@@ -23,6 +32,12 @@ public final class SequenceIdUtil {
         return split[split.length - 1];
     }
 
+    /**
+     * Extracts parent id from entity.
+     *
+     * @param entity Entity
+     * @return Parent id
+     */
     public static String extractParentId(BasicModelObject entity) {
         if (entity.getId() == null) {
             return null;
@@ -31,15 +46,33 @@ public final class SequenceIdUtil {
         return split.length > 1 ? split[split.length - 2] : null;
     }
 
+    /**
+     * Builds full id.
+     *
+     * @param ids Ids for building full id
+     * @return Full id
+     */
     public static String buildFullId(String... ids) {
         return StringUtils.arrayToDelimitedString(ids, DELIMITER);
     }
 
+    /**
+     * Generates experiment's name
+     *
+     * @param experiment Experiment
+     * @return Experiment's name
+     */
     public static String generateExperimentName(Experiment experiment) {
         String shortId = extractShortId(experiment);
         return shortId != null ? new DecimalFormat(EXPERIMENT_NAME_FORMAT).format(Long.valueOf(shortId)) : null;
     }
 
+    /**
+     * Extracts first id from notebook
+     *
+     * @param notebook Notebook
+     * @return Id
+     */
     public static String extractFirstId(BasicDTO notebook) {
         if (notebook.getFullId() == null) {
             return null;
@@ -47,5 +80,4 @@ public final class SequenceIdUtil {
         String[] split = notebook.getFullId().split(DELIMITER);
         return split.length > 0 ? split[0] : null;
     }
-
 }

@@ -26,9 +26,15 @@ import java.util.function.Function;
 @Service
 public class TemplateService {
 
+    /**
+     * TemplateRepository instance for working with templates.
+     */
     @Autowired
     private TemplateRepository templateRepository;
 
+    /**
+     * CustomDtoMapper instance for mapping.
+     */
     @Autowired
     private CustomDtoMapper dtoMapper;
 
@@ -44,32 +50,69 @@ public class TemplateService {
         templateSortedPageUtil = new SortedPageUtil<>(functionMap);
     }
 
+    /**
+     * Returns template by id.
+     *
+     * @param id Id
+     * @return Template by id
+     */
     public Optional<TemplateDTO> getTemplateById(String id) {
         return Optional.ofNullable(templateRepository.findOne(id)).map(TemplateDTO::new);
     }
 
+    /**
+     * Returns template by name.
+     *
+     * @param name Name
+     * @return Template by name
+     */
     public Optional<TemplateDTO> getTemplateByName(String name) {
         return templateRepository.findOneByName(name).map(TemplateDTO::new);
     }
 
+    /**
+     * Returns all templates.
+     *
+     * @param pageable Pagination information.
+     * @return All templates
+     */
     public Page<TemplateDTO> getAllTemplates(Pageable pageable) {
         return templateSortedPageUtil
                 .getPage(templateRepository.findAll(), pageable)
                 .map(TemplateDTO::new);
     }
 
+    /**
+     * Returns templates by name like
+     *
+     * @param nameLike Name
+     * @param pageable Pagination information
+     * @return Templates
+     */
     public Page<TemplateDTO> getTemplatesNameLike(String nameLike, Pageable pageable) {
         return templateSortedPageUtil
                 .getPage(templateRepository.findByNameLikeIgnoreCase(nameLike), pageable)
                 .map(TemplateDTO::new);
     }
 
+    /**
+     * Creates template.
+     *
+     * @param templateDTO Template transfer object
+     * @return Created template
+     */
     public TemplateDTO createTemplate(TemplateDTO templateDTO) {
         Template template = dtoMapper.convertFromDTO(templateDTO);
         Template savedTemplate = saveTemplateAndHandleError(template);
         return new TemplateDTO(savedTemplate);
     }
 
+    /**
+     * Updates template
+     *
+     * @param templateDTO Template transfer object
+     * @return Updated template
+     */
     public TemplateDTO updateTemplate(TemplateDTO templateDTO) {
         Template template = Optional.ofNullable(templateRepository.findOne(templateDTO.getId())).
                 orElseThrow(() -> EntityNotFoundException.createWithTemplateId(templateDTO.getId()));
@@ -80,6 +123,11 @@ public class TemplateService {
         return new TemplateDTO(savedTemplate);
     }
 
+    /**
+     * Removes template by id
+     *
+     * @param templateId Template's id
+     */
     public void deleteTemplate(String templateId) {
         templateRepository.delete(templateId);
     }

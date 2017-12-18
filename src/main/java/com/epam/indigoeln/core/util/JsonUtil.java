@@ -18,13 +18,24 @@ public final class JsonUtil {
     private JsonUtil() {
     }
 
-
+    /**
+     * Returns BasicDbList object from json array.
+     *
+     * @param jsonArray Json array
+     * @return Returns BasicDbList
+     */
     public static BasicDBList basicDBListFromJsonArray(JSONArray jsonArray) {
         BasicDBList result = new BasicDBList();
         result.addAll(Arrays.asList(jsonToArray(jsonArray)));
         return result;
     }
 
+    /**
+     * Convert json array to object array.
+     *
+     * @param array Json array
+     * @return Array of objects
+     */
     public static Object[] jsonToArray(JSONArray array) {
         try {
             return new ObjectMapper().readValue(array.toString(), List.class).toArray();
