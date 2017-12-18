@@ -26,5 +26,4 @@ public interface ExperimentRepository extends MongoRepository<Experiment, String
                                                                  ExperimentStatus status, ZonedDateTime creationTime);
 
     Stream<Experiment> findByDocumentIdIn(Collection<String> documentsIds);
-
 }

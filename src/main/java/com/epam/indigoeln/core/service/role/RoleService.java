@@ -63,8 +63,9 @@ public class RoleService {
     }
 
     /**
-     * Retrieve roles with name like {@code nameLike} from DB.
+     * * Retrieve roles with name like {@code nameLike} from DB.
      *
+     * @param nameLike Name for getting roles
      * @return all roles in application
      */
     public Stream<Role> getRolesWithNameLike(String nameLike) {

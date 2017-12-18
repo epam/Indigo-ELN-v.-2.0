@@ -30,15 +30,15 @@ import java.util.zip.GZIPOutputStream;
 
 import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 
-public class SdUnit implements Serializable, Externalizable {
+public final class SdUnit implements Serializable, Externalizable {
 
     private static final String OK = "OK";
     private static final String OK_3D = "OK 3D";
 
     static final long serialVersionUID = 42L;
-    boolean is3D;
-    int numAtoms;
-    boolean upperCase;
+    private boolean is3D;
+    private int numAtoms;
+    private boolean upperCase;
     private String molPortion;
     private Map<String, String> infoPortion;
     private List<String> keyList;
@@ -288,7 +288,7 @@ public class SdUnit implements Serializable, Externalizable {
     }
 
     public void setValue(String key, String value) {
-        if (valid)
+        if (valid) {
             if (value == null || "".equals(value.trim())) {
                 removeKey(key);
                 infoPortion.remove(key.toUpperCase(Locale.getDefault()));
@@ -296,6 +296,7 @@ public class SdUnit implements Serializable, Externalizable {
                 infoPortion.put(key.toUpperCase(Locale.getDefault()), value);
                 replaceKey(key);
             }
+        }
     }
 
     private void removeKey(String key) {
@@ -376,14 +377,16 @@ public class SdUnit implements Serializable, Externalizable {
             if (validString.startsWith(OK)) {
                 validString = tmp;
             }
-        } else
+        } else {
             validString = validString + " AND UPON MOL MODIFICATION " + tmp;
-        if (valid)
+        }
+        if (valid) {
             try {
                 molPortion = createConsistentLineTermination(mol);
             } catch (Exception e) {
                 LOGGER.error("SDUnit setMol error", e);
             }
+        }
     }
 
     public boolean isValidMol() {
@@ -457,7 +460,8 @@ public class SdUnit implements Serializable, Externalizable {
 
                 parseInfoAddOrigNames(out, origNames, thisOrigName, thisName, thisValue);
 
-                if (attrPortion.indexOf(">  <") != 0 && attrPortion.indexOf("> <") != 0 && attrPortion.contains("\n>")) {
+                if (attrPortion.indexOf(">  <") != 0 && attrPortion.indexOf("> <") != 0
+                        && attrPortion.contains("\n>")) {
                     attrPortion = attrPortion.substring(attrPortion.indexOf("\n>") + 1);
                 }
             } while (true);
@@ -554,5 +558,28 @@ public class SdUnit implements Serializable, Externalizable {
         out.flush();
     }
 
+    public boolean isIs3D() {
+        return is3D;
+    }
 
+    public void setIs3D(boolean is3D) {
+        this.is3D = is3D;
+    }
+
+    public int getNumAtoms() {
+        return numAtoms;
+    }
+
+    public void setNumAtoms(int numAtoms) {
+        this.numAtoms = numAtoms;
+    }
+
+    public boolean isUpperCase() {
+        return upperCase;
+    }
+
+    public void setUpperCase(boolean upperCase) {
+        this.upperCase = upperCase;
+    }
 }
+

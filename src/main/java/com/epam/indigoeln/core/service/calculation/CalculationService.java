@@ -165,10 +165,11 @@ public class CalculationService {
     }
 
     /**
-     * Returns rows from table with name {@code tableName}.
+     * * Returns rows from table with name {@code tableName}.
      * <p>
      * Table should be stored in data/{@code tableName}.csv.
      *
+     * @param tableName Table's name
      * @return Data rows from {@code tableName} table
      */
     public List<Map<String, String>> getCodeTableRows(String tableName) {

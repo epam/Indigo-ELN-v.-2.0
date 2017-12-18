@@ -10,10 +10,10 @@ import java.util.List;
  * <p>
  * The idea here is to classify reactions by type and to allow them to be comparable so they can be sorted on type.
  * <p>
- * Warning: because there is an ordinal variable here the compareTo function can differ depending on which version of the enum was
- * called first.
+ * Warning: because there is an ordinal variable here the compareTo function can differ depending on which version
+ * of the enum was called first.
  */
-public class UnitType implements Serializable, Comparable<UnitType> {
+public final class UnitType implements Serializable, Comparable<UnitType> {
     static final int SCALAR_ORDINAL = 0;
     public static final UnitType SCALAR = new UnitType("SCALAR", SCALAR_ORDINAL);
     static final int MASS_ORDINAL = 1;
@@ -45,7 +45,7 @@ public class UnitType implements Serializable, Comparable<UnitType> {
     private static final UnitType[] PRIVATE_VALUES = {SCALAR, MASS, MOLES, LOADING, VOLUME, MOLAR, DENSITY, TIME, TEMP,
             MASS_PERCENT, WEIGHT_PER_VOLUME, AREA};
     /**
-     * Calling this will initialize the values in this order if the type hasn't been called previously
+     * Calling this will initialize the values in this order if the type hasn't been called previously.
      */
     static final List<UnitType> VALUES = Collections.unmodifiableList(Arrays.asList(PRIVATE_VALUES));
     private final String type;
@@ -75,14 +75,9 @@ public class UnitType implements Serializable, Comparable<UnitType> {
     // Override-prevention methods
     // changed from reference compare vb 11/15
     public final boolean equals(Object that) {
-        if ((that == null) || getClass() != that.getClass()) {
-            return false;
-        }
-        return ordinal == ((UnitType) that).ordinal;
+        return (that != null) && getClass() == that.getClass() && ordinal == ((UnitType) that).ordinal;
     }
-
     public final int hashCode() {
         return type.hashCode() * HASH_PRIME;
     }
-
 }

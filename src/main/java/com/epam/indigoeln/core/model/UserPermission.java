@@ -25,12 +25,12 @@ public class UserPermission {
     public static final String UPDATE_ENTITY = "UPDATE_ENTITY";
     public static final String CREATE_SUB_ENTITY = "CREATE_SUB_ENTITY";
 
-    public static final String VIEWER = "VIEWER";
-    public static final String USER = "USER";
+    private static final String VIEWER = "VIEWER";
+    private static final String USER = "USER";
     public static final String OWNER = "OWNER";
 
     public static final Set<String> VIEWER_PERMISSIONS = ImmutableSet.of(READ_ENTITY);
-    public static final Set<String> USER_PERMISSIONS =
+    private static final Set<String> USER_PERMISSIONS =
             ImmutableSet.of(READ_ENTITY, CREATE_SUB_ENTITY);
     public static final Set<String> OWNER_PERMISSIONS =
             ImmutableSet.of(READ_ENTITY, CREATE_SUB_ENTITY, UPDATE_ENTITY);

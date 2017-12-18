@@ -4,7 +4,7 @@ import com.epam.indigoeln.core.chemistry.domain.AmountModel;
 
 import java.util.List;
 
-public class CeNNumberUtils {
+public final class CeNNumberUtils {
 
     public static final int DEFAULT_SIG_DIGITS = 3;
 

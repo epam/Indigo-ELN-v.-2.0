@@ -57,7 +57,7 @@ public final class SequenceIdUtil {
     }
 
     /**
-     * Generates experiment's name
+     * Generates experiment's name.
      *
      * @param experiment Experiment
      * @return Experiment's name
@@ -68,7 +68,7 @@ public final class SequenceIdUtil {
     }
 
     /**
-     * Extracts first id from notebook
+     * Extracts first id from notebook.
      *
      * @param notebook Notebook
      * @return Id

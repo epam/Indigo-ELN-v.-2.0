@@ -74,7 +74,7 @@ public class EntitySearchRepository {
                     Map<String, String> notebookNameMap = new HashMap<>();
                     final Set<DBRef> dbRefs = ids.stream().map(id -> new DBRef("experiment", id))
                             .collect(Collectors.toSet());
-                    notebookRepository.findByExperimentsIds(dbRefs).forEach(n -> n.getExperiments().stream()
+                    notebookRepository.findByExperimentsIds(dbRefs).forEach(n -> n.getExperiments()
                             .forEach(e -> notebookNameMap.put(e.getId(), n.getName())));
 
                     return StreamSupport.stream(experiments.spliterator(), false).filter(

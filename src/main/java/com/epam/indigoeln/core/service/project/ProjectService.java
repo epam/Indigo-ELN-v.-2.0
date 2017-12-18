@@ -81,8 +81,11 @@ public class ProjectService {
     }
 
     /**
-     * If user is null, then retrieve projects without checking for UserPermissions
+     * If user is null, then retrieve projects without checking for UserPermissions.
      * Otherwise, use checking for UserPermissions.
+     *
+     * @param user User
+     * @return Projects ass tree nodes
      */
     public List<TreeNodeDTO> getAllProjectsAsTreeNodes(User user) {
         // if user is null, then get all projects
@@ -157,7 +160,7 @@ public class ProjectService {
     }
 
     /**
-     * Updates project according to permissions
+     * Updates project according to permissions.
      *
      * @param projectDTO Project to update
      * @param user       User
@@ -210,7 +213,7 @@ public class ProjectService {
     }
 
     /**
-     * Removes project
+     * Removes project.
      *
      * @param id Project's identifier
      */

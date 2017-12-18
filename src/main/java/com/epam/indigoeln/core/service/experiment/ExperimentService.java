@@ -411,7 +411,8 @@ public class ExperimentService {
 
             // check of user permissions's correctness in access control list
             PermissionUtil.checkCorrectnessOfAccessList(userRepository, experimentForSave.getAccessList());
-            project.getAccessList().forEach(up -> PermissionUtil.importUsersFromUpperLevel(experimentForSave.getAccessList(), up));
+            project.getAccessList()
+                    .forEach(up -> PermissionUtil.importUsersFromUpperLevel(experimentForSave.getAccessList(), up));
 
             experimentFromDB.setTemplate(experimentForSave.getTemplate());
             experimentFromDB.setAccessList(experimentForSave.getAccessList());

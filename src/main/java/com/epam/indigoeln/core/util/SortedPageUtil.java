@@ -55,7 +55,9 @@ public class SortedPageUtil<T> {
             Comparator<T> userComparator = order.isAscending() ?
                     ascComparator.apply(property) :
                     descComparator.apply(property);
-            comparator = (comparator == null) ? userComparator : comparator.thenComparing(userComparator);
+            comparator = (comparator == null)
+                    ? userComparator
+                    : comparator.thenComparing(userComparator);
         }
         return comparator;
     }

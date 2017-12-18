@@ -267,7 +267,7 @@ public class NotebookService {
 
             project.getAccessList().forEach(up -> PermissionUtil
                     .importUsersFromUpperLevel(notebook.getAccessList(), up));
-            notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's
+            notebookFromDB.setAccessList(notebook.getAccessList()); // Stay old notebook's
             // experiments for updated notebook
 
             //Update access list for experiments

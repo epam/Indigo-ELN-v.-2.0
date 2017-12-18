@@ -37,7 +37,7 @@ public class WebSocketUtil {
     }
 
     /**
-     * Updates project
+     * Updates project.
      *
      * @param user    User
      * @param project Project
@@ -53,7 +53,7 @@ public class WebSocketUtil {
     }
 
     /**
-     * Updates notebook
+     * Updates notebook.
      *
      * @param user      User
      * @param projectId Project's id
@@ -71,7 +71,7 @@ public class WebSocketUtil {
     }
 
     /**
-     * Updates experiment
+     * Updates experiment.
      *
      * @param user       User
      * @param projectId  Project's id
@@ -91,7 +91,7 @@ public class WebSocketUtil {
     }
 
     /**
-     * Returns host name
+     * Returns host name.
      *
      * @return Host name
      */

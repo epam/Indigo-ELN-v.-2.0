@@ -131,6 +131,5 @@ public class ProductCalculator {
                 batch.recalcAmounts();
                 break;
         }
-
     }
 }

@@ -24,7 +24,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Provides functionality for generating ids
+ * Provides functionality for generating ids.
  */
 @Service
 public class SequenceIdService {
@@ -52,7 +52,7 @@ public class SequenceIdService {
     private UserService userService;
 
     /**
-     * Generates next project id and persists it into sequence collection as new document
+     * Generates next project id and persists it into sequence collection as new document.
      *
      * @return new value of project id
      */
@@ -65,8 +65,8 @@ public class SequenceIdService {
     }
 
     /**
-     * Generates next notebook id and persists it as new embedded document within project into sequence collection
-     * Full notebook id looks like "{projectId}-{nextNotebookSeqId}"
+     * Generates next notebook id and persists it as new embedded document within project into sequence collection.
+     * Full notebook id looks like "{projectId}-{nextNotebookSeqId}".
      *
      * @param projectId parent project id
      * @return new value of notebook id (full)
@@ -91,8 +91,8 @@ public class SequenceIdService {
 
     /**
      * Generates next experiment id and persists it as new embedded sub document within project notebook
-     * into sequence collection
-     * Full experiment id looks like "{projectId}-{notebookSeqId}-{nextExperimentSeqId}"
+     * into sequence collection.
+     * Full experiment id looks like "{projectId}-{notebookSeqId}-{nextExperimentSeqId}".
      *
      * @param projectId  project id
      * @param notebookId notebook seq id
@@ -118,7 +118,7 @@ public class SequenceIdService {
     }
 
     /**
-     * Get next notebook batch number
+     * Get next notebook batch number.
      *
      * @param projectId                  project id
      * @param notebookId                 notebook id
