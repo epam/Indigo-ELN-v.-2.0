@@ -33,6 +33,12 @@ function userManagementConfig($stateProvider) {
                             roles: results[0]
                         };
                     });
+                },
+                passwordRegex: function(userPasswordValidationService) {
+                    return userPasswordValidationService.get().$promise
+                        .then(function(response) {
+                            return response.data;
+                        });
                 }
             }
         })

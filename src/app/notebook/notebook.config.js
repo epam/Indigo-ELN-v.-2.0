@@ -12,7 +12,8 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
     ];
 
     var data = {
-        authorities: [roles.CONTENT_EDITOR, roles.NOTEBOOK_CREATOR]
+        authorities: [roles.CONTENT_EDITOR, roles.NOTEBOOK_CREATOR],
+        entityType: 'notebook'
     };
 
     $stateProvider

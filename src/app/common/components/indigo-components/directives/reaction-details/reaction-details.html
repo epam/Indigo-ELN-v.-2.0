@@ -33,9 +33,9 @@
                               readonly="vm.isReadonly"
                               items="vm.users"
                               model="vm.coAuthors"
+                              is-multiple="true"
                               on-remove="vm.updateIds('coAuthors', vm.coAuthors)"
-                              on-select="vm.updateIds('coAuthors', vm.coAuthors)"
-                              multiple>
+                              on-select="vm.updateIds('coAuthors', vm.coAuthors)">
                 </autocomplete>
                 <!--Experiment Creator field is hidden for current release; to make it visible, remove ng-if and add
                 attributes: indigo-change, indigo-remove -->
@@ -47,7 +47,8 @@
                 ></autocomple>
             </div>
             <div class="col-xs-6">
-                <indigo-date-picker indigo-label="Creation Date" indigo-label-vertical="true"
+                <indigo-date-picker indigo-label="Creation Date"
+                                    indigo-label-vertical="true"
                                     indigo-model="vm.experiment.creationDate"
                                     indigo-readonly="true"></indigo-date-picker>
                 <linked-experiments indigo-label="Cont. FROM Rxn"
@@ -75,9 +76,9 @@
                               readonly="vm.isReadonly"
                               items="vm.users"
                               model="vm.batchOwner"
+                              is-multiple="true"
                               on-remove="vm.updateIds('batchOwner', vm.batchOwner)"
-                              on-select="vm.updateIds('batchOwner', vm.batchOwner)"
-                              multiple>
+                              on-select="vm.updateIds('batchOwner', vm.batchOwner)">
                 </autocomplete>
             </div>
         </div>

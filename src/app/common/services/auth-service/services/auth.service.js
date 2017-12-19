@@ -1,4 +1,4 @@
-var authoritiesData = require('../../../../../assets/data/authorities.json');
+var authoritiesData = require('./authorities.json');
 
 /* @ngInject */
 function authService($rootScope, $state, $q, principalService, authSessionService, wsService, $log, $timeout) {

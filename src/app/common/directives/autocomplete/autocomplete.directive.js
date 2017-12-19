@@ -1,5 +1,7 @@
 require('./autocomplete.less');
+
 var template = require('./autocomplete.html');
+var templateMultiple = require('./autocomplete-multiple.html');
 
 function autocomplete() {
     return {
@@ -11,6 +13,8 @@ function autocomplete() {
             model: '=',
             items: '=',
             readonly: '=',
+            isMultiple: '@',
+            allowClear: '=',
             onSelect: '&',
             onRemove: '&',
             onRefresh: '&'
@@ -18,11 +22,8 @@ function autocomplete() {
         controller: autocompleteController,
         controllerAs: 'vm',
         bindToController: true,
-        template: template,
-        link: function($scope, $element, $attr) {
-            if (!_.isUndefined($attr.multiple)) {
-                $element.find('ui-select').attr('multiple', '');
-            }
+        template: function($element, $attr) {
+            return $attr.isMultiple ? templateMultiple : template;
         }
     };
 }
@@ -36,6 +37,7 @@ function autocompleteController($scope) {
     function init() {
         vm.refresh = refresh;
         vm.field = vm.field || 'name';
+        vm.allowClear = vm.allowClear || false;
 
         bindEvents();
     }

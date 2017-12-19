@@ -78,7 +78,8 @@ function experimentConfig($stateProvider, permissionsConfig, permissionViewConfi
         .state('entities.experiment-detail.permissions', _.extend({}, permissionsConfig, {
             parent: 'entities.experiment-detail',
             data: {
-                authorities: [roles.CONTENT_EDITOR, roles.EXPERIMENT_CREATOR]
+                authorities: [roles.CONTENT_EDITOR, roles.EXPERIMENT_CREATOR],
+                entityType: 'experiment'
             },
             permissions: permissions
         }))

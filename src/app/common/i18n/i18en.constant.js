@@ -287,7 +287,22 @@ var i18n = {
     COMMENTS: 'Comments',
     VALUE: 'Value',
 
+    // Form hints
+    LOGIN_HINT: 'Login should not contain letters in upper case or special symbols.',
+    PASSWORD_HINT: 'Password must be at least 6 characters long, ' +
+    'contain at least 1 uppercase letter and 1 digit. It can not contain spaces.',
+    PASSWORD_CHANGE_SUCCESS: 'User password successfully changed.',
+    EMAIL_HINT: 'Please specify valid email address.',
+    FIELD_REQUIRED_HINT: 'This field is required.',
+    MAXLENGTH_HINT: 'This field can\'t be longer than',
+    CHARACTERS: 'characters.',
+
     // Notifications
+    NOTIFY_INCORRECT_EMAIL: 'Email address is incorrect!',
+    NOTIFY_USER_SAVE_ERROR: 'User is not saved due to server error!',
+    NAME_ALREADY_EXIST: 'Name already in use',
+    THE_ROLE_ALREADY_IN_USE: 'The role already in use',
+    USER_ALREADY_ADDED: 'The user already added',
     NOTIFY_COMPOUND_ERROR: 'Compound does not exist or in the wrong format',
     NOTIFY_BATCH_NUMBER_ERROR: 'Notebook batch number does not exist or in the wrong format- format should be "nbk. ' +
     'number-exp. number-batch number"',

@@ -2,7 +2,8 @@
     <label ng-if="vm.label"
            ng-bind="vm.label"></label>
 
-    <ui-select ng-model="vm.model"
+    <ui-select multiple
+               ng-model="vm.model"
                theme="bootstrap"
                search-enabled="true"
                ng-disabled="vm.readonly"
@@ -11,7 +12,7 @@
                on-remove="vm.onRemove({item: $item})">
         <ui-select-match placeholder="{{ ::vm.placeholder }}"
                          allow-clear="{{ ::vm.allowClear }}">
-            {{ $select.selected[vm.field] }}
+            {{ $item[vm.field] }}
         </ui-select-match>
         <ui-select-choices refresh="vm.refresh($select.search)"
                            refresh-delay="300"

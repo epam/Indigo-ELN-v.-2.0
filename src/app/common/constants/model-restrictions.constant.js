@@ -6,9 +6,7 @@ var modelRestrictions = {
             field: 'therapeuticArea',
             isSelect: true,
             condition: {name: 'contains'},
-            $$conditionList: [
-                {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-            ]
+            $$conditionList: []
         },
         projectCode: {
             name: 'Project Code',
@@ -22,6 +20,7 @@ var modelRestrictions = {
         batchYield: {
             name: 'Batch Yield%',
             field: 'batchYield',
+            type: 'number',
             condition: {name: '>'},
             $$conditionList: [
                 {name: '>'}, {name: '<'}, {name: '='}, {name: '~'}
@@ -30,6 +29,7 @@ var modelRestrictions = {
         batchPurity: {
             name: 'Batch Purity%',
             field: 'purity',
+            type: 'number',
             condition: {name: '>'},
             $$conditionList: [
                 {name: '>'}, {name: '<'}, {name: '='}, {name: '~'}
@@ -38,6 +38,7 @@ var modelRestrictions = {
         subject: {
             name: 'Subject/Title',
             field: 'name',
+            type: 'text',
             condition: {name: 'contains'},
             $$conditionList: [
                 {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
@@ -46,6 +47,7 @@ var modelRestrictions = {
         entityDescription: {
             name: 'Entity Description',
             field: 'description',
+            type: 'text',
             condition: {name: 'contains'},
             $$conditionList: [
                 {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
@@ -54,6 +56,7 @@ var modelRestrictions = {
         compoundId: {
             name: 'Compound ID',
             field: 'compoundId',
+            type: 'text',
             condition: {name: 'contains'},
             $$conditionList: [
                 {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
@@ -62,6 +65,7 @@ var modelRestrictions = {
         literatureRef: {
             name: 'Literature Ref',
             field: 'references',
+            type: 'text',
             condition: {name: 'contains'},
             $$conditionList: [
                 {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
@@ -70,6 +74,7 @@ var modelRestrictions = {
         entityKeywords: {
             name: 'Entity Keywords',
             field: 'keywords',
+            type: 'text',
             condition: {name: 'contains'},
             $$conditionList: [
                 {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
@@ -78,6 +83,7 @@ var modelRestrictions = {
         chemicalName: {
             name: 'Chemical Name',
             field: 'chemicalName',
+            type: 'text',
             condition: {name: 'contains'},
             $$conditionList: [
                 {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}

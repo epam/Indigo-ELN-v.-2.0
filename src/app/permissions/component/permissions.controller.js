@@ -1,12 +1,12 @@
 /* @ngInject */
 function PermissionsController($uibModalInstance, permissionService, users, permissions,
-                               permissionsConstant, notifyService, alertModal) {
+                               permissionsConstant, notifyService, alertModal, i18en, $state) {
     var vm = this;
 
     init();
 
     function init() {
-        vm.accessList = angular.copy(permissionService.getAccessList());
+        vm.accessList = buildList();
         vm.permissions = permissions;
         vm.entity = permissionService.getEntity();
         vm.entityId = permissionService.getEntityId();
@@ -19,7 +19,6 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
 
         vm.addMember = addMember;
         vm.removeMember = removeMember;
-        vm.isAuthor = isAuthor;
         vm.show = show;
         vm.saveOldPermission = saveOldPermission;
         vm.checkAuthority = checkAuthority;
@@ -27,18 +26,46 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
         vm.clear = clear;
     }
 
-    function addMember(member) {
-        if (member) {
-            var members = _.map(vm.accessList, 'user');
-            var memberIds = _.map(members, 'id');
-            if (!_.includes(memberIds, member.id)) {
-                vm.accessList.push({
-                    user: member,
-                    permissions: [],
-                    permissionView: permissionService.getPermissionView(member.authorities)
-                });
-            }
+    function findUserInAccessList(user) {
+        return _.find(vm.accessList, function(permission) {
+            return permission.user.id === user.id;
+        });
+    }
+
+    function addMember(user) {
+        if (!user) {
+            return;
         }
+
+        if (findUserInAccessList(user)) {
+            notifyService.info(i18en.USER_ALREADY_ADDED);
+
+            return;
+        }
+
+        var views = permissionService.getPossiblePermissionViews(user, $state.current.data.entityType);
+        var permissionView = _.first(views);
+
+        vm.accessList.push({
+            user: user,
+            permissions: [],
+            permissionView: permissionView.id,
+            views: views,
+            isContentEditor: permissionService.isContentEditor(user),
+            isAuthor: permissionService.isAuthor(user)
+        });
+    }
+
+    function buildList() {
+        var accessList = angular.copy(permissionService.getAccessList());
+
+        _.forEach(accessList, function(permission) {
+            permission.views = permissionService.getPossiblePermissionViews(permission.user, 'experiment');
+            permission.isContentEditor = permissionService.isContentEditor(permission.user);
+            permission.isAuthor = permissionService.isAuthor(permission.user);
+        });
+
+        return accessList;
     }
 
     function removeMember(member) {
@@ -60,12 +87,8 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
             });
     }
 
-    function isAuthor(member) {
-        return member.user.login === vm.author.login;
-    }
-
     function show(form, member) {
-        if (!vm.isAuthor(member)) {
+        if (!member.isAuthor && !member.isContentEditor && member.views.length > 1) {
             form.$show();
         }
     }
@@ -81,8 +104,18 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
         }
     }
 
+    function convertToAccessList(list) {
+        return _.map(list, function(member) {
+            return {
+                user: member.user,
+                permissions: member.permissions,
+                permissionView: member.permissionView
+            };
+        });
+    }
+
     function ok() {
-        $uibModalInstance.close(vm.accessList);
+        $uibModalInstance.close(convertToAccessList(vm.accessList));
     }
 
     function clear() {

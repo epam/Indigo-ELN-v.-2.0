@@ -1,5 +1,4 @@
 var roleManagementTemplate = require('./component/role-management.html');
-var roleManagementDeleteDialog = require('./delete-dialog/role-management-delete-dialog.html');
 
 roleManagementConfig.$inject = ['$stateProvider'];
 
@@ -25,51 +24,18 @@ function roleManagementConfig($stateProvider) {
                 }
             },
             resolve: {
-                pageInfo: function($q, roleService, accountRoleService, authService) {
+                pageInfo: function($q, accountRoleService, authService) {
                     return $q.all([
-                        roleService.query().$promise,
                         accountRoleService.query().$promise,
                         authService.getAuthorities()
                     ]).then(function(results) {
                         return {
-                            roles: results[0],
-                            accountRoles: results[1],
-                            authorities: results[2]
+                            accountRoles: results[0],
+                            authorities: results[1]
                         };
                     });
                 }
             }
-        })
-        .state('entities.role-management.delete', {
-            parent: 'entities.role-management',
-            url: '/role/{id}/delete',
-            data: {
-                authorities: ['ROLE_EDITOR'],
-                tab: {
-                    type: ''
-                }
-            },
-            onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
-                $uibModal.open({
-                    template: roleManagementDeleteDialog,
-                    controller: 'RoleManagementDeleteController',
-                    controllerAs: 'vm',
-                    size: 'md',
-                    resolve: {
-                        entity: ['roleService', function(roleService) {
-                            return roleService.get({
-                                id: $stateParams.id
-                            }).$promise;
-                        }]
-                    }
-                }).result.then(function() {
-                    $state.go('entities.role-management', null, {
-                        reload: true
-                    });
-                }, function() {
-                    $state.go('entities.role-management');
-                });
-            }]
         });
 }
 
