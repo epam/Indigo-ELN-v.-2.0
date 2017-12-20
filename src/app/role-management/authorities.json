@@ -1,0 +1,103 @@
+[
+  {
+    "name": "USER_EDITOR",
+    "description": "User editor",
+    "tooltip": "Allow to read / create / update / remove users",
+    "group": "other"
+  },
+  {
+    "name": "ROLE_EDITOR",
+    "description": "Role editor",
+    "tooltip": "Allow to read / create / update / remove roles",
+    "group": "other"
+  },
+  {
+    "name": "CONTENT_EDITOR",
+    "description": "Content editor",
+    "tooltip": "Allow to read / create / update / remove entity (Project, Notebook or Experiment) in spite of absence in ACL for this entity or some restrictions by ACL for this entity",
+    "group": "other"
+  },
+  {
+    "name": "TEMPLATE_EDITOR",
+    "description": "Template editor",
+    "tooltip": "Allow to read / create / update / remove template",
+    "group": "other"
+  },
+  {
+    "name": "DICTIONARY_EDITOR",
+    "description": "Dictionary editor",
+    "tooltip": "Allow to read / create / update / remove dictionary",
+    "group": "other"
+  },
+  {
+    "name": "PROJECT_READER",
+    "description": "Project reader",
+    "tooltip": "Allow to read Project. This is required minimal authority for each Role, which cannot be removed",
+    "readonly": true,
+    "checked": true,
+    "group": "project"
+  },
+  {
+    "name": "PROJECT_CREATOR",
+    "description": "Project creator",
+    "tooltip": "Allow to create / update Project",
+    "group": "project",
+    "dependencies": ["PROJECT_READER"]
+  },
+  {
+    "name": "PROJECT_REMOVER",
+    "description": "Project remover",
+    "tooltip": "Allow to remove Project",
+    "readonly": true,
+    "group": "project",
+    "dependencies": ["PROJECT_READER"]
+  },
+  {
+    "name": "NOTEBOOK_READER",
+    "description": "Notebook reader",
+    "tooltip": "Allow to read Notebook",
+    "group": "notebook"
+  },
+  {
+    "name": "NOTEBOOK_CREATOR",
+    "description": "Notebook creator",
+    "tooltip": "Allow to create / update Notebook",
+    "group": "notebook",
+    "dependencies": ["NOTEBOOK_READER"]
+  },
+  {
+    "name": "NOTEBOOK_REMOVER",
+    "description": "Notebook remover",
+    "tooltip": "Allow to remove Notebook",
+    "readonly": true,
+    "group": "notebook",
+    "dependencies": ["NOTEBOOK_READER"]
+  },
+  {
+    "name": "EXPERIMENT_READER",
+    "description": "Experiment reader",
+    "tooltip": "Allow to read Experiment",
+    "group": "experiment"
+  },
+  {
+    "name": "EXPERIMENT_CREATOR",
+    "description": "Experiment creator",
+    "tooltip": "Allow to create / update Experiment",
+    "group": "experiment",
+    "dependencies": ["EXPERIMENT_READER"]
+  },
+  {
+    "name": "EXPERIMENT_REMOVER",
+    "description": "Experiment remover",
+    "tooltip": "Allow to remove Experiment",
+    "readonly": true,
+    "group": "experiment",
+    "dependencies": ["EXPERIMENT_READER"]
+  },
+  {
+    "name": "GLOBAL_SEARCH",
+    "description": "Search within the system",
+    "tooltip": "Allow to search for projects, notebooks and experiment among the system",
+    "group": "other"
+  }
+]

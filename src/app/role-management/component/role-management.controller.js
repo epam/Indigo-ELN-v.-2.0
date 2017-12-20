@@ -1,34 +1,35 @@
-var roleManagementSaveDialogTemplate = require('../save-dialog/role-management-save-dialog.html');
-var roles = require('../../permissions/permission-roles.json');
+var authorities = require('../authorities.json');
 
 /* @ngInject */
 function RoleManagementController($scope, roleService, accountRoleService, i18en,
-                                  $filter, $uibModal, pageInfo, notifyService, roleManagementUtils) {
+                                  $filter, accountRoles, notifyService, roleManagementUtils) {
     var vm = this;
-    var ROLE_EDITOR_AUTHORITY = roles.ROLE_EDITOR;
 
     init();
 
     function init() {
-        vm.accountRoles = pageInfo.accountRoles;
-        vm.authorities = pageInfo.authorities;
+        vm.accountRoles = accountRoles;
+        // TODO: remove
+        vm.authorities = authorities;
+
+        vm.sortBy = {
+            field: 'name',
+            isAscending: true
+        };
 
         vm.search = search;
         vm.hasAuthority = hasAuthority;
         vm.updateAuthoritySelection = updateAuthoritySelection;
         vm.clear = clear;
-        vm.save = prepareSave;
         vm.create = create;
         vm.deleteRole = deleteRole;
-        vm.edit = edit;
-        vm.resetAuthorities = resetAuthorities;
+        vm.editRole = editRole;
+        vm.sortRoles = sortRoles;
+        vm.sortByAuthorities = sortByAuthorities;
         vm.roleExistValidation = roleExistValidation;
+        vm.onCloseEditRole = onCloseEditRole;
 
         updateRoles();
-
-        $scope.$watch('vm.role', function(role) {
-            initAuthorities(role);
-        });
     }
 
     function updateRoles() {
@@ -87,43 +88,8 @@ function RoleManagementController($scope, roleService, accountRoleService, i18en
         vm.role = null;
     }
 
-    function prepareSave() {
-        if (isLastRoleWithRoleEditor()) {
-            $uibModal.open({
-                animation: true,
-                template: roleManagementSaveDialogTemplate,
-                controller: 'RoleManagementSaveController',
-                controllerAs: 'vm',
-                size: 'md',
-                resolve: {}
-            }).result.then(function(result) {
-                if (result === true) {
-                    save();
-                }
-            });
-        } else {
-            save();
-        }
-    }
-
-    function save() {
-        vm.isSaving = true;
-        if (vm.role.id !== null) {
-            roleService.update(vm.role, onSaveSuccess, onSaveError);
-        } else {
-            roleService.save(vm.role, onSaveSuccess, onSaveError);
-        }
-    }
-
-    function onSaveSuccess() {
-        vm.isSaving = false;
+    function onCloseEditRole() {
         vm.role = null;
-        loadAll();
-    }
-
-    function onSaveError() {
-        vm.isSaving = false;
-        notifyService.error('roleService is not saved due to server error!');
         loadAll();
     }
 
@@ -142,41 +108,28 @@ function RoleManagementController($scope, roleService, accountRoleService, i18en
         };
     }
 
-    function edit(role) {
-        loadAll();
-        vm.role = _.extend({}, role);
+    function editRole(role) {
+        vm.role = role;
     }
 
-    function resetAuthorities() {
-        vm.role.authorities = ['PROJECT_READER'];
-        initAuthorities(vm.role);
+    function sortRoles(predicate, isAscending) {
+        vm.sortBy.field = predicate;
+        vm.sortBy.isAscending = isAscending;
+        vm.roles = $filter('orderBy')(vm.roles, predicate, !isAscending);
+
+        $scope.$digest();
     }
 
-    function initAuthorities(role) {
-        _.each(vm.authorities, function(authority) {
-            authority.checked = hasAuthority(role, authority) || authority.name === 'PROJECT_READER';
-        });
-    }
-
-    function isLastRoleWithRoleEditor() {
-        var roleEditorCount = 0;
-        var lastRoleWithRoleEditorAuthority = false;
-        vm.accountRoles.forEach(function(role) {
-            if (role.authorities.indexOf(ROLE_EDITOR_AUTHORITY) >= 0) {
-                roleEditorCount++;
-                if (roleEditorCount > 1) {
-                    lastRoleWithRoleEditorAuthority = false;
-
-                    return;
-                }
-                if (vm.role.id === role.id &&
-                    vm.role.authorities.indexOf(ROLE_EDITOR_AUTHORITY) === -1) {
-                    lastRoleWithRoleEditorAuthority = true;
-                }
-            }
+    function sortByAuthorities(authority, isAscending) {
+        vm.sortBy.field = authority;
+        vm.sortBy.isAscending = isAscending;
+        vm.roles = _.sortBy(vm.roles, function(role) {
+            return isAscending
+                ? role.authorities.indexOf(authority) === -1
+                : role.authorities.indexOf(authority) !== -1;
         });
 
-        return lastRoleWithRoleEditorAuthority;
+        $scope.$digest();
     }
 }
 

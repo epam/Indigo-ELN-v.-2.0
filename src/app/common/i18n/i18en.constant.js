@@ -286,6 +286,7 @@ var i18n = {
     UPPER: 'Upper',
     COMMENTS: 'Comments',
     VALUE: 'Value',
+    NO_DATA_FOUND: 'No data found',
 
     // Form hints
     LOGIN_HINT: 'Login should not contain letters in upper case or special symbols.',
