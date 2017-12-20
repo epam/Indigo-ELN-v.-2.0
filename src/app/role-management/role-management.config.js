@@ -24,16 +24,8 @@ function roleManagementConfig($stateProvider) {
                 }
             },
             resolve: {
-                pageInfo: function($q, accountRoleService, authService) {
-                    return $q.all([
-                        accountRoleService.query().$promise,
-                        authService.getAuthorities()
-                    ]).then(function(results) {
-                        return {
-                            accountRoles: results[0],
-                            authorities: results[1]
-                        };
-                    });
+                accountRoles: function(accountRoleService) {
+                    return accountRoleService.query().$promise;
                 }
             }
         });

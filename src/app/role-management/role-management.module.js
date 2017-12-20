@@ -5,6 +5,8 @@ var RoleManagementController = require('./component/role-management.controller')
 var RoleManagementSaveController = require('./save-dialog/role-management-save-dialog.controller');
 var roleManagementUtils = require('./role-management-utils.service');
 
+var editRole = require('./edit-role/edit-role.directive');
+
 module.exports = angular
     .module('indigoeln.roleManagement', [])
 
@@ -12,6 +14,8 @@ module.exports = angular
     .controller('RoleManagementSaveController', RoleManagementSaveController)
 
     .factory('roleManagementUtils', roleManagementUtils)
+
+    .directive('editRole', editRole)
 
     .config(roleManagementConfig)
 

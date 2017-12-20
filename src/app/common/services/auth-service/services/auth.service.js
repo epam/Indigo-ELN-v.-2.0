@@ -1,4 +1,3 @@
-var authoritiesData = require('./authorities.json');
 
 /* @ngInject */
 function authService($rootScope, $state, $q, principalService, authSessionService, wsService, $log, $timeout) {
@@ -8,8 +7,7 @@ function authService($rootScope, $state, $q, principalService, authSessionServic
         login: login,
         prolong: prolong,
         logout: logout,
-        authorize: authorize,
-        getAuthorities: getAuthorities
+        authorize: authorize
     };
 
     function login(credentials) {
@@ -80,10 +78,6 @@ function authService($rootScope, $state, $q, principalService, authSessionServic
                     return authorities && authorities.length > 0 && !principalService.hasAnyAuthority(authorities);
                 }
             });
-    }
-
-    function getAuthorities() {
-        return authoritiesData;
     }
 }
 
