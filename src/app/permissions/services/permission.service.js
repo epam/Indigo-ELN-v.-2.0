@@ -32,19 +32,78 @@ function permissionService($q, principalService, userRemovableFromProjectService
         hasAuthorityForExperimentPermission: hasAuthorityForExperimentPermission,
         hasAuthorityForPermission: hasAuthorityForPermission,
         isUserRemovableFromAccessList: isUserRemovableFromAccessList,
-        getPermissionView: getPermissionView,
         setProject: setProject,
         setNotebook: setNotebook,
         setExperiment: setExperiment,
-        isContentEditor: isContentEditor
+        isContentEditor: isContentEditor,
+        isAuthor: isAuthor,
+        getPossiblePermissionViews: getPossiblePermissionViews
     };
 
-    function getPermissionView(authorities) {
-        return _.includes(authorities, roles.CONTENT_EDITOR) ? userPermissions.OWNER.id : userPermissions.VIEWER.id;
+    function getExperimentViews(user) {
+        var result = [];
+        if (hasAllAuthorities(user.authorities, permissionsConstant.EXPERIMENT_OWNER_AUTHORITY_SET)) {
+            result.push(userPermissions.OWNER);
+        }
+        if (hasAllAuthorities(user.authorities, permissionsConstant.EXPERIMENT_VIEWER_AUTHORITY_SET)) {
+            result.push(userPermissions.VIEWER);
+        }
+
+        return result;
+    }
+
+    function getNotebookViews(user) {
+        var result = [];
+        if (hasAllAuthorities(user.authorities, permissionsConstant.NOTEBOOK_OWNER_AUTHORITY_SET)) {
+            result.push(userPermissions.OWNER);
+        }
+        if (hasAllAuthorities(user.authorities, permissionsConstant.NOTEBOOK_USER_AUTHORITY_SET)) {
+            result.push(userPermissions.USER);
+        }
+        if (hasAllAuthorities(user.authorities, permissionsConstant.NOTEBOOK_VIEWER_AUTHORITY_SET)) {
+            result.push(userPermissions.VIEWER);
+        }
+
+        return result;
+    }
+
+    function getProjectViews(user) {
+        var result = [];
+        if (hasAllAuthorities(user.authorities, permissionsConstant.PROJECT_OWNER_AUTHORITY_SET)) {
+            result.push(userPermissions.OWNER);
+        }
+        if (hasAllAuthorities(user.authorities, permissionsConstant.PROJECT_USER_AUTHORITY_SET)) {
+            result.push(userPermissions.USER);
+        }
+        if (hasAllAuthorities(user.authorities, permissionsConstant.PROJECT_VIEWER_AUTHORITY_SET)) {
+            result.push(userPermissions.VIEWER);
+        }
+
+        return result;
+    }
+
+    function getPossiblePermissionViews(user, entityType) {
+        if (isContentEditor(user)) {
+            return [userPermissions.OWNER];
+        }
+
+        if (entityType === 'experiment') {
+            return getExperimentViews(user);
+        } else if (entityType === 'notebook') {
+            return getNotebookViews(user);
+        } else if (entityType === 'project') {
+            return getProjectViews(user);
+        }
+
+        return [];
     }
 
     function isContentEditor(user) {
         return user.authorities.includes(roles.CONTENT_EDITOR);
+    }
+
+    function isAuthor(user) {
+        return user.login === _.get(getAuthor(), 'login');
     }
 
     function expandPermission(list) {
@@ -153,23 +212,19 @@ function permissionService($q, principalService, userRemovableFromProjectService
         parentId = newParentId;
     }
 
-    function hasAuthorityForProjectPermission(member, permission) {
-        var projectOwnerAuthoritySet = permissionsConstant.PROJECT_OWNER_AUTHORITY_SET;
-        var projectUserAuthoritySet = permissionsConstant.PROJECT_USER_AUTHORITY_SET;
-        var projectViewerAuthoritySet = permissionsConstant.PROJECT_VIEWER_AUTHORITY_SET;
+    function hasAllAuthorities(authoritiesFrom, authoritiesTo) {
+        return _.every(authoritiesTo, function(authority) {
+            return _.includes(authoritiesFrom, authority);
+        });
+    }
 
+    function hasAuthorityForProjectPermission(member, permission) {
         if (permission === userPermissions.OWNER.id) {
-            return _.every(projectOwnerAuthoritySet, function(authority) {
-                return _.includes(member.user.authorities, authority);
-            });
+            return hasAllAuthorities(member.user.authorities, permissionsConstant.PROJECT_OWNER_AUTHORITY_SET);
         } else if (permission === userPermissions.USER.id) {
-            return _.every(projectUserAuthoritySet, function(authority) {
-                return _.includes(member.user.authorities, authority);
-            });
+            return hasAllAuthorities(member.user.authorities, permissionsConstant.PROJECT_USER_AUTHORITY_SET);
         } else if (permission === userPermissions.VIEWER.id) {
-            return _.every(projectViewerAuthoritySet, function(authority) {
-                return _.includes(member.user.authorities, authority);
-            });
+            return hasAllAuthorities(member.user.authorities, permissionsConstant.PROJECT_VIEWER_AUTHORITY_SET);
         }
     }
 

@@ -34,19 +34,19 @@
                     <td ng-bind="member.user.login"></td>
                     <td>
                         <div>
-                            <a ng-class="{disabled: vm.isAuthor(member) || member.isContentEditor}"
+                            <a ng-class="{disabled: member.isAuthor || member.isContentEditor || member.views.length <= 1}"
                                ng-click="vm.show(perm, member)"
                                e-form="perm"
                                onbeforesave="vm.saveOldPermission(member.permissionView)"
                                onaftersave="vm.checkAuthority(member, member.permissionView)"
                                editable-select="member.permissionView"
-                               e-ng-options="p.id as p.name for p in vm.permissions"
+                               e-ng-options="p.id as p.name for p in member.views"
                                ng-bind="member.permissionView">
                             </a>
                         </div>
                     </td>
                     <td>
-                        <button ng-disabled="vm.isAuthor(member)" type="button" class="btn btn-info btn-small"
+                        <button ng-disabled="member.isAuthor" type="button" class="btn btn-info btn-small"
                                 ng-click="vm.removeMember(member)">
                             <span class="fa fa-trash"></span><span class="m-l5" i-translate="DELETE"></span>
                         </button>

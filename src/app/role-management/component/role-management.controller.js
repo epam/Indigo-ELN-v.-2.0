@@ -1,47 +1,73 @@
 var roleManagementSaveDialogTemplate = require('../save-dialog/role-management-save-dialog.html');
+var roles = require('../../permissions/permission-roles.json');
 
 /* @ngInject */
-function RoleManagementController($scope, roleService, accountRoleService,
-                                  $filter, $uibModal, pageInfo, notifyService) {
-    var ROLE_EDITOR_AUTHORITY = 'ROLE_EDITOR';
+function RoleManagementController($scope, roleService, accountRoleService, i18en,
+                                  $filter, $uibModal, pageInfo, notifyService, roleManagementUtils) {
     var vm = this;
-
-    vm.roles = [];
-    vm.accountRoles = pageInfo.accountRoles;
-    vm.authorities = pageInfo.authorities;
-    vm.sortBy = {
-        field: 'name',
-        isAscending: true
-    };
-
-    vm.search = search;
-    vm.hasAuthority = hasAuthority;
-    vm.updateAuthoritySelection = updateAuthoritySelection;
-    vm.clear = clear;
-    vm.save = prepareSave;
-    vm.create = create;
-    vm.edit = edit;
-    vm.resetAuthorities = resetAuthorities;
-    vm.sortRoles = sortRoles;
-    vm.sortByAuthorities = sortByAuthorities;
+    var ROLE_EDITOR_AUTHORITY = roles.ROLE_EDITOR;
 
     init();
 
     function init() {
-        vm.roles = $filter('orderBy')(pageInfo.roles, 'name');
+        vm.accountRoles = pageInfo.accountRoles;
+        vm.authorities = pageInfo.authorities;
+        vm.sortBy = {
+            field: 'name',
+            isAscending: true
+        };
+
+        vm.search = search;
+        vm.hasAuthority = hasAuthority;
+        vm.updateAuthoritySelection = updateAuthoritySelection;
+        vm.clear = clear;
+        vm.save = prepareSave;
+        vm.create = create;
+        vm.deleteRole = deleteRole;
+        vm.edit = edit;
+        vm.resetAuthorities = resetAuthorities;
+        vm.sortRoles = sortRoles;
+        vm.sortByAuthorities = sortByAuthorities;
+        vm.roleExistValidation = roleExistValidation;
+
+        updateRoles();
 
         $scope.$watch('vm.role', function(role) {
             initAuthorities(role);
         });
     }
 
+    function updateRoles() {
+        return roleService.query()
+            .$promise
+            .then(function(allRoles) {
+                vm.roles = allRoles;
+                search();
+            });
+    }
+
+    function deleteRole(role) {
+        roleManagementUtils.openRoleManagementDeleteDialog()
+            .then(function() {
+                return roleService.delete({id: role.id})
+                    .$promise
+                    .then(updateRoles, function() {
+                        notifyService.error(i18en.THE_ROLE_ALREADY_IN_USE);
+                    });
+            });
+    }
+
+    function roleExistValidation(modelValue) {
+        return !_.find(vm.filteredRoles, {name: modelValue});
+    }
+
     function search() {
         // Filtering through current table page
-        var searchResult = $filter('filter')(pageInfo.roles, {
+        var searchResult = $filter('filter')(vm.roles, {
             name: vm.searchText
         });
 
-        vm.roles = $filter('orderBy')(searchResult, 'name');
+        vm.filteredRoles = $filter('orderBy')(searchResult, 'name');
     }
 
     function hasAuthority(role, authority) {
@@ -112,7 +138,7 @@ function RoleManagementController($scope, roleService, accountRoleService,
             vm.accountRoles = result;
         });
         roleService.query({}, function(result) {
-            vm.roles = result;
+            vm.filteredRoles = result;
         });
     }
 
