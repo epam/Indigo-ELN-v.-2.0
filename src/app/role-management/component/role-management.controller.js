@@ -164,7 +164,7 @@ function RoleManagementController($scope, roleService, accountRoleService,
         vm.sortBy.isAscending = isAscending;
         vm.roles = $filter('orderBy')(vm.roles, predicate, !isAscending);
 
-        $scope.$apply();
+        $scope.$digest();
     }
 
     function sortByAuthorities(authority, isAscending) {
@@ -176,7 +176,7 @@ function RoleManagementController($scope, roleService, accountRoleService,
                 : role.authorities.indexOf(authority) !== -1;
         });
 
-        $scope.$apply();
+        $scope.$digest();
     }
 }
 
