@@ -1,5 +1,4 @@
 require('./edit-role.less');
-var roleManagementSaveDialogTemplate = require('../save-dialog/role-management-save-dialog.html');
 var roles = require('../../permissions/permission-roles.json');
 var template = require('./edit-role.html');
 var authorities = require('../authorities.json');
