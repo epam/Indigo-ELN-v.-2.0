@@ -1,3 +1,5 @@
+require('./component/role-management.less');
+
 var roleManagementConfig = require('./role-management.config');
 var RoleManagementController = require('./component/role-management.controller');
 var RoleManagementSaveController = require('./save-dialog/role-management-save-dialog.controller');

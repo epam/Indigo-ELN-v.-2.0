@@ -12,6 +12,10 @@ function RoleManagementController($scope, roleService, accountRoleService, i18en
     function init() {
         vm.accountRoles = pageInfo.accountRoles;
         vm.authorities = pageInfo.authorities;
+        vm.sortBy = {
+            field: 'name',
+            isAscending: true
+        };
 
         vm.search = search;
         vm.hasAuthority = hasAuthority;
@@ -22,6 +26,8 @@ function RoleManagementController($scope, roleService, accountRoleService, i18en
         vm.deleteRole = deleteRole;
         vm.edit = edit;
         vm.resetAuthorities = resetAuthorities;
+        vm.sortRoles = sortRoles;
+        vm.sortByAuthorities = sortByAuthorities;
         vm.roleExistValidation = roleExistValidation;
 
         updateRoles();
@@ -177,6 +183,26 @@ function RoleManagementController($scope, roleService, accountRoleService, i18en
         });
 
         return lastRoleWithRoleEditorAuthority;
+    }
+
+    function sortRoles(predicate, isAscending) {
+        vm.sortBy.field = predicate;
+        vm.sortBy.isAscending = isAscending;
+        vm.roles = $filter('orderBy')(vm.roles, predicate, !isAscending);
+
+        $scope.$digest();
+    }
+
+    function sortByAuthorities(authority, isAscending) {
+        vm.sortBy.field = authority;
+        vm.sortBy.isAscending = isAscending;
+        vm.roles = _.sortBy(vm.roles, function(role) {
+            return isAscending
+                ? role.authorities.indexOf(authority) === -1
+                : role.authorities.indexOf(authority) !== -1;
+        });
+
+        $scope.$digest();
     }
 }
 
