@@ -19,106 +19,60 @@
             </div>
         </div>
     </div>
-    <form ng-if="vm.role"
-          class="panel panel-info edit-form animated"
-          name="editForm"
-          role="form"
-          ng-submit="vm.save()"
-          autocomplete="off">
-        <div class="panel-heading" i-translate="CREATE_UPDATE_ROLE"></div>
-        <div class="panel-body ">
-            <div class="row">
-                <div class="col-xs-6">
-                    <simple-input>
-                        <span i-translate="NAME"></span>
-                        <input class="form-control"
-                               name="name"
-                               required
-                               type="text"
-                               maxlength="50"
-                               ng-model="vm.role.name"
-                               dynamic-validators="{roleExist: vm.roleExistValidation}">
-                        <span ng-if="editForm.name.$error.roleExist" class="validate-error"
-                              i-translate="NAME_ALREADY_EXIST"></span>
-                    </simple-input>
-                </div>
-                <div class="col-xs-12 form-group">
-                    <label i-translate="AUTHORITIES"></label>
-                    <div class="row">
-                        <div class="col-xs-3" ng-repeat="authority in vm.authorities track by $index">
-                            <div>
-                                <indigo-checkbox
-                                    indigo-label="{{authority.description}}"
-                                    indigo-disabled="authority.readonly"
-                                    indigo-model="authority.checked"
-                                    indigo-change="vm.updateAuthoritySelection(authority)"
-                                    indigo-tooltip="{{authority.tooltip}}"
-                                    indigo-tooltip-placement="right"
-                                ></indigo-checkbox>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="panel-footer text-right">
-            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
-                <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
-            </button>
-            <button type="button" class="btn btn-default m-l5" data-dismiss="modal" ng-click="vm.resetAuthorities()">
-                Reset
-            </button>
-            <button type="submit" ng-disabled="editForm.$invalid || vm.isSaving" class="btn btn-primary m-l5">
-                <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
-            </button>
-        </div>
-    </form>
+    <edit-role ng-if="vm.role"
+               id="edit-role"
+               role="vm.role"
+               account-roles="vm.accountRoles"
+               on-close="vm.onCloseEditRole()">
+    </edit-role>
     <div class="table-responsive container-fluid">
-            <div class="row">
-                <div class="wrapper-authorities-col">
-                    <table class="table table-striped authorities-table authorities-column">
-                        <thead>
-                            <tr indigo-sort="vm.sortBy.field"
-                                is-ascending="vm.sortBy.isAscending"
-                                on-sort="vm.sortRoles(predicate, isAscending)">
-                                <th indigo-sort-by="name">
-                                    <span i-translate="ROLE_NAME"></span>
-                                    <span class="glyphicon glyphicon-sort role-management__icon-sort"></span>
-                                </th>
-                            </tr>
-                        <tbody>
-                            <tr ng-repeat="role in vm.filteredRoles track by role.id">
-                                <td><div class="role-name" uib-tooltip="{{role.name}}" ng-bind="role.name"></div></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div indigo-scroller="x">
-                    <table class="table table-striped authorities-table">
-                        <thead>
-                        <tr indigo-sort="vm.sortBy.field"
-                            is-ascending="vm.sortBy.isAscending"
-                            on-sort="vm.sortByAuthorities(predicate, isAscending)">
-                            <th ng-repeat="authority in vm.authorities track by $index"
-                                uib-tooltip="{{authority.tooltip}}"
-                                tooltip-placement="top"
-                                tooltip-append-to-body="true"
-                                indigo-sort-by="{{ authority.name }}">
-                                <span ng-bind="authority.description"></span>
-                                <span class="glyphicon glyphicon-sort role-management__icon-sort"></span>
-                            </th>
-                            <th i-translate="ACTION"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr ng-repeat="role in vm.filteredRoles track by role.id">
-                            <td ng-repeat="authority in vm.authorities track by $index">
+        <div class="row">
+            <div class="wrapper-authorities-col">
+                <table class="table table-striped authorities-table authorities-column">
+                    <thead>
+                    <tr indigo-sort="vm.sortBy.field"
+                        is-ascending="vm.sortBy.isAscending"
+                        on-sort="vm.sortRoles(predicate, isAscending)">
+                        <th indigo-sort-by="name">
+                            <span i-translate="ROLE_NAME"></span>
+                            <span class="glyphicon glyphicon-sort role-management__icon-sort"></span>
+                        </th>
+                    </tr>
+                    <tbody>
+                    <tr ng-repeat="role in vm.filteredRoles track by role.id">
+                        <td>
+                            <div class="role-name" uib-tooltip="{{role.name}}" ng-bind="role.name"></div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div indigo-scroller="x">
+                <table class="table table-striped authorities-table">
+                    <thead>
+                    <tr indigo-sort="vm.sortBy.field"
+                        is-ascending="vm.sortBy.isAscending"
+                        on-sort="vm.sortByAuthorities(predicate, isAscending)">
+                        <th ng-repeat="authority in vm.authorities track by $index"
+                            uib-tooltip="{{authority.tooltip}}"
+                            tooltip-placement="top"
+                            tooltip-append-to-body="true"
+                            indigo-sort-by="{{ authority.name }}">
+                            <span ng-bind="authority.description"></span>
+                            <span class="glyphicon glyphicon-sort role-management__icon-sort"></span>
+                        </th>
+                        <th i-translate="ACTION"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="role in vm.filteredRoles track by role.id">
+                        <td ng-repeat="authority in vm.authorities track by $index">
                                 <span ng-class="{'glyphicon glyphicon-ok-sign': vm.hasAuthority(role, authority)}"
                                       class="role-check-icon"></span>
                         </td>
                         <td>
                             <button type="submit"
-                                    ng-click="vm.edit(role)"
+                                    ng-click="vm.editRole(role)"
                                     ng-if="!role.system"
                                     class="btn btn-info btn-small">
                                 <span class="fa fa-pencil"></span>
