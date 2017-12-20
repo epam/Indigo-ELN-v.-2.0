@@ -24,17 +24,14 @@
                 <label i-translate="AUTHORITIES"></label>
                 <div class="authorities">
                     <div class="panel-authority" ng-repeat="authorityGroup in vm.authorities track by $index">
-                        <div class="" ng-repeat="authority in authorityGroup track by $index">
-                            <div>
-                                <indigo-checkbox
-                                    indigo-label="{{authority.description}}"
-                                    indigo-disabled="authority.readonly"
-                                    indigo-model="vm.model[authority.name]"
-                                    indigo-tooltip="{{authority.tooltip}}"
-                                    indigo-tooltip-placement="right"
-                                ></indigo-checkbox>
-                            </div>
-                        </div>
+                        <indigo-checkbox ng-repeat="authority in authorityGroup track by $index"
+                                         indigo-label="{{authority.description}}"
+                                         indigo-disabled="authority.readonly || authority.isDepended"
+                                         indigo-model="vm.model[authority.name]"
+                                         indigo-change="vm.modelChanged(authority, vm.model[authority.name])"
+                                         indigo-tooltip="{{authority.tooltip}}"
+                                         indigo-tooltip-placement="right"
+                        ></indigo-checkbox>
                     </div>
                 </div>
             </div>

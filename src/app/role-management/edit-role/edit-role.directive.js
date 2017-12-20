@@ -32,12 +32,31 @@ function EditRoleController($scope, notifyService, roleService, alertModal, i18e
         vm.resetAuthorities = resetAuthorities;
         vm.roleExistValidation = roleExistValidation;
         vm.updateAuthoritySelection = updateAuthoritySelection;
+        vm.modelChanged = modelChanged;
 
         updateRoles();
 
         $scope.$watch('vm.role', function(role) {
             initAuthorities(role);
         });
+    }
+
+    function checkDependenciesAuthorities(authority, isChecked) {
+        _.forEach(authority.dependencies, function(dependence) {
+            // Checking dependence only by isChecked === true
+            if (isChecked) {
+                vm.model[dependence] = isChecked;
+            }
+
+            var foundDependence = _.find(vm.authorities[authority.group], {name: dependence});
+            if (foundDependence) {
+                foundDependence.isDepended = isChecked;
+            }
+        });
+    }
+
+    function modelChanged(authority, isChecked) {
+        checkDependenciesAuthorities(authority, isChecked);
     }
 
     function updateRoles() {

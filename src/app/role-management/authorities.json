@@ -41,14 +41,16 @@
     "name": "PROJECT_CREATOR",
     "description": "Project creator",
     "tooltip": "Allow to create / update Project",
-    "group": "project"
+    "group": "project",
+    "dependencies": ["PROJECT_READER"]
   },
   {
     "name": "PROJECT_REMOVER",
     "description": "Project remover",
     "tooltip": "Allow to remove Project",
     "readonly": true,
-    "group": "project"
+    "group": "project",
+    "dependencies": ["PROJECT_READER"]
   },
   {
     "name": "NOTEBOOK_READER",
@@ -60,14 +62,16 @@
     "name": "NOTEBOOK_CREATOR",
     "description": "Notebook creator",
     "tooltip": "Allow to create / update Notebook",
-    "group": "notebook"
+    "group": "notebook",
+    "dependencies": ["NOTEBOOK_READER"]
   },
   {
     "name": "NOTEBOOK_REMOVER",
     "description": "Notebook remover",
     "tooltip": "Allow to remove Notebook",
     "readonly": true,
-    "group": "notebook"
+    "group": "notebook",
+    "dependencies": ["NOTEBOOK_READER"]
   },
   {
     "name": "EXPERIMENT_READER",
@@ -79,14 +83,16 @@
     "name": "EXPERIMENT_CREATOR",
     "description": "Experiment creator",
     "tooltip": "Allow to create / update Experiment",
-    "group": "experiment"
+    "group": "experiment",
+    "dependencies": ["EXPERIMENT_READER"]
   },
   {
     "name": "EXPERIMENT_REMOVER",
     "description": "Experiment remover",
     "tooltip": "Allow to remove Experiment",
     "readonly": true,
-    "group": "experiment"
+    "group": "experiment",
+    "dependencies": ["EXPERIMENT_READER"]
   },
   {
     "name": "GLOBAL_SEARCH",
