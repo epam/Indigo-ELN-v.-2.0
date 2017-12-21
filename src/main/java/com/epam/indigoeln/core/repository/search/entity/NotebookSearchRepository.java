@@ -26,7 +26,7 @@ public class NotebookSearchRepository implements InitializingBean {
     private static final String FIELD_NAME = "name";
     private static final String FIELD_AUTHOR = "author";
     private static final String FIELD_KIND = "kind";
-    private static final String FIELD_AUTHOR_ID = FIELD_AUTHOR + "._id";
+    private static final String FIELD_AUTHOR_ID = FIELD_AUTHOR + ".$id";
     private static final String NOTEBOOK = "Notebook";
 
     private static final List<String> SEARCH_QUERY_FIELDS = Arrays.asList(FIELD_DESCRIPTION, FIELD_NAME);
