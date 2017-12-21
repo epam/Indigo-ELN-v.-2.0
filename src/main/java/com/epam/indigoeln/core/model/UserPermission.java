@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableSet;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -40,6 +41,9 @@ public class UserPermission {
     private User user;
 
     private Set<String> permissions;
+
+    @JsonIgnore
+    private FirstEntityName firstEntityName;
 
     public UserPermission() {
         super();
@@ -93,5 +97,13 @@ public class UserPermission {
             return VIEWER;
         }
         return null;
+    }
+
+    public FirstEntityName getFirstEntityName() {
+        return firstEntityName;
+    }
+
+    public void setFirstEntityName(FirstEntityName firstEntityName) {
+        this.firstEntityName = firstEntityName;
     }
 }

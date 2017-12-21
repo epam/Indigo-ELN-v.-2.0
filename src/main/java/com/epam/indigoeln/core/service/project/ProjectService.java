@@ -142,6 +142,9 @@ public class ProjectService {
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, project.getAccessList());
         // reset project's id
+
+        //Add entity name
+        project.setAccessList(PermissionUtil.addFirstEntityName(project.getAccessList(), FirstEntityName.PROJECT));
         project.setId(sequenceIdService.getNextProjectId());
 
         project = saveProjectAndHandleError(project);
@@ -156,6 +159,7 @@ public class ProjectService {
         return new ProjectDTO(project);
     }
 
+    // https://jirapct.epam.com/jira/browse/EPMLSOPELN-786 - description how it should work + description in 880.
     /**
      * Updates project according to permissions
      *
@@ -185,11 +189,14 @@ public class ProjectService {
         projectFromDb.setTags(project.getTags());
         projectFromDb.setKeywords(project.getKeywords());
         projectFromDb.setReferences(project.getReferences());
-        projectFromDb.setAccessList(project.getAccessList());
+        //Add entity name for new user
+        projectFromDb.setAccessList(PermissionUtil.updateFirstEntityNames(projectFromDb.getAccessList(),
+                project.getAccessList(), FirstEntityName.PROJECT));
         projectFromDb.setVersion(project.getVersion());
         List<Notebook> notebooks = projectFromDb.getNotebooks();
         String projectId = project.getId();
         project = saveProjectAndHandleError(projectFromDb);
+        //Update inner entities, add users from upper entities
         Set<String> usersIds = project.getAccessList().stream()
                 .map(up -> up.getUser().getId()).collect(Collectors.toSet());
         notebooks = PermissionUtil.updateInnerPermissionsLists(notebooks, usersIds, project);

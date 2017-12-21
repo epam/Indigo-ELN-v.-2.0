@@ -222,6 +222,7 @@ public class ExperimentService {
      */
     public ExperimentDTO createExperiment(ExperimentDTO experimentDTO, String projectId,
                                           String notebookId, User user) {
+        //Should be added methods for adding entity name
         Project project = projectRepository.findOne(projectId);
         if (project == null) {
             throw EntityNotFoundException.createWithProjectId(projectId);
@@ -250,7 +251,8 @@ public class ExperimentService {
         // add OWNER's permissions for specified User to experiment
         PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), user);
 
-        project.getAccessList().forEach(up -> PermissionUtil.importUsersFromUpperLevel(experiment.getAccessList(), up));
+        project.getAccessList().forEach(up -> PermissionUtil
+                .importUsersFromUpperLevel(experiment.getAccessList(), up, FirstEntityName.EXPERIMENT));
 
         //increment sequence Id
         experiment.setId(sequenceIdService.getNextExperimentId(projectId, notebookId));
@@ -263,7 +265,11 @@ public class ExperimentService {
         //set latest version
         experiment.setExperimentVersion(1);
         experiment.setLastVersion(true);
-        project.getAccessList().forEach(up -> PermissionUtil.importUsersFromUpperLevel(experiment.getAccessList(), up));
+        project.getAccessList()
+                .forEach(up ->
+                        PermissionUtil
+                                .importUsersFromUpperLevel(experiment.getAccessList(), up,
+                                        FirstEntityName.EXPERIMENT));
         Experiment savedExperiment = experimentRepository.save(experiment);
 
         // add all users as VIEWER to notebook & project
@@ -411,7 +417,8 @@ public class ExperimentService {
 
             // check of user permissions's correctness in access control list
             PermissionUtil.checkCorrectnessOfAccessList(userRepository, experimentForSave.getAccessList());
-            project.getAccessList().forEach(up -> PermissionUtil.importUsersFromUpperLevel(experimentForSave.getAccessList(), up));
+            project.getAccessList().forEach(up -> PermissionUtil
+                    .importUsersFromUpperLevel(experimentForSave.getAccessList(), up, FirstEntityName.EXPERIMENT));
 
             experimentFromDB.setTemplate(experimentForSave.getTemplate());
             experimentFromDB.setAccessList(experimentForSave.getAccessList());

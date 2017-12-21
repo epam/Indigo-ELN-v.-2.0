@@ -6,6 +6,7 @@ import com.epam.indigoeln.core.security.Authority;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.PermissionIncorrectException;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.HashSet;
 import java.util.List;
@@ -112,6 +113,23 @@ public final class PermissionUtil {
         return false;
     }
 
+    /**
+     * Import users from upper level (for example, when you create notebook, you need to add user from project)
+     * @param accessList
+     * @param userPermission
+     * @param entityName
+     */
+    public static void importUsersFromUpperLevel(Set<UserPermission> accessList, UserPermission userPermission,
+                                                 FirstEntityName entityName) {
+        //Check if user is already in inner entity, then remove it and add for updating
+        if (userPermission != null && userPermission.getPermissionView() != null
+                && !FirstEntityName.firstEntityIsInner(userPermission.getFirstEntityName(),entityName)) {
+            //It is does not work!
+            accessList.removeIf(up -> up.getUser().getId().equals(userPermission.getUser().getId()));
+            accessList.add(userPermission);
+        }
+    }
+
     public static void importUsersFromUpperLevel(Set<UserPermission> accessList, UserPermission userPermission) {
         if (userPermission != null && userPermission.getPermissionView() != null) {
             accessList.removeIf(up -> up.getUser().getId().equals(userPermission.getUser().getId()));
@@ -119,11 +137,20 @@ public final class PermissionUtil {
         }
     }
 
+    /**
+     * When you change permission for user it update users in inner entities
+     * @param entities
+     * @param usersIds
+     * @param upperEntity
+     * @param <T>
+     * @param <E>
+     * @return
+     */
     public static <T extends BasicModelObject, E extends BasicModelObject>
     List<T> updateInnerPermissionsLists(List<T> entities,
                                         Set<String> usersIds,
                                         E upperEntity) {
-        if(entities != null) {
+        if (entities != null) {
             for (T entity : entities) {
                 Set<UserPermission> filtered = entity.getAccessList().stream()
                         .filter(up -> usersIds.contains(up.getUser().getId()))
@@ -162,6 +189,28 @@ public final class PermissionUtil {
                         .createWithUserIdAndPermission(userPermission.getUser().getId(),
                                 userPermission.getPermissionView());
             }
+
         }
+    }
+
+    //Update - add entity name for new users
+    public static Set<UserPermission> updateFirstEntityNames(Set<UserPermission> accessList,
+                                                             Set<UserPermission> newAccessList,
+                                                             FirstEntityName firstEntityName){
+        Set<User> users = accessList.stream()
+                .map(UserPermission::getUser).collect(Collectors.toSet());
+        Set<UserPermission> newUsers = newAccessList.stream()
+                .filter(up -> !users.contains(up.getUser())).collect(Collectors.toSet());
+        newAccessList.removeAll(newUsers);
+        newAccessList.addAll(PermissionUtil.addFirstEntityName(newUsers, firstEntityName));
+        return newAccessList;
+    }
+
+    //Add entity name
+    public static Set<UserPermission> addFirstEntityName(Set<UserPermission> accessList, FirstEntityName firstEntityName){
+        Set<UserPermission> res = new HashSet<>();
+        accessList.forEach(userPermission -> userPermission.setFirstEntityName(firstEntityName));
+        res.addAll(accessList);
+        return res;
     }
 }

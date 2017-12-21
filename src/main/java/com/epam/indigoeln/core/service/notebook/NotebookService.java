@@ -197,10 +197,13 @@ public class NotebookService {
 
         // check of user permissions correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
+        notebook.setAccessList(PermissionUtil.addFirstEntityName(notebook.getAccessList(), FirstEntityName.NOTEBOOK));
         // add OWNER's permissions for specified User to notebook
         PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user);
 
-        project.getAccessList().forEach(up -> PermissionUtil.importUsersFromUpperLevel(notebook.getAccessList(), up));
+        project.getAccessList()
+                .forEach(up -> PermissionUtil
+                        .importUsersFromUpperLevel(notebook.getAccessList(), up, FirstEntityName.NOTEBOOK));
 
         Notebook savedNotebook = saveNotebookAndHandleError(notebook);
 
@@ -252,6 +255,9 @@ public class NotebookService {
             // check of user permissions's correctness in access control list
             PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
 
+            PermissionUtil.updateFirstEntityNames(notebookFromDB.getAccessList(), notebook.getAccessList(),
+                    FirstEntityName.NOTEBOOK);
+
             if (!notebookFromDB.getName().equals(notebookDTO.getName())) {
                 List<String> numbers = BatchComponentUtil.hasBatches(notebookFromDB);
                 if (!numbers.isEmpty()) {
@@ -266,7 +272,7 @@ public class NotebookService {
             notebookFromDB.setVersion(notebook.getVersion());
 
             project.getAccessList().forEach(up -> PermissionUtil
-                    .importUsersFromUpperLevel(notebook.getAccessList(), up));
+                    .importUsersFromUpperLevel(notebook.getAccessList(), up, FirstEntityName.NOTEBOOK));
             notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's
             // experiments for updated notebook
 
