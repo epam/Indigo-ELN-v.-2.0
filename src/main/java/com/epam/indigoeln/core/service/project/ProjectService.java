@@ -168,8 +168,7 @@ public class ProjectService {
      * @return Updated project
      */
     public ProjectDTO updateProject(ProjectDTO projectDTO, User user) {
-        Optional<Project> projectOpt = Optional.ofNullable(projectRepository.findOne(projectDTO.getId()));
-        Project projectFromDb = projectOpt
+        Project projectFromDb = Optional.ofNullable(projectRepository.findOne(projectDTO.getId()))
                 .orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectDTO.getId()));
 
         // check of EntityAccess (User must have "Update Entity" permission in project's access list,
@@ -246,20 +245,20 @@ public class ProjectService {
         Project project = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
 
         List<Notebook> notebooks = project.getNotebooks();
-        boolean addedToNotebooks = notebooks.stream().filter(n -> {
+        boolean addedToNotebooks = notebooks.stream().anyMatch(n -> {
             UserPermission permission = PermissionUtil.findPermissionsByUserId(n.getAccessList(), userId);
             return permission != null;
-        }).count() > 0;
+        });
         if (addedToNotebooks) {
             return false;
         }
 
         List<Experiment> experiments = notebooks.stream().flatMap(n -> n.getExperiments().stream())
                 .collect(Collectors.toList());
-        return experiments.stream().filter(e -> {
+        return experiments.stream().noneMatch(e -> {
             UserPermission permission = PermissionUtil.findPermissionsByUserId(e.getAccessList(), userId);
             return permission != null;
-        }).count() == 0;
+        });
 
     }
 
