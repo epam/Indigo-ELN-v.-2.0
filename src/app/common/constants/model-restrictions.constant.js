@@ -102,7 +102,7 @@ var modelRestrictions = {
         entityDomain: {
             name: 'Entity Searching Domain',
             $$skipList: true,
-            field: 'author._id',
+            field: 'author.$id',
             condition: {
                 name: 'in'
             },
