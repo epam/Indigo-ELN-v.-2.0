@@ -11,7 +11,9 @@ import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.core.util.BatchComponentUtil;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.core.util.WebSocketUtil;
-import com.epam.indigoeln.web.rest.dto.*;
+import com.epam.indigoeln.web.rest.dto.NotebookDTO;
+import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
+import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +71,7 @@ public class NotebookService {
     private ExperimentService experimentService;
 
     private static List<Notebook> getNotebooksWithAccess(List<Notebook> notebooks, String userId) {
-        return notebooks.stream().filter(notebook -> PermissionUtil.findPermissionsByUserId(
+        return notebooks.stream().filter(notebook -> PermissionUtil.findFirstPermissionsByUserId(
                 notebook.getAccessList(), userId) != null).collect(Collectors.toList());
     }
 
@@ -255,9 +257,6 @@ public class NotebookService {
             // check of user permissions's correctness in access control list
             PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
 
-            PermissionUtil.updateFirstEntityNames(notebookFromDB.getAccessList(), notebook.getAccessList(),
-                    FirstEntityName.NOTEBOOK);
-
             if (!notebookFromDB.getName().equals(notebookDTO.getName())) {
                 List<String> numbers = BatchComponentUtil.hasBatches(notebookFromDB);
                 if (!numbers.isEmpty()) {
@@ -267,17 +266,16 @@ public class NotebookService {
                 notebookFromDB.setName(notebookDTO.getName());
             }
             notebookFromDB.setDescription(notebookDTO.getDescription());
-            notebookFromDB.setAccessList(notebook.getAccessList()); // Stay old notebook's
+            Set<UserPermission> updatedPermissions = PermissionUtil.updateFirstEntityNames(
+                    notebookFromDB.getAccessList(), notebook.getAccessList(), FirstEntityName.NOTEBOOK);
+            notebookFromDB.getAccessList().addAll(updatedPermissions);
             // experiments for updated notebook
             notebookFromDB.setVersion(notebook.getVersion());
 
-            project.getAccessList().forEach(up -> PermissionUtil
-                    .importUsersFromUpperLevel(notebook.getAccessList(), up, FirstEntityName.NOTEBOOK));
-            notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's
             // experiments for updated notebook
 
             //Update access list for experiments
-            Set<String> usersIds = notebookFromDB.getAccessList().stream()
+            Set<String> usersIds = updatedPermissions.stream()
                     .map(up -> up.getUser().getId()).collect(Collectors.toSet());
             List<Experiment> experiments = notebookFromDB.getExperiments();
             experiments = PermissionUtil.updateInnerPermissionsLists(experiments, usersIds, notebook);
@@ -347,7 +345,7 @@ public class NotebookService {
         Notebook notebook = notebookOpt.orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
 
         return notebook.getExperiments().stream().filter(e -> {
-            UserPermission permission = PermissionUtil.findPermissionsByUserId(e.getAccessList(), userId);
+            UserPermission permission = PermissionUtil.findFirstPermissionsByUserId(e.getAccessList(), userId);
             return permission != null;
         }).count() == 0;
     }

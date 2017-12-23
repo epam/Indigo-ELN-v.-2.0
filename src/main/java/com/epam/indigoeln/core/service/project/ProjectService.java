@@ -160,6 +160,7 @@ public class ProjectService {
     }
 
     // https://jirapct.epam.com/jira/browse/EPMLSOPELN-786 - description how it should work + description in 880.
+
     /**
      * Updates project according to permissions
      *
@@ -189,15 +190,17 @@ public class ProjectService {
         projectFromDb.setKeywords(project.getKeywords());
         projectFromDb.setReferences(project.getReferences());
         //Add entity name for new user
-        projectFromDb.setAccessList(PermissionUtil.updateFirstEntityNames(projectFromDb.getAccessList(),
-                project.getAccessList(), FirstEntityName.PROJECT));
+        Set<UserPermission> updatedPermissions = PermissionUtil.updateFirstEntityNames(projectFromDb.getAccessList(),
+                project.getAccessList(), FirstEntityName.PROJECT);
+        projectFromDb.getAccessList().addAll(updatedPermissions);
         projectFromDb.setVersion(project.getVersion());
         List<Notebook> notebooks = projectFromDb.getNotebooks();
-        String projectId = project.getId();
         project = saveProjectAndHandleError(projectFromDb);
         //Update inner entities, add users from upper entities
-        Set<String> usersIds = project.getAccessList().stream()
+        Set<String> usersIds = updatedPermissions.stream()
                 .map(up -> up.getUser().getId()).collect(Collectors.toSet());
+
+        String projectId = project.getId();
         notebooks = PermissionUtil.updateInnerPermissionsLists(notebooks, usersIds, project);
         for (Notebook notebook : notebooks) {
             String notebookId = notebook.getId().substring(notebook.getId().lastIndexOf("-") + 1);
@@ -246,7 +249,7 @@ public class ProjectService {
 
         List<Notebook> notebooks = project.getNotebooks();
         boolean addedToNotebooks = notebooks.stream().anyMatch(n -> {
-            UserPermission permission = PermissionUtil.findPermissionsByUserId(n.getAccessList(), userId);
+            UserPermission permission = PermissionUtil.findFirstPermissionsByUserId(n.getAccessList(), userId);
             return permission != null;
         });
         if (addedToNotebooks) {
@@ -256,7 +259,7 @@ public class ProjectService {
         List<Experiment> experiments = notebooks.stream().flatMap(n -> n.getExperiments().stream())
                 .collect(Collectors.toList());
         return experiments.stream().noneMatch(e -> {
-            UserPermission permission = PermissionUtil.findPermissionsByUserId(e.getAccessList(), userId);
+            UserPermission permission = PermissionUtil.findFirstPermissionsByUserId(e.getAccessList(), userId);
             return permission != null;
         });
 

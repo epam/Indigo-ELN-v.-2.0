@@ -25,7 +25,7 @@ public final class PermissionUtil {
         return user.getAuthorities().contains(Authority.CONTENT_EDITOR);
     }
 
-    public static UserPermission findPermissionsByUserId(
+    public static UserPermission findFirstPermissionsByUserId(
             Set<UserPermission> accessList, String userId) {
         for (UserPermission userPermission : accessList) {
             if (userPermission.getUser().getId().equals(userId)) {
@@ -39,7 +39,7 @@ public final class PermissionUtil {
                                          Set<UserPermission> accessList,
                                          String permission) {
         // Check of UserPermission
-        UserPermission userPermission = findPermissionsByUserId(accessList, userId);
+        UserPermission userPermission = findFirstPermissionsByUserId(accessList, userId);
         return userPermission != null && userPermission.hasPermission(permission);
     }
 
@@ -82,7 +82,7 @@ public final class PermissionUtil {
     }
 
     private static void setUserPermissions(Set<UserPermission> accessList, User user, Set<String> permissions) {
-        UserPermission userPermission = findPermissionsByUserId(accessList, user.getId());
+        UserPermission userPermission = findFirstPermissionsByUserId(accessList, user.getId());
         if (userPermission != null) {
             userPermission.setPermissions(permissions);
         } else {
@@ -91,29 +91,43 @@ public final class PermissionUtil {
         }
     }
 
-    public static boolean addUsersFromLowLevelToUp(Set<UserPermission> accessList,
-                                                   UserPermission up, Set<String> permissions,
+    /**
+     * Add new permission for up-level permissions.
+     *
+     * @param upLevelAccessList         up-level permissions
+     * @param newUserPermission         permission to add to up-level permissions
+     * @param permissions               if user does not have owner permissions in newUserPermission this permissions will be added
+     * @param usersWhichHasAlreadyExist list of users those are already present in up-level permissions
+     * @return if permission was added ({@code true}) on not ({@code false})
+     */
+    public static boolean addUsersFromLowLevelToUp(Set<UserPermission> upLevelAccessList,
+                                                   UserPermission newUserPermission,
+                                                   Set<String> permissions,
                                                    Set<User> usersWhichHasAlreadyExist) {
-        if (!usersWhichHasAlreadyExist.contains(up.getUser())) {
-            UserPermission userPermission = findPermissionsByUserId(accessList, up.getUser().getId());
-            if (!UserPermission.OWNER.equals(up.getPermissionView())) {
-                if (userPermission != null) {
-                    Set<String> existingPermissions = userPermission.getPermissions();
-                    if (existingPermissions == null) {
-                        existingPermissions = new HashSet<>();
-                        userPermission.setPermissions(existingPermissions);
-                    }
-                    return existingPermissions.addAll(permissions);
-                } else {
-                    userPermission = new UserPermission(up.getUser(), permissions);
-                    accessList.add(userPermission);
-                    return true;
-                }
+        if (!usersWhichHasAlreadyExist.contains(newUserPermission.getUser())) {
+            if (!UserPermission.OWNER.equals(newUserPermission.getPermissionView())) {
+                return addPermissionsForGeneralUserToUpLevelPermissions(
+                        upLevelAccessList, newUserPermission.getUser(), permissions);
             } else {
-                return accessList.add(up);
+                return upLevelAccessList.add(newUserPermission);
             }
         }
         return false;
+    }
+
+    private static boolean addPermissionsForGeneralUserToUpLevelPermissions(Set<UserPermission> upLevelAccessList, User user, Set<String> permissions) {
+        UserPermission userPermission = findFirstPermissionsByUserId(upLevelAccessList, user.getId());
+        if (userPermission != null) {
+            Set<String> existingPermissions = userPermission.getPermissions();
+            if (existingPermissions == null) {
+                existingPermissions = new HashSet<>();
+                userPermission.setPermissions(existingPermissions);
+            }
+            return existingPermissions.addAll(permissions);
+        } else {
+            upLevelAccessList.add(new UserPermission(user, permissions));
+            return true;
+        }
     }
 
     /**
@@ -201,7 +215,15 @@ public final class PermissionUtil {
         }
     }
 
-    //Update - add entity name for new users
+
+    /**
+     * Set firstEntityName for users from newAccessList witch don't present in accessList.
+     *
+     * @param accessList      current permission for entity
+     * @param newAccessList   list with old and new permissions
+     * @param firstEntityName name of origin entity of given permission
+     * @return list of new users permissions with sets firstEntityName
+     */
     public static Set<UserPermission> updateFirstEntityNames(Set<UserPermission> accessList,
                                                              Set<UserPermission> newAccessList,
                                                              FirstEntityName firstEntityName) {

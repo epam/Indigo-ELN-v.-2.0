@@ -95,7 +95,7 @@ public class ExperimentService {
 
     private static List<Experiment> getExperimentsWithAccess(List<Experiment> experiments, String userId) {
         return experiments == null ? new ArrayList<>()
-                : experiments.stream().filter(experiment -> PermissionUtil.findPermissionsByUserId(
+                : experiments.stream().filter(experiment -> PermissionUtil.findFirstPermissionsByUserId(
                 experiment.getAccessList(), userId) != null).collect(Collectors.toList());
     }
 
