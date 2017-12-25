@@ -302,7 +302,8 @@ var i18n = {
     NOTIFY_USER_SAVE_ERROR: 'User is not saved due to server error!',
     NAME_ALREADY_EXIST: 'Name already in use',
     THE_ROLE_ALREADY_IN_USE: 'The role already in use',
-    USER_ALREADY_ADDED: 'The user already added'
+    USER_ALREADY_ADDED: 'The user already added',
+    ATTENTION_AUTHORITY_IS_SET_AUTOMATICALLY: 'Attention: authority {{permission}} is set automatically'
 };
 
 module.exports = i18n;
