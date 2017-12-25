@@ -82,6 +82,12 @@ function permissionService($q, principalService, userRemovableFromProjectService
         return result;
     }
 
+    /**
+     * Returns ordered views by a capacity role.
+     * @param user
+     * @param entityType
+     * @return {Array}
+     */
     function getPossiblePermissionViews(user, entityType) {
         if (isContentEditor(user)) {
             return [userPermissions.OWNER];

@@ -44,7 +44,7 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
         }
 
         var views = permissionService.getPossiblePermissionViews(user, $state.current.data.entityType);
-        var permissionView = _.first(views);
+        var permissionView = _.last(views);
 
         vm.accessList.push({
             user: user,
