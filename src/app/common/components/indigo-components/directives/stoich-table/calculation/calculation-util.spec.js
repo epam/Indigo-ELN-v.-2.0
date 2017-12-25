@@ -1,9 +1,9 @@
 var calculationUtil = require('./calculation-util');
 
 describe('service: calculationUtil', function() {
-    describe('computePureMol function', function() {
+    describe('computeMol function', function() {
         it('should be 1.5', function() {
-            var res = calculationUtil.computePureMol(0.3, 0.2);
+            var res = calculationUtil.computeMol(0.3, 0.2, 100);
             expect(res).toBe(1.5);
         });
     });
@@ -38,7 +38,7 @@ describe('service: calculationUtil', function() {
 
     describe('computeWeight function', function() {
         it('should be 0.075', function() {
-            var res = calculationUtil.computeWeight(0.1, 0.75);
+            var res = calculationUtil.computeWeight(0.1, 0.75, 100);
             expect(res).toBe(0.075);
         });
     });

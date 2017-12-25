@@ -79,6 +79,7 @@ StoichRow.prototype = {
     isVolumePresent: isVolumePresent,
     isMolarityPresent: isMolarityPresent,
     isDensityPresent: isDensityPresent,
+    isPurityPresent: isPurityPresent,
     isWeightManuallyEntered: isWeightManuallyEntered,
     isMolManuallyEntered: isMolManuallyEntered,
     isEqManuallyEntered: isEqManuallyEntered,
@@ -300,6 +301,10 @@ function isMolarityPresent() {
 
 function isDensityPresent() {
     return this.density.value;
+}
+
+function isPurityPresent() {
+    return this.stoicPurity.value;
 }
 
 function isWeightManuallyEntered() {

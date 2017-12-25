@@ -1,11 +1,12 @@
 var math = require('mathjs');
 
+var ONE_HUNDRED = 100;
 var ONE_THOUSAND = 1000;
 
 function calculationUtil() {
 }
 
-calculationUtil.computePureMol = computePureMol;
+calculationUtil.computeMol = computeMol;
 calculationUtil.computeDissolvedMol = computeDissolvedMol;
 calculationUtil.computeMolByPurity = computeMolByPurity;
 calculationUtil.computeMolByEq = computeMolByEq;
@@ -24,13 +25,20 @@ calculationUtil.multiply = multiply;
 calculationUtil.divide = divide;
 
 /**
- * Compute pure mol: Mol = Weight / Mol weight
+ * Compute mol: Mol = Weight / Mol weight * (Purity / 100)
  * @param weight
  * @param molWeight
+ * @param purity
  * @returns {number}
  */
-function computePureMol(weight, molWeight) {
-    return divide(weight, molWeight);
+function computeMol(weight, molWeight, purity) {
+    return math
+        .chain(bignumber(weight))
+        .divide(bignumber(molWeight))
+        .multiply(bignumber(purity))
+        .divide(bignumber(ONE_HUNDRED))
+        .done()
+        .toNumber();
 }
 
 /**
@@ -87,13 +95,20 @@ function computeNonLimitingMolByEq(molOfLimiting, eqOfNonLimiting, eqOfLimiting)
 }
 
 /**
- * Compute weight: Weight = Mol * Mol Weight
+ * Compute weight: Weight = (Mol * Mol Weight * 100) / Purity
  * @param mol
  * @param molWeight
+ * @param purity
  * @returns {number}
  */
-function computeWeight(mol, molWeight) {
-    return multiply(mol, molWeight);
+function computeWeight(mol, molWeight, purity) {
+    return math
+        .chain(bignumber(mol))
+        .multiply(bignumber(molWeight))
+        .multiply(bignumber(ONE_HUNDRED))
+        .divide(bignumber(purity))
+        .done()
+        .toNumber();
 }
 
 /**
