@@ -66,8 +66,9 @@ public class UserPermission {
         return permissions;
     }
 
-    public void setPermissions(Set<String> permissions) {
+    public UserPermission setPermissions(Set<String> permissions) {
         this.permissions = permissions;
+        return this;
     }
 
     public boolean canReadEntity() {

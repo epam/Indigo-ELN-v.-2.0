@@ -144,6 +144,17 @@ public final class PermissionUtil {
         }
     }
 
+    public static void addUsersFromUpperLevel(Set<UserPermission> accessList,
+                                              Set<UserPermission> upperLevelUserPermissions,
+                                              FirstEntityName upperLevelFirstEntityName
+    ) {
+        upperLevelUserPermissions.forEach(up -> {
+            if (upperLevelFirstEntityName == up.getFirstEntityName()) {
+                accessList.add(up);
+            }
+        });
+    }
+
     /**
      * Change permission for user in {@code upperEntity} provides update users permissions in inner {@code entities}.
      *
@@ -246,7 +257,9 @@ public final class PermissionUtil {
         return new HashSet<>(accessList);
     }
 
-    public static void changeProjectPermissions(Project project, Set<UserPermission> newUserPermissions) {
+    public static boolean changeNotebookPermissions(Project project, Notebook notebook, Set<UserPermission> newUserPermissions) {
+
+        boolean projectHadChanged = false;
 
         Set<UserPermission> createdPermissions = newUserPermissions.stream()
                 .filter(newPermission -> project.getAccessList().stream()
@@ -255,7 +268,7 @@ public final class PermissionUtil {
                 .collect(toSet());
 
         if (!createdPermissions.isEmpty()) {
-            addPermissions(EntityWrapper.of(project), addFirstEntityName(createdPermissions, FirstEntityName.PROJECT));
+            projectHadChanged |= addPermissionsUpAndDown(EntityWrapper.of(project), EntityWrapper.of(notebook), addFirstEntityName(createdPermissions, FirstEntityName.NOTEBOOK));
         }
 
         Set<UserPermission> updatedPermissions = newUserPermissions.stream()
@@ -265,7 +278,7 @@ public final class PermissionUtil {
                 .collect(toSet());
 
         if (!updatedPermissions.isEmpty()) {
-            updatePermissions(EntityWrapper.of(project), addFirstEntityName(updatedPermissions, FirstEntityName.PROJECT));
+            projectHadChanged |= updatePermissionsUpAndDown(EntityWrapper.of(project), EntityWrapper.of(notebook), addFirstEntityName(updatedPermissions, FirstEntityName.PROJECT));
         }
 
         Set<UserPermission> removedPermissions = project.getAccessList().stream().filter(oldPermission ->
@@ -273,20 +286,52 @@ public final class PermissionUtil {
                 .collect(toSet());
 
         if (!removedPermissions.isEmpty()) {
-            removePermissions(EntityWrapper.of(project), removedPermissions);
+            projectHadChanged |= removePermissionsUpAndDown(EntityWrapper.of(project), EntityWrapper.of(notebook), removedPermissions);
+        }
+        return projectHadChanged;
+    }
+
+    public static void changeProjectPermissions(Project project, Set<UserPermission> newUserPermissions) {
+
+        Set<UserPermission> createdPermissions = newUserPermissions.stream()
+                .filter(newPermission -> project.getAccessList().stream()
+                        .noneMatch(oldPermission ->
+                                equalsByUserId(newPermission, oldPermission)))
+                .collect(toSet());
+
+        if (!createdPermissions.isEmpty()) {
+            addPermissionsDown(EntityWrapper.of(project), addFirstEntityName(createdPermissions, FirstEntityName.PROJECT));
+        }
+
+        Set<UserPermission> updatedPermissions = newUserPermissions.stream()
+                .filter(newPermission -> project.getAccessList().stream().anyMatch(oldPermission ->
+                        equalsByUserId(newPermission, oldPermission)
+                                && !oldPermission.getPermissions().equals(newPermission.getPermissions())))
+                .collect(toSet());
+
+        if (!updatedPermissions.isEmpty()) {
+            updatePermissionsDown(EntityWrapper.of(project), addFirstEntityName(updatedPermissions, FirstEntityName.PROJECT));
+        }
+
+        Set<UserPermission> removedPermissions = project.getAccessList().stream().filter(oldPermission ->
+                newUserPermissions.stream().noneMatch(newPermission -> equalsByUserId(oldPermission, newPermission)))
+                .collect(toSet());
+
+        if (!removedPermissions.isEmpty()) {
+            removePermissionsDown(EntityWrapper.of(project), removedPermissions);
         }
     }
 
-    private static void removePermissions(EntityWrapper entity, Set<UserPermission> removedPermissions) {
-        entity.getChildren().forEach(child -> removePermissions(child, removedPermissions));
+    private static void removePermissionsDown(EntityWrapper entity, Set<UserPermission> removedPermissions) {
+        entity.getChildren().forEach(child -> removePermissionsDown(child, removedPermissions));
 
         entity.getValue().getAccessList().removeIf(oldPermission -> removedPermissions.stream()
                 .anyMatch(updatedPermission -> equalsByUserId(oldPermission, updatedPermission)));
     }
 
-    private static void updatePermissions(EntityWrapper entity, Set<UserPermission> updatedPermissions) {
+    private static void updatePermissionsDown(EntityWrapper entity, Set<UserPermission> updatedPermissions) {
 
-        entity.getChildren().forEach(child -> updatePermissions(child, updatedPermissions));
+        entity.getChildren().forEach(child -> updatePermissionsDown(child, updatedPermissions));
 
         entity.getValue().getAccessList().removeIf(oldPermission -> updatedPermissions.stream()
                 .anyMatch(updatedPermission -> equalsByUserId(oldPermission, updatedPermission)));
@@ -294,18 +339,106 @@ public final class PermissionUtil {
         entity.getValue().getAccessList().addAll(updatedPermissions);
     }
 
-    private static void addPermissions(EntityWrapper entity, Set<UserPermission> createdPermissions) {
+    private static void addPermissionsDown(EntityWrapper entity, Set<UserPermission> createdPermissions) {
 
-        entity.getChildren().forEach(children -> addPermissions(children, createdPermissions));
+        entity.getChildren().forEach(children -> addPermissionsDown(children, createdPermissions));
 
         entity.getValue().getAccessList().addAll(createdPermissions);
     }
+
+    private static boolean removePermissionsUpAndDown(EntityWrapper outerEntity,
+                                                      EntityWrapper innerEntity,
+                                                      Set<UserPermission> removedPermissions
+    ) {
+        removePermissionsDown(innerEntity, removedPermissions);
+
+        Set<UserPermission> canBeRemovedFromInnerEntity = outerEntity.getValue().getAccessList().stream()
+                .filter(userPermission -> canBeChangedFromThisLevel(userPermission.getFirstEntityName(), innerEntity.getFirstEntityName()))
+                .collect(toSet());
+
+        Set<UserPermission> containsInProjectsNotebooks = outerEntity.getChildren().stream()
+                .flatMap(notebook1 -> notebook1.getValue().getAccessList().stream())
+                .collect(toSet());
+
+        removedPermissions.removeIf(removingPermission ->
+                containsInProjectsNotebooks.stream()
+                        .anyMatch(cantBeRemoved ->
+                                equalsByUserId(cantBeRemoved, removingPermission))
+                        || canBeRemovedFromInnerEntity.stream()
+                        .noneMatch(canBeRemoved ->
+                                equalsByUserId(canBeRemoved, removingPermission))
+        );
+
+        removePermissionsDown(outerEntity, removedPermissions);
+
+        return !removedPermissions.isEmpty();
+    }
+
+    private static boolean addPermissionsUpAndDown(EntityWrapper outerEntity,
+                                                   EntityWrapper innerEntity,
+                                                   Set<UserPermission> createdPermissions
+    ) {
+        boolean outerEntityHadChanged = false;
+
+        for (UserPermission userPermission : createdPermissions) {
+            UserPermission userPermissionOuterEntity = findFirstPermissionsByUserId(outerEntity.getValue().getAccessList(), userPermission.getUser().getId());
+            if (userPermissionOuterEntity == null) {
+                outerEntity.getValue().getAccessList().add(UserPermission.OWNER.equals(userPermission.getPermissionView())
+                        ? userPermission
+                        : userPermission.setPermissions(UserPermission.VIEWER_PERMISSIONS));
+                outerEntityHadChanged = true;
+            } else {
+                if (canBeChangedFromThisLevel(userPermissionOuterEntity.getFirstEntityName(), innerEntity.getFirstEntityName())) {
+                    userPermissionOuterEntity.setPermissions(UserPermission.OWNER.equals(userPermission.getPermissionView())
+                            ? userPermission.getPermissions()
+                            : UserPermission.VIEWER_PERMISSIONS);
+                    outerEntityHadChanged = true;
+                }
+            }
+        }
+
+        addPermissionsDown(innerEntity, createdPermissions);
+
+        return outerEntityHadChanged;
+    }
+
+    private static boolean updatePermissionsUpAndDown(EntityWrapper outerEntity, EntityWrapper
+            innerEntity, Set<UserPermission> updatedPermissions) {
+
+        boolean outerEntityHadChanged = false;
+
+        updatePermissionsDown(innerEntity, updatedPermissions);
+
+        for (UserPermission permission : updatedPermissions) {
+            UserPermission userPermissionOuterEntity = findFirstPermissionsByUserId(outerEntity.getValue().getAccessList(), permission.getUser().getId());
+            if (userPermissionOuterEntity != null &&
+                    canBeChangedFromThisLevel(userPermissionOuterEntity.getFirstEntityName(), innerEntity.getFirstEntityName())) {
+                userPermissionOuterEntity.setPermissions(UserPermission.OWNER.equals(permission.getPermissionView())
+                        ? permission.getPermissions()
+                        : UserPermission.VIEWER_PERMISSIONS);
+
+                outerEntityHadChanged = true;
+            }
+        }
+
+        return outerEntityHadChanged;
+    }
+
+    private static boolean canBeChangedFromThisLevel(FirstEntityName firstEntityName, FirstEntityName innerEntityFirstEntityName) {
+        return firstEntityName != null
+                && innerEntityFirstEntityName != null
+                && Comparator.comparing(FirstEntityName::ordinal)
+                .compare(firstEntityName, innerEntityFirstEntityName) >= 0;
+    }
+
 
     private abstract static class EntityWrapper {
 
         public abstract List<EntityWrapper> getChildren();
 
         public abstract BasicModelObject getValue();
+
+        public abstract FirstEntityName getFirstEntityName();
 
         public static EntityWrapper of(Project project) {
             return new EntityWrapper() {
@@ -321,6 +454,11 @@ public final class PermissionUtil {
                 @Override
                 public BasicModelObject getValue() {
                     return project;
+                }
+
+                @Override
+                public FirstEntityName getFirstEntityName() {
+                    return FirstEntityName.PROJECT;
                 }
             };
         }
@@ -340,6 +478,11 @@ public final class PermissionUtil {
                 public BasicModelObject getValue() {
                     return notebook;
                 }
+
+                @Override
+                public FirstEntityName getFirstEntityName() {
+                    return FirstEntityName.NOTEBOOK;
+                }
             };
         }
 
@@ -353,6 +496,11 @@ public final class PermissionUtil {
                 @Override
                 public BasicModelObject getValue() {
                     return experiment;
+                }
+
+                @Override
+                public FirstEntityName getFirstEntityName() {
+                    return FirstEntityName.EXPERIMENT;
                 }
             };
         }

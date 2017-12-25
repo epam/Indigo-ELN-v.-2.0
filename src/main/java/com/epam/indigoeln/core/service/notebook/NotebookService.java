@@ -203,20 +203,12 @@ public class NotebookService {
         // add OWNER's permissions for specified User to notebook
         PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user);
 
-        project.getAccessList()
-                .forEach(up -> PermissionUtil
-                        .importUsersFromUpperLevel(notebook.getAccessList(), up, FirstEntityName.NOTEBOOK));
+        PermissionUtil.addUsersFromUpperLevel(
+                notebook.getAccessList(), project.getAccessList(), FirstEntityName.PROJECT);
 
         Notebook savedNotebook = saveNotebookAndHandleError(notebook);
 
-        // add all users as VIEWER to project
-        Set<User> projectUsers = project.getAccessList()
-                .stream().map(UserPermission::getUser).collect(Collectors.toSet());
-        notebook.getAccessList().forEach(up ->
-                PermissionUtil.addUsersFromLowLevelToUp(project.getAccessList(),
-                        up, UserPermission.VIEWER_PERMISSIONS, projectUsers));
-
-        project.getNotebooks().add(notebook);
+        project.getNotebooks().add(savedNotebook);
         Project savedProject = projectRepository.save(project);
         webSocketUtil.updateProject(user, savedProject);
 
@@ -266,34 +258,18 @@ public class NotebookService {
                 notebookFromDB.setName(notebookDTO.getName());
             }
             notebookFromDB.setDescription(notebookDTO.getDescription());
-            Set<UserPermission> updatedPermissions = PermissionUtil.updateFirstEntityNames(
-                    notebookFromDB.getAccessList(), notebook.getAccessList(), FirstEntityName.NOTEBOOK);
-            notebookFromDB.getAccessList().addAll(updatedPermissions);
-            // experiments for updated notebook
             notebookFromDB.setVersion(notebook.getVersion());
 
-            // experiments for updated notebook
+            boolean projectWasUpdated = PermissionUtil.changeNotebookPermissions(
+                    project, notebookFromDB, notebook.getAccessList());
 
-            //Update access list for experiments
-            Set<String> usersIds = updatedPermissions.stream()
-                    .map(up -> up.getUser().getId()).collect(Collectors.toSet());
-            List<Experiment> experiments = notebookFromDB.getExperiments();
-            experiments = PermissionUtil.updateInnerPermissionsLists(experiments, usersIds, notebook);
-            experimentRepository.save(experiments);
+            experimentRepository.save(notebookFromDB.getExperiments());
 
             Notebook savedNotebook = saveNotebookAndHandleError(notebookFromDB);
 
-            // add all users as VIEWER to project
-            Set<User> projectUsers = project.getAccessList()
-                    .stream().map(UserPermission::getUser).collect(Collectors.toSet());
-            Boolean updateProject = notebook.getAccessList().stream()
-                    .map(up -> PermissionUtil.addUsersFromLowLevelToUp(project.getAccessList(), up,
-                            UserPermission.VIEWER_PERMISSIONS, projectUsers))
-                    .reduce(false, Boolean::logicalOr);
-
             webSocketUtil.updateNotebook(user, projectId, savedNotebook);
 
-            if (updateProject) {
+            if (projectWasUpdated) {
                 Project savedProject = projectRepository.save(project);
                 webSocketUtil.updateProject(user, savedProject);
             }
