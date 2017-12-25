@@ -199,9 +199,9 @@ public class NotebookService {
 
         // check of user permissions correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
-        notebook.setAccessList(PermissionUtil.addFirstEntityName(notebook.getAccessList(), FirstEntityName.NOTEBOOK));
         // add OWNER's permissions for specified User to notebook
         PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user);
+        notebook.setAccessList(PermissionUtil.addFirstEntityName(notebook.getAccessList(), FirstEntityName.NOTEBOOK));
 
         PermissionUtil.addUsersFromUpperLevel(
                 notebook.getAccessList(), project.getAccessList(), FirstEntityName.PROJECT);
@@ -261,7 +261,8 @@ public class NotebookService {
             notebookFromDB.setVersion(notebook.getVersion());
 
             boolean projectWasUpdated = PermissionUtil.changeNotebookPermissions(
-                    project, notebookFromDB, notebook.getAccessList());
+                    project, notebookFromDB,
+                    PermissionUtil.addFirstEntityName(notebook.getAccessList(), FirstEntityName.NOTEBOOK));
 
             experimentRepository.save(notebookFromDB.getExperiments());
 
@@ -320,10 +321,10 @@ public class NotebookService {
         Optional<Notebook> notebookOpt = Optional.ofNullable(notebookRepository.findOne(fullNotebookId));
         Notebook notebook = notebookOpt.orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
 
-        return notebook.getExperiments().stream().filter(e -> {
+        return notebook.getExperiments().stream().noneMatch(e -> {
             UserPermission permission = PermissionUtil.findFirstPermissionsByUserId(e.getAccessList(), userId);
             return permission != null;
-        }).count() == 0;
+        });
     }
 
     private Notebook saveNotebookAndHandleError(Notebook notebook) {

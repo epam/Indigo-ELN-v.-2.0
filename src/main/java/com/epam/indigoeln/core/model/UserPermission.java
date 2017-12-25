@@ -19,7 +19,7 @@ import java.util.Set;
  * </ul>
  */
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = "firstEntityName")
 public class UserPermission {
 
     public static final String READ_ENTITY = "READ_ENTITY";
