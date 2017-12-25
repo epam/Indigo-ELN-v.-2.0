@@ -29,7 +29,7 @@ function autorecovery() {
 
             if (recoveryData && !tempRecoveryData) {
                 autorecoveryCache.tryToVisible($stateParams);
-                autorecoveryCache.putTempRecoveryData($stateParams, recoveryData);
+                autorecoveryCache.putTempRecoveryData(recoveryData);
             }
 
             if (!recoveryData && !autorecoveryCache.isVisible($stateParams)) {
