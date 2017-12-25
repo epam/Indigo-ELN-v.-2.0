@@ -1,4 +1,4 @@
-var StoichRow = require('../stoich-row');
+var ReagentRow = require('../reagent/reagent-row');
 var stoichTable = require('./stoich-table');
 var changeMolWeight = require('./on-field-changed/mol-weight.spec');
 var changeWeight = require('./on-field-changed/weight.spec');
@@ -39,15 +39,15 @@ describe('stoichTable', function() {
         });
 
         it('should add new row to stoichTable', function() {
-            var stoichRow = new StoichRow();
-            service.addRow(stoichRow);
+            var reagentRow = new ReagentRow();
+            service.addRow(reagentRow);
 
-            expect(stoichRow.limiting).toBeTruthy();
+            expect(reagentRow.limiting).toBeTruthy();
         });
 
         it('limiting row is exist, should add row and set mol of limiting row', function() {
-            var limitingRow = new StoichRow();
-            var otherRow = new StoichRow();
+            var limitingRow = new ReagentRow();
+            var otherRow = new ReagentRow();
             limitingRow.mol.value = 12;
             otherRow.molWeight.value = 2;
 

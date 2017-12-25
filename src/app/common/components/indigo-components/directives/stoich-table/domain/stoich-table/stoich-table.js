@@ -1,5 +1,5 @@
 var fieldTypes = require('../field-types');
-var calculationUtil = require('../../calculation/calculation-util');
+var calculationUtil = require('../../../../services/calculation/calculation-util');
 
 function stoichTable(config) {
     var table = config.table;

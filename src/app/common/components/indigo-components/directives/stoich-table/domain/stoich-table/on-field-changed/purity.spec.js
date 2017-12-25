@@ -1,26 +1,27 @@
-var StoichRow = require('../../stoich-row');
+var ReagentField = require('../../reagent/reagent-row');
 var stoichTable = require('../stoich-table');
 var fieldTypes = require('../../field-types');
 
 function changePurity() {
-    describe('Change stoicPurity', function() {
+    describe('Change purity', function() {
         var service;
         var limitingRow;
         var nonLimitingRow;
 
         beforeEach(function() {
+            limitingRow = new ReagentField();
+            nonLimitingRow = new ReagentField();
+
             var config = {
                 table: {product: [], reactants: []}
             };
 
             service = stoichTable(config);
 
-            limitingRow = new StoichRow();
             limitingRow.molWeight.value = 2;
             limitingRow.weight.value = 30;
             limitingRow.mol.value = 15;
 
-            nonLimitingRow = new StoichRow();
             nonLimitingRow.molWeight.value = 3;
             nonLimitingRow.weight.value = 45;
             nonLimitingRow.mol.value = 15;

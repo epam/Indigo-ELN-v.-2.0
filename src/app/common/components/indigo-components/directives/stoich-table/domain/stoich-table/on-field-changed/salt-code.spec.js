@@ -1,4 +1,4 @@
-var StoichRow = require('../../stoich-row');
+var ReagentField = require('../../reagent/reagent-row');
 var stoichTable = require('../stoich-table');
 var fieldTypes = require('../../field-types');
 
@@ -15,7 +15,7 @@ function changeSaltCode() {
         });
 
         it('row is limiting, should compute mol, then weight and update mol in other rows', function() {
-            var limitingRow = new StoichRow();
+            var limitingRow = new ReagentField();
             limitingRow.molWeight.value = 3;
             limitingRow.molWeight.originalValue = 3;
             limitingRow.weight.value = 45;
@@ -24,7 +24,7 @@ function changeSaltCode() {
             limitingRow.saltEq.value = 12;
             service.addRow(limitingRow);
 
-            var otherRow = new StoichRow();
+            var otherRow = new ReagentField();
             service.addRow(otherRow);
 
             service.onFieldValueChanged(limitingRow, fieldTypes.saltEq);
@@ -35,45 +35,45 @@ function changeSaltCode() {
         });
 
         it('row is not limiting, should compute weight', function() {
-            var stoichRow = new StoichRow();
-            stoichRow.molWeight.value = 3;
-            stoichRow.molWeight.originalValue = 3;
-            stoichRow.weight.value = 45;
-            stoichRow.mol.value = 15;
-            stoichRow.saltCode = {name: '01 - HYDROCHLORIDE', value: 1, regValue: '01', weight: 1};
-            stoichRow.saltEq.value = 12;
-            stoichRow.limiting = false;
+            var reagentRow = new ReagentField();
+            reagentRow.molWeight.value = 3;
+            reagentRow.molWeight.originalValue = 3;
+            reagentRow.weight.value = 45;
+            reagentRow.mol.value = 15;
+            reagentRow.saltCode = {name: '01 - HYDROCHLORIDE', value: 1, regValue: '01', weight: 1};
+            reagentRow.saltEq.value = 12;
+            reagentRow.limiting = false;
 
-            service.onFieldValueChanged(stoichRow, fieldTypes.saltEq);
+            service.onFieldValueChanged(reagentRow, fieldTypes.saltEq);
 
-            expect(stoichRow.molWeight.value).toBe(15);
-            expect(stoichRow.weight.value).toBe(225);
-            expect(stoichRow.mol.value).toBe(15);
+            expect(reagentRow.molWeight.value).toBe(15);
+            expect(reagentRow.weight.value).toBe(225);
+            expect(reagentRow.mol.value).toBe(15);
         });
 
         it('row is not limiting, should set original mol weight', function() {
-            var stoichRow = new StoichRow();
-            stoichRow.molWeight.value = 3;
-            stoichRow.molWeight.originalValue = 3;
-            stoichRow.weight.value = 45;
-            stoichRow.mol.value = 15;
-            stoichRow.saltCode = {name: '01 - HYDROCHLORIDE', value: 1, regValue: '01', weight: 1};
-            stoichRow.saltEq.value = 12;
-            stoichRow.limiting = false;
+            var reagentRow = new ReagentField();
+            reagentRow.molWeight.value = 3;
+            reagentRow.molWeight.originalValue = 3;
+            reagentRow.weight.value = 45;
+            reagentRow.mol.value = 15;
+            reagentRow.saltCode = {name: '01 - HYDROCHLORIDE', value: 1, regValue: '01', weight: 1};
+            reagentRow.saltEq.value = 12;
+            reagentRow.limiting = false;
 
-            service.onFieldValueChanged(stoichRow, fieldTypes.saltEq);
+            service.onFieldValueChanged(reagentRow, fieldTypes.saltEq);
 
-            expect(stoichRow.molWeight.value).toBe(15);
-            expect(stoichRow.weight.value).toBe(225);
-            expect(stoichRow.mol.value).toBe(15);
+            expect(reagentRow.molWeight.value).toBe(15);
+            expect(reagentRow.weight.value).toBe(225);
+            expect(reagentRow.mol.value).toBe(15);
 
-            stoichRow.saltCode = {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0};
+            reagentRow.saltCode = {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0};
 
-            service.onFieldValueChanged(stoichRow, fieldTypes.saltEq);
+            service.onFieldValueChanged(reagentRow, fieldTypes.saltEq);
 
-            expect(stoichRow.molWeight.value).toBe(3);
-            expect(stoichRow.weight.value).toBe(45);
-            expect(stoichRow.mol.value).toBe(15);
+            expect(reagentRow.molWeight.value).toBe(3);
+            expect(reagentRow.weight.value).toBe(45);
+            expect(reagentRow.mol.value).toBe(15);
         });
     });
 }

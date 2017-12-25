@@ -2,7 +2,7 @@ var template = require('./indigo-stoich-table.html');
 var analyzeRxnTemplate = require('../../../../common/analyze-rxn/analyze-rxn.html');
 var searchReagentsTemplate = require('../../../../common/search-reagents/search-reagents.html');
 var stoichTable = require('../../domain/stoich-table/stoich-table');
-var StoichRow = require('../../domain/stoich-row');
+var ReagentRow = require('../../domain/reagent/reagent-row');
 
 function indigoStoichTable() {
     return {
@@ -91,8 +91,8 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     }
 
     function addRow() {
-        var stoichRow = new StoichRow();
-        addStoicReactant(stoichRow);
+        var reagentRow = new ReagentRow();
+        addStoicReactant(reagentRow);
     }
 
     function onColumnValueChanged(change) {
@@ -154,7 +154,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
                             return function(reactants) {
                                 // Inserting new rows into table
                                 _.forEach(reactants, function(reactant) {
-                                    var row = new StoichRow(reactant);
+                                    var row = new ReagentRow(reactant);
                                     addStoicReactant(row);
                                 });
                                 // checkLimiting();
@@ -202,7 +202,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
                     return function(reactants) {
                         // Inserting new rows into table
                         _.forEach(reactants, function(item) {
-                            var row = new StoichRow(item);
+                            var row = new ReagentRow(item);
                             addStoicReactant(row);
                         });
                         updatePrecursors();

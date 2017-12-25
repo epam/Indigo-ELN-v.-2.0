@@ -1,9 +1,9 @@
-var StoichField = require('./stoich-field');
-var fieldTypes = require('./field-types');
-var calculationUtil = require('../calculation/calculation-util');
+var ReagentField = require('./reagent-field');
+var fieldTypes = require('../field-types');
+var calculationUtil = require('../../../../services/calculation/calculation-util');
 
-function StoichRow(props) {
-    var rowProps = getDefaultStoichRow();
+function ReagentRow(props) {
+    var rowProps = getDefaultReagentRow();
 
     if (props && _.isObject(props)) {
         // Assign known properties from given obj
@@ -49,7 +49,7 @@ function setRowProperties(defaultProps, customProps) {
     });
 }
 
-StoichRow.prototype = {
+ReagentRow.prototype = {
     changesQueue: [],
     isSolventRow: isSolventRow,
     isValuePresent: isValuePresent,
@@ -86,7 +86,7 @@ StoichRow.prototype = {
     isVolumeManuallyEntered: isVolumeManuallyEntered
 };
 
-StoichRow.prototype.constructor = StoichRow;
+ReagentRow.prototype.constructor = ReagentRow;
 
 function updateMolWeight() {
     if (!this.molWeight.value && this.mol.value && this.weight.value) {
@@ -127,7 +127,7 @@ function updateEq(limitingRow) {
 
 function setDefaultValues(fields) {
     var self = this;
-    var defaultFields = getDefaultStoichRow();
+    var defaultFields = getDefaultReagentRow();
 
     _.forEach(fields, function(id) {
         self[id] = defaultFields[id];
@@ -188,7 +188,7 @@ function getResetFieldForMolarity() {
 }
 
 function getResetFieldsForWeight() {
-    var fields = [fieldTypes.mol, fieldTypes.eq];
+    var fields = [fieldTypes.mol, fieldTypes.eq, fieldTypes.weight];
 
     if (!this.volume.entered) {
         fields.push(fieldTypes.volume);
@@ -198,7 +198,7 @@ function getResetFieldsForWeight() {
 }
 
 function getResetFieldsForMol() {
-    var fields = [fieldTypes.weight, fieldTypes.eq];
+    var fields = [fieldTypes.weight, fieldTypes.eq, fieldTypes.mol];
 
     if (!this.volume.entered) {
         fields.push(fieldTypes.volume);
@@ -263,7 +263,7 @@ function setReadonly(fields, isReadonly) {
 }
 
 function clear() {
-    _.assign(this, getDefaultStoichRow());
+    _.assign(this, getDefaultReagentRow());
 }
 
 function getResetFieldsForSolvent() {
@@ -323,21 +323,21 @@ function isVolumeManuallyEntered() {
     return this.volume.entered;
 }
 
-function getDefaultStoichRow() {
+function getDefaultReagentRow() {
     return {
         compoundId: null,
         chemicalName: null,
         fullNbkBatch: null,
         molWeight: {value: 0, originalValue: 0, entered: false},
-        weight: new StoichField(0, 'mg'),
-        volume: new StoichField(0, 'mL'),
-        mol: new StoichField(0, 'mmol'),
+        weight: new ReagentField(0, 'mg'),
+        volume: new ReagentField(0, 'mL'),
+        mol: new ReagentField(0, 'mmol'),
         eq: {value: 1, prevValue: 1, entered: false},
         limiting: false,
         rxnRole: {name: 'REACTANT'},
         prevRxnRole: {name: 'REACTANT'},
-        density: new StoichField(0, 'g/mL'),
-        molarity: new StoichField(0, 'M'),
+        density: new ReagentField(0, 'g/mL'),
+        molarity: new ReagentField(0, 'M'),
         // TODO: rename to purity
         stoicPurity: {value: 100, prevValue: 100, entered: false},
         formula: null,
@@ -349,4 +349,4 @@ function getDefaultStoichRow() {
     };
 }
 
-module.exports = StoichRow;
+module.exports = ReagentRow;

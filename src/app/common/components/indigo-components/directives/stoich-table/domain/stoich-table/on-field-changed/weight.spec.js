@@ -1,12 +1,17 @@
-var StoichRow = require('../../stoich-row');
+var ReagentField = require('../../reagent/reagent-row');
 var stoichTable = require('../stoich-table');
 var fieldTypes = require('../../field-types');
 
 function changeWeight() {
     describe('Change weight', function() {
         var service;
+        var limitingRow;
+        var nonLimitingRow;
 
         beforeEach(function() {
+            limitingRow = new ReagentField();
+            nonLimitingRow = new ReagentField();
+
             var config = {
                 table: {product: [], reactants: []}
             };
@@ -15,89 +20,92 @@ function changeWeight() {
         });
 
         it('mol weight is defined; should compute mol, it should be 1', function() {
-            var stoichRow = new StoichRow();
-            stoichRow.molWeight.value = 23;
-            stoichRow.weight.value = 23;
-            service.addRow(stoichRow);
-
-            service.onFieldValueChanged(stoichRow, fieldTypes.weight);
-
-            expect(stoichRow.mol.value).toBe(1);
-        });
-
-        it('mol weight is defined, row is limiting; should compute mol and change mol in other rows', function() {
-            var limitingRow = new StoichRow();
-            limitingRow.molWeight.value = 10;
-            limitingRow.weight.value = 10;
+            limitingRow.molWeight.value = 23;
             service.addRow(limitingRow);
 
-            var otherRow = new StoichRow();
-            otherRow.molWeight.value = 5;
-            service.addRow(otherRow);
+            limitingRow.weight.value = 23;
+            limitingRow.weight.entered = true;
 
             service.onFieldValueChanged(limitingRow, fieldTypes.weight);
 
             expect(limitingRow.mol.value).toBe(1);
-            expect(otherRow.weight.value).toBe(5);
-            expect(otherRow.mol.value).toBe(1);
+        });
+
+        it('mol weight is defined, row is limiting; should compute mol and change mol in other rows', function() {
+            limitingRow.molWeight.value = 10;
+            nonLimitingRow.molWeight.value = 5;
+
+            service.addRow(limitingRow);
+            service.addRow(nonLimitingRow);
+
+            limitingRow.weight.value = 10;
+            limitingRow.weight.entered = true;
+
+            service.onFieldValueChanged(limitingRow, fieldTypes.weight);
+
+            expect(limitingRow.mol.value).toBe(1);
+            expect(nonLimitingRow.weight.value).toBe(5);
+            expect(nonLimitingRow.mol.value).toBe(1);
         });
 
         it('mol weight is not defined, but mol is defined; should compute mol weight', function() {
-            var stoichRow = new StoichRow();
-            stoichRow.weight.value = 20;
-            stoichRow.mol.value = 10;
+            nonLimitingRow.weight.value = 20;
+            nonLimitingRow.weight.entered = true;
+            nonLimitingRow.mol.value = 10;
+            nonLimitingRow.mol.entered = true;
 
-            service.onFieldValueChanged(stoichRow, fieldTypes.weight);
+            service.onFieldValueChanged(nonLimitingRow, fieldTypes.weight);
 
-            expect(stoichRow.molWeight.value).toBe(2);
+            expect(nonLimitingRow.molWeight.value).toBe(2);
         });
 
         it('mol weight is defined, row is limiting, weight is removed or 0; mol of limiting row should be 0 and' +
             ' mol of other rows are the same', function() {
-            var limitingRow = new StoichRow();
             limitingRow.molWeight.value = 10;
-            limitingRow.weight.value = 0;
             limitingRow.mol.value = 10;
-            service.addRow(limitingRow);
 
-            var otherRow = new StoichRow();
-            otherRow.molWeight.value = 1;
-            otherRow.mol.value = 10;
-            otherRow.weight.value = 10;
-            service.addRow(otherRow);
+            nonLimitingRow.molWeight.value = 1;
+            nonLimitingRow.mol.value = 10;
+            nonLimitingRow.weight.value = 10;
+
+            service.addRow(limitingRow);
+            service.addRow(nonLimitingRow);
+
+            limitingRow.weight.value = 0;
+            limitingRow.weight.entered = true;
 
             service.onFieldValueChanged(limitingRow, fieldTypes.weight);
 
             expect(limitingRow.mol.value).toBe(0);
             expect(limitingRow.eq.value).toBe(1);
-            expect(otherRow.mol.value).toBe(10);
+            expect(nonLimitingRow.mol.value).toBe(10);
         });
 
         it('mol weight is defined, row is not limiting, weight is removed or 0;' +
             ' mol and eq should be default', function() {
-            var stoichRow = new StoichRow();
-            stoichRow.molWeight.value = 10;
-            stoichRow.weight.value = 0;
-            stoichRow.mol.value = 10;
+            nonLimitingRow.molWeight.value = 10;
+            nonLimitingRow.weight.value = 0;
+            nonLimitingRow.weight.entered = true;
+            nonLimitingRow.mol.value = 10;
 
-            service.onFieldValueChanged(stoichRow, fieldTypes.weight);
+            service.onFieldValueChanged(nonLimitingRow, fieldTypes.weight);
 
-            expect(stoichRow.mol.value).toBe(0);
-            expect(stoichRow.eq.value).toBe(1);
+            expect(nonLimitingRow.mol.value).toBe(0);
+            expect(nonLimitingRow.eq.value).toBe(1);
         });
 
         it('density is defined, should compute volume', function() {
-            var stoichRow = new StoichRow();
-            stoichRow.density.value = 10;
-            stoichRow.weight.value = 2;
+            nonLimitingRow.density.value = 10;
+            nonLimitingRow.density.entered = true;
+            nonLimitingRow.weight.value = 2;
+            nonLimitingRow.weight.entered = true;
 
-            service.onFieldValueChanged(stoichRow, fieldTypes.weight);
+            service.onFieldValueChanged(nonLimitingRow, fieldTypes.weight);
 
-            expect(stoichRow.volume.value).toBe(0.0002);
+            expect(nonLimitingRow.volume.value).toBe(0.0002);
         });
 
         it('mol weight, volume, mol, molarity, eq are defined, should recompute volume, mol and eq', function() {
-            var limitingRow = new StoichRow();
             limitingRow.molWeight.value = 2;
             limitingRow.mol.value = 20;
             limitingRow.volume.value = 4;
@@ -118,7 +126,6 @@ function changeWeight() {
         });
 
         it('mol weight, volume, mol, molarity, eq are defined, remove weight, should reset volume and mol', function() {
-            var limitingRow = new StoichRow();
             limitingRow.molWeight.value = 2;
             limitingRow.mol.value = 20;
             limitingRow.volume.value = 4;
@@ -139,7 +146,6 @@ function changeWeight() {
         });
 
         it('mol weight, volume, mol, molarity, eq are defined, correct weight, should compute mol, volume', function() {
-            var limitingRow = new StoichRow();
             limitingRow.molWeight.value = 2;
             limitingRow.mol.value = 20;
             limitingRow.volume.value = 4;
@@ -166,28 +172,26 @@ function changeWeight() {
 
         it('row is limiting, non limiting row has manually entered mol, ' +
             'should not update this row with new mol', function() {
-            var limitingRow = new StoichRow();
             limitingRow.molWeight.value = 3;
-            limitingRow.weight.value = 15;
-            limitingRow.weight.entered = true;
             limitingRow.mol.value = 5;
             service.addRow(limitingRow);
 
-            var otherRow = new StoichRow();
-            otherRow.molWeight.value = 10;
-            service.addRow(otherRow);
-            otherRow.mol.value = 10;
-            otherRow.mol.entered = true;
+            nonLimitingRow.molWeight.value = 10;
+            service.addRow(nonLimitingRow);
+
+            limitingRow.weight.value = 15;
+            limitingRow.weight.entered = true;
+            nonLimitingRow.mol.value = 10;
+            nonLimitingRow.mol.entered = true;
 
             service.onFieldValueChanged(limitingRow, fieldTypes.weight);
 
-            expect(otherRow.mol.value).toBe(10);
-            expect(otherRow.mol.entered).toBeTruthy();
-            expect(otherRow.eq.value).toBe(2);
+            expect(nonLimitingRow.mol.value).toBe(10);
+            expect(nonLimitingRow.mol.entered).toBeTruthy();
+            expect(nonLimitingRow.eq.value).toBe(2);
         });
 
         it('row is limiting, eq is manually entered, should not reset eq', function() {
-            var limitingRow = new StoichRow();
             limitingRow.molWeight.value = 3;
             limitingRow.eq.value = 2;
             limitingRow.eq.entered = true;
@@ -204,7 +208,6 @@ function changeWeight() {
         });
 
         it('row is not limiting, eq is manually entered, should not reset eq', function() {
-            var limitingRow = new StoichRow();
             limitingRow.molWeight.value = 3;
             limitingRow.weight.value = 15;
             limitingRow.weight.entered = true;
@@ -213,16 +216,37 @@ function changeWeight() {
             limitingRow.eq.entered = true;
             service.addRow(limitingRow);
 
-            var otherRow = new StoichRow();
-            otherRow.molWeight.value = 10;
-            service.addRow(otherRow);
-            otherRow.weight.value = 10;
-            otherRow.weight.entered = true;
+            nonLimitingRow.molWeight.value = 10;
+            service.addRow(nonLimitingRow);
 
-            service.onFieldValueChanged(otherRow, fieldTypes.weight);
+            nonLimitingRow.weight.value = 10;
+            nonLimitingRow.weight.entered = true;
 
-            expect(otherRow.mol.value).toBe(1);
-            expect(otherRow.eq.value).toBe(0.4);
+            service.onFieldValueChanged(nonLimitingRow, fieldTypes.weight);
+
+            expect(nonLimitingRow.mol.value).toBe(1);
+            expect(nonLimitingRow.eq.value).toBe(0.4);
+        });
+
+        it('row is not limiting, purity is manually entered, set weight in limiting row,' +
+            ' should update mol and weight(depending on purity) in other row', function() {
+            limitingRow.molWeight.value = 3;
+            limitingRow.mol.value = 5;
+            service.addRow(limitingRow);
+
+            nonLimitingRow.molWeight.value = 10;
+            service.addRow(nonLimitingRow);
+
+            nonLimitingRow.stoicPurity.value = 50;
+            nonLimitingRow.stoicPurity.entered = true;
+
+            limitingRow.weight.value = 15;
+            limitingRow.weight.entered = true;
+
+            service.onFieldValueChanged(limitingRow, fieldTypes.weight);
+
+            expect(nonLimitingRow.mol.value).toBe(5);
+            expect(nonLimitingRow.weight.value).toBe(100);
         });
     });
 }

@@ -1,4 +1,4 @@
-var StoichRow = require('../domain/stoich-row');
+var ReagentField = require('../domain/reagent/reagent-row');
 var fieldTypes = require('../domain/field-types');
 
 /* @ngInject */
@@ -121,7 +121,7 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
         ]);
 
         // And create new table row with them
-        var newRow = new StoichRow(_.pick(batchObj, properties));
+        var newRow = new ReagentField(_.pick(batchObj, properties));
 
         populateFetchedBatch(row, newRow);
     }
@@ -153,7 +153,7 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
             comments: compound.comment
         };
 
-        return new StoichRow(rowProps);
+        return new ReagentField(rowProps);
     }
 
     function processingBatches(row, compoundId, batches) {

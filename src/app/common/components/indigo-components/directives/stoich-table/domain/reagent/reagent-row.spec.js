@@ -1,12 +1,12 @@
-var StoichRow = require('./stoich-row');
-var fieldTypes = require('./field-types');
+var ReagentField = require('./reagent-row');
+var fieldTypes = require('../field-types');
 
 // TODO: add tests
-describe('stoichRow', function() {
+describe('reagentRow', function() {
     var row;
 
     beforeEach(function() {
-        row = new StoichRow();
+        row = new ReagentField();
     });
 
     it('should be defined', function() {

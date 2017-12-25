@@ -1,4 +1,4 @@
-var StoichRow = require('../../stoich-row');
+var ReagentField = require('../../reagent/reagent-row');
 var stoichTable = require('../stoich-table');
 var fieldTypes = require('../../field-types');
 
@@ -16,47 +16,47 @@ function changeRxnRole() {
 
         it('set solvent role, should reset and disable weight, mol, eq, density, stoicPurity, molarity,' +
             ' saltCode, saltEq', function() {
-            var stoichRow = new StoichRow();
-            stoichRow.weight.value = 10;
-            stoichRow.mol.value = 11;
-            stoichRow.eq.value = 2;
-            stoichRow.density.value = 3;
-            stoichRow.stoicPurity.value = 11;
-            stoichRow.molarity.value = 11;
-            stoichRow.saltCode = {name: '01 - HYDROCHLORIDE', weight: 1};
-            stoichRow.saltEq.value = 11;
-            stoichRow.rxnRole = {name: 'SOLVENT'};
+            var reagentRow = new ReagentField();
+            reagentRow.weight.value = 10;
+            reagentRow.mol.value = 11;
+            reagentRow.eq.value = 2;
+            reagentRow.density.value = 3;
+            reagentRow.stoicPurity.value = 11;
+            reagentRow.molarity.value = 11;
+            reagentRow.saltCode = {name: '01 - HYDROCHLORIDE', weight: 1};
+            reagentRow.saltEq.value = 11;
+            reagentRow.rxnRole = {name: 'SOLVENT'};
 
-            service.onFieldValueChanged(stoichRow, fieldTypes.rxnRole);
+            service.onFieldValueChanged(reagentRow, fieldTypes.rxnRole);
 
-            expect(stoichRow.weight.value).toBe(0);
-            expect(stoichRow.weight.readonly).toBeTruthy();
-            expect(stoichRow.mol.value).toBe(0);
-            expect(stoichRow.mol.readonly).toBeTruthy();
-            expect(stoichRow.eq.value).toBe(1);
-            expect(stoichRow.eq.readonly).toBeTruthy();
-            expect(stoichRow.density.value).toBe(0);
-            expect(stoichRow.density.readonly).toBeTruthy();
-            expect(stoichRow.stoicPurity.value).toBe(100);
-            expect(stoichRow.stoicPurity.readonly).toBeTruthy();
-            expect(stoichRow.molarity.value).toBe(0);
-            expect(stoichRow.molarity.readonly).toBeTruthy();
-            expect(stoichRow.saltCode.weight).toBe(0);
-            expect(stoichRow.saltCode.readonly).toBeTruthy();
-            expect(stoichRow.saltEq.value).toBe(0);
-            expect(stoichRow.saltEq.readonly).toBeTruthy();
+            expect(reagentRow.weight.value).toBe(0);
+            expect(reagentRow.weight.readonly).toBeTruthy();
+            expect(reagentRow.mol.value).toBe(0);
+            expect(reagentRow.mol.readonly).toBeTruthy();
+            expect(reagentRow.eq.value).toBe(1);
+            expect(reagentRow.eq.readonly).toBeTruthy();
+            expect(reagentRow.density.value).toBe(0);
+            expect(reagentRow.density.readonly).toBeTruthy();
+            expect(reagentRow.stoicPurity.value).toBe(100);
+            expect(reagentRow.stoicPurity.readonly).toBeTruthy();
+            expect(reagentRow.molarity.value).toBe(0);
+            expect(reagentRow.molarity.readonly).toBeTruthy();
+            expect(reagentRow.saltCode.weight).toBe(0);
+            expect(reagentRow.saltCode.readonly).toBeTruthy();
+            expect(reagentRow.saltEq.value).toBe(0);
+            expect(reagentRow.saltEq.readonly).toBeTruthy();
         });
 
         it('row is limiting, set solvent role, should reset and disable fields' +
             ' and set limiting to the next line', function() {
-            var limitingRow = new StoichRow();
+            var limitingRow = new ReagentField();
             limitingRow.molWeight.value = 10;
             limitingRow.weight.value = 110;
             limitingRow.mol.value = 11;
             limitingRow.rxnRole = {name: 'SOLVENT'};
             service.addRow(limitingRow);
 
-            var otherRow = new StoichRow();
+            var otherRow = new ReagentField();
             otherRow.molWeight.value = 5;
             service.addRow(otherRow);
 
@@ -78,13 +78,13 @@ function changeRxnRole() {
                 fieldTypes.saltCode,
                 fieldTypes.saltEq
             ];
-            var limitingRow = new StoichRow();
+            var limitingRow = new ReagentField();
             limitingRow.molWeight.value = 10;
             limitingRow.weight.value = 100;
             limitingRow.mol.value = 10;
             service.addRow(limitingRow);
 
-            var otherRow = new StoichRow();
+            var otherRow = new ReagentField();
             otherRow.molWeight.value = 5;
             otherRow.volume.value = 5;
             otherRow.setReadonly(readonlyFields, true);
@@ -114,14 +114,14 @@ function changeRxnRole() {
         });
 
         it('stoichTable has solvent row, change weight of limiting it should not effect on solvent row', function() {
-            var limitingRow = new StoichRow();
+            var limitingRow = new ReagentField();
             limitingRow.molWeight.value = 10;
             limitingRow.weight.value = 100;
             limitingRow.weight.entered = true;
             limitingRow.mol.value = 10;
             service.addRow(limitingRow);
 
-            var otherRow = new StoichRow();
+            var otherRow = new ReagentField();
             otherRow.molWeight.value = 5;
             otherRow.rxnRole = {name: 'SOLVENT'};
             service.addRow(otherRow);

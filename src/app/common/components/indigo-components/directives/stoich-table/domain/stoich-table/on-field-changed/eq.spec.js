@@ -1,4 +1,4 @@
-var StoichRow = require('../../stoich-row');
+var ReagentField = require('../../reagent/reagent-row');
 var stoichTable = require('../stoich-table');
 var fieldTypes = require('../../field-types');
 
@@ -15,42 +15,42 @@ function changeEq() {
         });
 
         it('row is not limiting, should update mol and weight', function() {
-            var stoichRow = new StoichRow();
-            stoichRow.molWeight.value = 10;
-            stoichRow.weight.value = 110;
-            stoichRow.weight.entered = true;
-            stoichRow.mol.value = 11;
-            stoichRow.mol.entered = true;
-            stoichRow.eq.value = 2;
-            stoichRow.limiting = false;
+            var reagentRow = new ReagentField();
+            reagentRow.molWeight.value = 10;
+            reagentRow.weight.value = 110;
+            reagentRow.weight.entered = true;
+            reagentRow.mol.value = 11;
+            reagentRow.mol.entered = true;
+            reagentRow.eq.value = 2;
+            reagentRow.limiting = false;
 
-            service.onFieldValueChanged(stoichRow, fieldTypes.eq);
+            service.onFieldValueChanged(reagentRow, fieldTypes.eq);
 
-            expect(stoichRow.weight.value).toBe(220);
-            expect(stoichRow.mol.value).toBe(22);
-            expect(stoichRow.weight.entered).toBeFalsy();
-            expect(stoichRow.mol.entered).toBeFalsy();
+            expect(reagentRow.weight.value).toBe(220);
+            expect(reagentRow.mol.value).toBe(22);
+            expect(reagentRow.weight.entered).toBeFalsy();
+            expect(reagentRow.mol.entered).toBeFalsy();
         });
 
         it('row is limiting, mol is manually entered, should update weight', function() {
-            var stoichRow = new StoichRow();
-            stoichRow.molWeight.value = 10;
-            stoichRow.weight.value = 110;
-            stoichRow.mol.value = 11;
-            stoichRow.mol.entered = true;
-            stoichRow.eq.value = 2;
-            stoichRow.eq.entered = true;
-            stoichRow.limiting = true;
+            var reagentRow = new ReagentField();
+            reagentRow.molWeight.value = 10;
+            reagentRow.weight.value = 110;
+            reagentRow.mol.value = 11;
+            reagentRow.mol.entered = true;
+            reagentRow.eq.value = 2;
+            reagentRow.eq.entered = true;
+            reagentRow.limiting = true;
 
-            service.onFieldValueChanged(stoichRow, fieldTypes.eq);
+            service.onFieldValueChanged(reagentRow, fieldTypes.eq);
 
-            expect(stoichRow.weight.value).toBe(220);
-            expect(stoichRow.mol.value).toBe(11);
-            expect(stoichRow.mol.entered).toBeTruthy();
+            expect(reagentRow.weight.value).toBe(220);
+            expect(reagentRow.mol.value).toBe(11);
+            expect(reagentRow.mol.entered).toBeTruthy();
         });
 
         it('row is limiting, should update mol in other lines', function() {
-            var limitingRow = new StoichRow();
+            var limitingRow = new ReagentField();
             limitingRow.molWeight.value = 10;
             limitingRow.weight.value = 100;
             limitingRow.weight.entered = true;
@@ -59,7 +59,7 @@ function changeEq() {
             limitingRow.eq.entered = true;
             service.addRow(limitingRow);
 
-            var otherRow = new StoichRow();
+            var otherRow = new ReagentField();
             otherRow.molWeight.value = 10;
             service.addRow(otherRow);
 
@@ -77,7 +77,7 @@ function changeEq() {
             'Expected results: Mols are not update in Limiting and Non limiting row.' +
             'EQ of non limiting row is adjusted by formula:' +
             '(Non Limiting Mol* Limiting EQ)/Limiting Mol', function() {
-            var limitingRow = new StoichRow();
+            var limitingRow = new ReagentField();
             limitingRow.molWeight.value = 10;
             limitingRow.weight.value = 100;
             limitingRow.weight.entered = true;
@@ -86,7 +86,7 @@ function changeEq() {
             limitingRow.eq.entered = true;
             service.addRow(limitingRow);
 
-            var otherRow = new StoichRow();
+            var otherRow = new ReagentField();
             otherRow.molWeight.value = 10;
             service.addRow(otherRow);
 
@@ -117,41 +117,41 @@ function changeEq() {
         });
 
         it('row is not limiting, set eq to 2 and then to 1, should return original values', function() {
-            var stoichRow = new StoichRow();
-            stoichRow.molWeight.value = 10;
-            stoichRow.weight.value = 100;
-            stoichRow.weight.entered = true;
-            stoichRow.mol.value = 10;
-            stoichRow.eq.value = 2;
-            stoichRow.eq.entered = true;
+            var reagentRow = new ReagentField();
+            reagentRow.molWeight.value = 10;
+            reagentRow.weight.value = 100;
+            reagentRow.weight.entered = true;
+            reagentRow.mol.value = 10;
+            reagentRow.eq.value = 2;
+            reagentRow.eq.entered = true;
 
-            service.onFieldValueChanged(stoichRow, fieldTypes.eq);
+            service.onFieldValueChanged(reagentRow, fieldTypes.eq);
 
-            expect(stoichRow.weight.value).toBe(200);
-            expect(stoichRow.mol.value).toBe(20);
-            expect(stoichRow.eq.value).toBe(2);
+            expect(reagentRow.weight.value).toBe(200);
+            expect(reagentRow.mol.value).toBe(20);
+            expect(reagentRow.eq.value).toBe(2);
 
-            stoichRow.eq.value = 1;
+            reagentRow.eq.value = 1;
 
-            service.onFieldValueChanged(stoichRow, fieldTypes.eq);
+            service.onFieldValueChanged(reagentRow, fieldTypes.eq);
 
-            expect(stoichRow.weight.value).toBe(100);
-            expect(stoichRow.mol.value).toBe(10);
-            expect(stoichRow.eq.value).toBe(1);
+            expect(reagentRow.weight.value).toBe(100);
+            expect(reagentRow.mol.value).toBe(10);
+            expect(reagentRow.eq.value).toBe(1);
         });
 
         describe('row is not limiting', function() {
             var limitingRow;
             var otherRow;
             beforeEach(function() {
-                limitingRow = new StoichRow();
+                limitingRow = new ReagentField();
                 limitingRow.molWeight.value = 10;
                 limitingRow.weight.value = 100;
                 limitingRow.weight.entered = true;
                 limitingRow.mol.value = 10;
                 service.addRow(limitingRow);
 
-                otherRow = new StoichRow();
+                otherRow = new ReagentField();
                 otherRow.molWeight.value = 10;
                 otherRow.volume.value = 2;
                 service.addRow(otherRow);

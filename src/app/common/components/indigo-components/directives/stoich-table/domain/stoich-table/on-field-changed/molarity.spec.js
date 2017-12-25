@@ -1,4 +1,4 @@
-var StoichRow = require('../../stoich-row');
+var ReagentField = require('../../reagent/reagent-row');
 var stoichTable = require('../stoich-table');
 var fieldTypes = require('../../field-types');
 
@@ -16,35 +16,35 @@ function changeMolarity() {
 
         it('volume is defined, should compute mol, weight; eq should be default, therefore there is not limiting' +
             ' row', function() {
-            var stoichRow = new StoichRow();
-            stoichRow.molWeight.value = 2;
-            stoichRow.weight.value = 22;
-            stoichRow.mol.value = 11;
-            stoichRow.volume.value = 4;
-            stoichRow.molarity.value = 3;
-            stoichRow.limiting = false;
-            service.addRow(stoichRow);
+            var reagentRow = new ReagentField();
+            reagentRow.molWeight.value = 2;
+            reagentRow.weight.value = 22;
+            reagentRow.mol.value = 11;
+            reagentRow.volume.value = 4;
+            reagentRow.molarity.value = 3;
+            reagentRow.limiting = false;
+            service.addRow(reagentRow);
 
-            service.onFieldValueChanged(stoichRow, fieldTypes.molarity);
+            service.onFieldValueChanged(reagentRow, fieldTypes.molarity);
 
-            expect(stoichRow.mol.value).toBe(12);
-            expect(stoichRow.weight.value).toBe(24);
-            expect(stoichRow.limiting).toBeTruthy();
-            expect(stoichRow.eq.value).toBe(1);
-            expect(stoichRow.molWeight.value).toBe(2);
-            expect(stoichRow.volume.value).toBe(4);
+            expect(reagentRow.mol.value).toBe(12);
+            expect(reagentRow.weight.value).toBe(24);
+            expect(reagentRow.limiting).toBeTruthy();
+            expect(reagentRow.eq.value).toBe(1);
+            expect(reagentRow.molWeight.value).toBe(2);
+            expect(reagentRow.volume.value).toBe(4);
         });
 
         it('volume is defined, should compute mol, weight; eq should be 6,' +
             ' therefore there is limiting row', function() {
-            var limitingRow = new StoichRow();
+            var limitingRow = new ReagentField();
             limitingRow.molWeight.value = 5;
             limitingRow.weight.value = 10;
             limitingRow.mol.value = 2;
             limitingRow.limiting = true;
             service.getStoichTable().reactants.push(limitingRow);
 
-            var otherRow = new StoichRow();
+            var otherRow = new ReagentField();
             otherRow.molWeight.value = 2;
             otherRow.volume.value = 4;
             otherRow.molarity.value = 3;
@@ -61,60 +61,60 @@ function changeMolarity() {
         });
 
         it('volume is computed, mol is manually entered, volume should be 0', function() {
-            var stoichRow = new StoichRow();
-            stoichRow.molWeight.value = 2;
-            stoichRow.weight.value = 30;
-            stoichRow.mol.value = 15;
-            stoichRow.mol.entered = true;
-            stoichRow.volume.value = 5;
-            stoichRow.molarity.value = 0;
+            var reagentRow = new ReagentField();
+            reagentRow.molWeight.value = 2;
+            reagentRow.weight.value = 30;
+            reagentRow.mol.value = 15;
+            reagentRow.mol.entered = true;
+            reagentRow.volume.value = 5;
+            reagentRow.molarity.value = 0;
 
-            service.onFieldValueChanged(stoichRow, fieldTypes.molarity);
+            service.onFieldValueChanged(reagentRow, fieldTypes.molarity);
 
-            expect(stoichRow.volume.value).toBe(0);
-            expect(stoichRow.mol.value).toBe(15);
-            expect(stoichRow.mol.entered).toBeTruthy();
+            expect(reagentRow.volume.value).toBe(0);
+            expect(reagentRow.mol.value).toBe(15);
+            expect(reagentRow.mol.entered).toBeTruthy();
         });
 
         it('mol is computed, volume is manually entered, mol should be 0', function() {
-            var stoichRow = new StoichRow();
-            stoichRow.molWeight.value = 2;
-            stoichRow.weight.value = 30;
-            stoichRow.mol.value = 15;
-            stoichRow.volume.value = 5;
-            stoichRow.volume.entered = true;
-            stoichRow.molarity.value = 0;
+            var reagentRow = new ReagentField();
+            reagentRow.molWeight.value = 2;
+            reagentRow.weight.value = 30;
+            reagentRow.mol.value = 15;
+            reagentRow.volume.value = 5;
+            reagentRow.volume.entered = true;
+            reagentRow.molarity.value = 0;
 
-            service.onFieldValueChanged(stoichRow, fieldTypes.molarity);
+            service.onFieldValueChanged(reagentRow, fieldTypes.molarity);
 
-            expect(stoichRow.volume.value).toBe(5);
-            expect(stoichRow.volume.entered).toBeTruthy();
-            expect(stoichRow.mol.value).toBe(0);
-            expect(stoichRow.weight.value).toBe(0);
+            expect(reagentRow.volume.value).toBe(5);
+            expect(reagentRow.volume.entered).toBeTruthy();
+            expect(reagentRow.mol.value).toBe(0);
+            expect(reagentRow.weight.value).toBe(0);
         });
 
         it('volume is not defined, mol is defined, should compute volume', function() {
-            var stoichRow = new StoichRow();
-            stoichRow.molWeight.value = 2;
-            stoichRow.weight.value = 30;
-            stoichRow.mol.value = 15;
+            var reagentRow = new ReagentField();
+            reagentRow.molWeight.value = 2;
+            reagentRow.weight.value = 30;
+            reagentRow.mol.value = 15;
 
-            stoichRow.molarity.value = 3;
+            reagentRow.molarity.value = 3;
 
-            service.onFieldValueChanged(stoichRow, fieldTypes.molarity);
+            service.onFieldValueChanged(reagentRow, fieldTypes.molarity);
 
-            expect(stoichRow.volume.value).toBe(5);
+            expect(reagentRow.volume.value).toBe(5);
         });
 
         it('set molarity 0, volume is 0, should update mol from limiting row', function() {
-            var limitingRow = new StoichRow();
+            var limitingRow = new ReagentField();
             limitingRow.molWeight.value = 1;
             limitingRow.weight.value = 2;
             limitingRow.weight.entered = true;
             limitingRow.mol.value = 2;
             service.addRow(limitingRow);
 
-            var otherRow = new StoichRow();
+            var otherRow = new ReagentField();
             otherRow.molWeight.value = 1;
             otherRow.density.value = 0;
             service.addRow(otherRow);

@@ -1,4 +1,4 @@
-var StoichRow = require('../../stoich-row');
+var ReagentField = require('../../reagent/reagent-row');
 var stoichTable = require('../stoich-table');
 var fieldTypes = require('../../field-types');
 
@@ -15,25 +15,25 @@ function changeMolWeight() {
         });
 
         it('weight is defined, row is limiting, should compute mol', function() {
-            var stoichRow = new StoichRow();
-            stoichRow.molWeight.value = 23;
-            stoichRow.weight.value = 23;
-            service.addRow(stoichRow);
+            var reagentRow = new ReagentField();
+            reagentRow.molWeight.value = 23;
+            reagentRow.weight.value = 23;
+            service.addRow(reagentRow);
 
-            service.onFieldValueChanged(stoichRow, fieldTypes.molWeight);
+            service.onFieldValueChanged(reagentRow, fieldTypes.molWeight);
 
-            expect(stoichRow.mol.value).toBe(1);
+            expect(reagentRow.mol.value).toBe(1);
         });
 
         it('mol is defined, row is not limiting, should compute weight', function() {
-            var stoichRow = new StoichRow();
-            stoichRow.molWeight.value = 23;
-            stoichRow.mol.value = 2;
-            stoichRow.limiting = false;
+            var reagentRow = new ReagentField();
+            reagentRow.molWeight.value = 23;
+            reagentRow.mol.value = 2;
+            reagentRow.limiting = false;
 
-            service.onFieldValueChanged(stoichRow, fieldTypes.molWeight);
+            service.onFieldValueChanged(reagentRow, fieldTypes.molWeight);
 
-            expect(stoichRow.weight.value).toBe(46);
+            expect(reagentRow.weight.value).toBe(46);
         });
     });
 }
