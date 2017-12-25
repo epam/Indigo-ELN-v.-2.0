@@ -60,7 +60,7 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
         var accessList = angular.copy(permissionService.getAccessList());
 
         _.forEach(accessList, function(permission) {
-            permission.views = permissionService.getPossiblePermissionViews(permission.user, 'experiment');
+            permission.views = permissionService.getPossiblePermissionViews(permission.user, $state.current.data.entityType);
             permission.isContentEditor = permissionService.isContentEditor(permission.user);
             permission.isAuthor = permissionService.isAuthor(permission.user);
         });
