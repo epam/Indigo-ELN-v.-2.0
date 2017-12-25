@@ -18,7 +18,7 @@ function editRole() {
 }
 
 /* @ngInject */
-function EditRoleController($scope, notifyService, roleService, alertModal, i18en) {
+function EditRoleController($scope, notifyService, roleService, alertModal, i18en, translateService) {
     var vm = this;
     var ROLE_EDITOR_AUTHORITY = roles.ROLE_EDITOR;
 
@@ -41,10 +41,19 @@ function EditRoleController($scope, notifyService, roleService, alertModal, i18e
         });
     }
 
+    let showWarning = function(dependence) {
+        notifyService.warning(translateService.translate('ATTENTION_AUTHORITY_IS_SET_AUTOMATICALLY', {
+            permission: _.find(authorities, {name: dependence}).description
+        }));
+    };
+
     function checkDependenciesAuthorities(authority, isChecked) {
         _.forEach(authority.dependencies, function(dependence) {
             // Checking dependence only by isChecked === true
             if (isChecked) {
+                if (!vm.model[dependence]) {
+                    showWarning(dependence);
+                }
                 vm.model[dependence] = isChecked;
             }
 
