@@ -1,8 +1,9 @@
-autorecoveryCache.$inject = ['CacheFactory', 'tabKeyService'];
-
-function autorecoveryCache(CacheFactory, tabKeyService) {
+/* @ngInject */
+function autorecoveryCache(CacheFactory, principalService) {
     var cache = CacheFactory('recoveryCache', {
-        storageMode: 'localStorage'
+        storageMode: 'localStorage',
+        // 24 hours
+        maxAge: 86400000
     });
 
     var visbilityAutorecovery = {};
@@ -70,7 +71,7 @@ function autorecoveryCache(CacheFactory, tabKeyService) {
     }
 
     function paramsConverter(stateParams) {
-        return tabKeyService.getTabKeyFromParams(_.extend({isAutorecovery: true}, stateParams));
+        return principalService.getUserId() + angular.toJson(stateParams);
     }
 }
 
