@@ -411,16 +411,15 @@ public class ExperimentService {
                 experimentForSave.setTemplate(tmpl);
             }
 
-            Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
-                    orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
 
             // check of user permissions's correctness in access control list
             PermissionUtil.checkCorrectnessOfAccessList(userRepository, experimentForSave.getAccessList());
-            project.getAccessList().forEach(up -> PermissionUtil
-                    .importUsersFromUpperLevel(experimentForSave.getAccessList(), up, FirstEntityName.EXPERIMENT));
+            Set<UserPermission> newUserPermissions = PermissionUtil.updateFirstEntityNames(
+                    experimentFromDB.getAccessList(), experimentForSave.getAccessList(), FirstEntityName.EXPERIMENT);
+
+            experimentFromDB.getAccessList().addAll(newUserPermissions);
 
             experimentFromDB.setTemplate(experimentForSave.getTemplate());
-            experimentFromDB.setAccessList(experimentForSave.getAccessList());
             experimentFromDB.setComments(experimentForSave.getComments());
             experimentFromDB.setStatus(experimentForSave.getStatus());
             experimentFromDB.setDocumentId(experimentForSave.getDocumentId());
@@ -439,14 +438,17 @@ public class ExperimentService {
             result = new ExperimentDTO(savedExperiment);
 
 
+            // add all users as VIEWER to project and to notebook
             Notebook notebook = Optional.ofNullable(notebookRepository.findOne(SequenceIdUtil
                     .buildFullId(projectId, notebookId))).
                     orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
-            // add all users as VIEWER to project
-            Set<User> projectUsers = project.getAccessList().stream()
-                    .map(UserPermission::getUser).collect(Collectors.toSet());
             Set<User> notebookUsers = notebook.getAccessList().stream()
                     .map(UserPermission::getUser).collect(Collectors.toSet());
+            Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
+                    orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
+            Set<User> projectUsers = project.getAccessList().stream()
+                    .map(UserPermission::getUser).collect(Collectors.toSet());
+
             Pair<Boolean, Boolean> update = savedExperiment.getAccessList().stream()
                     .map(up -> {
                         boolean updateNotebook = PermissionUtil.addUsersFromLowLevelToUp(notebook.getAccessList(),

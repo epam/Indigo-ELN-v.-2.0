@@ -27,13 +27,13 @@ public enum FirstEntityName {
      * @return
      */
     public static boolean firstEntityIsInner(FirstEntityName firstEntityName, FirstEntityName entity){
-        if(firstEntityName.equals(FirstEntityName.PROJECT)){
+        if (FirstEntityName.PROJECT.equals(firstEntityName)) {
             return false;
         }
-        if(firstEntityName.equals(FirstEntityName.NOTEBOOK) && entity.equals(FirstEntityName.PROJECT)){
+        if (FirstEntityName.NOTEBOOK.equals(firstEntityName) && FirstEntityName.PROJECT.equals(entity)) {
             return true;
         }
-        if (firstEntityName.equals(FirstEntityName.EXPERIMENT)) {
+        if (FirstEntityName.EXPERIMENT.equals(firstEntityName)) {
             return true;
         }
         return true;

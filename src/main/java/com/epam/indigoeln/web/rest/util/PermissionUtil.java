@@ -1,19 +1,15 @@
 package com.epam.indigoeln.web.rest.util;
 
-import com.epam.indigoeln.core.model.BasicModelObject;
-import com.epam.indigoeln.core.model.FirstEntityName;
-import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.security.Authority;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.PermissionIncorrectException;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 public final class PermissionUtil {
@@ -131,7 +127,7 @@ public final class PermissionUtil {
     }
 
     /**
-     * Import users from upper level (for example, when you create notebook, you need to add user from project)
+     * Import users from upper level (for example, when you create notebook, you need to add user from project).
      *
      * @param accessList     current set of entities' permissions
      * @param userPermission permission to add
@@ -143,7 +139,7 @@ public final class PermissionUtil {
         if (userPermission != null && userPermission.getPermissionView() != null
                 && !FirstEntityName.firstEntityIsInner(userPermission.getFirstEntityName(), entityName)) {
             //It is does not work!
-            accessList.removeIf(up -> up.getUser().getId().equals(userPermission.getUser().getId()));
+            accessList.removeIf(up -> equalsByUserId(userPermission, up));
             accessList.add(userPermission);
         }
     }
@@ -173,8 +169,7 @@ public final class PermissionUtil {
                 entity.getAccessList().removeAll(updatedUsersPermissions);
                 upperEntity.getAccessList().forEach(userPermission -> {
                     if (userPermission != null && userPermission.getPermissionView() != null) {
-                        updatedUsersPermissions.removeIf(up -> up.getUser().getId()
-                                .equals(userPermission.getUser().getId()));
+                        updatedUsersPermissions.removeIf(up -> equalsByUserId(userPermission, up));
                         updatedUsersPermissions.add(userPermission);
                     }
                 });
@@ -227,18 +222,139 @@ public final class PermissionUtil {
     public static Set<UserPermission> updateFirstEntityNames(Set<UserPermission> accessList,
                                                              Set<UserPermission> newAccessList,
                                                              FirstEntityName firstEntityName) {
-        Set<User> users = accessList.stream()
-                .map(UserPermission::getUser).collect(toSet());
-        Set<UserPermission> newUsers = newAccessList.stream()
-                .filter(up -> !users.contains(up.getUser())).collect(toSet());
-        newAccessList.removeAll(newUsers);
-        newAccessList.addAll(PermissionUtil.addFirstEntityName(newUsers, firstEntityName));
-        return newAccessList;
+
+        accessList.removeIf(userPermission ->
+                newAccessList.stream().anyMatch(newUserPermission ->
+                        equalsByUserId(userPermission, newUserPermission)
+                                && !newUserPermission.getPermissions().equals(userPermission.getPermissions()))
+                        || newAccessList.stream().noneMatch(newUserPermission ->
+                        equalsByUserId(userPermission, newUserPermission))
+        );
+        newAccessList.removeIf(newUserPermission ->
+                accessList.stream().anyMatch(oldUserPermission ->
+                        equalsByUserId(newUserPermission, oldUserPermission)));
+        return PermissionUtil.addFirstEntityName(newAccessList, firstEntityName);
+    }
+
+    private static boolean equalsByUserId(UserPermission oldPermission, UserPermission newPermission) {
+        return Objects.equals(newPermission.getUser().getId(), oldPermission.getUser().getId());
     }
 
     //Add entity name
     public static Set<UserPermission> addFirstEntityName(Set<UserPermission> accessList, FirstEntityName firstEntityName) {
         accessList.forEach(userPermission -> userPermission.setFirstEntityName(firstEntityName));
         return new HashSet<>(accessList);
+    }
+
+    public static void changeProjectPermissions(Project project, Set<UserPermission> newUserPermissions) {
+
+        Set<UserPermission> createdPermissions = newUserPermissions.stream()
+                .filter(newPermission -> project.getAccessList().stream()
+                        .noneMatch(oldPermission ->
+                                equalsByUserId(newPermission, oldPermission)))
+                .collect(toSet());
+
+        if (!createdPermissions.isEmpty()) {
+            addPermissions(EntityWrapper.of(project), addFirstEntityName(createdPermissions, FirstEntityName.PROJECT));
+        }
+
+        Set<UserPermission> updatedPermissions = newUserPermissions.stream()
+                .filter(newPermission -> project.getAccessList().stream().anyMatch(oldPermission ->
+                        equalsByUserId(newPermission, oldPermission)
+                                && !oldPermission.getPermissions().equals(newPermission.getPermissions())))
+                .collect(toSet());
+
+        if (!updatedPermissions.isEmpty()) {
+            updatePermissions(EntityWrapper.of(project), addFirstEntityName(updatedPermissions, FirstEntityName.PROJECT));
+        }
+
+        Set<UserPermission> removedPermissions = project.getAccessList().stream().filter(oldPermission ->
+                newUserPermissions.stream().noneMatch(newPermission -> equalsByUserId(oldPermission, newPermission)))
+                .collect(toSet());
+
+        if (!removedPermissions.isEmpty()) {
+            removePermissions(EntityWrapper.of(project), removedPermissions);
+        }
+    }
+
+    private static void removePermissions(EntityWrapper entity, Set<UserPermission> removedPermissions) {
+        entity.getChildren().forEach(child -> removePermissions(child, removedPermissions));
+
+        entity.getValue().getAccessList().removeIf(oldPermission -> removedPermissions.stream()
+                .anyMatch(updatedPermission -> equalsByUserId(oldPermission, updatedPermission)));
+    }
+
+    private static void updatePermissions(EntityWrapper entity, Set<UserPermission> updatedPermissions) {
+
+        entity.getChildren().forEach(child -> updatePermissions(child, updatedPermissions));
+
+        entity.getValue().getAccessList().removeIf(oldPermission -> updatedPermissions.stream()
+                .anyMatch(updatedPermission -> equalsByUserId(oldPermission, updatedPermission)));
+
+        entity.getValue().getAccessList().addAll(updatedPermissions);
+    }
+
+    private static void addPermissions(EntityWrapper entity, Set<UserPermission> createdPermissions) {
+
+        entity.getChildren().forEach(children -> addPermissions(children, createdPermissions));
+
+        entity.getValue().getAccessList().addAll(createdPermissions);
+    }
+
+    private abstract static class EntityWrapper {
+
+        public abstract List<EntityWrapper> getChildren();
+
+        public abstract BasicModelObject getValue();
+
+        public static EntityWrapper of(Project project) {
+            return new EntityWrapper() {
+                private List<EntityWrapper> children = project.getNotebooks().stream()
+                        .map(EntityWrapper::of)
+                        .collect(toList());
+
+                @Override
+                public List<EntityWrapper> getChildren() {
+                    return children;
+                }
+
+                @Override
+                public BasicModelObject getValue() {
+                    return project;
+                }
+            };
+        }
+
+        public static EntityWrapper of(Notebook notebook) {
+            return new EntityWrapper() {
+                private List<EntityWrapper> children = notebook.getExperiments().stream()
+                        .map(EntityWrapper::of)
+                        .collect(toList());
+
+                @Override
+                public List<EntityWrapper> getChildren() {
+                    return children;
+                }
+
+                @Override
+                public BasicModelObject getValue() {
+                    return notebook;
+                }
+            };
+        }
+
+        public static EntityWrapper of(Experiment experiment) {
+            return new EntityWrapper() {
+                @Override
+                public List<EntityWrapper> getChildren() {
+                    return Collections.emptyList();
+                }
+
+                @Override
+                public BasicModelObject getValue() {
+                    return experiment;
+                }
+            };
+        }
     }
 }
