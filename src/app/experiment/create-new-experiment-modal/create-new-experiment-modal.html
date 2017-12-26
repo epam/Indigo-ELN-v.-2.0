@@ -4,21 +4,19 @@
             <h5 class="modal-title" i-translate="EXPERIMENT_CREATION"></h5>
         </div>
         <div class="modal-body">
-            <indigo-select indigo-label="Please select a Template for new experiment"
-                           indigo-label-vertical="true"
-                           indigo-model="vm.selectedTemplate"
-                           indigo-change="vm.onTemplateSelect()"
-                           indigo-items="vm.templates"
-                           indigo-item-prop="name"
-            ></indigo-select>
-            <indigo-select ng-if="!vm.fullNotebookId"
-                           indigo-label="Please select a Notebook for new experiment"
-                           indigo-label-vertical="true"
-                           indigo-model="vm.selectedNotebook"
-                           indigo-change="vm.onNotebookSelect()"
-                           indigo-items="vm.notebooks"
-                           indigo-item-prop="name"
-            ></indigo-select>
+            <autocomplete label="Please select a Template for new experiment"
+                          model="vm.selectedTemplate"
+                          change="vm.onTemplateSelect()"
+                          items="vm.templates"
+                          field="name">
+            </autocomplete>
+            <autocomplete ng-if="!vm.fullNotebookId"
+                          label="Please select a Notebook for new experiment"
+                          model="vm.selectedNotebook"
+                          change="vm.onNotebookSelect()"
+                          items="vm.notebooks"
+                          field="name">
+            </autocomplete>
             <div class="create-experiment__table">
                 <table class="table table-striped" ng-if="vm.selectedNotebook">
                     <thead>

@@ -4,18 +4,17 @@
         <div class="panel-body">
             <form class="form-inline form-compound-details">
                 <label><span i-translate="NOTEBOOK_ID_N"></span>: <span
-                        ng-bind="vm.notebookId"></span><span> -</span></label>
-                <indigo-select
-                        indigo-model="vm.selectedBatch"
-                        indigo-items="vm.batches"
-                        indigo-change="vm.selectBatch(vm.selectedBatch)"
-                        indigo-item-prop="nbkBatch"
-                        indigo-control="vm.selectControl"
-                        class="select-inline"
-                ></indigo-select>
+                    ng-bind="vm.notebookId"></span><span> -</span></label>
+                <autocomplete model="vm.selectedBatch"
+                              items="vm.batches"
+                              change="vm.selectBatch(vm.selectedBatch)"
+                              field="nbkBatch"
+                              control="vm.selectControl"
+                              class="select-inline">
+                </autocomplete>
                 <indigo-checkbox
-                        indigo-model="vm.showSummary"
-                        indigo-label="Show Summary"
+                    indigo-model="vm.showSummary"
+                    indigo-label="Show Summary"
                 ></indigo-checkbox>
             </form>
 
@@ -33,7 +32,7 @@
                                      on-remove-batches="vm.onRemoveBatches({batches: batches})"
             ></indigo-compound-summary>
 
-            <div class="row m-b20"> </div>
+            <div class="row m-b20"></div>
 
             <div class="m-b20 action-panel" ng-if="!vm.showSummary">
                 <div class="btn-toolbar action-panel__left">
@@ -109,13 +108,12 @@
                                       indigo-model="vm.selectedBatch.structureComments"
                                       indigo-readonly="vm.isEditDisabled">
                     </indigo-text-area>
-                    <indigo-select indigo-label="Salt Code & Name"
-                                   indigo-label-vertical="true"
-                                   indigo-items="vm.saltCodeValues"
-                                   indigo-model="vm.selectedBatch.saltCode"
-                                   indigo-change="vm.recalculateSalt(vm.selectedBatch)"
-                                   indigo-readonly="vm.isEditDisabled || !vm.canEditSaltCode(vm.selectedBatch)"
-                    ></indigo-select>
+                    <autocomplete label="Salt Code & Name"
+                                  items="vm.saltCodeValues"
+                                  model="vm.selectedBatch.saltCode"
+                                  on-select="vm.recalculateSalt(vm.selectedBatch)"
+                                  readonly="vm.isEditDisabled || !vm.canEditSaltCode(vm.selectedBatch)"
+                    ></autocomplete>
                     <simple-input>
                         <label i-translate="SALT_EQUIVALENT"></label>
                         <input class="form-control"

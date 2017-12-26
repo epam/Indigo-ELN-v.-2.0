@@ -43,7 +43,7 @@
     "sockjs-client": "1.1.4",
     "stompjs": "2.3.3",
     "ui-router-extras": "0.1.2",
-    "ui-select": "0.19.5"
+    "ui-select": "0.19.6"
   },
   "devDependencies": {
     "angular-mocks": "1.4.8",

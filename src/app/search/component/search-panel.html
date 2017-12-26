@@ -101,15 +101,14 @@
                                     </label>
                                 </div>
                             </div>
-                            <indigo-select class="m-b20"
-                                           indigo-label-vertical="true"
-                                           indigo-readonly="myReadonly"
-                                           indigo-items="vm.users"
-                                           indigo-change="vm.selectedUsersChange()"
-                                           indigo-remove="vm.selectedUsersChange()"
-                                           indigo-model="vm.state.selectedUsers"
-                                           indigo-multiple="true">
-                            </indigo-select>
+                            <autocomplete class="m-b20"
+                                          readonly="myReadonly"
+                                          items="vm.users"
+                                          on-select="vm.selectedUsersChange()"
+                                          on-remove="vm.selectedUsersChange()"
+                                          model="vm.state.selectedUsers"
+                                          is-multiple="true">
+                            </autocomplete>
                         </div>
                         <div class="criteria-search-block">
                             <h5><span i-translate="EXPERIMENT_STATUS_CRITERIA"></span>:</h5>
@@ -152,7 +151,7 @@
                 </div>
             </div>
         </div>
-        <div class="panel panel-info">
+        <form class="panel panel-info">
             <div class="panel-heading" i-translate="STRUCTURE_REACTION_SEARCH_QUERY"></div>
             <div class="panel-body">
                 <div class="row">
@@ -160,8 +159,9 @@
                         <label class="control-label" i-translate="SEARCH"></label>
                     </div>
                     <div class="col-xs-4">
-                        <indigo-select indigo-items="vm.structureTypes"
-                                       indigo-model="vm.state.restrictions.structure.type"></indigo-select>
+                        <autocomplete items="vm.structureTypes"
+                                      model="vm.state.restrictions.structure.type">
+                        </autocomplete>
                     </div>
                 </div>
                 <div class="row">
@@ -169,14 +169,15 @@
                         <label class="control-label" i-translate="SIMILARITY_CRITERIA"></label>
                     </div>
                     <div class="col-xs-4">
-                        <indigo-select indigo-items="vm.conditionSimilarity"
-                                       indigo-model="vm.state.restrictions.structure.similarityCriteria"></indigo-select>
+                        <autocomplete items="vm.conditionSimilarity"
+                                      model="vm.state.restrictions.structure.similarityCriteria">
+                        </autocomplete>
                     </div>
                     <div ng-if="vm.state.restrictions.structure.similarityCriteria.name == 'similarity'">
                         <simple-input class="col-xs-1"
                                       validation-pattern-text="Enter 1-100">
                             <input class="form-control"
-                                   ng-attr-name="similarityValue"
+                                   name="similarityValue"
                                    ng-pattern="/^\d{1,2}(?!\d)|100$/"
                                    ng-required
                                    maxlength="3"
@@ -209,7 +210,7 @@
                     </indigo-structure-scheme>
                 </div>
             </div>
-        </div>
+        </form>
         <div class="btn-bottom-block">
             <button class="btn btn-primary btn-can-loading {{(vm.loading) ? 'btn-loading' : ''}}" type="button"
                     ng-click="vm.search()"

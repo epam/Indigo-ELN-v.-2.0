@@ -8,6 +8,7 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
     vm.users = [];
     vm.roles = pageInfo.roles;
     vm.page = 1;
+    vm.groups = [{name: 'Group 1'}, {name: 'Group 2'}];
     vm.itemsPerPage = 10;
     vm.sortBy = {
         field: 'login',

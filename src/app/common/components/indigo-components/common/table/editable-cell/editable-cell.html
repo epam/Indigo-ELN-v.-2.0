@@ -69,11 +69,13 @@
             </simple-input>
         </div>
         <div ng-switch-when="select" ng-switch="!vm.column.dictionary">
-            <indigo-select ng-switch-when="true"
+            <autocomplete ng-switch-when="true"
                            ng-click="$event.stopPropagation();"
-                           indigo-change="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id,})"
-                           indigo-model="vm.row[vm.column.id]"
-                           indigo-items="vm.column.values" indigo-classes="form-group-sm"></indigo-select>
+                           change="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id,})"
+                           model="vm.row[vm.column.id]"
+                           items="vm.column.values"
+                           class="form-group-sm">
+            </autocomplete>
             <div ng-switch-when="false"
                  ng-switch="!vm.column.hasCustomItemProp">
                 <indigo-select ng-switch-when="true"
