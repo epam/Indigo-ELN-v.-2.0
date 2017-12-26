@@ -171,6 +171,7 @@ function stoichReactantsColumns(appUnits, stoichColumnActions, notifyService, i1
             id: 'loadFactor',
             name: 'Load Factor',
             type: 'unit',
+            isVisible: false,
             unitItems: appUnits.loadFactorUnits,
             actions: unitService.getActions('Load Factor', appUnits.loadFactorUnits)
         },

@@ -64,9 +64,12 @@
                 </div>
             </div>
         </indigo-table>
-        <indigo-table indigo-id="intended" indigo-columns="vm.productsColumns"
+        <indigo-table indigo-id="intended"
+                      indigo-columns="vm.productsColumns"
                       indigo-rows="vm.componentData.products"
-                      is-readonly="vm.isReadonly" indigo-label="Intended Reaction Products"
-                      on-changed="vm.onChange()"></indigo-table>
+                      is-readonly="vm.isReadonly"
+                      indigo-label="Intended Reaction Products"
+                      on-changed="vm.onChange()">
+        </indigo-table>
     </div>
 </div>

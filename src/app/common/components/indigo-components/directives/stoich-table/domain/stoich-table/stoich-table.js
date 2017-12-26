@@ -107,7 +107,7 @@ function stoichTable(config) {
             }
         }
 
-        if (!row.isValuePresent(fieldTypes.weight)) {
+        if (!row.isWeightPresent()) {
             row.resetFields(row.getResetFieldsForWeight());
         }
 
