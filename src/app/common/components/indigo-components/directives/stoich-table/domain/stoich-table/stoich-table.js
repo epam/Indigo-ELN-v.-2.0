@@ -181,14 +181,16 @@ function stoichTable(config) {
         var fieldsToReset = row.getResetFieldsForSolvent();
 
         if (row.isSolventRow()) {
-            var isLimiting = row.isLimiting();
             var nextRow = getRowAfterLimiting();
 
             row.resetFields(fieldsToReset);
             row.setReadonly(fieldsToReset, true);
 
-            if (isLimiting && nextRow) {
+            if (row.isLimiting()) {
                 row.limiting = false;
+            }
+
+            if (nextRow) {
                 nextRow.limiting = true;
             }
         } else if (!row.isSolventRow() && row.prevRxnRole.name === 'SOLVENT') {

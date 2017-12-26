@@ -52,7 +52,6 @@ function setRowProperties(defaultProps, customProps) {
 ReagentRow.prototype = {
     changesQueue: [],
     isSolventRow: isSolventRow,
-    isValuePresent: isValuePresent,
     areValuesPresent: areValuesPresent,
     isLimiting: isLimiting,
     getResetFieldForDensity: getResetFieldForDensity,
@@ -149,10 +148,6 @@ function resetEntered(fields) {
 
 function isSolventRow() {
     return this.rxnRole.name === 'SOLVENT';
-}
-
-function isValuePresent(field) {
-    return this[field].value;
 }
 
 function areValuesPresent(fields) {
@@ -275,7 +270,8 @@ function getResetFieldsForSolvent() {
         fieldTypes.density,
         fieldTypes.stoicPurity,
         fieldTypes.saltCode,
-        fieldTypes.saltEq
+        fieldTypes.saltEq,
+        fieldTypes.loadFactor
     ];
 }
 
@@ -343,7 +339,7 @@ function getDefaultReagentRow() {
         formula: null,
         saltCode: {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0},
         saltEq: {value: 0},
-        loadFactor: null,
+        loadFactor: new ReagentField(1, 'mmol/g'),
         hazardComments: null,
         comments: null
     };

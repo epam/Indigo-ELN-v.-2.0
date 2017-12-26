@@ -26,7 +26,7 @@
                       ng-bind="vm.row[vm.column.id]"></span>
                 </span>
             <span ng-switch-when="select"
-                  ng-class="{'entered-value': vm.row[vm.column.id].entered, disabled: !vm.isCheckEnabled}"
+                  ng-class="{'entered-value': vm.row[vm.column.id].entered, disabled: !vm.isCheckEnabled || vm.row[vm.column.id].readonly}"
                   title="{{!vm.isCheckEnabled ? vm.column.disableTitle : ''}}"
                   ng-bind="vm.row[vm.column.id].description ? vm.row[vm.column.id].name + ' - ' + vm.row[vm.column.id].description : vm.row[vm.column.id].name"></span>
             <span ng-switch-when="unit"
@@ -73,7 +73,10 @@
                            ng-click="$event.stopPropagation();"
                            indigo-change="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
                            indigo-model="vm.row[vm.column.id]"
-                           indigo-items="vm.column.values" indigo-classes="form-group-sm"></indigo-select>
+                           indigo-items="vm.column.values"
+                           indigo-readonly="vm.row[vm.column.id].readonly"
+                           indigo-classes="form-group-sm">
+            </indigo-select>
             <div ng-switch-when="false"
                  ng-switch="!vm.column.hasCustomItemProp">
                 <indigo-select ng-switch-when="true"
