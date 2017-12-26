@@ -94,7 +94,7 @@ public class ExperimentService {
     private Striped<Lock> locks = Striped.lazyWeakLock(2);
 
     private static List<Experiment> getExperimentsWithAccess(List<Experiment> experiments, String userId) {
-        return experiments == null ? new ArrayList<>()
+        return experiments == null ? Collections.emptyList()
                 : experiments.stream().filter(experiment -> PermissionUtil.findFirstPermissionsByUserId(
                 experiment.getAccessList(), userId) != null).collect(Collectors.toList());
     }

@@ -86,9 +86,10 @@ public final class PermissionUtil {
     }
 
     private static boolean canBeAddedFromUpperLevel(FirstEntityName upperLevelFirstEntityName, UserPermission up) {
-        return up != null &&
-                Comparator.comparing(FirstEntityName::ordinal)
-                        .compare(upperLevelFirstEntityName, up.getFirstEntityName()) >= 0;
+        return up != null
+                && up.getFirstEntityName() != null
+                && Comparator.comparing(FirstEntityName::ordinal)
+                .compare(upperLevelFirstEntityName, up.getFirstEntityName()) >= 0;
     }
 
     public static void checkCorrectnessOfAccessList(UserRepository userRepository,
