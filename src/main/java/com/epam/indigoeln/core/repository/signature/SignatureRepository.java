@@ -1,6 +1,7 @@
 package com.epam.indigoeln.core.repository.signature;
 
 import com.epam.indigoeln.config.signature.SignatureProperties;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +26,9 @@ public class SignatureRepository {
     private SignatureProperties signatureProperties;
 
     private final Object signatureSessionIdLock = new Object();
-    private String signatureSessionId;
+    private final Object csrfTokenLock = new Object();
+    private volatile String signatureSessionId;
+    private volatile String csrfToken;
 
     private RestTemplate restTemplate = new RestTemplate();
 
@@ -130,18 +133,19 @@ public class SignatureRepository {
             return restTemplate.exchange(
                     url,
                     method,
-                    new HttpEntity<>(body, header(HttpHeaders.COOKIE, "JSESSIONID=" + getSignatureSessionId())),
+                    new HttpEntity<>(body, headers()),
                     clazz,
                     args);
         } catch (HttpStatusCodeException e) {
-            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                setSignatureSessionId(login(signatureProperties.getUsername(), signatureProperties.getPassword()));
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED || e.getStatusCode() == HttpStatus.FORBIDDEN) {
+                Cookie cookie = login(signatureProperties.getUsername(), signatureProperties.getPassword());
+                setSignatureSessionId(cookie.getSessionID());
+                setCsrfToken(cookie.getCsrfToken());
 
                 return restTemplate.exchange(
                         url,
                         method,
-                        new HttpEntity<>(body, header(HttpHeaders.COOKIE, "JSESSIONID="
-                                + getSignatureSessionId())),
+                        new HttpEntity<>(body, headers()),
                         clazz,
                         args);
             } else {
@@ -152,13 +156,14 @@ public class SignatureRepository {
         }
     }
 
-    private HttpHeaders header(String name, String value) {
-        HttpHeaders result = new HttpHeaders();
-        result.add(name, value);
-        return result;
+    private HttpHeaders headers() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-CSRF-TOKEN", getCsrfToken());
+        headers.add(HttpHeaders.COOKIE, "JSESSIONID=" + getSignatureSessionId());
+        return headers;
     }
 
-    private String login(String username, String password) {
+    private Cookie login(String username, String password) {
         Map<String, Object> o = new HashMap<>();
         o.put("username", username);
         o.put("password", password);
@@ -167,31 +172,46 @@ public class SignatureRepository {
                 .postForEntity(signatureProperties.getUrl() + "/loginProcess", o, Object.class);
 
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
-            return responseEntity.getHeaders()
-                    .entrySet()
-                    .stream()
-                    .filter(e -> e.getKey().equals(HttpHeaders.SET_COOKIE))
-                    .map(e -> e.getValue().get(0))
+            List<String> cookies = responseEntity.getHeaders().get(HttpHeaders.SET_COOKIE);
+            String jsessionid = cookies.stream()
+                    .filter(c -> c.contains("JSESSIONID"))
                     .flatMap(s -> Arrays.stream(s.split(";")))
                     .flatMap(s -> Arrays.stream(s.split(",")))
-                    .filter(s -> s.contains("JSESSIONID"))
                     .findAny()
                     .map(s -> s.split("=")[1])
                     .orElse(null);
+
+            String token = cookies.stream()
+                    .filter(c -> c.contains("CSRF-TOKEN"))
+                    .flatMap(s -> Arrays.stream(s.split(";")))
+                    .flatMap(s -> Arrays.stream(s.split(",")))
+                    .findAny()
+                    .map(s -> s.split("=")[1])
+                    .orElse(null);
+
+            return new Cookie(jsessionid, token);
         }
 
-        return null;
+        return new Cookie(null, null);
     }
 
     private String getSignatureSessionId() {
-        synchronized (signatureSessionIdLock) {
-            return signatureSessionId;
-        }
+        return signatureSessionId;
     }
 
     private void setSignatureSessionId(String signatureSessionId) {
         synchronized (signatureSessionIdLock) {
             this.signatureSessionId = signatureSessionId;
+        }
+    }
+
+    private String getCsrfToken() {
+        return csrfToken;
+    }
+
+    private void setCsrfToken(String csrfToken) {
+        synchronized (csrfTokenLock) {
+            this.csrfToken = csrfToken;
         }
     }
 
@@ -208,5 +228,11 @@ public class SignatureRepository {
         public String getFilename() {
             return fileName;
         }
+    }
+
+    @Data
+    private static class Cookie {
+        private final String sessionID;
+        private final String csrfToken;
     }
 }
