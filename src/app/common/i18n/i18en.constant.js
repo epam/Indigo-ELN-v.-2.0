@@ -302,7 +302,8 @@ var i18n = {
     NAME_ALREADY_EXIST: 'Name already in use',
     THE_ROLE_ALREADY_IN_USE: 'The role already in use',
     USER_ALREADY_ADDED: 'The user already added',
-    ATTENTION_AUTHORITY_IS_SET_AUTOMATICALLY: 'Attention: authority {{permission}} is set automatically'
+    ATTENTION_AUTHORITY_IS_SET_AUTOMATICALLY: 'Attention: authority {{permission}} is set automatically',
+    USER_PERMISSIONS_WERE_CHANGE: 'User permissions were change. Please login again'
 };
 
 module.exports = i18n;

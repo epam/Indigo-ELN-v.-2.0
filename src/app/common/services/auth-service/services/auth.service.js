@@ -1,7 +1,18 @@
-
 /* @ngInject */
-function authService($rootScope, $state, $q, principalService, authSessionService, wsService, $log, $timeout) {
+function authService($rootScope, $state, $q, principalService, authSessionService, wsService, $log, $timeout,
+                     notifyService, i18en) {
     var prolongTimeout;
+
+    wsService
+        .subscribe('user_permissions_changed')
+        .then(function(subscribe) {
+            subscribe.onServerEvent(function(message) {
+                notifyService.info(message);
+                logout().then(function() {
+                    notifyService.info(i18en.USER_PERMISSIONS_WERE_CHANGE);
+                });
+            });
+        });
 
     return {
         login: login,
@@ -33,16 +44,20 @@ function authService($rootScope, $state, $q, principalService, authSessionServic
     }
 
     function logout() {
-        authSessionService.logout();
-        principalService.authenticate(null);
-        // Reset state memory
-        $rootScope.previousStateName = undefined;
-        $rootScope.previousStateNameParams = undefined;
-        try {
-            wsService.disconnect();
-        } catch (e) {
-            $log.error('Error to disconnect');
-        }
+        authSessionService.logout().then(
+            function() {
+                principalService.authenticate(null);
+                // Reset state memory
+                $rootScope.previousStateName = undefined;
+                $rootScope.previousStateNameParams = undefined;
+                try {
+                    wsService.disconnect();
+                } catch (e) {
+                    $log.error('Error to disconnect');
+                }
+                $state.go('login');
+            },
+            notifyService.error);
     }
 
     function authorize(force) {
