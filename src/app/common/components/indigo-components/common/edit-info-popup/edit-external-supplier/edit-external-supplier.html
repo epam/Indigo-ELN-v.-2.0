@@ -2,10 +2,10 @@
     <h5 class="modal-title" i-translate="EXTERNAL_SUPPLIER_INFORMATION"></h5>
 </div>
 <div class="modal-body">
-    <indigo-select indigo-items="vm.externalSupplierCodeAndNameSelect"
-                   indigo-label="External Supplier Code & Name"
-                   indigo-label-vertical="true"
-                   indigo-model="vm.externalSupplier.codeAndName"></indigo-select>
+    <autocomplete items="vm.externalSupplierCodeAndNameSelect"
+                  label="External Supplier Code & Name"
+                  model="vm.externalSupplier.codeAndName">
+    </autocomplete>
     <simple-input>
         <span i-translate="SUPPLIER_CATALOG_REGISTRY"></span>
         <input class="form-control"

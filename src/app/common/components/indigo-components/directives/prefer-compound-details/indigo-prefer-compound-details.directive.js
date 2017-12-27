@@ -40,7 +40,6 @@ function IndigoPreferredCompoundDetailsController($scope, entitiesBrowserService
         vm.showSummary = false;
         vm.notebookId = entitiesBrowserService.getActiveTab().$$title;
         vm.saltCodeValues = appValuesService.getSaltCodeValues();
-        vm.selectControl = {};
         vm.hasCheckedRows = batchHelper.hasCheckedRow;
         vm.selectBatch = selectBatch;
         vm.canEditSaltEq = batchHelper.canEditSaltEq;

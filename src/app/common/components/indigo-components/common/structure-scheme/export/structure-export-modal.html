@@ -3,11 +3,10 @@
         <h5 class="modal-title" i-translate="EXPORT_STRUCTURE"></h5>
     </div>
     <div class="modal-body">
-        <indigo-select indigo-label="Choose format"
-                       indigo-items="vm.formats"
-                       indigo-model="vm.format"
-                       indigo-label-vertical="true">
-        </indigo-select>
+        <autocomplete label="Choose format"
+                      items="vm.formats"
+                      model="vm.format">
+        </autocomplete>
         <div>
             <indigo-text-area indigo-label="Input Structure"
                               indigo-model="vm.structureToSave">

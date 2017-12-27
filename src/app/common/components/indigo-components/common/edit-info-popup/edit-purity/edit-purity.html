@@ -24,10 +24,10 @@
                 ng-init="vm.purity.data[$index].determinedBy = item.name">
                 <td ng-bind="vm.purity.data[$index].determinedBy"></td>
                 <td>
-                    <indigo-select indigo-items="vm.operatorSelect"
-                                   indigo-readonly="vm.isInknownPurity()"
-                                   indigo-model="vm.purity.data[$index].operator">
-                    </indigo-select>
+                    <autocomplete items="vm.operatorSelect"
+                                  readonly="vm.isInknownPurity()"
+                                  model="vm.purity.data[$index].operator">
+                    </autocomplete>
                 </td>
                 <td>
                     <simple-input>

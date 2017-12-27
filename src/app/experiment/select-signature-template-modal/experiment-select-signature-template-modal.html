@@ -1,19 +1,20 @@
 <form name="completeAndSignExperimentForm" ng-submit="vm.selectSignatureTemplateModal()">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                ng-click="vm.dismiss()">&times;</button>
+                ng-click="vm.dismiss()">&times;
+        </button>
         <h5 class="modal-title">
-            <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;<span i-translate="SIGNATURE_TEMPLATE_SELECTION"></span>
+            <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;<span
+            i-translate="SIGNATURE_TEMPLATE_SELECTION"></span>
         </h5>
     </div>
     <div class="modal-body">
         <p i-translate="PLEASE_SELECT_THE_TEMPLATE_TO_USE_FOR_THIS_SUBMISSION"></p>
-        <indigo-select
-                indigo-label="Template:"
-                indigo-name="signatureTemplates"
-                indigo-items="vm.items"
-                indigo-model="vm.selectedTemplate"
-        ></indigo-select>
+        <autocomplete label="Template:"
+                      name="signatureTemplates"
+                      items="vm.items"
+                      model="vm.selectedTemplate">
+        </autocomplete>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.dismiss()">

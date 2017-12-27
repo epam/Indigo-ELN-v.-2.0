@@ -18,29 +18,37 @@
             <tr ng-class="{'search-table-row-highlight':item.isSelected}">
                 <td>
                     <indigo-select indigo-dictionary="Solvent Name"
-                                   indigo-model="vm.solubility.data[$index].solventName"></indigo-select></td>
-                <td><indigo-select indigo-items="vm.solubilityTypeSelect"
-                                   indigo-model="vm.solubility.data[$index].type"></indigo-select></td>
+                                   indigo-model="vm.solubility.data[$index].solventName">
+                    </indigo-select>
+                </td>
+                <td>
+                    <autocomplete items="vm.solubilityTypeSelect"
+                                  model="vm.solubility.data[$index].type">
+                    </autocomplete>
+                </td>
                 <td>
                     <div class="row"
                          ng-init="vm.solubility.data[$index].value.unit = vm.unitSelect[0]; vm.solubility.data[$index].value.operator= vm.operatorSelect[0]"
                          ng-if="vm.solubility.data[$index].type && vm.solubility.data[$index].type.name == 'Quantitative'">
-                        <indigo-select indigo-items="vm.operatorSelect"
-                                   class="col-xs-4 p-l1-all-0"
-                                       indigo-model="vm.solubility.data[$index].value.operator"></indigo-select>
+                        <autocomplete class="col-xs-4 p-l1-all-0"
+                                      items="vm.operatorSelect"
+                                      model="vm.solubility.data[$index].value.operator">
+                        </autocomplete>
                         <simple-input class="col-xs-4 p-l1-all-0">
                             <input class="form-control"
                                    type="number"
                                    ng-model="vm.solubility.data[$index].value.value">
                         </simple-input>
-                        <indigo-select class="col-xs-4 p-l1-all-0"
-                                       indigo-items="vm.unitSelect"
-                                       indigo-model="vm.solubility.data[$index].value.unit"></indigo-select>
+                        <autocomplete class="col-xs-4 p-l1-all-0"
+                                      items="vm.unitSelect"
+                                      model="vm.solubility.data[$index].value.unit">
+                        </autocomplete>
                     </div>
                     <div class="row col-xs-12"
                          ng-if="vm.solubility.data[$index].type && vm.solubility.data[$index].type.name == 'Qualitative'">
-                        <indigo-select indigo-items="vm.qualitativeSolubilitySelect"
-                                       indigo-model="vm.solubility.data[$index].value.value"></indigo-select>
+                        <autocomplete items="vm.qualitativeSolubilitySelect"
+                                      model="vm.solubility.data[$index].value.value">
+                        </autocomplete>
                     </div>
                 </td>
                 <td>
@@ -50,8 +58,8 @@
                     </simple-input>
                 </td>
                 <td><a
-                        ng-click="vm.remove(vm.solubility.data[$index])"><span
-                        class="glyphicon glyphicon-trash"></span></a></td>
+                    ng-click="vm.remove(vm.solubility.data[$index])"><span
+                    class="glyphicon glyphicon-trash"></span></a></td>
             </tr>
             </tbody>
         </table>

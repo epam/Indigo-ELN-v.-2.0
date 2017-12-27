@@ -10,8 +10,11 @@ function autocomplete() {
             label: '@',
             placeholder: '@',
             field: '@',
+            elName: '@',
+            autofocus: '=',
             model: '=',
             items: '=',
+            isRequired: '=',
             readonly: '=',
             isMultiple: '@',
             allowClear: '=',
@@ -50,7 +53,7 @@ function autocompleteController($scope) {
     }
 
     function bindEvents() {
-        $scope.$watch('items', function() {
+        $scope.$watch('vm.items', function() {
             refresh('');
         });
     }
