@@ -7,8 +7,14 @@ function autorecoveryCache(CacheFactory, principalService) {
     });
 
     var visbilityAutorecovery = {};
-
     var tempRecoveryCache = CacheFactory('tempRecoveryCache');
+
+    var userId = principalService.getUserId();
+
+    principalService.addUserChangeListener(function(id) {
+        userId = id;
+        visbilityAutorecovery = {};
+    });
 
     return {
         put: put,
@@ -71,7 +77,7 @@ function autorecoveryCache(CacheFactory, principalService) {
     }
 
     function paramsConverter(stateParams) {
-        return principalService.getUserId() + angular.toJson(stateParams);
+        return userId + angular.toJson(stateParams);
     }
 }
 
