@@ -19,7 +19,7 @@ import java.util.Set;
  * </ul>
  */
 @ToString
-@EqualsAndHashCode(exclude = "firstEntityName")
+@EqualsAndHashCode(exclude = "permissionCreationLevel")
 public class UserPermission {
 
     public static final String READ_ENTITY = "READ_ENTITY";
@@ -43,7 +43,7 @@ public class UserPermission {
     private Set<String> permissions;
 
     @JsonIgnore
-    private FirstEntityName firstEntityName;
+    private PermissionCreationLevel permissionCreationLevel;
 
     public UserPermission() {
         super();
@@ -100,12 +100,12 @@ public class UserPermission {
         return null;
     }
 
-    public FirstEntityName getFirstEntityName() {
-        return firstEntityName;
+    public PermissionCreationLevel getPermissionCreationLevel() {
+        return permissionCreationLevel;
     }
 
-    public UserPermission setFirstEntityName(FirstEntityName firstEntityName) {
-        this.firstEntityName = firstEntityName;
+    public UserPermission setPermissionCreationLevel(PermissionCreationLevel permissionCreationLevel) {
+        this.permissionCreationLevel = permissionCreationLevel;
         return this;
     }
 }

@@ -200,13 +200,13 @@ public class NotebookService {
         // check of user permissions correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
         // add OWNER's permissions for specified User to notebook
-        PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user, FirstEntityName.NOTEBOOK);
+        PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user, PermissionCreationLevel.NOTEBOOK);
         //add permissions to notebook and project
         Notebook notebookWithPermissions = new Notebook();
         PermissionUtil.changeNotebookPermissions(project, notebookWithPermissions, notebook.getAccessList());
 
         PermissionUtil.addUsersFromUpperLevel(
-                notebookWithPermissions.getAccessList(), project.getAccessList(), FirstEntityName.PROJECT);
+                notebookWithPermissions.getAccessList(), project.getAccessList(), PermissionCreationLevel.PROJECT);
 
         notebook.setAccessList(notebookWithPermissions.getAccessList());
 

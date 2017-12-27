@@ -247,9 +247,9 @@ public class ExperimentService {
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, experiment.getAccessList());
         // add OWNER's permissions for specified User to experiment
-        PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), user, FirstEntityName.EXPERIMENT);
+        PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), user, PermissionCreationLevel.EXPERIMENT);
 
-        PermissionUtil.addUsersFromUpperLevel(experiment.getAccessList(), notebook.getAccessList(), FirstEntityName.NOTEBOOK);
+        PermissionUtil.addUsersFromUpperLevel(experiment.getAccessList(), notebook.getAccessList(), PermissionCreationLevel.NOTEBOOK);
 
         //increment sequence Id
         experiment.setId(sequenceIdService.getNextExperimentId(projectId, notebookId));
@@ -326,7 +326,7 @@ public class ExperimentService {
         newVersion.setId(id + "_" + newExperimentVersion);
         newVersion.setName(experimentName);
         newVersion.setAccessList(lastVersion.getAccessList());
-        PermissionUtil.addOwnerToAccessList(newVersion.getAccessList(), user, FirstEntityName.EXPERIMENT);
+        PermissionUtil.addOwnerToAccessList(newVersion.getAccessList(), user, PermissionCreationLevel.EXPERIMENT);
         newVersion.setTemplate(lastVersion.getTemplate());
         newVersion.setStatus(ExperimentStatus.OPEN);
         final List<Component> components = lastVersion.getComponents();
