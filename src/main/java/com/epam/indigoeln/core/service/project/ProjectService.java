@@ -232,7 +232,7 @@ public class ProjectService {
 
         List<Notebook> notebooks = project.getNotebooks();
         boolean addedToNotebooks = notebooks.stream().anyMatch(n -> {
-            UserPermission permission = PermissionUtil.findFirstPermissionsByUserId(n.getAccessList(), userId);
+            UserPermission permission = PermissionUtil.findPermissionsByUserId(n.getAccessList(), userId);
             return permission != null;
         });
         if (addedToNotebooks) {
@@ -242,7 +242,7 @@ public class ProjectService {
         List<Experiment> experiments = notebooks.stream().flatMap(n -> n.getExperiments().stream())
                 .collect(Collectors.toList());
         return experiments.stream().noneMatch(e -> {
-            UserPermission permission = PermissionUtil.findFirstPermissionsByUserId(e.getAccessList(), userId);
+            UserPermission permission = PermissionUtil.findPermissionsByUserId(e.getAccessList(), userId);
             return permission != null;
         });
 

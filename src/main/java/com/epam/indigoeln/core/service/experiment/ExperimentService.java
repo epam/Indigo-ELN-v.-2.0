@@ -95,7 +95,7 @@ public class ExperimentService {
 
     private static List<Experiment> getExperimentsWithAccess(List<Experiment> experiments, String userId) {
         return experiments == null ? Collections.emptyList()
-                : experiments.stream().filter(experiment -> PermissionUtil.findFirstPermissionsByUserId(
+                : experiments.stream().filter(experiment -> PermissionUtil.findPermissionsByUserId(
                 experiment.getAccessList(), userId) != null).collect(Collectors.toList());
     }
 
@@ -247,9 +247,7 @@ public class ExperimentService {
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, experiment.getAccessList());
         // add OWNER's permissions for specified User to experiment
-        PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), user);
-
-        experiment.setAccessList(PermissionUtil.addFirstEntityName(experiment.getAccessList(), FirstEntityName.EXPERIMENT));
+        PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), user, FirstEntityName.EXPERIMENT);
 
         PermissionUtil.addUsersFromUpperLevel(experiment.getAccessList(), notebook.getAccessList(), FirstEntityName.NOTEBOOK);
 
@@ -328,7 +326,7 @@ public class ExperimentService {
         newVersion.setId(id + "_" + newExperimentVersion);
         newVersion.setName(experimentName);
         newVersion.setAccessList(lastVersion.getAccessList());
-        PermissionUtil.addOwnerToAccessList(newVersion.getAccessList(), user);
+        PermissionUtil.addOwnerToAccessList(newVersion.getAccessList(), user, FirstEntityName.EXPERIMENT);
         newVersion.setTemplate(lastVersion.getTemplate());
         newVersion.setStatus(ExperimentStatus.OPEN);
         final List<Component> components = lastVersion.getComponents();

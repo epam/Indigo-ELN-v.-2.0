@@ -71,7 +71,7 @@ public class NotebookService {
     private ExperimentService experimentService;
 
     private static List<Notebook> getNotebooksWithAccess(List<Notebook> notebooks, String userId) {
-        return notebooks.stream().filter(notebook -> PermissionUtil.findFirstPermissionsByUserId(
+        return notebooks.stream().filter(notebook -> PermissionUtil.findPermissionsByUserId(
                 notebook.getAccessList(), userId) != null).collect(Collectors.toList());
     }
 
@@ -200,7 +200,7 @@ public class NotebookService {
         // check of user permissions correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
         // add OWNER's permissions for specified User to notebook
-        PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user);
+        PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user, FirstEntityName.NOTEBOOK);
         //add permissions to notebook and project
         Notebook notebookWithPermissions = new Notebook();
         PermissionUtil.changeNotebookPermissions(project, notebookWithPermissions, notebook.getAccessList());
@@ -325,7 +325,7 @@ public class NotebookService {
         Notebook notebook = notebookOpt.orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
 
         return notebook.getExperiments().stream().noneMatch(e -> {
-            UserPermission permission = PermissionUtil.findFirstPermissionsByUserId(e.getAccessList(), userId);
+            UserPermission permission = PermissionUtil.findPermissionsByUserId(e.getAccessList(), userId);
             return permission != null;
         });
     }

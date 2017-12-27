@@ -8,7 +8,6 @@ import com.epam.indigoeln.core.service.exception.PermissionIncorrectException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -22,7 +21,7 @@ public final class PermissionUtil {
         return user.getAuthorities().contains(Authority.CONTENT_EDITOR);
     }
 
-    public static UserPermission findFirstPermissionsByUserId(
+    public static UserPermission findPermissionsByUserId(
             Set<UserPermission> accessList, String userId) {
         for (UserPermission userPermission : accessList) {
             if (userPermission.getUser().getId().equals(userId)) {
@@ -36,7 +35,7 @@ public final class PermissionUtil {
                                          Set<UserPermission> accessList,
                                          String permission) {
         // Check of UserPermission
-        UserPermission userPermission = findFirstPermissionsByUserId(accessList, userId);
+        UserPermission userPermission = findPermissionsByUserId(accessList, userId);
         return userPermission != null && userPermission.hasPermission(permission);
     }
 
@@ -57,19 +56,18 @@ public final class PermissionUtil {
     /**
      * Adding of OWNER's permissions to Entity Access List for specified User, if it is absent.
      *
-     * @param accessList Access list
-     * @param user       User
+     * @param accessList      Access list
+     * @param user            User
+     * @param firstEntityName
      */
-    public static void addOwnerToAccessList(Set<UserPermission> accessList, User user) {
-        setUserPermissions(accessList, user, UserPermission.OWNER_PERMISSIONS);
-    }
-
-    private static void setUserPermissions(Set<UserPermission> accessList, User user, Set<String> permissions) {
-        UserPermission userPermission = findFirstPermissionsByUserId(accessList, user.getId());
+    public static void addOwnerToAccessList(Set<UserPermission> accessList, User user, FirstEntityName firstEntityName) {
+        UserPermission userPermission = findPermissionsByUserId(accessList, user.getId());
         if (userPermission != null) {
-            userPermission.setPermissions(permissions);
+            userPermission.setPermissions(UserPermission.OWNER_PERMISSIONS);
+            userPermission.setFirstEntityName(firstEntityName);
         } else {
-            userPermission = new UserPermission(user, permissions);
+            userPermission = new UserPermission(user, UserPermission.OWNER_PERMISSIONS);
+            userPermission.setFirstEntityName(firstEntityName);
             accessList.add(userPermission);
         }
     }
@@ -329,26 +327,27 @@ public final class PermissionUtil {
                 .collect(toSet());
 
         Set<UserPermission> containsInProjectsNotebooks = outerEntity.getChildren().stream()
-                .flatMap(child -> {
-                    if (child.getValue().getId().equals(innerEntity.getValue().getId())) {
-                        return Stream.empty();
-                    }
-                    return child.getValue().getAccessList().stream();
-                })
+                .filter(child -> !child.getValue().getId().equals(innerEntity.getValue().getId()))
+                .flatMap(child -> child.getValue().getAccessList().stream())
                 .collect(toSet());
 
-        removedPermissions.removeIf(removingPermission ->
-                containsInProjectsNotebooks.stream()
-                        .anyMatch(cantBeRemoved ->
-                                equalsByUserId(cantBeRemoved, removingPermission))
-                        || canBeRemovedFromInnerEntity.stream()
-                        .noneMatch(canBeRemoved ->
-                                equalsByUserId(canBeRemoved, removingPermission))
-        );
+        removedPermissions.removeIf(removingPermission -> userPresentInInnerEntitiesOrCantBeRemovedFromInnerEntity(
+                canBeRemovedFromInnerEntity, containsInProjectsNotebooks, removingPermission));
 
         removePermissionsDown(outerEntity, removedPermissions);
 
         return removedPermissions;
+    }
+
+    private static boolean userPresentInInnerEntitiesOrCantBeRemovedFromInnerEntity(
+            Set<UserPermission> canBeRemovedFromInnerEntity,
+            Set<UserPermission> containsInProjectsNotebooks,
+            UserPermission removingPermission
+    ) {
+        return containsInProjectsNotebooks.stream()
+                .anyMatch(cantBeRemoved -> equalsByUserId(cantBeRemoved, removingPermission))
+                || canBeRemovedFromInnerEntity.stream()
+                .noneMatch(canBeRemoved -> equalsByUserId(canBeRemoved, removingPermission));
     }
 
     private static Set<UserPermission> addPermissionsUp(EntityWrapper outerEntity,
@@ -358,7 +357,7 @@ public final class PermissionUtil {
         Set<UserPermission> added = new HashSet<>();
 
         for (UserPermission userPermission : createdPermissions) {
-            UserPermission userPermissionOuterEntity = findFirstPermissionsByUserId(
+            UserPermission userPermissionOuterEntity = findPermissionsByUserId(
                     outerEntity.getValue().getAccessList(), userPermission.getUser().getId());
             if (userPermissionOuterEntity == null) {
                 outerEntity.getValue().getAccessList().add(
@@ -397,7 +396,7 @@ public final class PermissionUtil {
         Set<UserPermission> updated = new HashSet<>();
 
         for (UserPermission permission : updatedPermissions) {
-            UserPermission userPermissionOuterEntity = findFirstPermissionsByUserId(
+            UserPermission userPermissionOuterEntity = findPermissionsByUserId(
                     outerEntity.getValue().getAccessList(), permission.getUser().getId());
             if (userPermissionOuterEntity != null &&
                     canBeChangedFromThisLevel(
