@@ -124,31 +124,6 @@ public final class PermissionUtil {
     }
 
 
-    /**
-     * Set firstEntityName for users from newAccessList witch don't present in accessList.
-     *
-     * @param accessList      current permission for entity
-     * @param newAccessList   list with old and new permissions
-     * @param firstEntityName name of origin entity of given permission
-     * @return list of new users permissions with sets firstEntityName
-     */
-    public static Set<UserPermission> updateFirstEntityNames(Set<UserPermission> accessList,
-                                                             Set<UserPermission> newAccessList,
-                                                             FirstEntityName firstEntityName) {
-
-        accessList.removeIf(userPermission ->
-                newAccessList.stream().anyMatch(newUserPermission ->
-                        equalsByUserId(userPermission, newUserPermission)
-                                && !newUserPermission.getPermissions().equals(userPermission.getPermissions()))
-                        || newAccessList.stream().noneMatch(newUserPermission ->
-                        equalsByUserId(userPermission, newUserPermission))
-        );
-        newAccessList.removeIf(newUserPermission ->
-                accessList.stream().anyMatch(oldUserPermission ->
-                        equalsByUserId(newUserPermission, oldUserPermission)));
-        return PermissionUtil.addFirstEntityName(newAccessList, firstEntityName);
-    }
-
     private static boolean equalsByUserId(UserPermission oldPermission, UserPermission newPermission) {
         return Objects.equals(newPermission.getUser().getId(), oldPermission.getUser().getId());
     }
@@ -169,16 +144,17 @@ public final class PermissionUtil {
         boolean projectHadChanged = false;
 
         Set<UserPermission> createdPermissions = newUserPermissions.stream()
-                .filter(newPermission -> project.getAccessList().stream()
+                .filter(newPermission -> experiment.getAccessList().stream()
                         .noneMatch(oldPermission ->
                                 equalsByUserId(newPermission, oldPermission)))
+                .map(userPermission -> userPermission.setFirstEntityName(FirstEntityName.EXPERIMENT))
                 .collect(toSet());
 
         if (!createdPermissions.isEmpty()) {
-            addPermissionsDown(EntityWrapper.of(experiment), newUserPermissions);
+            addPermissionsDown(EntityWrapper.of(experiment), createdPermissions);
 
             Set<UserPermission> addedToNotebook = addPermissionsUp(
-                    EntityWrapper.of(notebook), EntityWrapper.of(experiment), newUserPermissions);
+                    EntityWrapper.of(notebook), EntityWrapper.of(experiment), createdPermissions);
             notebookHadChanged = !addedToNotebook.isEmpty();
 
             projectHadChanged = !addPermissionsUp(
@@ -187,16 +163,17 @@ public final class PermissionUtil {
         }
 
         Set<UserPermission> updatedPermissions = newUserPermissions.stream()
-                .filter(newPermission -> project.getAccessList().stream().anyMatch(oldPermission ->
+                .filter(newPermission -> experiment.getAccessList().stream().anyMatch(oldPermission ->
                         equalsByUserId(newPermission, oldPermission)
                                 && !oldPermission.getPermissions().equals(newPermission.getPermissions())))
+                .map(userPermission -> userPermission.setFirstEntityName(FirstEntityName.EXPERIMENT))
                 .collect(toSet());
 
         if (!updatedPermissions.isEmpty()) {
-            updatePermissionsDown(EntityWrapper.of(experiment), newUserPermissions);
+            updatePermissionsDown(EntityWrapper.of(experiment), updatedPermissions);
 
             Set<UserPermission> permissionsUpdatedInNotebook = updatePermissionsUp(
-                    EntityWrapper.of(notebook), EntityWrapper.of(experiment), newUserPermissions);
+                    EntityWrapper.of(notebook), EntityWrapper.of(experiment), updatedPermissions);
 
             notebookHadChanged |= !permissionsUpdatedInNotebook.isEmpty();
 
@@ -206,7 +183,7 @@ public final class PermissionUtil {
 
         }
 
-        Set<UserPermission> removedPermissions = project.getAccessList().stream().filter(oldPermission ->
+        Set<UserPermission> removedPermissions = experiment.getAccessList().stream().filter(oldPermission ->
                 newUserPermissions.stream().noneMatch(newPermission -> equalsByUserId(oldPermission, newPermission)))
                 .collect(toSet());
 
@@ -234,33 +211,35 @@ public final class PermissionUtil {
         boolean projectHadChanged = false;
 
         Set<UserPermission> createdPermissions = newUserPermissions.stream()
-                .filter(newPermission -> project.getAccessList().stream()
+                .filter(newPermission -> notebook.getAccessList().stream()
                         .noneMatch(oldPermission ->
                                 equalsByUserId(newPermission, oldPermission)))
+                .map(userPermission -> userPermission.setFirstEntityName(FirstEntityName.NOTEBOOK))
                 .collect(toSet());
 
         if (!createdPermissions.isEmpty()) {
             EntityWrapper innerEntity = EntityWrapper.of(notebook);
 
             projectHadChanged = !addPermissionsUp(
-                    EntityWrapper.of(project), innerEntity, newUserPermissions)
+                    EntityWrapper.of(project), innerEntity, createdPermissions)
                     .isEmpty();
 
-            addPermissionsDown(innerEntity, newUserPermissions);
+            addPermissionsDown(innerEntity, createdPermissions);
         }
 
         Set<UserPermission> updatedPermissions = newUserPermissions.stream()
-                .filter(newPermission -> project.getAccessList().stream().anyMatch(oldPermission ->
+                .filter(newPermission -> notebook.getAccessList().stream().anyMatch(oldPermission ->
                         equalsByUserId(newPermission, oldPermission)
                                 && !oldPermission.getPermissions().equals(newPermission.getPermissions())))
+                .map(userPermission -> userPermission.setFirstEntityName(FirstEntityName.NOTEBOOK))
                 .collect(toSet());
 
         if (!updatedPermissions.isEmpty()) {
             projectHadChanged |= updatePermissionsUpAndDown(
-                    EntityWrapper.of(project), EntityWrapper.of(notebook), newUserPermissions);
+                    EntityWrapper.of(project), EntityWrapper.of(notebook), updatedPermissions);
         }
 
-        Set<UserPermission> removedPermissions = project.getAccessList().stream().filter(oldPermission ->
+        Set<UserPermission> removedPermissions = notebook.getAccessList().stream().filter(oldPermission ->
                 newUserPermissions.stream().noneMatch(newPermission -> equalsByUserId(oldPermission, newPermission)))
                 .collect(toSet());
 
@@ -277,22 +256,22 @@ public final class PermissionUtil {
                 .filter(newPermission -> project.getAccessList().stream()
                         .noneMatch(oldPermission ->
                                 equalsByUserId(newPermission, oldPermission)))
+                .map(userPermission -> userPermission.setFirstEntityName(FirstEntityName.PROJECT))
                 .collect(toSet());
 
         if (!createdPermissions.isEmpty()) {
-            addPermissionsDown(EntityWrapper.of(project),
-                    addFirstEntityName(createdPermissions, FirstEntityName.PROJECT));
+            addPermissionsDown(EntityWrapper.of(project), createdPermissions);
         }
 
         Set<UserPermission> updatedPermissions = newUserPermissions.stream()
                 .filter(newPermission -> project.getAccessList().stream().anyMatch(oldPermission ->
                         equalsByUserId(newPermission, oldPermission)
                                 && !oldPermission.getPermissions().equals(newPermission.getPermissions())))
+                .map(userPermission -> userPermission.setFirstEntityName(FirstEntityName.PROJECT))
                 .collect(toSet());
 
         if (!updatedPermissions.isEmpty()) {
-            updatePermissionsDown(EntityWrapper.of(project),
-                    addFirstEntityName(updatedPermissions, FirstEntityName.PROJECT));
+            updatePermissionsDown(EntityWrapper.of(project), updatedPermissions);
         }
 
         Set<UserPermission> removedPermissions = project.getAccessList().stream().filter(oldPermission ->
@@ -315,8 +294,9 @@ public final class PermissionUtil {
 
         entity.getChildren().forEach(child -> updatePermissionsDown(child, updatedPermissions));
 
-        entity.getValue().getAccessList().removeIf(oldPermission -> updatedPermissions.stream()
-                .anyMatch(updatedPermission -> equalsByUserId(oldPermission, updatedPermission)));
+        entity.getValue().getAccessList().removeIf(oldPermission ->
+                updatedPermissions.stream()
+                        .anyMatch(updatedPermission -> equalsByUserId(oldPermission, updatedPermission)));
 
         entity.getValue().getAccessList().addAll(updatedPermissions);
     }

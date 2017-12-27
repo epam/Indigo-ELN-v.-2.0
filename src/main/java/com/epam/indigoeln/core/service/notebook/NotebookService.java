@@ -203,8 +203,7 @@ public class NotebookService {
         PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user);
         //add permissions to notebook and project
         Notebook notebookWithPermissions = new Notebook();
-        PermissionUtil.changeNotebookPermissions(project, notebookWithPermissions,
-                PermissionUtil.addFirstEntityName(notebook.getAccessList(), FirstEntityName.NOTEBOOK));
+        PermissionUtil.changeNotebookPermissions(project, notebookWithPermissions, notebook.getAccessList());
 
         PermissionUtil.addUsersFromUpperLevel(
                 notebookWithPermissions.getAccessList(), project.getAccessList(), FirstEntityName.PROJECT);
@@ -266,8 +265,7 @@ public class NotebookService {
             notebookFromDB.setVersion(notebook.getVersion());
 
             boolean projectWasUpdated = PermissionUtil.changeNotebookPermissions(
-                    project, notebookFromDB,
-                    PermissionUtil.addFirstEntityName(notebook.getAccessList(), FirstEntityName.NOTEBOOK));
+                    project, notebookFromDB, notebook.getAccessList());
 
             experimentRepository.save(notebookFromDB.getExperiments());
 

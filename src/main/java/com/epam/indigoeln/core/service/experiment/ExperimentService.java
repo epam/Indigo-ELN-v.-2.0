@@ -389,10 +389,6 @@ public class ExperimentService {
 
             // check of user permissions's correctness in access control list
             PermissionUtil.checkCorrectnessOfAccessList(userRepository, experimentForSave.getAccessList());
-            Set<UserPermission> newUserPermissions = PermissionUtil.updateFirstEntityNames(
-                    experimentFromDB.getAccessList(), experimentForSave.getAccessList(), FirstEntityName.EXPERIMENT);
-
-            experimentFromDB.getAccessList().addAll(newUserPermissions);
 
             experimentFromDB.setTemplate(experimentForSave.getTemplate());
             experimentFromDB.setComments(experimentForSave.getComments());

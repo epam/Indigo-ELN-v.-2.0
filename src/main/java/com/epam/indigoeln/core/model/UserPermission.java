@@ -104,7 +104,8 @@ public class UserPermission {
         return firstEntityName;
     }
 
-    public void setFirstEntityName(FirstEntityName firstEntityName) {
+    public UserPermission setFirstEntityName(FirstEntityName firstEntityName) {
         this.firstEntityName = firstEntityName;
+        return this;
     }
 }
