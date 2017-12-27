@@ -7,9 +7,8 @@
                     ng-bind="vm.notebookId"></span><span> -</span></label>
                 <autocomplete model="vm.selectedBatch"
                               items="vm.batches"
-                              change="vm.selectBatch(vm.selectedBatch)"
+                              on-select="vm.selectBatch(vm.selectedBatch)"
                               field="nbkBatch"
-                              control="vm.selectControl"
                               class="select-inline">
                 </autocomplete>
                 <indigo-checkbox

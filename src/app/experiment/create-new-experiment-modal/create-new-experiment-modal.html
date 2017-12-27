@@ -6,14 +6,14 @@
         <div class="modal-body">
             <autocomplete label="Please select a Template for new experiment"
                           model="vm.selectedTemplate"
-                          change="vm.onTemplateSelect()"
+                          on-select="vm.onTemplateSelect()"
                           items="vm.templates"
                           field="name">
             </autocomplete>
             <autocomplete ng-if="!vm.fullNotebookId"
                           label="Please select a Notebook for new experiment"
                           model="vm.selectedNotebook"
-                          change="vm.onNotebookSelect()"
+                          on-select="vm.onNotebookSelect()"
                           items="vm.notebooks"
                           field="name">
             </autocomplete>

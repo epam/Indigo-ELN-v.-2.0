@@ -71,7 +71,7 @@
         <div ng-switch-when="select" ng-switch="!vm.column.dictionary">
             <autocomplete ng-switch-when="true"
                            ng-click="$event.stopPropagation();"
-                           change="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id,})"
+                           on-select="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id,})"
                            model="vm.row[vm.column.id]"
                            items="vm.column.values"
                            class="form-group-sm">
