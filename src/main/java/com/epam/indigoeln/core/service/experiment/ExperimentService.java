@@ -34,6 +34,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.epam.indigoeln.core.model.PermissionCreationLevel.EXPERIMENT;
 import static com.epam.indigoeln.core.util.BatchComponentUtil.*;
 
 /**
@@ -247,9 +248,16 @@ public class ExperimentService {
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, experiment.getAccessList());
         // add OWNER's permissions for specified User to experiment
-        PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), user, PermissionCreationLevel.EXPERIMENT);
+        Set<UserPermission> permissions = experiment.getAccessList();
+        experiment.setAccessList(Collections.emptySet());
+        PermissionUtil.addOwnerToAccessList(permissions, user,
+                PermissionCreationLevel.EXPERIMENT);
 
-        PermissionUtil.addUsersFromUpperLevel(experiment.getAccessList(), notebook.getAccessList(), PermissionCreationLevel.NOTEBOOK);
+        PermissionUtil.addUsersFromUpperLevel(permissions, notebook.getAccessList(),
+                PermissionCreationLevel.NOTEBOOK);
+
+        Pair<Boolean, Boolean> changes = PermissionUtil.changeExperimentPermissions(
+                project, notebook, experiment, permissions);
 
         //increment sequence Id
         experiment.setId(sequenceIdService.getNextExperimentId(projectId, notebookId));
@@ -268,6 +276,11 @@ public class ExperimentService {
         notebook.getExperiments().add(savedExperiment);
         Notebook savedNotebook = notebookRepository.save(notebook);
         webSocketUtil.updateNotebook(user, projectId, savedNotebook);
+
+        if (changes.getRight()) {
+            Project savedProject = projectRepository.save(project);
+            webSocketUtil.updateProject(user, savedProject);
+        }
 
         return new ExperimentDTO(savedExperiment);
     }
@@ -326,7 +339,7 @@ public class ExperimentService {
         newVersion.setId(id + "_" + newExperimentVersion);
         newVersion.setName(experimentName);
         newVersion.setAccessList(lastVersion.getAccessList());
-        PermissionUtil.addOwnerToAccessList(newVersion.getAccessList(), user, PermissionCreationLevel.EXPERIMENT);
+        PermissionUtil.addOwnerToAccessList(newVersion.getAccessList(), user, EXPERIMENT);
         newVersion.setTemplate(lastVersion.getTemplate());
         newVersion.setStatus(ExperimentStatus.OPEN);
         final List<Component> components = lastVersion.getComponents();
