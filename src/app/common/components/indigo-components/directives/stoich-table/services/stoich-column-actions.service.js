@@ -1,4 +1,4 @@
-var ReagentField = require('../domain/reagent/reagent-row');
+var ReagentViewRow = require('../domain/reagent/view-row/reagent-view-row');
 var fieldTypes = require('../domain/field-types');
 
 /* @ngInject */
@@ -62,11 +62,8 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
     function populateFetchedBatch(originalRow, newRow) {
         // Updates original table row with the one generated from batch or
         // fetched by compoundId
-        var isLimiting = originalRow.isLimiting();
-
-        _.extend(originalRow, newRow);
+        _.assign(originalRow, newRow);
         originalRow.$$populatedBatch = true;
-        originalRow.limiting = isLimiting;
     }
 
     function cleanReactants(reactants) {
@@ -114,14 +111,13 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
             fieldTypes.mol,
             fieldTypes.molarity,
             fieldTypes.stoicPurity,
-            fieldTypes.structure,
             fieldTypes.structureComments,
             fieldTypes.volume,
             fieldTypes.weight
         ]);
 
         // And create new table row with them
-        var newRow = new ReagentField(_.pick(batchObj, properties));
+        var newRow = new ReagentViewRow(_.pick(batchObj, properties));
 
         populateFetchedBatch(row, newRow);
     }
@@ -153,7 +149,7 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
             comments: compound.comment
         };
 
-        return new ReagentField(rowProps);
+        return new ReagentViewRow(rowProps);
     }
 
     function processingBatches(row, compoundId, batches) {

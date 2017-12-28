@@ -1,32 +1,28 @@
-var fieldTypes = require('../field-types');
+var fieldTypes = require('../../domain/field-types');
 var calculationUtil = require('../../../../services/calculation/calculation-util');
 
-function stoichTable(config) {
-    var table = config.table;
+/* @ngInject */
+function reagentsCalculation() {
+    var rows;
 
     return {
-        addRow: addRow,
-        onFieldValueChanged: onFieldValueChanged,
-        setStoichTable: setStoichTable,
-        getStoichTable: getStoichTable
+        calculate: calculate
     };
 
-    function addRow(newRow) {
-        if (newRow.isSolventRow()) {
-            newRow.prevRxnRole.name = 'SOLVENT';
-            newRow.setReadonly(newRow.getResetFieldsForSolvent(), true);
-        } else if (isLimitingRowExist()) {
-            setMolDependingOfLimiting(newRow, getLimitingRow());
-        } else {
-            newRow.limiting = true;
-        }
+    function calculate(reagentsData) {
+        rows = _.cloneDeep(reagentsData.rows);
 
-        table.reactants.push(newRow);
+        var changedRow = _.find(rows, function(row) {
+            return _.isEqual(row, reagentsData.changedRow);
+        });
+
+        recalculate(changedRow, reagentsData.changedField);
+
+        return rows;
     }
 
-    function onFieldValueChanged(row, fieldId) {
+    function recalculate(row, fieldId) {
         // Handle necessary recalculations here
-        // TODO: refactor it
         switch (fieldId) {
             case fieldTypes.molWeight:
                 row.setEntered(fieldId);
@@ -71,11 +67,14 @@ function stoichTable(config) {
                 break;
             case fieldTypes.compoundId:
                 // Handle changes in the table caused by change in compoundId
+                onNbkBatchOrCompoundIdChanged(row);
                 break;
             case fieldTypes.fullNbkBatch:
                 // Handle changes in the table caused by applying notebook batch
+                onNbkBatchOrCompoundIdChanged(row);
                 break;
             default:
+                onAddNewRow(row);
                 break;
         }
     }
@@ -182,15 +181,16 @@ function stoichTable(config) {
 
         if (row.isSolventRow()) {
             var nextRow = getRowAfterLimiting();
+            var isLimiting = row.isLimiting();
 
             row.resetFields(fieldsToReset);
             row.setReadonly(fieldsToReset, true);
 
-            if (row.isLimiting()) {
+            if (isLimiting) {
                 row.limiting = false;
             }
 
-            if (nextRow) {
+            if (isLimiting && nextRow) {
                 nextRow.limiting = true;
             }
         } else if (!row.isSolventRow() && row.prevRxnRole.name === 'SOLVENT') {
@@ -240,19 +240,21 @@ function stoichTable(config) {
         if (!row.isVolumePresent()) {
             row.resetFields([fieldTypes.volume]);
 
-            if (row.isMolarityPresent() && row.isMolPresent()) {
+            // TODO: problem with volume should implement test
+
+            if (row.isMolarityPresent() && !row.isMolManuallyEntered()) {
                 row.resetFields([fieldTypes.mol], onMolChanged);
 
                 return;
             }
 
-            if (row.isDensityPresent()) {
+            if (row.isDensityPresent() && !row.isWeightManuallyEntered()) {
                 row.resetFields([fieldTypes.weight], onWeightChanged);
 
                 return;
             }
 
-            if (!row.isSolventRow()) {
+            if (!row.isSolventRow() && !row.isWeightManuallyEntered() && !row.isMolManuallyEntered()) {
                 setMolDependingOfLimiting(row, getLimitingRow());
             }
         }
@@ -357,12 +359,34 @@ function stoichTable(config) {
         }
     }
 
+    function onNbkBatchOrCompoundIdChanged(row) {
+        // TODO: should implement test
+        if (!isLimitingRowExist()) {
+            row.limiting = true;
+
+            return;
+        }
+
+        setMolDependingOfLimiting(row, getLimitingRow());
+    }
+
+    function onAddNewRow(newRow) {
+        if (newRow.isSolventRow()) {
+            newRow.prevRxnRole.name = 'SOLVENT';
+            newRow.setReadonly(newRow.getResetFieldsForSolvent(), true);
+        } else if (isLimitingRowExist()) {
+            setMolDependingOfLimiting(newRow, getLimitingRow());
+        } else {
+            newRow.limiting = true;
+        }
+    }
+
     function getRowAfterLimiting() {
-        var indexOfLimitingRow = _.findIndex(table.reactants, {limiting: true});
+        var indexOfLimitingRow = _.findIndex(rows, {limiting: true});
         var indexOfNextRow = indexOfLimitingRow + 1;
 
-        if (table.reactants.length > indexOfNextRow) {
-            var rowsAfterLimiting = table.reactants.slice(indexOfNextRow, table.reactants.length);
+        if (rows.length > indexOfNextRow) {
+            var rowsAfterLimiting = rows.slice(indexOfNextRow, rows.length);
 
             return _.find(rowsAfterLimiting, function(row) {
                 return !row.isSolventRow() && row.eq.value === 1;
@@ -376,7 +400,7 @@ function stoichTable(config) {
         }
 
         var limitingRow = getLimitingRow();
-        _.forEach(table.reactants, function(row) {
+        _.forEach(rows, function(row) {
             var canUpdate = !row.isLimiting() && !row.isSolventRow();
             var isManuallyEnteredExist =
                 row.isWeightManuallyEntered() || row.isVolumeManuallyEntered() || row.isMolManuallyEntered();
@@ -429,20 +453,12 @@ function stoichTable(config) {
     }
 
     function isLimitingRowExist() {
-        return _.some(table.reactants, {limiting: true});
+        return _.some(rows, {limiting: true});
     }
 
     function getLimitingRow() {
-        return _.find(table.reactants, {limiting: true});
-    }
-
-    function setStoichTable(newTable) {
-        table = newTable;
-    }
-
-    function getStoichTable() {
-        return table;
+        return _.find(rows, {limiting: true});
     }
 }
 
-module.exports = stoichTable;
+module.exports = reagentsCalculation;

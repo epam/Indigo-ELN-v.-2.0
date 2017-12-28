@@ -1,58 +1,23 @@
-var ReagentField = require('./reagent-field');
-var fieldTypes = require('../field-types');
-var calculationUtil = require('../../../../services/calculation/calculation-util');
+var ReagentViewRow = require('../view-row/reagent-view-row');
+var fieldTypes = require('../../field-types');
+var calculationUtil = require('../../../../../services/calculation/calculation-util');
 
 function ReagentRow(props) {
-    var rowProps = getDefaultReagentRow();
+    _.assignWith(this, props, function(defaultValue, valueFromProps) {
+        if (valueFromProps && valueFromProps.unit) {
+            return _.omit(valueFromProps, ['unit']);
+        }
 
-    if (props && _.isObject(props)) {
-        // Assign known properties from given obj
-        // This will mutate rowProps object
-        setRowProperties(rowProps, props);
-    }
-
-    _.defaults(this, rowProps);
+        return _.isObject(valueFromProps)
+            ? _.assign({}, valueFromProps)
+            : valueFromProps;
+    });
 
     return this;
 }
 
-function setRowProperties(defaultProps, customProps) {
-    // Assign known custom properties to default object
-    _.forEach(customProps, function(value, key) {
-        if (fieldTypes.isMolWeight(key)) {
-            defaultProps[key].value = value.value;
-            defaultProps[key].originalValue = value.value;
-            defaultProps[key].entered = value.entered;
-        } else if (fieldTypes.isStoichField(key)) {
-            defaultProps[key].value = value.value;
-            defaultProps[key].entered = value.entered;
-        } else if (fieldTypes.isEq(key) || fieldTypes.isStoicPurity(key)) {
-            defaultProps[key].value = value.value;
-            defaultProps[key].prevValue = value.prevValue ? value.prevValue : value.value;
-            defaultProps[key].entered = value.entered;
-        } else if (fieldTypes.isRxnRole(key)) {
-            defaultProps[key].name = value.name;
-
-            if (_.has(customProps, fieldTypes.prevRxnRole)) {
-                defaultProps.prevRxnRole.name = customProps.prevRxnRole.name;
-            } else {
-                defaultProps.prevRxnRole.name = defaultProps[key].name;
-            }
-        }
-    });
-
-    // Replace default values and add missing from given customProps obj
-    _.assignInWith(defaultProps, customProps, function(defaultValue, valueFromJson) {
-        return _.isNil(defaultValue)
-            ? valueFromJson
-            : defaultValue;
-    });
-}
-
 ReagentRow.prototype = {
-    changesQueue: [],
     isSolventRow: isSolventRow,
-    areValuesPresent: areValuesPresent,
     isLimiting: isLimiting,
     getResetFieldForDensity: getResetFieldForDensity,
     getResetFieldsForSolvent: getResetFieldsForSolvent,
@@ -71,7 +36,6 @@ ReagentRow.prototype = {
     setReadonly: setReadonly,
     resetFields: resetFields,
     resetEntered: resetEntered,
-    clear: clear,
     isMolWeightPresent: isMolWeightPresent,
     isMolPresent: isMolPresent,
     isWeightPresent: isWeightPresent,
@@ -126,7 +90,7 @@ function updateEq(limitingRow) {
 
 function setDefaultValues(fields) {
     var self = this;
-    var defaultFields = getDefaultReagentRow();
+    var defaultFields = ReagentViewRow.getDefaultReagentViewRow();
 
     _.forEach(fields, function(id) {
         self[id] = defaultFields[id];
@@ -148,14 +112,6 @@ function resetEntered(fields) {
 
 function isSolventRow() {
     return this.rxnRole.name === 'SOLVENT';
-}
-
-function areValuesPresent(fields) {
-    var self = this;
-
-    return _.every(fields, function(fieldId) {
-        return self[fieldId].value;
-    });
 }
 
 function isLimiting() {
@@ -257,10 +213,6 @@ function setReadonly(fields, isReadonly) {
     });
 }
 
-function clear() {
-    _.assign(this, getDefaultReagentRow());
-}
-
 function getResetFieldsForSolvent() {
     return [
         fieldTypes.weight,
@@ -317,32 +269,6 @@ function isEqManuallyEntered() {
 
 function isVolumeManuallyEntered() {
     return this.volume.entered;
-}
-
-function getDefaultReagentRow() {
-    return {
-        compoundId: null,
-        chemicalName: null,
-        fullNbkBatch: null,
-        molWeight: {value: 0, originalValue: 0, entered: false},
-        weight: new ReagentField(0, 'mg'),
-        volume: new ReagentField(0, 'mL'),
-        mol: new ReagentField(0, 'mmol'),
-        eq: {value: 1, prevValue: 1, entered: false},
-        limiting: false,
-        rxnRole: {name: 'REACTANT'},
-        prevRxnRole: {name: 'REACTANT'},
-        density: new ReagentField(0, 'g/mL'),
-        molarity: new ReagentField(0, 'M'),
-        // TODO: rename to purity
-        stoicPurity: {value: 100, prevValue: 100, entered: false},
-        formula: null,
-        saltCode: {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0},
-        saltEq: {value: 0},
-        loadFactor: new ReagentField(1, 'mmol/g'),
-        hazardComments: null,
-        comments: null
-    };
 }
 
 module.exports = ReagentRow;

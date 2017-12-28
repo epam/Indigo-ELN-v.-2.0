@@ -30,7 +30,7 @@ fieldTypes.isMolWeight = isMolWeight;
 fieldTypes.isEq = isEq;
 fieldTypes.isStoicPurity = isStoicPurity;
 fieldTypes.isRxnRole = isRxnRole;
-fieldTypes.isStoichField = isStoichField;
+fieldTypes.isReagentField = isReagentField;
 
 
 function isMolWeight(key) {
@@ -49,7 +49,7 @@ function isRxnRole(key) {
     return key === fieldTypes.rxnRole;
 }
 
-function isStoichField(key) {
+function isReagentField(key) {
     return key === fieldTypes.weight || key === fieldTypes.volume
         || key === fieldTypes.mol || key === fieldTypes.density
         || key === fieldTypes.molarity;
