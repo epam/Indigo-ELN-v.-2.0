@@ -139,7 +139,6 @@ public class ProjectService {
 
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, project.getAccessList());
-        // reset project's id
 
         //Add entity name
         project.getAccessList().forEach(userPermission ->
@@ -157,8 +156,6 @@ public class ProjectService {
 
         return new ProjectDTO(project);
     }
-
-    // https://jirapct.epam.com/jira/browse/EPMLSOPELN-786 - description how it should work + description in 880.
 
     /**
      * Updates project according to permissions
@@ -189,7 +186,7 @@ public class ProjectService {
         projectFromDb.setKeywords(project.getKeywords());
         projectFromDb.setReferences(project.getReferences());
         projectFromDb.setVersion(project.getVersion());
-        //Add entity name for new user
+
         PermissionUtil.changeProjectPermissions(projectFromDb, project.getAccessList());
 
         List<Notebook> notebooks = projectFromDb.getNotebooks();
