@@ -36,13 +36,13 @@
                             type="button"
                             ng-click="vm.removeFromMyReagentList()"
                             ng-disabled="false">
-                        <span class="fa fa-trash"></span><span class="m-l5" i-translate="REMOVE_FROM_MY_LIST"></span>
+                        <span class="icon icon-delete"></span><span class="m-l5" i-translate="REMOVE_FROM_MY_LIST"></span>
                     </button>
                     <button class="btn btn-info"
                             type="button"
                             ng-click="vm.addToStoichTable(vm.myReagentList)"
                             ng-disabled="false">
-                        <span class="fa fa-plus"></span><span class="m-l5" i-translate="ADD_TO_STOICH_TABLE"></span>
+                        <span class="icon icon-add"></span><span class="m-l5" i-translate="ADD_TO_STOICH_TABLE"></span>
                     </button>
                     <button class="btn btn-default" type="button" ng-click="vm.cancel()">
                         <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
@@ -520,12 +520,12 @@
                     <div class="btn-group pull-right">
                         <button class="btn btn-info" type="button" ng-click="vm.addToMyReagentList()"
                                 ng-disabled="!vm.selectedItems.length">
-                            <span class="fa fa-plus"></span><span class="m-l5"
+                            <span class="icon icon-add"></span><span class="m-l5"
                                                                   i-translate="ADD_TO_MY_REAGENT_LIST"></span>
                         </button>
                         <button class="btn btn-info" type="button" ng-click="vm.addToStoichTable(vm.searchResults)"
                                 ng-disabled="!vm.selectedItems.length">
-                            <span class="fa fa-plus"></span><span class="m-l5" i-translate="ADD_TO_STOICH_TABLE"></span>
+                            <span class="icon icon-add"></span><span class="m-l5" i-translate="ADD_TO_STOICH_TABLE"></span>
                         </button>
                         <button class="btn btn-default" type="button" ng-click="vm.cancel()">
                             <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>

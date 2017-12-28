@@ -2,13 +2,13 @@
     <div class="row m-b20">
         <div class="col-sm-6">
             <button class="btn btn-primary" ng-click="vm.create()">
-                <span class="fa fa-plus" aria-hidden="true"></span>
+                <span class="icon icon-add" aria-hidden="true"></span>
                 <span class="m-l5" i-translate="CREATE_NEW_ROLE"></span>
             </button>
         </div>
         <div class="col-sm-6 text-right">
             <div class="search-field m-t5">
-                <span class="fa fa-search"></span>
+                <span class="icon icon-search"></span>
                 <input type="search"
                        class="uui-search"
                        placeholder="Search"
@@ -75,14 +75,14 @@
                                     ng-click="vm.editRole(role)"
                                     ng-if="!role.system"
                                     class="btn btn-info btn-small">
-                                <span class="fa fa-pencil"></span>
+                                <span class="icon icon-edit"></span>
                                 <span class="m-l5" i-translate="EDIT"></span>
                             </button>
                             <button type="submit"
                                     ng-click="vm.deleteRole(role)"
                                     ng-if="!role.system"
                                     class="btn btn-info btn-small">
-                                <span class="fa fa-trash"></span>
+                                <span class="icon icon-delete"></span>
                                 <span class="m-l5" i-translate="DELETE"></span>
                             </button>
                         </td>

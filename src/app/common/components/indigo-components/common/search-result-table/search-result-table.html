@@ -48,7 +48,7 @@
                             <span class="semi-b" i-translate="REAGENT_INFORMATION"></span>
                             <button class="btn btn-default btn-small m-l5" type="button" ng-if="vm.indigoEditableInfo"
                                     ng-click="vm.editInfo(item)" ng-disabled="vm.isEditMode">
-                                <span class="fa fa-pencil"></span><span class="m-l5" i-translate="EDIT"></span>
+                                <span class="icon icon-edit"></span><span class="m-l5" i-translate="EDIT"></span>
                             </button>
                         </div>
                         <div>
@@ -214,7 +214,7 @@
                             </div>
                             <div class="btn-group" ng-if="vm.isEditMode">
                                 <button class="btn btn-primary" type="button" ng-click="vm.finishEdit()"
-                                        ng-disabled="false"><span class="fa fa-save"></span>
+                                        ng-disabled="false"><span class="icon icon-save"></span>
                                     <span class="m-l5" i-translate="SAVE"></span>
                                 </button>
                                 <button class="btn btn-default" type="button" ng-click="vm.cancelEdit($index)"

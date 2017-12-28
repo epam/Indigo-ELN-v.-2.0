@@ -12,12 +12,12 @@
                     <span class="txt-larger"><span i-translate="EXPERIMENT_MEMBERS"></span>:</span>
                     <button type="submit" ui-sref="entities.experiment-detail.permissions()"
                             class="btn btn-default btn-small" ng-disabled="!vm.isComponentsEditAllowed">
-                        <span class="fa fa-pencil"></span>
+                        <span class="icon icon-edit"></span>
                         <span class="m-l5" i-translate="EDIT"></span>
                     </button>
                     <button type="button" class="btn btn-default btn-small"
                             ui-sref="entities.experiment-detail.permissions-view()">
-                        <span class="fa fa-eye"></span>
+                        <span class="icon icon-eye"></span>
                         <span class="m-l5" i-translate="VIEW_MEMBERS"></span>
                     </button>
                 </div>
@@ -89,13 +89,13 @@
         <button type="submit" form="experimentForm"
                 ng-disabled="!vm.isComponentsEditAllowed || experimentForm.$invalid || !vm.isEntityChanged"
                 class="btn btn-primary">
-            <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
+            <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
         </button>
         <button class="btn btn-default" ng-click="vm.refresh()" ng-disabled="!vm.isComponentsEditAllowed || !vm.isEntityChanged">
             <span class="fa fa-refresh"></span><span class="m-l5" i-translate="RESET"></span>
         </button>
         <button class="btn btn-default" ng-click="window.history.back()">
-            <span class="fa fa-mail-reply"></span><span class="m-l5" i-translate="BACK"></span>
+            <span class="icon icon-undo"></span><span class="m-l5" i-translate="BACK"></span>
         </button>
     </div>
 </div>

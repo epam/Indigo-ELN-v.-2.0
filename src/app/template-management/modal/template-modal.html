@@ -20,7 +20,7 @@
                 <div class="panel-heading" i-translate="COMPONENTS"></div>
                 <div class="panel-body panel-body-h">
                     <div class="search-field search-full">
-                        <span class="fa fa-search" ng-click="search()"></span>
+                        <span class="icon icon-search" ng-click="search()"></span>
                         <input type="search" class="uui-search" placeholder="Search by name or description"
                                id="searchRole" ng-model="search">
                     </div>
@@ -44,7 +44,7 @@
             <div class="panel panel-info">
                 <div class="panel-heading">
                     <button class="btn btn-default btn-small pull-right" ng-click="vm.addTab()">
-                        <span class="fa fa-plus" aria-hidden="true"></span>
+                        <span class="icon icon-add" aria-hidden="true"></span>
                         <span class="m-l5" i-translate="CREATE_NEW_TAB"></span>
                     </button>
                     <span i-translate="TEMPLATE_BUILDER"></span>
@@ -56,10 +56,10 @@
                     </div>
                     <div class="list-group list-group-drug tab" ng-repeat="tab in vm.template.templateContent" >
                         <span class="list-group-item"  indigo-focus-on-create>
-                            <span class="fa fa-trash pull-right" ng-click="vm.removeTab(tab)"></span>
+                            <span class="icon icon-delete pull-right" ng-click="vm.removeTab(tab)"></span>
                             <span editable-text="tab.name" e-form="tabName" ng-click="tabName.$show()" class="semi-b"
                                   ng-bind="tab.name">
-                                <span class="fa fa-pencil m-l5"></span>
+                                <span class="icon icon-edit m-l5"></span>
                             </span>
                         </span>
                         <div class="list-group" dragula='"components"' dragula-model='tab.components'>
@@ -101,7 +101,7 @@
 
 <div class="btn-bottom-block tab-content-pad">
     <button ng-click="vm.save()" type="submit" class="btn btn-primary" ng-disabled="createTemplateForm.$invalid">
-        <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
+        <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
     </button>
     <button type="button" class="btn btn-default" ng-click="vm.close()">
         <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
