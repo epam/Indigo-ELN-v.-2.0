@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableSet;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -18,7 +19,7 @@ import java.util.Set;
  * </ul>
  */
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = "permissionCreationLevel")
 public class UserPermission {
 
     public static final String READ_ENTITY = "READ_ENTITY";
@@ -41,6 +42,9 @@ public class UserPermission {
 
     private Set<String> permissions;
 
+    @JsonIgnore
+    private PermissionCreationLevel permissionCreationLevel;
+
     public UserPermission() {
         super();
     }
@@ -62,8 +66,9 @@ public class UserPermission {
         return permissions;
     }
 
-    public void setPermissions(Set<String> permissions) {
+    public UserPermission setPermissions(Set<String> permissions) {
         this.permissions = permissions;
+        return this;
     }
 
     public boolean canReadEntity() {
@@ -93,5 +98,14 @@ public class UserPermission {
             return VIEWER;
         }
         return null;
+    }
+
+    public PermissionCreationLevel getPermissionCreationLevel() {
+        return permissionCreationLevel;
+    }
+
+    public UserPermission setPermissionCreationLevel(PermissionCreationLevel permissionCreationLevel) {
+        this.permissionCreationLevel = permissionCreationLevel;
+        return this;
     }
 }
