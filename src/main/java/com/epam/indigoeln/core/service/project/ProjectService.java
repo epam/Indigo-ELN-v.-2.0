@@ -142,7 +142,8 @@ public class ProjectService {
         // reset project's id
 
         //Add entity name
-        project.setAccessList(PermissionUtil.addFirstEntityName(project.getAccessList(), PermissionCreationLevel.PROJECT));
+        project.getAccessList().forEach(userPermission ->
+                userPermission.setPermissionCreationLevel(PermissionCreationLevel.PROJECT));
         project.setId(sequenceIdService.getNextProjectId());
 
         project = saveProjectAndHandleError(project);

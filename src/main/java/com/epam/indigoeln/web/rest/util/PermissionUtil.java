@@ -22,6 +22,14 @@ public final class PermissionUtil {
         return user.getAuthorities().contains(Authority.CONTENT_EDITOR);
     }
 
+    /**
+     * Search for {@link UserPermission} for user with userId in accessList.
+     *
+     * @param accessList access list of some resource
+     * @param userId     identify of user whose permission on the entity should be founded
+     * @return {@code null} if there is no permissions for user with userId in accessList
+     * or {@link UserPermission} from accessList for this user
+     */
     public static UserPermission findPermissionsByUserId(Set<UserPermission> accessList,
                                                          String userId
     ) {
@@ -60,7 +68,7 @@ public final class PermissionUtil {
      *
      * @param accessList              Access list
      * @param user                    User
-     * @param permissionCreationLevel
+     * @param permissionCreationLevel level of permission adding
      */
     public static void addOwnerToAccessList(Set<UserPermission> accessList,
                                             User user,
@@ -77,6 +85,13 @@ public final class PermissionUtil {
         }
     }
 
+    /**
+     * Add permission from upper level permissions to current permissions.
+     *
+     * @param accessList                current entity permissions
+     * @param upperLevelUserPermissions permissions of upper level entity
+     * @param upperPermissionsLevel     upper entity permission level
+     */
     public static void addUsersFromUpperLevel(Set<UserPermission> accessList,
                                               Set<UserPermission> upperLevelUserPermissions,
                                               PermissionCreationLevel upperPermissionsLevel
@@ -88,11 +103,16 @@ public final class PermissionUtil {
         });
     }
 
-    private static boolean canBeAddedFromUpperLevel(PermissionCreationLevel upperPermissionsLevel, UserPermission up) {
-        return up != null
-                && up.getPermissionCreationLevel() != null
-                && Comparator.comparing(PermissionCreationLevel::ordinal)
-                .compare(upperPermissionsLevel, up.getPermissionCreationLevel()) >= 0;
+    /**
+     * Check if permission can be added from some level.
+     *
+     * @return {@code true} if {@code upperPermissionsLevel} is lower or equal to {@code userPermission} creation level.
+     */
+    private static boolean canBeAddedFromUpperLevel(PermissionCreationLevel upperPermissionsLevel,
+                                                    UserPermission userPermission
+    ) {
+        return userPermission != null
+                && canBeChangedFromThisLevel(upperPermissionsLevel, userPermission.getPermissionCreationLevel());
     }
 
     public static void checkCorrectnessOfAccessList(UserRepository userRepository,
@@ -125,18 +145,18 @@ public final class PermissionUtil {
         }
     }
 
-
-    private static boolean equalsByUserId(UserPermission oldPermission, UserPermission newPermission) {
-        return Objects.equals(newPermission.getUser().getId(), oldPermission.getUser().getId());
-    }
-
-    public static Set<UserPermission> addFirstEntityName(Set<UserPermission> accessList,
-                                                         PermissionCreationLevel permissionCreationLevel
-    ) {
-        accessList.forEach(userPermission -> userPermission.setPermissionCreationLevel(permissionCreationLevel));
-        return new HashSet<>(accessList);
-    }
-
+    /**
+     * Change experiments access list according to {@code newUserPermissions}.
+     * <p>
+     * This method calls changing of notebook and project permissions as well
+     * and returns the pair of two boolean flags these mean (notebook was changed, project was changed).
+     *
+     * @param project            Project that contains {@code notebook}
+     * @param notebook           Notebook that contains changing {@code experiment}
+     * @param experiment         Experiment to change permissions
+     * @param newUserPermissions permissions that should be applied
+     * @return pair of two boolean flags these mean (notebook was changed, project was changed).
+     */
     public static Pair<Boolean, Boolean> changeExperimentPermissions(Project project,
                                                                      Notebook notebook,
                                                                      Experiment experiment,
@@ -163,9 +183,11 @@ public final class PermissionUtil {
                     wrappedNotebook, wrappedExperiment, createdPermissions);
             notebookHadChanged = !addedToNotebook.isEmpty();
 
-            projectHadChanged = !addPermissionsUp(
-                    wrappedProject, wrappedNotebook, addedToNotebook)
-                    .isEmpty();
+            if (!addedToNotebook.isEmpty()) {
+                projectHadChanged = !addPermissionsUp(
+                        wrappedProject, wrappedNotebook, addedToNotebook)
+                        .isEmpty();
+            }
         }
 
         Set<UserPermission> updatedPermissions = newUserPermissions.stream()
@@ -183,10 +205,11 @@ public final class PermissionUtil {
 
             notebookHadChanged |= !permissionsUpdatedInNotebook.isEmpty();
 
-            projectHadChanged |= !updatePermissionsUp(
-                    wrappedProject, wrappedNotebook, permissionsUpdatedInNotebook)
-                    .isEmpty();
-
+            if (!permissionsUpdatedInNotebook.isEmpty()) {
+                projectHadChanged |= !updatePermissionsUp(
+                        wrappedProject, wrappedNotebook, permissionsUpdatedInNotebook)
+                        .isEmpty();
+            }
         }
 
         Set<UserPermission> removedPermissions = experiment.getAccessList().stream().filter(oldPermission ->
@@ -202,14 +225,27 @@ public final class PermissionUtil {
 
             notebookHadChanged |= !removedFromNotebook.isEmpty();
 
-            projectHadChanged |= !removePermissionsUp(
-                    wrappedProject, wrappedNotebook, removedFromNotebook)
-                    .isEmpty();
+            if (!removedFromNotebook.isEmpty()) {
+                projectHadChanged |= !removePermissionsUp(
+                        wrappedProject, wrappedNotebook, removedFromNotebook)
+                        .isEmpty();
+            }
         }
 
         return Pair.of(notebookHadChanged, projectHadChanged);
     }
 
+    /**
+     * Change notebooks access list according to {@code newUserPermissions}.
+     * <p>
+     * This method calls changing of project permissions as well and returns boolean flags
+     * that mean was project changed or not.
+     *
+     * @param project            Project that contains {@code notebook}
+     * @param notebook           Notebook to change permissions
+     * @param newUserPermissions permissions that should be applied
+     * @return {@code true} if project's access list was changed.
+     */
     public static boolean changeNotebookPermissions(Project project,
                                                     Notebook notebook,
                                                     Set<UserPermission> newUserPermissions
@@ -242,8 +278,9 @@ public final class PermissionUtil {
                 .collect(toSet());
 
         if (!updatedPermissions.isEmpty()) {
-            projectHadChanged |= updatePermissionsUpAndDown(
-                    new EntityWrapper.ProjectWrapper(project), wrappedNotebook, updatedPermissions);
+            updatePermissionsDown(wrappedNotebook, updatedPermissions);
+
+            projectHadChanged |= !updatePermissionsUp(new EntityWrapper.ProjectWrapper(project), wrappedNotebook, updatedPermissions).isEmpty();
         }
 
         Set<UserPermission> removedPermissions = notebook.getAccessList().stream().filter(oldPermission ->
@@ -260,6 +297,12 @@ public final class PermissionUtil {
         return projectHadChanged;
     }
 
+    /**
+     * Change projects access list according to {@code newUserPermissions}.
+     *
+     * @param project            project to change permissions
+     * @param newUserPermissions permissions that should be applied
+     */
     public static void changeProjectPermissions(Project project, Set<UserPermission> newUserPermissions) {
 
         Set<UserPermission> createdPermissions = newUserPermissions.stream()
@@ -406,15 +449,21 @@ public final class PermissionUtil {
         }
     }
 
-    private static boolean updatePermissionsUpAndDown(EntityWrapper outerEntity,
-                                                      EntityWrapper innerEntity,
-                                                      Set<UserPermission> updatedPermissions
-    ) {
-        updatePermissionsDown(innerEntity, updatedPermissions);
-
-        return !updatePermissionsUp(outerEntity, innerEntity, updatedPermissions).isEmpty();
+    /**
+     * Check if these permissions are for the same user.
+     *
+     * @return {@code true} if permissions are for the same user
+     */
+    private static boolean equalsByUserId(UserPermission oldPermission, UserPermission newPermission) {
+        return Objects.equals(newPermission.getUser().getId(), oldPermission.getUser().getId());
     }
 
+    /**
+     * Check if permission from current level can change changing permission.
+     *
+     * @return {@code true} if entities from {@code changingPermissionLevel} can be changed
+     * by permissions of {@code currentLevel}
+     */
     private static boolean canBeChangedFromThisLevel(PermissionCreationLevel changingPermissionLevel,
                                                      PermissionCreationLevel currentLevel
     ) {
@@ -425,6 +474,9 @@ public final class PermissionUtil {
     }
 
 
+    /**
+     * The wrapper class for Tree structure of BasicModelObjects.
+     */
     @Getter
     private abstract static class EntityWrapper {
 
