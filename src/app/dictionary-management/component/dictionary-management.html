@@ -2,13 +2,13 @@
     <div class="row m-b20">
         <div class="col-sm-6">
             <button class="btn btn-primary" ng-click="vm.createDictionary()">
-                <span class="fa fa-plus" aria-hidden="true"></span>
+                <span class="icon icon-add" aria-hidden="true"></span>
                 <span class="m-l5" i-translate="CREATE_NEW_DICTIONARY"></span>
             </button>
         </div>
         <div class="col-sm-6 text-right">
             <div class="search-field m-t5">
-                <span class="fa fa-search"></span>
+                <span class="icon icon-search"></span>
                 <input type="search" class="uui-search" placeholder="Search" id="searchDictionary"
                        ng-change="vm.searchDictionary()"
                        ng-model="vm.searchText">
@@ -46,7 +46,7 @@
             </button>
             <button type="submit" form="editForm" ng-disabled="editForm.$invalid || vm.isSaving"
                     class="btn btn-primary m-l5">
-                <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
+                <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
             </button>
         </div>
     </div>
@@ -91,7 +91,7 @@
                     <button type="submit"
                             ng-click="vm.editDictionary(dictionary)"
                             class="btn btn-info btn-small">
-                        <span class="fa fa-pencil"></span>
+                        <span class="icon icon-edit"></span>
                         <span class="m-l5" i-translate="EDIT"></span>
                     </button>
                     <button type="submit"
@@ -127,7 +127,7 @@
                 <button class="btn btn-primary"
                         ng-click="vm.addWord()"
                         ng-disabled="vm.selectedDictionaryId == null">
-                    <span class="fa fa-plus" aria-hidden="true"></span>
+                    <span class="icon icon-add" aria-hidden="true"></span>
                     <span class="m-l5" i-translate="ADD_NEW_WORD"></span>
                 </button>
             </div>
@@ -171,7 +171,7 @@
                     </button>
                     <button type="submit" form="editWordForm" ng-disabled="editWordForm.$invalid || vm.isWordSaving"
                             class="btn btn-primary m-l5">
-                        <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
+                        <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
                     </button>
                 </div>
             </div>

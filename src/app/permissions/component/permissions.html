@@ -49,7 +49,7 @@
                     <td>
                         <button ng-disabled="member.isAuthor" type="button" class="btn btn-info btn-small"
                                 ng-click="vm.removeMember(member)">
-                            <span class="fa fa-trash"></span><span class="m-l5" i-translate="DELETE"></span>
+                            <span class="icon icon-delete"></span><span class="m-l5" i-translate="DELETE"></span>
                         </button>
                     </td>
                 </tr>
@@ -63,7 +63,7 @@
             <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
         </button>
         <button type="submit" ng-disabled="permissionsForm.$invalid" ng-click="vm.ok()" class="btn btn-primary">
-            <span class="fa fa-check" aria-hidden="true"></span><span class="m-l5" i-translate="DONE"></span>
+            <span class="icon icon-done" aria-hidden="true"></span><span class="m-l5" i-translate="DONE"></span>
         </button>
     </div>
 </div>

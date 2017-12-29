@@ -11,12 +11,12 @@
                         <span class="txt-larger"><span i-translate="PROJECT_MEMBERS"></span>:</span>
                         <button ui-sref=".permissions()"
                                 class="btn btn-default btn-small" ng-disabled="!vm.isEditAllowed">
-                            <span class="fa fa-pencil"></span>
+                            <span class="icon icon-edit"></span>
                             <span class="m-l5" i-translate="EDIT"></span>
                         </button>
                         <button ui-sref=".permissions-view()" type="button"
                                 class="btn btn-default btn-small">
-                            <span class="fa fa-eye"></span>
+                            <span class="icon icon-eye"></span>
                             <span class="m-l5" i-translate="VIEW_MEMBERS"></span>
                         </button>
                     </div>
@@ -83,13 +83,13 @@
         <button class="btn btn-info" type="button" ng-click="vm.print()" i-translate="PRINT"></button>
         <button ng-click="vm.save()" form="createProjectForm"
                 ng-disabled="!vm.isEditAllowed || createProjectForm.$invalid || vm.isSaving || !vm.isEntityChanged"
-                class="btn btn-primary"><span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
+                class="btn btn-primary"><span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
         </button>
         <a class="btn btn-default" ng-click="vm.refresh()">
             <span class="fa fa-refresh"></span><span class="m-l5" i-translate="RESET"></span>
         </a>
         <button type="button" class="btn btn-default" onclick="window.history.back()">
-            <span class="fa fa-mail-reply"></span><span class="m-l5" i-translate="BACK"></span>
+            <span class="icon icon-undo"></span><span class="m-l5" i-translate="BACK"></span>
         </button>
     </div>
 </div>

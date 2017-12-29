@@ -10,7 +10,7 @@
               ng-submit="vm.search()"
               indigo-has-authority="GLOBAL_SEARCH">
             <div class="search-field search-field-main" ng-class="{active: vm.focused}">
-                <span class="fa fa-search" ng-click="vm.search()"></span>
+                <span class="icon icon-search" ng-click="vm.search()"></span>
                 <input type="search"
                        class="uui-search"
                        placeholder="Search"
@@ -26,7 +26,7 @@
                      ng-src="data:image/svg+xml;base64,{{vm.user.image}}"
                      alt="Profile photo"
                      class="full-img">
-                <i ng-switch-default class="fa fa-user" aria-hidden="true"></i>
+                <span ng-switch-default class="icon icon-person" aria-hidden="true"></span>
             </a>
             <ul class="dropdown-menu dropdown-menu-right">
                 <li class="current-user" ng-bind="vm.user.login"></li>

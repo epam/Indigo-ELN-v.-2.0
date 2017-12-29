@@ -2,13 +2,13 @@
     <div class="row m-b20">
         <div class="col-sm-6">
             <button class="btn btn-primary" ng-click="vm.create()">
-                <span class="fa fa-plus" aria-hidden="true"></span>
+                <span class="icon icon-add" aria-hidden="true"></span>
                 <span class="m-l5" i-translate="CREATE_NEW_USER"></span>
             </button>
         </div>
         <div class="col-sm-6 text-right">
             <div class="search-field m-t5">
-                <span class="fa fa-search" ng-click="vm.search()"></span>
+                <span class="icon icon-search" ng-click="vm.search()"></span>
                 <input type="search"
                        class="uui-search"
                        placeholder="Search"
@@ -115,7 +115,7 @@
             <button ng-click="vm.saveUser()" form="editForm"
                     ng-disabled="editForm.$invalid || vm.isSaving"
                     class="btn btn-primary m-l5">
-                <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
+                <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
             </button>
         </div>
     </div>
@@ -174,7 +174,7 @@
                             ng-click="vm.edit(user)"
                             ng-if="!user.system"
                             class="btn btn-info btn-small">
-                        <span class="fa fa-pencil"></span>
+                        <span class="icon icon-edit"></span>
                         <span class="m-l5" i-translate="EDIT"></span>
                     </button>
                     <!--Deactivate for all now (Task EPMLSOPELN-629)-->
@@ -182,7 +182,7 @@
                     <!--ui-sref="entities.user-management.delete({login:user.login})"-->
                     <!--ng-if="!user.system"-->
                     <!--class="btn btn-info btn-small">-->
-                    <!--<span class="fa fa-trash"></span>-->
+                    <!--<span class="icon icon-delete"></span>-->
                     <!--<span class="m-l5">delete</span>-->
                     <!--</button>-->
                 </td>
