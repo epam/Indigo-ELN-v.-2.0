@@ -131,14 +131,14 @@ function projectConfig($stateProvider, permissionsConfig, permissionViewConfig, 
         .state('entities.project-new.permissions-view', _.extend({}, permissionViewConfig, {
             parent: 'entities.project-new',
             data: {
-                authorities: [roles.CONTENT_EDITOR, roles.PROJECT_CREATOR]
+                authorities: [roles.CONTENT_EDITOR, roles.PROJECT_READER]
             },
             permissions: permissions
         }))
         .state('entities.project-detail.permissions-view', _.extend({}, permissionViewConfig, {
             parent: 'entities.project-detail',
             data: {
-                authorities: [roles.CONTENT_EDITOR, roles.PROJECT_CREATOR]
+                authorities: [roles.CONTENT_EDITOR, roles.PROJECT_READER]
             },
             permissions: permissions
         }))
