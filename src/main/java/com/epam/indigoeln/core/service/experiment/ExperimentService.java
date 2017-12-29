@@ -31,8 +31,10 @@ import org.springframework.stereotype.Service;
 import javax.validation.ValidationException;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.epam.indigoeln.core.model.PermissionCreationLevel.EXPERIMENT;
 import static com.epam.indigoeln.core.util.BatchComponentUtil.*;
 
 /**
@@ -93,7 +95,7 @@ public class ExperimentService {
     private Striped<Lock> locks = Striped.lazyWeakLock(2);
 
     private static List<Experiment> getExperimentsWithAccess(List<Experiment> experiments, String userId) {
-        return experiments == null ? new ArrayList<>()
+        return experiments == null ? Collections.emptyList()
                 : experiments.stream().filter(experiment -> PermissionUtil.findPermissionsByUserId(
                 experiment.getAccessList(), userId) != null).collect(Collectors.toList());
     }
@@ -134,13 +136,11 @@ public class ExperimentService {
     public List<ExperimentDTO> getAllExperimentNotebookSummary(String projectId, String notebookId, User user) {
         Collection<Experiment> experiments = getAllExperiments(projectId, notebookId,
                 PermissionUtil.isContentEditor(user) ? null : user);
-        return experiments.stream().sorted((e1, e2) -> {
-            int i = e1.getName().compareTo(e2.getName());
-            if (i == 0) {
-                i = e1.getExperimentVersion() - e2.getExperimentVersion();
-            }
-            return i;
-        }).map(ExperimentDTO::new).collect(Collectors.toList());
+        return experiments.stream()
+                .sorted(Comparator.comparing((Function<Experiment, String>) BasicModelObject::getName)
+                        .thenComparingInt(Experiment::getExperimentVersion))
+                .map(ExperimentDTO::new)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -248,9 +248,16 @@ public class ExperimentService {
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, experiment.getAccessList());
         // add OWNER's permissions for specified User to experiment
-        PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), user);
+        Set<UserPermission> permissions = experiment.getAccessList();
+        experiment.setAccessList(Collections.emptySet());
+        PermissionUtil.addOwnerToAccessList(permissions, user,
+                PermissionCreationLevel.EXPERIMENT);
 
-        project.getAccessList().forEach(up -> PermissionUtil.importUsersFromUpperLevel(experiment.getAccessList(), up));
+        PermissionUtil.addUsersFromUpperLevel(permissions, notebook.getAccessList(),
+                PermissionCreationLevel.NOTEBOOK);
+
+        Pair<Boolean, Boolean> changes = PermissionUtil.changeExperimentPermissions(
+                project, notebook, experiment, permissions);
 
         //increment sequence Id
         experiment.setId(sequenceIdService.getNextExperimentId(projectId, notebookId));
@@ -263,30 +270,14 @@ public class ExperimentService {
         //set latest version
         experiment.setExperimentVersion(1);
         experiment.setLastVersion(true);
-        project.getAccessList().forEach(up -> PermissionUtil.importUsersFromUpperLevel(experiment.getAccessList(), up));
+
         Experiment savedExperiment = experimentRepository.save(experiment);
-
-        // add all users as VIEWER to notebook & project
-        Set<User> projectUsers = project.getAccessList().stream()
-                .map(UserPermission::getUser).collect(Collectors.toSet());
-        Set<User> notebookUsers = notebook.getAccessList().stream()
-                .map(UserPermission::getUser).collect(Collectors.toSet());
-
-        Boolean updateProject = savedExperiment.getAccessList().stream()
-                .map(up -> {
-                    PermissionUtil.addUsersFromLowLevelToUp(notebook.getAccessList(), up,
-                            UserPermission.VIEWER_PERMISSIONS, notebookUsers);
-                    return PermissionUtil
-                            .addUsersFromLowLevelToUp(project.getAccessList(), up,
-                                    UserPermission.VIEWER_PERMISSIONS, projectUsers);
-                })
-                .reduce(false, Boolean::logicalOr);
 
         notebook.getExperiments().add(savedExperiment);
         Notebook savedNotebook = notebookRepository.save(notebook);
         webSocketUtil.updateNotebook(user, projectId, savedNotebook);
 
-        if (updateProject) {
+        if (changes.getRight()) {
             Project savedProject = projectRepository.save(project);
             webSocketUtil.updateProject(user, savedProject);
         }
@@ -348,7 +339,7 @@ public class ExperimentService {
         newVersion.setId(id + "_" + newExperimentVersion);
         newVersion.setName(experimentName);
         newVersion.setAccessList(lastVersion.getAccessList());
-        PermissionUtil.addOwnerToAccessList(newVersion.getAccessList(), user);
+        PermissionUtil.addOwnerToAccessList(newVersion.getAccessList(), user, EXPERIMENT);
         newVersion.setTemplate(lastVersion.getTemplate());
         newVersion.setStatus(ExperimentStatus.OPEN);
         final List<Component> components = lastVersion.getComponents();
@@ -406,15 +397,11 @@ public class ExperimentService {
                 experimentForSave.setTemplate(tmpl);
             }
 
-            Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
-                    orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
 
             // check of user permissions's correctness in access control list
             PermissionUtil.checkCorrectnessOfAccessList(userRepository, experimentForSave.getAccessList());
-            project.getAccessList().forEach(up -> PermissionUtil.importUsersFromUpperLevel(experimentForSave.getAccessList(), up));
 
             experimentFromDB.setTemplate(experimentForSave.getTemplate());
-            experimentFromDB.setAccessList(experimentForSave.getAccessList());
             experimentFromDB.setComments(experimentForSave.getComments());
             experimentFromDB.setStatus(experimentForSave.getStatus());
             experimentFromDB.setDocumentId(experimentForSave.getDocumentId());
@@ -424,47 +411,37 @@ public class ExperimentService {
             experimentFromDB.setComponents(updateComponents(experimentFromDB.getComponents(),
                     experimentForSave.getComponents(), experimentFromDB.getId()));
 
+            // add all users as VIEWER to project and to notebook
+            Notebook notebook = Optional.ofNullable(notebookRepository.findOne(SequenceIdUtil
+                    .buildFullId(projectId, notebookId))).
+                    orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
+            Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
+                    orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
+
+            Pair<Boolean, Boolean> update = PermissionUtil.changeExperimentPermissions(
+                    project, notebook, experimentFromDB, experimentForSave.getAccessList());
+
             Experiment savedExperiment;
             try {
                 savedExperiment = experimentRepository.save(experimentFromDB);
             } catch (OptimisticLockingFailureException e) {
                 throw ConcurrencyException.createWithExperimentName(experimentFromDB.getName(), e);
             }
-            result = new ExperimentDTO(savedExperiment);
-
-
-            Notebook notebook = Optional.ofNullable(notebookRepository.findOne(SequenceIdUtil
-                    .buildFullId(projectId, notebookId))).
-                    orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
-            // add all users as VIEWER to project
-            Set<User> projectUsers = project.getAccessList().stream()
-                    .map(UserPermission::getUser).collect(Collectors.toSet());
-            Set<User> notebookUsers = notebook.getAccessList().stream()
-                    .map(UserPermission::getUser).collect(Collectors.toSet());
-            Pair<Boolean, Boolean> update = savedExperiment.getAccessList().stream()
-                    .map(up -> {
-                        boolean updateNotebook = PermissionUtil.addUsersFromLowLevelToUp(notebook.getAccessList(),
-                                up, UserPermission.VIEWER_PERMISSIONS, notebookUsers);
-                        boolean updateProject = PermissionUtil.addUsersFromLowLevelToUp(project.getAccessList(),
-                                up, UserPermission.VIEWER_PERMISSIONS, projectUsers);
-                        return Pair.of(updateNotebook, updateProject);
-                    })
-                    .reduce(Pair.of(false, false), (pair1, pair2) -> {
-                        boolean updateNotebook = pair1.getLeft() || pair2.getLeft();
-                        boolean updateProject = pair1.getRight() || pair2.getRight();
-                        return Pair.of(updateNotebook, updateProject);
-                    });
-
-            webSocketUtil.updateExperiment(user, projectId, notebookId, savedExperiment);
 
             if (update.getLeft()) {
                 Notebook savedNotebook = notebookRepository.save(notebook);
                 webSocketUtil.updateNotebook(user, projectId, savedNotebook);
             }
+
             if (update.getRight()) {
                 Project savedProject = projectRepository.save(project);
                 webSocketUtil.updateProject(user, savedProject);
             }
+
+            result = new ExperimentDTO(savedExperiment);
+
+            webSocketUtil.updateExperiment(user, projectId, notebookId, savedExperiment);
+
 
         } finally {
             lock.unlock();
