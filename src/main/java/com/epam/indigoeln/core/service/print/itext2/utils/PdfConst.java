@@ -6,8 +6,8 @@ package com.epam.indigoeln.core.service.print.itext2.utils;
 public final class PdfConst {
 
     public static final String BOLD_FONT_FAMILY = "arial";
-    public static final String MAIN_FONT_FAMILY = "sans";
-    public static final String MAIN_FONT_FAMILY_DIR = "pdf/LiberationSans-Regular.ttf";
+    public static final String MAIN_FONT_FAMILY = "arimo";
+    public static final String MAIN_FONT_FAMILY_DIR = "pdf/Arimo-Regular.ttf";
 
     private PdfConst() {
     }
