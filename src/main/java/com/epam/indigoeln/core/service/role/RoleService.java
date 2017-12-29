@@ -38,19 +38,27 @@ public class RoleService {
     private final UserRepository userRepository;
 
     /**
+     * SecurityUtils instance to work with global permissions.
+     */
+    private final SecurityUtils securityUtils;
+
+    /**
      * Create a new RoleService instance.
      *
      * @param sessionRegistry SessionRegistry instance to work with user sessions
      * @param roleRepository  RoleRepository instance to work with roles in DB
      * @param userRepository  UserRepository instance to work with users in DB
+     * @param securityUtils   SecurityUtils instance to work with global permissions
      */
     @Autowired
     public RoleService(SessionRegistry sessionRegistry,
                        RoleRepository roleRepository,
-                       UserRepository userRepository) {
+                       UserRepository userRepository,
+                       SecurityUtils securityUtils) {
         this.sessionRegistry = sessionRegistry;
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
+        this.securityUtils = securityUtils;
     }
 
     /**
@@ -116,7 +124,7 @@ public class RoleService {
         Role savedRole = roleRepository.save(role);
 
         // check for significant changes and perform logout for users
-        SecurityUtils.checkAndLogoutUsers(userRepository.findByRoleId(savedRole.getId()), sessionRegistry);
+        securityUtils.checkAndLogoutUsers(userRepository.findByRoleId(savedRole.getId()), sessionRegistry);
         return savedRole;
     }
 
