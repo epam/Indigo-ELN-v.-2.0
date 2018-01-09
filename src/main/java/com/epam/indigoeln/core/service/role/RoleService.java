@@ -7,13 +7,18 @@ import com.epam.indigoeln.core.security.SecurityUtils;
 import com.epam.indigoeln.core.service.exception.AlreadyInUseException;
 import com.epam.indigoeln.core.service.exception.DuplicateFieldException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
+import com.epam.indigoeln.core.util.SortedPageUtil;
 import com.epam.indigoeln.web.rest.util.AuthoritiesUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -37,6 +42,14 @@ public class RoleService {
      */
     private final UserRepository userRepository;
 
+    private static final SortedPageUtil<Role> roleSortedPageUtil;
+
+    static {
+        Map<String, Function<Role, String>> functionMap = new HashMap<>();
+        functionMap.put("name", Role::getName);
+        roleSortedPageUtil = new SortedPageUtil<>(functionMap);
+    }
+
     /**
      * Create a new RoleService instance.
      *
@@ -54,12 +67,12 @@ public class RoleService {
     }
 
     /**
-     * Retrieve all roles from DB.
+     * Retrieve all roles from DB according to given pagination information.
      *
      * @return all roles in application
      */
-    public List<Role> getAllRoles() {
-        return roleRepository.findAll();
+    public Page<Role> getAllRoles(Pageable pageable) {
+        return roleSortedPageUtil.getPage(roleRepository.findAll(), pageable);
     }
 
     /**
