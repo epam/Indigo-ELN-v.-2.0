@@ -67,7 +67,8 @@
                                     </simple-input>
                                 </div>
                                 <div class="col-xs-3">
-                                    <a class="link-advanced-search" ng-click="vm.isAdvancedSearchCollapsed = !vm.isAdvancedSearchCollapsed">
+                                    <a class="link-advanced-search"
+                                       ng-click="vm.isAdvancedSearchCollapsed = !vm.isAdvancedSearchCollapsed">
                                         Advanced search
                                         <span ng-class="{'glyphicon glyphicon-chevron-down':vm.isAdvancedSearchCollapsed,
                                                  'glyphicon glyphicon-chevron-up':!vm.isAdvancedSearchCollapsed}"></span>
@@ -174,7 +175,10 @@
                                     </div>
                                     <div class="col-xs-6">
                                         <indigo-select indigo-dictionary="Compound State"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.compoundState.value"></indigo-select>
+                                                       indigo-model="vm.compoundStateModel"
+                                                       indigo-change="vm.model.restrictions.advancedSearch.compoundState.value = vm.compoundStateModel.name"
+                                                       indigo-remove="vm.model.restrictions.advancedSearch.compoundState.value = null">
+                                        </indigo-select>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -312,7 +316,8 @@
                                         </simple-input>
                                     </div>
                                     <div class="col-xs-3">
-                                        <a class="link-advanced-search" ng-click="vm.isAdvancedSearchCollapsed = !vm.isAdvancedSearchCollapsed">
+                                        <a class="link-advanced-search"
+                                           ng-click="vm.isAdvancedSearchCollapsed = !vm.isAdvancedSearchCollapsed">
                                             Advanced search
                                             <span ng-class="{'glyphicon glyphicon-chevron-down':vm.isAdvancedSearchCollapsed,
                                                                  'glyphicon glyphicon-chevron-up':!vm.isAdvancedSearchCollapsed}"></span>
@@ -417,7 +422,10 @@
                                     </div>
                                     <div class="col-xs-6">
                                         <indigo-select indigo-dictionary="Compound State"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.compoundState.value"></indigo-select>
+                                                       indigo-model="vm.compoundStateModel"
+                                                       indigo-change="vm.model.restrictions.advancedSearch.compoundState.value = vm.compoundStateModel.name"
+                                                       indigo-remove="vm.model.restrictions.advancedSearch.compoundState.value = null">
+                                        </indigo-select>
                                     </div>
                                 </div>
                                 <div class="row">

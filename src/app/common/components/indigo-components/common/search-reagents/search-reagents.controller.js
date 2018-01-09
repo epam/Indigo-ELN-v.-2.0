@@ -1,18 +1,19 @@
 /* @ngInject */
 function SearchReagentsController($rootScope, $uibModalInstance, notifyService, appValuesService,
                                   activeTabIndex, userReagentsService, searchService, searchUtil,
-                                  searchReagentsConstant, stoichColumnActions, translateService) {
+                                  searchReagentsService, stoichColumnActions, translateService) {
     var vm = this;
     var myReagentsSearchQuery;
 
     init();
 
     function init() {
-        vm.model = {};
-        vm.model.restrictions = searchReagentsConstant.getRestrictions();
-        vm.model.databases = searchService.getCatalogues();
+        vm.model = {
+            restrictions: searchReagentsService.getRestrictions(),
+            databases: searchService.getCatalogues()
+        };
         vm.myReagents = {};
-
+        vm.compoundStateModel = null;
         vm.activeTabIndex = activeTabIndex;
         vm.isSearchResultFound = false;
         vm.conditionText = [{
