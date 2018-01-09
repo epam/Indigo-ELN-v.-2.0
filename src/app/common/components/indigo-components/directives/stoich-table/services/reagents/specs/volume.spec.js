@@ -2,7 +2,7 @@ var ReagentViewRow = require('../../../domain/reagent/view-row/reagent-view-row'
 var ReagentRow = require('../../../domain/reagent/calculation-row/reagent-row');
 var fieldTypes = require('../../../domain/field-types');
 
-function changeVolume() {
+function onVolumeChanged() {
     describe('Change volume', function() {
         var service;
         var reagentsData;
@@ -39,7 +39,7 @@ function changeVolume() {
             firstRow.eq.value = 2;
             firstRow.volume.value = 4;
             firstRow.volume.entered = true;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
 
             secondRow.molWeight.value = 1;
 
@@ -48,10 +48,10 @@ function changeVolume() {
             expect(calculatedRows[0].weight.value).toBe(0);
             expect(calculatedRows[0].mol.value).toBe(0);
             expect(calculatedRows[0].eq.value).toBe(1);
-            expect(calculatedRows[0].limiting).toBeFalsy();
+            expect(calculatedRows[0].limiting.value).toBeFalsy();
             expect(calculatedRows[0].molWeight.value).toBe(10);
 
-            expect(calculatedRows[1].limiting).toBeTruthy();
+            expect(calculatedRows[1].limiting.value).toBeTruthy();
         });
 
         it('row is not limiting; should set mol, weight to 0', function() {
@@ -66,7 +66,7 @@ function changeVolume() {
 
             expect(calculatedRows[0].weight.value).toBe(0);
             expect(calculatedRows[0].mol.value).toBe(0);
-            expect(calculatedRows[0].limiting).toBeFalsy();
+            expect(calculatedRows[0].limiting.value).toBeFalsy();
             expect(calculatedRows[0].molWeight.value).toBe(10);
         });
 
@@ -75,7 +75,7 @@ function changeVolume() {
             firstRow.molWeight.value = 2;
             firstRow.weight.value = 22;
             firstRow.mol.value = 11;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
 
             secondRow.molWeight.value = 3;
             secondRow.mol.value = 0;
@@ -84,10 +84,10 @@ function changeVolume() {
             reagentsData.changedRow = secondRow;
             var calculatedRows = service.calculate(reagentsData);
 
-            expect(calculatedRows[0].limiting).toBeTruthy();
+            expect(calculatedRows[0].limiting.value).toBeTruthy();
             expect(calculatedRows[0].mol.value).toBe(11);
 
-            expect(calculatedRows[1].limiting).toBeFalsy();
+            expect(calculatedRows[1].limiting.value).toBeFalsy();
             expect(calculatedRows[1].mol.value).toBe(11);
             expect(calculatedRows[1].weight.value).toBe(33);
         });
@@ -96,7 +96,7 @@ function changeVolume() {
             firstRow.molWeight.value = 2;
             firstRow.weight.value = 22;
             firstRow.mol.value = 11;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
 
             secondRow.molWeight.value = 3;
             secondRow.volume.value = 3;
@@ -105,10 +105,10 @@ function changeVolume() {
             reagentsData.changedRow = secondRow;
             var calculatedRows = service.calculate(reagentsData);
 
-            expect(calculatedRows[0].limiting).toBeTruthy();
+            expect(calculatedRows[0].limiting.value).toBeTruthy();
             expect(calculatedRows[0].mol.value).toBe(11);
 
-            expect(calculatedRows[1].limiting).toBeFalsy();
+            expect(calculatedRows[1].limiting.value).toBeFalsy();
             expect(calculatedRows[1].mol.value).toBe(0);
             expect(calculatedRows[1].weight.value).toBe(0);
         });
@@ -177,4 +177,4 @@ function changeVolume() {
     });
 }
 
-module.exports = changeVolume;
+module.exports = onVolumeChanged;

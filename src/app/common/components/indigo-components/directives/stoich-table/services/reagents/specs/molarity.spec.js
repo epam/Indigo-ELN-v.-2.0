@@ -2,7 +2,7 @@ var ReagentViewRow = require('../../../domain/reagent/view-row/reagent-view-row'
 var ReagentRow = require('../../../domain/reagent/calculation-row/reagent-row');
 var fieldTypes = require('../../../domain/field-types');
 
-function changeMolarity() {
+function onMolarityChanged() {
     describe('Change molarity', function() {
         var service;
         var reagentsData;
@@ -42,7 +42,7 @@ function changeMolarity() {
 
             expect(calculatedRows[0].mol.value).toBe(12);
             expect(calculatedRows[0].weight.value).toBe(24);
-            expect(calculatedRows[0].limiting).toBeTruthy();
+            expect(calculatedRows[0].limiting.value).toBeTruthy();
             expect(calculatedRows[0].eq.value).toBe(1);
             expect(calculatedRows[0].molWeight.value).toBe(2);
             expect(calculatedRows[0].volume.value).toBe(4);
@@ -53,7 +53,7 @@ function changeMolarity() {
             firstRow.molWeight.value = 5;
             firstRow.weight.value = 10;
             firstRow.mol.value = 2;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
 
             secondRow.molWeight.value = 2;
             secondRow.volume.value = 4;
@@ -65,7 +65,7 @@ function changeMolarity() {
 
             expect(calculatedRows[1].mol.value).toBe(12);
             expect(calculatedRows[1].weight.value).toBe(24);
-            expect(calculatedRows[1].limiting).toBeFalsy();
+            expect(calculatedRows[1].limiting.value).toBeFalsy();
             expect(calculatedRows[1].eq.value).toBe(6);
             expect(calculatedRows[1].molWeight.value).toBe(2);
             expect(calculatedRows[1].volume.value).toBe(4);
@@ -120,7 +120,7 @@ function changeMolarity() {
             firstRow.weight.value = 2;
             firstRow.weight.entered = true;
             firstRow.mol.value = 2;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
 
             secondRow.molWeight.value = 1;
             secondRow.density.value = 0;
@@ -134,4 +134,4 @@ function changeMolarity() {
     });
 }
 
-module.exports = changeMolarity;
+module.exports = onMolarityChanged;

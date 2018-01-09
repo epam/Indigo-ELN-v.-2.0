@@ -2,7 +2,7 @@ var ReagentViewRow = require('../../../domain/reagent/view-row/reagent-view-row'
 var ReagentRow = require('../../../domain/reagent/calculation-row/reagent-row');
 var fieldTypes = require('../../../domain/field-types');
 
-function changeRxnRole() {
+function onRxnRoleChanged() {
     describe('Change rxnRole', function() {
         var service;
         var reagentsData;
@@ -49,6 +49,7 @@ function changeRxnRole() {
             firstRow.saltEq.value = 11;
             firstRow.rxnRole = {name: 'SOLVENT'};
             firstRow.loadFactor.value = 11;
+            firstRow.limiting.value = true;
 
             var calculatedRows = service.calculate(reagentsData);
 
@@ -70,17 +71,19 @@ function changeRxnRole() {
             expect(calculatedRows[0].saltEq.readonly).toBeTruthy();
             expect(calculatedRows[0].loadFactor.value).toBe(1);
             expect(calculatedRows[0].loadFactor.readonly).toBeTruthy();
+            expect(calculatedRows[0].limiting.value).toBeFalsy();
+            expect(calculatedRows[0].limiting.readonly).toBeTruthy();
         });
 
         it('row is limiting, set solvent role, should reset and disable fields' +
             ' and set limiting to the next line', function() {
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
             firstRow.rxnRole = {name: 'SOLVENT'};
 
             var calculatedRows = service.calculate(reagentsData);
 
-            expect(calculatedRows[0].limiting).toBeFalsy();
-            expect(calculatedRows[1].limiting).toBeTruthy();
+            expect(calculatedRows[0].limiting.value).toBeFalsy();
+            expect(calculatedRows[1].limiting.value).toBeTruthy();
         });
 
         it('previous role was solvent, set reactant, should reset volume, enable fields and set mol of limiting' +
@@ -94,10 +97,11 @@ function changeRxnRole() {
                 fieldTypes.stoicPurity,
                 fieldTypes.saltCode,
                 fieldTypes.saltEq,
-                fieldTypes.loadFactor
+                fieldTypes.loadFactor,
+                fieldTypes.limiting
             ];
 
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
             secondRow.volume.value = 5;
             secondRow.prevRxnRole = {name: 'SOLVENT'};
             secondRow.setReadonly(readonlyFields, true);
@@ -124,8 +128,9 @@ function changeRxnRole() {
             expect(calculatedRows[1].saltEq.value).toBe(0);
             expect(calculatedRows[1].saltEq.readonly).toBeFalsy();
             expect(calculatedRows[1].loadFactor.readonly).toBeFalsy();
+            expect(calculatedRows[1].limiting.readonly).toBeFalsy();
         });
     });
 }
 
-module.exports = changeRxnRole;
+module.exports = onRxnRoleChanged;

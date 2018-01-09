@@ -78,32 +78,44 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             // Update row based on selected compoundId
             onCompoundIdChanged(changedRow, changedRow[changedField])
                 .then(function() {
-                    stoichTableHelper.onReagentsChanged({
-                        rows: rows,
-                        changedRow: changedRow,
-                        changedField: changedField
-                    });
+                    recalculateStoichTable(rows, changedRow, changedField);
                 });
 
             return;
         }
 
+        recalculateStoichTable(rows, changedRow, changedField);
+    }
+
+    function onProductsChanged(change) {
+        var rows = vm.componentData.products;
+        var changedRow = change ? change.row : null;
+        var changedField = change ? change.column : null;
+        var limitingRow = stoichTableHelper.findLimitingRow(vm.componentData.reactants);
+
+        stoichTableHelper.onProductsChanged({
+            rows: rows,
+            changedRow: changedRow,
+            changedField: changedField,
+            limitingRow: limitingRow
+        });
+    }
+
+    function recalculateStoichTable(rows, changedRow, changedField) {
         stoichTableHelper.onReagentsChanged({
             rows: rows,
             changedRow: changedRow,
             changedField: changedField
         });
-    }
 
-    function onProductsChanged(change) {
-        var tableRow = change.row;
-        var tableColumnId = change.column;
+        onProductsChanged();
     }
 
     function removeRow() {
         _.remove(vm.componentData.reactants, vm.selectedRow);
         vm.selectedRow = null;
         updateReactants();
+        onProductsChanged();
         // calculationService.recalculateStoich(vm.componentData);
         vm.onChanged();
     }
@@ -229,8 +241,8 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             stoichProductColumns.formula,
             stoichProductColumns.molWeight,
             stoichProductColumns.exactMass,
-            stoichProductColumns.weight,
-            stoichProductColumns.mol,
+            stoichProductColumns.theoWeight,
+            stoichProductColumns.theoMoles,
             stoichProductColumns.saltCode,
             stoichProductColumns.saltEq,
             stoichProductColumns.hazardComments,
@@ -263,9 +275,10 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
 
     function getLimitingColumn() {
         return _.extend({}, stoichReactantsColumns.limiting, {
-            onClick: function(data) {
-                calculationService.setEntered(data);
-                calculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
+            onClick: function() {
+                onProductsChanged();
+                // calculationService.setEntered(data);
+                // calculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
             }
         });
     }
@@ -330,13 +343,15 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         vm.onChanged();
     }
 
-    function getStructureImagesForIntendedProducts() {
-        _.forEach(vm.componentData.products, function(item) {
+    function getIntendedProductsWithStructureImages(products) {
+        return _.map(products, function(item) {
             if (!item.structure.image) {
                 calculationService.getImageForStructure(item.structure.molfile, 'molecule', function(image) {
                     item.structure.image = image;
                 });
             }
+
+            return item;
         });
     }
 
@@ -353,11 +368,12 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         }
 
         if (vm.infoProducts && vm.infoProducts.length) {
-            vm.componentData.products = vm.infoProducts;
-            getStructureImagesForIntendedProducts();
+            var products = getIntendedProductsWithStructureImages(vm.infoProducts);
+            vm.componentData.products = stoichTableHelper.convertToProductRow(products);
+            onProductsChanged();
+        //    TODO: also should update batches mol
         }
-
-        calculationService.recalculateStoich(vm.componentData);
+        // calculationService.recalculateStoich(vm.componentData);
     }
 
     function bindEvents() {

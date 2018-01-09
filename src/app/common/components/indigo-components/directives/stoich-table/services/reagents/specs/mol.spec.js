@@ -2,7 +2,7 @@ var ReagentViewRow = require('../../../domain/reagent/view-row/reagent-view-row'
 var ReagentRow = require('../../../domain/reagent/calculation-row/reagent-row');
 var fieldTypes = require('../../../domain/field-types');
 
-function changeMol() {
+function onMolChanged() {
     describe('Change mol', function() {
         var service;
         var reagentsData;
@@ -54,7 +54,7 @@ function changeMol() {
             firstRow.molWeight.value = 10;
             firstRow.mol.value = 11;
             firstRow.mol.entered = true;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
 
             secondRow.molWeight.value = 2;
 
@@ -70,7 +70,7 @@ function changeMol() {
             firstRow.molWeight.value = 10;
             firstRow.weight.value = 22;
             firstRow.weight.entered = true;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
 
             secondRow.molWeight.value = 1;
             secondRow.mol.value = 10;
@@ -118,7 +118,7 @@ function changeMol() {
             firstRow.volume.value = 10;
             firstRow.molarity.value = 2;
             firstRow.molarity.entered = true;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
 
             firstRow.mol.value = 10;
             firstRow.mol.entered = true;
@@ -137,7 +137,7 @@ function changeMol() {
             firstRow.molWeight.value = 2;
             firstRow.stoicPurity.value = 50;
             firstRow.stoicPurity.entered = true;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
 
             firstRow.mol.value = 10;
             firstRow.mol.entered = true;
@@ -150,4 +150,4 @@ function changeMol() {
     });
 }
 
-module.exports = changeMol;
+module.exports = onMolChanged;

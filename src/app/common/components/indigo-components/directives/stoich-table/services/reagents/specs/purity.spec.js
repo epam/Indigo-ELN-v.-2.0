@@ -2,7 +2,7 @@ var ReagentViewRow = require('../../../domain/reagent/view-row/reagent-view-row'
 var ReagentRow = require('../../../domain/reagent/calculation-row/reagent-row');
 var fieldTypes = require('../../../domain/field-types');
 
-function changePurity() {
+function onPurityChanged() {
     describe('Change purity', function() {
         var service;
         var reagentsData;
@@ -26,7 +26,7 @@ function changePurity() {
             firstRow.molWeight.value = 2;
             firstRow.weight.value = 30;
             firstRow.mol.value = 15;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
 
             secondRow.molWeight.value = 3;
             secondRow.weight.value = 45;
@@ -185,4 +185,4 @@ function changePurity() {
     });
 }
 
-module.exports = changePurity;
+module.exports = onPurityChanged;

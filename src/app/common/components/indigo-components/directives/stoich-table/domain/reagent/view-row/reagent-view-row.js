@@ -29,6 +29,9 @@ function setRowProperties(defaultProps, customProps) {
             defaultProps[key].value = value.value;
             defaultProps[key].prevValue = value.prevValue ? value.prevValue : value.value;
             defaultProps[key].entered = value.entered;
+        } else if (fieldTypes.isLimiting(key)) {
+            defaultProps[key].value = _.isObject(value) ? value.value : value;
+            defaultProps[key].readonly = _.isObject(value) ? value.readonly : false;
         } else if (fieldTypes.isRxnRole(key)) {
             defaultProps[key].name = value.name;
 
@@ -56,7 +59,6 @@ ReagentViewRow.prototype = {
 
 ReagentViewRow.getDefaultReagentViewRow = getDefaultReagentViewRow;
 
-
 function clear() {
     _.assign(this, getDefaultReagentViewRow());
 }
@@ -71,7 +73,7 @@ function getDefaultReagentViewRow() {
         volume: new ReagentViewField(0, 'mL'),
         mol: new ReagentViewField(0, 'mmol'),
         eq: {value: 1, prevValue: 1, entered: false, readonly: false},
-        limiting: false,
+        limiting: {value: false, readonly: false},
         rxnRole: {name: 'REACTANT'},
         prevRxnRole: {name: 'REACTANT'},
         density: new ReagentViewField(0, 'g/mL'),

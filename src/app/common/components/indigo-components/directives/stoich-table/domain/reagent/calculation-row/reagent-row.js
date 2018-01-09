@@ -1,6 +1,6 @@
 var ReagentViewRow = require('../view-row/reagent-view-row');
 var fieldTypes = require('../../field-types');
-var calculationUtil = require('../../../../../services/calculation/calculation-util');
+var mathCalculation = require('../../../../../services/calculation/math-calculation');
 
 function ReagentRow(props) {
     _.assignWith(this, props, function(defaultValue, valueFromProps) {
@@ -54,7 +54,7 @@ ReagentRow.prototype.constructor = ReagentRow;
 function updateMolWeight() {
     if (!this.molWeight.value && this.mol.value && this.weight.value) {
         this.resetEntered([fieldTypes.molWeight]);
-        this.molWeight.value = calculationUtil.computeMolWeight(this.weight.value, this.mol.value);
+        this.molWeight.value = mathCalculation.computeMolWeight(this.weight.value, this.mol.value);
         this.molWeight.originalValue = this.molWeight.value;
     }
 }
@@ -66,9 +66,9 @@ function updateVolume() {
     var isManuallyEntered = this.isWeightManuallyEntered() || this.isMolManuallyEntered() || this.isEqManuallyEntered();
 
     if (areMolarityAndMolPreset) {
-        this.volume.value = calculationUtil.computeVolumeByMolarity(this.mol.value, this.molarity.value);
+        this.volume.value = mathCalculation.computeVolumeByMolarity(this.mol.value, this.molarity.value);
     } else if (areDensityAndWeightPresent) {
-        this.volume.value = calculationUtil.computeVolumeByDensity(this.weight.value, this.density.value);
+        this.volume.value = mathCalculation.computeVolumeByDensity(this.weight.value, this.density.value);
     }
 
     if (isManuallyEntered && (areMolarityAndMolPreset || areDensityAndWeightPresent)) {
@@ -83,7 +83,7 @@ function updateEq(limitingRow) {
     if (isArgsExist && canUpdateEq) {
         this.resetEntered([fieldTypes.eq]);
         this.eq.value =
-            calculationUtil.computeEq(this.mol.value, limitingRow.eq.value, limitingRow.mol.value);
+            mathCalculation.computeEq(this.mol.value, limitingRow.eq.value, limitingRow.mol.value);
         this.eq.prevValue = this.eq.value;
     }
 }
@@ -115,7 +115,7 @@ function isSolventRow() {
 }
 
 function isLimiting() {
-    return this.limiting;
+    return this.limiting.value;
 }
 
 function getResetFieldForDensity() {
@@ -218,6 +218,7 @@ function getResetFieldsForSolvent() {
         fieldTypes.weight,
         fieldTypes.mol,
         fieldTypes.eq,
+        fieldTypes.limiting,
         fieldTypes.molarity,
         fieldTypes.density,
         fieldTypes.stoicPurity,

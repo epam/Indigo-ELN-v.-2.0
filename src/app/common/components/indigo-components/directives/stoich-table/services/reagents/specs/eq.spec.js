@@ -2,7 +2,7 @@ var ReagentViewRow = require('../../../domain/reagent/view-row/reagent-view-row'
 var ReagentRow = require('../../../domain/reagent/calculation-row/reagent-row');
 var fieldTypes = require('../../../domain/field-types');
 
-function changeEq() {
+function onEqChanged() {
     describe('Change eq', function() {
         var service;
         var reagentsData;
@@ -41,7 +41,7 @@ function changeEq() {
             firstRow.weight.value = 100;
             firstRow.weight.entered = true;
             firstRow.mol.value = 10;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
 
             secondRow.molWeight.value = 10;
 
@@ -142,7 +142,7 @@ function changeEq() {
 
             it('row is limiting, mol is manually entered, should update weight', function() {
                 firstRow.mol.entered = true;
-                firstRow.limiting = true;
+                firstRow.limiting.value = true;
 
                 var calculatedRows = service.calculate(reagentsData);
 
@@ -153,7 +153,7 @@ function changeEq() {
 
             it('row is limiting, should update mol in other rows', function() {
                 firstRow.weight.entered = true;
-                firstRow.limiting = true;
+                firstRow.limiting.value = true;
 
                 secondRow.molWeight.value = 10;
 
@@ -171,7 +171,7 @@ function changeEq() {
                 firstRow.weight.value = 100;
                 firstRow.weight.entered = true;
                 firstRow.mol.value = 10;
-                firstRow.limiting = true;
+                firstRow.limiting.value = true;
 
                 secondRow.molWeight.value = 10;
                 secondRow.volume.value = 2;
@@ -230,4 +230,4 @@ function changeEq() {
     });
 }
 
-module.exports = changeEq;
+module.exports = onEqChanged;

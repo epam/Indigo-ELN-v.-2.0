@@ -3,26 +3,26 @@ var math = require('mathjs');
 var ONE_HUNDRED = 100;
 var ONE_THOUSAND = 1000;
 
-function calculationUtil() {
+function mathCalculation() {
 }
 
-calculationUtil.computeMol = computeMol;
-calculationUtil.computeDissolvedMol = computeDissolvedMol;
-calculationUtil.computeMolByPurity = computeMolByPurity;
-calculationUtil.computeMolByEq = computeMolByEq;
-calculationUtil.computeNonLimitingMolByEq = computeNonLimitingMolByEq;
-calculationUtil.computeWeight = computeWeight;
-calculationUtil.computeWeightByEq = computeWeightByEq;
-calculationUtil.computeWeightByPurity = computeWeightByPurity;
-calculationUtil.computeEq = computeEq;
-calculationUtil.computeMolWeight = computeMolWeight;
-calculationUtil.computeMolWeightBySalt = computeMolWeightBySalt;
-calculationUtil.computeVolumeByMolarity = computeVolumeByMolarity;
-calculationUtil.computeVolumeByDensity = computeVolumeByDensity;
-calculationUtil.computeWeightByDensity = computeWeightByDensity;
-// calculationUtil.computeYield = computeYield;
-calculationUtil.multiply = multiply;
-calculationUtil.divide = divide;
+mathCalculation.computeMol = computeMol;
+mathCalculation.computeDissolvedMol = computeDissolvedMol;
+mathCalculation.computeMolByPurity = computeMolByPurity;
+mathCalculation.computeMolByEq = computeMolByEq;
+mathCalculation.computeNonLimitingMolByEq = computeNonLimitingMolByEq;
+mathCalculation.computeWeight = computeWeight;
+mathCalculation.computeWeightByEq = computeWeightByEq;
+mathCalculation.computeWeightByPurity = computeWeightByPurity;
+mathCalculation.computeEq = computeEq;
+mathCalculation.computeMolWeight = computeMolWeight;
+mathCalculation.computeMolWeightBySalt = computeMolWeightBySalt;
+mathCalculation.computeVolumeByMolarity = computeVolumeByMolarity;
+mathCalculation.computeVolumeByDensity = computeVolumeByDensity;
+mathCalculation.computeWeightByDensity = computeWeightByDensity;
+// mathCalculation.computeYield = computeYield;
+mathCalculation.multiply = multiply;
+mathCalculation.divide = divide;
 
 /**
  * Compute mol: Mol = Weight / Mol weight * (Purity / 100)
@@ -251,4 +251,4 @@ function bignumber(value) {
     return math.bignumber(value);
 }
 
-module.exports = calculationUtil;
+module.exports = mathCalculation;

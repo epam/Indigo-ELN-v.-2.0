@@ -2,7 +2,7 @@ var ReagentViewRow = require('../../../domain/reagent/view-row/reagent-view-row'
 var ReagentRow = require('../../../domain/reagent/calculation-row/reagent-row');
 var fieldTypes = require('../../../domain/field-types');
 
-function changeDensity() {
+function onDensityChanged() {
     describe('Change density', function() {
         var service;
         var reagentsData;
@@ -72,7 +72,7 @@ function changeDensity() {
             firstRow.weight.value = 2;
             firstRow.weight.entered = true;
             firstRow.mol.value = 2;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
 
             secondRow.molWeight.value = 1;
             secondRow.volume.value = 4;
@@ -93,7 +93,7 @@ function changeDensity() {
             firstRow.weight.value = 2;
             firstRow.weight.entered = true;
             firstRow.mol.value = 2;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
 
             secondRow.molWeight.value = 1;
             secondRow.density.value = 0;
@@ -109,4 +109,4 @@ function changeDensity() {
     });
 }
 
-module.exports = changeDensity;
+module.exports = onDensityChanged;

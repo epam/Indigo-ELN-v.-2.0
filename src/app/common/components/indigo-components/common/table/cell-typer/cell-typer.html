@@ -18,7 +18,8 @@
         <simple-checkbox model="row[column.id]"></simple-checkbox>
     </div>
     <simple-radio ng-switch-when="radio" ng-click="$event.stopPropagation()">
-        <input ng-checked="row[column.id]"
+        <input ng-disabled="row[column.id].readonly"
+               ng-checked="row[column.id].value"
                ng-click="vm.onClickRadio(column, row, row[column.id]);">
         <label></label>
     </simple-radio>

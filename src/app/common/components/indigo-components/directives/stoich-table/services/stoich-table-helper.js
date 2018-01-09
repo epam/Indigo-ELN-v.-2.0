@@ -1,9 +1,13 @@
 var ReagentRow = require('../domain/reagent/calculation-row/reagent-row');
+var ProductRow = require('../domain/product/product-row');
 
 /* @ngInject */
-function stoichTableHelper(reagentsCalculation) {
+function stoichTableHelper(reagentsCalculation, productsCalculation) {
     return {
         onReagentsChanged: onReagentsChanged,
+        onProductsChanged: onProductsChanged,
+        findLimitingRow: findLimitingRow,
+        convertToProductRow: convertToProductRow,
         getPrecursors: getPrecursors,
         getReactantsWithMolfile: getReactantsWithMolfile,
         isReactantWithMolfile: isReactantWithMolfile
@@ -14,6 +18,21 @@ function stoichTableHelper(reagentsCalculation) {
 
         var calculatedRows = reagentsCalculation.calculate(preparedReagentsData);
         updateReagents(calculatedRows, change.rows);
+    }
+
+    function onProductsChanged(change) {
+        var calculatedRows = productsCalculation.calculate(change);
+        updateProducts(calculatedRows, change.rows);
+    }
+
+    function findLimitingRow(reagents) {
+        return _.find(reagents, ['limiting.value', true]);
+    }
+
+    function convertToProductRow(products) {
+        return _.map(products, function(item) {
+            return new ProductRow(item);
+        });
     }
 
     function getPrecursors(rows) {
@@ -79,6 +98,12 @@ function stoichTableHelper(reagentsCalculation) {
                     });
                 }
             });
+        });
+    }
+
+    function updateProducts(calculatedRows, viewRows) {
+        _.forEach(viewRows, function(row, index) {
+            _.assign(row, calculatedRows[index]);
         });
     }
 }

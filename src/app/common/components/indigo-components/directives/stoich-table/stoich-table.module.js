@@ -6,6 +6,7 @@ var stoichReactantsColumns = require('./services/stoich-reactants-columns.servic
 var stoichTableHelper = require('./services/stoich-table-helper');
 
 var reagentsCalculation = require('./services/reagents/reagents-calculation.service');
+var productsCalculation = require('./services/products/products-calculation.service');
 
 var stoichTableCache = require('./services/stoich-table-cache.service');
 
@@ -22,5 +23,6 @@ module.exports = angular
     .factory('stoichTableCache', stoichTableCache)
     .factory('stoichTableHelper', stoichTableHelper)
     .factory('reagentsCalculation', reagentsCalculation)
+    .factory('productsCalculation', productsCalculation)
 
     .name;

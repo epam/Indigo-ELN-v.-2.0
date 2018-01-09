@@ -2,7 +2,7 @@ var ReagentViewRow = require('../../../domain/reagent/view-row/reagent-view-row'
 var ReagentRow = require('../../../domain/reagent/calculation-row/reagent-row');
 var fieldTypes = require('../../../domain/field-types');
 
-function changeSaltCode() {
+function onSaltCodeChanged() {
     describe('Change salt code/eq', function() {
         var service;
         var reagentsData;
@@ -38,7 +38,7 @@ function changeSaltCode() {
         });
 
         it('row is limiting, should compute mol, then weight and update mol in other rows', function() {
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
 
             var calculatedRows = service.calculate(reagentsData);
 
@@ -78,4 +78,4 @@ function changeSaltCode() {
     });
 }
 
-module.exports = changeSaltCode;
+module.exports = onSaltCodeChanged;

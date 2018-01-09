@@ -2,7 +2,7 @@ var ReagentViewRow = require('../../../domain/reagent/view-row/reagent-view-row'
 var ReagentRow = require('../../../domain/reagent/calculation-row/reagent-row');
 var fieldTypes = require('../../../domain/field-types');
 
-function changeWeight() {
+function onWeightChanged() {
     describe('Change weight', function() {
         var service;
         var reagentsData;
@@ -43,7 +43,7 @@ function changeWeight() {
             firstRow.molWeight.value = 10;
             firstRow.weight.value = 10;
             firstRow.weight.entered = true;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
 
             secondRow.molWeight.value = 5;
 
@@ -71,7 +71,7 @@ function changeWeight() {
             firstRow.weight.value = 0;
             firstRow.weight.entered = true;
             firstRow.mol.value = 10;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
 
             secondRow.molWeight.value = 1;
             secondRow.mol.value = 10;
@@ -171,7 +171,7 @@ function changeWeight() {
             'should not update this row with new mol', function() {
             firstRow.molWeight.value = 3;
             firstRow.mol.value = 5;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
             firstRow.weight.value = 15;
             firstRow.weight.entered = true;
 
@@ -190,7 +190,7 @@ function changeWeight() {
             firstRow.molWeight.value = 3;
             firstRow.eq.value = 2;
             firstRow.eq.entered = true;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
             firstRow.weight.value = 15;
             firstRow.weight.entered = true;
 
@@ -218,7 +218,7 @@ function changeWeight() {
             ' should update mol and weight(depending on purity) in other row', function() {
             firstRow.molWeight.value = 3;
             firstRow.mol.value = 5;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
             firstRow.weight.value = 15;
             firstRow.weight.entered = true;
 
@@ -248,7 +248,7 @@ function changeWeight() {
             firstRow.molWeight.value = 10;
             firstRow.weight.value = 100;
             firstRow.weight.entered = true;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
 
             secondRow.molWeight.value = 5;
             secondRow.rxnRole = {name: 'SOLVENT'};
@@ -269,4 +269,4 @@ function changeWeight() {
     });
 }
 
-module.exports = changeWeight;
+module.exports = onWeightChanged;

@@ -2,7 +2,7 @@ var ReagentViewRow = require('../../../domain/reagent/view-row/reagent-view-row'
 var ReagentRow = require('../../../domain/reagent/calculation-row/reagent-row');
 var fieldTypes = require('../../../domain/field-types');
 
-function changeMolWeight() {
+function onMolWeightChanged() {
     describe('Change mol weight', function() {
         var service;
         var reagentsData;
@@ -28,7 +28,7 @@ function changeMolWeight() {
             firstRow.molWeight.value = 23;
             firstRow.weight.value = 23;
             firstRow.weight.entered = true;
-            firstRow.limiting = true;
+            firstRow.limiting.value = true;
 
             var calculatedRows = service.calculate(reagentsData);
 
@@ -47,4 +47,4 @@ function changeMolWeight() {
     });
 }
 
-module.exports = changeMolWeight;
+module.exports = onMolWeightChanged;
