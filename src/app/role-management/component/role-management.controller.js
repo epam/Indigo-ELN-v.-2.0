@@ -58,11 +58,9 @@ function RoleManagementController($scope, roleService, accountRoleService, i18en
 
     function search() {
         // Filtering through current table page
-        var searchResult = $filter('filter')(vm.roles, {
+        vm.filteredRoles = $filter('filter')(vm.roles, {
             name: vm.searchText
         });
-
-        vm.filteredRoles = $filter('orderBy')(searchResult, 'name');
     }
 
     function hasAuthority(role, authority) {
@@ -117,6 +115,8 @@ function RoleManagementController($scope, roleService, accountRoleService, i18en
         vm.sortBy.isAscending = isAscending;
         vm.roles = $filter('orderBy')(vm.roles, predicate, !isAscending);
 
+        // Update displayed filteredRoles list
+        search();
         $scope.$digest();
     }
 
@@ -129,6 +129,8 @@ function RoleManagementController($scope, roleService, accountRoleService, i18en
                 : role.authorities.indexOf(authority) !== -1;
         });
 
+        // Update displayed filteredRoles list
+        search();
         $scope.$digest();
     }
 }
