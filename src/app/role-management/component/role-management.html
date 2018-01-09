@@ -39,7 +39,7 @@
                         </th>
                     </tr>
                     <tbody>
-                    <tr ng-repeat="role in vm.filteredRoles track by role.id">
+                    <tr ng-repeat="role in vm.roles track by role.id">
                         <td>
                             <div class="role-name" uib-tooltip="{{role.name}}" ng-bind="role.name"></div>
                         </td>
@@ -50,22 +50,18 @@
             <div indigo-scroller="x">
                 <table class="table table-striped authorities-table">
                     <thead>
-                    <tr indigo-sort="vm.sortBy.field"
-                        is-ascending="vm.sortBy.isAscending"
-                        on-sort="vm.sortByAuthorities(predicate, isAscending)">
+                    <tr>
                         <th ng-repeat="authority in vm.authorities track by $index"
                             uib-tooltip="{{authority.tooltip}}"
                             tooltip-placement="top"
-                            tooltip-append-to-body="true"
-                            indigo-sort-by="{{ authority.name }}">
+                            tooltip-append-to-body="true">
                             <span ng-bind="authority.description"></span>
-                            <span class="glyphicon glyphicon-sort role-management__icon-sort"></span>
                         </th>
                         <th i-translate="ACTION"></th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="role in vm.filteredRoles track by role.id">
+                    <tr ng-repeat="role in vm.roles track by role.id">
                         <td ng-repeat="authority in vm.authorities track by $index">
                                 <span ng-class="{'glyphicon glyphicon-ok-sign': vm.hasAuthority(role, authority)}"
                                       class="role-check-icon"></span>
@@ -90,6 +86,15 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+    <div class="text-center">
+        <div uib-pagination
+             class="pagination-sm"
+             total-items="vm.totalItems"
+             items-per-page="vm.itemsPerPage"
+             ng-model="vm.page"
+             ng-change="vm.loadAll()">
         </div>
     </div>
 </div>
