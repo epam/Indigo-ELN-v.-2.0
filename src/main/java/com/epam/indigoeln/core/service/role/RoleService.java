@@ -91,7 +91,7 @@ public class RoleService {
      * @return all roles in application
      */
     public Page<Role> getRolesWithNameLike(String nameLike, Pageable pageable) {
-        return roleSortedPageUtil.getPage(roleRepository.findByNameLikeIgnoreCase(nameLike)
+        return ROLE_SORTED_PAGE_UTIL.getPage(roleRepository.findByNameLikeIgnoreCase(nameLike)
                 .collect(Collectors.toList()), pageable);
     }
 

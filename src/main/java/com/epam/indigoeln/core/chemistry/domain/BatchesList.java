@@ -365,8 +365,9 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
         if (shouldApplySigFigRules()) {
             amt.setSigDigits(CeNNumberUtils.getSmallestSigFigsFromAmountModelList(amts));
         } else {
-            if (shouldApplyDefaultSigFigs())
+            if (shouldApplyDefaultSigFigs()) {
                 amt.setSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
+            }
         }
     }
 
