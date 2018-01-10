@@ -27,14 +27,16 @@ public abstract class CeNAbstractModel implements java.io.Serializable {
 
     /**
      * Set the Boolean flag to identify if a model has changed.  Model itself is responsible
-     * for changing the flag when data of interest has changed and that needs to be persisited in DB
+     * for changing the flag when data of interest has changed and that needs to be persisited in DB.
+     *
+     * @param hasChanged true if model was changed
      */
     protected void setModelChanged(boolean hasChanged) {
         this.modelChanged = hasChanged;
     }
 
     //This was added for 1.1 compatabiity
-    public void setModified(boolean bol) {
+    void setModified(boolean bol) {
         setModelChanged(bol);
     }
 

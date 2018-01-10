@@ -5,7 +5,7 @@ import com.epam.indigoeln.core.service.exception.IncorrectAuthoritiesException;
 
 import java.util.Set;
 
-public class AuthoritiesUtil {
+public final class AuthoritiesUtil {
     private AuthoritiesUtil() {
 
     }

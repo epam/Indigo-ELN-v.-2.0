@@ -2,7 +2,7 @@ package com.epam.indigoeln.config.dbchangelogs;
 
 import org.springframework.core.env.Environment;
 
-public class ChangeLogBase {
+public final class ChangeLogBase {
 
     private static Environment environment;
 

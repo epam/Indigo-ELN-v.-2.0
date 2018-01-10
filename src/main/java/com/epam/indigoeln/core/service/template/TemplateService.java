@@ -38,7 +38,7 @@ public class TemplateService {
     @Autowired
     private CustomDtoMapper dtoMapper;
 
-    private static final SortedPageUtil<Template> templateSortedPageUtil;
+    private static final SortedPageUtil<Template> TEMPLATE_SORTED_PAGE_UTIL;
 
     static {
         Map<String, Function<Template, String>> functionMap = new HashMap<>();
@@ -47,7 +47,7 @@ public class TemplateService {
         functionMap.put("creationDate", template -> template.getCreationDate().toInstant().toString());
         functionMap.put("lastEditDate", template -> template.getLastEditDate().toInstant().toString());
 
-        templateSortedPageUtil = new SortedPageUtil<>(functionMap);
+        TEMPLATE_SORTED_PAGE_UTIL = new SortedPageUtil<>(functionMap);
     }
 
     /**
@@ -77,20 +77,20 @@ public class TemplateService {
      * @return All templates
      */
     public Page<TemplateDTO> getAllTemplates(Pageable pageable) {
-        return templateSortedPageUtil
+        return TEMPLATE_SORTED_PAGE_UTIL
                 .getPage(templateRepository.findAll(), pageable)
                 .map(TemplateDTO::new);
     }
 
     /**
-     * Returns templates by name like
+     * Returns templates by name like.
      *
      * @param nameLike Name
      * @param pageable Pagination information
      * @return Templates
      */
     public Page<TemplateDTO> getTemplatesNameLike(String nameLike, Pageable pageable) {
-        return templateSortedPageUtil
+        return TEMPLATE_SORTED_PAGE_UTIL
                 .getPage(templateRepository.findByNameLikeIgnoreCase(nameLike), pageable)
                 .map(TemplateDTO::new);
     }
@@ -108,7 +108,7 @@ public class TemplateService {
     }
 
     /**
-     * Updates template
+     * Updates template.
      *
      * @param templateDTO Template transfer object
      * @return Updated template
@@ -124,7 +124,7 @@ public class TemplateService {
     }
 
     /**
-     * Removes template by id
+     * Removes template by id.
      *
      * @param templateId Template's id
      */

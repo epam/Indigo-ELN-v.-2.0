@@ -60,10 +60,10 @@ public class AmountModel extends Amount2 {
         // Leave as separate lines for debugging if necessary
 
         //NS 7/23. Fix to load empty value Amount Record from DB to model.
-        return this.getValue().equals(amtModel.getValue()) &&
-                this.isCalculated() == amtModel.isCalculated() &&
-                this.getSigDigits() == amtModel.getSigDigits() &&
-                this.getUnit().getCode().equals(amtModel.getUnit().getCode());
+        return this.getValue().equals(amtModel.getValue())
+                && this.isCalculated() == amtModel.isCalculated()
+                && this.getSigDigits() == amtModel.getSigDigits()
+                && this.getUnit().getCode().equals(amtModel.getUnit().getCode());
     }
 
     @Override
@@ -95,7 +95,7 @@ public class AmountModel extends Amount2 {
         }
         AmountModel amtModel = (AmountModel) amtObj;
         // to avoid .10 not equal to .100 when compared by getValue()
-        return this.getValueForDisplay().equals(amtModel.getValueForDisplay()) && this.getUnit().getStdCode().equals(amtModel.getUnit().getStdCode());
+        return this.getValueForDisplay().equals(amtModel.getValueForDisplay())
+                && this.getUnit().getStdCode().equals(amtModel.getUnit().getStdCode());
     }
-
 }

@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Unit types are based on (T)ime, (M)ass, (L)ength, (W)eight, (D)ensity
+ * Unit types are based on (T)ime, (M)ass, (L)ength, (W)eight, (D)ensity.
  */
-class UnitCache {
+final class UnitCache {
     private static volatile UnitCache instance;
     private TreeMap<UnitType, Map<String, Unit>> unitsByType = null;
     private TreeMap<Object, Unit> units = null; // Cached by code
@@ -22,8 +22,9 @@ class UnitCache {
     }
 
     public static UnitCache getInstance() {
-        if (instance == null)
+        if (instance == null) {
             createInstance();
+        }
         return instance;
     }
 
@@ -39,17 +40,21 @@ class UnitCache {
 
         String uc = unitCode;
 
-        if ("G".equals(unitCode))
+        if ("G".equals(unitCode)) {
             uc = "GM";
-        if ("SCLR".equals(unitCode))
+        }
+        if ("SCLR".equals(unitCode)) {
             uc = "SCAL";
-
-        if (units.containsKey(uc))
+        }
+        if (units.containsKey(uc)) {
             result = units.get(uc);
-        if (units.containsKey(uc.toUpperCase(Locale.getDefault())))
+        }
+        if (units.containsKey(uc.toUpperCase(Locale.getDefault()))) {
             result = units.get(uc.toUpperCase(Locale.getDefault()));
-        if (unitsByDisplayName.containsKey(uc))
+        }
+        if (unitsByDisplayName.containsKey(uc)) {
             result = unitsByDisplayName.get(uc);
+        }
 
         return result;
     }
@@ -61,8 +66,9 @@ class UnitCache {
     }
 
     private void addMap(UnitType type, Map<String, Unit> mp) {
-        if (!unitsByType.containsKey(type))
+        if (!unitsByType.containsKey(type)) {
             unitsByType.put(type, mp);
+        }
 
         mp.forEach((key, value) -> {
             if (!units.containsKey(key)) {

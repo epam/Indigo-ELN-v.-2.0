@@ -25,25 +25,25 @@ import java.io.Serializable;
  * <p>
  * The idea here is to classify reactions by type and to allow them to be comparable so they can be sorted on type.
  * <p>
- * Warning: because there is an ordinal variable here the compareTo function can differ depending on which version of the enum was
- * called first.
+ * Warning: because there is an ordinal variable here the compareTo function can differ depending on which version
+ * of the enum was called first.
  * <p>
- * Starting Material is the large component on the left side of the reaction arrow. There usually will only be one. Reactants are
- * also on the left side of the arrow and the two: Starting Material and Reactants comprise all components that contribute
- * structurally to products. Reagents are used to further the reaction but do not add structurally to the product(s). Solvents are
- * solvents.
+ * Starting Material is the large component on the left side of the reaction arrow. There usually will only be one.
+ * Reactants are also on the left side of the arrow and the two: Starting Material and Reactants comprise all
+ * components that contribute structurally to products.
+ * Reagents are used to further the reaction but do not add structurally to the product(s). Solvents are solvents.
  * <p>
- * Jeremy Edwards suggests Starting Materials appear at the top of the stoich grid or as the left most addition depending on
- * portrait or landscape orientation of table header.
+ * Jeremy Edwards suggests Starting Materials appear at the top of the stoich grid or as the left most addition
+ * depending on portrait or landscape orientation of table header.
  */
-public class BatchType implements Serializable {
+public final class BatchType implements Serializable {
     // Possible Reaction Components
-    public static final int START_MTRL_ORDINAL = 1; // Not currently used: Legacy designation
-    public static final int REACTANT_ORDINAL = 2;
-    public static final int REAGENT_ORDINAL = 4;
-    public static final int SOLVENT_ORDINAL = 8;
+    private static final int START_MTRL_ORDINAL = 1; // Not currently used: Legacy designation
+    private static final int REACTANT_ORDINAL = 2;
+    private static final int REAGENT_ORDINAL = 4;
+    private static final int SOLVENT_ORDINAL = 8;
     public static final int ACTUAL_PRODUCT_ORDINAL = 32;
-    public static final BatchType REACTANT = new BatchType("REACTANT", REACTANT_ORDINAL);
+    static final BatchType REACTANT = new BatchType("REACTANT", REACTANT_ORDINAL);
     public static final BatchType SOLVENT = new BatchType("SOLVENT", SOLVENT_ORDINAL);
     public static final BatchType ACTUAL_PRODUCT = new BatchType("ACTUAL", ACTUAL_PRODUCT_ORDINAL);
     static final BatchType START_MTRL = new BatchType("STARTING MATERIAL", START_MTRL_ORDINAL);
@@ -78,7 +78,7 @@ public class BatchType implements Serializable {
     }
 
     // Override-prevention methods
-    public final boolean equals(Object that) {
+    public boolean equals(Object that) {
         if (that instanceof BatchType) {
             BatchType batchTypeExternal = (BatchType) that;
             if (batchTypeExternal.ordinal == this.ordinal) {
@@ -88,8 +88,7 @@ public class BatchType implements Serializable {
         return false;
     }
 
-    public final int hashCode() {
+    public int hashCode() {
         return type.hashCode() * HASH_PRIME;
     }
-
 }

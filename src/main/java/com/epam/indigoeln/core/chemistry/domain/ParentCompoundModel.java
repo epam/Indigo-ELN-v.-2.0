@@ -18,12 +18,13 @@ class ParentCompoundModel extends CeNAbstractModel {
         int result = 0;
         if (o != null && o instanceof ParentCompoundModel) {
             ParentCompoundModel cp = (ParentCompoundModel) o;
-            if (CeNNumberUtils.doubleEquals(getMolWgt(), cp.getMolWgt(), 0.00001))
+            if (CeNNumberUtils.doubleEquals(getMolWgt(), cp.getMolWgt(), 0.00001)) {
                 result = 0;
-            else if (getMolWgt() - cp.getMolWgt() > 0)
+            } else if (getMolWgt() - cp.getMolWgt() > 0) {
                 result = 1;
-            else
+            } else {
                 result = -1;
+            }
         }
         return result;
     }

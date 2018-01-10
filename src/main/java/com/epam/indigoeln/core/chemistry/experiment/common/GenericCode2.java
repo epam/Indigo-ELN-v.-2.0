@@ -15,8 +15,9 @@ public class GenericCode2 extends CeNAbstractModel implements DeepCopy, DeepClon
     private GenericCode2(String code, String descr) {
         super();
         this.code = code;
-        if (descr != null)
+        if (descr != null) {
             description = descr;
+        }
     }
 
     public String getCode() {
@@ -25,9 +26,9 @@ public class GenericCode2 extends CeNAbstractModel implements DeepCopy, DeepClon
 
     public void setCode(String code) {
         if (code != null && !this.code.equals(code)) {
-            if (!"".equals(code) || "00".equals(code))
+            if (!"".equals(code) || "00".equals(code)) {
                 this.code = code;
-            else {
+            } else {
                 this.code = "";
                 description = "";
             }
@@ -54,17 +55,17 @@ public class GenericCode2 extends CeNAbstractModel implements DeepCopy, DeepClon
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
 
         GenericCode2 that = (GenericCode2) o;
 
-        if (code != null ? !code.equals(that.code) : that.code != null)
-            return false;
-
-        return description != null ? description.equals(that.description) : that.description == null;
+        return (code != null ? code.equals(that.code) : that.code == null)
+                && (description != null ? description.equals(that.description) : that.description == null);
 
     }
 

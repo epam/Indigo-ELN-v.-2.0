@@ -26,7 +26,8 @@ public class Unit extends GenericCode implements Comparable {
         this.ordinal = nextOrdinal++;
     }
 
-    Unit(String code, UnitType type, String displayValue, String description, String stdCode, double stdConversionFactor,
+    Unit(String code, UnitType type, String displayValue, String description,
+         String stdCode, double stdConversionFactor,
          int stdDisplayFigs) {
         super();
         this.code = code;
@@ -40,8 +41,8 @@ public class Unit extends GenericCode implements Comparable {
     }
 
     /**
-     * This is a kludge because of the necessity to set a single value upon load from storage. This needs to be revisited when
-     * load/save happen in an easier manner.
+     * This is a kludge because of the necessity to set a single value upon load from storage.
+     * This needs to be revisited when load/save happen in an easier manner.
      *
      * @param code The code to set - entire unit is rebuilt from UnitCache.getUnit(code)
      */
@@ -65,8 +66,9 @@ public class Unit extends GenericCode implements Comparable {
         int comp = this.hashCode() - o.hashCode();
         if (o instanceof Unit) {
             comp = this.type.compareTo(((Unit) o).getType());
-            if (comp == 0)
+            if (comp == 0) {
                 comp = this.ordinal - ((Unit) o).ordinal;
+            }
         }
         return comp;
     }
@@ -107,5 +109,4 @@ public class Unit extends GenericCode implements Comparable {
     public Object deepClone() {
         return new Unit(getCode());
     }
-
 }

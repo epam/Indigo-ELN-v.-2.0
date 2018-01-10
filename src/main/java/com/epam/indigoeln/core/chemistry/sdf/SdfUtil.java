@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.StringReader;
 
-class SdfUtil {
+final class SdfUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SdfUtil.class);
 

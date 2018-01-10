@@ -39,20 +39,24 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
 
     private ParentCompoundModel compound; // Holds structure formula wgt and other info.
     private AmountModel molecularWeightAmount = new AmountModel(UnitType.SCALAR); // Holds batch molecular weight
-    private AmountModel moleAmount = new AmountModel(UnitType.MOLES); // Unitless amount indicating how much of an Avagadro's
+    private AmountModel moleAmount = new AmountModel(UnitType.MOLES); // Unitless amount indicating how much
+    // of an Avagadro's
     // number of molecules we have
-    private AmountModel weightAmount = new AmountModel(UnitType.MASS); // AmountModel will contain unit conversions original amount
+    private AmountModel weightAmount = new AmountModel(UnitType.MASS); // AmountModel will contain unit
+    // conversions original amount
     // and original units
-    private AmountModel loadingAmount = new AmountModel(UnitType.LOADING); // Loading is generally mmol/gram - tackles resins
+    private AmountModel loadingAmount = new AmountModel(UnitType.LOADING); // Loading is generally
+    // mmol/gram - tackles resins
     private AmountModel volumeAmount = new AmountModel(UnitType.VOLUME); // AmountModel in volume
     private AmountModel densityAmount = new AmountModel(UnitType.DENSITY); // Density of compound in g/mL
     private AmountModel molarAmount = new AmountModel(UnitType.MOLAR); // Describes concentration of batch
     private AmountModel purityAmount = new AmountModel(UnitType.SCALAR, 100); // % Purity info 100 - 0
-    private AmountModel rxnEquivsAmount = new AmountModel(UnitType.SCALAR, 1.0, 1.0); // Represents equivalants of compound to a
+    private AmountModel rxnEquivsAmount = new AmountModel(UnitType.SCALAR, 1.0, 1.0); // Represents
+    // equivalants of compound to a
 
     /*
-     * This will hold the List Key corresponding the Batch. It will be used while loading Batches to determine the listkey to which
-     * the batch is assigned to, which helps in building the BatchesList object.
+     * This will hold the List Key corresponding the Batch. It will be used while loading Batches
+     * to determine the listkey to which the batch is assigned to, which helps in building the BatchesList object.
      */
     private AmountModel totalVolume = new AmountModel(UnitType.VOLUME);
     private AmountModel totalWeight = new AmountModel(UnitType.MASS);
@@ -70,19 +74,26 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     }
 
     public void copyAmounts(BasicBatchModel rawBatch) {
-        this.molecularWeightAmount = new AmountModel(MASS, rawBatch.getMolWeight().getValue(), !rawBatch.getMolWeight().isEntered());
+        this.molecularWeightAmount = new AmountModel(MASS, rawBatch.getMolWeight().getValue(),
+                !rawBatch.getMolWeight().isEntered());
         this.moleAmount = new AmountModel(MOLES, rawBatch.getMol().getValue(), !rawBatch.getMol().isEntered());
         this.weightAmount = new AmountModel(MASS, rawBatch.getWeight().getValue(), !rawBatch.getWeight().isEntered());
         this.volumeAmount = new AmountModel(VOLUME, rawBatch.getVolume().getValue(), !rawBatch.getVolume().isEntered());
-        this.densityAmount = new AmountModel(DENSITY, rawBatch.getDensity().getValue(), !rawBatch.getDensity().isEntered());
-        this.molarAmount = new AmountModel(MOLAR, rawBatch.getMolarity().getValue(), !rawBatch.getMolarity().isEntered());
-        this.purityAmount = new AmountModel(SCALAR, rawBatch.getStoicPurity().getValue(), !rawBatch.getStoicPurity().isEntered());
+        this.densityAmount = new AmountModel(DENSITY, rawBatch.getDensity().getValue(),
+                !rawBatch.getDensity().isEntered());
+        this.molarAmount = new AmountModel(MOLAR, rawBatch.getMolarity().getValue(),
+                !rawBatch.getMolarity().isEntered());
+        this.purityAmount = new AmountModel(SCALAR, rawBatch.getStoicPurity().getValue(),
+                !rawBatch.getStoicPurity().isEntered());
         this.rxnEquivsAmount = new AmountModel(SCALAR, rawBatch.getEq().getValue(), !rawBatch.getEq().isEntered());
         this.limiting = rawBatch.isLimiting();
         this.batchType = BatchTypeFactory.getBatchType(rawBatch.getRxnRole().getName());
-        this.totalVolume = new AmountModel(VOLUME, rawBatch.getTotalVolume().getValue(), !rawBatch.getTotalVolume().isEntered());
-        this.totalWeight = new AmountModel(MASS, rawBatch.getTotalWeight().getValue(), !rawBatch.getTotalWeight().isEntered());
-        this.totalMolarity = new AmountModel(MOLES, rawBatch.getTotalMoles().getValue(), !rawBatch.getTotalMoles().isEntered());
+        this.totalVolume = new AmountModel(VOLUME, rawBatch.getTotalVolume().getValue(),
+                !rawBatch.getTotalVolume().isEntered());
+        this.totalWeight = new AmountModel(MASS, rawBatch.getTotalWeight().getValue(),
+                !rawBatch.getTotalWeight().isEntered());
+        this.totalMolarity = new AmountModel(MOLES, rawBatch.getTotalMoles().getValue(),
+                !rawBatch.getTotalMoles().isEntered());
     }
 
     public int getLastUpdatedType() {
@@ -103,7 +114,8 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
 
     public void setDensityAmount(AmountModel density) {
         if (density != null) {
-            if ((density.getUnitType().getOrdinal() == UnitType.DENSITY.getOrdinal()) && !densityAmount.equals(density)) {
+            if ((density.getUnitType().getOrdinal() == UnitType.DENSITY.getOrdinal())
+                    && !densityAmount.equals(density)) {
                 // Check to see if it is a unit change
 
                 densityAmount.deepCopy(density);
@@ -130,7 +142,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         return limiting;
     }
 
-    public void setLimiting(boolean limiting) {
+    void setLimiting(boolean limiting) {
         this.limiting = limiting;
         setModified(true);
     }
@@ -141,7 +153,8 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
 
     public void setMolarAmount(AmountModel molarAmnt) {
         if (molarAmnt != null) {
-            if ((molarAmnt.getUnitType().getOrdinal() == UnitType.MOLAR.getOrdinal()) && !molarAmount.equals(molarAmnt)) {
+            if ((molarAmnt.getUnitType().getOrdinal() == UnitType.MOLAR.getOrdinal())
+                    && !molarAmount.equals(molarAmnt)) {
                 // Check to see if it is a unit change
 
                 boolean unitChange = BatchUtils.isUnitOnlyChanged(molarAmount, molarAmnt);
@@ -183,7 +196,6 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
 
     private void checkUnitChange(AmountModel orig, AmountModel updated, int lastUpdatedType) {
         boolean unitChange = false;
-
         if (!orig.equals(updated)) {
             unitChange = BatchUtils.isUnitOnlyChanged(orig, updated);
 
@@ -230,8 +242,9 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     }
 
     public void setPrecursors(List<String> precursors) {
-        if (precursors == null)
+        if (precursors == null) {
             return;
+        }
         this.precursors = precursors;
         this.modelChanged = true;
     }
@@ -333,8 +346,9 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     }
 
     public void setBatchType(BatchType batchType) {
-        if (batchType == null)
+        if (batchType == null) {
             return;
+        }
         this.batchType = batchType;
         this.modelChanged = true;
     }
@@ -357,10 +371,11 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     }
 
     public String getStoicReactionRole() {
-        if (this.getBatchType() != null)
+        if (this.getBatchType() != null) {
             return this.getBatchType().toString();
-        else
+        } else {
             return "";
+        }
     }
 
     // For TotalVolume
@@ -377,7 +392,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
             return;
         }
 
-        Consumer<BatchModel> rxnEquivs = (b) -> {
+        Consumer<BatchModel> rxnEquivs = b -> {
             b.getMoleAmount().setCalculated(true);
 
             if (!b.isLimiting()) {
@@ -389,7 +404,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
             }
         };
 
-        Consumer<BatchModel> weight = (b) -> {
+        Consumer<BatchModel> weight = b -> {
             b.getRxnEquivsAmount().setCalculated(true);
 
             if (!b.getVolumeAmount().isCalculated() && b.isVolumeConnectedToMass()) {
@@ -397,7 +412,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
             }
         };
 
-        Consumer<BatchModel> volume = (b) -> {
+        Consumer<BatchModel> volume = b -> {
             b.getRxnEquivsAmount().setCalculated(true);
             b.getWeightAmount().setCalculated(true);
             b.getMoleAmount().setCalculated(true);
@@ -477,13 +492,14 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     public void recalcAmounts() {
         // Make sure we don't get into a loop!
         // And that we don't lose information on load.
-        if (!autoCalcOn || inCalculation || isBeingCloned())
+        if (!autoCalcOn || inCalculation || isBeingCloned()) {
             return;
+        }
 
         //if This batch is a SOLVENT, then do not recalculate its amounts.
-        if (getBatchType() == null || getBatchType().equals(BatchType.SOLVENT))
+        if (getBatchType() == null || getBatchType().equals(BatchType.SOLVENT)) {
             return;
-
+        }
         inCalculation = true;
         // Check which value was set by hand: solid or liquid
         // Molar type as last updated not considered here because moles is considered driver
@@ -509,7 +525,8 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
             // Std unit for molar is mMolar
             //
             // mMoles = (mole/L) * mL
-            moleAmount.setValueInStdUnits(molarAmount.getValueInStdUnitsAsDouble() * volumeAmount.getValueInStdUnitsAsDouble(),
+            moleAmount.setValueInStdUnits(molarAmount.getValueInStdUnitsAsDouble()
+                            * volumeAmount.getValueInStdUnitsAsDouble(),
                     true);
             updateWeightFromMoles();
         } else if (densityAmount.doubleValue() > 0) {
@@ -517,7 +534,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
             amts.add(volumeAmount);
             amts.add(densityAmount);
             applySigFigRules(weightAmount, amts);
-            amts.clear();// important to clear the amts list
+            amts.clear(); // important to clear the amts list
             // mg = (mL * g/mL)/ (1000 mg/g)
             weightAmount.setValueInStdUnits(1000 * volumeAmount.getValueInStdUnitsAsDouble()
                     * densityAmount.getValueInStdUnitsAsDouble(), true);
@@ -544,7 +561,8 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         if (molarAmount.doubleValue() > 0) {
 
             volumeAmount.setSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
-            volumeAmount.setValueInStdUnits(moleAmount.getValueInStdUnitsAsDouble() / molarAmount.getValueInStdUnitsAsDouble(),
+            volumeAmount.setValueInStdUnits(moleAmount.getValueInStdUnitsAsDouble()
+                            / molarAmount.getValueInStdUnitsAsDouble(),
                     true);
         } else if (densityAmount.doubleValue() > 0) {
 
@@ -631,13 +649,15 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         int result = 0;
         if (ab != null) {
             result = this.getBatchType().compareTo(ab.getBatchType());
-            // Precedence should be batchNumber if Product otherwise (Transaction Step Number) for now: Compound Number then batch
+            // Precedence should be batchNumber if Product otherwise (Transaction Step Number)
+            // for now: Compound Number then batch
             // then formula
             if (result == 0 && getCompound() != null) {
-                if (ab.getCompound() != null)
+                if (ab.getCompound() != null) {
                     result = (getCompound().compareTo(ab.getCompound()));
-                else
+                } else {
                     result = 1;
+                }
             }
         }
         return result;
@@ -649,6 +669,8 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
 
     /**
      * Amounts that are all interrelated regarding batch calculations. SigDigits apply.
+     *
+     * @return list with amounts
      */
     protected List<AmountModel> getCalculatedAmounts() {
         List<AmountModel> result = new ArrayList<>();
@@ -663,15 +685,16 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         return (!weightAmount.isCalculated() || !volumeAmount.isCalculated());
     }
 
-    /**
-     *
-     */
     public boolean shouldApplyDefaultSigFigs() {
-        return (!this.rxnEquivsAmount.isCalculated() || !this.moleAmount.isCalculated() || !this.molarAmount.isCalculated());
+        return (!this.rxnEquivsAmount.isCalculated() || !this.moleAmount.isCalculated()
+                || !this.molarAmount.isCalculated());
     }
 
     /**
-     * For all calculated amounts find those that are calculated and set default number of significant digits to the value passed.
+     * For all calculated amounts find those that are calculated and set default
+     * number of significant digits to the value passed.
+     *
+     * @param defaultSigs default number of significant digits
      */
     public void applyLatestSigDigits(int defaultSigs) {
         List<AmountModel> amts = getCalculatedAmounts();
@@ -679,10 +702,13 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     }
 
     /**
-     * Note: Avoid Side-effects.  If your intention is to trigger a new value for MolecularWeight, please set it explicitly.
-     * Prefer accessing the actual AmountModel object.doubleValue() to calling this method unless your intention is to recalculate.
+     * Note: Avoid Side-effects.  If your intention is to trigger a new value for MolecularWeight, please set it
+     * explicitly.
+     * Prefer accessing the actual AmountModel object.doubleValue() to calling this method unless your intention
+     * is to recalculate.
      *
-     * @return Returns molecularWeightAmount.doubleValue() or the calculated amount if the double Value = the defaultValue of Zero
+     * @return Returns molecularWeightAmount.doubleValue() or the calculated amount
+     * if the double Value = the defaultValue of Zero
      */
     public double getMolWgt() {
         double result = molecularWeightAmount.doubleValue();
@@ -793,8 +819,9 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         if (shouldApplySigFigRules()) {
             amt.setSigDigits(CeNNumberUtils.getSmallestSigFigsFromAmountModelList(amts));
         } else {
-            if (shouldApplyDefaultSigFigs())
+            if (shouldApplyDefaultSigFigs()) {
                 amt.setSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
+            }
         }
     }
 

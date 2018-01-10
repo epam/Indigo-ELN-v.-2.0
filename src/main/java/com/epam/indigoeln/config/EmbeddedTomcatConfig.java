@@ -11,7 +11,8 @@ public class EmbeddedTomcatConfig {
     @Bean
     public TomcatEmbeddedServletContainerFactory containerFactory() {
         TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory();
-        factory.addConnectorCustomizers(con -> ((AbstractHttp11Protocol<?>) con.getProtocolHandler()).setMaxSwallowSize(-1));
+        factory.addConnectorCustomizers(con -> ((AbstractHttp11Protocol<?>) con.getProtocolHandler())
+                .setMaxSwallowSize(-1));
         return factory;
     }
 }

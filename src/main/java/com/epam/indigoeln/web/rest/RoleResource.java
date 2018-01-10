@@ -44,7 +44,10 @@ public class RoleResource {
     /**
      * GET  /roles -> Returns all roles with pagination.
      *
+     * @param pageable Paging data
      * @return Returns all roles
+     * @throws URISyntaxException thrown to indicate that a string could not be parsed as a
+     *                            URI reference.
      */
     @ApiOperation(value = "Returns all roles.")
     @RequestMapping(method = RequestMethod.GET,
@@ -60,8 +63,9 @@ public class RoleResource {
     }
 
     /**
-     * GET  /roles?search=nameLike -> Returns roles with name like {@code nameLike}.
+     * * GET  /roles?search=nameLike -> Returns roles with name like {@code nameLike}.
      *
+     * @param nameLike Searching role name
      * @return Returns with name like {@code nameLike}
      */
     @ApiOperation(value = "Returns roles with name like a string in a parameter.")

@@ -2,7 +2,7 @@ package com.epam.indigoeln.core.service.exception;
 
 import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
 
-public class UriProcessingException extends CustomParametrizedException {
+public final class UriProcessingException extends CustomParametrizedException {
 
     private UriProcessingException(String message, String... params) {
         super(message, params);
