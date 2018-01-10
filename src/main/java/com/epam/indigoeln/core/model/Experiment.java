@@ -18,6 +18,8 @@ public class Experiment extends ExperimentShort {
 
     private static final long serialVersionUID = -4215770980241351691L;
 
+    private String experimentFullName;
+
     private String comments;
 
     private ExperimentStatus status;
@@ -100,6 +102,14 @@ public class Experiment extends ExperimentShort {
 
     public void setLastVersion(boolean lastVersion) {
         this.lastVersion = lastVersion;
+    }
+
+    public String getExperimentFullName() {
+        return experimentFullName;
+    }
+
+    public void setExperimentFullName(String experimentFullName) {
+        this.experimentFullName = experimentFullName;
     }
 
     public String getFullName() {

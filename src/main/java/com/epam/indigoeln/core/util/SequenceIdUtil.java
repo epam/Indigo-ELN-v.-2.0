@@ -47,6 +47,20 @@ public final class SequenceIdUtil {
     }
 
     /**
+     * Extracts first id from entity
+     *
+     * @param entity Entity
+     * @return project's id
+     */
+    public static String extractFirstId(BasicModelObject entity) {
+        if (entity.getId() == null) {
+            return null;
+        }
+        String[] split = entity.getId().split(DELIMITER);
+        return split.length > 0 ? split[0] : null;
+    }
+
+    /**
      * Builds full id.
      *
      * @param ids Ids for building full id

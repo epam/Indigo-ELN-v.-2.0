@@ -18,6 +18,7 @@ import com.epam.indigoeln.core.util.WebSocketUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
+import com.epam.indigoeln.web.rest.dto.search.EntitiesIdsDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.google.common.util.concurrent.Striped;
@@ -26,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
@@ -270,6 +272,7 @@ public class ExperimentService {
         //set latest version
         experiment.setExperimentVersion(1);
         experiment.setLastVersion(true);
+        experiment.setExperimentFullName(notebook.getName() + "-" + experiment.getFullName());
 
         Experiment savedExperiment = experimentRepository.save(experiment);
 
@@ -348,6 +351,7 @@ public class ExperimentService {
         newVersion.setComponents(newComponents);
         newVersion.setLastVersion(true);
         newVersion.setExperimentVersion(newExperimentVersion);
+        newVersion.setExperimentFullName(notebook.getName() + "-" + newVersion.getFullName());
 
         final Experiment savedNewVersion = experimentRepository.save(newVersion);
         notebook.getExperiments().add(savedNewVersion);
@@ -621,7 +625,35 @@ public class ExperimentService {
         experimentRepository.delete(experiment);
     }
 
+    /**
+     * Returns lock for project
+     *
+     * @param projectId project id
+     * @return lock for project
+     */
     public Lock getLock(String projectId) {
         return locks.get(projectId);
+    }
+
+    /**
+     * Searches experiments by full name with project name and version
+     *
+     * @param experimentFullName experiment full name
+     * @param limit maximum count of experiments
+     * @return ids list of project, notebook, experiment and experiment full name
+     */
+    public List<EntitiesIdsDTO> findExperimentsByFullName(User user, String experimentFullName, int limit) {
+        PageRequest pageRequest = new PageRequest(0, limit);
+        List<Experiment> experiments = PermissionUtil.isContentEditor(user)
+                ? experimentRepository.findExperimentsByFullNameStartingWith(experimentFullName, pageRequest)
+                : experimentRepository.findExperimentsByFullNameStartingWithAndHasAccess(
+                experimentFullName,
+                user.getId(),
+                UserPermission.READ_ENTITY,
+                pageRequest);
+
+        return experiments.stream()
+                .map(EntitiesIdsDTO::new)
+                .collect(Collectors.toList());
     }
 }

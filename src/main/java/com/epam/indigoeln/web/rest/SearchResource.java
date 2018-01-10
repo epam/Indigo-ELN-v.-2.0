@@ -1,24 +1,24 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.model.User;
+import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.search.EntitySearchService;
 import com.epam.indigoeln.core.service.search.SearchServiceAPI;
 import com.epam.indigoeln.core.service.search.SearchServiceFacade;
 import com.epam.indigoeln.core.service.user.UserService;
+import com.epam.indigoeln.web.rest.dto.search.EntitiesIdsDTO;
 import com.epam.indigoeln.web.rest.dto.search.EntitySearchResultDTO;
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
+import com.epam.indigoeln.web.rest.dto.search.request.ExperimentsSearchRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -40,6 +40,9 @@ public class SearchResource {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ExperimentService experimentService;
 
     /**
      * GET /catalogue -> returns a list of search catalogues.
@@ -91,5 +94,25 @@ public class SearchResource {
         final User user = userService.getUserWithAuthorities();
         List<EntitySearchResultDTO> batchDetails = entitySearchService.find(user, searchRequest);
         return ResponseEntity.ok(batchDetails);
+    }
+
+    /**
+     * POST /experiments -> Searches experiments by full name.
+     *
+     * @param searchRequest search criteria
+     * @return ids list of project, notebook, experiment and experiment full name
+     */
+    @ApiOperation(value = "Searches experiments by full name")
+    @RequestMapping(value = "experiments",
+            method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<EntitiesIdsDTO>> findExperiment(
+            @ApiParam("Experiment search params") @RequestBody ExperimentsSearchRequest searchRequest) {
+        final User user = userService.getUserWithAuthorities();
+        List<EntitiesIdsDTO> entitiesIdsDTOS = experimentService.findExperimentsByFullName(
+                user,
+                searchRequest.getExperimentFullName(),
+                searchRequest.getLimit());
+        return ResponseEntity.ok(entitiesIdsDTOS);
     }
 }
