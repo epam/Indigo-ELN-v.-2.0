@@ -1,6 +1,7 @@
 package com.epam.indigoeln.web.rest.util;
 
 import com.epam.indigoeln.core.model.*;
+import com.epam.indigoeln.core.security.Authority;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -8,8 +9,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 import static com.epam.indigoeln.web.rest.util.PermissionUtil.equalsByUserId;
+import static com.epam.indigoeln.web.rest.util.PermissionUtil.isContentEditor;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
@@ -27,15 +30,18 @@ abstract class EntityWrapper {
 
     protected PermissionCreationLevel permissionCreationLevel;
 
+    protected Function<Set<UserPermission>, Set<UserPermission>> permissionsPreProcessing;
+
     private static void changePermission(UserPermission permission,
                                          UserPermission userPermissionOuterEntity,
-                                         Set<UserPermission> updated,
-                                         PermissionCreationLevel permissionCreationLevel  //updating aggregation
+                                         Set<UserPermission> updated, //updating aggregation
+                                         PermissionCreationLevel creationLevel
     ) {
         if (PermissionUtil.canBeChangedFromThisLevel(
-                userPermissionOuterEntity.getPermissionCreationLevel(), permissionCreationLevel)) {
+                userPermissionOuterEntity.getPermissionCreationLevel(), creationLevel)) {
             userPermissionOuterEntity.setPermissions(
                     UserPermission.OWNER.equals(permission.getPermissionView())
+                            || UserPermission.USER.equals(permission.getPermissionView())
                             ? permission.getPermissions()
                             : UserPermission.VIEWER_PERMISSIONS);
 
@@ -53,23 +59,27 @@ abstract class EntityWrapper {
 
     void addPermissionsDown(Set<UserPermission> createdPermissions) {
 
-        children.forEach(child -> child.addPermissionsDown(createdPermissions));
+        Set<UserPermission> permissions = permissionsPreProcessing.apply(createdPermissions);
 
-        value.getAccessList().addAll(createdPermissions);
+        value.getAccessList().addAll(permissions);
+
+        children.forEach(child -> child.addPermissionsDown(permissions));
     }
 
     void updatePermissionsDown(Set<UserPermission> updatedPermissions) {
 
-        children.forEach(child -> child.updatePermissionsDown(updatedPermissions));
+        Set<UserPermission> permissions = permissionsPreProcessing.apply(updatedPermissions);
+
+        children.forEach(child -> child.updatePermissionsDown(permissions));
 
         value.getAccessList().removeIf(oldPermission ->
-                updatedPermissions.stream()
+                permissions.stream()
                         .anyMatch(updatedPermission -> equalsByUserId(oldPermission, updatedPermission)));
 
-        value.getAccessList().addAll(updatedPermissions);
+        value.getAccessList().addAll(permissions);
     }
 
-    Set<UserPermission> addPermissionsUp(Set<UserPermission> createdPermissions) {
+    Set<UserPermission> addOrUpdatePermissionsUp(Set<UserPermission> createdPermissions) {
         Set<UserPermission> added = new HashSet<>();
 
         for (UserPermission userPermission : createdPermissions) {
@@ -78,28 +88,16 @@ abstract class EntityWrapper {
             if (userPermissionOuterEntity == null) {
                 parent.getValue().getAccessList().add(
                         UserPermission.OWNER.equals(userPermission.getPermissionView())
+                                || UserPermission.USER.equals(userPermission.getPermissionView())
                                 ? userPermission
                                 : userPermission.setPermissions(UserPermission.VIEWER_PERMISSIONS));
                 added.add(userPermission);
             } else {
-                changePermission(userPermission, userPermissionOuterEntity, added, this.getPermissionCreationLevel());
+                changePermission(userPermission, userPermissionOuterEntity, added, permissionCreationLevel);
             }
         }
 
         return added;
-    }
-
-    Set<UserPermission> updatePermissionsUp(Set<UserPermission> updatedPermissions) {
-        Set<UserPermission> updated = new HashSet<>();
-
-        for (UserPermission permission : updatedPermissions) {
-            UserPermission userPermissionOuterEntity = PermissionUtil.findPermissionsByUserId(
-                    parent.getValue().getAccessList(), permission.getUser().getId());
-            if (userPermissionOuterEntity != null) {
-                changePermission(permission, userPermissionOuterEntity, updated, this.getPermissionCreationLevel());
-            }
-        }
-        return updated;
     }
 
     Set<UserPermission> removePermissionsUp(Set<UserPermission> removedPermissions) {
@@ -154,25 +152,29 @@ abstract class EntityWrapper {
         }
     }
 
-    @NoArgsConstructor
     public static class NotebookWrapper extends EntityWrapper {
 
+        private NotebookWrapper() {
+            permissionsPreProcessing = NotebookWrapper::notebookPermissionPreProcessing;
+            permissionCreationLevel = PermissionCreationLevel.NOTEBOOK;
+        }
+
         NotebookWrapper(Project project, Notebook notebook) {
+            this();
             this.parent = ProjectWrapper.parentForNotebookWrapper(project, this);
             this.children = notebook.getExperiments().stream()
                     .map(experiment -> new ExperimentWrapper(this, experiment))
                     .collect(toList());
             this.value = notebook;
-            this.permissionCreationLevel = PermissionCreationLevel.NOTEBOOK;
         }
 
         private NotebookWrapper(ProjectWrapper parent, Notebook notebook) {
+            this();
             this.parent = parent;
             this.children = notebook.getExperiments().stream()
                     .map(experiment -> new ExperimentWrapper(this, experiment))
                     .collect(toList());
             this.value = notebook;
-            this.permissionCreationLevel = PermissionCreationLevel.NOTEBOOK;
         }
 
         private static NotebookWrapper parentForExperimentWrapper(Project project, Notebook notebook, ExperimentWrapper experimentWrapper) {
@@ -180,25 +182,61 @@ abstract class EntityWrapper {
             wrapper.parent = ProjectWrapper.parentForNotebookWrapper(project, wrapper);
             wrapper.children = Collections.singletonList(experimentWrapper);
             wrapper.value = notebook;
-            wrapper.permissionCreationLevel = PermissionCreationLevel.NOTEBOOK;
             return wrapper;
+        }
+
+        private static Set<UserPermission> notebookPermissionPreProcessing(Set<UserPermission> createdPermissions) {
+            return createdPermissions.stream().map(userPermission ->
+                    //we don't change permissions for ContentEditors
+                    !isContentEditor(userPermission.getUser())
+                            //user without NOTEBOOK_CREATOR Authority can only have VIEWER_PERMISSIONS for Notebook
+                            && ((!userPermission.getPermissionView().equals(UserPermission.VIEWER) &&
+                            !userPermission.getUser().getAuthorities().contains(Authority.NOTEBOOK_CREATOR))
+                            //if user is not EXPERIMENT_CREATOR he can't have USER_PERMISSIONS for Notebook
+                            || (userPermission.getPermissionView().equals(UserPermission.USER) &&
+                            !userPermission.getUser().getAuthorities().contains(Authority.EXPERIMENT_CREATOR))) ?
+                            new UserPermission(userPermission.getUser(), UserPermission.VIEWER_PERMISSIONS) :
+                            userPermission)
+                    .collect(toSet());
         }
     }
 
     public static class ExperimentWrapper extends EntityWrapper {
 
+        private ExperimentWrapper() {
+            permissionsPreProcessing = ExperimentWrapper::experimentsPermissionPreProcessing;
+            permissionCreationLevel = PermissionCreationLevel.EXPERIMENT;
+        }
+
         ExperimentWrapper(Project project, Notebook notebook, Experiment experiment) {
+            this();
             this.parent = NotebookWrapper.parentForExperimentWrapper(project, notebook, this);
             this.value = experiment;
             this.children = Collections.emptyList();
-            this.permissionCreationLevel = PermissionCreationLevel.EXPERIMENT;
         }
 
         private ExperimentWrapper(NotebookWrapper parent, Experiment experiment) {
+            this();
             this.parent = parent;
             this.value = experiment;
             this.children = Collections.emptyList();
-            this.permissionCreationLevel = PermissionCreationLevel.EXPERIMENT;
+        }
+
+        private static Set<UserPermission> experimentsPermissionPreProcessing(Set<UserPermission> createdPermissions) {
+            return createdPermissions.stream()
+                    .filter(userPermission ->
+                            userPermission.getUser().getAuthorities().contains(Authority.EXPERIMENT_READER))
+                    .map(userPermission ->
+                            //we don't change permissions for ContentEditors
+                            !isContentEditor(userPermission.getUser())
+                                    //there is no USER_PERMISSIONS for Experiment
+                                    && (userPermission.getPermissions().equals(UserPermission.USER_PERMISSIONS)
+                                    //user without EXPERIMENT_CREATOR Authority can't have OWNER_PERMISSIONS
+                                    || (userPermission.getPermissions().equals(UserPermission.OWNER_PERMISSIONS)
+                                    && !userPermission.getUser().getAuthorities().contains(Authority.EXPERIMENT_CREATOR))) ?
+                                    new UserPermission(userPermission.getUser(), UserPermission.VIEWER_PERMISSIONS) :
+                                    userPermission)
+                    .collect(toSet());
         }
     }
 }

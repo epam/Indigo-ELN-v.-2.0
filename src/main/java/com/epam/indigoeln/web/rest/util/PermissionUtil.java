@@ -177,11 +177,11 @@ public final class PermissionUtil {
         if (!createdPermissions.isEmpty()) {
             wrappedExperiment.addPermissionsDown(createdPermissions);
 
-            Set<UserPermission> addedToNotebook = wrappedExperiment.addPermissionsUp(createdPermissions);
+            Set<UserPermission> addedToNotebook = wrappedExperiment.addOrUpdatePermissionsUp(createdPermissions);
             notebookHadChanged = !addedToNotebook.isEmpty();
 
             if (!addedToNotebook.isEmpty()) {
-                projectHadChanged = !wrappedExperiment.parent.addPermissionsUp(addedToNotebook)
+                projectHadChanged = !wrappedExperiment.getParent().addOrUpdatePermissionsUp(addedToNotebook)
                         .isEmpty();
             }
         }
@@ -196,12 +196,12 @@ public final class PermissionUtil {
         if (!updatedPermissions.isEmpty()) {
             wrappedExperiment.updatePermissionsDown(updatedPermissions);
 
-            Set<UserPermission> permissionsUpdatedInNotebook = wrappedExperiment.updatePermissionsUp(updatedPermissions);
+            Set<UserPermission> permissionsUpdatedInNotebook = wrappedExperiment.addOrUpdatePermissionsUp(updatedPermissions);
 
             notebookHadChanged |= !permissionsUpdatedInNotebook.isEmpty();
 
             if (!permissionsUpdatedInNotebook.isEmpty()) {
-                projectHadChanged |= !wrappedExperiment.getParent().updatePermissionsUp(permissionsUpdatedInNotebook)
+                projectHadChanged |= !wrappedExperiment.getParent().addOrUpdatePermissionsUp(permissionsUpdatedInNotebook)
                         .isEmpty();
             }
         }
@@ -254,7 +254,7 @@ public final class PermissionUtil {
 
         if (!createdPermissions.isEmpty()) {
 
-            projectHadChanged = !notebookWrapper.addPermissionsUp(createdPermissions).isEmpty();
+            projectHadChanged = !notebookWrapper.addOrUpdatePermissionsUp(createdPermissions).isEmpty();
 
             notebookWrapper.addPermissionsDown(createdPermissions);
         }
@@ -269,7 +269,7 @@ public final class PermissionUtil {
         if (!updatedPermissions.isEmpty()) {
             notebookWrapper.updatePermissionsDown(updatedPermissions);
 
-            projectHadChanged |= !notebookWrapper.updatePermissionsUp(updatedPermissions).isEmpty();
+            projectHadChanged |= !notebookWrapper.addOrUpdatePermissionsUp(updatedPermissions).isEmpty();
         }
 
         Set<UserPermission> removedPermissions = notebook.getAccessList().stream().filter(oldPermission ->
