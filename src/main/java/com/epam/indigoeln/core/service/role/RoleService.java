@@ -42,12 +42,12 @@ public class RoleService {
      */
     private final UserRepository userRepository;
 
-    private static final SortedPageUtil<Role> roleSortedPageUtil;
+    private static final SortedPageUtil<Role> ROLE_SORTED_PAGE_UTIL;
 
     static {
         Map<String, Function<Role, String>> functionMap = new HashMap<>();
         functionMap.put("name", Role::getName);
-        roleSortedPageUtil = new SortedPageUtil<>(functionMap);
+        ROLE_SORTED_PAGE_UTIL = new SortedPageUtil<>(functionMap);
     }
 
     /**
@@ -77,10 +77,11 @@ public class RoleService {
     /**
      * Retrieve all roles from DB according to given pagination information.
      *
+     * @param pageable Paging data
      * @return all roles in application
      */
     public Page<Role> getAllRoles(Pageable pageable) {
-        return roleSortedPageUtil.getPage(roleRepository.findAll(), pageable);
+        return ROLE_SORTED_PAGE_UTIL.getPage(roleRepository.findAll(), pageable);
     }
 
     /**

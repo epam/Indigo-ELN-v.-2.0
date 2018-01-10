@@ -52,9 +52,9 @@ public class SortedPageUtil<T> {
         Comparator<T> comparator = null;
         for (Sort.Order order : pageable.getSort()) {
             String property = order.getProperty();
-            Comparator<T> userComparator = order.isAscending() ?
-                    ascComparator.apply(property) :
-                    descComparator.apply(property);
+            Comparator<T> userComparator = order.isAscending()
+                    ? ascComparator.apply(property)
+                    : descComparator.apply(property);
             comparator = (comparator == null)
                     ? userComparator
                     : comparator.thenComparing(userComparator);

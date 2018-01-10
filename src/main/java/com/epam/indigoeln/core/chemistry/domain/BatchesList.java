@@ -10,15 +10,19 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BatchesList<E extends BatchModel> extends CeNAbstractModel implements Comparable<BatchesList<E>>, StoicModelInterface {
+public class BatchesList<E extends BatchModel> extends CeNAbstractModel implements Comparable<BatchesList<E>>,
+        StoicModelInterface {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchesList.class);
 
     private static final long serialVersionUID = -229096776631434914L;
     // These attributes are used for List type ( Models > 1) in Stoich
-    private final AmountModel listMolecularWeightAmount = new AmountModel(UnitType.SCALAR); // Holds batch molecular weight
-    private final AmountModel listMoleAmount = new AmountModel(UnitType.MOLES); // Unitless amount indicating how much of an Avagadro's
-    private final AmountModel listWeightAmount = new AmountModel(UnitType.MASS); // AmountModel will contain unit conversions original amount
+    private final AmountModel listMolecularWeightAmount = new AmountModel(UnitType.SCALAR);// Holds batch
+    // molecular weight
+    private final AmountModel listMoleAmount = new AmountModel(UnitType.MOLES); // Unitless amount
+    // indicating how much of an Avagadro's
+    private final AmountModel listWeightAmount = new AmountModel(UnitType.MASS); // AmountModel will
+    // contain unit conversions original amount
     private final AmountModel listVolumeAmount = new AmountModel(UnitType.VOLUME); // AmountModel in volume
     private final AmountModel listDensityAmount = new AmountModel(UnitType.DENSITY); // Density of compound in g/mL
     private final AmountModel listMolarAmount = new AmountModel(UnitType.MOLAR); // Describes concentration of batch
@@ -31,7 +35,8 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
     // Position this list of batchMode
     // A,B,C for monomers and P1,P2 for final products,intermediate products
     private String position = "";
-    //these are the flags to handle if all the BatchModels in the list has same value or  user has entered a specific value to any single BatchModel
+    //these are the flags to handle if all the BatchModels in the list has same value or  user has entered
+    // a specific value to any single BatchModel
     private boolean isAllBatchModelsMoleAmountIsSame = true;
     private boolean isAllBatchModelsWeightAmountIsSame = true;
     private boolean isAllBatchModelsVolumeAmountIsSame = true;
@@ -72,7 +77,7 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
         }
     }
 
-    public int compareTo(BatchesList<E> anotherBatchesList) throws ClassCastException {
+    public int compareTo(BatchesList<E> anotherBatchesList) {
         int thisPos = 0;
         int otherPos = 0;
         try {
@@ -86,7 +91,8 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
             LOGGER.trace("Exception in compareTo: " + e.getMessage(), e);
         }
         // Compares this object with the specified object for order.
-        // Returns a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the
+        // Returns a negative integer, zero, or a positive integer as this object
+        // is less than, equal to, or greater than the
         // specified object.
         return thisPos - otherPos;
     }
@@ -257,8 +263,9 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
         if (size > 0) {
             BatchModel model = this.batchModels.get(0);
             return model.getTransactionOrder();
-        } else
+        } else {
             return 0;
+        }
     }
 
     public void setStoicTransactionOrder(int transactionOrder) {
@@ -304,18 +311,18 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
         if (getListSize() >= 1) {
             BatchModel batchModel = batchModels.get(0);
             return batchModel.isAutoCalcOn();
-        } else
+        } else {
             return true;
+        }
     }
 
     public boolean shouldApplySigFigRules() {
-
         return (!getStoicWeightAmount().isCalculated() || !getStoicVolumeAmount().isCalculated());
-
     }
 
     public boolean shouldApplyDefaultSigFigs() {
-        return (!getStoicRxnEquivsAmount().isCalculated() || !getStoicMoleAmount().isCalculated() || !getStoicMolarAmount().isCalculated());
+        return (!getStoicRxnEquivsAmount().isCalculated() || !getStoicMoleAmount().isCalculated()
+                || !getStoicMolarAmount().isCalculated());
 
     }
 
@@ -326,6 +333,8 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
 
     /**
      * Amounts that are all interrelated regarding batch calculations. SigDigits apply.
+     *
+     * @return list with amount
      */
     private List<AmountModel> getCalculatedAmounts() {
         ArrayList<AmountModel> result = new ArrayList<>();
@@ -524,45 +533,62 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
-
+        }
         BatchesList<?> that = (BatchesList<?>) o;
 
-        if (isAllBatchModelsMoleAmountIsSame != that.isAllBatchModelsMoleAmountIsSame)
+        if (isAllBatchModelsMoleAmountIsSame != that.isAllBatchModelsMoleAmountIsSame) {
             return false;
-        if (isAllBatchModelsWeightAmountIsSame != that.isAllBatchModelsWeightAmountIsSame)
+        }
+        if (isAllBatchModelsWeightAmountIsSame != that.isAllBatchModelsWeightAmountIsSame) {
             return false;
-        if (isAllBatchModelsVolumeAmountIsSame != that.isAllBatchModelsVolumeAmountIsSame)
+        }
+        if (isAllBatchModelsVolumeAmountIsSame != that.isAllBatchModelsVolumeAmountIsSame) {
             return false;
-        if (isAllBatchModelsDensityAmountIsSame != that.isAllBatchModelsDensityAmountIsSame)
+        }
+        if (isAllBatchModelsDensityAmountIsSame != that.isAllBatchModelsDensityAmountIsSame) {
             return false;
-        if (isAllBatchModelsMolarAmountIsSame != that.isAllBatchModelsMolarAmountIsSame)
+        }
+        if (isAllBatchModelsMolarAmountIsSame != that.isAllBatchModelsMolarAmountIsSame) {
             return false;
-        if (isAllBatchModelsPurityAmountIsSame != that.isAllBatchModelsPurityAmountIsSame)
+        }
+        if (isAllBatchModelsPurityAmountIsSame != that.isAllBatchModelsPurityAmountIsSame) {
             return false;
-        if (isAllBatchModelsRxnEquivsIsSame != that.isAllBatchModelsRxnEquivsIsSame)
+        }
+        if (isAllBatchModelsRxnEquivsIsSame != that.isAllBatchModelsRxnEquivsIsSame) {
             return false;
-        if (!listMolecularWeightAmount.equals(that.listMolecularWeightAmount))
+        }
+        if (!listMolecularWeightAmount.equals(that.listMolecularWeightAmount)) {
             return false;
-        if (!listMoleAmount.equals(that.listMoleAmount))
+        }
+        if (!listMoleAmount.equals(that.listMoleAmount)) {
             return false;
-        if (!listWeightAmount.equals(that.listWeightAmount))
+        }
+        if (!listWeightAmount.equals(that.listWeightAmount)) {
             return false;
-        if (!listVolumeAmount.equals(that.listVolumeAmount))
+        }
+        if (!listVolumeAmount.equals(that.listVolumeAmount)) {
             return false;
-        if (!listDensityAmount.equals(that.listDensityAmount))
+        }
+        if (!listDensityAmount.equals(that.listDensityAmount)) {
             return false;
-        if (!listMolarAmount.equals(that.listMolarAmount))
+        }
+        if (!listMolarAmount.equals(that.listMolarAmount)) {
             return false;
-        if (!listPurityAmount.equals(that.listPurityAmount))
+        }
+        if (!listPurityAmount.equals(that.listPurityAmount)) {
             return false;
-        if (!listRxnEquivsAmount.equals(that.listRxnEquivsAmount))
+        }
+        if (!listRxnEquivsAmount.equals(that.listRxnEquivsAmount)) {
             return false;
-        if (!listPreviousMolarAmount.equals(that.listPreviousMolarAmount))
+        }
+        if (!listPreviousMolarAmount.equals(that.listPreviousMolarAmount)) {
             return false;
+        }
         return batchModels.equals(that.batchModels);
 
     }

@@ -17,6 +17,8 @@ public class Application extends SpringBootServletInitializer {
 
     /**
      * Main method, used to run the application.
+     *
+     * @param args Arguments
      */
     public static void main(String[] args) {
         FontFactory.register(PdfConst.MAIN_FONT_FAMILY_DIR, PdfConst.MAIN_FONT_FAMILY);
@@ -24,7 +26,10 @@ public class Application extends SpringBootServletInitializer {
     }
 
     /**
-     * Run application in servlet container
+     * Run application in servlet container.
+     *
+     * @param builder Builder
+     * @return Spring application builder
      */
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {

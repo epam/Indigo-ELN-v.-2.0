@@ -4,6 +4,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.*;
 import org.springframework.stereotype.Component;
+
 import java.util.*;
 import java.util.stream.StreamSupport;
 
@@ -29,7 +30,7 @@ public class ClientConfiguration implements InitializingBean {
 
     private Set<String> getPropertyNames() {
         Set<String> propertyNames = new HashSet<>();
-        if (environment instanceof ConfigurableEnvironment){
+        if (environment instanceof ConfigurableEnvironment) {
             MutablePropertySources propertySources = ((ConfigurableEnvironment) environment).getPropertySources();
             StreamSupport.stream(propertySources.spliterator(), false)
                     .filter(p -> p instanceof EnumerablePropertySource)

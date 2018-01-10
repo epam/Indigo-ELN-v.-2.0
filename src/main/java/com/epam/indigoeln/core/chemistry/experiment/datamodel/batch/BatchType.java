@@ -36,7 +36,7 @@ import java.io.Serializable;
  * Jeremy Edwards suggests Starting Materials appear at the top of the stoich grid or as the left most addition
  * depending on portrait or landscape orientation of table header.
  */
-public class BatchType implements Serializable {
+public final class BatchType implements Serializable {
     // Possible Reaction Components
     private static final int START_MTRL_ORDINAL = 1; // Not currently used: Legacy designation
     private static final int REACTANT_ORDINAL = 2;
@@ -78,7 +78,7 @@ public class BatchType implements Serializable {
     }
 
     // Override-prevention methods
-    public final boolean equals(Object that) {
+    public boolean equals(Object that) {
         if (that instanceof BatchType) {
             BatchType batchTypeExternal = (BatchType) that;
             if (batchTypeExternal.ordinal == this.ordinal) {
@@ -88,7 +88,7 @@ public class BatchType implements Serializable {
         return false;
     }
 
-    public final int hashCode() {
+    public int hashCode() {
         return type.hashCode() * HASH_PRIME;
     }
 }

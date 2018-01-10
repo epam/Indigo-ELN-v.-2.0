@@ -4,19 +4,19 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Molar Concentrations
+ * Molar Concentrations.
  * <p>
  * 1 Molar = 1 M = 1 mole/L = 1 mmole/mL 1 millimolar = 1 mM
  * = 1 mmole/L = 1 umole/mL 1 micromolar = 1 uM = 1 umole/L = 1 nmole/mL 1
  * nanomolar = 1 nM = 1 nmole/L = 1 pmole/mL
  * <p>
- * Weight
+ * Weight.
  * <p>
  * 1 kilogram = 1 kg = 1000 grams 1 gram = 1 g = 1 gram
  * = 1000 milligrams 1 milligram = 1 mg = 1000 micrograms 1 microgram = 1 ug =
  * 1000 nanograms 1 nanogram = 1 ng = 1000 picograms
  * <p>
- * Volume
+ * Volume.
  * <p>
  * 1 Liter = 1 L = 1000 milliliters 1 milliliter = 1 mL
  * = 1000 microliters 1 microliter = 1 uL = 1000 nanoliters

@@ -25,12 +25,11 @@ public class LoggingAspect {
     @Autowired
     private Environment env;
 
-    @Pointcut("(within(com.epam.indigoeln.core.repository..*) " +
-            "|| within(com.epam.indigoeln.core.service..*) " +
-            "|| within(com.epam.indigoeln.web.rest..*)) " +
-            "&& " +
-            "!(within(com.epam.indigoeln.core.service.bingo..*) " +
-            "|| within(com.epam.indigoeln.web.rest.BingoResource))")
+    @Pointcut("(within(com.epam.indigoeln.core.repository..*) "
+            + "|| within(com.epam.indigoeln.core.service..*) "
+            + "|| within(com.epam.indigoeln.web.rest..*)) "
+            + "&& " + "!(within(com.epam.indigoeln.core.service.bingo..*) "
+            + "|| within(com.epam.indigoeln.web.rest.BingoResource))")
     public void loggingPointcut() {
         // all the Bingo related classes are excluded as IndigoObject.toString() method
         // throws IndigoExcetion not allowing to save new structures
@@ -39,7 +38,8 @@ public class LoggingAspect {
     @AfterThrowing(pointcut = "loggingPointcut()", throwing = "e")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
         if (env.acceptsProfiles(Application.Profile.DEV)) {
-            LOGGER.error("Exception in {}.{}() with cause = {} and exception {}", joinPoint.getSignature().getDeclaringTypeName(),
+            LOGGER.error("Exception in {}.{}() with cause = {} and exception {}",
+                    joinPoint.getSignature().getDeclaringTypeName(),
                     joinPoint.getSignature().getName(), e.getCause(), e);
         } else {
             LOGGER.error("Exception in {}.{}() with cause = {}", joinPoint.getSignature().getDeclaringTypeName(),

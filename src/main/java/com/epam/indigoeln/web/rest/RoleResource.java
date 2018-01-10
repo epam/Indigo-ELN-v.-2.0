@@ -45,7 +45,10 @@ public class RoleResource {
     /**
      * GET  /roles -> Returns all roles with pagination.
      *
+     * @param pageable Paging data
      * @return Returns all roles
+     * @throws URISyntaxException thrown to indicate that a string could not be parsed as a
+     *                            URI reference.
      */
     @ApiOperation(value = "Returns all roles.")
     @RequestMapping(method = RequestMethod.GET,

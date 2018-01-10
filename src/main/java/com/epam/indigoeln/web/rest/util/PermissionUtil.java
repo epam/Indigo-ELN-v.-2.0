@@ -106,6 +106,8 @@ public final class PermissionUtil {
     /**
      * Check if permission can be added from some level.
      *
+     * @param upperPermissionsLevel Upper permission level
+     * @param userPermission        User permission
      * @return {@code true} if {@code upperPermissionsLevel} is lower or equal to {@code userPermission} creation level.
      */
     private static boolean canBeAddedFromUpperLevel(PermissionCreationLevel upperPermissionsLevel,
@@ -280,7 +282,8 @@ public final class PermissionUtil {
         if (!updatedPermissions.isEmpty()) {
             updatePermissionsDown(wrappedNotebook, updatedPermissions);
 
-            projectHadChanged |= !updatePermissionsUp(new EntityWrapper.ProjectWrapper(project), wrappedNotebook, updatedPermissions).isEmpty();
+            projectHadChanged |= !updatePermissionsUp(new EntityWrapper.ProjectWrapper(project),
+                    wrappedNotebook, updatedPermissions).isEmpty();
         }
 
         Set<UserPermission> removedPermissions = notebook.getAccessList().stream().filter(oldPermission ->
@@ -290,7 +293,8 @@ public final class PermissionUtil {
         if (!removedPermissions.isEmpty()) {
             removePermissionsDown(wrappedNotebook, removedPermissions);
 
-            Set<UserPermission> removed = removePermissionsUp(new EntityWrapper.ProjectWrapper(project), wrappedNotebook, removedPermissions);
+            Set<UserPermission> removed = removePermissionsUp(new EntityWrapper.ProjectWrapper(project),
+                    wrappedNotebook, removedPermissions);
 
             projectHadChanged |= !removed.isEmpty();
         }
@@ -452,6 +456,8 @@ public final class PermissionUtil {
     /**
      * Check if these permissions are for the same user.
      *
+     * @param oldPermission Old permission
+     * @param newPermission New permission
      * @return {@code true} if permissions are for the same user
      */
     private static boolean equalsByUserId(UserPermission oldPermission, UserPermission newPermission) {
@@ -461,7 +467,9 @@ public final class PermissionUtil {
     /**
      * Check if permission from current level can change changing permission.
      *
-     * @return {@code true} if entities from {@code changingPermissionLevel} can be changed
+     * @param changingPermissionLevel Changing permission level
+     * @param currentLevel            Current level
+     * @return @code true} if entities from {@code changingPermissionLevel} can be changed
      * by permissions of {@code currentLevel}
      */
     private static boolean canBeChangedFromThisLevel(PermissionCreationLevel changingPermissionLevel,

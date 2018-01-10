@@ -36,6 +36,7 @@ public final class SdUnit implements Serializable, Externalizable {
     private static final String OK_3D = "OK 3D";
 
     static final long serialVersionUID = 42L;
+    private static final String MOLECULE_PATTERN = "M  END";
     private boolean is3D;
     private int numAtoms;
     private boolean upperCase;
@@ -87,7 +88,7 @@ public final class SdUnit implements Serializable, Externalizable {
     }
 
     private static String validateDetail(String mol) {
-        if (!StringUtils.contains(mol, "M  END")) {
+        if (!StringUtils.contains(mol, MOLECULE_PATTERN)) {
             return "Does not contain \"M  END\"";
         }
 
@@ -246,16 +247,16 @@ public final class SdUnit implements Serializable, Externalizable {
                 mol = createConsistentLineTermination(mol);
             }
             if (molFilePortionOnly) {
-                mol = mol.substring(0, mol.indexOf("M  END") + 6);
+                mol = mol.substring(0, mol.indexOf(MOLECULE_PATTERN) + 6);
                 mol = mol + "\n\n$$$$";
             }
-            if (!mol.contains("M  END") || !mol.contains("$$$$")) {
+            if (!mol.contains(MOLECULE_PATTERN) || !mol.contains("$$$$")) {
                 valid = false;
                 validString = "Does not contain \"M  END\" or \"$$$$\"";
                 molPortion = "Not a valid molecule!";
             }
-            if (mol.contains("M  END")) {
-                setMol(mol.substring(0, mol.indexOf("M  END") + 6) + "\n");
+            if (mol.contains(MOLECULE_PATTERN)) {
+                setMol(mol.substring(0, mol.indexOf(MOLECULE_PATTERN) + 6) + "\n");
             }
             validString = validateDetail(molPortion);
             if (!validString.startsWith(OK)) {
@@ -354,8 +355,8 @@ public final class SdUnit implements Serializable, Externalizable {
 
     public void setMol(String mol) {
         String mol1;
-        if (mol.contains("M  END")) {
-            mol1 = mol.substring(0, mol.indexOf("M  END") + "M  END".length())
+        if (mol.contains(MOLECULE_PATTERN)) {
+            mol1 = mol.substring(0, mol.indexOf(MOLECULE_PATTERN) + MOLECULE_PATTERN.length())
                     + "\n";
         } else {
             mol1 = mol;
@@ -431,7 +432,7 @@ public final class SdUnit implements Serializable, Externalizable {
         Map<String, String> out = new HashMap<>();
 
         try {
-            String attrPortion = sdInfo.substring(sdInfo.indexOf("M  END") + 6, sdInfo.indexOf("$$$$") + 4).trim();
+            String attrPortion = sdInfo.substring(sdInfo.indexOf(MOLECULE_PATTERN) + 6, sdInfo.indexOf("$$$$") + 4).trim();
 
             String thisName;
             String thisOrigName;
@@ -505,7 +506,6 @@ public final class SdUnit implements Serializable, Externalizable {
             out.append(line);
             out.append(lineTermination);
         }
-
         br.close();
         sr.close();
         return out.toString();
@@ -527,7 +527,6 @@ public final class SdUnit implements Serializable, Externalizable {
         for (int byt; (byt = in.read()) != -1; ) {
             baos.write(byt);
         }
-
         baos.close();
         byte[] bytes = baos.toByteArray();
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);

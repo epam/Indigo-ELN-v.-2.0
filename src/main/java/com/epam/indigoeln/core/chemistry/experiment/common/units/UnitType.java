@@ -74,10 +74,10 @@ public final class UnitType implements Serializable, Comparable<UnitType> {
 
     // Override-prevention methods
     // changed from reference compare vb 11/15
-    public final boolean equals(Object that) {
+    public boolean equals(Object that) {
         return (that != null) && getClass() == that.getClass() && ordinal == ((UnitType) that).ordinal;
     }
-    public final int hashCode() {
+    public int hashCode() {
         return type.hashCode() * HASH_PRIME;
     }
 }

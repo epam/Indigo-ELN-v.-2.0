@@ -22,10 +22,14 @@ class SaltFormModel extends GenericCodeModel {
     }
 
     /**
-     * Extended this to treat the Parent Salt code and Unknown Salt form the same
+     * Extended this to treat the Parent Salt code and Unknown Salt form the same.
+     *
+     * @param testCode Test code
+     * @return true if it is parent code
      */
     private static boolean isParentCode(String testCode) {
-        return StringUtils.isBlank(testCode) || testCode.trim().equalsIgnoreCase(PARENT) || testCode.trim().equalsIgnoreCase(UNKNOWN);
+        return StringUtils.isBlank(testCode) || testCode.trim().equalsIgnoreCase(PARENT)
+                || testCode.trim().equalsIgnoreCase(UNKNOWN);
     }
 
     private void updateValuesBasedOnCode() {

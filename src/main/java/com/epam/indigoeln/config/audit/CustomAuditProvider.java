@@ -14,24 +14,25 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.Optional;
 
 /**
- * Custom Provider for auditing
+ * Custom Provider for auditing.
  * Need to be defined for support Mongo Audit functionality
- *(enable annotations @LastModifiedDate, @CreatedDate, @LastModifiedBy, @CreatedBy)
+ * (enable annotations @LastModifiedDate, @CreatedDate, @LastModifiedBy, @CreatedBy).
  */
 @Configuration
-public class CustomAuditProvider implements AuditorAware<User>  {
+public class CustomAuditProvider implements AuditorAware<User> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomAuditProvider.class);
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Override
     public User getCurrentAuditor() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user;
         try {
-            user = Optional.ofNullable(auth).map(Authentication::getName).map(userService::getUserWithAuthoritiesByLogin)
+            user = Optional.ofNullable(auth).map(Authentication::getName)
+                    .map(userService::getUserWithAuthoritiesByLogin)
                     .orElse(null);
         } catch (EntityNotFoundException e) {
             if (LOGGER.isErrorEnabled()) {

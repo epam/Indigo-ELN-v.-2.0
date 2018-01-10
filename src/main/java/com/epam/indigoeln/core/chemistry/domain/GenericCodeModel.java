@@ -16,10 +16,11 @@ class GenericCodeModel extends CeNAbstractModel {
     }
 
     public void setCode(String code) {
-        if (genericCode == null)
+        if (genericCode == null) {
             genericCode = "";
-        else
+        } else {
             this.genericCode = code;
+        }
     }
 
     public void setDescription(String description) {

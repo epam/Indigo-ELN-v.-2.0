@@ -93,12 +93,13 @@ public class WebSocketUtil {
     }
 
     /**
-     * Updates user
+     * Updates user.
      *
      * @param login User's login
      */
     public void updateUser(String login) {
-        template.convertAndSendToUser(login, USER_DESTINATION, Collections.singletonMap("message", "User's permissions were changed. User should relogin"));
+        template.convertAndSendToUser(login, USER_DESTINATION,
+                Collections.singletonMap("message", "User's permissions were changed. User should relogin"));
     }
 
     /**

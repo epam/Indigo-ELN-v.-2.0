@@ -55,14 +55,16 @@ public class EntitySearchRepository {
             projectResult = projectSearchRepository.search(searchRequest).map(ids -> {
                 final Iterable<Project> projects = projectRepository.findAll(ids);
                 return StreamSupport.stream(projects.spliterator(), false).filter(
-                        p -> PermissionUtil.hasEditorAuthorityOrPermissions(user, p.getAccessList(), UserPermission.READ_ENTITY)
+                        p -> PermissionUtil.hasEditorAuthorityOrPermissions(user, p.getAccessList(),
+                                UserPermission.READ_ENTITY)
                 ).map(ProjectDTO::new).map(this::convert).collect(Collectors.toList());
             });
 
             notebookResult = notebookSearchRepository.search(searchRequest).map(ids -> {
                 final Iterable<Notebook> notebooks = notebookRepository.findAll(ids);
                 return StreamSupport.stream(notebooks.spliterator(), false).filter(
-                        n -> PermissionUtil.hasEditorAuthorityOrPermissions(user, n.getAccessList(), UserPermission.READ_ENTITY)
+                        n -> PermissionUtil.hasEditorAuthorityOrPermissions(user, n.getAccessList(),
+                                UserPermission.READ_ENTITY)
                 ).map(NotebookDTO::new).map(this::convert).collect(Collectors.toList());
             });
         }

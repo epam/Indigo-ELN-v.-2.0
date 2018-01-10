@@ -236,8 +236,8 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
     }
 
     /**
-     * Sets the value of the Amount object to the value in numbers the string represents If the string is "" the default value is
-     * used. The default value is initialized as 0.000;
+     * Sets the value of the Amount object to the value in numbers the string represents If the string is ""
+     * the default value is used. The default value is initialized as 0.000;
      *
      * @param val -
      *            String representation of a number or "" or null;

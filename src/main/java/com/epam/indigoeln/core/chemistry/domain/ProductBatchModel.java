@@ -3,7 +3,6 @@ package com.epam.indigoeln.core.chemistry.domain;
 import com.epam.indigoeln.core.chemistry.experiment.common.units.Unit2;
 import com.epam.indigoeln.core.chemistry.experiment.common.units.UnitType;
 import com.epam.indigoeln.core.chemistry.experiment.datamodel.batch.BatchType;
-import com.epam.indigoeln.core.chemistry.experiment.datamodel.common.Amount2;
 import com.epam.indigoeln.core.chemistry.experiment.utils.BatchUtils;
 import com.epam.indigoeln.core.chemistry.experiment.utils.CeNNumberUtils;
 import com.epam.indigoeln.web.rest.dto.calculation.BasicBatchModel;
@@ -39,8 +38,10 @@ public class ProductBatchModel extends BatchModel {
     @Override
     public void copyAmounts(BasicBatchModel rawBatch) {
         super.copyAmounts(rawBatch);
-        this.theoreticalMoleAmount = new AmountModel(MOLES, rawBatch.getTheoMoles().getValue(), !rawBatch.getTheoMoles().isEntered());
-        this.theoreticalWeightAmount = new AmountModel(MASS, rawBatch.getTheoWeight().getValue(), !rawBatch.getTheoWeight().isEntered());
+        this.theoreticalMoleAmount = new AmountModel(MOLES, rawBatch.getTheoMoles().getValue(),
+                !rawBatch.getTheoMoles().isEntered());
+        this.theoreticalWeightAmount = new AmountModel(MASS, rawBatch.getTheoWeight().getValue(),
+                !rawBatch.getTheoWeight().isEntered());
         this.theoreticalYieldPercentAmount = new AmountModel(SCALAR, rawBatch.getYield());
     }
 
@@ -183,8 +184,8 @@ public class ProductBatchModel extends BatchModel {
     public void setTotalMolarAmount(AmountModel totalMolarAmount) {
         if (totalMolarAmount != null
                 && !doubleEqZero(totalMolarAmount.getValueInStdUnitsAsDouble())) {
-            if (totalMolarAmount.getUnitType().getOrdinal() == UnitType.MOLAR.getOrdinal() &&
-                    getTotalMolarity() != null && !getTotalMolarity().equals(totalMolarAmount)) {
+            if (totalMolarAmount.getUnitType().getOrdinal() == UnitType.MOLAR.getOrdinal()
+                    && getTotalMolarity() != null && !getTotalMolarity().equals(totalMolarAmount)) {
                 // Check to see if it is a unit change
                 boolean unitChange = BatchUtils.isUnitOnlyChanged(
                         getTotalMolarity(), totalMolarAmount);
@@ -244,7 +245,7 @@ public class ProductBatchModel extends BatchModel {
             amts.add(this.getTotalVolume());
             amts.add(this.getDensityAmount());
             applySigFigRules(this.getTotalWeight(), amts);
-            amts.clear();// important to clear the amts list
+            amts.clear(); // important to clear the amts list
             // mg = (mL * g/mL)/ (1000 mg/g)
             this.getTotalWeight().setValueInStdUnits(1000 * this.getTotalVolume().getValueInStdUnitsAsDouble()
                     * this.getDensityAmount().getValueInStdUnitsAsDouble(), true);
@@ -262,11 +263,12 @@ public class ProductBatchModel extends BatchModel {
             amts.add(this.getMoleAmount());
             amts.add(this.getMolarAmount());
             if (this.getTotalVolume().isCalculated()
-                    && this.getTotalWeight().isCalculated())
+                    && this.getTotalWeight().isCalculated()) {
                 this.getTotalVolume().setSigDigits(
                         CeNNumberUtils.DEFAULT_SIG_DIGITS);
-            else
+            } else {
                 applySigFigRules(this.getTotalVolume(), amts);
+            }
             amts.clear();// important to clear the amts list
             this.getTotalVolume().setValueInStdUnits(
                     this.getMoleAmount().getValueInStdUnitsAsDouble()
@@ -287,12 +289,13 @@ public class ProductBatchModel extends BatchModel {
             amts.add(this.getMoleAmount());
             amts.add(this.getTotalMolarAmount());
             if (this.getTotalVolume().isCalculated()
-                    && this.getTotalWeight().isCalculated())
+                    && this.getTotalWeight().isCalculated()) {
                 this.getTotalVolume().setSigDigits(
                         CeNNumberUtils.DEFAULT_SIG_DIGITS);
-            else
+            } else {
                 applySigFigRules(this.getTotalVolume(), amts);
-            amts.clear();// important to clear the amts list
+            }
+            amts.clear(); // important to clear the amts list
             this.getTotalVolume().setValueInStdUnits(
                     this.getMoleAmount().getValueInStdUnitsAsDouble()
                             / this.getTotalMolarAmount()
@@ -302,7 +305,7 @@ public class ProductBatchModel extends BatchModel {
             amts.add(this.getTotalWeight());
             amts.add(this.getDensityAmount());
             applySigFigRules(getTotalVolume(), amts);
-            amts.clear();// important to clear the amts list
+            amts.clear(); // important to clear the amts list
 
             // update volume from weight value: mg /(1000mg/g)* (g/mL) = mL
             getTotalVolume().setValueInStdUnits(this.getTotalWeight().getValueInStdUnitsAsDouble()
@@ -328,22 +331,6 @@ public class ProductBatchModel extends BatchModel {
     public boolean shouldApplySigFigRules() {
         return !getTotalWeight().isCalculated() || !getTotalVolume()
                 .isCalculated();
-    }
-
-    /**
-     * Applies SigFigs for the Amount Obeject. Checks if the standard sigfig
-     * rules to be applied, which checks for any user edits on Measured Amounts
-     * (Weight,Volume). else any other edit would lead to Default SigFig
-     * application on the Amount.
-     */
-    public void applySigFigRules(Amount2 amt, List<AmountModel> amts) {
-        if (shouldApplySigFigRules()) {
-            amt.setSigDigits(CeNNumberUtils
-                    .getSmallestSigFigsFromAmountModelList(amts));
-        } else {
-            if (shouldApplyDefaultSigFigs())
-                amt.setSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
-        }
     }
 
     /**
@@ -432,9 +419,9 @@ public class ProductBatchModel extends BatchModel {
                         setModified(true);
                     }
                 }
-                if (!unitChange)
-
+                if (!unitChange) {
                     recalcAmounts();
+                }
             }
         } else {
             this.getTotalWeight().setValue("0");
@@ -464,9 +451,10 @@ public class ProductBatchModel extends BatchModel {
                         setModified(true);
                     }
                 }
-                if (!unitChange)
+                if (!unitChange) {
                     //This will trigger recalcTotalAmounts() as well
                     recalcAmounts();
+                }
             }
         } else {
             this.getTotalVolume().setValue("0");

@@ -21,6 +21,7 @@ import java.util.*;
 public class SignatureRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SignatureRepository.class);
+    public static final String USERNAME = "username";
 
     @Autowired
     private SignatureProperties signatureProperties;
@@ -50,7 +51,7 @@ public class SignatureRepository {
     public String getSignatureTemplates(String username) {
         return exchange(signatureProperties.getUrl() + "/api/getTemplates?username={username}",
                 HttpMethod.GET, null,
-                String.class, Collections.singletonMap("username", username)).getBody();
+                String.class, Collections.singletonMap(USERNAME, username)).getBody();
     }
 
     public String uploadDocument(String username, String templateId, final String fileName, byte[] file) {
@@ -59,7 +60,7 @@ public class SignatureRepository {
         }
 
         LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-        map.add("username", username);
+        map.add(USERNAME, username);
         map.add("templateId", templateId);
         ByteArrayResource fileResource = new ByteArrayResourceImpl(file, fileName);
         map.add("file", fileResource);
@@ -105,7 +106,7 @@ public class SignatureRepository {
         try {
             return exchange(signatureProperties.getUrl() + "/api/getDocuments?username={username}",
                     HttpMethod.GET, null,
-                    String.class, Collections.singletonMap("username", username)).getBody();
+                    String.class, Collections.singletonMap(USERNAME, username)).getBody();
         } catch (Exception e) {
             LOGGER.error("Couldn't get documents, username = " + username, e);
             return StringUtils.EMPTY;
@@ -165,7 +166,7 @@ public class SignatureRepository {
 
     private Cookie login(String username, String password) {
         Map<String, Object> o = new HashMap<>();
-        o.put("username", username);
+        o.put(USERNAME, username);
         o.put("password", password);
 
         ResponseEntity<Object> responseEntity = restTemplate
