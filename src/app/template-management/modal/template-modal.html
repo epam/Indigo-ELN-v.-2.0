@@ -71,7 +71,7 @@
                             </div>
                             <a class="list-group-item draggable-component component"
                                ng-repeat="component in tab.components">
-                                <span class="fa fa-remove pull-right text-muted" title="Remove"
+                                <span class="icon icon-close pull-right text-muted" title="Remove"
                                       ng-click="vm.removeComponent(tab, component)"></span>
                                 <h5 class="draggable-component" ng-bind="component.name"></h5>
                                 <p class="draggable-component" ng-bind="component.desc"></p>
@@ -104,7 +104,7 @@
         <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
     </button>
     <button type="button" class="btn btn-default" ng-click="vm.close()">
-        <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
+        <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
     </button>
 </div>
 
