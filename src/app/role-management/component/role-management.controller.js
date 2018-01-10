@@ -27,14 +27,13 @@ function RoleManagementController(roleService, accountRoleService, i18en,
         vm.deleteRole = deleteRole;
         vm.editRole = editRole;
         vm.sortRoles = sortRoles;
-        vm.roleExistValidation = roleExistValidation;
         vm.onCloseEditRole = onCloseEditRole;
-        vm.loadAll = loadAll;
+        vm.loadRoles = loadRoles;
 
-        loadAll();
+        loadRoles();
     }
 
-    function loadAll() {
+    function loadRoles() {
         return roleService.query({
             page: vm.page - 1,
             size: vm.itemsPerPage,
@@ -51,18 +50,14 @@ function RoleManagementController(roleService, accountRoleService, i18en,
             .then(function() {
                 return roleService.delete({id: role.id})
                     .$promise
-                    .then(loadAll, function() {
+                    .then(loadRoles, function() {
                         notifyService.error(i18en.THE_ROLE_ALREADY_IN_USE);
                     });
             });
     }
 
-    function roleExistValidation(modelValue) {
-        return !_.find(vm.roles, {name: modelValue});
-    }
-
     function search() {
-        loadAll();
+        loadRoles();
     }
 
     function hasAuthority(role, authority) {
@@ -94,7 +89,7 @@ function RoleManagementController(roleService, accountRoleService, i18en,
             vm.accountRoles = result;
         });
 
-        loadAll();
+        loadRoles();
     }
 
     function create() {
@@ -110,7 +105,7 @@ function RoleManagementController(roleService, accountRoleService, i18en,
     function sortRoles(predicate, isAscending) {
         vm.sortBy.field = predicate;
         vm.sortBy.isAscending = isAscending;
-        loadAll();
+        loadRoles();
     }
 }
 
