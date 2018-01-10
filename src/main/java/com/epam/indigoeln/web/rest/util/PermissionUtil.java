@@ -7,7 +7,9 @@ import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.PermissionIncorrectException;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.Objects;
+import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -196,13 +198,14 @@ public final class PermissionUtil {
         if (!updatedPermissions.isEmpty()) {
             wrappedExperiment.updatePermissionsDown(updatedPermissions);
 
-            Set<UserPermission> permissionsUpdatedInNotebook = wrappedExperiment.addOrUpdatePermissionsUp(updatedPermissions);
+            Set<UserPermission> permissionsUpdatedInNotebook =
+                    wrappedExperiment.addOrUpdatePermissionsUp(updatedPermissions);
 
             notebookHadChanged |= !permissionsUpdatedInNotebook.isEmpty();
 
             if (!permissionsUpdatedInNotebook.isEmpty()) {
-                projectHadChanged |= !wrappedExperiment.getParent().addOrUpdatePermissionsUp(permissionsUpdatedInNotebook)
-                        .isEmpty();
+                projectHadChanged |=
+                        !wrappedExperiment.getParent().addOrUpdatePermissionsUp(permissionsUpdatedInNotebook).isEmpty();
             }
         }
 
