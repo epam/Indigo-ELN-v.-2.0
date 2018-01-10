@@ -117,7 +117,7 @@ function projectConfig($stateProvider, permissionsConfig, permissionViewConfig, 
                     });
             },
             data: {
-                authorities: [roles.CONTENT_EDITOR, roles.EXPERIMENT_READER, roles.EXPERIMENT_CREATOR]
+                authorities: [roles.CONTENT_EDITOR, roles.PROJECT_READER, roles.PROJECT_CREATOR]
             }
         })
         .state('entities.project-new.permissions', _.extend({}, permissionsConfig, {

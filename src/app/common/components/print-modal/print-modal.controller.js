@@ -1,7 +1,7 @@
-PrintModalController.$inject = ['$uibModalInstance', 'params', 'resourceName', 'resource', 'typeOfComponents',
-    'componentsUtil'];
+var roles = require('../../../permissions/permission-roles.json');
 
-function PrintModalController($uibModalInstance, params, resourceName, resource,
+/* @ngInject */
+function PrintModalController($uibModalInstance, params, resourceName, resource, principalService,
                               typeOfComponents, componentsUtil) {
     var vm = this;
 
@@ -21,6 +21,7 @@ function PrintModalController($uibModalInstance, params, resourceName, resource,
             vm.hasAttachments = true;
         } else if (resourceName === 'notebookService') {
             vm.askContents = true;
+            vm.allowContents = principalService.hasAuthority(roles.EXPERIMENT_READER);
         } else {
             vm.hasAttachments = false;
             vm.printContent = false;

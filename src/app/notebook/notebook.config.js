@@ -130,7 +130,7 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
                     });
             },
             data: {
-                authorities: [roles.CONTENT_EDITOR, roles.EXPERIMENT_READER, roles.EXPERIMENT_CREATOR]
+                authorities: [roles.CONTENT_EDITOR, roles.NOTEBOOK_READER, roles.NOTEBOOK_CREATOR]
             }
         })
         .state('entities.notebook-new.permissions', _.extend({}, permissionsConfig, {
