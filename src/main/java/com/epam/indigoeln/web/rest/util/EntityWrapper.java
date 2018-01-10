@@ -3,7 +3,6 @@ package com.epam.indigoeln.web.rest.util;
 import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.security.Authority;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -130,21 +129,24 @@ abstract class EntityWrapper {
                 .noneMatch(canBeRemoved -> equalsByUserId(canBeRemoved, removingPermission));
     }
 
-    @NoArgsConstructor
     public static class ProjectWrapper extends EntityWrapper {
 
+        private ProjectWrapper() {
+            parent = null;
+            permissionCreationLevel = PermissionCreationLevel.PROJECT;
+            permissionsPreProcessing = Function.identity();
+        }
+
         ProjectWrapper(Project project) {
-            this.parent = null;
+            this();
             this.children = project.getNotebooks().stream()
                     .map(notebook -> new NotebookWrapper(this, notebook))
                     .collect(toList());
             this.value = project;
-            this.permissionCreationLevel = PermissionCreationLevel.PROJECT;
         }
 
         private static ProjectWrapper parentForNotebookWrapper(Project project, NotebookWrapper notebookWrapper) {
             ProjectWrapper wrapper = new ProjectWrapper();
-            wrapper.parent = null;
             wrapper.children = Collections.singletonList(notebookWrapper);
             wrapper.value = project;
             wrapper.permissionCreationLevel = PermissionCreationLevel.PROJECT;
@@ -189,15 +191,19 @@ abstract class EntityWrapper {
             return createdPermissions.stream().map(userPermission ->
                     //we don't change permissions for ContentEditors
                     !isContentEditor(userPermission.getUser())
-                            //user without NOTEBOOK_CREATOR Authority can only have VIEWER_PERMISSIONS for Notebook
-                            && ((!userPermission.getPermissionView().equals(UserPermission.VIEWER) &&
-                            !userPermission.getUser().getAuthorities().contains(Authority.NOTEBOOK_CREATOR))
-                            //if user is not EXPERIMENT_CREATOR he can't have USER_PERMISSIONS for Notebook
-                            || (userPermission.getPermissionView().equals(UserPermission.USER) &&
-                            !userPermission.getUser().getAuthorities().contains(Authority.EXPERIMENT_CREATOR))) ?
+                            && shouldHaveViewerPermissions(userPermission) ?
                             new UserPermission(userPermission.getUser(), UserPermission.VIEWER_PERMISSIONS) :
                             userPermission)
                     .collect(toSet());
+        }
+
+        private static boolean shouldHaveViewerPermissions(UserPermission userPermission) {
+            //user without NOTEBOOK_CREATOR Authority can only have VIEWER_PERMISSIONS for Notebook
+            return (!userPermission.getPermissionView().equals(UserPermission.VIEWER) &&
+                    !userPermission.getUser().getAuthorities().contains(Authority.NOTEBOOK_CREATOR))
+                    //if user is not EXPERIMENT_CREATOR he can't have USER_PERMISSIONS for Notebook
+                    || (userPermission.getPermissionView().equals(UserPermission.USER) &&
+                    !userPermission.getUser().getAuthorities().contains(Authority.EXPERIMENT_CREATOR));
         }
     }
 
@@ -229,14 +235,18 @@ abstract class EntityWrapper {
                     .map(userPermission ->
                             //we don't change permissions for ContentEditors
                             !isContentEditor(userPermission.getUser())
-                                    //there is no USER_PERMISSIONS for Experiment
-                                    && (userPermission.getPermissions().equals(UserPermission.USER_PERMISSIONS)
-                                    //user without EXPERIMENT_CREATOR Authority can't have OWNER_PERMISSIONS
-                                    || (userPermission.getPermissions().equals(UserPermission.OWNER_PERMISSIONS)
-                                    && !userPermission.getUser().getAuthorities().contains(Authority.EXPERIMENT_CREATOR))) ?
+                                    && shouldHaveViewerPermission(userPermission) ?
                                     new UserPermission(userPermission.getUser(), UserPermission.VIEWER_PERMISSIONS) :
                                     userPermission)
                     .collect(toSet());
+        }
+
+        private static boolean shouldHaveViewerPermission(UserPermission userPermission) {
+            //there is no USER_PERMISSIONS for Experiment
+            return userPermission.getPermissions().equals(UserPermission.USER_PERMISSIONS)
+                    //user without EXPERIMENT_CREATOR Authority can't have OWNER_PERMISSIONS
+                    || (userPermission.getPermissions().equals(UserPermission.OWNER_PERMISSIONS)
+                    && !userPermission.getUser().getAuthorities().contains(Authority.EXPERIMENT_CREATOR));
         }
     }
 }
