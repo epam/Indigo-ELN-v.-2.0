@@ -9,16 +9,16 @@
     <div class="modal-body" cg-busy="{promise: vm.loading}">
         <p><span i-translate="PLEASE_SELECT_COMPONENTS_FOR_PRINT"></span>:</p>
         <indigo-checklist indigo-items="vm.components" class="checklist-wrap-lines"></indigo-checklist>
-        <indigo-checkbox ng-if="vm.hasAttachments" indigo-classes="checklist-item" 
+        <indigo-checkbox ng-if="vm.hasAttachments" indigo-classes="checklist-item"
             indigo-label="Print attached PDF"
-            indigo-model="vm.printAttachedPDF"></indigo-checkbox> 
-        <indigo-checkbox ng-if="vm.askContents" indigo-classes="checklist-item" 
+            indigo-model="vm.printAttachedPDF"></indigo-checkbox>
+        <indigo-checkbox ng-if="vm.askContents" indigo-classes="checklist-item"
             indigo-label="Print Table of Content"
             indigo-model="vm.printContent"></indigo-checkbox>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.dismiss()">
-            <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
+            <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
         </button>
         <button type="submit" class="btn btn-primary" i-translate="OK"></button>
     </div>

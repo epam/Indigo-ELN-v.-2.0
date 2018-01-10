@@ -44,7 +44,7 @@
         <!--TODO: Task EPMLSOPELN-532: Functionality is temporarily removed-->
         <!--<div class="pull-left">-->
             <!--<button type="button" class="btn btn-default" ng-disabled="!vm.canUndo()" ng-click="vm.undoAction()">-->
-                <!--<span class="fa fa-undo"></span><span class="m-l5">Undo Action</span>-->
+                <!--<span class="icon icon-undo"></span><span class="m-l5">Undo Action</span>-->
             <!--</button>-->
             <!--<button type="button" class="btn btn-default" ng-disabled="!vm.canRedo()" ng-click="vm.redoAction()">-->
                 <!--<span class="fa fa-redo"></span><span class="m-l5">Redo Action</span>-->
@@ -53,7 +53,7 @@
         <div class="btn-group dropup" uib-dropdown is-open="isopen">
 
             <button id="single-button" type="button" class="btn btn-info" uib-dropdown-toggle ng-disabled="disabled">
-                <span class="m-r10" i-translate="ACTIONS"></span><span class="fa fa-angle-down"></span>
+                <span class="m-r10" i-translate="ACTIONS"></span><span class="icon icon-arrow_down"></span>
             </button>
             <ul uib-dropdown-menu role="menu" aria-labelledby="single-button">
                 <li role="menuitem"><a><span i-translate="STATUS"></span>: </span>
@@ -92,7 +92,7 @@
             <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
         </button>
         <button class="btn btn-default" ng-click="vm.refresh()" ng-disabled="!vm.isComponentsEditAllowed || !vm.isEntityChanged">
-            <span class="fa fa-refresh"></span><span class="m-l5" i-translate="RESET"></span>
+            <span class="icon icon-refresh"></span><span class="m-l5" i-translate="RESET"></span>
         </button>
         <button class="btn btn-default" ng-click="window.history.back()">
             <span class="icon icon-undo"></span><span class="m-l5" i-translate="BACK"></span>

@@ -15,8 +15,8 @@
                  ng-class="{'search-table-row-highlight':item.$$isSelected || vm.selectedReactant === item}"
                  ng-click="item.$$isCollapsed = !item.$$isCollapsed">
                 <a class="t-item">
-                    <span ng-class="{'fa fa-angle-right':item.$$isCollapsed,
-                              'fa fa-angle-down':!item.$$isCollapsed}">
+                    <span ng-class="{'icon icon-arrow_right':item.$$isCollapsed,
+                              'icon icon-arrow_down':!item.$$isCollapsed}">
                     </span>
                 </a>
                 <div class="t-item" ng-click="$event.stopPropagation()">
@@ -218,7 +218,7 @@
                                     <span class="m-l5" i-translate="SAVE"></span>
                                 </button>
                                 <button class="btn btn-default" type="button" ng-click="vm.cancelEdit($index)"
-                                        ng-disabled="false"><span class="fa fa-ban"></span>
+                                        ng-disabled="false"><span class="icon icon-stop"></span>
                                     <span class="m-l5" i-translate="CANCEL"></span>
                                 </button>
                             </div>

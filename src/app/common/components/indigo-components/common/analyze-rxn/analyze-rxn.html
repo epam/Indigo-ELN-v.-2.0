@@ -31,8 +31,8 @@
             <div class="col-xs-3 reagent-search-collapse" ng-init="isSelectedReactantsCollapsed=true">
                 <a ng-click="isSelectedReactantsCollapsed = !isSelectedReactantsCollapsed"
                    class="reagent-search-collapse-link">
-                        <span ng-class="{'fa fa-angle-right':isSelectedReactantsCollapsed,
-                             'fa fa-angle-down':!isSelectedReactantsCollapsed}"></span>
+                        <span ng-class="{'icon icon-arrow_right':isSelectedReactantsCollapsed,
+                             'icon icon-arrow_down':!isSelectedReactantsCollapsed}"></span>
                     Selected reactants ({{vm.countSelectedReactants}})
                 </a>
             </div>
@@ -84,6 +84,6 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" type="button" ng-click="vm.cancel()">
-        <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
+        <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
     </button>
 </div>
