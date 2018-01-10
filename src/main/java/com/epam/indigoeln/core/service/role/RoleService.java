@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 /**
  * Service class to work with user roles.
@@ -88,8 +88,9 @@ public class RoleService {
      *
      * @return all roles in application
      */
-    public Stream<Role> getRolesWithNameLike(String nameLike) {
-        return roleRepository.findByNameLikeIgnoreCase(nameLike);
+    public Page<Role> getRolesWithNameLike(String nameLike, Pageable pageable) {
+        return roleSortedPageUtil.getPage(roleRepository.findByNameLikeIgnoreCase(nameLike)
+                .collect(Collectors.toList()), pageable);
     }
 
     /**
