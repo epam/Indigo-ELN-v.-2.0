@@ -80,6 +80,8 @@ function principalService(accountService) {
         identity = userIdentity;
         authenticated = userIdentity !== null;
 
+        callUserChangeListeners(identity);
+
         return identity;
     }
 
@@ -101,8 +103,7 @@ function principalService(accountService) {
                 return authenticate(account.data);
             }, function() {
                 return authenticate(null);
-            })
-            .finally(callUserChangeListeners);
+            });
 
         return identityPromise;
     }

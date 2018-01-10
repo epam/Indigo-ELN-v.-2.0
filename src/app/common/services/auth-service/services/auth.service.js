@@ -1,18 +1,19 @@
+var alertTypes = require('../../../components/alert-modal/types.json');
+
 /* @ngInject */
 function authService($rootScope, $state, $q, principalService, authSessionService, wsService, $log, $timeout,
-                     notifyService, i18en) {
+                     notifyService, i18en, alertModal) {
     var prolongTimeout;
+    var userPermissionsChangedSubscriber;
 
-    wsService
-        .subscribe('user_permissions_changed')
-        .then(function(subscribe) {
-            subscribe.onServerEvent(function(message) {
-                notifyService.info(message);
-                logout().then(function() {
-                    notifyService.info(i18en.USER_PERMISSIONS_WERE_CHANGE);
-                });
-            });
-        });
+    principalService.addUserChangeListener(function(userId) {
+        if (userId) {
+            unSubscribe();
+            userPermissionsChangedSubscriber = subscribePermissionChanged();
+        } else {
+            unSubscribe();
+        }
+    });
 
     return {
         login: login,
@@ -44,7 +45,7 @@ function authService($rootScope, $state, $q, principalService, authSessionServic
     }
 
     function logout() {
-        authSessionService.logout().then(
+        return authSessionService.logout().then(
             function() {
                 principalService.authenticate(null);
                 // Reset state memory
@@ -93,6 +94,33 @@ function authService($rootScope, $state, $q, principalService, authSessionServic
                     return authorities && authorities.length > 0 && !principalService.hasAnyAuthority(authorities);
                 }
             });
+    }
+
+    function subscribePermissionChanged() {
+        return wsService
+            .subscribe('/user/queue/user_permissions_changed')
+            .then(function(subscribe) {
+                subscribe.onServerEvent(function() {
+                    alertModal
+                        .alert({
+                            type: alertTypes.WARNING,
+                            message: i18en.USER_PERMISSIONS_WERE_CHANGE,
+                            title: i18en.WARNING
+                        })
+                        .finally(logout);
+                });
+
+                return subscribe;
+            });
+    }
+
+    function unSubscribe() {
+        if (userPermissionsChangedSubscriber) {
+            userPermissionsChangedSubscriber.then(function(subscriber) {
+                subscriber.unSubscribe();
+            });
+            userPermissionsChangedSubscriber = null;
+        }
     }
 }
 

@@ -285,6 +285,7 @@ var i18n = {
     COMMENTS: 'Comments',
     VALUE: 'Value',
     NO_DATA_FOUND: 'No data found',
+    WARNING: 'Warning',
 
     // Form hints
     LOGIN_HINT: 'Login should not contain letters in upper case or special symbols.',
@@ -303,7 +304,7 @@ var i18n = {
     THE_ROLE_ALREADY_IN_USE: 'The role already in use',
     USER_ALREADY_ADDED: 'The user already added',
     ATTENTION_AUTHORITY_IS_SET_AUTOMATICALLY: 'Attention: authority {{permission}} is set automatically',
-    USER_PERMISSIONS_WERE_CHANGE: 'User permissions have changed. Please login again'
+    USER_PERMISSIONS_WERE_CHANGE: 'Permissions of your account have changed and you were automatically logout.'
 };
 
 module.exports = i18n;
