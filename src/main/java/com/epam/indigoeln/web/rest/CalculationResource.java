@@ -56,8 +56,10 @@ public class CalculationResource {
     }
 
     /**
-     * GET  /api/calculations/salt_code_table?tableName=GCM_SALT_CDT -> Returns all data from csv file salt information.
+     * GET  /api/calculations/salt_code_table?tableName=GCM_SALT_CDT ->
+     * Returns all data from csv file salt information.
      *
+     * @param tableName Table's name
      * @return Data from {@code tableName}
      */
     @ApiOperation(value = "Returns all data from csv file.")

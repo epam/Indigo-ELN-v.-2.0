@@ -20,9 +20,9 @@ public class ComparatorStoicAdditionOrder implements Comparator<StoicModelInterf
             if (o2 != null) {
                 result = o1.getStoicTransactionOrder() - o2.getStoicTransactionOrder();
             }
-        } else if (o2 != null)
+        } else if (o2 != null) {
             result = -1;
-
+        }
         return result;
     }
 }

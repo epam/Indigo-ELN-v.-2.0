@@ -12,5 +12,4 @@ public final class SearchServiceConstants {
 
     private SearchServiceConstants() {
     }
-
 }

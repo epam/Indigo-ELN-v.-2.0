@@ -10,30 +10,54 @@ import java.util.Date;
 import java.util.List;
 
 @ChangeLog(order = "001")
-public class ChangeLogVersion10 {
+public final class ChangeLogVersion10 {
+
+    private static final String UNIQUE_KEY = "unique";
+    private static final String PROJECT_COLLECTION_NAME = "project";
+    private static final String NOTEBOOK_COLLECTION_NAME = "notebook";
+    private static final String EXPERIMENT_COLLECTION_NAME = "experiment";
+    private static final String ADMIN = "admin";
+    private static final String SYSTEM = "system";
+    public static final String SEQUENCE_ID = "sequenceId";
 
     @ChangeSet(order = "01", author = "indigoeln", id = "01-initIndexes")
     public void initIndexes(DB db) {
-        db.getCollection("role").createIndex(BasicDBObjectBuilder.start().add("name", 1).get(), BasicDBObjectBuilder.start().add("unique", true).get());
+        db.getCollection("role").createIndex(BasicDBObjectBuilder.start().add("name", 1).get(),
+                BasicDBObjectBuilder.start().add(UNIQUE_KEY, true).get());
 
-        db.getCollection("user").createIndex(BasicDBObjectBuilder.start().add("login", 1).get(), BasicDBObjectBuilder.start().add("unique", true).get());
+        db.getCollection("user").createIndex(BasicDBObjectBuilder.start().add("login", 1).get(),
+                BasicDBObjectBuilder.start().add(UNIQUE_KEY, true).get());
         db.getCollection("user").createIndex(BasicDBObjectBuilder.start().add("email", 1).get());
         db.getCollection("user").createIndex(BasicDBObjectBuilder.start().add("roles", 1).get());
 
-        db.getCollection("project").createIndex(BasicDBObjectBuilder.start().add("name", 1).get(), BasicDBObjectBuilder.start().add("unique", true).get());
-        db.getCollection("project").createIndex(BasicDBObjectBuilder.start().add("accessList.user", 1).get());
-        db.getCollection("project").createIndex(BasicDBObjectBuilder.start().add("notebooks", 1).get());
-        db.getCollection("project").createIndex(BasicDBObjectBuilder.start().add("fileIds", 1).get());
-        db.getCollection("project").createIndex(BasicDBObjectBuilder.start().add("sequenceId", 1).get());
+        db.getCollection(PROJECT_COLLECTION_NAME).createIndex(BasicDBObjectBuilder.start().add("name", 1).get(),
+                BasicDBObjectBuilder.start().add(UNIQUE_KEY, true).get());
+        db.getCollection(PROJECT_COLLECTION_NAME).createIndex(BasicDBObjectBuilder.start()
+                .add("accessList.user", 1).get());
+        db.getCollection(PROJECT_COLLECTION_NAME).createIndex(BasicDBObjectBuilder.start()
+                .add("notebooks", 1).get());
+        db.getCollection(PROJECT_COLLECTION_NAME).createIndex(BasicDBObjectBuilder.start()
+                .add("fileIds", 1).get());
+        db.getCollection(PROJECT_COLLECTION_NAME).createIndex(BasicDBObjectBuilder.start()
+                .add(SEQUENCE_ID, 1).get());
 
-        db.getCollection("notebook").createIndex(BasicDBObjectBuilder.start().add("name", 1).get(), BasicDBObjectBuilder.start().add("unique", true).get());
-        db.getCollection("notebook").createIndex(BasicDBObjectBuilder.start().add("experiments", 1).get());
-        db.getCollection("notebook").createIndex(BasicDBObjectBuilder.start().add("sequenceId", 1).get());
+        db.getCollection(NOTEBOOK_COLLECTION_NAME).createIndex(BasicDBObjectBuilder.start()
+                .add("name", 1).get(), BasicDBObjectBuilder.start().add(UNIQUE_KEY, true).get());
+        db.getCollection(NOTEBOOK_COLLECTION_NAME).createIndex(BasicDBObjectBuilder.start()
+                .add("experiments", 1)
+                .get());
+        db.getCollection(NOTEBOOK_COLLECTION_NAME).createIndex(BasicDBObjectBuilder.start().add(SEQUENCE_ID, 1)
+                .get());
 
-        db.getCollection("experiment").createIndex(BasicDBObjectBuilder.start().add("fileIds", 1).get());
-        db.getCollection("experiment").createIndex(BasicDBObjectBuilder.start().add("sequenceId", 1).get());
+        db.getCollection(EXPERIMENT_COLLECTION_NAME).createIndex(BasicDBObjectBuilder.start()
+                .add("fileIds", 1).get());
+        db.getCollection(EXPERIMENT_COLLECTION_NAME).createIndex(BasicDBObjectBuilder.start()
+                .add(SEQUENCE_ID, 1)
+                .get());
 
-        db.getCollection("component").createIndex(BasicDBObjectBuilder.start().add("experiment", 1).get());
+        db.getCollection("component").createIndex(BasicDBObjectBuilder.start()
+                .add(EXPERIMENT_COLLECTION_NAME, 1)
+                .get());
     }
 
     @ChangeSet(order = "02", author = "indigoeln", id = "02-initRoles")
@@ -41,7 +65,7 @@ public class ChangeLogVersion10 {
         db.getCollection("role").insert(BasicDBObjectBuilder.start()
                 .add("_id", "role-0")
                 .add("name", "All Permissions")
-                .add("system", true)
+                .add(SYSTEM, true)
                 .add("authorities", Arrays.asList(
                         "USER_EDITOR", "ROLE_EDITOR", "CONTENT_EDITOR",
                         "PROJECT_READER", "NOTEBOOK_READER", "EXPERIMENT_READER",
@@ -55,16 +79,16 @@ public class ChangeLogVersion10 {
     @ChangeSet(order = "03", author = "indigoeln", id = "03-initUsers")
     public void initUsers(DB db) {
         db.getCollection("user").insert(BasicDBObjectBuilder.start()
-                .add("_id", "admin")
-                .add("login", "admin")
+                .add("_id", ADMIN)
+                .add("login", ADMIN)
                 .add("password", getDefaultAdminPassword())
-                .add("first_name", "admin")
+                .add("first_name", ADMIN)
                 .add("last_name", "Administrator")
                 .add("email", "admin@localhost")
                 .add("activated", true)
-                .add("system", true)
+                .add(SYSTEM, true)
                 .add("lang_key", "en")
-                .add("created_by", "system")
+                .add("created_by", SYSTEM)
                 .add("created_date", new Date())
                 .add("roles", Collections.singletonList(new DBRef("role", "role-0")))
                 .get());
@@ -75,15 +99,17 @@ public class ChangeLogVersion10 {
         DBCollection dictionary = db.getCollection("dictionary");
 
         dictionary.insert(
-                createDictionary("therapeuticArea", "Therapeutic Area", "Therapeutic Area", Arrays.asList(
-                        createDictionaryWord("Obesity", null, true, 0),
-                        createDictionaryWord("Diabet", null, true, 1),
-                        createDictionaryWord("Pulmonology", null, true, 2),
-                        createDictionaryWord("Cancer", null, true, 3)
-                )));
+                createDictionary("therapeuticArea", "Therapeutic Area", "Therapeutic Area",
+                        Arrays.asList(
+                                createDictionaryWord("Obesity", null, true, 0),
+                                createDictionaryWord("Diabet", null, true, 1),
+                                createDictionaryWord("Pulmonology", null, true, 2),
+                                createDictionaryWord("Cancer", null, true, 3)
+                        )));
 
         dictionary.insert(
-                createDictionary("projectCode", "Project Code & Name", "Project Code for experiment details", Arrays.asList(
+                createDictionary("projectCode", "Project Code & Name", "Project Code for "
+                        + "experiment details", Arrays.asList(
                         createDictionaryWord("Code 1", null, true, 0),
                         createDictionaryWord("Code 2", null, true, 1),
                         createDictionaryWord("Code 3", null, true, 2)
@@ -103,26 +129,42 @@ public class ChangeLogVersion10 {
                 )));
 
         dictionary.insert(
-                createDictionary("stereoisomerCode", "Stereoisomer Code", "Stereoisomer Code", Arrays.asList(
-                        createDictionaryWord("NOSTC", "Achiral - No Stereo Centers", true, 0),
-                        createDictionaryWord("AMESO", "Achiral - Meso Stereomers", true, 1),
-                        createDictionaryWord("CISTR", "Achiral - Cis/Trans Stereomers", true, 2),
-                        createDictionaryWord("SNENK", "Single Enantiomer (chirality known)", true, 3),
-                        createDictionaryWord("RMCMX", "Racemic (stereochemistry known)", true, 4),
-                        createDictionaryWord("ENENK", "Enantio-Enriched (chirality known)", true, 5),
-                        createDictionaryWord("DSTRK", "Diastereomers (stereochemistry known)", true, 6),
-                        createDictionaryWord("SNENU", "Other - Single Enantiomer (chirality unknown)", true, 7),
-                        createDictionaryWord("LRCMX", "Other - Racemic (relative stereochemistry unknown)", true, 8),
-                        createDictionaryWord("ENENU", "Other - Enantio-Enriched (chirality unknown)", true, 9),
-                        createDictionaryWord("DSTRU", "Other - Diastereomers (relative stereochemistry unknown)", true, 10),
-                        createDictionaryWord("UNKWN", "Other - Unknown Stereomer/Mixture", true, 11),
-                        createDictionaryWord("HSREG", "Flag for automatic stereoisomer code assignment for multi-registration", true, 12),
-                        createDictionaryWord("ACHIR", "ACHIRAL", true, 13),
-                        createDictionaryWord("HOMO", "HOMO-CHIRAL", true, 14),
-                        createDictionaryWord("MESO", "MESO", true, 15),
-                        createDictionaryWord("RACEM", "RACEMIC", true, 16),
-                        createDictionaryWord("SCALE", "SCALEMIC", true, 17)
-                )));
+                createDictionary("stereoisomerCode", "Stereoisomer Code", "Stereoisomer Code",
+                        Arrays.asList(
+                                createDictionaryWord("NOSTC", "Achiral - No Stereo Centers",
+                                        true, 0),
+                                createDictionaryWord("AMESO", "Achiral - Meso Stereomers",
+                                        true, 1),
+                                createDictionaryWord("CISTR", "Achiral - Cis/Trans Stereomers",
+                                        true, 2),
+                                createDictionaryWord("SNENK", "Single Enantiomer (chirality known)",
+                                        true, 3),
+                                createDictionaryWord("RMCMX", "Racemic (stereochemistry known)",
+                                        true, 4),
+                                createDictionaryWord("ENENK", "Enantio-Enriched (chirality known)",
+                                        true, 5),
+                                createDictionaryWord("DSTRK", "Diastereomers (stereochemistry known)",
+                                        true, 6),
+                                createDictionaryWord("SNENU",
+                                        "Other - Single Enantiomer (chirality unknown)",
+                                        true, 7),
+                                createDictionaryWord("LRCMX", "Other - Racemic (relative "
+                                        + "stereochemistry unknown)", true, 8),
+                                createDictionaryWord("ENENU",
+                                        "Other - Enantio-Enriched (chirality unknown)",
+                                        true, 9),
+                                createDictionaryWord("DSTRU", "Other - Diastereomers "
+                                        + "(relative stereochemistry unknown)", true, 10),
+                                createDictionaryWord("UNKWN", "Other - Unknown Stereomer/Mixture",
+                                        true, 11),
+                                createDictionaryWord("HSREG", "Flag for automatic stereoisomer "
+                                        + "code assignment for multi-registration", true, 12),
+                                createDictionaryWord("ACHIR", "ACHIRAL", true, 13),
+                                createDictionaryWord("HOMO", "HOMO-CHIRAL", true, 14),
+                                createDictionaryWord("MESO", "MESO", true, 15),
+                                createDictionaryWord("RACEM", "RACEMIC", true, 16),
+                                createDictionaryWord("SCALE", "SCALEMIC", true, 17)
+                        )));
 
         dictionary.insert(
                 createDictionary("compoundState", "Compound State", "Compound State", Arrays.asList(
@@ -133,11 +175,12 @@ public class ChangeLogVersion10 {
                 )));
 
         dictionary.insert(
-                createDictionary("compoundProtection", "Compound Protection", "Compound Protection", Arrays.asList(
-                        createDictionaryWord("Compound Protection1", null, true, 0),
-                        createDictionaryWord("Compound Protection2", null, true, 1),
-                        createDictionaryWord("Compound Protection3", null, true, 2)
-                )));
+                createDictionary("compoundProtection", "Compound Protection", "Compound Protection",
+                        Arrays.asList(
+                                createDictionaryWord("Compound Protection1", null, true, 0),
+                                createDictionaryWord("Compound Protection2", null, true, 1),
+                                createDictionaryWord("Compound Protection3", null, true, 2)
+                        )));
 
         dictionary.insert(
                 createDictionary("solventName", "Solvent Name", "Solvent Name", Arrays.asList(
@@ -168,21 +211,24 @@ public class ChangeLogVersion10 {
                 )));
 
         dictionary.insert(
-                createDictionary("handlingPrecautions", "Handling Precautions", "Handling Precautions", Arrays.asList(
-                        createDictionaryWord("Electrostatic", null, true, 0),
-                        createDictionaryWord("Hygroscopic", null, true, 1),
-                        createDictionaryWord("Oxidiser", null, true, 2),
-                        createDictionaryWord("Air Sensitive", null, true, 3),
-                        createDictionaryWord("Moisture Sensitive", null, true, 4)
-                )));
+                createDictionary("handlingPrecautions", "Handling Precautions",
+                        "Handling Precautions", Arrays.asList(
+                                createDictionaryWord("Electrostatic", null, true, 0),
+                                createDictionaryWord("Hygroscopic", null, true, 1),
+                                createDictionaryWord("Oxidiser", null, true, 2),
+                                createDictionaryWord("Air Sensitive", null, true, 3),
+                                createDictionaryWord("Moisture Sensitive", null, true, 4)
+                        )));
 
         dictionary.insert(
-                createDictionary("storageInstructions", "Storage Instructions", "Storage Instructions", Arrays.asList(
-                        createDictionaryWord("No Special Storage Required", null, true, 0),
-                        createDictionaryWord("Store in Refrigerator", null, true, 1),
-                        createDictionaryWord("Store Under Argon", null, true, 2),
-                        createDictionaryWord("Keep tightly sealed", null, true, 3)
-                )));
+                createDictionary("storageInstructions", "Storage Instructions",
+                        "Storage Instructions", Arrays.asList(
+                                createDictionaryWord("No Special Storage Required", null,
+                                        true, 0),
+                                createDictionaryWord("Store in Refrigerator", null, true, 1),
+                                createDictionaryWord("Store Under Argon", null, true, 2),
+                                createDictionaryWord("Keep tightly sealed", null, true, 3)
+                        )));
     }
 
     private DBObject createDictionary(String id, String name, String description, List<DBObject> words) {

@@ -139,7 +139,9 @@ public class DictionaryResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Returns all dictionaries.")
     public ResponseEntity<List<DictionaryDTO>> getAllDictionaries(
-            @ApiParam("Paging data. Allows to sort by name of field within query params sort=<fieldName>,<asc|desc>.") Pageable pageable
+            @ApiParam("Paging data. "
+                    + "Allows to sort by name of field within query params"
+                    + " sort=<fieldName>,<asc|desc>.") Pageable pageable
     ) throws URISyntaxException {
         LOGGER.debug("REST request to get all dictionaries");
         Page<DictionaryDTO> page = dictionaryService.getAllDictionaries("", pageable);
@@ -160,8 +162,10 @@ public class DictionaryResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Returns all found dictionaries (with paging).")
     public ResponseEntity<List<DictionaryDTO>> getAllDictionaries(
-            @ApiParam("Paging data. Allows to sort by name of field within query params sort=<fieldName>,<asc|desc>.") Pageable pageable,
-            @ApiParam("Search string. Allows search dictionaries by name.") @RequestParam(value = "search") String search
+            @ApiParam("Paging data. Allows to sort by name of field within query params "
+                    + "sort=<fieldName>,<asc|desc>.") Pageable pageable,
+            @ApiParam("Search string. Allows search dictionaries by name.")
+            @RequestParam(value = "search") String search
     ) throws URISyntaxException {
         LOGGER.debug("REST request to to search for dictionaries");
         Page<DictionaryDTO> page = dictionaryService.getAllDictionaries(search, pageable);

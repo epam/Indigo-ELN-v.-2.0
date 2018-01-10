@@ -70,9 +70,11 @@ public class ExperimentFileResource {
         String fullId = SequenceIdUtil.buildFullId(projectId, notebookId, experimentId);
         LOGGER.debug("REST request to get files's metadata for experiment: {}", fullId);
         Page<GridFSDBFile> page = fileService.getAllFilesByExperimentId(fullId);
-        String urlParameter = "projectId=" + projectId + "&notebookId=" + notebookId + "&experimentId=" + experimentId;
+        String urlParameter = "projectId=" + projectId + "&notebookId=" + notebookId
+                + "&experimentId=" + experimentId;
 
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING + "?" + urlParameter);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING
+                + "?" + urlParameter);
         List<FileDTO> fileDTOs = page.getContent().stream().map(FileDTO::new).collect(Collectors.toList());
         return ResponseEntity.ok().headers(headers).body(fileDTOs);
 

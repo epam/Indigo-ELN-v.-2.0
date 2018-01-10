@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Builds Aggregation For Search
+ * Builds Aggregation For Search.
  */
 public final class BatchSearchAggregationBuilder extends AbstractSearchAggregationBuilder {
 

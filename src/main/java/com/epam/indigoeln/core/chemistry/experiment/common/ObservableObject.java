@@ -8,14 +8,15 @@ class ObservableObject extends Observable implements Observer, java.io.Serializa
     private static final long serialVersionUID = 4121854823514769532L;
 
     /**
-     * Flag set to let others know some value in this object has changed. Should use a combination of subObjectModified and
-     * isModified to indicate what has been modified. If isChanging = true. No observers of this object will be notified, but the
-     * modified flag can be set. If isLoading = true then the modified flag will not be set, nor will any observers be notified.
+     * Flag set to let others know some value in this object has changed.
+     * Should use a combination of subObjectModified and isModified to indicate what has been modified.
+     * If isChanging = true. No observers of this object will be notified, but the modified flag can be set.
+     * If isLoading = true then the modified flag will not be set, nor will any observers be notified.
      *
      * @param modifiedFlag -
      *                     The object that has it's isModified() flag set.
      */
-    public void setModified(boolean modifiedFlag) {
+    void setModified(boolean modifiedFlag) {
         if (!isLoading() && modifiedFlag) {
             setChanged();
             notifyObservers(this);
@@ -25,15 +26,18 @@ class ObservableObject extends Observable implements Observer, java.io.Serializa
 
     /**
      * Method to determine if this object is currently being loaded.
+     *
+     * @return false
      */
     boolean isLoading() {
         return false;
     }
 
     /**
-     * Override this method if you are trying to modify behavior. This update sets subObjectModified to true and passes the sub
-     * object along to the next level indicating that it is the modified object if it is an instance of PersistableObject. Otherwise
-     * it sets the modified flag of this object which will pass this object back through notifyObservers(obj)
+     * Override this method if you are trying to modify behavior. This update sets subObjectModified to true
+     * and passes the sub object along to the next level indicating that it is the modified object
+     * if it is an instance of PersistableObject. Otherwise it sets the modified flag of this object which will
+     * pass this object back through notifyObservers(obj)
      *
      * @param observed -
      *                 The object performing the notification

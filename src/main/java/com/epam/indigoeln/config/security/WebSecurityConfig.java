@@ -176,7 +176,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf()
                 .csrfTokenRepository(cookieCsrfTokenRepository())
-                .ignoringAntMatchers("/api/authentication", "/api/logout", "/websocket/**") // For solving a problem with login after logout
+                .ignoringAntMatchers("/api/authentication", "/api/logout", "/websocket/**") // For solving a
+                // problem with login after logout
                 .and()
                 .addFilterBefore(sessionExpirationFilter(), ConcurrentSessionFilter.class)
                 .exceptionHandling()
@@ -299,8 +300,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 //print
                 .antMatchers(HttpMethod.GET, "/api/print/project/*").hasAnyAuthority(PROJECT_READERS)
-                .antMatchers(HttpMethod.GET, "/api/print/project/*/notebook/*").hasAnyAuthority(NOTEBOOK_READERS)
-                .antMatchers(HttpMethod.GET, "/api/print/project/*/notebook/*/experiment/*").hasAnyAuthority(NOTEBOOK_READERS);
+                .antMatchers(HttpMethod.GET, "/api/print/project/*/notebook/*")
+                .hasAnyAuthority(NOTEBOOK_READERS)
+                .antMatchers(HttpMethod.GET, "/api/print/project/*/notebook/*/experiment/*")
+                .hasAnyAuthority(NOTEBOOK_READERS);
     }
 
     @Bean

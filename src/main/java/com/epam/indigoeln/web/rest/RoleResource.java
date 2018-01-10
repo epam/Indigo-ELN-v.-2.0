@@ -24,7 +24,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -45,7 +44,10 @@ public class RoleResource {
     /**
      * GET  /roles -> Returns all roles with pagination.
      *
+     * @param pageable Paging data
      * @return Returns all roles
+     * @throws URISyntaxException thrown to indicate that a string could not be parsed as a
+     *                            URI reference.
      */
     @ApiOperation(value = "Returns all roles.")
     @RequestMapping(method = RequestMethod.GET,
@@ -54,15 +56,16 @@ public class RoleResource {
             throws URISyntaxException {
         LOGGER.debug("REST request to get all roles with pagination");
         Page<Role> page = roleService.getAllRoles(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/roles");
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING);
         List<RoleDTO> result = page.getContent().stream()
                 .map(dtoMapper::convertToDTO).collect(toList());
         return ResponseEntity.ok().headers(headers).body(result);
     }
 
     /**
-     * GET  /roles?search=nameLike -> Returns roles with name like {@code nameLike}.
+     * * GET  /roles?search=nameLike -> Returns roles with name like {@code nameLike}.
      *
+     * @param nameLike Searching role name
      * @return Returns with name like {@code nameLike}
      */
     @ApiOperation(value = "Returns roles with name like a string in a parameter.")
@@ -70,12 +73,15 @@ public class RoleResource {
             params = "search",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<RoleDTO>> getRolesLike(
-            @ApiParam("Searching role name") @RequestParam("search") String nameLike
-    ) {
+            @ApiParam("Searching role name") @RequestParam("search") String nameLike,
+            @ApiParam("Paging data.") Pageable pageable
+    ) throws URISyntaxException {
         LOGGER.debug("REST request to get roles with liked names");
-        Stream<Role> roles = roleService.getRolesWithNameLike(nameLike);
-        List<RoleDTO> result = roles.map(dtoMapper::convertToDTO).collect(toList());
-        return ResponseEntity.ok(result);
+        Page<Role> page = roleService.getRolesWithNameLike(nameLike, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING);
+        List<RoleDTO> result = page.getContent().stream()
+                .map(dtoMapper::convertToDTO).collect(toList());
+        return ResponseEntity.ok().headers(headers).body(result);
     }
 
     /**

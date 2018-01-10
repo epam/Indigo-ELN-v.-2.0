@@ -52,10 +52,10 @@ public class UserService {
                 "role",
                 u -> u.getRoles().stream().findFirst().map(Role::getName).orElse(""));
 
-        userSortedPageUtil = new SortedPageUtil<>(functionMap);
+        USER_SORTED_PAGE_UTIL = new SortedPageUtil<>(functionMap);
     }
 
-    private static final SortedPageUtil<User> userSortedPageUtil;
+    private static final SortedPageUtil<User> USER_SORTED_PAGE_UTIL;
 
 
     @Autowired
@@ -80,7 +80,7 @@ public class UserService {
      * @return page with found users
      */
     public Page<User> getAllUsers(Pageable pageable) {
-        return userSortedPageUtil.getPage(userRepository.findAll(), pageable);
+        return USER_SORTED_PAGE_UTIL.getPage(userRepository.findAll(), pageable);
     }
 
     /**
@@ -257,7 +257,7 @@ public class UserService {
                         loginOrFirstNameOrLastNameOrRoleName,
                         roleIds);
 
-        return userSortedPageUtil.getPage(users, pageable);
+        return USER_SORTED_PAGE_UTIL.getPage(users, pageable);
     }
 
     private Set<Role> checkRolesExistenceAndGet(Set<Role> roles) {

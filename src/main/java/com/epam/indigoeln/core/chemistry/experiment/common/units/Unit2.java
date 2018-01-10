@@ -13,7 +13,8 @@ public class Unit2 extends GenericCode2 implements Comparable<Unit2> {
     private double stdConversionFactor = -1;
     private int stdDisplayFigs = 3;
 
-    Unit2(String code, UnitType type, String displayValue, String description, String stdCode, double stdConversionFactor,
+    Unit2(String code, UnitType type, String displayValue,
+          String description, String stdCode, double stdConversionFactor,
           int stdDisplayFigs) {
         super();
         this.code = code;
@@ -27,8 +28,8 @@ public class Unit2 extends GenericCode2 implements Comparable<Unit2> {
     }
 
     /**
-     * This is a kludge because of the necessity to set a single value upon load from storage. This needs to be revisited when
-     * load/save happen in an easier manner.
+     * This is a kludge because of the necessity to set a single value upon load from storage.
+     * This needs to be revisited when load/save happen in an easier manner.
      *
      * @param code The code to set - entire unit is rebuilt from UnitCache.getUnit(code)
      */
@@ -66,7 +67,10 @@ public class Unit2 extends GenericCode2 implements Comparable<Unit2> {
     }
 
     /**
-     * Used to indicate what the default value for displaying figures after the decimal point should be for this unit type and code.
+     * Used to indicate what the default value for displaying figures after the
+     * decimal point should be for this unit type and code.
+     *
+     * @return Value
      */
     public int getStdDisplayFigs() {
         return stdDisplayFigs;

@@ -4,7 +4,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class UnitCache2 {
+public final class UnitCache2 {
 
     private static volatile UnitCache2 instance;
     private TreeMap<UnitType, Map<String, Unit2>> unitsByType = null;
@@ -20,8 +20,9 @@ public class UnitCache2 {
     }
 
     public static UnitCache2 getInstance() {
-        if (instance == null)
+        if (instance == null) {
             createInstance();
+        }
         return instance;
     }
 
@@ -37,17 +38,22 @@ public class UnitCache2 {
 
         String uc = unitCode;
 
-        if ("G".equals(unitCode))
+        if ("G".equals(unitCode)) {
             uc = "GM";
-        if ("SCLR".equals(unitCode))
+        }
+        if ("SCLR".equals(unitCode)) {
             uc = "SCAL";
+        }
 
-        if (units.containsKey(uc))
+        if (units.containsKey(uc)) {
             result = units.get(uc);
-        if (units.containsKey(uc.toUpperCase(Locale.getDefault())))
+        }
+        if (units.containsKey(uc.toUpperCase(Locale.getDefault()))) {
             result = units.get(uc.toUpperCase(Locale.getDefault()));
-        if (unitsByDisplayName.containsKey(uc))
+        }
+        if (unitsByDisplayName.containsKey(uc)) {
             result = unitsByDisplayName.get(uc);
+        }
 
         return result;
     }
@@ -59,8 +65,9 @@ public class UnitCache2 {
     }
 
     private void addMap(UnitType type, Map<String, Unit2> mp) {
-        if (!unitsByType.containsKey(type))
+        if (!unitsByType.containsKey(type)) {
             unitsByType.put(type, mp);
+        }
 
         mp.forEach((key, value) -> {
             if (!units.containsKey(key)) {
@@ -70,4 +77,3 @@ public class UnitCache2 {
         });
     }
 }
-

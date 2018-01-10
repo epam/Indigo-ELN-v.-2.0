@@ -27,7 +27,7 @@ import java.util.Map;
 @EnableWebSocketMessageBroker
 public class WebsocketConfiguration extends AbstractWebSocketMessageBrokerConfigurer {
 
-    public static final String IP_ADDRESS = "IP_ADDRESS";
+    static final String IP_ADDRESS = "IP_ADDRESS";
 
     @Autowired
     private Environment environment;
@@ -37,7 +37,7 @@ public class WebsocketConfiguration extends AbstractWebSocketMessageBrokerConfig
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic","/queue");
+        config.enableSimpleBroker("/topic", "/queue");
     }
 
     @Override
@@ -63,7 +63,8 @@ public class WebsocketConfiguration extends AbstractWebSocketMessageBrokerConfig
 
     private static class HandshakeInterceptorImpl implements HandshakeInterceptor {
         @Override
-        public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
+        public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
+                                       WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
             if (request instanceof ServletServerHttpRequest) {
                 ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
                 attributes.put(IP_ADDRESS, servletRequest.getRemoteAddress());
@@ -72,7 +73,8 @@ public class WebsocketConfiguration extends AbstractWebSocketMessageBrokerConfig
         }
 
         @Override
-        public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Exception exception) {
+        public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
+                                   Exception exception) {
             // Do nothing
         }
     }

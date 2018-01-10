@@ -33,8 +33,8 @@ public final class OperationDeniedException extends CustomParametrizedException 
     }
 
     public static OperationDeniedException createUserWithNotValidPassword() {
-        return new OperationDeniedException("User password should have min length 6, and contains" +
-                "at least one capital and at least one digit");
+        return new OperationDeniedException("User password should have min length 6, and contains"
+                + "at least one capital and at least one digit");
     }
 
     /**
@@ -192,8 +192,8 @@ public final class OperationDeniedException extends CustomParametrizedException 
      * @return Instance of OperationDeniedException with entity's id and name
      */
     private static OperationDeniedException createEntityReadOperation(String entityId, String entityName) {
-        return new OperationDeniedException(String.format("The current user doesn't have permissions" +
-                " to read %s with id = %s", entityName, entityId), entityId);
+        return new OperationDeniedException(String.format("The current user doesn't have permissions"
+                + " to read %s with id = %s", entityName, entityId), entityId);
     }
 
     /**

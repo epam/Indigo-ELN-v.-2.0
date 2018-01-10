@@ -104,13 +104,11 @@ public class BingoResource {
      *
      * @param molecule Molecule
      * @return Returns true if molecule is empty
-     * @throws URISyntaxException If URI is not correct
      */
     @ApiOperation(value = "Checks if molecule is empty.")
     @RequestMapping(value = "/molecule/empty", method = RequestMethod.POST)
     public ResponseEntity<Object> isEmptyMolecule(
-            @ApiParam("Molecule to check.") @RequestBody String molecule
-    ) throws URISyntaxException {
+            @ApiParam("Molecule to check.") @RequestBody String molecule) {
         Optional<Boolean> result = calculationService.isEmptyMolecule(molecule);
 
         if (result.isPresent()) {
@@ -209,13 +207,11 @@ public class BingoResource {
      *
      * @param reaction Reaction to check
      * @return True if reaction is empty
-     * @throws URISyntaxException If URI is not correct
      */
     @ApiOperation(value = "Checks if reaction is empty.")
     @RequestMapping(value = "/reaction/empty", method = RequestMethod.POST)
     public ResponseEntity<Object> isEmptyReaction(
-            @ApiParam("Reaction to check.") @RequestBody String reaction
-    ) throws URISyntaxException {
+            @ApiParam("Reaction to check.") @RequestBody String reaction) {
         Optional<Boolean> result = calculationService.isEmptyReaction(reaction);
 
         if (result.isPresent()) {
@@ -227,7 +223,7 @@ public class BingoResource {
     }
 
     /**
-     * DELETE /reaction/:id -> delete reaction
+     * DELETE /reaction/:id -> delete reaction.
      *
      * @param id Id of the reaction to delete
      */

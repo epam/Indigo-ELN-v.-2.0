@@ -7,9 +7,7 @@ import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.PermissionIncorrectException;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Comparator;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -106,6 +104,8 @@ public final class PermissionUtil {
     /**
      * Check if permission can be added from some level.
      *
+     * @param upperPermissionsLevel Upper permission level
+     * @param userPermission        User permission
      * @return {@code true} if {@code upperPermissionsLevel} is lower or equal to {@code userPermission} creation level.
      */
     private static boolean canBeAddedFromUpperLevel(PermissionCreationLevel upperPermissionsLevel,
@@ -330,6 +330,8 @@ public final class PermissionUtil {
     /**
      * Check if these permissions are for the same user.
      *
+     * @param oldPermission Old permission
+     * @param newPermission New permission
      * @return {@code true} if permissions are for the same user
      */
     public static boolean equalsByUserId(UserPermission oldPermission, UserPermission newPermission) {
@@ -339,7 +341,9 @@ public final class PermissionUtil {
     /**
      * Check if permission from current level can change changing permission.
      *
-     * @return {@code true} if entities from {@code changingPermissionLevel} can be changed
+     * @param changingPermissionLevel Changing permission level
+     * @param currentLevel            Current level
+     * @return @code true} if entities from {@code changingPermissionLevel} can be changed
      * by permissions of {@code currentLevel}
      */
     public static boolean canBeChangedFromThisLevel(PermissionCreationLevel changingPermissionLevel,

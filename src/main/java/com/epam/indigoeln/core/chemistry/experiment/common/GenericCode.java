@@ -18,8 +18,9 @@ public class GenericCode extends ObservableObject implements DeepCopy,
     private GenericCode(String code, String descr) {
         super();
         this.code = code;
-        if (descr != null)
+        if (descr != null) {
             description = descr;
+        }
     }
 
     public String getCode() {
