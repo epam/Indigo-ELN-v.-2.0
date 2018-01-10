@@ -23,7 +23,7 @@ import static java.util.stream.Collectors.toList;
 public class ExperimentSearchRepository implements InitializingBean {
 
     private static final List<String> SEARCH_QUERY_FIELDS = Arrays.asList("status", "name");
-    private static final Collection<String> AVAILABLE_FIELDS = Arrays.asList("status", "author._id", "kind");
+    private static final Collection<String> AVAILABLE_FIELDS = Arrays.asList("status", "author.$id", "kind");
     private static final String EXPERIMENT = "Experiment";
 
     private final ComponentSearchRepository componentSearchRepository;

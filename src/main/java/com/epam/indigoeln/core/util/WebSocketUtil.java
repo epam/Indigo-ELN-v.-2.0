@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +29,8 @@ public class WebSocketUtil {
     private static final String ENTITY = "entity";
     private static final String USER = "user";
     private static final String VERSION = "version";
-    private static final String DESTINATION = "/topic/entity_updated";
+    private static final String ENTITY_DESTINATION = "/topic/entity_updated";
+    private static final String USER_DESTINATION = "/queue/user_permissions_changed";
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketUtil.class);
 
     @Autowired
@@ -49,7 +51,7 @@ public class WebSocketUtil {
         entity.put(PROJECT_ID, project.getId());
         data.put(ENTITY, entity);
         data.put(VERSION, project.getVersion());
-        template.convertAndSend(DESTINATION, data);
+        template.convertAndSend(ENTITY_DESTINATION, data);
     }
 
     /**
@@ -67,7 +69,7 @@ public class WebSocketUtil {
         entity.put(NOTEBOOK_ID, SequenceIdUtil.extractShortId(notebook));
         data.put(ENTITY, entity);
         data.put(VERSION, notebook.getVersion());
-        template.convertAndSend(DESTINATION, data);
+        template.convertAndSend(ENTITY_DESTINATION, data);
     }
 
     /**
@@ -87,7 +89,16 @@ public class WebSocketUtil {
         entity.put(EXPERIMENT_ID, SequenceIdUtil.extractShortId(experiment));
         data.put(ENTITY, entity);
         data.put(VERSION, experiment.getVersion());
-        template.convertAndSend(DESTINATION, data);
+        template.convertAndSend(ENTITY_DESTINATION, data);
+    }
+
+    /**
+     * Updates user
+     *
+     * @param login User's login
+     */
+    public void updateUser(String login) {
+        template.convertAndSendToUser(login, USER_DESTINATION, Collections.singletonMap("message", "User's permissions were changed. User should relogin"));
     }
 
     /**

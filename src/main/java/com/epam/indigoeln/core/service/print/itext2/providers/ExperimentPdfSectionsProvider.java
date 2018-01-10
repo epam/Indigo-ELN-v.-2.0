@@ -138,7 +138,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                         .setProjectCode(content.getString(CODE_AND_NAME_NAME))
                         .setProjectAlias(content.getString("projectAliasName"))
                         .setLinkedExperiment(content.streamObjects("linkedExperiments")
-                                .map(m -> m.getString("text")).toList())
+                                .map(m -> m.getString("name")).toList())
                         .setLiteratureReference(content.getString("literature"))
                         .setCoAuthors(userRepository.findAll(content.streamStrings("coAuthors").toList())
                                 .stream().map(User::getFullName).collect(toList())))
@@ -149,7 +149,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         return MongoExt.of(p.getLeft()).map(content -> singletonList(new ConceptDetailsSection(new ConceptDetailsModel(
                 p.getRight().getCreationDate(),
                 content.getString(THERAPEUTIC_AREA_NAME),
-                content.streamObjects("linkedExperiments").map(m -> m.getString("text")).toList(),
+                content.streamObjects("linkedExperiments").map(m -> m.getString("name")).toList(),
                 content.getString(CODE_AND_NAME_NAME),
                 content.getString("keywords"),
                 userRepository.findAll(content.streamStrings("designers").toList())

@@ -5,12 +5,15 @@ import com.epam.indigoeln.core.service.role.RoleService;
 import com.epam.indigoeln.web.rest.dto.RoleDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
+import com.epam.indigoeln.web.rest.util.PaginationUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -40,18 +43,21 @@ public class RoleResource {
     private RoleService roleService;
 
     /**
-     * GET  /roles -> Returns all roles.
+     * GET  /roles -> Returns all roles with pagination.
      *
      * @return Returns all roles
      */
     @ApiOperation(value = "Returns all roles.")
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<RoleDTO>> getAllRoles() {
-        LOGGER.debug("REST request to get all roles");
-        List<RoleDTO> result = roleService.getAllRoles().stream()
+    public ResponseEntity<Collection<RoleDTO>> getAllRoles(@ApiParam("Paging data.") Pageable pageable)
+            throws URISyntaxException {
+        LOGGER.debug("REST request to get all roles with pagination");
+        Page<Role> page = roleService.getAllRoles(pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/roles");
+        List<RoleDTO> result = page.getContent().stream()
                 .map(dtoMapper::convertToDTO).collect(toList());
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok().headers(headers).body(result);
     }
 
     /**

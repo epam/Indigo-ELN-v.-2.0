@@ -39,6 +39,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final Pattern passwordValidationPattern;
+    private final SecurityUtils securityUtils;
 
     static {
         Map<String, Function<User, String>> functionMap = new HashMap<>();
@@ -62,12 +63,14 @@ public class UserService {
                        PasswordEncoder passwordEncoder,
                        UserRepository userRepository,
                        RoleRepository roleRepository,
-                       @Value("${password.validation}") String passwordRegex) {
+                       @Value("${password.validation}") String passwordRegex,
+                       SecurityUtils securityUtils) {
         this.sessionRegistry = sessionRegistry;
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         passwordValidationPattern = Pattern.compile(passwordRegex);
+        this.securityUtils = securityUtils;
     }
 
     /**
@@ -154,7 +157,7 @@ public class UserService {
         LOGGER.debug("Created Information for User: {}", savedUser);
 
         // check for significant changes and perform logout for user
-        SecurityUtils.checkAndLogoutUser(savedUser, sessionRegistry);
+        securityUtils.checkAndLogoutUser(savedUser, sessionRegistry);
         return user;
     }
 

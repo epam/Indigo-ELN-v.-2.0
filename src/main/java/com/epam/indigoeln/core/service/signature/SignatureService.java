@@ -319,6 +319,7 @@ public class SignatureService {
             return firstName;
         }
 
+        @JsonProperty("firstname")
         public void setFirstName(String firstName) {
             this.firstName = firstName;
         }
@@ -327,6 +328,7 @@ public class SignatureService {
             return lastName;
         }
 
+        @JsonProperty("lastname")
         public void setLastName(String lastName) {
             this.lastName = lastName;
         }

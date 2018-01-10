@@ -1,6 +1,8 @@
 package com.epam.indigoeln.core.security;
 
+import com.epam.indigoeln.core.util.WebSocketUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -9,6 +11,7 @@ import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -19,9 +22,22 @@ import java.util.stream.Collectors;
 /**
  * Utility class for Spring Security.
  */
+@Component
 public final class SecurityUtils {
 
-    private SecurityUtils() {
+    /**
+     * WebSocketUtil instance to work with web socket.
+     */
+    private final WebSocketUtil webSocketUtil;
+
+    /**
+     * Create a new SecurityUtils instance.
+     *
+     * @param webSocketUtil WebSocketUtil instance to work with web socket
+     */
+    @Autowired
+    private SecurityUtils(WebSocketUtil webSocketUtil) {
+        this.webSocketUtil = webSocketUtil;
     }
 
     /**
@@ -101,8 +117,8 @@ public final class SecurityUtils {
      * @param modifiedUsers   Users
      * @param sessionRegistry Session registry
      */
-    public static void checkAndLogoutUsers(Collection<com.epam.indigoeln.core.model.User> modifiedUsers,
-                                           SessionRegistry sessionRegistry) {
+    public void checkAndLogoutUsers(Collection<com.epam.indigoeln.core.model.User> modifiedUsers,
+                                    SessionRegistry sessionRegistry) {
         final List<Object> allPrincipals = sessionRegistry.getAllPrincipals();
         for (com.epam.indigoeln.core.model.User modifiedUser : modifiedUsers) {
             for (Object principal : allPrincipals) {
@@ -114,8 +130,8 @@ public final class SecurityUtils {
         }
     }
 
-    private static void checkAndInvalidate(SessionRegistry sessionRegistry,
-                                           com.epam.indigoeln.core.model.User modifiedUser, UserDetails userDetails) {
+    private void checkAndInvalidate(SessionRegistry sessionRegistry,
+                                    com.epam.indigoeln.core.model.User modifiedUser, UserDetails userDetails) {
         Set<String> newAuthorities = modifiedUser.getAuthorities().stream().map(Authority::getAuthority).
                 collect(Collectors.toSet());
         Set<String> existingAuthorities = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).
@@ -124,6 +140,7 @@ public final class SecurityUtils {
         if (!CollectionUtils.isEqualCollection(newAuthorities, existingAuthorities)) {
             List<SessionInformation> sessions = sessionRegistry.getAllSessions(userDetails, false);
             sessions.forEach(SessionInformation::expireNow);
+            webSocketUtil.updateUser(userDetails.getUsername());
         }
     }
 
@@ -133,7 +150,7 @@ public final class SecurityUtils {
      * @param user            User
      * @param sessionRegistry Session registry
      */
-    public static void checkAndLogoutUser(com.epam.indigoeln.core.model.User user, SessionRegistry sessionRegistry) {
+    public void checkAndLogoutUser(com.epam.indigoeln.core.model.User user, SessionRegistry sessionRegistry) {
         checkAndLogoutUsers(Collections.singletonList(user), sessionRegistry);
     }
 }
