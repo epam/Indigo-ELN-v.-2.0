@@ -9,13 +9,10 @@ function indigoHasAuthority(principalService, ngIfDirective) {
         transclude: ngIf.transclude,
         link: {
             pre: function($scope, $element, $attrs) {
-                var authorityAttr = $attrs.indigoHasAuthority;
-                var authority = $scope.$eval(authorityAttr);
-                var isAuthorized = true;
+                var authority = $scope.$eval($attrs.indigoHasAuthority);
+                var isAuthorized = principalService.hasAuthority(authority);
                 var initialNgIf = $attrs.ngIf;
                 var ifEvaluator;
-
-                isAuthorized = principalService.hasAuthority(authority);
 
                 if (initialNgIf) {
                     // If element has another ng-if directive it should be evaluated
