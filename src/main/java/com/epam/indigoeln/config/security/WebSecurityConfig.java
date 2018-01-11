@@ -303,7 +303,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/print/project/*/notebook/*")
                 .hasAnyAuthority(NOTEBOOK_READERS)
                 .antMatchers(HttpMethod.GET, "/api/print/project/*/notebook/*/experiment/*")
-                .hasAnyAuthority(NOTEBOOK_READERS);
+                .hasAnyAuthority(EXPERIMENT_READERS);
     }
 
     @Bean
