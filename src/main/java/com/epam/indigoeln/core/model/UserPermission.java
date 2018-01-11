@@ -54,6 +54,12 @@ public class UserPermission {
         this.permissions = permissions;
     }
 
+    public UserPermission(User user, Set<String> permissions, PermissionCreationLevel permissionCreationLevel) {
+        this.user = user;
+        this.permissions = permissions;
+        this.permissionCreationLevel = permissionCreationLevel;
+    }
+
     public User getUser() {
         return user;
     }
