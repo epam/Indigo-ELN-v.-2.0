@@ -54,6 +54,9 @@ public final class ChangeLogVersion10 {
         db.getCollection(EXPERIMENT_COLLECTION_NAME).createIndex(BasicDBObjectBuilder.start()
                 .add(SEQUENCE_ID, 1)
                 .get());
+        db.getCollection(EXPERIMENT_COLLECTION_NAME).createIndex(BasicDBObjectBuilder.start()
+                .add("experimentFullName", 1)
+                .get());
 
         db.getCollection("component").createIndex(BasicDBObjectBuilder.start()
                 .add(EXPERIMENT_COLLECTION_NAME, 1)

@@ -28,10 +28,10 @@ public interface ExperimentRepository extends MongoRepository<Experiment, String
 
     Stream<Experiment> findByDocumentIdIn(Collection<String> documentsIds);
 
-    @Query(value = "{'experimentFullName' : { $regex: '?0.*', $options: 'i' }}", fields = "{id:1, experimentFullName:1}")
+    @Query(value = "{'experimentFullName' : { $regex: '^?0.*', $options: 'i' }}", fields = "{id:1, experimentFullName:1}")
     List<Experiment> findExperimentsByFullNameStartingWith(String experimentFullName, Pageable pageable);
 
-    @Query(value = "{'experimentFullName' : { $regex: '?0.*', $options: 'i' }, " +
+    @Query(value = "{'experimentFullName' : { $regex: '^?0.*', $options: 'i' }, " +
             "'accessList' : { $elemMatch : {'user'  : {$ref : '" + User.COLLECTION_NAME +
             "', $id : ?1}, 'permissions' : ?2}}}", fields = "{id:1, experimentFullName:1}")
     List<Experiment> findExperimentsByFullNameStartingWithAndHasAccess(String experimentFullName, String userId, String permission, Pageable pageable);
