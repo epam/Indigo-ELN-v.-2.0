@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
+import static com.epam.indigoeln.core.model.UserPermission.VIEWER_PERMISSIONS;
 import static com.epam.indigoeln.web.rest.util.PermissionUtil.equalsByUserId;
 import static com.epam.indigoeln.web.rest.util.PermissionUtil.isContentEditor;
 import static java.util.stream.Collectors.toList;
@@ -38,14 +39,18 @@ abstract class EntityWrapper {
     ) {
         if (PermissionUtil.canBeChangedFromThisLevel(
                 userPermissionOuterEntity.getPermissionCreationLevel(), creationLevel)) {
-            userPermissionOuterEntity.setPermissions(
-                    UserPermission.OWNER.equals(permission.getPermissionView())
-                            || UserPermission.USER.equals(permission.getPermissionView())
-                            ? permission.getPermissions()
-                            : UserPermission.VIEWER_PERMISSIONS);
+            Set<String> changingPermission = isOwnersOrUsersPermission(permission)
+                    ? permission.getPermissions()
+                    : VIEWER_PERMISSIONS;
+            userPermissionOuterEntity.setPermissions(changingPermission);
 
             updated.add(userPermissionOuterEntity);
         }
+    }
+
+    private static boolean isOwnersOrUsersPermission(UserPermission permission) {
+        return UserPermission.OWNER.equals(permission.getPermissionView())
+                || UserPermission.USER.equals(permission.getPermissionView());
     }
 
     void removePermissionsDown(Set<UserPermission> removedPermissions) {
@@ -85,12 +90,11 @@ abstract class EntityWrapper {
             UserPermission userPermissionOuterEntity = PermissionUtil.findPermissionsByUserId(
                     parent.getValue().getAccessList(), userPermission.getUser().getId());
             if (userPermissionOuterEntity == null) {
-                parent.getValue().getAccessList().add(
-                        UserPermission.OWNER.equals(userPermission.getPermissionView())
-                                || UserPermission.USER.equals(userPermission.getPermissionView())
-                                ? userPermission
-                                : userPermission.setPermissions(UserPermission.VIEWER_PERMISSIONS));
-                added.add(userPermission);
+                UserPermission addingPermission = isOwnersOrUsersPermission(userPermission)
+                        ? userPermission
+                        : new UserPermission(userPermission.getUser(), VIEWER_PERMISSIONS);
+                parent.getValue().getAccessList().add(addingPermission);
+                added.add(addingPermission);
             } else {
                 changePermission(userPermission, userPermissionOuterEntity, added, permissionCreationLevel);
             }
@@ -192,7 +196,7 @@ abstract class EntityWrapper {
                     //we don't change permissions for ContentEditors
                     !isContentEditor(userPermission.getUser())
                             && shouldHaveViewerPermissions(userPermission) ?
-                            new UserPermission(userPermission.getUser(), UserPermission.VIEWER_PERMISSIONS) :
+                            new UserPermission(userPermission.getUser(), VIEWER_PERMISSIONS) :
                             userPermission)
                     .collect(toSet());
         }
@@ -236,7 +240,7 @@ abstract class EntityWrapper {
                             //we don't change permissions for ContentEditors
                             !isContentEditor(userPermission.getUser())
                                     && shouldHaveViewerPermission(userPermission) ?
-                                    new UserPermission(userPermission.getUser(), UserPermission.VIEWER_PERMISSIONS) :
+                                    new UserPermission(userPermission.getUser(), VIEWER_PERMISSIONS) :
                                     userPermission)
                     .collect(toSet());
         }
