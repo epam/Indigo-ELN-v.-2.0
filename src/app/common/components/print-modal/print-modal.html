@@ -1,25 +1,44 @@
-<form name="printExperimentForm" ng-submit="vm.confirmCompletion()">
+<form name="printExperimentForm"
+      ng-submit="vm.confirmCompletion()">
     <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+        <button type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-hidden="true"
                 ng-click="vm.dismiss()">&times;</button>
         <h5 class="modal-title">
             <span i-translate="PRINT_SETTINGS"></span>
         </h5>
     </div>
-    <div class="modal-body" cg-busy="{promise: vm.loading}">
-        <p><span i-translate="PLEASE_SELECT_COMPONENTS_FOR_PRINT"></span>:</p>
-        <indigo-checklist indigo-items="vm.components" class="checklist-wrap-lines"></indigo-checklist>
-        <indigo-checkbox ng-if="vm.hasAttachments" indigo-classes="checklist-item"
-            indigo-label="Print attached PDF"
-            indigo-model="vm.printAttachedPDF"></indigo-checkbox>
-        <indigo-checkbox ng-if="vm.askContents" indigo-classes="checklist-item"
-            indigo-label="Print Table of Content"
-            indigo-model="vm.printContent"></indigo-checkbox>
+    <div class="modal-body"
+         cg-busy="{promise: vm.loading}">
+        <p>
+            <span i-translate="PLEASE_SELECT_COMPONENTS_FOR_PRINT"></span>:
+        </p>
+        <indigo-checklist indigo-items="vm.components"
+                          class="checklist-wrap-lines"></indigo-checklist>
+
+        <indigo-checkbox ng-if="vm.hasAttachments"
+                         indigo-classes="checklist-item"
+                         indigo-label="Print attached PDF"
+                         indigo-model="vm.printAttachedPDF"></indigo-checkbox>
+
+        <indigo-checkbox ng-if="vm.askContents"
+                         indigo-disabled="!vm.allowContents"
+                         indigo-classes="checklist-item"
+                         indigo-label="Print Table of Content"
+                         indigo-model="vm.printContent"></indigo-checkbox>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.dismiss()">
-            <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
+        <button type="button"
+                class="btn btn-default"
+                data-dismiss="modal"
+                ng-click="vm.dismiss()">
+            <span class="icon icon-stop"></span>
+            <span class="m-l5" i-translate="CANCEL"></span>
         </button>
-        <button type="submit" class="btn btn-primary" i-translate="OK"></button>
+        <button type="submit"
+                class="btn btn-primary"
+                i-translate="OK"></button>
     </div>
 </form>

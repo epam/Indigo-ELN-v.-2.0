@@ -32,7 +32,7 @@ function wsService($cookies, $http, $q, $log, apiUrl) {
         return connect().then(
             function() {
                 var listener = $q.defer();
-                var subscriber = stompClient.subscribe('/topic/' + destination, function(data) {
+                var subscriber = stompClient.subscribe(destination, function(data) {
                     listener.notify(angular.fromJson(data.body));
                 });
 

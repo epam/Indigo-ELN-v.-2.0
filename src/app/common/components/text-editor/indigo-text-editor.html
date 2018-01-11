@@ -1,6 +1,6 @@
-<textarea name={{::vm.indigoName}}
-          class="form-control"
-          ng-model="vm.indigoModel"
-          data-autosave="editor-content"
-          autofocus>
-</textarea>
+<div class="readonly-text"
+     ng-class="{editable: !vm.indigoReadonly}"
+     ng-if="vm.indigoReadonly || !vm.isEditing"
+     ng-bind-html="vm.indigoModel"
+     ng-click="vm.startEdit()">
+</div>

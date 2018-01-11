@@ -2,7 +2,8 @@
 function roleService($resource, apiUrl) {
     return $resource(apiUrl + 'roles/:id', {}, {
         query: {
-            method: 'GET', isArray: true
+            method: 'GET',
+            isArray: true
         },
         get: {
             method: 'GET'

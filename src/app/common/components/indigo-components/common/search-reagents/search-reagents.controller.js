@@ -1,21 +1,18 @@
-SearchReagentsController.$inject = ['$rootScope', '$uibModalInstance', 'notifyService',
-    'appValuesService', 'activeTabIndex', 'userReagentsService', 'searchService',
-    'searchUtil', 'searchReagentsConstant', 'stoichColumnActions'];
-
+/* @ngInject */
 function SearchReagentsController($rootScope, $uibModalInstance, notifyService, appValuesService,
                                   activeTabIndex, userReagentsService, searchService, searchUtil,
-                                  searchReagentsConstant, stoichColumnActions) {
+                                  searchReagentsService, stoichColumnActions, translateService, dictionaryService) {
     var vm = this;
     var myReagentsSearchQuery;
 
     init();
 
     function init() {
-        vm.model = {};
-        vm.model.restrictions = searchReagentsConstant.restrictions;
-        vm.model.databases = searchService.getCatalogues();
+        vm.model = {
+            restrictions: searchReagentsService.getRestrictions(),
+            databases: searchService.getCatalogues()
+        };
         vm.myReagents = {};
-
         vm.activeTabIndex = activeTabIndex;
         vm.isSearchResultFound = false;
         vm.conditionText = [{
@@ -48,6 +45,17 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         }, {
             name: 'similarity'
         }];
+        vm.chooseDBLabel = translateService.translate('CHOOSE_DBS_LABEL');
+        vm.isAdvancedSearchCollapsed = true;
+        vm.compoundStateModel = null;
+        vm.compoundStatesList = [];
+
+        // Getting list of coumpound states
+        dictionaryService.getByName({
+            name: vm.model.restrictions.advancedSearch.compoundState.name
+        }, function(dictionary) {
+            vm.compoundStatesList = dictionary.words;
+        });
 
         myReagentsSearchQuery = '';
 
@@ -61,6 +69,12 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         vm.onChangedStructure = onChangedStructure;
         vm.search = search;
         vm.cancel = cancel;
+        vm.updateCompoundState = updateCompoundState;
+    }
+
+    function updateCompoundState() {
+        vm.model.restrictions.advancedSearch.compoundState.value = vm.compoundStateModel
+            ? vm.compoundStateModel.name : null;
     }
 
     function addToStoichTable(list) {
@@ -175,11 +189,16 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         var searchRequest = searchUtil.prepareSearchRequest(vm.model.restrictions, vm.model.databases);
 
         vm.model.restrictions.advancedSummary = searchRequest.advancedSearch;
-        searchService.search(searchRequest, function(result) {
-            responseCallback(result);
-            vm.loading = false;
-        });
+        searchService.search(searchRequest).$promise
+            .then(function(result) {
+                responseCallback(result);
+                vm.loading = false;
+            });
+
         vm.isSearchResultFound = true;
+
+        // Expand advanced search form if it has any restrictions set
+        vm.isAdvancedSearchCollapsed = _.isEmpty(vm.model.restrictions.advancedSummary);
     }
 
     function cancel() {

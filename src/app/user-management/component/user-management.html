@@ -56,17 +56,15 @@
                                    maxlength="50"
                                    ng-model="vm.user.lastName">
                         </simple-input>
-                        <indigo-select
-                            indigo-label="System Roles"
-                            indigo-name="role"
-                            indigo-classes="required"
-                            indigo-required="true"
-                            indigo-model="vm.user.roles"
-                            indigo-items="vm.roles"
-                            indigo-multiple="true"
-                        ></indigo-select>
+                        <autocomplete label="System Roles"
+                                      el-name="role"
+                                      is-required="true"
+                                      model="vm.user.roles"
+                                      items="vm.roles"
+                                      is-multiple="true">
+                        </autocomplete>
                         <p class="help-block" ng-if="editForm.role.$invalid && editForm.role.$dirty"
-                           i-translate="THIS_FIELD_IS_REQUIRED"></p>
+                           i-translate="FIELD_REQUIRED_HINT"></p>
                     </div>
                     <div class="col-xs-6">
                         <simple-input>
@@ -91,10 +89,10 @@
                                    ng-required="!vm.user.id"
                                    ng-pattern="vm.passwordRegex">
                         </simple-input>
-                        <indigo-select indigo-label="Groups"
-                                       indigo-items="[{name:'Group 1'}, {name:'Group 2'}]"
-                                       indigo-model="vm.user.group"
-                        ></indigo-select>
+                        <autocomplete label="Groups"
+                                      items="vm.groups"
+                                      model="vm.user.group"
+                        ></autocomplete>
 
                         <button class="btn btn-info"
                                 ng-if="vm.user.id"
@@ -139,8 +137,9 @@
                     <span i-translate="LAST_NAME"></span>
                     <span class="glyphicon glyphicon-sort user-management__icon-sort"></span>
                 </th>
-                <th>
+                <th indigo-sort-by="role">
                     <span i-translate="SYSTEM_ROLES"></span>
+                    <span class="glyphicon glyphicon-sort user-management__icon-sort"></span>
                 </th>
                 <th indigo-sort-by="email">
                     <span i-translate="EMAIL"></span>
