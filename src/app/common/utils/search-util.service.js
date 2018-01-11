@@ -52,22 +52,11 @@ function searchUtil(modelRestrictions) {
                 : restriction.value;
 
             if (hasValue) {
-                var requestRestriction = {
+                advancedSummary.push({
                     field: restriction.field,
-                    value: restriction.value
-                };
-
-                if (restriction.condition) {
-                    requestRestriction.condition = restriction.condition.name;
-                } else {
-                    requestRestriction.condition = '';
-                }
-
-                if (restriction.getValue) {
-                    requestRestriction.value = restriction.getValue(restriction.value);
-                }
-
-                advancedSummary.push(requestRestriction);
+                    value: restriction.value,
+                    condition: restriction.condition ? restriction.condition.name : ''
+                });
             }
         });
 

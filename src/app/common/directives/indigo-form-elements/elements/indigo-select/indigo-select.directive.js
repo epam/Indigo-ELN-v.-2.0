@@ -44,7 +44,8 @@ function indigoSelect(formUtils) {
                 '<ui-select ng-model="vm.indigoModel" name="{{vm.indigoName}}"' +
                 ' indigo-select-required="{{vm.indigoRequired}}" theme="bootstrap"' +
                 ' ng-disabled="vm.indigoReadonly"' +
-                ' onkeypress="return false;" on-select="vm.indigoChange()" on-remove="vm.indigoRemove()"' +
+                ' onkeypress="return false;" on-select="vm.indigoChange({selected: vm.indigoModel})"' +
+                ' on-remove="vm.indigoRemove()"' +
                 ' append-to-body="true">' +
                 '<ui-select-match placeholder="{{vm.indigoPlaceHolder}}" >' + content + '</ui-select-match>' +
                 '<ui-select-choices repeat="item in vm.indigoItems | filter: $select.search">' +

@@ -1,18 +1,18 @@
 /* @ngInject */
 function SearchReagentsController($rootScope, $uibModalInstance, notifyService, appValuesService,
                                   activeTabIndex, userReagentsService, searchService, searchUtil,
-                                  searchReagentsConstant, stoichColumnActions, translateService) {
+                                  searchReagentsService, stoichColumnActions, translateService) {
     var vm = this;
     var myReagentsSearchQuery;
 
     init();
 
     function init() {
-        vm.model = {};
-        vm.model.restrictions = searchReagentsConstant.getRestrictions();
-        vm.model.databases = searchService.getCatalogues();
+        vm.model = {
+            restrictions: searchReagentsService.getRestrictions(),
+            databases: searchService.getCatalogues()
+        };
         vm.myReagents = {};
-
         vm.activeTabIndex = activeTabIndex;
         vm.isSearchResultFound = false;
         vm.conditionText = [{
@@ -60,6 +60,11 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         vm.onChangedStructure = onChangedStructure;
         vm.search = search;
         vm.cancel = cancel;
+        vm.updateCompoundState = updateCompoundState;
+    }
+
+    function updateCompoundState(compoundState) {
+        vm.model.restrictions.advancedSearch.compoundState.value = compoundState ? compoundState.name : null;
     }
 
     function addToStoichTable(list) {
