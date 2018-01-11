@@ -1,4 +1,5 @@
 var template = require('./app-navbar.html');
+var roles = require('../../permissions/permission-roles.json');
 
 function appNavbar() {
     return {
@@ -18,6 +19,7 @@ NavbarController.$inject = ['$scope', '$state', 'principalService', 'authService
 function NavbarController($scope, $state, principalService, authService, entitiesCache) {
     var vm = this;
 
+    vm.GLOBAL_SEARCH = roles.GLOBAL_SEARCH;
     vm.logout = logout;
     vm.search = search;
 
