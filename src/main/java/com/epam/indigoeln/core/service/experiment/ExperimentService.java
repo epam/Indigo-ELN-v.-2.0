@@ -27,7 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
@@ -639,18 +639,17 @@ public class ExperimentService {
      * Searches experiments by full name with project name and version
      *
      * @param experimentFullName experiment full name
-     * @param limit maximum count of experiments
+     * @param pageable page, size, sort settings
      * @return ids list of project, notebook, experiment and experiment full name
      */
-    public List<EntitiesIdsDTO> findExperimentsByFullName(User user, String experimentFullName, int limit) {
-        PageRequest pageRequest = new PageRequest(0, limit);
+    public List<EntitiesIdsDTO> findExperimentsByFullName(User user, String experimentFullName, Pageable pageable) {
         List<Experiment> experiments = PermissionUtil.isContentEditor(user)
-                ? experimentRepository.findExperimentsByFullNameStartingWith(experimentFullName, pageRequest)
+                ? experimentRepository.findExperimentsByFullNameStartingWith(experimentFullName, pageable)
                 : experimentRepository.findExperimentsByFullNameStartingWithAndHasAccess(
                 experimentFullName,
                 user.getId(),
                 UserPermission.READ_ENTITY,
-                pageRequest);
+                pageable);
 
         return experiments.stream()
                 .map(EntitiesIdsDTO::new)
