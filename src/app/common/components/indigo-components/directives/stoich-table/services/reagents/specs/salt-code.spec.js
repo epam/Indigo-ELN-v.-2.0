@@ -25,6 +25,7 @@ function onSaltCodeChanged() {
 
             firstRow.molWeight.value = 3;
             firstRow.molWeight.originalValue = 3;
+            firstRow.formula.baseValue = 'C6 H6';
             firstRow.weight.value = 45;
             firstRow.mol.value = 15;
             firstRow.saltCode = {name: '01 - HYDROCHLORIDE', value: 1, regValue: '01', weight: 1};
@@ -35,6 +36,13 @@ function onSaltCodeChanged() {
                 changedRow: firstRow,
                 changedField: fieldTypes.saltEq
             };
+        });
+
+        it('should update molWeight and formula', function() {
+            var calculatedRows = service.calculate(reagentsData);
+
+            expect(calculatedRows[0].molWeight.value).toBe(15);
+            expect(calculatedRows[0].formula.value).toBe('C6 H6*12(HYDROCHLORIDE)');
         });
 
         it('row is limiting, should compute mol, then weight and update mol in other rows', function() {
@@ -60,6 +68,7 @@ function onSaltCodeChanged() {
             firstRow = rows[0];
 
             expect(firstRow.molWeight.value).toBe(15);
+            expect(firstRow.formula.value).toBe('C6 H6*12(HYDROCHLORIDE)');
             expect(firstRow.weight.value).toBe(225);
             expect(firstRow.mol.value).toBe(15);
 
@@ -72,6 +81,7 @@ function onSaltCodeChanged() {
             firstRow = rows[0];
 
             expect(firstRow.molWeight.value).toBe(3);
+            expect(firstRow.formula.value).toBe('C6 H6');
             expect(firstRow.weight.value).toBe(45);
             expect(firstRow.mol.value).toBe(15);
         });

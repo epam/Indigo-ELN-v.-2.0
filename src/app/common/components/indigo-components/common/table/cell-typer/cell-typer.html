@@ -1,5 +1,6 @@
 <div ng-switch="column.type">
     <span ng-switch-when="undefined" ng-bind="row[column.id]"></span>
+    <span ng-switch-when="formula" ng-bind="row[column.id].value"></span>
     <span ng-switch-when="registrationStatus" ng-bind="row[column.id]"
           class="batch-status status-{{row[column.id]}}"></span>
     <span ng-switch-when="date" ng-if="row[column.id]"

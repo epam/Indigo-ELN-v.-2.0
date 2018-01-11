@@ -26,6 +26,7 @@ function onSaltChanged() {
 
             firstRow.molWeight.value = 3;
             firstRow.molWeight.baseValue = 3;
+            firstRow.formula.baseValue = 'C6 H6';
             firstRow.theoWeight.value = 12;
             firstRow.theoMoles.value = 4;
             firstRow.saltCode = {name: '01 - HYDROCHLORIDE', value: 1, regValue: '01', weight: 1};
@@ -43,15 +44,16 @@ function onSaltChanged() {
             };
         });
 
-        it('should update molWeight, then compute theoMoles and theoWeight', function() {
+        it('should update molWeight and formula, then compute theoMoles and theoWeight', function() {
             var calculatedRows = service.calculate(productsData);
 
             expect(calculatedRows[0].molWeight.value).toBe(15);
+            expect(calculatedRows[0].formula.value).toBe('C6 H6*12(HYDROCHLORIDE)');
             expect(calculatedRows[0].theoMoles.value).toBe(4);
             expect(calculatedRows[0].theoWeight.value).toBe(60);
         });
 
-        it('should set original mol weight', function() {
+        it('should set original mol weight and formula', function() {
             rows = service.calculate(productsData);
             firstRow = rows[0];
 
@@ -70,6 +72,7 @@ function onSaltChanged() {
             expect(firstRow.molWeight.value).toBe(3);
             expect(firstRow.theoMoles.value).toBe(4);
             expect(firstRow.theoWeight.value).toBe(12);
+            expect(firstRow.formula.value).toBe('C6 H6');
         });
     });
 }

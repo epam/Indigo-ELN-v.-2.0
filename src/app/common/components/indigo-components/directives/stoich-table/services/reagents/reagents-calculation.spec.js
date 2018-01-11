@@ -12,7 +12,7 @@ var onDensityChanged = require('./specs/density.spec');
 describe('service: reagentsCalculation', function() {
     var service;
 
-    beforeEach(angular.mock.module('indigoeln.stoichTable'));
+    beforeEach(angular.mock.module('indigoeln.indigoComponents'));
 
     beforeEach(angular.mock.inject(function(_reagentsCalculation_) {
         service = _reagentsCalculation_;

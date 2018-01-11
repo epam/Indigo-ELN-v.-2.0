@@ -2,7 +2,7 @@ var fieldTypes = require('../../domain/field-types');
 var mathCalculation = require('../../../../services/calculation/math-calculation');
 
 /* @ngInject */
-function reagentsCalculation() {
+function reagentsCalculation(calculationHelper) {
     var rows;
 
     return {
@@ -66,11 +66,9 @@ function reagentsCalculation() {
                 onDensityChanged(row);
                 break;
             case fieldTypes.compoundId:
-                // Handle changes in the table caused by change in compoundId
                 onNbkBatchOrCompoundIdChanged(row);
                 break;
             case fieldTypes.fullNbkBatch:
-                // Handle changes in the table caused by applying notebook batch
                 onNbkBatchOrCompoundIdChanged(row);
                 break;
             default:
@@ -333,7 +331,13 @@ function reagentsCalculation() {
         var molWeight = mathCalculation.computeMolWeightBySalt(
             row.molWeight.originalValue, row.saltCode.weight, row.saltEq.value
         );
+
+        var formula = row.formula.baseValue
+            ? calculationHelper.getFormula(row)
+            : null;
+
         row.setComputedMolWeight(molWeight, row.molWeight.originalValue, onMolWeightChanged);
+        row.setFormula(formula);
     }
 
     function onDensityChanged(row) {
@@ -431,7 +435,7 @@ function reagentsCalculation() {
         if (!row.isLimiting()) {
             row.updateEq(getLimitingRow());
         }
-        row.updateMolWeight();
+        row.setMolWeight();
     }
 
     function updateMol(row, mol) {

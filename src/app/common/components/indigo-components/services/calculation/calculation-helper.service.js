@@ -2,7 +2,8 @@
 function calculationHelper() {
     return {
         getClonedRows: getClonedRows,
-        findChangedRow: findChangedRow
+        findChangedRow: findChangedRow,
+        getFormula: getFormula
     };
 
     function getClonedRows(rows) {
@@ -14,6 +15,18 @@ function calculationHelper() {
         return _.find(rows, function(row) {
             return _.isEqual(row, changedRow);
         });
+    }
+
+    function getFormula(row) {
+        var formula = row.formula.baseValue;
+        var saltEq = row.saltEq.value;
+        var saltCode = row.saltCode.name.split('-')[1];
+
+        if (!saltEq) {
+            return formula;
+        }
+
+        return formula + '*' + saltEq + '(' + saltCode.trim() + ')';
     }
 }
 

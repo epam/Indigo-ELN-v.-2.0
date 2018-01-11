@@ -135,7 +135,7 @@ function stoichReactantsColumns(appUnits, stoichColumnActions, notifyService, i1
         formula: {
             id: 'formula',
             name: 'Mol Formula',
-            type: 'input'
+            type: 'formula'
         },
         saltCode: {
             id: 'saltCode',

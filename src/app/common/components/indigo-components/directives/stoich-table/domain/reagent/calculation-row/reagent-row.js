@@ -24,7 +24,7 @@ ReagentRow.prototype = {
     getResetFieldForMolarity: getResetFieldForMolarity,
     getResetFieldsForMol: getResetFieldsForMol,
     getResetFieldsForWeight: getResetFieldsForWeight,
-    updateMolWeight: updateMolWeight,
+    setMolWeight: setMolWeight,
     updateVolume: updateVolume,
     updateEq: updateEq,
     setComputedMolWeight: setComputedMolWeight,
@@ -34,6 +34,7 @@ ReagentRow.prototype = {
     setDefaultValues: setDefaultValues,
     setEntered: setEntered,
     setReadonly: setReadonly,
+    setFormula: setFormula,
     resetFields: resetFields,
     resetEntered: resetEntered,
     isMolWeightPresent: isMolWeightPresent,
@@ -51,7 +52,7 @@ ReagentRow.prototype = {
 
 ReagentRow.prototype.constructor = ReagentRow;
 
-function updateMolWeight() {
+function setMolWeight() {
     if (!this.molWeight.value && this.mol.value && this.weight.value) {
         this.resetEntered([fieldTypes.molWeight]);
         this.molWeight.value = mathCalculation.computeMolWeight(this.weight.value, this.mol.value);
@@ -211,6 +212,10 @@ function setReadonly(fields, isReadonly) {
     _.forEach(fields, function(id) {
         self[id].readonly = isReadonly;
     });
+}
+
+function setFormula(value) {
+    this.formula.value = value;
 }
 
 function getResetFieldsForSolvent() {

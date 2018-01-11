@@ -15,7 +15,13 @@ describe('service: calculationHelper', function() {
 
     beforeEach(function() {
         rows = [
-            {weight: {value: 1, entered: false}}
+            {
+                weight: {value: 1, entered: false},
+                molWeight: {value: 0, baseValue: 0},
+                formula: {value: null, baseValue: 'C6 H6'},
+                saltCode: {name: '01 - HYDROCHLORIDE', value: '1', regValue: '01', weight: 1},
+                saltEq: {value: 1}
+            }
         ];
 
         clonedRows = service.getClonedRows(rows);
@@ -33,6 +39,15 @@ describe('service: calculationHelper', function() {
             var changedRow = service.findChangedRow(clonedRows, rows[0]);
 
             expect(changedRow).toEqual(rows[0]);
+        });
+    });
+
+    describe('getFormula function', function() {
+        it('test', function() {
+            var expectedFormula = 'C6 H6*1(HYDROCHLORIDE)';
+            var actualFormula = service.getFormula(rows[0]);
+
+            expect(actualFormula).toBe(expectedFormula);
         });
     });
 });

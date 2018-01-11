@@ -15,9 +15,10 @@ function ProductRow(props) {
 }
 
 ProductRow.prototype = {
-    updateTheoMoles: updateTheoMoles,
-    updateTheoWeight: updateTheoWeight,
-    updateMolWeight: updateMolWeight,
+    setTheoMoles: setTheoMoles,
+    setTheoWeight: setTheoWeight,
+    setMolWeight: setMolWeight,
+    setFormula: setFormula,
     constructor: ProductRow
 };
 
@@ -27,6 +28,9 @@ function setRowProperties(defaultProps, customProps) {
         if (fieldTypes.isMolWeight(key)) {
             defaultProps[key].value = value.value;
             defaultProps[key].baseValue = value.value;
+        } else if (fieldTypes.isFormula(key)) {
+            defaultProps[key].value = _.isObject(value) ? value.value : value;
+            defaultProps[key].baseValue = _.isObject(value) ? value.baseValue : value;
         } else if (fieldTypes.isEq(key)) {
             defaultProps[key].value = value.value;
             defaultProps[key].prevValue = value.prevValue ? value.prevValue : value.value;
@@ -42,28 +46,26 @@ function setRowProperties(defaultProps, customProps) {
     });
 }
 
-function updateTheoMoles(value) {
+function setTheoMoles(value) {
     this.theoMoles.value = value;
-
-    return this;
 }
 
-function updateTheoWeight(value) {
+function setTheoWeight(value) {
     this.theoWeight.value = value;
-
-    return this;
 }
 
-function updateMolWeight(value) {
+function setMolWeight(value) {
     this.molWeight.value = value;
+}
 
-    return this;
+function setFormula(value) {
+    this.formula.value = value;
 }
 
 function getDefaultProductRow() {
     return {
         chemicalName: null,
-        formula: null,
+        formula: {value: null, baseValue: null},
         molWeight: {value: 0, baseValue: 0},
         exactMass: null,
         theoWeight: {value: 0, unit: 'mg'},

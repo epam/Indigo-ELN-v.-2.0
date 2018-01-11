@@ -32,6 +32,9 @@ function setRowProperties(defaultProps, customProps) {
         } else if (fieldTypes.isLimiting(key)) {
             defaultProps[key].value = _.isObject(value) ? value.value : value;
             defaultProps[key].readonly = _.isObject(value) ? value.readonly : false;
+        } else if (fieldTypes.isFormula(key)) {
+            defaultProps[key].value = _.isObject(value) ? value.value : value;
+            defaultProps[key].baseValue = _.isObject(value) ? value.baseValue : value;
         } else if (fieldTypes.isRxnRole(key)) {
             defaultProps[key].name = value.name;
 
@@ -80,7 +83,7 @@ function getDefaultReagentViewRow() {
         molarity: new ReagentViewField(0, 'M'),
         // TODO: rename to purity
         stoicPurity: {value: 100, prevValue: 100, entered: false, readonly: false},
-        formula: null,
+        formula: {value: null, baseValue: null},
         saltCode: {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0, readonly: false},
         saltEq: {value: 0},
         loadFactor: new ReagentViewField(1, 'mmol/g'),

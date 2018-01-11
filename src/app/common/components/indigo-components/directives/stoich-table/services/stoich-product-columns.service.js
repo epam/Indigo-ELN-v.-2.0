@@ -10,7 +10,9 @@ function stoichProductColumns(appUnits) {
         },
         formula: {
             id: 'formula',
-            name: 'Formula'
+            name: 'Formula',
+            type: 'formula',
+            readonly: true
         },
         molWeight: {
             id: 'molWeight',

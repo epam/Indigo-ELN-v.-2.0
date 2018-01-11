@@ -50,7 +50,13 @@ function productsCalculation(calculationHelper) {
             row.molWeight.baseValue, row.saltCode.weight, row.saltEq.value
         );
 
-        row.updateMolWeight(molWeight);
+        var formula = row.formula.baseValue
+            ? calculationHelper.getFormula(row)
+            : null;
+
+        row.setMolWeight(molWeight);
+        row.setFormula(formula);
+
         updateRow(row, limitingRow);
     }
 
@@ -77,9 +83,8 @@ function productsCalculation(calculationHelper) {
             theoWeight = mathCalculation.computeWeight(theoMoles, row.molWeight.value, DEFAULT_PURITY);
         }
 
-        row
-            .updateTheoMoles(theoMoles)
-            .updateTheoWeight(theoWeight);
+        row.setTheoMoles(theoMoles);
+        row.setTheoWeight(theoWeight);
     }
 }
 

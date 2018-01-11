@@ -34,6 +34,7 @@ fieldTypes.isStoicPurity = isStoicPurity;
 fieldTypes.isRxnRole = isRxnRole;
 fieldTypes.isReagentField = isReagentField;
 fieldTypes.isLimiting = isLimiting;
+fieldTypes.isFormula = isFormula;
 
 
 function isMolWeight(key) {
@@ -60,6 +61,10 @@ function isReagentField(key) {
 
 function isLimiting(key) {
     return key === fieldTypes.limiting;
+}
+
+function isFormula(key) {
+    return key === fieldTypes.formula;
 }
 
 module.exports = fieldTypes;
