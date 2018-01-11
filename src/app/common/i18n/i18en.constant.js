@@ -247,7 +247,6 @@ var i18n = {
     VIEW: 'View',
     CREATE_NEW_USER: 'Create new user',
     CREATE_EDIT_USER: 'Create/Edit User',
-    THIS_FIELD_IS_REQUIRED: 'This field is required.',
     CHANGE_PASSWORD: 'Change Password',
     PASSWORD_SUCCESSFULLY_CHANGED: 'Password successfully changed!',
     USERNAME: 'Username',

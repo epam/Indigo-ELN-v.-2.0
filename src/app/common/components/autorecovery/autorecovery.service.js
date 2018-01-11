@@ -6,9 +6,15 @@ function autorecoveryCache(CacheFactory, principalService) {
         maxAge: 86400000
     });
 
-    var visbilityAutorecovery = {};
-
+    var visibilityAutorecovery = {};
     var tempRecoveryCache = CacheFactory('tempRecoveryCache');
+
+    var userId = principalService.getUserId();
+
+    principalService.addUserChangeListener(function(id) {
+        userId = id;
+        visibilityAutorecovery = {};
+    });
 
     return {
         put: put,
@@ -53,25 +59,25 @@ function autorecoveryCache(CacheFactory, principalService) {
     }
 
     function isResolved(stateParams) {
-        return !_.isUndefined(visbilityAutorecovery[paramsConverter(stateParams)]);
+        return !_.isUndefined(visibilityAutorecovery[paramsConverter(stateParams)]);
     }
 
     function isVisible(stateParams) {
-        return visbilityAutorecovery[paramsConverter(stateParams)];
+        return visibilityAutorecovery[paramsConverter(stateParams)];
     }
 
     function tryToVisible(stateParams) {
-        if (_.isUndefined(visbilityAutorecovery[paramsConverter(stateParams)])) {
-            visbilityAutorecovery[paramsConverter(stateParams)] = true;
+        if (_.isUndefined(visibilityAutorecovery[paramsConverter(stateParams)])) {
+            visibilityAutorecovery[paramsConverter(stateParams)] = true;
         }
     }
 
     function hide(stateParams) {
-        visbilityAutorecovery[paramsConverter(stateParams)] = false;
+        visibilityAutorecovery[paramsConverter(stateParams)] = false;
     }
 
     function paramsConverter(stateParams) {
-        return principalService.getUserId() + angular.toJson(stateParams);
+        return userId + angular.toJson(stateParams);
     }
 }
 

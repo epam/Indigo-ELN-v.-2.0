@@ -1,15 +1,17 @@
-<div class="autocomplete form-group">
+<div class="autocomplete form-group" ng-class="{required: vm.isRequired}">
     <label ng-if="vm.label"
            ng-bind="vm.label"></label>
 
     <ui-select multiple
+               ng-attr-name="{{vm.elName}}"
                ng-model="vm.model"
                theme="bootstrap"
-               search-enabled="true"
                ng-disabled="vm.readonly"
                spinner-enabled="true"
+               ng-required="vm.isRequired"
                on-select="vm.onSelect({item: $item})"
-               on-remove="vm.onRemove({item: $item})">
+               on-remove="vm.onRemove({item: $item})"
+               autofocus="vm.autofocus">
         <ui-select-match placeholder="{{ ::vm.placeholder }}"
                          allow-clear="{{ ::vm.allowClear }}">
             {{ $item[vm.field] }}

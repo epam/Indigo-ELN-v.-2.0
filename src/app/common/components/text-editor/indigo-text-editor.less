@@ -1,0 +1,27 @@
+@import "../../../../assets/less/variables";
+
+.readonly-text {
+  width: 100%;
+  min-height: 200px;
+  border: 1px solid @border-color;
+  background-color: @gray-lighter;
+  position: relative;
+
+  &.editable {
+    border: 1px dashed @gray-little-light;
+    cursor: pointer;
+    background-color: transparent;
+    &:hover {
+      border-color: @gray-little-clarified;
+      background-color: @gray-light;
+      &:after {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        content: 'Click To Edit';
+        font-size: @larger-size;
+      }
+    }
+  }
+}
