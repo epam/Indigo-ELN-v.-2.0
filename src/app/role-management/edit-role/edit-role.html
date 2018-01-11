@@ -1,0 +1,52 @@
+<form class="panel panel-info edit-form animated"
+      name="editForm"
+      role="form"
+      ng-submit="vm.save()"
+      autocomplete="off">
+    <div class="panel-heading" i-translate="CREATE_UPDATE_ROLE"></div>
+    <div class="panel-body ">
+        <div class="row">
+            <div class="col-xs-6">
+                <simple-input>
+                    <span i-translate="NAME"></span>
+                    <input class="form-control"
+                           name="name"
+                           required
+                           type="text"
+                           maxlength="50"
+                           ng-model="vm.role.name"
+                           ng-model-options="{ debounce: 300 }"
+                           dynamic-async-validators="{ roleExist: vm.roleExistValidation }">
+                    <span ng-if="editForm.name.$error.roleExist" class="validate-error"
+                          i-translate="NAME_ALREADY_EXIST"></span>
+                </simple-input>
+            </div>
+            <div class="col-xs-12 form-group">
+                <label i-translate="AUTHORITIES"></label>
+                <div class="authorities">
+                    <div class="panel-authority" ng-repeat="authorityGroup in vm.authorities track by $index">
+                        <indigo-checkbox ng-repeat="authority in authorityGroup track by $index"
+                                         indigo-label="{{authority.description}}"
+                                         indigo-disabled="authority.readonly || authority.isDepended"
+                                         indigo-model="vm.model[authority.name]"
+                                         indigo-change="vm.modelChanged(authority, vm.model[authority.name])"
+                                         indigo-tooltip="{{authority.tooltip}}"
+                                         indigo-tooltip-placement="right"
+                        ></indigo-checkbox>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer text-right">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
+            <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
+        </button>
+        <button type="button" class="btn btn-default m-l5" data-dismiss="modal" ng-click="vm.resetAuthorities()">
+            Reset
+        </button>
+        <button type="submit" ng-disabled="editForm.$invalid || vm.isSaving" class="btn btn-primary m-l5">
+            <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
+        </button>
+    </div>
+</form>

@@ -4,11 +4,11 @@ var userManagementPasswordDialogTemplate = require('./user-management-password-d
 function UserManagementController($uibModal, userService, parseLinks, $filter, pageInfo, passwordRegex, notifyService,
                                   translateService) {
     var vm = this;
-    var usersModel = [];
 
     vm.users = [];
     vm.roles = pageInfo.roles;
     vm.page = 1;
+    vm.groups = [{name: 'Group 1'}, {name: 'Group 2'}];
     vm.itemsPerPage = 10;
     vm.sortBy = {
         field: 'login',
@@ -34,12 +34,12 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
         userService.query({
             page: vm.page - 1,
             size: vm.itemsPerPage,
+            search: vm.searchText,
             sort: vm.sortBy.field + ',' + (vm.sortBy.isAscending ? 'asc' : 'desc')
         }, function(result, headers) {
             vm.links = parseLinks.parse(headers('link'));
             vm.totalItems = headers('X-Total-Count');
             vm.users = result;
-            usersModel = result;
         });
     }
 
@@ -118,8 +118,7 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
     }
 
     function search() {
-        // Filtering through current table page
-        vm.users = $filter('filter')(usersModel, vm.searchText);
+        loadAll();
     }
 
     function changePassword() {

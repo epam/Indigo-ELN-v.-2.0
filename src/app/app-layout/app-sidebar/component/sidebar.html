@@ -4,7 +4,7 @@
             class="sidebar-menu__section">
             <a ng-click="vm.toggleMyProjects()"
                class="sidebar-menu__link-section">
-                <span class="fa fa-bookmark"></span>
+                <span class="icon icon-bookmark"></span>
                 <span class="link-section__name" i-translate="MY_BOOKMARKS"></span>
                 <span class="fa arrow fa-angle-{{vm.bookmarksIsCollapsed ? 'right' : 'down'}}"></span>
             </a>
@@ -14,12 +14,12 @@
                          is-all="false">
             </entity-tree>
         </li>
-        <li indigo-has-authority="{{vm.CONTENT_EDITOR}}"
+        <li indigo-has-authority="vm.CONTENT_EDITOR"
             ng-class="{'open': !vm.allProjectIsCollapsed}"
             class="sidebar-menu__section">
             <a ng-click="vm.toggleProjects(); $event.stopPropagation();"
                class="sidebar-menu__link-section">
-                <span class="fa fa-sitemap"></span>
+                <span class="icon icon-tree"></span>
                 <span class="link-section__name" i-translate="ALL_PROJECTS"></span>
                 <span class="fa arrow fa-angle-{{vm.allProjectIsCollapsed ? 'right' : 'down'}}"></span>
             </a>
@@ -34,27 +34,27 @@
             class="sidebar-menu__section">
             <a ng-click="vm.toggleAdministration()"
                class="sidebar-menu__link-section">
-                <span class="fa fa-cogs"></span>
+                <span class="icon icon-administration"></span>
                 <span class="link-section__name" i-translate="ADMINISTRATION"></span>
                 <span class="fa arrow fa-angle-{{vm.adminToggled ? 'down' : 'right'}}"></span>
             </a>
             <ul class="sidebar-menu__sub-menu animated admin-panel" ng-if="vm.adminToggled">
-                <li indigo-has-authority="{{vm.USER_EDITOR}}"
+                <li indigo-has-authority="vm.USER_EDITOR"
                     ui-sref-active="active"
                     class="sidebar-menu__sub-menu-item">
                     <a class="type-of-experiment" ui-sref="entities.user-management" i-translate="USERS"></a>
                 </li>
-                <li indigo-has-authority="{{vm.ROLE_EDITOR}}"
+                <li indigo-has-authority="vm.ROLE_EDITOR"
                     ui-sref-active="active"
                     class="sidebar-menu__sub-menu-item">
                     <a class="type-of-experiment" ui-sref="entities.role-management" i-translate="ROLES"></a>
                 </li>
-                <li indigo-has-authority="{{vm.TEMPLATE_EDITOR}}"
+                <li indigo-has-authority="vm.TEMPLATE_EDITOR"
                     ui-sref-active="active"
                     class="sidebar-menu__sub-menu-item">
                     <a class="type-of-experiment" ui-sref="entities.template" i-translate="TEMPLATES"></a>
                 </li>
-                <li indigo-has-authority="{{vm.DICTIONARY_EDITOR}}"
+                <li indigo-has-authority="vm.DICTIONARY_EDITOR"
                     ui-sref-active="active"
                     class="sidebar-menu__sub-menu-item">
                     <a class="type-of-experiment" ui-sref="entities.dictionary-management"

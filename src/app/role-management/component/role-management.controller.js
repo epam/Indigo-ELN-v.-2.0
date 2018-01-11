@@ -1,41 +1,63 @@
-var roleManagementSaveDialogTemplate = require('../save-dialog/role-management-save-dialog.html');
+var authorities = require('../authorities.json');
 
 /* @ngInject */
-function RoleManagementController($scope, roleService, accountRoleService,
-                                  $filter, $uibModal, pageInfo, notifyService) {
-    var ROLE_EDITOR_AUTHORITY = 'ROLE_EDITOR';
+function RoleManagementController(roleService, accountRoleService, i18en,
+                                  accountRoles, notifyService, roleManagementUtils) {
     var vm = this;
-
-    vm.roles = [];
-    vm.accountRoles = pageInfo.accountRoles;
-    vm.authorities = pageInfo.authorities;
-
-    vm.search = search;
-    vm.hasAuthority = hasAuthority;
-    vm.updateAuthoritySelection = updateAuthoritySelection;
-    vm.clear = clear;
-    vm.save = prepareSave;
-    vm.create = create;
-    vm.edit = edit;
-    vm.resetAuthorities = resetAuthorities;
 
     init();
 
     function init() {
-        vm.roles = $filter('orderBy')(pageInfo.roles, 'name');
+        vm.accountRoles = accountRoles;
+        // TODO: remove
+        vm.authorities = authorities;
 
-        $scope.$watch('vm.role', function(role) {
-            initAuthorities(role);
+        vm.page = 1;
+        vm.itemsPerPage = 10;
+        vm.sortBy = {
+            field: 'name',
+            isAscending: true
+        };
+
+        vm.search = search;
+        vm.hasAuthority = hasAuthority;
+        vm.updateAuthoritySelection = updateAuthoritySelection;
+        vm.clear = clear;
+        vm.create = create;
+        vm.deleteRole = deleteRole;
+        vm.editRole = editRole;
+        vm.sortRoles = sortRoles;
+        vm.onCloseEditRole = onCloseEditRole;
+        vm.loadRoles = loadRoles;
+
+        loadRoles();
+    }
+
+    function loadRoles() {
+        return roleService.query({
+            page: vm.page - 1,
+            size: vm.itemsPerPage,
+            search: vm.searchText,
+            sort: vm.sortBy.field.toLowerCase() + ',' + (vm.sortBy.isAscending ? 'asc' : 'desc')
+        }, function(allRoles, headers) {
+            vm.totalItems = headers('X-Total-Count');
+            vm.roles = allRoles;
         });
     }
 
-    function search() {
-        // Filtering through current table page
-        var searchResult = $filter('filter')(pageInfo.roles, {
-            name: vm.searchText
-        });
+    function deleteRole(role) {
+        roleManagementUtils.openRoleManagementDeleteDialog()
+            .then(function() {
+                return roleService.delete({id: role.id})
+                    .$promise
+                    .then(loadRoles, function() {
+                        notifyService.error(i18en.THE_ROLE_ALREADY_IN_USE);
+                    });
+            });
+    }
 
-        vm.roles = $filter('orderBy')(searchResult, 'name');
+    function search() {
+        loadRoles();
     }
 
     function hasAuthority(role, authority) {
@@ -61,53 +83,13 @@ function RoleManagementController($scope, roleService, accountRoleService,
         vm.role = null;
     }
 
-    function prepareSave() {
-        if (isLastRoleWithRoleEditor()) {
-            $uibModal.open({
-                animation: true,
-                template: roleManagementSaveDialogTemplate,
-                controller: 'RoleManagementSaveController',
-                controllerAs: 'vm',
-                size: 'md',
-                resolve: {}
-            }).result.then(function(result) {
-                if (result === true) {
-                    save();
-                }
-            });
-        } else {
-            save();
-        }
-    }
-
-    function save() {
-        vm.isSaving = true;
-        if (vm.role.id !== null) {
-            roleService.update(vm.role, onSaveSuccess, onSaveError);
-        } else {
-            roleService.save(vm.role, onSaveSuccess, onSaveError);
-        }
-    }
-
-    function onSaveSuccess() {
-        vm.isSaving = false;
+    function onCloseEditRole() {
         vm.role = null;
-        loadAll();
-    }
-
-    function onSaveError() {
-        vm.isSaving = false;
-        notifyService.error('roleService is not saved due to server error!');
-        loadAll();
-    }
-
-    function loadAll() {
         accountRoleService.query({}, function(result) {
             vm.accountRoles = result;
         });
-        roleService.query({}, function(result) {
-            vm.roles = result;
-        });
+
+        loadRoles();
     }
 
     function create() {
@@ -116,41 +98,14 @@ function RoleManagementController($scope, roleService, accountRoleService,
         };
     }
 
-    function edit(role) {
-        loadAll();
-        vm.role = _.extend({}, role);
+    function editRole(role) {
+        vm.role = role;
     }
 
-    function resetAuthorities() {
-        vm.role.authorities = ['PROJECT_READER'];
-        initAuthorities(vm.role);
-    }
-
-    function initAuthorities(role) {
-        _.each(vm.authorities, function(authority) {
-            authority.checked = hasAuthority(role, authority) || authority.name === 'PROJECT_READER';
-        });
-    }
-
-    function isLastRoleWithRoleEditor() {
-        var roleEditorCount = 0;
-        var lastRoleWithRoleEditorAuthority = false;
-        vm.accountRoles.forEach(function(role) {
-            if (role.authorities.indexOf(ROLE_EDITOR_AUTHORITY) >= 0) {
-                roleEditorCount++;
-                if (roleEditorCount > 1) {
-                    lastRoleWithRoleEditorAuthority = false;
-
-                    return;
-                }
-                if (vm.role.id === role.id &&
-                    vm.role.authorities.indexOf(ROLE_EDITOR_AUTHORITY) === -1) {
-                    lastRoleWithRoleEditorAuthority = true;
-                }
-            }
-        });
-
-        return lastRoleWithRoleEditorAuthority;
+    function sortRoles(predicate, isAscending) {
+        vm.sortBy.field = predicate;
+        vm.sortBy.isAscending = isAscending;
+        loadRoles();
     }
 }
 

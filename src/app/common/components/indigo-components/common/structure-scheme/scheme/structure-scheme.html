@@ -1,7 +1,7 @@
 <div class="panel panel-info component" indigo-collapsible-component>
     <div class="panel-heading">
         {{vm.title}}
-        <span ng-disabled="vm.isReadonly" class="fa fa-save btn action-panel-btn pull-right m-r30-imp"
+        <span ng-disabled="vm.isReadonly" class="icon icon-save btn action-panel-btn pull-right m-r30-imp"
               title="Export {{vm.title}}"
               ng-click="!vm.isReadonly && vm.exportStructure(); $event.stopPropagation()">
         </span>
@@ -10,7 +10,7 @@
               ng-click="!vm.isReadonly && vm.importStructure(); $event.stopPropagation()">
         </span>
         <span ng-disabled="vm.isReadonly"
-              class="fa fa-edit btn action-panel-btn  panel-btn-reaction-scheme pull-right"
+              class="icon icon-edit btn action-panel-btn  panel-btn-reaction-scheme pull-right"
               title="Edit/Add {{vm.title}}"
               ng-click="!vm.isReadonly && vm.openEditor(); $event.stopPropagation()">
         </span>

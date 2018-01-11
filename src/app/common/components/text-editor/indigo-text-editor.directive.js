@@ -1,3 +1,4 @@
+require('./indigo-text-editor.less');
 var Simditor = require('../../../dependencies/simditor');
 var template = require('./indigo-text-editor.html');
 var textEditorConfig = require('./text-editor.json');
@@ -14,7 +15,6 @@ function indigoTextEditor($timeout) {
         },
         restrict: 'E',
         template: template,
-        replace: true,
         controller: angular.noop,
         controllerAs: 'vm',
         bindToController: true,
@@ -29,26 +29,33 @@ function indigoTextEditor($timeout) {
         function init() {
             Simditor.locale = 'en_EN';
 
+            vm.startEdit = startEdit;
+        }
+
+        function startEdit() {
+            if (vm.indigoReadonly) {
+                return;
+            }
+
+            vm.isEditing = true;
+            initEditor();
+        }
+
+        function initEditor() {
+            if (editor) {
+                return;
+            }
+
             editor = new Simditor(
                 angular.extend({
+                    locale: 'en_EN',
                     textarea: $element
                 }, textEditorConfig)
             );
-
-            if (vm.indigoReadonly === true) {
-                editor.body.attr('contenteditable', false);
-            }
-
-            bindEvents();
+            initListeners();
         }
 
-        function bindEvents() {
-            $scope.$watch('vm.indigoModel', function(value) {
-                if (value !== editor.getValue()) {
-                    editor.setValue(value || '');
-                }
-            });
-
+        function initListeners() {
             var editorListener = editor.on('valuechanged', function() {
                 if (angular.isDefined(vm.indigoModel) && vm.indigoModel !== editor.getValue()) {
                     $timeout(function() {
@@ -58,8 +65,10 @@ function indigoTextEditor($timeout) {
                 }
             });
 
-            $scope.$watch('vm.indigoReadonly', function(newValue) {
-                editor.body.attr('contenteditable', !newValue);
+            $scope.$watch('vm.indigoModel', function(value) {
+                if (editor && value !== editor.getValue()) {
+                    editor.setValue(value || '');
+                }
             });
 
             $scope.$on('$destroy', function() {

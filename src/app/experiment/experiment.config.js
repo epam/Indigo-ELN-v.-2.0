@@ -10,6 +10,10 @@ function experimentConfig($stateProvider, permissionsConfig, permissionViewConfi
         userPermissions.OWNER
     ];
 
+    var permissionsViewData = {
+        authorities: [roles.CONTENT_EDITOR, roles.EXPERIMENT_READER]
+    };
+
     $stateProvider
         .state('experiment', {
             parent: 'entity',
@@ -78,15 +82,14 @@ function experimentConfig($stateProvider, permissionsConfig, permissionViewConfi
         .state('entities.experiment-detail.permissions', _.extend({}, permissionsConfig, {
             parent: 'entities.experiment-detail',
             data: {
-                authorities: [roles.CONTENT_EDITOR, roles.EXPERIMENT_CREATOR]
+                authorities: [roles.CONTENT_EDITOR, roles.EXPERIMENT_CREATOR],
+                entityType: 'experiment'
             },
             permissions: permissions
         }))
         .state('entities.experiment-detail.permissions-view', _.extend({}, permissionViewConfig, {
             parent: 'entities.experiment-detail',
-            data: {
-                authorities: [roles.CONTENT_EDITOR, roles.EXPERIMENT_CREATOR]
-            },
+            data: permissionsViewData,
             permissions: permissions
         }))
         .state('entities.experiment-detail.print', {

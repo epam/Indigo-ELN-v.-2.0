@@ -1,7 +1,7 @@
 /* @ngInject */
 function SearchReagentsController($rootScope, $uibModalInstance, notifyService, appValuesService,
                                   activeTabIndex, userReagentsService, searchService, searchUtil,
-                                  searchReagentsService, stoichColumnActions, translateService) {
+                                  searchReagentsService, stoichColumnActions, translateService, dictionaryService) {
     var vm = this;
     var myReagentsSearchQuery;
 
@@ -47,6 +47,15 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         }];
         vm.chooseDBLabel = translateService.translate('CHOOSE_DBS_LABEL');
         vm.isAdvancedSearchCollapsed = true;
+        vm.compoundStateModel = null;
+        vm.compoundStatesList = [];
+
+        // Getting list of coumpound states
+        dictionaryService.getByName({
+            name: vm.model.restrictions.advancedSearch.compoundState.name
+        }, function(dictionary) {
+            vm.compoundStatesList = dictionary.words;
+        });
 
         myReagentsSearchQuery = '';
 
@@ -63,8 +72,9 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         vm.updateCompoundState = updateCompoundState;
     }
 
-    function updateCompoundState(compoundState) {
-        vm.model.restrictions.advancedSearch.compoundState.value = compoundState ? compoundState.name : null;
+    function updateCompoundState() {
+        vm.model.restrictions.advancedSearch.compoundState.value = vm.compoundStateModel
+            ? vm.compoundStateModel.name : null;
     }
 
     function addToStoichTable(list) {

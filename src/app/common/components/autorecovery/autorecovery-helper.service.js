@@ -1,5 +1,4 @@
-autorecoveryHelper.$inject = ['autorecoveryCache'];
-
+/* @ngInject */
 function autorecoveryHelper(autorecoveryCache) {
     return {
         getUpdateRecoveryDebounce: getUpdateRecoveryDebounce,

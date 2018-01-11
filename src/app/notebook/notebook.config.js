@@ -12,7 +12,13 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
     ];
 
     var data = {
-        authorities: [roles.CONTENT_EDITOR, roles.NOTEBOOK_CREATOR]
+        authorities: [roles.CONTENT_EDITOR, roles.NOTEBOOK_CREATOR],
+        entityType: 'notebook'
+    };
+
+    var permissionsViewData = {
+        authorities: [roles.CONTENT_EDITOR, roles.NOTEBOOK_READER],
+        entityType: 'notebook'
     };
 
     $stateProvider
@@ -124,7 +130,7 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
                     });
             },
             data: {
-                authorities: [roles.CONTENT_EDITOR, roles.EXPERIMENT_READER, roles.EXPERIMENT_CREATOR]
+                authorities: [roles.CONTENT_EDITOR, roles.NOTEBOOK_READER, roles.NOTEBOOK_CREATOR]
             }
         })
         .state('entities.notebook-new.permissions', _.extend({}, permissionsConfig, {
@@ -134,7 +140,7 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
         }))
         .state('entities.notebook-new.permissions-view', _.extend({}, permissionViewConfig, {
             parent: 'entities.notebook-new',
-            data: data,
+            data: permissionsViewData,
             permissions: permissions
         }))
         .state('entities.notebook-detail.permissions', _.extend({}, permissionsConfig, {
@@ -144,7 +150,7 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
         }))
         .state('entities.notebook-detail.permissions-view', _.extend({}, permissionViewConfig, {
             parent: 'entities.notebook-detail',
-            data: data,
+            data: permissionsViewData,
             permissions: permissions
         }));
 }

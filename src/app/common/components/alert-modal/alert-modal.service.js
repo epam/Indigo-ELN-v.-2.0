@@ -1,4 +1,5 @@
 var template = require('./alert-modal.html');
+var types = require('./types.json');
 
 alertModal.$inject = ['$uibModal'];
 
@@ -9,62 +10,87 @@ function alertModal($uibModal) {
         warning: warning,
         info: info,
         confirm: confirm,
-        save: save,
-        autorecover: autorecover
+        save: save
     };
 
-    function alert(title, message, size, okCallback, noCallback, okText, hideCancel, noText) {
-        openAlertModal(title, message, size, okCallback, noCallback, okText, hideCancel, noText);
+    function alert(options) {
+        return openAlertModal(options);
     }
 
-    function error(msg, size) {
-        openAlertModal('Error', msg, size);
+    function error(message, size) {
+        return openAlertModal({
+            title: 'Error',
+            message: message,
+            size: size
+        });
     }
 
-    function warning(msg, size) {
-        openAlertModal('Warning', msg, size);
+    function warning(message, size) {
+        return openAlertModal({
+            title: 'Warning',
+            message: message,
+            size: size
+        });
     }
 
-    function info(msg, size, okCallback) {
-        openAlertModal('Info', msg, size, okCallback, null);
+    function info(message, size, okCallback) {
+        return openAlertModal({
+            title: 'Info',
+            message: message,
+            size: size,
+            okCallback: okCallback,
+            noCallback: null
+        });
     }
 
-    function confirm(msg, size, okCallback) {
-        return openAlertModal('Confirm', msg, size, okCallback, null);
+    function confirm(message, size, okCallback) {
+        return openAlertModal({
+            title: 'Confirm',
+            message: message,
+            size: size,
+            okCallback: okCallback,
+            noCallback: null
+        });
     }
 
-    function save(msg, size, callback) {
-        openAlertModal('Save', msg, size, callback.bind(null, true), callback.bind(null, false), 'Yes');
+    function save(message, size, okCallback) {
+        return openAlertModal({
+            title: 'Save',
+            message: message,
+            size: size,
+            okCallback: okCallback.bind(null, true),
+            noCallback: okCallback.bind(null, false),
+            okText: 'Yes'
+        });
     }
 
-    function autorecover(msg, size, okCallback, noCallback) {
-        openAlertModal('Info', msg, size, okCallback, noCallback, 'Yes', true);
-    }
-
-    function openAlertModal(title, message, size, okCallback, noCallback, okText, hideCancel, noText) {
+    function openAlertModal(options) {
         return $uibModal.open({
-            size: size || 'md',
+            size: options.size || 'md',
             resolve: {
+                type: function() {
+                    return options.type || types.NORMAL;
+                },
                 title: function() {
-                    return title;
+                    return options.title;
                 },
                 message: function() {
-                    return message;
+                    return options.message;
                 },
                 okText: function() {
-                    return okText;
+                    return options.okText;
                 },
                 noText: function() {
-                    return noText;
+                    return options.noText;
                 },
                 cancelVisible: function() {
-                    return hideCancel ? false : okCallback || noCallback;
+                    return _.isBoolean(options.hideCancel) ? !options.hideCancel : options.okCallback || options.noCallback;
                 },
                 okCallback: function() {
-                    return okCallback;
+                    return options.okCallback;
                 },
                 noCallback: function() {
-                    return noCallback;
+                    return options.noCallback;
                 }
             },
             template: template,

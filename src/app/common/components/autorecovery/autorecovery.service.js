@@ -1,13 +1,20 @@
-autorecoveryCache.$inject = ['CacheFactory', 'tabKeyService'];
-
-function autorecoveryCache(CacheFactory, tabKeyService) {
+/* @ngInject */
+function autorecoveryCache(CacheFactory, principalService) {
     var cache = CacheFactory('recoveryCache', {
-        storageMode: 'localStorage'
+        storageMode: 'localStorage',
+        // 24 hours
+        maxAge: 86400000
     });
 
-    var visbilityAutorecovery = {};
-
+    var visibilityAutorecovery = {};
     var tempRecoveryCache = CacheFactory('tempRecoveryCache');
+
+    var userId = principalService.getUserId();
+
+    principalService.addUserChangeListener(function(id) {
+        userId = id;
+        visibilityAutorecovery = {};
+    });
 
     return {
         put: put,
@@ -52,25 +59,25 @@ function autorecoveryCache(CacheFactory, tabKeyService) {
     }
 
     function isResolved(stateParams) {
-        return !_.isUndefined(visbilityAutorecovery[paramsConverter(stateParams)]);
+        return !_.isUndefined(visibilityAutorecovery[paramsConverter(stateParams)]);
     }
 
     function isVisible(stateParams) {
-        return visbilityAutorecovery[paramsConverter(stateParams)];
+        return visibilityAutorecovery[paramsConverter(stateParams)];
     }
 
     function tryToVisible(stateParams) {
-        if (_.isUndefined(visbilityAutorecovery[paramsConverter(stateParams)])) {
-            visbilityAutorecovery[paramsConverter(stateParams)] = true;
+        if (_.isUndefined(visibilityAutorecovery[paramsConverter(stateParams)])) {
+            visibilityAutorecovery[paramsConverter(stateParams)] = true;
         }
     }
 
     function hide(stateParams) {
-        visbilityAutorecovery[paramsConverter(stateParams)] = false;
+        visibilityAutorecovery[paramsConverter(stateParams)] = false;
     }
 
     function paramsConverter(stateParams) {
-        return tabKeyService.getTabKeyFromParams(_.extend({isAutorecovery: true}, stateParams));
+        return userId + angular.toJson(stateParams);
     }
 }
 

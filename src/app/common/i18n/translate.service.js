@@ -1,14 +1,14 @@
 /* @ngInject */
-function translateService(i18en, $log) {
+function translateService(i18en, $log, $interpolate) {
     return {
-        translate: function(input) {
+        translate: function(input, interpolateData) {
             if (!_.has(i18en, input)) {
                 $log.error('Translate didn\'t find', input);
 
                 return '';
             }
 
-            return i18en[input];
+            return $interpolate(i18en[input])(interpolateData);
         }
     };
 }

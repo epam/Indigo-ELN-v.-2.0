@@ -5,7 +5,7 @@
     <p ng-bind-html="vm.message"></p>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary"
+    <button class="btn" ng-class="::vm.getBtnClass()"
             type="button"
             ng-click="vm.ok()"
             ng-bind="vm.okText">
@@ -20,6 +20,6 @@
             type="button"
             ng-if="vm.cancelVisible"
             ng-click="vm.cancel()">
-        <i class="fa fa-ban"></i><span class="m-l5" i-translate="CANCEL"></span>
+        <i class="icon icon-stop"></i><span class="m-l5" i-translate="CANCEL"></span>
     </button>
 </div>

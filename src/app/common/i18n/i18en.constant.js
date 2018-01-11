@@ -248,7 +248,6 @@ var i18n = {
     VIEW: 'View',
     CREATE_NEW_USER: 'Create new user',
     CREATE_EDIT_USER: 'Create/Edit User',
-    THIS_FIELD_IS_REQUIRED: 'This field is required.',
     CHANGE_PASSWORD: 'Change Password',
     PASSWORD_SUCCESSFULLY_CHANGED: 'Password successfully changed!',
     USERNAME: 'Username',
@@ -286,6 +285,7 @@ var i18n = {
     UPPER: 'Upper',
     COMMENTS: 'Comments',
     VALUE: 'Value',
+    NO_DATA_FOUND: 'No data found',
 
     // Form hints
     LOGIN_HINT: 'Login should not contain letters in upper case or special symbols.',
@@ -299,7 +299,11 @@ var i18n = {
 
     // Notifications
     NOTIFY_INCORRECT_EMAIL: 'Email address is incorrect!',
-    NOTIFY_USER_SAVE_ERROR: 'User is not saved due to server error!'
+    NOTIFY_USER_SAVE_ERROR: 'User is not saved due to server error!',
+    NAME_ALREADY_EXIST: 'Name already in use',
+    THE_ROLE_ALREADY_IN_USE: 'The role already in use',
+    USER_ALREADY_ADDED: 'The user already added',
+    ATTENTION_AUTHORITY_IS_SET_AUTOMATICALLY: 'Attention: authority {{permission}} is set automatically'
 };
 
 module.exports = i18n;
