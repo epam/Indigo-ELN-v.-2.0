@@ -1,8 +1,8 @@
 var authorities = require('../authorities.json');
 
 /* @ngInject */
-function RoleManagementController($scope, roleService, accountRoleService, i18en,
-                                  $filter, accountRoles, notifyService, roleManagementUtils) {
+function RoleManagementController(roleService, accountRoleService, i18en,
+                                  accountRoles, notifyService, roleManagementUtils) {
     var vm = this;
 
     init();
@@ -12,6 +12,8 @@ function RoleManagementController($scope, roleService, accountRoleService, i18en
         // TODO: remove
         vm.authorities = authorities;
 
+        vm.page = 1;
+        vm.itemsPerPage = 10;
         vm.sortBy = {
             field: 'name',
             isAscending: true
@@ -25,20 +27,22 @@ function RoleManagementController($scope, roleService, accountRoleService, i18en
         vm.deleteRole = deleteRole;
         vm.editRole = editRole;
         vm.sortRoles = sortRoles;
-        vm.sortByAuthorities = sortByAuthorities;
-        vm.roleExistValidation = roleExistValidation;
         vm.onCloseEditRole = onCloseEditRole;
+        vm.loadRoles = loadRoles;
 
-        updateRoles();
+        loadRoles();
     }
 
-    function updateRoles() {
-        return roleService.query()
-            .$promise
-            .then(function(allRoles) {
-                vm.roles = allRoles;
-                search();
-            });
+    function loadRoles() {
+        return roleService.query({
+            page: vm.page - 1,
+            size: vm.itemsPerPage,
+            search: vm.searchText,
+            sort: vm.sortBy.field.toLowerCase() + ',' + (vm.sortBy.isAscending ? 'asc' : 'desc')
+        }, function(allRoles, headers) {
+            vm.totalItems = headers('X-Total-Count');
+            vm.roles = allRoles;
+        });
     }
 
     function deleteRole(role) {
@@ -46,23 +50,14 @@ function RoleManagementController($scope, roleService, accountRoleService, i18en
             .then(function() {
                 return roleService.delete({id: role.id})
                     .$promise
-                    .then(updateRoles, function() {
+                    .then(loadRoles, function() {
                         notifyService.error(i18en.THE_ROLE_ALREADY_IN_USE);
                     });
             });
     }
 
-    function roleExistValidation(modelValue) {
-        return !_.find(vm.filteredRoles, {name: modelValue});
-    }
-
     function search() {
-        // Filtering through current table page
-        var searchResult = $filter('filter')(vm.roles, {
-            name: vm.searchText
-        });
-
-        vm.filteredRoles = $filter('orderBy')(searchResult, 'name');
+        loadRoles();
     }
 
     function hasAuthority(role, authority) {
@@ -90,16 +85,11 @@ function RoleManagementController($scope, roleService, accountRoleService, i18en
 
     function onCloseEditRole() {
         vm.role = null;
-        loadAll();
-    }
-
-    function loadAll() {
         accountRoleService.query({}, function(result) {
             vm.accountRoles = result;
         });
-        roleService.query({}, function(result) {
-            vm.filteredRoles = result;
-        });
+
+        loadRoles();
     }
 
     function create() {
@@ -115,21 +105,7 @@ function RoleManagementController($scope, roleService, accountRoleService, i18en
     function sortRoles(predicate, isAscending) {
         vm.sortBy.field = predicate;
         vm.sortBy.isAscending = isAscending;
-        vm.roles = $filter('orderBy')(vm.roles, predicate, !isAscending);
-
-        $scope.$digest();
-    }
-
-    function sortByAuthorities(authority, isAscending) {
-        vm.sortBy.field = authority;
-        vm.sortBy.isAscending = isAscending;
-        vm.roles = _.sortBy(vm.roles, function(role) {
-            return isAscending
-                ? role.authorities.indexOf(authority) === -1
-                : role.authorities.indexOf(authority) !== -1;
-        });
-
-        $scope.$digest();
+        loadRoles();
     }
 }
 

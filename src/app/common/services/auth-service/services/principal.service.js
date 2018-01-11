@@ -80,6 +80,8 @@ function principalService(accountService) {
         identity = userIdentity;
         authenticated = userIdentity !== null;
 
+        callUserChangeListeners(identity);
+
         return identity;
     }
 

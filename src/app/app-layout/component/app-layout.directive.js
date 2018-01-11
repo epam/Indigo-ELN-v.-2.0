@@ -35,9 +35,9 @@ function appLayout() {
         }
 
         function bindSubscribes() {
-            onSubscribe('experiment_status', 'experiment-status-changed');
-            onSubscribe('registration_status', 'batch-registration-status-changed');
-            onSubscribe('entity_updated', 'entity-updated');
+            onSubscribe('/topic/experiment_status', 'experiment-status-changed');
+            onSubscribe('/topic/registration_status', 'batch-registration-status-changed');
+            onSubscribe('/topic/entity_updated', 'entity-updated');
         }
 
         function onSubscribe(destination, broadcastEventName) {

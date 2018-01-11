@@ -15,7 +15,8 @@
                            type="text"
                            maxlength="50"
                            ng-model="vm.role.name"
-                           dynamic-validators="{roleExist: vm.roleExistValidation}">
+                           ng-model-options="{ debounce: 300 }"
+                           dynamic-async-validators="{ roleExist: vm.roleExistValidation }">
                     <span ng-if="editForm.name.$error.roleExist" class="validate-error"
                           i-translate="NAME_ALREADY_EXIST"></span>
                 </simple-input>

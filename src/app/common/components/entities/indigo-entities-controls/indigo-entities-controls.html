@@ -54,7 +54,8 @@
                 </li>
             </ul>
         </li>
-        <li ng-click="vm.openSearch()" indigo-has-authority="{{vm.GLOBAL_SEARCH}}">
+        <li indigo-has-authority="vm.GLOBAL_SEARCH"
+            ng-click="vm.openSearch()">
             <a>
                 <span class="icon icon-search"></span>
                 <span class="tooltip-icon-header" i-translate="SEARCH"></span>
