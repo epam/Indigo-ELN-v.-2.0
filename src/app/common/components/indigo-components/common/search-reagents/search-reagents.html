@@ -175,9 +175,8 @@
                                     </div>
                                     <div class="col-xs-6">
                                         <indigo-select indigo-dictionary="Compound State"
-                                                       indigo-model="vm.compoundStateModel"
-                                                       indigo-change="vm.model.restrictions.advancedSearch.compoundState.value = vm.compoundStateModel.name"
-                                                       indigo-remove="vm.model.restrictions.advancedSearch.compoundState.value = null">
+                                                       indigo-change="vm.updateCompoundState(selected)"
+                                                       indigo-remove="vm.updateCompoundState()">
                                         </indigo-select>
                                     </div>
                                 </div>
@@ -422,9 +421,8 @@
                                     </div>
                                     <div class="col-xs-6">
                                         <indigo-select indigo-dictionary="Compound State"
-                                                       indigo-model="vm.compoundStateModel"
-                                                       indigo-change="vm.model.restrictions.advancedSearch.compoundState.value = vm.compoundStateModel.name"
-                                                       indigo-remove="vm.model.restrictions.advancedSearch.compoundState.value = null">
+                                                       indigo-change="vm.updateCompoundState(selected)"
+                                                       indigo-remove="vm.updateCompoundState()">
                                         </indigo-select>
                                     </div>
                                 </div>

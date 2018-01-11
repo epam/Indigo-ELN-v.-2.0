@@ -13,7 +13,6 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
             databases: searchService.getCatalogues()
         };
         vm.myReagents = {};
-        vm.compoundStateModel = null;
         vm.activeTabIndex = activeTabIndex;
         vm.isSearchResultFound = false;
         vm.conditionText = [{
@@ -61,6 +60,11 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         vm.onChangedStructure = onChangedStructure;
         vm.search = search;
         vm.cancel = cancel;
+        vm.updateCompoundState = updateCompoundState;
+    }
+
+    function updateCompoundState(compoundState) {
+        vm.model.restrictions.advancedSearch.compoundState.value = compoundState ? compoundState.name : null;
     }
 
     function addToStoichTable(list) {
