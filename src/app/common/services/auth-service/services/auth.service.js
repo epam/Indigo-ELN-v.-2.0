@@ -2,7 +2,7 @@ var alertTypes = require('../../../components/alert-modal/types.json');
 
 /* @ngInject */
 function authService($rootScope, $state, $q, principalService, authSessionService, wsService, $log, $timeout,
-                     notifyService, i18en, alertModal) {
+                     notifyService, translateService, alertModal) {
     var prolongTimeout;
     var userPermissionsChangedSubscriber;
 
@@ -104,8 +104,8 @@ function authService($rootScope, $state, $q, principalService, authSessionServic
                     alertModal
                         .alert({
                             type: alertTypes.WARNING,
-                            message: i18en.USER_PERMISSIONS_WERE_CHANGE,
-                            title: i18en.WARNING
+                            message: translateService.translate('USER_PERMISSIONS_WERE_CHANGE'),
+                            title: translateService.translate('WARNING')
                         })
                         .finally(logout);
                 });
