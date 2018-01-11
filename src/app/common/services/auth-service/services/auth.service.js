@@ -1,7 +1,19 @@
+var alertTypes = require('../../../components/alert-modal/types.json');
 
 /* @ngInject */
-function authService($rootScope, $state, $q, principalService, authSessionService, wsService, $log, $timeout) {
+function authService($rootScope, $state, $q, principalService, authSessionService, wsService, $log, $timeout,
+                     notifyService, translateService, alertModal) {
     var prolongTimeout;
+    var userPermissionsChangedSubscriber;
+
+    principalService.addUserChangeListener(function(userId) {
+        if (userId) {
+            unSubscribe();
+            userPermissionsChangedSubscriber = subscribePermissionChanged();
+        } else {
+            unSubscribe();
+        }
+    });
 
     return {
         login: login,
@@ -33,16 +45,20 @@ function authService($rootScope, $state, $q, principalService, authSessionServic
     }
 
     function logout() {
-        authSessionService.logout();
-        principalService.authenticate(null);
-        // Reset state memory
-        $rootScope.previousStateName = undefined;
-        $rootScope.previousStateNameParams = undefined;
-        try {
-            wsService.disconnect();
-        } catch (e) {
-            $log.error('Error to disconnect');
-        }
+        return authSessionService.logout().then(
+            function() {
+                principalService.authenticate(null);
+                // Reset state memory
+                $rootScope.previousStateName = undefined;
+                $rootScope.previousStateNameParams = undefined;
+                try {
+                    wsService.disconnect();
+                } catch (e) {
+                    $log.error('Error to disconnect');
+                }
+                $state.go('login');
+            },
+            notifyService.error);
     }
 
     function authorize(force) {
@@ -78,6 +94,33 @@ function authService($rootScope, $state, $q, principalService, authSessionServic
                     return authorities && authorities.length > 0 && !principalService.hasAnyAuthority(authorities);
                 }
             });
+    }
+
+    function subscribePermissionChanged() {
+        return wsService
+            .subscribe('/user/queue/user_permissions_changed')
+            .then(function(subscribe) {
+                subscribe.onServerEvent(function() {
+                    alertModal
+                        .alert({
+                            type: alertTypes.WARNING,
+                            message: translateService.translate('USER_PERMISSIONS_WERE_CHANGE'),
+                            title: translateService.translate('WARNING')
+                        })
+                        .finally(logout);
+                });
+
+                return subscribe;
+            });
+    }
+
+    function unSubscribe() {
+        if (userPermissionsChangedSubscriber) {
+            userPermissionsChangedSubscriber.then(function(subscriber) {
+                subscriber.unSubscribe();
+            });
+            userPermissionsChangedSubscriber = null;
+        }
     }
 }
 

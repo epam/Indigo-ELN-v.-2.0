@@ -22,15 +22,12 @@ function authSessionService($http, apiUrl) {
 
     function logout() {
         // logout from the server
-        $http.post(apiUrl + 'logout')
-            .then(function(response) {
-                return response;
-            });
+        return $http.post(apiUrl + 'logout');
     }
 
     function prolong() {
         // ping server to prolong session
-        $http.get(apiUrl + 'accounts/prolong');
+        return $http.get(apiUrl + 'accounts/prolong');
     }
 }
 
