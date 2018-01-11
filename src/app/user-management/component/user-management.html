@@ -110,7 +110,7 @@
         </div>
         <div class="panel-footer text-right">
             <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
-                <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
+                <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
             </button>
             <button ng-click="vm.saveUser()" form="editForm"
                     ng-disabled="editForm.$invalid || vm.isSaving"
@@ -137,8 +137,9 @@
                     <span i-translate="LAST_NAME"></span>
                     <span class="glyphicon glyphicon-sort user-management__icon-sort"></span>
                 </th>
-                <th>
+                <th indigo-sort-by="role">
                     <span i-translate="SYSTEM_ROLES"></span>
+                    <span class="glyphicon glyphicon-sort user-management__icon-sort"></span>
                 </th>
                 <th indigo-sort-by="email">
                     <span i-translate="EMAIL"></span>

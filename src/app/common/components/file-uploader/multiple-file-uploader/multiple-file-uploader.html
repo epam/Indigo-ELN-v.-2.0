@@ -45,7 +45,7 @@
                             </button>
                             <button type="button" class="btn btn-info btn-small" ng-click="item.cancel()"
                                     ng-disabled="!item.isUploading">
-                                <span class="fa fa-ban"></span>
+                                <span class="icon icon-stop"></span>
                                 <span class="m-l5" i-translate="CANCEL"></span>
                             </button>
                             <button type="button" class="btn btn-info btn-small" ng-click="item.remove();remove($index)">
@@ -70,7 +70,7 @@
                 </button>
                 <button type="button" class="btn btn-default" ng-click="vm.uploader.cancelAll()"
                         ng-disabled="!vm.uploader.isUploading">
-                    <span class="fa fa-ban"></span>
+                    <span class="icon icon-stop"></span>
                     <span class="m-l5" i-translate="CANCEL_ALL"></span>
                 </button>
                 <button type="button" class="btn btn-danger" ng-click="vm.uploader.clearQueue()"
