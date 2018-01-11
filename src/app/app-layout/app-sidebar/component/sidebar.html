@@ -6,7 +6,7 @@
                class="sidebar-menu__link-section">
                 <span class="icon icon-bookmark"></span>
                 <span class="link-section__name" i-translate="MY_BOOKMARKS"></span>
-                <span class="fa arrow fa-angle-{{vm.bookmarksIsCollapsed ? 'right' : 'down'}}"></span>
+                <span class="icon arrow icon-arrow_{{vm.bookmarksIsCollapsed ? 'right' : 'down'}}"></span>
             </a>
             <entity-tree ng-if="!vm.bookmarksIsCollapsed"
                          selected-full-id="vm.selectedFullId"
@@ -21,7 +21,7 @@
                class="sidebar-menu__link-section">
                 <span class="icon icon-tree"></span>
                 <span class="link-section__name" i-translate="ALL_PROJECTS"></span>
-                <span class="fa arrow fa-angle-{{vm.allProjectIsCollapsed ? 'right' : 'down'}}"></span>
+                <span class="icon arrow icon-arrow_{{vm.allProjectIsCollapsed ? 'right' : 'down'}}"></span>
             </a>
             <entity-tree ng-if="!vm.allProjectIsCollapsed"
                          selected-full-id="vm.selectedFullId"
@@ -36,7 +36,7 @@
                class="sidebar-menu__link-section">
                 <span class="icon icon-administration"></span>
                 <span class="link-section__name" i-translate="ADMINISTRATION"></span>
-                <span class="fa arrow fa-angle-{{vm.adminToggled ? 'down' : 'right'}}"></span>
+                <span class="icon arrow icon-arrow_{{vm.adminToggled ? 'down' : 'right'}}"></span>
             </a>
             <ul class="sidebar-menu__sub-menu animated admin-panel" ng-if="vm.adminToggled">
                 <li indigo-has-authority="{{vm.USER_EDITOR}}"
