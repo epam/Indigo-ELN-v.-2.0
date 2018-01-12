@@ -64,7 +64,7 @@ abstract class EntityWrapper {
         value.getAccessList().addAll(permissions);
     }
 
-    Set<UserPermission> addOrUpdatePermissionsUp(Set<UserPermission> createdPermissions) {
+    Set<UserPermission> addOrUpdatePermissionsUpForOneLevel(Set<UserPermission> createdPermissions) {
         Set<UserPermission> permissions = permissionsUpPreProcessing.apply(createdPermissions);
 
         for (UserPermission userPermission : permissions) {
@@ -79,7 +79,7 @@ abstract class EntityWrapper {
         return permissions;
     }
 
-    Set<UserPermission> removePermissionsUp(Set<UserPermission> removedPermissions) {
+    Set<UserPermission> removePermissionsUpForOneLevel(Set<UserPermission> removedPermissions) {
         Set<UserPermission> canBeRemovedFromInnerEntity = parent.getValue().getAccessList().stream()
                 .filter(userPermission -> PermissionUtil.canBeChangedFromThisLevel(
                         userPermission.getPermissionCreationLevel(), this.getPermissionCreationLevel()))
@@ -163,7 +163,6 @@ abstract class EntityWrapper {
     public static class ProjectWrapper extends EntityWrapper {
 
         private static final List<Authority> OWNERS_AUTHORITIES;
-
         private static final List<Authority> USERS_AUTHORITIES;
 
         static {
@@ -186,6 +185,13 @@ abstract class EntityWrapper {
             this.value = project;
         }
 
+        /**
+         * Create a {@link ProjectWrapper} witch contains only notebookWrapper as child.
+         *
+         * @param project         a value of wrapper
+         * @param notebookWrapper a child for wrapper
+         * @return a {@link ProjectWrapper} witch contains only notebookWrapper as child.
+         */
         private static ProjectWrapper parentForNotebookWrapper(Project project, NotebookWrapper notebookWrapper) {
             ProjectWrapper wrapper = new ProjectWrapper();
             wrapper.children = Collections.singletonList(notebookWrapper);
@@ -194,6 +200,12 @@ abstract class EntityWrapper {
             return wrapper;
         }
 
+        /**
+         * Process permissions and downgrade ones if needed.
+         *
+         * @param createdPermissions applied permissions
+         * @return correct applied permissions
+         */
         private static Set<UserPermission> projectPermissionPreProcessing(Set<UserPermission> createdPermissions) {
             return createdPermissions.stream()
                     .map(userPermission -> shouldHavePermission(userPermission, OWNERS_AUTHORITIES, USERS_AUTHORITIES))
