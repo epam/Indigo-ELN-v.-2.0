@@ -119,6 +119,15 @@ abstract class EntityWrapper {
         }
     }
 
+    /**
+     * Check and downgrade if needed that user has enough authorities for userPermission.
+     *
+     * @param userPermission    current user permission
+     * @param ownersAuthorities authorities needed to have owner role
+     * @param usersAuthorities  authorities needed to have user role
+     * @return the same {@link UserPermission} if user has enough authorities
+     * and the new one with closest allowed permissions if he hasn't
+     */
     private static UserPermission shouldHavePermission(UserPermission userPermission,
                                                        List<Authority> ownersAuthorities,
                                                        List<Authority> usersAuthorities
@@ -216,14 +225,12 @@ abstract class EntityWrapper {
     public static class NotebookWrapper extends EntityWrapper {
 
         private static final List<Authority> OWNERS_AUTHORITIES;
-
         private static final List<Authority> USERS_AUTHORITIES;
 
         static {
             OWNERS_AUTHORITIES = Arrays.asList(NOTEBOOK_READER, NOTEBOOK_CREATOR,
                     EXPERIMENT_READER, EXPERIMENT_CREATOR);
-            USERS_AUTHORITIES = Arrays.asList(NOTEBOOK_READER, EXPERIMENT_READER,
-                    EXPERIMENT_CREATOR);
+            USERS_AUTHORITIES = Arrays.asList(NOTEBOOK_READER, EXPERIMENT_READER, EXPERIMENT_CREATOR);
         }
 
         private NotebookWrapper() {
@@ -241,6 +248,13 @@ abstract class EntityWrapper {
             this.value = notebook;
         }
 
+        /**
+         * Create a {@link NotebookWrapper} with parent from parameter.
+         *
+         * @param parent   a parent for wrapper
+         * @param notebook a value of wrapper
+         * @return a {@link ProjectWrapper} witch contains only notebookWrapper as child.
+         */
         private NotebookWrapper(ProjectWrapper parent, Notebook notebook) {
             this();
             this.parent = parent;
@@ -250,6 +264,14 @@ abstract class EntityWrapper {
             this.value = notebook;
         }
 
+        /**
+         * Create a {@link NotebookWrapper} witch contains only experimentWrapper as child.
+         *
+         * @param project           a parents value
+         * @param notebook          a value of wrapper
+         * @param experimentWrapper a child for wrapper
+         * @return a {@link ProjectWrapper} witch contains only notebookWrapper as child.
+         */
         private static NotebookWrapper parentForExperimentWrapper(Project project,
                                                                   Notebook notebook,
                                                                   ExperimentWrapper experimentWrapper
@@ -261,6 +283,12 @@ abstract class EntityWrapper {
             return wrapper;
         }
 
+        /**
+         * Process permissions and downgrade ones if needed.
+         *
+         * @param createdPermissions applied permissions
+         * @return correct applied permissions
+         */
         private static Set<UserPermission> notebookPermissionPreProcessing(Set<UserPermission> createdPermissions) {
             return createdPermissions.stream()
                     .map(userPermission -> shouldHavePermission(userPermission, OWNERS_AUTHORITIES, USERS_AUTHORITIES))
@@ -271,7 +299,6 @@ abstract class EntityWrapper {
     public static class ExperimentWrapper extends EntityWrapper {
 
         private static final List<Authority> OWNERS_AUTHORITIES;
-
         private static final List<Authority> USERS_AUTHORITIES;
 
         static {
@@ -299,6 +326,12 @@ abstract class EntityWrapper {
             this.children = Collections.emptyList();
         }
 
+        /**
+         * Process permissions and downgrade ones if needed.
+         *
+         * @param createdPermissions applied permissions
+         * @return correct applied permissions
+         */
         private static Set<UserPermission> experimentsPermissionPreProcessing(Set<UserPermission> createdPermissions) {
             return createdPermissions.stream()
                     .filter(userPermission ->
