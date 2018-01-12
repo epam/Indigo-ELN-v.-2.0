@@ -4,10 +4,7 @@ import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.security.Authority;
 import lombok.Getter;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 import static com.epam.indigoeln.core.model.UserPermission.*;
@@ -66,6 +63,7 @@ abstract class EntityWrapper {
 
     Set<UserPermission> addOrUpdatePermissionsUpForOneLevel(Set<UserPermission> createdPermissions) {
         Set<UserPermission> permissions = permissionsUpPreProcessing.apply(createdPermissions);
+        HashSet<UserPermission> addedPermissions = new HashSet<>(permissions);
 
         for (UserPermission userPermission : permissions) {
             UserPermission userPermissionOuterEntity = PermissionUtil.findPermissionsByUserId(
@@ -73,10 +71,15 @@ abstract class EntityWrapper {
             if (userPermissionOuterEntity == null) {
                 parent.getValue().getAccessList().add(userPermission);
             } else {
-                changePermission(userPermission, userPermissionOuterEntity, permissionCreationLevel);
+                if (PermissionUtil.canBeChangedFromThisLevel(
+                        userPermissionOuterEntity.getPermissionCreationLevel(), permissionCreationLevel)) {
+                    userPermissionOuterEntity.setPermissions(userPermission.getPermissions());
+                } else {
+                    addedPermissions.remove(userPermission);
+                }
             }
         }
-        return permissions;
+        return addedPermissions;
     }
 
     Set<UserPermission> removePermissionsUpForOneLevel(Set<UserPermission> removedPermissions) {
@@ -107,16 +110,6 @@ abstract class EntityWrapper {
                 .anyMatch(cantBeRemoved -> equalsByUserId(cantBeRemoved, removingPermission))
                 || canBeRemovedFromInnerEntity.stream()
                 .noneMatch(canBeRemoved -> equalsByUserId(canBeRemoved, removingPermission));
-    }
-
-    private static void changePermission(UserPermission permission,
-                                         UserPermission userPermissionOuterEntity,
-                                         PermissionCreationLevel creationLevel
-    ) {
-        if (PermissionUtil.canBeChangedFromThisLevel(
-                userPermissionOuterEntity.getPermissionCreationLevel(), creationLevel)) {
-            userPermissionOuterEntity.setPermissions(permission.getPermissions());
-        }
     }
 
     /**
@@ -335,7 +328,8 @@ abstract class EntityWrapper {
         private static Set<UserPermission> experimentsPermissionPreProcessing(Set<UserPermission> createdPermissions) {
             return createdPermissions.stream()
                     .filter(userPermission ->
-                            userPermission.getUser().getAuthorities().contains(EXPERIMENT_READER))
+                            userPermission.getUser().getAuthorities().contains(EXPERIMENT_READER)
+                                    || userPermission.getUser().getAuthorities().contains(CONTENT_EDITOR))
                     .map(userPermission -> shouldHavePermission(userPermission, OWNERS_AUTHORITIES, USERS_AUTHORITIES))
                     .collect(toSet());
         }
