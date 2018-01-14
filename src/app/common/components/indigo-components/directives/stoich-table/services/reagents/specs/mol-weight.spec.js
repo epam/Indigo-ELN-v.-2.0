@@ -19,7 +19,7 @@ function onMolWeightChanged() {
 
             reagentsData = {
                 rows: rows,
-                changedRow: firstRow,
+                idOfChangedRow: firstRow.id,
                 changedField: fieldTypes.molWeight
             };
         });

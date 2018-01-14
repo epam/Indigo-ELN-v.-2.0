@@ -2,6 +2,7 @@ function fieldTypes() {
 
 }
 
+fieldTypes.id = 'id';
 fieldTypes.compoundId = 'compoundId';
 fieldTypes.chemicalName = 'chemicalName';
 fieldTypes.fullNbkBatch = 'fullNbkBatch';
@@ -28,6 +29,7 @@ fieldTypes.comments = 'comments';
 fieldTypes.structure = 'structure';
 fieldTypes.structureComments = 'structureComments';
 
+fieldTypes.isId = isId;
 fieldTypes.isMolWeight = isMolWeight;
 fieldTypes.isEq = isEq;
 fieldTypes.isStoicPurity = isStoicPurity;
@@ -36,6 +38,9 @@ fieldTypes.isReagentField = isReagentField;
 fieldTypes.isLimiting = isLimiting;
 fieldTypes.isFormula = isFormula;
 
+function isId(key) {
+    return key === fieldTypes.id;
+}
 
 function isMolWeight(key) {
     return key === fieldTypes.molWeight;

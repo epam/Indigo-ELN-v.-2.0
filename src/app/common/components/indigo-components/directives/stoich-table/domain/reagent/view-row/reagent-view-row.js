@@ -1,4 +1,5 @@
 var ReagentViewField = require('./reagent-view-field');
+var calculationHelper = require('../../../../../services/calculation/calculation-helper.service');
 var fieldTypes = require('../../field-types');
 
 function ReagentViewRow(props) {
@@ -18,7 +19,9 @@ function ReagentViewRow(props) {
 function setRowProperties(defaultProps, customProps) {
     // Assign known custom properties to default object
     _.forEach(customProps, function(value, key) {
-        if (fieldTypes.isMolWeight(key)) {
+        if (fieldTypes.isId(key)) {
+            defaultProps[key] = value;
+        } else if (fieldTypes.isMolWeight(key)) {
             defaultProps[key].value = value.value;
             defaultProps[key].originalValue = value.value;
             defaultProps[key].entered = value.entered;
@@ -68,6 +71,7 @@ function clear() {
 
 function getDefaultReagentViewRow() {
     return {
+        id: calculationHelper.getId(),
         compoundId: null,
         chemicalName: null,
         fullNbkBatch: null,

@@ -34,7 +34,7 @@ function onPurityChanged() {
 
             reagentsData = {
                 rows: rows,
-                changedRow: firstRow,
+                idOfChangedRow: firstRow.id,
                 changedField: fieldTypes.stoicPurity
             };
         });
@@ -84,7 +84,7 @@ function onPurityChanged() {
                 secondRow.stoicPurity.entered = true;
                 secondRow.stoicPurity.value = 10;
 
-                reagentsData.changedRow = secondRow;
+                reagentsData.idOfChangedRow = secondRow.id;
             });
 
             it('mol and weight are not entered, should compute only weight', function() {
@@ -106,7 +106,7 @@ function onPurityChanged() {
                 secondRow.stoicPurity.value = 100;
 
                 reagentsData.rows = rows;
-                reagentsData.changedRow = secondRow;
+                reagentsData.idOfChangedRow = secondRow.id;
 
                 rows = service.calculate(reagentsData);
                 secondRow = rows[1];
@@ -146,7 +146,7 @@ function onPurityChanged() {
             secondRow.stoicPurity.value = 50;
             secondRow.stoicPurity.entered = true;
 
-            reagentsData.changedRow = secondRow;
+            reagentsData.idOfChangedRow = secondRow.id;
 
             rows = service.calculate(reagentsData);
             firstRow = rows[0];
@@ -159,7 +159,7 @@ function onPurityChanged() {
             firstRow.stoicPurity.entered = true;
 
             reagentsData.rows = rows;
-            reagentsData.changedRow = firstRow;
+            reagentsData.idOfChangedRow = firstRow.id;
 
             rows = service.calculate(reagentsData);
             firstRow = rows[0];
@@ -174,7 +174,7 @@ function onPurityChanged() {
             secondRow.stoicPurity.entered = true;
 
             reagentsData.rows = rows;
-            reagentsData.changedRow = secondRow;
+            reagentsData.idOfChangedRow = secondRow.id;
 
             rows = service.calculate(reagentsData);
             secondRow = rows[1];

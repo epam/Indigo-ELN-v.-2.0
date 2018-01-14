@@ -10,11 +10,8 @@ function calculationHelper() {
         return _.cloneDeep(rows);
     }
 
-    // TODO: remove it use id for each row
-    function findChangedRow(rows, changedRow) {
-        return _.find(rows, function(row) {
-            return _.isEqual(row, changedRow);
-        });
+    function findChangedRow(rows, id) {
+        return _.find(rows, {id: id});
     }
 
     function getFormula(row) {
@@ -28,6 +25,14 @@ function calculationHelper() {
 
         return formula + '*' + saltEq + '(' + saltCode.trim() + ')';
     }
+}
+
+calculationHelper.getId = getId;
+
+function getId() {
+    return Math.floor((1 + Math.random()) * 0x1000000)
+        .toString(16)
+        .substring(1);
 }
 
 module.exports = calculationHelper;

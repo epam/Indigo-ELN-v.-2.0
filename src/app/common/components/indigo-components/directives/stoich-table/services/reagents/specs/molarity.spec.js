@@ -25,7 +25,7 @@ function onMolarityChanged() {
 
             reagentsData = {
                 rows: rows,
-                changedRow: firstRow,
+                idOfChangedRow: firstRow.id,
                 changedField: fieldTypes.molarity
             };
         });
@@ -59,7 +59,7 @@ function onMolarityChanged() {
             secondRow.volume.value = 4;
             secondRow.molarity.value = 3;
 
-            reagentsData.changedRow = secondRow;
+            reagentsData.idOfChangedRow = secondRow.id;
 
             var calculatedRows = service.calculate(reagentsData);
 
@@ -125,7 +125,7 @@ function onMolarityChanged() {
             secondRow.molWeight.value = 1;
             secondRow.density.value = 0;
 
-            reagentsData.changedRow = secondRow;
+            reagentsData.idOfChangedRow = secondRow.id;
             var calculatedRows = service.calculate(reagentsData);
 
             expect(calculatedRows[1].weight.value).toBe(2);

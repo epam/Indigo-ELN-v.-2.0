@@ -32,7 +32,7 @@ function onRxnRoleChanged() {
 
             reagentsData = {
                 rows: rows,
-                changedRow: firstRow,
+                idOfChangedRow: firstRow.id,
                 changedField: fieldTypes.rxnRole
             };
         });
@@ -106,7 +106,7 @@ function onRxnRoleChanged() {
             secondRow.prevRxnRole = {name: 'SOLVENT'};
             secondRow.setReadonly(readonlyFields, true);
 
-            reagentsData.changedRow = secondRow;
+            reagentsData.idOfChangedRow = secondRow.id;
 
             var calculatedRows = service.calculate(reagentsData);
 

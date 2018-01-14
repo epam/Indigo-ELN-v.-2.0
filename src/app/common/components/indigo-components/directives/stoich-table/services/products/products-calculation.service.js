@@ -12,7 +12,7 @@ function productsCalculation(calculationHelper) {
 
     function calculate(productsData) {
         rows = calculationHelper.getClonedRows(productsData.rows);
-        var changedRow = calculationHelper.findChangedRow(rows, productsData.changedRow);
+        var changedRow = calculationHelper.findChangedRow(rows, productsData.idOfChangedRow);
 
         recalculate(changedRow, productsData.changedField, productsData.limitingRow);
 

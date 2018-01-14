@@ -33,7 +33,7 @@ function onSaltCodeChanged() {
 
             reagentsData = {
                 rows: rows,
-                changedRow: firstRow,
+                idOfChangedRow: firstRow.id,
                 changedField: fieldTypes.saltEq
             };
         });
@@ -75,7 +75,7 @@ function onSaltCodeChanged() {
             firstRow.saltCode = {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0};
 
             reagentsData.rows = rows;
-            reagentsData.changedRow = firstRow;
+            reagentsData.idOfChangedRow = firstRow.id;
 
             rows = service.calculate(reagentsData);
             firstRow = rows[0];

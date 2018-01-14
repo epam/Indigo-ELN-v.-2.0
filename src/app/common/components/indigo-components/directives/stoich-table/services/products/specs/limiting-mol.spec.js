@@ -1,6 +1,7 @@
 var ReagentViewRow = require('../../../domain/reagent/view-row/reagent-view-row');
 var ReagentRow = require('../../../domain/reagent/calculation-row/reagent-row');
-var ProductRow = require('../../../domain/product/product-row');
+var ProductViewRow = require('../../../domain/product/view-row/product-view-row');
+var ProductRow = require('../../../domain/product/calculation-row/product-row');
 
 function onLimitingMolChanged() {
     describe('Change limiting mol', function() {
@@ -16,8 +17,8 @@ function onLimitingMolChanged() {
         beforeEach(function() {
             var rows = [];
 
-            firstRow = new ProductRow();
-            secondRow = new ProductRow();
+            firstRow = new ProductRow(new ProductViewRow());
+            secondRow = new ProductRow(new ProductViewRow());
 
             rows.push(firstRow);
             rows.push(secondRow);
@@ -34,7 +35,7 @@ function onLimitingMolChanged() {
 
             productsData = {
                 rows: rows,
-                changedRow: null,
+                idOfChangedRow: null,
                 changedField: null,
                 limitingRow: limitingRow
             };

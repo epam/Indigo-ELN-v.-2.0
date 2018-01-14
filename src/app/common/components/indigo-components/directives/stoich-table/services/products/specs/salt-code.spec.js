@@ -1,6 +1,7 @@
 var ReagentViewRow = require('../../../domain/reagent/view-row/reagent-view-row');
 var ReagentRow = require('../../../domain/reagent/calculation-row/reagent-row');
-var ProductRow = require('../../../domain/product/product-row');
+var ProductViewRow = require('../../../domain/product/view-row/product-view-row');
+var ProductRow = require('../../../domain/product/calculation-row/product-row');
 var fieldTypes = require('../../../domain/field-types');
 
 function onSaltChanged() {
@@ -18,8 +19,8 @@ function onSaltChanged() {
         beforeEach(function() {
             rows = [];
 
-            firstRow = new ProductRow();
-            secondRow = new ProductRow();
+            firstRow = new ProductRow(new ProductViewRow());
+            secondRow = new ProductRow(new ProductViewRow());
 
             rows.push(firstRow);
             rows.push(secondRow);
@@ -38,7 +39,7 @@ function onSaltChanged() {
 
             productsData = {
                 rows: rows,
-                changedRow: firstRow,
+                idOfChangedRow: firstRow.id,
                 changedField: fieldTypes.saltCode,
                 limitingRow: limitingRow
             };
@@ -64,7 +65,7 @@ function onSaltChanged() {
             firstRow.saltCode = {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0};
 
             productsData.rows = rows;
-            productsData.changedRow = firstRow;
+            productsData.idOfChangedRow = firstRow.id;
 
             rows = service.calculate(productsData);
             firstRow = rows[0];

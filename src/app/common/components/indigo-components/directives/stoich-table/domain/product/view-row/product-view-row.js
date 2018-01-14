@@ -1,7 +1,8 @@
-var fieldTypes = require('../field-types');
+var fieldTypes = require('../../field-types');
+var calculationHelper = require('../../../../../services/calculation/calculation-helper.service');
 
-function ProductRow(props) {
-    var rowProps = getDefaultProductRow();
+function ProductViewRow(props) {
+    var rowProps = getDefaultProductViewRow();
 
     if (props && _.isObject(props)) {
         // Assign known properties from given obj
@@ -14,18 +15,12 @@ function ProductRow(props) {
     return this;
 }
 
-ProductRow.prototype = {
-    setTheoMoles: setTheoMoles,
-    setTheoWeight: setTheoWeight,
-    setMolWeight: setMolWeight,
-    setFormula: setFormula,
-    constructor: ProductRow
-};
-
 function setRowProperties(defaultProps, customProps) {
     // Assign known custom properties to default object
     _.forEach(customProps, function(value, key) {
-        if (fieldTypes.isMolWeight(key)) {
+        if (fieldTypes.isId(key)) {
+            defaultProps[key] = value;
+        } else if (fieldTypes.isMolWeight(key)) {
             defaultProps[key].value = value.value;
             defaultProps[key].baseValue = value.value;
         } else if (fieldTypes.isFormula(key)) {
@@ -46,24 +41,9 @@ function setRowProperties(defaultProps, customProps) {
     });
 }
 
-function setTheoMoles(value) {
-    this.theoMoles.value = value;
-}
-
-function setTheoWeight(value) {
-    this.theoWeight.value = value;
-}
-
-function setMolWeight(value) {
-    this.molWeight.value = value;
-}
-
-function setFormula(value) {
-    this.formula.value = value;
-}
-
-function getDefaultProductRow() {
+function getDefaultProductViewRow() {
     return {
+        id: calculationHelper.getId(),
         chemicalName: null,
         formula: {value: null, baseValue: null},
         molWeight: {value: 0, baseValue: 0},
@@ -77,4 +57,4 @@ function getDefaultProductRow() {
     };
 }
 
-module.exports = ProductRow;
+module.exports = ProductViewRow;

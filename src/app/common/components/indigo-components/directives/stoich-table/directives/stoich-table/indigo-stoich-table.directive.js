@@ -89,13 +89,13 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
 
     function onProductsChanged(change) {
         var rows = vm.componentData.products;
-        var changedRow = change ? change.row : null;
+        var idOfChangedRow = change ? change.row.id : null;
         var changedField = change ? change.column : null;
         var limitingRow = stoichTableHelper.findLimitingRow(vm.componentData.reactants);
 
         stoichTableHelper.onProductsChanged({
             rows: rows,
-            changedRow: changedRow,
+            idOfChangedRow: idOfChangedRow,
             changedField: changedField,
             limitingRow: limitingRow
         });
@@ -104,7 +104,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     function recalculateStoichTable(rows, changedRow, changedField) {
         stoichTableHelper.onReagentsChanged({
             rows: rows,
-            changedRow: changedRow,
+            idOfChangedRow: changedRow.id,
             changedField: changedField
         });
 
@@ -331,13 +331,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     function addReagentRow(reagentRow) {
         vm.componentData.reactants.push(reagentRow);
 
-        var change = {
-            rows: vm.componentData.reactants,
-            changedRow: reagentRow,
-            changedField: null
-        };
-
-        stoichTableHelper.onReagentsChanged(change);
+        recalculateStoichTable(vm.componentData.reactants, reagentRow, null);
 
         vm.onChangedReactants({reactants: vm.componentData.reactants});
         vm.onChanged();
@@ -369,7 +363,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
 
         if (vm.infoProducts && vm.infoProducts.length) {
             var products = getIntendedProductsWithStructureImages(vm.infoProducts);
-            vm.componentData.products = stoichTableHelper.convertToProductRow(products);
+            vm.componentData.products = stoichTableHelper.convertToProductViewRow(products);
             onProductsChanged();
         //    TODO: also should update batches mol
         }

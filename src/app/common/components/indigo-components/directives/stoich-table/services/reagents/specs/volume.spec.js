@@ -25,7 +25,7 @@ function onVolumeChanged() {
 
             reagentsData = {
                 rows: rows,
-                changedRow: firstRow,
+                idOfChangedRow: firstRow.id,
                 changedField: fieldTypes.volume
             };
         });
@@ -81,7 +81,7 @@ function onVolumeChanged() {
             secondRow.mol.value = 0;
             secondRow.weight.value = 0;
 
-            reagentsData.changedRow = secondRow;
+            reagentsData.idOfChangedRow = secondRow.id;
             var calculatedRows = service.calculate(reagentsData);
 
             expect(calculatedRows[0].limiting.value).toBeTruthy();
@@ -102,7 +102,7 @@ function onVolumeChanged() {
             secondRow.volume.value = 3;
             secondRow.volume.entered = true;
 
-            reagentsData.changedRow = secondRow;
+            reagentsData.idOfChangedRow = secondRow.id;
             var calculatedRows = service.calculate(reagentsData);
 
             expect(calculatedRows[0].limiting.value).toBeTruthy();

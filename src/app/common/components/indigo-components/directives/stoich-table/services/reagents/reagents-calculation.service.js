@@ -10,11 +10,8 @@ function reagentsCalculation(calculationHelper) {
     };
 
     function calculate(reagentsData) {
-        rows = _.cloneDeep(reagentsData.rows);
-
-        var changedRow = _.find(rows, function(row) {
-            return _.isEqual(row, reagentsData.changedRow);
-        });
+        rows = calculationHelper.getClonedRows(reagentsData.rows);
+        var changedRow = calculationHelper.findChangedRow(rows, reagentsData.idOfChangedRow);
 
         recalculate(changedRow, reagentsData.changedField);
 

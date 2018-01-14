@@ -25,7 +25,7 @@ function onEqChanged() {
 
             reagentsData = {
                 rows: rows,
-                changedRow: firstRow,
+                idOfChangedRow: firstRow.id,
                 changedField: fieldTypes.eq
             };
         });
@@ -60,7 +60,7 @@ function onEqChanged() {
             secondRow.weight.entered = true;
 
             reagentsData.rows = rows;
-            reagentsData.changedRow = secondRow;
+            reagentsData.idOfChangedRow = secondRow.id;
             reagentsData.changedField = fieldTypes.weight;
 
             rows = service.calculate(reagentsData);
@@ -76,7 +76,7 @@ function onEqChanged() {
             firstRow.eq.entered = true;
 
             reagentsData.rows = rows;
-            reagentsData.changedRow = firstRow;
+            reagentsData.idOfChangedRow = firstRow.id;
             reagentsData.changedField = fieldTypes.eq;
 
             rows = service.calculate(reagentsData);
@@ -108,7 +108,7 @@ function onEqChanged() {
             firstRow.eq.value = 1;
 
             reagentsData.rows = rows;
-            reagentsData.changedRow = firstRow;
+            reagentsData.idOfChangedRow = firstRow.id;
 
             rows = service.calculate(reagentsData);
             firstRow = rows[0];
@@ -181,7 +181,7 @@ function onEqChanged() {
                 secondRow.eq.value = 2;
                 secondRow.eq.entered = true;
 
-                reagentsData.changedRow = secondRow;
+                reagentsData.idOfChangedRow = secondRow.id;
 
                 var calculatedRows = service.calculate(reagentsData);
 
@@ -199,7 +199,7 @@ function onEqChanged() {
                 secondRow.eq.value = 2;
                 secondRow.eq.entered = true;
 
-                reagentsData.changedRow = secondRow;
+                reagentsData.idOfChangedRow = secondRow.id;
 
                 var calculatedRows = service.calculate(reagentsData);
 
@@ -217,7 +217,7 @@ function onEqChanged() {
                 secondRow.eq.value = 2;
                 secondRow.eq.entered = true;
 
-                reagentsData.changedRow = secondRow;
+                reagentsData.idOfChangedRow = secondRow.id;
 
                 var calculatedRows = service.calculate(reagentsData);
 

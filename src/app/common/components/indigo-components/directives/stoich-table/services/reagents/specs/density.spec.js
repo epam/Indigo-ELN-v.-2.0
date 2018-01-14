@@ -24,7 +24,7 @@ function onDensityChanged() {
 
             reagentsData = {
                 rows: rows,
-                changedRow: firstRow,
+                idOfChangedRow: firstRow.id,
                 changedField: fieldTypes.density
             };
         });
@@ -80,7 +80,7 @@ function onDensityChanged() {
             secondRow.density.value = 1;
             secondRow.density.entered = true;
 
-            reagentsData.changedRow = secondRow;
+            reagentsData.idOfChangedRow = secondRow.id;
 
             var calculatedRows = service.calculate(reagentsData);
 
@@ -99,7 +99,7 @@ function onDensityChanged() {
             secondRow.density.value = 0;
             secondRow.density.entered = true;
 
-            reagentsData.changedRow = secondRow;
+            reagentsData.idOfChangedRow = secondRow.id;
 
             var calculatedRows = service.calculate(reagentsData);
 
