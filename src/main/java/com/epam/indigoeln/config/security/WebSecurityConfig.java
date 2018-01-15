@@ -221,7 +221,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/*/experiments/all").hasAuthority(CONTENT_EDITOR.name())
                 .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/*/experiments/**").hasAnyAuthority(EXPERIMENT_READERS)
                 .antMatchers(HttpMethod.POST, "/api/projects/*/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_CREATORS)
+                .antMatchers(HttpMethod.POST, "/api/projects/*/notebooks/*/experiments/**").hasAnyAuthority(EXPERIMENT_CREATORS)
                 .antMatchers(HttpMethod.PUT, "/api/projects/*/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_CREATORS)
+                .antMatchers(HttpMethod.PUT, "/api/projects/*/notebooks/*/experiments/**").hasAnyAuthority(EXPERIMENT_CREATORS)
                 .antMatchers(HttpMethod.DELETE, "/api/projects/*/notebooks/*/experiments/**").hasAnyAuthority(EXPERIMENT_REMOVERS)
                 // notebook resource
                 .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks").hasAnyAuthority(NOTEBOOK_READERS)
