@@ -23,11 +23,11 @@ function indigoTabScroller($timeout) {
         }, 0);
 
         // Update scrollbar on container resize
-        $scope.$watch('vm.tabs', function(newVal, oldVal) {
-            if (_.keys(newVal).length !== _.keys(oldVal).length) {
-                perfectScrollbar.update();
-            }
-        }, true);
+        $scope.$watch(function() {
+            return $scope.vm.tabs && _.keys($scope.vm.tabs).length;
+        }, function() {
+            perfectScrollbar.update();
+        });
 
         $scope.$watch('vm.activeTab', function() {
             $timeout(function() {
