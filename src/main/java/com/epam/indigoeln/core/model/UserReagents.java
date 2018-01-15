@@ -4,6 +4,7 @@ import com.mongodb.BasicDBList;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
@@ -19,6 +20,7 @@ public class UserReagents implements Serializable {
     @Id
     private String id;
 
+    @DBRef(lazy = true)
     private User user;
 
     private BasicDBList reagents;
