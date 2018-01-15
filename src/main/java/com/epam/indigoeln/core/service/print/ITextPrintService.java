@@ -6,6 +6,7 @@ import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
+import com.epam.indigoeln.core.security.Authority;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
@@ -149,6 +150,9 @@ public class ITextPrintService {
                     project.getAccessList(), UserPermission.READ_ENTITY,
                     notebook.getAccessList(), UserPermission.READ_ENTITY)) {
                 throw OperationDeniedException.createNotebookReadOperation(notebook.getId());
+            }
+            if (printRequest.withContent() && !user.getAuthorities().contains(Authority.EXPERIMENT_READER)){
+                throw OperationDeniedException.createNotebookSubEntitiesReadOperation(notebook.getId());
             }
         }
 

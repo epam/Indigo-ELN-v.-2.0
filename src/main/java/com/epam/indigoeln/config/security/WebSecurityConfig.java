@@ -209,66 +209,67 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 // account resource
-                .antMatchers(HttpMethod.GET, "/api/accounts/*").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/accounts/**").authenticated()
                 .antMatchers(HttpMethod.GET, "/api/accounts/account/roles").hasAuthority(ROLE_EDITOR.name())
                 // experiment_file resource
                 .antMatchers(HttpMethod.GET, "/api/experiment_files").hasAnyAuthority(EXPERIMENT_READERS)
-                .antMatchers(HttpMethod.GET, "/api/experiment_files/*").hasAnyAuthority(EXPERIMENT_READERS)
+                .antMatchers(HttpMethod.GET, "/api/experiment_files/**").hasAnyAuthority(EXPERIMENT_READERS)
                 .antMatchers(HttpMethod.POST, "/api/experiment_files").hasAnyAuthority(EXPERIMENT_CREATORS)
-                .antMatchers(HttpMethod.DELETE, "/api/experiment_files/*").hasAnyAuthority(EXPERIMENT_CREATORS)
+                .antMatchers(HttpMethod.DELETE, "/api/experiment_files/**").hasAnyAuthority(EXPERIMENT_CREATORS)
                 // experiment resource
-                .antMatchers(HttpMethod.GET, "/api/*/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_READERS)
-                .antMatchers(HttpMethod.GET, "/api/*/notebooks/*/experiments/all").hasAuthority(CONTENT_EDITOR.name())
-                .antMatchers(HttpMethod.GET, "/api/*/notebooks/*/experiments/*").hasAnyAuthority(EXPERIMENT_READERS)
-                .antMatchers(HttpMethod.POST, "/api/*/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_CREATORS)
-                .antMatchers(HttpMethod.PUT, "/api/*/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_CREATORS)
-                .antMatchers(HttpMethod.DELETE, "/api/*/notebooks/*/experiments/*").hasAnyAuthority(EXPERIMENT_REMOVERS)
+                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_READERS)
+                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/*/experiments/all").hasAuthority(CONTENT_EDITOR.name())
+                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/*/experiments/**").hasAnyAuthority(EXPERIMENT_READERS)
+                .antMatchers(HttpMethod.POST, "/api/projects/*/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_CREATORS)
+                .antMatchers(HttpMethod.PUT, "/api/projects/*/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_CREATORS)
+                .antMatchers(HttpMethod.DELETE, "/api/projects/*/notebooks/*/experiments/**").hasAnyAuthority(EXPERIMENT_REMOVERS)
                 // notebook resource
-                .antMatchers(HttpMethod.GET, "/api/*/notebooks").hasAnyAuthority(NOTEBOOK_READERS)
-                .antMatchers(HttpMethod.GET, "/api/*/notebooks/all").hasAuthority(CONTENT_EDITOR.name())
-                .antMatchers(HttpMethod.GET, "/api/*/notebooks/*").hasAnyAuthority(NOTEBOOK_READERS)
-                .antMatchers(HttpMethod.POST, "/api/*/notebooks").hasAnyAuthority(NOTEBOOK_CREATORS)
-                .antMatchers(HttpMethod.PUT, "/api/*/notebooks").hasAnyAuthority(NOTEBOOK_CREATORS)
-                .antMatchers(HttpMethod.DELETE, "/api/*/notebooks/*").hasAnyAuthority(NOTEBOOK_REMOVERS)
+                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks").hasAnyAuthority(NOTEBOOK_READERS)
+                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/all").hasAuthority(CONTENT_EDITOR.name())
+                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/**").hasAnyAuthority(NOTEBOOK_READERS)
+                .antMatchers(HttpMethod.POST, "/api/projects/*/notebooks").hasAnyAuthority(NOTEBOOK_CREATORS)
+                .antMatchers(HttpMethod.PUT, "/api/projects/*/notebooks").hasAnyAuthority(NOTEBOOK_CREATORS)
+                .antMatchers(HttpMethod.DELETE, "/api/projects/*/notebooks/**").hasAnyAuthority(NOTEBOOK_REMOVERS)
                 // project_file resource
                 .antMatchers(HttpMethod.GET, "/api/project_files").hasAnyAuthority(PROJECT_READERS)
-                .antMatchers(HttpMethod.GET, "/api/project_files/*").hasAnyAuthority(PROJECT_READERS)
+                .antMatchers(HttpMethod.GET, "/api/project_files/**").hasAnyAuthority(PROJECT_READERS)
                 .antMatchers(HttpMethod.POST, "/api/project_files").hasAnyAuthority(PROJECT_CREATORS)
-                .antMatchers(HttpMethod.DELETE, "/api/project_files/*").hasAnyAuthority(PROJECT_CREATORS)
+                .antMatchers(HttpMethod.DELETE, "/api/project_files/**").hasAnyAuthority(PROJECT_CREATORS)
                 // project resource
                 .antMatchers(HttpMethod.GET, "/api/projects").hasAnyAuthority(PROJECT_READERS)
                 .antMatchers(HttpMethod.GET, "/api/projects/all").hasAuthority(CONTENT_EDITOR.name())
-                .antMatchers(HttpMethod.GET, "/api/projects/*").hasAnyAuthority(PROJECT_READERS)
+                .antMatchers(HttpMethod.GET, "/api/projects/**").hasAnyAuthority(PROJECT_READERS)
                 .antMatchers(HttpMethod.POST, "/api/projects").hasAnyAuthority(PROJECT_CREATORS)
                 .antMatchers(HttpMethod.PUT, "/api/projects").hasAnyAuthority(PROJECT_CREATORS)
-                .antMatchers(HttpMethod.DELETE, "/api/projects/*").hasAnyAuthority(PROJECT_REMOVERS)
+                .antMatchers(HttpMethod.DELETE, "/api/projects/**").hasAnyAuthority(PROJECT_REMOVERS)
                 // role resource
                 .antMatchers(HttpMethod.GET, "/api/roles").hasAnyAuthority(ROLE_READERS)
-                .antMatchers(HttpMethod.GET, "/api/roles/*").hasAuthority(ROLE_EDITOR.name())
+                .antMatchers(HttpMethod.GET, "/api/roles/**").hasAuthority(ROLE_EDITOR.name())
                 .antMatchers(HttpMethod.POST, "/api/roles").hasAuthority(ROLE_EDITOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/roles").hasAuthority(ROLE_EDITOR.name())
-                .antMatchers(HttpMethod.DELETE, "/api/roles/*").hasAuthority(ROLE_EDITOR.name())
+                .antMatchers(HttpMethod.DELETE, "/api/roles/**").hasAuthority(ROLE_EDITOR.name())
                 // template resource
                 .antMatchers(HttpMethod.GET, "/api/templates").hasAnyAuthority(TEMPLATE_READERS)
-                .antMatchers(HttpMethod.GET, "/api/templates/*").hasAuthority(TEMPLATE_EDITOR.name())
+                .antMatchers(HttpMethod.GET, "/api/templates/**").hasAuthority(TEMPLATE_EDITOR.name())
                 .antMatchers(HttpMethod.POST, "/api/templates").hasAuthority(TEMPLATE_EDITOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/templates").hasAuthority(TEMPLATE_EDITOR.name())
-                .antMatchers(HttpMethod.DELETE, "/api/templates/*").hasAuthority(TEMPLATE_EDITOR.name())
+                .antMatchers(HttpMethod.DELETE, "/api/templates/**").hasAuthority(TEMPLATE_EDITOR.name())
                 // user resource
                 .antMatchers(HttpMethod.GET, "/api/users").hasAnyAuthority(USER_READERS)
                 .antMatchers(HttpMethod.GET, "/api/users/permission-management").hasAnyAuthority(USER_READERS)
-                .antMatchers(HttpMethod.GET, "/api/users/*").hasAuthority(USER_EDITOR.name())
+                .antMatchers(HttpMethod.GET, "/api/users/**").hasAuthority(USER_EDITOR.name())
                 .antMatchers(HttpMethod.POST, "/api/users").hasAuthority(USER_EDITOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/users").hasAuthority(USER_EDITOR.name())
-                .antMatchers(HttpMethod.DELETE, "/api/users/*").hasAuthority(USER_EDITOR.name())
+                .antMatchers(HttpMethod.DELETE, "/api/users/**").hasAuthority(USER_EDITOR.name())
                 // dictionary resource
                 .antMatchers(HttpMethod.GET, "/api/dictionaries").hasAnyAuthority(DICTIONARY_READERS)
-                .antMatchers(HttpMethod.GET, "/api/dictionaries/*").hasAnyAuthority(DICTIONARY_READERS)
+                .antMatchers(HttpMethod.GET, "/api/dictionaries/**").hasAnyAuthority(DICTIONARY_READERS)
                 .antMatchers(HttpMethod.POST, "/api/dictionaries").hasAuthority(DICTIONARY_EDITOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/dictionaries").hasAuthority(DICTIONARY_EDITOR.name())
-                .antMatchers(HttpMethod.DELETE, "/api/dictionaries/*").hasAuthority(DICTIONARY_EDITOR.name())
+                .antMatchers(HttpMethod.DELETE, "/api/dictionaries/**").hasAuthority(DICTIONARY_EDITOR.name())
                 //search resource
                 .antMatchers(HttpMethod.POST, "/api/search").hasAuthority(GLOBAL_SEARCH.name())
+                .antMatchers(HttpMethod.GET, "/api/search/experiments").hasAnyAuthority(EXPERIMENT_READERS)
                 // spring boot endpoints
                 // https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html
                 .antMatchers("/health/**").authenticated()
@@ -300,10 +301,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 //print
                 .antMatchers(HttpMethod.GET, "/api/print/project/*").hasAnyAuthority(PROJECT_READERS)
-                .antMatchers(HttpMethod.GET, "/api/print/project/*/notebook/*")
-                .hasAnyAuthority(NOTEBOOK_READERS)
-                .antMatchers(HttpMethod.GET, "/api/print/project/*/notebook/*/experiment/*")
-                .hasAnyAuthority(EXPERIMENT_READERS);
+                .antMatchers(HttpMethod.GET, "/api/print/project/*/notebook/*").hasAnyAuthority(NOTEBOOK_READERS)
+                .antMatchers(HttpMethod.GET, "/api/print/project/*/notebook/*/experiment/*").hasAnyAuthority(EXPERIMENT_READERS)
+
+                .anyRequest().authenticated();
     }
 
     @Bean
