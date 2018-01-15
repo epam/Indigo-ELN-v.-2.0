@@ -502,6 +502,13 @@ public class ExperimentService {
                 throw OperationDeniedException.createExperimentReopenOperation(experimentFromDB.getId());
             }
 
+            if (!experimentFromDB.isLastVersion()) {
+                throw OperationDeniedException
+                        .createExperimentReopenOperation(String.format("You cannot open experiment version %s, use the "
+                                        + "latest version for edit.",
+                                String.valueOf(experimentFromDB.getExperimentVersion())), experimentFromDB.getId());
+            }
+
             experimentFromDB.setStatus(ExperimentStatus.OPEN);
 
             Experiment savedExperiment;
@@ -639,7 +646,7 @@ public class ExperimentService {
      * Searches experiments by full name with project name and version
      *
      * @param experimentFullName experiment full name
-     * @param pageable page, size, sort settings
+     * @param pageable           page, size, sort settings
      * @return ids list of project, notebook, experiment and experiment full name
      */
     public List<EntitiesIdsDTO> findExperimentsByFullName(User user, String experimentFullName, Pageable pageable) {
