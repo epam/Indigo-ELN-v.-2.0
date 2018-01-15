@@ -122,7 +122,8 @@ public class ExperimentService {
      * @return List with tree representation of experiments of specified notebook for user
      */
     public List<TreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId, User user) {
-        Collection<Experiment> experiments = getAllExperiments(projectId, notebookId, user);
+        Collection<Experiment> experiments = getAllExperiments(projectId, notebookId,
+                PermissionUtil.isContentEditor(user) ? null : user);
         return experiments.stream()
                 .map(ExperimentTreeNodeDTO::new).sorted(TreeNodeDTO.NAME_COMPARATOR).collect(Collectors.toList());
     }
