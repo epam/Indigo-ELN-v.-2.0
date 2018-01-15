@@ -116,10 +116,10 @@
 
     <div class="btn-bottom-block tab-content-pad">
         <div class="pull-left">
-            <a class="btn btn-info" ng-click="vm.showSummary()" ng-switch="!vm.isSummary">
+            <button class="btn btn-info" type="button" ng-click="vm.showSummary()" ng-switch="!vm.isSummary" ng-disabled="!vm.allowContent">
                 <span class="m-l5" ng-switch-when="true" i-translate="SHOW_NOTEBOOK_CONTENT"></span>
                 <span class="m-l5" ng-switch-default i-translate="HIDE_NOTEBOOK_CONTENT"></span>
-            </a>
+            </button>
             <!--TODO: Task EPMLSOPELN-532: Functionality is temporarily removed-->
             <!--<button type="button" class="btn btn-default" ng-disabled="!vm.canUndo()" ng-click="vm.undoAction()">-->
             <!--<span class="icon icon-undo"></span><span class="m-l5">Undo Action</span>-->

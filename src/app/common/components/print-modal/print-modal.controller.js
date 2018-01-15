@@ -21,7 +21,7 @@ function PrintModalController($uibModalInstance, params, resourceName, resource,
             vm.hasAttachments = true;
         } else if (resourceName === 'notebookService') {
             vm.askContents = true;
-            vm.allowContents = principalService.hasAuthority(roles.EXPERIMENT_READER);
+            vm.allowContents = principalService.hasAuthority(roles.EXPERIMENT_READER) || principalService.hasAuthority(roles.CONTENT_EDITOR);
         } else {
             vm.hasAttachments = false;
             vm.printContent = false;

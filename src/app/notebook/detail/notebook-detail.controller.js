@@ -4,7 +4,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
                                   modalHelper, experimentUtil, pageInfo, entitiesBrowserService,
                                   $timeout, $stateParams, tabKeyService, autorecoveryHelper,
                                   notebookSummaryExperimentsService, $q, entitiesCache,
-                                  autorecoveryCache, confirmationModal, entityHelper) {
+                                  autorecoveryCache, confirmationModal, entityHelper, principalService) {
     var vm = this;
     var identity = pageInfo.identity;
     var isContentEditor = pageInfo.isContentEditor;
@@ -36,6 +36,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
         vm.hasError = false;
         vm.isEditAllowed = true;
         vm.isCreateChildAllowed = true;
+        vm.allowContent = principalService.hasAuthority(roles.EXPERIMENT_READER) || principalService.hasAuthority(roles.CONTENT_EDITOR);
 
         vm.createExperiment = createExperiment;
         vm.showSummary = showSummary;
