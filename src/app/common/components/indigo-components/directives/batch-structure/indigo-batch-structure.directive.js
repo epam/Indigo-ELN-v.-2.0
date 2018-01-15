@@ -16,9 +16,8 @@ function indigoBatchStructure() {
     };
 }
 
-IndigoBatchStructureController.$inject = ['calculationService'];
-
-function IndigoBatchStructureController(calculationService) {
+/* @ngInject */
+function IndigoBatchStructureController($q, calculationService) {
     var vm = this;
 
     init();
@@ -53,13 +52,16 @@ function IndigoBatchStructureController(calculationService) {
     }
 
     function updateBatchFormula(batch, molInfo) {
-        batch.formula = molInfo.molecularFormula;
-        batch.molWeight = batch.molWeight || {};
+        batch.formula.value = molInfo.molecularFormula;
+        batch.formula.baseValue = molInfo.molecularFormula;
         batch.molWeight.value = molInfo.molecularWeight;
+        batch.molWeight.baseValue = molInfo.molecularWeight;
 
-        return calculationService.calculateProductBatch({
-            row: batch, column: getColumn(batch)
-        });
+        // TODO: investigate
+        return $q.resolve();
+        // return calculationService.calculateProductBatch({
+        //     row: batch, column: getColumn(batch)
+        // });
     }
 
     function updateBatchMolInfo() {

@@ -3,7 +3,7 @@ var ProductRow = require('../domain/product/calculation-row/product-row');
 var ProductViewRow = require('../domain/product/view-row/product-view-row');
 
 /* @ngInject */
-function stoichTableHelper(reagentsCalculation, productsCalculation) {
+function stoichTableHelper(reagentsCalculation, productsCalculation, calculationHelper) {
     return {
         onReagentsChanged: onReagentsChanged,
         onProductsChanged: onProductsChanged,
@@ -18,14 +18,14 @@ function stoichTableHelper(reagentsCalculation, productsCalculation) {
         var preparedReagentsData = prepareReagentsForCalculation(change);
         var calculatedRows = reagentsCalculation.calculate(preparedReagentsData);
 
-        updateViewRows(calculatedRows, change.rows);
+        calculationHelper.updateViewRows(calculatedRows, change.rows);
     }
 
     function onProductsChanged(change) {
         var preparedProductData = prepareProductsForCalculation(change);
         var calculatedRows = productsCalculation.calculate(preparedProductData);
 
-        updateViewRows(calculatedRows, change.rows);
+        calculationHelper.updateViewRows(calculatedRows, change.rows);
     }
 
     function findLimitingRow(reagents) {
@@ -90,17 +90,6 @@ function stoichTableHelper(reagentsCalculation, productsCalculation) {
     function convertProductsRows(viewRows) {
         return _.map(viewRows, function(viewRow) {
             return new ProductRow(viewRow);
-        });
-    }
-
-    function updateViewRows(calculatedRows, viewRows) {
-        _.forEach(viewRows, function(viewRow, index) {
-            var calcRow = calculatedRows[index];
-            var calcRowFields = _.keys(calcRow);
-
-            _.forEach(calcRowFields, function(field) {
-                _.assign(viewRow[field], calcRow[field]);
-            });
         });
     }
 }

@@ -1,7 +1,5 @@
-batchHelper.$inject = ['appUnits', 'calculationService', 'columnActions', 'scalarService', 'unitService',
-    'selectService', 'setInputService', '$q'];
-
-function batchHelper(appUnits, calculationService, columnActions,
+/* @ngInject */
+function batchHelper(appUnits, calculationService, columnActions, batchesCalculation, calculationHelper,
                      scalarService, unitService, selectService, setInputService, $q) {
     var columnCloseFunction = {
         totalWeight: onClose1,
@@ -11,6 +9,15 @@ function batchHelper(appUnits, calculationService, columnActions,
         saltEq: onCloseSaltEq,
         $$batchType: onCloseBatchType
     };
+
+    function onBatchChanged(batchesData) {
+        console.log('batchesData');
+        console.log(batchesData);
+        // var preparedReagentsData = prepareReagentsForCalculation(change);
+        var calculatedRows = batchesCalculation.calculate(batchesData);
+
+        calculationHelper.updateViewRows(calculatedRows, batchesData.rows);
+    }
 
     function close(column, data) {
         var fn = columnCloseFunction[column.id];
@@ -76,6 +83,7 @@ function batchHelper(appUnits, calculationService, columnActions,
 
     return {
         close: close,
+        onBatchChanged: onBatchChanged,
         hasCheckedRow: hasCheckedRow,
         getCheckedBatches: getCheckedBatches,
         recalculateSalt: recalculateSalt,
@@ -201,13 +209,13 @@ function batchHelper(appUnits, calculationService, columnActions,
             molWeight: {
                 id: 'molWeight',
                 name: 'Mol Wgt',
-                type: 'scalar'
+                type: 'scalar',
+                readonly: true
             },
             formula: {
                 id: 'formula',
                 name: 'Mol Formula',
-                type: 'input',
-                readonly: true,
+                type: 'formula',
                 actions: setInputService.getActions('Mol Formula')
             },
             conversationalBatchNumber: {

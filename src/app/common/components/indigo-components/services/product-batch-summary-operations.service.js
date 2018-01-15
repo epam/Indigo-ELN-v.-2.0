@@ -1,9 +1,7 @@
-productBatchSummaryOperations.$inject = ['$q', 'productBatchSummaryCache', 'registrationUtil',
-    'stoichTableCache', 'appValuesService', 'notifyService', 'registrationService', 'sdImportService',
-    'sdExportService', 'alertModal', '$http', '$stateParams',
-    'notebookService', 'calculationService', 'apiUrl', '$document'];
+var BatchViewRow = require('../directives/indigo-components/domain/batch-row/view-row/batch-view-row');
 
-function productBatchSummaryOperations($q, productBatchSummaryCache, registrationUtil,
+/* @ngInject */
+function productBatchSummaryOperations($q, productBatchSummaryCache, registrationUtil, calculationHelper,
                                        stoichTableCache, appValuesService, notifyService,
                                        registrationService, sdImportService,
                                        sdExportService, alertModal, $http, $stateParams, notebookService,
@@ -189,10 +187,12 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
     }
 
     function createBatch(sdUnit, isSyncWithIntended) {
-        var batch = appValuesService.getDefaultBatch();
+        var batch = new BatchViewRow();
         var stoichTable = stoichTableCache.getStoicTable();
         if (stoichTable) {
-            _.extend(batch, angular.copy(calculationService.createBatch(stoichTable, true)));
+            var molOfLimiting = calculationHelper.getMolFromLimitingRow(stoichTable.reactants);
+            batch.setTheoMoles(molOfLimiting);
+            // _.extend(batch, angular.copy(calculationService.createBatch(stoichTable, true)));
         }
 
         _.extend(batch, sdUnit, {
@@ -211,12 +211,15 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
             }
 
             return $q
-                .all([calculationService.recalculateSalt(batch),
+                .all([
+                    calculationHelper.recalculateSalt(batch),
                     checkImage(batch.structure)
                 ])
                 .then(function() {
-                    return saveMolecule(batch.structure.molfile).then(function(structureId) {
-                        batch.structure.structureId = structureId;
+                    return saveMolecule(batch.structure).then(function(structureId) {
+                        if (batch.structure) {
+                            batch.structure.structureId = structureId;
+                        }
                     }, function() {
                         notifyService.error('Cannot save the structure!');
                     });
@@ -230,7 +233,7 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
     }
 
     function checkImage(structure) {
-        if (structure.molfile && !structure.image) {
+        if (structure && structure.molfile && !structure.image) {
             return calculationService.getImageForStructure(structure.molfile, 'molecule').then(function(image) {
                 structure.image = image;
             });
@@ -268,9 +271,9 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
         return (last && last.nbkBatch) || 0;
     }
 
-    function saveMolecule(mol) {
-        if (mol) {
-            return $http.post(apiUrl + 'bingodb/molecule/', mol).then(function(response) {
+    function saveMolecule(structure) {
+        if (structure && structure.molfile) {
+            return $http.post(apiUrl + 'bingodb/molecule/', structure.molfile).then(function(response) {
                 return response.data;
             });
         }

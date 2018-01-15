@@ -26,8 +26,7 @@ function indigoCompoundSummary() {
     };
 }
 
-IndigoCompoundSummaryController.$inject = ['$scope', 'batchHelper'];
-
+/* @ngInject */
 function IndigoCompoundSummaryController($scope, batchHelper) {
     var vm = this;
 
@@ -38,7 +37,7 @@ function IndigoCompoundSummaryController($scope, batchHelper) {
         vm.hasCheckedRows = batchHelper.hasCheckedRow;
         vm.vnv = angular.noop;
         vm.registerVC = angular.noop;
-        vm.onClose = batchHelper.close;
+        vm.onBatchChanged = onBatchChanged;
         vm.onChangedVisibleColumn = onChangedVisibleColumn;
 
         bindEvents();
@@ -48,6 +47,16 @@ function IndigoCompoundSummaryController($scope, batchHelper) {
         if (column.id === 'structure') {
             vm.onShowStructure({isVisible: isVisible});
         }
+    }
+
+    function onBatchChanged(change) {
+        var batchesData = {
+            rows: vm.batches,
+            idOfChangedRow: change ? change.row.id : null,
+            changedField: change ? change.column : null
+        };
+
+        batchHelper.onBatchChanged(batchesData);
     }
 
     function getDefaultColumns() {

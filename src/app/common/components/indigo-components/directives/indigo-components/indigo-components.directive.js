@@ -1,5 +1,6 @@
 require('./indigo-components.less');
 var template = require('./indigo-components.html');
+var BatchViewRow = require('./domain/batch-row/view-row/batch-view-row');
 
 function indigoComponents() {
     return {
@@ -19,9 +20,7 @@ function indigoComponents() {
     };
 }
 
-IndigoComponentsController.$inject = ['$scope', 'productBatchSummaryOperations', 'productBatchSummaryCache',
-    'entitiesBrowserService', 'principalService', 'batchHelper', 'stoichTableHelper'];
-
+/* @ngInject */
 function IndigoComponentsController($scope, productBatchSummaryOperations, productBatchSummaryCache,
                                     entitiesBrowserService, principalService, batchHelper, stoichTableHelper) {
     var vm = this;
@@ -150,6 +149,8 @@ function IndigoComponentsController($scope, productBatchSummaryOperations, produ
     function onAddedBatch(batch) {
         batch.precursors = precursors;
         vm.batches.push(batch);
+        console.log('vm.batches');
+        console.log(vm.batches);
         vm.batchesTrigger++;
     }
 

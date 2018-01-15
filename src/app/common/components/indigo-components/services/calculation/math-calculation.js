@@ -25,7 +25,7 @@ mathCalculation.multiply = multiply;
 mathCalculation.divide = divide;
 
 /**
- * Compute mol: Mol = Weight / Mol weight * (Purity / 100)
+ * Compute mol: Mol = (Weight / Mol weight) * (Purity / 100)
  * @param weight
  * @param molWeight
  * @param purity
