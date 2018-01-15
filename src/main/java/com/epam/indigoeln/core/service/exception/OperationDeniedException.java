@@ -125,6 +125,19 @@ public final class OperationDeniedException extends CustomParametrizedException 
         return new OperationDeniedException("The open experiment can't be reopened", entityId);
     }
 
+
+    /**
+     * Creates instance of OperationDeniedException with entity's id and message
+     * if user tried to reopen experiment.
+     *
+     * @param entityId Entity's identifier
+     * @param message  Message
+     * @return Instance of OperationDeniedException with entity's id and message
+     */
+    public static OperationDeniedException createExperimentReopenOperation(String entityId, String message) {
+        return new OperationDeniedException(message, entityId);
+    }
+
     /**
      * Creates instance of OperationDeniedException with entity's id
      * if user tried to create notebook.
