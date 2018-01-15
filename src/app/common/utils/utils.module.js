@@ -1,4 +1,3 @@
-var commonHelper = require('./component-helper/component-helper.service');
 var entityHelper = require('./entity-helper/entity-helper.service');
 var modalHelper = require('./entity-helper/modal-helper.service');
 var experimentUtil = require('./experiment-util/experiment-util.service');
@@ -12,7 +11,6 @@ var unitsConverter = require('./unit-converter/units-converter.service');
 module.exports = angular
     .module('indigoeln.common.utils', [])
 
-    .factory('commonHelper', commonHelper)
     .factory('entityHelper', entityHelper)
     .factory('modalHelper', modalHelper)
     .factory('experimentUtil', experimentUtil)
