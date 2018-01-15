@@ -19,7 +19,8 @@ public final class PermissionUtil {
     }
 
     public static boolean isContentEditor(User user) {
-        return user.getAuthorities().contains(Authority.CONTENT_EDITOR);
+        return user != null &&
+                user.getAuthorities().contains(Authority.CONTENT_EDITOR);
     }
 
     /**
@@ -179,11 +180,11 @@ public final class PermissionUtil {
         if (!createdPermissions.isEmpty()) {
             wrappedExperiment.addPermissionsDown(createdPermissions);
 
-            Set<UserPermission> addedToNotebook = wrappedExperiment.addOrUpdatePermissionsUp(createdPermissions);
+            Set<UserPermission> addedToNotebook = wrappedExperiment.addOrUpdatePermissionsUpForOneLevel(createdPermissions);
             notebookHadChanged = !addedToNotebook.isEmpty();
 
             if (!addedToNotebook.isEmpty()) {
-                projectHadChanged = !wrappedExperiment.getParent().addOrUpdatePermissionsUp(addedToNotebook)
+                projectHadChanged = !wrappedExperiment.getParent().addOrUpdatePermissionsUpForOneLevel(addedToNotebook)
                         .isEmpty();
             }
         }
@@ -199,13 +200,13 @@ public final class PermissionUtil {
             wrappedExperiment.updatePermissionsDown(updatedPermissions);
 
             Set<UserPermission> permissionsUpdatedInNotebook =
-                    wrappedExperiment.addOrUpdatePermissionsUp(updatedPermissions);
+                    wrappedExperiment.addOrUpdatePermissionsUpForOneLevel(updatedPermissions);
 
             notebookHadChanged |= !permissionsUpdatedInNotebook.isEmpty();
 
             if (!permissionsUpdatedInNotebook.isEmpty()) {
                 projectHadChanged |=
-                        !wrappedExperiment.getParent().addOrUpdatePermissionsUp(permissionsUpdatedInNotebook).isEmpty();
+                        !wrappedExperiment.getParent().addOrUpdatePermissionsUpForOneLevel(permissionsUpdatedInNotebook).isEmpty();
             }
         }
 
@@ -217,12 +218,12 @@ public final class PermissionUtil {
 
             wrappedExperiment.removePermissionsDown(removedPermissions);
 
-            Set<UserPermission> removedFromNotebook = wrappedExperiment.removePermissionsUp(removedPermissions);
+            Set<UserPermission> removedFromNotebook = wrappedExperiment.removePermissionsUpForOneLevel(removedPermissions);
 
             notebookHadChanged |= !removedFromNotebook.isEmpty();
 
             if (!removedFromNotebook.isEmpty()) {
-                projectHadChanged |= !wrappedExperiment.getParent().removePermissionsUp(removedFromNotebook).isEmpty();
+                projectHadChanged |= !wrappedExperiment.getParent().removePermissionsUpForOneLevel(removedFromNotebook).isEmpty();
             }
         }
 
@@ -257,7 +258,7 @@ public final class PermissionUtil {
 
         if (!createdPermissions.isEmpty()) {
 
-            projectHadChanged = !notebookWrapper.addOrUpdatePermissionsUp(createdPermissions).isEmpty();
+            projectHadChanged = !notebookWrapper.addOrUpdatePermissionsUpForOneLevel(createdPermissions).isEmpty();
 
             notebookWrapper.addPermissionsDown(createdPermissions);
         }
@@ -272,7 +273,7 @@ public final class PermissionUtil {
         if (!updatedPermissions.isEmpty()) {
             notebookWrapper.updatePermissionsDown(updatedPermissions);
 
-            projectHadChanged |= !notebookWrapper.addOrUpdatePermissionsUp(updatedPermissions).isEmpty();
+            projectHadChanged |= !notebookWrapper.addOrUpdatePermissionsUpForOneLevel(updatedPermissions).isEmpty();
         }
 
         Set<UserPermission> removedPermissions = notebook.getAccessList().stream().filter(oldPermission ->
@@ -282,7 +283,7 @@ public final class PermissionUtil {
         if (!removedPermissions.isEmpty()) {
             notebookWrapper.removePermissionsDown(removedPermissions);
 
-            Set<UserPermission> removed = notebookWrapper.removePermissionsUp(removedPermissions);
+            Set<UserPermission> removed = notebookWrapper.removePermissionsUpForOneLevel(removedPermissions);
 
             projectHadChanged |= !removed.isEmpty();
         }
