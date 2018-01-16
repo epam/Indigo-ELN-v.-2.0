@@ -23,6 +23,7 @@ public class ExperimentDTO extends BasicDTO {
     private String documentId;
     private User submittedBy;
     private String fullName;
+    private String experimentFullName;
 
     private int experimentVersion;
     private boolean lastVersion;
@@ -44,6 +45,7 @@ public class ExperimentDTO extends BasicDTO {
         this.experimentVersion = experiment.getExperimentVersion();
         this.lastVersion = experiment.isLastVersion();
         this.fullName = experiment.getFullName();
+        this.experimentFullName = experiment.getExperimentFullName();
     }
 
     public List<ComponentDTO> getComponents() {
@@ -108,5 +110,13 @@ public class ExperimentDTO extends BasicDTO {
 
     public void setFullName(String fullName) {
         this.fullName = fullName;
+    }
+
+    public String getExperimentFullName() {
+        return experimentFullName;
+    }
+
+    public void setExperimentFullName(String experimentFullName) {
+        this.experimentFullName = experimentFullName;
     }
 }
