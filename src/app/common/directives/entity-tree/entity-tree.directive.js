@@ -128,14 +128,9 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
 
         vm.popoverExperiment = node;
 
-        var nodeVersion = node && node.original && node.original.version
-            ? node.original.version
-            : null;
-
+        var nodeVersion = _.get(node, 'original.version', null);
         var cache = vm.experimentsCollection[node.original.fullId];
-        var cachedVersion = cache && cache && cache.version
-            ? cache.version
-            : null;
+        var cachedVersion = _.get(cache, 'version', null);
 
         if (!cache || nodeVersion !== cachedVersion) {
             if (cache) {
