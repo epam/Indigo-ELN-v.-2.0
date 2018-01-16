@@ -172,4 +172,10 @@ public class SignatureResource {
         }
     }
 
+    @ApiOperation(value = "Returns signature url.")
+    @RequestMapping(value = "/url", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> getSignatureUrl(){
+        return ResponseEntity.ok(signatureService.getUrl());
+    }
+
 }
