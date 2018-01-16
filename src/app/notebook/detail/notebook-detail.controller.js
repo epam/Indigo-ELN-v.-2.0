@@ -36,7 +36,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
         vm.hasError = false;
         vm.isEditAllowed = true;
         vm.isCreateChildAllowed = true;
-        vm.allowContent = principalService.hasAuthority(roles.EXPERIMENT_READER) || principalService.hasAuthority(roles.CONTENT_EDITOR);
+        vm.allowContent = principalService.hasAnyAuthority([roles.EXPERIMENT_READER, roles.CONTENT_EDITOR]);
 
         vm.createExperiment = createExperiment;
         vm.showSummary = showSummary;
