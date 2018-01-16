@@ -84,9 +84,11 @@ linked-experiments {
     list-style-type: none;
     max-height: 280px;
     overflow-y: auto;
-    position: relative;
     background-color: @white;
     border: 1px solid rgba(0, 0, 0, .2);
     box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+
+    // Workaround for https://github.com/angular-ui/ui-select/issues/1863
+    opacity: 1 !important;
   }
 }
