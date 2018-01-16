@@ -8,11 +8,11 @@
 @import 'panels.less';
 @import 'forms.less';
 @import 'lists.less';
+@import "icon.less";
 @import 'dropdown.less';
 @import 'dialogs.less';
 @import 'label.less';
 @import 'animation.less';
-@import 'scroll.less';
 @import 'type.less';
 @import 'notify.less';
 @import "action-panel";
@@ -134,7 +134,7 @@ body {
     &:after {
       color: @statistic-radio-icon-color;
       content: "\f10c";
-      font: normal normal normal 14px/1 FontAwesome;
+      font: normal normal normal 14px/1;
       font-size: inherit;
       .position-abs-top-right(@pad-space, 50%);
       .transform-center(0, -50%);
@@ -145,7 +145,7 @@ body {
   }
 
   .statistic-txt {
-    font-family: 'Oswald Regular', sans-serif;
+    font-family: 'RobotoCondensed Regular', sans-serif;
     float: left;
     width: @statistic-txt-width;
   }
@@ -210,7 +210,7 @@ body {
 //Experiment count block (main page)
 
 .experiment-count-block {
-    font-family: 'Oswald Regular', sans-serif;
+    font-family: 'RobotoCondensed Regular', sans-serif;
     padding: 10px;
     text-align: center;
     text-transform: uppercase;
@@ -785,7 +785,7 @@ ul.my-dropdown-list {
     top: 2px;
     right: 4px;
     position: absolute;
-    font-size: 10px;
+    font-size: 15px;
     color: #23aabb;
 }
 
@@ -827,7 +827,7 @@ ul.my-dropdown-list {
     max-height: 315px;
 }
 
-.draggable-component .fa-remove {
+.draggable-component .icon-close {
     color: #777;
     cursor: pointer;
 }
@@ -978,7 +978,7 @@ ul.my-dropdown-list {
     .t-item {
         padding: 2px 8px
     }
-    .t-item .fa {
+    .t-item .icon {
         line-height: 20px
     }
     .search-table-row {

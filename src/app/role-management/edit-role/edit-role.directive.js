@@ -18,7 +18,7 @@ function editRole() {
 }
 
 /* @ngInject */
-function EditRoleController($scope, notifyService, roleService, alertModal, i18en) {
+function EditRoleController($scope, notifyService, roleService, alertModal, i18en, translateService, $q) {
     var vm = this;
     var ROLE_EDITOR_AUTHORITY = roles.ROLE_EDITOR;
 
@@ -34,17 +34,24 @@ function EditRoleController($scope, notifyService, roleService, alertModal, i18e
         vm.updateAuthoritySelection = updateAuthoritySelection;
         vm.modelChanged = modelChanged;
 
-        updateRoles();
-
         $scope.$watch('vm.role', function(role) {
             initAuthorities(role);
         });
+    }
+
+    function showWarning(dependence) {
+        notifyService.warning(translateService.translate('ATTENTION_AUTHORITY_IS_SET_AUTOMATICALLY', {
+            permission: _.find(authorities, {name: dependence}).description
+        }));
     }
 
     function checkDependenciesAuthorities(authority, isChecked) {
         _.forEach(authority.dependencies, function(dependence) {
             // Checking dependence only by isChecked === true
             if (isChecked) {
+                if (!vm.model[dependence]) {
+                    showWarning(dependence);
+                }
                 vm.model[dependence] = isChecked;
             }
 
@@ -59,17 +66,18 @@ function EditRoleController($scope, notifyService, roleService, alertModal, i18e
         checkDependenciesAuthorities(authority, isChecked);
     }
 
-    function updateRoles() {
-        return roleService.query()
-            .$promise
-            .then(function(allRoles) {
-                vm.roles = allRoles;
-                // search();
-            });
-    }
-
     function roleExistValidation(modelValue) {
-        return !_.find(vm.filteredRoles, {name: modelValue});
+        return roleService.query({search: modelValue})
+            .$promise
+            .then(function(result) {
+                if (result.length && _.find(result, {name: modelValue})) {
+                    // Role with provided name already exist
+                    return $q.reject('Role already exist');
+                }
+
+                // Nothing found, validation passes
+                return true;
+            });
     }
 
     function hasAuthority(role, authority) {

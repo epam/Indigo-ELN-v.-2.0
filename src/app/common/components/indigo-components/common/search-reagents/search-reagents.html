@@ -36,26 +36,28 @@
                             type="button"
                             ng-click="vm.removeFromMyReagentList()"
                             ng-disabled="false">
-                        <span class="fa fa-trash"></span><span class="m-l5" i-translate="REMOVE_FROM_MY_LIST"></span>
+                        <span class="icon icon-delete"></span><span class="m-l5" i-translate="REMOVE_FROM_MY_LIST"></span>
                     </button>
                     <button class="btn btn-info"
                             type="button"
                             ng-click="vm.addToStoichTable(vm.myReagentList)"
                             ng-disabled="false">
-                        <span class="fa fa-plus"></span><span class="m-l5" i-translate="ADD_TO_STOICH_TABLE"></span>
+                        <span class="icon icon-add"></span><span class="m-l5" i-translate="ADD_TO_STOICH_TABLE"></span>
                     </button>
                     <button class="btn btn-default" type="button" ng-click="vm.cancel()">
-                        <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
+                        <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
                     </button>
                 </div>
             </div>
         </uib-tab>
         <uib-tab heading="Reagent Catalog">
-            <div class="reagent-search-tab">
+            <div class="reagent-search-tab"
+                 ng-init="vm.isAdvancedSearchCollapsed = true">
                 <div ng-if="!vm.isSearchResultFound">
-                    <indigo-checklist indigo-items="vm.model.databases" indigo-label="Choose catalog to search in"
+                    <indigo-checklist indigo-items="vm.model.databases"
+                                      indigo-label="{{ vm.chooseDBLabel }}"
                                       class="m-b20"></indigo-checklist>
-                    <div ng-init="$$isCollapsed=true" class="m-b20">
+                    <div class="m-b20">
                         <div class="main-search-block">
                             <div class="row">
                                 <div class="col-xs-9">
@@ -65,24 +67,26 @@
                                     </simple-input>
                                 </div>
                                 <div class="col-xs-3">
-                                    <a class="link-advanced-search" ng-click="$$isCollapsed = !$$isCollapsed">
+                                    <a class="link-advanced-search"
+                                       ng-click="vm.isAdvancedSearchCollapsed = !vm.isAdvancedSearchCollapsed">
                                         Advanced search
-                                        <span ng-class="{'glyphicon glyphicon-chevron-down':$$isCollapsed,
-                                                 'glyphicon glyphicon-chevron-up':!$$isCollapsed}"></span>
+                                        <span ng-class="{'glyphicon glyphicon-chevron-down':vm.isAdvancedSearchCollapsed,
+                                                 'glyphicon glyphicon-chevron-up':!vm.isAdvancedSearchCollapsed}"></span>
                                     </a>
                                 </div>
                             </div>
                             <div class="search-hint" i-translate="IF_YOU_SEARCH_A_MOLECULAR_FORMULA"></div>
                         </div>
-                        <div uib-collapse="$$isCollapsed" class="collapse-content">
+                        <div uib-collapse="vm.isAdvancedSearchCollapsed" class="collapse-content">
                             <div ng-if="!vm.isSearchResultFound">
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <label class="control-label" i-translate="COMPOUND_ID" i-end=":"></label>
                                     </div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="vm.conditionText"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.compoundId.condition"></indigo-select>
+                                        <autocomplete items="vm.conditionText"
+                                                      model="vm.model.restrictions.advancedSearch.compoundId.condition">
+                                        </autocomplete>
                                     </div>
                                     <div class="col-xs-3">
                                         <simple-input>
@@ -96,8 +100,9 @@
                                         <label class="control-label" i-translate="NBK_BATCH" i-end=":"></label>
                                     </div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="vm.conditionText"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.fullNbkBatch.condition"></indigo-select>
+                                        <autocomplete items="vm.conditionText"
+                                                      model="vm.model.restrictions.advancedSearch.fullNbkBatch.condition">
+                                        </autocomplete>
                                     </div>
                                     <div class="col-xs-3">
                                         <simple-input>
@@ -111,8 +116,9 @@
                                         <label class="control-label" i-translate="MOLECULAR_FORMULA" i-end=":"></label>
                                     </div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="vm.conditionText"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.formula.condition"></indigo-select>
+                                        <autocomplete items="vm.conditionText"
+                                                      model="vm.model.restrictions.advancedSearch.formula.condition">
+                                        </autocomplete>
                                     </div>
                                     <div class="col-xs-3">
                                         <simple-input>
@@ -126,8 +132,9 @@
                                         <label class="control-label" i-translate="MOLECULAR_WEIGHT" i-end=":"></label>
                                     </div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="vm.conditionNumber"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.molWeight.condition"></indigo-select>
+                                        <autocomplete items="vm.conditionNumber"
+                                                      model="vm.model.restrictions.advancedSearch.molWeight.condition">
+                                        </autocomplete>
                                     </div>
                                     <div class="col-xs-3">
                                         <simple-input>
@@ -141,8 +148,9 @@
                                         <label class="control-label" i-translate="CHEMICAL_NAME" i-end=":"></label>
                                     </div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="vm.conditionChemicalName"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.chemicalName.condition"></indigo-select>
+                                        <autocomplete items="vm.conditionChemicalName"
+                                                      model="vm.model.restrictions.advancedSearch.chemicalName.condition">
+                                        </autocomplete>
                                     </div>
                                     <div class="col-xs-3">
                                         <simple-input>
@@ -156,8 +164,9 @@
                                         <label class="control-label" i-translate="EXTERNAL_NUMBER" i-end=":"></label>
                                     </div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="vm.conditionText"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.externalNumber.condition"></indigo-select>
+                                        <autocomplete items="vm.conditionText"
+                                                      model="vm.model.restrictions.advancedSearch.externalNumber.condition">
+                                        </autocomplete>
                                     </div>
                                     <div class="col-xs-3">
                                         <simple-input>
@@ -171,8 +180,11 @@
                                         <label class="control-label" i-translate="COMPOUND_STATE" i-end=":"></label>
                                     </div>
                                     <div class="col-xs-6">
-                                        <indigo-select indigo-dictionary="Compound State"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.compoundState.value"></indigo-select>
+                                        <autocomplete items="vm.compoundStatesList"
+                                                      model="vm.compoundStateModel"
+                                                      on-select="vm.updateCompoundState()"
+                                                      on-remove="vm.updateCompoundState()">
+                                        </autocomplete>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -180,8 +192,9 @@
                                         ng-bind="vm.model.restrictions.advancedSearch.comments.name"></span>:</label>
                                     </div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="vm.conditionText"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.comments.condition"></indigo-select>
+                                        <autocomplete items="vm.conditionText"
+                                                      model="vm.model.restrictions.advancedSearch.comments.condition">
+                                        </autocomplete>
                                     </div>
                                     <div class="col-xs-3">
                                         <simple-input>
@@ -195,8 +208,9 @@
                                         <label class="control-label" i-translate="BATCH_HAZARD_COMMENT"
                                                i-end=":"></label></div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="vm.conditionText"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.hazardComments.condition"></indigo-select>
+                                        <autocomplete items="vm.conditionText"
+                                                      model="vm.model.restrictions.advancedSearch.hazardComments.condition">
+                                        </autocomplete>
                                     </div>
                                     <div class="col-xs-3">
                                         <simple-input>
@@ -210,8 +224,9 @@
                                         <label class="control-label" i-translate="CAS_NUMBER" i-end=":"></label>
                                     </div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="vm.conditionText"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.casNumber.condition"></indigo-select>
+                                        <autocomplete items="vm.conditionText"
+                                                      model="vm.model.restrictions.advancedSearch.casNumber.condition">
+                                        </autocomplete>
                                     </div>
                                     <div class="col-xs-3">
                                         <simple-input>
@@ -228,8 +243,9 @@
                         <div class="row">
                             <div class="col-xs-2"><label class="control-label">Similarity criteria</label></div>
                             <div class="col-xs-4">
-                                <indigo-select indigo-items="vm.conditionSimilarity"
-                                               indigo-model="vm.model.restrictions.structure.similarityCriteria"></indigo-select>
+                                <autocomplete items="vm.conditionSimilarity"
+                                              model="vm.model.restrictions.structure.similarityCriteria">
+                                </autocomplete>
                             </div>
                             <div ng-if="vm.model.restrictions.structure.similarityCriteria.name == 'similarity'">
                                 <simple-input class="col-xs-2 search-reagents__criteria-input"
@@ -264,18 +280,18 @@
                         </button>
                         <button class="btn btn-default" type="button" ng-click="vm.cancel()"
                                 ng-if="!vm.isSearchResultFound">
-                            <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
+                            <span class="icon icon-stop"></span><span class="m-l5">Cancel</span>
                         </button>
                     </div>
                 </div>
                 <div ng-if="vm.isSearchResultFound">
                     <div>Search results for
                         <span ng-if="vm.model.restrictions.structure.image"> structure
-                                            <div class="search-image">
-                                                <img class="full-img structure-scheme__img"
-                                                     ng-src="data:image/svg+xml;base64,{{vm.model.restrictions.structure.image}}"
-                                                     alt="Image is unavailable.">
-                                            </div>
+                            <div class="search-image">
+                                <img class="full-img structure-scheme__img"
+                                     ng-src="data:image/svg+xml;base64,{{vm.model.restrictions.structure.image}}"
+                                     alt="Image is unavailable.">
+                            </div>
                         </span>
                         <span class="semi-b"
                               ng-if="!vm.model.restrictions.structure.image && vm.model.advancedSummary.length">&quot;
@@ -295,6 +311,11 @@
                                                              'glyphicon glyphicon-triangle-bottom':!isChangeQueryCollapsed}"></span>Change
                                 search query</a></div>
                         <div uib-collapse="isChangeQueryCollapsed" class="collapse-content">
+
+                            <indigo-checklist indigo-items="vm.model.databases"
+                                              indigo-label="{{ vm.chooseDBLabel }}"
+                                              class="m-b20"></indigo-checklist>
+
                             <div class="main-search-block m-b20">
                                 <div class="row">
                                     <div class="col-xs-9">
@@ -305,23 +326,25 @@
                                         </simple-input>
                                     </div>
                                     <div class="col-xs-3">
-                                        <a class="link-advanced-search" ng-click="$$isCollapsed = !$$isCollapsed">
+                                        <a class="link-advanced-search"
+                                           ng-click="vm.isAdvancedSearchCollapsed = !vm.isAdvancedSearchCollapsed">
                                             Advanced search
-                                            <span ng-class="{'glyphicon glyphicon-chevron-down':$$isCollapsed,
-                                                                 'glyphicon glyphicon-chevron-up':!$$isCollapsed}"></span>
+                                            <span ng-class="{'glyphicon glyphicon-chevron-down':vm.isAdvancedSearchCollapsed,
+                                                                 'glyphicon glyphicon-chevron-up':!vm.isAdvancedSearchCollapsed}"></span>
                                         </a>
                                     </div>
                                 </div>
                                 <div class="search-hint" i-translate="IF_YOU_SEARCH_A_MOLECULAR_FORMULA">
                                 </div>
                             </div>
-                            <div>
+                            <div uib-collapse="vm.isAdvancedSearchCollapsed" class="collapse-content">
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <label class="control-label" i-translate="COMPOUND_ID" i-end=":"></label></div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="vm.conditionText"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.compoundId.condition"></indigo-select>
+                                        <autocomplete items="vm.conditionText"
+                                                      model="vm.model.restrictions.advancedSearch.compoundId.condition">
+                                        </autocomplete>
                                     </div>
                                     <div class="col-xs-3">
                                         <simple-input>
@@ -334,8 +357,9 @@
                                     <div class="col-xs-3">
                                         <label class="control-label" i-translate="NBK_BATCH" i-end=":"></label></div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="vm.conditionText"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.fullNbkBatch.condition"></indigo-select>
+                                        <autocomplete items="vm.conditionText"
+                                                      model="vm.model.restrictions.advancedSearch.fullNbkBatch.condition">
+                                        </autocomplete>
                                     </div>
                                     <div class="col-xs-3">
                                         <simple-input>
@@ -349,8 +373,9 @@
                                         <label class="control-label" i-translate="MOLECULAR_FORMULA" i-end=":"></label>
                                     </div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="vm.conditionText"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.formula.condition"></indigo-select>
+                                        <autocomplete items="vm.conditionText"
+                                                      model="vm.model.restrictions.advancedSearch.formula.condition">
+                                        </autocomplete>
                                     </div>
                                     <div class="col-xs-3">
                                         <simple-input>
@@ -364,8 +389,9 @@
                                         <label class="control-label" i-translate="MOLECULAR_WEIGHT" i-end=":"></label>
                                     </div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="vm.conditionNumber"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.molWeight.condition"></indigo-select>
+                                        <autocomplete items="vm.conditionNumber"
+                                                      model="vm.model.restrictions.advancedSearch.molWeight.condition">
+                                        </autocomplete>
                                     </div>
                                     <div class="col-xs-3">
                                         <simple-input>
@@ -379,8 +405,9 @@
                                         <label class="control-label" i-translate="CHEMICAL_NAME" i-end=":"></label>
                                     </div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="vm.conditionChemicalName"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.chemicalName.condition"></indigo-select>
+                                        <autocomplete items="vm.conditionChemicalName"
+                                                      model="vm.model.restrictions.advancedSearch.chemicalName.condition">
+                                        </autocomplete>
                                     </div>
                                     <div class="col-xs-3">
                                         <simple-input>
@@ -394,8 +421,9 @@
                                         <label class="control-label" i-translate="EXTERNAL_NUMBER" i-end=":"></label>
                                     </div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="vm.conditionText"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.externalNumber.condition"></indigo-select>
+                                        <autocomplete items="vm.conditionText"
+                                                      model="vm.model.restrictions.advancedSearch.externalNumber.condition">
+                                        </autocomplete>
                                     </div>
                                     <div class="col-xs-3">
                                         <simple-input>
@@ -409,8 +437,11 @@
                                         <label class="control-label" i-translate="COMPOUND_STATE" i-end=":"></label>
                                     </div>
                                     <div class="col-xs-6">
-                                        <indigo-select indigo-dictionary="Compound State"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.compoundState.value"></indigo-select>
+                                        <autocomplete items="vm.compoundStatesList"
+                                                      model="vm.compoundStateModel"
+                                                      on-select="vm.updateCompoundState()"
+                                                      on-remove="vm.updateCompoundState()">
+                                        </autocomplete>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -418,8 +449,9 @@
                                         <label class="control-label" i-translate="BATCH_COMMENT" i-end=":"></label>
                                     </div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="vm.conditionText"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.comments.condition"></indigo-select>
+                                        <autocomplete items="vm.conditionText"
+                                                      model="vm.model.restrictions.advancedSearch.comments.condition">
+                                        </autocomplete>
                                     </div>
                                     <div class="col-xs-3">
                                         <simple-input>
@@ -433,8 +465,9 @@
                                         <label class="control-label" i-translate="BATCH_HAZARD_COMMENT"
                                                i-end=":"></label></div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="vm.conditionText"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.hazardComments.condition"></indigo-select>
+                                        <autocomplete items="vm.conditionText"
+                                                      model="vm.model.restrictions.advancedSearch.hazardComments.condition">
+                                        </autocomplete>
                                     </div>
                                     <div class="col-xs-3">
                                         <simple-input>
@@ -447,8 +480,9 @@
                                     <div class="col-xs-3">
                                         <label class="control-label" i-translate="CAS_NUMBER" i-end=":"></label></div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="vm.conditionText"
-                                                       indigo-model="vm.model.restrictions.advancedSearch.casNumber.condition"></indigo-select>
+                                        <autocomplete items="vm.conditionText"
+                                                      model="vm.model.restrictions.advancedSearch.casNumber.condition">
+                                        </autocomplete>
                                     </div>
                                     <div class="col-xs-3">
                                         <simple-input>
@@ -469,8 +503,9 @@
                                 <div class="col-xs-2"><label class="control-label"
                                                              i-translate="SIMILARITY_CRITERIA"></label></div>
                                 <div class="col-xs-4">
-                                    <indigo-select indigo-items="vm.conditionSimilarity"
-                                                   indigo-model="vm.model.restrictions.structure.similarityCriteria"></indigo-select>
+                                    <autocomplete items="vm.conditionSimilarity"
+                                                  model="vm.model.restrictions.structure.similarityCriteria">
+                                    </autocomplete>
                                 </div>
                                 <div ng-if="vm.model.restrictions.structure.similarityCriteria.name == 'similarity'">
                                     <simple-input class="col-xs-2 search-reagents__criteria-input"
@@ -520,15 +555,15 @@
                     <div class="btn-group pull-right">
                         <button class="btn btn-info" type="button" ng-click="vm.addToMyReagentList()"
                                 ng-disabled="!vm.selectedItems.length">
-                            <span class="fa fa-plus"></span><span class="m-l5"
+                            <span class="icon icon-add"></span><span class="m-l5"
                                                                   i-translate="ADD_TO_MY_REAGENT_LIST"></span>
                         </button>
                         <button class="btn btn-info" type="button" ng-click="vm.addToStoichTable(vm.searchResults)"
                                 ng-disabled="!vm.selectedItems.length">
-                            <span class="fa fa-plus"></span><span class="m-l5" i-translate="ADD_TO_STOICH_TABLE"></span>
+                            <span class="icon icon-add"></span><span class="m-l5" i-translate="ADD_TO_STOICH_TABLE"></span>
                         </button>
                         <button class="btn btn-default" type="button" ng-click="vm.cancel()">
-                            <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
+                            <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
                         </button>
                     </div>
                 </div>

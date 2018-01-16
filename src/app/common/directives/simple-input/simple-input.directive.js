@@ -1,9 +1,8 @@
 require('./simple-input.less');
 var template = require('./simple-input.html');
 
-simpleInput.$inject = ['$compile'];
-
-function simpleInput($compile) {
+/* @ngInject */
+function simpleInput($compile, $log) {
     return {
         restrict: 'E',
         transclude: true,
@@ -16,6 +15,10 @@ function simpleInput($compile) {
             var $input = $element.find('input');
 
             if ($input[0].attributes['ng-required'] || $input[0].attributes.required) {
+                if (!formCtrl) {
+                    $log.error('Elemenet hasn\'t form, but it required', $element);
+                    return;
+                }
                 $element.addClass('required');
                 $scope.ngModelCtrl = formCtrl[$input.attr('name')];
                 var el = $compile(template)($scope);

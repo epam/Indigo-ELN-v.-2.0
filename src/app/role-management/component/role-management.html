@@ -2,13 +2,13 @@
     <div class="row m-b20">
         <div class="col-sm-6">
             <button class="btn btn-primary" ng-click="vm.create()">
-                <span class="fa fa-plus" aria-hidden="true"></span>
+                <span class="icon icon-add" aria-hidden="true"></span>
                 <span class="m-l5" i-translate="CREATE_NEW_ROLE"></span>
             </button>
         </div>
         <div class="col-sm-6 text-right">
             <div class="search-field m-t5">
-                <span class="fa fa-search"></span>
+                <span class="icon icon-search"></span>
                 <input type="search"
                        class="uui-search"
                        placeholder="Search"
@@ -39,7 +39,7 @@
                         </th>
                     </tr>
                     <tbody>
-                    <tr ng-repeat="role in vm.filteredRoles track by role.id">
+                    <tr ng-repeat="role in vm.roles track by role.id">
                         <td>
                             <div class="role-name" uib-tooltip="{{role.name}}" ng-bind="role.name"></div>
                         </td>
@@ -50,22 +50,18 @@
             <div indigo-scroller="x">
                 <table class="table table-striped authorities-table">
                     <thead>
-                    <tr indigo-sort="vm.sortBy.field"
-                        is-ascending="vm.sortBy.isAscending"
-                        on-sort="vm.sortByAuthorities(predicate, isAscending)">
+                    <tr>
                         <th ng-repeat="authority in vm.authorities track by $index"
                             uib-tooltip="{{authority.tooltip}}"
                             tooltip-placement="top"
-                            tooltip-append-to-body="true"
-                            indigo-sort-by="{{ authority.name }}">
+                            tooltip-append-to-body="true">
                             <span ng-bind="authority.description"></span>
-                            <span class="glyphicon glyphicon-sort role-management__icon-sort"></span>
                         </th>
                         <th i-translate="ACTION"></th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="role in vm.filteredRoles track by role.id">
+                    <tr ng-repeat="role in vm.roles track by role.id">
                         <td ng-repeat="authority in vm.authorities track by $index">
                                 <span ng-class="{'glyphicon glyphicon-ok-sign': vm.hasAuthority(role, authority)}"
                                       class="role-check-icon"></span>
@@ -75,14 +71,14 @@
                                     ng-click="vm.editRole(role)"
                                     ng-if="!role.system"
                                     class="btn btn-info btn-small">
-                                <span class="fa fa-pencil"></span>
+                                <span class="icon icon-edit"></span>
                                 <span class="m-l5" i-translate="EDIT"></span>
                             </button>
                             <button type="submit"
                                     ng-click="vm.deleteRole(role)"
                                     ng-if="!role.system"
                                     class="btn btn-info btn-small">
-                                <span class="fa fa-trash"></span>
+                                <span class="icon icon-delete"></span>
                                 <span class="m-l5" i-translate="DELETE"></span>
                             </button>
                         </td>
@@ -90,6 +86,15 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+    <div class="text-center">
+        <div uib-pagination
+             class="pagination-sm"
+             total-items="vm.totalItems"
+             items-per-page="vm.itemsPerPage"
+             ng-model="vm.page"
+             ng-change="vm.loadRoles()">
         </div>
     </div>
 </div>

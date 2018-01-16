@@ -24,10 +24,10 @@
                 ng-init="vm.purity.data[$index].determinedBy = item.name">
                 <td ng-bind="vm.purity.data[$index].determinedBy"></td>
                 <td>
-                    <indigo-select indigo-items="vm.operatorSelect"
-                                   indigo-readonly="vm.isInknownPurity()"
-                                   indigo-model="vm.purity.data[$index].operator">
-                    </indigo-select>
+                    <autocomplete items="vm.operatorSelect"
+                                  readonly="vm.isInknownPurity()"
+                                  model="vm.purity.data[$index].operator">
+                    </autocomplete>
                 </td>
                 <td>
                     <simple-input>
@@ -51,9 +51,9 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" type="button" ng-click="vm.cancel()">
-        <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
+        <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
     </button>
     <button class="btn btn-primary" type="button" ng-click="vm.save()">
-        <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
+        <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
     </button>
 </div>

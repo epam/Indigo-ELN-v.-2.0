@@ -3,11 +3,10 @@
         <h5 class="modal-title" i-translate="EXPORT_STRUCTURE"></h5>
     </div>
     <div class="modal-body">
-        <indigo-select indigo-label="Choose format"
-                       indigo-items="vm.formats"
-                       indigo-model="vm.format"
-                       indigo-label-vertical="true">
-        </indigo-select>
+        <autocomplete label="Choose format"
+                      items="vm.formats"
+                      model="vm.format">
+        </autocomplete>
         <div>
             <indigo-text-area indigo-label="Input Structure"
                               indigo-model="vm.structureToSave">
@@ -18,10 +17,10 @@
     </div>
     <div class="modal-footer">
         <button class="btn btn-default" type="button" ng-click="vm.cancel()">
-            <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
+            <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
         </button>
         <button class="btn btn-primary" ng-click="vm.download()">
-            <span class="fa fa-download"></span><span class="m-l5" i-translate="DOWNLOAD"></span>
+            <span class="icon icon-file_download"></span><span class="m-l5" i-translate="DOWNLOAD"></span>
         </button>
     </div>
 </div>

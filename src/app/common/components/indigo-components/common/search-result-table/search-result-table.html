@@ -15,8 +15,8 @@
                  ng-class="{'search-table-row-highlight':item.$$isSelected || vm.selectedReactant === item}"
                  ng-click="item.$$isCollapsed = !item.$$isCollapsed">
                 <a class="t-item">
-                    <span ng-class="{'fa fa-angle-right':item.$$isCollapsed,
-                              'fa fa-angle-down':!item.$$isCollapsed}">
+                    <span ng-class="{'icon icon-arrow_right':item.$$isCollapsed,
+                              'icon icon-arrow_down':!item.$$isCollapsed}">
                     </span>
                 </a>
                 <div class="t-item" ng-click="$event.stopPropagation()">
@@ -48,7 +48,7 @@
                             <span class="semi-b" i-translate="REAGENT_INFORMATION"></span>
                             <button class="btn btn-default btn-small m-l5" type="button" ng-if="vm.indigoEditableInfo"
                                     ng-click="vm.editInfo(item)" ng-disabled="vm.isEditMode">
-                                <span class="fa fa-pencil"></span><span class="m-l5" i-translate="EDIT"></span>
+                                <span class="icon icon-edit"></span><span class="m-l5" i-translate="EDIT"></span>
                             </button>
                         </div>
                         <div>
@@ -109,8 +109,10 @@
                                     <label class="control-label" i-translate="REAGENT_TYPE" i-end=":"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!vm.isEditMode}">
-                                    <indigo-select ng-if="vm.isEditMode" indigo-items="vm.rxnValues"
-                                                   indigo-model="item.rxnRole"></indigo-select>
+                                    <autocomplete ng-if="vm.isEditMode"
+                                                  items="vm.rxnValues"
+                                                  model="item.rxnRole">
+                                    </autocomplete>
                                     <p ng-if="!vm.isEditMode" ng-bind="item.rxnRole.name"></p>
                                 </div>
                             </div>
@@ -131,9 +133,11 @@
                                     <label class="control-label" i-translate="SALT_CODE" i-end=":"></label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!vm.isEditMode}">
-                                    <indigo-select ng-if="vm.isEditMode" indigo-items="vm.saltCodeValues"
-                                                   indigo-change="vm.recalculateSalt(item)"
-                                                   indigo-model="item.saltCode"></indigo-select>
+                                    <autocomplete ng-if="vm.isEditMode"
+                                                   items="vm.saltCodeValues"
+                                                   on-select="vm.recalculateSalt(item)"
+                                                   model="item.saltCode">
+                                    </autocomplete>
                                     <p ng-if="!vm.isEditMode" ng-bind="item.saltCode.name"></p>
                                 </div>
                             </div>
@@ -214,11 +218,11 @@
                             </div>
                             <div class="btn-group" ng-if="vm.isEditMode">
                                 <button class="btn btn-primary" type="button" ng-click="vm.finishEdit()"
-                                        ng-disabled="false"><span class="fa fa-save"></span>
+                                        ng-disabled="false"><span class="icon icon-save"></span>
                                     <span class="m-l5" i-translate="SAVE"></span>
                                 </button>
                                 <button class="btn btn-default" type="button" ng-click="vm.cancelEdit($index)"
-                                        ng-disabled="false"><span class="fa fa-ban"></span>
+                                        ng-disabled="false"><span class="icon icon-stop"></span>
                                     <span class="m-l5" i-translate="CANCEL"></span>
                                 </button>
                             </div>

@@ -8,7 +8,7 @@
         </div>
         <div class="col-sm-6 text-right">
             <div class="search-field m-t5">
-                <span class="fa fa-search" ng-click="vm.search()"></span>
+                <span class="icon icon-search" ng-click="vm.search()"></span>
                 <input type="search" class="uui-search" placeholder="File name" id="searchFile"
                        ng-change="vm.search()" press-enter="$event.preventDefault()" ng-model="vm.searchText">
             </div>
@@ -41,7 +41,7 @@
                             ng-disabled="vm.indigoReadonly"
                             ng-click="vm.deleteFile(file)"
                             class="btn btn-info btn-small">
-                        <span class="fa fa-trash"></span>
+                        <span class="icon icon-delete"></span>
                         <span class="m-l5" i-translate="DELETE"></span>
                     </button>
                 </td>

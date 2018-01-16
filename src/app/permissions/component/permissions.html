@@ -13,6 +13,7 @@
                       items="vm.users"
                       model="vm.selectedMembers"
                       on-select="vm.addMember(item, $model);vm.selectedMembers.length = 0"
+                      autofocus="true"
                       field="login">
         </autocomplete>
         <h5><span i-translate="CURRENT_MEMBERS"></span>:</h5>
@@ -48,7 +49,7 @@
                     <td>
                         <button ng-disabled="member.isAuthor" type="button" class="btn btn-info btn-small"
                                 ng-click="vm.removeMember(member)">
-                            <span class="fa fa-trash"></span><span class="m-l5" i-translate="DELETE"></span>
+                            <span class="icon icon-delete"></span><span class="m-l5" i-translate="DELETE"></span>
                         </button>
                     </td>
                 </tr>
@@ -59,10 +60,10 @@
 
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
-            <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
+            <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
         </button>
         <button type="submit" ng-disabled="permissionsForm.$invalid" ng-click="vm.ok()" class="btn btn-primary">
-            <span class="fa fa-check" aria-hidden="true"></span><span class="m-l5" i-translate="DONE"></span>
+            <span class="icon icon-done" aria-hidden="true"></span><span class="m-l5" i-translate="DONE"></span>
         </button>
     </div>
 </div>

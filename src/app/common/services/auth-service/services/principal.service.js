@@ -80,6 +80,8 @@ function principalService(accountService) {
         identity = userIdentity;
         authenticated = userIdentity !== null;
 
+        callUserChangeListeners(identity);
+
         return identity;
     }
 
@@ -98,11 +100,14 @@ function principalService(accountService) {
         // retrieve the identity data from the server, update the identity object, and then resolve.
         identityPromise = accountService.get().$promise
             .then(function(account) {
+                callUserChangeListeners(account.data);
+
                 return authenticate(account.data);
             }, function() {
+                callUserChangeListeners(null);
+
                 return authenticate(null);
-            })
-            .finally(callUserChangeListeners);
+            });
 
         return identityPromise;
     }

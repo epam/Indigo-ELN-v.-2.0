@@ -248,7 +248,6 @@ var i18n = {
     VIEW: 'View',
     CREATE_NEW_USER: 'Create new user',
     CREATE_EDIT_USER: 'Create/Edit User',
-    THIS_FIELD_IS_REQUIRED: 'This field is required.',
     CHANGE_PASSWORD: 'Change Password',
     PASSWORD_SUCCESSFULLY_CHANGED: 'Password successfully changed!',
     USERNAME: 'Username',
@@ -287,6 +286,7 @@ var i18n = {
     COMMENTS: 'Comments',
     VALUE: 'Value',
     NO_DATA_FOUND: 'No data found',
+    WARNING: 'Warning',
 
     // Form hints
     LOGIN_HINT: 'Login should not contain letters in upper case or special symbols.',
@@ -301,13 +301,15 @@ var i18n = {
     // Notifications
     NOTIFY_INCORRECT_EMAIL: 'Email address is incorrect!',
     NOTIFY_USER_SAVE_ERROR: 'User is not saved due to server error!',
-    NAME_ALREADY_EXIST: 'Name already in use',
-    THE_ROLE_ALREADY_IN_USE: 'The role already in use',
-    USER_ALREADY_ADDED: 'The user already added',
     NOTIFY_COMPOUND_ERROR: 'Compound does not exist or in the wrong format',
     NOTIFY_BATCH_NUMBER_ERROR: 'Notebook batch number does not exist or in the wrong format- format should be "nbk. ' +
     'number-exp. number-batch number"',
-    NOTIFY_STOICHIOMETRY_SYNCHRONISED: 'Stoichiometry is synchronized'
+    NOTIFY_STOICHIOMETRY_SYNCHRONISED: 'Stoichiometry is synchronized',
+    NAME_ALREADY_EXIST: 'Name already in use',
+    THE_ROLE_ALREADY_IN_USE: 'The role already in use',
+    USER_ALREADY_ADDED: 'The user already added',
+    ATTENTION_AUTHORITY_IS_SET_AUTOMATICALLY: 'Attention: authority {{permission}} is set automatically',
+    USER_PERMISSIONS_WERE_CHANGE: 'Permissions of your account have changed and you were automatically logout.'
 };
 
 module.exports = i18n;

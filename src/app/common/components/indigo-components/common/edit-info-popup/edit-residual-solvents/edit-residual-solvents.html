@@ -17,7 +17,8 @@
             <tr ng-class="{'search-table-row-highlight':item.isSelected}">
                 <td>
                     <indigo-select indigo-dictionary="Solvent Name"
-                                   indigo-model="vm.solvents[$index].name"></indigo-select>
+                                   indigo-model="vm.solvents[$index].name">
+                    </indigo-select>
                 </td>
                 <td>
                     <simple-input>
@@ -34,7 +35,7 @@
                 </td>
                 <td><a
                         ng-click="vm.remove(vm.solvents[$index])"><span
-                        class="glyphicon glyphicon-trash"></span></a></td>
+                        class="icon icon-delete"></span></a></td>
             </tr>
             </tbody>
         </table>
@@ -43,23 +44,23 @@
         <button class="btn btn-info"
                 type="button"
                 ng-click="vm.addSolvent()">
-            <span class="fa fa-plus"></span>
+            <span class="icon icon-add"></span>
             <span class="m-l5" i-translate="ADD_RESIDUAL_SOLVENT"></span>
         </button>
         <button class="btn btn-danger"
                 type="button"
                 ng-if="vm.solvents.length"
                 ng-click="vm.removeAll()">
-            <span class="fa fa-trash"></span>
+            <span class="icon icon-delete"></span>
             <span class="m-l5" i-translate="REMOVE_ALL"></span>
         </button>
     </div>
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" type="button" ng-click="vm.cancel()">
-        <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
+        <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
     </button>
     <button class="btn btn-primary" type="button" ng-click="vm.save()">
-        <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
+        <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
     </button>
 </div>

@@ -21,7 +21,7 @@
         border-color: transparent;
         color: @tabs-link-hover-color;
       }
-      .fa-remove {
+      .icon-close {
         margin-top: 2px;
         margin-left: 13px;
       }
@@ -42,24 +42,25 @@
 //Main tabs
 
 .main-tabs {
+  position: relative;
   white-space: nowrap;
+  overflow: hidden;
+  margin-bottom: 18px;
 
   .main-tab {
+    border-bottom: 1px solid @nav-tabs-border-color;
     display: inline-block;
     float: none;
     .opacity(0.5);
 
     &.active {
+      border-bottom-color: #fff;
       .opacity(1);
 
       .main-tab-link {
-        color:@brand2;
+        color: @brand2;
       }
     }
-  }
-
-  .mCSB_horizontal.mCSB_inside > .mCSB_container {
-    margin-bottom: 18px;
   }
 }
 

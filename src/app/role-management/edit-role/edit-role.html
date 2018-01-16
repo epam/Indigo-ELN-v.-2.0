@@ -15,7 +15,8 @@
                            type="text"
                            maxlength="50"
                            ng-model="vm.role.name"
-                           dynamic-validators="{roleExist: vm.roleExistValidation}">
+                           ng-model-options="{ debounce: 300 }"
+                           dynamic-async-validators="{ roleExist: vm.roleExistValidation }">
                     <span ng-if="editForm.name.$error.roleExist" class="validate-error"
                           i-translate="NAME_ALREADY_EXIST"></span>
                 </simple-input>
@@ -39,13 +40,13 @@
     </div>
     <div class="panel-footer text-right">
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
-            <span class="fa fa-ban"></span><span class="m-l5" i-translate="CANCEL"></span>
+            <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
         </button>
         <button type="button" class="btn btn-default m-l5" data-dismiss="modal" ng-click="vm.resetAuthorities()">
             Reset
         </button>
         <button type="submit" ng-disabled="editForm.$invalid || vm.isSaving" class="btn btn-primary m-l5">
-            <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
+            <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
         </button>
     </div>
 </form>

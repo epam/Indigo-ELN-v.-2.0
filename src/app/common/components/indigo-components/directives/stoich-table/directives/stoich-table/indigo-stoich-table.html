@@ -17,31 +17,31 @@
                     <div class="btn-group">
                         <button type="button" ng-click="vm.searchReagents(0)" class="btn btn-info btn-small"
                                 ng-disabled="vm.isReadonly">
-                            <span class="fa fa-list"></span>
+                            <span class="icon icon-list"></span>
                             <span class="m-l5" i-translate="MY_REAGENT_LIST"></span>
                         </button>
                         <button type="button" ng-click="vm.searchReagents(1)" class="btn btn-info btn-small"
                                 ng-disabled="vm.isReadonly">
-                            <span class="fa fa-search"></span>
+                            <span class="icon icon-search"></span>
                             <span class="m-l5" i-translate="SEARCH_DBS"></span>
                         </button>
                         <button type="button" class="btn btn-info btn-small" disabled>
-                            <span class="fa fa-search"></span>
+                            <span class="icon icon-search"></span>
                             <span class="m-l5" i-translate="MSDS_SEARCH"></span>
                         </button>
                         <button type="button" class="btn btn-info btn-small" ng-disabled="vm.isReadonly"
                                 ng-click="vm.appendRow()">
-                            <span class="fa fa-plus"></span>
+                            <span class="icon icon-add"></span>
                             <span class="m-l5" i-translate="ADD"></span>
                         </button>
                         <button type="button" class="btn btn-info btn-small"
                                 ng-disabled="vm.isReadonly || !vm.selectedRow" ng-click="vm.clear()">
-                            <span class="fa fa-eraser"></span>
+                            <span class="icon icon-eraser"></span>
                             <span class="m-l5" i-translate="CLEAR"></span>
                         </button>
                         <button type="button" class="btn btn-info btn-small"
                                 ng-disabled="vm.isReadonly || !vm.selectedRow" ng-click="vm.removeRow()">
-                            <span class="fa fa-trash"></span>
+                            <span class="icon icon-delete"></span>
                             <span class="m-l5" i-translate="DELETE"></span>
                         </button>
                     </div>
@@ -51,12 +51,12 @@
                         <button type="button" ng-click="vm.analyzeRxn()"
                                 ng-disabled="vm.isReadonly || !vm.infoReactants.length"
                                 class="btn btn-info btn-small">
-                            <span class="fa fa-line-chart"></span>
+                            <span class="icon icon-trending_up"></span>
                             <span class="m-l5" i-translate="ANALYZE_RXN"></span>
                         </button>
                         <button type="button" class="btn btn-info btn-small" ng-click="vm.createRxn()"
                                 ng-disabled="vm.isReadonly || vm.noReactantsInStoic()">
-                            <span class="fa fa-plus"></span>
+                            <span class="icon icon-add"></span>
                             <span class="m-l5" i-translate="CREATE_RXN"></span>
                         </button>
                     </div>

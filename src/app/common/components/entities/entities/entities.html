@@ -12,9 +12,9 @@
             class="main-tab">
             <a ng-click="vm.onTabClick($event, tab)"
                class="main-tab-link">
-                <span class="fa fa-remove pull-right clickable" ng-click="vm.onCloseTabClick($event, tab);"></span>
+                <span class="icon icon-close pull-right clickable" ng-click="vm.onCloseTabClick($event, tab);"></span>
                 <span ng-bind="tab.name"></span> <span ng-bind="tab.$$title"></span>
-                <span class="fa fa-asterisk entity-changed" aria-hidden="true" ng-if="tab.dirty"></span>
+                <span class="icon icon-asterix_es entity-changed" aria-hidden="true" ng-if="tab.dirty"></span>
             </a>
         </li>
     </ul>

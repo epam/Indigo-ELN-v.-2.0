@@ -33,7 +33,7 @@ var SearchReagentsController = require('./common/search-reagents/search-reagents
 var SomethingDetailsController = require('./common/something-details/something-details.controller');
 
 var typeOfComponents = require('./constants/type-of-components.constant');
-var searchReagentsConstant = require('./common/search-reagents/search-reagents.constant');
+var searchReagentsService = require('./common/search-reagents/search-reagents.service');
 
 var productBatchSummaryCache = require('./services/product-batch-summary-cache.service');
 var productBatchSummaryOperations = require('./services/product-batch-summary-operations.service');
@@ -81,7 +81,6 @@ module.exports = angular
     .controller('SomethingDetailsController', SomethingDetailsController)
 
     .constant('typeOfComponents', typeOfComponents)
-    .constant('searchReagentsConstant', searchReagentsConstant)
 
     .factory('productBatchSummaryCache', productBatchSummaryCache)
     .factory('productBatchSummaryOperations', productBatchSummaryOperations)
@@ -91,6 +90,7 @@ module.exports = angular
     .factory('calculationHelper', calculationHelper)
     .factory('batchesCalculation', batchesCalculation)
     .factory('componentsUtil', componentsUtil)
+    .factory('searchReagentsService', searchReagentsService)
 
     .run(run)
 

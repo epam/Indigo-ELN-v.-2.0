@@ -11,12 +11,12 @@
                     <button ui-sref=".permissions"
                             class="btn btn-default btn-small"
                             ng-disabled="!vm.isEditAllowed">
-                        <span class="fa fa-pencil"></span>
+                        <span class="icon icon-edit"></span>
                         <span class="m-l5" i-translate="EDIT"></span>
                     </button>
                     <button type="button" class="btn btn-default btn-small"
                             ui-sref=".permissions-view">
-                        <span class="fa fa-eye"></span><span class="m-l5" i-translate="VIEW_MEMBERS"></span>
+                        <span class="icon icon-eye"></span><span class="m-l5" i-translate="VIEW_MEMBERS"></span>
                     </button>
                 </div>
             </div>
@@ -122,7 +122,7 @@
             </a>
             <!--TODO: Task EPMLSOPELN-532: Functionality is temporarily removed-->
             <!--<button type="button" class="btn btn-default" ng-disabled="!vm.canUndo()" ng-click="vm.undoAction()">-->
-            <!--<span class="fa fa-undo"></span><span class="m-l5">Undo Action</span>-->
+            <!--<span class="icon icon-undo"></span><span class="m-l5">Undo Action</span>-->
             <!--</button>-->
             <!--<button type="button" class="btn btn-default" ng-disabled="!vm.canRedo()" ng-click="vm.redoAction()">-->
             <!--<span class="fa fa-redo"></span><span class="m-l5">Redo Action</span>-->
@@ -136,14 +136,14 @@
         <button type="submit" form="createNotebookForm"
                 ng-disabled="!vm.isEditAllowed || createNotebookForm.$invalid || vm.isSaving || !vm.isEntityChanged"
                 class="btn btn-primary">
-            <span class="fa fa-save"></span><span class="m-l5" i-translate="SAVE"></span>
+            <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
         </button>
         <button class="btn btn-default" ng-click="vm.refresh()"
                 ng-disabled="!vm.isEditAllowed || !vm.isEntityChanged">
-            <span class="fa fa-refresh"></span><span class="m-l5" i-translate="RESET"></span>
+            <span class="icon icon-refresh"></span><span class="m-l5" i-translate="RESET"></span>
         </button>
         <button type="button" class="btn btn-default" onclick="window.history.back()">
-            <span class="fa fa-mail-reply"></span><span class="m-l5" i-translate="BACK"></span>
+            <span class="icon icon-undo"></span><span class="m-l5" i-translate="BACK"></span>
         </button>
     </div>
 </div>

@@ -40,7 +40,6 @@ function IndigoProductBatchDetailsController($scope, appValuesService, infoEdito
         vm.productTableColumns = getDefaultColumns();
         vm.showSummary = false;
         vm.notebookId = entitiesBrowserService.getActiveTab().$$title;
-        vm.selectControl = {};
         vm.saltCodeValues = appValuesService.getSaltCodeValues();
         vm.selectBatch = selectBatch;
         vm.editSolubility = editSolubility;

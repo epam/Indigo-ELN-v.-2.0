@@ -78,12 +78,17 @@ textarea, .textarea-structure {
 
   .my-checkbox {
     background-color: @white !important;
+    border: 1px solid;
     border-color: @border-color !important;
     color: @brand2 !important;
     padding: 1px 3px 1px 5px !important;
-    font: 10px 'Oswald Regular', sans-serif !important;
+    font: 10px 'Roboto Regular', sans-serif !important;
     margin-right: 5px;
     margin-top: -3px;
+
+    &:hover {
+      border: 1px solid;
+    }
   }
 
   label {
@@ -148,6 +153,7 @@ textarea, .textarea-structure {
 .form-inline {
   .select-inline {
     width: 30%;
+    display: inline-block;
 
     .form-control {
       width: 100%;
