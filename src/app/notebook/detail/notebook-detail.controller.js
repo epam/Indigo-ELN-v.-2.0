@@ -116,13 +116,13 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
         });
     }
 
-    function onRestore(storeData) {
-        var version = vm.notebook.version;
+    function onRestore(storeData, lastVersion) {
+        var version = lastVersion || _.get(vm.experiment, 'version') || storeData.version;
         vm.notebook = storeData;
+
         initPermissions();
-        if (angular.isDefined(version)) {
-            vm.notebook.version = version;
-        }
+        vm.notebook.version = version;
+
         entitiesCache.put($stateParams, vm.notebook);
     }
 

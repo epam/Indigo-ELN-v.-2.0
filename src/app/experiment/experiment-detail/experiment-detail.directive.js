@@ -139,8 +139,10 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     function onRestore(storeData, lastVersion) {
         var version = lastVersion || _.get(vm.experiment, 'version') || storeData.version;
         vm.experiment = storeData;
+
         initPermissions();
         vm.experiment.version = version;
+
         entitiesCache.put($stateParams, vm.experiment);
     }
 
