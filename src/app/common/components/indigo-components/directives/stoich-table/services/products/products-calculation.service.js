@@ -11,7 +11,7 @@ function productsCalculation(calculationHelper) {
     };
 
     function calculate(productsData) {
-        rows = calculationHelper.getClonedRows(productsData.rows);
+        rows = calculationHelper.clone(productsData.rows);
         var changedRow = calculationHelper.findChangedRow(rows, productsData.idOfChangedRow);
 
         recalculate(changedRow, productsData.changedField, productsData.limitingRow);

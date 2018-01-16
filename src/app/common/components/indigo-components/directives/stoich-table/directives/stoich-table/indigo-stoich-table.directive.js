@@ -19,6 +19,7 @@ function indigoStoichTable() {
             onChangedReactants: '&',
             onChangedProducts: '&',
             onPrecursorsChanged: '&',
+            onStoichTableChanged: '&',
             onChanged: '&'
         }
     };
@@ -109,6 +110,11 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         });
 
         onProductsChanged();
+        updateBatches();
+    }
+
+    function updateBatches() {
+        vm.onStoichTableChanged({stoichTable: vm.componentData});
     }
 
     function removeRow() {

@@ -1,4 +1,5 @@
 var template = require('./batch-structure.html');
+var fieldTypes = require('../stoich-table/domain/field-types');
 
 function indigoBatchStructure() {
     return {
@@ -17,7 +18,7 @@ function indigoBatchStructure() {
 }
 
 /* @ngInject */
-function IndigoBatchStructureController($q, calculationService) {
+function IndigoBatchStructureController($q, calculationService, batchHelper) {
     var vm = this;
 
     init();
@@ -46,6 +47,7 @@ function IndigoBatchStructureController($q, calculationService) {
         batch.formula = null;
         batch.molWeight = null;
 
+        // TODO: investigate it's old api
         return calculationService.calculateProductBatch({
             row: batch, column: getColumn(batch)
         });
@@ -57,11 +59,10 @@ function IndigoBatchStructureController($q, calculationService) {
         batch.molWeight.value = molInfo.molecularWeight;
         batch.molWeight.baseValue = molInfo.molecularWeight;
 
+        batchHelper.calculateRow({changedRow: batch, changedField: fieldTypes.molWeight});
         // TODO: investigate
+
         return $q.resolve();
-        // return calculationService.calculateProductBatch({
-        //     row: batch, column: getColumn(batch)
-        // });
     }
 
     function updateBatchMolInfo() {

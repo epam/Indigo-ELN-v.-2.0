@@ -20,6 +20,7 @@ function BatchViewRow(props) {
 BatchViewRow.prototype = {
     setTheoMoles: setTheoMoles,
     setMolWeight: setMolWeight,
+    setTheoWeight: setTheoWeight,
     setFormula: setFormula,
     constructor: BatchViewRow
 };
@@ -51,6 +52,10 @@ function setTheoMoles(value) {
     this.theoMoles.value = value;
 }
 
+function setTheoWeight(value) {
+    this.theoWeight.value = value;
+}
+
 function setMolWeight(value) {
     this.molWeight.value = value;
 }
@@ -78,7 +83,25 @@ function getDefaultBatchViewRow() {
         structure: null,
         precursors: null,
         theoWeight: {value: 0, unit: 'mg'},
-        theoMoles: {value: 0, unit: 'mmol'}
+        theoMoles: {value: 0, unit: 'mmol'},
+        totalWeight: new BatchViewField(0, 'mg'),
+        totalMoles: new BatchViewField(0, 'mmol'),
+        totalVolume: new BatchViewField(0, 'mL'),
+        yield: 0,
+        compoundState: null,
+        purity: null,
+        meltingPoint: null,
+        source: null,
+        sourceDetail: null,
+        externalSupplier: null,
+        healthHazards: null,
+        compoundProtection: null,
+        residualSolvents: null,
+        solubility: null,
+        storageInstructions: null,
+        handlingPrecautions: null,
+        comments: null,
+        batchType: null
     };
 }
 

@@ -98,6 +98,13 @@ describe('service: mathCalculation', function() {
         });
     });
 
+    describe('computeYield function', function() {
+        it('should be 133', function() {
+            var res = mathCalculation.computeYield(4, 3);
+            expect(res).toBe(133);
+        });
+    });
+
     describe('multiply function', function() {
         it('should be 0.02', function() {
             var res = mathCalculation.multiply(0.005, 4);

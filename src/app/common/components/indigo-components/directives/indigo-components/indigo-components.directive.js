@@ -1,6 +1,5 @@
 require('./indigo-components.less');
 var template = require('./indigo-components.html');
-var BatchViewRow = require('./domain/batch-row/view-row/batch-view-row');
 
 function indigoComponents() {
     return {
@@ -21,7 +20,7 @@ function indigoComponents() {
 }
 
 /* @ngInject */
-function IndigoComponentsController($scope, productBatchSummaryOperations, productBatchSummaryCache,
+function IndigoComponentsController($scope, productBatchSummaryOperations, productBatchSummaryCache, calculationHelper,
                                     entitiesBrowserService, principalService, batchHelper, stoichTableHelper) {
     var vm = this;
     var precursors;
@@ -43,6 +42,7 @@ function IndigoComponentsController($scope, productBatchSummaryOperations, produ
         vm.onSelectBatch = onSelectBatch;
         vm.onRemoveBatches = onRemoveBatches;
         vm.onPrecursorsChanged = onPrecursorsChanged;
+        vm.onStoichTableChanged = onStoichTableChanged;
         vm.onChangedComponent = onChangedComponent;
         vm.setActive = setActive;
         vm.userId = _.get(principalService.getIdentity(), 'id');
@@ -92,14 +92,14 @@ function IndigoComponentsController($scope, productBatchSummaryOperations, produ
         $scope.$watch('vm.model', updateModel);
         $scope.$watch('vm.experiment', updateActiveTab);
 
-        $scope.$on('stoic-table-recalculated', function(event, data) {
-            if (data.actualProducts.length === vm.batches.length) {
-                _.each(vm.batches, function(batch, i) {
-                    batch.theoWeight.value = data.actualProducts[i].theoWeight.value;
-                    batch.theoMoles.value = data.actualProducts[i].theoMoles.value;
-                });
-            }
-        });
+        // $scope.$on('stoic-table-recalculated', function(event, data) {
+        //     if (data.actualProducts.length === vm.batches.length) {
+        //         _.each(vm.batches, function(batch, i) {
+        //             batch.theoWeight.value = data.actualProducts[i].theoWeight.value;
+        //             batch.theoMoles.value = data.actualProducts[i].theoMoles.value;
+        //         });
+        //     }
+        // });
     }
 
     function updateActiveTab() {
@@ -149,8 +149,6 @@ function IndigoComponentsController($scope, productBatchSummaryOperations, produ
     function onAddedBatch(batch) {
         batch.precursors = precursors;
         vm.batches.push(batch);
-        console.log('vm.batches');
-        console.log(vm.batches);
         vm.batchesTrigger++;
     }
 
@@ -164,6 +162,17 @@ function IndigoComponentsController($scope, productBatchSummaryOperations, produ
         _.forEach(vm.batches, function(batch) {
             batch.precursors = precursors;
         });
+    }
+
+    function onStoichTableChanged(stoichTable) {
+        var limitingRow = calculationHelper.findLimitingRow(stoichTable.reactants);
+
+        var batchesData = {
+            rows: vm.batches,
+            limitingRow: limitingRow
+        };
+
+        batchHelper.calculateAllRows(batchesData);
     }
 
     function batchesChanged() {

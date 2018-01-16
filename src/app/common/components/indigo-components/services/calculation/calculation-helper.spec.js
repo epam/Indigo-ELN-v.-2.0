@@ -25,10 +25,10 @@ describe('service: calculationHelper', function() {
             }
         ];
 
-        clonedRows = service.getClonedRows(rows);
+        clonedRows = service.clone(rows);
     });
 
-    describe('getClonedRows function', function() {
+    describe('clone function', function() {
         it('should return copied array', function() {
             expect(clonedRows).not.toBe(rows);
             expect(clonedRows[0]).not.toBe(rows[0]);

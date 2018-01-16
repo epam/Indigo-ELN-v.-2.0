@@ -141,7 +141,7 @@ function IndigoProductBatchDetailsController($scope, appValuesService, infoEdito
         return [
             batchHelper.columns.totalWeight,
             batchHelper.columns.totalVolume,
-            batchHelper.columns.mol,
+            batchHelper.columns.totalMoles,
             batchHelper.columns.theoWeight,
             batchHelper.columns.theoMoles,
             batchHelper.columns.yield,

@@ -10,7 +10,7 @@ function reagentsCalculation(calculationHelper) {
     };
 
     function calculate(reagentsData) {
-        rows = calculationHelper.getClonedRows(reagentsData.rows);
+        rows = calculationHelper.clone(reagentsData.rows);
         var changedRow = calculationHelper.findChangedRow(rows, reagentsData.idOfChangedRow);
 
         recalculate(changedRow, reagentsData.changedField);

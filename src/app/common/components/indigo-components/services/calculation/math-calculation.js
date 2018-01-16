@@ -20,7 +20,7 @@ mathCalculation.computeMolWeightBySalt = computeMolWeightBySalt;
 mathCalculation.computeVolumeByMolarity = computeVolumeByMolarity;
 mathCalculation.computeVolumeByDensity = computeVolumeByDensity;
 mathCalculation.computeWeightByDensity = computeWeightByDensity;
-// mathCalculation.computeYield = computeYield;
+mathCalculation.computeYield = computeYield;
 mathCalculation.multiply = multiply;
 mathCalculation.divide = divide;
 
@@ -221,10 +221,22 @@ function computeWeightByDensity(volume, density) {
         .toNumber();
 }
 
-// TODO: need more details
-// function computeYield() {
-//
-// }
+/**
+ * Compute yield: Yield = (TotalMoles / TheoMoles) * 100
+ * @param totalMoles
+ * @param theoMoles
+ * @returns {number}
+ */
+function computeYield(totalMoles, theoMoles) {
+    var res = math
+        .chain(bignumber(totalMoles))
+        .divide(bignumber(theoMoles))
+        .multiply(bignumber(ONE_HUNDRED))
+        .done()
+        .toNumber();
+
+    return math.round(res);
+}
 
 function multiply(x, y) {
     return math

@@ -190,9 +190,8 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
         var batch = new BatchViewRow();
         var stoichTable = stoichTableCache.getStoicTable();
         if (stoichTable) {
-            var molOfLimiting = calculationHelper.getMolFromLimitingRow(stoichTable.reactants);
-            batch.setTheoMoles(molOfLimiting);
-            // _.extend(batch, angular.copy(calculationService.createBatch(stoichTable, true)));
+            var limitingRow = calculationHelper.findLimitingRow(stoichTable.reactants);
+            calculationHelper.updateValuesDependingOnTheoMoles(batch, limitingRow);
         }
 
         _.extend(batch, sdUnit, {

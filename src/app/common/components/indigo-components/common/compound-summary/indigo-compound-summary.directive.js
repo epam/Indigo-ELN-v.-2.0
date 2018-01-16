@@ -51,12 +51,11 @@ function IndigoCompoundSummaryController($scope, batchHelper) {
 
     function onBatchChanged(change) {
         var batchesData = {
-            rows: vm.batches,
-            idOfChangedRow: change ? change.row.id : null,
-            changedField: change ? change.column : null
+            changedRow: change.row,
+            changedField: change.column
         };
 
-        batchHelper.onBatchChanged(batchesData);
+        batchHelper.calculateRow(batchesData);
     }
 
     function getDefaultColumns() {

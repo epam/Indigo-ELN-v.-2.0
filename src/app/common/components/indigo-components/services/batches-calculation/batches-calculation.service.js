@@ -1,33 +1,116 @@
 var fieldTypes = require('../../directives/stoich-table/domain/field-types');
 var mathCalculation = require('../../services/calculation/math-calculation');
+var DEFAULT_PURITY = 100;
 
 /* @ngInject */
 function batchesCalculation(calculationHelper) {
     var rows;
 
     return {
-        calculate: calculate
+        calculateAllRows: calculateAllRows,
+        calculateRow: calculateRow
     };
 
-    function calculate(batchesData) {
-        rows = calculationHelper.getClonedRows(batchesData.rows);
-        var changedRow = calculationHelper.findChangedRow(rows, batchesData.idOfChangedRow);
-
-        recalculate(changedRow, batchesData.changedField);
+    function calculateAllRows(batchesData) {
+        rows = calculationHelper.clone(batchesData.rows);
+        recalculateAllRows(batchesData.limitingRow);
 
         return rows;
     }
 
-    function recalculate(row, fieldId) {
+    function calculateRow(batchesData) {
+        var changedRow = calculationHelper.clone(batchesData.changedRow);
+        recalculateRow(changedRow, batchesData.changedField);
+
+        return changedRow;
+    }
+
+    function recalculateAllRows(limitingRow) {
+        _.forEach(rows, function(row) {
+            calculationHelper.updateValuesDependingOnTheoMoles(row, limitingRow);
+        });
+    }
+
+    function recalculateRow(row, fieldId) {
         switch (fieldId) {
+            case fieldTypes.totalVolume:
+                row.totalVolume.entered = true;
+                onVolumeChanged(row);
+                break;
+            case fieldTypes.totalWeight:
+                row.totalWeight.entered = true;
+                onTotalWeightChanged(row);
+                break;
+            case fieldTypes.totalMoles:
+                row.totalMoles.entered = true;
+                onTotalMolesChanged(row);
+                break;
+            case fieldTypes.molWeight:
+                onMolWeightChanged(row);
+                break;
             case fieldTypes.saltCode:
                 onSaltChanged(row);
                 break;
             case fieldTypes.saltEq:
+                row.saltEq.entered = true;
                 onSaltChanged(row);
                 break;
             default:
                 break;
+        }
+    }
+
+    function onVolumeChanged(row) {
+        row.totalMoles.entered = false;
+        row.totalMoles.value = 0;
+        row.totalWeight.entered = false;
+        row.totalWeight.value = 0;
+        row.yield = 0;
+    }
+
+    function onTotalWeightChanged(row) {
+        row.totalMoles.entered = false;
+        row.totalMoles.value = 0;
+
+        if (!row.molWeight.baseValue) {
+            return;
+        }
+
+        row.totalMoles.value = mathCalculation.computeMol(row.totalWeight.value, row.molWeight.value, DEFAULT_PURITY);
+
+        row.yield = row.theoMoles.value
+            ? mathCalculation.computeYield(row.totalMoles.value, row.theoMoles.value)
+            : 0;
+    }
+
+    function onTotalMolesChanged(row) {
+        row.totalWeight.entered = false;
+        row.totalWeight.value = 0;
+
+        if (!row.molWeight.baseValue) {
+            return;
+        }
+
+        row.totalWeight.value = mathCalculation.computeWeight(
+            row.totalMoles.value, row.molWeight.value, DEFAULT_PURITY
+        );
+
+        row.yield = row.theoMoles.value
+            ? mathCalculation.computeYield(row.totalMoles.value, row.theoMoles.value)
+            : 0;
+    }
+
+    function onMolWeightChanged(row) {
+        var theoWeight = row.theoMoles.value ?
+            mathCalculation.computeWeight(row.theoMoles.value, row.molWeight.value, DEFAULT_PURITY)
+            : 0;
+
+        row.setTheoWeight(theoWeight);
+
+        if (row.totalMoles.entered) {
+            onTotalMolesChanged(row);
+        } else if (row.totalWeight.entered) {
+            onTotalWeightChanged(row);
         }
     }
 
@@ -50,6 +133,8 @@ function batchesCalculation(calculationHelper) {
 
         row.setMolWeight(molWeight);
         row.setFormula(formula);
+
+        onMolWeightChanged(row);
     }
 }
 

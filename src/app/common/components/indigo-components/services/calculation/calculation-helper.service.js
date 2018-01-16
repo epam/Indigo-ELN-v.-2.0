@@ -1,16 +1,20 @@
+var mathCalculation = require('./math-calculation');
+var DEFAULT_PURITY = 100;
+
 /* @ngInject */
-function calculationHelper($http) {
+function calculationHelper($http, $log, $q) {
     return {
-        getClonedRows: getClonedRows,
+        clone: clone,
         findChangedRow: findChangedRow,
         getFormula: getFormula,
         findLimitingRow: findLimitingRow,
-        getMolFromLimitingRow: getMolFromLimitingRow,
         updateViewRows: updateViewRows,
-        recalculateSalt: recalculateSalt
+        updateViewRow: updateViewRow,
+        recalculateSalt: recalculateSalt,
+        updateValuesDependingOnTheoMoles: updateValuesDependingOnTheoMoles
     };
 
-    function getClonedRows(rows) {
+    function clone(rows) {
         return _.cloneDeep(rows);
     }
 
@@ -33,24 +37,24 @@ function calculationHelper($http) {
     function updateViewRows(calculatedRows, viewRows) {
         _.forEach(viewRows, function(viewRow, index) {
             var calcRow = calculatedRows[index];
-            var calcRowFields = _.keys(calcRow);
+            updateViewRow(calcRow, viewRow);
+        });
+    }
 
-            _.forEach(calcRowFields, function(field) {
-                _.assign(viewRow[field], calcRow[field]);
-            });
+    function updateViewRow(calculatedRow, viewRow) {
+        var calcRowFields = _.keys(calculatedRow);
+
+        _.forEach(calcRowFields, function(field) {
+            if (_.isObject(viewRow[field])) {
+                _.assign(viewRow[field], calculatedRow[field]);
+            } else {
+                viewRow[field] = calculatedRow[field];
+            }
         });
     }
 
     function findLimitingRow(reagents) {
         return _.find(reagents, ['limiting.value', true]);
-    }
-
-    function getMolFromLimitingRow(reagents) {
-        var limitingRow = findLimitingRow(reagents);
-
-        return limitingRow && limitingRow.mol.value
-            ? limitingRow.mol.value
-            : 0;
     }
 
     function recalculateSalt(batchRow) {
@@ -85,6 +89,34 @@ function calculationHelper($http) {
                 saltEq: saltEq
             }
         };
+    }
+
+    function updateValuesDependingOnTheoMoles(row, limitingRow) {
+        var theoMoles = 0;
+        var theoWeight = 0;
+        var shouldRecalculateTheoValues = limitingRow && limitingRow.mol;
+
+        if (shouldRecalculateTheoValues) {
+            theoMoles = limitingRow.mol.value;
+            theoWeight = mathCalculation.computeWeight(theoMoles, row.molWeight.value, DEFAULT_PURITY);
+        }
+
+        row.setTheoMoles(theoMoles);
+        row.setTheoWeight(theoWeight);
+
+        if (row.totalMoles.entered) {
+            row.totalWeight.value = mathCalculation.computeWeight(
+                row.totalMoles.value, row.molWeight.value, DEFAULT_PURITY
+            );
+        } else if (row.totalWeight.entered) {
+            row.totalMoles.value = mathCalculation.computeMol(
+                row.totalWeight.value, row.molWeight.value, DEFAULT_PURITY
+            );
+        }
+
+        row.yield = row.theoMoles.value
+            ? mathCalculation.computeYield(row.totalMoles.value, row.theoMoles.value)
+            : 0;
     }
 }
 

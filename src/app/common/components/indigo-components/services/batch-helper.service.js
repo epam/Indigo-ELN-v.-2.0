@@ -10,13 +10,18 @@ function batchHelper(appUnits, calculationService, columnActions, batchesCalcula
         $$batchType: onCloseBatchType
     };
 
-    function onBatchChanged(batchesData) {
-        console.log('batchesData');
-        console.log(batchesData);
+    function calculateAllRows(batchesData) {
         // var preparedReagentsData = prepareReagentsForCalculation(change);
-        var calculatedRows = batchesCalculation.calculate(batchesData);
+        var calculatedRows = batchesCalculation.calculateAllRows(batchesData);
 
         calculationHelper.updateViewRows(calculatedRows, batchesData.rows);
+    }
+
+    function calculateRow(batchesData) {
+        // var preparedReagentsData = prepareReagentsForCalculation(change);
+        var calculatedRow = batchesCalculation.calculateRow(batchesData);
+
+        calculationHelper.updateViewRow(calculatedRow, batchesData.changedRow);
     }
 
     function close(column, data) {
@@ -83,7 +88,8 @@ function batchHelper(appUnits, calculationService, columnActions, batchesCalcula
 
     return {
         close: close,
-        onBatchChanged: onBatchChanged,
+        calculateAllRows: calculateAllRows,
+        calculateRow: calculateRow,
         hasCheckedRow: hasCheckedRow,
         getCheckedBatches: getCheckedBatches,
         recalculateSalt: recalculateSalt,
@@ -122,8 +128,8 @@ function batchHelper(appUnits, calculationService, columnActions, batchesCalcula
                 unitItems: appUnits.liters,
                 actions: unitService.getActions('Total Volume', appUnits.liters)
             },
-            mol: {
-                id: 'mol',
+            totalMoles: {
+                id: 'totalMoles',
                 name: 'Total Moles',
                 type: 'unit',
                 width: '150px',
@@ -200,7 +206,7 @@ function batchHelper(appUnits, calculationService, columnActions, batchesCalcula
                 actions: setInputService.getActions('Batch Comments')
             },
             $$batchType: {
-                id: '$$batchType',
+                id: 'batchType',
                 name: 'Intermediate/Test Compound',
                 type: 'select',
                 values: compounds,
