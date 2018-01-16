@@ -128,7 +128,19 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
 
         vm.popoverExperiment = node;
 
-        if (!vm.experimentsCollection[node.original.fullId]) {
+        var nodeVersion = node && node.original && node.original.version
+            ? node.original.version
+            : null;
+
+        var cache = vm.experimentsCollection[node.original.fullId];
+        var cachedVersion = cache && cache && cache.version
+            ? cache.version
+            : null;
+
+        if (!cache || nodeVersion !== cachedVersion) {
+            if (cache) {
+                delete vm.experimentsCollection[node.original.fullId];
+            }
             experimentService.get(getParams(node.params)).$promise.then(function(experiment) {
                 vm.experimentsCollection[node.original.fullId] = experiment;
             });
