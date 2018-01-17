@@ -53,7 +53,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final String[] TEMPLATE_READERS = new String[]{
             TEMPLATE_EDITOR.name(), EXPERIMENT_CREATOR.name(),
-            NOTEBOOK_CREATOR.name(), PROJECT_CREATOR.name()};
+            NOTEBOOK_CREATOR.name(), PROJECT_CREATOR.name(),
+            CONTENT_EDITOR.name()};
 
     private static final String[] USER_READERS = new String[]{
             USER_EDITOR.name(), CONTENT_EDITOR.name(), EXPERIMENT_CREATOR.name(),
