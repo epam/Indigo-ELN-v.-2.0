@@ -16,7 +16,7 @@ describe('filter: customNumber', function() {
         expect(filter(null)).toBe('');
     });
 
-    it('should return 0 string for zero', ()=>{
+    it('should return 0 string for zero', function() {
         expect(filter(0)).toBe('0');
     });
 
