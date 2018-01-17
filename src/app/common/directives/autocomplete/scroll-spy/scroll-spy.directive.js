@@ -12,6 +12,10 @@ function scrollSpy() {
                     }
                 }
             });
+
+            $scope.$on('$destroy', function() {
+                $element.unbind('scroll');
+            });
         }
     };
 }

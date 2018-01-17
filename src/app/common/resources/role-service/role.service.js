@@ -6,7 +6,7 @@ function roleService($resource, apiUrl) {
             transformResponse: function(data, headersGetter) {
                 return {
                     data: angular.fromJson(data),
-                    headers: headersGetter()
+                    totalItemsCount: headersGetter('x-total-count')
                 };
             }
         },

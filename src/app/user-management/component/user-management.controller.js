@@ -25,7 +25,7 @@ function UserManagementController($uibModal, userService, parseLinks, pageInfo, 
     vm.passwordValidationText = translateService.translate('PASSWORD_HINT');
 
     vm.loadAll = loadAll;
-    vm.queryRoles = queryRoles;
+    vm.searchRoles = searchRoles;
     vm.loadRolesPage = loadRolesPage;
     vm.setActive = setActive;
     vm.clear = clear;
@@ -58,32 +58,30 @@ function UserManagementController($uibModal, userService, parseLinks, pageInfo, 
 
         rolesPaging.pageNumber += 1;
 
-        return roleService.query({
-            page: rolesPaging.pageNumber,
-            size: rolesPaging.itemsPerPage,
-            search: query
-        })
-            .$promise
+        return queryRoles(query, rolesPaging.pageNumber)
             .then(function(result) {
                 vm.roles = vm.roles.concat(result.data);
 
-                rolesPaging.isLoaded = Number(result.headers['x-total-count']) <= vm.roles.length;
+                rolesPaging.isLoaded = result.totalItemsCount <= vm.roles.length;
             });
     }
 
-    function queryRoles(query) {
-        return roleService.query({
-            page: 0,
-            size: rolesPaging.itemsPerPage,
-            search: query
-        })
-            .$promise
+    function searchRoles(query) {
+        return queryRoles(query, 0)
             .then(function(result) {
                 vm.roles = result.data;
 
-                rolesPaging.isLoaded = Number(result.headers['x-total-count']) <= vm.roles.length;
+                rolesPaging.isLoaded = result.totalItemsCount <= vm.roles.length;
                 rolesPaging.pageNumber = 0;
             });
+    }
+
+    function queryRoles(query, pageNumber) {
+        return roleService.query({
+            page: pageNumber,
+            size: rolesPaging.itemsPerPage,
+            search: query
+        }).$promise;
     }
 
     function setActive(user, isActivated) {

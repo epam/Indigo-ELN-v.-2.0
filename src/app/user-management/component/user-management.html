@@ -62,7 +62,7 @@
                                       model="vm.user.roles"
                                       items="vm.roles"
                                       is-multiple="true"
-                                      on-refresh="vm.queryRoles(query)"
+                                      on-refresh="vm.searchRoles(query)"
                                       on-load-page="vm.loadRolesPage(query)">
                         </autocomplete>
                         <p class="help-block" ng-if="editForm.role.$invalid && editForm.role.$dirty"

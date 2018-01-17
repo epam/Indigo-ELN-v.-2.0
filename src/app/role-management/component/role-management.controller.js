@@ -42,7 +42,7 @@ function RoleManagementController(roleService, accountRoleService, i18en,
         })
             .$promise
             .then(function(result) {
-                vm.totalItems = Number(result.headers['x-total-count']);
+                vm.totalItems = result.totalItemsCount;
                 vm.roles = result.data;
             });
     }

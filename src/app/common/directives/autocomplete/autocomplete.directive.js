@@ -52,7 +52,7 @@ function autocompleteController($scope, translateService) {
 
     function refresh(query) {
         // If external callback is provided use it here (e.g. for requesting items through $http)
-        if (vm.onRefresh) {
+        if (_.isFunction(vm.onRefresh)) {
             vm.isLoading = true;
             vm.onRefresh({query: query})
                 .then(function() {
@@ -68,7 +68,7 @@ function autocompleteController($scope, translateService) {
 
     function loadPage(query) {
         // If this callback is provided it will be executed when ui-select-choices is scrolled to the bottom
-        if (vm.onLoadPage) {
+        if (_.isFunction(vm.onLoadPage)) {
             vm.isLoading = true;
             vm.onLoadPage({query: query})
                 .then(function() {
