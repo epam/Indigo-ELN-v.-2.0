@@ -27,7 +27,8 @@ function batchesCalculation(calculationHelper) {
 
     function recalculateAllRows(limitingRow) {
         _.forEach(rows, function(row) {
-            calculationHelper.updateValuesDependingOnTheoMoles(row, limitingRow);
+            var theoMoles = limitingRow ? limitingRow.mol.value : 0;
+            calculationHelper.updateValuesDependingOnTheoMoles(row, theoMoles);
         });
     }
 

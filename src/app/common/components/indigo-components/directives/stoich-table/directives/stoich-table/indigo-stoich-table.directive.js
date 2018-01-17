@@ -386,7 +386,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         $scope.$watch('vm.componentData.products', function(products) {
             _.forEach(products, function(batch) {
                 if (!batch.$$batchHash) {
-                    batch.$$batchHash = batch.formula + batch.exactMass;
+                    batch.$$batchHash = batch.formula.value + batch.exactMass;
                 }
             });
             vm.onChangedProducts({products: products});

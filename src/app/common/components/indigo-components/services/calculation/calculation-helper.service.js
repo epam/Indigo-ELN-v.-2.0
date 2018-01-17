@@ -91,15 +91,11 @@ function calculationHelper($http, $log, $q) {
         };
     }
 
-    function updateValuesDependingOnTheoMoles(row, limitingRow) {
-        var theoMoles = 0;
-        var theoWeight = 0;
-        var shouldRecalculateTheoValues = limitingRow && limitingRow.mol;
-
-        if (shouldRecalculateTheoValues) {
-            theoMoles = limitingRow.mol.value;
-            theoWeight = mathCalculation.computeWeight(theoMoles, row.molWeight.value, DEFAULT_PURITY);
-        }
+    function updateValuesDependingOnTheoMoles(row, limitingMol) {
+        var theoMoles = limitingMol || 0;
+        var theoWeight = theoMoles
+            ? mathCalculation.computeWeight(theoMoles, row.molWeight.value, DEFAULT_PURITY)
+            : 0;
 
         row.setTheoMoles(theoMoles);
         row.setTheoWeight(theoWeight);
