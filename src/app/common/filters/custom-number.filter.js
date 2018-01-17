@@ -10,7 +10,7 @@ function customNumber() {
     // -2 symbols for digit and dot, -2 symbols for sign and 'e', -1 symbol for power
     var MAX_E_DECIMALS = MAX_E_SYMBOLS - 2 - 2 - 1;
 
-    return (value, emptyValue) => {
+    return function(value, emptyValue) {
         var sign = value < 0 ? '-' : '';
         var absValue = Math.abs(value);
 
