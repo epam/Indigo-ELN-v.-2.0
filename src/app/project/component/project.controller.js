@@ -202,6 +202,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
             });
         });
         entitiesCache.removeByParams($stateParams);
+        autorecoveryCache.remove($stateParams);
     }
 
     function onSaveError(result) {
