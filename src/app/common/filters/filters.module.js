@@ -3,6 +3,7 @@ var containValue = require('./contain-value.filter');
 var joinBy = require('./join-by.filter');
 var round = require('./round.filter');
 var prettyBytes = require('./pretty-bytes.filter');
+var customNumber = require('./custom-number.filter');
 var filtersConfig = require('./filters.config');
 
 module.exports = angular
@@ -13,6 +14,7 @@ module.exports = angular
     .filter('joinBy', joinBy)
     .filter('round', round)
     .filter('prettyBytes', prettyBytes)
+    .filter('customNumber', customNumber)
 
     .config(filtersConfig)
 
