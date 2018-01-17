@@ -58,30 +58,28 @@ function UserManagementController($uibModal, userService, parseLinks, pageInfo, 
 
         rolesPaging.pageNumber += 1;
 
-        return queryRoles(query, rolesPaging.pageNumber)
+        return queryRoles(query);
+    }
+
+    function searchRoles(query) {
+        rolesPaging.pageNumber = 0;
+        vm.roles = [];
+
+        return queryRoles(query);
+    }
+
+    function queryRoles(query) {
+        return roleService.query({
+            page: rolesPaging.pageNumber,
+            size: rolesPaging.itemsPerPage,
+            search: query
+        })
+            .$promise
             .then(function(result) {
                 vm.roles = vm.roles.concat(result.data);
 
                 rolesPaging.isLoaded = result.totalItemsCount <= vm.roles.length;
             });
-    }
-
-    function searchRoles(query) {
-        return queryRoles(query, 0)
-            .then(function(result) {
-                vm.roles = result.data;
-
-                rolesPaging.isLoaded = result.totalItemsCount <= vm.roles.length;
-                rolesPaging.pageNumber = 0;
-            });
-    }
-
-    function queryRoles(query, pageNumber) {
-        return roleService.query({
-            page: pageNumber,
-            size: rolesPaging.itemsPerPage,
-            search: query
-        }).$promise;
     }
 
     function setActive(user, isActivated) {
