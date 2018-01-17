@@ -61,7 +61,9 @@
                                       is-required="true"
                                       model="vm.user.roles"
                                       items="vm.roles"
-                                      is-multiple="true">
+                                      is-multiple="true"
+                                      on-refresh="vm.queryRoles(query)"
+                                      on-load-page="vm.loadRolesPage(query)">
                         </autocomplete>
                         <p class="help-block" ng-if="editForm.role.$invalid && editForm.role.$dirty"
                            i-translate="FIELD_REQUIRED_HINT"></p>

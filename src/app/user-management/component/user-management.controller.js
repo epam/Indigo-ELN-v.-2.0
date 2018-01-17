@@ -1,12 +1,18 @@
 var userManagementPasswordDialogTemplate = require('./user-management-password-dialog.html');
 
 /* @ngInject */
-function UserManagementController($uibModal, userService, parseLinks, $filter, pageInfo, passwordRegex, notifyService,
-                                  translateService) {
+function UserManagementController($uibModal, userService, parseLinks, pageInfo, passwordRegex, notifyService,
+                                  translateService, roleService, $q) {
     var vm = this;
 
+    var rolesPaging = {
+        pageNumber: pageInfo.roles.pageNumber,
+        itemsPerPage: pageInfo.roles.itemsPerPage,
+        isLoaded: false
+    };
+
     vm.users = [];
-    vm.roles = pageInfo.roles;
+    vm.roles = pageInfo.roles.list;
     vm.page = 1;
     vm.groups = [{name: 'Group 1'}, {name: 'Group 2'}];
     vm.itemsPerPage = 10;
@@ -19,6 +25,8 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
     vm.passwordValidationText = translateService.translate('PASSWORD_HINT');
 
     vm.loadAll = loadAll;
+    vm.queryRoles = queryRoles;
+    vm.loadRolesPage = loadRolesPage;
     vm.setActive = setActive;
     vm.clear = clear;
     vm.saveUser = saveUser;
@@ -41,6 +49,41 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
             vm.totalItems = headers('X-Total-Count');
             vm.users = result;
         });
+    }
+
+    function loadRolesPage(query) {
+        if (rolesPaging.isLoaded) {
+            return $q.resolve();
+        }
+
+        rolesPaging.pageNumber += 1;
+
+        return roleService.query({
+            page: rolesPaging.pageNumber,
+            size: rolesPaging.itemsPerPage,
+            search: query
+        })
+            .$promise
+            .then(function(result) {
+                vm.roles = vm.roles.concat(result.data);
+
+                rolesPaging.isLoaded = Number(result.headers['x-total-count']) <= vm.roles.length;
+            });
+    }
+
+    function queryRoles(query) {
+        return roleService.query({
+            page: 0,
+            size: rolesPaging.itemsPerPage,
+            search: query
+        })
+            .$promise
+            .then(function(result) {
+                vm.roles = result.data;
+
+                rolesPaging.isLoaded = Number(result.headers['x-total-count']) <= vm.roles.length;
+                rolesPaging.pageNumber = 0;
+            });
     }
 
     function setActive(user, isActivated) {

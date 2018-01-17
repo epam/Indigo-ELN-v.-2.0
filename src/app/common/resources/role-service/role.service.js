@@ -3,7 +3,12 @@ function roleService($resource, apiUrl) {
     return $resource(apiUrl + 'roles/:id', {}, {
         query: {
             method: 'GET',
-            isArray: true
+            transformResponse: function(data, headersGetter) {
+                return {
+                    data: angular.fromJson(data),
+                    headers: headersGetter()
+                };
+            }
         },
         get: {
             method: 'GET'

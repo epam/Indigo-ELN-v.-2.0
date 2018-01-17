@@ -26,11 +26,21 @@ function userManagementConfig($stateProvider) {
             },
             resolve: {
                 pageInfo: function($q, roleService) {
+                    var itemsPerPage = 20;
+                    var pageNumber = 0;
+
                     return $q.all([
-                        roleService.query().$promise
+                        roleService.query({
+                            page: pageNumber,
+                            size: itemsPerPage
+                        }).$promise
                     ]).then(function(results) {
                         return {
-                            roles: results[0]
+                            roles: {
+                                pageNumber: pageNumber,
+                                itemsPerPage: itemsPerPage,
+                                list: results[0].data
+                            }
                         };
                     });
                 },

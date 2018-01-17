@@ -20,7 +20,8 @@ function autocomplete() {
             allowClear: '=',
             onSelect: '&',
             onRemove: '&',
-            onRefresh: '&'
+            onRefresh: '&?',
+            onLoadPage: '&?'
         },
         controller: autocompleteController,
         controllerAs: 'vm',
@@ -39,22 +40,51 @@ function autocompleteController($scope) {
 
     function init() {
         vm.refresh = refresh;
+        vm.loadPage = loadPage;
         vm.field = vm.field || 'name';
         vm.allowClear = vm.allowClear || false;
+        vm.isLoading = false;
 
         bindEvents();
     }
 
     function refresh(query) {
-        var queryLowerCase = _.lowerCase(query);
-        vm.filteredItems = _.filter(vm.items, function(item) {
-            return _.includes(item[vm.field].toLowerCase(), queryLowerCase);
-        });
+        // If external callback is provided use it here (e.g. for requesting items through $http)
+        if (vm.onRefresh) {
+            vm.isLoading = true;
+            vm.onRefresh({query: query})
+                .then(function() {
+                    vm.isLoading = false;
+                });
+
+            return;
+        }
+
+        // Otherwise the items will be filtered here
+        filterItems(query);
+    }
+
+    function loadPage(query) {
+        // If this callback is provided it will be executed when ui-select-choices is scrolled to the bottom
+        if (vm.onLoadPage) {
+            vm.isLoading = true;
+            vm.onLoadPage({query: query})
+                .then(function() {
+                    vm.isLoading = false;
+                });
+        }
     }
 
     function bindEvents() {
         $scope.$watch('vm.items', function() {
-            refresh('');
+            filterItems('');
+        });
+    }
+
+    function filterItems(query) {
+        var queryLowerCase = _.lowerCase(query);
+        vm.filteredItems = _.filter(vm.items, function(item) {
+            return _.includes(item[vm.field].toLowerCase(), queryLowerCase);
         });
     }
 }
