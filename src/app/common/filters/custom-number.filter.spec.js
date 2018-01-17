@@ -1,6 +1,5 @@
 var cnumber = require('./custom-number.filter');
 
-/*eslint-env jasmine */
 describe('filter: customNumber', function() {
     var TOO_LONG = 'Too Long';
     var TEST = 'anything';
