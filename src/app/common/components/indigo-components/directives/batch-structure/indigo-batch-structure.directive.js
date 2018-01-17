@@ -1,5 +1,5 @@
 var template = require('./batch-structure.html');
-var fieldTypes = require('../stoich-table/domain/field-types');
+var fieldTypes = require('../../services/calculation/field-types');
 
 function indigoBatchStructure() {
     return {
@@ -60,7 +60,6 @@ function IndigoBatchStructureController($q, calculationService, batchHelper) {
         batch.molWeight.baseValue = molInfo.molecularWeight;
 
         batchHelper.calculateRow({changedRow: batch, changedField: fieldTypes.molWeight});
-        // TODO: investigate
 
         return $q.resolve();
     }

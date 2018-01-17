@@ -36,7 +36,7 @@
                       selected-batch-trigger="vm.selectedBatchTrigger"
                       on-changed="vm.onChange()"
                       indigo-hide-column-settings="true"
-                      on-close-cell="vm.onClose(column, data)">
+                      on-close-cell="vm.onBatchChanged(data)">
 
             <div class="action-panel m-b20">
                 <div class="action-panel__left">
@@ -136,14 +136,14 @@
                 <autocomplete label="Salt Code & Name"
                               items="vm.saltCodeValues"
                               model="vm.selectedBatch.saltCode"
-                              on-select="vm.recalculateSalt(vm.selectedBatch)"
+                              on-select="vm.onBatchChanged({row: vm.selectedBatch, column: 'saltCode'})"
                               readonly="vm.isEditDisabled || !vm.canEditSaltCode(vm.selectedBatch)"
                 ></autocomplete>
                 <simple-input>
                     <span i-translate="SALT_EQUIVALENT"></span>
                     <input class="form-control"
                            type="number"
-                           ng-change="vm.recalculateSalt(vm.selectedBatch)"
+                           ng-change="vm.onBatchChanged({row: vm.selectedBatch, column: 'saltEq'})"
                            ng-model="vm.selectedBatch.saltEq.value"
                            ng-disabled="vm.isEditDisabled || !vm.canEditSaltEq(vm.selectedBatch)">
                 </simple-input>

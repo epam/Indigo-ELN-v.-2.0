@@ -1,5 +1,5 @@
 var ReagentViewRow = require('../view-row/reagent-view-row');
-var fieldTypes = require('../../field-types');
+var fieldTypes = require('../../../../../services/calculation/field-types');
 var mathCalculation = require('../../../../../services/calculation/math-calculation');
 
 function ReagentRow(props) {

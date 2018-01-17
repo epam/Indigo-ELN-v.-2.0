@@ -1,5 +1,5 @@
 var ReagentViewRow = require('../domain/reagent/view-row/reagent-view-row');
-var fieldTypes = require('../domain/field-types');
+var fieldTypes = require('../../../services/calculation/field-types');
 
 /* @ngInject */
 function stoichColumnActions(registrationService, calculationService, $q, appUnits, dictionaryService,

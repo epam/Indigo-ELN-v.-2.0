@@ -68,8 +68,6 @@ function calculationHelper($http, $log, $q) {
                     batchRow.molWeight.baseValue = data.molecularWeight;
                     batchRow.formula.baseValue = data.molecularFormula;
                     batchRow.formula.value = getFormula(batchRow);
-                    // for product batch summary
-                    // batchRow.lastUpdatedType = 'weight';
 
                     return batchRow;
                 });

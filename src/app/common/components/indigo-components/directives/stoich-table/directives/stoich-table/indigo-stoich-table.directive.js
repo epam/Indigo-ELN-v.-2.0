@@ -67,25 +67,25 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         var changedRow = change.row;
         var changedField = change.column;
 
-        // TODO: refactor
-
-        // Handle value change
-        if (changedField === stoichReactantsColumns.fullNbkBatch.id) {
-            // Update row based on selected notebook batch number
-            onNbkBatchNumberChanged(changedRow);
+        switch (changedField) {
+            case stoichReactantsColumns.fullNbkBatch.id:
+                // Update row based on selected notebook batch number
+                onNbkBatchNumberChanged(changedRow);
+                break;
+            case stoichReactantsColumns.rxnRole.id:
+                updatePrecursors();
+                break;
+            case stoichReactantsColumns.compoundId.id:
+                // Update row based on selected compoundId
+                onCompoundIdChanged(changedRow, changedRow[changedField])
+                    .then(function() {
+                        recalculateStoichTable(rows, changedRow, changedField);
+                    });
+                break;
+            default:
+                recalculateStoichTable(rows, changedRow, changedField);
+                break;
         }
-
-        if (changedField === stoichReactantsColumns.compoundId.id) {
-            // Update row based on selected compoundId
-            onCompoundIdChanged(changedRow, changedRow[changedField])
-                .then(function() {
-                    recalculateStoichTable(rows, changedRow, changedField);
-                });
-
-            return;
-        }
-
-        recalculateStoichTable(rows, changedRow, changedField);
     }
 
     function onProductsChanged(change) {
@@ -120,9 +120,8 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     function removeRow() {
         _.remove(vm.componentData.reactants, vm.selectedRow);
         vm.selectedRow = null;
-        updateReactants();
+        updatePrecursors();
         onProductsChanged();
-        // calculationService.recalculateStoich(vm.componentData);
         vm.onChanged();
     }
 
@@ -161,20 +160,11 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
                                     var row = new ReagentViewRow(reactant);
                                     addReagentRow(row);
                                 });
-                                // checkLimiting();
                             };
                         }
                     }
                 });
             });
-    }
-
-    function checkLimiting() {
-        var limiting = vm.limitingRow || calculationService.findLimiting(vm.componentData.reactants);
-        if (!limiting && vm.componentData.reactants.length) {
-            vm.limitingRow = _.first(vm.componentData.reactants);
-            vm.limitingRow.limiting = true;
-        }
     }
 
     function createRxn() {
@@ -256,24 +246,6 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         ];
     }
 
-    /* eslint no-unused-vars: "off"*/
-    function onCloseCell(column, data) {
-
-        // if (_.includes(columnsWithClose, column.id)) {
-        //     if (column.id === stoichReactantsColumns.compoundId.id) {
-        //         onCloseCompoundId(data);
-        //     }
-        //     calculationService.setEntered(data);
-        //     if (column.id === stoichReactantsColumns.rxnRole.id) {
-        //         onRxnRoleChange(data);
-        //         updatePrecursors();
-        //     }
-        //     calculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
-        // } else if (column.id === stoichReactantsColumns.fullNbkBatch.id) {
-        //     stoichColumnActions.onCloseFullNbkBatch(data).then(updatePrecursors);
-        // }
-    }
-
     function updatePrecursors() {
         var precursors = stoichTableHelper.getPrecursors(vm.componentData.reactants);
         vm.onPrecursorsChanged({precursors: precursors});
@@ -283,8 +255,6 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         return _.extend({}, stoichReactantsColumns.limiting, {
             onClick: function() {
                 onProductsChanged();
-                // calculationService.setEntered(data);
-                // calculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
             }
         });
     }
@@ -329,11 +299,6 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         notifyService.error(i18en.NOTIFY_BATCH_NUMBER_ERROR);
     }
 
-    function updateReactants() {
-        // checkLimiting();
-        updatePrecursors();
-    }
-
     function addReagentRow(reagentRow) {
         vm.componentData.reactants.push(reagentRow);
 
@@ -371,9 +336,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             var products = getIntendedProductsWithStructureImages(vm.infoProducts);
             vm.componentData.products = stoichTableHelper.convertToProductViewRow(products);
             onProductsChanged();
-        //    TODO: also should update batches mol
         }
-        // calculationService.recalculateStoich(vm.componentData);
     }
 
     function bindEvents() {
@@ -391,21 +354,6 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             });
             vm.onChangedProducts({products: products});
         }, true);
-    }
-
-    function updateReactantsAndProducts(data) {
-        var newReactants = data.stoicBatches;
-        var newProducts = data.intendedProducts;
-        if (vm.componentData.reactants && newReactants.length === vm.componentData.reactants.length) {
-            _.forEach(vm.componentData.reactants, function(reactant, i) {
-                _.extend(reactant, newReactants[i]);
-            });
-        }
-        if (vm.componentData.products && newProducts.length === vm.componentData.products.length) {
-            _.forEach(vm.componentData.products, function(product, i) {
-                _.extend(product, newProducts[i]);
-            });
-        }
     }
 
     function isReactantAlreadyInStoic(responces) {
