@@ -64,32 +64,6 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
         unit = UnitFactory2.createUnitOfType(unitType);
     }
 
-    public Amount2(UnitType unitType, String defaultVal) {
-        this();
-        setDefaultValue(defaultVal);
-        unit = UnitFactory2.createUnitOfType(unitType);
-    }
-
-    public Amount2(UnitType unitType, double val, String defaultVal) {
-        this();
-        setDefaultValue(defaultVal);
-        unit = UnitFactory2.createUnitOfType(unitType);
-        setValue(val);
-    }
-
-    public Amount2(UnitType unitType, double val) {
-        this();
-        unit = UnitFactory2.createUnitOfType(unitType);
-        setValue(val);
-    }
-
-    public Amount2(UnitType unitType, double val, boolean isCalculated) {
-        this();
-        unit = UnitFactory2.createUnitOfType(unitType);
-        setValue(val);
-        setCalculated(isCalculated);
-    }
-
     /**
      * Returns the value set to defaultValue and sets unit to default value Calls Modified.
      */
@@ -102,7 +76,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
      * Returns the value set to defaultValue sets calc'd to true and resets displayFigs
      * but leaves the unit alone Calls Modified.
      */
-    public void softReset() {
+    private void softReset() {
         value.setLength(0);
         value.append(defaultValue.toString());
         calculated = true;
@@ -226,7 +200,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
         return result;
     }
 
-    public double doubleValue() {
+    private double doubleValue() {
         return Double.parseDouble(getValue());
     }
 
@@ -255,7 +229,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
      * @param isCalc indicates the status of the amount object whether it is a calculated quantity
      *               or is a user set quantity
      */
-    public void setValue(String val, boolean isCalc) {
+    private void setValue(String val, boolean isCalc) {
         if (StringUtils.isNotBlank(val)) {
             Double tstVal = Double.valueOf(val);
             if (!(tstVal.isInfinite() || tstVal.isNaN())) {
@@ -293,7 +267,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
         }
     }
 
-    public void setValue(BigDecimal val, boolean isCalc) {
+    private void setValue(BigDecimal val, boolean isCalc) {
         // Make sure there is no tie to the original value so that this one
         // will not change when the other is changed.
         setCalculated(isCalc);
@@ -342,7 +316,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
         }
     }
 
-    public UnitType getUnitType() {
+    private UnitType getUnitType() {
         return unit.getType();
     }
 
@@ -353,17 +327,6 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
      */
     protected double getDefaultValue() {
         return defaultValue.doubleValue();
-    }
-
-    /**
-     * Sets value that the amount object will use when created without a value, and used when
-     * a null string is entered in setValue as the null string indicates the defaults are to be imposed.
-     *
-     * @param val -
-     *            value to be used as default. Must be a number.
-     */
-    public void setDefaultValue(String val) {
-        defaultValue = new BigDecimal(val);
     }
 
     /**
@@ -402,7 +365,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
      * @param fixedFigs -
      *                  number of places after the decimal to display
      */
-    public void setFixedFigs(int fixedFigs) {
+    private void setFixedFigs(int fixedFigs) {
         displayedFigs = fixedFigs;
     }
 

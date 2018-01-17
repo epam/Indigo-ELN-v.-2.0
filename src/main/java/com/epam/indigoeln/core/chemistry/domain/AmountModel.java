@@ -11,24 +11,8 @@ public class AmountModel extends Amount2 {
         //This is a wrong constructor to use. Initialize with Unit Type.
     }
 
-    public AmountModel(UnitType unitType) {
+    private AmountModel(UnitType unitType) {
         super(unitType);
-    }
-
-    public AmountModel(UnitType unitType, double defaultVal, double value) {
-        super(unitType, value, defaultVal + "");
-    }
-
-    public AmountModel(UnitType unitType, double value) {
-        super(unitType, value);
-    }
-
-    public AmountModel(UnitType unitType, double value, boolean isCalculated) {
-        super(unitType, value, isCalculated);
-    }
-
-    public AmountModel(UnitType unitType, String defaultVal) {
-        super(unitType, defaultVal);
     }
 
     @Override

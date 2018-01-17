@@ -10,21 +10,21 @@ import java.util.Optional;
 
 public final class GridFSFileUtil {
 
-    public static final String FILENAME = "filename";
-    public static final String CONTENT_TYPE = "contentType";
-    public static final String LENGTH = "length";
-    public static final String UPLOAD_DATE = "uploadDate";
+    private static final String FILENAME = "filename";
+    private static final String CONTENT_TYPE = "contentType";
+    private static final String LENGTH = "length";
+    private static final String UPLOAD_DATE = "uploadDate";
 
-    public static final Comparator<GridFSFile> FILENAME_COMPARATOR =
+    private static final Comparator<GridFSFile> FILENAME_COMPARATOR =
             (o1, o2) -> compare(o1.getFilename(), o2.getFilename());
 
-    public static final Comparator<GridFSFile> CONTENT_TYPE_COMPARATOR =
+    private static final Comparator<GridFSFile> CONTENT_TYPE_COMPARATOR =
             (o1, o2) -> compare(o1.getContentType(), o2.getContentType());
 
-    public static final Comparator<GridFSFile> LENGTH_COMPARATOR =
+    private static final Comparator<GridFSFile> LENGTH_COMPARATOR =
             (o1, o2) -> compare(o1.getLength(), o2.getLength());
 
-    public static final Comparator<GridFSFile> UPLOAD_DATE_COMPARATOR =
+    static final Comparator<GridFSFile> UPLOAD_DATE_COMPARATOR =
             (o1, o2) -> compare(o1.getUploadDate(), o2.getUploadDate());
 
     private GridFSFileUtil() {
@@ -45,7 +45,7 @@ public final class GridFSFileUtil {
         return (Boolean) metadata.get("temporary");
     }
 
-    public static void setAuthorToMetadata(BSONObject metadata, User author) {
+    static void setAuthorToMetadata(BSONObject metadata, User author) {
         BSONObject bsonAuthor = new BasicBSONObject(3);
         bsonAuthor.put("id", author.getId());
         bsonAuthor.put("firstName", author.getFirstName());
@@ -58,7 +58,7 @@ public final class GridFSFileUtil {
         metadata.put("temporary", temporary);
     }
 
-    public static Optional<Comparator<GridFSFile>> getComparator(String gridFSFileField) {
+    static Optional<Comparator<GridFSFile>> getComparator(String gridFSFileField) {
         Comparator<GridFSFile> comparator = null;
         if (FILENAME.equals(gridFSFileField)) {
             comparator = FILENAME_COMPARATOR;

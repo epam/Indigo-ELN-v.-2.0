@@ -21,8 +21,6 @@ public interface ExperimentRepository extends MongoRepository<Experiment, String
     @Query("{'fileIds': ?0}")
     Experiment findByFileId(String fileId);
 
-    List<Experiment> findByStatusIn(List<ExperimentStatus> statuses);
-
     Stream<Experiment> findByAuthorAndStatusAndCreationDateAfter(User user,
                                                                  ExperimentStatus status, ZonedDateTime creationTime);
 

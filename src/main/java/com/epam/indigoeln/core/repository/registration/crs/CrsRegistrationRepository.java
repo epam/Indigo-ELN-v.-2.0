@@ -124,24 +124,6 @@ public class CrsRegistrationRepository implements RegistrationRepository {
     }
 
     @Override
-    public List<String> getStructureByCompoundNo(String compoundNumber) throws RegistrationException {
-        return getCompoundInfoByCompoundNo(compoundNumber).stream().map(Compound::getStructure).
-                collect(Collectors.toList());
-    }
-
-    @Override
-    public List<String> getStructureByCasNo(String casNo) throws RegistrationException {
-        return getCompoundInfoByCasNo(casNo).stream().map(Compound::getStructure).
-                collect(Collectors.toList());
-    }
-
-    @Override
-    public String getStructureByBatchNo(String batchNo) throws RegistrationException {
-        Compound compound = getCompoundInfoByBatchNo(batchNo);
-        return compound == null ? null : compound.getStructure();
-    }
-
-    @Override
     public List<Compound> getCompoundInfoByCompoundNo(String compoundNo) throws RegistrationException {
         try {
             return search.getCompoundByNumber(compoundNo).stream().map(this::convert).

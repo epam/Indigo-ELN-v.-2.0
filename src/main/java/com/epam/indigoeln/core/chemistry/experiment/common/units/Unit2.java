@@ -41,7 +41,7 @@ public class Unit2 extends GenericCode2 implements Comparable<Unit2> {
     /**
      * @return Returns the displayValue.
      */
-    public String getDisplayValue() {
+    String getDisplayValue() {
         return displayValue;
     }
 

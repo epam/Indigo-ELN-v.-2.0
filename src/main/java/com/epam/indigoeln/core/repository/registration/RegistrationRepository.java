@@ -22,12 +22,6 @@ public interface RegistrationRepository {
 
     List<Integer> searchSim(String structure, String similarity, Double var3, Double var4) throws RegistrationException;
 
-    List<String> getStructureByCompoundNo(String compoundNumber) throws RegistrationException;
-
-    List<String> getStructureByCasNo(String casNo) throws RegistrationException;
-
-    String getStructureByBatchNo(String batchNo) throws RegistrationException;
-
     List<Compound> getCompoundInfoByCompoundNo(String compoundNo) throws RegistrationException;
 
     List<Compound> getCompoundInfoByCasNo(String casNo) throws RegistrationException;

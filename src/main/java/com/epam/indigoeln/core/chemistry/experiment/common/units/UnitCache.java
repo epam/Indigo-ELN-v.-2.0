@@ -35,7 +35,7 @@ final class UnitCache {
         }
     }
 
-    public Unit getUnit(String unitCode) {
+    Unit getUnit(String unitCode) {
         Unit result = null;
 
         String uc = unitCode;

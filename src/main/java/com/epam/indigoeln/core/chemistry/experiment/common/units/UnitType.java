@@ -15,19 +15,19 @@ import java.util.List;
  */
 public final class UnitType implements Serializable, Comparable<UnitType> {
     static final int SCALAR_ORDINAL = 0;
-    public static final UnitType SCALAR = new UnitType("SCALAR", SCALAR_ORDINAL);
+    private static final UnitType SCALAR = new UnitType("SCALAR", SCALAR_ORDINAL);
     static final int MASS_ORDINAL = 1;
     public static final UnitType MASS = new UnitType("MASS", MASS_ORDINAL);
     static final int MOLES_ORDINAL = 2;
-    public static final UnitType MOLES = new UnitType("MOLES", MOLES_ORDINAL);
+    private static final UnitType MOLES = new UnitType("MOLES", MOLES_ORDINAL);
     static final int VOLUME_ORDINAL = 3;
-    public static final UnitType VOLUME = new UnitType("VOLUME", VOLUME_ORDINAL);
+    private static final UnitType VOLUME = new UnitType("VOLUME", VOLUME_ORDINAL);
     static final int MOLAR_ORDINAL = 4;
-    public static final UnitType MOLAR = new UnitType("MOLAR", MOLAR_ORDINAL);
+    private static final UnitType MOLAR = new UnitType("MOLAR", MOLAR_ORDINAL);
     static final int DENSITY_ORDINAL = 5;
-    public static final UnitType DENSITY = new UnitType("DENSITY", DENSITY_ORDINAL);
+    private static final UnitType DENSITY = new UnitType("DENSITY", DENSITY_ORDINAL);
     static final int LOADING_ORDINAL = 6;
-    public static final UnitType LOADING = new UnitType("LOADING", LOADING_ORDINAL);
+    private static final UnitType LOADING = new UnitType("LOADING", LOADING_ORDINAL);
     static final int TEMP_ORDINAL = 8;
     static final long serialVersionUID = 2577491617825018196L;
     private static final UnitType TEMP = new UnitType("TEMPERATURE", TEMP_ORDINAL);
@@ -64,7 +64,7 @@ public final class UnitType implements Serializable, Comparable<UnitType> {
         return ordinal - o.ordinal;
     }
 
-    public int getOrdinal() {
+    int getOrdinal() {
         return ordinal;
     } // Can be used in switch statements
 
