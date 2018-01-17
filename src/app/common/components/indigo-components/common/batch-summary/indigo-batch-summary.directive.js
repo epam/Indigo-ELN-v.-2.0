@@ -76,7 +76,6 @@ function IndigoBatchSummaryController($scope, registrationUtil, batchHelper) {
             batchHelper.columns.totalWeight,
             batchHelper.columns.totalVolume,
             batchHelper.columns.totalMoles,
-            batchHelper.columns.totalMoles,
             batchHelper.columns.theoWeight,
             batchHelper.columns.theoMoles,
             batchHelper.columns.yield,
