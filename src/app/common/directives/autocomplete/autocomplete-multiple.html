@@ -23,11 +23,11 @@
             <span ng-bind-html="item[[vm.field]] | highlight: $select.search"
                   class="tag-item"></span>
             <div ng-if="vm.isLoading && $index === $select.items.length - 1">
-                Loading more items...
+                {{ ::vm.loadingPlaceholder }}
             </div>
         </ui-select-choices>
         <ui-select-no-choice>
-            Found nothing
+            {{ ::vm.emptyListPlaceholder }}
         </ui-select-no-choice>
     </ui-select>
 </div>

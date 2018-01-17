@@ -288,6 +288,9 @@ var i18n = {
     NO_DATA_FOUND: 'No data found',
     WARNING: 'Warning',
 
+    AUTOCOMPLETE_LOADING_PLACEHOLDER: 'Loading more items...',
+    AUTOCOMPLETE_EMPTY_PLACEHOLDER: 'Found nothing',
+
     // Form hints
     LOGIN_HINT: 'Login should not contain letters in upper case or special symbols.',
     PASSWORD_HINT: 'Password must be at least 6 characters long, ' +
