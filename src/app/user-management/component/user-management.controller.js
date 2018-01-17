@@ -1,12 +1,18 @@
 var userManagementPasswordDialogTemplate = require('./user-management-password-dialog.html');
 
 /* @ngInject */
-function UserManagementController($uibModal, userService, parseLinks, $filter, pageInfo, passwordRegex, notifyService,
-                                  translateService) {
+function UserManagementController($uibModal, userService, parseLinks, passwordRegex, notifyService,
+                                  translateService, roleService, $q) {
     var vm = this;
 
+    var rolesPaging = {
+        pageNumber: 0,
+        itemsPerPage: 20,
+        isLoaded: false
+    };
+
     vm.users = [];
-    vm.roles = pageInfo.roles;
+    vm.roles = [];
     vm.page = 1;
     vm.groups = [{name: 'Group 1'}, {name: 'Group 2'}];
     vm.itemsPerPage = 10;
@@ -19,6 +25,8 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
     vm.passwordValidationText = translateService.translate('PASSWORD_HINT');
 
     vm.loadAll = loadAll;
+    vm.searchRoles = searchRoles;
+    vm.loadRolesPage = loadRolesPage;
     vm.setActive = setActive;
     vm.clear = clear;
     vm.saveUser = saveUser;
@@ -41,6 +49,37 @@ function UserManagementController($uibModal, userService, parseLinks, $filter, p
             vm.totalItems = headers('X-Total-Count');
             vm.users = result;
         });
+    }
+
+    function loadRolesPage(query) {
+        if (rolesPaging.isLoaded) {
+            return $q.resolve();
+        }
+
+        rolesPaging.pageNumber += 1;
+
+        return queryRoles(query);
+    }
+
+    function searchRoles(query) {
+        rolesPaging.pageNumber = 0;
+        vm.roles.length = 0;
+
+        return queryRoles(query);
+    }
+
+    function queryRoles(query) {
+        return roleService.query({
+            page: rolesPaging.pageNumber,
+            size: rolesPaging.itemsPerPage,
+            search: query
+        })
+            .$promise
+            .then(function(result) {
+                vm.roles = vm.roles.concat(result.data);
+
+                rolesPaging.isLoaded = result.totalItemsCount <= vm.roles.length;
+            });
     }
 
     function setActive(user, isActivated) {

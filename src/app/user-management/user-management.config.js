@@ -25,15 +25,6 @@ function userManagementConfig($stateProvider) {
                 }
             },
             resolve: {
-                pageInfo: function($q, roleService) {
-                    return $q.all([
-                        roleService.query().$promise
-                    ]).then(function(results) {
-                        return {
-                            roles: results[0]
-                        };
-                    });
-                },
                 passwordRegex: function(userPasswordValidationService) {
                     return userPasswordValidationService.get().$promise
                         .then(function(response) {

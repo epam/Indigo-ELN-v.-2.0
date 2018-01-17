@@ -39,10 +39,12 @@ function RoleManagementController(roleService, accountRoleService, i18en,
             size: vm.itemsPerPage,
             search: vm.searchText,
             sort: vm.sortBy.field.toLowerCase() + ',' + (vm.sortBy.isAscending ? 'asc' : 'desc')
-        }, function(allRoles, headers) {
-            vm.totalItems = headers('X-Total-Count');
-            vm.roles = allRoles;
-        });
+        })
+            .$promise
+            .then(function(result) {
+                vm.totalItems = result.totalItemsCount;
+                vm.roles = result.data;
+            });
     }
 
     function deleteRole(role) {

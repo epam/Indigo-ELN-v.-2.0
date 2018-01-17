@@ -20,7 +20,8 @@ function autocomplete() {
             allowClear: '=',
             onSelect: '&',
             onRemove: '&',
-            onRefresh: '&'
+            onRefresh: '&?',
+            onLoadPage: '&?'
         },
         controller: autocompleteController,
         controllerAs: 'vm',
@@ -32,29 +33,60 @@ function autocomplete() {
 }
 
 /* @ngInject */
-function autocompleteController($scope) {
+function autocompleteController($scope, translateService) {
     var vm = this;
 
     init();
 
     function init() {
         vm.refresh = refresh;
+        vm.loadPage = loadPage;
         vm.field = vm.field || 'name';
         vm.allowClear = vm.allowClear || false;
+        vm.isLoading = false;
+        vm.loadingPlaceholder = translateService.translate('AUTOCOMPLETE_LOADING_PLACEHOLDER');
+        vm.emptyListPlaceholder = translateService.translate('AUTOCOMPLETE_EMPTY_PLACEHOLDER');
 
         bindEvents();
     }
 
     function refresh(query) {
-        var queryLowerCase = _.lowerCase(query);
-        vm.filteredItems = _.filter(vm.items, function(item) {
-            return _.includes(item[vm.field].toLowerCase(), queryLowerCase);
-        });
+        // If external callback is provided use it here (e.g. for requesting items through $http)
+        if (_.isFunction(vm.onRefresh)) {
+            vm.isLoading = true;
+            vm.onRefresh({query: query})
+                .finally(function() {
+                    vm.isLoading = false;
+                });
+
+            return;
+        }
+
+        // Otherwise the items will be filtered here
+        filterItems(query);
+    }
+
+    function loadPage(query) {
+        // If this callback is provided it will be executed when ui-select-choices is scrolled to the bottom
+        if (_.isFunction(vm.onLoadPage)) {
+            vm.isLoading = true;
+            vm.onLoadPage({query: query})
+                .finally(function() {
+                    vm.isLoading = false;
+                });
+        }
     }
 
     function bindEvents() {
         $scope.$watch('vm.items', function() {
-            refresh('');
+            filterItems('');
+        });
+    }
+
+    function filterItems(query) {
+        var queryLowerCase = _.lowerCase(query);
+        vm.filteredItems = _.filter(vm.items, function(item) {
+            return _.includes(item[vm.field].toLowerCase(), queryLowerCase);
         });
     }
 }
