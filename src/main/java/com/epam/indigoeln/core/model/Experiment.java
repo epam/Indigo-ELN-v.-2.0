@@ -112,6 +112,10 @@ public class Experiment extends ExperimentShort {
         this.experimentFullName = experimentFullName;
     }
 
+    public void compileExperimentFullName(String notebookName){
+        this.experimentFullName = notebookName + "-" + getFullName();
+    }
+
     public String getFullName() {
         if (experimentVersion > 1 || !lastVersion) {
             return getName() + " v" + getExperimentVersion();

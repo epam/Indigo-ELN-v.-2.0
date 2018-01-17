@@ -248,13 +248,12 @@ public final class OperationDeniedException extends CustomParametrizedException 
     }
 
     /**
-     * Creates instance of OperationDeniedException with entity's ids
-     * if user tried to update notebook if there is at least one batch.
+     * Creates instance of OperationDeniedException
+     * if user tried to update notebook if there is at least one batch or open experiment.
      *
-     * @param entityIds Entity's identifiers
-     * @return Instance of OperationDeniedException with entity's ids
+     * @return Instance of OperationDeniedException
      */
-    public static OperationDeniedException createNotebookUpdateNameOperation(String... entityIds) {
-        return new OperationDeniedException("The notebook can't be updated if there is at least one batch", entityIds);
+    public static OperationDeniedException createNotebookUpdateNameOperation() {
+        return new OperationDeniedException("The notebook can't be updated if there is at least one batch or not open experiment");
     }
 }

@@ -257,9 +257,17 @@ public class NotebookService {
                 List<String> numbers = BatchComponentUtil.hasBatches(notebookFromDB);
                 if (!numbers.isEmpty()) {
                     throw OperationDeniedException
-                            .createNotebookUpdateNameOperation(numbers.toArray(new String[numbers.size()]));
+                            .createNotebookUpdateNameOperation();
+                }
+                boolean hasNotOpen = notebookFromDB.getExperiments().stream()
+                        .anyMatch(e -> e.getStatus() != ExperimentStatus.OPEN);
+                if (hasNotOpen) {
+                    throw OperationDeniedException
+                            .createNotebookUpdateNameOperation();
                 }
                 notebookFromDB.setName(notebookDTO.getName());
+                //TODO send web socket
+                notebookFromDB.getExperiments().forEach(e -> e.compileExperimentFullName(notebookDTO.getName()));
             }
             notebookFromDB.setDescription(notebookDTO.getDescription());
             notebookFromDB.setVersion(notebook.getVersion());

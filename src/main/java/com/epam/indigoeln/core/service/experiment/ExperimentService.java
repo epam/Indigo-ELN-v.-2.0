@@ -273,7 +273,7 @@ public class ExperimentService {
         //set latest version
         experiment.setExperimentVersion(1);
         experiment.setLastVersion(true);
-        experiment.setExperimentFullName(notebook.getName() + "-" + experiment.getFullName());
+        experiment.compileExperimentFullName(notebook.getName());
 
         Experiment savedExperiment = experimentRepository.save(experiment);
 
@@ -352,7 +352,7 @@ public class ExperimentService {
         newVersion.setComponents(newComponents);
         newVersion.setLastVersion(true);
         newVersion.setExperimentVersion(newExperimentVersion);
-        newVersion.setExperimentFullName(notebook.getName() + "-" + newVersion.getFullName());
+        newVersion.compileExperimentFullName(notebook.getName());
 
         final Experiment savedNewVersion = experimentRepository.save(newVersion);
         notebook.getExperiments().add(savedNewVersion);
