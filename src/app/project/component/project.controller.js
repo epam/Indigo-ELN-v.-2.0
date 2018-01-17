@@ -74,7 +74,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
     }
 
     function onRestore(storeData, lastVersion) {
-        var version = lastVersion || vm.experiment.version || storeData.version;
+        var version = lastVersion || vm.project.version || storeData.version;
         vm.project = storeData;
 
         permissionService.setProject(vm.project);

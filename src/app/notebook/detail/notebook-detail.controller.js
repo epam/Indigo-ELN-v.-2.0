@@ -117,7 +117,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
     }
 
     function onRestore(storeData, lastVersion) {
-        var version = lastVersion || vm.experiment.version || storeData.version;
+        var version = lastVersion || vm.notebook.version || storeData.version;
         vm.notebook = storeData;
 
         initPermissions();
