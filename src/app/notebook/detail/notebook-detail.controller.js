@@ -118,7 +118,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
     }
 
     function onRestore(storeData, lastVersion) {
-        var version = lastVersion || vm.experiment.version || storeData.version;
+        var version = lastVersion || vm.notebook.version || storeData.version;
         vm.notebook = storeData;
 
         initPermissions();
@@ -189,36 +189,6 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
         experimentUtil.repeatExperiment(experiment, params);
     }
 
-    function onSaveSuccess(result) {
-        entitiesBrowserService.close(tabKeyService.getTabKeyFromParams($stateParams));
-        $timeout(function() {
-            $state.go('entities.notebook-detail', {
-                projectId: vm.projectId, notebookId: result.id
-            });
-        });
-        entitiesCache.removeByParams($stateParams);
-    }
-
-    function onSaveError(result) {
-        if (result.status === 400 && result.data.params) {
-            var firstParam = _.first(result.data.params);
-            if (result.data.params.length > 1 || firstParam.indexOf('-') > -1) {
-                notifyService.error('This Notebook name cannot be changed because batches are created within its' +
-                    ' experiments');
-            } else {
-                notifyService.error('This Notebook name is already in use in the system');
-            }
-            vm.hasError = false;
-            partialRefresh();
-
-            return;
-        }
-
-        $timeout(function() {
-            vm.hasError = true;
-        });
-        notifyService.error('Notebook is not saved due to server error');
-    }
     function toggleDirty(isDirty) {
         vm.isEntityChanged = !!isDirty;
         if (vm.isEntityChanged) {
@@ -278,6 +248,38 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
         }, vm.notebook, onSaveSuccess, onSaveError).$promise;
 
         return vm.loading;
+    }
+
+    function onSaveSuccess(result) {
+        entitiesBrowserService.close(tabKeyService.getTabKeyFromParams($stateParams));
+        $timeout(function() {
+            $state.go('entities.notebook-detail', {
+                projectId: vm.projectId, notebookId: result.id
+            });
+        });
+        entitiesCache.removeByParams($stateParams);
+        autorecoveryCache.remove($stateParams);
+    }
+
+    function onSaveError(result) {
+        if (result.status === 400 && result.data.params) {
+            var firstParam = _.first(result.data.params);
+            if (result.data.params.length > 1 || firstParam.indexOf('-') > -1) {
+                notifyService.error('This Notebook name cannot be changed because batches are created within its' +
+                    ' experiments');
+            } else {
+                notifyService.error('This Notebook name is already in use in the system');
+            }
+            vm.hasError = false;
+            partialRefresh();
+
+            return;
+        }
+
+        $timeout(function() {
+            vm.hasError = true;
+        });
+        notifyService.error('Notebook is not saved due to server error');
     }
 }
 
