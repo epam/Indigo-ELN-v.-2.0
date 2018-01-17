@@ -11,7 +11,7 @@ describe('filter: customNumber', function() {
         filter = cnumber();
     });
 
-    it('should return empty string for undefined, null', ()=>{
+    it('should return empty string for undefined, null', function() {
         expect(filter()).toBe('');
         expect(filter(null)).toBe('');
     });
@@ -20,18 +20,18 @@ describe('filter: customNumber', function() {
         expect(filter(0)).toBe('0');
     });
 
-    it('should return empty string for too small value', ()=>{
+    it('should return empty string for too small value', function() {
         expect(filter(0.995e-300)).toBe('');
         expect(filter(Number.MIN_VALUE)).toBe('');
     });
 
-    it('should return \'Too large\' for too big value', ()=>{
+    it('should return \'Too large\' for too big value', function() {
         expect(filter(1e1000)).toBe(TOO_LONG);
         expect(filter(1.1e300)).toBe(TOO_LONG);
         expect(filter(Number.MAX_VALUE)).toBe(TOO_LONG);
     });
 
-    it('should return decimals for normal numbers', ()=>{
+    it('should return decimals for normal numbers', function() {
         expect(filter(1)).toBe('1');
         expect(filter(1.1)).toBe('1.1');
         expect(filter(12.122)).toBe('12.122');
@@ -48,7 +48,7 @@ describe('filter: customNumber', function() {
         expect(filter(0.0012345)).toBe('0.0012');
     });
 
-    it('should return exponential for big numbers', ()=>{
+    it('should return exponential for big numbers', function() {
         expect(filter(10000000)).toBe('1.00e+7');
         expect(filter(1.234e+7)).toBe('1.23e+7');
         expect(filter(1.234e+10)).toBe('1.2e+10');
@@ -56,7 +56,7 @@ describe('filter: customNumber', function() {
         expect(filter(0.9499e+300)).toBe('9.5e+299');
     });
 
-    it('should return exponential for small numbers', ()=>{
+    it('should return exponential for small numbers', function() {
         expect(filter(0.00001)).toBe('1.00e-5');
         expect(filter(1.234e-7)).toBe('1.23e-7');
         expect(filter(1.234e-10)).toBe('1.2e-10');
@@ -64,7 +64,7 @@ describe('filter: customNumber', function() {
         expect(filter(1.111e-300)).toBe('1.1e-300');
     });
 
-    it('should return passed empty value if value is missing', ()=>{
+    it('should return passed empty value if value is missing', function() {
         expect(filter(0, TEST)).toBe('0');
         expect(filter(1e-400, TEST)).toBe('0');
         expect(filter(1e-301, TEST)).toBe('0');
