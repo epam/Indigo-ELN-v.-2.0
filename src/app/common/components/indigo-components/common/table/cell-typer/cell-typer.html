@@ -1,5 +1,6 @@
 <div ng-switch="column.type">
     <span ng-switch-when="undefined" ng-bind="row[column.id]"></span>
+    <span ng-switch-when="formula" ng-bind="row[column.id].value"></span>
     <span ng-switch-when="registrationStatus" ng-bind="row[column.id]"
           class="batch-status status-{{row[column.id]}}"></span>
     <span ng-switch-when="date" ng-if="row[column.id]"
@@ -18,7 +19,8 @@
         <simple-checkbox model="row[column.id]"></simple-checkbox>
     </div>
     <simple-radio ng-switch-when="radio" ng-click="$event.stopPropagation()">
-        <input ng-checked="row[column.id]"
+        <input ng-disabled="row[column.id].readonly"
+               ng-checked="row[column.id].value"
                ng-click="vm.onClickRadio(column, row, row[column.id]);">
         <label></label>
     </simple-radio>

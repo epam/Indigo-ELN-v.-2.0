@@ -27,7 +27,6 @@ function indigoProductBatchSummary() {
         var vm = this;
 
         vm.structureSize = 0.3;
-
         vm.isStructureVisible = false;
     }
 }

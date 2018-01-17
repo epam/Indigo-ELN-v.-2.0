@@ -1,6 +1,6 @@
 stoichProductColumns.$inject = ['appUnits', 'calculationService'];
 
-function stoichProductColumns(appUnits, calculationService) {
+function stoichProductColumns(appUnits) {
     return {
         chemicalName: {
             id: 'chemicalName',
@@ -10,7 +10,9 @@ function stoichProductColumns(appUnits, calculationService) {
         },
         formula: {
             id: 'formula',
-            name: 'Formula'
+            name: 'Formula',
+            type: 'formula',
+            readonly: true
         },
         molWeight: {
             id: 'molWeight',
@@ -23,15 +25,15 @@ function stoichProductColumns(appUnits, calculationService) {
             name: 'Exact Mass',
             type: 'primitive'
         },
-        weight: {
-            id: 'weight',
+        theoWeight: {
+            id: 'theoWeight',
             name: 'Theo. Wgt.',
             type: 'unit',
             unitItems: appUnits.grams,
             readonly: true
         },
-        mol: {
-            id: 'mol',
+        theoMoles: {
+            id: 'theoMoles',
             name: 'Theo. Moles',
             type: 'unit',
             unitItems: appUnits.moles,
@@ -43,15 +45,7 @@ function stoichProductColumns(appUnits, calculationService) {
             name: 'Salt Code',
             type: 'select',
             values: appUnits.saltCodeValues,
-            showDefault: true,
-            onClose: function(data) {
-                calculationService.setEntered(data);
-                recalculateSalt(data.row);
-                if (data.model.value === 0) {
-                    data.row.saltEq.value = 0;
-                }
-            }
-
+            showDefault: true
         },
         saltEq: {
             id: 'saltEq',
@@ -59,10 +53,6 @@ function stoichProductColumns(appUnits, calculationService) {
             type: 'scalar',
             checkEnabled: function(o) {
                 return o.saltCode && o.saltCode.value > 0;
-            },
-            onClose: function(data) {
-                calculationService.setEntered(data);
-                recalculateSalt(data.row);
             }
         },
         hazardComments: {
@@ -75,14 +65,6 @@ function stoichProductColumns(appUnits, calculationService) {
             type: 'scalar'
         }
     };
-
-    function recalculateSalt(reagent) {
-        calculationService.recalculateSalt(reagent).then(function() {
-            calculationService.recalculateAmounts({
-                row: reagent
-            });
-        });
-    }
 }
 
 module.exports = stoichProductColumns;

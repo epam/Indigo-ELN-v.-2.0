@@ -10,7 +10,7 @@
               selected-batch-trigger="vm.selectedBatchTrigger"
               on-changed="vm.onChange()"
               on-changed-visible-column="vm.onChangedVisibleColumn(column, isVisible)"
-              on-close-cell="vm.onClose(column, data)"
+              on-close-cell="vm.onBatchChanged(data)"
               ng-class="{'product-batch-register': vm.isReadonly || !vm.hasCheckedRows(vm.batches)}">
     <div class="m-b20 action-panel">
         <div class="action-panel__left">
