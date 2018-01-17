@@ -1,13 +1,13 @@
 var cnumber = require('./custom-number.filter');
 
 /*eslint-env jasmine */
-describe('filter: customNumber', () => {
-    const TOO_LONG = 'Too Long';
-    const TEST = 'anything';
+describe('filter: customNumber', function() {
+    var TOO_LONG = 'Too Long';
+    var TEST = 'anything';
 
-    let filter;
+    var filter;
 
-    beforeEach(()=>{
+    beforeEach(function() {
         filter = cnumber();
     });
 
