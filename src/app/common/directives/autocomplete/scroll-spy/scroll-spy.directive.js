@@ -6,10 +6,10 @@ function scrollSpy() {
 
             $element.bind('scroll', function() {
                 // Calls function when element is scrolled to the bottom
-                if (raw.scrollTop + raw.offsetHeight >= raw.scrollHeight) {
-                    if ($attrs.scrollSpy) {
-                        $scope.$apply($attrs.scrollSpy);
-                    }
+                var isScrolledToBottom = raw.scrollTop + raw.offsetHeight >= raw.scrollHeight;
+
+                if (isScrolledToBottom && $attrs.scrollSpy) {
+                    $scope.$apply($attrs.scrollSpy);
                 }
             });
 
