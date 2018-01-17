@@ -55,7 +55,7 @@ function autocompleteController($scope, translateService) {
         if (_.isFunction(vm.onRefresh)) {
             vm.isLoading = true;
             vm.onRefresh({query: query})
-                .then(function() {
+                .finally(function() {
                     vm.isLoading = false;
                 });
 
@@ -71,7 +71,7 @@ function autocompleteController($scope, translateService) {
         if (_.isFunction(vm.onLoadPage)) {
             vm.isLoading = true;
             vm.onLoadPage({query: query})
-                .then(function() {
+                .finally(function() {
                     vm.isLoading = false;
                 });
         }
