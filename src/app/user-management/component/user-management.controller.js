@@ -1,18 +1,18 @@
 var userManagementPasswordDialogTemplate = require('./user-management-password-dialog.html');
 
 /* @ngInject */
-function UserManagementController($uibModal, userService, parseLinks, pageInfo, passwordRegex, notifyService,
+function UserManagementController($uibModal, userService, parseLinks, passwordRegex, notifyService,
                                   translateService, roleService, $q) {
     var vm = this;
 
     var rolesPaging = {
-        pageNumber: pageInfo.roles.pageNumber,
-        itemsPerPage: pageInfo.roles.itemsPerPage,
+        pageNumber: 0,
+        itemsPerPage: 20,
         isLoaded: false
     };
 
     vm.users = [];
-    vm.roles = pageInfo.roles.list;
+    vm.roles = [];
     vm.page = 1;
     vm.groups = [{name: 'Group 1'}, {name: 'Group 2'}];
     vm.itemsPerPage = 10;
@@ -63,7 +63,7 @@ function UserManagementController($uibModal, userService, parseLinks, pageInfo, 
 
     function searchRoles(query) {
         rolesPaging.pageNumber = 0;
-        vm.roles = [];
+        vm.roles.length = 0;
 
         return queryRoles(query);
     }
