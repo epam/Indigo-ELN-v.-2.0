@@ -97,7 +97,8 @@ public final class PermissionUtil {
     ) {
         upperLevelUserPermissions.forEach(up -> {
             if (canBeAddedFromUpperLevel(upperPermissionsLevel, up)) {
-                accessList.add(up);
+                accessList.add(new UserPermission(
+                        up.getUser(), up.getPermissions(), up.getPermissionCreationLevel()));
             }
         });
     }
