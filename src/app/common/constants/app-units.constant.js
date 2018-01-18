@@ -1,4 +1,3 @@
-// TODO: remove saltCodeValues, fetch it from server
 var appUnits = {
     grams: ['mg', 'g', 'kg'],
     liters: ['ml', 'ul', 'l'],
@@ -10,19 +9,7 @@ var appUnits = {
     rxnRoleSolvent: {name: 'SOLVENT'},
     compoundProtectionValues: [{name: 'NONE - None'}, {name: 'ST1 - Standard 1'}, {name: 'ST2 - Standard 2'}],
     loadFactorUnits: ['mmol/g'],
-    defaultSaltCode: {name: '00 - Parent Structure', value: '0', regValue: '00'},
-    saltCodeValues: [
-        {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0, readonly: false},
-        {name: '01 - HYDROCHLORIDE', value: '1', regValue: '01', weight: 1, readonly: false},
-        {name: '02 - SODIUM', value: '2', regValue: '02', weight: 2, readonly: false},
-        {name: '03 - HYDRATE', value: '3', regValue: '03', weight: 3, readonly: false},
-        {name: '04 - HYDROBROMIDE', value: '4', regValue: '04', weight: 4, readonly: false},
-        {name: '05 - HYDROIODIDE', value: '5', regValue: '05', weight: 5, readonly: false},
-        {name: '06 - POTASSIUM', value: '6', regValue: '06', weight: 6, readonly: false},
-        {name: '07 - CALCIUM', value: '7', regValue: '07', weight: 7, readonly: false},
-        {name: '08 - SULFATE', value: '8', regValue: '08', weight: 8, readonly: false},
-        {name: '09 - PHOSPHATE', value: '9', regValue: '09', weight: 9, readonly: false},
-        {name: '10 - CITRATE', value: '10', regValue: '10', weight: 10, readonly: false}],
+    defaultSaltCode: {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0},
 
     defaultBatch: {
         limiting: false,

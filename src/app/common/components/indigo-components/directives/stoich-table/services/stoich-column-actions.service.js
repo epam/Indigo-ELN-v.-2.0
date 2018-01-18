@@ -2,7 +2,7 @@ var ReagentViewRow = require('../domain/reagent/view-row/reagent-view-row');
 var fieldTypes = require('../../../services/calculation/field-types');
 
 /* @ngInject */
-function stoichColumnActions(registrationService, calculationService, $q, appUnits, dictionaryService,
+function stoichColumnActions(registrationService, calculationService, $q, appValuesService, dictionaryService,
                              sdImportHelper, dialogService, searchService, formatValidation) {
     var commonReactantProperties = [
         fieldTypes.compoundId,
@@ -140,7 +140,7 @@ function stoichColumnActions(registrationService, calculationService, $q, appUni
                 compound.stereoisomerCode,
                 dicts
             ),
-            saltCode: _.find(appUnits.saltCodeValues, function(sc) {
+            saltCode: _.find(appValuesService.getSaltCodeValues(), function(sc) {
                 return sc.regValue === compound.saltCode;
             }),
             saltEq: {

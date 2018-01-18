@@ -1,8 +1,8 @@
 var BatchRow = require('../directives/indigo-components/domain/batch-row/calculation-row/batch-row');
 
 /* @ngInject */
-function batchHelper(appUnits, calculationService, columnActions, batchesCalculation, calculationHelper,
-                     scalarService, unitService, selectService, setInputService, $q) {
+function batchHelper(appUnits, appValuesService, calculationService, columnActions, batchesCalculation,
+                     calculationHelper, scalarService, unitService, selectService, setInputService, $q) {
     function onBatchChanged(change) {
         var batchesData = {
             changedRow: change.row,
@@ -150,8 +150,8 @@ function batchHelper(appUnits, calculationService, columnActions, batchesCalcula
                 name: 'Salt Code',
                 type: 'select',
                 showDefault: true,
-                values: appUnits.saltCodeValues,
-                actions: selectService.getActions('Salt Code', appUnits.saltCodeValues),
+                values: appValuesService.getSaltCodeValues(),
+                actions: selectService.getActions('Salt Code', appValuesService.getSaltCodeValues()),
                 checkEnabled: canEditSaltCode,
                 disableTitle: 'Batch hasn\'t structure'
             },

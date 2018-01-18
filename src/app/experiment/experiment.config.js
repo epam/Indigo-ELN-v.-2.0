@@ -48,6 +48,11 @@ function experimentConfig($stateProvider, permissionsConfig, permissionViewConfi
                 tabContent: {
                     template: '<experiment-detail></experiment-detail>'
                 }
+            },
+            resolve: {
+                saltCode: function(appValuesService) {
+                    return appValuesService.fetchSaltCodes();
+                }
             }
         })
         .state('experiment.delete', {
