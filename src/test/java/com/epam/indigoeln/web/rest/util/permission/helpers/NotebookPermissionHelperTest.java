@@ -34,8 +34,11 @@ public class NotebookPermissionHelperTest {
     @Before
     public void setUp() {
         testProject = new Project();
+        testProject.setId("testProjectId");
         testNotebook = new Notebook();
+        testNotebook.setId("testNotebookId");
         otherNotebook = new Notebook();
+        otherNotebook.setId("otherNotebookId");
         testProject.setNotebooks(asList(otherNotebook, testNotebook));
         testExperiment = new Experiment();
         testNotebook.setExperiments(Collections.singletonList(testExperiment));

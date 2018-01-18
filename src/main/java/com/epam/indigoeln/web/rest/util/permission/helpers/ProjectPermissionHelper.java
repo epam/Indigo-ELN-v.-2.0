@@ -55,10 +55,13 @@ public class ProjectPermissionHelper {
         return result;
     }
 
-    static boolean removePermissionFromNotebook(Project project, Notebook fromNotebook, Set<UserPermission> removedFromNotebook) {
+    static boolean removePermissionFromNotebook(Project project,
+                                                Notebook fromNotebook,
+                                                Set<UserPermission> removedFromNotebook
+    ) {
 
         Set<UserPermission> presentedInOtherNotebooks = project.getNotebooks().stream()
-                .filter(notebook -> !notebook.equals(fromNotebook))
+                .filter(notebook -> !notebook.getId().equals(fromNotebook.getId()))
                 .flatMap(notebook -> notebook.getAccessList().stream())
                 .collect(toSet());
 

@@ -32,7 +32,9 @@ public class ExperimentPermissionHelperTest {
     @Before
     public void setUp() {
         testProject = new Project();
+        testProject.setId("testProjectId");
         testNotebook = new Notebook();
+        testNotebook.setId("testNotebookId");
         testProject.setNotebooks(singletonList(testNotebook));
         testExperiment = new Experiment();
         testExperiment.setId("testExperimentId");

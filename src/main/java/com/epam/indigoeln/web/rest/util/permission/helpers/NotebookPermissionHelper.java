@@ -95,7 +95,7 @@ public class NotebookPermissionHelper {
     ) {
 
         Set<UserPermission> presentedInOtherNotebooks = notebook.getExperiments().stream()
-                .filter(experiment -> !experiment.equals(fromExperiment))
+                .filter(experiment -> !experiment.getId().equals(fromExperiment.getId()))
                 .flatMap(experiment -> experiment.getAccessList().stream())
                 .collect(toSet());
 
