@@ -51,7 +51,7 @@ function experimentConfig($stateProvider, permissionsConfig, permissionViewConfi
             },
             resolve: {
                 saltCode: function(appValuesService) {
-                    return appValuesService.getSaltCodeValues();
+                    return appValuesService.fetchSaltCodes();
                 }
             }
         })

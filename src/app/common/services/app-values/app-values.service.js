@@ -27,7 +27,8 @@ function appValuesService($http, appUnits, apiUrl) {
         getSaltCodeValues: getSaltCodeValues,
         getCompoundProtectionValues: getCompoundProtectionValues,
         getLoadFactorUnits: getLoadFactorUnits,
-        getDefaultBatch: getDefaultBatch
+        getDefaultBatch: getDefaultBatch,
+        fetchSaltCodes: fetchSaltCodes
     };
 
     function getGrams() {
@@ -67,14 +68,7 @@ function appValuesService($http, appUnits, apiUrl) {
     }
 
     function getSaltCodeValues() {
-        if (saltCodeValues) {
-            return saltCodeValues;
-        }
-
-        return fetchSaltCodes()
-            .then(function(resp) {
-                saltCodeValues = convertSaltCodes(resp.data);
-            });
+        return saltCodeValues;
     }
 
     function getCompoundProtectionValues() {
@@ -97,7 +91,10 @@ function appValuesService($http, appUnits, apiUrl) {
             cache: true
         };
 
-        return $http(config);
+        return $http(config)
+            .then(function(resp) {
+                saltCodeValues = convertSaltCodes(resp.data);
+            });
     }
 
     function convertSaltCodes(data) {
