@@ -300,6 +300,7 @@ var i18n = {
     FIELD_REQUIRED_HINT: 'This field is required.',
     MAXLENGTH_HINT: 'This field can\'t be longer than',
     CHARACTERS: 'characters.',
+    SELF_ROLE_CHANGE_HINT: 'Role field update for own profile is not allowed, please contact Admin for this purpose',
 
     // Notifications
     NOTIFY_INCORRECT_EMAIL: 'Email address is incorrect!',
