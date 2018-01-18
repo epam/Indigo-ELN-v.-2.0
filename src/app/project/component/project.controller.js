@@ -73,14 +73,13 @@ function ProjectController($scope, $state, projectService, notifyService, permis
         return $q.resolve();
     }
 
-    function onRestore(storeData) {
-        var version = vm.project.version;
+    function onRestore(storeData, lastVersion) {
+        var version = lastVersion || vm.project.version || storeData.version;
         vm.project = storeData;
-        permissionService.setProject(vm.project);
 
-        if (angular.isDefined(version)) {
-            vm.project.version = version;
-        }
+        permissionService.setProject(vm.project);
+        vm.project.version = version;
+
         entitiesCache.put($stateParams, vm.project);
     }
 
@@ -203,6 +202,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
             });
         });
         entitiesCache.removeByParams($stateParams);
+        autorecoveryCache.remove($stateParams);
     }
 
     function onSaveError(result) {

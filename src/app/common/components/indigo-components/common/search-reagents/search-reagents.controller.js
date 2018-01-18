@@ -1,6 +1,6 @@
 /* @ngInject */
 function SearchReagentsController($rootScope, $uibModalInstance, notifyService, appValuesService,
-                                  activeTabIndex, userReagentsService, searchService, searchUtil,
+                                  activeTabIndex, userReagentsService, searchService, searchUtil, addTableRowsCallback,
                                   searchReagentsService, stoichColumnActions, translateService, dictionaryService) {
     var vm = this;
     var myReagentsSearchQuery;
@@ -81,7 +81,9 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         var selected = _.filter(list, {
             $$isSelected: true
         });
-        $rootScope.$broadcast('stoich-rows-changed', stoichColumnActions.cleanReactants(selected));
+        var cleanedReactants = stoichColumnActions.cleanReactants(selected);
+
+        addTableRowsCallback(cleanedReactants);
     }
 
     userReagentsService.get({}, function(reagents) {

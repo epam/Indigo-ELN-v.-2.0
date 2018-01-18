@@ -88,7 +88,7 @@ function IndigoTableController($scope, dragulaService, simpleLocalCache, princip
 
     function onClickRadio(column, row, value) {
         _.forEach(vm.indigoRows, function(iRow) {
-            iRow[column.id] = iRow === row;
+            iRow[column.id].value = iRow === row;
         });
 
         column.onClick({model: value, row: row, column: column.id});
@@ -152,7 +152,7 @@ function IndigoTableController($scope, dragulaService, simpleLocalCache, princip
 
     function onClose(column, data) {
         vm.editingCellId = null;
-        vm.onCloseCell({column: column, data: data});
+        vm.onCloseCell({data: data});
     }
 
     function startEdit(id) {

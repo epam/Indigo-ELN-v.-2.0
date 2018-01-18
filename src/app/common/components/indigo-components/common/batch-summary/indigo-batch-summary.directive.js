@@ -26,8 +26,7 @@ function indigoBatchSummary() {
     };
 }
 
-IndigoBatchSummaryController.$inject = ['$scope', 'registrationUtil', 'batchHelper'];
-
+/* @ngInject */
 function IndigoBatchSummaryController($scope, registrationUtil, batchHelper) {
     var vm = this;
 
@@ -43,7 +42,7 @@ function IndigoBatchSummaryController($scope, registrationUtil, batchHelper) {
         });
 
         vm.hasCheckedRows = batchHelper.hasCheckedRow;
-        vm.onClose = batchHelper.close;
+        vm.onBatchChanged = batchHelper.onBatchChanged;
         vm.onChangedVisibleColumn = onChangedVisibleColumn;
 
         bindEvents();
@@ -67,7 +66,7 @@ function IndigoBatchSummaryController($scope, registrationUtil, batchHelper) {
             batchHelper.columns.select,
             batchHelper.columns.totalWeight,
             batchHelper.columns.totalVolume,
-            batchHelper.columns.mol,
+            batchHelper.columns.totalMoles,
             batchHelper.columns.theoWeight,
             batchHelper.columns.theoMoles,
             batchHelper.columns.yield,

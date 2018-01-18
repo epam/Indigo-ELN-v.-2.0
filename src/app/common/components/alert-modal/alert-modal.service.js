@@ -84,7 +84,9 @@ function alertModal($uibModal) {
                     return options.noText;
                 },
                 cancelVisible: function() {
-                    return _.isBoolean(options.hideCancel) ? !options.hideCancel : options.okCallback || options.noCallback;
+                    return _.isBoolean(options.hideCancel)
+                        ? !options.hideCancel
+                        : options.okCallback || options.noCallback;
                 },
                 okCallback: function() {
                     return options.okCallback;

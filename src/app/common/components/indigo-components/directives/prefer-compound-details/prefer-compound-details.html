@@ -92,7 +92,7 @@
                                         indigo-empty-text="none">
                     </indigo-simple-text>
                     <indigo-simple-text indigo-label="Calculated Compound MF"
-                                        indigo-model="vm.selectedBatch.formula"
+                                        indigo-model="vm.selectedBatch.formula.value"
                                         indigo-empty-text="none">
                     </indigo-simple-text>
 
@@ -110,7 +110,7 @@
                     <autocomplete label="Salt Code & Name"
                                   items="vm.saltCodeValues"
                                   model="vm.selectedBatch.saltCode"
-                                  on-select="vm.recalculateSalt(vm.selectedBatch)"
+                                  on-select="vm.onBatchChanged({row: vm.selectedBatch, column: 'saltCode'})"
                                   readonly="vm.isEditDisabled || !vm.canEditSaltCode(vm.selectedBatch)"
                     ></autocomplete>
                     <simple-input>
@@ -118,7 +118,7 @@
                         <input class="form-control"
                                type="number"
                                ng-model="vm.selectedBatch.saltEq.value"
-                               ng-change="vm.recalculateSalt(vm.selectedBatch)"
+                               ng-change="vm.onBatchChanged({row: vm.selectedBatch, column: 'saltEq'})"
                                ng-disabled="vm.isEditDisabled || !vm.canEditSaltEq(vm.selectedBatch)">
                     </simple-input>
                 </div>

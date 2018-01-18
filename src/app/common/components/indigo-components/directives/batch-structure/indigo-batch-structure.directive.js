@@ -1,4 +1,5 @@
 var template = require('./batch-structure.html');
+var fieldTypes = require('../../services/calculation/field-types');
 
 function indigoBatchStructure() {
     return {
@@ -16,9 +17,8 @@ function indigoBatchStructure() {
     };
 }
 
-IndigoBatchStructureController.$inject = ['calculationService'];
-
-function IndigoBatchStructureController(calculationService) {
+/* @ngInject */
+function IndigoBatchStructureController($q, calculationService, batchHelper) {
     var vm = this;
 
     init();
@@ -47,19 +47,21 @@ function IndigoBatchStructureController(calculationService) {
         batch.formula = null;
         batch.molWeight = null;
 
+        // TODO: investigate it's old api
         return calculationService.calculateProductBatch({
             row: batch, column: getColumn(batch)
         });
     }
 
     function updateBatchFormula(batch, molInfo) {
-        batch.formula = molInfo.molecularFormula;
-        batch.molWeight = batch.molWeight || {};
+        batch.formula.value = molInfo.molecularFormula;
+        batch.formula.baseValue = molInfo.molecularFormula;
         batch.molWeight.value = molInfo.molecularWeight;
+        batch.molWeight.baseValue = molInfo.molecularWeight;
 
-        return calculationService.calculateProductBatch({
-            row: batch, column: getColumn(batch)
-        });
+        batchHelper.calculateRow({changedRow: batch, changedField: fieldTypes.molWeight});
+
+        return $q.resolve();
     }
 
     function updateBatchMolInfo() {

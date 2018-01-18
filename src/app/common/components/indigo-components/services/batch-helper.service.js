@@ -1,60 +1,49 @@
-batchHelper.$inject = ['appUnits', 'calculationService', 'columnActions', 'scalarService', 'unitService',
-    'selectService', 'setInputService', '$q'];
+var BatchRow = require('../directives/indigo-components/domain/batch-row/calculation-row/batch-row');
 
-function batchHelper(appUnits, calculationService, columnActions,
+/* @ngInject */
+function batchHelper(appUnits, calculationService, columnActions, batchesCalculation, calculationHelper,
                      scalarService, unitService, selectService, setInputService, $q) {
-    var columnCloseFunction = {
-        totalWeight: onClose1,
-        totalVolume: onClose1,
-        mol: onClose1,
-        saltCode: onCloseSaltCode,
-        saltEq: onCloseSaltEq,
-        $$batchType: onCloseBatchType
-    };
+    function onBatchChanged(change) {
+        var batchesData = {
+            changedRow: change.row,
+            changedField: change.column
+        };
 
-    function close(column, data) {
-        var fn = columnCloseFunction[column.id];
-
-        if (fn) {
-            fn(data);
-        }
+        calculateRow(batchesData);
     }
 
-    function onClose1(data) {
-        calculationService.setEntered(data);
-        calculationService.calculateProductBatch(data);
+    function calculateAllRows(batchesData) {
+        var preparedBatchesData = prepareBatchesForCalculation(batchesData);
+        var calculatedRows = batchesCalculation.calculateAllRows(preparedBatchesData);
+
+        calculationHelper.updateViewRows(calculatedRows, batchesData.rows);
     }
 
-    function onCloseSaltCode(data) {
-        calculationService.setEntered(data);
-        recalculateSalt(data.row);
-        if (data.model.value === 0) {
-            data.row.saltEq.value = 0;
-        }
+    function calculateRow(batchesData) {
+        var preparedBatchData = prepareBatchForCalculation(batchesData);
+        var calculatedRow = batchesCalculation.calculateRow(preparedBatchData);
+
+        calculationHelper.updateViewRow(calculatedRow, batchesData.changedRow);
     }
 
-    function onCloseSaltEq(data) {
-        calculationService.setEntered(data);
-        recalculateSalt(data.row);
+    function prepareBatchForCalculation(change) {
+        var row = new BatchRow(change.changedRow);
+
+        return {
+            changedRow: row,
+            changedField: change.changedField
+        };
     }
 
-    function onCloseBatchType(data) {
-        var r = data.row;
-        if (!r.$$batchType) {
-            return;
-        }
-        r.batchType = r.$$batchType.name;
-    }
-
-    function recalculateSalt(reagent) {
-        if (reagent.saltCode.value === 0) {
-            reagent.saltEq.value = 0;
-        } else {
-            reagent.saltEq.value = Math.abs(reagent.saltEq.value);
-        }
-        calculationService.recalculateSalt(reagent).then(function() {
-            calculationService.recalculateStoich();
+    function prepareBatchesForCalculation(change) {
+        var rows = _.map(change.rows, function(viewRow) {
+            return new BatchRow(viewRow);
         });
+
+        return {
+            rows: rows,
+            limitingRow: change.limitingRow
+        };
     }
 
     function canEditSaltEq(batch) {
@@ -75,10 +64,11 @@ function batchHelper(appUnits, calculationService, columnActions,
     }
 
     return {
-        close: close,
+        onBatchChanged: onBatchChanged,
+        calculateAllRows: calculateAllRows,
+        calculateRow: calculateRow,
         hasCheckedRow: hasCheckedRow,
         getCheckedBatches: getCheckedBatches,
-        recalculateSalt: recalculateSalt,
         canEditSaltEq: canEditSaltEq,
         canEditSaltCode: canEditSaltCode,
         compounds: compounds,
@@ -114,8 +104,8 @@ function batchHelper(appUnits, calculationService, columnActions,
                 unitItems: appUnits.liters,
                 actions: unitService.getActions('Total Volume', appUnits.liters)
             },
-            mol: {
-                id: 'mol',
+            totalMoles: {
+                id: 'totalMoles',
                 name: 'Total Moles',
                 type: 'unit',
                 width: '150px',
@@ -192,7 +182,7 @@ function batchHelper(appUnits, calculationService, columnActions,
                 actions: setInputService.getActions('Batch Comments')
             },
             $$batchType: {
-                id: '$$batchType',
+                id: 'batchType',
                 name: 'Intermediate/Test Compound',
                 type: 'select',
                 values: compounds,
@@ -201,13 +191,13 @@ function batchHelper(appUnits, calculationService, columnActions,
             molWeight: {
                 id: 'molWeight',
                 name: 'Mol Wgt',
-                type: 'scalar'
+                type: 'scalar',
+                readonly: true
             },
             formula: {
                 id: 'formula',
                 name: 'Mol Formula',
-                type: 'input',
-                readonly: true,
+                type: 'formula',
                 actions: setInputService.getActions('Mol Formula')
             },
             conversationalBatchNumber: {

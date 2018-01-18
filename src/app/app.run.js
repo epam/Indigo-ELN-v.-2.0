@@ -6,7 +6,6 @@ function appRun($rootScope, $window, $state, $uibModal, editableOptions, authSer
                 $http, $cookies) {
     updateCSRFTOKEN();
 
-    $.mCustomScrollbar.defaults.advanced.autoScrollOnFocus = false;
     // idleTime: 30 minutes, countdown: 30 seconds
     var countdownDialog = null;
     var idleTime = 30;

@@ -24,7 +24,7 @@ function linkedExperiments() {
 }
 
 /* @ngInject */
-function LinkedExperimentsController(commonHelper) {
+function LinkedExperimentsController(searchService) {
     var vm = this;
 
     init();
@@ -34,11 +34,18 @@ function LinkedExperimentsController(commonHelper) {
     }
 
     function refresh(query) {
-        commonHelper.getExperiments().then(function(experiments) {
-            vm.items = _.filter(experiments, function(experiment) {
-                return experiment.name.startsWith(query);
+        var pageSize = 10;
+        var pageNumber = 0;
+
+        searchService.getExperiments({
+            query: query,
+            size: pageSize,
+            page: pageNumber
+        })
+            .$promise
+            .then(function(response) {
+                vm.items = response;
             });
-        });
     }
 }
 

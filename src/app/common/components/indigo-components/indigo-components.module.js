@@ -40,6 +40,8 @@ var productBatchSummaryOperations = require('./services/product-batch-summary-op
 var batchHelper = require('./services/batch-helper.service');
 var columnActions = require('./services/column-actions.service');
 var dialogService = require('./services/dialog-service/dialog.service');
+var calculationHelper = require('./services/calculation/calculation-helper.service');
+var batchesCalculation = require('./services/batches-calculation/batches-calculation.service');
 var componentsUtil = require('./utils/components-util.service');
 
 var run = require('./indigo-components.run');
@@ -85,6 +87,8 @@ module.exports = angular
     .factory('batchHelper', batchHelper)
     .factory('columnActions', columnActions)
     .factory('dialogService', dialogService)
+    .factory('calculationHelper', calculationHelper)
+    .factory('batchesCalculation', batchesCalculation)
     .factory('componentsUtil', componentsUtil)
     .factory('searchReagentsService', searchReagentsService)
 

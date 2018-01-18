@@ -52,14 +52,9 @@ function IndigoProductBatchDetailsController($scope, appValuesService, infoEdito
         vm.editStorageInstructions = editStorageInstructions;
         vm.canEditSaltEq = batchHelper.canEditSaltEq;
         vm.canEditSaltCode = batchHelper.canEditSaltCode;
-        vm.recalculateSalt = batchHelper.recalculateSalt;
-        vm.onClose = onClose;
+        vm.onBatchChanged = batchHelper.onBatchChanged;
 
         bindEvents();
-    }
-
-    function onClose(column, data) {
-        batchHelper.close(column, data);
     }
 
     function selectBatch(batch) {
@@ -140,7 +135,7 @@ function IndigoProductBatchDetailsController($scope, appValuesService, infoEdito
         return [
             batchHelper.columns.totalWeight,
             batchHelper.columns.totalVolume,
-            batchHelper.columns.mol,
+            batchHelper.columns.totalMoles,
             batchHelper.columns.theoWeight,
             batchHelper.columns.theoMoles,
             batchHelper.columns.yield,

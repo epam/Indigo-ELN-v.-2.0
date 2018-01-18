@@ -18,9 +18,8 @@ function indigoReactionScheme() {
     };
 }
 
-IndigoReactionSchemeController.$inject = ['$scope', 'calculationService', '$q', 'notifyService', 'appUnits'];
-
-function IndigoReactionSchemeController($scope, calculationService, $q, notifyService, appUnits) {
+/* @ngInject */
+function IndigoReactionSchemeController($scope, calculationService, $q, notifyService) {
     var vm = this;
 
     init();
@@ -93,7 +92,7 @@ function IndigoReactionSchemeController($scope, calculationService, $q, notifySe
     }
 
     function createReactant(isProduct, index, result) {
-        return _.extend({}, appUnits.defaultBatch, {
+        return {
             chemicalName: isProduct ? getDefaultChemicalName(index) : result.name,
             formula: result.molecularFormula,
             molWeight: {
@@ -105,7 +104,7 @@ function IndigoReactionSchemeController($scope, calculationService, $q, notifySe
                 molfile: result.molecule,
                 structureType: 'molecule'
             }
-        });
+        };
     }
 
     function moleculeInfoResponseCallback(results, isProduct) {

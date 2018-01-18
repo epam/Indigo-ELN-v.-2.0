@@ -105,7 +105,7 @@ function permissionService($q, principalService, userRemovableFromProjectService
     }
 
     function isContentEditor(user) {
-        return user.authorities.includes(roles.CONTENT_EDITOR);
+        return _.includes(user.authorities, roles.CONTENT_EDITOR);
     }
 
     function isAuthor(user) {

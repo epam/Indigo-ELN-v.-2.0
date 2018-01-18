@@ -70,7 +70,7 @@ function EditRoleController($scope, notifyService, roleService, alertModal, i18e
         return roleService.query({search: modelValue})
             .$promise
             .then(function(result) {
-                if (result.length && _.find(result, {name: modelValue})) {
+                if (result.data.length && _.find(result.data, {name: modelValue})) {
                     // Role with provided name already exist
                     return $q.reject('Role already exist');
                 }

@@ -22,6 +22,7 @@ var simpleInput = require('./simple-input/simple-input.directive');
 var linkedExperiments = require('./linked-experiments/linked-experiments.directive');
 var unitSelect = require('./unit-select/unit-select.directive');
 var autocomplete = require('./autocomplete/autocomplete.directive');
+var scrollSpy = require('./autocomplete/scroll-spy/scroll-spy.directive');
 var dynamicValidators = require('./dynamic-validators/dynamic-validators');
 var dynamicAsyncValidators = require('./dynamic-async-validators/dynamic-async-validators');
 
@@ -60,6 +61,7 @@ module.exports = angular
     .directive('linkedExperiments', linkedExperiments)
     .directive('unitSelect', unitSelect)
     .directive('autocomplete', autocomplete)
+    .directive('scrollSpy', scrollSpy)
     .directive('dynamicValidators', dynamicValidators)
     .directive('dynamicAsyncValidators', dynamicAsyncValidators)
 

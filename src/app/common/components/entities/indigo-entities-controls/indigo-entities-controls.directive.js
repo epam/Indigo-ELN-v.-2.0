@@ -9,6 +9,7 @@ function indigoEntitiesControls() {
         bindToController: true,
         controllerAs: 'vm',
         scope: {
+            isDashboard: '=',
             activeTab: '=',
             onCloseTab: '&',
             onCloseAllTabs: '&',
@@ -38,7 +39,6 @@ function IndigoEntitiesControlsController($state, entitiesBrowserService, modalH
         vm.EXPERIMENT_CREATORS = [vm.CONTENT_EDITOR, vm.EXPERIMENT_CREATOR].join(',');
         vm.ENTITY_CREATORS = [vm.CONTENT_EDITOR, vm.PROJECT_CREATOR, vm.NOTEBOOK_CREATOR, vm.EXPERIMENT_CREATOR]
             .join(',');
-        vm.isDashboard = false;
 
         vm.onTabClick = onTabClick;
         vm.openSearch = openSearch;
@@ -52,6 +52,7 @@ function IndigoEntitiesControlsController($state, entitiesBrowserService, modalH
 
         entitiesBrowserService.getTabs(function(tabs) {
             vm.entities = tabs;
+            vm.entitiesCount = _.size(vm.entities);
         });
     }
 

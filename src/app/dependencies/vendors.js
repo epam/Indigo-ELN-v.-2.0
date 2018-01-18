@@ -1,7 +1,6 @@
 // region App styles
 require('bootstrap-slider/dist/css/bootstrap-slider.min.css');
 require('animate.css/animate.min.css');
-require('font-awesome/css/font-awesome.min.css');
 require('rdash-ui/dist/css/rdash.min.css');
 // endregion
 
@@ -9,7 +8,6 @@ require('rdash-ui/dist/css/rdash.min.css');
 require('expose-loader?$!expose-loader?jQuery!jquery');
 require('expose-loader?angular!angular');
 require('expose-loader?_!lodash');
-require('./malihu-custom-scrollbar-plugin');
 require('./jquery-ui');
 require('bootstrap/dist/js/bootstrap.min');
 require('angular');
@@ -17,6 +15,7 @@ require('expose-loader?moment!moment-timezone');
 require('sockjs-client');
 require('./simditor');
 require('pretty-bytes');
+require('./perfect-scrollbar');
 // endregion
 
 // region Base external modules

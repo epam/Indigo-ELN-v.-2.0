@@ -59,12 +59,17 @@
                         <autocomplete label="System Roles"
                                       el-name="role"
                                       is-required="true"
+                                      readonly="vm.isEditingSelf"
                                       model="vm.user.roles"
                                       items="vm.roles"
-                                      is-multiple="true">
+                                      is-multiple="true"
+                                      on-refresh="vm.searchRoles(query)"
+                                      on-load-page="vm.loadRolesPage(query)">
                         </autocomplete>
                         <p class="help-block" ng-if="editForm.role.$invalid && editForm.role.$dirty"
                            i-translate="FIELD_REQUIRED_HINT"></p>
+                        <p class="help-block" ng-if="vm.isEditingSelf"
+                           i-translate="SELF_ROLE_CHANGE_HINT"></p>
                     </div>
                     <div class="col-xs-6">
                         <simple-input>

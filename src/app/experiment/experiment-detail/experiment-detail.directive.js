@@ -21,7 +21,6 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
                                     principalService, notebookService, typeOfComponents, autorecoveryCache,
                                     confirmationModal, entityHelper, apiUrl, componentsUtil) {
     var vm = this;
-    var tabName;
     var params;
     var isContentEditor;
     var hasEditAuthority;
@@ -43,7 +42,6 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
             getPageInfo().then(function(response) {
                 // Init components because we have old experiments with wrong template
                 initComponents(response.experiment);
-                tabName = getExperimentName(response.notebook, response.experiment);
                 params = {
                     projectId: response.projectId,
                     notebookId: response.notebookId,
@@ -54,15 +52,11 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
                 vm.notebook = response.notebook;
                 entityTitle = response.notebook.name + ' ' + response.experiment.name;
 
-                return initExperiment(response.experiment).then(function(experiment) {
+                return initExperiment(response.experiment).then(function() {
                     updateOriginal(response.experiment);
                     updateCurrentTabTitle();
                     initPermissions();
                     fileUploader.setFiles([]);
-
-                    if (experiment.version > 1 || !experiment.lastVersion) {
-                        tabName += ' v' + experiment.version;
-                    }
                 });
             })
         ]);
@@ -77,13 +71,6 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         vm.refresh = refresh;
         vm.onChangedComponent = onChangedComponent;
         vm.onRestore = onRestore;
-
-        entitiesBrowserService.setCurrentTabTitle(tabName, $stateParams);
-        entitiesBrowserService.setEntityActions({
-            save: save,
-            duplicate: repeatExperiment,
-            print: printExperiment
-        });
 
         initEventListeners();
     }
@@ -137,15 +124,13 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     }
 
     function onRestore(storeData, lastVersion) {
-        var version = lastVersion || _.get(vm.experiment, 'version') || storeData.version;
+        var version = lastVersion || vm.experiment.version || storeData.version;
         vm.experiment = storeData;
+
         initPermissions();
         vm.experiment.version = version;
-        entitiesCache.put($stateParams, vm.experiment);
-    }
 
-    function getExperimentName(notebook, experiment) {
-        return notebook.name ? notebook.name + '-' + experiment.name : experiment.name;
+        entitiesCache.put($stateParams, vm.experiment);
     }
 
     function getExperimentPromise() {
@@ -276,6 +261,11 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
 
     function updateCurrentTabTitle() {
         entitiesBrowserService.setCurrentTabTitle(vm.notebook.name + '-' + vm.experiment.fullName, $stateParams);
+        entitiesBrowserService.setEntityActions({
+            save: save,
+            duplicate: repeatExperiment,
+            print: printExperiment
+        });
     }
 
     function printExperiment() {

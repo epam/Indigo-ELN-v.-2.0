@@ -1,3 +1,5 @@
+var PerfectScrollbar = require('perfect-scrollbar/dist/perfect-scrollbar');
+
 indigoTabScroller.$inject = ['$timeout'];
 
 function indigoTabScroller($timeout) {
@@ -7,23 +9,38 @@ function indigoTabScroller($timeout) {
     };
 
     /* @ngInject */
-    function link(scope, $element) {
+    function link($scope, $element) {
+        $element.addClass('indigo-scroller');
+
+        var perfectScrollbar = new PerfectScrollbar($element[0], {
+            suppressScrollY: true,
+            useBothWheelAxes: true
+        });
+
+        // Update scrollbar to display immediately
         $timeout(function() {
-            $element.mCustomScrollbar({
-                axis: 'x',
-                theme: 'indigo',
-                scrollInertia: 100
-            });
-            scope.$watch('vm.activeTab', function() {
-                $element.mCustomScrollbar('update');
-                $timeout(function() {
-                    var l = $element.find('.active').position().left;
-                    $element.mCustomScrollbar('scrollTo', l, {
-                        scrollInertia: 300
-                    });
-                }, 100);
-            });
-        }, 0, false);
+            perfectScrollbar.update();
+        }, 0);
+
+        // Update scrollbar on container resize
+        $scope.$watch(function() {
+            return $scope.vm.tabs && _.keys($scope.vm.tabs).length;
+        }, function() {
+            perfectScrollbar.update();
+        });
+
+        $scope.$watch('vm.activeTab', function() {
+            $timeout(function() {
+                var targetElement = $element.find('.active');
+
+                targetElement[0].scrollIntoView();
+            }, 100);
+        });
+
+        $scope.$on('$destroy', function() {
+            perfectScrollbar.destroy();
+            perfectScrollbar = null;
+        });
     }
 }
 

@@ -1,9 +1,7 @@
-productBatchSummaryOperations.$inject = ['$q', 'productBatchSummaryCache', 'registrationUtil',
-    'stoichTableCache', 'appValuesService', 'notifyService', 'registrationService', 'sdImportService',
-    'sdExportService', 'alertModal', '$http', '$stateParams',
-    'notebookService', 'calculationService', 'apiUrl', '$document'];
+var BatchViewRow = require('../directives/indigo-components/domain/batch-row/view-row/batch-view-row');
 
-function productBatchSummaryOperations($q, productBatchSummaryCache, registrationUtil,
+/* @ngInject */
+function productBatchSummaryOperations($q, productBatchSummaryCache, registrationUtil, calculationHelper,
                                        stoichTableCache, appValuesService, notifyService,
                                        registrationService, sdImportService,
                                        sdExportService, alertModal, $http, $stateParams, notebookService,
@@ -134,19 +132,22 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
 
     function syncWithIntendedProducts(experiment) {
         var stoichTable = getStoichFromExperiment(experiment);
-        var batchesQueueToAdd = getIntendedNotInActual(stoichTable);
+        var batchesQueue = getIntendedNotInActual(stoichTable);
+        var areProductsExist = stoichTable && !_.isEmpty(stoichTable.products);
 
-        if (stoichTable && stoichTable.products && stoichTable.products.length) {
-            if (!batchesQueueToAdd.length) {
-                alertModal.info('Product Batch Summary is synchronized', 'sm');
-            } else {
-                _.map(batchesQueueToAdd, function(batch) {
-                    return _.extend(appValuesService.getDefaultBatch(), batch);
-                });
-
-                return duplicateBatches(batchesQueueToAdd, true, experiment);
-            }
+        if (!areProductsExist) {
+            return $q.resolve([]);
         }
+
+        if (batchesQueue.length) {
+            var batchesQueueToAdd = _.map(batchesQueue, function(batch) {
+                return _.assign(new BatchViewRow(), batch);
+            });
+
+            return duplicateBatches(batchesQueueToAdd, true, experiment);
+        }
+
+        alertModal.info('Product Batch Summary is synchronized', 'sm');
 
         return $q.resolve([]);
     }
@@ -189,34 +190,31 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
     }
 
     function createBatch(sdUnit, isSyncWithIntended) {
-        var batch = appValuesService.getDefaultBatch();
+        var batch = new BatchViewRow();
         var stoichTable = stoichTableCache.getStoicTable();
-        if (stoichTable) {
-            _.extend(batch, angular.copy(calculationService.createBatch(stoichTable, true)));
+        if (stoichTable && !isSyncWithIntended) {
+            var limitingRow = calculationHelper.findLimitingRow(stoichTable.reactants);
+            var theoMoles = limitingRow ? limitingRow.mol.value : 0;
+            calculationHelper.updateValuesDependingOnTheoMoles(batch, theoMoles);
         }
 
-        _.extend(batch, sdUnit, {
+        _.assign(batch, sdUnit, {
             conversationalBatchNumber: undefined,
             registrationDate: undefined,
             registrationStatus: undefined
         });
 
         if (sdUnit) {
-            if (isSyncWithIntended) {
-                // to sync mapping of intended products with actual poducts
-                batch.theoMoles = batch.mol;
-                batch.theoWeight = batch.weight;
-                // total moles can be calculated when total weight or total Volume are added, or manually
-                batch.mol = null;
-            }
-
             return $q
-                .all([calculationService.recalculateSalt(batch),
+                .all([
+                    calculationHelper.recalculateSalt(batch),
                     checkImage(batch.structure)
                 ])
                 .then(function() {
-                    return saveMolecule(batch.structure.molfile).then(function(structureId) {
-                        batch.structure.structureId = structureId;
+                    return saveMolecule(batch.structure).then(function(structureId) {
+                        if (batch.structure) {
+                            batch.structure.structureId = structureId;
+                        }
                     }, function() {
                         notifyService.error('Cannot save the structure!');
                     });
@@ -230,7 +228,7 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
     }
 
     function checkImage(structure) {
-        if (structure.molfile && !structure.image) {
+        if (structure && structure.molfile && !structure.image) {
             return calculationService.getImageForStructure(structure.molfile, 'molecule').then(function(image) {
                 structure.image = image;
             });
@@ -268,9 +266,9 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
         return (last && last.nbkBatch) || 0;
     }
 
-    function saveMolecule(mol) {
-        if (mol) {
-            return $http.post(apiUrl + 'bingodb/molecule/', mol).then(function(response) {
+    function saveMolecule(structure) {
+        if (structure && structure.molfile) {
+            return $http.post(apiUrl + 'bingodb/molecule/', structure.molfile).then(function(response) {
                 return response.data;
             });
         }

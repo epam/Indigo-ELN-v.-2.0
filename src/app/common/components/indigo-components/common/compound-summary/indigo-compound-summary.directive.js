@@ -26,8 +26,7 @@ function indigoCompoundSummary() {
     };
 }
 
-IndigoCompoundSummaryController.$inject = ['$scope', 'batchHelper'];
-
+/* @ngInject */
 function IndigoCompoundSummaryController($scope, batchHelper) {
     var vm = this;
 
@@ -38,7 +37,7 @@ function IndigoCompoundSummaryController($scope, batchHelper) {
         vm.hasCheckedRows = batchHelper.hasCheckedRow;
         vm.vnv = angular.noop;
         vm.registerVC = angular.noop;
-        vm.onClose = batchHelper.close;
+        vm.onBatchChanged = batchHelper.onBatchChanged;
         vm.onChangedVisibleColumn = onChangedVisibleColumn;
 
         bindEvents();

@@ -22,6 +22,7 @@ function run($templateCache, typeOfComponents) {
 
     var stoichTableAttributes = defaultAttributes +
         ' on-precursors-changed="vm.onPrecursorsChanged(precursors)"' +
+        ' on-stoich-table-changed="vm.onStoichTableChanged(stoichTable)"' +
         ' info-reactants="vm.model.reaction.infoReactants"' +
         ' info-products="vm.model.reaction.infoProducts"';
 
