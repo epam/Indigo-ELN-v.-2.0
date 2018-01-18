@@ -1,6 +1,6 @@
 /* @ngInject */
 function PermissionsController($uibModalInstance, permissionService, users, permissions,
-                               permissionsConstant, notifyService, alertModal, i18en, $state) {
+                               permissionsConstant, notifyService, alertModal, i18en, userPermissions) {
     var vm = this;
 
     init();
@@ -12,16 +12,12 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
         vm.entityId = permissionService.getEntityId();
         vm.parentId = permissionService.getParentId();
         vm.author = permissionService.getAuthor();
-
-        if (vm.author) {
-            vm.users = filterUsers(users);
-        }
+        vm.users = users;
 
         vm.addMember = addMember;
         vm.removeMember = removeMember;
         vm.show = show;
         vm.saveOldPermission = saveOldPermission;
-        vm.checkAuthority = checkAuthority;
         vm.ok = ok;
         vm.clear = clear;
     }
@@ -43,15 +39,15 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
             return;
         }
 
-        var views = permissionService.getPossiblePermissionViews(user, $state.current.data.entityType);
-        var permissionView = _.last(views);
+        var views = permissionService.getPossiblePermissionViews();
+        // VIEWER as default permission
+        var permissionView = _.find(views, {id: userPermissions.VIEWER.id});
 
         vm.accessList.push({
             user: user,
             permissions: [],
             permissionView: permissionView.id,
             views: views,
-            isContentEditor: permissionService.isContentEditor(user),
             isAuthor: permissionService.isAuthor(user)
         });
     }
@@ -60,8 +56,7 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
         var accessList = angular.copy(permissionService.getAccessList());
 
         _.forEach(accessList, function(permission) {
-            permission.views = permissionService.getPossiblePermissionViews(permission.user, $state.current.data.entityType);
-            permission.isContentEditor = permissionService.isContentEditor(permission.user);
+            permission.views = permissionService.getPossiblePermissionViews();
             permission.isAuthor = permissionService.isAuthor(permission.user);
         });
 
@@ -88,20 +83,13 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
     }
 
     function show(form, member) {
-        if (!member.isAuthor && !member.isContentEditor && member.views.length > 1) {
+        if (!member.isAuthor) {
             form.$show();
         }
     }
 
     function saveOldPermission(permission) {
         vm.oldPermission = permission;
-    }
-
-    function checkAuthority(member, permission) {
-        if (!permissionService.hasAuthorityForPermission(member, permission)) {
-            notifyService.warning(permissionsConstant.checkAuthorityWarning(permission));
-            member.permissionView = vm.oldPermission;
-        }
     }
 
     function convertToAccessList(list) {
@@ -120,15 +108,6 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
 
     function clear() {
         $uibModalInstance.dismiss('cancel');
-    }
-
-    function filterUsers(nonFilteredUsers) {
-        return _.filter(nonFilteredUsers, function(user) {
-            return user.id !== vm.author.id && permissionService.hasAuthorityForPermission(
-                {user: user},
-                vm.permissions[0].id
-            );
-        });
     }
 }
 
