@@ -12,6 +12,7 @@ import com.epam.indigoeln.web.rest.dto.NotebookDTO;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
 import com.epam.indigoeln.web.rest.dto.search.EntitySearchResultDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
+import com.epam.indigoeln.core.util.AuthoritiesUtil;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.mongodb.DBRef;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,26 +51,45 @@ public class EntitySearchRepository {
                                                     List<String> bingoIds) {
         Optional<List<EntitySearchResultDTO>> projectResult = Optional.empty();
         Optional<List<EntitySearchResultDTO>> notebookResult = Optional.empty();
+        Optional<List<EntitySearchResultDTO>> experimentResult = Optional.empty();
 
         if (bingoIds.isEmpty()) {
-            projectResult = projectSearchRepository.search(searchRequest).map(ids -> {
-                final Iterable<Project> projects = projectRepository.findAll(ids);
-                return StreamSupport.stream(projects.spliterator(), false).filter(
-                        p -> PermissionUtil.hasEditorAuthorityOrPermissions(user, p.getAccessList(),
-                                UserPermission.READ_ENTITY)
-                ).map(ProjectDTO::new).map(this::convert).collect(Collectors.toList());
-            });
-
-            notebookResult = notebookSearchRepository.search(searchRequest).map(ids -> {
-                final Iterable<Notebook> notebooks = notebookRepository.findAll(ids);
-                return StreamSupport.stream(notebooks.spliterator(), false).filter(
-                        n -> PermissionUtil.hasEditorAuthorityOrPermissions(user, n.getAccessList(),
-                                UserPermission.READ_ENTITY)
-                ).map(NotebookDTO::new).map(this::convert).collect(Collectors.toList());
-            });
+            if (AuthoritiesUtil.canReadProject(user)) {
+                projectResult = searchProjects(searchRequest, user);
+            }
+            if (AuthoritiesUtil.canReadNotebook(user)) {
+                notebookResult = searchNotebooks(searchRequest, user);
+            }
         }
+        if (AuthoritiesUtil.canReadExperiment(user)) {
+            experimentResult = searchExperiments(searchRequest, bingoIds, user);
+        }
+        return merge(projectResult, notebookResult, experimentResult);
 
-        final Optional<List<EntitySearchResultDTO>> experimentResult = experimentSearchRepository
+    }
+
+    private Optional<List<EntitySearchResultDTO>> searchProjects(EntitySearchRequest searchRequest, User user) {
+        return projectSearchRepository.search(searchRequest).map(ids -> {
+            final Iterable<Project> projects = projectRepository.findAll(ids);
+            return StreamSupport.stream(projects.spliterator(), false).filter(
+                    p -> PermissionUtil.hasEditorAuthorityOrPermissions(user, p.getAccessList(),
+                            UserPermission.READ_ENTITY)
+            ).map(ProjectDTO::new).map(this::convert).collect(Collectors.toList());
+        });
+    }
+
+    private Optional<List<EntitySearchResultDTO>> searchNotebooks(EntitySearchRequest searchRequest, User user) {
+        return notebookSearchRepository.search(searchRequest).map(ids -> {
+            final Iterable<Notebook> notebooks = notebookRepository.findAll(ids);
+            return StreamSupport.stream(notebooks.spliterator(), false).filter(
+                    n -> PermissionUtil.hasEditorAuthorityOrPermissions(user, n.getAccessList(),
+                            UserPermission.READ_ENTITY)
+            ).map(NotebookDTO::new).map(this::convert).collect(Collectors.toList());
+        });
+    }
+
+    private Optional<List<EntitySearchResultDTO>> searchExperiments(EntitySearchRequest searchRequest, List<String> bingoIds, User user) {
+        return experimentSearchRepository
                 .search(searchRequest, bingoIds).map(ids -> {
                     final Iterable<Experiment> experiments = experimentRepository.findAll(ids);
 
@@ -86,8 +106,6 @@ public class EntitySearchRepository {
                             .collect(Collectors.toList());
 
                 });
-        return merge(projectResult, notebookResult, experimentResult);
-
     }
 
     private List<EntitySearchResultDTO> merge(Optional<List<EntitySearchResultDTO>> projectResult,

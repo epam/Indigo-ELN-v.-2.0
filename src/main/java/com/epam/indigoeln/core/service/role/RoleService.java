@@ -8,7 +8,7 @@ import com.epam.indigoeln.core.service.exception.AlreadyInUseException;
 import com.epam.indigoeln.core.service.exception.DuplicateFieldException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.util.SortedPageUtil;
-import com.epam.indigoeln.web.rest.util.AuthoritiesUtil;
+import com.epam.indigoeln.core.util.AuthoritiesUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;

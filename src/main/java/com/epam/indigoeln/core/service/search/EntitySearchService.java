@@ -6,12 +6,14 @@ import com.epam.indigoeln.core.service.bingo.BingoService;
 import com.epam.indigoeln.web.rest.dto.search.EntitySearchResultDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchStructure;
+import com.epam.indigoeln.core.util.AuthoritiesUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static com.epam.indigoeln.core.service.search.SearchServiceConstants.*;
 
@@ -41,8 +43,13 @@ public class EntitySearchService {
      * @return Entities which were found
      */
     public List<EntitySearchResultDTO> find(User user, EntitySearchRequest searchRequest) {
-        final List<String> bingoIds = searchRequest.getStructure().map(this::searchByBingoDb)
-                .orElse(Collections.emptyList());
+        List<String> bingoIds;
+        Optional<EntitySearchStructure> structure = searchRequest.getStructure();
+        if (structure.isPresent() && AuthoritiesUtil.canReadExperiment(user)) {
+            bingoIds = searchByBingoDb(structure.get());
+        } else {
+            bingoIds = Collections.emptyList();
+        }
         return repository.findEntities(user, searchRequest, bingoIds);
     }
 

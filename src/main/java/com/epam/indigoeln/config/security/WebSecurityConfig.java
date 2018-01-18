@@ -41,6 +41,7 @@ import java.util.Collections;
 
 import static com.epam.indigoeln.core.security.Authority.*;
 import static com.epam.indigoeln.core.security.CookieConstants.CSRF_TOKEN_HEADER;
+import static com.epam.indigoeln.core.util.AuthoritiesUtil.*;
 
 
 @Configuration
@@ -50,44 +51,6 @@ import static com.epam.indigoeln.core.security.CookieConstants.CSRF_TOKEN_HEADER
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSecurityConfig.class);
-
-    private static final String[] TEMPLATE_READERS = new String[]{
-            TEMPLATE_EDITOR.name(), EXPERIMENT_CREATOR.name(),
-            NOTEBOOK_CREATOR.name(), PROJECT_CREATOR.name(),
-            CONTENT_EDITOR.name()};
-
-    private static final String[] USER_READERS = new String[]{
-            USER_EDITOR.name(), CONTENT_EDITOR.name(), EXPERIMENT_CREATOR.name(),
-            NOTEBOOK_CREATOR.name(), PROJECT_CREATOR.name()};
-
-    private static final String[] DICTIONARY_READERS = new String[]{
-            DICTIONARY_EDITOR.name(), CONTENT_EDITOR.name(),
-            EXPERIMENT_CREATOR.name(), NOTEBOOK_CREATOR.name(), PROJECT_CREATOR.name(),
-            GLOBAL_SEARCH.name()};
-
-    private static final String[] ROLE_READERS = new String[]{
-            USER_EDITOR.name(), ROLE_EDITOR.name()};
-
-    private static final String[] PROJECT_READERS = new String[]{
-            PROJECT_READER.name(), CONTENT_EDITOR.name()};
-    private static final String[] PROJECT_CREATORS = new String[]{
-            PROJECT_CREATOR.name(), CONTENT_EDITOR.name()};
-    private static final String[] PROJECT_REMOVERS = new String[]{
-            PROJECT_REMOVER.name(), CONTENT_EDITOR.name()};
-
-    private static final String[] NOTEBOOK_READERS = new String[]{
-            NOTEBOOK_READER.name(), CONTENT_EDITOR.name()};
-    private static final String[] NOTEBOOK_CREATORS = new String[]{
-            NOTEBOOK_CREATOR.name(), CONTENT_EDITOR.name()};
-    private static final String[] NOTEBOOK_REMOVERS = new String[]{
-            NOTEBOOK_REMOVER.name(), CONTENT_EDITOR.name()};
-
-    private static final String[] EXPERIMENT_READERS = new String[]{
-            EXPERIMENT_READER.name(), CONTENT_EDITOR.name()};
-    private static final String[] EXPERIMENT_CREATORS = new String[]{
-            EXPERIMENT_CREATOR.name(), CONTENT_EDITOR.name()};
-    private static final String[] EXPERIMENT_REMOVERS = new String[]{
-            EXPERIMENT_REMOVER.name(), CONTENT_EDITOR.name()};
 
     @Autowired
     private Environment environment;
