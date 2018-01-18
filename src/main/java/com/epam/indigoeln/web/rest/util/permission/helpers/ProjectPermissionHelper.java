@@ -81,7 +81,9 @@ public class ProjectPermissionHelper {
      * @param project            project to change permissions
      * @param newUserPermissions permissions that should be applied
      */
-    public static void changeProjectPermissions(Project project, Set<UserPermission> newUserPermissions) {
+    public static boolean changeProjectPermissions(Project project, Set<UserPermission> newUserPermissions) {
+
+        boolean projectPermissionsWasChanged = false;
 
         Set<UserPermission> createdPermissions = newUserPermissions.stream()
                 .filter(newPermission -> project.getAccessList().stream()
@@ -92,6 +94,7 @@ public class ProjectPermissionHelper {
 
         if (!createdPermissions.isEmpty()) {
 
+            projectPermissionsWasChanged = true;
             addPermissions(project, createdPermissions);
         }
 
@@ -104,6 +107,7 @@ public class ProjectPermissionHelper {
 
         if (!updatedPermissions.isEmpty()) {
 
+            projectPermissionsWasChanged = true;
             updatePermissions(project, updatedPermissions);
         }
 
@@ -113,7 +117,10 @@ public class ProjectPermissionHelper {
 
         if (!removedPermissions.isEmpty()) {
 
+            projectPermissionsWasChanged = true;
             removePermission(project, removedPermissions);
         }
+
+        return projectPermissionsWasChanged;
     }
 }

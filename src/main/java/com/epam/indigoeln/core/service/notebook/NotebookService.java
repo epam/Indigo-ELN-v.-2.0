@@ -273,6 +273,7 @@ public class NotebookService {
                 List<Experiment> savedExperiments = experimentRepository.save(notebookFromDB.getExperiments());
                 savedExperiments.forEach(experiment ->
                         webSocketUtil.updateExperiment(user, projectId, notebookDTO.getId(), experiment));
+                notebookFromDB.setExperiments(savedExperiments);
             }
             Notebook savedNotebook = saveNotebookAndHandleError(notebookFromDB);
 

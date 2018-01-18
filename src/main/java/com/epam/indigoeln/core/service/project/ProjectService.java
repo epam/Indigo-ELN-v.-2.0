@@ -191,13 +191,25 @@ public class ProjectService {
         projectFromDb.setReferences(project.getReferences());
         projectFromDb.setVersion(project.getVersion());
 
-        ProjectPermissionHelper.changeProjectPermissions(projectFromDb, project.getAccessList());
+        boolean projectPermissionsWasChanged =
+                ProjectPermissionHelper.changeProjectPermissions(projectFromDb, project.getAccessList());
 
-        List<Notebook> notebooks = projectFromDb.getNotebooks();
-        notebooks.forEach(notebook -> experimentRepository.save(notebook.getExperiments()));
-        notebookRepository.save(notebooks);
+        if (projectPermissionsWasChanged) {
+            List<Notebook> notebooks = projectFromDb.getNotebooks();
+            notebooks.forEach(notebook ->
+            {
+                List<Experiment> savedExperiments = experimentRepository.save(notebook.getExperiments());
+                savedExperiments.forEach(experiment ->
+                        webSocketUtil.updateExperiment(
+                                user, projectFromDb.getId(), notebook.getId(), experiment));
+                notebook.setExperiments(savedExperiments);
+            });
+            List<Notebook> savedNotebooks = notebookRepository.save(notebooks);
+            savedNotebooks.forEach(notebook -> webSocketUtil.updateNotebook(user, projectFromDb.getId(), notebook));
 
-        projectFromDb.setNotebooks(notebooks);
+            projectFromDb.setNotebooks(savedNotebooks);
+        }
+
         project = saveProjectAndHandleError(projectFromDb);
         webSocketUtil.updateProject(user, project);
         return new ProjectDTO(project);
