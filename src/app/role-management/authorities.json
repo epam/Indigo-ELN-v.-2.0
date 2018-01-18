@@ -77,14 +77,15 @@
     "name": "EXPERIMENT_READER",
     "description": "Experiment reader",
     "tooltip": "Allow to read Experiment",
-    "group": "experiment"
+    "group": "experiment",
+    "dependencies": ["NOTEBOOK_READER"]
   },
   {
     "name": "EXPERIMENT_CREATOR",
     "description": "Experiment creator",
     "tooltip": "Allow to create / update Experiment",
     "group": "experiment",
-    "dependencies": ["EXPERIMENT_READER"]
+    "dependencies": ["NOTEBOOK_READER", "EXPERIMENT_READER"]
   },
   {
     "name": "EXPERIMENT_REMOVER",

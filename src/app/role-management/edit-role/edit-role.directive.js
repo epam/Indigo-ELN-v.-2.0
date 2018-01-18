@@ -46,16 +46,18 @@ function EditRoleController($scope, notifyService, roleService, alertModal, i18e
     }
 
     function checkDependenciesAuthorities(authority, isChecked) {
-        _.forEach(authority.dependencies, function(dependence) {
+        _.forEach(authority.dependencies, function(dependenceName) {
             // Checking dependence only by isChecked === true
             if (isChecked) {
-                if (!vm.model[dependence]) {
-                    showWarning(dependence);
+                if (!vm.model[dependenceName]) {
+                    showWarning(dependenceName);
                 }
-                vm.model[dependence] = isChecked;
+                vm.model[dependenceName] = isChecked;
             }
 
-            var foundDependence = _.find(vm.authorities[authority.group], {name: dependence});
+            var dependantAuthority = _.find(authorities, {name: dependenceName});
+            var foundDependence = _.find(vm.authorities[dependantAuthority.group], {name: dependenceName});
+
             if (foundDependence) {
                 foundDependence.isDepended = isChecked;
             }
