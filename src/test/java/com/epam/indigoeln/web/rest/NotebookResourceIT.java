@@ -70,7 +70,6 @@ public class NotebookResourceIT extends RestBaseIT {
     public void updateNotebook() throws URISyntaxException {
         Notebook notebook = notebookRepository.findOne("1-1");
         NotebookDTO notebookDTO = new NotebookDTO(notebook);
-        notebookDTO.setName("new name");
         notebookDTO.setDescription("new description");
 
         RequestEntity<NotebookDTO> requestEntity = RequestEntity.put(new URI("/api/projects/1/notebooks"))
@@ -104,6 +103,23 @@ public class NotebookResourceIT extends RestBaseIT {
         assertTrue(savedNotebook.getLastEditDate().isEqual(result.getLastEditDate()));
         assertEquals(savedNotebook.getLastModifiedBy().getLogin(), result.getLastModifiedBy().getLogin());
         assertEquals(savedNotebook.getVersion(), result.getVersion());
+    }
+
+    @Test
+    public void updateNotebookNameError() throws URISyntaxException {
+        Notebook notebook = notebookRepository.findOne("1-1");
+        NotebookDTO notebookDTO = new NotebookDTO(notebook);
+        notebookDTO.setName("new name");
+
+        RequestEntity<NotebookDTO> requestEntity = RequestEntity.put(new URI("/api/projects/1/notebooks"))
+                .header(HttpHeaders.COOKIE, cookie)
+                .header(CSRF_TOKEN_HEADER, csrfToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(notebookDTO);
+
+        ResponseEntity<NotebookDTO> responseEntity = restTemplate.exchange(requestEntity, NotebookDTO.class);
+
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
     }
 
     @Test
