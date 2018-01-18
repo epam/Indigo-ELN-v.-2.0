@@ -11,7 +11,7 @@ function calculationHelper($http, $log, $q) {
         updateViewRows: updateViewRows,
         updateViewRow: updateViewRow,
         recalculateSalt: recalculateSalt,
-        updateValuesDependingOnTheoMoles: updateValuesDependingOnTheoMoles
+        calculateValuesDependingOnTheoMoles: calculateValuesDependingOnTheoMoles
     };
 
     function clone(rows) {
@@ -89,7 +89,7 @@ function calculationHelper($http, $log, $q) {
         };
     }
 
-    function updateValuesDependingOnTheoMoles(row, limitingMol) {
+    function calculateValuesDependingOnTheoMoles(row, limitingMol) {
         var theoMoles = limitingMol || 0;
         var theoWeight = theoMoles
             ? mathCalculation.computeWeight(theoMoles, row.molWeight.value, DEFAULT_PURITY)

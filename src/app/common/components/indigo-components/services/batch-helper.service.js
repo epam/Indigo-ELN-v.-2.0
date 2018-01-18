@@ -26,6 +26,13 @@ function batchHelper(appUnits, calculationService, columnActions, batchesCalcula
         calculationHelper.updateViewRow(calculatedRow, batchesData.changedRow);
     }
 
+    function calculateValuesDependingOnTheoMoles(changedRow, limitingRow) {
+        var batchRow = new BatchRow(changedRow);
+        var calculatedRow = batchesCalculation.calculateValuesDependingOnTheoMoles(batchRow, limitingRow);
+
+        calculationHelper.updateViewRow(calculatedRow, changedRow);
+    }
+
     function prepareBatchForCalculation(change) {
         var row = new BatchRow(change.changedRow);
 
@@ -67,6 +74,7 @@ function batchHelper(appUnits, calculationService, columnActions, batchesCalcula
         onBatchChanged: onBatchChanged,
         calculateAllRows: calculateAllRows,
         calculateRow: calculateRow,
+        calculateValuesDependingOnTheoMoles: calculateValuesDependingOnTheoMoles,
         hasCheckedRow: hasCheckedRow,
         getCheckedBatches: getCheckedBatches,
         canEditSaltEq: canEditSaltEq,

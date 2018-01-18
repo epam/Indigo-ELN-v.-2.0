@@ -8,7 +8,8 @@ function batchesCalculation(calculationHelper) {
 
     return {
         calculateAllRows: calculateAllRows,
-        calculateRow: calculateRow
+        calculateRow: calculateRow,
+        calculateValuesDependingOnTheoMoles: calculateValuesDependingOnTheoMoles
     };
 
     function calculateAllRows(batchesData) {
@@ -25,10 +26,18 @@ function batchesCalculation(calculationHelper) {
         return changedRow;
     }
 
+    function calculateValuesDependingOnTheoMoles(batch, limitingRow) {
+        var changedRow = calculationHelper.clone(batch);
+        var theoMoles = limitingRow ? limitingRow.mol.value : 0;
+        calculationHelper.calculateValuesDependingOnTheoMoles(changedRow, theoMoles);
+
+        return changedRow;
+    }
+
     function recalculateAllRows(limitingRow) {
         _.forEach(rows, function(row) {
             var theoMoles = limitingRow ? limitingRow.mol.value : 0;
-            calculationHelper.updateValuesDependingOnTheoMoles(row, theoMoles);
+            calculationHelper.calculateValuesDependingOnTheoMoles(row, theoMoles);
         });
     }
 
