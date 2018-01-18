@@ -1,6 +1,6 @@
 var ReagentViewRow = require('../../../domain/reagent/view-row/reagent-view-row');
 var ReagentRow = require('../../../domain/reagent/calculation-row/reagent-row');
-var fieldTypes = require('../../../domain/field-types');
+var fieldTypes = require('../../../../../services/calculation/field-types');
 
 function onDensityChanged() {
     describe('Change density', function() {

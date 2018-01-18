@@ -1,6 +1,6 @@
 var BatchViewField = require('./batch-view-field');
-// TODO: shouldn't be in stoich table
-var fieldTypes = require('../../../../stoich-table/domain/field-types');
+var BaseBatchRow = require('../base-batch-row');
+var fieldTypes = require('../../../../../services/calculation/field-types');
 var calculationHelper = require('../../../../../services/calculation/calculation-helper.service');
 
 function BatchViewRow(props) {
@@ -17,13 +17,8 @@ function BatchViewRow(props) {
     return this;
 }
 
-BatchViewRow.prototype = {
-    setTheoMoles: setTheoMoles,
-    setMolWeight: setMolWeight,
-    setTheoWeight: setTheoWeight,
-    setFormula: setFormula,
-    constructor: BatchViewRow
-};
+BatchViewRow.prototype = Object.create(BaseBatchRow.prototype);
+BatchViewRow.constructor = BatchViewRow;
 
 function setRowProperties(defaultProps, customProps) {
     // Assign known custom properties to default object
@@ -46,22 +41,6 @@ function setRowProperties(defaultProps, customProps) {
             ? valueFromJson
             : defaultValue;
     });
-}
-
-function setTheoMoles(value) {
-    this.theoMoles.value = value;
-}
-
-function setTheoWeight(value) {
-    this.theoWeight.value = value;
-}
-
-function setMolWeight(value) {
-    this.molWeight.value = value;
-}
-
-function setFormula(value) {
-    this.formula.value = value;
 }
 
 function getDefaultBatchViewRow() {

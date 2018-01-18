@@ -132,19 +132,22 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
 
     function syncWithIntendedProducts(experiment) {
         var stoichTable = getStoichFromExperiment(experiment);
-        var batchesQueueToAdd = getIntendedNotInActual(stoichTable);
+        var batchesQueue = getIntendedNotInActual(stoichTable);
+        var areProductsExist = stoichTable && !_.isEmpty(stoichTable.products);
 
-        if (stoichTable && stoichTable.products && stoichTable.products.length) {
-            if (!batchesQueueToAdd.length) {
-                alertModal.info('Product Batch Summary is synchronized', 'sm');
-            } else {
-                _.map(batchesQueueToAdd, function(batch) {
-                    return _.extend(appValuesService.getDefaultBatch(), batch);
-                });
-
-                return duplicateBatches(batchesQueueToAdd, true, experiment);
-            }
+        if (!areProductsExist) {
+            return $q.resolve([]);
         }
+
+        if (batchesQueue.length) {
+            var batchesQueueToAdd = _.map(batchesQueue, function(batch) {
+                return _.assign(new BatchViewRow(), batch);
+            });
+
+            return duplicateBatches(batchesQueueToAdd, true, experiment);
+        }
+
+        alertModal.info('Product Batch Summary is synchronized', 'sm');
 
         return $q.resolve([]);
     }
@@ -189,26 +192,19 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
     function createBatch(sdUnit, isSyncWithIntended) {
         var batch = new BatchViewRow();
         var stoichTable = stoichTableCache.getStoicTable();
-        if (stoichTable) {
+        if (stoichTable && !isSyncWithIntended) {
             var limitingRow = calculationHelper.findLimitingRow(stoichTable.reactants);
-            calculationHelper.updateValuesDependingOnTheoMoles(batch, limitingRow);
+            var theoMoles = limitingRow ? limitingRow.mol.value : 0;
+            calculationHelper.updateValuesDependingOnTheoMoles(batch, theoMoles);
         }
 
-        _.extend(batch, sdUnit, {
+        _.assign(batch, sdUnit, {
             conversationalBatchNumber: undefined,
             registrationDate: undefined,
             registrationStatus: undefined
         });
 
         if (sdUnit) {
-            if (isSyncWithIntended) {
-                // to sync mapping of intended products with actual poducts
-                batch.theoMoles = batch.mol;
-                batch.theoWeight = batch.weight;
-                // total moles can be calculated when total weight or total Volume are added, or manually
-                batch.mol = null;
-            }
-
             return $q
                 .all([
                     calculationHelper.recalculateSalt(batch),

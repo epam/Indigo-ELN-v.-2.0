@@ -1,11 +1,15 @@
 var ReagentViewRow = require('../view-row/reagent-view-row');
-var fieldTypes = require('../../field-types');
+var fieldTypes = require('../../../../../services/calculation/field-types');
 var mathCalculation = require('../../../../../services/calculation/math-calculation');
 
 function ReagentRow(props) {
     _.assignWith(this, props, function(defaultValue, valueFromProps) {
         if (valueFromProps && valueFromProps.unit) {
-            return _.omit(valueFromProps, ['unit']);
+            return {
+                value: valueFromProps.value,
+                entered: valueFromProps.entered,
+                readonly: valueFromProps.readonly
+            };
         }
 
         return _.isObject(valueFromProps)

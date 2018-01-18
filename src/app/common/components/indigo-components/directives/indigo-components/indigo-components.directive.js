@@ -91,15 +91,6 @@ function IndigoComponentsController($scope, productBatchSummaryOperations, produ
     function bindEvents() {
         $scope.$watch('vm.model', updateModel);
         $scope.$watch('vm.experiment', updateActiveTab);
-
-        // $scope.$on('stoic-table-recalculated', function(event, data) {
-        //     if (data.actualProducts.length === vm.batches.length) {
-        //         _.each(vm.batches, function(batch, i) {
-        //             batch.theoWeight.value = data.actualProducts[i].theoWeight.value;
-        //             batch.theoMoles.value = data.actualProducts[i].theoMoles.value;
-        //         });
-        //     }
-        // });
     }
 
     function updateActiveTab() {

@@ -1,7 +1,7 @@
 var BatchViewRow = require('../../directives/indigo-components/domain/batch-row/view-row/batch-view-row');
 var ReagentViewRow = require('../../directives/stoich-table/domain/reagent/view-row/reagent-view-row');
 var ReagentRow = require('../../directives/stoich-table/domain/reagent/calculation-row/reagent-row');
-var fieldTypes = require('../../directives/stoich-table/domain/field-types');
+var fieldTypes = require('../../services/calculation/field-types');
 
 describe('service: batchesCalculation', function() {
     var service;

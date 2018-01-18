@@ -2,7 +2,7 @@ var ReagentViewRow = require('../../../domain/reagent/view-row/reagent-view-row'
 var ReagentRow = require('../../../domain/reagent/calculation-row/reagent-row');
 var ProductViewRow = require('../../../domain/product/view-row/product-view-row');
 var ProductRow = require('../../../domain/product/calculation-row/product-row');
-var fieldTypes = require('../../../domain/field-types');
+var fieldTypes = require('../../../../../services/calculation/field-types');
 
 function onEqChanged() {
     describe('Change eq', function() {

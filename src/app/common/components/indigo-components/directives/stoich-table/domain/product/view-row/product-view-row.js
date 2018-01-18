@@ -1,4 +1,4 @@
-var fieldTypes = require('../../field-types');
+var fieldTypes = require('../../../../../services/calculation/field-types');
 var calculationHelper = require('../../../../../services/calculation/calculation-helper.service');
 
 function ProductViewRow(props) {

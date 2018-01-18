@@ -42,7 +42,7 @@ function IndigoBatchSummaryController($scope, registrationUtil, batchHelper) {
         });
 
         vm.hasCheckedRows = batchHelper.hasCheckedRow;
-        vm.onBatchChanged = onBatchChanged;
+        vm.onBatchChanged = batchHelper.onBatchChanged;
         vm.onChangedVisibleColumn = onChangedVisibleColumn;
 
         bindEvents();
@@ -52,15 +52,6 @@ function IndigoBatchSummaryController($scope, registrationUtil, batchHelper) {
         if (column.id === 'structure') {
             vm.onShowStructure({column: column, isVisible: isVisible});
         }
-    }
-
-    function onBatchChanged(change) {
-        var batchesData = {
-            changedRow: change.row,
-            changedField: change.column
-        };
-
-        batchHelper.calculateRow(batchesData);
     }
 
     function updateColumnVisible(column, isVisible) {

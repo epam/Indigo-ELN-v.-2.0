@@ -1,4 +1,4 @@
-var fieldTypes = require('../../domain/field-types');
+var fieldTypes = require('../../../../services/calculation/field-types');
 var mathCalculation = require('../../../../services/calculation/math-calculation');
 var DEFAULT_PURITY = 100;
 

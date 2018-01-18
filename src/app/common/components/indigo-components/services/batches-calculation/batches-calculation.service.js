@@ -1,4 +1,4 @@
-var fieldTypes = require('../../directives/stoich-table/domain/field-types');
+var fieldTypes = require('../../services/calculation/field-types');
 var mathCalculation = require('../../services/calculation/math-calculation');
 var DEFAULT_PURITY = 100;
 
@@ -27,7 +27,8 @@ function batchesCalculation(calculationHelper) {
 
     function recalculateAllRows(limitingRow) {
         _.forEach(rows, function(row) {
-            calculationHelper.updateValuesDependingOnTheoMoles(row, limitingRow);
+            var theoMoles = limitingRow ? limitingRow.mol.value : 0;
+            calculationHelper.updateValuesDependingOnTheoMoles(row, theoMoles);
         });
     }
 
