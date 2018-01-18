@@ -154,11 +154,11 @@ public class ExperimentPermissionHelper {
 
         Set<UserPermission> permissions = experiment.getAccessList();
         experiment.setAccessList(new HashSet<>());
-        PermissionUtil.addOwnerToAccessList(permissions, creator,
-                PermissionCreationLevel.EXPERIMENT);
-
         PermissionUtil.addUsersFromUpperLevel(permissions, notebook.getAccessList(),
                 PermissionCreationLevel.NOTEBOOK);
+
+        PermissionUtil.addOwnerToAccessList(permissions, creator,
+                PermissionCreationLevel.EXPERIMENT);
 
         return changeExperimentPermissions(project, notebook, experiment, permissions);
     }

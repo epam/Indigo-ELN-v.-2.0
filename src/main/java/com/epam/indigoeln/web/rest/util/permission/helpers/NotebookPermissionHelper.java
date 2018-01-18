@@ -166,10 +166,9 @@ public class NotebookPermissionHelper {
 
     public static void fillNewNotebooksPermissions(Project project, Notebook notebook, User creator) {
         Set<UserPermission> accessList = notebook.getAccessList();
-        PermissionUtil.addOwnerToAccessList(accessList, creator, PermissionCreationLevel.NOTEBOOK);
-        //add permissions to notebook and project
         PermissionUtil.addUsersFromUpperLevel(
                 accessList, project.getAccessList(), PermissionCreationLevel.PROJECT);
+        PermissionUtil.addOwnerToAccessList(accessList, creator, PermissionCreationLevel.NOTEBOOK);
 
         notebook.setAccessList(new HashSet<>());
         notebook.setExperiments(Collections.emptyList());
