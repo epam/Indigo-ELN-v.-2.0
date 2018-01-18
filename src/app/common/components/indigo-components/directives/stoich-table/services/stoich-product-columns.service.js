@@ -1,6 +1,5 @@
-stoichProductColumns.$inject = ['appUnits', 'calculationService'];
-
-function stoichProductColumns(appUnits) {
+/* @ngInject */
+function stoichProductColumns(appUnits, appValuesService) {
     return {
         chemicalName: {
             id: 'chemicalName',
@@ -44,7 +43,7 @@ function stoichProductColumns(appUnits) {
             id: 'saltCode',
             name: 'Salt Code',
             type: 'select',
-            values: appUnits.saltCodeValues,
+            values: appValuesService.getSaltCodeValues(),
             showDefault: true
         },
         saltEq: {

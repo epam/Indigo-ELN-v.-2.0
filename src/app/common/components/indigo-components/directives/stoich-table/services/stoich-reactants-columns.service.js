@@ -1,6 +1,6 @@
 /* @ngInject */
-function stoichReactantsColumns(appUnits, stoichColumnActions, notifyService, i18en,
-                                       selectService, unitService, calculationService) {
+function stoichReactantsColumns(appUnits, stoichColumnActions, notifyService, i18en, appValuesService,
+                                selectService, unitService, calculationService) {
     return {
         compoundId: {
             id: 'compoundId',
@@ -141,7 +141,7 @@ function stoichReactantsColumns(appUnits, stoichColumnActions, notifyService, i1
             id: 'saltCode',
             name: 'Salt Code',
             type: 'select',
-            values: appUnits.saltCodeValues,
+            values: appValuesService.getSaltCodeValues(),
             onClose: function(data) {
                 calculationService.setEntered(data);
                 recalculateSalt(data.row);
@@ -150,7 +150,7 @@ function stoichReactantsColumns(appUnits, stoichColumnActions, notifyService, i1
                 }
             },
             showDefault: true,
-            actions: selectService.getActions('Salt Code', appUnits.saltCodeValues)
+            actions: selectService.getActions('Salt Code', appValuesService.getSaltCodeValues())
         },
         saltEq: {
             id: 'saltEq',

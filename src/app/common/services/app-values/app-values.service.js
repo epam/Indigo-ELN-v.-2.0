@@ -1,5 +1,5 @@
 /* @ngInject */
-function appValuesService(appUnits) {
+function appValuesService($http, appUnits, apiUrl) {
     var grams = angular.copy(appUnits.grams);
     var liters = angular.copy(appUnits.liters);
     var moles = angular.copy(appUnits.moles);
@@ -11,8 +11,8 @@ function appValuesService(appUnits) {
     var compoundProtectionValues = angular.copy(appUnits.compoundProtectionValues);
     var loadFactorUnits = angular.copy(appUnits.loadFactorUnits);
     var defaultSaltCode = angular.copy(appUnits.defaultSaltCode);
-    var saltCodeValues = angular.copy(appUnits.saltCodeValues);
     var defaultBatch = angular.copy(appUnits.defaultBatch);
+    var saltCodeValues;
 
     return {
         getGrams: getGrams,
@@ -67,7 +67,14 @@ function appValuesService(appUnits) {
     }
 
     function getSaltCodeValues() {
-        return saltCodeValues;
+        if (saltCodeValues) {
+            return saltCodeValues;
+        }
+
+        return fetchSaltCodes()
+            .then(function(resp) {
+                saltCodeValues = convertSaltCodes(resp.data);
+            });
     }
 
     function getCompoundProtectionValues() {
@@ -80,6 +87,34 @@ function appValuesService(appUnits) {
 
     function getDefaultBatch() {
         return angular.copy(defaultBatch);
+    }
+
+    function fetchSaltCodes() {
+        var config = {
+            url: apiUrl + 'calculations/salt_code_table',
+            method: 'GET',
+            params: {tableName: 'GCM_SALT_CDT'},
+            cache: true
+        };
+
+        return $http(config);
+    }
+
+    function convertSaltCodes(data) {
+        return _.map(data, function(item) {
+            var regValue = getRegValue(item.SALT_CODE);
+
+            return {
+                value: item.SALT_CODE,
+                weight: +item.SALT_WEIGHT,
+                name: regValue + ' - ' + item.SALT_DESC,
+                regValue: regValue
+            };
+        });
+    }
+
+    function getRegValue(value) {
+        return (value < 10) ? ('0' + value) : value;
     }
 }
 
