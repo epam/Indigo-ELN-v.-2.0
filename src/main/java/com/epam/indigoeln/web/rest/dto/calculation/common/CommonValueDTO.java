@@ -5,10 +5,10 @@ public class CommonValueDTO {
     private boolean entered;
     private boolean readonly;
 
-    public CommonValueDTO() {
+    CommonValueDTO() {
     }
 
-    public CommonValueDTO(String displayValue, boolean entered, boolean readonly) {
+    CommonValueDTO(String displayValue, boolean entered, boolean readonly) {
         this.displayValue = displayValue;
         this.entered = entered;
         this.readonly = readonly;

@@ -21,7 +21,7 @@ import java.util.*;
 public class SignatureRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SignatureRepository.class);
-    public static final String USERNAME = "username";
+    private static final String USERNAME = "username";
 
     @Autowired
     private SignatureProperties signatureProperties;

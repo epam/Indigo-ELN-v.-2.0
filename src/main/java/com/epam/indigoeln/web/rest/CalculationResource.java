@@ -1,11 +1,7 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.service.calculation.CalculationService;
-import com.epam.indigoeln.core.service.calculation.StoicCalculationService;
-import com.epam.indigoeln.web.rest.dto.calculation.BasicBatchModel;
-import com.epam.indigoeln.web.rest.dto.calculation.ProductTableDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
-import com.epam.indigoeln.web.rest.dto.calculation.StoicTableDTO;
 import com.google.common.base.Strings;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,8 +24,6 @@ public class CalculationResource {
 
     @Autowired
     private CalculationService calculationService;
-    @Autowired
-    private StoicCalculationService stoicCalculationService;
 
     /**
      * PUT /molecule/info/ -> get calculated molecular fields.
@@ -183,65 +177,5 @@ public class CalculationResource {
 
     private String normalizeMolFile(String structure) {
         return StringUtils.replace(structure, "\\n", System.getProperty("line.separator"));
-    }
-
-    /**
-     * PUT /stoich/calculate -> calcalate stoich table.
-     *
-     * @param stoicTableDTO Stoichiometry table
-     * @return Returns calculated stoichiometry table
-     */
-    @ApiOperation(value = "Calculate stoichiometry table.")
-    @RequestMapping(value = "/stoich/calculate",
-            method = RequestMethod.PUT,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StoicTableDTO> calculateStoicTable(
-            @ApiParam("Stoichiometry table") @RequestBody StoicTableDTO stoicTableDTO) {
-        return ResponseEntity.ok(stoicCalculationService.calculateStoicTable(stoicTableDTO));
-    }
-
-    /**
-     * PUT /stoich/calculate -> calcalate stoich table based on batch.
-     *
-     * @param stoicTableDTO Stoichiometry table
-     * @return Returns calculated stoichiometry table based on batch
-     */
-    @ApiOperation(value = "Calculate stoichiometry table based on batch.")
-    @RequestMapping(value = "/stoich/calculate/batch",
-            method = RequestMethod.PUT,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StoicTableDTO> calculateStoicTableBasedOnBatch(
-            @ApiParam("Stoichiometry table") @RequestBody StoicTableDTO stoicTableDTO) {
-        return ResponseEntity.ok(stoicCalculationService.calculateStoicTableBasedOnBatch(stoicTableDTO));
-    }
-
-    /**
-     * PUT /product/calculate/batch -> calculate batch from product batch summary table.
-     *
-     * @param productTableDTO Batch from product table
-     * @return Returns calculated batch from product batch summary table
-     */
-    @ApiOperation(value = "Calculate batch from product batch summary table.")
-    @RequestMapping(value = "/product/calculate/batch",
-            method = RequestMethod.PUT,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<BasicBatchModel> calculateProductBatch(
-            @ApiParam("Batch from product table") @RequestBody ProductTableDTO productTableDTO) {
-        return ResponseEntity.ok(stoicCalculationService.calculateProductBatch(productTableDTO));
-    }
-
-    /**
-     * PUT /product/calculate/batch/amounts -> calcalate batch batch amounts.
-     *
-     * @param productTableDTO Batch from product table
-     * @return Returns calculated batch batch amounts
-     */
-    @ApiOperation(value = "Calculate batch batch amounts.")
-    @RequestMapping(value = "/product/calculate/batch/amounts",
-            method = RequestMethod.PUT,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<BasicBatchModel> recalculateBatchAmounts(
-            @ApiParam("Batch from product table") @RequestBody ProductTableDTO productTableDTO) {
-        return ResponseEntity.ok(stoicCalculationService.recalculateBatchAmounts(productTableDTO));
     }
 }

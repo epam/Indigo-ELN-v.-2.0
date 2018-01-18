@@ -35,11 +35,11 @@ public final class SDFileIteratorFactory {
         return new IteratorAll(f, true);
     }
 
-    public static SDFileIterator getIterator(InputStream is) throws IOException {
+    public static SDFileIterator getIterator(InputStream is) {
         return new IteratorAll(is, true);
     }
 
-    public static SDFileIterator getIterator(Reader r) throws IOException {
+    public static SDFileIterator getIterator(Reader r) {
         return new IteratorAll(r);
     }
 
