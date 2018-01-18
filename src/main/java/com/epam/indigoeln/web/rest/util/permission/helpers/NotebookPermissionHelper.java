@@ -4,6 +4,7 @@ import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -171,6 +172,7 @@ public class NotebookPermissionHelper {
                 accessList, project.getAccessList(), PermissionCreationLevel.PROJECT);
 
         notebook.setAccessList(new HashSet<>());
+        notebook.setExperiments(Collections.emptyList());
         changeNotebookPermissions(project, notebook, accessList);
     }
 }
