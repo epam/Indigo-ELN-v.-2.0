@@ -121,13 +121,15 @@ public class NotebookPermissionHelper {
      * @param project            Project that contains {@code notebook}
      * @param notebook           Notebook to change permissions
      * @param newUserPermissions permissions that should be applied
-     * @return {@code true} if project's access list was changed.
+     * @return {@code Pair.of(true,*)} if project's access list was changed.
+     * {@code Pair.of(*,true)} if notebooks's access list was changed.
      */
-    public static boolean changeNotebookPermissions(Project project,
-                                                    Notebook notebook,
-                                                    Set<UserPermission> newUserPermissions
+    public static Pair<Boolean, Boolean> changeNotebookPermissions(Project project,
+                                                                   Notebook notebook,
+                                                                   Set<UserPermission> newUserPermissions
     ) {
         boolean projectHadChanged = false;
+        boolean notebookHadChanged = false;
 
         Set<UserPermission> createdPermissions = newUserPermissions.stream()
                 .filter(newPermission -> notebook.getAccessList().stream()
@@ -138,6 +140,7 @@ public class NotebookPermissionHelper {
 
         if (!createdPermissions.isEmpty()) {
 
+            notebookHadChanged = true;
             projectHadChanged = addPermissions(project, notebook, createdPermissions);
         }
 
@@ -150,6 +153,7 @@ public class NotebookPermissionHelper {
 
         if (!updatedPermissions.isEmpty()) {
 
+            notebookHadChanged = true;
             updatePermissions(notebook, updatedPermissions);
         }
 
@@ -159,9 +163,10 @@ public class NotebookPermissionHelper {
 
         if (!removedPermissions.isEmpty()) {
 
+            notebookHadChanged = true;
             projectHadChanged |= removePermissions(project, notebook, removedPermissions);
         }
-        return projectHadChanged;
+        return Pair.of(projectHadChanged, notebookHadChanged);
     }
 
     public static void fillNewNotebooksPermissions(Project project, Notebook notebook, User creator) {
