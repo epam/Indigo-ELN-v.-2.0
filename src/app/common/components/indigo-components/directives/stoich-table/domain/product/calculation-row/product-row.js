@@ -1,7 +1,7 @@
 function ProductRow(props) {
     _.assignWith(this, props, function(defaultValue, valueFromProps) {
         if (valueFromProps && valueFromProps.unit) {
-            return _.omit(valueFromProps, ['unit']);
+            return {value: valueFromProps.value};
         }
 
         return _.isObject(valueFromProps)

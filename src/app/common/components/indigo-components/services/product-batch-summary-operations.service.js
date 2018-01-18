@@ -133,19 +133,21 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
     function syncWithIntendedProducts(experiment) {
         var stoichTable = getStoichFromExperiment(experiment);
         var batchesQueue = getIntendedNotInActual(stoichTable);
-        var areProductsExist = stoichTable && stoichTable.products && stoichTable.products.length;
+        var areProductsExist = stoichTable && !_.isEmpty(stoichTable.products);
 
-        if (areProductsExist) {
-            if (!batchesQueue.length) {
-                alertModal.info('Product Batch Summary is synchronized', 'sm');
-            } else {
-                var batchesQueueToAdd = _.map(batchesQueue, function(batch) {
-                    return _.assign(new BatchViewRow(), batch);
-                });
-
-                return duplicateBatches(batchesQueueToAdd, true, experiment);
-            }
+        if (!areProductsExist) {
+            return $q.resolve([]);
         }
+
+        if (batchesQueue.length) {
+            var batchesQueueToAdd = _.map(batchesQueue, function(batch) {
+                return _.assign(new BatchViewRow(), batch);
+            });
+
+            return duplicateBatches(batchesQueueToAdd, true, experiment);
+        }
+
+        alertModal.info('Product Batch Summary is synchronized', 'sm');
 
         return $q.resolve([]);
     }
@@ -196,7 +198,7 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
             calculationHelper.updateValuesDependingOnTheoMoles(batch, theoMoles);
         }
 
-        _.extend(batch, sdUnit, {
+        _.assign(batch, sdUnit, {
             conversationalBatchNumber: undefined,
             registrationDate: undefined,
             registrationStatus: undefined

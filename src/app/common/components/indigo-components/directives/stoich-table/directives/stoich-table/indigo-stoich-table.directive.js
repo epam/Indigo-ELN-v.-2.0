@@ -255,6 +255,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         return _.extend({}, stoichReactantsColumns.limiting, {
             onClick: function() {
                 onProductsChanged();
+                updateBatches();
             }
         });
     }

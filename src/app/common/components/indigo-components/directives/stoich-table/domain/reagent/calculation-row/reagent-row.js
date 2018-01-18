@@ -5,7 +5,11 @@ var mathCalculation = require('../../../../../services/calculation/math-calculat
 function ReagentRow(props) {
     _.assignWith(this, props, function(defaultValue, valueFromProps) {
         if (valueFromProps && valueFromProps.unit) {
-            return _.omit(valueFromProps, ['unit']);
+            return {
+                value: valueFromProps.value,
+                entered: valueFromProps.entered,
+                readonly: valueFromProps.readonly
+            };
         }
 
         return _.isObject(valueFromProps)
