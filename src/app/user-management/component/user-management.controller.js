@@ -2,7 +2,7 @@ var userManagementPasswordDialogTemplate = require('./user-management-password-d
 
 /* @ngInject */
 function UserManagementController($uibModal, userService, parseLinks, passwordRegex, notifyService,
-                                  translateService, roleService, $q) {
+                                  translateService, roleService, $q, principalService) {
     var vm = this;
 
     var rolesPaging = {
@@ -154,6 +154,7 @@ function UserManagementController($uibModal, userService, parseLinks, passwordRe
         }
         loadAll();
         vm.user = _.extend({}, user);
+        vm.isEditingSelf = vm.user.id === principalService.getUserId();
     }
 
     function search() {
