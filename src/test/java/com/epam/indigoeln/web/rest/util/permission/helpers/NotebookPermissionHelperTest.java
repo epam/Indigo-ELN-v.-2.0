@@ -1,4 +1,4 @@
-package com.epam.indigoeln.web.rest.util;
+package com.epam.indigoeln.web.rest.util.permission.helpers;
 
 import com.epam.indigoeln.core.model.*;
 import org.junit.Before;

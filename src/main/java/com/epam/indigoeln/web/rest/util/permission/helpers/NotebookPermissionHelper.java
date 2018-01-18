@@ -1,4 +1,4 @@
-package com.epam.indigoeln.web.rest.util;
+package com.epam.indigoeln.web.rest.util.permission.helpers;
 
 import com.epam.indigoeln.core.model.*;
 import org.apache.commons.lang3.tuple.Pair;
@@ -16,56 +16,57 @@ public class NotebookPermissionHelper {
     private NotebookPermissionHelper() {
     }
 
-    public static void addPermissionsFromUpperLevel(Notebook notebook, Set<UserPermission> userPermissions) {
-
-        notebook.getAccessList().addAll(userPermissions);
-        notebook.getExperiments().forEach(experiment ->
-                ExperimentPermissionHelper.addPermissionsFromUpperLevel(experiment, userPermissions));
-    }
-
-    public static void updatePermissionFromUpperLevel(Notebook notebook, Set<UserPermission> updatedPermissions) {
-
-        notebook.getAccessList().removeIf(userPermission -> hasUser(updatedPermissions, userPermission));
-        notebook.getAccessList().addAll(updatedPermissions);
-
-        notebook.getExperiments().forEach(experiment ->
-                ExperimentPermissionHelper.updatePermissionFromUpperLevel(experiment, updatedPermissions));
-    }
-
-    public static void removePermissionFromUpperLevel(Notebook notebook, Set<UserPermission> removedPermissions) {
-        notebook.getAccessList().removeIf(userPermission -> hasUser(removedPermissions, userPermission));
-
-        notebook.getExperiments().forEach(experiment ->
-                ExperimentPermissionHelper.removePermissionsFromUpperLevel(experiment, removedPermissions));
-    }
-
     public static boolean addPermissions(Project project, Notebook notebook, Set<UserPermission> addedPermissions) {
 
         notebook.getAccessList().addAll(addedPermissions);
         notebook.getExperiments().forEach(experiment ->
-                ExperimentPermissionHelper.addPermissionsFromUpperLevel(experiment, addedPermissions));
+                ExperimentPermissionHelper.addPermissionsFromNotebook(experiment, addedPermissions));
 
-        return ProjectPermissionHelper.addPermissionsFromLowerLevel(project, addedPermissions);
+        return ProjectPermissionHelper.addPermissionsFromNotebook(project, addedPermissions);
     }
 
     public static void updatePermissions(Notebook notebook, Set<UserPermission> updatedPermissions) {
 
-        updatePermissionFromUpperLevel(notebook, updatedPermissions);
+        updatePermissionFromProject(notebook, updatedPermissions);
     }
 
     public static boolean removePermissions(Project project, Notebook notebook, Set<UserPermission> removedPermission) {
 
-        removePermissionFromUpperLevel(notebook, removedPermission);
+        removePermissionFromProject(notebook, removedPermission);
 
         Set<UserPermission> canBeRemovedFromProject = removedPermission.stream()
                 .filter(permission ->
                         !permission.getPermissionCreationLevel().equals(PermissionCreationLevel.PROJECT))
                 .collect(toSet());
 
-        return ProjectPermissionHelper.removePermissionFromLowerLevel(project, notebook, canBeRemovedFromProject);
+        return ProjectPermissionHelper.removePermissionFromNotebook(project, notebook, canBeRemovedFromProject);
     }
 
-    public static Pair<Boolean, Boolean> addPermissionsFromLowerLevel(Project project,
+
+    static void addPermissionsFromProject(Notebook notebook, Set<UserPermission> userPermissions) {
+
+        notebook.getAccessList().addAll(userPermissions);
+        notebook.getExperiments().forEach(experiment ->
+                ExperimentPermissionHelper.addPermissionsFromNotebook(experiment, userPermissions));
+    }
+
+    static void updatePermissionFromProject(Notebook notebook, Set<UserPermission> updatedPermissions) {
+
+        notebook.getAccessList().removeIf(userPermission -> hasUser(updatedPermissions, userPermission));
+        notebook.getAccessList().addAll(updatedPermissions);
+
+        notebook.getExperiments().forEach(experiment ->
+                ExperimentPermissionHelper.updatePermissionFromNotebook(experiment, updatedPermissions));
+    }
+
+    static void removePermissionFromProject(Notebook notebook, Set<UserPermission> removedPermissions) {
+        notebook.getAccessList().removeIf(userPermission -> hasUser(removedPermissions, userPermission));
+
+        notebook.getExperiments().forEach(experiment ->
+                ExperimentPermissionHelper.removePermissionsFromNotebook(experiment, removedPermissions));
+    }
+
+    public static Pair<Boolean, Boolean> addPermissionsFromExperiment(Project project,
                                                                       Notebook notebook,
                                                                       Set<UserPermission> addedToExperimentPermissions
     ) {
@@ -82,12 +83,12 @@ public class NotebookPermissionHelper {
             }
         }
 
-        boolean projectWasUpdated = ProjectPermissionHelper.addPermissionsFromLowerLevel(project, addedToNotebook);
+        boolean projectWasUpdated = ProjectPermissionHelper.addPermissionsFromNotebook(project, addedToNotebook);
 
         return Pair.of(projectWasUpdated, !addedToNotebook.isEmpty());
     }
 
-    public static Pair<Boolean, Boolean> removePermissionFromLowerLevel(Project project,
+    public static Pair<Boolean, Boolean> removePermissionFromExperiment(Project project,
                                                                         Notebook notebook,
                                                                         Experiment fromExperiment,
                                                                         Set<UserPermission> removedPermissions

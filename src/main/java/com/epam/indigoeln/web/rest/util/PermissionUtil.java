@@ -5,12 +5,17 @@ import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.security.Authority;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.PermissionIncorrectException;
+import com.epam.indigoeln.web.rest.util.permission.helpers.ExperimentPermissionHelper;
+import com.epam.indigoeln.web.rest.util.permission.helpers.NotebookPermissionHelper;
+import com.epam.indigoeln.web.rest.util.permission.helpers.ProjectPermissionHelper;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.epam.indigoeln.core.model.PermissionCreationLevel.EXPERIMENT;
+import static com.epam.indigoeln.core.model.UserPermission.OWNER_PERMISSIONS;
 import static java.util.stream.Collectors.toSet;
 
 public final class PermissionUtil {
@@ -77,13 +82,10 @@ public final class PermissionUtil {
     ) {
         UserPermission userPermission = findPermissionsByUserId(accessList, user.getId());
         if (userPermission != null) {
-            userPermission.setPermissions(UserPermission.OWNER_PERMISSIONS);
-            userPermission.setPermissionCreationLevel(permissionCreationLevel);
-        } else {
-            userPermission = new UserPermission(user, UserPermission.OWNER_PERMISSIONS);
-            userPermission.setPermissionCreationLevel(permissionCreationLevel);
-            accessList.add(userPermission);
+            accessList.remove(userPermission);
         }
+        UserPermission newUserPermission = new UserPermission(user, OWNER_PERMISSIONS, permissionCreationLevel);
+        accessList.add(newUserPermission);
     }
 
     /**
@@ -155,76 +157,57 @@ public final class PermissionUtil {
      * and returns the pair of two boolean flags these mean (notebook was changed, project was changed).
      *
      * @param project            Project that contains {@code notebook}
-     * @param notebook           Notebook that contains changing {@code experiment}
-     * @param experiment         Experiment to change permissions
+     * @param notebook           Notebook that contains changing {@code updatedExperiment}
+     * @param updatedExperiment  Experiment to change permissions
      * @param newUserPermissions permissions that should be applied
      * @return pair of two boolean flags these mean (notebook was changed, project was changed).
      */
     public static Pair<Boolean, Boolean> changeExperimentPermissions(Project project,
                                                                      Notebook notebook,
-                                                                     Experiment experiment,
+                                                                     Experiment updatedExperiment,
                                                                      Set<UserPermission> newUserPermissions
     ) {
         boolean notebookHadChanged = false;
         boolean projectHadChanged = false;
 
-        EntityWrapper wrappedExperiment = new EntityWrapper.ExperimentWrapper(project, notebook, experiment);
-
         Set<UserPermission> createdPermissions = newUserPermissions.stream()
-                .filter(newPermission -> experiment.getAccessList().stream()
+                .filter(newPermission -> updatedExperiment.getAccessList().stream()
                         .noneMatch(oldPermission ->
                                 equalsByUserId(newPermission, oldPermission)))
-                .map(userPermission -> userPermission.setPermissionCreationLevel(PermissionCreationLevel.EXPERIMENT))
+                .map(userPermission -> userPermission.setPermissionCreationLevel(EXPERIMENT))
                 .collect(toSet());
 
         if (!createdPermissions.isEmpty()) {
-            wrappedExperiment.addPermissionsDown(createdPermissions);
+            Pair<Boolean, Boolean> projectAndNotebookHadChanged =
+                    ExperimentPermissionHelper.addPermissions(project, notebook, updatedExperiment, createdPermissions);
 
-            Set<UserPermission> addedToNotebook = wrappedExperiment.addOrUpdatePermissionsUpForOneLevel(createdPermissions);
-            notebookHadChanged = !addedToNotebook.isEmpty();
-
-            if (!addedToNotebook.isEmpty()) {
-                projectHadChanged = !wrappedExperiment.getParent().addOrUpdatePermissionsUpForOneLevel(addedToNotebook)
-                        .isEmpty();
-            }
+            projectHadChanged = projectAndNotebookHadChanged.getLeft();
+            notebookHadChanged = projectAndNotebookHadChanged.getRight();
         }
 
         Set<UserPermission> updatedPermissions = newUserPermissions.stream()
-                .filter(newPermission -> experiment.getAccessList().stream().anyMatch(oldPermission ->
+                .filter(newPermission -> updatedExperiment.getAccessList().stream().anyMatch(oldPermission ->
                         equalsByUserId(newPermission, oldPermission)
                                 && !oldPermission.getPermissions().equals(newPermission.getPermissions())))
-                .map(userPermission -> userPermission.setPermissionCreationLevel(PermissionCreationLevel.EXPERIMENT))
+                .map(userPermission -> userPermission.setPermissionCreationLevel(EXPERIMENT))
                 .collect(toSet());
 
         if (!updatedPermissions.isEmpty()) {
-            wrappedExperiment.updatePermissionsDown(updatedPermissions);
-
-            Set<UserPermission> permissionsUpdatedInNotebook =
-                    wrappedExperiment.addOrUpdatePermissionsUpForOneLevel(updatedPermissions);
-
-            notebookHadChanged |= !permissionsUpdatedInNotebook.isEmpty();
-
-            if (!permissionsUpdatedInNotebook.isEmpty()) {
-                projectHadChanged |=
-                        !wrappedExperiment.getParent().addOrUpdatePermissionsUpForOneLevel(permissionsUpdatedInNotebook).isEmpty();
-            }
+            ExperimentPermissionHelper.updatePermission(updatedExperiment, updatedPermissions);
         }
 
-        Set<UserPermission> removedPermissions = experiment.getAccessList().stream().filter(oldPermission ->
+        Set<UserPermission> removedPermissions = updatedExperiment.getAccessList().stream().filter(oldPermission ->
                 newUserPermissions.stream().noneMatch(newPermission -> equalsByUserId(oldPermission, newPermission)))
                 .collect(toSet());
 
         if (!removedPermissions.isEmpty()) {
 
-            wrappedExperiment.removePermissionsDown(removedPermissions);
+            Pair<Boolean, Boolean> projectAndNotebookHadChanged =
+                    ExperimentPermissionHelper.removePermissions(
+                            project, notebook, updatedExperiment, removedPermissions);
 
-            Set<UserPermission> removedFromNotebook = wrappedExperiment.removePermissionsUpForOneLevel(removedPermissions);
-
-            notebookHadChanged |= !removedFromNotebook.isEmpty();
-
-            if (!removedFromNotebook.isEmpty()) {
-                projectHadChanged |= !wrappedExperiment.getParent().removePermissionsUpForOneLevel(removedFromNotebook).isEmpty();
-            }
+            projectHadChanged |= projectAndNotebookHadChanged.getLeft();
+            notebookHadChanged |= projectAndNotebookHadChanged.getRight();
         }
 
         return Pair.of(notebookHadChanged, projectHadChanged);
@@ -247,8 +230,6 @@ public final class PermissionUtil {
     ) {
         boolean projectHadChanged = false;
 
-        EntityWrapper notebookWrapper = new EntityWrapper.NotebookWrapper(project, notebook);
-
         Set<UserPermission> createdPermissions = newUserPermissions.stream()
                 .filter(newPermission -> notebook.getAccessList().stream()
                         .noneMatch(oldPermission ->
@@ -258,9 +239,7 @@ public final class PermissionUtil {
 
         if (!createdPermissions.isEmpty()) {
 
-            projectHadChanged = !notebookWrapper.addOrUpdatePermissionsUpForOneLevel(createdPermissions).isEmpty();
-
-            notebookWrapper.addPermissionsDown(createdPermissions);
+            projectHadChanged = NotebookPermissionHelper.addPermissions(project, notebook, createdPermissions);
         }
 
         Set<UserPermission> updatedPermissions = newUserPermissions.stream()
@@ -271,9 +250,8 @@ public final class PermissionUtil {
                 .collect(toSet());
 
         if (!updatedPermissions.isEmpty()) {
-            notebookWrapper.updatePermissionsDown(updatedPermissions);
 
-            projectHadChanged |= !notebookWrapper.addOrUpdatePermissionsUpForOneLevel(updatedPermissions).isEmpty();
+            NotebookPermissionHelper.updatePermissions(notebook, updatedPermissions);
         }
 
         Set<UserPermission> removedPermissions = notebook.getAccessList().stream().filter(oldPermission ->
@@ -281,11 +259,8 @@ public final class PermissionUtil {
                 .collect(toSet());
 
         if (!removedPermissions.isEmpty()) {
-            notebookWrapper.removePermissionsDown(removedPermissions);
 
-            Set<UserPermission> removed = notebookWrapper.removePermissionsUpForOneLevel(removedPermissions);
-
-            projectHadChanged |= !removed.isEmpty();
+            projectHadChanged |= NotebookPermissionHelper.removePermissions(project, notebook, removedPermissions);
         }
         return projectHadChanged;
     }
@@ -298,8 +273,6 @@ public final class PermissionUtil {
      */
     public static void changeProjectPermissions(Project project, Set<UserPermission> newUserPermissions) {
 
-        EntityWrapper.ProjectWrapper projectWrapper = new EntityWrapper.ProjectWrapper(project);
-
         Set<UserPermission> createdPermissions = newUserPermissions.stream()
                 .filter(newPermission -> project.getAccessList().stream()
                         .noneMatch(oldPermission ->
@@ -308,7 +281,8 @@ public final class PermissionUtil {
                 .collect(toSet());
 
         if (!createdPermissions.isEmpty()) {
-            projectWrapper.addPermissionsDown(createdPermissions);
+
+            ProjectPermissionHelper.addPermissions(project, createdPermissions);
         }
 
         Set<UserPermission> updatedPermissions = newUserPermissions.stream()
@@ -319,7 +293,8 @@ public final class PermissionUtil {
                 .collect(toSet());
 
         if (!updatedPermissions.isEmpty()) {
-            projectWrapper.updatePermissionsDown(updatedPermissions);
+
+            ProjectPermissionHelper.updatePermissions(project, updatedPermissions);
         }
 
         Set<UserPermission> removedPermissions = project.getAccessList().stream().filter(oldPermission ->
@@ -327,8 +302,14 @@ public final class PermissionUtil {
                 .collect(toSet());
 
         if (!removedPermissions.isEmpty()) {
-            projectWrapper.removePermissionsDown(removedPermissions);
+
+            ProjectPermissionHelper.removePermission(project, removedPermissions);
         }
+    }
+
+    public static boolean hasUser(Set<UserPermission> removingPermissions, UserPermission userPermission) {
+        return removingPermissions.stream()
+                .anyMatch(removingPermission -> equalsByUserId(removingPermission, userPermission));
     }
 
     /**

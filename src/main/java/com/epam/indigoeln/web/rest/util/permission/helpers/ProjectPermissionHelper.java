@@ -1,4 +1,4 @@
-package com.epam.indigoeln.web.rest.util;
+package com.epam.indigoeln.web.rest.util.permission.helpers;
 
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.Project;
@@ -20,7 +20,7 @@ public class ProjectPermissionHelper {
         project.getAccessList().addAll(createdPermissions);
 
         project.getNotebooks().forEach(notebook ->
-                NotebookPermissionHelper.addPermissionsFromUpperLevel(notebook, createdPermissions));
+                NotebookPermissionHelper.addPermissionsFromProject(notebook, createdPermissions));
     }
 
     public static void updatePermissions(Project project, Set<UserPermission> updatedPermissions) {
@@ -28,17 +28,17 @@ public class ProjectPermissionHelper {
         project.getAccessList().addAll(updatedPermissions);
 
         project.getNotebooks().forEach(notebook ->
-                NotebookPermissionHelper.updatePermissionFromUpperLevel(notebook, updatedPermissions));
+                NotebookPermissionHelper.updatePermissionFromProject(notebook, updatedPermissions));
     }
 
     public static void removePermission(Project project, Set<UserPermission> removedPermissions) {
         project.getAccessList().removeIf(userPermission -> hasUser(removedPermissions, userPermission));
 
         project.getNotebooks().forEach(notebook ->
-                NotebookPermissionHelper.removePermissionFromUpperLevel(notebook, removedPermissions));
+                NotebookPermissionHelper.removePermissionFromProject(notebook, removedPermissions));
     }
 
-    public static boolean addPermissionsFromLowerLevel(Project project, Set<UserPermission> addedPermissions) {
+    static boolean addPermissionsFromNotebook(Project project, Set<UserPermission> addedPermissions) {
 
         boolean result = false;
 
@@ -55,7 +55,7 @@ public class ProjectPermissionHelper {
         return result;
     }
 
-    public static boolean removePermissionFromLowerLevel(Project project, Notebook fromNotebook, Set<UserPermission> removedFromNotebook) {
+    static boolean removePermissionFromNotebook(Project project, Notebook fromNotebook, Set<UserPermission> removedFromNotebook) {
 
         Set<UserPermission> presentedInOtherNotebooks = project.getNotebooks().stream()
                 .filter(notebook -> !notebook.equals(fromNotebook))
