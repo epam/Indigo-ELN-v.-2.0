@@ -17,15 +17,15 @@
                   popover-append-to-body="true">
             </span>
             <span ng-switch-default ng-bind="node.name"></span>
-            <span class="experiment-status fa"
+            <span class="experiment-status icon "
                   ng-if="node.original.status"
-                  ng-class="{'fa-check': node.original.status === 'Completed',
-                              'fa-file-text-o': node.original.status === 'Signing',
-                              'fa-pencil-square-o': node.original.status === 'Signed',
-                              'fa-paper-plane': node.original.status === 'Submitted',
-                              'fa-archive': node.original.status === 'Archived',
-                              'fa-minus-circle': node.original.status === 'Submit_Fail',
-                              'fa-file-o': node.original.status === 'Open'}">
+                  ng-class="{'icon-done': node.original.status === 'Completed',
+                              'icon-text_document': node.original.status === 'Signing',
+                              'icon-edit': node.original.status === 'Signed',
+                              'icon-paper_plane': node.original.status === 'Submitted',
+                              'icon-archive': node.original.status === 'Archived',
+                              'icon-stop': node.original.status === 'Submit_Fail',
+                              'icon-file': node.original.status === 'Open'}">
             </span>
         </a>
     </span>
