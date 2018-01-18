@@ -21,6 +21,7 @@ import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.dto.search.EntitiesIdsDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
+import com.epam.indigoeln.web.rest.util.permission.helpers.ExperimentPermissionHelper;
 import com.google.common.util.concurrent.Striped;
 import com.mongodb.DBRef;
 import org.apache.commons.lang3.StringUtils;
@@ -251,16 +252,8 @@ public class ExperimentService {
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, experiment.getAccessList());
         // add OWNER's permissions for specified User to experiment
-        Set<UserPermission> permissions = experiment.getAccessList();
-        experiment.setAccessList(Collections.emptySet());
-        PermissionUtil.addOwnerToAccessList(permissions, user,
-                PermissionCreationLevel.EXPERIMENT);
-
-        PermissionUtil.addUsersFromUpperLevel(permissions, notebook.getAccessList(),
-                PermissionCreationLevel.NOTEBOOK);
-
-        Pair<Boolean, Boolean> changes = PermissionUtil.changeExperimentPermissions(
-                project, notebook, experiment, permissions);
+        Pair<Boolean, Boolean> changes =
+                ExperimentPermissionHelper.fillNewExperimentsPermissions(project, notebook, experiment, user);
 
         //increment sequence Id
         experiment.setId(sequenceIdService.getNextExperimentId(projectId, notebookId));
@@ -423,7 +416,7 @@ public class ExperimentService {
             Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
                     orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
 
-            Pair<Boolean, Boolean> update = PermissionUtil.changeExperimentPermissions(
+            Pair<Boolean, Boolean> update = ExperimentPermissionHelper.changeExperimentPermissions(
                     project, notebook, experimentFromDB, experimentForSave.getAccessList());
 
             Experiment savedExperiment;

@@ -16,6 +16,7 @@ import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
+import com.epam.indigoeln.web.rest.util.permission.helpers.NotebookPermissionHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -200,15 +201,7 @@ public class NotebookService {
         // check of user permissions correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
         // add OWNER's permissions for specified User to notebook
-        PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user, PermissionCreationLevel.NOTEBOOK);
-        //add permissions to notebook and project
-        Notebook notebookWithPermissions = new Notebook();
-        PermissionUtil.changeNotebookPermissions(project, notebookWithPermissions, notebook.getAccessList());
-
-        PermissionUtil.addUsersFromUpperLevel(
-                notebookWithPermissions.getAccessList(), project.getAccessList(), PermissionCreationLevel.PROJECT);
-
-        notebook.setAccessList(notebookWithPermissions.getAccessList());
+        NotebookPermissionHelper.fillNewNotebooksPermissions(project, notebook, user);
 
         Notebook savedNotebook = saveNotebookAndHandleError(notebook);
 
@@ -272,7 +265,7 @@ public class NotebookService {
             notebookFromDB.setDescription(notebookDTO.getDescription());
             notebookFromDB.setVersion(notebook.getVersion());
 
-            boolean projectWasUpdated = PermissionUtil.changeNotebookPermissions(
+            boolean projectWasUpdated = NotebookPermissionHelper.changeNotebookPermissions(
                     project, notebookFromDB, notebook.getAccessList());
 
             experimentRepository.save(notebookFromDB.getExperiments());

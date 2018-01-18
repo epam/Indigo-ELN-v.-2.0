@@ -1,6 +1,7 @@
 package com.epam.indigoeln.web.rest.util.permission.helpers;
 
 import com.epam.indigoeln.core.model.*;
+import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.HashSet;
@@ -108,5 +109,68 @@ public class NotebookPermissionHelper {
         boolean projectWasUpdated = removePermissions(project, notebook, canBeRemovedFromNotebook);
 
         return Pair.of(projectWasUpdated, !canBeRemovedFromNotebook.isEmpty());
+    }
+
+    /**
+     * Change notebooks access list according to {@code newUserPermissions}.
+     * <p>
+     * This method calls changing of project permissions as well and returns boolean flags
+     * that mean was project changed or not.
+     *
+     * @param project            Project that contains {@code notebook}
+     * @param notebook           Notebook to change permissions
+     * @param newUserPermissions permissions that should be applied
+     * @return {@code true} if project's access list was changed.
+     */
+    public static boolean changeNotebookPermissions(Project project,
+                                                    Notebook notebook,
+                                                    Set<UserPermission> newUserPermissions
+    ) {
+        boolean projectHadChanged = false;
+
+        Set<UserPermission> createdPermissions = newUserPermissions.stream()
+                .filter(newPermission -> notebook.getAccessList().stream()
+                        .noneMatch(oldPermission ->
+                                PermissionUtil.equalsByUserId(newPermission, oldPermission)))
+                .map(userPermission -> userPermission.setPermissionCreationLevel(PermissionCreationLevel.NOTEBOOK))
+                .collect(toSet());
+
+        if (!createdPermissions.isEmpty()) {
+
+            projectHadChanged = addPermissions(project, notebook, createdPermissions);
+        }
+
+        Set<UserPermission> updatedPermissions = newUserPermissions.stream()
+                .filter(newPermission -> notebook.getAccessList().stream().anyMatch(oldPermission ->
+                        PermissionUtil.equalsByUserId(newPermission, oldPermission)
+                                && !oldPermission.getPermissions().equals(newPermission.getPermissions())))
+                .map(userPermission -> userPermission.setPermissionCreationLevel(PermissionCreationLevel.NOTEBOOK))
+                .collect(toSet());
+
+        if (!updatedPermissions.isEmpty()) {
+
+            updatePermissions(notebook, updatedPermissions);
+        }
+
+        Set<UserPermission> removedPermissions = notebook.getAccessList().stream().filter(oldPermission ->
+                newUserPermissions.stream().noneMatch(newPermission -> PermissionUtil.equalsByUserId(oldPermission, newPermission)))
+                .collect(toSet());
+
+        if (!removedPermissions.isEmpty()) {
+
+            projectHadChanged |= removePermissions(project, notebook, removedPermissions);
+        }
+        return projectHadChanged;
+    }
+
+    public static void fillNewNotebooksPermissions(Project project, Notebook notebook, User creator) {
+        Set<UserPermission> accessList = notebook.getAccessList();
+        PermissionUtil.addOwnerToAccessList(accessList, creator, PermissionCreationLevel.NOTEBOOK);
+        //add permissions to notebook and project
+        PermissionUtil.addUsersFromUpperLevel(
+                accessList, project.getAccessList(), PermissionCreationLevel.PROJECT);
+
+        notebook.setAccessList(new HashSet<>());
+        changeNotebookPermissions(project, notebook, accessList);
     }
 }

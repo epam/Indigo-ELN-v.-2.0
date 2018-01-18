@@ -1,8 +1,10 @@
 package com.epam.indigoeln.web.rest.util.permission.helpers;
 
 import com.epam.indigoeln.core.model.Notebook;
+import com.epam.indigoeln.core.model.PermissionCreationLevel;
 import com.epam.indigoeln.core.model.Project;
 import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.web.rest.util.PermissionUtil;
 
 import java.util.Set;
 
@@ -71,5 +73,47 @@ public class ProjectPermissionHelper {
                                 !hasUser(presentedInOtherNotebooks, removedPermission)).collect(toSet());
 
         return project.getAccessList().removeIf(userPermission -> hasUser(canBeRemovedFromProject, userPermission));
+    }
+
+    /**
+     * Change projects access list according to {@code newUserPermissions}.
+     *
+     * @param project            project to change permissions
+     * @param newUserPermissions permissions that should be applied
+     */
+    public static void changeProjectPermissions(Project project, Set<UserPermission> newUserPermissions) {
+
+        Set<UserPermission> createdPermissions = newUserPermissions.stream()
+                .filter(newPermission -> project.getAccessList().stream()
+                        .noneMatch(oldPermission ->
+                                PermissionUtil.equalsByUserId(newPermission, oldPermission)))
+                .map(userPermission -> userPermission.setPermissionCreationLevel(PermissionCreationLevel.PROJECT))
+                .collect(toSet());
+
+        if (!createdPermissions.isEmpty()) {
+
+            addPermissions(project, createdPermissions);
+        }
+
+        Set<UserPermission> updatedPermissions = newUserPermissions.stream()
+                .filter(newPermission -> project.getAccessList().stream().anyMatch(oldPermission ->
+                        PermissionUtil.equalsByUserId(newPermission, oldPermission)
+                                && !oldPermission.getPermissions().equals(newPermission.getPermissions())))
+                .map(userPermission -> userPermission.setPermissionCreationLevel(PermissionCreationLevel.PROJECT))
+                .collect(toSet());
+
+        if (!updatedPermissions.isEmpty()) {
+
+            updatePermissions(project, updatedPermissions);
+        }
+
+        Set<UserPermission> removedPermissions = project.getAccessList().stream().filter(oldPermission ->
+                newUserPermissions.stream().noneMatch(newPermission -> PermissionUtil.equalsByUserId(oldPermission, newPermission)))
+                .collect(toSet());
+
+        if (!removedPermissions.isEmpty()) {
+
+            removePermission(project, removedPermissions);
+        }
     }
 }

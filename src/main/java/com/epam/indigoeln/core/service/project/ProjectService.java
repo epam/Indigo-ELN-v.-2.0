@@ -15,6 +15,7 @@ import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
+import com.epam.indigoeln.web.rest.util.permission.helpers.ProjectPermissionHelper;
 import com.mongodb.gridfs.GridFSDBFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -190,7 +191,7 @@ public class ProjectService {
         projectFromDb.setReferences(project.getReferences());
         projectFromDb.setVersion(project.getVersion());
 
-        PermissionUtil.changeProjectPermissions(projectFromDb, project.getAccessList());
+        ProjectPermissionHelper.changeProjectPermissions(projectFromDb, project.getAccessList());
 
         List<Notebook> notebooks = projectFromDb.getNotebooks();
         notebooks.forEach(notebook -> experimentRepository.save(notebook.getExperiments()));
