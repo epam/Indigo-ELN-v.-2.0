@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.repository.Query;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.epam.indigoeln.core.repository.RepositoryConstants.*;
@@ -33,4 +34,6 @@ public interface NotebookRepository extends MongoRepository<Notebook, String> {
 
     @Query(value = "{}", fields = ENTITY_SHORT_FIELDS_SET)
     List<Notebook> findAllIgnoreChildren();
+
+    Optional<Notebook> findByName(String name);
 }

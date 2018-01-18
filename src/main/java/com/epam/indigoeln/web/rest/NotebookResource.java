@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -205,5 +206,18 @@ public class NotebookResource {
         notebookService.deleteNotebook(projectId, id);
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, null);
         return ResponseEntity.ok().headers(headers).build();
+    }
+
+    /**
+     * Checks if notebook name is new or not
+     *
+     * @param name Notebook name to check
+     * @return Map with only one key where value is true or false
+     */
+    @ApiOperation(value = "Checks if notebook name is new or not")
+    @RequestMapping(value = "notebooks/new", method = RequestMethod.GET)
+    public ResponseEntity<Map<String, Boolean>> isNew(@ApiParam("Notebook name to check") @RequestParam String name){
+        boolean isNew = notebookService.isNew(name);
+        return ResponseEntity.ok(Collections.singletonMap("isNew", isNew));
     }
 }

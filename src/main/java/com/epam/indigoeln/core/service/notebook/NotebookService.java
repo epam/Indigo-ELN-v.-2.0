@@ -338,6 +338,16 @@ public class NotebookService {
         });
     }
 
+    /**
+     * Checks if notebook name is new or not
+     *
+     * @param notebookName Notebook name to check
+     * @return true if name is new and false if not
+     */
+    public boolean isNew(String notebookName){
+        return !notebookRepository.findByName(notebookName).isPresent();
+    }
+
     private Notebook saveNotebookAndHandleError(Notebook notebook) {
         try {
             return notebookRepository.save(notebook);
