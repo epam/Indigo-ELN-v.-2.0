@@ -50,9 +50,6 @@ public class NotebookService {
     private UserRepository userRepository;
 
     @Autowired
-    private ExperimentRepository experimentRepository;
-
-    @Autowired
     private SequenceIdService sequenceIdService;
 
     /**
@@ -275,7 +272,7 @@ public class NotebookService {
             boolean projectWasUpdated = PermissionUtil.changeNotebookPermissions(
                     project, notebookFromDB, notebook.getAccessList());
 
-            experimentRepository.save(notebookFromDB.getExperiments());
+            experimentService.saveExperiments(notebookFromDB.getExperiments());
 
             Notebook savedNotebook = saveNotebookAndHandleError(notebookFromDB);
 

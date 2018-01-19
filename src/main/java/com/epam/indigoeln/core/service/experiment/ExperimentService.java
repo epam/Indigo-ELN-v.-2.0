@@ -102,6 +102,10 @@ public class ExperimentService {
                 experiment.getAccessList(), userId) != null).collect(Collectors.toList());
     }
 
+    public void saveExperiments(List<Experiment> experiments){
+        experimentRepository.save(experiments);
+    }
+
     /**
      * Returns all experiments of specified notebook for tree representation.
      *

@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -71,6 +72,12 @@ public class UserService {
         this.roleRepository = roleRepository;
         passwordValidationPattern = Pattern.compile(passwordRegex);
         this.securityUtils = securityUtils;
+    }
+
+    public List<String> getAllUsersByIds(List<String> coAuthorsIds){
+        return userRepository.findAll(coAuthorsIds).stream()
+                .map(User::getFullName)
+                .collect(Collectors.toList());
     }
 
     /**
