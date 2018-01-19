@@ -6,11 +6,13 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.epam.indigoeln.core.model.UserPermission.VIEWER_PERMISSIONS;
 import static com.epam.indigoeln.web.rest.util.PermissionUtil.findPermissionsByUserId;
 import static com.epam.indigoeln.web.rest.util.PermissionUtil.hasUser;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 public class NotebookPermissionHelper {
@@ -18,6 +20,18 @@ public class NotebookPermissionHelper {
     private NotebookPermissionHelper() {
     }
 
+    /**
+     * Add permissions no notebook, its project and all experiments.
+     * <p>
+     * Adding notebooks permission always add permission for all of notebooks experiment
+     * and might add permission as viewer to the project if it isn't already added by other notebooks.
+     *
+     * @param project          project that contains notebook
+     * @param notebook         an modifying notebook
+     * @param addedPermissions permissions that should be added
+     * @return {@code true} if project's access list was changed.
+     * and {@code false} if project's access list was changed.
+     */
     public static boolean addPermissions(Project project, Notebook notebook, Set<UserPermission> addedPermissions) {
 
         notebook.getAccessList().addAll(addedPermissions);
@@ -27,9 +41,9 @@ public class NotebookPermissionHelper {
         return ProjectPermissionHelper.addPermissionsFromNotebook(project, addedPermissions);
     }
 
-    public static void updatePermissions(Notebook notebook, Set<UserPermission> updatedPermissions) {
+    public static Pair<Notebook, List<Experiment>> updatePermissions(Notebook notebook, Set<UserPermission> updatedPermissions) {
 
-        updatePermissionFromProject(notebook, updatedPermissions);
+        return updatePermissionFromProject(notebook, updatedPermissions);
     }
 
     public static boolean removePermissions(Project project, Notebook notebook, Set<UserPermission> removedPermission) {
@@ -45,20 +59,41 @@ public class NotebookPermissionHelper {
     }
 
 
-    static void addPermissionsFromProject(Notebook notebook, Set<UserPermission> userPermissions) {
+    static boolean addPermissionsFromProject(Notebook notebook, Set<UserPermission> userPermissions) {
 
-        notebook.getAccessList().addAll(userPermissions);
-        notebook.getExperiments().forEach(experiment ->
-                ExperimentPermissionHelper.addPermissionsFromNotebook(experiment, userPermissions));
+        if (notebook.getAccessList().addAll(userPermissions)) {
+            notebook.getExperiments().forEach(experiment ->
+                    ExperimentPermissionHelper.addPermissionsFromNotebook(experiment, userPermissions));
+            return true;
+        }
+        return false;
     }
 
-    static void updatePermissionFromProject(Notebook notebook, Set<UserPermission> updatedPermissions) {
+    static Pair<Notebook, List<Experiment>> updatePermissionFromProject(Notebook notebook, Set<UserPermission> updatedPermissions) {
 
-        notebook.getAccessList().removeIf(userPermission -> hasUser(updatedPermissions, userPermission));
-        notebook.getAccessList().addAll(updatedPermissions);
+        Set<UserPermission> notebookAccessList = notebook.getAccessList();
+        HashSet<UserPermission> updatedNotebookPermissions = new HashSet<>();
 
-        notebook.getExperiments().forEach(experiment ->
-                ExperimentPermissionHelper.updatePermissionFromNotebook(experiment, updatedPermissions));
+        for (UserPermission updatedPermission : updatedPermissions) {
+            UserPermission currentUserPermission
+                    = findPermissionsByUserId(notebookAccessList, updatedPermission.getUser().getId());
+            if (currentUserPermission != null
+                    && !currentUserPermission.getPermissionCreationLevel().equals(PermissionCreationLevel.NOTEBOOK)) {
+                notebookAccessList.remove(currentUserPermission);
+                notebookAccessList.add(updatedPermission);
+                updatedNotebookPermissions.add(updatedPermission);
+            }
+        }
+
+        if (!updatedNotebookPermissions.isEmpty()) {
+            List<Experiment> changedExperiments = notebook.getExperiments().stream()
+                    .filter(experiment ->
+                            ExperimentPermissionHelper.updatePermissionFromNotebook(experiment, updatedNotebookPermissions))
+                    .collect(toList());
+
+            return Pair.of(notebook, changedExperiments);
+        }
+        return null;
     }
 
     static void removePermissionFromProject(Notebook notebook, Set<UserPermission> removedPermissions) {
@@ -121,15 +156,15 @@ public class NotebookPermissionHelper {
      * @param project            Project that contains {@code notebook}
      * @param notebook           Notebook to change permissions
      * @param newUserPermissions permissions that should be applied
-     * @return {@code Pair.of(true,*)} if project's access list was changed.
-     * {@code Pair.of(*,true)} if notebooks's access list was changed.
+     * @return {@code Pair.of(wasProjectChanged, changedExperiments)}
      */
-    public static Pair<Boolean, Boolean> changeNotebookPermissions(Project project,
-                                                                   Notebook notebook,
-                                                                   Set<UserPermission> newUserPermissions
+    public static Pair<Boolean, List<Experiment>> changeNotebookPermissions(Project project,
+                                                                            Notebook notebook,
+                                                                            Set<UserPermission> newUserPermissions
     ) {
         boolean projectHadChanged = false;
-        boolean notebookHadChanged = false;
+        boolean allExperimentsWereChanged = false;
+        List<Experiment> changedExperiments = Collections.emptyList();
 
         Set<UserPermission> createdPermissions = newUserPermissions.stream()
                 .filter(newPermission -> notebook.getAccessList().stream()
@@ -140,7 +175,7 @@ public class NotebookPermissionHelper {
 
         if (!createdPermissions.isEmpty()) {
 
-            notebookHadChanged = true;
+            allExperimentsWereChanged = true;
             projectHadChanged = addPermissions(project, notebook, createdPermissions);
         }
 
@@ -153,20 +188,20 @@ public class NotebookPermissionHelper {
 
         if (!updatedPermissions.isEmpty()) {
 
-            notebookHadChanged = true;
-            updatePermissions(notebook, updatedPermissions);
+            changedExperiments = updatePermissions(notebook, updatedPermissions).getValue();
         }
 
         Set<UserPermission> removedPermissions = notebook.getAccessList().stream().filter(oldPermission ->
-                newUserPermissions.stream().noneMatch(newPermission -> PermissionUtil.equalsByUserId(oldPermission, newPermission)))
+                newUserPermissions.stream().noneMatch(
+                        newPermission -> PermissionUtil.equalsByUserId(oldPermission, newPermission)))
                 .collect(toSet());
 
         if (!removedPermissions.isEmpty()) {
 
-            notebookHadChanged = true;
+            allExperimentsWereChanged = true;
             projectHadChanged |= removePermissions(project, notebook, removedPermissions);
         }
-        return Pair.of(projectHadChanged, notebookHadChanged);
+        return Pair.of(projectHadChanged, allExperimentsWereChanged ? notebook.getExperiments() : changedExperiments);
     }
 
     public static void fillNewNotebooksPermissions(Project project, Notebook notebook, User creator) {

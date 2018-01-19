@@ -191,24 +191,20 @@ public class ProjectService {
         projectFromDb.setReferences(project.getReferences());
         projectFromDb.setVersion(project.getVersion());
 
-        boolean projectPermissionsWasChanged =
+        Map<Notebook, List<Experiment>> changedNotebooksAndExperiments =
                 ProjectPermissionHelper.changeProjectPermissions(projectFromDb, project.getAccessList());
 
-        if (projectPermissionsWasChanged) {
-            List<Notebook> notebooks = projectFromDb.getNotebooks();
-            notebooks.forEach(notebook ->
-            {
-                List<Experiment> savedExperiments = experimentRepository.save(notebook.getExperiments());
-                savedExperiments.forEach(experiment ->
-                        webSocketUtil.updateExperiment(
-                                user, projectFromDb.getId(), notebook.getId(), experiment));
-                notebook.setExperiments(savedExperiments);
-            });
-            List<Notebook> savedNotebooks = notebookRepository.save(notebooks);
-            savedNotebooks.forEach(notebook -> webSocketUtil.updateNotebook(user, projectFromDb.getId(), notebook));
+        for (Map.Entry<Notebook, List<Experiment>> changedNotebookWithExperiments
+                : changedNotebooksAndExperiments.entrySet()) {
 
-            projectFromDb.setNotebooks(savedNotebooks);
+            Notebook changedNotebook = changedNotebookWithExperiments.getKey();
+            List<Experiment> savedExperiments = experimentRepository.save(changedNotebookWithExperiments.getValue());
+            savedExperiments.forEach(experiment ->
+                    webSocketUtil.updateExperiment(user, projectFromDb.getId(), changedNotebook.getId(), experiment));
         }
+
+        List<Notebook> savedNotebooks = notebookRepository.save(changedNotebooksAndExperiments.keySet());
+        savedNotebooks.forEach(notebook -> webSocketUtil.updateNotebook(user, projectFromDb.getId(), notebook));
 
         project = saveProjectAndHandleError(projectFromDb);
         webSocketUtil.updateProject(user, project);

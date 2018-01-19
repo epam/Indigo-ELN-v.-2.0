@@ -247,8 +247,8 @@ public class NotebookService {
             // check of user permissions's correctness in access control list
             PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
 
-            boolean notebookHadChangeName = !notebookFromDB.getName().equals(notebookDTO.getName());
-            if (notebookHadChangeName) {
+            boolean notebookNameChanged = !notebookFromDB.getName().equals(notebookDTO.getName());
+            if (notebookNameChanged) {
                 List<String> numbers = BatchComponentUtil.hasBatches(notebookFromDB);
                 if (!numbers.isEmpty()) {
                     throw OperationDeniedException
@@ -266,20 +266,24 @@ public class NotebookService {
             notebookFromDB.setDescription(notebookDTO.getDescription());
             notebookFromDB.setVersion(notebook.getVersion());
 
-            Pair<Boolean, Boolean> projectAndNotebookPermissionsUpdated =
-                    NotebookPermissionHelper.changeNotebookPermissions(project, notebookFromDB, notebook.getAccessList());
+            Pair<Boolean, List<Experiment>> projectChangedAndChangedExperiments =
+                    NotebookPermissionHelper
+                            .changeNotebookPermissions(project, notebookFromDB, notebook.getAccessList());
 
-            if (notebookHadChangeName || projectAndNotebookPermissionsUpdated.getRight()) {
+            if (notebookNameChanged) {
                 List<Experiment> savedExperiments = experimentRepository.save(notebookFromDB.getExperiments());
                 savedExperiments.forEach(experiment ->
                         webSocketUtil.updateExperiment(user, projectId, notebookDTO.getId(), experiment));
-                notebookFromDB.setExperiments(savedExperiments);
+            } else {
+                experimentRepository.save(projectChangedAndChangedExperiments.getRight())
+                        .forEach(experiment ->
+                                webSocketUtil.updateExperiment(user, projectId, notebookDTO.getId(), experiment));
             }
-            Notebook savedNotebook = saveNotebookAndHandleError(notebookFromDB);
 
+            Notebook savedNotebook = saveNotebookAndHandleError(notebookFromDB);
             webSocketUtil.updateNotebook(user, projectId, savedNotebook);
 
-            if (projectAndNotebookPermissionsUpdated.getLeft()) {
+            if (projectChangedAndChangedExperiments.getLeft()) {
                 Project savedProject = projectRepository.save(project);
                 webSocketUtil.updateProject(user, savedProject);
             }

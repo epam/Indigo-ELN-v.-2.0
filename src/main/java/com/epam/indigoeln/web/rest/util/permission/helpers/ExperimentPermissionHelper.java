@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.epam.indigoeln.core.model.PermissionCreationLevel.EXPERIMENT;
+import static com.epam.indigoeln.web.rest.util.PermissionUtil.findPermissionsByUserId;
 import static com.epam.indigoeln.web.rest.util.PermissionUtil.hasUser;
 import static java.util.stream.Collectors.toSet;
 
@@ -61,20 +62,53 @@ public class ExperimentPermissionHelper {
                 experiment, permissionsCreatedFromThisExperiment);
     }
 
-    static void addPermissionsFromNotebook(Experiment experiment, Set<UserPermission> userPermissions) {
+    /**
+     * @param experiment
+     * @param userPermissions elements that should be added
+     * @return {@code true} if some permissions were added to experiment's access list
+     */
+    static boolean addPermissionsFromNotebook(Experiment experiment, Set<UserPermission> userPermissions) {
+
+        boolean experimentWasChanged = false;
         for (UserPermission userPermission : userPermissions) {
             if (userPermission.getPermissionView().equals(UserPermission.USER)) {
-                experiment.getAccessList().add(new UserPermission(userPermission.getUser(),
+                experimentWasChanged |= experiment.getAccessList().add(new UserPermission(userPermission.getUser(),
                         UserPermission.VIEWER_PERMISSIONS, userPermission.getPermissionCreationLevel()));
             } else {
-                experiment.getAccessList().add(userPermission);
+                experimentWasChanged |= experiment.getAccessList().add(userPermission);
             }
         }
+        return experimentWasChanged;
     }
 
-    static void updatePermissionFromNotebook(Experiment experiment, Set<UserPermission> updatedPermissions) {
-        removePermissionsFromNotebook(experiment, updatedPermissions);
-        addPermissionsFromNotebook(experiment, updatedPermissions);
+    /**
+     * @param experiment
+     * @param updatedPermissions
+     * @return {@code true} if some permissions were updated to experiment's access list
+     */
+    static boolean updatePermissionFromNotebook(Experiment experiment,
+                                                Set<UserPermission> updatedPermissions
+    ) {
+        boolean experimentWasChanged = false;
+        for (UserPermission updatedPermission : updatedPermissions) {
+            UserPermission presentedPermission =
+                    findPermissionsByUserId(experiment.getAccessList(), updatedPermission.getUser().getId());
+
+            if (presentedPermission != null) {
+                if (!presentedPermission.getPermissionCreationLevel().equals(EXPERIMENT)) {
+                    if (updatedPermission.getPermissionView().equals(UserPermission.USER)) {
+                        updatedPermission = new UserPermission(updatedPermission.getUser(),
+                                UserPermission.VIEWER_PERMISSIONS, updatedPermission.getPermissionCreationLevel());
+                        if (!presentedPermission.getPermissionView().equals(updatedPermission.getPermissionView())) {
+                            experiment.getAccessList().remove(presentedPermission);
+                            experiment.getAccessList().add(updatedPermission);
+                            experimentWasChanged |= true;
+                        }
+                    }
+                }
+            }
+        }
+        return experimentWasChanged;
     }
 
     static boolean removePermissionsFromNotebook(Experiment experiment,
