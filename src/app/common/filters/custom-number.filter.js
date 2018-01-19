@@ -5,12 +5,23 @@ function customNumber() {
     // max symbols for decimal representation
     var MAX_SYMBOLS = 6;
     // max symbols for exponential representation
-    var MAX_E_SYMBOLS = MAX_SYMBOLS + 1;
+    var MAX_E_SYMBOLS = 0;
 
     // -2 symbols for digit and dot, -2 symbols for sign and 'e', -1 symbol for power
-    var MAX_E_DECIMALS = MAX_E_SYMBOLS - 2 - 2 - 1;
+    var MAX_E_DECIMALS = 0;
 
-    return function(value, emptyValue) {
+    return function(value, emptyValue, maxSymbols) {
+        // max symbols for decimal representation
+        MAX_SYMBOLS = maxSymbols || 6;
+        // max symbols for exponential representation
+        MAX_E_SYMBOLS = MAX_SYMBOLS + 1;
+
+        // -2 symbols for digit and dot, -2 symbols for sign and 'e', -1 symbol for power
+        MAX_E_DECIMALS = MAX_E_SYMBOLS - 2 - 2 - 1;
+        if (MAX_E_DECIMALS < 1) {
+            MAX_E_DECIMALS = 1;
+        }
+
         var sign = value < 0 ? '-' : '';
         var absValue = Math.abs(value);
 

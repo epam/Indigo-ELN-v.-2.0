@@ -70,4 +70,22 @@ describe('filter: customNumber', function() {
         expect(filter(null, TEST)).toBe(TEST);
         expect(filter(undefined, TEST)).toBe(TEST);
     });
+
+    it('should return decimals for normal numbers uses maxSymbols param', function() {
+        var maxSymbols = 3;
+        expect(filter(1, null, maxSymbols)).toBe('1');
+        expect(filter(1.1, null, maxSymbols)).toBe('1.1');
+        expect(filter(12.122, null, maxSymbols)).toBe('12');
+        expect(filter(12.1235, null, maxSymbols)).toBe('12');
+        expect(filter(12.10, null, maxSymbols)).toBe('12');
+        expect(filter(121.1235, null, maxSymbols)).toBe('121');
+        expect(filter(1234.12, null, maxSymbols)).toBe('1.2e+3');
+        expect(filter(99999, null, maxSymbols)).toBe('1.0e+5');
+        expect(filter(100000.123, null, maxSymbols)).toBe('1.0e+5');
+
+        expect(filter(0.1, null, maxSymbols)).toBe('0.1');
+        expect(filter(0.123456, null, maxSymbols)).toBe('0.1');
+        expect(filter(0.0123456, null, maxSymbols)).toBe('1.2e-2');
+        expect(filter(0.0012345, null, maxSymbols)).toBe('1.2e-3');
+    });
 });

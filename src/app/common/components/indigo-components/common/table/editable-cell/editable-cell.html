@@ -31,10 +31,10 @@
                   ng-bind="vm.row[vm.column.id].description ? vm.row[vm.column.id].name + ' - ' + vm.row[vm.column.id].description : vm.row[vm.column.id].name"></span>
             <span ng-switch-when="unit"
                   ng-class="{'entered-value': vm.row[vm.column.id].entered}"
-                  ng-bind="(vm.row[vm.column.id].value | unit:vm.row[vm.column.id].unit | customNumber) + ' ' + vm.row[vm.column.id].unit"></span>
+                  ng-bind="(vm.row[vm.column.id].value | unit:vm.row[vm.column.id].unit | customNumber:'-':column.sigDigits) + ' ' + vm.row[vm.column.id].unit"></span>
             <span ng-switch-when="scalar"
                   ng-class="{'entered-value': vm.row[vm.column.id].entered}"
-                  ng-bind="vm.row[vm.column.id].value | customNumber"></span>
+                  ng-bind="vm.row[vm.column.id].value | customNumber:'-':vm.column.sigDigits"></span>
         </a>
     </div>
 

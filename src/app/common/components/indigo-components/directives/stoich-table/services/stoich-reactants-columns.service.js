@@ -100,7 +100,7 @@ function stoichReactantsColumns(appUnits, stoichColumnActions, notifyService, i1
             id: 'eq',
             name: 'EQ',
             type: 'scalar',
-            sigDigits: 2
+            sigDigits: 4
         },
         limiting: {
             id: 'limiting',

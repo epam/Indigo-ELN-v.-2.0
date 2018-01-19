@@ -6,7 +6,7 @@
     <span ng-switch-when="date" ng-if="row[column.id]"
           ng-bind="row[column.id] | date: 'MMM DD, YYYY HH:mm:ss z'"></span>
     <span ng-switch-when="primitive" ng-if="row[column.id] && !column.showDefault"
-          ng-bind="row[column.id] | customNumber">
+          ng-bind="row[column.id] | customNumber:'-':column.sigDigits">
         </span>
     <div ng-switch-when="image"
          ng-style="{width: column.width}">
