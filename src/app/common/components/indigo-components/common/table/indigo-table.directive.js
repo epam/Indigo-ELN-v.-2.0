@@ -111,14 +111,9 @@ function IndigoTableController($scope, dragulaService, simpleLocalCache, princip
         var sortedColumns = simpleLocalCache.getByKey(userId + '.' + vm.indigoId + '.columnsOrder');
 
         if (_.isArray(sortedColumns)) {
-            var resultColumns = [];
-            _.forEach(sortedColumns, function(sortedColumn, i) {
-                resultColumns[i] = _.find(columns, function(column) {
-                    return column.id === sortedColumn;
-                });
+            return columns.sort(function(a, b) {
+                return sortedColumns.indexOf(a.id) - sortedColumns.indexOf(b.id);
             });
-
-            return resultColumns;
         }
 
         return columns;
