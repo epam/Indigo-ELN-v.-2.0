@@ -11,7 +11,7 @@ import java.util.stream.StreamSupport;
 @Component
 public class ClientConfiguration implements InitializingBean {
 
-    private static final String PREFIX = "client.";
+    private static final String PREFIX = "indigoeln.client.";
 
     @Autowired
     private Environment environment;
