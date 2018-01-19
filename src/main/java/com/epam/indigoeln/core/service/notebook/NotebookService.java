@@ -16,6 +16,7 @@ import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
+import com.mongodb.DBRef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.locks.Lock;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -343,5 +345,15 @@ public class NotebookService {
         } catch (OptimisticLockingFailureException e) {
             throw ConcurrencyException.createWithNotebookName(notebook.getName(), e);
         }
+    }
+
+    public void saveNotebooks(List<Notebook> notebooks){
+        notebooks.forEach(notebook -> experimentService.saveExperiments(notebook.getExperiments()));
+        notebookRepository.save(notebooks);
+    }
+
+    public Map<String, Notebook> getbyExperimentsIds(List<DBRef> experimentIds) {
+        return notebookRepository.findByExperimentsIds(experimentIds)
+                .collect(Collectors.toMap(Notebook::getId, Function.identity()));
     }
 }

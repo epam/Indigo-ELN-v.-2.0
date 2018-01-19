@@ -1,13 +1,12 @@
 package com.epam.indigoeln.core.service.project;
 
 import com.epam.indigoeln.core.model.*;
-import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.file.GridFSFileUtil;
-import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.*;
+import com.epam.indigoeln.core.service.notebook.NotebookService;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.core.util.WebSocketUtil;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
@@ -24,7 +23,6 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,14 +38,8 @@ public class ProjectService {
     @Autowired
     private ProjectRepository projectRepository;
 
-    /**
-     * Instance of NotebookRepository for access to notebooks in database.
-     */
     @Autowired
-    private NotebookRepository notebookRepository;
-
-    @Autowired
-    private ExperimentRepository experimentRepository;
+    private NotebookService notebookService;
 
     /**
      * Instance of FileRepository for access to files in database.
@@ -197,8 +189,7 @@ public class ProjectService {
         PermissionUtil.changeProjectPermissions(projectFromDb, project.getAccessList());
 
         List<Notebook> notebooks = projectFromDb.getNotebooks();
-        notebooks.forEach(notebook -> experimentRepository.save(notebook.getExperiments()));
-        notebookRepository.save(notebooks);
+        notebookService.saveNotebooks(notebooks);
 
         projectFromDb.setNotebooks(notebooks);
         project = saveProjectAndHandleError(projectFromDb);
@@ -263,13 +254,12 @@ public class ProjectService {
         }
     }
 
-    public Stream<Triple<Project, Notebook, Experiment>> getEntities(Map<String, Experiment> experiments){
+    public Stream<Triple<Project, Notebook, Experiment>> getEntities(Map<String, Experiment> experiments) {
         List<DBRef> experimentIds = experiments.keySet().stream()
                 .map(k -> new DBRef("experiment", k))
                 .collect(Collectors.toList());
 
-        Map<String, Notebook> notebooks = notebookRepository.findByExperimentsIds(experimentIds)
-                .collect(Collectors.toMap(Notebook::getId, Function.identity()));
+        Map<String, Notebook> notebooks = notebookService.getbyExperimentsIds(experimentIds);
 
         List<DBRef> notebookIds = notebooks.keySet().stream()
                 .map(k -> new DBRef("notebook", k))
