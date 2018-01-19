@@ -22,7 +22,6 @@ public class ExperimentPermissionHelper {
                                                         Experiment experiment,
                                                         Set<UserPermission> addedPermissions
     ) {
-
         experiment.getAccessList().addAll(addedPermissions);
 
         return NotebookPermissionHelper.addPermissionsFromExperiment(project, notebook, addedPermissions);
@@ -63,8 +62,6 @@ public class ExperimentPermissionHelper {
     }
 
     /**
-     * @param experiment
-     * @param userPermissions elements that should be added
      * @return {@code true} if some permissions were added to experiment's access list
      */
     static boolean addPermissionsFromNotebook(Experiment experiment, Set<UserPermission> userPermissions) {
@@ -82,8 +79,12 @@ public class ExperimentPermissionHelper {
     }
 
     /**
-     * @param experiment
-     * @param updatedPermissions
+     * Cascade update experiment permission after updates in notebooks permissions.
+     * <p>
+     * If permission for user was set on experiment level it could be changed only from experiment.
+     *
+     * @param experiment         to change accessList
+     * @param updatedPermissions updated permissions
      * @return {@code true} if some permissions were updated to experiment's access list
      */
     static boolean updatePermissionFromNotebook(Experiment experiment,
@@ -94,17 +95,16 @@ public class ExperimentPermissionHelper {
             UserPermission presentedPermission =
                     findPermissionsByUserId(experiment.getAccessList(), updatedPermission.getUser().getId());
 
-            if (presentedPermission != null) {
-                if (!presentedPermission.getPermissionCreationLevel().equals(EXPERIMENT)) {
-                    if (updatedPermission.getPermissionView().equals(UserPermission.USER)) {
-                        updatedPermission = new UserPermission(updatedPermission.getUser(),
-                                UserPermission.VIEWER_PERMISSIONS, updatedPermission.getPermissionCreationLevel());
-                        if (!presentedPermission.getPermissionView().equals(updatedPermission.getPermissionView())) {
-                            experiment.getAccessList().remove(presentedPermission);
-                            experiment.getAccessList().add(updatedPermission);
-                            experimentWasChanged |= true;
-                        }
-                    }
+            if (presentedPermission != null && (updatedPermission.getPermissionCreationLevel().equals(EXPERIMENT)
+                    || !presentedPermission.getPermissionCreationLevel().equals(EXPERIMENT))) {
+                if (updatedPermission.getPermissionView().equals(UserPermission.USER)) {
+                    updatedPermission = new UserPermission(updatedPermission.getUser(),
+                            UserPermission.VIEWER_PERMISSIONS, updatedPermission.getPermissionCreationLevel());
+                }
+                if (!presentedPermission.getPermissionView().equals(updatedPermission.getPermissionView())) {
+                    experiment.getAccessList().remove(presentedPermission);
+                    experiment.getAccessList().add(updatedPermission);
+                    experimentWasChanged |= true;
                 }
             }
         }

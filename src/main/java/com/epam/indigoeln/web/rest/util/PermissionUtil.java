@@ -137,13 +137,6 @@ public final class PermissionUtil {
                             userPermission.getUser().getId(), permission);
                 }
             }
-
-            if (userPermission.getUser().getAuthorities().contains(Authority.CONTENT_EDITOR)
-                    && !UserPermission.OWNER.equals(userPermission.getPermissionView())) {
-                throw PermissionIncorrectException
-                        .createWithUserIdAndPermission(userPermission.getUser().getId(),
-                                userPermission.getPermissionView());
-            }
         }
     }
 

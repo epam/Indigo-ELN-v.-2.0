@@ -4,6 +4,7 @@ import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -69,7 +70,20 @@ public class NotebookPermissionHelper {
         return false;
     }
 
-    static Pair<Notebook, List<Experiment>> updatePermissionFromProject(Notebook notebook, Set<UserPermission> updatedPermissions) {
+    /**
+     * Cascade update notebooks permissions after project permissions update.
+     * <p>
+     * If notebooks permission for user was set from notebook it can only be changed from notebook.
+     *
+     * @param notebook           notebook to update access list
+     * @param updatedPermissions permission that should be updated
+     * @return pair of updated notebook and experiments that were updated in this notebook
+     * {@code null} if notebook wasn't update.
+     */
+    @Nullable
+    static Pair<Notebook, List<Experiment>> updatePermissionFromProject(Notebook notebook,
+                                                                        Set<UserPermission> updatedPermissions
+    ) {
 
         Set<UserPermission> notebookAccessList = notebook.getAccessList();
         HashSet<UserPermission> updatedNotebookPermissions = new HashSet<>();
@@ -78,7 +92,8 @@ public class NotebookPermissionHelper {
             UserPermission currentUserPermission
                     = findPermissionsByUserId(notebookAccessList, updatedPermission.getUser().getId());
             if (currentUserPermission != null
-                    && !currentUserPermission.getPermissionCreationLevel().equals(PermissionCreationLevel.NOTEBOOK)) {
+                    && (updatedPermission.getPermissionCreationLevel().equals(PermissionCreationLevel.NOTEBOOK)
+                    || !currentUserPermission.getPermissionCreationLevel().equals(PermissionCreationLevel.NOTEBOOK))) {
                 notebookAccessList.remove(currentUserPermission);
                 notebookAccessList.add(updatedPermission);
                 updatedNotebookPermissions.add(updatedPermission);
@@ -88,7 +103,8 @@ public class NotebookPermissionHelper {
         if (!updatedNotebookPermissions.isEmpty()) {
             List<Experiment> changedExperiments = notebook.getExperiments().stream()
                     .filter(experiment ->
-                            ExperimentPermissionHelper.updatePermissionFromNotebook(experiment, updatedNotebookPermissions))
+                            ExperimentPermissionHelper
+                                    .updatePermissionFromNotebook(experiment, updatedNotebookPermissions))
                     .collect(toList());
 
             return Pair.of(notebook, changedExperiments);
@@ -103,6 +119,15 @@ public class NotebookPermissionHelper {
                 ExperimentPermissionHelper.removePermissionsFromNotebook(experiment, removedPermissions));
     }
 
+    /**
+     * Cascade updates permission from experiment.
+     *
+     * @param project                      project witch contains experiment
+     * @param notebook                     notebook witch contains experiment
+     * @param addedToExperimentPermissions permissions witch added to experiment
+     *                                     and now should be added to notebook and project
+     * @return pair of wasProjectChanged and wasNotebookChanged
+     */
     public static Pair<Boolean, Boolean> addPermissionsFromExperiment(Project project,
                                                                       Notebook notebook,
                                                                       Set<UserPermission> addedToExperimentPermissions
@@ -188,7 +213,8 @@ public class NotebookPermissionHelper {
 
         if (!updatedPermissions.isEmpty()) {
 
-            changedExperiments = updatePermissions(notebook, updatedPermissions).getValue();
+            Pair<Notebook, List<Experiment>> updatePermissions = updatePermissions(notebook, updatedPermissions);
+            changedExperiments = updatePermissions != null ? updatePermissions.getValue() : Collections.emptyList();
         }
 
         Set<UserPermission> removedPermissions = notebook.getAccessList().stream().filter(oldPermission ->
