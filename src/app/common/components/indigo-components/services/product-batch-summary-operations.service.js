@@ -1,8 +1,9 @@
 var BatchViewRow = require('../directives/indigo-components/domain/batch-row/view-row/batch-view-row');
+var fieldTypes = require('../services/calculation/field-types');
 
 /* @ngInject */
 function productBatchSummaryOperations($q, productBatchSummaryCache, registrationUtil, calculationHelper,
-                                       stoichTableCache, appValuesService, notifyService,
+                                       stoichTableCache, notifyService, batchHelper,
                                        registrationService, sdImportService,
                                        sdExportService, alertModal, $http, $stateParams, notebookService,
                                        calculationService, apiUrl, $document) {
@@ -189,22 +190,22 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
         return batch;
     }
 
-    function createBatch(sdUnit, isSyncWithIntended) {
+    function createBatch(parentBatch, isSyncWithIntended) {
         var batch = new BatchViewRow();
         var stoichTable = stoichTableCache.getStoicTable();
-        if (stoichTable && !isSyncWithIntended) {
-            var limitingRow = calculationHelper.findLimitingRow(stoichTable.reactants);
-            var theoMoles = limitingRow ? limitingRow.mol.value : 0;
-            calculationHelper.updateValuesDependingOnTheoMoles(batch, theoMoles);
-        }
 
-        _.assign(batch, sdUnit, {
+        _.assign(batch, parentBatch, {
             conversationalBatchNumber: undefined,
             registrationDate: undefined,
             registrationStatus: undefined
         });
 
-        if (sdUnit) {
+        if (stoichTable && !isSyncWithIntended) {
+            var limitingRow = calculationHelper.findLimitingRow(stoichTable.reactants);
+            batchHelper.calculateValuesDependingOnTheoMoles(batch, limitingRow);
+        }
+
+        if (parentBatch) {
             return $q
                 .all([
                     calculationHelper.recalculateSalt(batch),
@@ -220,6 +221,8 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
                     });
                 })
                 .then(function() {
+                    batchHelper.calculateRow({changedRow: batch, changedField: fieldTypes.molWeight});
+
                     return batch;
                 });
         }
