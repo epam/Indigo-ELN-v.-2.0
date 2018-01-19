@@ -46,8 +46,23 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
         vm.save = save;
         vm.print = print;
         vm.onRestore = onRestore;
+        vm.notebookExistValidation = notebookExistValidation;
 
         bindEvents();
+    }
+
+    function notebookExistValidation(modelValue) {
+        return notebookService.isNew({name: modelValue || ''})
+            .$promise
+            .then(function(result) {
+                if (!result.isNew) {
+                    // Role with provided name already exist
+                    return $q.reject('Notebook name already in use');
+                }
+
+                // Nothing found, validation passes
+                return true;
+            });
     }
 
     function initEntity() {

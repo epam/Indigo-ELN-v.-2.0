@@ -1,8 +1,6 @@
 /* @ngInject */
 function notebookService($resource, permissionService, entityTreeService, apiUrl) {
-    return $resource(apiUrl + 'projects/:projectId/notebooks/:notebookId', {
-        projectId: '@projectId'
-    }, {
+    return $resource(apiUrl + 'projects/:projectId/notebooks/:notebookId', {}, {
         query: {
             method: 'GET', isArray: true
         },
@@ -46,6 +44,10 @@ function notebookService($resource, permissionService, entityTreeService, apiUrl
         print: {
             method: 'GET',
             url: apiUrl + 'print/project/:projectId/notebook/:notebookId'
+        },
+        isNew: {
+            method: 'GET',
+            url: apiUrl + 'notebooks/new'
         }
     });
 

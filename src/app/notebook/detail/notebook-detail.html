@@ -36,8 +36,13 @@
                                    type="text"
                                    ng-required
                                    ng-model="vm.notebook.name"
+                                   ng-model-options="{ debounce: 300 }"
                                    ng-pattern="/^\d{8}$/"
-                                   ng-disabled="!vm.isEditAllowed">
+                                   ng-disabled="!vm.isEditAllowed"
+                                   dynamic-async-validators="{ notebookExists: vm.notebookExistValidation }">
+                            <p ng-if="createNotebookForm.notebookName.$error.notebookExists"
+                               class="help-block"
+                               i-translate="NAME_ALREADY_EXIST"></p>
                         </simple-input>
                         <label i-translate="NOTEBOOK_DESCRIPTION"></label>
                         <indigo-text-editor indigo-name="notebookDescription"
