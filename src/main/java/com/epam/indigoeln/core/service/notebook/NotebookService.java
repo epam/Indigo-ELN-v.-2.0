@@ -16,6 +16,8 @@ import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
+import com.epam.indigoeln.web.rest.util.permission.helpers.NotebookPermissionHelper;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -200,15 +202,7 @@ public class NotebookService {
         // check of user permissions correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
         // add OWNER's permissions for specified User to notebook
-        PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user, PermissionCreationLevel.NOTEBOOK);
-        //add permissions to notebook and project
-        Notebook notebookWithPermissions = new Notebook();
-        PermissionUtil.changeNotebookPermissions(project, notebookWithPermissions, notebook.getAccessList());
-
-        PermissionUtil.addUsersFromUpperLevel(
-                notebookWithPermissions.getAccessList(), project.getAccessList(), PermissionCreationLevel.PROJECT);
-
-        notebook.setAccessList(notebookWithPermissions.getAccessList());
+        NotebookPermissionHelper.fillNewNotebooksPermissions(project, notebook, user);
 
         Notebook savedNotebook = saveNotebookAndHandleError(notebook);
 
@@ -253,7 +247,8 @@ public class NotebookService {
             // check of user permissions's correctness in access control list
             PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
 
-            if (!notebookFromDB.getName().equals(notebookDTO.getName())) {
+            boolean notebookNameChanged = !notebookFromDB.getName().equals(notebookDTO.getName());
+            if (notebookNameChanged) {
                 List<String> numbers = BatchComponentUtil.hasBatches(notebookFromDB);
                 if (!numbers.isEmpty()) {
                     throw OperationDeniedException
@@ -266,22 +261,29 @@ public class NotebookService {
                             .createNotebookUpdateNameOperation();
                 }
                 notebookFromDB.setName(notebookDTO.getName());
-                //TODO send web socket
                 notebookFromDB.getExperiments().forEach(e -> e.compileExperimentFullName(notebookDTO.getName()));
             }
             notebookFromDB.setDescription(notebookDTO.getDescription());
             notebookFromDB.setVersion(notebook.getVersion());
 
-            boolean projectWasUpdated = PermissionUtil.changeNotebookPermissions(
-                    project, notebookFromDB, notebook.getAccessList());
+            Pair<Boolean, List<Experiment>> projectChangedAndChangedExperiments =
+                    NotebookPermissionHelper
+                            .changeNotebookPermissions(project, notebookFromDB, notebook.getAccessList());
 
-            experimentRepository.save(notebookFromDB.getExperiments());
+            if (notebookNameChanged) {
+                List<Experiment> savedExperiments = experimentRepository.save(notebookFromDB.getExperiments());
+                savedExperiments.forEach(experiment ->
+                        webSocketUtil.updateExperiment(user, projectId, notebookDTO.getId(), experiment));
+            } else {
+                experimentRepository.save(projectChangedAndChangedExperiments.getRight())
+                        .forEach(experiment ->
+                                webSocketUtil.updateExperiment(user, projectId, notebookDTO.getId(), experiment));
+            }
 
             Notebook savedNotebook = saveNotebookAndHandleError(notebookFromDB);
-
             webSocketUtil.updateNotebook(user, projectId, savedNotebook);
 
-            if (projectWasUpdated) {
+            if (projectChangedAndChangedExperiments.getLeft()) {
                 Project savedProject = projectRepository.save(project);
                 webSocketUtil.updateProject(user, savedProject);
             }

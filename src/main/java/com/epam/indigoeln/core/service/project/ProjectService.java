@@ -15,6 +15,7 @@ import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
+import com.epam.indigoeln.web.rest.util.permission.helpers.ProjectPermissionHelper;
 import com.mongodb.gridfs.GridFSDBFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -190,13 +191,21 @@ public class ProjectService {
         projectFromDb.setReferences(project.getReferences());
         projectFromDb.setVersion(project.getVersion());
 
-        PermissionUtil.changeProjectPermissions(projectFromDb, project.getAccessList());
+        Map<Notebook, List<Experiment>> changedNotebooksAndExperiments =
+                ProjectPermissionHelper.changeProjectPermissions(projectFromDb, project.getAccessList());
 
-        List<Notebook> notebooks = projectFromDb.getNotebooks();
-        notebooks.forEach(notebook -> experimentRepository.save(notebook.getExperiments()));
-        notebookRepository.save(notebooks);
+        for (Map.Entry<Notebook, List<Experiment>> changedNotebookWithExperiments
+                : changedNotebooksAndExperiments.entrySet()) {
 
-        projectFromDb.setNotebooks(notebooks);
+            Notebook changedNotebook = changedNotebookWithExperiments.getKey();
+            List<Experiment> savedExperiments = experimentRepository.save(changedNotebookWithExperiments.getValue());
+            savedExperiments.forEach(experiment ->
+                    webSocketUtil.updateExperiment(user, projectFromDb.getId(), changedNotebook.getId(), experiment));
+        }
+
+        List<Notebook> savedNotebooks = notebookRepository.save(changedNotebooksAndExperiments.keySet());
+        savedNotebooks.forEach(notebook -> webSocketUtil.updateNotebook(user, projectFromDb.getId(), notebook));
+
         project = saveProjectAndHandleError(projectFromDb);
         webSocketUtil.updateProject(user, project);
         return new ProjectDTO(project);
