@@ -282,7 +282,9 @@
                     <tr class="table-list" ng-repeat="exp in vm.curExperimentsPaged track by $index"
                         ng-class=" {'table-list' : true, 'reaction-popup' : !!exp.reactionImage}">
                         <td class="table-list__item dash-exp-id">
-                            <a href="{{vm.signatureServiceUrl}}" ng-bind="exp.id"></a>
+                            <a class="ellipsis"
+                               ui-sref="entities.experiment-detail({projectId: exp.projectId, notebookId: exp.notebookId, experimentId: exp.experimentId})"
+                               ng-bind="exp.id"></a>
                             <div style="background-image: url('data:image/svg+xml;base64,{{exp.reactionImage}}')"
                                  class="reaction-image"></div>
                         </td>
