@@ -104,8 +104,8 @@ function IndigoTableController($scope, dragulaService, simpleLocalCache, princip
     }
 
     function getSortedColumns(columns) {
-        if (!columns) {
-            return;
+        if (!_.isArray(columns)) {
+            return [];
         }
 
         var sortedColumns = simpleLocalCache.getByKey(userId + '.' + vm.indigoId + '.columnsOrder');
