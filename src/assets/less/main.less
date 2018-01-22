@@ -125,6 +125,24 @@ body {
         content: "\e92c";
       }
     }
+
+    &:checked + .statistic-green{
+      &:after {
+        color: @brand8;
+      }
+    }
+
+    &:checked + .statistic-orange{
+      &:after {
+        color: @brand6;
+      }
+    }
+
+    &:checked + .statistic-yellow{
+      &:after {
+        color: @brand5;
+      }
+    }
   }
 
   .statistic-info {
