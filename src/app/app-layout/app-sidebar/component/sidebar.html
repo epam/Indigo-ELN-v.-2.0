@@ -8,7 +8,7 @@
                 <span class="link-section__name" i-translate="MY_BOOKMARKS"></span>
                 <span class="icon arrow icon-arrow_{{vm.bookmarksIsCollapsed ? 'right' : 'down'}}"></span>
             </a>
-            <entity-tree ng-if="!vm.bookmarksIsCollapsed"
+            <entity-tree ng-show="!vm.bookmarksIsCollapsed"
                          selected-full-id="vm.selectedFullId"
                          on-select-node="vm.onSelectNode(node.original.fullId)"
                          is-all="false">
@@ -23,7 +23,7 @@
                 <span class="link-section__name" i-translate="ALL_PROJECTS"></span>
                 <span class="icon arrow icon-arrow_{{vm.allProjectIsCollapsed ? 'right' : 'down'}}"></span>
             </a>
-            <entity-tree ng-if="!vm.allProjectIsCollapsed"
+            <entity-tree ng-show="!vm.allProjectIsCollapsed"
                          selected-full-id="vm.selectedFullId"
                          on-select-node="vm.onSelectNode(node)"
                          is-all="true">
