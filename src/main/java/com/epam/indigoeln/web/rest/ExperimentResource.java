@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +51,6 @@ public class ExperimentResource {
     private SequenceIdService sequenceIdService;
 
     /**
-     * GET  /notebooks/:notebookId/experiments -> Returns all experiments, which author is current User<br/> ?????????
      * GET  /notebooks/:notebookId/experiments -> Returns all experiments of specified notebook for <b>current user</b>
      * for tree representation according to his User permissions.
      *
@@ -64,23 +62,19 @@ public class ExperimentResource {
             + "which author is current user.")
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getAllExperimentsByPermissions(
+    public ResponseEntity<List<TreeNodeDTO>> getAllExperimentsByPermissions(
             @ApiParam("Project id") @PathVariable String projectId,
             @ApiParam("Notebook id") @PathVariable String notebookId
     ) {
         User user = userService.getUserWithAuthorities();
-        if (notebookId == null) {
-            LOGGER.debug("REST request to get all experiments, which author is current user");
-            Collection<ExperimentDTO> experiments = experimentService.getExperimentsByAuthor(user);
-            return ResponseEntity.ok(experiments); //TODO May be use DTO only with required fields for Experiment?
-        } else {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("REST request to get all experiments of notebook: {} "
-                        + "according to user permissions", notebookId);
-            }
-            List<TreeNodeDTO> result = experimentService.getAllExperimentTreeNodes(projectId, notebookId, user);
-            return ResponseEntity.ok(result);
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("REST request to get all experiments of notebook: {} "
+                    + "according to user permissions", notebookId);
         }
+        List<TreeNodeDTO> result = experimentService.getAllExperimentTreeNodes(projectId, notebookId, user);
+        return ResponseEntity.ok(result);
+
     }
 
     /**

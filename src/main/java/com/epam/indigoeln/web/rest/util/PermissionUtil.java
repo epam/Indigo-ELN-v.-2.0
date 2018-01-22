@@ -145,6 +145,11 @@ public final class PermissionUtil {
                 .anyMatch(removingPermission -> equalsByUserId(removingPermission, userPermission));
     }
 
+    public static boolean hasUser(Set<UserPermission> accessList, User user) {
+        return accessList.stream()
+                .anyMatch(removingPermission -> Objects.equals(user.getId(), removingPermission.getUser().getId()));
+    }
+
     /**
      * Check if these permissions are for the same user.
      *

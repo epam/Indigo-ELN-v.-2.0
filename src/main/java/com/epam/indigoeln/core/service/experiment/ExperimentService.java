@@ -97,10 +97,11 @@ public class ExperimentService {
 
     private Striped<Lock> locks = Striped.lazyWeakLock(2);
 
-    private static List<Experiment> getExperimentsWithAccess(List<Experiment> experiments, String userId) {
+    private static List<Experiment> getExperimentsWithAccess(List<Experiment> experiments, User user) {
         return experiments == null ? Collections.emptyList()
-                : experiments.stream().filter(experiment -> PermissionUtil.findPermissionsByUserId(
-                experiment.getAccessList(), userId) != null).collect(Collectors.toList());
+                : experiments.stream().filter(experiment -> PermissionUtil.hasUser(
+                experiment.getAccessList(), user)).collect(Collectors.toList());
+
     }
 
     /**
@@ -123,8 +124,7 @@ public class ExperimentService {
      * @return List with tree representation of experiments of specified notebook for user
      */
     public List<TreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId, User user) {
-        Collection<Experiment> experiments = getAllExperiments(projectId, notebookId,
-                PermissionUtil.isContentEditor(user) ? null : user);
+        Collection<Experiment> experiments = getAllExperiments(projectId, notebookId, user);
         return experiments.stream()
                 .map(ExperimentTreeNodeDTO::new).sorted(TreeNodeDTO.NAME_COMPARATOR).collect(Collectors.toList());
     }
@@ -166,12 +166,12 @@ public class ExperimentService {
         }
 
         // Check of EntityAccess (User must have "Read Entity" permission in notebook's access list)
-        if (!PermissionUtil.hasPermissions(user.getId(), notebook.getAccessList(),
+        if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, notebook.getAccessList(),
                 UserPermission.READ_ENTITY)) {
             throw OperationDeniedException.createNotebookSubEntitiesReadOperation(notebook.getId());
         }
 
-        return getExperimentsWithAccess(notebook.getExperiments(), user.getId());
+        return getExperimentsWithAccess(notebook.getExperiments(), user);
     }
 
     /**
@@ -203,16 +203,6 @@ public class ExperimentService {
             }
         }
         return new ExperimentDTO(experiment);
-    }
-
-    /**
-     * Returns all experiments which author is user.
-     *
-     * @param user User
-     * @return Collection of experiments by author
-     */
-    public Collection<ExperimentDTO> getExperimentsByAuthor(User user) {
-        return experimentRepository.findByAuthor(user).stream().map(ExperimentDTO::new).collect(Collectors.toList());
     }
 
     /**
