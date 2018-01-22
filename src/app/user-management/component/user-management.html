@@ -33,6 +33,7 @@
                             <input class="form-control"
                                    name="login"
                                    ng-required="!vm.user.id"
+                                   ng-disabled="vm.user.id"
                                    type="text"
                                    maxlength="50"
                                    ng-pattern="/^[a-z0-9]*$/"
@@ -42,7 +43,7 @@
                             <span i-translate="FIRST_NAME"></span>
                             <input class="form-control"
                                    name="firstName"
-                                   ng-required="!vm.user.firstName"
+                                   required
                                    type="text"
                                    maxlength="50"
                                    ng-model="vm.user.firstName">
@@ -51,7 +52,7 @@
                             <span i-translate="LAST_NAME"></span>
                             <input class="form-control"
                                    name="lastName"
-                                   ng-required="!vm.user.lastName"
+                                   required
                                    type="text"
                                    maxlength="50"
                                    ng-model="vm.user.lastName">
@@ -76,7 +77,7 @@
                             <span i-translate="EMAIL"></span>
                             <input class="form-control"
                                    name="email"
-                                   ng-required="!vm.user.email"
+                                   required
                                    type="email"
                                    maxlength="100"
                                    ng-model="vm.user.email">
@@ -91,7 +92,7 @@
                                    autocomplete="new-password"
                                    maxlength="50"
                                    ng-model="vm.user.password"
-                                   ng-required="!vm.user.id"
+                                   required
                                    ng-pattern="vm.passwordRegex">
                         </simple-input>
                         <autocomplete label="Groups"

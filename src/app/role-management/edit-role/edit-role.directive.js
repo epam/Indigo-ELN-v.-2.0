@@ -21,6 +21,7 @@ function editRole() {
 function EditRoleController($scope, notifyService, roleService, alertModal, i18en, translateService, $q) {
     var vm = this;
     var ROLE_EDITOR_AUTHORITY = roles.ROLE_EDITOR;
+    var originalRole = angular.copy(vm.role);
 
     init();
 
@@ -36,6 +37,10 @@ function EditRoleController($scope, notifyService, roleService, alertModal, i18e
 
         $scope.$watch('vm.role', function(role) {
             initAuthorities(role);
+
+            // Reset form state after role select
+            $scope.editRoleForm.$setPristine();
+            originalRole = angular.copy(role);
         });
     }
 
@@ -69,6 +74,11 @@ function EditRoleController($scope, notifyService, roleService, alertModal, i18e
     }
 
     function roleExistValidation(modelValue) {
+        // Skip validation for saved notebook and empty value
+        if (!modelValue || !$scope.editRoleForm.name.$dirty || originalRole.name === modelValue) {
+            return $q.when(true);
+        }
+
         return roleService.query({search: modelValue})
             .$promise
             .then(function(result) {
