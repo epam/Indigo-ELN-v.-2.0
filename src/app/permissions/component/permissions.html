@@ -35,11 +35,10 @@
                     <td ng-bind="member.user.login"></td>
                     <td>
                         <div>
-                            <a ng-class="{disabled: member.isAuthor || member.isContentEditor || member.views.length <= 1}"
+                            <a ng-class="{disabled: member.isAuthor}"
                                ng-click="vm.show(perm, member)"
                                e-form="perm"
                                onbeforesave="vm.saveOldPermission(member.permissionView)"
-                               onaftersave="vm.checkAuthority(member, member.permissionView)"
                                editable-select="member.permissionView"
                                e-ng-options="p.id as p.name for p in member.views"
                                ng-bind="member.permissionView">

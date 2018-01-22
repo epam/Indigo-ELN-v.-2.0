@@ -40,68 +40,12 @@ function permissionService($q, principalService, userRemovableFromProjectService
         getPossiblePermissionViews: getPossiblePermissionViews
     };
 
-    function getExperimentViews(user) {
-        var result = [];
-        if (hasAllAuthorities(user.authorities, permissionsConstant.EXPERIMENT_OWNER_AUTHORITY_SET)) {
-            result.push(userPermissions.OWNER);
-        }
-        if (hasAllAuthorities(user.authorities, permissionsConstant.EXPERIMENT_VIEWER_AUTHORITY_SET)) {
-            result.push(userPermissions.VIEWER);
-        }
-
-        return result;
-    }
-
-    function getNotebookViews(user) {
-        var result = [];
-        if (hasAllAuthorities(user.authorities, permissionsConstant.NOTEBOOK_OWNER_AUTHORITY_SET)) {
-            result.push(userPermissions.OWNER);
-        }
-        if (hasAllAuthorities(user.authorities, permissionsConstant.NOTEBOOK_USER_AUTHORITY_SET)) {
-            result.push(userPermissions.USER);
-        }
-        if (hasAllAuthorities(user.authorities, permissionsConstant.NOTEBOOK_VIEWER_AUTHORITY_SET)) {
-            result.push(userPermissions.VIEWER);
-        }
-
-        return result;
-    }
-
-    function getProjectViews(user) {
-        var result = [];
-        if (hasAllAuthorities(user.authorities, permissionsConstant.PROJECT_OWNER_AUTHORITY_SET)) {
-            result.push(userPermissions.OWNER);
-        }
-        if (hasAllAuthorities(user.authorities, permissionsConstant.PROJECT_USER_AUTHORITY_SET)) {
-            result.push(userPermissions.USER);
-        }
-        if (hasAllAuthorities(user.authorities, permissionsConstant.PROJECT_VIEWER_AUTHORITY_SET)) {
-            result.push(userPermissions.VIEWER);
-        }
-
-        return result;
-    }
-
     /**
      * Returns ordered views by a capacity role.
-     * @param user
-     * @param entityType
      * @return {Array}
      */
-    function getPossiblePermissionViews(user, entityType) {
-        if (isContentEditor(user)) {
-            return [userPermissions.OWNER];
-        }
-
-        if (entityType === 'experiment') {
-            return getExperimentViews(user);
-        } else if (entityType === 'notebook') {
-            return getNotebookViews(user);
-        } else if (entityType === 'project') {
-            return getProjectViews(user);
-        }
-
-        return [];
+    function getPossiblePermissionViews() {
+        return _.map(userPermissions);
     }
 
     function isContentEditor(user) {
