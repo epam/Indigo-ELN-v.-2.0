@@ -22,8 +22,13 @@
             </div>
         </div>
     </div>
-    <form id="createNotebookForm" name="createNotebookForm" role="form" novalidate ng-submit="vm.save()"
-          autocomplete="off" ng-class="vm.hasError ? 'has-error' : ''">
+    <form id="createNotebookForm"
+          name="createNotebookForm"
+          role="form"
+          novalidate
+          ng-submit="vm.save()"
+          autocomplete="off"
+          ng-class="vm.hasError ? 'has-error' : ''">
         <div class="inner-tabs">
             <div class="simple-tab-content">
                 <div class="row">
@@ -34,7 +39,7 @@
                             <input class="form-control"
                                    name="notebookName"
                                    type="text"
-                                   ng-required
+                                   required
                                    ng-model="vm.notebook.name"
                                    ng-model-options="{ debounce: 300 }"
                                    ng-pattern="/^\d{8}$/"

@@ -52,7 +52,12 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
     }
 
     function notebookExistValidation(modelValue) {
-        return notebookService.isNew({name: modelValue || ''})
+        // Skip validation for saved notebook and empty value
+        if (!modelValue || !$scope.createNotebookForm.notebookName.$dirty || originalNotebook.name === modelValue) {
+            return $q.when(true);
+        }
+
+        return notebookService.isNew({name: modelValue})
             .$promise
             .then(function(result) {
                 if (!result.isNew) {

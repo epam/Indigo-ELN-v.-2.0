@@ -1,5 +1,5 @@
 <form class="panel panel-info edit-form animated"
-      name="editForm"
+      name="editRoleForm"
       role="form"
       ng-submit="vm.save()"
       autocomplete="off">
@@ -11,13 +11,13 @@
                     <span i-translate="NAME"></span>
                     <input class="form-control"
                            name="name"
-                           required
+                           ng-required="true"
                            type="text"
                            maxlength="50"
                            ng-model="vm.role.name"
                            ng-model-options="{ debounce: 300 }"
                            dynamic-async-validators="{ roleExist: vm.roleExistValidation }">
-                    <span ng-if="editForm.name.$error.roleExist" class="validate-error"
+                    <span ng-if="editRoleForm.name.$error.roleExist" class="validate-error"
                           i-translate="NAME_ALREADY_EXIST"></span>
                 </simple-input>
             </div>
@@ -39,13 +39,21 @@
         </div>
     </div>
     <div class="panel-footer text-right">
-        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
+        <button type="button"
+                class="btn btn-default"
+                data-dismiss="modal"
+                ng-click="vm.clear()">
             <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
         </button>
-        <button type="button" class="btn btn-default m-l5" data-dismiss="modal" ng-click="vm.resetAuthorities()">
-            Reset
+        <button type="button"
+                class="btn btn-default m-l5"
+                data-dismiss="modal"
+                ng-click="vm.resetAuthorities()">
+            <span i-translate="RESET"></span>
         </button>
-        <button type="submit" ng-disabled="editForm.$invalid || vm.isSaving" class="btn btn-primary m-l5">
+        <button type="submit"
+                ng-disabled="editRoleForm.$invalid || editRoleForm.$pristine || vm.isSaving"
+                class="btn btn-primary m-l5">
             <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
         </button>
     </div>
