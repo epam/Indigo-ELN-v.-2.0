@@ -263,7 +263,7 @@ function IndigoTableController($scope, dragulaService, simpleLocalCache, princip
         $scope.$watch('vm.indigoRows.length', vm.searchDebounce);
         $scope.$watch('vm.indigoRows', vm.searchDebounce);
 
-        $scope.$on('my-table-columns.dragend', saveColumnsOrder);
+        $scope.$on('my-table-columns.drop-model', saveColumnsOrder);
     }
 }
 
