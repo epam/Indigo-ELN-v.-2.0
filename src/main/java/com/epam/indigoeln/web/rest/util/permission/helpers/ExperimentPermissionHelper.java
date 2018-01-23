@@ -95,8 +95,13 @@ public class ExperimentPermissionHelper {
             UserPermission presentedPermission =
                     findPermissionsByUserId(experiment.getAccessList(), updatedPermission.getUser().getId());
 
-            if (presentedPermission != null && (updatedPermission.getPermissionCreationLevel().equals(EXPERIMENT)
-                    || !presentedPermission.getPermissionCreationLevel().equals(EXPERIMENT))) {
+            if (presentedPermission == null) {
+
+                experiment.getAccessList().add(updatedPermission);
+                experimentWasChanged |= true;
+
+            } else if (updatedPermission.getPermissionCreationLevel().equals(EXPERIMENT)
+                    || !presentedPermission.getPermissionCreationLevel().equals(EXPERIMENT)) {
                 if (updatedPermission.getPermissionView().equals(UserPermission.USER)) {
                     updatedPermission = new UserPermission(updatedPermission.getUser(),
                             UserPermission.VIEWER_PERMISSIONS, updatedPermission.getPermissionCreationLevel());

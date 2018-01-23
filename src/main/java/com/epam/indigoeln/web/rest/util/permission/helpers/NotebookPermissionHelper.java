@@ -91,9 +91,14 @@ public class NotebookPermissionHelper {
         for (UserPermission updatedPermission : updatedPermissions) {
             UserPermission currentUserPermission
                     = findPermissionsByUserId(notebookAccessList, updatedPermission.getUser().getId());
-            if (currentUserPermission != null
-                    && (updatedPermission.getPermissionCreationLevel().equals(PermissionCreationLevel.NOTEBOOK)
-                    || !currentUserPermission.getPermissionCreationLevel().equals(PermissionCreationLevel.NOTEBOOK))) {
+            if (currentUserPermission == null) {
+
+                notebookAccessList.add(updatedPermission);
+                updatedNotebookPermissions.add(updatedPermission);
+
+            } else if (updatedPermission.getPermissionCreationLevel().equals(PermissionCreationLevel.NOTEBOOK)
+                    || !currentUserPermission.getPermissionCreationLevel().equals(PermissionCreationLevel.NOTEBOOK)) {
+
                 notebookAccessList.remove(currentUserPermission);
                 notebookAccessList.add(updatedPermission);
                 updatedNotebookPermissions.add(updatedPermission);
