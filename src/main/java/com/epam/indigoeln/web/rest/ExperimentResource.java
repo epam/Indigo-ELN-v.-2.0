@@ -17,14 +17,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +53,6 @@ public class ExperimentResource {
     private SequenceIdService sequenceIdService;
 
     /**
-     * GET  /notebooks/:notebookId/experiments -> Returns all experiments, which author is current User<br/> ?????????
      * GET  /notebooks/:notebookId/experiments -> Returns all experiments of specified notebook for <b>current user</b>
      * for tree representation according to his User permissions.
      *
@@ -62,30 +62,25 @@ public class ExperimentResource {
      */
     @ApiOperation(value = "Returns all experiments, or experiments for specified notebook, "
             + "which author is current user.")
-    @RequestMapping(method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getAllExperimentsByPermissions(
+    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostFilter("hasAnyAuthority(T(com.epam.indigoeln.core.util.AuthoritiesUtil).EXPERIMENT_READERS)")
+    @ResponseStatus(HttpStatus.OK)
+    public List<TreeNodeDTO> getAllExperimentsByPermissions(
             @ApiParam("Project id") @PathVariable String projectId,
             @ApiParam("Notebook id") @PathVariable String notebookId
     ) {
         User user = userService.getUserWithAuthorities();
-        if (notebookId == null) {
-            LOGGER.debug("REST request to get all experiments, which author is current user");
-            Collection<ExperimentDTO> experiments = experimentService.getExperimentsByAuthor(user);
-            return ResponseEntity.ok(experiments); //TODO May be use DTO only with required fields for Experiment?
-        } else {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("REST request to get all experiments of notebook: {} "
-                        + "according to user permissions", notebookId);
-            }
-            List<TreeNodeDTO> result = experimentService.getAllExperimentTreeNodes(projectId, notebookId, user);
-            return ResponseEntity.ok(result);
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("REST request to get all experiments of notebook: {} "
+                    + "according to user permissions", notebookId);
         }
+        return experimentService.getAllExperimentTreeNodes(projectId, notebookId, user);
     }
 
     /**
-     * GET  /notebooks/:notebookId/experiments -> Returns all experiments, which author is current User<br/> ?????????
-     * GET  /notebooks/:notebookId/experiments -> Returns all experiments of specified notebook for <b>current user</b>
+     * GET  /notebooks/:notebookId/experiments/notebook-summary ->
+     * Returns all experiments of specified notebook for <b>current user</b>.
      * for tree representation according to his User permissions.
      *
      * @param projectId  Project id
@@ -96,7 +91,7 @@ public class ExperimentResource {
             + "or experiments for specified notebook, which author is current user.")
     @RequestMapping(value = "/notebook-summary", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getAllExperimentsForNotebookSummary(
+    public ResponseEntity<List<ExperimentDTO>> getAllExperimentsForNotebookSummary(
             @ApiParam("Project id") @PathVariable String projectId,
             @ApiParam("Notebook id") @PathVariable String notebookId
     ) {
@@ -167,7 +162,7 @@ public class ExperimentResource {
     @ApiOperation(value = "Returns batch number.")
     @RequestMapping(value = PATH_ID + "/batch_number", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map> getNotebookBatchNumber(
+    public ResponseEntity<Map<String, String>> getNotebookBatchNumber(
             @ApiParam("Project id") @PathVariable String projectId,
             @ApiParam("Notebook id") @PathVariable String notebookId,
             @ApiParam("Experiment id") @PathVariable String id,

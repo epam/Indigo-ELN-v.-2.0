@@ -47,37 +47,49 @@ import static com.epam.indigoeln.core.util.AuthoritiesUtil.*;
 @Configuration
 @EnableScheduling
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(securedEnabled = true)
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSecurityConfig.class);
 
-    @Autowired
-    private Environment environment;
+    private final Environment environment;
 
-    @Autowired
-    private IntSecurityProperties securityProperties;
+    private final IntSecurityProperties securityProperties;
 
-    @Autowired
-    private AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler;
+    private final AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler;
 
-    @Autowired
-    private AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler;
+    private final AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler;
 
-    @Autowired
-    private AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
+    private final AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
 
-    @Autowired
-    private Http401UnauthorizedEntryPoint authenticationEntryPoint;
+    private final Http401UnauthorizedEntryPoint authenticationEntryPoint;
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
-    @Autowired
-    private RememberMeServices rememberMeServices;
+    private final RememberMeServices rememberMeServices;
 
     @Value("${cors.origin}")
     private String corsOrigin;
+
+    @Autowired
+    public WebSecurityConfig(Environment environment,
+                             IntSecurityProperties securityProperties,
+                             AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler,
+                             AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler,
+                             AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler,
+                             Http401UnauthorizedEntryPoint authenticationEntryPoint,
+                             UserDetailsService userDetailsService,
+                             RememberMeServices rememberMeServices
+    ) {
+        this.environment = environment;
+        this.securityProperties = securityProperties;
+        this.ajaxAuthenticationSuccessHandler = ajaxAuthenticationSuccessHandler;
+        this.ajaxAuthenticationFailureHandler = ajaxAuthenticationFailureHandler;
+        this.ajaxLogoutSuccessHandler = ajaxLogoutSuccessHandler;
+        this.authenticationEntryPoint = authenticationEntryPoint;
+        this.userDetailsService = userDetailsService;
+        this.rememberMeServices = rememberMeServices;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -117,7 +129,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(WebSecurity web) {
         web.ignoring()
                 .antMatchers("/scripts/**/*.{js,html}")
                 .antMatchers("/bower_components/**")
@@ -181,7 +193,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/experiment_files").hasAnyAuthority(EXPERIMENT_CREATORS)
                 .antMatchers(HttpMethod.DELETE, "/api/experiment_files/**").hasAnyAuthority(EXPERIMENT_CREATORS)
                 // experiment resource
-                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_READERS)
+                //this request secured with method security
+                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/*/experiments").authenticated()
                 .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/*/experiments/all").hasAuthority(CONTENT_EDITOR.name())
                 .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/*/experiments/**").hasAnyAuthority(EXPERIMENT_READERS)
                 .antMatchers(HttpMethod.POST, "/api/projects/*/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_CREATORS)
@@ -190,7 +203,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT, "/api/projects/*/notebooks/*/experiments/**").hasAnyAuthority(EXPERIMENT_CREATORS)
                 .antMatchers(HttpMethod.DELETE, "/api/projects/*/notebooks/*/experiments/**").hasAnyAuthority(EXPERIMENT_REMOVERS)
                 // notebook resource
-                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks").hasAnyAuthority(NOTEBOOK_READERS)
+                //this request secured with method security
+                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks").authenticated()
                 .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/all").hasAuthority(CONTENT_EDITOR.name())
                 .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/**").hasAnyAuthority(NOTEBOOK_READERS)
                 .antMatchers(HttpMethod.POST, "/api/projects/*/notebooks").hasAnyAuthority(NOTEBOOK_CREATORS)
