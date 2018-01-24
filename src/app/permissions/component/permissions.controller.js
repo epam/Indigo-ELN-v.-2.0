@@ -1,5 +1,5 @@
 /* @ngInject */
-function PermissionsController($uibModalInstance, permissionService, users, permissions,
+function PermissionsController($uibModalInstance, permissionService, users, permissions, $state,
                                permissionsConstant, notifyService, alertModal, i18en, userPermissions) {
     var vm = this;
 
@@ -39,7 +39,7 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
             return;
         }
 
-        var views = permissionService.getPossiblePermissionViews();
+        var views = permissionService.getPossiblePermissionViews($state.current.data.entityType);
         // VIEWER as default permission
         var permissionView = _.find(views, {id: userPermissions.VIEWER.id});
 
@@ -56,7 +56,7 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
         var accessList = angular.copy(permissionService.getAccessList());
 
         _.forEach(accessList, function(permission) {
-            permission.views = permissionService.getPossiblePermissionViews();
+            permission.views = permissionService.getPossiblePermissionViews($state.current.data.entityType);
             permission.isAuthor = permissionService.isAuthor(permission.user);
         });
 

@@ -1,3 +1,4 @@
+/*
 var roles = {
     PROJECT_READER: 'PROJECT_READER',
     PROJECT_CREATOR: 'PROJECT_CREATOR',
@@ -15,6 +16,7 @@ var roles = {
     TEMPLATE_EDITOR: 'TEMPLATE_EDITOR',
     DICTIONARY_EDITOR: 'DICTIONARY_EDITOR'
 };
+*/
 
 var userPermissions = {
     VIEWER: {
@@ -43,78 +45,25 @@ describe('service: permissionService', function() {
 
     describe('getPossiblePermissionViews', function() {
         it('project', function() {
-            var projectOwner = {
-                authorities: [
-                    roles.PROJECT_READER,
-                    roles.PROJECT_CREATOR,
-                    roles.NOTEBOOK_READER,
-                    roles.NOTEBOOK_CREATOR
-                ]
-            };
-
-            var projectUser = {
-                authorities: [roles.PROJECT_READER, roles.NOTEBOOK_READER, roles.NOTEBOOK_CREATOR]
-            };
-            var projectViewer = {
-                authorities: [roles.PROJECT_READER]
-            };
-
-            expect(permissionService.getPossiblePermissionViews(projectOwner, 'project')).toEqual([
-                userPermissions.OWNER,
+            expect(permissionService.getPossiblePermissionViews('project')).toEqual([
+                userPermissions.VIEWER,
                 userPermissions.USER,
-                userPermissions.VIEWER
-            ]);
-            expect(permissionService.getPossiblePermissionViews(projectUser, 'project')).toEqual([
-                userPermissions.USER,
-                userPermissions.VIEWER
-            ]);
-            expect(permissionService.getPossiblePermissionViews(projectViewer, 'project')).toEqual([
-                userPermissions.VIEWER
+                userPermissions.OWNER
             ]);
         });
 
         it('notebook', function() {
-            var owner = {
-                authorities: [
-                    roles.NOTEBOOK_READER,
-                    roles.NOTEBOOK_CREATOR,
-                    roles.EXPERIMENT_READER,
-                    roles.EXPERIMENT_CREATOR
-                ]
-            };
-
-            var user = {authorities: [roles.NOTEBOOK_READER, roles.EXPERIMENT_READER, roles.EXPERIMENT_CREATOR]};
-
-            var viewer = {authorities: [roles.NOTEBOOK_READER]};
-
-            expect(permissionService.getPossiblePermissionViews(owner, 'notebook')).toEqual([
-                userPermissions.OWNER,
+            expect(permissionService.getPossiblePermissionViews('notebook')).toEqual([
+                userPermissions.VIEWER,
                 userPermissions.USER,
-                userPermissions.VIEWER
-            ]);
-            expect(permissionService.getPossiblePermissionViews(user, 'notebook')).toEqual([
-                userPermissions.USER,
-                userPermissions.VIEWER
-            ]);
-            expect(permissionService.getPossiblePermissionViews(viewer, 'notebook')).toEqual([
-                userPermissions.VIEWER
+                userPermissions.OWNER
             ]);
         });
 
         it('experiment', function() {
-            var owner = {
-                authorities: [roles.EXPERIMENT_READER, roles.EXPERIMENT_CREATOR]
-            };
-
-            var viewer = {authorities: [roles.EXPERIMENT_READER]};
-
-            expect(permissionService.getPossiblePermissionViews(owner, 'experiment')).toEqual([
-                userPermissions.OWNER,
-                userPermissions.VIEWER
-            ]);
-
-            expect(permissionService.getPossiblePermissionViews(viewer, 'experiment')).toEqual([
-                userPermissions.VIEWER
+            expect(permissionService.getPossiblePermissionViews('experiment')).toEqual([
+                userPermissions.VIEWER,
+                userPermissions.OWNER
             ]);
         });
     });

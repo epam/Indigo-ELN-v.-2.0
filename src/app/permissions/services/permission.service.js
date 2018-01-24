@@ -44,8 +44,14 @@ function permissionService($q, principalService, userRemovableFromProjectService
      * Returns ordered views by a capacity role.
      * @return {Array}
      */
-    function getPossiblePermissionViews() {
-        return _.map(userPermissions);
+    function getPossiblePermissionViews(entityType) {
+        var permissionsList = _.map(userPermissions);
+
+        if (entityType === 'experiment') {
+            _.pull(permissionsList, userPermissions.USER);
+        }
+
+        return permissionsList;
     }
 
     function isContentEditor(user) {
