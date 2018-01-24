@@ -71,6 +71,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             case stoichReactantsColumns.fullNbkBatch.id:
                 // Update row based on selected notebook batch number
                 onNbkBatchNumberChanged(changedRow);
+                recalculateStoichTable(rows, changedRow, changedField);
                 break;
             case stoichReactantsColumns.rxnRole.id:
                 updatePrecursors();
