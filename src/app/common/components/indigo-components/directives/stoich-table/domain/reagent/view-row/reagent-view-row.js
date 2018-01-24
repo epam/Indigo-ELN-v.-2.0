@@ -46,14 +46,9 @@ function setRowProperties(defaultProps, customProps) {
             } else {
                 defaultProps.prevRxnRole.name = defaultProps[key].name;
             }
+        } else {
+            defaultProps[key] = value;
         }
-    });
-
-    // Replace default values and add missing from given customProps obj
-    _.assignWith(defaultProps, customProps, function(defaultValue, valueFromJson) {
-        return _.isNil(defaultValue)
-            ? valueFromJson
-            : defaultValue;
     });
 }
 

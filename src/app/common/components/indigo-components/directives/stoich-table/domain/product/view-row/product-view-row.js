@@ -30,14 +30,9 @@ function setRowProperties(defaultProps, customProps) {
             defaultProps[key].value = value.value;
             defaultProps[key].prevValue = value.prevValue ? value.prevValue : value.value;
             defaultProps[key].entered = value.entered;
+        } else {
+            defaultProps[key] = value;
         }
-    });
-
-    // Replace default values and add missing from given customProps obj
-    _.assignWith(defaultProps, customProps, function(defaultValue, valueFromJson) {
-        return _.isNil(defaultValue)
-            ? valueFromJson
-            : defaultValue;
     });
 }
 
