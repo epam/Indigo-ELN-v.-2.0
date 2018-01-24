@@ -10,11 +10,7 @@ function experimentDetail() {
     };
 }
 
-ExperimentDetailController.$inject = ['$scope', '$state', '$stateParams', 'experimentService', 'experimentUtil',
-    'permissionService', 'fileUploader', 'entitiesBrowserService', 'autorecoveryHelper', 'notifyService',
-    'entitiesCache', '$q', 'principalService', 'notebookService', 'typeOfComponents',
-    'autorecoveryCache', 'confirmationModal', 'entityHelper', 'apiUrl', 'componentsUtil'];
-
+/* @ngInject */
 function ExperimentDetailController($scope, $state, $stateParams, experimentService, experimentUtil,
                                     permissionService, fileUploader, entitiesBrowserService,
                                     autorecoveryHelper, notifyService, entitiesCache, $q,
