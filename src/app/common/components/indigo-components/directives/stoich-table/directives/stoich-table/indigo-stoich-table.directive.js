@@ -374,7 +374,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
 
         if (_.isEmpty(reactantsInfo) || stoicReactants.length !== reactantsInfo.length) {
             _.forEach(reactantsInfo, function(reactant) {
-                if (!findLikedReactant(reactant) && stoichTableHelper.isReactantWithMolfile(reactant)) {
+                if (!findLikedReactant(reactant) && stoichTableHelper.hasMolfile(reactant)) {
                     reactantsToSearch.push(reactant);
                 }
             });
