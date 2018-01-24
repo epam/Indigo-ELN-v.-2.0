@@ -11,7 +11,8 @@ function stoichTableHelper(reagentsCalculation, productsCalculation, calculation
         convertToProductViewRow: convertToProductViewRow,
         getPrecursors: getPrecursors,
         getReactantsWithMolfile: getReactantsWithMolfile,
-        isReactantWithMolfile: isReactantWithMolfile
+        isReactantWithMolfile: isReactantWithMolfile,
+        hasMolfile: hasMolfile
     };
 
     function onReagentsChanged(change) {
@@ -46,8 +47,12 @@ function stoichTableHelper(reagentsCalculation, productsCalculation, calculation
         })).join(', ');
     }
 
+    function hasMolfile(item) {
+        return item.structure && item.structure.molfile;
+    }
+
     function isReactantWithMolfile(item) {
-        return item.structure && item.structure.molfile && isReactant(item);
+        return hasMolfile(item) && isReactant(item);
     }
 
     function getReactantsWithMolfile(stoichReactants) {
