@@ -1,5 +1,6 @@
 package com.epam.indigoeln.web.rest.util;
 
+import com.epam.indigoeln.core.model.BasicModelObject;
 import com.epam.indigoeln.core.model.PermissionCreationLevel;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.model.UserPermission;
@@ -13,6 +14,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.epam.indigoeln.core.model.UserPermission.OWNER_PERMISSIONS;
+import static java.util.stream.Collectors.toSet;
 
 public final class PermissionUtil {
 
@@ -80,7 +82,7 @@ public final class PermissionUtil {
         if (userPermission != null) {
             accessList.remove(userPermission);
         }
-        UserPermission newUserPermission = new UserPermission(user, OWNER_PERMISSIONS, permissionCreationLevel);
+        UserPermission newUserPermission = new UserPermission(user, OWNER_PERMISSIONS, permissionCreationLevel, false);
         accessList.add(newUserPermission);
     }
 
@@ -176,5 +178,64 @@ public final class PermissionUtil {
                 && currentLevel != null
                 && Comparator.comparing(PermissionCreationLevel::ordinal)
                 .compare(changingPermissionLevel, currentLevel) >= 0;
+    }
+
+    /**
+     * Compare actual entity accessList and newUserPermissions and returns permissions that should be removed from accessList.
+     *
+     * @param entity             modifying entity
+     * @param newUserPermissions applied permission list
+     * @return permissions that should be removed from accessList
+     */
+    public static Set<UserPermission> getRemovedPermissions(BasicModelObject entity,
+                                                            Set<UserPermission> newUserPermissions) {
+        return entity.getAccessList().stream()
+                .filter(UserPermission::isRemovable)
+                .filter(oldPermission ->
+                        newUserPermissions.stream()
+                                .noneMatch(newPermission -> equalsByUserId(oldPermission, newPermission)))
+                .collect(toSet());
+    }
+
+    /**
+     * Compare actual entity accessList and newUserPermissions and returns updated permissions.
+     * <p>
+     * This method also sets creationLevel as permissionCreationLevel for updated permission.
+     *
+     * @param entity             modifying entity
+     * @param newUserPermissions applied permission list
+     * @param creationLevel      level of applying
+     * @return updated permissions
+     */
+    public static Set<UserPermission> getUpdatedPermissions(BasicModelObject entity,
+                                                            Set<UserPermission> newUserPermissions,
+                                                            PermissionCreationLevel creationLevel
+    ) {
+        return newUserPermissions.stream()
+                .filter(newPermission -> entity.getAccessList().stream().anyMatch(oldPermission ->
+                        equalsByUserId(newPermission, oldPermission)
+                                && !oldPermission.getPermissions().equals(newPermission.getPermissions())))
+                .map(userPermission -> userPermission.setPermissionCreationLevel(creationLevel))
+                .collect(toSet());
+    }
+
+    /**
+     * Compare actual entity accessList and newUserPermissions and returns new permissions.
+     *
+     * @param entity             modifying entity
+     * @param newUserPermissions applied permission list
+     * @param creationLevel      level of applying
+     * @return new permissions
+     */
+    public static Set<UserPermission> getCreatedPermission(BasicModelObject entity,
+                                                           Set<UserPermission> newUserPermissions,
+                                                           PermissionCreationLevel creationLevel
+    ) {
+        return newUserPermissions.stream()
+                .filter(newPermission -> entity.getAccessList().stream()
+                        .noneMatch(oldPermission ->
+                                equalsByUserId(newPermission, oldPermission)))
+                .map(userPermission -> userPermission.setPermissionCreationLevel(creationLevel))
+                .collect(toSet());
     }
 }

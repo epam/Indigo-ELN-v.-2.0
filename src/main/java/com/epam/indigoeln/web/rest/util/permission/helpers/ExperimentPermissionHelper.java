@@ -8,8 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.epam.indigoeln.core.model.PermissionCreationLevel.EXPERIMENT;
-import static com.epam.indigoeln.web.rest.util.PermissionUtil.findPermissionsByUserId;
-import static com.epam.indigoeln.web.rest.util.PermissionUtil.hasUser;
+import static com.epam.indigoeln.web.rest.util.PermissionUtil.*;
 import static java.util.stream.Collectors.toSet;
 
 public class ExperimentPermissionHelper {
@@ -142,12 +141,8 @@ public class ExperimentPermissionHelper {
         boolean notebookHadChanged = false;
         boolean projectHadChanged = false;
 
-        Set<UserPermission> createdPermissions = newUserPermissions.stream()
-                .filter(newPermission -> updatedExperiment.getAccessList().stream()
-                        .noneMatch(oldPermission ->
-                                PermissionUtil.equalsByUserId(newPermission, oldPermission)))
-                .map(userPermission -> userPermission.setPermissionCreationLevel(EXPERIMENT))
-                .collect(toSet());
+        Set<UserPermission> createdPermissions =
+                getCreatedPermission(updatedExperiment, newUserPermissions, EXPERIMENT);
 
         if (!createdPermissions.isEmpty()) {
             Pair<Boolean, Boolean> projectAndNotebookHadChanged =
@@ -157,20 +152,14 @@ public class ExperimentPermissionHelper {
             notebookHadChanged = projectAndNotebookHadChanged.getRight();
         }
 
-        Set<UserPermission> updatedPermissions = newUserPermissions.stream()
-                .filter(newPermission -> updatedExperiment.getAccessList().stream().anyMatch(oldPermission ->
-                        PermissionUtil.equalsByUserId(newPermission, oldPermission)
-                                && !oldPermission.getPermissions().equals(newPermission.getPermissions())))
-                .map(userPermission -> userPermission.setPermissionCreationLevel(EXPERIMENT))
-                .collect(toSet());
+        Set<UserPermission> updatedPermissions =
+                getUpdatedPermissions(updatedExperiment, newUserPermissions, EXPERIMENT);
 
         if (!updatedPermissions.isEmpty()) {
             updatePermission(updatedExperiment, updatedPermissions);
         }
 
-        Set<UserPermission> removedPermissions = updatedExperiment.getAccessList().stream().filter(oldPermission ->
-                newUserPermissions.stream().noneMatch(newPermission -> PermissionUtil.equalsByUserId(oldPermission, newPermission)))
-                .collect(toSet());
+        Set<UserPermission> removedPermissions = getRemovedPermissions(updatedExperiment, newUserPermissions);
 
         if (!removedPermissions.isEmpty()) {
 

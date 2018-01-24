@@ -1,15 +1,17 @@
 package com.epam.indigoeln.web.rest.util.permission.helpers;
 
-import com.epam.indigoeln.core.model.*;
-import com.epam.indigoeln.web.rest.util.PermissionUtil;
+import com.epam.indigoeln.core.model.Experiment;
+import com.epam.indigoeln.core.model.Notebook;
+import com.epam.indigoeln.core.model.Project;
+import com.epam.indigoeln.core.model.UserPermission;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.function.Function;
 
+import static com.epam.indigoeln.core.model.PermissionCreationLevel.PROJECT;
 import static com.epam.indigoeln.core.model.UserPermission.VIEWER_PERMISSIONS;
-import static com.epam.indigoeln.web.rest.util.PermissionUtil.findPermissionsByUserId;
-import static com.epam.indigoeln.web.rest.util.PermissionUtil.hasUser;
+import static com.epam.indigoeln.web.rest.util.PermissionUtil.*;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
@@ -93,17 +95,14 @@ public class ProjectPermissionHelper {
      * @param newUserPermissions permissions that should be applied
      * @return Map of updated notebooks and their updated experiments
      */
-    public static Map<Notebook, List<Experiment>> changeProjectPermissions(Project project, Set<UserPermission> newUserPermissions) {
+    public static Map<Notebook, List<Experiment>> changeProjectPermissions(Project project,
+                                                                           Set<UserPermission> newUserPermissions
+    ) {
 
         boolean allExperimentsAndNotebooksWasChanged = false;
         Map<Notebook, List<Experiment>> changedNotebooksAndExperiments = new HashMap<>();
 
-        Set<UserPermission> createdPermissions = newUserPermissions.stream()
-                .filter(newPermission -> project.getAccessList().stream()
-                        .noneMatch(oldPermission ->
-                                PermissionUtil.equalsByUserId(newPermission, oldPermission)))
-                .map(userPermission -> userPermission.setPermissionCreationLevel(PermissionCreationLevel.PROJECT))
-                .collect(toSet());
+        Set<UserPermission> createdPermissions = getCreatedPermission(project, newUserPermissions, PROJECT);
 
         if (!createdPermissions.isEmpty()) {
 
@@ -111,21 +110,14 @@ public class ProjectPermissionHelper {
             addPermissions(project, createdPermissions);
         }
 
-        Set<UserPermission> updatedPermissions = newUserPermissions.stream()
-                .filter(newPermission -> project.getAccessList().stream().anyMatch(oldPermission ->
-                        PermissionUtil.equalsByUserId(newPermission, oldPermission)
-                                && !oldPermission.getPermissions().equals(newPermission.getPermissions())))
-                .map(userPermission -> userPermission.setPermissionCreationLevel(PermissionCreationLevel.PROJECT))
-                .collect(toSet());
+        Set<UserPermission> updatedPermissions = getUpdatedPermissions(project, newUserPermissions, PROJECT);
 
         if (!updatedPermissions.isEmpty()) {
 
             changedNotebooksAndExperiments = updatePermissions(project, updatedPermissions);
         }
 
-        Set<UserPermission> removedPermissions = project.getAccessList().stream().filter(oldPermission ->
-                newUserPermissions.stream().noneMatch(newPermission -> PermissionUtil.equalsByUserId(oldPermission, newPermission)))
-                .collect(toSet());
+        Set<UserPermission> removedPermissions = getRemovedPermissions(project, newUserPermissions);
 
         if (!removedPermissions.isEmpty()) {
 
