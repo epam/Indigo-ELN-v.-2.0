@@ -128,200 +128,166 @@ public final class ChangeLogVersion10 {
 
     @ChangeSet(order = "04", author = "indigoeln", id = "04-initDataDictionaries")
     public void initDataDictionaries(DB db) {
-        DBCollection dictionary = db.getCollection("dictionary");
 
-        String message = "Dictionary with %s = %s already exists";
-        if (dictionary.findOne(THERAPEUTIC_AREA_ID) == null) {
-            dictionary.insert(
-                    createDictionary(THERAPEUTIC_AREA_ID, "Therapeutic Area", "Therapeutic Area",
-                            Arrays.asList(
-                                    createDictionaryWord("Obesity", null, true, 0),
-                                    createDictionaryWord("Diabet", null, true, 1),
-                                    createDictionaryWord("Pulmonology", null, true, 2),
-                                    createDictionaryWord("Cancer", null, true, 3)
-                            )));
-        } else {
-            LOGGER.warn(String.format(message, ID_KEY, THERAPEUTIC_AREA_ID));
-        }
+        List<DBObject> therapeuticAreaList = Arrays.asList(
+                createDictionaryWord("Obesity", null, true, 0),
+                createDictionaryWord("Diabet", null, true, 1),
+                createDictionaryWord("Pulmonology", null, true, 2),
+                createDictionaryWord("Cancer", null, true, 3)
+        );
+        createDictionary(THERAPEUTIC_AREA_ID, "Therapeutic Area", "Therapeutic Area",
+                therapeuticAreaList, db);
 
+        final List<DBObject> projectCodeList = Arrays.asList(
+                createDictionaryWord("Code 1", null, true, 0),
+                createDictionaryWord("Code 2", null, true, 1),
+                createDictionaryWord("Code 3", null, true, 2)
+        );
 
-        if (dictionary.findOne(PROJECT_CODE_ID) == null) {
-            dictionary.insert(
-                    createDictionary(PROJECT_CODE_ID, "Project Code & Name", "Project Code for "
-                            + "experiment details", Arrays.asList(
-                            createDictionaryWord("Code 1", null, true, 0),
-                            createDictionaryWord("Code 2", null, true, 1),
-                            createDictionaryWord("Code 3", null, true, 2)
-                    )));
-        } else {
-            LOGGER.warn(String.format(message, ID_KEY, PROJECT_CODE_ID));
-        }
+        createDictionary(PROJECT_CODE_ID, "Project Code & Name", "Project Code for "
+                + "experiment details", projectCodeList, db);
 
-        if (dictionary.findOne(SOURCE_ID) == null) {
-            dictionary.insert(
-                    createDictionary(SOURCE_ID, "Source", "Source", Arrays.asList(
-                            createDictionaryWord("Source1", null, true, 0),
-                            createDictionaryWord("Source2", null, true, 1)
-                    )));
-        } else {
-            LOGGER.warn(String.format(message, ID_KEY, SOURCE_ID));
-        }
+        final List<DBObject> sourceList = Arrays.asList(
+                createDictionaryWord("Source1", null, true, 0),
+                createDictionaryWord("Source2", null, true, 1)
+        );
 
+        createDictionary(SOURCE_ID, "Source", "Source", sourceList, db);
 
-        if (dictionary.findOne(SOURCE_DETAIL_ID) == null) {
-            dictionary.insert(
-                    createDictionary(SOURCE_DETAIL_ID, "Source Details", "Source Details", Arrays.asList(
-                            createDictionaryWord("Source Details1", null, true, 0),
-                            createDictionaryWord("Source Details2", null, true, 1),
-                            createDictionaryWord("Source Details3", null, true, 2)
-                    )));
-        } else {
-            LOGGER.warn(String.format(message, ID_KEY, SOURCE_DETAIL_ID));
-        }
+        final List<DBObject> sourceDetailsList = Arrays.asList(
+                createDictionaryWord("Source Details1", null, true, 0),
+                createDictionaryWord("Source Details2", null, true, 1),
+                createDictionaryWord("Source Details3", null, true, 2)
+        );
 
-        if (dictionary.findOne(STEREOISOMER_CODE_ID) == null) {
-            dictionary.insert(
-                    createDictionary(STEREOISOMER_CODE_ID, "Stereoisomer Code", "Stereoisomer Code",
-                            Arrays.asList(
-                                    createDictionaryWord("NOSTC", "Achiral - No Stereo Centers",
-                                            true, 0),
-                                    createDictionaryWord("AMESO", "Achiral - Meso Stereomers",
-                                            true, 1),
-                                    createDictionaryWord("CISTR", "Achiral - Cis/Trans Stereomers",
-                                            true, 2),
-                                    createDictionaryWord("SNENK", "Single Enantiomer (chirality known)",
-                                            true, 3),
-                                    createDictionaryWord("RMCMX", "Racemic (stereochemistry known)",
-                                            true, 4),
-                                    createDictionaryWord("ENENK", "Enantio-Enriched (chirality known)",
-                                            true, 5),
-                                    createDictionaryWord("DSTRK", "Diastereomers (stereochemistry known)",
-                                            true, 6),
-                                    createDictionaryWord("SNENU",
-                                            "Other - Single Enantiomer (chirality unknown)",
-                                            true, 7),
-                                    createDictionaryWord("LRCMX", "Other - Racemic (relative "
-                                            + "stereochemistry unknown)", true, 8),
-                                    createDictionaryWord("ENENU",
-                                            "Other - Enantio-Enriched (chirality unknown)",
-                                            true, 9),
-                                    createDictionaryWord("DSTRU", "Other - Diastereomers "
-                                            + "(relative stereochemistry unknown)", true, 10),
-                                    createDictionaryWord("UNKWN", "Other - Unknown Stereomer/Mixture",
-                                            true, 11),
-                                    createDictionaryWord("HSREG", "Flag for automatic stereoisomer "
-                                            + "code assignment for multi-registration", true, 12),
-                                    createDictionaryWord("ACHIR", "ACHIRAL", true, 13),
-                                    createDictionaryWord("HOMO", "HOMO-CHIRAL", true, 14),
-                                    createDictionaryWord("MESO", "MESO", true, 15),
-                                    createDictionaryWord("RACEM", "RACEMIC", true, 16),
-                                    createDictionaryWord("SCALE", "SCALEMIC", true, 17)
-                            )));
-        } else {
-            LOGGER.warn(String.format(message, ID_KEY, STEREOISOMER_CODE_ID));
-        }
+        createDictionary(SOURCE_DETAIL_ID, "Source Details", "Source Details", sourceDetailsList, db);
 
-        if (dictionary.findOne(COMPOUND_STATE_ID) == null) {
-            dictionary.insert(
-                    createDictionary(COMPOUND_STATE_ID, "Compound State", "Compound State", Arrays.asList(
-                            createDictionaryWord("Solid", null, true, 0),
-                            createDictionaryWord("Gas", null, true, 1),
-                            createDictionaryWord("oil", null, true, 2),
-                            createDictionaryWord("liquid", null, true, 3)
-                    )));
-        } else {
-            LOGGER.warn(String.format(message, ID_KEY, COMPOUND_STATE_ID));
-        }
+        final List<DBObject> stereoisomerCodeList = Arrays.asList(
+                createDictionaryWord("NOSTC", "Achiral - No Stereo Centers",
+                        true, 0),
+                createDictionaryWord("AMESO", "Achiral - Meso Stereomers",
+                        true, 1),
+                createDictionaryWord("CISTR", "Achiral - Cis/Trans Stereomers",
+                        true, 2),
+                createDictionaryWord("SNENK", "Single Enantiomer (chirality known)",
+                        true, 3),
+                createDictionaryWord("RMCMX", "Racemic (stereochemistry known)",
+                        true, 4),
+                createDictionaryWord("ENENK", "Enantio-Enriched (chirality known)",
+                        true, 5),
+                createDictionaryWord("DSTRK", "Diastereomers (stereochemistry known)",
+                        true, 6),
+                createDictionaryWord("SNENU",
+                        "Other - Single Enantiomer (chirality unknown)",
+                        true, 7),
+                createDictionaryWord("LRCMX", "Other - Racemic (relative "
+                        + "stereochemistry unknown)", true, 8),
+                createDictionaryWord("ENENU",
+                        "Other - Enantio-Enriched (chirality unknown)",
+                        true, 9),
+                createDictionaryWord("DSTRU", "Other - Diastereomers "
+                        + "(relative stereochemistry unknown)", true, 10),
+                createDictionaryWord("UNKWN", "Other - Unknown Stereomer/Mixture",
+                        true, 11),
+                createDictionaryWord("HSREG", "Flag for automatic stereoisomer "
+                        + "code assignment for multi-registration", true, 12),
+                createDictionaryWord("ACHIR", "ACHIRAL", true, 13),
+                createDictionaryWord("HOMO", "HOMO-CHIRAL", true, 14),
+                createDictionaryWord("MESO", "MESO", true, 15),
+                createDictionaryWord("RACEM", "RACEMIC", true, 16),
+                createDictionaryWord("SCALE", "SCALEMIC", true, 17)
+        );
 
-        if (dictionary.findOne(COMPOUND_PROTECTION_ID) == null) {
-            dictionary.insert(
-                    createDictionary(COMPOUND_PROTECTION_ID, "Compound Protection", "Compound Protection",
-                            Arrays.asList(
-                                    createDictionaryWord("Compound Protection1", null, true, 0),
-                                    createDictionaryWord("Compound Protection2", null, true, 1),
-                                    createDictionaryWord("Compound Protection3", null, true, 2)
-                            )));
-        } else {
-            LOGGER.warn(String.format(message, ID_KEY, COMPOUND_PROTECTION_ID));
-        }
+        createDictionary(STEREOISOMER_CODE_ID, "Stereoisomer Code",
+                "Stereoisomer Code", stereoisomerCodeList, db);
 
-        if (dictionary.findOne(SOLVENT_NAME_ID) == null) {
-            dictionary.insert(
-                    createDictionary(SOLVENT_NAME_ID, "Solvent Name", "Solvent Name", Arrays.asList(
-                            createDictionaryWord("Acetic acid", null, true, 0),
-                            createDictionaryWord("Hydrochloric acid", null, true, 1),
-                            createDictionaryWord("Fumaric acid", null, true, 2),
-                            createDictionaryWord("Formaldehyde", null, true, 3),
-                            createDictionaryWord("Sulfuric acid", null, true, 4)
-                    )));
-        } else {
-            LOGGER.warn(String.format(message, ID_KEY, SOLVENT_NAME_ID));
-        }
+        final List<DBObject> compoundStateList = Arrays.asList(
+                createDictionaryWord("Solid", null, true, 0),
+                createDictionaryWord("Gas", null, true, 1),
+                createDictionaryWord("oil", null, true, 2),
+                createDictionaryWord("liquid", null, true, 3)
+        );
 
-        if (dictionary.findOne(PURITY_ID) == null) {
-            dictionary.insert(
-                    createDictionary(PURITY_ID, "Purity", "Purity definition methods", Arrays.asList(
-                            createDictionaryWord("NMR", null, true, 0),
-                            createDictionaryWord("HPLC", null, true, 1),
-                            createDictionaryWord("LCMS", null, true, 2),
-                            createDictionaryWord("CHN", null, true, 3),
-                            createDictionaryWord("MS", null, true, 4)
-                    )));
-        } else {
-            LOGGER.warn(String.format(message, ID_KEY, PURITY_ID));
-        }
+        createDictionary(COMPOUND_STATE_ID, "Compound State", "Compound State", compoundStateList, db);
 
-        if (dictionary.findOne(HEALTH_HAZARDS_ID) == null) {
-            dictionary.insert(
-                    createDictionary(HEALTH_HAZARDS_ID, "Health Hazards", "Health Hazards", Arrays.asList(
-                            createDictionaryWord("Very Toxic", null, true, 0),
-                            createDictionaryWord("Explosive, Potential", null, true, 1),
-                            createDictionaryWord("Carcinogen", null, true, 2),
-                            createDictionaryWord("Corrosive - Acid", null, true, 3),
-                            createDictionaryWord("Mutagen", null, true, 4),
-                            createDictionaryWord("Flammable", null, true, 5)
-                    )));
-        } else {
-            LOGGER.warn(String.format(message, ID_KEY, HEALTH_HAZARDS_ID));
-        }
+        final List<DBObject> compoundProtectionList = Arrays.asList(
+                createDictionaryWord("Compound Protection1", null, true, 0),
+                createDictionaryWord("Compound Protection2", null, true, 1),
+                createDictionaryWord("Compound Protection3", null, true, 2)
+        );
 
-        if (dictionary.findOne(HANDLING_PRECAUTIONS_ID) == null) {
-            dictionary.insert(
-                    createDictionary(HANDLING_PRECAUTIONS_ID, "Handling Precautions",
-                            "Handling Precautions", Arrays.asList(
-                                    createDictionaryWord("Electrostatic", null, true, 0),
-                                    createDictionaryWord("Hygroscopic", null, true, 1),
-                                    createDictionaryWord("Oxidiser", null, true, 2),
-                                    createDictionaryWord("Air Sensitive", null, true, 3),
-                                    createDictionaryWord("Moisture Sensitive", null, true, 4)
-                            )));
-        } else {
-            LOGGER.warn(String.format(message, ID_KEY, HANDLING_PRECAUTIONS_ID));
-        }
+        createDictionary(COMPOUND_PROTECTION_ID, "Compound Protection",
+                "Compound Protection", compoundProtectionList, db);
 
-        if (dictionary.findOne(HANDLING_PRECAUTIONS_ID) == null) {
-            dictionary.insert(
-                    createDictionary(STORAGE_INSTRUCTIONS, "Storage Instructions",
-                            "Storage Instructions", Arrays.asList(
-                                    createDictionaryWord("No Special Storage Required", null,
-                                            true, 0),
-                                    createDictionaryWord("Store in Refrigerator", null, true, 1),
-                                    createDictionaryWord("Store Under Argon", null, true, 2),
-                                    createDictionaryWord("Keep tightly sealed", null, true, 3)
-                            )));
-        } else {
-            LOGGER.warn(String.format(message, ID_KEY, STORAGE_INSTRUCTIONS));
-        }
+        final List<DBObject> solventNameList = Arrays.asList(
+                createDictionaryWord("Acetic acid", null, true, 0),
+                createDictionaryWord("Hydrochloric acid", null, true, 1),
+                createDictionaryWord("Fumaric acid", null, true, 2),
+                createDictionaryWord("Formaldehyde", null, true, 3),
+                createDictionaryWord("Sulfuric acid", null, true, 4)
+        );
+
+        createDictionary(SOLVENT_NAME_ID, "Solvent Name", "Solvent Name", solventNameList, db);
+
+        final List<DBObject> purityList = Arrays.asList(
+                createDictionaryWord("NMR", null, true, 0),
+                createDictionaryWord("HPLC", null, true, 1),
+                createDictionaryWord("LCMS", null, true, 2),
+                createDictionaryWord("CHN", null, true, 3),
+                createDictionaryWord("MS", null, true, 4)
+        );
+
+        createDictionary(PURITY_ID, "Purity", "Purity definition methods", purityList, db);
+
+        final List<DBObject> healthHazardsList = Arrays.asList(
+                createDictionaryWord("Very Toxic", null, true, 0),
+                createDictionaryWord("Explosive, Potential", null, true, 1),
+                createDictionaryWord("Carcinogen", null, true, 2),
+                createDictionaryWord("Corrosive - Acid", null, true, 3),
+                createDictionaryWord("Mutagen", null, true, 4),
+                createDictionaryWord("Flammable", null, true, 5)
+        );
+
+        createDictionary(HEALTH_HAZARDS_ID, "Health Hazards", "Health Hazards", healthHazardsList, db);
+
+        final List<DBObject> handlingPrecautionsList = Arrays.asList(
+                createDictionaryWord("Electrostatic", null, true, 0),
+                createDictionaryWord("Hygroscopic", null, true, 1),
+                createDictionaryWord("Oxidiser", null, true, 2),
+                createDictionaryWord("Air Sensitive", null, true, 3),
+                createDictionaryWord("Moisture Sensitive", null, true, 4)
+        );
+
+        createDictionary(HANDLING_PRECAUTIONS_ID, "Handling Precautions",
+                "Handling Precautions", handlingPrecautionsList, db);
+
+        final List<DBObject> storageInstructionsList = Arrays.asList(
+                createDictionaryWord("No Special Storage Required", null,
+                        true, 0),
+                createDictionaryWord("Store in Refrigerator", null, true, 1),
+                createDictionaryWord("Store Under Argon", null, true, 2),
+                createDictionaryWord("Keep tightly sealed", null, true, 3)
+        );
+
+        createDictionary(STORAGE_INSTRUCTIONS, "Storage Instructions",
+                "Storage Instructions", storageInstructionsList, db);
+
     }
 
-    private DBObject createDictionary(String id, String name, String description, List<DBObject> words) {
-        return BasicDBObjectBuilder.start()
-                .add(ID_KEY, id)
-                .add("name", name)
-                .add("description", description)
-                .add("words", words)
-                .add("accessList", Collections.emptyList())
-                .get();
+    private void createDictionary(String id, String name, String description, List<DBObject> words, DB db) {
+        DBCollection dictionary = db.getCollection("dictionary");
+        String message = "Dictionary with %s = %s already exists";
+        if (dictionary.findOne(id) == null) {
+            dictionary.insert(BasicDBObjectBuilder.start()
+                    .add(ID_KEY, id)
+                    .add("name", name)
+                    .add("description", description)
+                    .add("words", words)
+                    .add("accessList", Collections.emptyList())
+                    .get());
+        } else {
+            LOGGER.warn(String.format(message, ID_KEY, id));
+        }
     }
 
     private DBObject createDictionaryWord(String name, String description, boolean enable, int rank) {
