@@ -52,7 +52,7 @@ function EditableCellController($scope, unitsConverter, roundFilter, notifyServi
             return false;
         }
 
-        return _.isEmpty(obj) || obj.value === '0' || obj.value === 0;
+        return _.isEmpty(obj) || obj.value === '0' || obj.value === 0 || obj.value === null;
     }
 
     function closeThis() {
