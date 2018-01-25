@@ -282,11 +282,9 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
     }
 
     function onSaveError(result) {
-        if (result.status === 400 && result.data.params) {
-            var firstParam = _.first(result.data.params);
-            if (result.data.params.length > 1 || firstParam.indexOf('-') > -1) {
-                notifyService.error('This Notebook name cannot be changed because batches are created within its' +
-                    ' experiments');
+        if (result.status === 400) {
+            if (result.data && result.data.message) {
+                notifyService.error(result.data.message);
             } else {
                 notifyService.error('This Notebook name is already in use in the system');
             }
