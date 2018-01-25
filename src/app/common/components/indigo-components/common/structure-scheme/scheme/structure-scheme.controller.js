@@ -117,7 +117,11 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
         isEmptyStructure(structure)
             .then(function(result) {
                 if (result.empty) {
-                    setStructure();
+                    setRenderedStructure({
+                        molfile: null,
+                        structureId: null,
+                        image: null
+                    });
                 } else {
                     $http({
                         url: apiUrl + 'bingodb/' + vm.structureType + '/',
