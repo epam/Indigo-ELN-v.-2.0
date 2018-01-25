@@ -85,7 +85,7 @@
     "description": "Experiment creator",
     "tooltip": "Allow to create / update Experiment",
     "group": "experiment",
-    "dependencies": ["NOTEBOOK_READER", "EXPERIMENT_READER"]
+    "dependencies": ["EXPERIMENT_READER"]
   },
   {
     "name": "EXPERIMENT_REMOVER",

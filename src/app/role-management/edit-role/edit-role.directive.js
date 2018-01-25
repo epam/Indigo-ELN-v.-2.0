@@ -38,6 +38,15 @@ function EditRoleController($scope, notifyService, roleService, alertModal, i18e
         $scope.$watch('vm.role', function(role) {
             initAuthorities(role);
 
+            // Lock dependencies
+            _.each(vm.authorities, function(authorityGroup) {
+                _.each(authorityGroup, function(authority) {
+                    if (authority.dependencies) {
+                        checkDependenciesAuthorities(authority, vm.model[authority.name]);
+                    }
+                });
+            });
+
             // Reset form state after role select
             $scope.editRoleForm.$setPristine();
             originalRole = angular.copy(role);
@@ -58,13 +67,25 @@ function EditRoleController($scope, notifyService, roleService, alertModal, i18e
                     showWarning(dependenceName);
                 }
                 vm.model[dependenceName] = isChecked;
+
+                // Check subsequent dependencies
+                checkDependenciesAuthorities(_.find(authorities, {name: dependenceName}), isChecked);
             }
 
             var dependantAuthority = _.find(authorities, {name: dependenceName});
             var foundDependence = _.find(vm.authorities[dependantAuthority.group], {name: dependenceName});
 
             if (foundDependence) {
-                foundDependence.isDepended = isChecked;
+                // Check if there are other authorities that depend upon foundDependence
+                var isBeingDependent = _.some(authorities, function(authorityItem) {
+                    var authorityHasThisDependence = authorityItem.dependencies &&
+                        authorityItem.dependencies.indexOf(foundDependence.name) !== -1;
+                    var authorityIsChecked = vm.model[authorityItem.name];
+
+                    return authorityHasThisDependence && authorityIsChecked;
+                });
+
+                foundDependence.isDepended = isChecked || isBeingDependent;
             }
         });
     }
