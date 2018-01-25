@@ -108,11 +108,25 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
             (hasCreateChildAuthority && permissionService.hasPermission(roles.CREATE_SUB_ENTITY));
     }
 
+    function restoreVersion() {
+        vm.notebook.version = originalNotebook.version;
+    }
+
     function bindEvents() {
         $scope.$on('entity-updated', function(event, data) {
             vm.loading.then(function() {
-                entityHelper.checkVersion(
-                    $stateParams, data, vm.notebook, entityTitle, vm.isEntityChanged, refresh
+                var currentEntity = {
+                    projectId: $stateParams.projectId,
+                    notebookId: $stateParams.notebookId,
+                    version: vm.notebook.version,
+                    type: 'Notebook',
+                    title: entityTitle
+                };
+                var updatedEntity = data.entity;
+                updatedEntity.version = data.version;
+
+                entityHelper.onEntityUpdate(
+                    currentEntity, updatedEntity, vm.isEntityChanged, refresh, restoreVersion
                 );
             });
         });

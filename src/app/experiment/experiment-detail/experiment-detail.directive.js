@@ -329,11 +329,26 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         }
     }
 
+    function restoreVersion() {
+        vm.experiment.version = originalExperiment.version;
+    }
+
     function initEventListeners() {
         $scope.$on('entity-updated', function(event, data) {
             vm.loading.then(function() {
-                entityHelper.checkVersion(
-                    $stateParams, data, vm.experiment, entityTitle, vm.isEntityChanged, refresh
+                var currentEntity = {
+                    projectId: params.projectId,
+                    notebookId: params.notebookId,
+                    experimentId: params.experimentId,
+                    version: vm.experiment.version,
+                    type: 'Experiment',
+                    title: entityTitle
+                };
+                var updatedEntity = data.entity;
+                updatedEntity.version = data.version;
+
+                entityHelper.onEntityUpdate(
+                    currentEntity, updatedEntity, vm.isEntityChanged, refresh, restoreVersion
                 );
             });
         });

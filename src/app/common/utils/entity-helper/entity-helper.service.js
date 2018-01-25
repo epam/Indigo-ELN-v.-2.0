@@ -1,99 +1,98 @@
 /* @ngInject */
-function entityHelper(CacheFactory, tabKeyService, confirmationModal, notifyService, entityTreeService) {
-    var versionCache = CacheFactory.get('versionCache') || CacheFactory('versionCache');
+function entityHelper(confirmationModal, notifyService, entityTreeService) {
     var isConflictConfirmOpen = false;
 
     return {
-        checkVersion: checkVersion
+        onEntityUpdate: onEntityUpdate
     };
 
-    function checkVersion($stateParams, data, currentEntity, entityTitle, isChanged, refreshClbk) {
-        var changedParentEntity = getChangedParentEntity(currentEntity.parentId, $stateParams, data.entity);
-        var hasChangeInTheEntity = _.isEqual($stateParams, data.entity) && data.version > currentEntity.version;
+    function onEntityUpdate(currentEntity, updatedEntity, hasUnsavedChanges, refreshCallback, rejectCallback) {
+        var hasChangeInTheEntity = isEqual(currentEntity, updatedEntity);
+
+        var updatedParentEntity = hasChangeInTheEntity
+            ? null
+            : getUpdatedParentEntity(currentEntity, updatedEntity);
 
         // If nothing changed in current entity or its parents do nothing
-        if (!changedParentEntity && !hasChangeInTheEntity) {
+        if ((!updatedParentEntity && !hasChangeInTheEntity) || updatedEntity.version <= currentEntity.version) {
             return;
-        }
-
-        versionCache.put(tabKeyService.getTabKeyFromParams($stateParams), data.version);
-
-        if (changedParentEntity) {
-            var parentEntity;
-
-            if (changedParentEntity.notebookId) {
-                parentEntity = entityTreeService.getNotebookById(changedParentEntity.notebookId);
-            } else {
-                parentEntity = entityTreeService.getProjectById(changedParentEntity.projectId);
-            }
-
-            changedParentEntity.name = _.get(parentEntity, 'name', null);
         }
 
         // Has local changes which could be saved before update
-        if (isChanged) {
-            if (isConflictConfirmOpen) {
-                return;
-            }
-
-            isConflictConfirmOpen = confirmationModal
-                .openEntityVersionsConflictConfirm(entityTitle)
-                .then(refreshClbk, function() {
-                    currentEntity.version = versionCache.get(tabKeyService.getTabKeyFromParams($stateParams));
-                })
-                .finally(function() {
-                    isConflictConfirmOpen = false;
-                });
+        if (hasUnsavedChanges) {
+            displayConflictModal(currentEntity.title, refreshCallback, rejectCallback);
 
             return;
         }
 
-        refreshClbk().then(function() {
-            var message = entityTitle + ' has been changed by another user and had been reloaded';
-            var currentEntityType = $stateParams.experimentId ? 'experiment' : 'notebook';
-
-            if (changedParentEntity) {
-                message = changedParentEntity.type + ' ' + changedParentEntity.name +
-                    ' has been changed by another user and current ' + currentEntityType + ' ' +
-                    entityTitle + ' had been reloaded';
-            }
-
-            notifyService.info(message);
+        refreshCallback().then(function() {
+            displayUpdateNotification(currentEntity, updatedParentEntity);
         });
     }
 
-    function getChangedParentEntity(parentId, currentEntity, changedEntity) {
-        if (!parentId || _.isEqual(currentEntity, changedEntity)) {
-            return null;
+    function displayConflictModal(entityTitle, refreshCallback, rejectCallback) {
+        if (isConflictConfirmOpen) {
+            return;
         }
 
-        var parentNotebook = currentEntity.notebookId;
-        var parentProject = currentEntity.projectId;
+        isConflictConfirmOpen = true;
 
-        if (parentNotebook) {
-            var parentNotebookEntity = {
-                notebookId: parentNotebook,
-                projectId: parentProject
-            };
+        confirmationModal
+            .openEntityVersionsConflictConfirm(entityTitle)
+            .then(refreshCallback, rejectCallback)
+            .finally(function() {
+                isConflictConfirmOpen = false;
+            });
+    }
 
-            if (_.isEqual(changedEntity, parentNotebookEntity)) {
-                parentNotebookEntity.type = 'Notebook';
+    function displayUpdateNotification(currentEntity, updatedParentEntity) {
+        var message = currentEntity.title + ' has been changed by another user and had been reloaded';
+        var currentEntityType = currentEntity.experimentId ? 'experiment' : 'notebook';
 
-                return parentNotebookEntity;
-            }
+        if (updatedParentEntity) {
+            message = updatedParentEntity.type + ' ' + updatedParentEntity.title +
+                ' has been changed by another user and current ' + currentEntityType + ' ' +
+                currentEntity.title + ' had been reloaded';
         }
 
-        var parentProjectEntity = {
-            projectId: parentProject
+        notifyService.info(message);
+    }
+
+    function getUpdatedParentEntity(currentEntity, updatedEntity) {
+        var parentEntity = {
+            projectId: currentEntity.projectId,
+            type: 'Project'
         };
+        var isNotebook = updatedEntity.notebookId;
+        var entityObject;
 
-        if (_.isEqual(changedEntity, parentProjectEntity)) {
-            parentProjectEntity.type = 'Project';
+        if (isNotebook) {
+            entityObject = entityTreeService.getNotebookById(currentEntity.projectId, currentEntity.notebookId);
+            parentEntity.notebookId = currentEntity.notebookId;
+            parentEntity.type = 'Notebook';
+        } else {
+            entityObject = entityTreeService.getProjectById(currentEntity.projectId);
+        }
 
-            return parentProjectEntity;
+        parentEntity.title = _.get(entityObject, 'name', null);
+
+        if (isEqual(updatedEntity, parentEntity)) {
+            return parentEntity;
         }
 
         return null;
+    }
+
+    /**
+     * Checks if entities are equal comparing their Ids.
+     * Notebook or experiment Ids may be undefined for projects and notebooks.
+     * @param entity1
+     * @param entity2
+     */
+    function isEqual(entity1, entity2) {
+        return entity1.projectId === entity2.projectId &&
+            entity1.notebookId === entity2.notebookId &&
+            entity1.experimentId === entity2.experimentId;
     }
 }
 

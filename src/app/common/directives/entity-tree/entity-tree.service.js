@@ -21,7 +21,6 @@ function entityTreeService(allProjectsService, $injector, allNotebooksService, a
         getExperiments: getExperiments,
         getProjectById: getProjectById,
         getNotebookById: getNotebookById,
-        getExperimentById: getExperimentById,
         updateStatus: updateStatus,
         allNodesByFullId: allNodesByFullId,
         getFullIdFromParams: getFullIdFromParams,
@@ -246,12 +245,10 @@ function entityTreeService(allProjectsService, $injector, allNotebooksService, a
         return projectsMap[projectId];
     }
 
-    function getNotebookById(notebookId) {
-        return notebooksMap[notebookId];
-    }
+    function getNotebookById(projectId, notebookId) {
+        var projectNotebooks = _.get(notebooksMap, projectId, []);
 
-    function getExperimentById(experimentId) {
-        return experimentsMap[experimentId];
+        return _.find(projectNotebooks, {id: notebookId});
     }
 }
 

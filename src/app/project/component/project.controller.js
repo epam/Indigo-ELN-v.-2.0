@@ -162,11 +162,24 @@ function ProjectController($scope, $state, projectService, notifyService, permis
         entitiesBrowserService.changeDirtyTab($stateParams, isDirty);
     }
 
+    function restoreVersion() {
+        vm.project.version = originalProject.version;
+    }
+
     function initDirtyListener() {
         $scope.$on('entity-updated', function(event, data) {
             vm.loading.then(function() {
-                entityHelper.checkVersion(
-                    $stateParams, data, vm.project, entityTitle, vm.isEntityChanged, refresh
+                var currentEntity = {
+                    projectId: $stateParams.projectId,
+                    version: vm.project.version,
+                    type: 'Project',
+                    title: entityTitle
+                };
+                var updatedEntity = data.entity;
+                updatedEntity.version = data.version;
+
+                entityHelper.onEntityUpdate(
+                    currentEntity, updatedEntity, vm.isEntityChanged, refresh, restoreVersion
                 );
             });
         });
