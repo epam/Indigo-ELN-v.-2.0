@@ -13,7 +13,8 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.epam.indigoeln.core.model.UserPermission.OWNER_PERMISSIONS;
+import static com.epam.indigoeln.core.model.PermissionCreationLevel.NOTEBOOK;
+import static com.epam.indigoeln.core.model.UserPermission.*;
 import static java.util.stream.Collectors.toSet;
 
 public final class PermissionUtil {
@@ -78,12 +79,9 @@ public final class PermissionUtil {
                                             User user,
                                             PermissionCreationLevel permissionCreationLevel
     ) {
-        UserPermission userPermission = findPermissionsByUserId(accessList, user.getId());
-        if (userPermission != null) {
-            accessList.remove(userPermission);
-        }
-        UserPermission newUserPermission = new UserPermission(user, OWNER_PERMISSIONS, permissionCreationLevel, false);
-        accessList.add(newUserPermission);
+        accessList.removeIf(up -> up.getUser().getId().equals(user.getId()));
+        UserPermission ownerPermission = new UserPermission(user, OWNER_PERMISSIONS, permissionCreationLevel, false);
+        accessList.add(ownerPermission);
     }
 
     /**
@@ -98,9 +96,13 @@ public final class PermissionUtil {
                                               PermissionCreationLevel upperPermissionsLevel
     ) {
         upperLevelUserPermissions.forEach(up -> {
-            if (canBeAddedFromUpperLevel(upperPermissionsLevel, up)) {
+            if (canBeAddedFromUpperLevel(upperPermissionsLevel, up) && !hasUser(accessList, up.getUser())) {
                 accessList.add(new UserPermission(
-                        up.getUser(), up.getPermissions(), up.getPermissionCreationLevel()));
+                        up.getUser(),
+                        (upperPermissionsLevel.equals(NOTEBOOK) && up.getPermissionView().equals(USER)) ?
+                                VIEWER_PERMISSIONS : up.getPermissions(),
+                        up.getPermissionCreationLevel(),
+                        up.isRemovable()));
             }
         });
     }

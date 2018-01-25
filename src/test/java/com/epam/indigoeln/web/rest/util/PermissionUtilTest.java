@@ -111,7 +111,7 @@ public class PermissionUtilTest {
         HashSet<UserPermission> accessList = new HashSet<>();
 
         UserPermission projectLevelUserPermission = new UserPermission(new User(), OWNER_PERMISSIONS, PROJECT);
-        UserPermission notebookLevelUserPermission = new UserPermission(testUser, USER_PERMISSIONS, NOTEBOOK);
+        UserPermission notebookLevelUserPermission = new UserPermission(testUser, VIEWER_PERMISSIONS, NOTEBOOK);
         UserPermission experimentLevelUserPermission = new UserPermission(otherTestUser, OWNER_PERMISSIONS, EXPERIMENT);
 
         HashSet<UserPermission> upperLevelUserPermissions =

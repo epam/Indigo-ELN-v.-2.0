@@ -94,22 +94,21 @@ public class ExperimentPermissionHelper {
             UserPermission presentedPermission =
                     findPermissionsByUserId(experiment.getAccessList(), updatedPermission.getUser().getId());
 
+            if (updatedPermission.getPermissionView().equals(UserPermission.USER)) {
+                updatedPermission = new UserPermission(updatedPermission.getUser(),
+                        UserPermission.VIEWER_PERMISSIONS, updatedPermission.getPermissionCreationLevel(),
+                        updatedPermission.isRemovable());
+            }
             if (presentedPermission == null) {
 
                 experiment.getAccessList().add(updatedPermission);
                 experimentWasChanged |= true;
 
-            } else if (updatedPermission.getPermissionCreationLevel().equals(EXPERIMENT)
-                    || !presentedPermission.getPermissionCreationLevel().equals(EXPERIMENT)) {
-                if (updatedPermission.getPermissionView().equals(UserPermission.USER)) {
-                    updatedPermission = new UserPermission(updatedPermission.getUser(),
-                            UserPermission.VIEWER_PERMISSIONS, updatedPermission.getPermissionCreationLevel());
-                }
-                if (!presentedPermission.getPermissionView().equals(updatedPermission.getPermissionView())) {
-                    experiment.getAccessList().remove(presentedPermission);
-                    experiment.getAccessList().add(updatedPermission);
-                    experimentWasChanged |= true;
-                }
+            } else if ((updatedPermission.getPermissionCreationLevel().equals(EXPERIMENT)
+                    || !presentedPermission.getPermissionCreationLevel().equals(EXPERIMENT))
+                    && !presentedPermission.getPermissionView().equals(updatedPermission.getPermissionView())) {
+                presentedPermission.setPermissions(updatedPermission.getPermissions());
+                experimentWasChanged |= true;
             }
         }
         return experimentWasChanged;
@@ -182,12 +181,13 @@ public class ExperimentPermissionHelper {
 
         Set<UserPermission> permissions = experiment.getAccessList();
         experiment.setAccessList(new HashSet<>());
-        PermissionUtil.addUsersFromUpperLevel(permissions, notebook.getAccessList(),
+        PermissionUtil.addUsersFromUpperLevel(experiment.getAccessList(), notebook.getAccessList(),
                 PermissionCreationLevel.NOTEBOOK);
 
-        PermissionUtil.addOwnerToAccessList(permissions, creator,
+        PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), creator,
                 PermissionCreationLevel.EXPERIMENT);
 
-        return changeExperimentPermissions(project, notebook, experiment, permissions);
+        updatePermission(experiment, getUpdatedPermissions(experiment, permissions, EXPERIMENT));
+        return addPermissions(project, notebook, experiment, getCreatedPermission(experiment, permissions, EXPERIMENT));
     }
 }

@@ -91,9 +91,10 @@ public class ExperimentPermissionHelperTest {
         UserPermission updatedPermission = new UserPermission(testUser, UserPermission.OWNER_PERMISSIONS, EXPERIMENT);
         ExperimentPermissionHelper.updatePermission(testExperiment, singleton(updatedPermission));
 
+        UserPermission viewerPermission = new UserPermission(testUser, UserPermission.VIEWER_PERMISSIONS, EXPERIMENT);
         assertThat(testExperiment.getAccessList(), hasItem(updatedPermission));
-        assertThat(testNotebook.getAccessList(), hasItem(presentedPermission));
-        assertThat(testProject.getAccessList(), hasItem(presentedPermission));
+        assertThat(testNotebook.getAccessList(), hasItem(viewerPermission));
+        assertThat(testProject.getAccessList(), hasItem(viewerPermission));
     }
 
     @Test

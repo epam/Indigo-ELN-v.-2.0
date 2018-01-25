@@ -99,9 +99,8 @@ public class NotebookPermissionHelper {
             } else if (updatedPermission.getPermissionCreationLevel().equals(NOTEBOOK)
                     || !currentUserPermission.getPermissionCreationLevel().equals(NOTEBOOK)) {
 
-                notebookAccessList.remove(currentUserPermission);
-                notebookAccessList.add(updatedPermission);
-                updatedNotebookPermissions.add(updatedPermission);
+                currentUserPermission.setPermissions(updatedPermission.getPermissions());
+                updatedNotebookPermissions.add(currentUserPermission);
             }
         }
 
@@ -223,12 +222,13 @@ public class NotebookPermissionHelper {
 
     public static void fillNewNotebooksPermissions(Project project, Notebook notebook, User creator) {
         Set<UserPermission> accessList = notebook.getAccessList();
-        PermissionUtil.addUsersFromUpperLevel(
-                accessList, project.getAccessList(), PermissionCreationLevel.PROJECT);
-        PermissionUtil.addOwnerToAccessList(accessList, creator, NOTEBOOK);
-
         notebook.setAccessList(new HashSet<>());
+        PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), creator, NOTEBOOK);
+        PermissionUtil.addUsersFromUpperLevel(
+                notebook.getAccessList(), project.getAccessList(), PermissionCreationLevel.PROJECT);
+
         notebook.setExperiments(Collections.emptyList());
-        changeNotebookPermissions(project, notebook, accessList);
+        updatePermissions(notebook, getUpdatedPermissions(notebook, accessList, NOTEBOOK));
+        addPermissions(project, notebook, getCreatedPermission(notebook, accessList, NOTEBOOK));
     }
 }
