@@ -91,6 +91,14 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
         onChangeStructure();
     }
 
+    function clearStructure() {
+        setRenderedStructure({
+            molfile: null,
+            structureId: null,
+            image: null
+        });
+    }
+
     function setStructure(structure, structureId) {
         isEmptyStructure(structure)
             .then(function(result) {
@@ -103,11 +111,7 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
                         });
                     });
                 } else {
-                    setRenderedStructure({
-                        molfile: null,
-                        structureId: null,
-                        image: null
-                    });
+                    clearStructure();
                 }
             });
     }
@@ -117,7 +121,7 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
         isEmptyStructure(structure)
             .then(function(result) {
                 if (result.empty) {
-                    setStructure();
+                    clearStructure();
                 } else {
                     $http({
                         url: apiUrl + 'bingodb/' + vm.structureType + '/',
