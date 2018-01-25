@@ -6,8 +6,28 @@ function entityHelper(confirmationModal, notifyService, entityTreeService) {
         onEntityUpdate: onEntityUpdate
     };
 
+    /**
+     * Handles concurrent update of the opened entity
+     * @param { Object } currentEntity - entity in the opened tab
+     * @param { String } currentEntity.projectId
+     * @param { String } currentEntity.notebookId
+     * @param { String } currentEntity.experimentId
+     * @param { Number } currentEntity.version
+     * @param { 'Project' | 'Notebook' | 'Experiment' } currentEntity.type
+     *
+     * @param { String } currentEntity.title
+     * @param { Object } updatedEntity - entity updated externally
+     * @param { String } updatedEntity.projectId
+     * @param { String } updatedEntity.notebookId
+     * @param { String } updatedEntity.experimentId
+     * @param { Number } updatedEntity.version
+     *
+     * @param { Boolean } hasUnsavedChanges - weather current tab has unsaved changes or not
+     * @param { Function } refreshCallback - function to call if user accepts external changes to the current entity
+     * @param { Function } rejectCallback - function to call if user rejects external changes to the current entity
+     */
     function onEntityUpdate(currentEntity, updatedEntity, hasUnsavedChanges, refreshCallback, rejectCallback) {
-        var hasChangeInTheEntity = isEqual(currentEntity, updatedEntity);
+        var hasChangeInTheEntity = isEqualEntities(currentEntity, updatedEntity);
 
         var updatedParentEntity = hasChangeInTheEntity
             ? null
@@ -15,6 +35,14 @@ function entityHelper(confirmationModal, notifyService, entityTreeService) {
 
         // If nothing changed in current entity or its parents do nothing
         if ((!updatedParentEntity && !hasChangeInTheEntity) || updatedEntity.version <= currentEntity.version) {
+            return;
+        }
+
+        if (!hasChangeInTheEntity || updatedEntity.version <= currentEntity.version) {
+            return;
+        }
+
+        if (!updatedParentEntity) {
             return;
         }
 
@@ -76,7 +104,7 @@ function entityHelper(confirmationModal, notifyService, entityTreeService) {
 
         parentEntity.title = _.get(entityObject, 'name', null);
 
-        if (isEqual(updatedEntity, parentEntity)) {
+        if (isEqualEntities(updatedEntity, parentEntity)) {
             return parentEntity;
         }
 
@@ -89,7 +117,7 @@ function entityHelper(confirmationModal, notifyService, entityTreeService) {
      * @param entity1
      * @param entity2
      */
-    function isEqual(entity1, entity2) {
+    function isEqualEntities(entity1, entity2) {
         return entity1.projectId === entity2.projectId &&
             entity1.notebookId === entity2.notebookId &&
             entity1.experimentId === entity2.experimentId;
