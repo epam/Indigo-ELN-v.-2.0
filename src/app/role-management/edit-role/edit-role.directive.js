@@ -38,6 +38,15 @@ function EditRoleController($scope, notifyService, roleService, alertModal, i18e
         $scope.$watch('vm.role', function(role) {
             initAuthorities(role);
 
+            // Lock dependencies
+            _.each(vm.authorities, function(authorityGroup) {
+                _.each(authorityGroup, function(authority) {
+                    if (authority.dependencies) {
+                        checkDependenciesAuthorities(authority, vm.model[authority.name]);
+                    }
+                });
+            });
+
             // Reset form state after role select
             $scope.editRoleForm.$setPristine();
             originalRole = angular.copy(role);
@@ -52,20 +61,38 @@ function EditRoleController($scope, notifyService, roleService, alertModal, i18e
 
     function checkDependenciesAuthorities(authority, isChecked) {
         _.forEach(authority.dependencies, function(dependenceName) {
+            var dependantAuthority = _.find(authorities, {name: dependenceName});
+            var foundDependence = _.find(vm.authorities[dependantAuthority.group], {name: dependenceName});
+
             // Checking dependence only by isChecked === true
             if (isChecked) {
                 if (!vm.model[dependenceName]) {
                     showWarning(dependenceName);
                 }
                 vm.model[dependenceName] = isChecked;
-            }
 
-            var dependantAuthority = _.find(authorities, {name: dependenceName});
-            var foundDependence = _.find(vm.authorities[dependantAuthority.group], {name: dependenceName});
+                // Check subsequent dependencies
+                checkDependenciesAuthorities(dependantAuthority, isChecked);
+            }
 
             if (foundDependence) {
-                foundDependence.isDepended = isChecked;
+                foundDependence.isDepended = isChecked || isAuthorityBeingDependent(foundDependence.name);
             }
+        });
+    }
+
+    /**
+     * Checks if there are checked authorities that has given dependency
+     * @param { String } authorityName - dependency name
+     * @returns { boolean }
+     */
+    function isAuthorityBeingDependent(authorityName) {
+        return _.some(authorities, function(authorityItem) {
+            var authorityHasThisDependence = authorityItem.dependencies &&
+                authorityItem.dependencies.indexOf(authorityName) !== -1;
+            var authorityIsChecked = vm.model[authorityItem.name];
+
+            return authorityHasThisDependence && authorityIsChecked;
         });
     }
 
