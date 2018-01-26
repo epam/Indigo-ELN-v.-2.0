@@ -10,6 +10,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Collections;
 
 import static com.epam.indigoeln.core.model.PermissionCreationLevel.NOTEBOOK;
+import static com.epam.indigoeln.core.model.PermissionCreationLevel.PROJECT;
+import static com.epam.indigoeln.core.model.UserPermission.OWNER_PERMISSIONS;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -49,7 +51,7 @@ public class NotebookPermissionHelperTest {
     @Test
     public void addNotebookOwnerPermission() {
 
-        UserPermission addedPermission = new UserPermission(testUser, UserPermission.OWNER_PERMISSIONS, NOTEBOOK);
+        UserPermission addedPermission = new UserPermission(testUser, OWNER_PERMISSIONS, NOTEBOOK);
         NotebookPermissionHelper.addPermissions(testProject, testNotebook, singleton(addedPermission));
 
         UserPermission expectedProjectPermissions = new UserPermission(testUser, UserPermission.VIEWER_PERMISSIONS, NOTEBOOK);
@@ -107,7 +109,7 @@ public class NotebookPermissionHelperTest {
         UserPermission presentedPermission = new UserPermission(testUser, UserPermission.VIEWER_PERMISSIONS, NOTEBOOK);
         NotebookPermissionHelper.addPermissions(testProject, testNotebook, singleton(presentedPermission));
 
-        UserPermission updatedPermission = new UserPermission(testUser, UserPermission.OWNER_PERMISSIONS, NOTEBOOK);
+        UserPermission updatedPermission = new UserPermission(testUser, OWNER_PERMISSIONS, NOTEBOOK);
 
         NotebookPermissionHelper.updatePermissions(testNotebook, singleton(updatedPermission));
 
@@ -166,5 +168,38 @@ public class NotebookPermissionHelperTest {
         assertThat(testNotebook.getAccessList(), not(hasItem(presentedPermission)));
         assertThat(testProject.getAccessList(), not(hasItem(presentedPermission)));
         assertThat(testExperiment.getAccessList(), not(hasItem(presentedPermission)));
+    }
+
+    @Test
+    public void fillNewNotebookPermissions() {
+        UserPermission projectAuthor = new UserPermission(testUser, OWNER_PERMISSIONS, PROJECT, false);
+        UserPermission notebookPermission = new UserPermission(testUser, OWNER_PERMISSIONS);
+
+        testProject.getAccessList().add(projectAuthor);
+        testNotebook.getAccessList().add(notebookPermission);
+
+        NotebookPermissionHelper.fillNewNotebooksPermissions(testProject, testNotebook, testUser);
+
+        UserPermission expectedPermission = new UserPermission(testUser, OWNER_PERMISSIONS, NOTEBOOK, false);
+
+        assertThat(testNotebook.getAccessList(), hasItem(expectedPermission));
+        assertThat(testNotebook.getAccessList().size(), is(1));
+    }
+
+    @Test
+    public void fillNewNotebookPermissions2() {
+        UserPermission projectAuthor = new UserPermission(testUser, OWNER_PERMISSIONS, PROJECT, false);
+        UserPermission notebookPermission = new UserPermission(otherTestUser, OWNER_PERMISSIONS);
+
+        testProject.getAccessList().add(projectAuthor);
+        testNotebook.getAccessList().add(notebookPermission);
+
+        NotebookPermissionHelper.fillNewNotebooksPermissions(testProject, testNotebook, otherTestUser);
+
+        UserPermission expectedPermission = new UserPermission(otherTestUser, OWNER_PERMISSIONS, NOTEBOOK, false);
+
+        assertThat(testNotebook.getAccessList(), hasItem(expectedPermission));
+        assertThat(testNotebook.getAccessList(), hasItem(projectAuthor));
+        assertThat(testNotebook.getAccessList().size(), is(2));
     }
 }

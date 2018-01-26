@@ -10,9 +10,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.epam.indigoeln.core.model.PermissionCreationLevel.NOTEBOOK;
 import static com.epam.indigoeln.core.model.UserPermission.VIEWER_PERMISSIONS;
-import static com.epam.indigoeln.web.rest.util.PermissionUtil.findPermissionsByUserId;
-import static com.epam.indigoeln.web.rest.util.PermissionUtil.hasUser;
+import static com.epam.indigoeln.web.rest.util.PermissionUtil.*;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
@@ -96,12 +96,11 @@ public class NotebookPermissionHelper {
                 notebookAccessList.add(updatedPermission);
                 updatedNotebookPermissions.add(updatedPermission);
 
-            } else if (updatedPermission.getPermissionCreationLevel().equals(PermissionCreationLevel.NOTEBOOK)
-                    || !currentUserPermission.getPermissionCreationLevel().equals(PermissionCreationLevel.NOTEBOOK)) {
+            } else if (updatedPermission.getPermissionCreationLevel().equals(NOTEBOOK)
+                    || !currentUserPermission.getPermissionCreationLevel().equals(NOTEBOOK)) {
 
-                notebookAccessList.remove(currentUserPermission);
-                notebookAccessList.add(updatedPermission);
-                updatedNotebookPermissions.add(updatedPermission);
+                currentUserPermission.setPermissions(updatedPermission.getPermissions());
+                updatedNotebookPermissions.add(currentUserPermission);
             }
         }
 
@@ -196,25 +195,14 @@ public class NotebookPermissionHelper {
         boolean allExperimentsWereChanged = false;
         List<Experiment> changedExperiments = Collections.emptyList();
 
-        Set<UserPermission> createdPermissions = newUserPermissions.stream()
-                .filter(newPermission -> notebook.getAccessList().stream()
-                        .noneMatch(oldPermission ->
-                                PermissionUtil.equalsByUserId(newPermission, oldPermission)))
-                .map(userPermission -> userPermission.setPermissionCreationLevel(PermissionCreationLevel.NOTEBOOK))
-                .collect(toSet());
-
+        Set<UserPermission> createdPermissions = getCreatedPermission(notebook, newUserPermissions, NOTEBOOK);
         if (!createdPermissions.isEmpty()) {
 
             allExperimentsWereChanged = true;
             projectHadChanged = addPermissions(project, notebook, createdPermissions);
         }
 
-        Set<UserPermission> updatedPermissions = newUserPermissions.stream()
-                .filter(newPermission -> notebook.getAccessList().stream().anyMatch(oldPermission ->
-                        PermissionUtil.equalsByUserId(newPermission, oldPermission)
-                                && !oldPermission.getPermissions().equals(newPermission.getPermissions())))
-                .map(userPermission -> userPermission.setPermissionCreationLevel(PermissionCreationLevel.NOTEBOOK))
-                .collect(toSet());
+        Set<UserPermission> updatedPermissions = getUpdatedPermissions(notebook, newUserPermissions, NOTEBOOK);
 
         if (!updatedPermissions.isEmpty()) {
 
@@ -222,10 +210,7 @@ public class NotebookPermissionHelper {
             changedExperiments = updatePermissions != null ? updatePermissions.getValue() : Collections.emptyList();
         }
 
-        Set<UserPermission> removedPermissions = notebook.getAccessList().stream().filter(oldPermission ->
-                newUserPermissions.stream().noneMatch(
-                        newPermission -> PermissionUtil.equalsByUserId(oldPermission, newPermission)))
-                .collect(toSet());
+        Set<UserPermission> removedPermissions = getRemovedPermissions(notebook, newUserPermissions);
 
         if (!removedPermissions.isEmpty()) {
 
@@ -237,12 +222,13 @@ public class NotebookPermissionHelper {
 
     public static void fillNewNotebooksPermissions(Project project, Notebook notebook, User creator) {
         Set<UserPermission> accessList = notebook.getAccessList();
-        PermissionUtil.addUsersFromUpperLevel(
-                accessList, project.getAccessList(), PermissionCreationLevel.PROJECT);
-        PermissionUtil.addOwnerToAccessList(accessList, creator, PermissionCreationLevel.NOTEBOOK);
-
         notebook.setAccessList(new HashSet<>());
+        PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), creator, NOTEBOOK);
+        PermissionUtil.addUsersFromUpperLevel(
+                notebook.getAccessList(), project.getAccessList(), PermissionCreationLevel.PROJECT);
+
         notebook.setExperiments(Collections.emptyList());
-        changeNotebookPermissions(project, notebook, accessList);
+        updatePermissions(notebook, getUpdatedPermissions(notebook, accessList, NOTEBOOK));
+        addPermissions(project, notebook, getCreatedPermission(notebook, accessList, NOTEBOOK));
     }
 }

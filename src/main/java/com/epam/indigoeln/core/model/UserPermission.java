@@ -42,6 +42,8 @@ public class UserPermission {
 
     private Set<String> permissions;
 
+    private Boolean removable = true;
+
     @JsonIgnore
     private PermissionCreationLevel permissionCreationLevel;
 
@@ -54,10 +56,25 @@ public class UserPermission {
         this.permissions = permissions;
     }
 
+    public UserPermission(User user,
+                          Set<String> permissions,
+                          PermissionCreationLevel permissionCreationLevel,
+                          Boolean removable
+    ) {
+        this.user = user;
+        this.permissions = permissions;
+        this.removable = removable;
+        this.permissionCreationLevel = permissionCreationLevel;
+    }
+
     public UserPermission(User user, Set<String> permissions, PermissionCreationLevel permissionCreationLevel) {
         this.user = user;
         this.permissions = permissions;
         this.permissionCreationLevel = permissionCreationLevel;
+    }
+
+    public Boolean isRemovable() {
+        return removable;
     }
 
     public User getUser() {

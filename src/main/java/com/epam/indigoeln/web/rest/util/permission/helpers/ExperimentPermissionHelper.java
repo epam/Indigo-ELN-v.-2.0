@@ -8,8 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.epam.indigoeln.core.model.PermissionCreationLevel.EXPERIMENT;
-import static com.epam.indigoeln.web.rest.util.PermissionUtil.findPermissionsByUserId;
-import static com.epam.indigoeln.web.rest.util.PermissionUtil.hasUser;
+import static com.epam.indigoeln.web.rest.util.PermissionUtil.*;
 import static java.util.stream.Collectors.toSet;
 
 public class ExperimentPermissionHelper {
@@ -95,22 +94,21 @@ public class ExperimentPermissionHelper {
             UserPermission presentedPermission =
                     findPermissionsByUserId(experiment.getAccessList(), updatedPermission.getUser().getId());
 
+            if (updatedPermission.getPermissionView().equals(UserPermission.USER)) {
+                updatedPermission = new UserPermission(updatedPermission.getUser(),
+                        UserPermission.VIEWER_PERMISSIONS, updatedPermission.getPermissionCreationLevel(),
+                        updatedPermission.isRemovable());
+            }
             if (presentedPermission == null) {
 
                 experiment.getAccessList().add(updatedPermission);
                 experimentWasChanged |= true;
 
-            } else if (updatedPermission.getPermissionCreationLevel().equals(EXPERIMENT)
-                    || !presentedPermission.getPermissionCreationLevel().equals(EXPERIMENT)) {
-                if (updatedPermission.getPermissionView().equals(UserPermission.USER)) {
-                    updatedPermission = new UserPermission(updatedPermission.getUser(),
-                            UserPermission.VIEWER_PERMISSIONS, updatedPermission.getPermissionCreationLevel());
-                }
-                if (!presentedPermission.getPermissionView().equals(updatedPermission.getPermissionView())) {
-                    experiment.getAccessList().remove(presentedPermission);
-                    experiment.getAccessList().add(updatedPermission);
-                    experimentWasChanged |= true;
-                }
+            } else if ((updatedPermission.getPermissionCreationLevel().equals(EXPERIMENT)
+                    || !presentedPermission.getPermissionCreationLevel().equals(EXPERIMENT))
+                    && !presentedPermission.getPermissionView().equals(updatedPermission.getPermissionView())) {
+                presentedPermission.setPermissions(updatedPermission.getPermissions());
+                experimentWasChanged |= true;
             }
         }
         return experimentWasChanged;
@@ -142,12 +140,8 @@ public class ExperimentPermissionHelper {
         boolean notebookHadChanged = false;
         boolean projectHadChanged = false;
 
-        Set<UserPermission> createdPermissions = newUserPermissions.stream()
-                .filter(newPermission -> updatedExperiment.getAccessList().stream()
-                        .noneMatch(oldPermission ->
-                                PermissionUtil.equalsByUserId(newPermission, oldPermission)))
-                .map(userPermission -> userPermission.setPermissionCreationLevel(EXPERIMENT))
-                .collect(toSet());
+        Set<UserPermission> createdPermissions =
+                getCreatedPermission(updatedExperiment, newUserPermissions, EXPERIMENT);
 
         if (!createdPermissions.isEmpty()) {
             Pair<Boolean, Boolean> projectAndNotebookHadChanged =
@@ -157,20 +151,14 @@ public class ExperimentPermissionHelper {
             notebookHadChanged = projectAndNotebookHadChanged.getRight();
         }
 
-        Set<UserPermission> updatedPermissions = newUserPermissions.stream()
-                .filter(newPermission -> updatedExperiment.getAccessList().stream().anyMatch(oldPermission ->
-                        PermissionUtil.equalsByUserId(newPermission, oldPermission)
-                                && !oldPermission.getPermissions().equals(newPermission.getPermissions())))
-                .map(userPermission -> userPermission.setPermissionCreationLevel(EXPERIMENT))
-                .collect(toSet());
+        Set<UserPermission> updatedPermissions =
+                getUpdatedPermissions(updatedExperiment, newUserPermissions, EXPERIMENT);
 
         if (!updatedPermissions.isEmpty()) {
             updatePermission(updatedExperiment, updatedPermissions);
         }
 
-        Set<UserPermission> removedPermissions = updatedExperiment.getAccessList().stream().filter(oldPermission ->
-                newUserPermissions.stream().noneMatch(newPermission -> PermissionUtil.equalsByUserId(oldPermission, newPermission)))
-                .collect(toSet());
+        Set<UserPermission> removedPermissions = getRemovedPermissions(updatedExperiment, newUserPermissions);
 
         if (!removedPermissions.isEmpty()) {
 
@@ -193,12 +181,13 @@ public class ExperimentPermissionHelper {
 
         Set<UserPermission> permissions = experiment.getAccessList();
         experiment.setAccessList(new HashSet<>());
-        PermissionUtil.addUsersFromUpperLevel(permissions, notebook.getAccessList(),
+        PermissionUtil.addUsersFromUpperLevel(experiment.getAccessList(), notebook.getAccessList(),
                 PermissionCreationLevel.NOTEBOOK);
 
-        PermissionUtil.addOwnerToAccessList(permissions, creator,
+        PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), creator,
                 PermissionCreationLevel.EXPERIMENT);
 
-        return changeExperimentPermissions(project, notebook, experiment, permissions);
+        updatePermission(experiment, getUpdatedPermissions(experiment, permissions, EXPERIMENT));
+        return addPermissions(project, notebook, experiment, getCreatedPermission(experiment, permissions, EXPERIMENT));
     }
 }

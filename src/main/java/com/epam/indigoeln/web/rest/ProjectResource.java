@@ -138,7 +138,8 @@ public class ProjectResource {
             @ApiParam("Project to create") @RequestBody ProjectDTO project
     ) throws URISyntaxException {
         LOGGER.debug("REST request to create project: {}", project);
-        ProjectDTO createdProject = projectService.createProject(project);
+        User user = userService.getUserWithAuthorities();
+        ProjectDTO createdProject = projectService.createProject(project, user);
         HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, createdProject.getName());
         return ResponseEntity.created(new URI(URL_MAPPING + "/" + createdProject.getId()))
                 .headers(headers).body(createdProject);

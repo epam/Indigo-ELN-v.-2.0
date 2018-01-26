@@ -63,7 +63,7 @@ public class PermissionUtilTest {
     @Test
     public void addOwnerToEmptyAccessList() {
         Set<UserPermission> accessList = new HashSet<>(2);
-        UserPermission expectedPermission = new UserPermission(testUser, OWNER_PERMISSIONS, NOTEBOOK);
+        UserPermission expectedPermission = new UserPermission(testUser, OWNER_PERMISSIONS, NOTEBOOK, false);
 
         PermissionUtil.addOwnerToAccessList(accessList, testUser, NOTEBOOK);
         assertThat(accessList, contains(expectedPermission));
@@ -76,7 +76,7 @@ public class PermissionUtilTest {
         UserPermission presentedPermission = new UserPermission(otherTestUser, OWNER_PERMISSIONS, NOTEBOOK);
         accessList.add(presentedPermission);
         int initialAccessListSize = accessList.size();
-        UserPermission expectedPermission = new UserPermission(testUser, OWNER_PERMISSIONS, NOTEBOOK);
+        UserPermission expectedPermission = new UserPermission(testUser, OWNER_PERMISSIONS, NOTEBOOK, false);
 
         PermissionUtil.addOwnerToAccessList(accessList, testUser, NOTEBOOK);
 
@@ -95,7 +95,7 @@ public class PermissionUtilTest {
         int initialAccessListSize = accessList.size();
 
         UserPermission expectedPermission =
-                new UserPermission(testUser, OWNER_PERMISSIONS, NOTEBOOK);
+                new UserPermission(testUser, OWNER_PERMISSIONS, NOTEBOOK, false);
 
         PermissionUtil.addOwnerToAccessList(accessList, testUser, NOTEBOOK);
 
@@ -111,7 +111,7 @@ public class PermissionUtilTest {
         HashSet<UserPermission> accessList = new HashSet<>();
 
         UserPermission projectLevelUserPermission = new UserPermission(new User(), OWNER_PERMISSIONS, PROJECT);
-        UserPermission notebookLevelUserPermission = new UserPermission(testUser, USER_PERMISSIONS, NOTEBOOK);
+        UserPermission notebookLevelUserPermission = new UserPermission(testUser, VIEWER_PERMISSIONS, NOTEBOOK);
         UserPermission experimentLevelUserPermission = new UserPermission(otherTestUser, OWNER_PERMISSIONS, EXPERIMENT);
 
         HashSet<UserPermission> upperLevelUserPermissions =
