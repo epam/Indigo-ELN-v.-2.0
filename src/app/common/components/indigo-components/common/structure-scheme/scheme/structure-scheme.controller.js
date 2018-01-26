@@ -10,7 +10,7 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
     init();
 
     function init() {
-        vm.structureModel = getInitModel();
+        vm.structureModel = buildStructure();
         if (vm.model && !_.some(vm.structureModel, isEqualStructures)) {
             onChangeStructure();
         }
@@ -26,8 +26,8 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
         return !(key === 'entered' || key === 'structureScheme') && (vm.model[key] === value);
     }
 
-    function buildStructure(fromStructure) {
-        var structure = fromStructure || {};
+    function buildStructure() {
+        var structure = vm.model || {};
 
         return {
             image: structure.image || null,
@@ -36,12 +36,8 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
         };
     }
 
-    function getInitModel() {
-        return buildStructure(vm.model);
-    }
-
     function updateModel() {
-        vm.structureModel = getInitModel();
+        vm.structureModel = buildStructure();
         updateMolfileImage(vm.structureModel);
     }
 
