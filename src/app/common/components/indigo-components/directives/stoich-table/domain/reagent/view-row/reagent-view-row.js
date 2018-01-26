@@ -38,6 +38,10 @@ function setRowProperties(defaultProps, customProps) {
         } else if (fieldTypes.isFormula(key)) {
             defaultProps[key].value = _.isObject(value) ? value.value : value;
             defaultProps[key].baseValue = _.isObject(value) ? value.baseValue : value;
+            var extendedFormulaIndex = defaultProps[key].baseValue.indexOf('*');
+            if (extendedFormulaIndex !== -1) {
+                defaultProps[key].baseValue = defaultProps[key].baseValue.substring(0, extendedFormulaIndex).trim();
+            }
         } else if (fieldTypes.isRxnRole(key)) {
             defaultProps[key].name = value.name;
 
