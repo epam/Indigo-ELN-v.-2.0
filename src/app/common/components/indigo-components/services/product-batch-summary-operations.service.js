@@ -3,7 +3,7 @@ var fieldTypes = require('../services/calculation/field-types');
 
 /* @ngInject */
 function productBatchSummaryOperations($q, productBatchSummaryCache, registrationUtil, calculationHelper,
-                                       stoichTableCache, notifyService, batchHelper,
+                                       notifyService, batchHelper,
                                        registrationService, sdImportService,
                                        sdExportService, alertModal, $http, $stateParams, notebookService,
                                        calculationService, apiUrl, $document) {
@@ -83,7 +83,7 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
 
     function duplicateBatches(batchesQueueToAdd, isSyncWithIntended, experiment) {
         var promises = _.map(batchesQueueToAdd, function(batch) {
-            return createBatch(angular.copy(batch), isSyncWithIntended);
+            return createBatch(angular.copy(batch), isSyncWithIntended, experiment);
         });
 
         return successAddedBatches(promises, experiment);
@@ -101,7 +101,7 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
     }
 
     function getIntendedNotInActual(stoich) {
-        var stoichTable = stoich || stoichTableCache.getStoicTable();
+        var stoichTable = stoich;
         if (stoichTable) {
             var intended = stoichTable.products;
             var intendedCandidateHashes = _.map(intended, '$$batchHash');
@@ -154,7 +154,7 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
     }
 
     function addNewBatch(experiment) {
-        return createBatch().then(function(batch) {
+        return createBatch(null, null, experiment).then(function(batch) {
             return updateNbkBatches([batch], experiment).then(function() {
                 return batch;
             });
@@ -164,7 +164,7 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
     function importSDFile(experiment) {
         return sdImportService.importFile().then(function(sdUnits) {
             var promises = _.map(sdUnits, function(unit) {
-                return createBatch(unit);
+                return createBatch(unit, null, experiment);
             });
 
             return successAddedBatches(promises, experiment);
@@ -190,9 +190,9 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
         return batch;
     }
 
-    function createBatch(parentBatch, isSyncWithIntended) {
+    function createBatch(parentBatch, isSyncWithIntended, experiment) {
         var batch = new BatchViewRow();
-        var stoichTable = stoichTableCache.getStoicTable();
+        var stoichTable = getStoichFromExperiment(experiment);
 
         _.assign(batch, parentBatch, {
             conversationalBatchNumber: undefined,
