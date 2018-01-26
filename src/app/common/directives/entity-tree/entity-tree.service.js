@@ -19,6 +19,8 @@ function entityTreeService(allProjectsService, $injector, allNotebooksService, a
         getProjects: getProjects,
         getNotebooks: getNotebooks,
         getExperiments: getExperiments,
+        getProjectById: getProjectById,
+        getNotebookById: getNotebookById,
         updateStatus: updateStatus,
         allNodesByFullId: allNodesByFullId,
         getFullIdFromParams: getFullIdFromParams,
@@ -237,6 +239,16 @@ function entityTreeService(allProjectsService, $injector, allNotebooksService, a
         return _.compact([toParams.projectId, toParams.notebookId, toParams.experimentId])
             .join('-')
             .toString();
+    }
+
+    function getProjectById(projectId) {
+        return projectsMap[projectId];
+    }
+
+    function getNotebookById(projectId, notebookId) {
+        var projectNotebooks = _.get(notebooksMap, projectId, []);
+
+        return _.find(projectNotebooks, {id: notebookId});
     }
 }
 
