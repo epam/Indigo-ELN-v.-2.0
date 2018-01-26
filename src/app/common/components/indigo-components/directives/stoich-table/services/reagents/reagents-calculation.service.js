@@ -382,17 +382,29 @@ function reagentsCalculation(calculationHelper) {
         }
     }
 
+    function canBeLimiting(row) {
+        return !row.isSolventRow() && row.eq.value === 1;
+    }
+
     function getRowAfterLimiting() {
-        var indexOfLimitingRow = _.findIndex(rows, {limiting: true});
-        var indexOfNextRow = indexOfLimitingRow + 1;
+        var limitingRowIndex = _.findIndex(rows, function(r) {
+            return r.isLimiting();
+        });
 
-        if (rows.length > indexOfNextRow) {
-            var rowsAfterLimiting = rows.slice(indexOfNextRow, rows.length);
-
-            return _.find(rowsAfterLimiting, function(row) {
-                return !row.isSolventRow() && row.eq.value === 1;
-            });
+        var i;
+        for (i = limitingRowIndex + 1; i < rows.length; i++) {
+            if (canBeLimiting(rows[i])) {
+                return rows[i];
+            }
         }
+
+        for (i = 0; i < limitingRowIndex; i++) {
+            if (canBeLimiting(rows[i])) {
+                return rows[i];
+            }
+        }
+
+        return null;
     }
 
     function updateRows() {
