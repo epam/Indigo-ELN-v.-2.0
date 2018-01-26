@@ -38,14 +38,6 @@ function entityHelper(confirmationModal, notifyService, entityTreeService) {
             return;
         }
 
-        if (!hasChangeInTheEntity || updatedEntity.version <= currentEntity.version) {
-            return;
-        }
-
-        if (!updatedParentEntity) {
-            return;
-        }
-
         // Has local changes which could be saved before update
         if (hasUnsavedChanges) {
             displayConflictModal(currentEntity.title, refreshCallback, rejectCallback);
