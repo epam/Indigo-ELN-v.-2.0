@@ -75,6 +75,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
                 break;
             case stoichReactantsColumns.rxnRole.id:
                 updatePrecursors();
+                recalculateStoichTable(rows, changedRow, changedField);
                 break;
             case stoichReactantsColumns.compoundId.id:
                 // Update row based on selected compoundId
