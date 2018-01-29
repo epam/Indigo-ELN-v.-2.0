@@ -1,9 +1,7 @@
 package com.epam.indigoeln.web.rest.util.permission.helpers;
 
-import com.epam.indigoeln.core.model.Experiment;
-import com.epam.indigoeln.core.model.Notebook;
-import com.epam.indigoeln.core.model.Project;
-import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.core.model.*;
+import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -23,8 +21,8 @@ public class ProjectPermissionHelper {
     /**
      * Add all permissions from createdPermissions to the project and its notebooks and experiments.
      *
-     * @param project
-     * @param createdPermissions
+     * @param project            updating project
+     * @param createdPermissions new {@link UserPermission}s for project
      */
     public static boolean addPermissions(Project project, Set<UserPermission> createdPermissions) {
         if (project.getAccessList().addAll(createdPermissions)) {
@@ -132,5 +130,16 @@ public class ProjectPermissionHelper {
 
     private static Map<Notebook, List<Experiment>> allExperimentsAndNotebooks(Project project) {
         return project.getNotebooks().stream().collect(toMap(Function.identity(), Notebook::getExperiments));
+    }
+
+    public static void fillNewProjectPermissions(Project project, User user) {
+        Set<UserPermission> accessList = project.getAccessList();
+        project.setAccessList(new HashSet<>());
+        project.setNotebooks(Collections.emptyList());
+        PermissionUtil.addOwnerToAccessList(project.getAccessList(), user, PROJECT);
+
+        updatePermissions(project, getUpdatedPermissions(project, accessList, PROJECT));
+        addPermissions(project, getCreatedPermission(project, accessList, PROJECT));
+
     }
 }

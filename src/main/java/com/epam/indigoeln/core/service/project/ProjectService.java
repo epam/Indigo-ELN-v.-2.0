@@ -25,8 +25,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.epam.indigoeln.core.model.PermissionCreationLevel.PROJECT;
-
 /**
  * Provides a number of methods for access to project's data in database.
  */
@@ -138,7 +136,7 @@ public class ProjectService {
      * Creates project with OWNER's permissions for current user.
      *
      * @param projectDTO Project to create
-     * @param user
+     * @param user       creator of the project
      * @return Created project
      */
     public ProjectDTO createProject(ProjectDTO projectDTO, User user) {
@@ -148,9 +146,8 @@ public class ProjectService {
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, project.getAccessList());
 
         //Add entity name
-        PermissionUtil.addOwnerToAccessList(project.getAccessList(), user, PROJECT);
-        project.getAccessList().forEach(userPermission ->
-                userPermission.setPermissionCreationLevel(PROJECT));
+        ProjectPermissionHelper.fillNewProjectPermissions(project, user);
+
         project.setId(sequenceIdService.getNextProjectId());
 
         project = saveProjectAndHandleError(project);
