@@ -58,7 +58,7 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
     }
 
     function onChangeStructure() {
-        vm.onChanged({structure: vm.structureModel});
+        vm.onChanged({structure: _.clone(vm.structureModel)});
     }
 
     function isEmptyStructure(structure) {
