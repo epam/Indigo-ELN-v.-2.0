@@ -172,19 +172,19 @@ public class CrsRegistrationRepository implements RegistrationRepository {
     }
 
     public CompoundInfo convert(Compound compound) {
-        CompoundInfo info = new CompoundInfo();
+        CompoundInfo compoundInfo = new CompoundInfo();
 
-        info.setBatchNumber(compound.getBatchNo());
-        info.setCasNumber(compound.getCasNo());
-        info.setComments(compound.getComment());
-        info.setData(compound.getStructure());
-        info.setHazardComments(compound.getHazardComment());
-        info.setSaltCode(compound.getSaltCode());
-        info.setSaltEquivalents(compound.getSaltEquivs());
-        info.setStereoIsomerCode(compound.getStereoisomerCode());
-        info.setStorageComments(compound.getStorageComment());
+        compoundInfo.setBatchNumber(compound.getBatchNo());
+        compoundInfo.setCasNumber(compound.getCasNo());
+        compoundInfo.setComments(compound.getComment());
+        compoundInfo.setData(compound.getStructure());
+        compoundInfo.setHazardComments(compound.getHazardComment());
+        compoundInfo.setSaltCode(compound.getSaltCode());
+        compoundInfo.setSaltEquivalents(compound.getSaltEquivs());
+        compoundInfo.setStereoIsomerCode(compound.getStereoisomerCode());
+        compoundInfo.setStorageComments(compound.getStorageComment());
 
-        return info;
+        return compoundInfo;
 
     }
 
