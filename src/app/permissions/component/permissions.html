@@ -46,7 +46,7 @@
                         </div>
                     </td>
                     <td>
-                        <button ng-disabled="member.isAuthor" type="button" class="btn btn-info btn-small"
+                        <button ng-disabled="!member.removable || member.isAuthor" type="button" class="btn btn-info btn-small"
                                 ng-click="vm.removeMember(member)">
                             <span class="icon icon-delete"></span><span class="m-l5" i-translate="DELETE"></span>
                         </button>
