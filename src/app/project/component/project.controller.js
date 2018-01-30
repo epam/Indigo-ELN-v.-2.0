@@ -122,6 +122,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
     function refresh() {
         if (vm.stateData.isNew) {
             vm.project = angular.copy(originalProject);
+            initPermissions();
 
             return $q.resolve();
         }
@@ -130,6 +131,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
             .then(function(result) {
                 angular.extend(vm.project, result);
                 originalProject = angular.copy(vm.project);
+                initPermissions();
                 autorecoveryCache.hide($stateParams);
             }, function() {
                 notifyService.error('Project not refreshed due to server error!');
