@@ -48,7 +48,8 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
             permissions: [],
             permissionView: permissionView.id,
             views: views,
-            isAuthor: permissionService.isAuthor(user)
+            isAuthor: permissionService.isAuthor(user),
+            removable: true
         });
     }
 
