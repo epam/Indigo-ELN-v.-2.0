@@ -235,12 +235,14 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
         vm.hasError = false;
         if (vm.stateData.isNew) {
             vm.project = angular.copy(originalNotebook);
+            initPermissions();
 
             return $q.resolve();
         }
 
         vm.loading = notebookService.get($stateParams).$promise.then(function(response) {
             vm.notebook = response;
+            initPermissions();
             originalNotebook = angular.copy(vm.notebook);
             autorecoveryCache.hide($stateParams);
         });
