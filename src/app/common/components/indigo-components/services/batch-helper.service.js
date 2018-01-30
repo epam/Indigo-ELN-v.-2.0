@@ -127,8 +127,7 @@ function batchHelper(appUnits, appValuesService, calculationService, columnActio
                 unitItems: appUnits.grams,
                 width: '150px',
                 hideSetValue: true,
-                readonly: true,
-                actions: unitService.getActions('Theo. Wgt.', appUnits.grams)
+                readonly: true
             },
             theoMoles: {
                 id: 'theoMoles',
@@ -137,8 +136,7 @@ function batchHelper(appUnits, appValuesService, calculationService, columnActio
                 type: 'unit',
                 unitItems: appUnits.moles,
                 hideSetValue: true,
-                readonly: true,
-                actions: unitService.getActions('Theo. Moles', appUnits.moles)
+                readonly: true
             },
             yield: {
                 id: 'yield',
@@ -205,8 +203,7 @@ function batchHelper(appUnits, appValuesService, calculationService, columnActio
             formula: {
                 id: 'formula',
                 name: 'Mol Formula',
-                type: 'formula',
-                actions: setInputService.getActions('Mol Formula')
+                type: 'formula'
             },
             conversationalBatchNumber: {
                 id: 'conversationalBatchNumber',

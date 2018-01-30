@@ -1,7 +1,3 @@
-angular
-    .module('indigoeln.componentsModule')
-    .controller('SetScalarValueController', SetScalarValueController);
-
 /* @ngInject */
 function SetScalarValueController(name, $uibModalInstance) {
     var vm = this;
@@ -23,3 +19,5 @@ function SetScalarValueController(name, $uibModalInstance) {
         $uibModalInstance.dismiss('cancel');
     }
 }
+
+module.exports = SetScalarValueController;

@@ -1,4 +1,5 @@
 var template = require('./set-scalar-value.html');
+var controller = require('./set-scalar-value.controller');
 
 scalarService.$inject = ['$uibModal', 'registrationUtil', 'calculationService'];
 
@@ -10,7 +11,7 @@ function scalarService($uibModal, registrationUtil, calculationService) {
     function action(rows, title, column) {
         return $uibModal.open({
             template: template,
-            controller: 'SetScalarValueController',
+            controller: controller,
             controllerAs: 'vm',
             size: 'sm',
             resolve: {
