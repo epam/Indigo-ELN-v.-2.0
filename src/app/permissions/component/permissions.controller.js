@@ -12,7 +12,9 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
         vm.entityId = permissionService.getEntityId();
         vm.parentId = permissionService.getParentId();
         vm.author = permissionService.getAuthor();
-        vm.users = _.sortBy(users, 'lastName');
+        vm.users = _.sortBy(users, function(u) {
+            return u.login ? u.login.toLowerCase() : '';
+        });
 
         vm.addMember = addMember;
         vm.removeMember = removeMember;
@@ -62,7 +64,7 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
         });
 
         accessList = _.sortBy(accessList, function(p) {
-            return p.user.lastName;
+            return p.user.lastName ? p.user.lastName.toLowerCase() : '';
         });
 
         return accessList;
