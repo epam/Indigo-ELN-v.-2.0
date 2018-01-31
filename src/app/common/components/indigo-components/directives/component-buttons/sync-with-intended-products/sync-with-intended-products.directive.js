@@ -31,7 +31,8 @@ function syncWithIntendedProductsController(productBatchSummaryOperations) {
     }
 
     function isIntendedSynced() {
-        var intended = productBatchSummaryOperations.getIntendedNotInActual();
+        var stoich = productBatchSummaryOperations.getStoichFromExperiment(vm.indigoComponents.experiment);
+        var intended = productBatchSummaryOperations.getIntendedNotInActual(stoich);
 
         return intended ? !intended.length : true;
     }

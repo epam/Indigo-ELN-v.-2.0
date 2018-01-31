@@ -18,7 +18,8 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
         importSDFile: chainPromises(importSDFile),
         registerBatches: registerBatches,
         deleteBatches: deleteBatches,
-        getSelectedNonEditableBatches: getNonEditableBatches
+        getSelectedNonEditableBatches: getNonEditableBatches,
+        getStoichFromExperiment: getStoichFromExperiment
     };
 
     function downloadLink(filePath) {
@@ -112,12 +113,14 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
             });
             var hashesToAdd = _.compact(intendedCandidateHashes);
 
-            return _.map(hashesToAdd, function(hash) {
+            var result = _.map(hashesToAdd, function(hash) {
                 return _.find(intended, {
                     $$batchHash: hash
                 });
             });
+            return result;
         }
+        return [];
     }
 
     function removeItemFromBothArrays(item, array1, array2, i) {
