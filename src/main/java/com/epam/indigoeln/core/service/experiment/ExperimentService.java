@@ -21,6 +21,7 @@ import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.dto.search.EntitiesIdsDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
+import com.epam.indigoeln.web.rest.util.permission.helpers.ExperimentPermissionHelper;
 import com.google.common.util.concurrent.Striped;
 import com.mongodb.DBRef;
 import org.apache.commons.lang3.StringUtils;
@@ -96,10 +97,11 @@ public class ExperimentService {
 
     private Striped<Lock> locks = Striped.lazyWeakLock(2);
 
-    private static List<Experiment> getExperimentsWithAccess(List<Experiment> experiments, String userId) {
+    private static List<Experiment> getExperimentsWithAccess(List<Experiment> experiments, User user) {
         return experiments == null ? Collections.emptyList()
-                : experiments.stream().filter(experiment -> PermissionUtil.findPermissionsByUserId(
-                experiment.getAccessList(), userId) != null).collect(Collectors.toList());
+                : experiments.stream().filter(experiment -> PermissionUtil.hasUser(
+                experiment.getAccessList(), user)).collect(Collectors.toList());
+
     }
 
     public void saveExperiments(List<Experiment> experiments){
@@ -126,8 +128,7 @@ public class ExperimentService {
      * @return List with tree representation of experiments of specified notebook for user
      */
     public List<TreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId, User user) {
-        Collection<Experiment> experiments = getAllExperiments(projectId, notebookId,
-                PermissionUtil.isContentEditor(user) ? null : user);
+        Collection<Experiment> experiments = getAllExperiments(projectId, notebookId, user);
         return experiments.stream()
                 .map(ExperimentTreeNodeDTO::new).sorted(TreeNodeDTO.NAME_COMPARATOR).collect(Collectors.toList());
     }
@@ -169,12 +170,12 @@ public class ExperimentService {
         }
 
         // Check of EntityAccess (User must have "Read Entity" permission in notebook's access list)
-        if (!PermissionUtil.hasPermissions(user.getId(), notebook.getAccessList(),
+        if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, notebook.getAccessList(),
                 UserPermission.READ_ENTITY)) {
             throw OperationDeniedException.createNotebookSubEntitiesReadOperation(notebook.getId());
         }
 
-        return getExperimentsWithAccess(notebook.getExperiments(), user.getId());
+        return getExperimentsWithAccess(notebook.getExperiments(), user);
     }
 
     /**
@@ -206,16 +207,6 @@ public class ExperimentService {
             }
         }
         return new ExperimentDTO(experiment);
-    }
-
-    /**
-     * Returns all experiments which author is user.
-     *
-     * @param user User
-     * @return Collection of experiments by author
-     */
-    public Collection<ExperimentDTO> getExperimentsByAuthor(User user) {
-        return experimentRepository.findByAuthor(user).stream().map(ExperimentDTO::new).collect(Collectors.toList());
     }
 
     /**
@@ -255,16 +246,8 @@ public class ExperimentService {
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, experiment.getAccessList());
         // add OWNER's permissions for specified User to experiment
-        Set<UserPermission> permissions = experiment.getAccessList();
-        experiment.setAccessList(Collections.emptySet());
-        PermissionUtil.addOwnerToAccessList(permissions, user,
-                PermissionCreationLevel.EXPERIMENT);
-
-        PermissionUtil.addUsersFromUpperLevel(permissions, notebook.getAccessList(),
-                PermissionCreationLevel.NOTEBOOK);
-
-        Pair<Boolean, Boolean> changes = PermissionUtil.changeExperimentPermissions(
-                project, notebook, experiment, permissions);
+        Pair<Boolean, Boolean> changes =
+                ExperimentPermissionHelper.fillNewExperimentsPermissions(project, notebook, experiment, user);
 
         //increment sequence Id
         experiment.setId(sequenceIdService.getNextExperimentId(projectId, notebookId));
@@ -427,7 +410,7 @@ public class ExperimentService {
             Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
                     orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
 
-            Pair<Boolean, Boolean> update = PermissionUtil.changeExperimentPermissions(
+            Pair<Boolean, Boolean> update = ExperimentPermissionHelper.changeExperimentPermissions(
                     project, notebook, experimentFromDB, experimentForSave.getAccessList());
 
             Experiment savedExperiment;

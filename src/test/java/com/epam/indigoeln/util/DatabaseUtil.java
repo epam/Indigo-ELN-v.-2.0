@@ -62,7 +62,7 @@ public class DatabaseUtil {
             projectDTO.setKeywords("keyword1 keyword2" + i);
             projectDTO.setReferences("references" + i);
             projectDTO.setTags(Arrays.asList("tag1" + i, "tag2" + i));
-            ProjectDTO savedProject = projectService.createProject(projectDTO);
+            ProjectDTO savedProject = projectService.createProject(projectDTO, admin);
 
             ArrayList<NotebookDTO> notebooks = new ArrayList<>();
             for (int j = 0; j < 3; j++) {

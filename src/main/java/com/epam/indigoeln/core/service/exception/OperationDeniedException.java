@@ -254,6 +254,7 @@ public final class OperationDeniedException extends CustomParametrizedException 
      * @return Instance of OperationDeniedException
      */
     public static OperationDeniedException createNotebookUpdateNameOperation() {
-        return new OperationDeniedException("The notebook can't be updated if there is at least one batch or not open experiment");
+        return new OperationDeniedException("The notebook can't be updated if there is at least one experiment "
+                + "with a batch or experiments in non-Open");
     }
 }

@@ -1,12 +1,13 @@
 package com.epam.indigoeln.core.service.project;
 
 import com.epam.indigoeln.core.model.*;
+import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.file.GridFSFileUtil;
+import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.*;
-import com.epam.indigoeln.core.service.notebook.NotebookService;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.core.util.WebSocketUtil;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
@@ -14,9 +15,8 @@ import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
-import com.mongodb.DBRef;
+import com.epam.indigoeln.web.rest.util.permission.helpers.ProjectPermissionHelper;
 import com.mongodb.gridfs.GridFSDBFile;
-import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Provides a number of methods for access to project's data in database.
@@ -38,8 +37,14 @@ public class ProjectService {
     @Autowired
     private ProjectRepository projectRepository;
 
+    /**
+     * Instance of NotebookRepository for access to notebooks in database.
+     */
     @Autowired
-    private NotebookService notebookService;
+    private NotebookRepository notebookRepository;
+
+    @Autowired
+    private ExperimentRepository experimentRepository;
 
     /**
      * Instance of FileRepository for access to files in database.
@@ -131,17 +136,18 @@ public class ProjectService {
      * Creates project with OWNER's permissions for current user.
      *
      * @param projectDTO Project to create
+     * @param user       creator of the project
      * @return Created project
      */
-    public ProjectDTO createProject(ProjectDTO projectDTO) {
+    public ProjectDTO createProject(ProjectDTO projectDTO, User user) {
         Project project = mapper.convertFromDTO(projectDTO);
 
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, project.getAccessList());
 
         //Add entity name
-        project.getAccessList().forEach(userPermission ->
-                userPermission.setPermissionCreationLevel(PermissionCreationLevel.PROJECT));
+        ProjectPermissionHelper.fillNewProjectPermissions(project, user);
+
         project.setId(sequenceIdService.getNextProjectId());
 
         project = saveProjectAndHandleError(project);
@@ -186,12 +192,21 @@ public class ProjectService {
         projectFromDb.setReferences(project.getReferences());
         projectFromDb.setVersion(project.getVersion());
 
-        PermissionUtil.changeProjectPermissions(projectFromDb, project.getAccessList());
+        Map<Notebook, List<Experiment>> changedNotebooksAndExperiments =
+                ProjectPermissionHelper.changeProjectPermissions(projectFromDb, project.getAccessList());
 
-        List<Notebook> notebooks = projectFromDb.getNotebooks();
-        notebookService.saveNotebooks(notebooks);
+        for (Map.Entry<Notebook, List<Experiment>> changedNotebookWithExperiments
+                : changedNotebooksAndExperiments.entrySet()) {
 
-        projectFromDb.setNotebooks(notebooks);
+            Notebook changedNotebook = changedNotebookWithExperiments.getKey();
+            List<Experiment> savedExperiments = experimentRepository.save(changedNotebookWithExperiments.getValue());
+            savedExperiments.forEach(experiment ->
+                    webSocketUtil.updateExperiment(user, projectFromDb.getId(), changedNotebook.getId(), experiment));
+        }
+
+        List<Notebook> savedNotebooks = notebookRepository.save(changedNotebooksAndExperiments.keySet());
+        savedNotebooks.forEach(notebook -> webSocketUtil.updateNotebook(user, projectFromDb.getId(), notebook));
+
         project = saveProjectAndHandleError(projectFromDb);
         webSocketUtil.updateProject(user, project);
         return new ProjectDTO(project);
@@ -252,26 +267,5 @@ public class ProjectService {
         } catch (OptimisticLockingFailureException e) {
             throw ConcurrencyException.createWithProjectName(project.getName(), e);
         }
-    }
-
-    public Stream<Triple<Project, Notebook, Experiment>> getEntities(Map<String, Experiment> experiments) {
-        List<DBRef> experimentIds = experiments.keySet().stream()
-                .map(k -> new DBRef("experiment", k))
-                .collect(Collectors.toList());
-
-        Map<String, Notebook> notebooks = notebookService.getbyExperimentsIds(experimentIds);
-
-        List<DBRef> notebookIds = notebooks.keySet().stream()
-                .map(k -> new DBRef("notebook", k))
-                .collect(Collectors.toList());
-
-        Collection<Project> projects = projectRepository.findByNotebookIds(notebookIds);
-
-        return projects.parallelStream()
-                .flatMap(p -> p.getNotebooks().stream()
-                        .filter(n -> notebooks.get(n.getId()) != null)
-                        .flatMap(n -> n.getExperiments().stream()
-                                .filter(e -> experiments.get(e.getId()) != null)
-                                .map(e -> Triple.of(p, n, e))));
     }
 }

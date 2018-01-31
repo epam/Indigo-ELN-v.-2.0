@@ -15,13 +15,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -57,12 +60,13 @@ public class NotebookResource {
             value = PARENT_PATH_ID,
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TreeNodeDTO>> getAllNotebooksByPermissions(
+    @PostFilter("hasAnyAuthority(T(com.epam.indigoeln.core.util.AuthoritiesUtil).NOTEBOOK_READERS)")
+    @ResponseStatus(value = HttpStatus.OK)
+    public List<TreeNodeDTO> getAllNotebooksByPermissions(
             @ApiParam("Project id") @PathVariable String projectId) {
         LOGGER.debug("REST request to get all notebooks of project: {} according to user permissions", projectId);
         User user = userService.getUserWithAuthorities();
-        List<TreeNodeDTO> result = notebookService.getAllNotebookTreeNodes(projectId, user);
-        return ResponseEntity.ok(result);
+        return notebookService.getAllNotebookTreeNodes(projectId, user);
     }
 
     /**
@@ -97,7 +101,7 @@ public class NotebookResource {
     @ApiOperation(value = "Returns true if user can be removed from notebook without problems.")
     @RequestMapping(value = "notebooks/permissions/user-removable", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map> isUserRemovable(
+    public ResponseEntity<Map<String, Boolean>> isUserRemovable(
             @ApiParam("Project id") String projectId,
             @ApiParam("Notebook id") String notebookId,
             @ApiParam("User id") String userId
@@ -205,5 +209,18 @@ public class NotebookResource {
         notebookService.deleteNotebook(projectId, id);
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, null);
         return ResponseEntity.ok().headers(headers).build();
+    }
+
+    /**
+     * Checks if notebook name is new or not
+     *
+     * @param name Notebook name to check
+     * @return Map with only one key where value is true or false
+     */
+    @ApiOperation(value = "Checks if notebook name is new or not")
+    @RequestMapping(value = "notebooks/new", method = RequestMethod.GET)
+    public ResponseEntity<Map<String, Boolean>> isNew(@ApiParam("Notebook name to check") @RequestParam String name) {
+        boolean isNew = notebookService.isNew(name);
+        return ResponseEntity.ok(Collections.singletonMap("isNew", isNew));
     }
 }

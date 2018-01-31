@@ -13,6 +13,8 @@ public class UserPermissionDTO {
 
     private String permissionView;
 
+    private Boolean removable;
+
     public UserPermissionDTO() {
         super();
     }
@@ -21,6 +23,7 @@ public class UserPermissionDTO {
         this.user = userPermission.getUser();
         this.permissions = userPermission.getPermissions();
         this.permissionView = userPermission.getPermissionView();
+        this.removable = userPermission.isRemovable();
     }
 
     public User getUser() {
@@ -45,5 +48,13 @@ public class UserPermissionDTO {
 
     public void setPermissionView(String permissionView) {
         this.permissionView = permissionView;
+    }
+
+    public Boolean getRemovable() {
+        return removable;
+    }
+
+    public void setRemovable(Boolean removable) {
+        this.removable = removable;
     }
 }

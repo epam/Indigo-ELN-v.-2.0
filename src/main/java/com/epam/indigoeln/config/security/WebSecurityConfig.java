@@ -47,7 +47,7 @@ import static com.epam.indigoeln.core.util.AuthoritiesUtil.*;
 @Configuration
 @EnableScheduling
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(securedEnabled = true)
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSecurityConfig.class);
@@ -78,6 +78,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Value("${cors.origin}")
     private String corsOrigin;
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -117,7 +118,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(WebSecurity web) {
         web.ignoring()
                 .antMatchers("/scripts/**/*.{js,html}")
                 .antMatchers("/bower_components/**")
@@ -179,23 +180,36 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/experiment_files").hasAnyAuthority(EXPERIMENT_READERS)
                 .antMatchers(HttpMethod.GET, "/api/experiment_files/**").hasAnyAuthority(EXPERIMENT_READERS)
                 .antMatchers(HttpMethod.POST, "/api/experiment_files").hasAnyAuthority(EXPERIMENT_CREATORS)
-                .antMatchers(HttpMethod.DELETE, "/api/experiment_files/**").hasAnyAuthority(EXPERIMENT_CREATORS)
+                .antMatchers(HttpMethod.DELETE, "/api/experiment_files/**")
+                .hasAnyAuthority(EXPERIMENT_CREATORS)
                 // experiment resource
-                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_READERS)
-                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/*/experiments/all").hasAuthority(CONTENT_EDITOR.name())
-                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/*/experiments/**").hasAnyAuthority(EXPERIMENT_READERS)
-                .antMatchers(HttpMethod.POST, "/api/projects/*/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_CREATORS)
-                .antMatchers(HttpMethod.POST, "/api/projects/*/notebooks/*/experiments/**").hasAnyAuthority(EXPERIMENT_CREATORS)
-                .antMatchers(HttpMethod.PUT, "/api/projects/*/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_CREATORS)
-                .antMatchers(HttpMethod.PUT, "/api/projects/*/notebooks/*/experiments/**").hasAnyAuthority(EXPERIMENT_CREATORS)
-                .antMatchers(HttpMethod.DELETE, "/api/projects/*/notebooks/*/experiments/**").hasAnyAuthority(EXPERIMENT_REMOVERS)
+                //this request secured with method security
+                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/*/experiments")
+                .authenticated()
+                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/*/experiments/all")
+                .hasAuthority(CONTENT_EDITOR.name())
+                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/*/experiments/**")
+                .hasAnyAuthority(EXPERIMENT_READERS)
+                .antMatchers(HttpMethod.POST, "/api/projects/*/notebooks/*/experiments")
+                .hasAnyAuthority(EXPERIMENT_CREATORS)
+                .antMatchers(HttpMethod.POST, "/api/projects/*/notebooks/*/experiments/**")
+                .hasAnyAuthority(EXPERIMENT_CREATORS)
+                .antMatchers(HttpMethod.PUT, "/api/projects/*/notebooks/*/experiments")
+                .hasAnyAuthority(EXPERIMENT_CREATORS)
+                .antMatchers(HttpMethod.PUT, "/api/projects/*/notebooks/*/experiments/**")
+                .hasAnyAuthority(EXPERIMENT_CREATORS)
+                .antMatchers(HttpMethod.DELETE, "/api/projects/*/notebooks/*/experiments/**")
+                .hasAnyAuthority(EXPERIMENT_REMOVERS)
                 // notebook resource
-                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks").hasAnyAuthority(NOTEBOOK_READERS)
-                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/all").hasAuthority(CONTENT_EDITOR.name())
+                //this request secured with method security
+                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/all")
+                .hasAuthority(CONTENT_EDITOR.name())
                 .antMatchers(HttpMethod.GET, "/api/projects/*/notebooks/**").hasAnyAuthority(NOTEBOOK_READERS)
                 .antMatchers(HttpMethod.POST, "/api/projects/*/notebooks").hasAnyAuthority(NOTEBOOK_CREATORS)
                 .antMatchers(HttpMethod.PUT, "/api/projects/*/notebooks").hasAnyAuthority(NOTEBOOK_CREATORS)
-                .antMatchers(HttpMethod.DELETE, "/api/projects/*/notebooks/**").hasAnyAuthority(NOTEBOOK_REMOVERS)
+                .antMatchers(HttpMethod.DELETE, "/api/projects/*/notebooks/**")
+                .hasAnyAuthority(NOTEBOOK_REMOVERS)
                 // project_file resource
                 .antMatchers(HttpMethod.GET, "/api/project_files").hasAnyAuthority(PROJECT_READERS)
                 .antMatchers(HttpMethod.GET, "/api/project_files/**").hasAnyAuthority(PROJECT_READERS)
@@ -267,8 +281,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 //print
                 .antMatchers(HttpMethod.GET, "/api/print/project/*").hasAnyAuthority(PROJECT_READERS)
-                .antMatchers(HttpMethod.GET, "/api/print/project/*/notebook/*").hasAnyAuthority(NOTEBOOK_READERS)
-                .antMatchers(HttpMethod.GET, "/api/print/project/*/notebook/*/experiment/*").hasAnyAuthority(EXPERIMENT_READERS);
+                .antMatchers(HttpMethod.GET, "/api/print/project/*/notebook/*")
+                .hasAnyAuthority(NOTEBOOK_READERS)
+                .antMatchers(HttpMethod.GET, "/api/print/project/*/notebook/*/experiment/*")
+                .hasAnyAuthority(EXPERIMENT_READERS);
     }
 
     @Bean
