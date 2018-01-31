@@ -5,7 +5,8 @@ function registerBatchesDirective() {
         restrict: 'E',
         require: ['^^indigoComponents', 'registerBatches'],
         scope: {
-            isReadonly: '='
+            isReadonly: '=',
+            isDetails: '='
         },
         template: template,
         controller: RegisterBatchesController,
@@ -36,7 +37,9 @@ function RegisterBatchesController(productBatchSummaryOperations, batchHelper,
     }
 
     function registerBatches() {
-        var batches = batchHelper.getCheckedBatches(vm.indigoComponents.batches);
+        var batches = vm.isDetails
+            ? [vm.indigoComponents.selectedBatch]
+            : batchHelper.getCheckedBatches(vm.indigoComponents.batches);
         var notFullBatches = registrationUtil.getNotFullForRegistrationBatches(batches);
 
         if (notFullBatches.length) {
