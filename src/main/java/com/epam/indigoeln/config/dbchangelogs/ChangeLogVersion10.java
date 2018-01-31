@@ -3,6 +3,8 @@ package com.epam.indigoeln.config.dbchangelogs;
 import com.github.mongobee.changeset.ChangeLog;
 import com.github.mongobee.changeset.ChangeSet;
 import com.mongodb.*;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,9 +86,9 @@ public final class ChangeLogVersion10 {
     @ChangeSet(order = "02", author = "indigoeln", id = "02-initRoles")
     public void initRoles(DB db) {
         final DBCollection collection = db.getCollection("role");
-        if (collection.findOne(ROLE_ID) == null) {
+        if (collection.findOne(objectId(ROLE_ID)) == null) {
             collection.insert(BasicDBObjectBuilder.start()
-                    .add(ID_KEY, ROLE_ID)
+                    .add(ID_KEY, objectId(ROLE_ID))
                     .add("name", "All Permissions")
                     .add(SYSTEM, true)
                     .add("authorities", Arrays.asList(
@@ -119,7 +121,7 @@ public final class ChangeLogVersion10 {
                     .add("lang_key", "en")
                     .add("created_by", SYSTEM)
                     .add("created_date", new Date())
-                    .add("roles", Collections.singletonList(new DBRef("role", "role-0")))
+                    .add("roles", Collections.singletonList(new DBRef("role", objectId(ROLE_ID))))
                     .get());
         } else {
             LOGGER.warn(String.format("User with %s = %s already exists", ID_KEY, ADMIN));
@@ -277,9 +279,10 @@ public final class ChangeLogVersion10 {
     private void createDictionary(String id, String name, String description, List<DBObject> words, DB db) {
         DBCollection dictionary = db.getCollection("dictionary");
         String message = "Dictionary with %s = %s already exists";
-        if (dictionary.findOne(id) == null) {
+
+        if (dictionary.findOne(objectId(id)) == null) {
             dictionary.insert(BasicDBObjectBuilder.start()
-                    .add(ID_KEY, id)
+                    .add(ID_KEY, objectId(id))
                     .add("name", name)
                     .add("description", description)
                     .add("words", words)
@@ -303,5 +306,9 @@ public final class ChangeLogVersion10 {
 
     private String getDefaultAdminPassword() {
         return ChangeLogBase.getEnvironment().getProperty("default-admin-password");
+    }
+
+    private static ObjectId objectId(String id) {
+        return new ObjectId(DigestUtils.md5Hex(id).substring(0, 24));
     }
 }
