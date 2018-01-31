@@ -36,18 +36,11 @@ public class DatabaseUtil {
     @Autowired
     private ExperimentService experimentService;
     @Autowired
-    private ProjectRepository projectRepository;
-    @Autowired
-    private NotebookRepository notebookRepository;
-    @Autowired
-    private ExperimentRepository experimentRepository;
-    @Autowired
     private ComponentRepository componentRepository;
     @Autowired
     private SequenceIdRepository sequenceIdRepository;
     @Autowired
     private UserService userService;
-
     @MockBean
     private AuditorAware<User> auditorAware;
 
@@ -83,18 +76,22 @@ public class DatabaseUtil {
                         components.add(component);
                     }
                     experimentDTO.setComponents(components);
-                    ExperimentDTO savedExperiment = experimentService.createExperiment(experimentDTO, savedProject.getId(), savedNotebook.getId(), admin);
+                    ExperimentDTO savedExperiment = experimentService.createExperiment(experimentDTO,
+                            savedProject.getId(), savedNotebook.getId(), admin);
                     experiments.add(savedExperiment);
                 }
 
                 ExperimentDTO expForComplete = experiments.get(2);
                 expForComplete.setStatus(ExperimentStatus.COMPLETED);
-                ExperimentDTO completed = experimentService.updateExperiment(savedProject.getId(), savedNotebook.getId(), expForComplete, admin);
+                ExperimentDTO completed = experimentService.updateExperiment(savedProject.getId(),
+                        savedNotebook.getId(), expForComplete, admin);
                 experiments.set(2, completed);
 
-                NotebookDTO notebookWithVersion = notebookService.getNotebookById(savedProject.getId(), savedNotebook.getId(), admin);
+                NotebookDTO notebookWithVersion = notebookService.getNotebookById(savedProject.getId(),
+                        savedNotebook.getId(), admin);
                 notebookWithVersion.setExperiments(experiments);
-                NotebookDTO updateNotebook = notebookService.updateNotebook(notebookWithVersion, savedProject.getId(), admin);
+                NotebookDTO updateNotebook = notebookService.updateNotebook(notebookWithVersion,
+                        savedProject.getId(), admin);
                 notebooks.add(updateNotebook);
             }
             ProjectDTO projectWithId = projectService.getProjectById(savedProject.getId(), admin);
@@ -104,9 +101,9 @@ public class DatabaseUtil {
     }
 
     public void dropDBs() {
-        projectRepository.deleteAll();
-        notebookRepository.deleteAll();
-        experimentRepository.deleteAll();
+        projectService.deleteAll();
+        notebookService.deleteAll();
+        experimentService.deleteAll();
         componentRepository.deleteAll();
         sequenceIdRepository.deleteAll();
     }

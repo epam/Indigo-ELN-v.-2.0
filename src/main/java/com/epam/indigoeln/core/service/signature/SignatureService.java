@@ -8,7 +8,6 @@ import com.epam.indigoeln.core.service.exception.DocumentUploadException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.print.ITextPrintService;
-import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.core.util.WebSocketUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
@@ -51,9 +50,6 @@ public class SignatureService {
      */
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private CustomDtoMapper dtoMapper;

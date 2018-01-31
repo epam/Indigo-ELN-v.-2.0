@@ -654,4 +654,8 @@ public class ExperimentService {
                 .map(EntitiesIdsDTO::new)
                 .collect(Collectors.toList());
     }
+
+    public void deleteAll(){
+        experimentRepository.deleteAll();
+    }
 }

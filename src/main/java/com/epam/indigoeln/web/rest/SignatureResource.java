@@ -1,20 +1,10 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.model.*;
-import com.epam.indigoeln.core.repository.signature.SignatureJobRepository;
-import com.epam.indigoeln.core.service.exception.DocumentUploadException;
-import com.epam.indigoeln.core.service.exception.OperationDeniedException;
-import com.epam.indigoeln.core.service.experiment.ExperimentService;
-import com.epam.indigoeln.core.service.print.ITextPrintService;
 import com.epam.indigoeln.core.service.signature.SignatureService;
 import com.epam.indigoeln.core.service.user.UserService;
-import com.epam.indigoeln.core.util.SequenceIdUtil;
-import com.epam.indigoeln.core.util.WebSocketUtil;
-import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.print.PrintRequest;
-import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
-import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;

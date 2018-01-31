@@ -268,4 +268,8 @@ public class ProjectService {
             throw ConcurrencyException.createWithProjectName(project.getName(), e);
         }
     }
+
+    public void deleteAll(){
+        projectRepository.deleteAll();
+    }
 }

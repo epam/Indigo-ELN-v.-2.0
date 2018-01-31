@@ -359,4 +359,8 @@ public class NotebookService {
             throw ConcurrencyException.createWithNotebookName(notebook.getName(), e);
         }
     }
+
+    public void deleteAll(){
+        notebookRepository.deleteAll();
+    }
 }
