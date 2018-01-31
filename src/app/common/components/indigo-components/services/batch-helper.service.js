@@ -1,7 +1,7 @@
 var BatchRow = require('../directives/indigo-components/domain/batch-row/calculation-row/batch-row');
 
 /* @ngInject */
-function batchHelper(appUnits, appValuesService, calculationService, columnActions, batchesCalculation,
+function batchHelper(appUnits, appValuesService, columnActions, batchesCalculation,
                      calculationHelper, scalarService, unitService, selectService, setInputService, $q) {
     function onBatchChanged(change) {
         var batchesData = {
@@ -24,6 +24,17 @@ function batchHelper(appUnits, appValuesService, calculationService, columnActio
         var calculatedRow = batchesCalculation.calculateRow(preparedBatchData);
 
         calculationHelper.updateViewRow(calculatedRow, batchesData.changedRow);
+    }
+
+    function calculateSaltEq(rows) {
+        _.forEach(rows, function(row) {
+            if (canEditSaltEq(row)) {
+                calculateRow({
+                    changedRow: row,
+                    changedField: 'saltEq'
+                });
+            }
+        });
     }
 
     function calculateValuesDependingOnTheoMoles(changedRow, limitingRow) {
@@ -54,7 +65,7 @@ function batchHelper(appUnits, appValuesService, calculationService, columnActio
     }
 
     function canEditSaltEq(batch) {
-        return batch && batch.saltCode && batch.saltCode.value !== 0 && hasMolfile(batch);
+        return batch && batch.saltCode && batch.saltCode.value !== '0' && hasMolfile(batch);
     }
 
     var compounds = [
@@ -127,8 +138,7 @@ function batchHelper(appUnits, appValuesService, calculationService, columnActio
                 unitItems: appUnits.grams,
                 width: '150px',
                 hideSetValue: true,
-                readonly: true,
-                actions: unitService.getActions('Theo. Wgt.', appUnits.grams)
+                readonly: true
             },
             theoMoles: {
                 id: 'theoMoles',
@@ -137,8 +147,7 @@ function batchHelper(appUnits, appValuesService, calculationService, columnActio
                 type: 'unit',
                 unitItems: appUnits.moles,
                 hideSetValue: true,
-                readonly: true,
-                actions: unitService.getActions('Theo. Moles', appUnits.moles)
+                readonly: true
             },
             yield: {
                 id: 'yield',
@@ -205,8 +214,7 @@ function batchHelper(appUnits, appValuesService, calculationService, columnActio
             formula: {
                 id: 'formula',
                 name: 'Mol Formula',
-                type: 'formula',
-                actions: setInputService.getActions('Mol Formula')
+                type: 'formula'
             },
             conversationalBatchNumber: {
                 id: 'conversationalBatchNumber',
@@ -236,12 +244,13 @@ function batchHelper(appUnits, appValuesService, calculationService, columnActio
                 checkEnabled: canEditSaltEq,
                 actions: [
                     {
-                        name: 'Set value for scalar',
-                        title: 'scalar',
+                        name: 'Set value for Salt EQ',
+                        title: 'Salt EQ',
                         action: function(rows, column) {
-                            scalarService.action(rows, 'scalar', column)
+                            var changeRows = _.filter(rows, canEditSaltEq);
+                            scalarService.action(changeRows, 'Salt EQ', column)
                                 .then(function(promises) {
-                                    return $q.all(promises).then(calculationService.recalculateStoich);
+                                    return $q.all(promises).then(calculateSaltEq);
                                 });
                         }
                     }
