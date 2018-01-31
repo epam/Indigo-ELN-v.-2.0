@@ -108,7 +108,7 @@ function columnActions(infoEditorService, registrationUtil, $uibModal) {
 
         infoEditorService.editResidualSolvents(data).then(function(result) {
             iterateRegisterd(rows, function(row) {
-                row.residualSolvents = result;
+                row.residualSolvents = angular.copy(result);
             });
         });
     }
@@ -118,7 +118,7 @@ function columnActions(infoEditorService, registrationUtil, $uibModal) {
 
         infoEditorService.editSolubility(data, function(result) {
             iterateRegisterd(rows, function(row) {
-                row.solubility = result;
+                row.solubility = angular.copy(result);
             });
         });
     }
@@ -126,7 +126,7 @@ function columnActions(infoEditorService, registrationUtil, $uibModal) {
     function editStorageInstructions(rows) {
         var callback = function(result) {
             iterateRegisterd(rows, function(row) {
-                row.storageInstructions = result;
+                row.storageInstructions = angular.copy(result);
             });
         };
         var data = rows.length === 1 ? rows[0].storageInstructions : {};
@@ -136,7 +136,7 @@ function columnActions(infoEditorService, registrationUtil, $uibModal) {
     function editHandlingPrecautions(rows) {
         var callback = function(result) {
             iterateRegisterd(rows, function(row) {
-                row.handlingPrecautions = result;
+                row.handlingPrecautions = angular.copy(result);
             });
         };
         var data = rows.length === 1 ? rows[0].handlingPrecautions : {};

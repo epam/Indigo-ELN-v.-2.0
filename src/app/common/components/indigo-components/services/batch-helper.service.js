@@ -26,6 +26,17 @@ function batchHelper(appUnits, appValuesService, calculationService, columnActio
         calculationHelper.updateViewRow(calculatedRow, batchesData.changedRow);
     }
 
+    function calculateSaltEq(rows) {
+        _.forEach(rows, function(row) {
+            if (canEditSaltEq(row)) {
+                calculateRow({
+                    changedRow: row,
+                    changedField: 'saltEq'
+                });
+            }
+        });
+    }
+
     function calculateValuesDependingOnTheoMoles(changedRow, limitingRow) {
         var batchRow = new BatchRow(changedRow);
         var calculatedRow = batchesCalculation.calculateValuesDependingOnTheoMoles(batchRow, limitingRow);
@@ -54,7 +65,7 @@ function batchHelper(appUnits, appValuesService, calculationService, columnActio
     }
 
     function canEditSaltEq(batch) {
-        return batch && batch.saltCode && batch.saltCode.value !== 0 && hasMolfile(batch);
+        return batch && batch.saltCode && batch.saltCode.value !== '0' && hasMolfile(batch);
     }
 
     var compounds = [
@@ -233,12 +244,13 @@ function batchHelper(appUnits, appValuesService, calculationService, columnActio
                 checkEnabled: canEditSaltEq,
                 actions: [
                     {
-                        name: 'Set value for scalar',
-                        title: 'scalar',
+                        name: 'Set value for Salt EQ',
+                        title: 'Salt EQ',
                         action: function(rows, column) {
-                            scalarService.action(rows, 'scalar', column)
+                            var changeRows = _.filter(rows, canEditSaltEq);
+                            scalarService.action(changeRows, 'Salt EQ', column)
                                 .then(function(promises) {
-                                    return $q.all(promises).then(calculationService.recalculateStoich);
+                                    return $q.all(promises).then(calculateSaltEq);
                                 });
                         }
                     }
