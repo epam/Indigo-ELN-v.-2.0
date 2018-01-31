@@ -73,6 +73,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     private static final String[] SOURCE_NAME = {"source", "name"};
     private static final String VALUE = "value";
     private static final String[] MOL_WEIGHT_VALUE = {"molWeight", VALUE};
+    private static final String[] MOL_FORMULA_VALUE = {"formula", VALUE};
 
     public ExperimentPdfSectionsProvider(Project project, Notebook notebook, Experiment experiment,
                                          FileRepository fileRepository, PrintRequest printRequest,
@@ -184,7 +185,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                 structure,
                 compound.getString(FULL_NBK_BATCH),
                 compound.getString(MOL_WEIGHT_VALUE),
-                compound.getString("formula"),
+                compound.getString(MOL_FORMULA_VALUE),
                 compound.getString("structureComments")
         );
     }
@@ -307,7 +308,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                         .setSourceDetail(batch.getString("sourceDetail", "name"))
                         .setBatchOwner(batchOwner.orElse(emptyList()))
                         .setMolWeight(batch.getString(MOL_WEIGHT_VALUE))
-                        .setFormula(batch.getString("formula"))
+                        .setFormula(batch.getString(MOL_FORMULA_VALUE))
                         .setResidualSolvent(batch.getString("residualSolvents", STRING))
                         .setSolubility(batch.getString("solubility", STRING))
                         .setPrecursors(batch.getString("precursors"))
