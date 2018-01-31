@@ -74,7 +74,7 @@ public class UserService {
         this.securityUtils = securityUtils;
     }
 
-    public List<String> getAllUsersByIds(List<String> coAuthorsIds){
+    public List<String> getAllUsersByIds(List<String> coAuthorsIds) {
         return userRepository.findAll(coAuthorsIds).stream()
                 .map(User::getFullName)
                 .collect(Collectors.toList());
@@ -278,5 +278,16 @@ public class UserService {
         }
 
         return checkedRoles;
+    }
+
+    /**
+     * Check if user with {@code login} does <b>not</b> present in BD.
+     *
+     * @param login login to check
+     * @return {@code true} if there is no user with the login in BB
+     * {@code false} in other case
+     */
+    public boolean isNew(String login) {
+        return !userRepository.existsByLogin(login);
     }
 }

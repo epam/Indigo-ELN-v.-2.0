@@ -23,7 +23,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -242,5 +244,18 @@ public class UserResource {
     @RequestMapping(value = "/passwordValidationRegex", method = RequestMethod.GET)
     public String getUserPasswordValidationRegex() {
         return passwordValidationRegex;
+    }
+
+    /**
+     * GET /api/users/new -> Checks if user login is new or not
+     *
+     * @param login user login to check
+     * @return Map with only one key where value is true or false
+     */
+    @ApiOperation(value = "Checks if user login is new or not")
+    @RequestMapping(value = "/new", method = RequestMethod.GET)
+    public ResponseEntity<Map<String, Boolean>> isNew(@ApiParam("user name to check") @RequestParam String login) {
+        boolean isNew = userService.isNew(login);
+        return ResponseEntity.ok(Collections.singletonMap("isNew", isNew));
     }
 }
