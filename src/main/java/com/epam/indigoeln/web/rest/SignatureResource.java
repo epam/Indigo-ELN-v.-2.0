@@ -41,19 +41,11 @@ import java.util.List;
 public class SignatureResource {
 
     @Autowired
-    private SignatureJobRepository signatureJobRepository;
-    @Autowired
     private SignatureService signatureService;
-    @Autowired
-    private ExperimentService experimentService;
     @Autowired
     private UserService userService;
     @Autowired
     private ObjectMapper objectMapper;
-    @Autowired
-    private ITextPrintService iTextPrintService;
-    @Autowired
-    private CustomDtoMapper dtoMapper;
 
     @ApiOperation(value = "Returns reasons.")
     @RequestMapping(value = "/reason", method = RequestMethod.GET,
@@ -95,37 +87,9 @@ public class SignatureResource {
             @ApiParam("Print params.") PrintRequest printRequest) throws IOException {
 
         User user = userService.getUserWithAuthorities();
-        ExperimentDTO experimentDto = experimentService.getExperiment(projectId, notebookId, experimentId, user);
-        Experiment experiment = dtoMapper.convertFromDTO(experimentDto);
-        if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, experiment.getAccessList(),
-                UserPermission.UPDATE_ENTITY)) {
-            throw OperationDeniedException.createExperimentUpdateOperation(experiment.getId());
-        }
-        experiment.setStatus(ExperimentStatus.COMPLETED);
-        byte[] bytes = iTextPrintService.generateExperimentPdf(projectId, notebookId, experiment, printRequest, user);
-        String result = signatureService.uploadDocument(templateId, fileName, bytes);
 
-        // extract uploaded document id
-        String documentId = objectMapper.readValue(result, JsonNode.class).get("id").asText();
-
-        if (documentId == null) {
-            throw DocumentUploadException.createFailedUploading(experimentId);
-        }
-
-        experimentDto.setDocumentId(documentId);
-        experimentDto.setStatus(ExperimentStatus.SUBMITTED);
-        experimentDto.setSubmittedBy(user);
-        experimentService.updateExperiment(projectId, notebookId, experimentDto, user);
-
-        // create status checking job
-
-        SignatureJob signatureJob = new SignatureJob();
-        signatureJob.setExperimentId(SequenceIdUtil.buildFullId(projectId, notebookId, experimentId));
-        signatureJob.setExperimentStatus(ExperimentStatus.SUBMITTED);
-        signatureJob.setHandledBy(WebSocketUtil.getHostName());
-        signatureJobRepository.save(signatureJob);
-
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(signatureService.uploadDocument(projectId, notebookId,
+                experimentId, user, templateId, fileName, printRequest));
     }
 
     @ApiOperation(value = "Returns signature document info.")

@@ -104,8 +104,12 @@ public class ExperimentService {
 
     }
 
-    public void saveExperiments(List<Experiment> experiments){
-        experimentRepository.save(experiments);
+    public Experiment getExperiment(String experimentId){
+        return experimentRepository.findOne(experimentId);
+    }
+
+    public void saveExperiment(Experiment experiment){
+        experimentRepository.save(experiment);
     }
 
     /**

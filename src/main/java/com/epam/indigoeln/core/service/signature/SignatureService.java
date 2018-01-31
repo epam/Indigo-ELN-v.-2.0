@@ -1,12 +1,20 @@
 package com.epam.indigoeln.core.service.signature;
 
-import com.epam.indigoeln.core.model.Experiment;
-import com.epam.indigoeln.core.model.ExperimentStatus;
-import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
+import com.epam.indigoeln.core.model.*;
+import com.epam.indigoeln.core.repository.signature.SignatureJobRepository;
 import com.epam.indigoeln.core.repository.signature.SignatureRepository;
 import com.epam.indigoeln.core.security.SecurityUtils;
 import com.epam.indigoeln.core.service.exception.DocumentUploadException;
+import com.epam.indigoeln.core.service.exception.OperationDeniedException;
+import com.epam.indigoeln.core.service.experiment.ExperimentService;
+import com.epam.indigoeln.core.service.print.ITextPrintService;
+import com.epam.indigoeln.core.service.user.UserService;
+import com.epam.indigoeln.core.util.SequenceIdUtil;
+import com.epam.indigoeln.core.util.WebSocketUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
+import com.epam.indigoeln.web.rest.dto.print.PrintRequest;
+import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
+import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -36,13 +44,25 @@ public class SignatureService {
      * ExperimentRepository instance for working with experiment.
      */
     @Autowired
-    private ExperimentRepository experimentRepository;
+    private ExperimentService experimentService;
 
     /**
      * ObjectMapper instance for working with json.
      */
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private CustomDtoMapper dtoMapper;
+
+    @Autowired
+    private ITextPrintService iTextPrintService;
+
+    @Autowired
+    private SignatureJobRepository signatureJobRepository;
 
     public String getReasons() {
         return signatureRepository.getReasons();
@@ -66,16 +86,54 @@ public class SignatureService {
     }
 
     /**
-     * Uploads document to signature.
+     * * Uploads document to signature.
      *
-     * @param templateId Template's id
-     * @param fileName   File's name
-     * @param file       File
+     * @param templateId   Template's id
+     * @param fileName     File's name
+     * @param projectId    Project id
+     * @param notebookId   Notebook id
+     * @param experimentId Experiment id
+     * @param user         User
+     * @param printRequest Print params
      * @return Result of uploading
+     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     *                     network error) occurs
      */
-    public String uploadDocument(String templateId, String fileName, byte[] file) {
-        return signatureRepository.uploadDocument(SecurityUtils.getCurrentUser().getUsername(),
-                templateId, fileName, file);
+    public String uploadDocument(String projectId, String notebookId, String experimentId,
+                                 com.epam.indigoeln.core.model.User user, String templateId,
+                                 String fileName, PrintRequest printRequest) throws IOException {
+        ExperimentDTO experimentDto = experimentService.getExperiment(projectId, notebookId, experimentId, user);
+        Experiment experiment = dtoMapper.convertFromDTO(experimentDto);
+        if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, experiment.getAccessList(),
+                UserPermission.UPDATE_ENTITY)) {
+            throw OperationDeniedException.createExperimentUpdateOperation(experiment.getId());
+        }
+        experiment.setStatus(ExperimentStatus.COMPLETED);
+        byte[] bytes = iTextPrintService.generateExperimentPdf(projectId, notebookId, experiment, printRequest, user);
+        String result = signatureRepository.uploadDocument(SecurityUtils.getCurrentUser().getUsername(),
+                templateId, fileName, bytes);
+
+        // extract uploaded document id
+        String documentId = objectMapper.readValue(result, JsonNode.class).get("id").asText();
+
+        if (documentId == null) {
+            throw DocumentUploadException.createFailedUploading(experimentId);
+        }
+
+        experimentDto.setDocumentId(documentId);
+        experimentDto.setStatus(ExperimentStatus.SUBMITTED);
+        experimentDto.setSubmittedBy(user);
+        experimentService.updateExperiment(projectId, notebookId, experimentDto, user);
+
+        // create status checking job
+
+        SignatureJob signatureJob = new SignatureJob();
+        signatureJob.setExperimentId(SequenceIdUtil.buildFullId(projectId, notebookId, experimentId));
+        signatureJob.setExperimentStatus(ExperimentStatus.SUBMITTED);
+        signatureJob.setHandledBy(WebSocketUtil.getHostName());
+        signatureJobRepository.save(signatureJob);
+
+        return result;
     }
 
     /**
@@ -149,9 +207,9 @@ public class SignatureService {
 
             // update experiment if differ
             if (!expectedStatus.equals(experimentDTO.getStatus())) {
-                final Experiment experiment = experimentRepository.findOne(experimentDTO.getFullId());
+                final Experiment experiment = experimentService.getExperiment(experimentDTO.getFullId());
                 experiment.setStatus(expectedStatus);
-                experimentRepository.save(experiment);
+                experimentService.saveExperiment(experiment);
                 return expectedStatus;
             }
         }
