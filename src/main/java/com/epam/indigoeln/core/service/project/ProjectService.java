@@ -16,14 +16,18 @@ import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.epam.indigoeln.web.rest.util.permission.helpers.ProjectPermissionHelper;
+import com.mongodb.DBRef;
 import com.mongodb.gridfs.GridFSDBFile;
+import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides a number of methods for access to project's data in database.
@@ -267,5 +271,31 @@ public class ProjectService {
         } catch (OptimisticLockingFailureException e) {
             throw ConcurrencyException.createWithProjectName(project.getName(), e);
         }
+    }
+
+    public void deleteAll(){
+        projectRepository.deleteAll();
+    }
+
+    public Stream<Triple<Project, Notebook, Experiment>> getEntities(Map<String, Experiment> experiments) {
+        List<DBRef> experimentIds = experiments.keySet().stream()
+                .map(k -> new DBRef("experiment", k))
+                .collect(Collectors.toList());
+
+        Map<String, Notebook> notebooks = notebookRepository.findByExperimentsIds(experimentIds)
+                .collect(Collectors.toMap(Notebook::getId, Function.identity()));
+
+        List<DBRef> notebookIds = notebooks.keySet().stream()
+                .map(k -> new DBRef("notebook", k))
+                .collect(Collectors.toList());
+
+        Collection<Project> projects = projectRepository.findByNotebookIds(notebookIds);
+
+        return projects.parallelStream()
+                .flatMap(p -> p.getNotebooks().stream()
+                        .filter(n -> notebooks.get(n.getId()) != null)
+                        .flatMap(n -> n.getExperiments().stream()
+                                .filter(e -> experiments.get(e.getId()) != null)
+                                .map(e -> Triple.of(p, n, e))));
     }
 }

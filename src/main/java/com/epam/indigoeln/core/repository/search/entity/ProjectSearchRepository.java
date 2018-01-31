@@ -1,9 +1,17 @@
 package com.epam.indigoeln.core.repository.search.entity;
 
+import com.epam.indigoeln.core.model.Project;
+import com.epam.indigoeln.core.model.User;
+import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.search.AggregationUtils;
 import com.epam.indigoeln.core.repository.search.ResourceUtils;
+import com.epam.indigoeln.web.rest.dto.BasicDTO;
+import com.epam.indigoeln.web.rest.dto.ProjectDTO;
+import com.epam.indigoeln.web.rest.dto.search.EntitySearchResultDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
+import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.mongodb.BasicDBList;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
 
@@ -37,25 +46,34 @@ public class ProjectSearchRepository implements InitializingBean {
     private static final List<String> AVAILABLE_FIELDS = Arrays
             .asList(FIELD_DESCRIPTION, FIELD_NAME, FIELD_KEYWORDS, FIELD_REFERENCES, FIELD_AUTHOR_ID, FIELD_KIND);
 
-    private final MongoTemplate template;
-
     @Value("classpath:mongo/search/projects.js")
     private Resource scriptResource;
 
     private ExecutableMongoScript searchScript;
 
     @Autowired
-    public ProjectSearchRepository(MongoTemplate template) {
-        this.template = template;
-    }
+    private MongoTemplate template;
+
+    @Autowired
+    private ProjectRepository projectRepository;
 
     @Override
     public void afterPropertiesSet() throws Exception {
         searchScript = new ExecutableMongoScript(ResourceUtils.loadFunction(scriptResource));
     }
 
+    Optional<List<EntitySearchResultDTO>> searchProjects(EntitySearchRequest searchRequest, User user) {
+        return search(searchRequest).map(ids -> {
+            final Iterable<Project> projects = projectRepository.findAll(ids);
+            return StreamSupport.stream(projects.spliterator(), false).filter(
+                    p -> PermissionUtil.hasEditorAuthorityOrPermissions(user, p.getAccessList(),
+                            UserPermission.READ_ENTITY)
+            ).map(ProjectDTO::new).map(this::convert).collect(Collectors.toList());
+        });
+    }
+
     @SuppressWarnings("unchecked")
-    public Optional<Set<String>> search(EntitySearchRequest request) {
+    private Optional<Set<String>> search(EntitySearchRequest request) {
         if (checkConditions(request)) {
             Optional<Criteria> advancedCriteria = getAdvancedCriteria(request);
             Optional<Criteria> queryCriteria = getQueryCriteria(request);
@@ -104,5 +122,24 @@ public class ProjectSearchRepository implements InitializingBean {
                 .stream()
                 .map(o -> (String) o)
                 .collect(Collectors.toSet());
+    }
+
+    private EntitySearchResultDTO convert(ProjectDTO project) {
+        EntitySearchResultDTO result = new EntitySearchResultDTO();
+        result.setKind("Project");
+        result.setName(project.getName());
+        result.setDetails(getDetails(project));
+        result.setProjectId(project.getId());
+        return result;
+    }
+
+    private EntitySearchResultDTO.Details getDetails(BasicDTO dto) {
+        EntitySearchResultDTO.Details details = new EntitySearchResultDTO.Details();
+        details.setCreationDate(dto.getCreationDate());
+        if (dto.getAuthor() != null) {
+            details.setAuthor(dto.getAuthor().getFullName());
+
+        }
+        return details;
     }
 }

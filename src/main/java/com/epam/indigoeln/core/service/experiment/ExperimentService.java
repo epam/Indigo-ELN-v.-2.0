@@ -104,6 +104,14 @@ public class ExperimentService {
 
     }
 
+    public Experiment getExperiment(String experimentId){
+        return experimentRepository.findOne(experimentId);
+    }
+
+    public void saveExperiment(Experiment experiment){
+        experimentRepository.save(experiment);
+    }
+
     /**
      * Returns all experiments of specified notebook for tree representation.
      *
@@ -645,5 +653,9 @@ public class ExperimentService {
         return experiments.stream()
                 .map(EntitiesIdsDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    public void deleteAll(){
+        experimentRepository.deleteAll();
     }
 }

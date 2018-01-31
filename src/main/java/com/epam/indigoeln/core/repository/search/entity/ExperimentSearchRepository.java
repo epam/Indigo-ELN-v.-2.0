@@ -1,10 +1,22 @@
 package com.epam.indigoeln.core.repository.search.entity;
 
+import com.epam.indigoeln.core.model.Experiment;
+import com.epam.indigoeln.core.model.User;
+import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
+import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.search.AggregationUtils;
 import com.epam.indigoeln.core.repository.search.ResourceUtils;
+import com.epam.indigoeln.core.util.BatchComponentUtil;
+import com.epam.indigoeln.core.util.SequenceIdUtil;
+import com.epam.indigoeln.web.rest.dto.BasicDTO;
+import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
+import com.epam.indigoeln.web.rest.dto.search.EntitySearchResultDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
+import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.mongodb.BasicDBList;
+import com.mongodb.DBRef;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +28,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
 
@@ -26,9 +39,6 @@ public class ExperimentSearchRepository implements InitializingBean {
     private static final Collection<String> AVAILABLE_FIELDS = Arrays.asList("status", "author.$id", "kind");
     private static final String EXPERIMENT = "Experiment";
 
-    private final ComponentSearchRepository componentSearchRepository;
-
-    private final MongoTemplate template;
 
     @Value("classpath:mongo/search/experiments.js")
     private Resource scriptResource;
@@ -36,18 +46,44 @@ public class ExperimentSearchRepository implements InitializingBean {
     private ExecutableMongoScript searchScript;
 
     @Autowired
-    public ExperimentSearchRepository(ComponentSearchRepository componentSearchRepository, MongoTemplate template) {
-        this.componentSearchRepository = componentSearchRepository;
-        this.template = template;
-    }
+    private ComponentSearchRepository componentSearchRepository;
+
+    @Autowired
+    private MongoTemplate template;
+
+    @Autowired
+    private ExperimentRepository experimentRepository;
+
+    @Autowired
+    private NotebookRepository notebookRepository;
 
     @Override
     public void afterPropertiesSet() throws Exception {
         searchScript = new ExecutableMongoScript(ResourceUtils.loadFunction(scriptResource));
     }
 
+    Optional<List<EntitySearchResultDTO>> searchExperiments(EntitySearchRequest searchRequest,
+                                                            List<String> bingoIds, User user) {
+        return search(searchRequest, bingoIds).map(ids -> {
+                    final Iterable<Experiment> experiments = experimentRepository.findAll(ids);
+
+                    Map<String, String> notebookNameMap = new HashMap<>();
+                    final Set<DBRef> dbRefs = ids.stream().map(id -> new DBRef("experiment", id))
+                            .collect(Collectors.toSet());
+                    notebookRepository.findByExperimentsIds(dbRefs).forEach(n -> n.getExperiments()
+                            .forEach(e -> notebookNameMap.put(e.getId(), n.getName())));
+
+                    return StreamSupport.stream(experiments.spliterator(), false).filter(
+                            p -> PermissionUtil.hasEditorAuthorityOrPermissions(user, p.getAccessList(),
+                                    UserPermission.READ_ENTITY)
+                    ).map(ExperimentDTO::new).map(e -> convert(notebookNameMap.get(e.getFullId()), e))
+                            .collect(Collectors.toList());
+
+                });
+    }
+
     @SuppressWarnings("unchecked")
-    public Optional<Set<String>> search(EntitySearchRequest request, List<String> bingoIds) {
+    private Optional<Set<String>> search(EntitySearchRequest request, List<String> bingoIds) {
         if (checkConditions(request)) {
             Optional<Criteria> advancedCriteria = getAdvancedCriteria(request);
             Optional<Criteria> queryCriteria = getQueryCriteria(request);
@@ -126,5 +162,40 @@ public class ExperimentSearchRepository implements InitializingBean {
                 .stream()
                 .map(o -> (String) o)
                 .collect(Collectors.toSet());
+    }
+
+    private EntitySearchResultDTO convert(String notebookName, ExperimentDTO experiment) {
+        EntitySearchResultDTO result = new EntitySearchResultDTO();
+        result.setKind("Experiment");
+        result.setName(notebookName + "-" + experiment.getFullName());
+        result.setDetails(getDetails(experiment));
+        result.setProjectId(SequenceIdUtil.extractFirstId(experiment));
+        result.setNotebookId(experiment.getParentId());
+        result.setExperimentId(experiment.getId());
+        return result;
+    }
+
+    private EntitySearchResultDTO.Details getDetails(ExperimentDTO experiment) {
+        final EntitySearchResultDTO.Details details = getDetails((BasicDTO) experiment);
+
+        String title = BatchComponentUtil
+                .getConceptDetails(experiment.getComponents()).map(cd -> cd.getContent().getString("title"))
+                .orElseGet(
+                        () -> BatchComponentUtil.getReactionDetails(experiment.getComponents())
+                                .map(cd -> cd.getContent().getString("title"))
+                                .orElse(null)
+                );
+        details.setTitle(title);
+        return details;
+    }
+
+    private EntitySearchResultDTO.Details getDetails(BasicDTO dto) {
+        EntitySearchResultDTO.Details details = new EntitySearchResultDTO.Details();
+        details.setCreationDate(dto.getCreationDate());
+        if (dto.getAuthor() != null) {
+            details.setAuthor(dto.getAuthor().getFullName());
+
+        }
+        return details;
     }
 }

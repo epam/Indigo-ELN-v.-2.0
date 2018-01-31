@@ -1,9 +1,17 @@
 package com.epam.indigoeln.core.repository.search.entity;
 
+import com.epam.indigoeln.core.model.Notebook;
+import com.epam.indigoeln.core.model.User;
+import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.search.AggregationUtils;
 import com.epam.indigoeln.core.repository.search.ResourceUtils;
+import com.epam.indigoeln.web.rest.dto.BasicDTO;
+import com.epam.indigoeln.web.rest.dto.NotebookDTO;
+import com.epam.indigoeln.web.rest.dto.search.EntitySearchResultDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
+import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.mongodb.BasicDBList;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
 
@@ -33,25 +42,34 @@ public class NotebookSearchRepository implements InitializingBean {
     private static final List<String> AVAILABLE_FIELDS = Arrays
             .asList(FIELD_DESCRIPTION, FIELD_NAME, FIELD_AUTHOR_ID, FIELD_KIND);
 
-    private final MongoTemplate template;
-
     @Value("classpath:mongo/search/notebooks.js")
     private Resource scriptResource;
 
     private ExecutableMongoScript searchScript;
 
     @Autowired
-    public NotebookSearchRepository(MongoTemplate template) {
-        this.template = template;
-    }
+    private MongoTemplate template;
+
+    @Autowired
+    private NotebookRepository notebookRepository;
 
     @Override
     public void afterPropertiesSet() throws Exception {
         searchScript = new ExecutableMongoScript(ResourceUtils.loadFunction(scriptResource));
     }
 
+    Optional<List<EntitySearchResultDTO>> searchNotebooks(EntitySearchRequest searchRequest, User user) {
+        return search(searchRequest).map(ids -> {
+            final Iterable<Notebook> notebooks = notebookRepository.findAll(ids);
+            return StreamSupport.stream(notebooks.spliterator(), false).filter(
+                    n -> PermissionUtil.hasEditorAuthorityOrPermissions(user, n.getAccessList(),
+                            UserPermission.READ_ENTITY)
+            ).map(NotebookDTO::new).map(this::convert).collect(Collectors.toList());
+        });
+    }
+
     @SuppressWarnings("unchecked")
-    public Optional<Set<String>> search(EntitySearchRequest request) {
+    private Optional<Set<String>> search(EntitySearchRequest request) {
         if (checkConditions(request)) {
             Optional<Criteria> advancedCriteria = getAdvancedCriteria(request);
             Optional<Criteria> queryCriteria = getQueryCriteria(request);
@@ -100,5 +118,25 @@ public class NotebookSearchRepository implements InitializingBean {
                 .stream()
                 .map(o -> (String) o)
                 .collect(Collectors.toSet());
+    }
+
+    private EntitySearchResultDTO convert(NotebookDTO notebook) {
+        EntitySearchResultDTO result = new EntitySearchResultDTO();
+        result.setKind("Notebook");
+        result.setName(notebook.getName());
+        result.setDetails(getDetails(notebook));
+        result.setProjectId(notebook.getParentId());
+        result.setNotebookId(notebook.getId());
+        return result;
+    }
+
+    private EntitySearchResultDTO.Details getDetails(BasicDTO dto) {
+        EntitySearchResultDTO.Details details = new EntitySearchResultDTO.Details();
+        details.setCreationDate(dto.getCreationDate());
+        if (dto.getAuthor() != null) {
+            details.setAuthor(dto.getAuthor().getFullName());
+
+        }
+        return details;
     }
 }
