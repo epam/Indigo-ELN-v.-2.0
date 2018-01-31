@@ -26,6 +26,10 @@ function userService($resource, apiUrl) {
         },
         delete: {
             method: 'DELETE'
+        },
+        isNew: {
+            method: 'GET',
+            url: apiUrl + 'users/new'
         }
     });
 }
