@@ -1,7 +1,7 @@
 var BatchRow = require('../directives/indigo-components/domain/batch-row/calculation-row/batch-row');
 
 /* @ngInject */
-function batchHelper(appUnits, appValuesService, calculationService, columnActions, batchesCalculation,
+function batchHelper(appUnits, appValuesService, columnActions, batchesCalculation,
                      calculationHelper, scalarService, unitService, selectService, setInputService, $q) {
     function onBatchChanged(change) {
         var batchesData = {
