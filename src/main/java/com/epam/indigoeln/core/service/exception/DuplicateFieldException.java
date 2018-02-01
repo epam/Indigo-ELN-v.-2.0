@@ -66,11 +66,10 @@ public final class DuplicateFieldException extends CustomParametrizedException {
      * Creates instance of DuplicateFieldException class with template's
      * name if such name is already exists.
      *
-     * @param name Template's name
      * @return Instance of DuplicateFieldException class with template's name
      */
-    public static DuplicateFieldException createWithTemplateName(String name) {
-        return new DuplicateFieldException("Template name " + name + EXCEPTION_MESSAGE);
+    public static DuplicateFieldException createWithTemplateName() {
+        return new DuplicateFieldException("Template with this name already exists. Please unique name");
     }
 
 

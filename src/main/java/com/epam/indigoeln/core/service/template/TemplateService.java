@@ -142,7 +142,7 @@ public class TemplateService {
                 throw ConcurrencyException.createWithTemplateName(template.getName(), e);
             }
         } else {
-            throw DuplicateFieldException.createWithTemplateName(template.getName());
+            throw DuplicateFieldException.createWithTemplateName();
         }
     }
 
