@@ -102,9 +102,9 @@ public class TemplateService {
      * @return Created template
      */
     public TemplateDTO createTemplate(TemplateDTO templateDTO) {
-        Template template = dtoMapper.convertFromDTO(templateDTO);
-        Template savedTemplate = saveTemplateAndHandleError(template);
-        return new TemplateDTO(savedTemplate);
+            Template template = dtoMapper.convertFromDTO(templateDTO);
+            Template savedTemplate = saveTemplateAndHandleError(template);
+            return new TemplateDTO(savedTemplate);
     }
 
     /**
@@ -133,12 +133,20 @@ public class TemplateService {
     }
 
     private Template saveTemplateAndHandleError(Template template) {
-        try {
-            return templateRepository.save(template);
-        } catch (DuplicateKeyException e) {
-            throw DuplicateFieldException.createWithTemplateName(template.getName(), e);
-        } catch (OptimisticLockingFailureException e) {
-            throw ConcurrencyException.createWithTemplateName(template.getName(), e);
+        if(!nameAlreadyExists(template.getName())) {
+            try {
+                return templateRepository.save(template);
+            } catch (DuplicateKeyException e) {
+                throw DuplicateFieldException.createWithTemplateId(template.getName(), e);
+            } catch (OptimisticLockingFailureException e) {
+                throw ConcurrencyException.createWithTemplateName(template.getName(), e);
+            }
+        } else {
+            throw DuplicateFieldException.createWithTemplateName(template.getName());
         }
+    }
+
+    private boolean nameAlreadyExists(String name){
+        return templateRepository.existsByName(name);
     }
 }

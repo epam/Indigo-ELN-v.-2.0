@@ -11,4 +11,6 @@ public interface TemplateRepository extends MongoRepository<Template, String> {
     Optional<Template> findOneByName(String name);
 
     List<Template> findByNameLikeIgnoreCase(String nameLike);
+
+    boolean existsByName(String name);
 }
