@@ -359,31 +359,15 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         }, true);
     }
 
-    function isReactantAlreadyInStoic(responces) {
-        return _.some(responces);
-    }
-
-    function findLikedReactant(reactant) {
-        return !!_.find(vm.componentData.reactants, function(infoReactant) {
-            return infoReactant.formula === reactant.formula;
-        });
-    }
-
     function getMissingReactionReactantsInStoic(reactantsInfo) {
         var reactantsToSearch = [];
         var stoicReactants = stoichTableHelper.getReactantsWithMolfile(vm.componentData.reactants);
 
-        if (_.isEmpty(reactantsInfo) || stoicReactants.length !== reactantsInfo.length) {
-            _.forEach(reactantsInfo, function(reactant) {
-                if (!findLikedReactant(reactant) && stoichTableHelper.hasMolfile(reactant)) {
-                    reactantsToSearch.push(reactant);
-                }
-            });
-
-            return $q.resolve(reactantsToSearch);
+        if (!stoicReactants.length) {
+            return $q.resolve(reactantsInfo);
         }
 
-        var allPromises = _.map(reactantsInfo, function(reactantInfo, index) {
+        var allPromises = _.map(reactantsInfo, function(reactantInfo) {
             var reactantsEqualityPromises = _.map(stoicReactants, function(stoicReactant) {
                 return calculationService.isMoleculesEqual(
                     stoicReactant.structure.molfile,
@@ -391,9 +375,9 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
                 );
             });
 
-            return $q.all(reactantsEqualityPromises).then(function(responces) {
-                if (!isReactantAlreadyInStoic(responces)) {
-                    reactantsToSearch[index] = reactantInfo;
+            return $q.all(reactantsEqualityPromises).then(function(equalResults) {
+                if (equalResults.indexOf(true) === -1) {
+                    reactantsToSearch.push(reactantInfo);
                 }
             });
         });
