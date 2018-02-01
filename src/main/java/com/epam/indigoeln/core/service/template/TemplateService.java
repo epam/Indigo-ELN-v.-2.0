@@ -146,7 +146,7 @@ public class TemplateService {
         }
     }
 
-    private boolean nameAlreadyExists(String name) {
+    public boolean nameAlreadyExists(String name) {
         return templateRepository.existsByName(name);
     }
 }
