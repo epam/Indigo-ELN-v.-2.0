@@ -19,8 +19,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * REST controller for managing Resources.
@@ -167,5 +169,20 @@ public class TemplateResource {
         templateService.deleteTemplate(id);
         return ResponseEntity.ok().headers(
                 HeaderUtil.createEntityDeleteAlert(TEMPLATE, null)).build();
+    }
+
+
+    /**
+     * GET /templates/new -> Checks if template's name already exists
+     *
+     * @param templateName Template's name to check
+     * @return Map with only one key where value is true or false
+     */
+    @ApiOperation(value = "Checks if template's name is new or not")
+    @RequestMapping(value = "/new", method = RequestMethod.GET)
+    public ResponseEntity<Map<String, Boolean>> isNew(@ApiParam("Template's name to check")
+                                                      @RequestParam String templateName) {
+        boolean notNew = templateService.nameAlreadyExists(templateName);
+        return ResponseEntity.ok(Collections.singletonMap("nameAlreadyExists", notNew));
     }
 }

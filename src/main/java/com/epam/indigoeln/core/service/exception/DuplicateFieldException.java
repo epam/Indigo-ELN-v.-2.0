@@ -21,6 +21,10 @@ public final class DuplicateFieldException extends CustomParametrizedException {
         super(message, e, params);
     }
 
+    private DuplicateFieldException(String message) {
+        this(message, null);
+    }
+
     /**
      * Creates instance of DuplicateFieldException class with notebook's
      * name if such name is already exists.
@@ -48,15 +52,26 @@ public final class DuplicateFieldException extends CustomParametrizedException {
 
     /**
      * Creates instance of DuplicateFieldException class with template's
-     * name if such name is already exists.
+     * id if template with such primary key already exists.
      *
-     * @param name Template's name
-     * @param e    Exception
+     * @param id Template's id
+     * @param e  Exception
      * @return Instance of DuplicateFieldException class with template's name
      */
-    public static DuplicateFieldException createWithTemplateName(String name, Exception e) {
-        return new DuplicateFieldException("Template name " + name + EXCEPTION_MESSAGE, e, name);
+    public static DuplicateFieldException createWithTemplateId(String id, Exception e) {
+        return new DuplicateFieldException("Template id =" + id + EXCEPTION_MESSAGE, e, id);
     }
+
+    /**
+     * Creates instance of DuplicateFieldException class with template's
+     * name if such name is already exists.
+     *
+     * @return Instance of DuplicateFieldException class with template's name
+     */
+    public static DuplicateFieldException createWithTemplateName() {
+        return new DuplicateFieldException("Template with this name already exists. Please unique name");
+    }
+
 
     /**
      * Creates instance of DuplicateFieldException class with user's
