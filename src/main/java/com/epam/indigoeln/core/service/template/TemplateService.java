@@ -102,9 +102,9 @@ public class TemplateService {
      * @return Created template
      */
     public TemplateDTO createTemplate(TemplateDTO templateDTO) {
-            Template template = dtoMapper.convertFromDTO(templateDTO);
-            Template savedTemplate = saveTemplateAndHandleError(template);
-            return new TemplateDTO(savedTemplate);
+        Template template = dtoMapper.convertFromDTO(templateDTO);
+        Template savedTemplate = saveTemplateAndHandleError(template);
+        return new TemplateDTO(savedTemplate);
     }
 
     /**
@@ -133,7 +133,7 @@ public class TemplateService {
     }
 
     private Template saveTemplateAndHandleError(Template template) {
-        if(!nameAlreadyExists(template.getName())) {
+        if (!nameAlreadyExists(template.getName())) {
             try {
                 return templateRepository.save(template);
             } catch (DuplicateKeyException e) {
@@ -146,7 +146,7 @@ public class TemplateService {
         }
     }
 
-    private boolean nameAlreadyExists(String name){
+    private boolean nameAlreadyExists(String name) {
         return templateRepository.existsByName(name);
     }
 }

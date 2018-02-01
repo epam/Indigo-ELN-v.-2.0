@@ -55,7 +55,7 @@ public final class DuplicateFieldException extends CustomParametrizedException {
      * id if template with such primary key already exists.
      *
      * @param id Template's id
-     * @param e    Exception
+     * @param e  Exception
      * @return Instance of DuplicateFieldException class with template's name
      */
     public static DuplicateFieldException createWithTemplateId(String id, Exception e) {
