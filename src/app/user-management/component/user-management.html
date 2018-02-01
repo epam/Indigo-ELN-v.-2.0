@@ -21,8 +21,8 @@
     <div ng-if="vm.user" class="panel panel-info edit-form animated">
         <div class="panel-heading" i-translate="CREATE_EDIT_USER"></div>
         <div class="panel-body ">
-            <form id="editForm"
-                  name="editForm"
+            <form id="vm.editForm"
+                  name="vm.editForm"
                   role="form"
                   novalidate
                   autocomplete="off">
@@ -37,7 +37,10 @@
                                    type="text"
                                    maxlength="50"
                                    ng-pattern="/^[a-z0-9]*$/"
-                                   ng-model="vm.user.login">
+                                   ng-model="vm.user.login"
+                                   dynamic-async-validators="{ userExists: vm.userExistValidation }">
+                            <p ng-if="vm.editForm.login.$error.userExists"
+                               class="help-block">The user with login {{vm.editForm.login.$viewValue}} is already exists in the system. Please provide new login.</p>
                         </simple-input>
                         <simple-input>
                             <span i-translate="FIRST_NAME"></span>
@@ -67,7 +70,7 @@
                                       on-refresh="vm.searchRoles(query)"
                                       on-load-page="vm.loadRolesPage(query)">
                         </autocomplete>
-                        <p class="help-block" ng-if="editForm.role.$invalid && editForm.role.$dirty"
+                        <p class="help-block" ng-if="vm.editForm.role.$invalid && vm.editForm.role.$dirty"
                            i-translate="FIELD_REQUIRED_HINT"></p>
                         <p class="help-block" ng-if="vm.isEditingSelf"
                            i-translate="SELF_ROLE_CHANGE_HINT"></p>
@@ -118,8 +121,8 @@
             <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
                 <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
             </button>
-            <button ng-click="vm.saveUser()" form="editForm"
-                    ng-disabled="editForm.$invalid || vm.isSaving"
+            <button ng-click="vm.saveUser()" form="vm.editForm"
+                    ng-disabled="vm.editForm.$invalid || vm.isSaving"
                     class="btn btn-primary m-l5">
                 <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
             </button>

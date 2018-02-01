@@ -1,7 +1,7 @@
 var userManagementPasswordDialogTemplate = require('./user-management-password-dialog.html');
 
 /* @ngInject */
-function UserManagementController($uibModal, userService, parseLinks, passwordRegex, notifyService,
+function UserManagementController($scope, $uibModal, userService, parseLinks, passwordRegex, notifyService,
                                   translateService, roleService, $q, principalService) {
     var vm = this;
 
@@ -35,6 +35,7 @@ function UserManagementController($uibModal, userService, parseLinks, passwordRe
     vm.search = search;
     vm.changePassword = changePassword;
     vm.sortUsers = sortUsers;
+    vm.userExistValidation = userExistValidation;
 
     vm.loadAll();
 
@@ -167,7 +168,7 @@ function UserManagementController($uibModal, userService, parseLinks, passwordRe
             size: 'md',
             template: userManagementPasswordDialogTemplate,
             controllerAs: 'vm',
-            controller: function($scope, $uibModalInstance, passwordValidationRegex, passwordValidationText) {
+            controller: function($uibModalInstance, passwordValidationRegex, passwordValidationText) {
                 var vm = this;
 
                 vm.passwordRegex = passwordValidationRegex;
@@ -212,6 +213,25 @@ function UserManagementController($uibModal, userService, parseLinks, passwordRe
         vm.sortBy.field = predicate;
         vm.sortBy.isAscending = isAscending;
         loadAll();
+    }
+
+    function userExistValidation(modelValue) {
+        // Skip validation for saved user and empty value
+        if (!modelValue || !vm.editForm.login.$dirty || vm.user.login === modelValue) {
+            return $q.when(true);
+        }
+
+        return userService.isNew({login: modelValue})
+            .$promise
+            .then(function(result) {
+                if (!result.isNew) {
+                    // Role with provided name already exist
+                    return $q.reject('User login is already in use');
+                }
+
+                // Nothing found, validation passes
+                return true;
+            });
     }
 }
 
