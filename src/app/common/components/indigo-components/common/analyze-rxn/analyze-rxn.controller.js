@@ -107,7 +107,7 @@ function AnalyzeRxnController($uibModalInstance, reactants, searchService, appVa
         var searchRequest = {
             databases: databases,
             structure: {
-                formula: formula, searchMode: 'molformula'
+                formula: formula, searchMode: 'substructure'
             }
         };
 
