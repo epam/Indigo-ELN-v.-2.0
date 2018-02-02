@@ -32,14 +32,9 @@ function setRowProperties(defaultProps, customProps) {
         } else if (fieldTypes.isFormula(key)) {
             defaultProps[key].value = _.isObject(value) ? value.value : value;
             defaultProps[key].baseValue = _.isObject(value) ? value.baseValue : value;
+        } else {
+            defaultProps[key] = value;
         }
-    });
-
-    // Replace default values and add missing from given customProps obj
-    _.assignWith(defaultProps, customProps, function(defaultValue, valueFromJson) {
-        return _.isNil(defaultValue)
-            ? valueFromJson
-            : defaultValue;
     });
 }
 
