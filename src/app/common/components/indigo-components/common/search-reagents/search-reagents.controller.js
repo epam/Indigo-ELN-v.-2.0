@@ -112,7 +112,6 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
                 return !_.isEqual(selectedItem, myListItem);
             });
             if (isUnique) {
-                // selectedItem.$$isSelected = false;
                 selectedItem.$$isCollapsed = true;
                 vm.myReagentList.push(selectedItem);
                 count += 1;
