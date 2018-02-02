@@ -1,13 +1,20 @@
 var roles = require('../../../permissions/permission-roles.json');
 
 /* @ngInject */
-function PrintModalController($uibModalInstance, params, resourceName, resource, principalService,
-                              typeOfComponents, componentsUtil) {
+function PrintModalController($uibModalInstance, params, resourceType, projectService, notebookService,
+                              experimentService, principalService, typeOfComponents, componentsUtil) {
     var vm = this;
 
     init();
 
     function init() {
+        var resource = experimentService;
+        if (resourceType === 'Project') {
+            resource = projectService;
+        } else if (resourceType === 'Notebook') {
+            resource = notebookService;
+        }
+
         vm.loading = resource.get(params).$promise.then(function(entity) {
             initCheckboxesForEntity(entity);
         });
@@ -17,9 +24,9 @@ function PrintModalController($uibModalInstance, params, resourceName, resource,
     }
 
     function initCheckboxesForEntity(entity) {
-        if (resourceName === 'projectService') {
+        if (resourceType === 'Project') {
             vm.hasAttachments = true;
-        } else if (resourceName === 'notebookService') {
+        } else if (resourceType === 'Notebook') {
             vm.askContents = true;
             vm.allowContents = principalService.hasAnyAuthority([roles.EXPERIMENT_READER, roles.CONTENT_EDITOR]);
         } else {

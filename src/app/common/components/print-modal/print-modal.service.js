@@ -7,7 +7,7 @@ function printModal($uibModal, $window, $httpParamSerializer, apiUrl) {
         showPopup: showPopup
     };
 
-    function showPopup(params, resourceName) {
+    function showPopup(params, resourceType) {
         return $uibModal.open({
             animation: true,
             template: template,
@@ -15,11 +15,8 @@ function printModal($uibModal, $window, $httpParamSerializer, apiUrl) {
             controllerAs: 'vm',
             resolve: {
                 params: params,
-                resource: [resourceName, function(resource) {
-                    return resource;
-                }],
-                resourceName: function() {
-                    return resourceName;
+                resourceType: function() {
+                    return resourceType;
                 }
             }
         }).result.then(function(result) {

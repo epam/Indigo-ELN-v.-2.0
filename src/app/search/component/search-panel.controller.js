@@ -164,11 +164,7 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtil, 
     }
 
     function printEntity(entity) {
-        printModal
-            .showPopup(getParameters(entity), entity.kind)
-            .catch(function() {
-                $state.go('^');
-            });
+        printModal.showPopup(getParameters(entity), entity.kind);
     }
 
     function getParameters(entity) {
