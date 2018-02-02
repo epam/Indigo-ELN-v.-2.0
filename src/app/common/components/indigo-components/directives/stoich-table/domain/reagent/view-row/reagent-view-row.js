@@ -1,6 +1,7 @@
 var ReagentViewField = require('./reagent-view-field');
 var calculationHelper = require('../../../../../services/calculation/calculation-helper.service');
 var fieldTypes = require('../../../../../services/calculation/field-types');
+var mathCalculation = require('../../../../../services/calculation/math-calculation');
 
 function ReagentViewRow(props) {
     var rowProps = getDefaultReagentViewRow();
@@ -16,6 +17,30 @@ function ReagentViewRow(props) {
     return this;
 }
 
+function getOriginalMolWeight(prop) {
+    if (prop.molWeight.originalValue) {
+        return prop.molWeight.originalValue;
+    }
+    if (prop.saltCode && prop.saltCode.weight && prop.saltEq && prop.saltEq.value) {
+        return mathCalculation.computeCurrentMolWeightBySalt(
+            prop.molWeight.value,
+            prop.saltCode.weight,
+            prop.saltEq.value
+        );
+    }
+
+    return prop.molWeight.value;
+}
+
+function getBaseFormula(formula) {
+    var extendedFormulaIndex = formula.indexOf('*');
+    if (extendedFormulaIndex !== -1) {
+        return formula.substring(0, extendedFormulaIndex).trim();
+    }
+
+    return formula;
+}
+
 function setRowProperties(defaultProps, customProps) {
     // Assign known custom properties to default object
     _.forEach(customProps, function(value, key) {
@@ -23,8 +48,8 @@ function setRowProperties(defaultProps, customProps) {
             defaultProps[key] = value;
         } else if (fieldTypes.isMolWeight(key)) {
             defaultProps[key].value = value.value;
-            defaultProps[key].originalValue = value.value;
             defaultProps[key].entered = value.entered;
+            defaultProps[key].originalValue = getOriginalMolWeight(customProps);
         } else if (fieldTypes.isReagentField(key)) {
             defaultProps[key].value = value.value;
             defaultProps[key].entered = value.entered;
@@ -37,12 +62,7 @@ function setRowProperties(defaultProps, customProps) {
             defaultProps[key].readonly = _.isObject(value) ? value.readonly : false;
         } else if (fieldTypes.isFormula(key)) {
             defaultProps[key].value = _.isObject(value) ? value.value : value;
-            var baseValue = _.isObject(value) ? value.baseValue : value;
-            var extendedFormulaIndex = baseValue.indexOf('*');
-            if (extendedFormulaIndex !== -1) {
-                baseValue = baseValue.substring(0, extendedFormulaIndex).trim();
-            }
-            defaultProps[key].baseValue = baseValue;
+            defaultProps[key].baseValue = getBaseFormula(defaultProps[key].value);
         } else if (fieldTypes.isRxnRole(key)) {
             defaultProps[key].name = value.name;
 

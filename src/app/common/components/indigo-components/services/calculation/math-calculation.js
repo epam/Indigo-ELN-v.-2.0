@@ -17,6 +17,7 @@ mathCalculation.computeWeightByPurity = computeWeightByPurity;
 mathCalculation.computeEq = computeEq;
 mathCalculation.computeMolWeight = computeMolWeight;
 mathCalculation.computeMolWeightBySalt = computeMolWeightBySalt;
+mathCalculation.computeCurrentMolWeightBySalt = computeCurrentMolWeightBySalt;
 mathCalculation.computeVolumeByMolarity = computeVolumeByMolarity;
 mathCalculation.computeVolumeByDensity = computeVolumeByDensity;
 mathCalculation.computeWeightByDensity = computeWeightByDensity;
@@ -177,6 +178,24 @@ function computeMolWeightBySalt(currentMolWeight, saltCodeWeight, saltEQ) {
         .chain(bignumber(saltCodeWeight))
         .multiply(bignumber(saltEQ))
         .add(bignumber(currentMolWeight))
+        .done()
+        .toNumber();
+}
+
+/**
+ * Compute MolWeight by Salt:
+ * currentMolWeight = MolWeight - SaltCode weight * Salt EQ
+ * @param molWeight
+ * @param saltCodeWeight
+ * @param saltEQ
+ * @returns {number}
+ */
+function computeCurrentMolWeightBySalt(molWeight, saltCodeWeight, saltEQ) {
+    return math
+        .chain(bignumber(saltCodeWeight))
+        .multiply(bignumber(saltEQ))
+        .multiply(-1)
+        .add(bignumber(molWeight))
         .done()
         .toNumber();
 }
