@@ -21,6 +21,9 @@ function getOriginalMolWeight(prop) {
     if (prop.molWeight.originalValue) {
         return prop.molWeight.originalValue;
     }
+    if (prop.molWeight.baseValue) {
+        return prop.molWeight.baseValue;
+    }
     if (prop.saltCode && prop.saltCode.weight && prop.saltEq && prop.saltEq.value) {
         return mathCalculation.computeCurrentMolWeightBySalt(
             prop.molWeight.value,
