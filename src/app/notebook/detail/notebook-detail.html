@@ -126,7 +126,10 @@
 
     <div class="btn-bottom-block tab-content-pad">
         <div class="pull-left">
-            <button class="btn btn-info" type="button" ng-click="vm.showSummary()" ng-switch="!vm.isSummary" ng-disabled="!vm.allowContent">
+            <button class="btn btn-info"
+                    type="button" ng-click="vm.showSummary()"
+                    ng-switch="!vm.isSummary"
+                    ng-disabled="!vm.allowContent || !vm.notebook.id">
                 <span class="m-l5" ng-switch-when="true" i-translate="SHOW_NOTEBOOK_CONTENT"></span>
                 <span class="m-l5" ng-switch-default i-translate="HIDE_NOTEBOOK_CONTENT"></span>
             </button>
