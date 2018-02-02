@@ -84,15 +84,9 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         var count = selected.length;
         var cleanedReactants = stoichColumnActions.cleanReactants(selected);
         if (count > 0) {
-            userReagentsService.save(vm.myReagentList, function() {
-                if (count === 1) {
-                    notifyService.info(count + ' reagent successfully added to Stoichiometry Table');
-                } else if (count > 0) {
-                    notifyService.info(count + ' reagents successfully added to Stoichiometry Table');
-                }
-            });
+            notifyService.info(count + ' reagents successfully added to Stoichiometry table');
         } else {
-            notifyService.warning('My Reagent List already contains selected reagents');
+            notifyService.warning('Stoichiometry table already contains selected reagents');
         }
         addTableRowsCallback(cleanedReactants);
     }
