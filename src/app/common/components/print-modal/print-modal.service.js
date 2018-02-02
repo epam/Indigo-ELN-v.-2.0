@@ -15,9 +15,6 @@ function printModal($uibModal, $window, $httpParamSerializer, apiUrl) {
             controllerAs: 'vm',
             resolve: {
                 params: params,
-                resource: [resourceName, function(resource) {
-                    return resource;
-                }],
                 resourceName: function() {
                     return resourceName;
                 }
