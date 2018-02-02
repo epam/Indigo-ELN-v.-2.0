@@ -36,6 +36,9 @@ function getOriginalMolWeight(prop) {
 }
 
 function getBaseFormula(formula) {
+    if (!formula) {
+        return formula;
+    }
     var extendedFormulaIndex = formula.indexOf('*');
     if (extendedFormulaIndex !== -1) {
         return formula.substring(0, extendedFormulaIndex).trim();
