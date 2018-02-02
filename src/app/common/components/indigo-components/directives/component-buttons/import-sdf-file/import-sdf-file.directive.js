@@ -41,7 +41,11 @@ function importSdfFile() {
                     return $q.reject('Error! Batch(es) not imported');
                 })
                 .then(successAddedBatches)
-                .catch(notifyService.error);
+                .catch(function(e) {
+                    if (e) {
+                        notifyService.error(e);
+                    }
+                });
         }
 
         function successAddedBatches(batches) {
