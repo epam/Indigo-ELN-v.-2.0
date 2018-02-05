@@ -104,7 +104,7 @@ function experimentConfig($stateProvider, permissionsConfig, permissionViewConfi
                 'ngInject';
 
                 printModal
-                    .showPopup($stateParams, 'experimentService')
+                    .showPopup($stateParams, 'Experiment')
                     .finally(function() {
                         $state.go('^');
                     });

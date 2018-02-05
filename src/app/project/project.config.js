@@ -111,7 +111,7 @@ function projectConfig($stateProvider, permissionsConfig, permissionViewConfig, 
                 'ngInject';
 
                 printModal
-                    .showPopup($stateParams, 'projectService')
+                    .showPopup($stateParams, 'Project')
                     .finally(function() {
                         $state.go('^');
                     });

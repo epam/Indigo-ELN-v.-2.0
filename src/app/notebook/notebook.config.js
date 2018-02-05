@@ -124,7 +124,7 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
                 'ngInject';
 
                 printModal
-                    .showPopup($stateParams, 'notebookService')
+                    .showPopup($stateParams, 'Notebook')
                     .finally(function() {
                         $state.go('^');
                     });
