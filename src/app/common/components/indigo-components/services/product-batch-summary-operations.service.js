@@ -118,8 +118,10 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
                     $$batchHash: hash
                 });
             });
+
             return result;
         }
+
         return [];
     }
 

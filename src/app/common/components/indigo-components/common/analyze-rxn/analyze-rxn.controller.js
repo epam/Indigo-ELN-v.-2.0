@@ -28,6 +28,7 @@ function AnalyzeRxnController($uibModalInstance, reactants, searchService, appVa
         return _.map(reactants, function(reactant, id) {
             return {
                 formula: reactant.formula,
+                molfile: reactant.structure.molfile,
                 searchResult: [],
                 selectedReactant: null,
                 id: id
@@ -57,7 +58,7 @@ function AnalyzeRxnController($uibModalInstance, reactants, searchService, appVa
     function search() {
         vm.loading = true;
         $q.all(_.map(vm.tabs, function(tab) {
-            return getSearchResult(tab.formula)
+            return getSearchResult(tab.molfile)
                 .then(function(searchResult) {
                     tab.searchResult = responseCallback(searchResult);
                 });
@@ -102,12 +103,12 @@ function AnalyzeRxnController($uibModalInstance, reactants, searchService, appVa
         });
     }
 
-    function getSearchResult(formula) {
+    function getSearchResult(molfile) {
         var databases = prepareDatabases();
         var searchRequest = {
             databases: databases,
             structure: {
-                formula: formula, searchMode: 'substructure'
+                molfile: molfile, searchMode: 'substructure'
             }
         };
 

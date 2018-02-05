@@ -367,19 +367,17 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             return $q.resolve(reactantsInfo);
         }
 
-        var allPromises = _.map(reactantsInfo, function(reactantInfo) {
-            var reactantsEqualityPromises = _.map(stoicReactants, function(stoicReactant) {
-                return calculationService.isMoleculesEqual(
-                    stoicReactant.structure.molfile,
-                    reactantInfo.structure.molfile
-                );
-            });
+        var stoicReactantsMolfiles = _.map(stoicReactants, function(stoicReactant) {
+            return stoicReactant.structure.molfile;
+        });
 
-            return $q.all(reactantsEqualityPromises).then(function(equalResults) {
-                if (equalResults.indexOf(true) === -1) {
-                    reactantsToSearch.push(reactantInfo);
-                }
-            });
+        var allPromises = _.map(reactantsInfo, function(reactantInfo) {
+            return calculationService.isMoleculesSubstructure(reactantInfo.structure.molfile, stoicReactantsMolfiles)
+                .then(function(equalResults) {
+                    if (!equalResults) {
+                        reactantsToSearch.push(reactantInfo);
+                    }
+                });
         });
 
         return $q.all(allPromises).then(function() {
