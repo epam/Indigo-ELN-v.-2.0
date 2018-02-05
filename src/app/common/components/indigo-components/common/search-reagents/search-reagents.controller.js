@@ -82,8 +82,12 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
             $$isSelected: true
         });
         var cleanedReactants = stoichColumnActions.cleanReactants(selected);
-
         addTableRowsCallback(cleanedReactants);
+        if (selected.length > 0) {
+            notifyService.info(selected.length + ' reagents successfully added to Stoichiometry table');
+        } else {
+            notifyService.info('No reagents were chosen');
+        }
     }
 
     userReagentsService.get({}, function(reagents) {
@@ -107,7 +111,6 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
                 return !_.isEqual(selectedItem, myListItem);
             });
             if (isUnique) {
-                selectedItem.$$isSelected = false;
                 selectedItem.$$isCollapsed = true;
                 vm.myReagentList.push(selectedItem);
                 count += 1;
