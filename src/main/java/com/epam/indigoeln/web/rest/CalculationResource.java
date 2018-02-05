@@ -1,6 +1,5 @@
 package com.epam.indigoeln.web.rest;
 
-import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.service.calculation.CalculationService;
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
 import com.google.common.base.Strings;
@@ -113,22 +112,19 @@ public class CalculationResource {
     }
 
     /**
-     * PUT /molecule/contains/ -> check, that the first molecule contains the second.
+     * PUT /molecule/contains -> check that the first molecule contains at least one of the rest molecules.
      *
      * @param molecules Molecules
-     * @return Returns true if the first molecule contains the second
+     * @return Returns true if the first molecule contains at least one of the rest molecules
      */
-    @ApiOperation(value = "Checks that the first molecule contains the second.")
+    @ApiOperation(value = "Checks that the first molecule contains at least one of the rest molecules")
     @RequestMapping(value = "/molecule/contains",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> moleculesSubstructure(
             @ApiParam("Molecules") @RequestBody List<String> molecules
     ) {
-        if (molecules.size() < 2) {
-            throw new IndigoRuntimeException("Please specify two molecules");
-        }
-        return ResponseEntity.ok(calculationService.chemistryContains(molecules.get(0), molecules.get(1)));
+        return ResponseEntity.ok(calculationService.chemistryContains(molecules));
     }
 
     /**
