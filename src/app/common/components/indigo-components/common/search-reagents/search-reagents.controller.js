@@ -81,14 +81,19 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         var selected = _.filter(list, {
             $$isSelected: true
         });
-        var count = selected.length;
-        var cleanedReactants = stoichColumnActions.cleanReactants(selected);
+        var count = 0;
+        _.each(selected, function(selectedItem) {
+            selectedItem.$$isSelected = false;
+            selectedItem.$$isCollapsed = true;
+            var cleanedReactants = stoichColumnActions.cleanReactants(selected);
+            addTableRowsCallback(cleanedReactants);
+            count += 1;
+        });
         if (count > 0) {
             notifyService.info(count + ' reagents successfully added to Stoichiometry table');
         } else {
-            notifyService.warning('Stoichiometry table already contains selected reagents');
+            notifyService.info('No reagents were chosen');
         }
-        addTableRowsCallback(cleanedReactants);
     }
 
     userReagentsService.get({}, function(reagents) {
