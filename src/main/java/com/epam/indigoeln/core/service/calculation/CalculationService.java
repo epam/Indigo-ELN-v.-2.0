@@ -2,6 +2,7 @@ package com.epam.indigoeln.core.service.calculation;
 
 import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoObject;
+import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.config.bingo.IndigoProvider;
 import com.epam.indigoeln.core.service.calculation.helper.RendererResult;
 import com.epam.indigoeln.core.service.codetable.CodeTableService;
@@ -125,20 +126,30 @@ public class CalculationService {
     }
 
     /**
-     * Check that chemistry item contains search chemistry item.
+     * Check that the first structure contains at least one of the rest structures.
      *
-     * @param chemistryItem       chemistry item to check
-     * @param searchChemistryItem chemistry item to find
-     * @return true if chemistry item contains search chemistry item
+     * @param structures list of chemistry structures
+     * @return true if the first structure contains at least one of the rest structures
      */
-    public boolean chemistryContains(String chemistryItem, String searchChemistryItem) {
+    public boolean chemistryContains(List<String> structures) {
+        if (structures.size() < 2) {
+            throw new IndigoRuntimeException("Please specify at least two structures");
+        }
+
         val indigo = indigoProvider.indigo();
 
-        val chemistryItemHandle = isReaction(chemistryItem) ? indigo.loadReaction(chemistryItem) : indigo.loadMolecule(chemistryItem);
-        val searchChemistryItemHandle = isReaction(searchChemistryItem) ? indigo.loadQueryReaction(searchChemistryItem) : indigo.loadQueryMolecule(searchChemistryItem);
-        searchChemistryItemHandle.aromatize();
+        val targetHandle = isReaction(structures.get(0)) ? indigo.loadReaction(structures.get(0)) : indigo.loadMolecule(structures.get(0));
 
-        return indigo.substructureMatcher(chemistryItemHandle).match(searchChemistryItemHandle) != null;
+        for (String s : structures.subList(1, structures.size())) {
+            val queryHandle = isReaction(s) ? indigo.loadQueryReaction(s) : indigo.loadQueryMolecule(s);
+            queryHandle.aromatize();
+
+            if (indigo.substructureMatcher(targetHandle).match(queryHandle) != null) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
