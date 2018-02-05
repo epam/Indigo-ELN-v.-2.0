@@ -7,6 +7,7 @@ import com.epam.indigoeln.core.service.calculation.helper.RendererResult;
 import com.epam.indigoeln.core.service.codetable.CodeTableService;
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
 import com.google.common.collect.ImmutableMap;
+import lombok.val;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,6 +122,23 @@ public class CalculationService {
             prevHandle = handle;
         }
         return true;
+    }
+
+    /**
+     * Check that chemistry item contains search chemistry item.
+     *
+     * @param chemistryItem       chemistry item to check
+     * @param searchChemistryItem chemistry item to find
+     * @return true if chemistry item contains search chemistry item
+     */
+    public boolean chemistryContains(String chemistryItem, String searchChemistryItem) {
+        val indigo = indigoProvider.indigo();
+
+        val chemistryItemHandle = isReaction(chemistryItem) ? indigo.loadReaction(chemistryItem) : indigo.loadMolecule(chemistryItem);
+        val searchChemistryItemHandle = isReaction(searchChemistryItem) ? indigo.loadQueryReaction(searchChemistryItem) : indigo.loadQueryMolecule(searchChemistryItem);
+        searchChemistryItemHandle.aromatize();
+
+        return indigo.substructureMatcher(chemistryItemHandle).match(searchChemistryItemHandle) != null;
     }
 
     /**
