@@ -1,6 +1,7 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.service.calculation.CalculationService;
+import com.epam.indigoeln.web.rest.dto.calculation.ListContainsDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
 import com.google.common.base.Strings;
 import io.swagger.annotations.Api;
@@ -112,19 +113,19 @@ public class CalculationResource {
     }
 
     /**
-     * PUT /molecule/contains -> check that the first molecule contains at least one of the rest molecules.
+     * Check that at least one molecule in list contains query molecule.
      *
-     * @param molecules Molecules
-     * @return Returns true if the first molecule contains at least one of the rest molecules
+     * @param query query object with molecule list and query molecule
+     * @return true if at least one molecule in list contains query molecule (substructure matching is used)
      */
-    @ApiOperation(value = "Checks that the first molecule contains at least one of the rest molecules")
-    @RequestMapping(value = "/molecule/contains",
+    @ApiOperation("Check that at least one molecule in list contains query molecule (substructure matching is used)")
+    @RequestMapping(
+            value = "/molecule/listContains",
             method = RequestMethod.PUT,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Boolean> moleculesSubstructure(
-            @ApiParam("Molecules") @RequestBody List<String> molecules
-    ) {
-        return ResponseEntity.ok(calculationService.chemistryContains(molecules));
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Boolean> listContainsMolecule(@ApiParam("Molecules") @RequestBody ListContainsDTO query) {
+        return ResponseEntity.ok(calculationService.listContainsStructure(query.getStructures(), query.getQuery()));
     }
 
     /**

@@ -2,7 +2,6 @@ package com.epam.indigoeln.core.service.calculation;
 
 import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoObject;
-import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.config.bingo.IndigoProvider;
 import com.epam.indigoeln.core.service.calculation.helper.RendererResult;
 import com.epam.indigoeln.core.service.codetable.CodeTableService;
@@ -126,22 +125,18 @@ public class CalculationService {
     }
 
     /**
-     * Check that the first structure contains at least one of the rest structures.
+     * Check that at least one structure in list contains query structure.
      *
-     * @param structures list of chemistry structures
-     * @return true if the first structure contains at least one of the rest structures
+     * @param structures list with structures to check
+     * @param query      query structure to find in list
+     * @return true if at least one structure in list contains query structure (substructure matching is used)
      */
-    public boolean chemistryContains(List<String> structures) {
-        if (structures.size() < 2) {
-            throw new IndigoRuntimeException("Please specify at least two structures");
-        }
-
+    public boolean listContainsStructure(List<String> structures, String query) {
         val indigo = indigoProvider.indigo();
 
-        val targetHandle = isReaction(structures.get(0)) ? indigo.loadReaction(structures.get(0)) : indigo.loadMolecule(structures.get(0));
-
-        for (String s : structures.subList(1, structures.size())) {
-            val queryHandle = isReaction(s) ? indigo.loadQueryReaction(s) : indigo.loadQueryMolecule(s);
+        for (String s : structures) {
+            val targetHandle = isReaction(s) ? indigo.loadReaction(s) : indigo.loadMolecule(s);
+            val queryHandle = isReaction(query) ? indigo.loadQueryReaction(query) : indigo.loadQueryMolecule(query);
             queryHandle.aromatize();
 
             if (indigo.substructureMatcher(targetHandle).match(queryHandle) != null) {
