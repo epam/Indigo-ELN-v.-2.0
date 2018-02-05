@@ -25,13 +25,13 @@
         <label></label>
     </simple-radio>
     <a ng-switch-when="string" ng-if="!row[column.id].readonly"
-       ng-class="{disabled: vm.isReadonly}"
-       ng-click="vm.isReadonly || column.onClick({model: row[column.id], row: row, column: column.id})"
+       ng-class="{disabled: vm.isReadonly || !!row.registrationStatus}"
+       ng-click="vm.isReadonly || !!row.registrationStatus || column.onClick({model: row[column.id], row: row, column: column.id})"
        ng-bind="row[column.realId].asString || '&mdash;'">
     </a>
     <editable-cell ng-switch-default
                    is-editing="$id === vm.editingCellId"
-                   is-readonly="column.readonly || column.noDisableable ? false : vm.isReadonly || !!row.registrationStatus"
+                   is-readonly="column.noDisableable ? false : column.readonly || vm.isReadonly || !!row.registrationStatus"
                    on-start-edit="vm.startEdit($id)"
                    on-close="vm.onClose(column, data)">
     </editable-cell>
