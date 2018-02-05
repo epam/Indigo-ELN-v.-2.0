@@ -13,6 +13,7 @@ function calculationService($rootScope, $http, $q, appValuesService, apiUrl, $lo
         setEntered: setEntered,
         findLimiting: findLimiting,
         isMoleculesEqual: isMoleculesEqual,
+        isMoleculesSubstructure: isMoleculesSubstructure,
         combineReactionComponents: combineReactionComponents,
         resetValuesToDefault: resetValuesToDefault,
         setValuesReadonly: setValuesReadonly,
@@ -230,6 +231,18 @@ function calculationService($rootScope, $http, $q, appValuesService, apiUrl, $lo
         _.each(values, function(value) {
             batch[value].readonly = false;
         });
+    }
+
+    function isMoleculesSubstructure(molecule, moleculesList) {
+        var params = {
+            query: molecule,
+            structures: moleculesList
+        };
+
+        return $http.put(apiUrl + 'calculations/molecule/listContains', params)
+            .then(function(response) {
+                return response.data;
+            });
     }
 
     function isMoleculesEqual(molecule1, molecule2) {
