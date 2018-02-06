@@ -148,6 +148,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
                 $uibModal.open({
                     animation: true,
                     size: 'lg',
+                    backdrop: 'static',
                     controller: 'AnalyzeRxnController',
                     controllerAs: 'vm',
                     template: analyzeRxnTemplate,
