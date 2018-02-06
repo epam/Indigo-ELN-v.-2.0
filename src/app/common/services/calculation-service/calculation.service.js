@@ -18,7 +18,6 @@ function calculationService($rootScope, $http, $q, appValuesService, apiUrl, $lo
         resetValuesToDefault: resetValuesToDefault,
         setValuesReadonly: setValuesReadonly,
         setValuesEditable: setValuesEditable,
-        calculateProductBatch: calculateProductBatch,
         recalculateSalt: recalculateSalt,
         recalculateAmounts: recalculateAmounts,
         recalculateStoich: recalculateStoich,
@@ -185,18 +184,6 @@ function calculationService($rootScope, $http, $q, appValuesService, apiUrl, $lo
             } else {
                 _.extend(data.row, result.data);
             }
-        });
-    }
-
-    function calculateProductBatch(data) {
-        var requestData = {
-            productBatch: setDefaultValues(data.row),
-            changedField: data.column
-        };
-
-        return $http.put(apiUrl + 'calculations/product/calculate/batch', requestData).then(function(result) {
-            result.data.yield = Math.round(result.data.yield);
-            _.extend(data.row, result.data);
         });
     }
 
