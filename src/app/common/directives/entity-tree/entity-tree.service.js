@@ -63,6 +63,9 @@ function entityTreeService(allProjectsService, $injector, allNotebooksService, a
             addEntity(builtNode, parent, allExperimentsMap, experimentsMap);
         }
 
+        if (!_.get(experiment, 'components.stoichTable.products')) {
+            return;
+        }
         _.forEach(experiment.components.stoichTable.products, function(batch) {
             if (!batch.$$batchHash) {
                 batch.$$batchHash = batch.formula.value + batch.exactMass;
