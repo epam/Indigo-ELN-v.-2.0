@@ -280,6 +280,9 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     }
 
     function getExperiment() {
+        if (!$stateParams.experimentId) {
+            return $q.reject('It is impossible to load experiment duo to experiment id is undefined');
+        }
         return experimentService
             .get($stateParams)
             .$promise;
