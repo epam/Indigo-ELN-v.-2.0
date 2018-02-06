@@ -170,6 +170,7 @@ var i18n = {
     NEW_NOTEBOOK: 'New Notebook',
     NEW_EXPERIMENT: 'New Experiment',
     NEW_ENTITY: 'New Entity',
+    HELP: 'Help',
     HOME: 'Home',
     FAKE_TOOLTIP: 'Fake Tooltip',
     OPENED_ENTITIES: 'Opened Entities',

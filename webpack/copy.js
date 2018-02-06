@@ -10,6 +10,10 @@ function copy(DIRS) {
         {
             from: path.join(DIRS.src, 'assets/images/favicon.ico'),
             to: path.join(DIRS.dist, 'assets/images')
+        },
+        {
+            from: path.join(DIRS.src, 'user-guide/Indigo ELN v2.0 User Guide.docx'),
+            to: path.join(DIRS.dist, 'user-guide')
         }
     ];
 }
