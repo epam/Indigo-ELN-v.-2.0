@@ -36,22 +36,6 @@
                     Selected reactants ({{vm.countSelectedReactants}})
                 </a>
             </div>
-            <div class="col-xs-9">
-                <div class="btn-group pull-right">
-                    <button class="btn btn-info"
-                            type="button"
-                            ng-click="vm.addToStoichTable()"
-                            ng-disabled="!vm.countSelectedReactants">
-                        <span class="icon icon-delete"></span><span class="m-l5" i-translate="ADD_TO_STOICH_TABLE"></span>
-                    </button>
-                    <button class="btn btn-info"
-                            type="button"
-                            ng-click="vm.updateStoicAndExit(searchResult)"
-                            ng-disabled="false">
-                        <span class="icon icon-add"></span><span class="m-l5" i-translate="UPDATE_STOICH_AND_EXIT"></span>
-                    </button>
-                </div>
-            </div>
         </div>
 
         <div uib-collapse="$$isSelectedReactantsCollapsed" class="analyze-rxn-selected-reactants">
@@ -83,6 +67,12 @@
 
 </div>
 <div class="modal-footer">
+    <button class="btn btn-info"
+            type="button"
+            ng-click="vm.updateStoicAndExit(searchResult)"
+            ng-disabled="false">
+        <span class="icon icon-add"></span><span class="m-l5" i-translate="UPDATE_STOICH_AND_EXIT"></span>
+    </button>
     <button class="btn btn-default" type="button" ng-click="vm.cancel()">
         <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
     </button>
