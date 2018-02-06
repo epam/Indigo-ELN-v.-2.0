@@ -24,6 +24,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     var originalExperiment;
     var updateRecovery;
     var entityTitle;
+    var isSaving = false;
 
     init();
 
@@ -185,6 +186,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
             return $q.resolve();
         }
 
+        isSaving = true;
         vm.loading = getSaveService(_.extend({}, vm.experiment))
             .then(function(result) {
                 _.merge(vm.experiment, result);
@@ -192,6 +194,9 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
                 updateOriginal(vm.experiment);
             }, function() {
                 notifyService.error('Experiment is not saved due to server error!');
+            })
+            .finally(function() {
+                isSaving = false;
             });
 
         return vm.loading;
@@ -334,7 +339,11 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     }
 
     function initEventListeners() {
-        $scope.$on('entity-updated', function(event, data) {
+        var entityUpdate = $scope.$on('entity-updated', function(event, data) {
+            if (isSaving) {
+                return;
+            }
+
             vm.loading.then(function() {
                 var currentEntity = {
                     projectId: params.projectId,
@@ -353,13 +362,13 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
             });
         });
 
-        $scope.$on('ON_ENTITY_SAVE', function(event, data) {
+        var entitySave = $scope.$on('ON_ENTITY_SAVE', function(event, data) {
             if (_.isEqual(data.tab.params, $stateParams)) {
                 save().then(data.defer.resolve);
             }
         });
 
-        $scope.$watch('vm.experiment', function(newEntity) {
+        var experimentWatch = $scope.$watch('vm.experiment', function(newEntity) {
             if (vm.isStatusOpen && vm.isEditAllowed) {
                 var isDirty = autorecoveryHelper.isEntityDirty(originalExperiment, newEntity);
                 toggleDirty(isDirty);
@@ -367,18 +376,17 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
             }
         }, true);
 
-        $scope.$on('access-list-changed', function() {
+        var accessList = $scope.$on('access-list-changed', function() {
             vm.experiment.accessList = permissionService.getAccessList();
         });
 
-        $scope.$on('experiment-status-changed', function(event, experiments) {
-            var experimentStatus = experiments[vm.experiment.fullId];
-            if (experimentStatus) {
+        var experimentStatus = $scope.$on('experiment-status-changed', function(event, experiments) {
+            if (experiments[vm.experiment.fullId]) {
                 refresh();
             }
         });
 
-        $scope.$on('batch-registration-status-changed', function(event, statuses) {
+        var batchRegistrationStatus = $scope.$on('batch-registration-status-changed', function(event, statuses) {
             _.each(statuses, function(status, fullNbkBatch) {
                 if (!_.find(vm.experiment.components.productBatchSummary.batches, {fullNbkBatch: fullNbkBatch})) {
                     return;
@@ -389,6 +397,15 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
                     return initExperiment(experiment, true).then(updateOriginal);
                 });
             });
+        });
+
+        $scope.$on('$destroy', function() {
+            entityUpdate();
+            entitySave();
+            experimentWatch();
+            accessList();
+            experimentStatus();
+            batchRegistrationStatus();
         });
     }
 }
