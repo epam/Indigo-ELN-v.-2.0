@@ -47,10 +47,7 @@ function IndigoBatchStructureController($q, calculationService, batchHelper) {
         batch.formula = null;
         batch.molWeight = null;
 
-        // TODO: investigate it's old api
-        return calculationService.calculateProductBatch({
-            row: batch, column: getColumn(batch)
-        });
+        return batchHelper.calculateRow({changedRow: batch, changedField: getColumn(batch)});
     }
 
     function updateBatchFormula(batch, molInfo) {
