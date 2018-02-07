@@ -12,11 +12,11 @@ function entities() {
 
 EntitiesController.$inject = ['$scope', 'entitiesBrowserService', '$q', 'principalService', 'entitiesCache',
     'alertModal', 'dialogService', 'autorecoveryCache',
-    'projectService', 'notebookService', 'experimentService'];
+    'projectService', 'notebookService', 'experimentService', 'notifyService'];
 
 function EntitiesController($scope, entitiesBrowserService, $q, principalService, entitiesCache,
                             alertModal, dialogService, autorecoveryCache, projectService,
-                            notebookService, experimentService) {
+                            notebookService, experimentService, notifyService) {
     var vm = this;
 
     init();
@@ -77,7 +77,19 @@ function EntitiesController($scope, entitiesBrowserService, $q, principalService
         if (entity) {
             var service = getService(tab.kind);
 
-            return service ? service.update(tab.params, entity).$promise : $q.resovle();
+            if (service) {
+                if (tab.params.isNewEntity) {
+                    if (tab.params.parentId) {
+                        // notebook
+                        return service.save({projectId: tab.params.parentId}, entity).$promise;
+                    }
+
+                    // project
+                    return service.save(entity).$promise;
+                }
+
+                return service.update(tab.params, entity).$promise;
+            }
         }
 
         return $q.resolve();
@@ -87,25 +99,43 @@ function EntitiesController($scope, entitiesBrowserService, $q, principalService
         return dialogService
             .selectEntitiesToSave(editTabs)
             .then(function(tabsToSave) {
-                return $q.all(_.map(tabsToSave, function(tabToSave) {
-                    return saveEntity(tabToSave).then(function() {
-                        closeTab(tabToSave);
-                    });
-                }));
+                var savePromises = _.map(tabsToSave, function(tabToSave) {
+                    return saveEntity(tabToSave)
+                        .then(function() {
+                            closeTab(tabToSave);
+                        })
+                        .catch(function() {
+                            notifyService.error('Error saving ' + tabToSave.kind + ' ' + tabToSave.name + '.');
+                        });
+                });
+
+                _.each(editTabs, function(tab) {
+                    if (!_.find(tabsToSave, {tabKey: tab.tabKey})) {
+                        closeTab(tab);
+                    }
+                });
+
+                return $q.all(savePromises);
             });
     }
 
     function onCloseAllTabs(exceptCurrent) {
-        var tabs = !exceptCurrent ? vm.tabs : _.filter(vm.tabs, function(tab) {
+        var tabsToClose = !exceptCurrent ? vm.tabs : _.filter(vm.tabs, function(tab) {
             return tab !== vm.activeTab;
         });
-        var editTabs = _.filter(tabs, function(tab) {
-            return tab.dirty && (exceptCurrent ? tab !== vm.activeTab : true);
+        var modifiedTabs = [];
+        var unmodifiedTabs = [];
+        _.each(tabsToClose, function(tab) {
+            if (tab.dirty) {
+                modifiedTabs.push(tab);
+            } else {
+                unmodifiedTabs.push(tab);
+            }
         });
 
-        $q.when(editTabs.length ? openCloseDialog(editTabs) : null)
-            .then(function() {
-                _.each(tabs, closeTab);
+        $q.when(modifiedTabs.length ? openCloseDialog(modifiedTabs) : null)
+            .finally(function() {
+                _.each(unmodifiedTabs, closeTab);
             });
     }
 
