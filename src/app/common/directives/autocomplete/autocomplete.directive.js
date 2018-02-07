@@ -78,7 +78,7 @@ function autocompleteController($scope, translateService) {
     }
 
     function bindEvents() {
-        $scope.$watch('vm.items', function() {
+        $scope.$watch('vm.items.length', function() {
             filterItems('');
         });
     }
