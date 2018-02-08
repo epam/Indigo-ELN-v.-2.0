@@ -91,11 +91,7 @@ function EntitiesController($scope, entitiesBrowserService, $q, principalService
                     return service.save(entity, entityTreeService.addProject).$promise;
                 }
 
-                return service.update(tab.params, entity).$promise.then(function() {
-                    treeServiceUpdate(entity);
-
-                    return true;
-                });
+                return service.update(tab.params, entity, treeServiceUpdate).$promise;
             }
         }
 
