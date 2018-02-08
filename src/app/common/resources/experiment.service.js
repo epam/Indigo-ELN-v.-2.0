@@ -1,15 +1,7 @@
 var moment = require('moment');
 
 /* @ngInject */
-function experimentService($resource, permissionService, entityTreeService, apiUrl) {
-    var interceptor = {
-        response: function(response) {
-            entityTreeService.updateExperiment(response.data);
-
-            return response.data;
-        }
-    };
-
+function experimentService($resource, permissionService, apiUrl) {
     return $resource(apiUrl + 'projects/:projectId/notebooks/:notebookId/experiments/:experimentId',
         {
             projectId: '@projectId',
@@ -30,26 +22,22 @@ function experimentService($resource, permissionService, entityTreeService, apiU
             },
             get: {
                 method: 'GET',
-                transformResponse: transformResponse,
-                interceptor: interceptor
+                transformResponse: transformResponse
             },
             save: {
                 method: 'POST',
                 transformRequest: transformRequest,
-                transformResponse: transformResponse,
-                interceptor: interceptor
+                transformResponse: transformResponse
             },
             version: {
                 method: 'POST',
-                url: apiUrl + 'projects/:projectId/notebooks/:notebookId/experiments/:experimentId/version',
-                interceptor: interceptor
+                url: apiUrl + 'projects/:projectId/notebooks/:notebookId/experiments/:experimentId/version'
             },
             update: {
                 method: 'PUT',
                 url: apiUrl + 'projects/:projectId/notebooks/:notebookId/experiments',
                 transformRequest: transformRequest,
-                transformResponse: transformResponse,
-                interceptor: interceptor
+                transformResponse: transformResponse
             },
             delete: {method: 'DELETE'},
             print: {
@@ -58,8 +46,7 @@ function experimentService($resource, permissionService, entityTreeService, apiU
             },
             reopen: {
                 method: 'PUT',
-                url: apiUrl + 'projects/:projectId/notebooks/:notebookId/experiments/:experimentId/reopen',
-                interceptor: interceptor
+                url: apiUrl + 'projects/:projectId/notebooks/:notebookId/experiments/:experimentId/reopen'
             }
         });
 
@@ -98,6 +85,15 @@ function experimentService($resource, permissionService, entityTreeService, apiU
         var experiment = toModel(angular.fromJson(data));
 
         experiment.creationDate = moment(experiment.creationDate).toISOString();
+
+        if (!_.get(experiment, 'components.stoichTable.products')) {
+            return;
+        }
+        _.forEach(experiment.components.stoichTable.products, function(batch) {
+            if (!batch.$$batchHash) {
+                batch.$$batchHash = batch.formula.value + batch.exactMass;
+            }
+        });
 
         return experiment;
     }
