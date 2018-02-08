@@ -247,6 +247,8 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
 
     function checkNonRemovableBatches(batches) {
         var nonEditableBatches = getNonEditableBatches(batches);
+        var removableBathes = getRemovableBatches(batches, nonEditableBatches);
+
         if (!_.isEmpty(nonEditableBatches)) {
             var errorMessage = 'Following batches were registered or sent to registration and cannot be deleted: ';
 
@@ -255,11 +257,19 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
                     .join(', ')
             );
         }
+
+        return removableBathes;
+    }
+
+    function getRemovableBatches(batches, nonRemovableBatches) {
+        return _.filter(batches, function(batch) {
+            return !_.includes(nonRemovableBatches, batch);
+        });
     }
 
     function deleteBatches(batches, batchesForRemove) {
         if (!_.isEmpty(batches) && !_.isEmpty(batchesForRemove)) {
-            checkNonRemovableBatches(batches);
+            batchesForRemove = checkNonRemovableBatches(batchesForRemove);
 
             _.remove(batches, function(batch) {
                 return !registrationUtil.isRegistered(batch) && _.includes(batchesForRemove, batch);
