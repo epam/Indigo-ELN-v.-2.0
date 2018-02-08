@@ -73,6 +73,9 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
             return;
         }
         project.isCollapsed = false;
+        if (!path[1]) {
+            scrollToSelectedNode();
+        }
 
         entityTreeService.getNotebooks(path[0], vm.isAll)
             .then(function(notebooks) {
@@ -82,6 +85,9 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
                     return;
                 }
                 notebook.isCollapsed = false;
+                if (!path[2]) {
+                    scrollToSelectedNode();
+                }
 
                 entityTreeService.getExperiments(path[0], path[1], vm.isAll)
                     .then(scrollToSelectedNode);
