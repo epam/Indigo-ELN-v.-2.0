@@ -295,7 +295,7 @@ var i18n = {
     // Form hints
     LOGIN_HINT: 'Login should not contain letters in upper case or special symbols.',
     PASSWORD_HINT: 'Password must be at least 6 characters long, ' +
-    'contain at least 1 uppercase letter and 1 digit. It can not contain spaces.',
+    'contain at least 1 uppercase and 1 lowercase letter and 1 digit. It can not contain spaces.',
     PASSWORD_CHANGE_SUCCESS: 'User password successfully changed.',
     EMAIL_HINT: 'Please specify valid email address.',
     FIELD_REQUIRED_HINT: 'This field is required.',
