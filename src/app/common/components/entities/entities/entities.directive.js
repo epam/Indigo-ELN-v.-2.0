@@ -82,22 +82,13 @@ function EntitiesController($scope, entitiesBrowserService, $q, principalService
                 if (tab.params.isNewEntity) {
                     if (tab.params.parentId) {
                         // notebook
-                        return service.save({projectId: tab.params.parentId}, entity).$promise.then(function(result) {
-                            entity.id = result.id;
-                            entity.fullId = tab.params.parentId + '-' + entity.id;
-                            entityTreeService.addNotebook(entity, tab.params.parentId);
-
-                            return true;
-                        });
+                        return service.save({projectId: tab.params.parentId}, entity, function(result) {
+                            entityTreeService.addNotebook(result, tab.params.parentId);
+                        }).$promise;
                     }
 
                     // project
-                    return service.save(entity).$promise.then(function(result) {
-                        entity.id = result.id;
-                        entityTreeService.addProject(entity);
-
-                        return true;
-                    });
+                    return service.save(entity, entityTreeService.addProject).$promise;
                 }
 
                 return service.update(tab.params, entity).$promise.then(function() {
