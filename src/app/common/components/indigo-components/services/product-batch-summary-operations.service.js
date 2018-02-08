@@ -246,24 +246,33 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
     }
 
     function deleteBatches(batches, batchesForRemove) {
-        if (!_.isEmpty(batches) && !_.isEmpty(batchesForRemove)) {
-            var nonEditableBatches = _.map(_.filter(batchesForRemove, registrationUtil.isRegistered), 'fullNbkBatch');
-            var removableBathes = _.filter(batchesForRemove, function(batch) {
-                return !_.includes(nonEditableBatches, batch);
-            });
-
-            if (!_.isEmpty(nonEditableBatches)) {
-                var errorMessage = 'Following batches were registered or sent to registration and cannot be deleted: ';
-
-                notifyService.error(
-                    errorMessage + _.uniq(nonEditableBatches)
-                        .join(', ')
-                );
-            }
-            _.remove(batches, function(batch) {
-                return !registrationUtil.isRegistered(batch) && _.includes(removableBathes, batch);
-            });
+        if (_.isEmpty(batches) || _.isEmpty(batchesForRemove)) {
+            return;
         }
+
+        var nonEditableBatches = [];
+        var removableBatches = [];
+
+        _.forEach(batchesForRemove, function(batch) {
+            if (registrationUtil.isRegistered(batch)) {
+                nonEditableBatches.push(batch.fullNbkBatch);
+            } else {
+                removableBatches.push(batch);
+            }
+        });
+
+        if (!_.isEmpty(nonEditableBatches)) {
+            var errorMessage = 'Following batches were registered or sent to registration and cannot be deleted: ';
+
+            notifyService.error(
+                errorMessage + _.uniq(nonEditableBatches)
+                    .join(', ')
+            );
+        }
+
+        _.remove(batches, function(batch) {
+            return _.includes(removableBatches, batch);
+        });
     }
 
     function getLatestNbkBatch() {
