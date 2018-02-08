@@ -290,12 +290,10 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
     }
 
     function onSaveSuccess(result) {
-        vm.notebook.id = result.id;
-        vm.notebook.fullId = vm.projectId + '-' + vm.notebook.id;
         entitiesBrowserService.close(tabKeyService.getTabKeyFromParams($stateParams));
         entitiesCache.removeByParams($stateParams);
         autorecoveryCache.remove($stateParams);
-        entityTreeService.addNotebook(vm.notebook, vm.projectId);
+        entityTreeService.addNotebook(result, vm.projectId);
 
         $timeout(function() {
             $state.go('entities.notebook-detail', {
