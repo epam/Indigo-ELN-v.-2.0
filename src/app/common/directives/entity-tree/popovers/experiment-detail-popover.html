@@ -13,15 +13,15 @@
       </span>
         </div>
         <div>
-            <span class="bold"><span i-translate="CREATION_DATE"></span>:</span><span
+            <span class="bold"><span i-translate="CREATION_DATE"></span>: </span><span
                 ng-bind="vm.experimentsCollection[node.original.fullId].creationDate  | date:'MMM dd yyyy'"></span>
         </div>
         <span>
-      <span class="bold"><span i-translate="AUTHOR"></span>:</span><span
-                ng-bind="vm.experimentsCollection[node.original.fullId].author.firstName"></span>
+      <span class="bold"><span i-translate="AUTHOR"></span>: </span><span
+                ng-bind="vm.experimentsCollection[node.original.fullId].author.fullName"></span>
     </span>
         <span>
-      <span class="bold"><span i-translate="STATUS"></span>:</span> <span
+      <span class="bold"><span i-translate="STATUS"></span>: </span> <span
                 ng-bind="vm.experimentsCollection[node.original.fullId].status"></span>
     </span>
         <img ng-if="!!vm.experimentsCollection[node.original.fullId].components.reaction.image"

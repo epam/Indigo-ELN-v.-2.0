@@ -1,5 +1,5 @@
 /* @ngInject */
-function projectService($resource, fileUploader, permissionService, entityTreeService, apiUrl) {
+function projectService($resource, fileUploader, permissionService, apiUrl) {
     function transformRequest(data) {
         var newData = angular.copy(data);
         newData.tags = _.map(newData.tags, 'text');
@@ -38,23 +38,13 @@ function projectService($resource, fileUploader, permissionService, entityTreeSe
         },
         save: {
             method: 'POST',
-            transformRequest: transformRequest,
-            interceptor: {response: function(response) {
-                entityTreeService.addNotebook(response.data);
-
-                return response.data;
-            }}
+            transformRequest: transformRequest
         },
         update: {
             method: 'PUT',
             url: apiUrl + 'projects',
             transformRequest: transformRequest,
-            transformResponse: transformResponse,
-            interceptor: {response: function(response) {
-                entityTreeService.updateNotebook(response.data);
-
-                return response.data;
-            }}
+            transformResponse: transformResponse
         },
         delete: {method: 'DELETE'},
         print: {

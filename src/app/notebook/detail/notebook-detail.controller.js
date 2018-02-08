@@ -4,7 +4,8 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
                                   modalHelper, experimentUtil, pageInfo, entitiesBrowserService,
                                   $timeout, $stateParams, tabKeyService, autorecoveryHelper,
                                   notebookSummaryExperimentsService, $q, entitiesCache,
-                                  autorecoveryCache, confirmationModal, entityHelper, principalService) {
+                                  autorecoveryCache, confirmationModal, entityHelper, principalService,
+                                  entityTreeService) {
     var vm = this;
     var identity = pageInfo.identity;
     var isContentEditor = pageInfo.isContentEditor;
@@ -245,6 +246,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
             initPermissions();
             originalNotebook = angular.copy(vm.notebook);
             autorecoveryCache.hide($stateParams);
+            entityTreeService.updateNotebook(vm.notebook);
         });
 
         return vm.loading;
@@ -274,6 +276,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
                     vm.notebook.version = result.version;
                     originalNotebook = angular.copy(vm.notebook);
                     entitiesBrowserService.setCurrentTabTitle(vm.notebook.name, $stateParams);
+                    entityTreeService.updateNotebook(vm.notebook);
                 }, onSaveError);
 
             return vm.loading;
@@ -287,14 +290,18 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
     }
 
     function onSaveSuccess(result) {
+        vm.notebook.id = result.id;
+        vm.notebook.fullId = vm.projectId + '-' + vm.notebook.id;
         entitiesBrowserService.close(tabKeyService.getTabKeyFromParams($stateParams));
+        entitiesCache.removeByParams($stateParams);
+        autorecoveryCache.remove($stateParams);
+        entityTreeService.addNotebook(vm.notebook, vm.projectId);
+
         $timeout(function() {
             $state.go('entities.notebook-detail', {
                 projectId: vm.projectId, notebookId: result.id
             });
         });
-        entitiesCache.removeByParams($stateParams);
-        autorecoveryCache.remove($stateParams);
     }
 
     function onSaveError(result) {
