@@ -321,12 +321,12 @@ function reagentsCalculation(calculationHelper) {
             return;
         }
 
-        if (row.saltCode.weight === 0) {
+        if (row.saltCode.regValue === 0) {
             row.setDefaultValues([fieldTypes.saltEq]);
         }
 
         var molWeight = mathCalculation.computeMolWeightBySalt(
-            row.molWeight.originalValue, row.saltCode.weight, row.saltEq.value
+            row.molWeight.originalValue, row.saltCode.regValue, row.saltEq.value
         );
 
         var formula = row.formula.baseValue
