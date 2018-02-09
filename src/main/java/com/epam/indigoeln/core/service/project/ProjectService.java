@@ -16,18 +16,22 @@ import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.epam.indigoeln.web.rest.util.permission.helpers.ProjectPermissionHelper;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBRef;
 import com.mongodb.gridfs.GridFSDBFile;
+import lombok.val;
 import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Provides a number of methods for access to project's data in database.
@@ -74,6 +78,9 @@ public class ProjectService {
     @Autowired
     private WebSocketUtil webSocketUtil;
 
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
     /**
      * Returns all projects without checking for UserPermissions.
      *
@@ -92,9 +99,15 @@ public class ProjectService {
      */
     public List<TreeNodeDTO> getAllProjectsAsTreeNodes(User user) {
         // if user is null, then get all projects
-        Collection<Project> projects = user == null ? projectRepository.findAll()
-                : projectRepository.findByUserId(user.getId());
-        return projects.stream().map(TreeNodeDTO::new).sorted(TreeNodeDTO.NAME_COMPARATOR)
+
+        val collection = mongoTemplate.getCollection(Project.COLLECTION_NAME);
+
+        val projects = (user == null) ? collection.find()
+                : collection.find(new BasicDBObject().append("accessList.user", new BasicDBObject().append("$ref", User.COLLECTION_NAME).append("$id", user.getId())));
+
+        return StreamSupport.stream(projects.spliterator(), false)
+                .map(TreeNodeDTO::new)
+                .sorted(TreeNodeDTO.NAME_COMPARATOR)
                 .collect(Collectors.toList());
     }
 
@@ -273,7 +286,7 @@ public class ProjectService {
         }
     }
 
-    public void deleteAll(){
+    public void deleteAll() {
         projectRepository.deleteAll();
     }
 

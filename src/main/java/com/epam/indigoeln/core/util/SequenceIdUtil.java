@@ -28,7 +28,16 @@ public final class SequenceIdUtil {
         if (entity.getId() == null) {
             return null;
         }
-        String[] split = entity.getId().split(DELIMITER);
+        return extractShortId(entity.getId());
+    }
+
+    /**
+     * Extracts short part from given id
+     * @param id id to extract short part
+     * @return short part from given id
+     */
+    public static String extractShortId(String id) {
+        String[] split = id.split(DELIMITER);
         return split[split.length - 1];
     }
 

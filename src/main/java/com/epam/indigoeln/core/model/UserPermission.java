@@ -2,10 +2,13 @@ package com.epam.indigoeln.core.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableSet;
+import com.mongodb.DBObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.val;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -73,6 +76,19 @@ public class UserPermission {
         this.permissionCreationLevel = permissionCreationLevel;
     }
 
+    @SuppressWarnings("unchecked")
+    public UserPermission(DBObject obj) {
+        if (obj.get("permissions") instanceof Iterable) {
+            val ps = new HashSet<String>();
+            ((Iterable) obj.get("permissions")).forEach(p -> ps.add(String.valueOf(p)));
+            this.permissions = ps;
+        }
+        if (obj.get("user") instanceof com.mongodb.DBRef) {
+            this.user = new User();
+            this.user.setId(String.valueOf(((com.mongodb.DBRef) obj.get("user")).getId()));
+        }
+    }
+
     public Boolean isRemovable() {
         return removable;
     }
@@ -107,7 +123,7 @@ public class UserPermission {
     }
 
     public boolean hasPermission(String permission) {
-        return permission != null && this.permissions.contains(permission);
+            return permission != null && this.permissions.contains(permission);
     }
 
     public String getPermissionView() {
