@@ -87,7 +87,7 @@ function experimentService($resource, permissionService, apiUrl) {
         experiment.creationDate = moment(experiment.creationDate).toISOString();
 
         if (!_.get(experiment, 'components.stoichTable.products')) {
-            return;
+            return experiment;
         }
         _.forEach(experiment.components.stoichTable.products, function(batch) {
             if (!batch.$$batchHash) {
