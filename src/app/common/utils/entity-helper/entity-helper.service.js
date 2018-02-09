@@ -87,7 +87,8 @@ function entityHelper(confirmationModal, notifyService, entityTreeService) {
         var entityObject;
 
         if (isNotebook) {
-            entityObject = entityTreeService.getNotebookByFullId(currentEntity.fullId);
+            var notebookFullId = currentEntity.projectId + '-' + currentEntity.notebookId;
+            entityObject = entityTreeService.getNotebookByFullId(notebookFullId);
             parentEntity.notebookId = currentEntity.notebookId;
             parentEntity.type = 'Notebook';
         } else {

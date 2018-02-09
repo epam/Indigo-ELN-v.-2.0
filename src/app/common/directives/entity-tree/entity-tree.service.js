@@ -246,7 +246,7 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
     }
 
     function getProjectById(projectId) {
-        var node = _.find(allProjectsList, {id: projectId});
+        var node = _.find(projectsList, {id: projectId});
         if (node) {
             return node.original;
         }
@@ -255,7 +255,7 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
     }
 
     function getNotebookByFullId(fullId) {
-        var node = _.find(allNotebooksList, {fullId: fullId});
+        var node = _.find(notebooksList, {fullId: fullId});
         if (node) {
             return node.original;
         }
