@@ -27,14 +27,18 @@ function entityHelper(confirmationModal, notifyService, entityTreeService) {
      * @param { Function } rejectCallback - function to call if user rejects external changes to the current entity
      */
     function onEntityUpdate(currentEntity, updatedEntity, hasUnsavedChanges, refreshCallback, rejectCallback) {
-        var hasChangeInTheEntity = isEqualEntities(currentEntity, updatedEntity);
+        var isCurrentChanged = isEqualEntities(currentEntity, updatedEntity);
 
-        var updatedParentEntity = hasChangeInTheEntity
+        if (isCurrentChanged && updatedEntity.version <= currentEntity.version) {
+            return;
+        }
+
+        var updatedParentEntity = isCurrentChanged
             ? null
             : getUpdatedParentEntity(currentEntity, updatedEntity);
 
         // If nothing changed in current entity or its parents do nothing
-        if ((!updatedParentEntity && !hasChangeInTheEntity) || updatedEntity.version <= currentEntity.version) {
+        if (!updatedParentEntity && !isCurrentChanged) {
             return;
         }
 
