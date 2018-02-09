@@ -2,6 +2,7 @@ package com.epam.indigoeln.web.rest.errors;
 
 import com.epam.indigo.IndigoException;
 import com.epam.indigoeln.IndigoRuntimeException;
+import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.service.exception.UriProcessingException;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.dao.DataAccessException;
@@ -92,6 +93,13 @@ public class ExceptionTranslator {
         return new ErrorDTO(ErrorConstants.ERR_ACCESS_DENIED, e.getMessage());
     }
 
+    @ExceptionHandler(OperationDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public ParametrizedErrorDTO operationDeniedException(OperationDeniedException ex) {
+        return ex.getErrorDTO();
+    }
+
     private ErrorDTO processFieldErrors(List<FieldError> fieldErrors) {
         ErrorDTO dto = new ErrorDTO(ErrorConstants.ERR_VALIDATION);
 
@@ -135,6 +143,7 @@ public class ExceptionTranslator {
      * Default Error handler for Database Issues.
      * Database constraint violations and business logic issues, such as duplicate key exception, unique index etc.,
      * should be handed other way.
+     *
      * @return Error
      */
     @ExceptionHandler(DataAccessException.class)
