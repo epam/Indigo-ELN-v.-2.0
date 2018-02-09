@@ -22,7 +22,7 @@ function entityTree() {
 }
 
 /* @ngInject */
-function EntityTreeController(entityTreeService, $timeout, experimentService, $scope, scrollToService) {
+function EntityTreeController(entityTreeService, $timeout, experimentService, $scope, scrollToService, $element) {
     var vm = this;
 
     init();
@@ -32,6 +32,7 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
         vm.toggle = toggle;
         vm.getSref = getSref;
         vm.getPopoverExperiment = _.throttle(getPopoverExperiment, 300);
+        vm.hidePopover = hidePopover;
 
         bindEvents();
 
@@ -40,11 +41,19 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
         });
     }
 
+    function hidePopover() {
+        vm.popoverExperiment = null;
+    }
+
     function bindEvents() {
         var selectedFullIdListener = $scope.$watch('vm.selectedFullId', onChangedSelectedFullId);
 
+        $element.bind('mouseout', hidePopover);
+
         $scope.$on('$destroy', function() {
             selectedFullIdListener();
+
+            $element.unbind('mouseout', hidePopover);
         });
     }
 
@@ -109,7 +118,7 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
     }
 
     function getPopoverExperiment(node) {
-        if (vm.popoverExperiment === node) {
+        if (vm.popoverExperiment && vm.popoverExperiment.fullId === node.fullId) {
             return;
         }
 
