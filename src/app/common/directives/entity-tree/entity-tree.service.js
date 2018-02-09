@@ -83,20 +83,24 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
         var projectNode = _.find(allProjectsList, {id: project.id});
         if (projectNode) {
             updateNode(projectNode, project);
+            allProjectsList.sort(sortByName);
         }
 
         projectNode = _.find(projectsList, {id: project.id});
         if (projectNode) {
             updateNode(projectNode, project);
+            projectsList.sort(sortByName);
         }
     }
 
     function addProject(project) {
         var builtNode = buildNode(project, null);
         allProjectsList.push(builtNode);
+        allProjectsList.sort(sortByName);
 
         builtNode = buildNode(project, null);
         projectsList.push(builtNode);
+        projectsList.sort(sortByName);
     }
 
     function addNotebook(notebook, projectId) {
@@ -142,6 +146,7 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
                         list.push(node);
                     });
 
+                    list.sort(sortByName);
                     return list;
                 });
         }
@@ -256,6 +261,19 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
         }
 
         return null;
+    }
+
+    function sortByName(a, b) {
+        var aName = a.name ? a.name.toLowerCase() : '';
+        var bName = b.name ? b.name.toLowerCase() : '';
+        if (aName > bName) {
+            return 1;
+        }
+        if (aName < bName) {
+            return -1;
+        }
+
+        return 0;
     }
 }
 
