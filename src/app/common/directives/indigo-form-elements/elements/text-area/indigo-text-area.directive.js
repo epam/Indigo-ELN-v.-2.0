@@ -28,7 +28,7 @@ function indigoTextArea(formUtils) {
             tElement.find('textarea').attr('ng-trim', tAttrs.indigoTrim);
         }
 
-        if (tAttrs.indigoNoElastic) {
+        if (tAttrs.indigoNoElastic && tAttrs.indigoNoElastic === 'true') {
             tElement.find('textarea').removeAttr('msd-elastic');
         }
     }
