@@ -73,7 +73,8 @@ var sdConstants = [
     {
         code: 'GLOBAL_SALT_EQ',
         name: 'saltEq',
-        path: 'value'
+        path: 'value',
+        isNumeric: true
     },
     {
         code: 'STRUCTURE_COMMENT',
