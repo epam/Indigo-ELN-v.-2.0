@@ -16,7 +16,9 @@ EntitiesController.$inject = ['$scope', 'entitiesBrowserService', '$q', 'princip
 
 function EntitiesController($scope, entitiesBrowserService, $q, principalService, entitiesCache,
                             alertModal, dialogService, autorecoveryCache, projectService,
-                            notebookService, experimentService, notifyService) {
+                            notebookService, experimentService
+                            // notifyService
+) {
     var vm = this;
 
     init();
@@ -37,11 +39,11 @@ function EntitiesController($scope, entitiesBrowserService, $q, principalService
         });
     }
 
-    function closeTab(tab) {
-        entitiesBrowserService.close(tab.tabKey);
-        entitiesCache.removeByKey(tab.tabKey);
-        autorecoveryCache.remove(tab.params);
-    }
+    // function closeTab(tab) {
+    //     entitiesBrowserService.close(tab.tabKey);
+    //     entitiesCache.removeByKey(tab.tabKey);
+    //     autorecoveryCache.remove(tab.params);
+    // }
 
     function getService(kind) {
         var service;
@@ -95,67 +97,54 @@ function EntitiesController($scope, entitiesBrowserService, $q, principalService
         return $q.resolve();
     }
 
-    function openCloseDialog(editTabs) {
-        return dialogService
-            .selectEntitiesToSave(editTabs)
-            .then(function(tabsToSave) {
-                var savePromises = _.map(tabsToSave, function(tabToSave) {
-                    return saveEntity(tabToSave)
-                        .then(function() {
-                            closeTab(tabToSave);
-                        })
-                        .catch(function() {
-                            notifyService.error('Error saving ' + tabToSave.kind + ' ' + tabToSave.name + '.');
-                        });
-                });
-
-                _.each(editTabs, function(tab) {
-                    if (!_.find(tabsToSave, {tabKey: tab.tabKey})) {
-                        closeTab(tab);
-                    }
-                });
-
-                return $q.all(savePromises);
-            });
-    }
-
+    // function openCloseDialog(editTabs) {
+    //     return dialogService
+    //         .selectEntitiesToSave(editTabs)
+    //         .then(function(tabsToSave) {
+    //             var savePromises = _.map(tabsToSave, function(tabToSave) {
+    //                 return saveEntity(tabToSave)
+    //                     .then(function() {
+    //                         closeTab(tabToSave);
+    //                     })
+    //                     .catch(function() {
+    //                         notifyService.error('Error saving ' + tabToSave.kind + ' ' + tabToSave.name + '.');
+    //                     });
+    //             });
+    //
+    //             _.each(editTabs, function(tab) {
+    //                 if (!_.find(tabsToSave, {tabKey: tab.tabKey})) {
+    //                     closeTab(tab);
+    //                 }
+    //             });
+    //
+    //             return $q.all(savePromises);
+    //         });
+    // }
+    //
     function onCloseAllTabs(exceptCurrent) {
         var tabsToClose = !exceptCurrent ? vm.tabs : _.filter(vm.tabs, function(tab) {
             return tab !== vm.activeTab;
         });
-        var modifiedTabs = [];
-        var unmodifiedTabs = [];
-        _.each(tabsToClose, function(tab) {
-            if (tab.dirty) {
-                modifiedTabs.push(tab);
-            } else {
-                unmodifiedTabs.push(tab);
-            }
-        });
-
-        $q.when(modifiedTabs.length ? openCloseDialog(modifiedTabs) : null)
-            .finally(function() {
-                _.each(unmodifiedTabs, closeTab);
-            });
+        entitiesBrowserService.onCloseAllTabs(tabsToClose);
+        // var modifiedTabs = [];
+        // var unmodifiedTabs = [];
+        // _.each(tabsToClose, function(tab) {
+        //     if (tab.dirty) {
+        //         modifiedTabs.push(tab);
+        //     } else {
+        //         unmodifiedTabs.push(tab);
+        //     }
+        // });
+        //
+        // $q.when(modifiedTabs.length ? openCloseDialog(modifiedTabs) : null)
+        //     .finally(function() {
+        //         _.each(unmodifiedTabs, closeTab);
+        //     });
     }
 
     function onCloseTabClick($event, tab) {
-        $event.stopPropagation();
-        if (tab.dirty) {
-            alertModal.save('Do you want to save the changes?', null, function(isSave) {
-                if (isSave) {
-                    saveEntity(tab).then(function() {
-                        closeTab(tab);
-                    });
-                } else {
-                    closeTab(tab);
-                }
-            });
-
-            return;
-        }
-
-        closeTab(tab);
+        entitiesBrowserService.onCloseTabClick($event, tab);
+        //Оля, проверь!!!!!!!!!!
     }
 
     function onTabClick($event, tab) {

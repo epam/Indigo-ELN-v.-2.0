@@ -1,6 +1,6 @@
-entitiesBrowserService.$inject = ['$q', '$state', 'principalService', 'tabKeyService', 'CacheFactory'];
+entitiesBrowserService.$inject = ['$q', 'dialogService', 'alertModal', 'notifyService', '$state', 'autorecoveryCache', 'entitiesCache', 'principalService', 'tabKeyService', 'CacheFactory'];
 
-function entitiesBrowserService($q, $state, principalService, tabKeyService, CacheFactory) {
+function entitiesBrowserService($q, $state, alertModal, notifyService, dialogService, autorecoveryCache, principalService, tabKeyService, CacheFactory, entitiesCache) {
     var tabs = {};
     var activeTab = {};
     var entityActions;
@@ -35,7 +35,11 @@ function entitiesBrowserService($q, $state, principalService, tabKeyService, Cac
         getTabByParams: getTabByParams,
         restoreTabs: restoreTabs,
         setExperimentTab: setExperimentTab,
-        getExperimentTab: getExperimentTab
+        getExperimentTab: getExperimentTab,
+       // closeTab: closeTab,
+        onCloseAllTabs: onCloseAllTabs,
+        onCloseTabClick: onCloseTabClick
+       // openCloseDialog: openCloseDialog
     };
 
     function getExperimentTabById(user, experimentFullId) {
@@ -216,6 +220,75 @@ function entitiesBrowserService($q, $state, principalService, tabKeyService, Cac
 
         cacheTabs = _.omit(cacheTabs, tabKey);
         tabCache.put(storageKey, cacheTabs);
+    }
+
+    function closeTab(tab) {
+        close(tab.tabKey);
+        entitiesCache.removeByKey(tab.tabKey);
+        autorecoveryCache.remove(tab.params);
+    }
+
+    function openCloseDialog(editTabs) {
+        return dialogService
+            .selectEntitiesToSave(editTabs)
+            .then(function(tabsToSave) {
+                var savePromises = _.map(tabsToSave, function(tabToSave) {
+                    return saveEntity(tabToSave)
+                        .then(function() {
+                            closeTab(tabToSave);
+                        })
+                        .catch(function() {
+                            notifyService.error('Error saving ' + tabToSave.kind + ' ' + tabToSave.name + '.');
+                        });
+                });
+
+                _.each(editTabs, function(tab) {
+                    if (!_.find(tabsToSave, {tabKey: tab.tabKey})) {
+                        closeTab(tab);
+                    }
+                });
+
+                return $q.all(savePromises);
+            });
+    }
+
+    function onCloseAllTabs(tabsToClose) {
+        // var tabsToClose = !exceptCurrent ? vm.tabs : _.filter(vm.tabs, function(tab) {
+        //     return tab !== vm.activeTab;
+        // });
+        var modifiedTabs = [];
+        var unmodifiedTabs = [];
+        _.each(tabsToClose, function(tab) {
+            if (tab.dirty) {
+                modifiedTabs.push(tab);
+            } else {
+                unmodifiedTabs.push(tab);
+            }
+        });
+
+        $q.when(modifiedTabs.length ? openCloseDialog(modifiedTabs) : null)
+            .finally(function() {
+                _.each(unmodifiedTabs, closeTab);
+            });
+    }
+
+    function onCloseTabClick($event, tab) {
+        $event.stopPropagation();
+        if (tab.dirty) {
+            alertModal.save('Do you want to save the changes?', null, function(isSave) {
+                if (isSave) {
+                    saveEntity(tab).then(function() {
+                        closeTab(tab);
+                    });
+                } else {
+                    closeTab(tab);
+                }
+            });
+
+            return;
+        }
+
+        closeTab(tab);
     }
 }
 

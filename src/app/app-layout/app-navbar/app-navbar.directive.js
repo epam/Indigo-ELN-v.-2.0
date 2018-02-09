@@ -14,20 +14,25 @@ function appNavbar() {
     };
 }
 
-NavbarController.$inject = ['$scope', '$state', 'principalService', 'authService', 'entitiesCache'];
+NavbarController.$inject = ['$scope', '$state', 'principalService', 'entitiesBrowserService', 'authService', 'entitiesCache'];
 
-function NavbarController($scope, $state, principalService, authService, entitiesCache) {
+function NavbarController($scope, $state, principalService, entitiesBrowserService, authService, entitiesCache) {
     var vm = this;
 
     vm.GLOBAL_SEARCH = roles.GLOBAL_SEARCH;
     vm.logout = logout;
     vm.search = search;
 
+
     init();
 
     function init() {
         principalService.checkIdentity().then(function(user) {
             vm.user = user;
+            entitiesBrowserService.getTabs(function(tabs) {
+                vm.tabs = tabs;
+                vm.activeTab = entitiesBrowserService.getActiveTab();
+            });
         });
 
         $scope.$on('$destroy', function() {
