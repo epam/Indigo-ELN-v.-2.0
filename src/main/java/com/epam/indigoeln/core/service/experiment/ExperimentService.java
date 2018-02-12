@@ -23,12 +23,16 @@ import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.epam.indigoeln.web.rest.util.permission.helpers.ExperimentPermissionHelper;
 import com.google.common.util.concurrent.Striped;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import com.mongodb.DBRef;
+import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
@@ -95,6 +99,9 @@ public class ExperimentService {
     @Autowired
     private WebSocketUtil webSocketUtil;
 
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
     private Striped<Lock> locks = Striped.lazyWeakLock(2);
 
     private static List<Experiment> getExperimentsWithAccess(List<Experiment> experiments, User user) {
@@ -104,11 +111,11 @@ public class ExperimentService {
 
     }
 
-    public Experiment getExperiment(String experimentId){
+    public Experiment getExperiment(String experimentId) {
         return experimentRepository.findOne(experimentId);
     }
 
-    public void saveExperiment(Experiment experiment){
+    public void saveExperiment(Experiment experiment) {
         experimentRepository.save(experiment);
     }
 
@@ -131,10 +138,50 @@ public class ExperimentService {
      * @param user       User
      * @return List with tree representation of experiments of specified notebook for user
      */
+    @SuppressWarnings("unchecked")
     public List<TreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId, User user) {
-        Collection<Experiment> experiments = getAllExperiments(projectId, notebookId, user);
-        return experiments.stream()
-                .map(ExperimentTreeNodeDTO::new).sorted(TreeNodeDTO.NAME_COMPARATOR).collect(Collectors.toList());
+        val notebookCollection = mongoTemplate.getCollection(Notebook.COLLECTION_NAME);
+        val experimentCollection = mongoTemplate.getCollection(Experiment.COLLECTION_NAME);
+
+        val notebook = notebookCollection.findOne(new BasicDBObject().append("_id", SequenceIdUtil.buildFullId(projectId, notebookId)));
+
+        if (notebook == null) {
+            throw EntityNotFoundException.createWithNotebookId(notebookId);
+        }
+
+        if (notebook.get("experiments") instanceof Iterable) {
+            val experimentIds = new ArrayList<String>();
+            ((Iterable) notebook.get("experiments")).forEach(e -> experimentIds.add(String.valueOf(String.valueOf(((DBRef) e).getId()))));
+
+            val experiments = new ArrayList<DBObject>();
+            experimentCollection.find(new BasicDBObject().append("_id", new BasicDBObject().append("$in", experimentIds))).forEach(experiments::add);
+
+            if (user == null) {
+                return experiments.stream()
+                        .map(ExperimentTreeNodeDTO::new)
+                        .sorted(TreeNodeDTO.NAME_COMPARATOR)
+                        .collect(Collectors.toList());
+            }
+
+            val notebookAccessList = new HashSet<UserPermission>();
+            ((Iterable) notebook.get("accessList")).forEach(a -> notebookAccessList.add(new UserPermission((DBObject) a)));
+
+            if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, notebookAccessList, UserPermission.READ_ENTITY)) {
+                throw OperationDeniedException.createNotebookSubEntitiesReadOperation(String.valueOf(notebook.get("_id")));
+            }
+
+            return experiments.stream()
+                    .filter(experiment -> {
+                        val experimentAccessList = new HashSet<UserPermission>();
+                        ((Iterable) experiment.get("accessList")).forEach(a -> experimentAccessList.add(new UserPermission((DBObject) a)));
+                        return PermissionUtil.hasUser(experimentAccessList, user);
+                    })
+                    .map(ExperimentTreeNodeDTO::new)
+                    .sorted(TreeNodeDTO.NAME_COMPARATOR)
+                    .collect(Collectors.toList());
+        }
+
+        return Collections.emptyList();
     }
 
     /**
@@ -655,7 +702,7 @@ public class ExperimentService {
                 .collect(Collectors.toList());
     }
 
-    public void deleteAll(){
+    public void deleteAll() {
         experimentRepository.deleteAll();
     }
 }

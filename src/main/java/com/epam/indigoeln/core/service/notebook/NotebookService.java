@@ -17,10 +17,15 @@ import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.epam.indigoeln.web.rest.util.permission.helpers.NotebookPermissionHelper;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+import com.mongodb.DBRef;
+import lombok.val;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -72,10 +77,8 @@ public class NotebookService {
     @Autowired
     private ExperimentService experimentService;
 
-    private static List<Notebook> getNotebooksWithAccess(List<Notebook> notebooks, String userId) {
-        return notebooks.stream().filter(notebook -> PermissionUtil.findPermissionsByUserId(
-                notebook.getAccessList(), userId) != null).collect(Collectors.toList());
-    }
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     /**
      * Returns all notebooks of specified project for tree representation.
@@ -95,36 +98,49 @@ public class NotebookService {
      * @param user      User
      * @return List with notebooks for tree representation
      */
+    @SuppressWarnings("unchecked")
     public List<TreeNodeDTO> getAllNotebookTreeNodes(String projectId, User user) {
-        Collection<Notebook> notebooks = getAllNotebooks(projectId, user);
-        return notebooks.stream().map(TreeNodeDTO::new).sorted(TreeNodeDTO.NAME_COMPARATOR)
-                .collect(Collectors.toList());
-    }
+        val projectCollection = mongoTemplate.getCollection(Project.COLLECTION_NAME);
+        val notebookCollection = mongoTemplate.getCollection(Notebook.COLLECTION_NAME);
 
-    /**
-     * If user is null, then retrieve notebooks without checking for UserPermissions.
-     * Otherwise, use checking for UserPermissions
-     *
-     * @param projectId Project's identifier
-     * @param user      User
-     * @return All notebooks
-     */
-    private Collection<Notebook> getAllNotebooks(String projectId, User user) {
-        Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
-                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
-
-        if (user == null) {
-            return project.getNotebooks();
+        val project = projectCollection.findOne(new BasicDBObject().append("_id", projectId));
+        if (project == null) {
+            throw EntityNotFoundException.createWithProjectId(projectId);
         }
 
-        // Check of EntityAccess (User must have "Read Entity" permission in project access list)
-        if (!PermissionUtil.hasPermissions(user.getId(), project.getAccessList(),
-                UserPermission.READ_ENTITY)) {
-            throw OperationDeniedException.createProjectSubEntitiesReadOperation(project.getId());
+        if (project.get("notebooks") instanceof Iterable) {
+            val notebookIds = new ArrayList<String>();
+            ((Iterable) project.get("notebooks")).forEach(n -> notebookIds.add(String.valueOf(((DBRef) n).getId())));
+
+            val notebooks = new ArrayList<DBObject>();
+            notebookCollection.find(new BasicDBObject("_id", new BasicDBObject("$in", notebookIds))).forEach(notebooks::add);
+
+            if (user == null) {
+                return notebooks.stream()
+                        .map(TreeNodeDTO::new)
+                        .sorted(TreeNodeDTO.NAME_COMPARATOR)
+                        .collect(Collectors.toList());
+            }
+
+            val projectAccessList = new HashSet<UserPermission>();
+            ((Iterable) project.get("accessList")).forEach(a -> projectAccessList.add(new UserPermission((DBObject) a)));
+
+            if (!PermissionUtil.hasPermissions(user.getId(), projectAccessList, UserPermission.READ_ENTITY)) {
+                throw OperationDeniedException.createProjectSubEntitiesReadOperation(String.valueOf(project.get("_id")));
+            }
+
+            return notebooks.stream()
+                    .filter(notebook -> {
+                        val notebookAccessList = new HashSet<UserPermission>();
+                        ((Iterable) notebook.get("accessList")).forEach(a -> notebookAccessList.add(new UserPermission((DBObject) a)));
+                        return PermissionUtil.findPermissionsByUserId(notebookAccessList, user.getId()) != null;
+                    })
+                    .map(TreeNodeDTO::new)
+                    .sorted(TreeNodeDTO.NAME_COMPARATOR)
+                    .collect(Collectors.toList());
         }
 
-        return getNotebooksWithAccess(project.getNotebooks(), user.getId());
-
+        return Collections.emptyList();
     }
 
     /**
@@ -346,7 +362,7 @@ public class NotebookService {
      * @param notebookName Notebook name to check
      * @return true if name is new and false if not
      */
-    public boolean isNew(String notebookName){
+    public boolean isNew(String notebookName) {
         return !notebookRepository.findByName(notebookName).isPresent();
     }
 
@@ -360,7 +376,7 @@ public class NotebookService {
         }
     }
 
-    public void deleteAll(){
+    public void deleteAll() {
         notebookRepository.deleteAll();
     }
 }
