@@ -329,7 +329,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     }
 
     function onChangedComponent(component) {
-        if (component.componentId === typeOfComponents.attachments.id) {
+        if (component && component.componentId === typeOfComponents.attachments.id) {
             vm.loading = experimentService.get($stateParams).$promise
                 .then(function(result) {
                     vm.experiment.version = result.version;
