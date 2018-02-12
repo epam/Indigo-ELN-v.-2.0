@@ -144,7 +144,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
 
     function print() {
         save().then(function() {
-            $state.go('entities.project-detail.print');
+            $state.go('entities.project-detail.print', null, {notify: false});
         });
     }
 

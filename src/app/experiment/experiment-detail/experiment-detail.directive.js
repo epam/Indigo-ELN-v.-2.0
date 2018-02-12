@@ -274,10 +274,10 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     function printExperiment() {
         if (vm.isEntityChanged) {
             vm.save(vm.experiment).then(function() {
-                $state.go('entities.experiment-detail.print');
+                $state.go('entities.experiment-detail.print', null, {notify: false});
             });
         } else {
-            $state.go('entities.experiment-detail.print');
+            $state.go('entities.experiment-detail.print', null, {notify: false});
         }
     }
 
