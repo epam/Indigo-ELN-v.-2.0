@@ -119,7 +119,7 @@ public class NotebookResourceIT extends RestBaseIT {
 
         ResponseEntity<NotebookDTO> responseEntity = restTemplate.exchange(requestEntity, NotebookDTO.class);
 
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
     }
 
     @Test

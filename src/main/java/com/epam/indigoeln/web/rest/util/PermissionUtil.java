@@ -4,10 +4,10 @@ import com.epam.indigoeln.core.model.BasicModelObject;
 import com.epam.indigoeln.core.model.PermissionCreationLevel;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.model.UserPermission;
-import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.security.Authority;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.PermissionIncorrectException;
+import com.epam.indigoeln.core.service.user.UserService;
 
 import java.util.Comparator;
 import java.util.Objects;
@@ -121,14 +121,14 @@ public final class PermissionUtil {
                 && canBeChangedFromThisLevel(upperPermissionsLevel, userPermission.getPermissionCreationLevel());
     }
 
-    public static void checkCorrectnessOfAccessList(UserRepository userRepository,
+    public static void checkCorrectnessOfAccessList(UserService userService,
                                                     Set<UserPermission> accessList) {
         for (UserPermission userPermission : accessList) {
             if (userPermission.getUser() == null) {
                 throw PermissionIncorrectException.createWithoutUserId();
             }
 
-            User userFromDB = userRepository.findOne(userPermission.getUser().getId());
+            User userFromDB = userService.getUserById(userPermission.getUser().getId());
             if (userFromDB == null) {
                 throw EntityNotFoundException.createWithUserId(userPermission.getUser().getId());
             }

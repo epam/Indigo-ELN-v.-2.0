@@ -7,11 +7,11 @@ import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
-import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.ConcurrencyException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
+import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.core.util.BatchComponentUtil;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.core.util.WebSocketUtil;
@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 
 import static com.epam.indigoeln.core.model.PermissionCreationLevel.EXPERIMENT;
 import static com.epam.indigoeln.core.util.BatchComponentUtil.*;
+import static com.epam.indigoeln.core.util.WebSocketUtil.getRecipients;
 
 /**
  * The ExperimentService provides methods for
@@ -88,10 +89,10 @@ public class ExperimentService {
     private FileRepository fileRepository;
 
     /**
-     * Repository for user's data manipulation.
+     * Service for user's data manipulation.
      */
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
     private SequenceIdService sequenceIdService;
@@ -295,7 +296,7 @@ public class ExperimentService {
             experiment.setTemplate(tmpl);
         }
         // check of user permissions's correctness in access control list
-        PermissionUtil.checkCorrectnessOfAccessList(userRepository, experiment.getAccessList());
+        PermissionUtil.checkCorrectnessOfAccessList(userService, experiment.getAccessList());
         // add OWNER's permissions for specified User to experiment
         Pair<Boolean, Boolean> changes =
                 ExperimentPermissionHelper.fillNewExperimentsPermissions(project, notebook, experiment, user);
@@ -317,11 +318,12 @@ public class ExperimentService {
 
         notebook.getExperiments().add(savedExperiment);
         Notebook savedNotebook = notebookRepository.save(notebook);
-        webSocketUtil.updateNotebook(user, projectId, savedNotebook);
+        Set<User> contentEditors = userService.getContentEditors();
+        webSocketUtil.updateNotebook(user, projectId, savedNotebook, getRecipients(contentEditors, savedNotebook));
 
         if (changes.getRight()) {
             Project savedProject = projectRepository.save(project);
-            webSocketUtil.updateProject(user, savedProject);
+            webSocketUtil.updateProject(user, savedProject, getRecipients(contentEditors, savedProject));
         }
 
         return new ExperimentDTO(savedExperiment);
@@ -395,7 +397,8 @@ public class ExperimentService {
         final Experiment savedNewVersion = experimentRepository.save(newVersion);
         notebook.getExperiments().add(savedNewVersion);
         Notebook savedNotebook = notebookRepository.save(notebook);
-        webSocketUtil.updateNotebook(user, projectId, savedNotebook);
+        webSocketUtil.updateNotebook(user, projectId, savedNotebook,
+                getRecipients(userService.getContentEditors(), savedNotebook));
 
         return new ExperimentDTO(savedNewVersion);
     }
@@ -442,7 +445,7 @@ public class ExperimentService {
 
 
             // check of user permissions's correctness in access control list
-            PermissionUtil.checkCorrectnessOfAccessList(userRepository, experimentForSave.getAccessList());
+            PermissionUtil.checkCorrectnessOfAccessList(userService, experimentForSave.getAccessList());
 
             experimentFromDB.setTemplate(experimentForSave.getTemplate());
             experimentFromDB.setComments(experimentForSave.getComments());
@@ -471,21 +474,23 @@ public class ExperimentService {
                 throw ConcurrencyException.createWithExperimentName(experimentFromDB.getName(), e);
             }
 
+            Set<User> contentEditors = userService.getContentEditors();
             if (update.getLeft()) {
                 Notebook savedNotebook = notebookRepository.save(notebook);
-                webSocketUtil.updateNotebook(user, projectId, savedNotebook);
+                webSocketUtil.updateNotebook(
+                        user, projectId, savedNotebook, getRecipients(contentEditors, savedNotebook));
             }
 
             if (update.getRight()) {
                 Project savedProject = projectRepository.save(project);
-                webSocketUtil.updateProject(user, savedProject);
+                webSocketUtil.updateProject(user, savedProject, getRecipients(contentEditors, savedProject));
             }
 
             result = new ExperimentDTO(savedExperiment);
 
-            webSocketUtil.updateExperiment(user, projectId, notebookId, savedExperiment);
-
-
+            webSocketUtil.updateExperiment(user, projectId, notebookId, savedExperiment,
+                    getRecipients(contentEditors, savedExperiment)
+                            .filter(userId -> !userId.equals(user.getId())));
         } finally {
             lock.unlock();
         }
@@ -557,7 +562,9 @@ public class ExperimentService {
                 throw ConcurrencyException.createWithExperimentName(experimentFromDB.getName(), e);
             }
             result = new ExperimentDTO(savedExperiment);
-            webSocketUtil.updateExperiment(user, projectId, notebookId, savedExperiment);
+            webSocketUtil.updateExperiment(user, projectId, notebookId, savedExperiment,
+                    getRecipients(userService.getContentEditors(), savedExperiment)
+                            .filter(userName -> !userName.equals(user.getId())));
         } finally {
             lock.unlock();
         }

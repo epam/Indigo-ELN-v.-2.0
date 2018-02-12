@@ -4,6 +4,7 @@ import com.epam.indigoeln.core.model.Role;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.role.RoleRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
+import com.epam.indigoeln.core.security.Authority;
 import com.epam.indigoeln.core.security.SecurityUtils;
 import com.epam.indigoeln.core.service.exception.DuplicateFieldException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
@@ -27,6 +28,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Service class for managing users.
@@ -244,6 +246,16 @@ public class UserService {
     }
 
     /**
+     * Gets user from DB by his identity.
+     *
+     * @param username user identity
+     * @return user from DB by his identity
+     */
+    public User getUserById(String username) {
+        return userRepository.findOne(username);
+    }
+
+    /**
      * Search user by parameters.
      *
      * @param loginOrFirstNameOrLastNameOrRoleName parameter
@@ -289,5 +301,18 @@ public class UserService {
      */
     public boolean isNew(String login) {
         return !userRepository.existsByLogin(login);
+    }
+
+
+    /**
+     * Gets users from DB with authorities of CONTENT_EDITOR.
+     *
+     * @return all users with CONTENT_EDITOR authorities.
+     */
+    public Set<User> getContentEditors() {
+
+        return roleRepository.findAllByAuthorities(Authority.CONTENT_EDITOR)
+                .flatMap(role -> userRepository.findByRoleId(role.getId()).stream())
+                .collect(toSet());
     }
 }
