@@ -1,6 +1,7 @@
 package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.Experiment;
+import com.epam.indigoeln.core.model.ExperimentStatus;
 import com.mongodb.DBObject;
 import lombok.val;
 
@@ -23,7 +24,7 @@ public class ExperimentTreeNodeDTO extends TreeNodeDTO {
 
     public ExperimentTreeNodeDTO(DBObject obj) {
         super(obj);
-        this.status = String.valueOf(obj.get("status"));
+        this.status = ExperimentStatus.fromValue(String.valueOf(obj.get("status"))).toString();
 
         val experimentName = String.valueOf(obj.get("name"));
         val experimentVersion = Integer.parseInt(String.valueOf(obj.get("experimentVersion")));
