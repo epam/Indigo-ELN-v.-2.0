@@ -258,7 +258,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
 
     function print() {
         save().then(function() {
-            $state.go('entities.notebook-detail.print');
+            $state.go('entities.notebook-detail.print', null, {notify: false});
         });
     }
 
