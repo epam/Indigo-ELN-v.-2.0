@@ -50,11 +50,13 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
         var experimentNode = _.find(allExperimentsList, {fullId: experiment.fullId});
         if (experimentNode) {
             updateNode(experimentNode, experiment);
+            experimentNode.parent.children.sort(sortByName);
         }
 
         experimentNode = _.find(experimentsList, {fullId: experiment.fullId});
         if (experimentNode) {
             updateNode(experimentNode, experiment);
+            experimentNode.parent.children.sort(sortByName);
         }
     }
 
@@ -68,6 +70,7 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
             experimentNode = buildNode(experiment, parentNode);
             allExperimentsList.push(experimentNode);
             parentNode.children.push(experimentNode);
+            parentNode.children.sort(sortByName);
         }
 
         experimentNode = _.find(experimentsList, {fullId: experiment.fullId});
@@ -76,6 +79,7 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
             experimentNode = buildNode(experiment, parentNode);
             experimentsList.push(experimentNode);
             parentNode.children.push(experimentNode);
+            parentNode.children.sort(sortByName);
         }
     }
 
@@ -109,6 +113,7 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
         if (!notebookNode && projectNode && projectNode.hasLoadedChildren) {
             notebookNode = buildNode(notebook, projectNode);
             projectNode.children.push(notebookNode);
+            projectNode.children.sort(sortByName);
             allNotebooksList.push(notebookNode);
         }
 
@@ -117,6 +122,7 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
         if (!notebookNode && projectNode && projectNode.hasLoadedChildren) {
             notebookNode = buildNode(notebook, projectNode);
             projectNode.children.push(notebookNode);
+            projectNode.children.sort(sortByName);
             notebooksList.push(notebookNode);
         }
     }
@@ -125,11 +131,13 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
         var notebookNode = _.find(allNotebooksList, {fullId: notebook.fullId});
         if (notebookNode) {
             updateNode(notebookNode, notebook);
+            notebookNode.parent.children.sort(sortByName);
         }
 
         notebookNode = _.find(notebooksList, {fullId: notebook.fullId});
         if (notebookNode) {
             updateNode(notebookNode, notebook);
+            notebookNode.parent.children.sort(sortByName);
         }
     }
 
@@ -145,8 +153,8 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
                         var node = buildNode(project, null);
                         list.push(node);
                     });
-
                     list.sort(sortByName);
+
                     return list;
                 });
         }
@@ -173,6 +181,7 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
                         project.children.push(node);
                         noteList.push(node);
                     });
+                    project.children.sort(sortByName);
                     project.hasLoadedChildren = true;
 
                     return project.children;
@@ -206,6 +215,7 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
                         notebook.children.push(node);
                         expList.push(node);
                     });
+                    notebook.children.sort(sortByName);
                     notebook.hasLoadedChildren = true;
 
                     return notebook.children;
@@ -215,18 +225,18 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
         return $q.resolve(notebook.children);
     }
 
-    function buildNode(node, parent) {
+    function buildNode(entity, parent) {
         var newNode = {
-            id: node.id,
-            fullId: node.fullId,
-            name: node.name,
-            params: _.concat([], ((parent && parent.params) || []), node.id),
+            id: entity.id,
+            fullId: entity.fullId,
+            name: entity.fullName || entity.name,
+            params: _.concat([], ((parent && parent.params) || []), entity.id),
             parent: parent,
             children: [],
             isActive: false,
             isCollapsed: true,
-            original: node,
-            accessList: node.accessList,
+            original: entity,
+            accessList: entity.accessList,
             hasLoadedChildren: false
         };
 
