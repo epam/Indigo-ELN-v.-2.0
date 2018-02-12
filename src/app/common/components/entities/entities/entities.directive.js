@@ -15,9 +15,7 @@ EntitiesController.$inject = ['$scope', 'entitiesBrowserService', '$q', 'princip
     'projectService', 'notebookService', 'experimentService', 'notifyService'];
 
 function EntitiesController($scope, entitiesBrowserService, $q, principalService, entitiesCache,
-                            alertModal, dialogService, autorecoveryCache, projectService,
-                            notebookService, experimentService
-                            // notifyService
+                            projectService, notebookService, experimentService
 ) {
     var vm = this;
 
@@ -38,12 +36,6 @@ function EntitiesController($scope, entitiesBrowserService, $q, principalService
             });
         });
     }
-
-    // function closeTab(tab) {
-    //     entitiesBrowserService.close(tab.tabKey);
-    //     entitiesCache.removeByKey(tab.tabKey);
-    //     autorecoveryCache.remove(tab.params);
-    // }
 
     function getService(kind) {
         var service;
@@ -97,54 +89,15 @@ function EntitiesController($scope, entitiesBrowserService, $q, principalService
         return $q.resolve();
     }
 
-    // function openCloseDialog(editTabs) {
-    //     return dialogService
-    //         .selectEntitiesToSave(editTabs)
-    //         .then(function(tabsToSave) {
-    //             var savePromises = _.map(tabsToSave, function(tabToSave) {
-    //                 return saveEntity(tabToSave)
-    //                     .then(function() {
-    //                         closeTab(tabToSave);
-    //                     })
-    //                     .catch(function() {
-    //                         notifyService.error('Error saving ' + tabToSave.kind + ' ' + tabToSave.name + '.');
-    //                     });
-    //             });
-    //
-    //             _.each(editTabs, function(tab) {
-    //                 if (!_.find(tabsToSave, {tabKey: tab.tabKey})) {
-    //                     closeTab(tab);
-    //                 }
-    //             });
-    //
-    //             return $q.all(savePromises);
-    //         });
-    // }
-    //
     function onCloseAllTabs(exceptCurrent) {
         var tabsToClose = !exceptCurrent ? vm.tabs : _.filter(vm.tabs, function(tab) {
             return tab !== vm.activeTab;
         });
         entitiesBrowserService.onCloseAllTabs(tabsToClose);
-        // var modifiedTabs = [];
-        // var unmodifiedTabs = [];
-        // _.each(tabsToClose, function(tab) {
-        //     if (tab.dirty) {
-        //         modifiedTabs.push(tab);
-        //     } else {
-        //         unmodifiedTabs.push(tab);
-        //     }
-        // });
-        //
-        // $q.when(modifiedTabs.length ? openCloseDialog(modifiedTabs) : null)
-        //     .finally(function() {
-        //         _.each(unmodifiedTabs, closeTab);
-        //     });
     }
 
     function onCloseTabClick($event, tab) {
         entitiesBrowserService.onCloseTabClick($event, tab);
-        //Оля, проверь!!!!!!!!!!
     }
 
     function onTabClick($event, tab) {

@@ -1,5 +1,4 @@
-entitiesBrowserService.$inject = ['$q', 'dialogService', 'alertModal', 'notifyService', '$state', 'autorecoveryCache', 'entitiesCache', 'principalService', 'tabKeyService', 'CacheFactory'];
-
+/* @ngInject */
 function entitiesBrowserService($q, $state, alertModal, notifyService, dialogService, autorecoveryCache, principalService, tabKeyService, CacheFactory, entitiesCache) {
     var tabs = {};
     var activeTab = {};
@@ -36,10 +35,10 @@ function entitiesBrowserService($q, $state, alertModal, notifyService, dialogSer
         restoreTabs: restoreTabs,
         setExperimentTab: setExperimentTab,
         getExperimentTab: getExperimentTab,
-       // closeTab: closeTab,
+        closeTab: closeTab,
         onCloseAllTabs: onCloseAllTabs,
-        onCloseTabClick: onCloseTabClick
-       // openCloseDialog: openCloseDialog
+        onCloseTabClick: onCloseTabClick,
+        openCloseDialog: openCloseDialog
     };
 
     function getExperimentTabById(user, experimentFullId) {
@@ -253,9 +252,6 @@ function entitiesBrowserService($q, $state, alertModal, notifyService, dialogSer
     }
 
     function onCloseAllTabs(tabsToClose) {
-        // var tabsToClose = !exceptCurrent ? vm.tabs : _.filter(vm.tabs, function(tab) {
-        //     return tab !== vm.activeTab;
-        // });
         var modifiedTabs = [];
         var unmodifiedTabs = [];
         _.each(tabsToClose, function(tab) {
@@ -267,9 +263,9 @@ function entitiesBrowserService($q, $state, alertModal, notifyService, dialogSer
         });
 
         $q.when(modifiedTabs.length ? openCloseDialog(modifiedTabs) : null)
-            .finally(function() {
-                _.each(unmodifiedTabs, closeTab);
-            });
+                .finally(function() {
+                    _.each(unmodifiedTabs, closeTab);
+                });
     }
 
     function onCloseTabClick($event, tab) {

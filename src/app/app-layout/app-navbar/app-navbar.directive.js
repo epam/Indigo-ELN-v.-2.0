@@ -40,7 +40,11 @@ function NavbarController($scope, $state, principalService, entitiesBrowserServi
         });
     }
 
-    function logout() {
+    function logout(exceptCurrent) {
+        var tabsToClose = !exceptCurrent ? vm.tabs : _.filter(vm.tabs, function(tab) {
+            return tab !== vm.activeTab;
+        });
+        entitiesBrowserService.onCloseAllTabs(tabsToClose);
         authService.logout();
         entitiesCache.clearAll();
         $state.go('login');
