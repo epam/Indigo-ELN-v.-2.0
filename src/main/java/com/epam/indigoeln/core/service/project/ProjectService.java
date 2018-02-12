@@ -6,9 +6,9 @@ import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.file.GridFSFileUtil;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
-import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.*;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
+import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.core.util.WebSocketUtil;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
 import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
@@ -32,6 +32,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import static com.epam.indigoeln.core.util.WebSocketUtil.getRecipients;
 
 /**
  * Provides a number of methods for access to project's data in database.
@@ -61,10 +63,10 @@ public class ProjectService {
     private FileRepository fileRepository;
 
     /**
-     * Instance of UserRepository for access to users in database.
+     * Instance of UserService for access to users in database.
      */
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     /**
      * Instance of CustomDtoMapper for conversion from dto object.
@@ -160,7 +162,7 @@ public class ProjectService {
         Project project = mapper.convertFromDTO(projectDTO);
 
         // check of user permissions's correctness in access control list
-        PermissionUtil.checkCorrectnessOfAccessList(userRepository, project.getAccessList());
+        PermissionUtil.checkCorrectnessOfAccessList(userService, project.getAccessList());
 
         //Add entity name
         ProjectPermissionHelper.fillNewProjectPermissions(project, user);
@@ -199,7 +201,7 @@ public class ProjectService {
 
         Project project = mapper.convertFromDTO(projectDTO);
         // check of user permissions's correctness in access control list
-        PermissionUtil.checkCorrectnessOfAccessList(userRepository, project.getAccessList());
+        PermissionUtil.checkCorrectnessOfAccessList(userService, project.getAccessList());
 
         // do not change old project's notebooks and file ids and author
         projectFromDb.setName(project.getName());
@@ -212,20 +214,24 @@ public class ProjectService {
         Map<Notebook, List<Experiment>> changedNotebooksAndExperiments =
                 ProjectPermissionHelper.changeProjectPermissions(projectFromDb, project.getAccessList());
 
+        Set<User> contentEditors = userService.getContentEditors();
         for (Map.Entry<Notebook, List<Experiment>> changedNotebookWithExperiments
                 : changedNotebooksAndExperiments.entrySet()) {
 
             Notebook changedNotebook = changedNotebookWithExperiments.getKey();
             List<Experiment> savedExperiments = experimentRepository.save(changedNotebookWithExperiments.getValue());
             savedExperiments.forEach(experiment ->
-                    webSocketUtil.updateExperiment(user, projectFromDb.getId(), changedNotebook.getId(), experiment));
+                    webSocketUtil.updateExperiment(user, projectFromDb.getId(), changedNotebook.getId(), experiment,
+                            getRecipients(contentEditors, experiment)));
         }
 
         List<Notebook> savedNotebooks = notebookRepository.save(changedNotebooksAndExperiments.keySet());
-        savedNotebooks.forEach(notebook -> webSocketUtil.updateNotebook(user, projectFromDb.getId(), notebook));
+        savedNotebooks.forEach(notebook -> webSocketUtil.updateNotebook(user, projectFromDb.getId(), notebook,
+                getRecipients(contentEditors, notebook)));
 
         project = saveProjectAndHandleError(projectFromDb);
-        webSocketUtil.updateProject(user, project);
+        webSocketUtil.updateProject(user, project,
+                getRecipients(contentEditors, project).filter(userId -> !userId.equals(user.getId())));
         return new ProjectDTO(project);
     }
 

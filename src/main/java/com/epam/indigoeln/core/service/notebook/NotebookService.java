@@ -4,10 +4,10 @@ import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
-import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.*;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
+import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.core.util.BatchComponentUtil;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.core.util.WebSocketUtil;
@@ -32,6 +32,8 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
+import static com.epam.indigoeln.core.util.WebSocketUtil.getRecipients;
+
 /**
  * Provides a number of methods for notebook's data manipulation.
  */
@@ -51,10 +53,10 @@ public class NotebookService {
     private NotebookRepository notebookRepository;
 
     /**
-     * Instance of UserRepository for access to user in database.
+     * Instance of UserService for access to user in database.
      */
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
     private ExperimentRepository experimentRepository;
@@ -216,7 +218,7 @@ public class NotebookService {
         notebook.setId(sequenceIdService.getNextNotebookId(projectId));
 
         // check of user permissions correctness in access control list
-        PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
+        PermissionUtil.checkCorrectnessOfAccessList(userService, notebook.getAccessList());
         // add OWNER's permissions for specified User to notebook
         NotebookPermissionHelper.fillNewNotebooksPermissions(project, notebook, user);
 
@@ -224,7 +226,7 @@ public class NotebookService {
 
         project.getNotebooks().add(savedNotebook);
         Project savedProject = projectRepository.save(project);
-        webSocketUtil.updateProject(user, savedProject);
+        webSocketUtil.updateProject(user, savedProject, getRecipients(userService.getContentEditors(), savedProject));
 
         return new NotebookDTO(savedNotebook);
     }
@@ -261,7 +263,7 @@ public class NotebookService {
 
             Notebook notebook = dtoMapper.convertFromDTO(notebookDTO);
             // check of user permissions's correctness in access control list
-            PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
+            PermissionUtil.checkCorrectnessOfAccessList(userService, notebook.getAccessList());
 
             boolean notebookNameChanged = !notebookFromDB.getName().equals(notebookDTO.getName());
             if (notebookNameChanged) {
@@ -286,22 +288,28 @@ public class NotebookService {
                     NotebookPermissionHelper
                             .changeNotebookPermissions(project, notebookFromDB, notebook.getAccessList());
 
+            Set<User> contentEditors = userService.getContentEditors();
             if (notebookNameChanged) {
                 List<Experiment> savedExperiments = experimentRepository.save(notebookFromDB.getExperiments());
                 savedExperiments.forEach(experiment ->
-                        webSocketUtil.updateExperiment(user, projectId, notebookDTO.getId(), experiment));
+                        webSocketUtil.updateExperiment(user, projectId, notebookDTO.getId(), experiment,
+                                getRecipients(contentEditors, experiment)));
             } else {
                 experimentRepository.save(projectChangedAndChangedExperiments.getRight())
                         .forEach(experiment ->
-                                webSocketUtil.updateExperiment(user, projectId, notebookDTO.getId(), experiment));
+                                webSocketUtil.updateExperiment(user, projectId, notebookDTO.getId(), experiment,
+                                        getRecipients(contentEditors, experiment)));
             }
 
             Notebook savedNotebook = saveNotebookAndHandleError(notebookFromDB);
-            webSocketUtil.updateNotebook(user, projectId, savedNotebook);
+            webSocketUtil.updateNotebook(user, projectId, savedNotebook,
+                    getRecipients(contentEditors, savedNotebook)
+                            .filter(userName -> !userName.equals(user.getId())));
 
             if (projectChangedAndChangedExperiments.getLeft()) {
                 Project savedProject = projectRepository.save(project);
-                webSocketUtil.updateProject(user, savedProject);
+                webSocketUtil.updateProject(user, savedProject,
+                        getRecipients(contentEditors, savedProject));
             }
 
             return new NotebookDTO(savedNotebook);
