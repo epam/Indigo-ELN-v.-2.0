@@ -21,7 +21,8 @@ function autocomplete() {
             onSelect: '&',
             onRemove: '&',
             onRefresh: '&?',
-            onLoadPage: '&?'
+            onLoadPage: '&?',
+            ownEntitySelected: '='
         },
         controller: autocompleteController,
         controllerAs: 'vm',
@@ -43,7 +44,10 @@ function autocompleteController($scope, translateService) {
         vm.loadPage = loadPage;
         vm.field = vm.field || 'name';
         vm.allowClear = vm.allowClear || false;
+        vm.ownEntitySelected = $scope.$parent.vm.ownEntitySelected;
+
         vm.isLoading = false;
+        // vm.ownEntitySelected = $scope.$parent.vm.ownEntitySelected;
         vm.loadingPlaceholder = translateService.translate('AUTOCOMPLETE_LOADING_PLACEHOLDER');
         vm.emptyListPlaceholder = translateService.translate('AUTOCOMPLETE_EMPTY_PLACEHOLDER');
 
