@@ -22,7 +22,8 @@ function entityTree() {
 }
 
 /* @ngInject */
-function EntityTreeController(entityTreeService, $timeout, experimentService, $scope, scrollToService, $element) {
+function EntityTreeController(entityTreeService, $timeout, experimentService, $scope, scrollToService, $element,
+                              notebookService, projectService) {
     var vm = this;
 
     init();
@@ -48,10 +49,46 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
     function bindEvents() {
         var selectedFullIdListener = $scope.$watch('vm.selectedFullId', onChangedSelectedFullId);
 
+        var entityUpdate = $scope.$on('entity-updated', function(event, data) {
+            if (data.entity.experimentId) {
+                var expId = data.entity.projectId + '-' + data.entity.notebookId + '-' + data.entity.experimentId;
+                var expNode = entityTreeService.getExperimentByFullId(expId);
+                var expVersion = _.get(expNode, 'version', -1);
+                if (expVersion < data.version) {
+                    experimentService.get(data.entity).$promise.then(function(exp) {
+                        vm.experimentsCollection[expId] = exp;
+                        entityTreeService.updateExperiment(exp);
+                    });
+                }
+                return;
+            }
+            if (data.entity.notebookId) {
+                var fullId = data.entity.projectId + '-' + data.entity.notebookId;
+                var notebookNode = entityTreeService.getNotebookByFullId(fullId);
+                var notebookVersion = _.get(notebookNode, 'version', -1);
+                if (notebookVersion < data.version) {
+                    notebookService.get(data.entity).$promise.then(function(notebook) {
+                        entityTreeService.updateNotebook(notebook);
+                    });
+                }
+
+                return;
+            }
+
+            var projNode = entityTreeService.getProjectById(data.entity.projectId);
+            var projVersion = _.get(projNode, 'version', -1);
+            if (projVersion < data.version) {
+                projectService.get(data.entity).$promise.then(function(project) {
+                    entityTreeService.updateProject(project);
+                });
+            }
+        });
+
         $element.bind('mouseout', hidePopover);
 
         $scope.$on('$destroy', function() {
             selectedFullIdListener();
+            entityUpdate();
 
             $element.unbind('mouseout', hidePopover);
         });
