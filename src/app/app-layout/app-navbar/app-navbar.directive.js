@@ -14,15 +14,16 @@ function appNavbar() {
     };
 }
 
-NavbarController.$inject = ['$scope', '$state', 'principalService', 'entitiesBrowserService', 'authService', 'entitiesCache'];
+NavbarController.$inject = ['$scope', '$state', 'principalService',
+    'entitiesBrowserService', 'authService', 'entitiesCache'];
 
-function NavbarController($scope, $state, principalService, entitiesBrowserService, authService, entitiesCache) {
+function NavbarController($scope, $state, principalService,
+    entitiesBrowserService, authService, entitiesCache) {
     var vm = this;
 
     vm.GLOBAL_SEARCH = roles.GLOBAL_SEARCH;
     vm.logout = logout;
     vm.search = search;
-
 
     init();
 
@@ -41,13 +42,16 @@ function NavbarController($scope, $state, principalService, entitiesBrowserServi
     }
 
     function logout(exceptCurrent) {
-        var tabsToClose = !exceptCurrent ? vm.tabs : _.filter(vm.tabs, function(tab) {
-            return tab !== vm.activeTab;
+        var tabsToClose = !exceptCurrent ? vm.tabs : _.filter(vm.tabs,
+            function(tab) {
+                return tab !== vm.activeTab;
+            });
+        entitiesBrowserService.onCloseAllTabs(tabsToClose)
+        .then(() => {
+            authService.logout();
+            entitiesCache.clearAll();
+            $state.go('login');
         });
-        entitiesBrowserService.onCloseAllTabs(tabsToClose);
-        authService.logout();
-        entitiesCache.clearAll();
-        $state.go('login');
     }
 
     function search() {

@@ -262,7 +262,7 @@ function entitiesBrowserService($q, $state, alertModal, notifyService, dialogSer
             }
         });
 
-        $q.when(modifiedTabs.length ? openCloseDialog(modifiedTabs) : null)
+        return $q.when(modifiedTabs.length ? openCloseDialog(modifiedTabs) : null)
                 .finally(function() {
                     _.each(unmodifiedTabs, closeTab);
                 });
