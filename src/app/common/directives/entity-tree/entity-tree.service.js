@@ -22,6 +22,7 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
         getFullIdFromParams: getFullIdFromParams,
         getProjectById: getProjectById,
         getNotebookByFullId: getNotebookByFullId,
+        getExperimentByFullId: getExperimentByFullId,
         clearAll: clearAll
     };
 
@@ -260,12 +261,33 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
         if (node) {
             return node.original;
         }
+        node = _.find(allProjectsList, {id: projectId});
+        if (node) {
+            return node.original;
+        }
 
         return null;
     }
 
     function getNotebookByFullId(fullId) {
         var node = _.find(notebooksList, {fullId: fullId});
+        if (node) {
+            return node.original;
+        }
+        node = _.find(allNotebooksList, {fullId: fullId});
+        if (node) {
+            return node.original;
+        }
+
+        return null;
+    }
+
+    function getExperimentByFullId(fullId) {
+        var node = _.find(experimentsList, {fullId: fullId});
+        if (node) {
+            return node.original;
+        }
+        node = _.find(allExperimentsList, {fullId: fullId});
         if (node) {
             return node.original;
         }
