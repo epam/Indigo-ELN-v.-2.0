@@ -1,12 +1,12 @@
 /* @ngInject */
 function PermissionsController($uibModalInstance, permissionService, users, permissions, $state,
-                               permissionsConstant, notifyService, alertModal, i18en, userPermissions) {
+                               permissionsConstant, notifyService, alertModal, i18en, userPermissions,
+                               principalService) {
     var vm = this;
 
     init();
 
     function init() {
-        vm.accessList = buildList();
         vm.permissions = permissions;
         vm.entity = permissionService.getEntity();
         vm.entityId = permissionService.getEntityId();
@@ -15,6 +15,8 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
         vm.users = _.sortBy(users, function(u) {
             return u.login ? u.login.toLowerCase() : '';
         });
+        vm.currentUser = principalService.getIdentity();
+        vm.accessList = buildList();
 
         vm.addMember = addMember;
         vm.removeMember = removeMember;
@@ -28,6 +30,10 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
         return _.find(vm.accessList, function(permission) {
             return permission.user.id === user.id;
         });
+    }
+
+    function isAuthor(user) {
+        return user.login === vm.currentUser.login || permissionService.isAuthor(user);
     }
 
     function addMember(user) {
@@ -50,7 +56,7 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
             permissions: [],
             permissionView: permissionView.id,
             views: views,
-            isAuthor: permissionService.isAuthor(user),
+            isAuthor: isAuthor(user),
             removable: true
         });
     }
@@ -60,7 +66,7 @@ function PermissionsController($uibModalInstance, permissionService, users, perm
 
         _.forEach(accessList, function(permission) {
             permission.views = permissionService.getPossiblePermissionViews($state.current.data.entityType);
-            permission.isAuthor = permissionService.isAuthor(permission.user);
+            permission.isAuthor = isAuthor(permission.user);
         });
 
         accessList = _.sortBy(accessList, function(p) {
