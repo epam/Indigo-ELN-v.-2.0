@@ -343,6 +343,36 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         vm.experiment.version = originalExperiment.version;
     }
 
+    function getRegistrationStatusMessage(statuses) {
+        var resultStatuses = {};
+        _.forEach(statuses, function(status, fullNbkBatch) {
+            if (_.find(vm.experiment.components.productBatchSummary.batches, {fullNbkBatch: fullNbkBatch})) {
+                if (resultStatuses[status.status]) {
+                    resultStatuses[status.status]++;
+                } else {
+                    resultStatuses[status.status] = 1;
+                }
+            }
+        });
+
+        if (_.size(resultStatuses)) {
+            var message = 'The Registration Status of ';
+            var isFirst = true;
+            _.forEach(resultStatuses, function(count, rs) {
+                if (!isFirst) {
+                    message += ', ';
+                }
+                isFirst = false;
+                message += count > 1 ? (count + ' batches are ' + rs) : ('1 batch is ' + rs);
+            });
+            message += ' compound registration process.';
+
+            return message;
+        }
+
+        return null;
+    }
+
     function initEventListeners() {
         var entityUpdate = $scope.$on('entity-updated', function(event, data) {
             if (isSaving) {
@@ -392,16 +422,13 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         });
 
         var batchRegistrationStatus = $scope.$on('batch-registration-status-changed', function(event, statuses) {
-            _.each(statuses, function(status, fullNbkBatch) {
-                if (!_.find(vm.experiment.components.productBatchSummary.batches, {fullNbkBatch: fullNbkBatch})) {
-                    return;
-                }
-
-                notifyService.info('The Registration Status of batch #' + fullNbkBatch + ' is ' + status.status);
+            var message = getRegistrationStatusMessage(statuses);
+            if (message) {
+                notifyService.info(message);
                 vm.loading = getExperiment().then(function(experiment) {
                     return initExperiment(experiment, true).then(updateOriginal);
                 });
-            });
+            }
         });
 
         $scope.$on('$destroy', function() {
