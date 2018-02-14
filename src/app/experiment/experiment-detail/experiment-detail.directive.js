@@ -356,7 +356,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         });
 
         if (_.size(resultStatuses)) {
-            var message = 'The Registration Status of ';
+            var message = 'The Registration Status of batches is updated: ';
             var isFirst = true;
             _.forEach(resultStatuses, function(count, rs) {
                 if (!isFirst) {
@@ -365,7 +365,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
                 isFirst = false;
                 message += count > 1 ? (count + ' batches are ' + rs) : ('1 batch is ' + rs);
             });
-            message += ' compound registration process.';
+            message += '.';
 
             return message;
         }
