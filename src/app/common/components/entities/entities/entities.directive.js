@@ -12,10 +12,10 @@ function entities() {
 
 EntitiesController.$inject = ['$scope', 'entitiesBrowserService', '$q', 'principalService', 'entitiesCache',
     'alertModal', 'dialogService', 'autorecoveryCache',
-    'projectService', 'notebookService', 'experimentService', 'notifyService'];
+    'projectService', 'notebookService', 'experimentService'];
 
 function EntitiesController($scope, entitiesBrowserService, $q, principalService, entitiesCache,
-                            projectService, notebookService, experimentService
+                            alertModal, projectService, notebookService, experimentService
 ) {
     var vm = this;
 
@@ -90,14 +90,26 @@ function EntitiesController($scope, entitiesBrowserService, $q, principalService
     }
 
     function onCloseAllTabs(exceptCurrent) {
-        var tabsToClose = !exceptCurrent ? vm.tabs : _.filter(vm.tabs, function(tab) {
-            return tab !== vm.activeTab;
-        });
-        entitiesBrowserService.onCloseAllTabs(tabsToClose);
+        entitiesBrowserService.onCloseAllTabs(exceptCurrent);
     }
 
     function onCloseTabClick($event, tab) {
-        entitiesBrowserService.onCloseTabClick($event, tab);
+        $event.stopPropagation();
+        if (tab.dirty) {
+            alertModal.save('Do you want to save the changes?', null, function(isSave) {
+                if (isSave) {
+                    saveEntity(tab).then(function() {
+                        entitiesBrowserService.closeTab(tab);
+                    });
+                } else {
+                    entitiesBrowserService.closeTab(tab);
+                }
+            });
+
+            return;
+        }
+
+        entitiesBrowserService.closeTab(tab);
     }
 
     function onTabClick($event, tab) {

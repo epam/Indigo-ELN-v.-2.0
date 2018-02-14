@@ -1,5 +1,5 @@
 /* @ngInject */
-function entitiesBrowserService($q, $state, alertModal, notifyService, dialogService, autorecoveryCache, principalService, tabKeyService, CacheFactory, entitiesCache) {
+function entitiesBrowserService($q, $state, notifyService, dialogService, autorecoveryCache, principalService, tabKeyService, CacheFactory, entitiesCache) {
     var tabs = {};
     var activeTab = {};
     var entityActions;
@@ -36,9 +36,7 @@ function entitiesBrowserService($q, $state, alertModal, notifyService, dialogSer
         setExperimentTab: setExperimentTab,
         getExperimentTab: getExperimentTab,
         closeTab: closeTab,
-        onCloseAllTabs: onCloseAllTabs,
-        onCloseTabClick: onCloseTabClick,
-        openCloseDialog: openCloseDialog
+        onCloseAllTabs: onCloseAllTabs
     };
 
     function getExperimentTabById(user, experimentFullId) {
@@ -251,7 +249,11 @@ function entitiesBrowserService($q, $state, alertModal, notifyService, dialogSer
             });
     }
 
-    function onCloseAllTabs(tabsToClose) {
+    function onCloseAllTabs(exceptCurrent) {
+        var tabsToClose = !exceptCurrent ? tabs : _.filter(tabs,
+            function(tab) {
+                return tab !== activeTab;
+            });
         var modifiedTabs = [];
         var unmodifiedTabs = [];
         _.each(tabsToClose, function(tab) {
@@ -263,28 +265,9 @@ function entitiesBrowserService($q, $state, alertModal, notifyService, dialogSer
         });
 
         return $q.when(modifiedTabs.length ? openCloseDialog(modifiedTabs) : null)
-                .finally(function() {
-                    _.each(unmodifiedTabs, closeTab);
-                });
-    }
-
-    function onCloseTabClick($event, tab) {
-        $event.stopPropagation();
-        if (tab.dirty) {
-            alertModal.save('Do you want to save the changes?', null, function(isSave) {
-                if (isSave) {
-                    saveEntity(tab).then(function() {
-                        closeTab(tab);
-                    });
-                } else {
-                    closeTab(tab);
-                }
+            .finally(function() {
+                _.each(unmodifiedTabs, closeTab);
             });
-
-            return;
-        }
-
-        closeTab(tab);
     }
 }
 
