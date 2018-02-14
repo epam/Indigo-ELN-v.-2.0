@@ -15,11 +15,13 @@ import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
+import com.epam.indigoeln.web.rest.util.permission.helpers.PermissionChanges;
 import com.epam.indigoeln.web.rest.util.permission.helpers.ProjectPermissionHelper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBRef;
 import com.mongodb.gridfs.GridFSDBFile;
 import lombok.val;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -211,21 +213,29 @@ public class ProjectService {
         projectFromDb.setReferences(project.getReferences());
         projectFromDb.setVersion(project.getVersion());
 
-        Map<Notebook, List<Experiment>> changedNotebooksAndExperiments =
+        Pair<PermissionChanges<Project>, Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>> changes =
                 ProjectPermissionHelper.changeProjectPermissions(projectFromDb, project.getAccessList());
 
         Set<User> contentEditors = userService.getContentEditors();
-        for (Map.Entry<Notebook, List<Experiment>> changedNotebookWithExperiments
-                : changedNotebooksAndExperiments.entrySet()) {
+        for (Map.Entry<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>> changedNotebookWithExperiments
+                : changes.getRight().entrySet()) {
 
-            Notebook changedNotebook = changedNotebookWithExperiments.getKey();
-            List<Experiment> savedExperiments = experimentRepository.save(changedNotebookWithExperiments.getValue());
+            Notebook changedNotebook = changedNotebookWithExperiments.getKey().getEntity();
+            List<Experiment> savedExperiments = experimentRepository.save(
+                    changedNotebookWithExperiments.getValue()
+                            .stream()
+                            .map(PermissionChanges::getEntity)
+                            .collect(Collectors.toList()));
             savedExperiments.forEach(experiment ->
                     webSocketUtil.updateExperiment(user, projectFromDb.getId(), changedNotebook.getId(), experiment,
                             getRecipients(contentEditors, experiment)));
         }
 
-        List<Notebook> savedNotebooks = notebookRepository.save(changedNotebooksAndExperiments.keySet());
+        List<Notebook> savedNotebooks = notebookRepository.save(changes.getRight().keySet()
+                .stream()
+                .map(PermissionChanges::getEntity)
+                .collect(Collectors.toList()));
+
         savedNotebooks.forEach(notebook -> webSocketUtil.updateNotebook(user, projectFromDb.getId(), notebook,
                 getRecipients(contentEditors, notebook)));
 

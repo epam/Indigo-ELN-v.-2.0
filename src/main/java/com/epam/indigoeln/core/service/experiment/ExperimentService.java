@@ -22,13 +22,14 @@ import com.epam.indigoeln.web.rest.dto.search.EntitiesIdsDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.epam.indigoeln.web.rest.util.permission.helpers.ExperimentPermissionHelper;
+import com.epam.indigoeln.web.rest.util.permission.helpers.PermissionChanges;
 import com.google.common.util.concurrent.Striped;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.DBRef;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Pageable;
@@ -298,7 +299,7 @@ public class ExperimentService {
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userService, experiment.getAccessList());
         // add OWNER's permissions for specified User to experiment
-        Pair<Boolean, Boolean> changes =
+        Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, PermissionChanges<Experiment>> changes =
                 ExperimentPermissionHelper.fillNewExperimentsPermissions(project, notebook, experiment, user);
 
         //increment sequence Id
@@ -321,7 +322,7 @@ public class ExperimentService {
         Set<User> contentEditors = userService.getContentEditors();
         webSocketUtil.updateNotebook(user, projectId, savedNotebook, getRecipients(contentEditors, savedNotebook));
 
-        if (changes.getRight()) {
+        if (changes.getRight().hadChanged()) {
             Project savedProject = projectRepository.save(project);
             webSocketUtil.updateProject(user, savedProject, getRecipients(contentEditors, savedProject));
         }
@@ -464,8 +465,9 @@ public class ExperimentService {
             Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
                     orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
 
-            Pair<Boolean, Boolean> update = ExperimentPermissionHelper.changeExperimentPermissions(
-                    project, notebook, experimentFromDB, experimentForSave.getAccessList());
+            Triple<PermissionChanges<Experiment>, PermissionChanges<Notebook>, PermissionChanges<Project>> update =
+                    ExperimentPermissionHelper.changeExperimentPermissions(
+                            project, notebook, experimentFromDB, experimentForSave.getAccessList());
 
             Experiment savedExperiment;
             try {
@@ -475,13 +477,13 @@ public class ExperimentService {
             }
 
             Set<User> contentEditors = userService.getContentEditors();
-            if (update.getLeft()) {
+            if (update.getMiddle().hadChanged()) {
                 Notebook savedNotebook = notebookRepository.save(notebook);
                 webSocketUtil.updateNotebook(
                         user, projectId, savedNotebook, getRecipients(contentEditors, savedNotebook));
             }
 
-            if (update.getRight()) {
+            if (update.getRight().hadChanged()) {
                 Project savedProject = projectRepository.save(project);
                 webSocketUtil.updateProject(user, savedProject, getRecipients(contentEditors, savedProject));
             }

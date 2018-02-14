@@ -10,8 +10,10 @@ import com.epam.indigoeln.core.service.exception.PermissionIncorrectException;
 import com.epam.indigoeln.core.service.user.UserService;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import static com.epam.indigoeln.core.model.PermissionCreationLevel.NOTEBOOK;
 import static com.epam.indigoeln.core.model.UserPermission.*;
@@ -151,7 +153,7 @@ public final class PermissionUtil {
 
     public static boolean hasUser(Set<UserPermission> accessList, User user) {
         return accessList.stream()
-                .anyMatch(removingPermission -> Objects.equals(user.getId(), removingPermission.getUser().getId()));
+                .anyMatch(userPermission -> Objects.equals(user.getId(), userPermission.getUser().getId()));
     }
 
     /**
@@ -180,6 +182,24 @@ public final class PermissionUtil {
                 && currentLevel != null
                 && Comparator.comparing(PermissionCreationLevel::ordinal)
                 .compare(changingPermissionLevel, currentLevel) >= 0;
+    }
+
+    /**
+     * @param entity
+     * @param addingPermissions
+     * @return added permissions
+     */
+    public static Set<UserPermission> addAllIfNotPresent(BasicModelObject entity, Set<UserPermission> addingPermissions) {
+
+        HashSet<UserPermission> addedPermissions = new HashSet<>();
+
+        for (UserPermission addingPermission : addingPermissions) {
+            if (!hasUser(entity.getAccessList(), addingPermission.getUser())) {
+                entity.getAccessList().add(addingPermission);
+                addedPermissions.add(addingPermission);
+            }
+        }
+        return addedPermissions;
     }
 
     /**
@@ -239,5 +259,32 @@ public final class PermissionUtil {
                                 equalsByUserId(newPermission, oldPermission)))
                 .map(userPermission -> userPermission.setPermissionCreationLevel(creationLevel))
                 .collect(toSet());
+    }
+
+    public static Set<UserPermission> addAllAsViewerIfNotPresent(BasicModelObject entity,
+                                                                 Set<UserPermission> addedToChildPermissions
+    ) {
+        Set<UserPermission> addedToNotebook = new HashSet<>();
+
+        for (UserPermission addedPermission : addedToChildPermissions) {
+            UserPermission presentedPermission =
+                    findPermissionsByUserId(entity.getAccessList(), addedPermission.getUser().getId());
+            if (presentedPermission == null) {
+                UserPermission addingPermission = new UserPermission(addedPermission.getUser(), VIEWER_PERMISSIONS,
+                        addedPermission.getPermissionCreationLevel());
+                entity.getAccessList().add(addingPermission);
+                addedToNotebook.add(addingPermission);
+            }
+        }
+        return addedToNotebook;
+    }
+
+    public static Set<UserPermission> removeIf(Set<UserPermission> accessList, Predicate<UserPermission> condition) {
+
+        Set<UserPermission> removedPermissions = accessList.stream().filter(condition).collect(toSet());
+
+        accessList.removeAll(removedPermissions);
+
+        return removedPermissions;
     }
 }

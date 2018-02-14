@@ -17,11 +17,12 @@ import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.epam.indigoeln.web.rest.util.permission.helpers.NotebookPermissionHelper;
+import com.epam.indigoeln.web.rest.util.permission.helpers.PermissionChanges;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.DBRef;
 import lombok.val;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -284,7 +285,7 @@ public class NotebookService {
             notebookFromDB.setDescription(notebookDTO.getDescription());
             notebookFromDB.setVersion(notebook.getVersion());
 
-            Pair<Boolean, List<Experiment>> projectChangedAndChangedExperiments =
+            Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>> projectChangedAndChangedExperiments =
                     NotebookPermissionHelper
                             .changeNotebookPermissions(project, notebookFromDB, notebook.getAccessList());
 
@@ -295,7 +296,11 @@ public class NotebookService {
                         webSocketUtil.updateExperiment(user, projectId, notebookDTO.getId(), experiment,
                                 getRecipients(contentEditors, experiment)));
             } else {
-                experimentRepository.save(projectChangedAndChangedExperiments.getRight())
+                experimentRepository.save(
+                        projectChangedAndChangedExperiments.getRight()
+                                .stream()
+                                .map(PermissionChanges::getEntity)
+                                .collect(Collectors.toList()))
                         .forEach(experiment ->
                                 webSocketUtil.updateExperiment(user, projectId, notebookDTO.getId(), experiment,
                                         getRecipients(contentEditors, experiment)));
@@ -306,7 +311,7 @@ public class NotebookService {
                     getRecipients(contentEditors, savedNotebook)
                             .filter(userName -> !userName.equals(user.getId())));
 
-            if (projectChangedAndChangedExperiments.getLeft()) {
+            if (projectChangedAndChangedExperiments.getLeft().hadChanged()) {
                 Project savedProject = projectRepository.save(project);
                 webSocketUtil.updateProject(user, savedProject,
                         getRecipients(contentEditors, savedProject));
