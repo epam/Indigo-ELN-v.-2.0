@@ -255,9 +255,8 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
 
     function onCloseAllTabs(exceptCurrent) {
         return resolvePrincipal(function(user) {
-            var userId = user.getId();
-            var tabsToClose = !exceptCurrent ? tabs[userId] : _.filter(
-                    tabs[userId],
+            var tabsToClose = !exceptCurrent ? tabs[user.id] : _.filter(
+                    tabs[user.id],
                     function(tab) {
                         return tab !== activeTab;
                     });
@@ -270,12 +269,8 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
                     unmodifiedTabs.push(tab);
                 }
             });
-
             return $q.when(
-                    modifiedTabs.length ? openCloseDialog(modifiedTabs) : null)
-                .finally(function() {
-                    _.each(unmodifiedTabs, closeTab);
-                });
+                    modifiedTabs.length ? openCloseDialog(modifiedTabs) : null);
         }
         );
     }

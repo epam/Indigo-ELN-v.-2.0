@@ -1,6 +1,6 @@
 <indigo-entities-controls active-tab="vm.activeTab"
                           on-close-tab="vm.onCloseTabClick($event, tab)"
-                          on-close-all-tabs="entitiesBrowserService.onCloseAllTabs()"
+                          on-close-all-tabs="vm.onCloseAllTabs()"
                           on-close-non-active-tabs="vm.onCloseAllTabs(true)"
                           on-save="vm.saveEntity(vm.activeTab)"
                           is-dashboard="false">
