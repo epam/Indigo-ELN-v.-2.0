@@ -11,8 +11,8 @@ function entities() {
 }
 
 /* @ngInject */
-function EntitiesController($scope, entitiesBrowserService, $q, principalService, entitiesCache,
-                            alertModal, projectService, notebookService, experimentService, entityTreeService) {
+function EntitiesController($scope, entitiesBrowserService, principalService,
+                            alertModal) {
     var vm = this;
 
     init();
@@ -21,7 +21,6 @@ function EntitiesController($scope, entitiesBrowserService, $q, principalService
         vm.onTabClick = onTabClick;
         vm.onCloseTabClick = onCloseTabClick;
         vm.onCloseAllTabs = onCloseAllTabs;
-        vm.saveEntity = saveEntity;
 
         bindEvents();
         principalService.checkIdentity().then(function(user) {
@@ -33,63 +32,6 @@ function EntitiesController($scope, entitiesBrowserService, $q, principalService
         });
     }
 
-    function getService(type) {
-        if (type === 'project') {
-            return projectService;
-        }
-        if (type === 'notebook') {
-            return notebookService;
-        }
-
-        return experimentService;
-    }
-
-    function getTreeServiceMethod(type) {
-        if (type === 'project') {
-            return entityTreeService.updateProject;
-        }
-        if (type === 'notebook') {
-            return entityTreeService.updateNotebook;
-        }
-
-        return entityTreeService.updateExperiment;
-    }
-
-    function saveEntity(tab) {
-        if (tab === vm.activeTab) {
-            var defer = $q.defer();
-            $scope.$broadcast('ON_ENTITY_SAVE', {
-                tab: tab,
-                defer: defer
-            });
-
-            return defer.promise;
-        }
-
-        var entity = entitiesCache.get(tab.params);
-        if (entity) {
-            var service = getService(tab.kind);
-            var treeServiceUpdate = getTreeServiceMethod(tab.kind);
-
-            if (service) {
-                if (tab.params.isNewEntity) {
-                    if (tab.params.parentId) {
-                        // notebook
-                        return service.save({projectId: tab.params.parentId}, entity, function(result) {
-                            entityTreeService.addNotebook(result, tab.params.parentId);
-                        }).$promise;
-                    }
-
-                    // project
-                    return service.save(entity, entityTreeService.addProject).$promise;
-                }
-
-                return service.update(tab.params, entity, treeServiceUpdate).$promise;
-            }
-        }
-
-        return $q.resolve();
-    }
 
     function onCloseAllTabs(exceptCurrent) {
         entitiesBrowserService.closeAllTabs(exceptCurrent);
@@ -100,7 +42,7 @@ function EntitiesController($scope, entitiesBrowserService, $q, principalService
         if (tab.dirty) {
             alertModal.save('Do you want to save the changes?', null, function(isSave) {
                 if (isSave) {
-                    saveEntity(tab).then(function() {
+                    entitiesBrowserService.saveEntity(tab).then(function() {
                         entitiesBrowserService.closeTab(tab);
                     });
                 } else {

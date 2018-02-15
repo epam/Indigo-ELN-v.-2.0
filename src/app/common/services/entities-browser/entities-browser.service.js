@@ -1,7 +1,8 @@
 /* @ngInject */
 function entitiesBrowserService($q, $state, notifyService, dialogService,
-    autorecoveryCache, principalService, tabKeyService, CacheFactory,
-    entitiesCache) {
+                                autorecoveryCache, principalService, tabKeyService, CacheFactory,
+                                entitiesCache, entityTreeService, projectService, notebookService,
+                                experimentService) {
     var tabs = {};
     var activeTab = {};
     var entityActions;
@@ -94,7 +95,51 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
         });
     }
 
-    function saveEntity() {
+    function getTreeServiceMethod(type) {
+        if (type === 'project') {
+            return entityTreeService.updateProject;
+        }
+        if (type === 'notebook') {
+            return entityTreeService.updateNotebook;
+        }
+
+        return entityTreeService.updateExperiment;
+    }
+
+    function getService(type) {
+        if (type === 'project') {
+            return projectService;
+        }
+        if (type === 'notebook') {
+            return notebookService;
+        }
+
+        return experimentService;
+    }
+
+    function saveEntity(tab) {
+        var entity = entitiesCache.get(tab.params);
+        if (entity) {
+            var service = getService(tab.kind);
+            var treeServiceUpdate = getTreeServiceMethod(tab.kind);
+
+            if (service) {
+                if (tab.params.isNewEntity) {
+                    if (tab.params.parentId) {
+                        // notebook
+                        return service.save({projectId: tab.params.parentId}, entity, function(result) {
+                            entityTreeService.addNotebook(result, tab.params.parentId);
+                        }).$promise;
+                    }
+
+                    // project
+                    return service.save(entity, entityTreeService.addProject).$promise;
+                }
+
+                return service.update(tab.params, entity, treeServiceUpdate).$promise;
+            }
+        }
+
         return $q.resolve();
     }
 
@@ -229,27 +274,27 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
 
     function openCloseDialog(editTabs) {
         return dialogService
-        .selectEntitiesToSave(editTabs)
-        .then(function(tabsToSave) {
-            var savePromises = _.map(tabsToSave, function(tabToSave) {
-                return saveEntity(tabToSave)
-                .then(function() {
-                    closeTab(tabToSave);
-                })
-                .catch(function() {
-                    notifyService.error('Error saving ' + tabToSave.kind + ' '
-                        + tabToSave.name + '.');
+            .selectEntitiesToSave(editTabs)
+            .then(function(tabsToSave) {
+                var savePromises = _.map(tabsToSave, function(tabToSave) {
+                    saveEntity(tabToSave)
+                        .then(function() {
+                            closeTab(tabToSave);
+                        })
+                        .catch(function() {
+                            notifyService.error('Error saving ' + tabToSave.kind + ' '
+                                + tabToSave.name + '.');
+                        });
                 });
-            });
 
-            _.each(editTabs, function(tab) {
-                if (!_.find(tabsToSave, {tabKey: tab.tabKey})) {
-                    closeTab(tab);
-                }
-            });
+                _.each(editTabs, function(tab) {
+                    if (!_.find(tabsToSave, {tabKey: tab.tabKey})) {
+                        closeTab(tab);
+                    }
+                });
 
-            return $q.all(savePromises);
-        });
+                return $q.all(savePromises);
+            });
     }
 
     function closeAllTabs(exceptCurrent) {
@@ -268,6 +313,7 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
                     unmodifiedTabs.push(tab);
                 }
             });
+
             return $q.when(
                     modifiedTabs.length ? openCloseDialog(modifiedTabs) : null);
         }
