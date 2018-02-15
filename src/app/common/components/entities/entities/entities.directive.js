@@ -12,7 +12,7 @@ function entities() {
 
 /* @ngInject */
 function EntitiesController($scope, entitiesBrowserService, $q, principalService, entitiesCache,
-                            alertModal, projectService, notebookService, entityTreeService) {
+                            alertModal, projectService, notebookService, experimentService, entityTreeService) {
     var vm = this;
 
     init();
@@ -41,7 +41,7 @@ function EntitiesController($scope, entitiesBrowserService, $q, principalService
             return notebookService;
         }
 
-        return entityTreeService;
+        return experimentService;
     }
 
     function getTreeServiceMethod(type) {
