@@ -38,7 +38,7 @@ function NavbarController($scope, $state, principalService,
     }
 
     function logout() {
-        entitiesBrowserService.CloseAllTabs()
+        entitiesBrowserService.closeAllTabs()
         .then(() => {
             authService.logout();
             entitiesCache.clearAll();

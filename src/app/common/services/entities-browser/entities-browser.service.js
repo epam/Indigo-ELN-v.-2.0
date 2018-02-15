@@ -38,7 +38,7 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
         setExperimentTab: setExperimentTab,
         getExperimentTab: getExperimentTab,
         closeTab: closeTab,
-        CloseAllTabs: CloseAllTabs
+        closeAllTabs: closeAllTabs
     };
 
     function getExperimentTabById(user, experimentFullId) {
@@ -252,7 +252,7 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
         });
     }
 
-    function CloseAllTabs(exceptCurrent) {
+    function closeAllTabs(exceptCurrent) {
         return resolvePrincipal(function(user) {
             var tabsToClose = !exceptCurrent ? tabs[user.id] : _.filter(
                     tabs[user.id],
