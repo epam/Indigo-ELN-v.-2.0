@@ -203,6 +203,13 @@ function reagentsCalculation(calculationHelper) {
     function resetVolume(row) {
         row.resetFields([fieldTypes.volume]);
 
+        if (row.isMolPresent() && row.isWeightPresent() && row.isDensityPresent()) {
+            // re-calculate volume based on mol, weight and density
+            onDensityChanged(row);
+
+            return;
+        }
+
         if (row.isMolarityPresent() && !row.isMolManuallyEntered()) {
             row.resetFields([fieldTypes.mol], onMolChanged);
 
