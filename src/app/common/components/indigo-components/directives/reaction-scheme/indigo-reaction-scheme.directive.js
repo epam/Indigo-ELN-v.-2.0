@@ -75,9 +75,19 @@ function IndigoReactionSchemeController($scope, calculationService, $q, notifySe
         }
     }
 
+    function clear() {
+        vm.componentData.molfile = null;
+        vm.componentData.structureId = null;
+        vm.componentData.image = null;
+        vm.componentData.molReactants.length = 0;
+        vm.componentData.molProducts.length = 0;
+        vm.componentData.infoReactants.length = 0;
+        vm.componentData.infoProducts.length = 0;
+    }
+
     function onChangedStructure(structure) {
         if (!structure.molfile) {
-            vm.componentData = structure;
+            clear();
         }
         updateImage(structure);
 

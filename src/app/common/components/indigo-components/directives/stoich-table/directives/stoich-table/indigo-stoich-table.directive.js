@@ -339,8 +339,10 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         if (vm.infoProducts && vm.infoProducts.length) {
             var products = getIntendedProductsWithStructureImages(vm.infoProducts);
             vm.componentData.products = stoichTableHelper.convertToProductViewRow(products);
-            onProductsChanged();
+        } else {
+            vm.componentData.products.length = 0;
         }
+        onProductsChanged();
     }
 
     function bindEvents() {
