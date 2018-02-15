@@ -126,7 +126,7 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
                 printModal
                     .showPopup($stateParams, 'Notebook')
                     .finally(function() {
-                        $state.go('^');
+                        $state.go('^', null, {notify: false});
                     });
             },
             data: {

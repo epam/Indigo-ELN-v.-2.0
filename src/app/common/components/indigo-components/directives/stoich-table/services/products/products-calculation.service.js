@@ -42,12 +42,12 @@ function productsCalculation(calculationHelper) {
             return;
         }
 
-        if (row.saltCode.weight === 0) {
+        if (row.saltCode.regValue === 0) {
             row.saltEq.value = 0;
         }
 
         var molWeight = mathCalculation.computeMolWeightBySalt(
-            row.molWeight.baseValue, row.saltCode.weight, row.saltEq.value
+            row.molWeight.baseValue, row.saltCode.regValue, row.saltEq.value
         );
 
         var formula = row.formula.baseValue

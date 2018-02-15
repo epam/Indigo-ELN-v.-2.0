@@ -9,7 +9,7 @@
             <span ng-bind="node.name"
                   ng-switch-when="3"
                   ng-mouseenter="vm.getPopoverExperiment(node);"
-                  ng-mouseleave="vm.popoverExperiment = null"
+                  ng-mouseleave="vm.hidePopover()"
                   uib-popover-template="'experiment-detail-popover.html'"
                   popover-class="sidebar-popover-basis"
                   popover-placement="right"

@@ -3,7 +3,7 @@ var roles = require('../../permissions/permission-roles.json');
 function ProjectController($scope, $state, projectService, notifyService, permissionService, fileUploader,
                            pageInfo, entitiesBrowserService, $timeout, $stateParams, tabKeyService,
                            autorecoveryHelper, autorecoveryCache, entitiesCache,
-                           confirmationModal, $q, entityHelper, apiUrl) {
+                           confirmationModal, $q, entityHelper, apiUrl, entityTreeService) {
     var vm = this;
     var identity = pageInfo.identity;
     var isContentEditor = pageInfo.isContentEditor;
@@ -111,6 +111,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
                     onUpdateSuccess({
                         id: vm.project.id
                     });
+                    entityTreeService.updateProject(vm.project);
                 }, onSaveError);
         } else {
             vm.loading = projectService.save(vm.project, onSaveSuccess, onSaveError).$promise;
@@ -133,6 +134,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
                 originalProject = angular.copy(vm.project);
                 initPermissions();
                 autorecoveryCache.hide($stateParams);
+                entityTreeService.updateProject(vm.project);
             }, function() {
                 notifyService.error('Project not refreshed due to server error!');
             });
@@ -142,7 +144,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
 
     function print() {
         save().then(function() {
-            $state.go('entities.project-detail.print');
+            $state.go('entities.project-detail.print', null, {notify: false});
         });
     }
 
@@ -210,6 +212,8 @@ function ProjectController($scope, $state, projectService, notifyService, permis
     }
 
     function onSaveSuccess(result) {
+        vm.project.id = result.id;
+        entityTreeService.addProject(vm.project);
         entitiesBrowserService.close(tabKeyService.getTabKeyFromParams($stateParams));
         $timeout(function() {
             $state.go('entities.project-detail', {

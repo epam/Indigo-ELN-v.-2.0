@@ -1,5 +1,5 @@
 /* @ngInject */
-function notebookService($resource, permissionService, entityTreeService, apiUrl) {
+function notebookService($resource, permissionService, apiUrl) {
     return $resource(apiUrl + 'projects/:projectId/notebooks/:notebookId', {}, {
         query: {
             method: 'GET', isArray: true
@@ -17,26 +17,12 @@ function notebookService($resource, permissionService, entityTreeService, apiUrl
         },
         save: {
             method: 'POST',
-            transformRequest: transformRequest,
-            interceptor: {
-                response: function(response) {
-                    entityTreeService.addNotebook(response.data);
-
-                    return response.data;
-                }
-            }
+            transformRequest: transformRequest
         },
         update: {
             method: 'PUT',
             url: apiUrl + 'projects/:projectId/notebooks',
-            transformRequest: transformRequest,
-            interceptor: {
-                response: function(response) {
-                    entityTreeService.updateNotebook(response.data);
-
-                    return response.data;
-                }
-            }
+            transformRequest: transformRequest
         },
         delete: {
             method: 'DELETE'

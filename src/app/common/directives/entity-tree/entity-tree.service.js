@@ -1,17 +1,16 @@
 /* @ngInject */
-function entityTreeService(allProjectsService, $injector, allNotebooksService, allExperimentsService, $q) {
-    var allProjectsList = {};
-    var allProjectsMap = {};
-    var allNodesByFullId = {};
-    var projectsList = {};
-    var projectsMap = {};
-    var allNotebooksMap = {};
-    var notebooksMap = {};
-    var allExperimentsMap = {};
-    var experimentsMap = {};
+function entityTreeService(allProjectsService, projectService, allNotebooksService, notebookService,
+                           allExperimentsService, experimentService, $q) {
+    var allProjectsList = [];
+    var projectsList = [];
+    var allNotebooksList = [];
+    var notebooksList = [];
+    var allExperimentsList = [];
+    var experimentsList = [];
 
     return {
         updateExperiment: updateExperiment,
+        addExperiment: addExperiment,
         addNotebook: addNotebook,
         updateNotebook: updateNotebook,
         updateProject: updateProject,
@@ -19,113 +18,143 @@ function entityTreeService(allProjectsService, $injector, allNotebooksService, a
         getProjects: getProjects,
         getNotebooks: getNotebooks,
         getExperiments: getExperiments,
-        getProjectById: getProjectById,
-        getNotebookById: getNotebookById,
         updateStatus: updateStatus,
-        allNodesByFullId: allNodesByFullId,
         getFullIdFromParams: getFullIdFromParams,
+        getProjectById: getProjectById,
+        getNotebookByFullId: getNotebookByFullId,
+        getExperimentByFullId: getExperimentByFullId,
         clearAll: clearAll
     };
 
     function clearAll() {
-        allProjectsList = {};
-        allProjectsMap = {};
-        allNodesByFullId = {};
-        projectsList = {};
-        projectsMap = {};
-        allNotebooksMap = {};
-        notebooksMap = {};
-        allExperimentsMap = {};
-        experimentsMap = {};
+        allProjectsList.length = 0;
+        projectsList.length = 0;
+        allNotebooksList.length = 0;
+        notebooksList.length = 0;
+        allExperimentsList.length = 0;
+        experimentsList.length = 0;
     }
 
     function updateStatus(fullId, status) {
-        var node = allNodesByFullId[fullId];
-        if (node) {
-            node.original.status = status;
+        var experiment = _.find(allExperimentsList, {fullId: fullId});
+        if (experiment) {
+            experiment.original.status = status;
+        }
+
+        experiment = _.find(experimentsList, {fullId: fullId});
+        if (experiment) {
+            experiment.original.status = status;
         }
     }
 
     function updateExperiment(experiment) {
-        var nodeExperiment = allNodesByFullId[experiment.fullId];
+        var experimentNode = _.find(allExperimentsList, {fullId: experiment.fullId});
+        if (experimentNode) {
+            updateNode(experimentNode, experiment);
+            experimentNode.parent.children.sort(sortByName);
+        }
+
+        experimentNode = _.find(experimentsList, {fullId: experiment.fullId});
+        if (experimentNode) {
+            updateNode(experimentNode, experiment);
+            experimentNode.parent.children.sort(sortByName);
+        }
+    }
+
+    function addExperiment(experiment) {
         var path = _.split(experiment.fullId, '-');
-        var parent = allNodesByFullId[path[0] + '-' + path[1]];
+        var parentId = path[0] + '-' + path[1];
 
-        if (!nodeExperiment && !parent) {
-            return;
+        var experimentNode = _.find(allExperimentsList, {fullId: experiment.fullId});
+        var parentNode = _.find(allNotebooksList, {fullId: parentId});
+        if (!experimentNode && parentNode && parentNode.hasLoadedChildren) {
+            experimentNode = buildNode(experiment, parentNode);
+            allExperimentsList.push(experimentNode);
+            parentNode.children.push(experimentNode);
+            parentNode.children.sort(sortByName);
         }
 
-        var builtNode = buildNode(experiment, parent);
-
-        if (nodeExperiment) {
-            mergeNode(allNodesByFullId[builtNode.original.fullId], builtNode);
-        } else {
-            addEntity(builtNode, parent, allExperimentsMap, experimentsMap);
+        experimentNode = _.find(experimentsList, {fullId: experiment.fullId});
+        parentNode = _.find(notebooksList, {fullId: parentId});
+        if (!experimentNode && parentNode && parentNode.hasLoadedChildren) {
+            experimentNode = buildNode(experiment, parentNode);
+            experimentsList.push(experimentNode);
+            parentNode.children.push(experimentNode);
+            parentNode.children.sort(sortByName);
         }
-
-        if (!_.get(experiment, 'components.stoichTable.products')) {
-            return;
-        }
-        _.forEach(experiment.components.stoichTable.products, function(batch) {
-            if (!batch.$$batchHash) {
-                batch.$$batchHash = batch.formula.value + batch.exactMass;
-            }
-        });
     }
 
     function updateProject(project) {
-        updateEntity(buildNode(project, undefined), project.id, allProjectsMap, projectsMap);
+        var projectNode = _.find(allProjectsList, {id: project.id});
+        if (projectNode) {
+            updateNode(projectNode, project);
+            allProjectsList.sort(sortByName);
+        }
+
+        projectNode = _.find(projectsList, {id: project.id});
+        if (projectNode) {
+            updateNode(projectNode, project);
+            projectsList.sort(sortByName);
+        }
     }
 
-    function addNotebook(notebook) {
-        var project = allProjectsList[notebook.parentId];
-        if (project) {
-            var builtNode = buildNode(notebook, project);
-            addEntity(builtNode, notebook.parentId, allNotebooksMap, notebooksMap);
+    function addProject(project) {
+        var builtNode = buildNode(project, null);
+        allProjectsList.push(builtNode);
+        allProjectsList.sort(sortByName);
+
+        builtNode = buildNode(project, null);
+        projectsList.push(builtNode);
+        projectsList.sort(sortByName);
+    }
+
+    function addNotebook(notebook, projectId) {
+        var projectNode = _.find(allProjectsList, {id: projectId});
+        var notebookNode = _.find(allNotebooksList, {fullId: notebook.fullId});
+        if (!notebookNode && projectNode && projectNode.hasLoadedChildren) {
+            notebookNode = buildNode(notebook, projectNode);
+            projectNode.children.push(notebookNode);
+            projectNode.children.sort(sortByName);
+            allNotebooksList.push(notebookNode);
+        }
+
+        projectNode = _.find(projectsList, {id: projectId});
+        notebookNode = _.find(notebooksList, {fullId: notebook.fullId});
+        if (!notebookNode && projectNode && projectNode.hasLoadedChildren) {
+            notebookNode = buildNode(notebook, projectNode);
+            projectNode.children.push(notebookNode);
+            projectNode.children.sort(sortByName);
+            notebooksList.push(notebookNode);
         }
     }
 
     function updateNotebook(notebook) {
-        var project = allNodesByFullId[notebook.parentId];
-        var builtNode = buildNode(notebook, project);
-        mergeNode(allNodesByFullId[builtNode.original.fullId], builtNode);
-    }
+        var notebookNode = _.find(allNotebooksList, {fullId: notebook.fullId});
+        if (notebookNode) {
+            updateNode(notebookNode, notebook);
+            notebookNode.parent.children.sort(sortByName);
+        }
 
-    function addProject(project) {
-        var builtNode = buildNode(project, undefined);
-        addEntity(builtNode, builtNode.id, allProjectsMap, projectsMap, allProjectsList, projectsList);
-    }
-
-    function updateEntity(node, id, allMap, map) {
-        mergeNode(allMap[id], node);
-        mergeNode(map[id], node);
-    }
-
-    function addEntity(node, id, allMap, map, allList, list) {
-        allMap[id] = node;
-        map[id] = node;
-
-        if (allList && list) {
-            allList.push(node);
-            list.push(node);
+        notebookNode = _.find(notebooksList, {fullId: notebook.fullId});
+        if (notebookNode) {
+            updateNode(notebookNode, notebook);
+            notebookNode.parent.children.sort(sortByName);
         }
     }
 
-    function getProjects(projectId, isAll) {
+    function getProjects(isAll) {
         var list = isAll ? allProjectsList : projectsList;
-        var map = isAll ? allProjectsMap : projectsMap;
+        var service = isAll ? allProjectsService : projectService;
 
-        if (_.isEmpty(list) || !(projectId && _.has(list, {id: projectId}))) {
-            return (isAll ? allProjectsService : $injector.get('projectService')).query()
+        if (!list.length) {
+            return service.query()
                 .$promise
                 .then(function(projects) {
-                    list = updateTree(projects, map);
-
-                    if (isAll) {
-                        allProjectsList = list;
-                    } else {
-                        projectsList = list;
-                    }
+                    _.forEach(projects, function(project) {
+                        var node = buildNode(project, null);
+                        list.push(node);
+                    });
+                    list.sort(sortByName);
 
                     return list;
                 });
@@ -134,114 +163,91 @@ function entityTreeService(allProjectsService, $injector, allNotebooksService, a
         return $q.resolve(list);
     }
 
-    function getNotebooks(projectId, notebookId, isAll) {
-        var pMap;
-        var nMap;
-        var service;
+    function getNotebooks(projectId, isAll) {
+        var projList = isAll ? allProjectsList : projectsList;
+        var noteList = isAll ? allNotebooksList : notebooksList;
+        var service = isAll ? allNotebooksService : notebookService;
 
-        if (isAll) {
-            pMap = allProjectsMap;
-            nMap = allNotebooksMap;
-            service = allNotebooksService;
-        } else {
-            pMap = projectsMap;
-            nMap = notebooksMap;
-            service = $injector.get('notebookService');
+        var project = _.find(projList, {id: projectId});
+
+        if (!project) {
+            return $q.resolve([]);
         }
+        if (!project.hasLoadedChildren) {
+            return service.query({projectId: projectId})
+                .$promise
+                .then(function(notebooks) {
+                    _.forEach(notebooks, function(notebook) {
+                        var node = buildNode(notebook, project);
+                        project.children.push(node);
+                        noteList.push(node);
+                    });
+                    project.children.sort(sortByName);
+                    project.hasLoadedChildren = true;
 
-        if (isNeedLoad(nMap, projectId, notebookId)) {
-            return getEntities(
-                service,
-                {projectId: projectId},
-                pMap[projectId]
-            ).then(function(notebooks) {
-                nMap[projectId] = notebooks;
-
-                return notebooks;
-            });
-        }
-
-        return $q.resolve(nMap[projectId]);
-    }
-
-    function isNeedLoad(eMap, path, entity) {
-        return _.isEmpty(eMap[path]) || !(entity && _.has(eMap[path], {id: entity}));
-    }
-
-    function getExperiments(projectId, notebookId, experimentId, isAll) {
-        var nMap = isAll ? allNotebooksMap : notebooksMap;
-        var eMap = isAll ? allExperimentsMap : experimentsMap;
-        var path = projectId + '_' + notebookId;
-
-        if (isNeedLoad(eMap, path, experimentId)) {
-            return getEntities(
-                isAll ? allExperimentsService : $injector.get('experimentService'),
-                {
-                    projectId: projectId,
-                    notebookId: notebookId
-                },
-                _.find(nMap[projectId], {id: notebookId})
-            ).then(function(experiments) {
-                eMap[path] = experiments;
-
-                return experiments;
-            });
-        }
-
-        return $q.resolve(eMap[path]);
-    }
-
-    function getEntities(service, query, current) {
-        return service.query(query)
-            .$promise
-            .then(function(notebooks) {
-                return _.map(notebooks, function(node) {
-                    return buildNode(node, current);
+                    return project.children;
                 });
-            });
-    }
-
-    function updateTree(model, collection) {
-        if (!model) {
-            return [];
         }
 
-        return _.map(model, function(node) {
-            if (collection[node.id]) {
-                collection[node.id].name = node.name;
-            } else {
-                collection[node.id] = buildNode(node, undefined);
-            }
-
-            return collection[node.id];
-        });
+        return $q.resolve(project.children);
     }
 
-    function buildNode(node, parent) {
-        var builtNode = {
-            id: node.id,
-            name: node.name,
-            params: _.concat([], ((parent && parent.params) || []), node.id),
+    function getExperiments(projectId, notebookId, isAll) {
+        var noteList = isAll ? allNotebooksList : notebooksList;
+        var expList = isAll ? allExperimentsList : experimentsList;
+        var service = isAll ? allExperimentsService : experimentService;
+        var fullId = projectId + '-' + notebookId;
+
+        var notebook = _.find(noteList, {fullId: fullId});
+
+        if (!notebook) {
+            return $q.resolve([]);
+        }
+
+        if (!notebook.hasLoadedChildren) {
+            return service.query({
+                projectId: projectId,
+                notebookId: notebookId
+            })
+                .$promise
+                .then(function(experiments) {
+                    _.forEach(experiments, function(experiment) {
+                        var node = buildNode(experiment, notebook);
+                        notebook.children.push(node);
+                        expList.push(node);
+                    });
+                    notebook.children.sort(sortByName);
+                    notebook.hasLoadedChildren = true;
+
+                    return notebook.children;
+                });
+        }
+
+        return $q.resolve(notebook.children);
+    }
+
+    function buildNode(entity, parent) {
+        var newNode = {
+            id: entity.id,
+            fullId: entity.fullId,
+            name: entity.fullName || entity.name,
+            params: _.concat([], ((parent && parent.params) || []), entity.id),
             parent: parent,
-            children: undefined,
+            children: [],
             isActive: false,
             isCollapsed: true,
-            original: node
+            original: entity,
+            accessList: entity.accessList,
+            hasLoadedChildren: false
         };
 
-        if (allNodesByFullId[node.fullId]) {
-            mergeNode(allNodesByFullId[node.fullId], builtNode);
-        } else {
-            allNodesByFullId[node.fullId] = builtNode;
-        }
-
-        return allNodesByFullId[node.fullId];
+        return newNode;
     }
 
-    function mergeNode(targetNode, fromNode) {
-        targetNode.accessList = fromNode.accessList;
-        targetNode.original = fromNode.original;
-        targetNode.name = fromNode.original.fullName || fromNode.name;
+    function updateNode(targetNode, entity) {
+        targetNode.accessList = entity.accessList;
+        targetNode.original = entity;
+        targetNode.name = entity.fullName || entity.name;
     }
 
     function getFullIdFromParams(toParams) {
@@ -251,13 +257,55 @@ function entityTreeService(allProjectsService, $injector, allNotebooksService, a
     }
 
     function getProjectById(projectId) {
-        return projectsMap[projectId];
+        var node = _.find(projectsList, {id: projectId});
+        if (node) {
+            return node.original;
+        }
+        node = _.find(allProjectsList, {id: projectId});
+        if (node) {
+            return node.original;
+        }
+
+        return null;
     }
 
-    function getNotebookById(projectId, notebookId) {
-        var projectNotebooks = _.get(notebooksMap, projectId, []);
+    function getNotebookByFullId(fullId) {
+        var node = _.find(notebooksList, {fullId: fullId});
+        if (node) {
+            return node.original;
+        }
+        node = _.find(allNotebooksList, {fullId: fullId});
+        if (node) {
+            return node.original;
+        }
 
-        return _.find(projectNotebooks, {id: notebookId});
+        return null;
+    }
+
+    function getExperimentByFullId(fullId) {
+        var node = _.find(experimentsList, {fullId: fullId});
+        if (node) {
+            return node.original;
+        }
+        node = _.find(allExperimentsList, {fullId: fullId});
+        if (node) {
+            return node.original;
+        }
+
+        return null;
+    }
+
+    function sortByName(a, b) {
+        var aName = a.name ? a.name.toLowerCase() : '';
+        var bName = b.name ? b.name.toLowerCase() : '';
+        if (aName > bName) {
+            return 1;
+        }
+        if (aName < bName) {
+            return -1;
+        }
+
+        return 0;
     }
 }
 

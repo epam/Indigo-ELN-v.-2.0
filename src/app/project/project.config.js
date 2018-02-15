@@ -113,7 +113,7 @@ function projectConfig($stateProvider, permissionsConfig, permissionViewConfig, 
                 printModal
                     .showPopup($stateParams, 'Project')
                     .finally(function() {
-                        $state.go('^');
+                        $state.go('^', null, {notify: false});
                     });
             },
             data: {

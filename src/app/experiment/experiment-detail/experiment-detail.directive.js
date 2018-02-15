@@ -15,7 +15,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
                                     permissionService, fileUploader, entitiesBrowserService,
                                     autorecoveryHelper, notifyService, entitiesCache, $q,
                                     principalService, notebookService, typeOfComponents, autorecoveryCache,
-                                    confirmationModal, entityHelper, apiUrl, componentsUtil) {
+                                    confirmationModal, entityHelper, apiUrl, componentsUtil, entityTreeService) {
     var vm = this;
     var params;
     var isContentEditor;
@@ -176,9 +176,11 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     }
 
     function getSaveService(experimentForSave) {
-        return (vm.experiment.template !== null ?
-            experimentService.update($stateParams, experimentForSave).$promise
-            : experimentService.save(experimentForSave).$promise);
+        if (vm.experiment.template !== null) {
+            return experimentService.update($stateParams, experimentForSave, entityTreeService.updateExperiment).$promise;
+        }
+
+        return experimentService.save(experimentForSave, entityTreeService.addExperiment).$promise;
     }
 
     function save() {
@@ -272,10 +274,10 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     function printExperiment() {
         if (vm.isEntityChanged) {
             vm.save(vm.experiment).then(function() {
-                $state.go('entities.experiment-detail.print');
+                $state.go('entities.experiment-detail.print', null, {notify: false});
             });
         } else {
-            $state.go('entities.experiment-detail.print');
+            $state.go('entities.experiment-detail.print', null, {notify: false});
         }
     }
 
@@ -327,7 +329,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     }
 
     function onChangedComponent(component) {
-        if (component.componentId === typeOfComponents.attachments.id) {
+        if (component && component.componentId === typeOfComponents.attachments.id) {
             vm.loading = experimentService.get($stateParams).$promise
                 .then(function(result) {
                     vm.experiment.version = result.version;
@@ -339,6 +341,36 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
 
     function restoreVersion() {
         vm.experiment.version = originalExperiment.version;
+    }
+
+    function getRegistrationStatusMessage(statuses) {
+        var resultStatuses = {};
+        _.forEach(statuses, function(status, fullNbkBatch) {
+            if (_.find(vm.experiment.components.productBatchSummary.batches, {fullNbkBatch: fullNbkBatch})) {
+                if (resultStatuses[status.status]) {
+                    resultStatuses[status.status]++;
+                } else {
+                    resultStatuses[status.status] = 1;
+                }
+            }
+        });
+
+        if (_.size(resultStatuses)) {
+            var message = 'The Registration Status of batches is updated: ';
+            var isFirst = true;
+            _.forEach(resultStatuses, function(count, rs) {
+                if (!isFirst) {
+                    message += ', ';
+                }
+                isFirst = false;
+                message += count > 1 ? (count + ' batches are ' + rs) : ('1 batch is ' + rs);
+            });
+            message += '.';
+
+            return message;
+        }
+
+        return null;
     }
 
     function initEventListeners() {
@@ -390,16 +422,13 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         });
 
         var batchRegistrationStatus = $scope.$on('batch-registration-status-changed', function(event, statuses) {
-            _.each(statuses, function(status, fullNbkBatch) {
-                if (!_.find(vm.experiment.components.productBatchSummary.batches, {fullNbkBatch: fullNbkBatch})) {
-                    return;
-                }
-
-                notifyService.info('The Registration Status of batch #' + fullNbkBatch + ' is ' + status.status);
+            var message = getRegistrationStatusMessage(statuses);
+            if (message) {
+                notifyService.info(message);
                 vm.loading = getExperiment().then(function(experiment) {
                     return initExperiment(experiment, true).then(updateOriginal);
                 });
-            });
+            }
         });
 
         $scope.$on('$destroy', function() {

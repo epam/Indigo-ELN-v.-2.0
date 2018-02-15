@@ -4,7 +4,7 @@ var experimentSelectSignatureTemplateModal =
 
 /* @ngInject */
 function experimentUtil($state, $uibModal, $q, experimentService, permissionService, signatureTemplatesService,
-                        signatureDocumentService, componentsUtil, notifyService) {
+                        signatureDocumentService, componentsUtil, notifyService, entityTreeService) {
     return {
         versionExperiment: versionExperiment,
         repeatExperiment: repeatExperiment,
@@ -25,7 +25,7 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionServ
         return experimentService.version({
             projectId: params.projectId,
             notebookId: params.notebookId
-        }, experiment.name).$promise;
+        }, experiment.name, entityTreeService.addExperiment).$promise;
     }
 
     function repeatExperiment(experiment, params) {
@@ -51,6 +51,7 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionServ
             projectId: params.projectId,
             notebookId: params.notebookId
         }, experimentForSave, function(result) {
+            entityTreeService.addExperiment(result);
             goToExperimentDetail(result, params);
         }).$promise;
     }
@@ -77,7 +78,7 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionServ
             return experimentService.update({
                 projectId: params.projectId,
                 notebookId: params.notebookId
-            }, experimentForSave).$promise;
+            }, experimentForSave, entityTreeService.updateExperiment).$promise;
         });
     }
 

@@ -1,7 +1,7 @@
 /* @ngInject */
 function CreateNewExperimentModalController(componentsUtil, $uibModalInstance, experimentService,
                                             principalService, $q, simpleLocalCache, fullNotebookId,
-                                            notebooksForSubCreationService, templateService) {
+                                            notebooksForSubCreationService, templateService, entityTreeService) {
     var vm = this;
     var lastSelectedTemplateIdKey = '.lastSelectedTemplateId';
     var lastSelectedNotebookIdKey = '.lastSelectedNotebookId';
@@ -101,6 +101,7 @@ function CreateNewExperimentModalController(componentsUtil, $uibModalInstance, e
             id: result.id
         };
         onSaveSuccess.isSaving = false;
+        entityTreeService.addExperiment(result);
         $uibModalInstance.close(experiment);
     }
 
