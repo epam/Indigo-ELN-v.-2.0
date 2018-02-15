@@ -25,9 +25,14 @@ function EditableCellController($scope, unitsConverter, roundFilter, notifyServi
 
     init();
 
+    function saveOldValue() {
+        oldVal = _.isObject(vm.row[vm.column.id]) ? vm.row[vm.column.id].value : vm.row[vm.column.id];
+    }
+
     function init() {
         vm.column = $scope.$parent.column;
         vm.row = $scope.$parent.$parent.row;
+        saveOldValue();
 
         vm.isCheckEnabled = true;
 
@@ -68,6 +73,7 @@ function EditableCellController($scope, unitsConverter, roundFilter, notifyServi
             vm.row[vm.column.id] = undefined;
         }
 
+
         if (isChanged) {
             isChanged = false;
         }
@@ -103,6 +109,9 @@ function EditableCellController($scope, unitsConverter, roundFilter, notifyServi
                     vm.isCheckEnabled = vm.column.checkEnabled(vm.row);
                 });
             }
+        });
+        $scope.$watch('vm.isEditing', function() {
+            saveOldValue();
         });
     }
 
