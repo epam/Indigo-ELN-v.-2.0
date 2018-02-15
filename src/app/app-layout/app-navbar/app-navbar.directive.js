@@ -30,10 +30,6 @@ function NavbarController($scope, $state, principalService,
     function init() {
         principalService.checkIdentity().then(function(user) {
             vm.user = user;
-            entitiesBrowserService.getTabs(function(tabs) {
-                vm.tabs = tabs;
-                vm.activeTab = entitiesBrowserService.getActiveTab();
-            });
         });
 
         $scope.$on('$destroy', function() {
@@ -41,8 +37,8 @@ function NavbarController($scope, $state, principalService,
         });
     }
 
-    function logout(exceptCurrent) {
-        entitiesBrowserService.onCloseAllTabs(exceptCurrent)
+    function logout() {
+        entitiesBrowserService.CloseAllTabs()
         .then(() => {
             authService.logout();
             entitiesCache.clearAll();

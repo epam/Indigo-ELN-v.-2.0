@@ -90,7 +90,7 @@ function EntitiesController($scope, entitiesBrowserService, $q, principalService
     }
 
     function onCloseAllTabs(exceptCurrent) {
-        entitiesBrowserService.onCloseAllTabs(exceptCurrent);
+        entitiesBrowserService.CloseAllTabs(exceptCurrent);
     }
 
     function onCloseTabClick($event, tab) {

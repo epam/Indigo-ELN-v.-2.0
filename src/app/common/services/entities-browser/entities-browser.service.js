@@ -38,7 +38,7 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
         setExperimentTab: setExperimentTab,
         getExperimentTab: getExperimentTab,
         closeTab: closeTab,
-        onCloseAllTabs: onCloseAllTabs
+        CloseAllTabs: CloseAllTabs
     };
 
     function getExperimentTabById(user, experimentFullId) {
@@ -65,8 +65,7 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
     }
 
     function getTabKey(tab) {
-        return tab && tab.tabKey ? tab.tabKey : tabKeyService.getTabKeyFromTab(
-            tab);
+        return tab && tab.tabKey ? tab.tabKey : tabKeyService.getTabKeyFromTab(tab);
     }
 
     function getTabs(success) {
@@ -253,7 +252,7 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
         });
     }
 
-    function onCloseAllTabs(exceptCurrent) {
+    function CloseAllTabs(exceptCurrent) {
         return resolvePrincipal(function(user) {
             var tabsToClose = !exceptCurrent ? tabs[user.id] : _.filter(
                     tabs[user.id],
