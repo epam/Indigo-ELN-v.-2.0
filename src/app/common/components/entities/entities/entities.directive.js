@@ -10,13 +10,9 @@ function entities() {
     };
 }
 
-EntitiesController.$inject = ['$scope', 'entitiesBrowserService', '$q', 'principalService', 'entitiesCache',
-    'alertModal', 'dialogService', 'autorecoveryCache',
-    'projectService', 'notebookService', 'experimentService'];
-
+/* @ngInject */
 function EntitiesController($scope, entitiesBrowserService, $q, principalService, entitiesCache,
-                            alertModal, projectService, notebookService, experimentService
-) {
+                            alertModal, projectService, notebookService, entityTreeService) {
     var vm = this;
 
     init();
@@ -37,23 +33,26 @@ function EntitiesController($scope, entitiesBrowserService, $q, principalService
         });
     }
 
-    function getService(kind) {
-        var service;
-        switch (kind) {
-            case 'project':
-                service = projectService;
-                break;
-            case 'notebook':
-                service = notebookService;
-                break;
-            case 'experiment':
-                service = experimentService;
-                break;
-            default:
-                break;
+    function getService(type) {
+        if (type === 'project') {
+            return projectService;
+        }
+        if (type === 'notebook') {
+            return notebookService;
         }
 
-        return service;
+        return entityTreeService;
+    }
+
+    function getTreeServiceMethod(type) {
+        if (type === 'project') {
+            return entityTreeService.updateProject;
+        }
+        if (type === 'notebook') {
+            return entityTreeService.updateNotebook;
+        }
+
+        return entityTreeService.updateExperiment;
     }
 
     function saveEntity(tab) {
@@ -70,19 +69,22 @@ function EntitiesController($scope, entitiesBrowserService, $q, principalService
         var entity = entitiesCache.get(tab.params);
         if (entity) {
             var service = getService(tab.kind);
+            var treeServiceUpdate = getTreeServiceMethod(tab.kind);
 
             if (service) {
                 if (tab.params.isNewEntity) {
                     if (tab.params.parentId) {
                         // notebook
-                        return service.save({projectId: tab.params.parentId}, entity).$promise;
+                        return service.save({projectId: tab.params.parentId}, entity, function(result) {
+                            entityTreeService.addNotebook(result, tab.params.parentId);
+                        }).$promise;
                     }
 
                     // project
-                    return service.save(entity).$promise;
+                    return service.save(entity, entityTreeService.addProject).$promise;
                 }
 
-                return service.update(tab.params, entity).$promise;
+                return service.update(tab.params, entity, treeServiceUpdate).$promise;
             }
         }
 
