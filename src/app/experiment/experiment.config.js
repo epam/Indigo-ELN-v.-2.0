@@ -109,6 +109,11 @@ function experimentConfig($stateProvider, permissionsConfig, permissionViewConfi
                         $state.go('^', null, {notify: false});
                     });
             },
+            onExit: function(printModal) {
+                'ngInject';
+
+                printModal.close();
+            },
             data: {
                 authorities: [roles.CONTENT_EDITOR, roles.EXPERIMENT_READER, roles.EXPERIMENT_CREATOR]
             }
