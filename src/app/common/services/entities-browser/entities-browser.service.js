@@ -1,5 +1,7 @@
 /* @ngInject */
-function entitiesBrowserService($q, $state, notifyService, dialogService, autorecoveryCache, principalService, tabKeyService, CacheFactory, entitiesCache) {
+function entitiesBrowserService($q, $state, notifyService, dialogService,
+    autorecoveryCache, principalService, tabKeyService, CacheFactory,
+    entitiesCache) {
     var tabs = {};
     var activeTab = {};
     var entityActions;
@@ -35,8 +37,8 @@ function entitiesBrowserService($q, $state, notifyService, dialogService, autore
         restoreTabs: restoreTabs,
         setExperimentTab: setExperimentTab,
         getExperimentTab: getExperimentTab,
-        closeTab: closeTab
-        //onCloseAllTabs: onCloseAllTabs
+        closeTab: closeTab,
+        onCloseAllTabs: onCloseAllTabs
     };
 
     function getExperimentTabById(user, experimentFullId) {
@@ -63,7 +65,8 @@ function entitiesBrowserService($q, $state, notifyService, dialogService, autore
     }
 
     function getTabKey(tab) {
-        return tab && tab.tabKey ? tab.tabKey : tabKeyService.getTabKeyFromTab(tab);
+        return tab && tab.tabKey ? tab.tabKey : tabKeyService.getTabKeyFromTab(
+            tab);
     }
 
     function getTabs(success) {
@@ -225,51 +228,57 @@ function entitiesBrowserService($q, $state, notifyService, dialogService, autore
         autorecoveryCache.remove(tab.params);
     }
 
-    // function openCloseDialog(editTabs) {
-    //     return dialogService
-    //         .selectEntitiesToSave(editTabs)
-    //         .then(function(tabsToSave) {
-    //             var savePromises = _.map(tabsToSave, function(tabToSave) {
-    //                 return saveEntity(tabToSave)
-    //                     .then(function() {
-    //                         closeTab(tabToSave);
-    //                     })
-    //                     .catch(function() {
-    //                         notifyService.error('Error saving ' + tabToSave.kind + ' ' + tabToSave.name + '.');
-    //                     });
-    //             });
-    //
-    //             _.each(editTabs, function(tab) {
-    //                 if (!_.find(tabsToSave, {tabKey: tab.tabKey})) {
-    //                     closeTab(tab);
-    //                 }
-    //             });
-    //
-    //             return $q.all(savePromises);
-    //         });
-    // }
+    function openCloseDialog(editTabs) {
+        return dialogService
+        .selectEntitiesToSave(editTabs)
+        .then(function(tabsToSave) {
+            var savePromises = _.map(tabsToSave, function(tabToSave) {
+                return saveEntity(tabToSave)
+                .then(function() {
+                    closeTab(tabToSave);
+                })
+                .catch(function() {
+                    notifyService.error('Error saving ' + tabToSave.kind + ' '
+                        + tabToSave.name + '.');
+                });
+            });
 
-    // function onCloseAllTabs(exceptCurrent) {
-    //     // var userId = getUserId(user);
-    //     // var tabsToClose = !exceptCurrent ? tabs[userId] : _.filter(tabs,
-    //     //     function(tab) {
-    //     //         return tab !== activeTab;
-    //     //     });
-    //     var modifiedTabs = [];
-    //     var unmodifiedTabs = [];
-    //     // _.each(tabsToClose, function(tab) {
-    //     //     if (tab.dirty) {
-    //     //         modifiedTabs.push(tab);
-    //     //     } else {
-    //     //         unmodifiedTabs.push(tab);
-    //     //     }
-    //     // });
-    //
-    //     return $q.when(modifiedTabs.length ? openCloseDialog(modifiedTabs) : null)
-    //         .finally(function() {
-    //             _.each(unmodifiedTabs, closeTab);
-    //         });
-    // }
+            _.each(editTabs, function(tab) {
+                if (!_.find(tabsToSave, {tabKey: tab.tabKey})) {
+                    closeTab(tab);
+                }
+            });
+
+            return $q.all(savePromises);
+        });
+    }
+
+    function onCloseAllTabs(exceptCurrent) {
+        return resolvePrincipal(function(user) {
+            var userId = user.getId();
+            var tabsToClose = !exceptCurrent ? tabs[userId] : _.filter(
+                    tabs[userId],
+                    function(tab) {
+                        return tab !== activeTab;
+                    });
+            var modifiedTabs = [];
+            var unmodifiedTabs = [];
+            _.each(tabsToClose, function(tab) {
+                if (tab.dirty) {
+                    modifiedTabs.push(tab);
+                } else {
+                    unmodifiedTabs.push(tab);
+                }
+            });
+
+            return $q.when(
+                    modifiedTabs.length ? openCloseDialog(modifiedTabs) : null)
+                .finally(function() {
+                    _.each(unmodifiedTabs, closeTab);
+                });
+        }
+        );
+    }
 }
 
 module.exports = entitiesBrowserService;
