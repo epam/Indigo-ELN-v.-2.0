@@ -200,58 +200,58 @@ function reagentsCalculation(calculationHelper) {
         row.prevRxnRole.name = row.rxnRole.name;
     }
 
-    function onVolumeChanged(row) {
-        if (row.isVolumePresent()) {
-            if (row.isMolarityPresent()) {
-                var mol = mathCalculation.computeDissolvedMol(row.molarity.value, row.volume.value);
-                row.setComputedMol(mol, onMolChanged);
+    function resetVolume(row) {
+        row.resetFields([fieldTypes.volume]);
 
-                return;
-            }
+        if (row.isMolarityPresent() && !row.isMolManuallyEntered()) {
+            row.resetFields([fieldTypes.mol], onMolChanged);
 
-            if (row.isDensityPresent()) {
-                var weight = mathCalculation.computeWeightByDensity(row.volume.value, row.density.value);
-                row.setComputedWeight(weight, onWeightChanged);
-
-                return;
-            }
-
-            if (!row.isSolventRow()) {
-                if (row.isLimiting()) {
-                    var nextRow = getRowAfterLimiting();
-                    if (nextRow) {
-                        nextRow.limiting.value = true;
-                    }
-
-                    row.limiting.value = false;
-                }
-
-                row.resetFields([fieldTypes.weight, fieldTypes.mol, fieldTypes.eq]);
-
-                return;
-            }
+            return;
         }
 
+        if (row.isDensityPresent() && !row.isWeightManuallyEntered()) {
+            row.resetFields([fieldTypes.weight], onWeightChanged);
+
+            return;
+        }
+
+        if (!row.isSolventRow() && !row.isWeightManuallyEntered() && !row.isMolManuallyEntered()) {
+            setMolDependingOfLimiting(row, getLimitingRow());
+        }
+    }
+
+    function onVolumeChanged(row) {
         if (!row.isVolumePresent()) {
-            row.resetFields([fieldTypes.volume]);
+            resetVolume(row);
 
-            // TODO: problem with volume should implement test
+            return;
+        }
 
-            if (row.isMolarityPresent() && !row.isMolManuallyEntered()) {
-                row.resetFields([fieldTypes.mol], onMolChanged);
+        if (row.isMolarityPresent()) {
+            var mol = mathCalculation.computeDissolvedMol(row.molarity.value, row.volume.value);
+            row.setComputedMol(mol, onMolChanged);
 
-                return;
+            return;
+        }
+
+        if (row.isDensityPresent()) {
+            var weight = mathCalculation.computeWeightByDensity(row.volume.value, row.density.value);
+            row.setComputedWeight(weight, onWeightChanged);
+
+            return;
+        }
+
+        if (!row.isSolventRow()) {
+            if (row.isLimiting() && !canBeLimiting(row)) {
+                var nextRow = getRowAfterLimiting();
+                if (nextRow) {
+                    nextRow.limiting.value = true;
+                }
+
+                row.limiting.value = false;
             }
 
-            if (row.isDensityPresent() && !row.isWeightManuallyEntered()) {
-                row.resetFields([fieldTypes.weight], onWeightChanged);
-
-                return;
-            }
-
-            if (!row.isSolventRow() && !row.isWeightManuallyEntered() && !row.isMolManuallyEntered()) {
-                setMolDependingOfLimiting(row, getLimitingRow());
-            }
+            row.resetFields([fieldTypes.weight, fieldTypes.mol, fieldTypes.eq]);
         }
     }
 
@@ -383,7 +383,9 @@ function reagentsCalculation(calculationHelper) {
     }
 
     function canBeLimiting(row) {
-        return !row.isSolventRow() && row.eq.value === 1;
+        var canCalcMol = row.volume.value > 0 && (row.molarity.value > 0 || row.density.value > 0);
+        var hasDimension = row.mol.value > 0 || canCalcMol;
+        return !row.isSolventRow() && row.eq.value === 1 && hasDimension;
     }
 
     function getRowAfterLimiting() {
