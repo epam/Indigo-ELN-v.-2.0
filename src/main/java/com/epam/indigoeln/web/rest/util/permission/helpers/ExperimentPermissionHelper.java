@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.epam.indigoeln.core.model.PermissionCreationLevel.EXPERIMENT;
+import static com.epam.indigoeln.core.model.PermissionCreationLevel.NOTEBOOK;
 import static com.epam.indigoeln.web.rest.util.PermissionUtil.*;
 import static java.util.stream.Collectors.toSet;
 
@@ -68,7 +69,7 @@ public class ExperimentPermissionHelper {
                 removedPermissions.stream()
                         .filter(removedPermission ->
                                 removedPermission.getPermissionCreationLevel()
-                                        .equals(PermissionCreationLevel.EXPERIMENT))
+                                        .equals(EXPERIMENT))
                         .collect(toSet());
 
         Pair<PermissionChanges<Project>, PermissionChanges<Notebook>> projectAndNotebookChanges =
@@ -224,11 +225,9 @@ public class ExperimentPermissionHelper {
 
         Set<UserPermission> permissions = experiment.getAccessList();
         experiment.setAccessList(new HashSet<>());
-        PermissionUtil.addUsersFromUpperLevel(experiment.getAccessList(), notebook.getAccessList(),
-                PermissionCreationLevel.NOTEBOOK);
+        PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), creator, EXPERIMENT);
 
-        PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), creator,
-                PermissionCreationLevel.EXPERIMENT);
+        PermissionUtil.addUsersFromUpperLevel(permissions, notebook.getAccessList(), NOTEBOOK);
 
         updatePermission(experiment, getUpdatedPermissions(experiment, permissions, EXPERIMENT));
         return addPermissions(project, notebook, experiment, getCreatedPermission(experiment, permissions, EXPERIMENT));

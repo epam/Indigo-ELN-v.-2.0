@@ -123,7 +123,7 @@ public class WebSocketUtil {
             data.put(USER, user.getId());
             Map<String, Object> entity = new HashMap<>();
             entity.put(PROJECT_ID, projectId);
-            entity.put(NOTEBOOK_ID, notebookId);
+            entity.put(NOTEBOOK_ID, SequenceIdUtil.extractShortId(notebookId));
             entity.put(EXPERIMENT_ID, SequenceIdUtil.extractShortId(experiment));
             data.put(ENTITY, entity);
             data.put(VERSION, experiment.getVersion());

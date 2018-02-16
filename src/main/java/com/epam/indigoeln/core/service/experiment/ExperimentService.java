@@ -297,9 +297,6 @@ public class ExperimentService {
         }
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userService, experiment.getAccessList());
-        // add OWNER's permissions for specified User to experiment
-        Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, PermissionChanges<Experiment>> changes =
-                ExperimentPermissionHelper.fillNewExperimentsPermissions(project, notebook, experiment, user);
 
         //increment sequence Id
         experiment.setId(sequenceIdService.getNextExperimentId(projectId, notebookId));
@@ -314,6 +311,10 @@ public class ExperimentService {
         experiment.setLastVersion(true);
         experiment.compileExperimentFullName(notebook.getName());
 
+        // add OWNER's permissions for specified User to experiment
+        Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, PermissionChanges<Experiment>> changes =
+                ExperimentPermissionHelper.fillNewExperimentsPermissions(project, notebook, experiment, user);
+
         Experiment savedExperiment = experimentRepository.save(experiment);
 
         notebook.getExperiments().add(savedExperiment);
@@ -322,7 +323,7 @@ public class ExperimentService {
         webSocketUtil.newProject(user, getSubEntityChangesRecipients(changes.getLeft()));
         webSocketUtil.newSubEntityForProject(user, project, getSubEntityChangesRecipients(changes.getMiddle()));
         webSocketUtil.newSubEntityForNotebook(user, projectId, savedNotebook,
-                getSubEntityChangesRecipients(changes.getLeft()));
+                getSubEntityChangesRecipients(changes.getRight()));
 
         return new ExperimentDTO(savedExperiment);
     }
@@ -459,8 +460,8 @@ public class ExperimentService {
                     experimentForSave.getComponents(), experimentFromDB.getId()));
 
             // add all users as VIEWER to project and to notebook
-            Notebook notebook = Optional.ofNullable(notebookRepository.findOne(SequenceIdUtil
-                    .buildFullId(projectId, notebookId))).
+            String fullNotebookId = SequenceIdUtil.buildFullId(projectId, notebookId);
+            Notebook notebook = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
                     orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
             Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
                     orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
