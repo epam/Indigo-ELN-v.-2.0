@@ -1,7 +1,6 @@
 var template = require('./print-modal.html');
 
-printModal.$inject = ['$uibModal', '$window', '$httpParamSerializer', 'apiUrl'];
-
+/* @ngInject */
 function printModal($uibModal, $window, $httpParamSerializer, apiUrl) {
     return {
         showPopup: showPopup,

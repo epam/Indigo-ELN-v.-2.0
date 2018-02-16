@@ -1,6 +1,6 @@
 /* @ngInject */
 function SearchPanelController(searchService, $state, $stateParams, searchUtil, pageInfo,
-                               entitiesCache, printModal, dictionaryService, tabKeyService) {
+                               entitiesCache, printModal, dictionaryService, tabKeyService, $scope) {
     var OWN_ENTITY = 'OWN_ENTITY';
     var USERS_ENTITIES = 'USERS_ENTITIES';
     var CACHE_STATE_KEY = tabKeyService.getTabKeyFromTab($state.current.data.tab);
@@ -56,6 +56,8 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtil, 
             vm.state.restrictions.searchQuery = $stateParams.query;
             search();
         }
+
+        initEvents();
     }
 
     function initDefaultState() {
@@ -190,6 +192,12 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtil, 
 
     function onChangeModel(structure) {
         angular.extend(vm.state.restrictions.structure, structure);
+    }
+
+    function initEvents() {
+        $scope.$on('$destroy', function() {
+            printModal.close();
+        });
     }
 }
 
