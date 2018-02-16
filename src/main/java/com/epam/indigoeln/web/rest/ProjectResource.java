@@ -41,6 +41,24 @@ public class ProjectResource {
     @Autowired
     private UserService userService;
 
+
+    /**
+     * GET  /projects/project/:id -> Returns project with specified id according to User permissions.
+     *
+     * @param id Identifier
+     * @return Project
+     */
+    @ApiOperation(value = "Returns project by it's id as tree node.")
+    @RequestMapping(value = "/project"+PATH_ID, method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TreeNodeDTO> getProjectForTree(
+            @ApiParam("Project id") @PathVariable String id
+    ) {
+        LOGGER.debug("REST request to get project tree node: {}", id);
+        TreeNodeDTO project = projectService.getProjectAsTreeNode(id);
+        return ResponseEntity.ok(project);
+    }
+
     /**
      * GET  /projects -> Returns all projects for <b>current user</b>
      * for tree representation according to his User permissions.

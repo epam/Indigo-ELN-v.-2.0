@@ -7,7 +7,7 @@ import com.epam.indigoeln.core.service.signature.SignatureService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
-import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
+import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.Api;
@@ -65,7 +65,7 @@ public class ExperimentResource {
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PostFilter("hasAnyAuthority(T(com.epam.indigoeln.core.util.AuthoritiesUtil).EXPERIMENT_READERS)")
     @ResponseStatus(HttpStatus.OK)
-    public List<TreeNodeDTO> getAllExperimentsByPermissions(
+    public List<ExperimentTreeNodeDTO> getAllExperimentsByPermissions(
             @ApiParam("Project id") @PathVariable String projectId,
             @ApiParam("Notebook id") @PathVariable String notebookId
     ) {
@@ -115,14 +115,14 @@ public class ExperimentResource {
     @ApiOperation(value = "Returns all experiments of specified notebook for current user for tree representation")
     @RequestMapping(value = "/all", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TreeNodeDTO>> getAllExperiments(
+    public ResponseEntity<List<ExperimentTreeNodeDTO>> getAllExperiments(
             @ApiParam("Project id") @PathVariable String projectId,
             @ApiParam("Notebook id") @PathVariable String notebookId) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("REST request to get all experiments of notebook: {} "
                     + "without checking for permissions", notebookId);
         }
-        List<TreeNodeDTO> result = experimentService.getAllExperimentTreeNodes(projectId, notebookId);
+        List<ExperimentTreeNodeDTO> result = experimentService.getAllExperimentTreeNodes(projectId, notebookId);
         return ResponseEntity.ok(result);
     }
 
@@ -148,6 +148,19 @@ public class ExperimentResource {
         ExperimentDTO experimentDTO = experimentService.getExperiment(projectId, notebookId, id, user);
         experimentDTO.setStatus(signatureService.checkExperimentStatus(experimentDTO));
         return ResponseEntity.ok(experimentDTO);
+    }
+
+    @ApiOperation(value = "Returns experiment with specified id for tree.")
+    @RequestMapping(value = "/experiment" + PATH_ID, method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ExperimentTreeNodeDTO> getExperimentAsTreeNode(
+            @ApiParam("Project id") @PathVariable String projectId,
+            @ApiParam("Notebook id") @PathVariable String notebookId,
+            @ApiParam("Experiment id") @PathVariable String id
+    ) {
+        ExperimentTreeNodeDTO experimentTreeNodeDTO = experimentService
+                .getExperimentAsTreeNode(projectId, notebookId, id);
+        return ResponseEntity.ok(experimentTreeNodeDTO);
     }
 
     /**

@@ -115,7 +115,8 @@ public class NotebookService {
             ((Iterable) project.get("notebooks")).forEach(n -> notebookIds.add(String.valueOf(((DBRef) n).getId())));
 
             val notebooks = new ArrayList<DBObject>();
-            notebookCollection.find(new BasicDBObject("_id", new BasicDBObject("$in", notebookIds))).forEach(notebooks::add);
+            notebookCollection.find(new BasicDBObject("_id", new BasicDBObject("$in", notebookIds)))
+                    .forEach(notebooks::add);
 
             if (user == null) {
                 return notebooks.stream()
@@ -134,7 +135,8 @@ public class NotebookService {
             return notebooks.stream()
                     .filter(notebook -> {
                         val notebookAccessList = new HashSet<UserPermission>();
-                        ((Iterable) notebook.get("accessList")).forEach(a -> notebookAccessList.add(new UserPermission((DBObject) a)));
+                        ((Iterable) notebook.get("accessList"))
+                                .forEach(a -> notebookAccessList.add(new UserPermission((DBObject) a)));
                         return PermissionUtil.findPermissionsByUserId(notebookAccessList, user.getId()) != null;
                     })
                     .map(TreeNodeDTO::new)
@@ -191,6 +193,18 @@ public class NotebookService {
         }
 
         return new NotebookDTO(notebook);
+    }
+
+    public TreeNodeDTO getNotebookAsTreeNode(String projectId, String notebookId){
+        TreeNodeDTO result;
+        val notebookCollection = mongoTemplate.getCollection(Notebook.COLLECTION_NAME);
+        val notebook = notebookCollection.findOne(new BasicDBObject().append("_id", projectId+"-"+notebookId));
+        if (notebook == null) {
+            throw EntityNotFoundException.createWithNotebookId(notebookId);
+        }
+        result = new TreeNodeDTO(notebook);
+
+        return result;
     }
 
     /**

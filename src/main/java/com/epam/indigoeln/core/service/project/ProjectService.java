@@ -105,13 +105,30 @@ public class ProjectService {
         val collection = mongoTemplate.getCollection(Project.COLLECTION_NAME);
 
         val projects = (user == null) ? collection.find()
-                : collection.find(new BasicDBObject().append("accessList.user", new BasicDBObject().append("$ref", User.COLLECTION_NAME).append("$id", user.getId())));
+                : collection.find(new BasicDBObject()
+                .append("accessList.user", new BasicDBObject()
+                .append("$ref", User.COLLECTION_NAME).append("$id", user.getId())));
 
         return StreamSupport.stream(projects.spliterator(), false)
                 .map(TreeNodeDTO::new)
                 .sorted(TreeNodeDTO.NAME_COMPARATOR)
                 .collect(Collectors.toList());
     }
+
+    public TreeNodeDTO getProjectAsTreeNode(String projectId){
+        TreeNodeDTO result;
+        val collection = mongoTemplate.getCollection(Project.COLLECTION_NAME);
+        BasicDBObject searchQuery = new BasicDBObject();
+        searchQuery.put("_id", projectId);
+        val project = collection.find(searchQuery);
+        if(project.hasNext()){
+            result = new TreeNodeDTO(project.next());
+        }else {
+            throw EntityNotFoundException.createWithProjectId(projectId);
+        }
+        return result;
+    }
+
 
     /**
      * Returns project by id according to permissions.

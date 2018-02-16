@@ -24,6 +24,7 @@ import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.epam.indigoeln.web.rest.util.permission.helpers.ExperimentPermissionHelper;
 import com.google.common.util.concurrent.Striped;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.DBRef;
 import lombok.val;
@@ -127,7 +128,7 @@ public class ExperimentService {
      * @param notebookId Notebook's identifier
      * @return List with tree representation of experiments of specified notebook
      */
-    public List<TreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId) {
+    public List<ExperimentTreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId) {
         return getAllExperimentTreeNodes(projectId, notebookId, null);
     }
 
@@ -140,11 +141,13 @@ public class ExperimentService {
      * @return List with tree representation of experiments of specified notebook for user
      */
     @SuppressWarnings("unchecked")
-    public List<TreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId, User user) {
+    public List<ExperimentTreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId, User user) {
         val notebookCollection = mongoTemplate.getCollection(Notebook.COLLECTION_NAME);
         val experimentCollection = mongoTemplate.getCollection(Experiment.COLLECTION_NAME);
+        val userCollection = mongoTemplate.getCollection(User.COLLECTION_NAME);
 
-        val notebook = notebookCollection.findOne(new BasicDBObject().append("_id", SequenceIdUtil.buildFullId(projectId, notebookId)));
+        val notebook = notebookCollection
+                .findOne(new BasicDBObject().append("_id", SequenceIdUtil.buildFullId(projectId, notebookId)));
 
         if (notebook == null) {
             throw EntityNotFoundException.createWithNotebookId(notebookId);
@@ -152,37 +155,107 @@ public class ExperimentService {
 
         if (notebook.get("experiments") instanceof Iterable) {
             val experimentIds = new ArrayList<String>();
-            ((Iterable) notebook.get("experiments")).forEach(e -> experimentIds.add(String.valueOf(String.valueOf(((DBRef) e).getId()))));
+            ((Iterable) notebook.get("experiments"))
+                    .forEach(e -> experimentIds.add(String.valueOf(String.valueOf(((DBRef) e).getId()))));
 
             val experiments = new ArrayList<DBObject>();
-            experimentCollection.find(new BasicDBObject().append("_id", new BasicDBObject().append("$in", experimentIds))).forEach(experiments::add);
+            experimentCollection.find(new BasicDBObject()
+                    .append("_id", new BasicDBObject().append("$in", experimentIds))).forEach(experiments::add);
 
-            if (user == null) {
-                return experiments.stream()
-                        .map(ExperimentTreeNodeDTO::new)
-                        .sorted(TreeNodeDTO.NAME_COMPARATOR)
-                        .collect(Collectors.toList());
+
+            Map<Object, Object> experimentsWithUsers = getExperimentsWithUsers(experiments, userCollection);
+
+            List<Experiment> experimentsFromRepository = experimentRepository.findExperimentsByIdIn(experimentIds);
+
+            if (user != null) {
+                val notebookAccessList = new HashSet<UserPermission>();
+                ((Iterable) notebook.get("accessList"))
+                        .forEach(a -> notebookAccessList.add(new UserPermission((DBObject) a)));
+
+                if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, notebookAccessList,
+                        UserPermission.READ_ENTITY)) {
+                    throw OperationDeniedException
+                            .createNotebookSubEntitiesReadOperation(String.valueOf(notebook.get("_id")));
+                }
             }
 
-            val notebookAccessList = new HashSet<UserPermission>();
-            ((Iterable) notebook.get("accessList")).forEach(a -> notebookAccessList.add(new UserPermission((DBObject) a)));
-
-            if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, notebookAccessList, UserPermission.READ_ENTITY)) {
-                throw OperationDeniedException.createNotebookSubEntitiesReadOperation(String.valueOf(notebook.get("_id")));
-            }
-
-            return experiments.stream()
+            List<ExperimentTreeNodeDTO> result = experiments.stream()
                     .filter(experiment -> {
                         val experimentAccessList = new HashSet<UserPermission>();
-                        ((Iterable) experiment.get("accessList")).forEach(a -> experimentAccessList.add(new UserPermission((DBObject) a)));
+                        ((Iterable) experiment.get("accessList"))
+                                .forEach(a -> experimentAccessList.add(new UserPermission((DBObject) a)));
                         return PermissionUtil.hasUser(experimentAccessList, user);
                     })
                     .map(ExperimentTreeNodeDTO::new)
-                    .sorted(TreeNodeDTO.NAME_COMPARATOR)
                     .collect(Collectors.toList());
+
+            result.forEach(e -> {
+                Optional<BasicDBObject> opt = (Optional<BasicDBObject>) experimentsWithUsers.get(e.getFullId());
+                Optional<Experiment> experiment = experimentsFromRepository.stream()
+                        .filter(exp -> e.getFullId().equals(exp.getId()))
+                        .findFirst();
+                if (opt.isPresent()) {
+                    e.setAuthorFullName(String.format("%s %s",
+                            opt.get().get("first_name"), opt.get().get("last_name")));
+                } else {
+                    e.setAuthorFullName("");
+                }
+                String image = "";
+                if (experiment.isPresent()) {
+                    List<Component> components = experiment.get().getComponents();
+                    image = components.get(components.size() - 1).getContent().get("image").toString();
+                }
+                e.setReactionImage(image);
+            });
+
+            result = result.stream().sorted(TreeNodeDTO.NAME_COMPARATOR).collect(Collectors.toList());
+
+            return result;
+
+
         }
 
         return Collections.emptyList();
+    }
+
+    public ExperimentTreeNodeDTO getExperimentAsTreeNode(String projectId, String notebookId, String experimentId) {
+        String experimentFullId = String.format("%s-%s-%s", projectId, notebookId, experimentId);
+        ExperimentTreeNodeDTO result;
+        val experimentCollection = mongoTemplate.getCollection(Experiment.COLLECTION_NAME);
+        val experiment = experimentCollection
+                .findOne(new BasicDBObject().append("_id", experimentFullId));
+
+        if (experiment == null) {
+            throw EntityNotFoundException.createWithExperimentId(experimentId);
+        }
+
+        result = new ExperimentTreeNodeDTO(experiment);
+        Experiment e = experimentRepository.findOne(experimentFullId);
+        if (e != null) {
+            List<Component> components = e.getComponents();
+            result.setReactionImage(components.get(components.size() - 1).getContent().get("image").toString());
+            result.setAuthorFullName(e.getAuthor().getFullName());
+        }
+        return result;
+    }
+
+
+    private Map<Object, Object> getExperimentsWithUsers(List<DBObject> experiments, DBCollection userCollection) {
+        List<Object> userIds = new ArrayList<>();
+        List<Object> users = new ArrayList<>();
+        Map<Object, Object> experimentsWithUsers = new HashMap<>();
+        experiments.forEach(e -> {
+            Object authorId = ((DBRef) e.get("author")).getId();
+            experimentsWithUsers.put(e.get("_id"), authorId);
+            userIds.add(authorId);
+        });
+        userCollection.find(new BasicDBObject().append("_id", new BasicDBObject().append("$in", userIds)))
+                .forEach(users::add);
+
+        experimentsWithUsers.entrySet().forEach(e -> e.setValue(users.stream()
+                .filter(u -> ((BasicDBObject) u).get("_id").equals(e.getValue())).findFirst()));
+
+        return experimentsWithUsers;
     }
 
     /**
