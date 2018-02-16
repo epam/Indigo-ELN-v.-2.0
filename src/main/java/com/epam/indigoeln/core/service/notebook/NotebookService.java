@@ -32,8 +32,10 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static com.epam.indigoeln.core.util.WebSocketUtil.getRecipients;
+import static com.epam.indigoeln.core.util.WebSocketUtil.*;
+import static java.util.Collections.singletonList;
 
 /**
  * Provides a number of methods for notebook's data manipulation.
@@ -158,7 +160,7 @@ public class NotebookService {
         List<Notebook> notebooks = PermissionUtil.isContentEditor(user)
                 ? notebookRepository.findAllIgnoreChildren()
                 : notebookRepository.findByUserIdAndPermissionsShort(user.getId(),
-                Collections.singletonList(UserPermission.CREATE_SUB_ENTITY));
+                singletonList(UserPermission.CREATE_SUB_ENTITY));
         return notebooks.stream().map(ShortEntityDTO::new)
                 .sorted(Comparator.comparing(ShortEntityDTO::getName)).collect(Collectors.toList());
     }
@@ -221,13 +223,16 @@ public class NotebookService {
         // check of user permissions correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userService, notebook.getAccessList());
         // add OWNER's permissions for specified User to notebook
-        NotebookPermissionHelper.fillNewNotebooksPermissions(project, notebook, user);
+        Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>> changes =
+                NotebookPermissionHelper.fillNewNotebooksPermissions(project, notebook, user);
 
         Notebook savedNotebook = saveNotebookAndHandleError(notebook);
 
         project.getNotebooks().add(savedNotebook);
-        Project savedProject = projectRepository.save(project);
-        webSocketUtil.updateProject(user, savedProject, getRecipients(userService.getContentEditors(), savedProject));
+        projectRepository.save(project);
+
+        webSocketUtil.newProject(user, getSubEntityChangesRecipients(changes.getLeft()));
+        webSocketUtil.newSubEntityForProject(user, project, getSubEntityChangesRecipients(changes.getMiddle()));
 
         return new NotebookDTO(savedNotebook);
     }
@@ -285,42 +290,100 @@ public class NotebookService {
             notebookFromDB.setDescription(notebookDTO.getDescription());
             notebookFromDB.setVersion(notebook.getVersion());
 
-            Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>> projectChangedAndChangedExperiments =
-                    NotebookPermissionHelper
-                            .changeNotebookPermissions(project, notebookFromDB, notebook.getAccessList());
+            Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>
+                    permissionsChanges = NotebookPermissionHelper
+                    .changeNotebookPermissions(project, notebookFromDB, notebook.getAccessList());
 
             Set<User> contentEditors = userService.getContentEditors();
-            if (notebookNameChanged) {
-                List<Experiment> savedExperiments = experimentRepository.save(notebookFromDB.getExperiments());
-                savedExperiments.forEach(experiment ->
-                        webSocketUtil.updateExperiment(user, projectId, notebookDTO.getId(), experiment,
-                                getRecipients(contentEditors, experiment)));
-            } else {
-                experimentRepository.save(
-                        projectChangedAndChangedExperiments.getRight()
-                                .stream()
-                                .map(PermissionChanges::getEntity)
-                                .collect(Collectors.toList()))
-                        .forEach(experiment ->
-                                webSocketUtil.updateExperiment(user, projectId, notebookDTO.getId(), experiment,
-                                        getRecipients(contentEditors, experiment)));
+
+            PermissionChanges<Notebook> notebooksChanges = permissionsChanges.getMiddle();
+            if (notebooksChanges.hadChanged()) {
+                updateProjectAndSendNotifications(user, permissionsChanges.getLeft());
+
+                sendNotebookNotifications(user, project, notebookFromDB,
+                        contentEditors, notebooksChanges, notebookNameChanged);
+
+                updateExperimentsAndSendNotifications(user, project.getId(), contentEditors,
+                        notebooksChanges, permissionsChanges.getRight(), notebookNameChanged);
             }
 
             Notebook savedNotebook = saveNotebookAndHandleError(notebookFromDB);
-            webSocketUtil.updateNotebook(user, projectId, savedNotebook,
-                    getRecipients(contentEditors, savedNotebook)
-                            .filter(userName -> !userName.equals(user.getId())));
-
-            if (projectChangedAndChangedExperiments.getLeft().hadChanged()) {
-                Project savedProject = projectRepository.save(project);
-                webSocketUtil.updateProject(user, savedProject,
-                        getRecipients(contentEditors, savedProject));
-            }
 
             return new NotebookDTO(savedNotebook);
         } finally {
             lock.unlock();
         }
+    }
+
+    private void sendNotebookNotifications(User user,
+                                           Project project,
+                                           Notebook notebook,
+                                           Set<User> contentEditors,
+                                           PermissionChanges<Notebook> notebooksChanges,
+                                           boolean notebookNameChanged
+    ) {
+        webSocketUtil.newSubEntityForProject(user, project,
+                getSubEntityChangesRecipients(notebooksChanges));
+
+        Stream<String> recipients = getPermissionsUpdateRecipients(notebooksChanges);
+
+        if (notebookNameChanged) {
+            recipients = Stream.concat(
+                    recipients,
+                    getEntityUpdateRecipients(contentEditors, notebook)
+                            .filter(userName -> !userName.equals(user.getId())))
+                    .distinct();
+        }
+        webSocketUtil.updateNotebook(user, project.getId(), notebook,
+                recipients);
+    }
+
+    private void updateProjectAndSendNotifications(User user,
+                                                   PermissionChanges<Project> permissionChanges
+    ) {
+        if (permissionChanges.hadChanged()) {
+            Project savedProject = projectRepository.save(permissionChanges.getEntity());
+
+            webSocketUtil.updateProject(user, savedProject,
+                    getPermissionsUpdateRecipients(permissionChanges));
+
+            webSocketUtil.newProject(user, getSubEntityChangesRecipients(permissionChanges));
+        }
+    }
+
+    private void updateExperimentsAndSendNotifications(
+            User user,
+            String projectId,
+            Set<User> contentEditors,
+            PermissionChanges<Notebook> notebookPermissionChanges, List<PermissionChanges<Experiment>> allExperimentsChanges, boolean notebookNameChanged
+    ) {
+        List<PermissionChanges<Experiment>> experimentsChanges = allExperimentsChanges
+                .stream()
+                .filter(PermissionChanges::hadChanged)
+                .collect(Collectors.toList());
+
+        Notebook parentNotebook = notebookPermissionChanges.getEntity();
+        if (notebookNameChanged) {
+            //we need to re-save all experiments if name of the notebook was changed
+            List<Experiment> savedExperiments = experimentRepository.save(
+                    notebookPermissionChanges.getEntity().getExperiments());
+            savedExperiments.forEach(experiment ->
+                    webSocketUtil.updateExperiment(user, projectId, parentNotebook.getId(), experiment,
+                            getEntityUpdateRecipients(contentEditors, experiment)));
+        } else if (notebookPermissionChanges.hadChanged()) {
+            experimentRepository.save(experimentsChanges.stream()
+                    .map(PermissionChanges::getEntity)
+                    .collect(Collectors.toList()));
+
+            experimentsChanges.forEach(experimentPermissionChanges ->
+                    webSocketUtil.updateExperiment(user, projectId,
+                            parentNotebook.getId(),
+                            experimentPermissionChanges.getEntity(),
+                            getPermissionsUpdateRecipients(experimentPermissionChanges)
+                    ));
+        }
+        webSocketUtil.newSubEntityForNotebook(user, projectId, parentNotebook,
+                getSubEntityChangesRecipients(experimentsChanges));
     }
 
     /**

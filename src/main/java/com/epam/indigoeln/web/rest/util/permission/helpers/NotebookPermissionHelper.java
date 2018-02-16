@@ -268,7 +268,8 @@ public class NotebookPermissionHelper {
         return Triple.of(projectPermissionChanges, notebookPermissionChanges, changedExperiments);
     }
 
-    public static void fillNewNotebooksPermissions(Project project, Notebook notebook, User creator) {
+    public static Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>
+    fillNewNotebooksPermissions(Project project, Notebook notebook, User creator) {
         Set<UserPermission> accessList = notebook.getAccessList();
         notebook.setAccessList(new HashSet<>());
         PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), creator, NOTEBOOK);
@@ -277,6 +278,6 @@ public class NotebookPermissionHelper {
 
         notebook.setExperiments(emptyList());
         updatePermissions(notebook, getUpdatedPermissions(notebook, accessList, NOTEBOOK));
-        addPermissions(project, notebook, getCreatedPermission(notebook, accessList, NOTEBOOK));
+        return addPermissions(project, notebook, getCreatedPermission(notebook, accessList, NOTEBOOK));
     }
 }

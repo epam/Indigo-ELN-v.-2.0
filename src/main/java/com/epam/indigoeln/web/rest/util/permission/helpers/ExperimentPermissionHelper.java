@@ -166,7 +166,7 @@ public class ExperimentPermissionHelper {
      * @param newUserPermissions permissions that should be applied
      * @return pair of two boolean flags these mean (notebook was changed, project was changed).
      */
-    public static Triple<PermissionChanges<Experiment>, PermissionChanges<Notebook>, PermissionChanges<Project>>
+    public static Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, PermissionChanges<Experiment>>
     changeExperimentPermissions(Project project,
                                 Notebook notebook,
                                 Experiment updatedExperiment,
@@ -212,7 +212,7 @@ public class ExperimentPermissionHelper {
             experimentPermissionChanges.merge(changes.getRight());
         }
 
-        return Triple.of(experimentPermissionChanges, notebookPermissionChanges, projectPermissionChanges);
+        return Triple.of(projectPermissionChanges, notebookPermissionChanges, experimentPermissionChanges);
     }
 
     public static Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, PermissionChanges<Experiment>>

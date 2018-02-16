@@ -172,14 +172,12 @@ public class ProjectPermissionHelper {
         }
     }
 
-    public static void fillNewProjectPermissions(Project project, User user) {
+    public static PermissionChanges<Project> fillNewProjectPermissions(Project project, User user) {
         Set<UserPermission> accessList = project.getAccessList();
         project.setAccessList(new HashSet<>());
         project.setNotebooks(Collections.emptyList());
         PermissionUtil.addOwnerToAccessList(project.getAccessList(), user, PROJECT);
 
-        updatePermissions(project, getUpdatedPermissions(project, accessList, PROJECT));
-        addPermissions(project, getCreatedPermission(project, accessList, PROJECT));
-
+        return addPermissions(project, getCreatedPermission(project, accessList, PROJECT)).getLeft();
     }
 }
