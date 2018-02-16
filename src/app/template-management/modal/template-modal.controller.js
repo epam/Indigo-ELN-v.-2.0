@@ -64,6 +64,9 @@ function TemplateModalController($scope, $stateParams, templateService, notifySe
     }
 
     function save() {
+        if (vm.template.name) {
+            return notifyService.error('Name must be unique. Please, choose another one.');
+        }
         vm.isSaving = true;
         if (vm.template.id) {
             templateService.update(vm.template, onSaveSuccess, onSaveError);
