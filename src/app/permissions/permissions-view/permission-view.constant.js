@@ -2,7 +2,7 @@ var permissionViewConfig = {
     url: '/permissions-view',
     onEnter: ['permissionModal', '$state',
         function(permissionModal, $state) {
-            permissionModal.openPopup()
+            permissionModal.showPopup()
                 .finally(function() {
                     $state.go('^');
                 });
