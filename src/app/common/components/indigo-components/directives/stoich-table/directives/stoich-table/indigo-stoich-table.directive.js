@@ -31,6 +31,8 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
                                      stoichReactantsColumns, stoichProductColumns, stoichTableHelper, i18en) {
     var vm = this;
 
+    var dlg;
+
     init();
 
     function init() {
@@ -145,7 +147,8 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
                     return;
                 }
 
-                $uibModal.open({
+                closeDialog();
+                dlg = $uibModal.open({
                     animation: true,
                     size: 'lg',
                     backdrop: 'static',
@@ -185,7 +188,8 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
     }
 
     function searchReagents(activeTabIndex) {
-        $uibModal.open({
+        closeDialog();
+        dlg = $uibModal.open({
             animation: true,
             size: 'lg',
             controller: 'SearchReagentsController',
@@ -360,6 +364,10 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             });
             vm.onChangedProducts({products: products});
         }, true);
+
+        $scope.$on('$destroy', function() {
+            closeDialog();
+        });
     }
 
     function getMissingReactionReactantsInStoic(reactantsInfo) {
@@ -386,6 +394,13 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         return $q.all(allPromises).then(function() {
             return reactantsToSearch;
         });
+    }
+
+    function closeDialog() {
+        if (dlg) {
+            dlg.dismiss();
+            dlg = null;
+        }
     }
 }
 
