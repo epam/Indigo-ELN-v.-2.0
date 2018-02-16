@@ -402,19 +402,19 @@ public class DashboardService {
             return false;
         }
         val projectAccessList = new HashSet<UserPermission>();
-        ((Iterable) project.get("accessList")).forEach(a -> new UserPermission((DBObject) a));
+        ((Iterable) project.get("accessList")).forEach(a -> projectAccessList.add(new UserPermission((DBObject) a)));
 
         if (notebook == null) {
             return false;
         }
         val notebookAccessList = new HashSet<UserPermission>();
-        ((Iterable) notebook.get("accessList")).forEach(a -> new UserPermission((DBObject) a));
+        ((Iterable) notebook.get("accessList")).forEach(a -> notebookAccessList.add(new UserPermission((DBObject) a)));
 
         if (experiment == null) {
             return false;
         }
         val experimentAccessList = new HashSet<UserPermission>();
-        ((Iterable) experiment.get("accessList")).forEach(a -> new UserPermission((DBObject) a));
+        ((Iterable) experiment.get("accessList")).forEach(a -> experimentAccessList.add(new UserPermission((DBObject) a)));
 
         if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, projectAccessList, UserPermission.READ_ENTITY)) {
             return false;
