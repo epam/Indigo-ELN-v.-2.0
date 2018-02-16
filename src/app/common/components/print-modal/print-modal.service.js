@@ -40,6 +40,7 @@ function printModal($uibModal, $window, $httpParamSerializer, apiUrl) {
     function close() {
         if (dlg) {
             dlg.dismiss();
+            dlg = null;
         }
     }
 }

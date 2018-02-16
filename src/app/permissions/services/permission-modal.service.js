@@ -48,6 +48,7 @@ function permissionsModal($uibModal) {
     function close() {
         if (dlg) {
             dlg.dismiss();
+            dlg = null;
         }
     }
 }
