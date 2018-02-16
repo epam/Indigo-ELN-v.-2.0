@@ -249,16 +249,15 @@ function reagentsCalculation(calculationHelper) {
         }
 
         if (!row.isSolventRow()) {
+            row.resetFields([fieldTypes.weight, fieldTypes.mol, fieldTypes.eq]);
+
             if (row.isLimiting() && !canBeLimiting(row)) {
                 var nextRow = getRowAfterLimiting();
                 if (nextRow) {
                     nextRow.limiting.value = true;
                 }
-
                 row.limiting.value = false;
             }
-
-            row.resetFields([fieldTypes.weight, fieldTypes.mol, fieldTypes.eq]);
         }
     }
 
