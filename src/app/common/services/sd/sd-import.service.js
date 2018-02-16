@@ -4,8 +4,11 @@ var template = require('../../components/file-uploader/single-file-uploader/sing
 function sdImportService($uibModal, dictionaryService, sdConstants,
                          alertModal, apiUrl, sdImportHelper, $q) {
     return {
-        importFile: importFile
+        importFile: importFile,
+        closeDialog: close
     };
+
+    var dlg;
 
     function importValues(sdUnitToImport, property, index, dicts, itemToImport) {
         var propCode = getPropertyCode(property, index);
@@ -58,7 +61,8 @@ function sdImportService($uibModal, dictionaryService, sdConstants,
     }
 
     function importFile() {
-        return $uibModal.open({
+        close();
+        dlg = $uibModal.open({
             animation: true,
             size: 'lg',
             template: template,
@@ -69,7 +73,8 @@ function sdImportService($uibModal, dictionaryService, sdConstants,
                     return apiUrl + 'sd/import';
                 }
             }
-        }).result.then(function(result) {
+        });
+        dlg.result.then(function(result) {
             if (!result) {
                 return $q.reject();
             }
@@ -82,6 +87,15 @@ function sdImportService($uibModal, dictionaryService, sdConstants,
         }, function() {
             alertModal.error('This file cannot be imported. Error occurred.');
         });
+
+        return dlg.result;
+    }
+
+    function close() {
+        if (dlg) {
+            dlg.close(null);
+            dlg = null;
+        }
     }
 }
 

@@ -19,7 +19,8 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
         registerBatches: registerBatches,
         deleteBatches: deleteBatches,
         getSelectedNonEditableBatches: getNonEditableBatches,
-        getStoichFromExperiment: getStoichFromExperiment
+        getStoichFromExperiment: getStoichFromExperiment,
+        closeImportSDFileDialog: closeImportSDFileDialog
     };
 
     function downloadLink(filePath) {
@@ -174,6 +175,10 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
 
             return successAddedBatches(promises, experiment);
         });
+    }
+
+    function closeImportSDFileDialog() {
+        sdImportService.closeDialog();
     }
 
     function requestNbkBatchNumber(lastNbkBatch) {
