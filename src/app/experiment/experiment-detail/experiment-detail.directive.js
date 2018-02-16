@@ -438,6 +438,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
             accessList();
             experimentStatus();
             batchRegistrationStatus();
+            experimentUtil.closeDialog();
         });
     }
 }

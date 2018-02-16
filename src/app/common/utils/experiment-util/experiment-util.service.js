@@ -10,8 +10,11 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionServ
         repeatExperiment: repeatExperiment,
         reopenExperiment: reopenExperiment,
         completeExperiment: completeExperiment,
-        completeExperimentAndSign: completeExperimentAndSign
+        completeExperimentAndSign: completeExperimentAndSign,
+        closeDialog: closeDialog
     };
+
+    var dlg;
 
     function goToExperimentDetail(result, params) {
         $state.go('entities.experiment-detail', {
@@ -89,7 +92,8 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionServ
     }
 
     function openCompleteConfirmationModal(experiment, notebookName) {
-        return $uibModal.open({
+        closeDialog();
+        dlg = $uibModal.open({
             animation: true,
             template: experimentCompleteModalTemplate,
             resolve: {
@@ -105,25 +109,27 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionServ
             controller: 'ExperimentCompleteModalController',
             controllerAs: 'vm'
         });
+
+        return dlg;
     }
 
     function selectTemplate(componentTemplates, filename, stateParams) {
         return signatureTemplatesService.query({})
             .$promise
             .then(function(result) {
-                return $uibModal
-                    .open({
-                        animation: true,
-                        template: experimentSelectSignatureTemplateModal,
-                        controller: 'ExperimentSelectSignatureTemplateModalController',
-                        controllerAs: 'vm',
-                        resolve: {
-                            result: function() {
-                                return result;
-                            }
+                closeDialog();
+                dlg = $uibModal.open({
+                    animation: true,
+                    template: experimentSelectSignatureTemplateModal,
+                    controller: 'ExperimentSelectSignatureTemplateModalController',
+                    controllerAs: 'vm',
+                    resolve: {
+                        result: function() {
+                            return result;
                         }
-                    })
-                    .result
+                    }
+                });
+                dlg.result
                     .then(function(template) {
                         if (template) {
                             var templates = componentsUtil.getComponentsFromTemplateContent(componentTemplates);
@@ -141,11 +147,20 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionServ
 
                         return $q.reject();
                     });
+
+                return dlg.result;
             });
     }
 
     function getComponentsForPrint(componentTemplates) {
         return _.map(componentTemplates, 'field').join().replace('attachments', 'attachments&includeAttachments=true');
+    }
+
+    function closeDialog() {
+        if (dlg) {
+            dlg.dismiss();
+            dlg = null;
+        }
     }
 }
 
