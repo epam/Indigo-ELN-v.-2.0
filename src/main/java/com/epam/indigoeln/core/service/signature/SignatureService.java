@@ -1,6 +1,9 @@
 package com.epam.indigoeln.core.service.signature;
 
-import com.epam.indigoeln.core.model.*;
+import com.epam.indigoeln.core.model.Experiment;
+import com.epam.indigoeln.core.model.ExperimentStatus;
+import com.epam.indigoeln.core.model.SignatureJob;
+import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.repository.signature.SignatureJobRepository;
 import com.epam.indigoeln.core.repository.signature.SignatureRepository;
 import com.epam.indigoeln.core.security.SecurityUtils;
@@ -144,8 +147,12 @@ public class SignatureService {
 
     public List<Document> getDocumentsByIds(Collection<String> documentIds) throws IOException {
         final String content = signatureRepository.getDocumentsInfo(documentIds);
-        final DocumentsWrapper wrapper = objectMapper.readValue(content, DocumentsWrapper.class);
-        return wrapper.getDocuments();
+        if (!StringUtils.isBlank(content)) {
+            final DocumentsWrapper wrapper = objectMapper.readValue(content, DocumentsWrapper.class);
+            return wrapper.getDocuments();
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     /**
