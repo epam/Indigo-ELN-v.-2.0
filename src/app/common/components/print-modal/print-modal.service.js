@@ -2,12 +2,12 @@ var template = require('./print-modal.html');
 
 /* @ngInject */
 function printModal($uibModal, $window, $httpParamSerializer, apiUrl) {
+    var dlg;
+
     return {
         showPopup: showPopup,
         close: close
     };
-
-    var dlg;
 
     function showPopup(params, resourceType) {
         dlg = $uibModal.open({

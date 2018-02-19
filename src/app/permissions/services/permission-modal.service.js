@@ -3,13 +3,13 @@ var editTemplate = require('./../component/permissions.html');
 
 /* @ngInject */
 function permissionsModal($uibModal) {
+    var dlg;
+
     return {
         showPopup: showPopup,
         showEditPopup: showEditPopup,
         close: close
     };
-
-    var dlg;
 
     function showPopup() {
         close();
