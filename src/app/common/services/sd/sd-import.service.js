@@ -74,7 +74,7 @@ function sdImportService($uibModal, dictionaryService, sdConstants,
                 }
             }
         });
-        dlg.result.then(function(result) {
+        return dlg.result.then(function(result) {
             if (!result) {
                 return $q.reject();
             }
@@ -87,8 +87,6 @@ function sdImportService($uibModal, dictionaryService, sdConstants,
         }, function() {
             alertModal.error('This file cannot be imported. Error occurred.');
         });
-
-        return dlg.result;
     }
 
     function close() {
