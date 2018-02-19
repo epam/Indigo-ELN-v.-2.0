@@ -5,11 +5,10 @@ import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
-import java.util.function.Function;
 
 import static com.epam.indigoeln.core.model.PermissionCreationLevel.PROJECT;
-import static com.epam.indigoeln.core.model.UserPermission.VIEWER_PERMISSIONS;
 import static com.epam.indigoeln.web.rest.util.PermissionUtil.*;
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
@@ -24,53 +23,70 @@ public class ProjectPermissionHelper {
      * @param project            updating project
      * @param createdPermissions new {@link UserPermission}s for project
      */
-    public static boolean addPermissions(Project project, Set<UserPermission> createdPermissions) {
-        if (project.getAccessList().addAll(createdPermissions)) {
-            project.getNotebooks().forEach(notebook ->
-                    NotebookPermissionHelper.addPermissionsFromProject(notebook, createdPermissions));
-            return true;
+    public static Pair<PermissionChanges<Project>, Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>>
+    addPermissions(Project project, Set<UserPermission> createdPermissions) {
+
+        Set<UserPermission> addedToProjectPermissions = PermissionUtil.addAllIfNotPresent(project, createdPermissions);
+
+        Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>> notebookAndExperimentsChanges = emptyMap();
+        if (!addedToProjectPermissions.isEmpty()) {
+            notebookAndExperimentsChanges =
+                    project.getNotebooks().stream()
+                            .map(notebook ->
+                                    NotebookPermissionHelper
+                                            .addPermissionsFromProject(notebook, addedToProjectPermissions))
+                            .collect(toMap(Pair::getKey, Pair::getValue));
         }
-        return false;
+        return Pair.of(
+                PermissionChanges.ofCreatedPermissions(project, addedToProjectPermissions),
+                notebookAndExperimentsChanges
+        );
     }
 
-    public static Map<Notebook, List<Experiment>> updatePermissions(Project project, Set<UserPermission> updatedPermissions) {
+    public static Pair<PermissionChanges<Project>, Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>>
+    updatePermissions(Project project, Set<UserPermission> updatedPermissions) {
+
         project.getAccessList().removeIf(userPermission -> hasUser(updatedPermissions, userPermission));
-        project.getAccessList().addAll(updatedPermissions);
+        Set<UserPermission> updatesProjectPermissions = PermissionUtil.addAllIfNotPresent(project, updatedPermissions);
 
-        return project.getNotebooks().stream()
-                .map(notebook ->
-                        NotebookPermissionHelper.updatePermissionFromProject(notebook, updatedPermissions))
-                .filter(Objects::nonNull)
-                .collect(toMap(Pair::getLeft, Pair::getRight));
+        Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>> notebookAndExperimentsChanges =
+                project.getNotebooks().stream()
+                        .map(notebook ->
+                                NotebookPermissionHelper
+                                        .updatePermissionFromProject(notebook, updatesProjectPermissions))
+                        .collect(toMap(Pair::getLeft, Pair::getRight));
+
+        return Pair.of(
+                PermissionChanges.ofUpdatedPermissions(project, updatesProjectPermissions),
+                notebookAndExperimentsChanges
+        );
     }
 
-    public static void removePermission(Project project, Set<UserPermission> removedPermissions) {
-        project.getAccessList().removeIf(userPermission -> hasUser(removedPermissions, userPermission));
+    public static Pair<PermissionChanges<Project>, Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>>
+    removePermission(Project project, Set<UserPermission> removedPermissions) {
 
-        project.getNotebooks().forEach(notebook ->
-                NotebookPermissionHelper.removePermissionFromProject(notebook, removedPermissions));
+        Set<UserPermission> removedFromProjectPermissions =
+                removeIf(project.getAccessList(), userPermission -> hasUser(removedPermissions, userPermission));
+
+        Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>> notebookAndExperimentChanges =
+                project.getNotebooks().stream().map(notebook ->
+                        NotebookPermissionHelper.removePermissionFromProject(notebook, removedFromProjectPermissions))
+                        .collect(toMap(Pair::getLeft, Pair::getRight));
+
+        return Pair.of(
+                PermissionChanges.ofRemovedPermissions(project, removedFromProjectPermissions),
+                notebookAndExperimentChanges);
     }
 
-    static boolean addPermissionsFromNotebook(Project project, Set<UserPermission> addedPermissions) {
+    static PermissionChanges<Project> addPermissionsFromNotebook(Project project, Set<UserPermission> addedToNotebookPermissions) {
 
-        boolean result = false;
-
-        for (UserPermission addedPermission : addedPermissions) {
-            UserPermission presentedPermission =
-                    findPermissionsByUserId(project.getAccessList(), addedPermission.getUser().getId());
-            if (presentedPermission == null) {
-                project.getAccessList().add(
-                        new UserPermission(addedPermission.getUser(), VIEWER_PERMISSIONS,
-                                addedPermission.getPermissionCreationLevel()));
-                result = true;
-            }
-        }
-        return result;
+        Set<UserPermission> addedToProjectPermissions = addAllAsViewerIfNotPresent(project, addedToNotebookPermissions);
+        return PermissionChanges.ofCreatedPermissions(project, addedToProjectPermissions);
     }
 
-    static boolean removePermissionFromNotebook(Project project,
-                                                Notebook fromNotebook,
-                                                Set<UserPermission> removedFromNotebook
+    static PermissionChanges<Project> removePermissionFromNotebook(Project project,
+                                                                   Notebook fromNotebook,
+                                                                   Set<UserPermission> removedFromNotebook
     ) {
 
         Set<UserPermission> presentedInOtherNotebooks = project.getNotebooks().stream()
@@ -83,7 +99,11 @@ public class ProjectPermissionHelper {
                         .filter(removedPermission ->
                                 !hasUser(presentedInOtherNotebooks, removedPermission)).collect(toSet());
 
-        return project.getAccessList().removeIf(userPermission -> hasUser(canBeRemovedFromProject, userPermission));
+        Set<UserPermission> removedFromProjectPermissions =
+                removeIf(project.getAccessList(), userPermission -> hasUser(canBeRemovedFromProject, userPermission));
+
+        return PermissionChanges.ofRemovedPermissions(project, removedFromProjectPermissions);
+
     }
 
     /**
@@ -93,53 +113,71 @@ public class ProjectPermissionHelper {
      * @param newUserPermissions permissions that should be applied
      * @return Map of updated notebooks and their updated experiments
      */
-    public static Map<Notebook, List<Experiment>> changeProjectPermissions(Project project,
-                                                                           Set<UserPermission> newUserPermissions
+    public static Pair<PermissionChanges<Project>, Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>> changeProjectPermissions(
+            Project project,
+            Set<UserPermission> newUserPermissions
     ) {
 
-        boolean allExperimentsAndNotebooksWasChanged = false;
-        Map<Notebook, List<Experiment>> changedNotebooksAndExperiments = new HashMap<>();
+        Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>> changedNotebooksAndExperiments = new HashMap<>();
+        PermissionChanges<Project> projectPermissionChanges = new PermissionChanges<>(project);
 
         Set<UserPermission> createdPermissions = getCreatedPermission(project, newUserPermissions, PROJECT);
 
         if (!createdPermissions.isEmpty()) {
 
-            allExperimentsAndNotebooksWasChanged = true;
-            addPermissions(project, createdPermissions);
+            Pair<PermissionChanges<Project>, Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>>
+                    changes = addPermissions(project, createdPermissions);
+
+            changedNotebooksAndExperiments.putAll(changes.getValue());
+            projectPermissionChanges.merge(changes.getLeft());
         }
 
         Set<UserPermission> updatedPermissions = getUpdatedPermissions(project, newUserPermissions, PROJECT);
 
         if (!updatedPermissions.isEmpty()) {
 
-            changedNotebooksAndExperiments = updatePermissions(project, updatedPermissions);
+            Pair<PermissionChanges<Project>, Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>>
+                    changes = updatePermissions(project, updatedPermissions);
+
+            addChangesToMap(changedNotebooksAndExperiments, changes.getRight());
+            projectPermissionChanges.merge(changes.getLeft());
         }
 
         Set<UserPermission> removedPermissions = getRemovedPermissions(project, newUserPermissions);
 
         if (!removedPermissions.isEmpty()) {
 
-            allExperimentsAndNotebooksWasChanged = true;
-            removePermission(project, removedPermissions);
+            Pair<PermissionChanges<Project>, Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>>
+                    changes = removePermission(project, removedPermissions);
+
+            addChangesToMap(changedNotebooksAndExperiments, changes.getRight());
+            projectPermissionChanges.merge(changes.getLeft());
         }
 
-        return allExperimentsAndNotebooksWasChanged ?
-                allExperimentsAndNotebooks(project) :
-                changedNotebooksAndExperiments;
+        return Pair.of(projectPermissionChanges, changedNotebooksAndExperiments);
     }
 
-    private static Map<Notebook, List<Experiment>> allExperimentsAndNotebooks(Project project) {
-        return project.getNotebooks().stream().collect(toMap(Function.identity(), Notebook::getExperiments));
+    private static void addChangesToMap(
+            Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>> origin,
+            Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>> notebookAndExperimentChanges
+    ) {
+        for (Map.Entry<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>> entry
+                : notebookAndExperimentChanges.entrySet()) {
+
+            origin.merge(entry.getKey(), entry.getValue(), (listOne, listTwo) -> {
+                List<PermissionChanges<Experiment>> newList = new ArrayList<>(listOne);
+                newList.addAll(listTwo);
+                return newList;
+            });
+        }
     }
 
-    public static void fillNewProjectPermissions(Project project, User user) {
+    public static PermissionChanges<Project> fillNewProjectPermissions(Project project, User user) {
         Set<UserPermission> accessList = project.getAccessList();
         project.setAccessList(new HashSet<>());
         project.setNotebooks(Collections.emptyList());
         PermissionUtil.addOwnerToAccessList(project.getAccessList(), user, PROJECT);
 
-        updatePermissions(project, getUpdatedPermissions(project, accessList, PROJECT));
-        addPermissions(project, getCreatedPermission(project, accessList, PROJECT));
-
+        return addPermissions(project, getCreatedPermission(project, accessList, PROJECT)).getLeft();
     }
 }

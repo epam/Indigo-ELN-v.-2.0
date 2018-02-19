@@ -28,7 +28,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 /**
  * Service class for managing users.
@@ -311,8 +310,11 @@ public class UserService {
      */
     public Set<User> getContentEditors() {
 
-        return roleRepository.findAllByAuthorities(Authority.CONTENT_EDITOR)
-                .flatMap(role -> userRepository.findByRoleId(role.getId()).stream())
-                .collect(toSet());
+        List<String> contentEditorRoles = roleRepository
+                .findAllByAuthorities(Authority.CONTENT_EDITOR)
+                .map(Role::getId)
+                .collect(toList());
+
+        return userRepository.findAllByRolesIdIn(contentEditorRoles);
     }
 }
