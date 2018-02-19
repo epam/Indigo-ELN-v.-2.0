@@ -5,6 +5,8 @@ var experimentSelectSignatureTemplateModal =
 /* @ngInject */
 function experimentUtil($state, $uibModal, $q, experimentService, permissionService, signatureTemplatesService,
                         signatureDocumentService, componentsUtil, notifyService, entityTreeService) {
+    var dlg;
+
     return {
         versionExperiment: versionExperiment,
         repeatExperiment: repeatExperiment,
@@ -13,8 +15,6 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionServ
         completeExperimentAndSign: completeExperimentAndSign,
         closeDialog: closeDialog
     };
-
-    var dlg;
 
     function goToExperimentDetail(result, params) {
         $state.go('entities.experiment-detail', {

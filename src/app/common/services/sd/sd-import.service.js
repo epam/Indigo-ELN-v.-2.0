@@ -3,12 +3,12 @@ var template = require('../../components/file-uploader/single-file-uploader/sing
 /* @ngInject */
 function sdImportService($uibModal, dictionaryService, sdConstants,
                          alertModal, apiUrl, sdImportHelper, $q) {
+    var dlg;
+
     return {
         importFile: importFile,
         closeDialog: close
     };
-
-    var dlg;
 
     function importValues(sdUnitToImport, property, index, dicts, itemToImport) {
         var propCode = getPropertyCode(property, index);

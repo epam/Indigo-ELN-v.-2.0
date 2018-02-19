@@ -3,13 +3,13 @@ var newNotebookModal = require('../../../notebook/select-parent/notebook-select-
 
 /* @ngInject */
 function modalHelper($uibModal) {
+    var dlg;
+
     return {
         openCreateNewExperimentModal: openCreateNewExperimentModal,
         openCreateNewNotebookModal: openCreateNewNotebookModal,
         close: close
     };
-
-    var dlg;
 
     function openCreateNewExperimentModal(resolve) {
         close();
