@@ -38,7 +38,6 @@ public class NotebookResource {
 
     private static final String PARENT_PATH_ID = "projects/{projectId:[\\d]+}/notebooks";
     private static final String PATH_ID = PARENT_PATH_ID + "/{id:[\\d]+}";
-    private static final String TREE_NODE_PATH_ID = PARENT_PATH_ID + "/notebook/{id:[\\d]+}";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NotebookResource.class);
 
@@ -68,24 +67,6 @@ public class NotebookResource {
         LOGGER.debug("REST request to get all notebooks of project: {} according to user permissions", projectId);
         User user = userService.getUserWithAuthorities();
         return notebookService.getAllNotebookTreeNodes(projectId, user);
-    }
-
-    /**
-     * GET  /notebooks/notebook/:id -> Returns notebook with specified id for tree.
-     *
-     * @param id Notebook id
-     * @return Returns notebook with specified id
-     */
-    @ApiOperation(value = "Returns notebook by it's id for tree.")
-    @RequestMapping(value = TREE_NODE_PATH_ID, method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TreeNodeDTO> getNotebookAsTree(
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String id
-    ) {
-        LOGGER.debug("REST request to get notebook: {}", id);
-        TreeNodeDTO notebook = notebookService.getNotebookAsTreeNode(projectId, id);
-        return ResponseEntity.ok(notebook);
     }
 
     /**

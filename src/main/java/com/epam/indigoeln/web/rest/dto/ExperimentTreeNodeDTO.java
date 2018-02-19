@@ -2,19 +2,16 @@ package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.ExperimentStatus;
+import com.epam.indigoeln.core.util.JSR310DateConverters;
 import com.mongodb.DBObject;
 import lombok.val;
-
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 /**
  * A DTO for representing Experiment like a Tree Node with its properties.
  */
 public class ExperimentTreeNodeDTO extends TreeNodeDTO {
-
-    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("EE MMM dd HH:mm:ss z yyyy");
 
     private String status;
     private String authorFullName;
@@ -34,8 +31,9 @@ public class ExperimentTreeNodeDTO extends TreeNodeDTO {
     public ExperimentTreeNodeDTO(DBObject obj) {
         super(obj);
         this.status = ExperimentStatus.fromValue(String.valueOf(obj.get("status"))).toString();
-        this.creationDate = ZonedDateTime.parse(String.valueOf(obj.get("creationDate")),
-                dateTimeFormatter.withZone(ZoneId.systemDefault()));
+        this.creationDate = JSR310DateConverters
+                .DateToZonedDateTimeConverter.INSTANCE.convert((Date)obj.get("creationDate"));
+
         val experimentName = String.valueOf(obj.get("name"));
         val experimentVersion = Integer.parseInt(String.valueOf(obj.get("experimentVersion")));
         val lastVersion = Boolean.parseBoolean(String.valueOf(obj.get("lastVersion")));

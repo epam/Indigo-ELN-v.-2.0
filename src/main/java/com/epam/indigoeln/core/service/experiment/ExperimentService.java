@@ -179,15 +179,16 @@ public class ExperimentService {
                     throw OperationDeniedException
                             .createNotebookSubEntitiesReadOperation(String.valueOf(notebook.get("_id")));
                 }
+
+                experiments.removeIf(experiment -> {
+                    val experimentAccessList = new HashSet<UserPermission>();
+                    ((Iterable) experiment.get("accessList"))
+                            .forEach(a -> experimentAccessList.add(new UserPermission((DBObject) a)));
+                    return !PermissionUtil.hasUser(experimentAccessList, user);
+                });
             }
 
             List<ExperimentTreeNodeDTO> result = experiments.stream()
-                    .filter(experiment -> {
-                        val experimentAccessList = new HashSet<UserPermission>();
-                        ((Iterable) experiment.get("accessList"))
-                                .forEach(a -> experimentAccessList.add(new UserPermission((DBObject) a)));
-                        return PermissionUtil.hasUser(experimentAccessList, user);
-                    })
                     .map(ExperimentTreeNodeDTO::new)
                     .collect(Collectors.toList());
 

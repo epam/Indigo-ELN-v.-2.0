@@ -150,19 +150,6 @@ public class ExperimentResource {
         return ResponseEntity.ok(experimentDTO);
     }
 
-    @ApiOperation(value = "Returns experiment with specified id for tree.")
-    @RequestMapping(value = "/experiment" + PATH_ID, method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ExperimentTreeNodeDTO> getExperimentAsTreeNode(
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String notebookId,
-            @ApiParam("Experiment id") @PathVariable String id
-    ) {
-        ExperimentTreeNodeDTO experimentTreeNodeDTO = experimentService
-                .getExperimentAsTreeNode(projectId, notebookId, id);
-        return ResponseEntity.ok(experimentTreeNodeDTO);
-    }
-
     /**
      * GET  /experiments/:id/batch_number -> Returns batch_number.
      *
