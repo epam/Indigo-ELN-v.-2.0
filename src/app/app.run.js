@@ -74,9 +74,7 @@ function appRun($rootScope, $window, $state, $uibModal, editableOptions, authSer
             countdownDialog.close();
             countdownDialog = null;
         }
-        authService.logout().finally(function() {
-            $state.go('login');
-        });
+        authService.logout();
     });
 
     $rootScope.back = function() {

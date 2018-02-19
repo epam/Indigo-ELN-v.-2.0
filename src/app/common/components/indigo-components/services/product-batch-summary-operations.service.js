@@ -169,6 +169,9 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
 
     function importSDFile(experiment) {
         return sdImportService.importFile().then(function(sdUnits) {
+            if (!sdUnits) {
+                return $q.reject();
+            }
             var promises = _.map(sdUnits, function(unit) {
                 return createBatch(unit, null, experiment);
             });
