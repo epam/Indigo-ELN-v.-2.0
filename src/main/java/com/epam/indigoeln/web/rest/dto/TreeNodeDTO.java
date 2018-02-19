@@ -17,6 +17,7 @@ public class TreeNodeDTO {
     private String id;
     private String fullId;
     private String name;
+    private Long version;
     public static final Comparator<TreeNodeDTO> NAME_COMPARATOR =
             (o1, o2) -> o1.getName().compareTo(o2.getName());
     private HashSet<UserPermission> accessList;
@@ -25,10 +26,11 @@ public class TreeNodeDTO {
         super();
     }
 
-    public TreeNodeDTO(BasicModelObject obj) {
+    TreeNodeDTO(BasicModelObject obj) {
         this.id = SequenceIdUtil.extractShortId(obj);
         this.fullId = obj.getId();
         this.name = obj.getName();
+        this.version = obj.getVersion();
         this.accessList = new HashSet<>(obj.getAccessList());
     }
 
@@ -36,6 +38,7 @@ public class TreeNodeDTO {
         this.id = SequenceIdUtil.extractShortId(String.valueOf(obj.get("_id")));
         this.fullId = String.valueOf(obj.get("_id"));
         this.name = String.valueOf(obj.get("name"));
+        this.version = (long)obj.get("version");
     }
 
     public String getId() {
@@ -68,5 +71,13 @@ public class TreeNodeDTO {
 
     public void setAccessList(Set<UserPermission> accessList) {
         this.accessList = accessList == null ? null : new HashSet<>(accessList);
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 }

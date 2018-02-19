@@ -2,8 +2,11 @@ package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.ExperimentStatus;
+import com.epam.indigoeln.core.util.JSR310DateConverters;
 import com.mongodb.DBObject;
 import lombok.val;
+import java.time.ZonedDateTime;
+import java.util.Date;
 
 /**
  * A DTO for representing Experiment like a Tree Node with its properties.
@@ -11,6 +14,9 @@ import lombok.val;
 public class ExperimentTreeNodeDTO extends TreeNodeDTO {
 
     private String status;
+    private String authorFullName;
+    private String reactionImage;
+    private ZonedDateTime creationDate;
 
     public ExperimentTreeNodeDTO() {
         super();
@@ -25,6 +31,8 @@ public class ExperimentTreeNodeDTO extends TreeNodeDTO {
     public ExperimentTreeNodeDTO(DBObject obj) {
         super(obj);
         this.status = ExperimentStatus.fromValue(String.valueOf(obj.get("status"))).toString();
+        this.creationDate = JSR310DateConverters
+                .DateToZonedDateTimeConverter.INSTANCE.convert((Date)obj.get("creationDate"));
 
         val experimentName = String.valueOf(obj.get("name"));
         val experimentVersion = Integer.parseInt(String.valueOf(obj.get("experimentVersion")));
@@ -43,5 +51,29 @@ public class ExperimentTreeNodeDTO extends TreeNodeDTO {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getAuthorFullName() {
+        return authorFullName;
+    }
+
+    public void setAuthorFullName(String authorFullName) {
+        this.authorFullName = authorFullName;
+    }
+
+    public String getReactionImage() {
+        return reactionImage;
+    }
+
+    public void setReactionImage(String reactionImage) {
+        this.reactionImage = reactionImage;
+    }
+
+    public ZonedDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(ZonedDateTime creationDate) {
+        this.creationDate = creationDate;
     }
 }
