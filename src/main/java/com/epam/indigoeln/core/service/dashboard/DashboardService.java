@@ -5,6 +5,7 @@ import com.epam.indigoeln.config.DashboardProperties;
 import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.service.signature.SignatureService;
 import com.epam.indigoeln.core.service.user.UserService;
+import com.epam.indigoeln.core.util.JSR310DateConverters;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.DashboardResource;
 import com.epam.indigoeln.web.rest.dto.DashboardDTO;
@@ -22,7 +23,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -73,7 +73,7 @@ public class DashboardService {
 
         val zonedThreshold = ZonedDateTime.now()
                 .minus(dashboardProperties.getThresholdLevel(), dashboardProperties.getThresholdUnit());
-        val threshold = new Date(zonedThreshold.toEpochSecond() * 1000);
+        val threshold = JSR310DateConverters.ZonedDateTimeToDateConverter.INSTANCE.convert(zonedThreshold);
 
         // Load all necessary entities
 
@@ -284,8 +284,9 @@ public class DashboardService {
         result.setId(notebook.get("name") + "-" + experiment.get("name"));
         result.setStatus(ExperimentStatus.fromValue(String.valueOf(experiment.get("status"))));
         result.setProject(String.valueOf(project.get("name")));
-        result.setCreationDate(ZonedDateTime.ofInstant(((Date) experiment.get("creationDate")).toInstant(), ZoneOffset.UTC));
-        result.setLastEditDate(ZonedDateTime.ofInstant(((Date) experiment.get("lastEditDate")).toInstant(), ZoneOffset.UTC));
+
+        result.setCreationDate(JSR310DateConverters.DateToZonedDateTimeConverter.INSTANCE.convert((Date) experiment.get("creationDate")));
+        result.setLastEditDate(JSR310DateConverters.DateToZonedDateTimeConverter.INSTANCE.convert((Date) experiment.get("lastEditDate")));
 
         Iterable coAuthors = null;
         String title = null;
