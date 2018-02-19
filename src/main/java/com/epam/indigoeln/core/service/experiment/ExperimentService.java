@@ -145,6 +145,7 @@ public class ExperimentService {
         val notebookCollection = mongoTemplate.getCollection(Notebook.COLLECTION_NAME);
         val experimentCollection = mongoTemplate.getCollection(Experiment.COLLECTION_NAME);
         val userCollection = mongoTemplate.getCollection(User.COLLECTION_NAME);
+        val componentCollection = mongoTemplate.getCollection(Component.COLLECTION_NAME);
 
         val notebook = notebookCollection
                 .findOne(new BasicDBObject().append("_id", SequenceIdUtil.buildFullId(projectId, notebookId)));
@@ -156,7 +157,7 @@ public class ExperimentService {
         if (notebook.get("experiments") instanceof Iterable) {
             val experimentIds = new ArrayList<String>();
             ((Iterable) notebook.get("experiments"))
-                    .forEach(e -> experimentIds.add(String.valueOf(String.valueOf(((DBRef) e).getId()))));
+                    .forEach(e -> experimentIds.add(String.valueOf(((DBRef) e).getId())));
 
             val experiments = new ArrayList<DBObject>();
             experimentCollection.find(new BasicDBObject()
@@ -165,7 +166,8 @@ public class ExperimentService {
 
             Map<Object, Object> experimentsWithUsers = getExperimentsWithUsers(experiments, userCollection);
 
-            List<Experiment> experimentsFromRepository = experimentRepository.findExperimentsByIdIn(experimentIds);
+            Map<Object, List<Object>> experimentsWithComponents =
+                    getExperimentsWithComponents(experiments, componentCollection);
 
             if (user != null) {
                 val notebookAccessList = new HashSet<UserPermission>();
@@ -191,9 +193,7 @@ public class ExperimentService {
 
             result.forEach(e -> {
                 Optional<BasicDBObject> opt = (Optional<BasicDBObject>) experimentsWithUsers.get(e.getFullId());
-                Optional<Experiment> experiment = experimentsFromRepository.stream()
-                        .filter(exp -> e.getFullId().equals(exp.getId()))
-                        .findFirst();
+                val components = experimentsWithComponents.get(e.getFullId());
                 if (opt.isPresent()) {
                     e.setAuthorFullName(String.format("%s %s",
                             opt.get().get("first_name"), opt.get().get("last_name")));
@@ -201,9 +201,10 @@ public class ExperimentService {
                     e.setAuthorFullName("");
                 }
                 String image = "";
-                if (experiment.isPresent()) {
-                    List<Component> components = experiment.get().getComponents();
-                    image = components.get(components.size() - 1).getContent().get("image").toString();
+                if (components != null) {
+                    val imageObject = ((BasicDBObject) ((BasicDBObject) components.get(components.size() - 1))
+                            .get("content")).get("image");
+                    image = String.valueOf(imageObject);
                 }
                 e.setReactionImage(image);
             });
@@ -237,6 +238,28 @@ public class ExperimentService {
             result.setAuthorFullName(e.getAuthor().getFullName());
         }
         return result;
+    }
+
+    private Map<Object, List<Object>> getExperimentsWithComponents(List<DBObject> experiments,
+                                                                   DBCollection componentCollection) {
+        Map<Object, List<Object>> experimentsWithComponents = new HashMap<>();
+
+        experiments.forEach(e -> {
+            List<Object> componentIds = new ArrayList<>();
+            ((Iterable) e.get("components"))
+                    .forEach(c -> componentIds.add(((DBRef) c).getId()));
+            experimentsWithComponents.put(e.get("_id"), componentIds);
+        });
+
+        experimentsWithComponents.entrySet().forEach(entryObject -> {
+            List<Object> components = new ArrayList<>();
+            componentCollection
+                    .find(new BasicDBObject("_id", new BasicDBObject().append("$in", entryObject.getValue())))
+                    .forEach(components::add);
+            entryObject.setValue(components);
+        });
+
+        return experimentsWithComponents;
     }
 
 
