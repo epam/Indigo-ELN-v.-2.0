@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static com.epam.indigoeln.core.util.WebSocketUtil.getPermissionsUpdateRecipients;
+import static com.epam.indigoeln.core.util.WebSocketUtil.getEntityUpdateRecipients;
 import static com.epam.indigoeln.core.util.WebSocketUtil.getSubEntityChangesRecipients;
 import static java.util.stream.Collectors.toSet;
 
@@ -220,14 +220,15 @@ public class ProjectService {
         Pair<PermissionChanges<Project>, Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>>
                 changes = ProjectPermissionHelper.changeProjectPermissions(projectFromDb, project.getAccessList());
 
+        Set<User> contentEditors = userService.getContentEditors();
+        sendProjectNotifications(user, projectFromDb, changes.getLeft(), contentEditors);
         if (changes.getLeft().hadChanged()) {
-            webSocketUtil.newProject(user, getSubEntityChangesRecipients(changes.getLeft()));
 
-            updateNotebooksAndSendNotifications(user, projectFromDb, changes.getRight().keySet());
+            updateNotebooksAndSendNotifications(user, projectFromDb, changes.getRight().keySet(), contentEditors);
             updateExperimentsAndSendNotifications(user, projectFromDb,
                     changes.getRight().entrySet().stream()
                             .map(e -> Pair.of(e.getKey(), e.getValue()))
-                            .collect(Collectors.toList()));
+                            .collect(Collectors.toList()), contentEditors);
         }
 
         Project savedProject = saveProjectAndHandleError(projectFromDb);
@@ -235,9 +236,22 @@ public class ProjectService {
         return new ProjectDTO(savedProject);
     }
 
+    private void sendProjectNotifications(User user,
+                                          Project projectFromDb,
+                                          PermissionChanges<Project> projectPermissionChanges,
+                                          Set<User> contentEditors
+    ) {
+        webSocketUtil.newProject(user, getSubEntityChangesRecipients(projectPermissionChanges));
+        Stream<String> recipients =
+                getEntityUpdateRecipients(contentEditors, projectFromDb, user.getId())
+                        .distinct();
+        webSocketUtil.updateProject(user, projectFromDb, recipients);
+    }
+
     private void updateNotebooksAndSendNotifications(User user,
                                                      Project projectFromDb,
-                                                     Set<PermissionChanges<Notebook>> permissionChanges
+                                                     Set<PermissionChanges<Notebook>> permissionChanges,
+                                                     Set<User> contentEditors
     ) {
         Set<PermissionChanges<Notebook>> notebooksChanges = permissionChanges
                 .stream()
@@ -254,14 +268,16 @@ public class ProjectService {
         notebooksChanges.forEach(notebookPermissionChanges ->
                 webSocketUtil.updateNotebook(user, projectFromDb.getId(),
                         notebookPermissionChanges.getEntity(),
-                        getPermissionsUpdateRecipients(notebookPermissionChanges))
-        );
+                        getEntityUpdateRecipients(contentEditors,
+                                notebookPermissionChanges.getEntity(),
+                                user.getId())));
     }
 
     private void updateExperimentsAndSendNotifications(
             User user,
             Project projectFromDb,
-            List<Pair<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>> changes
+            List<Pair<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>> changes,
+            Set<User> contentEditors
     ) {
         for (Pair<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>> change : changes) {
             if (change.getKey().hadChanged()) {
@@ -279,8 +295,9 @@ public class ProjectService {
                         webSocketUtil.updateExperiment(user, projectFromDb.getId(),
                                 change.getKey().getEntity().getId(),
                                 experimentPermissionChanges.getEntity(),
-                                getPermissionsUpdateRecipients(experimentPermissionChanges)
-                        ));
+                                getEntityUpdateRecipients(contentEditors,
+                                        experimentPermissionChanges.getEntity(),
+                                        user.getId())));
             }
         }
     }

@@ -147,27 +147,16 @@ public class WebSocketUtil {
      *
      * @param contentEditors users with CONTENT_EDITOR authorities.
      * @param updatedEntity  updated entity
+     * @param exceptUser     user name of user that shouldn't be notified
      * @return stream of user-names that should be notified about updatedEntity changing
      */
-    public static Stream<String> getEntityUpdateRecipients(Set<User> contentEditors, BasicModelObject updatedEntity) {
+    public static Stream<String> getEntityUpdateRecipients(Set<User> contentEditors, BasicModelObject updatedEntity, String exceptUser) {
         return Stream.concat(
                 contentEditors.stream(),
                 updatedEntity.getAccessList().stream().map(UserPermission::getUser)
         )
                 .map(User::getId)
-                .distinct();
-    }
-
-    /**
-     * User names to notify about updated entity permissions for them.
-     *
-     * @param permissionChanges permission changes and entity
-     * @return stream of user-names that should be notified about permissionChanges
-     */
-    public static Stream<String> getPermissionsUpdateRecipients(
-            PermissionChanges<?> permissionChanges) {
-        return permissionChanges.getUpdatedPermissions().stream().map(UserPermission::getUser)
-                .map(User::getId)
+                .filter(userName -> !userName.equals(exceptUser))
                 .distinct();
     }
 
