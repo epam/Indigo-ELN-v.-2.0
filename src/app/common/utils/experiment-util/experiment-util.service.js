@@ -129,7 +129,7 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionServ
                         }
                     }
                 });
-                dlg.result
+                return dlg.result
                     .then(function(template) {
                         if (template) {
                             var templates = componentsUtil.getComponentsFromTemplateContent(componentTemplates);
@@ -147,8 +147,6 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionServ
 
                         return $q.reject();
                     });
-
-                return dlg.result;
             });
     }
 
