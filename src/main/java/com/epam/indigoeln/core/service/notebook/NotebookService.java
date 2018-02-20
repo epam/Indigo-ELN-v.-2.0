@@ -307,7 +307,7 @@ public class NotebookService {
 
             Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>
                     permissionsChanges = NotebookPermissionHelper
-                    .changeNotebookPermissions(project, notebookFromDB, notebook.getAccessList());
+                    .changeNotebookPermissions(project, notebookFromDB, notebook.getAccessList(), user);
 
             Set<User> contentEditors = userService.getContentEditors();
 

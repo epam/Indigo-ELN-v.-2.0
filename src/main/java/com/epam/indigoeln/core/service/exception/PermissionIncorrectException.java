@@ -31,6 +31,17 @@ public final class PermissionIncorrectException extends CustomParametrizedExcept
     }
 
     /**
+     * Creates instance of PermissionIncorrectException if user try to change his own permissions for some entity.
+     *
+     * @param userId User's id
+     * @return Instance of PermissionIncorrectException
+     */
+    public static PermissionIncorrectException createWithUserIdOnSelfPermissionChanges(String userId) {
+        return new PermissionIncorrectException("The user permission for user with id = " + userId +
+                " can't be changed by user himself", userId);
+    }
+
+    /**
      * Creates instance of PermissionIncorrectException if user permission can't be with unspecified user id.
      *
      * @return Instance of PermissionIncorrectException

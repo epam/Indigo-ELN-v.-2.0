@@ -185,8 +185,10 @@ public final class PermissionUtil {
     }
 
     /**
-     * @param entity
-     * @param addingPermissions
+     * Add addingPermissions to entity's access list.
+     *
+     * @param entity            entity to change access list
+     * @param addingPermissions adding permissions
      * @return added permissions
      */
     public static Set<UserPermission> addAllIfNotPresent(BasicModelObject entity, Set<UserPermission> addingPermissions) {
@@ -227,18 +229,23 @@ public final class PermissionUtil {
      * @param entity             modifying entity
      * @param newUserPermissions applied permission list
      * @param creationLevel      level of applying
+     * @param authorOfChanges    author of changed permissions
      * @return updated permissions
      */
     public static Set<UserPermission> getUpdatedPermissions(BasicModelObject entity,
                                                             Set<UserPermission> newUserPermissions,
-                                                            PermissionCreationLevel creationLevel
+                                                            PermissionCreationLevel creationLevel, User authorOfChanges
     ) {
-        return newUserPermissions.stream()
+        Set<UserPermission> updatedPermissions = newUserPermissions.stream()
                 .filter(newPermission -> entity.getAccessList().stream().anyMatch(oldPermission ->
                         equalsByUserId(newPermission, oldPermission)
                                 && !oldPermission.getPermissions().equals(newPermission.getPermissions())))
                 .map(userPermission -> userPermission.setPermissionCreationLevel(creationLevel))
                 .collect(toSet());
+        if (hasUser(updatedPermissions, authorOfChanges)) {
+            throw PermissionIncorrectException.createWithUserIdOnSelfPermissionChanges(authorOfChanges.getId());
+        }
+        return updatedPermissions;
     }
 
     /**

@@ -222,12 +222,14 @@ public class NotebookPermissionHelper {
      * @param project            Project that contains {@code notebook}
      * @param notebook           Notebook to change permissions
      * @param newUserPermissions permissions that should be applied
+     * @param authorOfChanges    author of permissions changes
      * @return {@code Pair.of(wasProjectChanged, changedExperiments)}
      */
     public static Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>
     changeNotebookPermissions(Project project,
                               Notebook notebook,
-                              Set<UserPermission> newUserPermissions
+                              Set<UserPermission> newUserPermissions,
+                              User authorOfChanges
     ) {
         List<PermissionChanges<Experiment>> changedExperiments = new ArrayList<>(notebook.getExperiments().size());
         PermissionChanges<Notebook> notebookPermissionChanges = new PermissionChanges<>(notebook);
@@ -235,8 +237,8 @@ public class NotebookPermissionHelper {
 
         Set<UserPermission> createdPermissions = getCreatedPermission(notebook, newUserPermissions, NOTEBOOK);
         if (!createdPermissions.isEmpty()) {
-            Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>> changes =
-                    addPermissions(project, notebook, createdPermissions);
+            Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>
+                    changes = addPermissions(project, notebook, createdPermissions);
 
             changedExperiments.addAll(changes.getRight());
             notebookPermissionChanges.merge(changes.getMiddle());
@@ -244,7 +246,8 @@ public class NotebookPermissionHelper {
 
         }
 
-        Set<UserPermission> updatedPermissions = getUpdatedPermissions(notebook, newUserPermissions, NOTEBOOK);
+        Set<UserPermission> updatedPermissions =
+                getUpdatedPermissions(notebook, newUserPermissions, NOTEBOOK, authorOfChanges);
 
         if (!updatedPermissions.isEmpty()) {
 
@@ -277,7 +280,7 @@ public class NotebookPermissionHelper {
                 accessList, project.getAccessList(), PermissionCreationLevel.PROJECT);
 
         notebook.setExperiments(emptyList());
-        updatePermissions(notebook, getUpdatedPermissions(notebook, accessList, NOTEBOOK));
+        updatePermissions(notebook, getUpdatedPermissions(notebook, accessList, NOTEBOOK, creator));
         return addPermissions(project, notebook, getCreatedPermission(notebook, accessList, NOTEBOOK));
     }
 }
