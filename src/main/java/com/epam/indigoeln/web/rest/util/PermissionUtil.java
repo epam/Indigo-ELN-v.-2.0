@@ -231,6 +231,7 @@ public final class PermissionUtil {
      * @param creationLevel      level of applying
      * @param authorOfChanges    author of changed permissions
      * @return updated permissions
+     * @throws PermissionIncorrectException if user try to update his own permission for entity
      */
     public static Set<UserPermission> getUpdatedPermissions(BasicModelObject entity,
                                                             Set<UserPermission> newUserPermissions,
