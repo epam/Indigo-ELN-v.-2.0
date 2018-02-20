@@ -113,7 +113,7 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
         }
 
         var path = _.split(vm.selectedFullId, '-');
-        var project = findNodeById(vm.tree, path[0]);
+        var project = _.find(vm.tree, {fullId: path[0]});
 
         if (!project) {
             return;
@@ -125,7 +125,7 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
 
         entityTreeService.getNotebooks(path[0], vm.isAll)
             .then(function(notebooks) {
-                var notebook = findNodeById(notebooks, path[1]);
+                var notebook = _.find(notebooks, {id: path[1]});
 
                 if (!notebook) {
                     return;
@@ -145,12 +145,6 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
             vm.tree = projects;
 
             return vm.tree;
-        });
-    }
-
-    function findNodeById(nodes, id) {
-        return _.find(nodes, function(node) {
-            return node.original.id === id;
         });
     }
 

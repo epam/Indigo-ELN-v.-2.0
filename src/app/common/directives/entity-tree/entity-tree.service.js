@@ -1,6 +1,6 @@
 /* @ngInject */
 function entityTreeService(allProjectsService, projectService, allNotebooksService, notebookService,
-                           allExperimentsService, experimentService, $q) {
+                           allExperimentsService, experimentService, $q, entityTreeFactory) {
     var allProjectsList = [];
     var projectsList = [];
     var allNotebooksList = [];
@@ -144,14 +144,12 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
 
     function getProjects(isAll) {
         var list = isAll ? allProjectsList : projectsList;
-        var service = isAll ? allProjectsService : projectService;
 
         if (!list.length) {
-            return service.query()
-                .$promise
+            return entityTreeFactory.getProjects(isAll)
                 .then(function(projects) {
                     _.forEach(projects, function(project) {
-                        var node = buildNode(project, null);
+                        var node = buildProjectNode(project, null);
                         list.push(node);
                     });
                     list.sort(sortByName);
@@ -166,7 +164,6 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
     function getNotebooks(projectId, isAll) {
         var projList = isAll ? allProjectsList : projectsList;
         var noteList = isAll ? allNotebooksList : notebooksList;
-        var service = isAll ? allNotebooksService : notebookService;
 
         var project = _.find(projList, {id: projectId});
 
@@ -174,11 +171,10 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
             return $q.resolve([]);
         }
         if (!project.hasLoadedChildren) {
-            return service.query({projectId: projectId})
-                .$promise
+            return entityTreeFactory.getNotebooks(projectId, isAll)
                 .then(function(notebooks) {
                     _.forEach(notebooks, function(notebook) {
-                        var node = buildNode(notebook, project);
+                        var node = buildNotebookNode(notebook, project);
                         project.children.push(node);
                         noteList.push(node);
                     });
@@ -195,7 +191,6 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
     function getExperiments(projectId, notebookId, isAll) {
         var noteList = isAll ? allNotebooksList : notebooksList;
         var expList = isAll ? allExperimentsList : experimentsList;
-        var service = isAll ? allExperimentsService : experimentService;
         var fullId = projectId + '-' + notebookId;
 
         var notebook = _.find(noteList, {fullId: fullId});
@@ -205,14 +200,10 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
         }
 
         if (!notebook.hasLoadedChildren) {
-            return service.query({
-                projectId: projectId,
-                notebookId: notebookId
-            })
-                .$promise
+            return entityTreeFactory.getExperiments(projectId, notebookId, isAll)
                 .then(function(experiments) {
                     _.forEach(experiments, function(experiment) {
-                        var node = buildNode(experiment, notebook);
+                        var node = buildExperimentNode(experiment, notebook);
                         notebook.children.push(node);
                         expList.push(node);
                     });
@@ -238,6 +229,57 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
             isCollapsed: true,
             original: entity,
             accessList: entity.accessList,
+            hasLoadedChildren: false
+        };
+
+        return newNode;
+    }
+
+    function buildExperimentNode(entity, parent) {
+        var newNode = {
+            id: entity.id,
+            fullId: entity.fullId,
+            name: entity.name,
+            authorFullName: entity.authorFullName,
+            creationDate: entity.creationDate,
+            status: entity.status,
+            reactionImage: entity.reactionImage,
+            params: [parent.parent.id, parent.id, entity.id],
+            parent: parent,
+            isActive: false,
+            isCollapsed: true
+        };
+
+        return newNode;
+    }
+
+    function buildNotebookNode(entity, parent) {
+        var newNode = {
+            id: entity.id,
+            fullId: entity.fullId,
+            name: entity.name,
+            version: entity.version,
+            params: [parent.id, entity.id],
+            parent: parent,
+            children: [],
+            isActive: false,
+            isCollapsed: true,
+            hasLoadedChildren: false
+        };
+
+        return newNode;
+    }
+
+    function buildProjectNode(entity) {
+        var newNode = {
+            id: entity.id,
+            fullId: entity.fullId,
+            name: entity.name,
+            version: entity.version,
+            params: [entity.id],
+            children: [],
+            isActive: false,
+            isCollapsed: true,
             hasLoadedChildren: false
         };
 

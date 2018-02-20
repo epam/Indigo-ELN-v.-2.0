@@ -68,7 +68,7 @@ function appConfig($stateProvider, $urlRouterProvider, $httpProvider, $compilePr
     $httpProvider.interceptors.push('notificationInterceptor');
 
     // 30 min of idleness
-    IdleProvider.idle(1 * 60);
+    IdleProvider.idle(30 * 60);
     // 30 sec to do something
     IdleProvider.timeout(30);
     // to allow file's export
