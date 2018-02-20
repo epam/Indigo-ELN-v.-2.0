@@ -103,7 +103,7 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
             return entityTreeService.updateNotebook;
         }
 
-        return entityTreeService.updateExperiment;
+        return entityTreeService.updateExperimentByEntity;
     }
 
     function getService(type) {

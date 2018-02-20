@@ -22,14 +22,12 @@ function entityTree() {
 }
 
 /* @ngInject */
-function EntityTreeController(entityTreeService, $timeout, experimentService, $scope, scrollToService, $element,
-                              notebookService, projectService) {
+function EntityTreeController(entityTreeService, $timeout, $scope, scrollToService, $element) {
     var vm = this;
 
     init();
 
     function init() {
-        vm.experimentsCollection = {};
         vm.toggle = toggle;
         vm.getSref = getSref;
         vm.getPopoverExperiment = _.throttle(getPopoverExperiment, 300);
@@ -50,39 +48,7 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
         var selectedFullIdListener = $scope.$watch('vm.selectedFullId', onChangedSelectedFullId);
 
         var entityUpdate = $scope.$on('entity-updated', function(event, data) {
-            if (data.entity.experimentId) {
-                var expId = data.entity.projectId + '-' + data.entity.notebookId + '-' + data.entity.experimentId;
-                var expNode = entityTreeService.getExperimentByFullId(expId);
-                var expVersion = _.get(expNode, 'version', -1);
-                if (expVersion < data.version) {
-                    experimentService.get(data.entity).$promise.then(function(exp) {
-                        vm.experimentsCollection[expId] = exp;
-                        entityTreeService.updateExperiment(exp);
-                    });
-                }
-
-                return;
-            }
-            if (data.entity.notebookId) {
-                var fullId = data.entity.projectId + '-' + data.entity.notebookId;
-                var notebookNode = entityTreeService.getNotebookByFullId(fullId);
-                var notebookVersion = _.get(notebookNode, 'version', -1);
-                if (notebookVersion < data.version) {
-                    notebookService.get(data.entity).$promise.then(function(notebook) {
-                        entityTreeService.updateNotebook(notebook);
-                    });
-                }
-
-                return;
-            }
-
-            var projNode = entityTreeService.getProjectById(data.entity.projectId);
-            var projVersion = _.get(projNode, 'version', -1);
-            if (projVersion < data.version) {
-                projectService.get(data.entity).$promise.then(function(project) {
-                    entityTreeService.updateProject(project);
-                });
-            }
+            onUpdateEntity(data.entity, data.version);
         });
 
         $element.bind('mouseout', hidePopover);
@@ -106,6 +72,23 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
                 offset: 200
             });
         });
+    }
+
+    function onUpdateEntity(entityParams, version) {
+        if (entityParams.experimentId) {
+            var expId = entityParams.projectId + '-' + entityParams.notebookId + '-' + entityParams.experimentId;
+            entityTreeService.updateExperiment(expId, version);
+
+            return;
+        }
+        if (entityParams.notebookId) {
+            var fullId = entityParams.projectId + '-' + entityParams.notebookId;
+            entityTreeService.updateNotebook(fullId, version);
+
+            return;
+        }
+
+        entityTreeService.updateProject(entityParams.projectId, version);
     }
 
     function onChangedSelectedFullId() {
@@ -155,32 +138,19 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
         }
 
         vm.popoverExperiment = node;
-
-        var nodeVersion = _.get(node, 'original.version', null);
-        var cache = vm.experimentsCollection[node.original.fullId];
-        var cachedVersion = _.get(cache, 'version', null);
-
-        if (!cache || nodeVersion !== cachedVersion) {
-            if (cache) {
-                delete vm.experimentsCollection[node.original.fullId];
-            }
-            experimentService.get(getParams(node.params)).$promise.then(function(experiment) {
-                vm.experimentsCollection[node.original.fullId] = experiment;
-                entityTreeService.updateExperiment(experiment);
-            });
-        }
     }
 
     function getSref(node) {
+        var params = angular.toJson(getParams(node.params));
         if (isProject(node)) {
-            return 'entities.project-detail(' + angular.toJson(getParams(node.params)) + ')';
+            return 'entities.project-detail(' + params + ')';
         }
 
         if (isNotebook(node)) {
-            return 'entities.notebook-detail(' + angular.toJson(getParams(node.params)) + ')';
+            return 'entities.notebook-detail(' + params + ')';
         }
 
-        return 'entities.experiment-detail(' + angular.toJson(getParams(node.params)) + ')';
+        return 'entities.experiment-detail(' + params + ')';
     }
 
     function isProject(node) {

@@ -1,8 +1,8 @@
-<li ng-class="{'active': node.original.fullId === vm.selectedFullId}"
+<li ng-class="{'active': node.fullId === vm.selectedFullId}"
     class="simple-node">
     <span class="name-wrapper">
         <a class="type-of-experiment"
-           id="{{::vm.elementId + '_' + node.original.fullId}}"
+           id="{{::vm.elementId + '_' + node.fullId}}"
            ui-sref="{{::vm.getSref(node)}}"
            ng-click="vm.toggle(node);$event.stopPropagation();"
            ng-switch="node.params.length">
@@ -18,14 +18,14 @@
             </span>
             <span ng-switch-default ng-bind="node.name"></span>
             <span class="experiment-status icon "
-                  ng-if="node.original.status"
-                  ng-class="{'icon-done': node.original.status === 'Completed',
-                              'icon-text_document': node.original.status === 'Signing',
-                              'icon-edit': node.original.status === 'Signed',
-                              'icon-paper_plane': node.original.status === 'Submitted',
-                              'icon-archive': node.original.status === 'Archived',
-                              'icon-stop': node.original.status === 'Submit_Fail',
-                              'icon-file': node.original.status === 'Open'}">
+                  ng-if="node.status"
+                  ng-class="{'icon-done': node.status === 'Completed',
+                              'icon-text_document': node.status === 'Signing',
+                              'icon-edit': node.status === 'Signed',
+                              'icon-paper_plane': node.status === 'Submitted',
+                              'icon-archive': node.status === 'Archived',
+                              'icon-stop': node.status === 'Submit_Fail',
+                              'icon-file': node.status === 'Open'}">
             </span>
         </a>
     </span>
