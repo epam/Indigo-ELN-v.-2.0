@@ -23,8 +23,8 @@ import java.util.List;
 
 @Api
 @RestController
-@RequestMapping(ExperimentResource.URL_MAPPING)
-public class TreeNodeDTOResource {
+@RequestMapping(TreeResource.URL_MAPPING)
+public class TreeResource {
 
     static final String URL_MAPPING = "/api/tree";
     private static final String PROJECTS_PATH = "/projects";
@@ -33,7 +33,7 @@ public class TreeNodeDTOResource {
     private static final String PROJECT_PATH_ID = "projects/{projectId:[\\d]+}";
     private static final String NOTEBOOK_PATH_ID = PROJECT_PATH_ID + "/notebooks/{id:[\\d]+}";
     private static final String EXPERIMENT_PATH_ID = NOTEBOOK_PATH_ID + "/experiments/{id:[\\d]+}";
-    private static final Logger LOGGER = LoggerFactory.getLogger(TreeNodeDTOResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TreeResource.class);
 
     @Autowired
     private ProjectService projectService;
