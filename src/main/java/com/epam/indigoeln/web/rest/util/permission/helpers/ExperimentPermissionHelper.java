@@ -165,13 +165,15 @@ public class ExperimentPermissionHelper {
      * @param notebook           Notebook that contains changing {@code updatedExperiment}
      * @param updatedExperiment  Experiment to change permissions
      * @param newUserPermissions permissions that should be applied
+     * @param authorOfChanges
      * @return pair of two boolean flags these mean (notebook was changed, project was changed).
      */
     public static Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, PermissionChanges<Experiment>>
     changeExperimentPermissions(Project project,
                                 Notebook notebook,
                                 Experiment updatedExperiment,
-                                Set<UserPermission> newUserPermissions
+                                Set<UserPermission> newUserPermissions,
+                                User authorOfChanges
     ) {
 
         PermissionChanges<Experiment> experimentPermissionChanges = new PermissionChanges<>(updatedExperiment);
@@ -192,7 +194,7 @@ public class ExperimentPermissionHelper {
         }
 
         Set<UserPermission> updatedPermissions =
-                getUpdatedPermissions(updatedExperiment, newUserPermissions, EXPERIMENT);
+                getUpdatedPermissions(updatedExperiment, newUserPermissions, EXPERIMENT, authorOfChanges);
 
         if (!updatedPermissions.isEmpty()) {
             PermissionChanges<Experiment> updatedExperimentPermissions = updatePermission(updatedExperiment, updatedPermissions);
@@ -229,7 +231,7 @@ public class ExperimentPermissionHelper {
 
         PermissionUtil.addUsersFromUpperLevel(permissions, notebook.getAccessList(), NOTEBOOK);
 
-        updatePermission(experiment, getUpdatedPermissions(experiment, permissions, EXPERIMENT));
+        updatePermission(experiment, getUpdatedPermissions(experiment, permissions, EXPERIMENT, creator));
         return addPermissions(project, notebook, experiment, getCreatedPermission(experiment, permissions, EXPERIMENT));
     }
 }

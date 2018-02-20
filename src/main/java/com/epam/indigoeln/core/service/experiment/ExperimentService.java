@@ -566,7 +566,7 @@ public class ExperimentService {
 
             Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, PermissionChanges<Experiment>> changes =
                     ExperimentPermissionHelper.changeExperimentPermissions(
-                            project, notebook, experimentFromDB, experimentForSave.getAccessList());
+                            project, notebook, experimentFromDB, experimentForSave.getAccessList(), user);
 
             Experiment savedExperiment;
             try {

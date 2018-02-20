@@ -111,14 +111,17 @@ public class ProjectPermissionHelper {
      *
      * @param project            project to change permissions
      * @param newUserPermissions permissions that should be applied
+     * @param authorOfChanges    author of permission changes
      * @return Map of updated notebooks and their updated experiments
      */
-    public static Pair<PermissionChanges<Project>, Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>> changeProjectPermissions(
-            Project project,
-            Set<UserPermission> newUserPermissions
+    public static Pair<PermissionChanges<Project>, Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>>
+    changeProjectPermissions(Project project,
+                             Set<UserPermission> newUserPermissions,
+                             User authorOfChanges
     ) {
 
-        Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>> changedNotebooksAndExperiments = new HashMap<>();
+        Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>> changedNotebooksAndExperiments =
+                new HashMap<>();
         PermissionChanges<Project> projectPermissionChanges = new PermissionChanges<>(project);
 
         Set<UserPermission> createdPermissions = getCreatedPermission(project, newUserPermissions, PROJECT);
@@ -132,7 +135,8 @@ public class ProjectPermissionHelper {
             projectPermissionChanges.merge(changes.getLeft());
         }
 
-        Set<UserPermission> updatedPermissions = getUpdatedPermissions(project, newUserPermissions, PROJECT);
+        Set<UserPermission> updatedPermissions =
+                getUpdatedPermissions(project, newUserPermissions, PROJECT, authorOfChanges);
 
         if (!updatedPermissions.isEmpty()) {
 

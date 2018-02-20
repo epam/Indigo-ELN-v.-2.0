@@ -235,7 +235,7 @@ public class ProjectService {
         projectFromDb.setVersion(project.getVersion());
 
         Pair<PermissionChanges<Project>, Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>>
-                changes = ProjectPermissionHelper.changeProjectPermissions(projectFromDb, project.getAccessList());
+                changes = ProjectPermissionHelper.changeProjectPermissions(projectFromDb, project.getAccessList(), user);
 
         Set<User> contentEditors = userService.getContentEditors();
         sendProjectNotifications(user, projectFromDb, changes.getLeft(), contentEditors);
