@@ -156,8 +156,8 @@ public class WebSocketUtil {
                 updatedEntity.getAccessList().stream().map(UserPermission::getUser)
         )
                 .map(User::getId)
-                .filter(userName -> !userName.equals(exceptUser))
-                .distinct();
+                .distinct()
+                .filter(userName -> !userName.equals(exceptUser));
     }
 
     /**

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.epam.indigoeln.core.model.PermissionCreationLevel.NOTEBOOK;
+import static com.epam.indigoeln.core.model.PermissionCreationLevel.PROJECT;
 import static com.epam.indigoeln.web.rest.util.PermissionUtil.*;
 import static com.epam.indigoeln.web.rest.util.permission.helpers.PermissionChanges.ofCreatedPermissions;
 import static java.util.Collections.emptyList;
@@ -68,7 +69,7 @@ public class NotebookPermissionHelper {
 
         Set<UserPermission> canBeRemovedFromProject = removedPermission.stream()
                 .filter(permission ->
-                        !permission.getPermissionCreationLevel().equals(PermissionCreationLevel.PROJECT))
+                        !permission.getPermissionCreationLevel().equals(PROJECT))
                 .collect(toSet());
 
         PermissionChanges<Project> projectChanges =
@@ -273,14 +274,12 @@ public class NotebookPermissionHelper {
 
     public static Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>
     fillNewNotebooksPermissions(Project project, Notebook notebook, User creator) {
-        Set<UserPermission> accessList = notebook.getAccessList();
+        Set<UserPermission> permissions = notebook.getAccessList();
         notebook.setAccessList(new HashSet<>());
-        PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), creator, NOTEBOOK);
-        PermissionUtil.addUsersFromUpperLevel(
-                accessList, project.getAccessList(), PermissionCreationLevel.PROJECT);
+        PermissionUtil.addOwnerToAccessList(permissions, creator, NOTEBOOK);
+        PermissionUtil.addUsersFromUpperLevel(permissions, project.getAccessList(), PROJECT);
 
         notebook.setExperiments(emptyList());
-        updatePermissions(notebook, getUpdatedPermissions(notebook, accessList, NOTEBOOK, creator));
-        return addPermissions(project, notebook, getCreatedPermission(notebook, accessList, NOTEBOOK));
+        return changeNotebookPermissions(project, notebook, permissions, creator);
     }
 }

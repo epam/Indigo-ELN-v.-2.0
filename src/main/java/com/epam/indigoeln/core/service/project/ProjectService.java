@@ -287,7 +287,7 @@ public class ProjectService {
                         notebookPermissionChanges.getEntity(),
                         getEntityUpdateRecipients(contentEditors,
                                 notebookPermissionChanges.getEntity(),
-                                user.getId())));
+                                null)));
     }
 
     private void updateExperimentsAndSendNotifications(
@@ -314,7 +314,7 @@ public class ProjectService {
                                 experimentPermissionChanges.getEntity(),
                                 getEntityUpdateRecipients(contentEditors,
                                         experimentPermissionChanges.getEntity(),
-                                        user.getId())));
+                                        null)));
             }
         }
     }

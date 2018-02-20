@@ -199,10 +199,10 @@ public class NotebookService {
         return new NotebookDTO(notebook);
     }
 
-    public TreeNodeDTO getNotebookAsTreeNode(String projectId, String notebookId){
+    public TreeNodeDTO getNotebookAsTreeNode(String projectId, String notebookId) {
         TreeNodeDTO result;
         val notebookCollection = mongoTemplate.getCollection(Notebook.COLLECTION_NAME);
-        val notebook = notebookCollection.findOne(new BasicDBObject().append("_id", projectId+"-"+notebookId));
+        val notebook = notebookCollection.findOne(new BasicDBObject().append("_id", projectId + "-" + notebookId));
         if (notebook == null) {
             throw EntityNotFoundException.createWithNotebookId(notebookId);
         }
@@ -244,10 +244,18 @@ public class NotebookService {
         Notebook savedNotebook = saveNotebookAndHandleError(notebook);
 
         project.getNotebooks().add(savedNotebook);
-        projectRepository.save(project);
+        Project savedProject = projectRepository.save(project);
 
-        webSocketUtil.newProject(user, getSubEntityChangesRecipients(changes.getLeft()));
-        webSocketUtil.newSubEntityForProject(user, project, getSubEntityChangesRecipients(changes.getMiddle()));
+        Set<User> contentEditors = userService.getContentEditors();
+        PermissionChanges<Project> projectChanges = changes.getLeft();
+        if (projectChanges.hadChanged()) {
+            webSocketUtil.updateProject(user, savedProject,
+                    getEntityUpdateRecipients(
+                            contentEditors, projectChanges.getEntity(), null));
+
+            webSocketUtil.newProject(user, getSubEntityChangesRecipients(projectChanges));
+        }
+        sendNotebookNotifications(user, project, savedNotebook, contentEditors, changes.getMiddle());
 
         return new NotebookDTO(savedNotebook);
     }
@@ -339,8 +347,7 @@ public class NotebookService {
                 getSubEntityChangesRecipients(notebooksChanges));
 
         Stream<String> recipients =
-                getEntityUpdateRecipients(contentEditors, notebook, user.getId())
-                        .distinct();
+                getEntityUpdateRecipients(contentEditors, notebook, user.getId());
 
         webSocketUtil.updateNotebook(user, project.getId(), notebook,
                 recipients);
@@ -355,7 +362,7 @@ public class NotebookService {
 
             webSocketUtil.updateProject(user, savedProject,
                     getEntityUpdateRecipients(
-                            contentEditors, permissionChanges.getEntity(), user.getId()));
+                            contentEditors, permissionChanges.getEntity(), null));
 
             webSocketUtil.newProject(user, getSubEntityChangesRecipients(permissionChanges));
         }
@@ -380,7 +387,7 @@ public class NotebookService {
                     notebookPermissionChanges.getEntity().getExperiments());
             savedExperiments.forEach(experiment ->
                     webSocketUtil.updateExperiment(user, projectId, parentNotebook.getId(), experiment,
-                            getEntityUpdateRecipients(contentEditors, experiment, user.getId())));
+                            getEntityUpdateRecipients(contentEditors, experiment, null)));
         } else if (notebookPermissionChanges.hadChanged()) {
             experimentRepository.save(experimentsChanges.stream()
                     .map(PermissionChanges::getEntity)
@@ -394,7 +401,7 @@ public class NotebookService {
                             experimentPermissionChanges.getEntity(),
                             getEntityUpdateRecipients(contentEditors,
                                     experimentPermissionChanges.getEntity(),
-                                    user.getId())));
+                                    null)));
         }
         webSocketUtil.newSubEntityForNotebook(user, projectId, parentNotebook,
                 getSubEntityChangesRecipients(experimentsChanges));
