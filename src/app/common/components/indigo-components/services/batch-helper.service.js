@@ -110,6 +110,7 @@ function batchHelper(appUnits, appValuesService, columnActions, batchesCalculati
             totalWeight: {
                 id: 'totalWeight',
                 name: 'Total Weight',
+                min: 0,
                 type: 'unit',
                 width: '150px',
                 unitItems: appUnits.grams,
@@ -118,6 +119,7 @@ function batchHelper(appUnits, appValuesService, columnActions, batchesCalculati
             totalVolume: {
                 id: 'totalVolume',
                 name: 'Total Volume',
+                min: 0,
                 type: 'unit',
                 width: '150px',
                 unitItems: appUnits.liters,
@@ -126,6 +128,7 @@ function batchHelper(appUnits, appValuesService, columnActions, batchesCalculati
             totalMoles: {
                 id: 'totalMoles',
                 name: 'Total Moles',
+                min: 0,
                 type: 'unit',
                 width: '150px',
                 unitItems: appUnits.moles,
@@ -208,6 +211,7 @@ function batchHelper(appUnits, appValuesService, columnActions, batchesCalculati
             molWeight: {
                 id: 'molWeight',
                 name: 'Mol Wgt',
+                min: 0,
                 type: 'scalar',
                 readonly: true
             },
@@ -239,6 +243,7 @@ function batchHelper(appUnits, appValuesService, columnActions, batchesCalculati
             saltEq: {
                 id: 'saltEq',
                 name: 'Salt EQ',
+                min: 0,
                 type: 'scalar',
                 bulkAssignment: true,
                 checkEnabled: canEditSaltEq,

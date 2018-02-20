@@ -45,7 +45,7 @@
                  press-enter="vm.closeThis()">
                 <input class="form-control additional-editor__input"
                        type="number"
-                       min="0"
+                       min="{{vm.column.min || 0 }}"
                        ng-disabled="vm.column.readonly || vm.row[vm.column.id].readonly"
                        ng-click="vm.column.onClick({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
                        ng-change="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
@@ -61,7 +61,7 @@
             <simple-input>
                 <input class="form-control"
                        type="number"
-                       min="0"
+                       min="{{vm.column.min || 0 }}"
                        ng-model="vm.row[vm.column.id].value"
                        ng-disabled="vm.column.readonly || vm.row[vm.column.id].readonly"
                        ng-click="vm.column.onClick({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
@@ -98,6 +98,7 @@
                 </indigo-select>
             </div>
         </div>
+        <div></div>
 
         <div ng-switch-when="input" class="cell-has-popup-{{vm.column.hasPopup}}">
             <simple-input class="form-group-sm">
