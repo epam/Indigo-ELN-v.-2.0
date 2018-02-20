@@ -5,7 +5,6 @@ import com.epam.indigoeln.core.service.project.ProjectService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
 import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
-import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.Api;
@@ -41,35 +40,6 @@ public class ProjectResource {
     @Autowired
     private UserService userService;
 
-    /**
-     * GET  /projects -> Returns all projects for <b>current user</b>
-     * for tree representation according to his User permissions.
-     *
-     * @return Returns all projects for current user for tree representation according to his permissions
-     */
-    @ApiOperation(value = "Returns all projects for current user for tree representation according to his permissions.")
-    @RequestMapping(method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TreeNodeDTO>> getAllProjectsByPermissions() {
-        LOGGER.debug("REST request to get all projects according to user permissions");
-        User user = userService.getUserWithAuthorities();
-        List<TreeNodeDTO> result = projectService.getAllProjectsAsTreeNodes(user);
-        return ResponseEntity.ok(result);
-    }
-
-    /**
-     * GET  /projects/all -> Returns all projects without checking for User permissions.
-     *
-     * @return Returns all projects for current user for tree representation
-     */
-    @ApiOperation(value = "Returns all projects for current user for tree representation.")
-    @RequestMapping(value = "/all", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TreeNodeDTO>> getAllProjects() {
-        LOGGER.debug("REST request to get all projects without checking for permissions");
-        List<TreeNodeDTO> result = projectService.getAllProjectsAsTreeNodes();
-        return ResponseEntity.ok(result);
-    }
 
     /**
      * GET  /projects/permissions/user-removable -> Returns true if user can be removed from project without problems.

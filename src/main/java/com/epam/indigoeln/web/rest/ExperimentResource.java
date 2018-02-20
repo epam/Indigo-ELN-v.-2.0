@@ -7,7 +7,6 @@ import com.epam.indigoeln.core.service.signature.SignatureService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
-import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.Api;
@@ -17,10 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -53,32 +50,6 @@ public class ExperimentResource {
     private SequenceIdService sequenceIdService;
 
     /**
-     * GET  /notebooks/:notebookId/experiments -> Returns all experiments of specified notebook for <b>current user</b>
-     * for tree representation according to his User permissions.
-     *
-     * @param projectId  Project id
-     * @param notebookId Notebook id
-     * @return Returns all experiments, or experiments for specified notebook, which author is current user
-     */
-    @ApiOperation(value = "Returns all experiments, or experiments for specified notebook, "
-            + "which author is current user.")
-    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PostFilter("hasAnyAuthority(T(com.epam.indigoeln.core.util.AuthoritiesUtil).EXPERIMENT_READERS)")
-    @ResponseStatus(HttpStatus.OK)
-    public List<ExperimentTreeNodeDTO> getAllExperimentsByPermissions(
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String notebookId
-    ) {
-        User user = userService.getUserWithAuthorities();
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("REST request to get all experiments of notebook: {} "
-                    + "according to user permissions", notebookId);
-        }
-        return experimentService.getAllExperimentTreeNodes(projectId, notebookId, user);
-    }
-
-    /**
      * GET  /notebooks/:notebookId/experiments/notebook-summary ->
      * Returns all experiments of specified notebook for <b>current user</b>.
      * for tree representation according to his User permissions.
@@ -104,27 +75,7 @@ public class ExperimentResource {
         return ResponseEntity.ok(result);
     }
 
-    /**
-     * GET  /notebooks/:notebookId/experiments/all -> Returns all experiments of specified notebook
-     * without checking for User permissions.
-     *
-     * @param projectId  Project id
-     * @param notebookId Notebook id
-     * @return Returns all experiments of specified notebook
-     */
-    @ApiOperation(value = "Returns all experiments of specified notebook for current user for tree representation")
-    @RequestMapping(value = "/all", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ExperimentTreeNodeDTO>> getAllExperiments(
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String notebookId) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("REST request to get all experiments of notebook: {} "
-                    + "without checking for permissions", notebookId);
-        }
-        List<ExperimentTreeNodeDTO> result = experimentService.getAllExperimentTreeNodes(projectId, notebookId);
-        return ResponseEntity.ok(result);
-    }
+
 
     /**
      * GET  /experiments/:id -> Returns experiment with specified id according to User permissions.
