@@ -195,19 +195,7 @@ public class ExperimentService {
             result.forEach(e -> {
                 Optional<BasicDBObject> opt = (Optional<BasicDBObject>) experimentsWithUsers.get(e.getFullId());
                 val components = experimentsWithComponents.get(e.getFullId());
-                if (opt.isPresent()) {
-                    e.setAuthorFullName(String.format("%s %s",
-                            opt.get().get("first_name"), opt.get().get("last_name")));
-                } else {
-                    e.setAuthorFullName("");
-                }
-                String image = "";
-                if (components != null) {
-                    val imageObject = ((BasicDBObject) ((BasicDBObject) components.get(components.size() - 1))
-                            .get("content")).get("image");
-                    image = String.valueOf(imageObject);
-                }
-                e.setReactionImage(image);
+                getExperimentAsTreeNode(e, opt, components);
             });
 
             result = result.stream().sorted(TreeNodeDTO.NAME_COMPARATOR).collect(Collectors.toList());
@@ -220,9 +208,39 @@ public class ExperimentService {
         return Collections.emptyList();
     }
 
+    private void getExperimentAsTreeNode(ExperimentTreeNodeDTO experiment,
+                                                          Optional<BasicDBObject> user, List components){
+
+        if (user.isPresent()) {
+            experiment.setAuthorFullName(String.format("%s %s",
+                    user.get().get("first_name"), user.get().get("last_name")));
+        } else {
+            experiment.setAuthorFullName("");
+        }
+        if (components != null) {
+            val imageObject = ((BasicDBObject) ((BasicDBObject) components.get(components.size() - 1))
+                    .get("content")).get("image");
+            if (imageObject != null) {
+                experiment.setReactionImage(String.valueOf(imageObject));
+            }
+            val titleObject = ((BasicDBObject) ((BasicDBObject) components.get(4))
+                    .get("content")).get("title");
+            if (titleObject != null) {
+                experiment.setTitle(String.valueOf(titleObject));
+            }
+            val therapeuticAreaObject = ((BasicDBObject) ((BasicDBObject) components.get(4))
+                    .get("content")).get("therapeuticArea");
+            if (therapeuticAreaObject != null) {
+                experiment.setTherapeuticAreaName(String.valueOf(((BasicDBObject) therapeuticAreaObject).get("name")));
+            }
+        }
+    }
+
     public ExperimentTreeNodeDTO getExperimentAsTreeNode(String projectId, String notebookId, String experimentId) {
         String experimentFullId = String.format("%s-%s-%s", projectId, notebookId, experimentId);
         ExperimentTreeNodeDTO result;
+        List<Object> componentIds = new ArrayList<>();
+        val componentCollection = mongoTemplate.getCollection(Component.COLLECTION_NAME);
         val experimentCollection = mongoTemplate.getCollection(Experiment.COLLECTION_NAME);
         val experiment = experimentCollection
                 .findOne(new BasicDBObject().append("_id", experimentFullId));
@@ -232,12 +250,33 @@ public class ExperimentService {
         }
 
         result = new ExperimentTreeNodeDTO(experiment);
-        Experiment e = experimentRepository.findOne(experimentFullId);
-        if (e != null) {
-            List<Component> components = e.getComponents();
-            result.setReactionImage(components.get(components.size() - 1).getContent().get("image").toString());
-            result.setAuthorFullName(e.getAuthor().getFullName());
+        val components = new ArrayList();
+        ((Iterable) experiment.get("components"))
+                .forEach(c -> componentIds.add(((DBRef) c).getId()));
+
+        componentCollection
+                .find(new BasicDBObject("_id", new BasicDBObject().append("$in", componentIds)))
+                .forEach(components::add);
+
+        Object image = ((BasicDBObject) ((BasicDBObject) components.get(components.size() - 1))
+                .get("content")).get("image");
+        if (image != null) {
+            result.setReactionImage(image.toString());
         }
+        result.setAuthorFullName(String.format("%s %s",
+                experiment.get("first_name"), experiment.get("last_name")));
+
+        val titleObject = ((BasicDBObject) ((BasicDBObject) components.get(4))
+                .get("content")).get("title");
+        if (titleObject != null) {
+            result.setTitle(String.valueOf(titleObject));
+        }
+        val therapeuticAreaObject = ((BasicDBObject) ((BasicDBObject) components.get(4))
+                .get("content")).get("therapeuticArea");
+        if (therapeuticAreaObject != null) {
+            result.setTherapeuticAreaName(String.valueOf(((BasicDBObject) therapeuticAreaObject).get("name")));
+        }
+
         return result;
     }
 
