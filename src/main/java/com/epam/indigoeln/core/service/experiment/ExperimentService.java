@@ -273,7 +273,7 @@ public class ExperimentService {
         if (image != null) {
             result.setReactionImage(image.toString());
         }
-        if(user != null) {
+        if (user != null) {
             result.setAuthorFullName(String.format("%s %s",
                     user.get("first_name"), user.get("last_name")));
         }
