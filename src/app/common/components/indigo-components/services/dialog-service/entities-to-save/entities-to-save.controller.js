@@ -27,7 +27,7 @@ function EntitiesToSaveController($uibModalInstance, data) {
         _.each(vm.entities, function(entity) {
             entity.$$saveEntity = false;
         });
-        cancel();
+        $uibModalInstance.close([]);
     }
 
     function save() {
@@ -38,7 +38,7 @@ function EntitiesToSaveController($uibModalInstance, data) {
     }
 
     function cancel() {
-        $uibModalInstance.close([]);
+        $uibModalInstance.dismiss('cancel');
     }
 }
 
