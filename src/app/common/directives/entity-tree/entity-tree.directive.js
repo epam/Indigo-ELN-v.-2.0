@@ -60,6 +60,7 @@ function EntityTreeController(entityTreeService, $timeout, experimentService, $s
                         entityTreeService.updateExperiment(exp);
                     });
                 }
+
                 return;
             }
             if (data.entity.notebookId) {

@@ -280,10 +280,13 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
                     saveEntity(tabToSave)
                         .then(function() {
                             closeTab(tabToSave);
+
+                            return true;
                         })
                         .catch(function() {
-                            notifyService.error('Error saving ' + tabToSave.kind + ' '
-                                + tabToSave.name + '.');
+                            notifyService.error('Error saving ' + tabToSave.kind + ' ' + tabToSave.name + '.');
+
+                            return true;
                         });
                 });
 
@@ -300,10 +303,10 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
     function closeAllTabs(exceptCurrent) {
         return resolvePrincipal(function(user) {
             var tabsToClose = !exceptCurrent ? tabs[user.id] : _.filter(
-                    tabs[user.id],
-                    function(tab) {
-                        return tab !== activeTab;
-                    });
+                tabs[user.id],
+                function(tab) {
+                    return tab !== activeTab;
+                });
             var modifiedTabs = [];
             var unmodifiedTabs = [];
             _.each(tabsToClose, function(tab) {
@@ -314,14 +317,18 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
                 }
             });
 
-            return $q.when(
-                    modifiedTabs.length ? openCloseDialog(modifiedTabs) : null)
-                    .finally(function() {
-                        _.each(unmodifiedTabs, closeTab);
-                    }
-                    );
-        }
-        );
+            if (modifiedTabs.length) {
+                return openCloseDialog(modifiedTabs).then(function() {
+                    _.each(unmodifiedTabs, closeTab);
+
+                    return true;
+                });
+            }
+
+            _.each(unmodifiedTabs, closeTab);
+
+            return $q.when(null);
+        });
     }
 }
 
