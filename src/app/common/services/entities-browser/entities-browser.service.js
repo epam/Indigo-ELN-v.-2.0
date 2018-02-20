@@ -276,18 +276,17 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
         return dialogService
             .selectEntitiesToSave(editTabs)
             .then(function(tabsToSave) {
-                var savePromises = _.map(tabsToSave, function(tabToSave) {
-                    saveEntity(tabToSave)
+                var savePromises = [];
+                _.forEach(tabsToSave, function(tabToSave) {
+                    var pr = saveEntity(tabToSave)
                         .then(function() {
                             closeTab(tabToSave);
-
-                            return true;
                         })
                         .catch(function() {
                             notifyService.error('Error saving ' + tabToSave.kind + ' ' + tabToSave.name + '.');
-
-                            return true;
                         });
+
+                    savePromises.push(pr);
                 });
 
                 _.each(editTabs, function(tab) {
@@ -300,34 +299,40 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
             });
     }
 
+    function doCloseAllTabs(userId, exceptCurrent) {
+        var tabsToClose = tabs[userId];
+        if (exceptCurrent) {
+            tabsToClose = _.filter(tabs[userId], function(tab) {
+                return tab !== activeTab;
+            });
+        }
+
+        var modifiedTabs = [];
+        var unmodifiedTabs = [];
+        _.each(tabsToClose, function(tab) {
+            if (tab.dirty) {
+                modifiedTabs.push(tab);
+            } else {
+                unmodifiedTabs.push(tab);
+            }
+        });
+
+        if (modifiedTabs.length) {
+            return openCloseDialog(modifiedTabs).then(function() {
+                _.each(unmodifiedTabs, closeTab);
+
+                return true;
+            });
+        }
+
+        _.each(unmodifiedTabs, closeTab);
+
+        return $q.when(null);
+    }
+
     function closeAllTabs(exceptCurrent) {
         return resolvePrincipal(function(user) {
-            var tabsToClose = !exceptCurrent ? tabs[user.id] : _.filter(
-                tabs[user.id],
-                function(tab) {
-                    return tab !== activeTab;
-                });
-            var modifiedTabs = [];
-            var unmodifiedTabs = [];
-            _.each(tabsToClose, function(tab) {
-                if (tab.dirty) {
-                    modifiedTabs.push(tab);
-                } else {
-                    unmodifiedTabs.push(tab);
-                }
-            });
-
-            if (modifiedTabs.length) {
-                return openCloseDialog(modifiedTabs).then(function() {
-                    _.each(unmodifiedTabs, closeTab);
-
-                    return true;
-                });
-            }
-
-            _.each(unmodifiedTabs, closeTab);
-
-            return $q.when(null);
+            return doCloseAllTabs(user.id, exceptCurrent);
         });
     }
 }
