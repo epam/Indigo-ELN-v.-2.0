@@ -150,6 +150,10 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
         $scope.$on('access-list-changed', function() {
             vm.notebook.accessList = permissionService.getAccessList();
         });
+
+        $scope.$on('$destroy', function() {
+            modalHelper.close();
+        });
     }
 
     function onRestore(storeData, lastVersion) {

@@ -72,7 +72,6 @@ function calculationHelper($http, $log, $q) {
                     return batchRow;
                 });
         }
-        $log.error('Batch does not contain structure or molfile');
 
         return $q.resolve(batchRow);
     }

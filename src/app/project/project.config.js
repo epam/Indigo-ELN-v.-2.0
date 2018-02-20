@@ -116,6 +116,11 @@ function projectConfig($stateProvider, permissionsConfig, permissionViewConfig, 
                         $state.go('^', null, {notify: false});
                     });
             },
+            onExit: function(printModal) {
+                'ngInject';
+
+                printModal.close();
+            },
             data: {
                 authorities: [roles.CONTENT_EDITOR, roles.PROJECT_READER, roles.PROJECT_CREATOR]
             }

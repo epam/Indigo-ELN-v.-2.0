@@ -42,6 +42,10 @@ function DuplicateBatchesController(productBatchSummaryOperations, batchHelper) 
             _.forEach(batches, function(batch) {
                 vm.indigoComponents.onAddedBatch(batch);
             });
+            var checkedBatches = batchHelper.getCheckedBatches(vm.batches);
+            _.forEach(checkedBatches, function(batch) {
+                batch.$$select = false;
+            });
             vm.indigoComponents.onSelectBatch(_.last(batches));
         }
     }

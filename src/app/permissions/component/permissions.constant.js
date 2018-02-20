@@ -1,27 +1,11 @@
-var template = require('./permissions.html');
-var infinity = 10000;
-
 /* @ngInject */
 var permissionsConfig = {
     url: '/permissions',
-    onEnter: ['$rootScope', '$stateParams', '$state', '$uibModal', 'permissionService',
-        function($rootScope, $stateParams, $state, $uibModal, permissionService) {
+    onEnter: ['$rootScope', '$state', 'permissionModal', 'permissionService',
+        function($rootScope, $state, permissionModal, permissionService) {
             var that = this;
-            $uibModal.open({
-                template: template,
-                controller: 'PermissionsController',
-                controllerAs: 'vm',
-                size: 'lg',
-                resolve: {
-                    users: function(userWithAuthorityService) {
-                        return userWithAuthorityService.query({page: 0, size: infinity}).$promise;
-                    },
-                    permissions: function() {
-                        return that.permissions;
-                    }
-                }
-            })
-                .result
+
+            permissionModal.showEditPopup(that.permissions)
                 .then(function(result) {
                     permissionService.setAccessList(result);
                     $rootScope.$broadcast('access-list-changed');
@@ -29,6 +13,10 @@ var permissionsConfig = {
                 .finally(function() {
                     $state.go('^');
                 });
+        }],
+    onExit: ['permissionModal',
+        function(permissionModal) {
+            permissionModal.close();
         }]
 };
 

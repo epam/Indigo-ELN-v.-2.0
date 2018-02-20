@@ -1,16 +1,14 @@
 var multipleFileUploaderTemplate = require('../multiple-file-uploader/multiple-file-uploader.html');
 var deleteDialogTemplate = require('../delete-dialog/delete-dialog.html');
 
-FileUploaderController.$inject = ['$uibModal', '$filter', '$stateParams', 'fileUploader',
-    'parseLinks', 'notifyService', 'projectFileUploaderService',
-    'experimentFileUploaderService', '$timeout', 'apiUrl'];
-
+/* @ngInject */
 function FileUploaderController($uibModal, $filter, $stateParams, fileUploader,
                                 parseLinks, notifyService, projectFileUploaderService,
-                                experimentFileUploaderService, $timeout, apiUrl) {
+                                experimentFileUploaderService, $timeout, apiUrl, $scope) {
     var vm = this;
     var params = $stateParams;
     var UploaderService = params.experimentId ? experimentFileUploaderService : projectFileUploaderService;
+    var dlg;
 
     init();
 
@@ -30,6 +28,8 @@ function FileUploaderController($uibModal, $filter, $stateParams, fileUploader,
         if (params.projectId) {
             vm.loadAll();
         }
+
+        bindEvents();
     }
 
     function loadAll() {
@@ -51,7 +51,8 @@ function FileUploaderController($uibModal, $filter, $stateParams, fileUploader,
             return;
         }
 
-        $uibModal.open({
+        closeDialog();
+        dlg = $uibModal.open({
             animation: true,
             size: 'lg',
             template: multipleFileUploaderTemplate,
@@ -65,7 +66,8 @@ function FileUploaderController($uibModal, $filter, $stateParams, fileUploader,
                     return vm.uploadUrl;
                 }
             }
-        }).result.then(function(result) {
+        });
+        dlg.result.then(function(result) {
             vm.files = _.union(result, vm.files);
             updateRowsForDisplay(vm.files);
             if (vm.files.length) {
@@ -75,7 +77,8 @@ function FileUploaderController($uibModal, $filter, $stateParams, fileUploader,
     }
 
     function deleteFile(file) {
-        $uibModal.open({
+        closeDialog();
+        dlg = $uibModal.open({
             animation: true,
             template: deleteDialogTemplate,
             controller: 'FileUploaderDeleteDialogController',
@@ -91,7 +94,8 @@ function FileUploaderController($uibModal, $filter, $stateParams, fileUploader,
                     return UploaderService;
                 }
             }
-        }).result.then(function(fileToDelete) {
+        });
+        dlg.result.then(function(fileToDelete) {
             vm.files = _.without(vm.files, fileToDelete);
             updateRowsForDisplay(vm.files);
             fileUploader.removeFile(fileToDelete);
@@ -131,6 +135,19 @@ function FileUploaderController($uibModal, $filter, $stateParams, fileUploader,
 
     function updateCurrentPage(rows) {
         vm.pagination.page = _.ceil(rows.length / vm.pagination.pageSize);
+    }
+
+    function bindEvents() {
+        $scope.$on('$destroy', function() {
+            closeDialog();
+        });
+    }
+
+    function closeDialog() {
+        if (dlg) {
+            dlg.dismiss();
+            dlg = null;
+        }
     }
 }
 

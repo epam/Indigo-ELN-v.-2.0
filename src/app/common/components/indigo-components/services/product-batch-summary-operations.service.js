@@ -19,7 +19,8 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
         registerBatches: registerBatches,
         deleteBatches: deleteBatches,
         getSelectedNonEditableBatches: getNonEditableBatches,
-        getStoichFromExperiment: getStoichFromExperiment
+        getStoichFromExperiment: getStoichFromExperiment,
+        closeImportSDFileDialog: closeImportSDFileDialog
     };
 
     function downloadLink(filePath) {
@@ -168,12 +169,19 @@ function productBatchSummaryOperations($q, productBatchSummaryCache, registratio
 
     function importSDFile(experiment) {
         return sdImportService.importFile().then(function(sdUnits) {
+            if (!sdUnits) {
+                return $q.reject();
+            }
             var promises = _.map(sdUnits, function(unit) {
                 return createBatch(unit, null, experiment);
             });
 
             return successAddedBatches(promises, experiment);
         });
+    }
+
+    function closeImportSDFileDialog() {
+        sdImportService.closeDialog();
     }
 
     function requestNbkBatchNumber(lastNbkBatch) {

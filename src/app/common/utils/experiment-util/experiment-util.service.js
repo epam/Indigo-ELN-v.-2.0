@@ -5,12 +5,15 @@ var experimentSelectSignatureTemplateModal =
 /* @ngInject */
 function experimentUtil($state, $uibModal, $q, experimentService, permissionService, signatureTemplatesService,
                         signatureDocumentService, componentsUtil, notifyService, entityTreeService) {
+    var dlg;
+
     return {
         versionExperiment: versionExperiment,
         repeatExperiment: repeatExperiment,
         reopenExperiment: reopenExperiment,
         completeExperiment: completeExperiment,
-        completeExperimentAndSign: completeExperimentAndSign
+        completeExperimentAndSign: completeExperimentAndSign,
+        closeDialog: closeDialog
     };
 
     function goToExperimentDetail(result, params) {
@@ -89,7 +92,8 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionServ
     }
 
     function openCompleteConfirmationModal(experiment, notebookName) {
-        return $uibModal.open({
+        closeDialog();
+        dlg = $uibModal.open({
             animation: true,
             template: experimentCompleteModalTemplate,
             resolve: {
@@ -105,25 +109,27 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionServ
             controller: 'ExperimentCompleteModalController',
             controllerAs: 'vm'
         });
+
+        return dlg;
     }
 
     function selectTemplate(componentTemplates, filename, stateParams) {
         return signatureTemplatesService.query({})
             .$promise
             .then(function(result) {
-                return $uibModal
-                    .open({
-                        animation: true,
-                        template: experimentSelectSignatureTemplateModal,
-                        controller: 'ExperimentSelectSignatureTemplateModalController',
-                        controllerAs: 'vm',
-                        resolve: {
-                            result: function() {
-                                return result;
-                            }
+                closeDialog();
+                dlg = $uibModal.open({
+                    animation: true,
+                    template: experimentSelectSignatureTemplateModal,
+                    controller: 'ExperimentSelectSignatureTemplateModalController',
+                    controllerAs: 'vm',
+                    resolve: {
+                        result: function() {
+                            return result;
                         }
-                    })
-                    .result
+                    }
+                });
+                return dlg.result
                     .then(function(template) {
                         if (template) {
                             var templates = componentsUtil.getComponentsFromTemplateContent(componentTemplates);
@@ -146,6 +152,13 @@ function experimentUtil($state, $uibModal, $q, experimentService, permissionServ
 
     function getComponentsForPrint(componentTemplates) {
         return _.map(componentTemplates, 'field').join().replace('attachments', 'attachments&includeAttachments=true');
+    }
+
+    function closeDialog() {
+        if (dlg) {
+            dlg.dismiss();
+            dlg = null;
+        }
     }
 }
 

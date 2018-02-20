@@ -1,14 +1,16 @@
 var template = require('./print-modal.html');
 
-printModal.$inject = ['$uibModal', '$window', '$httpParamSerializer', 'apiUrl'];
-
+/* @ngInject */
 function printModal($uibModal, $window, $httpParamSerializer, apiUrl) {
+    var dlg;
+
     return {
-        showPopup: showPopup
+        showPopup: showPopup,
+        close: close
     };
 
     function showPopup(params, resourceType) {
-        return $uibModal.open({
+        dlg = $uibModal.open({
             animation: true,
             template: template,
             controller: 'PrintModalController',
@@ -19,7 +21,9 @@ function printModal($uibModal, $window, $httpParamSerializer, apiUrl) {
                     return resourceType;
                 }
             }
-        }).result.then(function(result) {
+        });
+
+        return dlg.result.then(function(result) {
             var qs = $httpParamSerializer(result);
             var url = apiUrl + 'print/project/' + params.projectId;
             if (params.notebookId) {
@@ -31,6 +35,13 @@ function printModal($uibModal, $window, $httpParamSerializer, apiUrl) {
             url += '?' + qs;
             $window.open(url);
         });
+    }
+
+    function close() {
+        if (dlg) {
+            dlg.dismiss();
+            dlg = null;
+        }
     }
 }
 

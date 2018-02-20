@@ -203,6 +203,13 @@ function reagentsCalculation(calculationHelper) {
     function resetVolume(row) {
         row.resetFields([fieldTypes.volume]);
 
+        if (row.isMolPresent() && row.isWeightPresent() && row.isDensityPresent()) {
+            // re-calculate volume based on mol, weight and density
+            onDensityChanged(row);
+
+            return;
+        }
+
         if (row.isMolarityPresent() && !row.isMolManuallyEntered()) {
             row.resetFields([fieldTypes.mol], onMolChanged);
 
@@ -242,16 +249,15 @@ function reagentsCalculation(calculationHelper) {
         }
 
         if (!row.isSolventRow()) {
+            row.resetFields([fieldTypes.weight, fieldTypes.mol, fieldTypes.eq]);
+
             if (row.isLimiting() && !canBeLimiting(row)) {
                 var nextRow = getRowAfterLimiting();
                 if (nextRow) {
                     nextRow.limiting.value = true;
                 }
-
                 row.limiting.value = false;
             }
-
-            row.resetFields([fieldTypes.weight, fieldTypes.mol, fieldTypes.eq]);
         }
     }
 
