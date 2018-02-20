@@ -1,43 +1,52 @@
 var moment = require('moment');
 
 /* @ngInject */
-function experimentService($resource, permissionService, apiUrl) {
+function experimentService($resource, permissionService, apiUrl, entityTreeService) {
     return $resource(apiUrl + 'projects/:projectId/notebooks/:notebookId/experiments/:experimentId',
         {
             projectId: '@projectId',
             notebookId: '@notebookId',
             experimentId: '@experimentId'
         }, {
-            query: {
+            get: {
                 method: 'GET',
-                isArray: true,
                 transformResponse: function(data) {
-                    var experiment = angular.fromJson(data);
-                    _.forEach(experiment, function(item, key) {
-                        experiment[key] = toModel(item);
-                    });
+                    var experiment = transformResponse(data);
+                    entityTreeService.updateExperimentByEntity(experiment);
 
                     return experiment;
                 }
             },
-            get: {
-                method: 'GET',
-                transformResponse: transformResponse
-            },
             save: {
                 method: 'POST',
                 transformRequest: transformRequest,
-                transformResponse: transformResponse
+                transformResponse: function(data) {
+                    var experiment = transformResponse(data);
+                    entityTreeService.addExperimentByEntity(experiment);
+
+                    return experiment;
+                }
             },
             version: {
                 method: 'POST',
-                url: apiUrl + 'projects/:projectId/notebooks/:notebookId/experiments/:experimentId/version'
+                url: apiUrl + 'projects/:projectId/notebooks/:notebookId/experiments/:experimentId/version',
+                transformResponse: function(data) {
+                    var experiment = transformResponse(data);
+                    entityTreeService.addExperimentByEntity(experiment);
+
+                    return experiment;
+                }
             },
             update: {
                 method: 'PUT',
                 url: apiUrl + 'projects/:projectId/notebooks/:notebookId/experiments',
                 transformRequest: transformRequest,
-                transformResponse: transformResponse
+                transformResponse: function(data) {
+                    var experiment = transformResponse(data);
+                    entityTreeService.updateExperimentByEntity(experiment);
+
+                    return experiment;
+                }
             },
             delete: {method: 'DELETE'},
             print: {
