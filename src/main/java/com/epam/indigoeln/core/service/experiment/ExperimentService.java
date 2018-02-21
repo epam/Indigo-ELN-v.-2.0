@@ -190,7 +190,11 @@ public class ExperimentService {
                     .collect(Collectors.toList());
 
             result.forEach(e -> {
-                DBObject userBasicDBObject = (DBObject) experimentsWithUsers.get(e.getFullId());
+                Optional userObject = (Optional) experimentsWithUsers.get(e.getFullId());
+                DBObject userBasicDBObject = null;
+                if ((userObject).isPresent()) {
+                    userBasicDBObject = (DBObject) userObject.get();
+                }
                 val components = experimentsWithComponents.get(e.getFullId());
                 setValuesForExperimentTreeNodeDTO(e, userBasicDBObject, components);
             });
@@ -281,7 +285,7 @@ public class ExperimentService {
         return result;
     }
 
-    private List getComponents(List<Object> componentIds){
+    private List getComponents(List<Object> componentIds) {
         val componentCollection = mongoTemplate.getCollection(Component.COLLECTION_NAME);
         val components = new ArrayList();
         BasicDBList or = new BasicDBList();
@@ -297,17 +301,28 @@ public class ExperimentService {
 
     private Map<Object, List<Object>> getExperimentsWithComponents(List<DBObject> experiments) {
         Map<Object, List<Object>> experimentsWithComponents = new HashMap<>();
-
+        List<Object> allComponentIds = new ArrayList<>();
         experiments.forEach(e -> {
             List<Object> componentIds = new ArrayList<>();
             ((Iterable) e.get("components"))
-                    .forEach(c -> componentIds.add(((DBRef) c).getId()));
+                    .forEach(c -> {
+                        val id = ((DBRef) c).getId();
+                        componentIds.add(id);
+                        allComponentIds.add(id);
+                    });
             experimentsWithComponents.put(e.get("_id"), componentIds);
         });
 
+        val allComponents = getComponents(allComponentIds);
         experimentsWithComponents.entrySet().forEach(entryObject -> {
-            val components = getComponents(entryObject.getValue());
-            entryObject.setValue(components);
+            val ids = entryObject.getValue();
+            val tmp = new ArrayList<>();
+            ids.forEach(id -> allComponents.forEach(c -> {
+                if (id.equals(((BasicDBObject) c).get("_id"))) {
+                    tmp.add(c);
+                }
+            }));
+            entryObject.setValue(tmp);
         });
 
         return experimentsWithComponents;
