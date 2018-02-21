@@ -1,6 +1,5 @@
 /* @ngInject */
-function entityTreeService(allProjectsService, projectService, allNotebooksService, notebookService,
-                           allExperimentsService, experimentService, $q) {
+function entityTreeService($q, entityTreeFactory) {
     var allProjectsList = [];
     var projectsList = [];
     var allNotebooksList = [];
@@ -10,7 +9,8 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
 
     return {
         updateExperiment: updateExperiment,
-        addExperiment: addExperiment,
+        updateExperimentByEntity: updateExperimentByEntity,
+        addExperimentByEntity: addExperimentByEntity,
         addNotebook: addNotebook,
         updateNotebook: updateNotebook,
         updateProject: updateProject,
@@ -38,37 +38,54 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
     function updateStatus(fullId, status) {
         var experiment = _.find(allExperimentsList, {fullId: fullId});
         if (experiment) {
-            experiment.original.status = status;
+            experiment.status = status;
         }
 
         experiment = _.find(experimentsList, {fullId: fullId});
         if (experiment) {
-            experiment.original.status = status;
+            experiment.status = status;
         }
     }
 
-    function updateExperiment(experiment) {
-        var experimentNode = _.find(allExperimentsList, {fullId: experiment.fullId});
-        if (experimentNode) {
-            updateNode(experimentNode, experiment);
-            experimentNode.parent.children.sort(sortByName);
+    function updateExperimentByEntity(experiment) {
+        var allExperimentNode = _.find(allExperimentsList, {fullId: experiment.fullId});
+        if (allExperimentNode && allExperimentNode.version < experiment.version) {
+            updateExperimentNodeByEntity(allExperimentNode, experiment);
         }
 
-        experimentNode = _.find(experimentsList, {fullId: experiment.fullId});
-        if (experimentNode) {
-            updateNode(experimentNode, experiment);
-            experimentNode.parent.children.sort(sortByName);
+        var experimentNode = _.find(experimentsList, {fullId: experiment.fullId});
+        if (experimentNode && experimentNode.version < experiment.version) {
+            updateExperimentNodeByEntity(experimentNode, experiment);
         }
     }
 
-    function addExperiment(experiment) {
+    function updateExperiment(fullId, newVersion) {
+        var allExperimentNode = _.find(allExperimentsList, {fullId: fullId});
+        var experimentNode = _.find(experimentsList, {fullId: fullId});
+        if ((experimentNode && experimentNode.version < newVersion)
+            || (allExperimentNode && allExperimentNode.version < newVersion)) {
+            var path = fullId.split('-');
+            entityTreeFactory.getExperiment(path[0], path[1], path[2]).then(function(experiment) {
+                if (allExperimentNode) {
+                    updateExperimentNode(allExperimentNode, experiment);
+                    allExperimentNode.parent.children.sort(sortByName);
+                }
+                if (experimentNode) {
+                    updateExperimentNode(experimentNode, experiment);
+                    experimentNode.parent.children.sort(sortByName);
+                }
+            });
+        }
+    }
+
+    function addExperimentByEntity(experiment) {
         var path = _.split(experiment.fullId, '-');
         var parentId = path[0] + '-' + path[1];
 
         var experimentNode = _.find(allExperimentsList, {fullId: experiment.fullId});
         var parentNode = _.find(allNotebooksList, {fullId: parentId});
         if (!experimentNode && parentNode && parentNode.hasLoadedChildren) {
-            experimentNode = buildNode(experiment, parentNode);
+            experimentNode = buildExperimentNodeFromEntity(experiment, parentNode);
             allExperimentsList.push(experimentNode);
             parentNode.children.push(experimentNode);
             parentNode.children.sort(sortByName);
@@ -77,24 +94,30 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
         experimentNode = _.find(experimentsList, {fullId: experiment.fullId});
         parentNode = _.find(notebooksList, {fullId: parentId});
         if (!experimentNode && parentNode && parentNode.hasLoadedChildren) {
-            experimentNode = buildNode(experiment, parentNode);
+            experimentNode = buildExperimentNodeFromEntity(experiment, parentNode);
             experimentsList.push(experimentNode);
             parentNode.children.push(experimentNode);
             parentNode.children.sort(sortByName);
         }
     }
 
-    function updateProject(project) {
-        var projectNode = _.find(allProjectsList, {id: project.id});
-        if (projectNode) {
-            updateNode(projectNode, project);
-            allProjectsList.sort(sortByName);
-        }
-
-        projectNode = _.find(projectsList, {id: project.id});
-        if (projectNode) {
-            updateNode(projectNode, project);
-            projectsList.sort(sortByName);
+    function updateProject(projectId, newVersion) {
+        var allProjectNode = _.find(allProjectsList, {id: projectId});
+        var projectNode = _.find(projectsList, {id: projectId});
+        if ((allProjectNode && allProjectNode.version < newVersion)
+            || (projectNode && projectNode.version < newVersion)) {
+            entityTreeFactory.getProject(projectId).then(function(project) {
+                if (allProjectNode) {
+                    allProjectNode.name = project.name;
+                    allProjectNode.version = project.version;
+                    allProjectsList.sort(sortByName);
+                }
+                if (projectNode) {
+                    projectNode.name = project.name;
+                    projectNode.version = project.version;
+                    projectsList.sort(sortByName);
+                }
+            });
         }
     }
 
@@ -128,30 +151,35 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
         }
     }
 
-    function updateNotebook(notebook) {
-        var notebookNode = _.find(allNotebooksList, {fullId: notebook.fullId});
-        if (notebookNode) {
-            updateNode(notebookNode, notebook);
-            notebookNode.parent.children.sort(sortByName);
-        }
-
-        notebookNode = _.find(notebooksList, {fullId: notebook.fullId});
-        if (notebookNode) {
-            updateNode(notebookNode, notebook);
-            notebookNode.parent.children.sort(sortByName);
+    function updateNotebook(fullId, newVersion) {
+        var path = fullId.split('-');
+        var allNotebookNode = _.find(allNotebooksList, {fullId: fullId});
+        var notebookNode = _.find(notebooksList, {fullId: fullId});
+        if ((allNotebookNode && allNotebookNode.version < newVersion)
+            || (notebookNode && notebookNode.version < newVersion)) {
+            entityTreeFactory.getNotebook(path[0], path[1]).then(function(notebook) {
+                if (allNotebookNode) {
+                    allNotebookNode.name = notebook.name;
+                    allNotebookNode.version = notebook.version;
+                    allNotebookNode.parent.children.sort(sortByName);
+                }
+                if (notebookNode) {
+                    notebookNode.name = notebook.name;
+                    notebookNode.version = notebook.version;
+                    notebookNode.parent.children.sort(sortByName);
+                }
+            });
         }
     }
 
     function getProjects(isAll) {
         var list = isAll ? allProjectsList : projectsList;
-        var service = isAll ? allProjectsService : projectService;
 
         if (!list.length) {
-            return service.query()
-                .$promise
+            return entityTreeFactory.getProjects(isAll)
                 .then(function(projects) {
                     _.forEach(projects, function(project) {
-                        var node = buildNode(project, null);
+                        var node = buildProjectNode(project, null);
                         list.push(node);
                     });
                     list.sort(sortByName);
@@ -166,7 +194,6 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
     function getNotebooks(projectId, isAll) {
         var projList = isAll ? allProjectsList : projectsList;
         var noteList = isAll ? allNotebooksList : notebooksList;
-        var service = isAll ? allNotebooksService : notebookService;
 
         var project = _.find(projList, {id: projectId});
 
@@ -174,11 +201,10 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
             return $q.resolve([]);
         }
         if (!project.hasLoadedChildren) {
-            return service.query({projectId: projectId})
-                .$promise
+            return entityTreeFactory.getNotebooks(projectId, isAll)
                 .then(function(notebooks) {
                     _.forEach(notebooks, function(notebook) {
-                        var node = buildNode(notebook, project);
+                        var node = buildNotebookNode(notebook, project);
                         project.children.push(node);
                         noteList.push(node);
                     });
@@ -195,7 +221,6 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
     function getExperiments(projectId, notebookId, isAll) {
         var noteList = isAll ? allNotebooksList : notebooksList;
         var expList = isAll ? allExperimentsList : experimentsList;
-        var service = isAll ? allExperimentsService : experimentService;
         var fullId = projectId + '-' + notebookId;
 
         var notebook = _.find(noteList, {fullId: fullId});
@@ -205,14 +230,10 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
         }
 
         if (!notebook.hasLoadedChildren) {
-            return service.query({
-                projectId: projectId,
-                notebookId: notebookId
-            })
-                .$promise
+            return entityTreeFactory.getExperiments(projectId, notebookId, isAll)
                 .then(function(experiments) {
                     _.forEach(experiments, function(experiment) {
-                        var node = buildNode(experiment, notebook);
+                        var node = buildExperimentNode(experiment, notebook);
                         notebook.children.push(node);
                         expList.push(node);
                     });
@@ -244,10 +265,82 @@ function entityTreeService(allProjectsService, projectService, allNotebooksServi
         return newNode;
     }
 
-    function updateNode(targetNode, entity) {
-        targetNode.accessList = entity.accessList;
-        targetNode.original = entity;
-        targetNode.name = entity.fullName || entity.name;
+    function buildExperimentNode(entity, parent) {
+        var newNode = {
+            id: entity.id,
+            fullId: entity.fullId,
+            name: entity.fullName || entity.name,
+            authorFullName: entity.authorFullName,
+            creationDate: entity.creationDate,
+            status: entity.status,
+            reactionImage: entity.reactionImage,
+            title: entity.title,
+            therapeuticArea: entity.therapeuticArea,
+            version: entity.version,
+            params: [parent.parent.id, parent.id, entity.id],
+            parent: parent,
+            isActive: false,
+            isCollapsed: true
+        };
+
+        return newNode;
+    }
+
+    function buildExperimentNodeFromEntity(entity, parent) {
+        var node = buildExperimentNode(entity, parent);
+        updateExperimentNodeByEntity(node, entity);
+        node.authorFullName = _.get(entity, 'author.fullName', null);
+
+        return node;
+    }
+
+    function updateExperimentNodeByEntity(source, entity) {
+        source.status = entity.status;
+        source.version = entity.version;
+        source.reactionImage = _.get(entity, 'components.reaction.image', null);
+        source.title = _.get(entity, 'components.reactionDetails.title', null);
+        source.therapeuticArea = _.get(entity, 'components.reactionDetails.therapeuticArea.name', null);
+    }
+
+    function updateExperimentNode(source, newNode) {
+        source.status = newNode.status;
+        source.version = newNode.version;
+        source.reactionImage = newNode.reactionImage;
+        source.title = newNode.title;
+        source.therapeuticArea = newNode.therapeuticArea;
+    }
+
+    function buildNotebookNode(entity, parent) {
+        var newNode = {
+            id: entity.id,
+            fullId: entity.fullId,
+            name: entity.name,
+            version: entity.version,
+            params: [parent.id, entity.id],
+            parent: parent,
+            children: [],
+            isActive: false,
+            isCollapsed: true,
+            hasLoadedChildren: false
+        };
+
+        return newNode;
+    }
+
+    function buildProjectNode(entity) {
+        var newNode = {
+            id: entity.id,
+            fullId: entity.fullId,
+            name: entity.name,
+            version: entity.version,
+            params: [entity.id],
+            children: [],
+            isActive: false,
+            isCollapsed: true,
+            hasLoadedChildren: false
+        };
+
+        return newNode;
     }
 
     function getFullIdFromParams(toParams) {

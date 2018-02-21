@@ -19,16 +19,14 @@ function indigoEntitiesControls() {
     };
 }
 
-IndigoEntitiesControlsController.$inject = ['$state', 'entitiesBrowserService',
-    'modalHelper', 'projectsForSubCreationService'];
-
+/* @ngInject */
 function IndigoEntitiesControlsController($state, entitiesBrowserService, modalHelper,
-                                          projectsForSubCreationService) {
+                                          projectsForSubCreationService, $scope) {
     var vm = this;
 
-    $onInit();
+    init();
 
-    function $onInit() {
+    function init() {
         vm.CONTENT_EDITOR = roles.CONTENT_EDITOR;
         vm.PROJECT_CREATOR = roles.PROJECT_CREATOR;
         vm.NOTEBOOK_CREATOR = roles.NOTEBOOK_CREATOR;
@@ -54,6 +52,8 @@ function IndigoEntitiesControlsController($state, entitiesBrowserService, modalH
             vm.entities = tabs;
             vm.entitiesCount = _.size(vm.entities);
         });
+
+        initEvents();
     }
 
     function onTabClick(tab) {
@@ -116,6 +116,12 @@ function IndigoEntitiesControlsController($state, entitiesBrowserService, modalH
             $state.go('entities.notebook-new', {
                 parentId: projectId
             });
+        });
+    }
+
+    function initEvents() {
+        $scope.$on('$destroy', function() {
+            modalHelper.close();
         });
     }
 }

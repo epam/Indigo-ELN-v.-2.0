@@ -1,6 +1,8 @@
-entitiesBrowserService.$inject = ['$q', '$state', 'principalService', 'tabKeyService', 'CacheFactory'];
-
-function entitiesBrowserService($q, $state, principalService, tabKeyService, CacheFactory) {
+/* @ngInject */
+function entitiesBrowserService($q, $state, notifyService, dialogService,
+                                autorecoveryCache, principalService, tabKeyService, CacheFactory,
+                                entitiesCache, entityTreeService, projectService, notebookService,
+                                experimentService) {
     var tabs = {};
     var activeTab = {};
     var entityActions;
@@ -35,7 +37,9 @@ function entitiesBrowserService($q, $state, principalService, tabKeyService, Cac
         getTabByParams: getTabByParams,
         restoreTabs: restoreTabs,
         setExperimentTab: setExperimentTab,
-        getExperimentTab: getExperimentTab
+        getExperimentTab: getExperimentTab,
+        closeTab: closeTab,
+        closeAllTabs: closeAllTabs
     };
 
     function getExperimentTabById(user, experimentFullId) {
@@ -91,7 +95,51 @@ function entitiesBrowserService($q, $state, principalService, tabKeyService, Cac
         });
     }
 
-    function saveEntity() {
+    function getTreeServiceMethod(type) {
+        if (type === 'project') {
+            return entityTreeService.updateProject;
+        }
+        if (type === 'notebook') {
+            return entityTreeService.updateNotebook;
+        }
+
+        return entityTreeService.updateExperimentByEntity;
+    }
+
+    function getService(type) {
+        if (type === 'project') {
+            return projectService;
+        }
+        if (type === 'notebook') {
+            return notebookService;
+        }
+
+        return experimentService;
+    }
+
+    function saveEntity(tab) {
+        var entity = entitiesCache.get(tab.params);
+        if (entity) {
+            var service = getService(tab.kind);
+            var treeServiceUpdate = getTreeServiceMethod(tab.kind);
+
+            if (service) {
+                if (tab.params.isNewEntity) {
+                    if (tab.params.parentId) {
+                        // notebook
+                        return service.save({projectId: tab.params.parentId}, entity, function(result) {
+                            entityTreeService.addNotebook(result, tab.params.parentId);
+                        }).$promise;
+                    }
+
+                    // project
+                    return service.save(entity, entityTreeService.addProject).$promise;
+                }
+
+                return service.update(tab.params, entity, treeServiceUpdate).$promise;
+            }
+        }
+
         return $q.resolve();
     }
 
@@ -216,6 +264,76 @@ function entitiesBrowserService($q, $state, principalService, tabKeyService, Cac
 
         cacheTabs = _.omit(cacheTabs, tabKey);
         tabCache.put(storageKey, cacheTabs);
+    }
+
+    function closeTab(tab) {
+        close(tab.tabKey);
+        entitiesCache.removeByKey(tab.tabKey);
+        autorecoveryCache.remove(tab.params);
+    }
+
+    function openCloseDialog(editTabs) {
+        return dialogService
+            .selectEntitiesToSave(editTabs)
+            .then(function(tabsToSave) {
+                var savePromises = [];
+                _.forEach(tabsToSave, function(tabToSave) {
+                    var pr = saveEntity(tabToSave)
+                        .then(function() {
+                            closeTab(tabToSave);
+                        })
+                        .catch(function() {
+                            notifyService.error('Error saving ' + tabToSave.kind + ' ' + tabToSave.name + '.');
+                        });
+
+                    savePromises.push(pr);
+                });
+
+                _.each(editTabs, function(tab) {
+                    if (!_.find(tabsToSave, {tabKey: tab.tabKey})) {
+                        closeTab(tab);
+                    }
+                });
+
+                return $q.all(savePromises);
+            });
+    }
+
+    function doCloseAllTabs(userId, exceptCurrent) {
+        var tabsToClose = tabs[userId];
+        if (exceptCurrent) {
+            tabsToClose = _.filter(tabs[userId], function(tab) {
+                return tab !== activeTab;
+            });
+        }
+
+        var modifiedTabs = [];
+        var unmodifiedTabs = [];
+        _.each(tabsToClose, function(tab) {
+            if (tab.dirty) {
+                modifiedTabs.push(tab);
+            } else {
+                unmodifiedTabs.push(tab);
+            }
+        });
+
+        if (modifiedTabs.length) {
+            return openCloseDialog(modifiedTabs).then(function() {
+                _.each(unmodifiedTabs, closeTab);
+
+                return true;
+            });
+        }
+
+        _.each(unmodifiedTabs, closeTab);
+
+        return $q.when(null);
+    }
+
+    function closeAllTabs(exceptCurrent) {
+        return resolvePrincipal(function(user) {
+            return doCloseAllTabs(user.id, exceptCurrent);
+        });
     }
 }
 

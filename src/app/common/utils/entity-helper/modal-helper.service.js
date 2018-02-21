@@ -3,31 +3,47 @@ var newNotebookModal = require('../../../notebook/select-parent/notebook-select-
 
 /* @ngInject */
 function modalHelper($uibModal) {
+    var dlg;
+
     return {
         openCreateNewExperimentModal: openCreateNewExperimentModal,
-        openCreateNewNotebookModal: openCreateNewNotebookModal
+        openCreateNewNotebookModal: openCreateNewNotebookModal,
+        close: close
     };
 
     function openCreateNewExperimentModal(resolve) {
-        return $uibModal.open({
+        close();
+        dlg = $uibModal.open({
             animation: true,
             template: newExperimentModal,
             controller: 'CreateNewExperimentModalController',
             controllerAs: 'vm',
             size: 'lg',
             resolve: resolve
-        }).result;
+        });
+
+        return dlg.result;
     }
 
     function openCreateNewNotebookModal(resolve) {
-        return $uibModal.open({
+        close();
+        dlg = $uibModal.open({
             animation: true,
             template: newNotebookModal,
             controller: 'NotebookSelectParentController',
             controllerAs: 'vm',
             size: 'lg',
             resolve: resolve
-        }).result;
+        });
+
+        return dlg.result;
+    }
+
+    function close() {
+        if (dlg) {
+            dlg.dismiss();
+            dlg = null;
+        }
     }
 }
 

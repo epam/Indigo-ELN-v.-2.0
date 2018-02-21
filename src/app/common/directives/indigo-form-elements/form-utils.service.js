@@ -68,7 +68,7 @@ function formUtils($timeout) {
         }
     }
 
-    function addDirectivesByAttrs(tAttrs, $element) {
+    function addDirectiveByAttrsValues(tAttrs, $element) {
         if (tAttrs.indigoValidationMinlength) {
             $element.attr('ng-minlength', tAttrs.indigoValidationMinlength);
         }
@@ -81,6 +81,9 @@ function formUtils($timeout) {
         if (tAttrs.indigoValidationRequired) {
             $element.attr('ng-required', tAttrs.indigoValidationRequired);
         }
+    }
+
+    function addDirectiveByAttrsEvents(tAttrs, $element) {
         if (tAttrs.indigoChange) {
             $element.attr('ng-change', 'indigoChangeAsync()');
         }
@@ -91,6 +94,9 @@ function formUtils($timeout) {
             $element.attr('ng-model', 'indigoModel')
                 .attr('ng-model-options', '{ debounce: 150 }');
         }
+    }
+
+    function addDirectiveByAttrsFormats(tAttrs, $element) {
         if (tAttrs.indigoParsers || tAttrs.indigoFormatters) {
             $element.attr(
                 'indigo-parsers-formatters',
@@ -116,6 +122,12 @@ function formUtils($timeout) {
         if (tAttrs.indigoDisabled) {
             $element.attr('ng-disabled', 'indigoDisabled');
         }
+    }
+
+    function addDirectivesByAttrs(tAttrs, $element) {
+        addDirectiveByAttrsValues(tAttrs, $element);
+        addDirectiveByAttrsEvents(tAttrs, $element);
+        addDirectiveByAttrsFormats(tAttrs, $element);
     }
 }
 

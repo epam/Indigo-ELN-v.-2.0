@@ -8,6 +8,7 @@ var userRemovableFromNotebookService = require('./resources/user-removable-from-
 var userRemovableFromProjectService = require('./resources/user-removable-from-project.service');
 var userWithAuthorityService = require('./resources/user-with-authority.service');
 var permissionService = require('./services/permission.service');
+var permissionModal = require('./services/permission-modal.service');
 
 module.exports = angular
     .module('indigoeln.permissions', [])
@@ -19,6 +20,7 @@ module.exports = angular
     .factory('userRemovableFromProjectService', userRemovableFromProjectService)
     .factory('userWithAuthorityService', userWithAuthorityService)
     .factory('permissionService', permissionService)
+    .factory('permissionModal', permissionModal)
 
     .constant('permissionsConstant', permissionsConstant)
     .constant('permissionsConfig', permissionsConfig)

@@ -7,6 +7,8 @@ StructureSchemeController.$inject = ['$scope', 'apiUrl', '$http', '$uibModal', '
 function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyService, calculationService) {
     var vm = this;
 
+    var dlg;
+
     init();
 
     function init() {
@@ -55,6 +57,10 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
 
     function bindEvents() {
         $scope.$watch('vm.modelTrigger', updateModel);
+
+        $scope.$on('$destroy', function() {
+            closeDialog();
+        });
     }
 
     function onChangeStructure() {
@@ -134,7 +140,8 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
 
     function openEditor() {
         // open editor with pre-defined structure (prestructure)
-        var modalInstance = $uibModal.open({
+        closeDialog();
+        dlg = $uibModal.open({
             animation: true,
             template: structureEditorModalTemplate,
             controller: 'StructureEditorModalController',
@@ -151,7 +158,7 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
         });
 
         // process structure if changed
-        modalInstance.result.then(successEditStructure);
+        dlg.result.then(successEditStructure);
     }
 
     function successEditStructure(structure) {
@@ -163,7 +170,8 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
     }
 
     function importStructure() {
-        var modalInstance = $uibModal.open({
+        closeDialog();
+        dlg = $uibModal.open({
             animation: true,
             template: structureImportModalTemplate,
             controller: 'StructureImportModalController',
@@ -172,11 +180,12 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
         });
 
         // set structure if picked
-        modalInstance.result.then(successEditStructure);
+        dlg.result.then(successEditStructure);
     }
 
     function exportStructure() {
-        $uibModal.open({
+        closeDialog();
+        dlg = $uibModal.open({
             animation: true,
             template: structureExportModalTemplate,
             controller: 'StructureExportModalController',
@@ -191,6 +200,13 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
                 }
             }
         });
+    }
+
+    function closeDialog() {
+        if (dlg) {
+            dlg.dismiss();
+            dlg = null;
+        }
     }
 }
 

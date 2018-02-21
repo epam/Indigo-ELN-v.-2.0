@@ -129,6 +129,11 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
                         $state.go('^', null, {notify: false});
                     });
             },
+            onExit: function(printModal) {
+                'ngInject';
+
+                printModal.close();
+            },
             data: {
                 authorities: [roles.CONTENT_EDITOR, roles.NOTEBOOK_READER, roles.NOTEBOOK_CREATOR]
             }

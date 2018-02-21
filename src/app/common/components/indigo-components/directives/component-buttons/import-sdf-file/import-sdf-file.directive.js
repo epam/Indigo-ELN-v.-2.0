@@ -19,13 +19,15 @@ function importSdfFile() {
     };
 
     /* @ngInject */
-    function ImportSdfFileController(productBatchSummaryOperations, notifyService, $q) {
+    function ImportSdfFileController(productBatchSummaryOperations, notifyService, $q, $scope) {
         var vm = this;
 
         init();
 
         function init() {
             vm.importSdfFile = importSdfFile;
+
+            bindEvents();
         }
 
         function importSdfFile() {
@@ -55,6 +57,12 @@ function importSdfFile() {
                 });
                 vm.indigoComponents.onSelectBatch(_.last(batches));
             }
+        }
+
+        function bindEvents() {
+            $scope.$on('$destroy', function() {
+                productBatchSummaryOperations.closeImportSDFileDialog();
+            });
         }
     }
 }

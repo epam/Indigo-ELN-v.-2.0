@@ -15,7 +15,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
                                     permissionService, fileUploader, entitiesBrowserService,
                                     autorecoveryHelper, notifyService, entitiesCache, $q,
                                     principalService, notebookService, typeOfComponents, autorecoveryCache,
-                                    confirmationModal, entityHelper, apiUrl, componentsUtil, entityTreeService) {
+                                    confirmationModal, entityHelper, apiUrl, componentsUtil) {
     var vm = this;
     var params;
     var isContentEditor;
@@ -177,10 +177,10 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
 
     function getSaveService(experimentForSave) {
         if (vm.experiment.template !== null) {
-            return experimentService.update($stateParams, experimentForSave, entityTreeService.updateExperiment).$promise;
+            return experimentService.update($stateParams, experimentForSave).$promise;
         }
 
-        return experimentService.save(experimentForSave, entityTreeService.addExperiment).$promise;
+        return experimentService.save(experimentForSave).$promise;
     }
 
     function save() {
@@ -438,6 +438,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
             accessList();
             experimentStatus();
             batchRegistrationStatus();
+            experimentUtil.closeDialog();
         });
     }
 }
