@@ -1,28 +1,37 @@
 /* @ngInject */
-function notebookService($resource, permissionService, apiUrl) {
+function notebookService($resource, permissionService, apiUrl, entityTreeService) {
     return $resource(apiUrl + 'projects/:projectId/notebooks/:notebookId', {}, {
-        query: {
-            method: 'GET', isArray: true
-        },
         get: {
             method: 'GET',
             transformResponse: function(data) {
-                var project = angular.fromJson(data);
-                project.accessList = _.sortBy(project.accessList, function(value) {
+                var notebook = angular.fromJson(data);
+                notebook.accessList = _.sortBy(notebook.accessList, function(value) {
                     return value.user.id;
                 });
 
-                return project;
+                return notebook;
             }
         },
         save: {
             method: 'POST',
-            transformRequest: transformRequest
+            transformRequest: transformRequest,
+            transformResponse: function(data) {
+                var notebook = angular.fromJson(data);
+                entityTreeService.addNotebookByEntity(notebook);
+
+                return notebook;
+            }
         },
         update: {
             method: 'PUT',
             url: apiUrl + 'projects/:projectId/notebooks',
-            transformRequest: transformRequest
+            transformRequest: transformRequest,
+            transformResponse: function(data) {
+                var notebook = angular.fromJson(data);
+                entityTreeService.updateNotebookByEntity(notebook);
+
+                return notebook;
+            }
         },
         delete: {
             method: 'DELETE'

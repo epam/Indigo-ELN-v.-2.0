@@ -1,7 +1,7 @@
 /* @ngInject */
 function entitiesBrowserService($q, $state, notifyService, dialogService,
                                 autorecoveryCache, principalService, tabKeyService, CacheFactory,
-                                entitiesCache, entityTreeService, projectService, notebookService,
+                                entitiesCache, projectService, notebookService,
                                 experimentService) {
     var tabs = {};
     var activeTab = {};
@@ -95,17 +95,6 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
         });
     }
 
-    function getTreeServiceMethod(type) {
-        if (type === 'project') {
-            return entityTreeService.updateProject;
-        }
-        if (type === 'notebook') {
-            return entityTreeService.updateNotebook;
-        }
-
-        return entityTreeService.updateExperimentByEntity;
-    }
-
     function getService(type) {
         if (type === 'project') {
             return projectService;
@@ -121,22 +110,19 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
         var entity = entitiesCache.get(tab.params);
         if (entity) {
             var service = getService(tab.kind);
-            var treeServiceUpdate = getTreeServiceMethod(tab.kind);
 
             if (service) {
                 if (tab.params.isNewEntity) {
                     if (tab.params.parentId) {
                         // notebook
-                        return service.save({projectId: tab.params.parentId}, entity, function(result) {
-                            entityTreeService.addNotebook(result, tab.params.parentId);
-                        }).$promise;
+                        return service.save({projectId: tab.params.parentId}, entity).$promise;
                     }
 
                     // project
-                    return service.save(entity, entityTreeService.addProject).$promise;
+                    return service.save(entity).$promise;
                 }
 
-                return service.update(tab.params, entity, treeServiceUpdate).$promise;
+                return service.update(tab.params, entity).$promise;
             }
         }
 

@@ -11,9 +11,8 @@ function sidebar() {
     };
 }
 
-SidebarController.$inject = ['$scope', '$state', '$stateParams', 'sidebarCache', 'entityTreeService'];
-
-function SidebarController($scope, $state, $stateParams, sidebarCache, entityTreeService) {
+/* @ngInject */
+function SidebarController($scope, $state, $stateParams, sidebarCache) {
     var vm = this;
 
     vm.CONTENT_EDITOR = roles.CONTENT_EDITOR;
@@ -37,7 +36,7 @@ function SidebarController($scope, $state, $stateParams, sidebarCache, entityTre
         vm.allProjectIsCollapsed = sidebarCache.get('allProjectIsCollapsed');
         vm.bookmarksIsCollapsed = sidebarCache.get('bookmarksIsCollapsed');
         vm.adminToggled = sidebarCache.get('adminToggled');
-        vm.selectedFullId = entityTreeService.getFullIdFromParams($stateParams);
+        vm.selectedFullId = getFullIdFromParams($stateParams);
 
         bindEvents();
     }
@@ -71,14 +70,14 @@ function SidebarController($scope, $state, $stateParams, sidebarCache, entityTre
 
     function bindEvents() {
         $scope.$on('$stateChangeSuccess', function(event, toState, toParams) {
-            vm.onSelectNode(entityTreeService.getFullIdFromParams(toParams));
+            vm.onSelectNode(getFullIdFromParams(toParams));
         });
+    }
 
-        $scope.$on('experiment-status-changed', function(event, data) {
-            _.forEach(data, function(status, fullId) {
-                entityTreeService.updateStatus(fullId, status);
-            });
-        });
+    function getFullIdFromParams(toParams) {
+        return _.compact([toParams.projectId, toParams.notebookId, toParams.experimentId])
+            .join('-')
+            .toString();
     }
 }
 
