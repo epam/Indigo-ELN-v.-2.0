@@ -298,13 +298,13 @@ public class NotebookService {
             if (notebookNameChanged) {
                 List<String> numbers = BatchComponentUtil.hasBatches(notebookFromDB);
                 if (!numbers.isEmpty()) {
-                    throw OperationDeniedException
+                    throw OperationNotAvailableException
                             .createNotebookUpdateNameOperation();
                 }
                 boolean hasNotOpen = notebookFromDB.getExperiments().stream()
                         .anyMatch(e -> e.getStatus() != ExperimentStatus.OPEN);
                 if (hasNotOpen) {
-                    throw OperationDeniedException
+                    throw OperationNotAvailableException
                             .createNotebookUpdateNameOperation();
                 }
                 notebookFromDB.setName(notebook.getName());

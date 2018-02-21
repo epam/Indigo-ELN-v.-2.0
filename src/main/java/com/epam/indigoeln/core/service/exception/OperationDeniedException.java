@@ -247,14 +247,5 @@ public final class OperationDeniedException extends CustomParametrizedException 
                 + " while there is open experiment", entityId);
     }
 
-    /**
-     * Creates instance of OperationDeniedException
-     * if user tried to update notebook if there is at least one batch or open experiment.
-     *
-     * @return Instance of OperationDeniedException
-     */
-    public static OperationDeniedException createNotebookUpdateNameOperation() {
-        return new OperationDeniedException("The notebook can't be updated if there is at least one experiment "
-                + "with a batch or experiments in non-Open status");
-    }
+
 }
