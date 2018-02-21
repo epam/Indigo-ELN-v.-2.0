@@ -17,6 +17,8 @@ public class ExperimentTreeNodeDTO extends TreeNodeDTO {
     private String authorFullName;
     private String reactionImage;
     private ZonedDateTime creationDate;
+    private String title;
+    private String therapeuticAreaName;
 
     public ExperimentTreeNodeDTO() {
         super();
@@ -75,5 +77,21 @@ public class ExperimentTreeNodeDTO extends TreeNodeDTO {
 
     public void setCreationDate(ZonedDateTime creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getTherapeuticAreaName() {
+        return therapeuticAreaName;
+    }
+
+    public void setTherapeuticAreaName(String therapeuticAreaName) {
+        this.therapeuticAreaName = therapeuticAreaName;
     }
 }

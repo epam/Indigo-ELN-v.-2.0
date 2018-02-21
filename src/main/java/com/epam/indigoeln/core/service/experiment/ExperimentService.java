@@ -24,10 +24,7 @@ import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.epam.indigoeln.web.rest.util.permission.helpers.ExperimentPermissionHelper;
 import com.epam.indigoeln.web.rest.util.permission.helpers.PermissionChanges;
 import com.google.common.util.concurrent.Striped;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.DBRef;
+import com.mongodb.*;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
@@ -146,7 +143,6 @@ public class ExperimentService {
         val notebookCollection = mongoTemplate.getCollection(Notebook.COLLECTION_NAME);
         val experimentCollection = mongoTemplate.getCollection(Experiment.COLLECTION_NAME);
         val userCollection = mongoTemplate.getCollection(User.COLLECTION_NAME);
-        val componentCollection = mongoTemplate.getCollection(Component.COLLECTION_NAME);
 
         val notebook = notebookCollection
                 .findOne(new BasicDBObject().append("_id", SequenceIdUtil.buildFullId(projectId, notebookId)));
@@ -168,7 +164,7 @@ public class ExperimentService {
             Map<Object, Object> experimentsWithUsers = getExperimentsWithUsers(experiments, userCollection);
 
             Map<Object, List<Object>> experimentsWithComponents =
-                    getExperimentsWithComponents(experiments, componentCollection);
+                    getExperimentsWithComponents(experiments);
 
             if (user != null) {
                 val notebookAccessList = new HashSet<UserPermission>();
@@ -194,21 +190,13 @@ public class ExperimentService {
                     .collect(Collectors.toList());
 
             result.forEach(e -> {
-                Optional<BasicDBObject> opt = (Optional<BasicDBObject>) experimentsWithUsers.get(e.getFullId());
+                Optional userObject = (Optional) experimentsWithUsers.get(e.getFullId());
+                DBObject userBasicDBObject = null;
+                if ((userObject).isPresent()) {
+                    userBasicDBObject = (DBObject) userObject.get();
+                }
                 val components = experimentsWithComponents.get(e.getFullId());
-                if (opt.isPresent()) {
-                    e.setAuthorFullName(String.format("%s %s",
-                            opt.get().get("first_name"), opt.get().get("last_name")));
-                } else {
-                    e.setAuthorFullName("");
-                }
-                String image = "";
-                if (components != null) {
-                    val imageObject = ((BasicDBObject) ((BasicDBObject) components.get(components.size() - 1))
-                            .get("content")).get("image");
-                    image = String.valueOf(imageObject);
-                }
-                e.setReactionImage(image);
+                setValuesForExperimentTreeNodeDTO(e, userBasicDBObject, components);
             });
 
             result = result.stream().sorted(TreeNodeDTO.NAME_COMPARATOR).collect(Collectors.toList());
@@ -221,10 +209,60 @@ public class ExperimentService {
         return Collections.emptyList();
     }
 
+    private void setValuesForExperimentTreeNodeDTO(ExperimentTreeNodeDTO experiment,
+                                                   DBObject user, List<Object> components) {
+
+        if (components != null) {
+            val reactionComponent = components.stream()
+                    .filter(c -> ("reaction".equals(((BasicDBObject) c).get("name")))).findFirst();
+
+            val reactionDetailsComponent = components.stream()
+                    .filter(c -> ("reactionDetails".equals(((BasicDBObject) c).get("name")))).findFirst();
+
+            val conceptDetailsComponent = components.stream()
+                    .filter(c -> ("conceptDetails".equals(((BasicDBObject) c).get("name")))).findFirst();
+
+
+            Object image = null;
+
+            if (reactionComponent.isPresent()) {
+                image = ((BasicDBObject) ((BasicDBObject) reactionComponent.get()).get("content")).get("image");
+            }
+            if (image != null) {
+                experiment.setReactionImage(image.toString());
+            }
+            if (user != null) {
+                experiment.setAuthorFullName(String.format("%s %s",
+                        user.get("first_name"), user.get("last_name")));
+            }
+
+            if (reactionDetailsComponent.isPresent()) {
+                setSpecialFields(reactionDetailsComponent.get(), experiment);
+            } else conceptDetailsComponent.ifPresent(o -> setSpecialFields(o, experiment));
+        }
+    }
+
+    private void setSpecialFields(Object component, ExperimentTreeNodeDTO experiment) {
+        if (component != null && experiment != null) {
+            val titleObject = ((BasicDBObject) ((BasicDBObject) component)
+                    .get("content")).get("title");
+            if (titleObject != null) {
+                experiment.setTitle(String.valueOf(titleObject));
+            }
+            val therapeuticAreaObject = ((BasicDBObject) ((BasicDBObject) component)
+                    .get("content")).get("therapeuticArea");
+            if (therapeuticAreaObject != null) {
+                experiment.setTherapeuticAreaName(String.valueOf(((BasicDBObject) therapeuticAreaObject).get("name")));
+            }
+        }
+    }
+
     public ExperimentTreeNodeDTO getExperimentAsTreeNode(String projectId, String notebookId, String experimentId) {
         String experimentFullId = String.format("%s-%s-%s", projectId, notebookId, experimentId);
         ExperimentTreeNodeDTO result;
+        List<Object> componentIds = new ArrayList<>();
         val experimentCollection = mongoTemplate.getCollection(Experiment.COLLECTION_NAME);
+        val userCollection = mongoTemplate.getCollection(User.COLLECTION_NAME);
         val experiment = experimentCollection
                 .findOne(new BasicDBObject().append("_id", experimentFullId));
 
@@ -232,33 +270,59 @@ public class ExperimentService {
             throw EntityNotFoundException.createWithExperimentId(experimentId);
         }
 
+        Object authorId = ((DBRef) experiment.get("author")).getId();
+        val user = userCollection.findOne(new BasicDBObject("_id", authorId));
+
         result = new ExperimentTreeNodeDTO(experiment);
-        Experiment e = experimentRepository.findOne(experimentFullId);
-        if (e != null) {
-            List<Component> components = e.getComponents();
-            result.setReactionImage(components.get(components.size() - 1).getContent().get("image").toString());
-            result.setAuthorFullName(e.getAuthor().getFullName());
-        }
+        ((Iterable) experiment.get("components"))
+                .forEach(c -> componentIds.add(((DBRef) c).getId()));
+
+
+        val components = getComponents(componentIds);
+
+        setValuesForExperimentTreeNodeDTO(result, user, components);
+
         return result;
     }
 
-    private Map<Object, List<Object>> getExperimentsWithComponents(List<DBObject> experiments,
-                                                                   DBCollection componentCollection) {
-        Map<Object, List<Object>> experimentsWithComponents = new HashMap<>();
+    private List getComponents(List<Object> componentIds) {
+        val componentCollection = mongoTemplate.getCollection(Component.COLLECTION_NAME);
+        val components = new ArrayList();
+        BasicDBList or = new BasicDBList();
+        or.add(new BasicDBObject("name", "reaction"));
+        or.add(new BasicDBObject("name", "reactionDetails"));
+        or.add(new BasicDBObject("name", "conceptDetails"));
 
+        componentCollection
+                .find(new BasicDBObject("_id", new BasicDBObject().append("$in", componentIds)
+                ).append("$or", or)).forEach(components::add);
+        return components;
+    }
+
+    private Map<Object, List<Object>> getExperimentsWithComponents(List<DBObject> experiments) {
+        Map<Object, List<Object>> experimentsWithComponents = new HashMap<>();
+        List<Object> allComponentIds = new ArrayList<>();
         experiments.forEach(e -> {
             List<Object> componentIds = new ArrayList<>();
             ((Iterable) e.get("components"))
-                    .forEach(c -> componentIds.add(((DBRef) c).getId()));
+                    .forEach(c -> {
+                        val id = ((DBRef) c).getId();
+                        componentIds.add(id);
+                        allComponentIds.add(id);
+                    });
             experimentsWithComponents.put(e.get("_id"), componentIds);
         });
 
+        val allComponents = getComponents(allComponentIds);
         experimentsWithComponents.entrySet().forEach(entryObject -> {
-            List<Object> components = new ArrayList<>();
-            componentCollection
-                    .find(new BasicDBObject("_id", new BasicDBObject().append("$in", entryObject.getValue())))
-                    .forEach(components::add);
-            entryObject.setValue(components);
+            val ids = entryObject.getValue();
+            val tmp = new ArrayList<>();
+            ids.forEach(id -> allComponents.forEach(c -> {
+                if (id.equals(((BasicDBObject) c).get("_id"))) {
+                    tmp.add(c);
+                }
+            }));
+            entryObject.setValue(tmp);
         });
 
         return experimentsWithComponents;

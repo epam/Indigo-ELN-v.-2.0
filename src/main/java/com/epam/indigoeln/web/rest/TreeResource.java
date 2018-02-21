@@ -31,8 +31,8 @@ public class TreeResource {
     private static final String NOTEBOOKS_PATH = PROJECTS_PATH + "/{projectId:[\\d]+}/notebooks";
     private static final String EXPERIMENTS_PATH = NOTEBOOKS_PATH + "/{notebookId:[\\d]+}/experiments";
     private static final String PROJECT_PATH_ID = "projects/{projectId:[\\d]+}";
-    private static final String NOTEBOOK_PATH_ID = PROJECT_PATH_ID + "/notebooks/{id:[\\d]+}";
-    private static final String EXPERIMENT_PATH_ID = NOTEBOOK_PATH_ID + "/experiments/{id:[\\d]+}";
+    private static final String NOTEBOOK_PATH_ID = PROJECT_PATH_ID + "/notebooks/{notebookId:[\\d]+}";
+    private static final String EXPERIMENT_PATH_ID = NOTEBOOK_PATH_ID + "/experiments/{experimentId:[\\d]+}";
     private static final Logger LOGGER = LoggerFactory.getLogger(TreeResource.class);
 
     @Autowired
@@ -50,24 +50,24 @@ public class TreeResource {
     /**
      * GET  /projects/:id -> Returns project with specified id according to User permissions.
      *
-     * @param id Identifier
+     * @param projectId Identifier
      * @return Project
      */
     @ApiOperation(value = "Returns project by it's id as tree node.")
     @RequestMapping(value = PROJECT_PATH_ID, method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TreeNodeDTO> getProjectForTree(
-            @ApiParam("Project id") @PathVariable String id
+            @ApiParam("Project id") @PathVariable String projectId
     ) {
-        LOGGER.debug("REST request to get project tree node: {}", id);
-        TreeNodeDTO project = projectService.getProjectAsTreeNode(id);
+        LOGGER.debug("REST request to get project tree node: {}", projectId);
+        TreeNodeDTO project = projectService.getProjectAsTreeNode(projectId);
         return ResponseEntity.ok(project);
     }
 
     /**
      * GET  /notebooks/:id -> Returns notebook with specified id for tree.
      *
-     * @param id Notebook id
+     * @param notebookId Notebook id
      * @return Returns notebook with specified id
      */
     @ApiOperation(value = "Returns notebook by it's id for tree.")
@@ -75,10 +75,10 @@ public class TreeResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TreeNodeDTO> getNotebookAsTree(
             @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String id
+            @ApiParam("Notebook id") @PathVariable String notebookId
     ) {
-        LOGGER.debug("REST request to get notebook: {}", id);
-        TreeNodeDTO notebook = notebookService.getNotebookAsTreeNode(projectId, id);
+        LOGGER.debug("REST request to get notebook: {}", notebookId);
+        TreeNodeDTO notebook = notebookService.getNotebookAsTreeNode(projectId, notebookId);
         return ResponseEntity.ok(notebook);
     }
 
@@ -89,10 +89,10 @@ public class TreeResource {
     public ResponseEntity<ExperimentTreeNodeDTO> getExperimentAsTreeNode(
             @ApiParam("Project id") @PathVariable String projectId,
             @ApiParam("Notebook id") @PathVariable String notebookId,
-            @ApiParam("Experiment id") @PathVariable String id
+            @ApiParam("Experiment id") @PathVariable String experimentId
     ) {
         ExperimentTreeNodeDTO experimentTreeNodeDTO = experimentService
-                .getExperimentAsTreeNode(projectId, notebookId, id);
+                .getExperimentAsTreeNode(projectId, notebookId, experimentId);
         return ResponseEntity.ok(experimentTreeNodeDTO);
     }
 
