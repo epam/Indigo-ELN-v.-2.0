@@ -10,13 +10,14 @@ function autocomplete() {
             label: '@',
             placeholder: '@',
             field: '@',
-            elName: '@',
+            elName: '=',
             autofocus: '=',
             model: '=',
             items: '=',
             isRequired: '=',
             readonly: '=',
             isMultiple: '@',
+            clearItem: '=',
             allowClear: '=',
             onSelect: '&',
             onRemove: '&',
@@ -44,7 +45,6 @@ function autocompleteController($scope, translateService) {
         vm.loadPage = loadPage;
         vm.field = vm.field || 'name';
         vm.allowClear = vm.allowClear || false;
-
         vm.isLoading = false;
         vm.loadingPlaceholder = translateService.translate('AUTOCOMPLETE_LOADING_PLACEHOLDER');
         vm.emptyListPlaceholder = translateService.translate('AUTOCOMPLETE_EMPTY_PLACEHOLDER');

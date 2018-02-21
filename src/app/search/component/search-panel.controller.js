@@ -47,6 +47,7 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtil, 
         vm.onChangeModel = onChangeModel;
         vm.printEntity = printEntity;
         vm.ownEntitySelected = false;
+        vm.clearItem = clearItem;
 
         if (entitiesCache.getByKey(CACHE_STATE_KEY)) {
             vm.state = entitiesCache.getByKey(CACHE_STATE_KEY);
@@ -105,6 +106,12 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtil, 
         initDropdownInfoForSelectSearch();
     }
 
+    function clearItem(itemName, itemValue) {
+        if (_.isUndefined(itemValue)) {
+            vm.state.restrictions.advancedSearch[itemName].value = undefined;
+        }
+    }
+
     function isAdvancedSearchFilled() {
         return searchUtil.isAdvancedSearchFilled(vm.state.restrictions.advancedSearch);
     }
@@ -161,7 +168,6 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtil, 
 
     function search() {
         var searchRequest = searchUtil.prepareSearchRequest(vm.state.restrictions);
-
         vm.state.restrictions.advancedSummary = searchRequest.advancedSearch;
         vm.loading = true;
 

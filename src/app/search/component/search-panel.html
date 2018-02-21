@@ -44,7 +44,9 @@
                                     </div>
                                     <div class="col-xs-3">
                                         <autocomplete ng-if="searchCriteria.isSelect"
+                                                      clear-item="vm.clearItem"
                                                       allow-clear="true"
+                                                      el-name="searchCriteria.field"
                                                       items="searchCriteria.searchConditions"
                                                       model="searchCriteria.selectedValue">
                                         </autocomplete>

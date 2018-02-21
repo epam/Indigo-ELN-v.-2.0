@@ -9,6 +9,7 @@
                ng-required="vm.isRequired"
                on-select="vm.onSelect({item: $item})"
                on-remove="vm.onRemove({item: $item})"
+               ng-change="vm.clearItem(vm.elName, $select.selected[vm.field])"
                autofocus="vm.autofocus">
         <ui-select-match placeholder="{{ ::vm.placeholder }}"
                          allow-clear="{{ ::vm.allowClear }}">
