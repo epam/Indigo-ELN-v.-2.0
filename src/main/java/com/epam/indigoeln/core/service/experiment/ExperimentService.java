@@ -193,7 +193,7 @@ public class ExperimentService {
             result.forEach(e -> {
                 DBObject userBasicDBObject = (DBObject) experimentsWithUsers.get(e.getFullId());
                 val components = experimentsWithComponents.get(e.getFullId());
-                e = setValuesForExperimentTreeNodeDTO(e, userBasicDBObject, components);
+                setValuesForExperimentTreeNodeDTO(e, userBasicDBObject, components);
             });
 
             result = result.stream().sorted(TreeNodeDTO.NAME_COMPARATOR).collect(Collectors.toList());
@@ -206,8 +206,8 @@ public class ExperimentService {
         return Collections.emptyList();
     }
 
-    private ExperimentTreeNodeDTO setValuesForExperimentTreeNodeDTO(ExperimentTreeNodeDTO experiment,
-                                                                    DBObject user, List components) {
+    private void setValuesForExperimentTreeNodeDTO(ExperimentTreeNodeDTO experiment,
+                                                   DBObject user, List<Object> components) {
 
         if (components != null) {
             val reactionComponent = components.stream()
@@ -234,31 +234,24 @@ public class ExperimentService {
             }
 
             if (reactionDetailsComponent.isPresent()) {
-                val titleObject = ((BasicDBObject) ((BasicDBObject) reactionDetailsComponent.get())
-                        .get("content")).get("title");
-                if (titleObject != null) {
-                    experiment.setTitle(String.valueOf(titleObject));
-                }
-                val therapeuticAreaObject = ((BasicDBObject) ((BasicDBObject) reactionDetailsComponent.get())
-                        .get("content")).get("therapeuticArea");
-                if (therapeuticAreaObject != null) {
-                    experiment.setTherapeuticAreaName(String.valueOf(((BasicDBObject) therapeuticAreaObject).get("name")));
-                }
-            } else if (conceptDetailsComponent.isPresent()) {
-                val titleObject = ((BasicDBObject) ((BasicDBObject) conceptDetailsComponent.get())
-                        .get("content")).get("title");
-                if (titleObject != null) {
-                    experiment.setTitle(String.valueOf(titleObject));
-                }
-                val therapeuticAreaObject = ((BasicDBObject) ((BasicDBObject) conceptDetailsComponent.get())
-                        .get("content")).get("therapeuticArea");
-                if (therapeuticAreaObject != null) {
-                    experiment.setTherapeuticAreaName(String.valueOf(((BasicDBObject) therapeuticAreaObject).get("name")));
-                }
+                setSpecialFields(reactionDetailsComponent.get(), experiment);
+            } else conceptDetailsComponent.ifPresent(o -> setSpecialFields(o, experiment));
+        }
+    }
+
+    private void setSpecialFields(Object component, ExperimentTreeNodeDTO experiment) {
+        if (component != null && experiment != null) {
+            val titleObject = ((BasicDBObject) ((BasicDBObject) component)
+                    .get("content")).get("title");
+            if (titleObject != null) {
+                experiment.setTitle(String.valueOf(titleObject));
+            }
+            val therapeuticAreaObject = ((BasicDBObject) ((BasicDBObject) component)
+                    .get("content")).get("therapeuticArea");
+            if (therapeuticAreaObject != null) {
+                experiment.setTherapeuticAreaName(String.valueOf(((BasicDBObject) therapeuticAreaObject).get("name")));
             }
         }
-
-        return experiment;
     }
 
     public ExperimentTreeNodeDTO getExperimentAsTreeNode(String projectId, String notebookId, String experimentId) {
@@ -293,7 +286,7 @@ public class ExperimentService {
                 .find(new BasicDBObject("_id", new BasicDBObject().append("$in", componentIds)
                 ).append("$or", or)).forEach(components::add);
 
-        result = setValuesForExperimentTreeNodeDTO(result, user, components);
+        setValuesForExperimentTreeNodeDTO(result, user, components);
 
         return result;
     }
