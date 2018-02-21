@@ -3,6 +3,7 @@ package com.epam.indigoeln.web.rest.errors;
 import com.epam.indigo.IndigoException;
 import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
+import com.epam.indigoeln.core.service.exception.OperationNotAvailableException;
 import com.epam.indigoeln.core.service.exception.PermissionIncorrectException;
 import com.epam.indigoeln.core.service.exception.UriProcessingException;
 import org.springframework.dao.ConcurrencyFailureException;
@@ -98,6 +99,13 @@ public class ExceptionTranslator {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ResponseBody
     public ParametrizedErrorDTO operationDeniedException(OperationDeniedException ex) {
+        return ex.getErrorDTO();
+    }
+
+    @ExceptionHandler(OperationNotAvailableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ParametrizedErrorDTO operationNotAvailableException(OperationNotAvailableException ex) {
         return ex.getErrorDTO();
     }
 
