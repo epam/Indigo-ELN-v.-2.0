@@ -1,5 +1,5 @@
 /* @ngInject */
-function projectService($resource, fileUploader, permissionService, apiUrl) {
+function projectService($resource, fileUploader, permissionService, apiUrl, entityTreeService) {
     function transformRequest(data) {
         var newData = angular.copy(data);
         newData.tags = _.map(newData.tags, 'text');
@@ -29,22 +29,30 @@ function projectService($resource, fileUploader, permissionService, apiUrl) {
     }
 
     return $resource(apiUrl + 'projects/:projectId', {}, {
-        query: {
-            method: 'GET', isArray: true
-        },
         get: {
             method: 'GET',
             transformResponse: transformResponse
         },
         save: {
             method: 'POST',
-            transformRequest: transformRequest
+            transformRequest: transformRequest,
+            transformResponse: function(data) {
+                var proj = transformResponse(data);
+                entityTreeService.addProject(proj);
+
+                return proj;
+            }
         },
         update: {
             method: 'PUT',
             url: apiUrl + 'projects',
             transformRequest: transformRequest,
-            transformResponse: transformResponse
+            transformResponse: function(data) {
+                var proj = transformResponse(data);
+                entityTreeService.updateProjectByEntity(proj);
+
+                return proj;
+            }
         },
         delete: {method: 'DELETE'},
         print: {
