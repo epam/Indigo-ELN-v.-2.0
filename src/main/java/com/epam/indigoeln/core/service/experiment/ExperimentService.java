@@ -143,7 +143,6 @@ public class ExperimentService {
         val notebookCollection = mongoTemplate.getCollection(Notebook.COLLECTION_NAME);
         val experimentCollection = mongoTemplate.getCollection(Experiment.COLLECTION_NAME);
         val userCollection = mongoTemplate.getCollection(User.COLLECTION_NAME);
-        val componentCollection = mongoTemplate.getCollection(Component.COLLECTION_NAME);
 
         val notebook = notebookCollection
                 .findOne(new BasicDBObject().append("_id", SequenceIdUtil.buildFullId(projectId, notebookId)));
@@ -165,7 +164,7 @@ public class ExperimentService {
             Map<Object, Object> experimentsWithUsers = getExperimentsWithUsers(experiments, userCollection);
 
             Map<Object, List<Object>> experimentsWithComponents =
-                    getExperimentsWithComponents(experiments, componentCollection);
+                    getExperimentsWithComponents(experiments);
 
             if (user != null) {
                 val notebookAccessList = new HashSet<UserPermission>();
@@ -258,12 +257,10 @@ public class ExperimentService {
         String experimentFullId = String.format("%s-%s-%s", projectId, notebookId, experimentId);
         ExperimentTreeNodeDTO result;
         List<Object> componentIds = new ArrayList<>();
-        val componentCollection = mongoTemplate.getCollection(Component.COLLECTION_NAME);
         val experimentCollection = mongoTemplate.getCollection(Experiment.COLLECTION_NAME);
         val userCollection = mongoTemplate.getCollection(User.COLLECTION_NAME);
         val experiment = experimentCollection
                 .findOne(new BasicDBObject().append("_id", experimentFullId));
-
 
         if (experiment == null) {
             throw EntityNotFoundException.createWithExperimentId(experimentId);
@@ -273,10 +270,20 @@ public class ExperimentService {
         val user = userCollection.findOne(new BasicDBObject("_id", authorId));
 
         result = new ExperimentTreeNodeDTO(experiment);
-        val components = new ArrayList();
         ((Iterable) experiment.get("components"))
                 .forEach(c -> componentIds.add(((DBRef) c).getId()));
 
+
+        val components = getComponents(componentIds);
+
+        setValuesForExperimentTreeNodeDTO(result, user, components);
+
+        return result;
+    }
+
+    private List getComponents(List<Object> componentIds){
+        val componentCollection = mongoTemplate.getCollection(Component.COLLECTION_NAME);
+        val components = new ArrayList();
         BasicDBList or = new BasicDBList();
         or.add(new BasicDBObject("name", "reaction"));
         or.add(new BasicDBObject("name", "reactionDetails"));
@@ -285,14 +292,10 @@ public class ExperimentService {
         componentCollection
                 .find(new BasicDBObject("_id", new BasicDBObject().append("$in", componentIds)
                 ).append("$or", or)).forEach(components::add);
-
-        setValuesForExperimentTreeNodeDTO(result, user, components);
-
-        return result;
+        return components;
     }
 
-    private Map<Object, List<Object>> getExperimentsWithComponents(List<DBObject> experiments,
-                                                                   DBCollection componentCollection) {
+    private Map<Object, List<Object>> getExperimentsWithComponents(List<DBObject> experiments) {
         Map<Object, List<Object>> experimentsWithComponents = new HashMap<>();
 
         experiments.forEach(e -> {
@@ -302,16 +305,8 @@ public class ExperimentService {
             experimentsWithComponents.put(e.get("_id"), componentIds);
         });
 
-        BasicDBList or = new BasicDBList();
-        or.add(new BasicDBObject("name", "reaction"));
-        or.add(new BasicDBObject("name", "reactionDetails"));
-        or.add(new BasicDBObject("name", "conceptDetails"));
-
         experimentsWithComponents.entrySet().forEach(entryObject -> {
-            List<Object> components = new ArrayList<>();
-            componentCollection
-                    .find(new BasicDBObject("_id", new BasicDBObject().append("$in", entryObject.getValue()))
-                            .append("$or", or)).forEach(components::add);
+            val components = getComponents(entryObject.getValue());
             entryObject.setValue(components);
         });
 
