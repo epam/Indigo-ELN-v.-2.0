@@ -81,7 +81,7 @@ public final class PermissionUtil {
                                             User user,
                                             PermissionCreationLevel permissionCreationLevel
     ) {
-        accessList.removeIf(up -> up.getUser().getId().equals(user.getId()));
+        accessList.removeIf(up -> Objects.deepEquals(up.getUser().getId().toCharArray(), user.getId().toCharArray()));
         UserPermission ownerPermission = new UserPermission(user, OWNER_PERMISSIONS, permissionCreationLevel, false);
         accessList.add(ownerPermission);
     }
@@ -193,11 +193,22 @@ public final class PermissionUtil {
      */
     public static Set<UserPermission> addAllIfNotPresent(BasicModelObject entity, Set<UserPermission> addingPermissions) {
 
+        return addAllIfNotPresent(addingPermissions, entity.getAccessList());
+    }
+
+    /**
+     * Add addingPermissions to entity's access list.
+     *
+     * @param addingPermissions adding permissions
+     * @return added permissions
+     */
+    public static Set<UserPermission> addAllIfNotPresent(Set<UserPermission> addingPermissions, Set<UserPermission> accessList) {
+
         HashSet<UserPermission> addedPermissions = new HashSet<>();
 
         for (UserPermission addingPermission : addingPermissions) {
-            if (!hasUser(entity.getAccessList(), addingPermission.getUser())) {
-                entity.getAccessList().add(addingPermission);
+            if (!hasUser(accessList, addingPermission.getUser())) {
+                accessList.add(addingPermission);
                 addedPermissions.add(addingPermission);
             }
         }
