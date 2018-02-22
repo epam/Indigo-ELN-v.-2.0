@@ -18,6 +18,7 @@ import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.epam.indigoeln.web.rest.util.permission.helpers.PermissionChanges;
 import com.epam.indigoeln.web.rest.util.permission.helpers.ProjectPermissionHelper;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import com.mongodb.DBRef;
 import com.mongodb.gridfs.GridFSDBFile;
 import lombok.val;
@@ -163,13 +164,49 @@ public class ProjectService {
      * @return list of projects available for notebook creation
      */
     public List<ShortEntityDTO> getProjectsForNotebookCreation(User user) {
-        List<Project> projects = PermissionUtil.isContentEditor(user)
-                ? projectRepository.findAllIgnoreChildren()
-                : projectRepository.findByUserIdAndPermissions(user.getId(),
-                Collections.singletonList(UserPermission.CREATE_SUB_ENTITY));
+        val projectCollection = mongoTemplate.getCollection(Project.COLLECTION_NAME);
+        val userCollection = mongoTemplate.getCollection(User.COLLECTION_NAME);
 
-        return projects.stream().map(ShortEntityDTO::new)
-                .sorted(Comparator.comparing(ShortEntityDTO::getName)).collect(Collectors.toList());
+        val projects = new HashMap<Object, DBObject>();
+
+        if (PermissionUtil.isContentEditor(user)) {
+            projectCollection
+                    .find()
+                    .forEach(p -> projects.put(p.get("_id"), p));
+        } else {
+            projectCollection
+                    .find(new BasicDBObject()
+                            .append("accessList", new BasicDBObject()
+                                    .append("$elemMatch", new BasicDBObject()
+                                            .append("user.$id", user.getId())
+                                            .append("permissions", new BasicDBObject()
+                                                    .append("$in", Collections.singletonList(UserPermission.CREATE_SUB_ENTITY))))))
+                    .forEach(p -> projects.put(p.get("_id"), p));
+        }
+
+        val userIds = new HashSet<Object>();
+        projects
+                .values()
+                .forEach(p -> {
+                    if (p.get("author") != null) {
+                        userIds.add(((DBRef) p.get("author")).getId());
+                    }
+                    if (p.get("lastModifiedBy") != null) {
+                        userIds.add(((DBRef) p.get("lastModifiedBy")).getId());
+                    }
+                });
+
+        val users = new HashMap<Object, DBObject>();
+        userCollection
+                .find(new BasicDBObject("_id", new BasicDBObject("$in", userIds)))
+                .forEach(u -> users.put(u.get("_id"), u));
+
+        return projects
+                .values()
+                .stream()
+                .map(p -> new ShortEntityDTO(p, users))
+                .sorted(Comparator.comparing(ShortEntityDTO::getName))
+                .collect(Collectors.toList());
     }
 
     /**
