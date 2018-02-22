@@ -1,4 +1,4 @@
-<div class="notebooks" ng-class="{'notebook-create': !vm.notebook.id}" cg-busy="{promise:vm.loading}">
+<div class="notebooks" ng-class="{'notebook-create': !vm.notebook.id}" ng-show="!vm.isNotHavePermissions" cg-busy="{promise:vm.loading}">
     <autorecovery kind="{{vm.stateData.tab.kind}}"
                   name="{{vm.notebook.name}}"
                   on-restore="vm.onRestore(recoveryData)">
@@ -160,4 +160,5 @@
         </button>
     </div>
 </div>
+<div  class="access-notification" i-translate="ACCESS_DENIED" ng-if="vm.isNotHavePermissions"></div>
 

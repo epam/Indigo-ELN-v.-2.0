@@ -9,6 +9,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
     var isContentEditor = pageInfo.isContentEditor;
     var hasEditAuthority = pageInfo.hasEditAuthority;
     var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
+    vm.isNotHavePermissions = pageInfo.isNotHavePermissions;
     var updateRecovery;
     var originalProject;
     var entityTitle;
@@ -16,6 +17,9 @@ function ProjectController($scope, $state, projectService, notifyService, permis
     init();
 
     function init() {
+        if (vm.isNotHavePermissions) {
+            return;
+        }
         updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
         entityTitle = pageInfo.project.name;
 

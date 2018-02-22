@@ -25,6 +25,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     var updateRecovery;
     var entityTitle;
     var isSaving = false;
+    vm.isNotHavePermissions = false;
 
     init();
 
@@ -37,6 +38,9 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         vm.loading = $q.all([
             vm.deferLoading.promise,
             getPageInfo().then(function(response) {
+                if (vm.isNotHavePermissions) {
+                    return $q.reject('Access denied');
+                }
                 // Init components because we have old experiments with wrong template
                 initComponents(response.experiment);
                 params = {

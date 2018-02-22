@@ -14,12 +14,15 @@ function entityTreeService($q, entityTreeFactory) {
         addNotebookByEntity: addNotebookByEntity,
         updateNotebook: updateNotebook,
         updateNotebookByEntity: updateNotebookByEntity,
+        refreshNotebooks: refreshNotebooks,
         updateProject: updateProject,
         updateProjectByEntity: updateProjectByEntity,
         addProject: addProject,
         getProjects: getProjects,
+        refreshProjects: refreshProjects,
         getNotebooks: getNotebooks,
         getExperiments: getExperiments,
+        refreshExperiments: refreshExperiments,
         getProjectById: getProjectById,
         getNotebookByFullId: getNotebookByFullId,
         clearAll: clearAll
@@ -213,6 +216,24 @@ function entityTreeService($q, entityTreeFactory) {
         return $q.resolve(list);
     }
 
+    function refreshProjects(isAll) {
+        var list = isAll ? allProjectsList : projectsList;
+
+        entityTreeFactory.getProjects(isAll)
+            .then(function(projects) {
+                _.forEach(projects, function(project) {
+                    if (!_.find(list, {id: project.id})) {
+                        var node = buildProjectNode(project, null);
+                        list.push(node);
+                    }
+                });
+                _.remove(list, function(project) {
+                    return !_.some(projects, {id: project.id});
+                });
+                list.sort(sortByName);
+            });
+    }
+
     function getNotebooks(projectId, isAll) {
         var projList = isAll ? allProjectsList : projectsList;
         var noteList = isAll ? allNotebooksList : notebooksList;
@@ -232,12 +253,41 @@ function entityTreeService($q, entityTreeFactory) {
                     });
                     project.children.sort(sortByName);
                     project.hasLoadedChildren = true;
-
-                    return project.children;
                 });
         }
 
         return $q.resolve(project.children);
+    }
+
+    function refreshNotebooks(projectId, isAll) {
+        var projList = isAll ? allProjectsList : projectsList;
+        var noteList = isAll ? allNotebooksList : notebooksList;
+
+        var project = _.find(projList, {id: projectId});
+
+        if (!project) {
+            return;
+        }
+        if (!project.hasLoadedChildren) {
+            return;
+        }
+        entityTreeFactory.getNotebooks(projectId, isAll)
+            .then(function(notebooks) {
+                _.forEach(notebooks, function(notebook) {
+                    if (!_.find(project.children, {fullId: notebook.fullId})) {
+                        var node = buildNotebookNode(notebook, project);
+                        project.children.push(node);
+                        noteList.push(node);
+                    }
+                });
+                _.remove(project.children, function(notebook) {
+                    return !_.some(notebooks, {fullId: notebook.fullId});
+                });
+                _.remove(noteList, function(notebook) {
+                    return !_.some(notebooks, {fullId: notebook.fullId});
+                });
+                project.children.sort(sortByName);
+            });
     }
 
     function getExperiments(projectId, notebookId, isAll) {
@@ -267,6 +317,39 @@ function entityTreeService($q, entityTreeFactory) {
         }
 
         return $q.resolve(notebook.children);
+    }
+
+    function refreshExperiments(projectId, notebookId, isAll) {
+        var noteList = isAll ? allNotebooksList : notebooksList;
+        var expList = isAll ? allExperimentsList : experimentsList;
+        var fullId = projectId + '-' + notebookId;
+
+        var notebook = _.find(noteList, {fullId: fullId});
+
+        if (!notebook) {
+            return;
+        }
+
+        if (!notebook.hasLoadedChildren) {
+            return;
+        }
+        entityTreeFactory.getExperiments(projectId, notebookId, isAll)
+            .then(function(experiments) {
+                _.forEach(experiments, function(experiment) {
+                    if (!_.find(notebook.children, {fullId: experiment.fullId})) {
+                        var node = buildExperimentNode(experiment, notebook);
+                        notebook.children.push(node);
+                        expList.push(node);
+                    }
+                });
+                _.remove(notebook.children, function(experiment) {
+                    return !_.some(experiments, {fullId: experiment.fullId});
+                });
+                _.remove(expList, function(experiment) {
+                    return !_.some(experiments, {fullId: experiment.fullId});
+                });
+                notebook.children.sort(sortByName);
+            });
     }
 
     function buildExperimentNode(entity, parent) {
