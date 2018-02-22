@@ -36,7 +36,6 @@ import java.util.stream.Stream;
 
 import static com.epam.indigoeln.core.util.WebSocketUtil.getEntityUpdateRecipients;
 import static com.epam.indigoeln.core.util.WebSocketUtil.getSubEntityChangesRecipients;
-import static java.util.Collections.singletonList;
 
 /**
  * Provides a number of methods for notebook's data manipulation.
@@ -160,12 +159,49 @@ public class NotebookService {
      * @return list of notebooks available for experiment creation
      */
     public List<ShortEntityDTO> getNotebooksForExperimentCreation(User user) {
-        List<Notebook> notebooks = PermissionUtil.isContentEditor(user)
-                ? notebookRepository.findAllIgnoreChildren()
-                : notebookRepository.findByUserIdAndPermissionsShort(user.getId(),
-                singletonList(UserPermission.CREATE_SUB_ENTITY));
-        return notebooks.stream().map(ShortEntityDTO::new)
-                .sorted(Comparator.comparing(ShortEntityDTO::getName)).collect(Collectors.toList());
+        val notebookCollection = mongoTemplate.getCollection(Notebook.COLLECTION_NAME);
+        val userCollection = mongoTemplate.getCollection(User.COLLECTION_NAME);
+
+        val notebooks = new HashMap<Object, DBObject>();
+
+        if (PermissionUtil.isContentEditor(user)) {
+            notebookCollection
+                    .find()
+                    .forEach(n -> notebooks.put(n.get("_id"), n));
+        } else {
+            notebookCollection
+                    .find(new BasicDBObject()
+                            .append("accessList", new BasicDBObject()
+                                    .append("$elemMatch", new BasicDBObject()
+                                            .append("user.$id", user.getId())
+                                            .append("permissions", new BasicDBObject()
+                                                    .append("$in", Collections.singletonList(UserPermission.CREATE_SUB_ENTITY))))))
+                    .forEach(n -> notebooks.put(n.get("_id"), n));
+        }
+
+        val userIds = new HashSet<Object>();
+        notebooks
+                .values()
+                .forEach(n -> {
+                    if (n.get("author") != null) {
+                        userIds.add(((DBRef) n.get("author")).getId());
+                    }
+                    if (n.get("lastModifiedBy") != null) {
+                        userIds.add(((DBRef) n.get("lastModifiedBy")).getId());
+                    }
+                });
+
+        val users = new HashMap<Object, DBObject>();
+        userCollection
+                .find(new BasicDBObject("_id", new BasicDBObject("$in", userIds)))
+                .forEach(u -> users.put(u.get("_id"), u));
+
+        return notebooks
+                .values()
+                .stream()
+                .map(n -> new ShortEntityDTO(n, users))
+                .sorted(Comparator.comparing(ShortEntityDTO::getName))
+                .collect(Collectors.toList());
     }
 
     /**
