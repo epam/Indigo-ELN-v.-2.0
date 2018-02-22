@@ -253,6 +253,8 @@ function entityTreeService($q, entityTreeFactory) {
                     });
                     project.children.sort(sortByName);
                     project.hasLoadedChildren = true;
+
+                    return project.children;
                 });
         }
 
