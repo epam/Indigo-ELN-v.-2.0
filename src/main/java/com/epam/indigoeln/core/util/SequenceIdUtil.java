@@ -51,7 +51,11 @@ public final class SequenceIdUtil {
         if (entity.getId() == null) {
             return null;
         }
-        String[] split = entity.getId().split(DELIMITER);
+        return extractParentId(entity.getId());
+    }
+
+    public static String extractParentId(String id) {
+        String[] split = id.split(DELIMITER);
         return split.length > 1 ? split[split.length - 2] : null;
     }
 
