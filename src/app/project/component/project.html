@@ -1,4 +1,4 @@
-<div class="experiments" cg-busy="{promise: vm.loading}" ng-if="vm.project">
+<div class="experiments" cg-busy="{promise: vm.loading}" ng-if="vm.project && !vm.isNotHavePermissions">
     <autorecovery kind="{{vm.stateData.tab.kind}}"
                   name="{{vm.project.name}}"
                   on-restore="vm.onRestore(recoveryData)">
@@ -93,3 +93,4 @@
         </button>
     </div>
 </div>
+<div  class="access-notification" i-translate="ACCESS_DENIED" ng-if="vm.isNotHavePermissions"></div>

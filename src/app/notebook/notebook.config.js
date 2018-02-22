@@ -111,7 +111,13 @@ function notebookConfig($stateProvider, permissionsConfig, permissionViewConfig,
                                 isContentEditor: results[2],
                                 hasEditAuthority: results[3],
                                 hasCreateChildAuthority: results[4],
-                                projectId: $stateParams.projectId
+                                projectId: $stateParams.projectId,
+                                isNotHavePermissions: false
+                            };
+                        }, function() {
+                            return {
+                                notebook: null,
+                                isNotHavePermissions: true
                             };
                         });
                 }

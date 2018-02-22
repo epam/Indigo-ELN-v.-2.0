@@ -10,6 +10,7 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
     var isContentEditor = pageInfo.isContentEditor;
     var hasEditAuthority = pageInfo.hasEditAuthority;
     var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
+    vm.isNotHavePermissions = pageInfo.isNotHavePermissions;
     var originalNotebook;
     var updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
     var entityTitle;
@@ -17,6 +18,9 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
     init();
 
     function init() {
+        if (vm.isNotHavePermissions) {
+            return;
+        }
         vm.stateData = $state.current.data;
         entityTitle = pageInfo.notebook.name;
 

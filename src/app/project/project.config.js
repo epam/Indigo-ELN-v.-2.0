@@ -98,7 +98,13 @@ function projectConfig($stateProvider, permissionsConfig, permissionViewConfig, 
                             identity: results[1],
                             isContentEditor: results[2],
                             hasEditAuthority: results[3],
-                            hasCreateChildAuthority: results[4]
+                            hasCreateChildAuthority: results[4],
+                            isNotHavePermissions: false
+                        };
+                    }, function() {
+                        return {
+                            project: null,
+                            isNotHavePermissions: true
                         };
                     });
                 }
