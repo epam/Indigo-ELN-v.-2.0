@@ -97,7 +97,7 @@ public class ExperimentResource {
         LOGGER.debug("REST request to get experiment: {}", id);
         User user = userService.getUserWithAuthorities();
         ExperimentDTO experimentDTO = experimentService.getExperiment(projectId, notebookId, id, user);
-        experimentDTO.setStatus(signatureService.checkExperimentStatus(experimentDTO));
+        experimentDTO.setStatus(signatureService.updateAndGetExperimentStatus(experimentDTO));
         return ResponseEntity.ok(experimentDTO);
     }
 

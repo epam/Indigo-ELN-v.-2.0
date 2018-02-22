@@ -32,7 +32,8 @@ public final class SequenceIdUtil {
     }
 
     /**
-     * Extracts short part from given id
+     * Extracts short part from given id.
+     *
      * @param id id to extract short part
      * @return short part from given id
      */
@@ -56,7 +57,7 @@ public final class SequenceIdUtil {
     }
 
     /**
-     * Extracts first id from entity
+     * Extracts first id from entity.
      *
      * @param entity Entity
      * @return project's id
@@ -77,6 +78,16 @@ public final class SequenceIdUtil {
      */
     public static String buildFullId(String... ids) {
         return StringUtils.arrayToDelimitedString(ids, DELIMITER);
+    }
+
+    /**
+     * Separate full id to short identity of parent entity(ies) and current entity.
+     *
+     * @param fullId entities full id
+     * @return short identity of parent entity(ies) and current entity
+     */
+    public static String[] buildSeparatedIds(String fullId) {
+        return fullId.split(DELIMITER);
     }
 
     /**

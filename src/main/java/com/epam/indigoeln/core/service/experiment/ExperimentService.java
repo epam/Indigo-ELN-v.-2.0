@@ -210,7 +210,7 @@ public class ExperimentService {
     }
 
     private void setValuesForExperimentTreeNodeDTO(ExperimentTreeNodeDTO experiment,
-                                                   DBObject user, List<Object> components) {
+                                                   DBObject user, List<?> components) {
 
         if (components != null) {
             val reactionComponent = components.stream()
@@ -668,6 +668,26 @@ public class ExperimentService {
             lock.unlock();
         }
         return result;
+    }
+
+    public void updateExperimentStatus(Experiment experiment) {
+        Experiment savedExperiment;
+        try {
+            savedExperiment = experimentRepository.save(experiment);
+        } catch (OptimisticLockingFailureException e) {
+            throw ConcurrencyException.createWithExperimentName(experiment.getName(), e);
+        }
+
+        String[] separatedIds = SequenceIdUtil.buildSeparatedIds(experiment.getId());
+        String projectId = separatedIds[0];
+        String notebookId = separatedIds[1];
+
+        Set<User> contentEditors = userService.getContentEditors();
+        webSocketUtil.updateExperiment(experiment.getSubmittedBy(),
+                projectId,
+                notebookId,
+                savedExperiment,
+                getEntityUpdateRecipients(contentEditors, experiment, null));
     }
 
     private void updateNotebooksAndSendNotifications(User user,
