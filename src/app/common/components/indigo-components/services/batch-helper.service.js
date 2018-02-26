@@ -9,6 +9,12 @@ function batchHelper(appUnits, appValuesService, columnActions, batchesCalculati
             changedField: change.column
         };
 
+        if (_.isObject(batchesData.changedRow[batchesData.changedField])
+            && batchesData.changedRow[batchesData.changedField].value
+            && batchesData.changedRow[batchesData.changedField].value === change.oldVal) {
+            return;
+        }
+
         calculateRow(batchesData);
     }
 
