@@ -13,9 +13,7 @@ var modelRestrictions = {
             field: 'projectCode',
             isSelect: true,
             condition: {name: 'contains'},
-            $$conditionList: [
-                {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-            ]
+            $$conditionList: []
         },
         batchYield: {
             name: 'Batch Yield%',
@@ -102,6 +100,7 @@ var modelRestrictions = {
         entityDomain: {
             name: 'Entity Searching Domain',
             $$skipList: true,
+            ownEntitySelected: false,
             field: 'author.$id',
             condition: {
                 name: 'in'

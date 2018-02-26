@@ -46,6 +46,8 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtil, 
         vm.doPage = doPage;
         vm.onChangeModel = onChangeModel;
         vm.printEntity = printEntity;
+        vm.ownEntitySelected = false;
+        vm.clearItem = clearItem;
 
         if (entitiesCache.getByKey(CACHE_STATE_KEY)) {
             vm.state = entitiesCache.getByKey(CACHE_STATE_KEY);
@@ -97,8 +99,17 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtil, 
         vm.state.restrictions = searchUtil.getStoredModel();
         vm.state.searchResults = [];
         vm.state.searchResultsPaged = [];
+        vm.state.domainModel = '';
+        vm.state.selectedEntitiesFlags = {};
+        vm.state.selectedItemsFlags = {};
 
         initDropdownInfoForSelectSearch();
+    }
+
+    function clearItem(itemName, itemValue) {
+        if (_.isUndefined(itemValue)) {
+            vm.state.restrictions.advancedSearch[itemName].value = undefined;
+        }
     }
 
     function isAdvancedSearchFilled() {
@@ -107,9 +118,12 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtil, 
 
     function changeDomain() {
         vm.state.restrictions.advancedSearch.entityDomain.value = [];
+        vm.ownEntitySelected = vm.state.restrictions.advancedSearch.entityDomain.ownEntitySelected;
         if (vm.state.domainModel === OWN_ENTITY) {
             vm.state.restrictions.advancedSearch.entityDomain.value.push(vm.identity.id);
+            vm.ownEntitySelected = true;
         } else if (vm.state.domainModel === USERS_ENTITIES) {
+            vm.ownEntitySelected = false;
             vm.state.restrictions.advancedSearch.entityDomain.value = _.map(
                 vm.state.selectedUsers,
                 function(user) {
@@ -154,7 +168,6 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtil, 
 
     function search() {
         var searchRequest = searchUtil.prepareSearchRequest(vm.state.restrictions);
-
         vm.state.restrictions.advancedSummary = searchRequest.advancedSearch;
         vm.loading = true;
 

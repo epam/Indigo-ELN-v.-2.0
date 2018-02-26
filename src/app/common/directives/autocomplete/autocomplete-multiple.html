@@ -6,7 +6,7 @@
                ng-attr-name="{{vm.elName}}"
                ng-model="vm.model"
                theme="bootstrap"
-               ng-disabled="vm.readonly"
+               ng-disabled="vm.readonly || vm.ownEntitySelected"
                spinner-enabled="true"
                ng-required="vm.isRequired"
                on-select="vm.onSelect({item: $item})"
