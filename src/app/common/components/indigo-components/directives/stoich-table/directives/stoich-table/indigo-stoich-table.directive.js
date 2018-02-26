@@ -69,6 +69,10 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         var changedRow = change.row;
         var changedField = change.column;
 
+        if (_.isObject(changedRow[changedField]) && changedRow[changedField].value === change.oldVal) {
+            return;
+        }
+
         switch (changedField) {
             case stoichReactantsColumns.fullNbkBatch.id:
                 // Update row based on selected notebook batch number
