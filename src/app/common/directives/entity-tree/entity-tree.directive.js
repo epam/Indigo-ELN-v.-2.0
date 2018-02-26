@@ -51,11 +51,6 @@ function EntityTreeController(entityTreeService, $timeout, $scope, scrollToServi
             onUpdateEntity(data.entity, data.version);
         });
 
-        var experimentStatus = $scope.$on('experiment-status-changed', function(event, experiments) {
-            _.forEach(experiments, function(experiment, fullId) {
-                entityTreeService.updateExperiment(fullId, Infinity);
-            });
-        });
         var subEntityChanged = $scope.$on('sub_entity_changes', function(event, data) {
             onSubEntityChanged(data.entity);
         });
@@ -65,7 +60,6 @@ function EntityTreeController(entityTreeService, $timeout, $scope, scrollToServi
         $scope.$on('$destroy', function() {
             selectedFullIdListener();
             entityUpdate();
-            experimentStatus();
             subEntityChanged();
 
             $element.unbind('mouseout', hidePopover);

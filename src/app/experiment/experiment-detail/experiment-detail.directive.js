@@ -419,12 +419,6 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
             vm.experiment.accessList = permissionService.getAccessList();
         });
 
-        var experimentStatus = $scope.$on('experiment-status-changed', function(event, experiments) {
-            if (experiments[vm.experiment.fullId]) {
-                refresh();
-            }
-        });
-
         var batchRegistrationStatus = $scope.$on('batch-registration-status-changed', function(event, statuses) {
             var message = getRegistrationStatusMessage(statuses);
             if (message) {
@@ -440,7 +434,6 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
             entitySave();
             experimentWatch();
             accessList();
-            experimentStatus();
             batchRegistrationStatus();
             experimentUtil.closeDialog();
         });
