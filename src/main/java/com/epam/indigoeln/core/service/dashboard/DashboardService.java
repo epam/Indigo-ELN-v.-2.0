@@ -288,22 +288,8 @@ public class DashboardService {
         result.setCreationDate(JSR310DateConverters.DateToZonedDateTimeConverter.INSTANCE.convert((Date) experiment.get("creationDate")));
         result.setLastEditDate(JSR310DateConverters.DateToZonedDateTimeConverter.INSTANCE.convert((Date) experiment.get("lastEditDate")));
 
-        Iterable coAuthors = null;
-        String title = null;
-        for (val c : (Iterable) experiment.get("components")) {
-            val component = components.get(((DBRef) c).getId());
-            if (component != null) {
-                if ("reactionDetails".equals(component.get("name")) || "conceptDetails".equals(component.get("name"))) {
-                    val content = (DBObject) component.get("content");
-                    if (content != null) {
-                        title = content.get("title") == null ? null : String.valueOf(content.get("title"));
-                        coAuthors = (Iterable) content.get("coAuthors");
-                    }
-                    break;
-                }
-            }
-        }
-        result.setName(title);
+        val title = getExperimentDetailsValue(experiment, "title", components);
+        result.setName(title == null ? null : String.valueOf(title));
 
         if (documents != null && experiment.get("documentId") != null) {
             val document = documents.get(experiment.get("documentId"));
@@ -320,24 +306,14 @@ public class DashboardService {
             }
         }
 
-        if (experiment.get("author") != null) {
-            val author = users.get(((DBRef) experiment.get("author")).getId());
-            if (author != null) {
-                result.setAuthor(new DashboardRowDTO.UserDTO(String.valueOf(author.get("first_name")), String.valueOf(author.get("last_name"))));
-            }
-        }
+        result.setAuthor(getUserDTO(experiment, "author", users));
+        result.setSubmitter(getUserDTO(experiment, "submittedBy", users));
 
-        if (experiment.get("submittedBy") != null) {
-            val submittedBy = users.get(((DBRef) experiment.get("submittedBy")).getId());
-            if (submittedBy != null) {
-                result.setSubmitter(new DashboardRowDTO.UserDTO(String.valueOf(submittedBy.get("first_name")), String.valueOf(submittedBy.get("last_name"))));
-            }
-        }
-
-        if (coAuthors != null) {
+        val coAuthors = getExperimentDetailsValue(experiment, "coAuthors", components);
+        if (coAuthors instanceof Iterable) {
             val ca = new ArrayList<String>();
 
-            coAuthors.forEach(c -> {
+            ((Iterable) coAuthors).forEach(c -> {
                 if (c != null) {
                     ca.add(String.valueOf(c));
                 }
@@ -347,6 +323,62 @@ public class DashboardService {
         }
 
         return result;
+    }
+
+    /**
+     * Get the UserDTO for given key.
+     *
+     * @param experiment experiment to get UserDTO for value
+     * @param key        key to get value
+     * @param users      all users
+     * @return the UserDTO for given key
+     */
+    private DashboardRowDTO.UserDTO getUserDTO(DBObject experiment, String key, Map<Object, DBObject> users) {
+        if (experiment != null) {
+            val value = experiment.get(key);
+
+            if (value instanceof DBRef) {
+                val user = users.get(((DBRef) value).getId());
+
+                if (user != null) {
+                    return new DashboardRowDTO.UserDTO(
+                            String.valueOf(user.get("first_name")),
+                            String.valueOf(user.get("last_name")));
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the value for given key in reaction or concept details.
+     *
+     * @param experiment experiment to get details value
+     * @param key        key to get value
+     * @param components all components
+     * @return the value for given key in reaction or concept details
+     */
+    private Object getExperimentDetailsValue(DBObject experiment, String key, Map<Object, DBObject> components) {
+        if (experiment == null || key == null) {
+            return null;
+        }
+
+        for (val c : (Iterable) experiment.get("components")) {
+            val component = components.get(((DBRef) c).getId());
+
+            if (component != null && ("reactionDetails".equals(component.get("name")) || "conceptDetails".equals(component.get("name")))) {
+                val content = (DBObject) component.get("content");
+
+                if (content != null) {
+                    return content.get(key);
+                }
+
+                break;
+            }
+        }
+
+        return null;
     }
 
     /**
