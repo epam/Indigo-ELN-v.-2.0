@@ -57,6 +57,7 @@ function StructureSchemeController($scope, apiUrl, $http, $uibModal, notifyServi
 
     function bindEvents() {
         $scope.$watch('vm.modelTrigger', updateModel);
+        $scope.$watch('vm.model', updateModel);
 
         $scope.$on('$destroy', function() {
             closeDialog();
