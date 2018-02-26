@@ -289,7 +289,7 @@ public class NotebookService {
                     getEntityUpdateRecipients(
                             contentEditors, projectChanges.getEntity(), null));
 
-            webSocketUtil.newProject(user, getSubEntityChangesRecipients(projectChanges));
+            webSocketUtil.newProject(user, getSubEntityChangesRecipients(projectChanges, contentEditors));
         }
         sendNotebookNotifications(user, project, savedNotebook, contentEditors, changes.getMiddle());
 
@@ -380,7 +380,7 @@ public class NotebookService {
                                            PermissionChanges<Notebook> notebooksChanges
     ) {
         webSocketUtil.newSubEntityForProject(user, project,
-                getSubEntityChangesRecipients(notebooksChanges));
+                getSubEntityChangesRecipients(notebooksChanges, contentEditors));
 
         Stream<String> recipients =
                 getEntityUpdateRecipients(contentEditors, notebook, user.getId());
@@ -400,7 +400,7 @@ public class NotebookService {
                     getEntityUpdateRecipients(
                             contentEditors, permissionChanges.getEntity(), null));
 
-            webSocketUtil.newProject(user, getSubEntityChangesRecipients(permissionChanges));
+            webSocketUtil.newProject(user, getSubEntityChangesRecipients(permissionChanges, contentEditors));
         }
     }
 
@@ -440,7 +440,7 @@ public class NotebookService {
                                     null)));
         }
         webSocketUtil.newSubEntityForNotebook(user, projectId, parentNotebook,
-                getSubEntityChangesRecipients(experimentsChanges));
+                getSubEntityChangesRecipients(experimentsChanges, contentEditors));
     }
 
     /**
