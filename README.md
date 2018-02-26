@@ -19,6 +19,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
 
+## Third-party components
+
+Indigo ELN server part uses the following third-party components: 
+
+- Swagger UI (`src/main/resources/swagger-ui`), licensed under the Apache License, Version 2.0
+
 ## Build dependencies
 
 - Java 1.8
