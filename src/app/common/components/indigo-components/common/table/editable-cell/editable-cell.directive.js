@@ -26,6 +26,9 @@ function EditableCellController($scope, unitsConverter, roundFilter, notifyServi
     init();
 
     function saveOldValue() {
+        if (!vm.row || !vm.column) {
+            return;
+        }
         oldVal = _.isObject(vm.row[vm.column.id]) ? vm.row[vm.column.id].value : vm.row[vm.column.id];
     }
 
