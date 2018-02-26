@@ -102,6 +102,7 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtil, 
         vm.state.domainModel = '';
         vm.state.selectedEntitiesFlags = {};
         vm.state.selectedItemsFlags = {};
+        vm.state.selectedUsers = [];
 
         initDropdownInfoForSelectSearch();
     }
@@ -120,6 +121,7 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtil, 
         vm.state.restrictions.advancedSearch.entityDomain.value = [];
         vm.ownEntitySelected = vm.state.restrictions.advancedSearch.entityDomain.ownEntitySelected;
         if (vm.state.domainModel === OWN_ENTITY) {
+            vm.state.selectedUsers = [];
             vm.state.restrictions.advancedSearch.entityDomain.value.push(vm.identity.id);
             vm.ownEntitySelected = true;
         } else if (vm.state.domainModel === USERS_ENTITIES) {
