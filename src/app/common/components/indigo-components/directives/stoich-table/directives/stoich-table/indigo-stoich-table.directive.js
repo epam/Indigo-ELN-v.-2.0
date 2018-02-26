@@ -69,7 +69,8 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         var changedRow = change.row;
         var changedField = change.column;
 
-        if (_.isObject(changedRow[changedField]) && changedRow[changedField].value === change.oldVal) {
+        if (_.isObject(changedRow[changedField])
+            && changedRow[changedField].value && changedRow[changedField].value === change.oldVal) {
             return;
         }
 
