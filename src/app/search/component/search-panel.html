@@ -1,5 +1,5 @@
 <div class="tab-content-pad scroll-full">
-    <div class="reagent-search-tab" ng-if="!vm.isSearchResultFound">
+    <div class="reagent-search-tab">
         <div class="panel panel-info">
             <div class="panel-heading" i-translate="SEARCH"></div>
             <div class="panel-body">
@@ -25,7 +25,6 @@
                     <div class="search-hint"></div>
                 </div>
                 <div uib-collapse="vm.state.$$isCollapsed" class="collapse-content">
-                    <div ng-if="!vm.isSearchResultFound">
                         <div class="criteria-search-block">
                             <h5><span i-translate="FIELD_SEARCH_CRITERIA"></span>:</h5>
 
@@ -149,7 +148,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -253,6 +251,9 @@
                  ng-model="vm.state.page"
                  ng-change="vm.doPage()">
             </div>
+        </div>
+        <div class="text-center" ng-if="!vm.state.searchResults.length">
+            <div  i-translate="NO_DATA_FOUND"></div>
         </div>
     </div>
 </div>
