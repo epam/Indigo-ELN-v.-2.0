@@ -490,7 +490,7 @@ public class ExperimentService {
             if (permissionChanges.hadChanged()) {
 
                 webSocketUtil.newSubEntityForProject(user, project,
-                        getSubEntityChangesRecipients(permissionChanges));
+                        getSubEntityChangesRecipients(permissionChanges, contentEditors));
 
                 webSocketUtil.updateNotebook(user, project.getId(), savedNotebook,
                         getEntityUpdateRecipients(
@@ -573,10 +573,13 @@ public class ExperimentService {
         notebook.getExperiments().add(savedNewVersion);
         Notebook savedNotebook = notebookRepository.save(notebook);
 
-        webSocketUtil.newProject(user, getSubEntityChangesRecipients(changes.getLeft()));
-        webSocketUtil.newSubEntityForProject(user, project, getSubEntityChangesRecipients(changes.getMiddle()));
+        Set<User> contentEditors = userService.getContentEditors();
+
+        webSocketUtil.newProject(user, getSubEntityChangesRecipients(changes.getLeft(), contentEditors));
+        webSocketUtil.newSubEntityForProject(user, project,
+                getSubEntityChangesRecipients(changes.getMiddle(), contentEditors));
         webSocketUtil.newSubEntityForNotebook(user, projectId, savedNotebook,
-                getSubEntityChangesRecipients(changes.getLeft()));
+                getSubEntityChangesRecipients(changes.getLeft(), contentEditors));
 
         return new ExperimentDTO(savedNewVersion);
     }
@@ -680,7 +683,7 @@ public class ExperimentService {
             Notebook savedNotebook = notebookRepository.save(permissionChanges.getEntity());
 
             webSocketUtil.newSubEntityForProject(user, projectFromDb,
-                    getSubEntityChangesRecipients(permissionChanges));
+                    getSubEntityChangesRecipients(permissionChanges, contentEditors));
 
             webSocketUtil.updateNotebook(user, projectFromDb.getId(), savedNotebook,
                     getEntityUpdateRecipients(
@@ -699,7 +702,7 @@ public class ExperimentService {
                     getEntityUpdateRecipients(
                             contentEditors, projectPermissions.getEntity(), null));
 
-            webSocketUtil.newProject(user, getSubEntityChangesRecipients(projectPermissions));
+            webSocketUtil.newProject(user, getSubEntityChangesRecipients(projectPermissions, contentEditors));
         }
     }
 
@@ -717,7 +720,7 @@ public class ExperimentService {
                         contentEditors, experimentPermissions.getEntity(), user.getId()));
 
         webSocketUtil.newSubEntityForNotebook(user, projectId, parentNotebook,
-                getSubEntityChangesRecipients(experimentPermissions));
+                getSubEntityChangesRecipients(experimentPermissions, contentEditors));
     }
 
     private void checkAccess(User user, Experiment experimentFromDB) {

@@ -164,15 +164,17 @@ public class WebSocketUtil {
      * User names to notify about added or removed sub-entity for them.
      *
      * @param permissionChanges permission changes and entity
+     * @param contentEditors    users with CONTENT_EDITOR authorities.
      * @return stream of user-names that should be notified about permissionChanges
      */
     public static Stream<String> getSubEntityChangesRecipients(
-            PermissionChanges<?> permissionChanges
+            PermissionChanges<?> permissionChanges, Set<User> contentEditors
     ) {
-        return Stream
-                .concat(
+        return Stream.concat(
+                contentEditors.stream(),
+                Stream.concat(
                         permissionChanges.getNewPermissions().stream().map(UserPermission::getUser),
-                        permissionChanges.getRemovedPermissions().stream().map(UserPermission::getUser))
+                        permissionChanges.getRemovedPermissions().stream().map(UserPermission::getUser)))
                 .map(User::getId)
                 .distinct();
     }
@@ -181,19 +183,23 @@ public class WebSocketUtil {
      * User names to notify about added or removed sub-entity for them.
      *
      * @param permissionChanges permission changes and entity
+     * @param contentEditors    users with CONTENT_EDITOR authorities.
      * @return stream of user-names that should be notified about permissionChanges
      */
     public static <E extends BasicModelObject> Stream<String> getSubEntityChangesRecipients(
-            Collection<PermissionChanges<E>> permissionChanges
+            Collection<PermissionChanges<E>> permissionChanges, Set<User> contentEditors
     ) {
-        return Stream
-                .concat(
+        return Stream.concat(
+                contentEditors.stream(),
+                Stream.concat(
                         permissionChanges.stream()
                                 .flatMap(e -> e.getNewPermissions().stream()),
                         permissionChanges.stream()
-                                .flatMap(e -> e.getRemovedPermissions().stream()))
-                .map(UserPermission::getUser)
-                .map(User::getId).distinct();
+                                .flatMap(e -> e.getRemovedPermissions().stream())
+                )
+                        .map(UserPermission::getUser))
+                .map(User::getId)
+                .distinct();
 
     }
 

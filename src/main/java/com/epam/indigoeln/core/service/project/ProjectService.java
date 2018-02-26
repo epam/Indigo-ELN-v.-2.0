@@ -112,7 +112,7 @@ public class ProjectService {
         val projects = (user == null) ? collection.find()
                 : collection.find(new BasicDBObject()
                 .append("accessList.user", new BasicDBObject()
-                .append("$ref", User.COLLECTION_NAME).append("$id", user.getId())));
+                        .append("$ref", User.COLLECTION_NAME).append("$id", user.getId())));
 
         return StreamSupport.stream(projects.spliterator(), false)
                 .map(TreeNodeDTO::new)
@@ -120,15 +120,15 @@ public class ProjectService {
                 .collect(Collectors.toList());
     }
 
-    public TreeNodeDTO getProjectAsTreeNode(String projectId){
+    public TreeNodeDTO getProjectAsTreeNode(String projectId) {
         TreeNodeDTO result;
         val collection = mongoTemplate.getCollection(Project.COLLECTION_NAME);
         BasicDBObject searchQuery = new BasicDBObject();
         searchQuery.put("_id", projectId);
         val project = collection.find(searchQuery);
-        if(project.hasNext()){
+        if (project.hasNext()) {
             result = new TreeNodeDTO(project.next());
-        }else {
+        } else {
             throw EntityNotFoundException.createWithProjectId(projectId);
         }
         return result;
@@ -235,7 +235,7 @@ public class ProjectService {
             tf.save();
         });
 
-        webSocketUtil.newProject(user, getSubEntityChangesRecipients(permissions)
+        webSocketUtil.newProject(user, getSubEntityChangesRecipients(permissions, userService.getContentEditors())
                 .filter(userId -> !userId.equals(user.getId())));
 
         return new ProjectDTO(project);
@@ -295,7 +295,7 @@ public class ProjectService {
                                           PermissionChanges<Project> projectPermissionChanges,
                                           Set<User> contentEditors
     ) {
-        webSocketUtil.newProject(user, getSubEntityChangesRecipients(projectPermissionChanges));
+        webSocketUtil.newProject(user, getSubEntityChangesRecipients(projectPermissionChanges, contentEditors));
         Stream<String> recipients =
                 getEntityUpdateRecipients(contentEditors, projectFromDb, user.getId())
                         .distinct();
@@ -317,7 +317,7 @@ public class ProjectService {
                 .collect(toSet()));
 
         webSocketUtil.newSubEntityForProject(user, projectFromDb,
-                getSubEntityChangesRecipients(notebooksChanges));
+                getSubEntityChangesRecipients(notebooksChanges, contentEditors));
 
         notebooksChanges.forEach(notebookPermissionChanges ->
                 webSocketUtil.updateNotebook(user, projectFromDb.getId(),
@@ -343,7 +343,7 @@ public class ProjectService {
                         .map(PermissionChanges::getEntity)
                         .collect(Collectors.toList()));
                 webSocketUtil.newSubEntityForNotebook(user, projectFromDb.getId(), change.getKey().getEntity(),
-                        getSubEntityChangesRecipients(experimentsChanges));
+                        getSubEntityChangesRecipients(experimentsChanges, contentEditors));
 
                 experimentsChanges.forEach(experimentPermissionChanges ->
                         webSocketUtil.updateExperiment(user, projectFromDb.getId(),
