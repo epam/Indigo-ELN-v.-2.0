@@ -20,10 +20,10 @@ function ProjectController($scope, $state, projectService, notifyService, permis
         if (vm.isNotHavePermissions) {
             return;
         }
-        updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
         entityTitle = pageInfo.project.name;
-
         vm.apiUrl = apiUrl;
+
+        updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
         vm.stateData = $state.current.data;
 
         vm.loading = initEntity().then(function() {
@@ -162,7 +162,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
 
     function toggleDirty(isDirty) {
         if (isDirty) {
-            entitiesCache.put($stateParams, pageInfo.project);
+            entitiesCache.put($stateParams, vm.project);
         }
         vm.isEntityChanged = !!isDirty;
         entitiesBrowserService.changeDirtyTab($stateParams, isDirty);
@@ -214,15 +214,14 @@ function ProjectController($scope, $state, projectService, notifyService, permis
     }
 
     function onSaveSuccess(result) {
-        vm.project.id = result.id;
         entitiesBrowserService.close(tabKeyService.getTabKeyFromParams($stateParams));
+        entitiesCache.removeByParams($stateParams);
+        autorecoveryCache.remove($stateParams);
         $timeout(function() {
             $state.go('entities.project-detail', {
                 projectId: result.id
             });
         });
-        entitiesCache.removeByParams($stateParams);
-        autorecoveryCache.remove($stateParams);
     }
 
     function onSaveError(result) {
