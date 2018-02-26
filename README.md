@@ -4,6 +4,21 @@ Server part for Indigo ELN. Indigo ELN is the open-source Chemistry Electronic L
 a proven way to create, store, retrieve, and share electronic records of chemistry and biology-related information
 in the way of meeting legal, regulatory, technical, and scientific requirements.
 
+## License
+
+Indigo ELN is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Indigo ELN is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+
 ## Build dependencies
 
 - Java 1.8
