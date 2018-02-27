@@ -64,9 +64,6 @@ function TemplateModalController($scope, $stateParams, templateService, notifySe
     }
 
     function save() {
-        if ($state.$current.data.tab.name != 'New Template') {
-            return notifyService.error('Name must be unique. Please, choose another one.');
-        }
         vm.isSaving = true;
         if (vm.template.id) {
             templateService.update(vm.template, onSaveSuccess, onSaveError);
