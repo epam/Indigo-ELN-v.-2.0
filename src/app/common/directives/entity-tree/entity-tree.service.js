@@ -386,6 +386,7 @@ function entityTreeService($q, entityTreeFactory) {
     function updateExperimentNodeByEntity(source, entity) {
         source.status = entity.status;
         source.version = entity.version;
+        source.name = entity.fullName;
         source.reactionImage = _.get(entity, 'components.reaction.image', null);
         source.title = _.get(entity, 'components.reactionDetails.title', null);
         source.therapeuticArea = _.get(entity, 'components.reactionDetails.therapeuticArea.name', null);
@@ -393,6 +394,7 @@ function entityTreeService($q, entityTreeFactory) {
 
     function updateExperimentNode(source, newNode) {
         source.status = newNode.status;
+        source.name = newNode.name;
         source.version = newNode.version;
         source.reactionImage = newNode.reactionImage;
         source.title = newNode.title;
