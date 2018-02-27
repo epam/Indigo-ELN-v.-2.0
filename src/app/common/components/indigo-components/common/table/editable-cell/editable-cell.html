@@ -81,21 +81,21 @@
             </autocomplete>
             <div ng-switch-when="false"
                  ng-switch="!vm.column.hasCustomItemProp">
-                <indigo-select ng-switch-when="true"
+                <autocomplete ng-switch-when="true"
                                ng-click="$event.stopPropagation();"
-                               indigo-change="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
-                               indigo-model="vm.row[vm.column.id]"
-                               indigo-dictionary="{{vm.column.dictionary}}"
-                               indigo-classes="form-group-sm">
-                </indigo-select>
-                <indigo-select ng-switch-when="false"
+                               on-select="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
+                               model="vm.row[vm.column.id]"
+                               dictionary="{{vm.column.dictionary}}"
+                               class="form-group-sm">
+                </autocomplete>
+                <autocomplete ng-switch-when="false"
                                ng-click="$event.stopPropagation();"
-                               indigo-change="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
-                               indigo-model="vm.row[vm.column.id]"
-                               indigo-item-prop="name,description"
-                               indigo-dictionary="{{vm.column.dictionary}}"
-                               indigo-classes="form-group-sm">
-                </indigo-select>
+                               on-select="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
+                               model="vm.row[vm.column.id]"
+                               field="name,description"
+                               dictionary="{{vm.column.dictionary}}"
+                               class="form-group-sm">
+                </autocomplete>
             </div>
         </div>
         <div></div>

@@ -29,6 +29,7 @@ function autocomplete() {
         scope: {
             label: '@',
             placeholder: '@',
+            dictionary: '@',
             field: '@',
             elName: '=',
             autofocus: '=',
@@ -55,7 +56,7 @@ function autocomplete() {
 }
 
 /* @ngInject */
-function autocompleteController($scope, translateService) {
+function autocompleteController($scope, translateService, dictionaryService) {
     var vm = this;
 
     init();
@@ -68,6 +69,14 @@ function autocompleteController($scope, translateService) {
         vm.isLoading = false;
         vm.loadingPlaceholder = translateService.translate('AUTOCOMPLETE_LOADING_PLACEHOLDER');
         vm.emptyListPlaceholder = translateService.translate('AUTOCOMPLETE_EMPTY_PLACEHOLDER');
+
+        if (vm.dictionary) {
+            dictionaryService.getByName({
+                name: vm.dictionary
+            }, function(dictionary) {
+                vm.items = dictionary.words;
+            });
+        }
 
         bindEvents();
     }
