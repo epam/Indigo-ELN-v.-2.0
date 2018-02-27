@@ -35,7 +35,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
                                     permissionService, fileUploader, entitiesBrowserService,
                                     autorecoveryHelper, notifyService, entitiesCache, $q,
                                     principalService, notebookService, typeOfComponents, autorecoveryCache,
-                                    confirmationModal, entityHelper, apiUrl, componentsUtil) {
+                                    confirmationModal, entityHelper, apiUrl, componentsUtil, loadingModalService) {
     var vm = this;
     var params;
     var isContentEditor;
@@ -56,6 +56,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         vm.deferLoading = $q.defer();
         vm.isInit = false;
         vm.loading = $q.all([
+            loadingModalService.openLoadingModal(),
             vm.deferLoading.promise,
             getPageInfo().then(function(response) {
                 if (vm.isNotHavePermissions) {
@@ -72,6 +73,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
                 hasEditAuthority = response.hasEditAuthority;
                 vm.notebook = response.notebook;
                 entityTitle = response.notebook.name + ' ' + response.experiment.name;
+                loadingModalService.close();
 
                 return initExperiment(response.experiment).then(function() {
                     updateOriginal(response.experiment);
@@ -309,6 +311,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         if (!$stateParams.experimentId) {
             return $q.reject('It is impossible to load experiment due to experiment id is undefined');
         }
+
         return experimentService
             .get($stateParams)
             .$promise;
