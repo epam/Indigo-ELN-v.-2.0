@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2015-2018 EPAM Systems
- *  
+ *
  *  This file is part of Indigo ELN.
  *
  *  Indigo ELN is free software: you can redistribute it and/or modify
@@ -61,6 +61,7 @@ import java.util.stream.Collectors;
 import static com.epam.indigoeln.core.util.BatchComponentUtil.*;
 import static com.epam.indigoeln.core.util.WebSocketUtil.getEntityUpdateRecipients;
 import static com.epam.indigoeln.core.util.WebSocketUtil.getSubEntityChangesRecipients;
+import static java.util.Collections.emptySet;
 
 /**
  * The ExperimentService provides methods for
@@ -561,7 +562,7 @@ public class ExperimentService {
                 && experimentName.equals(e.getName()))
                 .findFirst().orElseThrow(() -> EntityNotFoundException.createWithExperimentName(experimentName));
         lastVersion.setLastVersion(false);
-        experimentRepository.save(lastVersion);
+        lastVersion = experimentRepository.save(lastVersion);
 
         int newExperimentVersion = lastVersion.getExperimentVersion() + 1;
 
@@ -593,11 +594,19 @@ public class ExperimentService {
 
         Set<User> contentEditors = userService.getContentEditors();
 
-        webSocketUtil.newProject(user, getSubEntityChangesRecipients(changes.getLeft(), contentEditors));
-        webSocketUtil.newSubEntityForProject(user, project,
-                getSubEntityChangesRecipients(changes.getMiddle(), contentEditors));
+        webSocketUtil.updateExperiment(user, projectId, notebookId, lastVersion,
+                getEntityUpdateRecipients(contentEditors, lastVersion, null));
+
+        if (changes.getLeft().hadChanged()) {
+            webSocketUtil.newProject(user, getSubEntityChangesRecipients(changes.getLeft(), emptySet()));
+        }
+        if (changes.getMiddle().hadChanged()) {
+            webSocketUtil.newSubEntityForProject(user, project,
+                    getSubEntityChangesRecipients(changes.getMiddle(), emptySet()));
+        }
+
         webSocketUtil.newSubEntityForNotebook(user, projectId, savedNotebook,
-                getSubEntityChangesRecipients(changes.getLeft(), contentEditors));
+                getSubEntityChangesRecipients(changes.getRight(), contentEditors));
 
         return new ExperimentDTO(savedNewVersion);
     }
