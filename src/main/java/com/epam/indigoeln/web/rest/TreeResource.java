@@ -50,7 +50,7 @@ public class TreeResource {
     private static final String EXPERIMENTS_PATH = NOTEBOOKS_PATH + "/{notebookId:[\\d]+}/experiments";
     private static final String PROJECT_PATH_ID = "projects/{projectId:[\\d]+}";
     private static final String NOTEBOOK_PATH_ID = PROJECT_PATH_ID + "/notebooks/{notebookId:[\\d]+}";
-    private static final String EXPERIMENT_PATH_ID = NOTEBOOK_PATH_ID + "/experiments/{experimentId:[\\d]+}";
+    private static final String EXPERIMENT_PATH_ID = NOTEBOOK_PATH_ID + "/experiments/{experimentId:[\\d_]+}";
     private static final Logger LOGGER = LoggerFactory.getLogger(TreeResource.class);
 
     @Autowired
