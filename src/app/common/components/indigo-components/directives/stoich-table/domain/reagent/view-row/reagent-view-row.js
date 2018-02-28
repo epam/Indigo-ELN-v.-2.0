@@ -67,39 +67,70 @@ function getBaseFormula(formula) {
     return formula;
 }
 
+function setLimiting(obj, value) {
+    obj.value = _.isObject(value) ? value.value : value;
+    obj.readonly = _.isObject(value) ? value.readonly : false;
+}
+
+function setFormula(obj, value) {
+    obj.value = _.isObject(value) ? value.value : value;
+    obj.baseValue = getBaseFormula(obj.value);
+}
+
+function setRxn(obj, customProps) {
+    obj.rxnRole.name = customProps.rxnRole.name;
+
+    if (_.has(customProps, fieldTypes.prevRxnRole)) {
+        obj.prevRxnRole.name = customProps.prevRxnRole.name;
+    } else {
+        obj.prevRxnRole.name = obj.rxnRole.name;
+    }
+}
+
 function setRowProperties(defaultProps, customProps) {
     // Assign known custom properties to default object
     _.forEach(customProps, function(value, key) {
         if (fieldTypes.isId(key)) {
             defaultProps[key] = value;
-        } else if (fieldTypes.isMolWeight(key)) {
+
+            return;
+        }
+        if (fieldTypes.isMolWeight(key)) {
             defaultProps[key].value = value.value;
             defaultProps[key].entered = value.entered;
             defaultProps[key].originalValue = getOriginalMolWeight(customProps);
-        } else if (fieldTypes.isReagentField(key)) {
+
+            return;
+        }
+        if (fieldTypes.isReagentField(key)) {
             defaultProps[key].value = value.value;
             defaultProps[key].entered = value.entered;
-        } else if (fieldTypes.isEq(key) || fieldTypes.isStoicPurity(key)) {
+
+            return;
+        }
+        if (fieldTypes.isEq(key) || fieldTypes.isStoicPurity(key)) {
             defaultProps[key].value = value.value;
             defaultProps[key].prevValue = value.prevValue ? value.prevValue : value.value;
             defaultProps[key].entered = value.entered;
-        } else if (fieldTypes.isLimiting(key)) {
-            defaultProps[key].value = _.isObject(value) ? value.value : value;
-            defaultProps[key].readonly = _.isObject(value) ? value.readonly : false;
-        } else if (fieldTypes.isFormula(key)) {
-            defaultProps[key].value = _.isObject(value) ? value.value : value;
-            defaultProps[key].baseValue = getBaseFormula(defaultProps[key].value);
-        } else if (fieldTypes.isRxnRole(key)) {
-            defaultProps[key].name = value.name;
 
-            if (_.has(customProps, fieldTypes.prevRxnRole)) {
-                defaultProps.prevRxnRole.name = customProps.prevRxnRole.name;
-            } else {
-                defaultProps.prevRxnRole.name = defaultProps[key].name;
-            }
-        } else {
-            defaultProps[key] = value;
+            return;
         }
+        if (fieldTypes.isLimiting(key)) {
+            setLimiting(defaultProps[key], value);
+
+            return;
+        }
+        if (fieldTypes.isFormula(key)) {
+            setFormula(defaultProps[key], value);
+
+            return;
+        }
+        if (fieldTypes.isRxnRole(key)) {
+            setRxn(defaultProps, customProps);
+
+            return;
+        }
+        defaultProps[key] = value;
     });
 }
 
@@ -131,7 +162,6 @@ function getDefaultReagentViewRow() {
         prevRxnRole: {name: 'REACTANT'},
         density: new ReagentViewField(0, 'g/mL'),
         molarity: new ReagentViewField(0, 'M'),
-        // TODO: rename to purity
         stoicPurity: {value: 100, prevValue: 100, entered: false, readonly: false},
         formula: {value: null, baseValue: null},
         saltCode: {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0, readonly: false},
