@@ -1,3 +1,23 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 var template = require('./experiment-detail.html');
 var roles = require('../../permissions/permission-roles.json');
 
@@ -25,6 +45,7 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
     var updateRecovery;
     var entityTitle;
     var isSaving = false;
+    vm.isNotHavePermissions = false;
 
     init();
 
@@ -37,6 +58,9 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         vm.loading = $q.all([
             vm.deferLoading.promise,
             getPageInfo().then(function(response) {
+                if (vm.isNotHavePermissions) {
+                    return $q.reject('Access denied');
+                }
                 // Init components because we have old experiments with wrong template
                 initComponents(response.experiment);
                 params = {
@@ -415,12 +439,6 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
             vm.experiment.accessList = permissionService.getAccessList();
         });
 
-        var experimentStatus = $scope.$on('experiment-status-changed', function(event, experiments) {
-            if (experiments[vm.experiment.fullId]) {
-                refresh();
-            }
-        });
-
         var batchRegistrationStatus = $scope.$on('batch-registration-status-changed', function(event, statuses) {
             var message = getRegistrationStatusMessage(statuses);
             if (message) {
@@ -436,7 +454,6 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
             entitySave();
             experimentWatch();
             accessList();
-            experimentStatus();
             batchRegistrationStatus();
             experimentUtil.closeDialog();
         });

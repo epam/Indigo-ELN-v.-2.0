@@ -1,3 +1,23 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 /* @ngInject */
 function SearchPanelController(searchService, $state, $stateParams, searchUtil, pageInfo,
                                entitiesCache, printModal, dictionaryService, tabKeyService, $scope) {
@@ -46,6 +66,8 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtil, 
         vm.doPage = doPage;
         vm.onChangeModel = onChangeModel;
         vm.printEntity = printEntity;
+        vm.ownEntitySelected = false;
+        vm.clearItem = clearItem;
 
         if (entitiesCache.getByKey(CACHE_STATE_KEY)) {
             vm.state = entitiesCache.getByKey(CACHE_STATE_KEY);
@@ -97,8 +119,18 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtil, 
         vm.state.restrictions = searchUtil.getStoredModel();
         vm.state.searchResults = [];
         vm.state.searchResultsPaged = [];
+        vm.state.domainModel = '';
+        vm.state.selectedEntitiesFlags = {};
+        vm.state.selectedItemsFlags = {};
+        vm.state.selectedUsers = [];
 
         initDropdownInfoForSelectSearch();
+    }
+
+    function clearItem(itemName, itemValue) {
+        if (_.isUndefined(itemValue)) {
+            vm.state.restrictions.advancedSearch[itemName].value = undefined;
+        }
     }
 
     function isAdvancedSearchFilled() {
@@ -107,9 +139,13 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtil, 
 
     function changeDomain() {
         vm.state.restrictions.advancedSearch.entityDomain.value = [];
+        vm.ownEntitySelected = vm.state.restrictions.advancedSearch.entityDomain.ownEntitySelected;
         if (vm.state.domainModel === OWN_ENTITY) {
+            vm.state.selectedUsers = [];
             vm.state.restrictions.advancedSearch.entityDomain.value.push(vm.identity.id);
+            vm.ownEntitySelected = true;
         } else if (vm.state.domainModel === USERS_ENTITIES) {
+            vm.ownEntitySelected = false;
             vm.state.restrictions.advancedSearch.entityDomain.value = _.map(
                 vm.state.selectedUsers,
                 function(user) {
@@ -154,7 +190,6 @@ function SearchPanelController(searchService, $state, $stateParams, searchUtil, 
 
     function search() {
         var searchRequest = searchUtil.prepareSearchRequest(vm.state.restrictions);
-
         vm.state.restrictions.advancedSummary = searchRequest.advancedSearch;
         vm.loading = true;
 

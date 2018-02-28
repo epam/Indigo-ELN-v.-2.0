@@ -1,3 +1,23 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 var template = require('./editable-cell.html');
 
 function editableCell() {
@@ -25,9 +45,17 @@ function EditableCellController($scope, unitsConverter, roundFilter, notifyServi
 
     init();
 
+    function saveOldValue() {
+        if (!vm.row || !vm.column) {
+            return;
+        }
+        oldVal = _.isObject(vm.row[vm.column.id]) ? vm.row[vm.column.id].value : vm.row[vm.column.id];
+    }
+
     function init() {
         vm.column = $scope.$parent.column;
         vm.row = $scope.$parent.$parent.row;
+        saveOldValue();
 
         vm.isCheckEnabled = true;
 
@@ -68,6 +96,7 @@ function EditableCellController($scope, unitsConverter, roundFilter, notifyServi
             vm.row[vm.column.id] = undefined;
         }
 
+
         if (isChanged) {
             isChanged = false;
         }
@@ -103,6 +132,9 @@ function EditableCellController($scope, unitsConverter, roundFilter, notifyServi
                     vm.isCheckEnabled = vm.column.checkEnabled(vm.row);
                 });
             }
+        });
+        $scope.$watch('vm.isEditing', function() {
+            saveOldValue();
         });
     }
 

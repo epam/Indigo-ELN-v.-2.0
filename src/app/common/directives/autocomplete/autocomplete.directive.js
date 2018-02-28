@@ -1,3 +1,23 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 require('./autocomplete.less');
 
 var template = require('./autocomplete.html');
@@ -9,19 +29,22 @@ function autocomplete() {
         scope: {
             label: '@',
             placeholder: '@',
+            dictionary: '@',
             field: '@',
-            elName: '@',
+            elName: '=',
             autofocus: '=',
             model: '=',
             items: '=',
             isRequired: '=',
             readonly: '=',
             isMultiple: '@',
+            clearItem: '=',
             allowClear: '=',
             onSelect: '&',
             onRemove: '&',
             onRefresh: '&?',
-            onLoadPage: '&?'
+            onLoadPage: '&?',
+            ownEntitySelected: '='
         },
         controller: autocompleteController,
         controllerAs: 'vm',
@@ -33,7 +56,7 @@ function autocomplete() {
 }
 
 /* @ngInject */
-function autocompleteController($scope, translateService) {
+function autocompleteController($scope, translateService, dictionaryService) {
     var vm = this;
 
     init();
@@ -46,6 +69,14 @@ function autocompleteController($scope, translateService) {
         vm.isLoading = false;
         vm.loadingPlaceholder = translateService.translate('AUTOCOMPLETE_LOADING_PLACEHOLDER');
         vm.emptyListPlaceholder = translateService.translate('AUTOCOMPLETE_EMPTY_PLACEHOLDER');
+
+        if (vm.dictionary) {
+            dictionaryService.getByName({
+                name: vm.dictionary
+            }, function(dictionary) {
+                vm.items = dictionary.words;
+            });
+        }
 
         bindEvents();
     }

@@ -1,16 +1,36 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 var roles = require('../../permissions/permission-roles.json');
 /* @ngInject */
 function NotebookDetailController($scope, $state, notebookService, notifyService, permissionService,
                                   modalHelper, experimentUtil, pageInfo, entitiesBrowserService,
                                   $timeout, $stateParams, tabKeyService, autorecoveryHelper,
                                   notebookSummaryExperimentsService, $q, entitiesCache,
-                                  autorecoveryCache, confirmationModal, entityHelper, principalService,
-                                  entityTreeService) {
+                                  autorecoveryCache, confirmationModal, entityHelper, principalService) {
     var vm = this;
     var identity = pageInfo.identity;
     var isContentEditor = pageInfo.isContentEditor;
     var hasEditAuthority = pageInfo.hasEditAuthority;
     var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
+    vm.isNotHavePermissions = pageInfo.isNotHavePermissions;
     var originalNotebook;
     var updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
     var entityTitle;
@@ -18,6 +38,9 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
     init();
 
     function init() {
+        if (vm.isNotHavePermissions) {
+            return;
+        }
         vm.stateData = $state.current.data;
         entityTitle = pageInfo.notebook.name;
 
@@ -250,7 +273,6 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
             initPermissions();
             originalNotebook = angular.copy(vm.notebook);
             autorecoveryCache.hide($stateParams);
-            entityTreeService.updateNotebook(vm.notebook);
         });
 
         return vm.loading;
@@ -280,7 +302,6 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
                     vm.notebook.version = result.version;
                     originalNotebook = angular.copy(vm.notebook);
                     entitiesBrowserService.setCurrentTabTitle(vm.notebook.name, $stateParams);
-                    entityTreeService.updateNotebook(vm.notebook);
                 }, onSaveError);
 
             return vm.loading;
@@ -297,7 +318,6 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
         entitiesBrowserService.close(tabKeyService.getTabKeyFromParams($stateParams));
         entitiesCache.removeByParams($stateParams);
         autorecoveryCache.remove($stateParams);
-        entityTreeService.addNotebook(result, vm.projectId);
 
         $timeout(function() {
             $state.go('entities.notebook-detail', {

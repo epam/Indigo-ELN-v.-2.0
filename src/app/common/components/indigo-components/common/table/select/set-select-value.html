@@ -10,16 +10,16 @@
                       items="vm.values"
                       model="vm.wrapper.value">
         </autocomplete>
-        <indigo-select ng-if="vm.dictionary && vm.id !== 'stereoisomer'"
-                       indigo-item-prop="name"
-                       indigo-dictionary="{{vm.dictionary}}"
-                       indigo-model="vm.wrapper.value">
-        </indigo-select>
-        <indigo-select ng-if="vm.dictionary && vm.id === 'stereoisomer'"
-                       indigo-item-prop="name,description"
-                       indigo-dictionary="{{vm.dictionary}}"
-                       indigo-model="vm.wrapper.value">
-        </indigo-select>
+        <autocomplete ng-if="vm.dictionary && vm.id !== 'stereoisomer'"
+                       field="name"
+                       dictionary="{{vm.dictionary}}"
+                       model="vm.wrapper.value">
+        </autocomplete>
+        <autocomplete ng-if="vm.dictionary && vm.id === 'stereoisomer'"
+                       field="name,description"
+                       dictionary="{{vm.dictionary}}"
+                       model="vm.wrapper.value">
+        </autocomplete>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">

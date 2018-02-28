@@ -1,3 +1,23 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 var template = require('./sidebar.html');
 var roles = require('../../../permissions/permission-roles.json');
 
@@ -11,9 +31,8 @@ function sidebar() {
     };
 }
 
-SidebarController.$inject = ['$scope', '$state', '$stateParams', 'sidebarCache', 'entityTreeService'];
-
-function SidebarController($scope, $state, $stateParams, sidebarCache, entityTreeService) {
+/* @ngInject */
+function SidebarController($scope, $state, $stateParams, sidebarCache) {
     var vm = this;
 
     vm.CONTENT_EDITOR = roles.CONTENT_EDITOR;
@@ -37,7 +56,7 @@ function SidebarController($scope, $state, $stateParams, sidebarCache, entityTre
         vm.allProjectIsCollapsed = sidebarCache.get('allProjectIsCollapsed');
         vm.bookmarksIsCollapsed = sidebarCache.get('bookmarksIsCollapsed');
         vm.adminToggled = sidebarCache.get('adminToggled');
-        vm.selectedFullId = entityTreeService.getFullIdFromParams($stateParams);
+        vm.selectedFullId = getFullIdFromParams($stateParams);
 
         bindEvents();
     }
@@ -71,14 +90,14 @@ function SidebarController($scope, $state, $stateParams, sidebarCache, entityTre
 
     function bindEvents() {
         $scope.$on('$stateChangeSuccess', function(event, toState, toParams) {
-            vm.onSelectNode(entityTreeService.getFullIdFromParams(toParams));
+            vm.onSelectNode(getFullIdFromParams(toParams));
         });
+    }
 
-        $scope.$on('experiment-status-changed', function(event, data) {
-            _.forEach(data, function(status, fullId) {
-                entityTreeService.updateStatus(fullId, status);
-            });
-        });
+    function getFullIdFromParams(toParams) {
+        return _.compact([toParams.projectId, toParams.notebookId, toParams.experimentId])
+            .join('-')
+            .toString();
     }
 }
 

@@ -1,5 +1,5 @@
 <div class="tab-content-pad scroll-full">
-    <div class="reagent-search-tab" ng-if="!vm.isSearchResultFound">
+    <div class="reagent-search-tab">
         <div class="panel panel-info">
             <div class="panel-heading" i-translate="SEARCH"></div>
             <div class="panel-body">
@@ -25,7 +25,6 @@
                     <div class="search-hint"></div>
                 </div>
                 <div uib-collapse="vm.state.$$isCollapsed" class="collapse-content">
-                    <div ng-if="!vm.isSearchResultFound">
                         <div class="criteria-search-block">
                             <h5><span i-translate="FIELD_SEARCH_CRITERIA"></span>:</h5>
 
@@ -44,7 +43,9 @@
                                     </div>
                                     <div class="col-xs-3">
                                         <autocomplete ng-if="searchCriteria.isSelect"
+                                                      clear-item="vm.clearItem"
                                                       allow-clear="true"
+                                                      el-name="searchCriteria.field"
                                                       items="searchCriteria.searchConditions"
                                                       model="searchCriteria.selectedValue">
                                         </autocomplete>
@@ -104,6 +105,7 @@
                             <autocomplete class="m-b20"
                                           items="vm.users"
                                           on-select="vm.selectedUsersChange()"
+                                          own-entity-selected="vm.ownEntitySelected"
                                           on-remove="vm.selectedUsersChange()"
                                           model="vm.state.selectedUsers"
                                           is-multiple="true">
@@ -146,7 +148,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -250,6 +251,9 @@
                  ng-model="vm.state.page"
                  ng-change="vm.doPage()">
             </div>
+        </div>
+        <div class="text-center" ng-if="!vm.state.searchResults.length">
+            <div  i-translate="NO_DATA_FOUND"></div>
         </div>
     </div>
 </div>

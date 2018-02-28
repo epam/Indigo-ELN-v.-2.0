@@ -1,14 +1,35 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 var roles = require('../../permissions/permission-roles.json');
 /* @ngInject */
 function ProjectController($scope, $state, projectService, notifyService, permissionService, fileUploader,
                            pageInfo, entitiesBrowserService, $timeout, $stateParams, tabKeyService,
                            autorecoveryHelper, autorecoveryCache, entitiesCache,
-                           confirmationModal, $q, entityHelper, apiUrl, entityTreeService) {
+                           confirmationModal, $q, entityHelper, apiUrl) {
     var vm = this;
     var identity = pageInfo.identity;
     var isContentEditor = pageInfo.isContentEditor;
     var hasEditAuthority = pageInfo.hasEditAuthority;
     var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
+    vm.isNotHavePermissions = pageInfo.isNotHavePermissions;
     var updateRecovery;
     var originalProject;
     var entityTitle;
@@ -16,10 +37,13 @@ function ProjectController($scope, $state, projectService, notifyService, permis
     init();
 
     function init() {
-        updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
+        if (vm.isNotHavePermissions) {
+            return;
+        }
         entityTitle = pageInfo.project.name;
-
         vm.apiUrl = apiUrl;
+
+        updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
         vm.stateData = $state.current.data;
 
         vm.loading = initEntity().then(function() {
@@ -111,7 +135,6 @@ function ProjectController($scope, $state, projectService, notifyService, permis
                     onUpdateSuccess({
                         id: vm.project.id
                     });
-                    entityTreeService.updateProject(vm.project);
                 }, onSaveError);
         } else {
             vm.loading = projectService.save(vm.project, onSaveSuccess, onSaveError).$promise;
@@ -134,7 +157,6 @@ function ProjectController($scope, $state, projectService, notifyService, permis
                 originalProject = angular.copy(vm.project);
                 initPermissions();
                 autorecoveryCache.hide($stateParams);
-                entityTreeService.updateProject(vm.project);
             }, function() {
                 notifyService.error('Project not refreshed due to server error!');
             });
@@ -160,7 +182,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
 
     function toggleDirty(isDirty) {
         if (isDirty) {
-            entitiesCache.put($stateParams, pageInfo.project);
+            entitiesCache.put($stateParams, vm.project);
         }
         vm.isEntityChanged = !!isDirty;
         entitiesBrowserService.changeDirtyTab($stateParams, isDirty);
@@ -212,16 +234,14 @@ function ProjectController($scope, $state, projectService, notifyService, permis
     }
 
     function onSaveSuccess(result) {
-        vm.project.id = result.id;
-        entityTreeService.addProject(vm.project);
         entitiesBrowserService.close(tabKeyService.getTabKeyFromParams($stateParams));
+        entitiesCache.removeByParams($stateParams);
+        autorecoveryCache.remove($stateParams);
         $timeout(function() {
             $state.go('entities.project-detail', {
                 projectId: result.id
             });
         });
-        entitiesCache.removeByParams($stateParams);
-        autorecoveryCache.remove($stateParams);
     }
 
     function onSaveError(result) {

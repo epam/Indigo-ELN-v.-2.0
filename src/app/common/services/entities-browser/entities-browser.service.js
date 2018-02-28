@@ -1,7 +1,27 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 /* @ngInject */
 function entitiesBrowserService($q, $state, notifyService, dialogService,
                                 autorecoveryCache, principalService, tabKeyService, CacheFactory,
-                                entitiesCache, entityTreeService, projectService, notebookService,
+                                entitiesCache, projectService, notebookService,
                                 experimentService) {
     var tabs = {};
     var activeTab = {};
@@ -95,17 +115,6 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
         });
     }
 
-    function getTreeServiceMethod(type) {
-        if (type === 'project') {
-            return entityTreeService.updateProject;
-        }
-        if (type === 'notebook') {
-            return entityTreeService.updateNotebook;
-        }
-
-        return entityTreeService.updateExperimentByEntity;
-    }
-
     function getService(type) {
         if (type === 'project') {
             return projectService;
@@ -121,22 +130,19 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
         var entity = entitiesCache.get(tab.params);
         if (entity) {
             var service = getService(tab.kind);
-            var treeServiceUpdate = getTreeServiceMethod(tab.kind);
 
             if (service) {
                 if (tab.params.isNewEntity) {
                     if (tab.params.parentId) {
                         // notebook
-                        return service.save({projectId: tab.params.parentId}, entity, function(result) {
-                            entityTreeService.addNotebook(result, tab.params.parentId);
-                        }).$promise;
+                        return service.save({projectId: tab.params.parentId}, entity).$promise;
                     }
 
                     // project
-                    return service.save(entity, entityTreeService.addProject).$promise;
+                    return service.save(entity).$promise;
                 }
 
-                return service.update(tab.params, entity, treeServiceUpdate).$promise;
+                return service.update(tab.params, entity).$promise;
             }
         }
 
