@@ -27,6 +27,7 @@ function calculationHelper($http, $log, $q) {
         clone: clone,
         findChangedRow: findChangedRow,
         getFormula: getFormula,
+        getBaseFormula: getBaseFormula,
         findLimitingRow: findLimitingRow,
         updateViewRows: updateViewRows,
         updateViewRow: updateViewRow,
@@ -40,6 +41,18 @@ function calculationHelper($http, $log, $q) {
 
     function findChangedRow(rows, id) {
         return _.find(rows, {id: id});
+    }
+
+    function getBaseFormula(formula) {
+        if (!formula) {
+            return formula;
+        }
+        var extendedFormulaIndex = formula.indexOf('*');
+        if (extendedFormulaIndex !== -1) {
+            return formula.substring(0, extendedFormulaIndex).trim();
+        }
+
+        return formula;
     }
 
     function getFormula(row) {

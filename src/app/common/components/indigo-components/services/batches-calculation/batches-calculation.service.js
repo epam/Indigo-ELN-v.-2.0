@@ -149,7 +149,7 @@ function batchesCalculation(calculationHelper) {
             return;
         }
 
-        if (row.saltCode.regValue === 0) {
+        if (row.saltCode.regValue === '00') {
             row.saltEq.value = 0;
         }
 

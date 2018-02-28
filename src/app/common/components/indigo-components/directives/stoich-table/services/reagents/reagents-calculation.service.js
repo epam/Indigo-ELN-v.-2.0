@@ -370,7 +370,7 @@ function reagentsCalculation(calculationHelper) {
             return;
         }
 
-        if (row.saltCode.regValue === 0) {
+        if (row.saltCode.regValue === '00') {
             row.setDefaultValues([fieldTypes.saltEq]);
         }
 
