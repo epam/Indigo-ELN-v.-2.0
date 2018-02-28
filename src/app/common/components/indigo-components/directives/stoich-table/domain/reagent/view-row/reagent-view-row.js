@@ -55,18 +55,6 @@ function getOriginalMolWeight(prop) {
     return prop.molWeight.value;
 }
 
-function getBaseFormula(formula) {
-    if (!formula) {
-        return formula;
-    }
-    var extendedFormulaIndex = formula.indexOf('*');
-    if (extendedFormulaIndex !== -1) {
-        return formula.substring(0, extendedFormulaIndex).trim();
-    }
-
-    return formula;
-}
-
 function setLimiting(obj, value) {
     obj.value = _.isObject(value) ? value.value : value;
     obj.readonly = _.isObject(value) ? value.readonly : false;
@@ -74,7 +62,7 @@ function setLimiting(obj, value) {
 
 function setFormula(obj, value) {
     obj.value = _.isObject(value) ? value.value : value;
-    obj.baseValue = getBaseFormula(obj.value);
+    obj.baseValue = calculationHelper.getBaseFormula(obj.value);
 }
 
 function setRxn(obj, customProps) {
