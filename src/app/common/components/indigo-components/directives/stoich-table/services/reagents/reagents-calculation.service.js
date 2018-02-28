@@ -160,6 +160,10 @@ function reagentsCalculation(calculationHelper) {
         updateDependencies(row);
     }
 
+    function onEqChangedCanResetVolume(row) {
+        return row.isVolumePresent() && !row.isDensityPresent() && !row.isMolarityPresent();
+    }
+
     function onEqChanged(row) {
         if (!row.eq.value) {
             row.eq.value = row.eq.prevValue;
@@ -168,7 +172,7 @@ function reagentsCalculation(calculationHelper) {
         }
 
         // reset volume
-        if (row.isVolumePresent() && !row.isDensityPresent() && !row.isMolarityPresent()) {
+        if (onEqChangedCanResetVolume(row)) {
             row.resetFields([fieldTypes.volume]);
             setMolDependingOfLimiting(row, getLimitingRow());
 
@@ -232,10 +236,14 @@ function reagentsCalculation(calculationHelper) {
         row.prevRxnRole.name = row.rxnRole.name;
     }
 
+    function resetVolumeCanChangeDensity(row) {
+        return row.isMolPresent() && row.isWeightPresent() && row.isDensityPresent();
+    }
+
     function resetVolume(row) {
         row.resetFields([fieldTypes.volume]);
 
-        if (row.isMolPresent() && row.isWeightPresent() && row.isDensityPresent()) {
+        if (resetVolumeCanChangeDensity(row)) {
             // re-calculate volume based on mol, weight and density
             onDensityChanged(row);
 
