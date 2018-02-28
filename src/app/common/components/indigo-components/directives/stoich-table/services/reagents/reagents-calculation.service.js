@@ -40,6 +40,26 @@ function reagentsCalculation(calculationHelper) {
 
     function recalculate(row, fieldId) {
         // Handle necessary recalculations here
+        if (!fieldId) {
+            onAddNewRow(row);
+        }
+
+        recalculateNumberFields(row, fieldId);
+
+        if (fieldId === fieldTypes.rxnRole) {
+            onRxnRoleChanged(row);
+        }
+
+        if (fieldId === fieldTypes.saltCode || fieldId === fieldTypes.saltEq) {
+            onSaltChanged(row);
+        }
+
+        if (fieldId === fieldTypes.compoundId || fieldId === fieldTypes.fullNbkBatch) {
+            onNbkBatchOrCompoundIdChanged(row);
+        }
+    }
+
+    function recalculateNumberFields(row, fieldId) {
         if (fieldId === fieldTypes.molWeight) {
             row.setEntered(fieldId);
             onMolWeightChanged(row);
@@ -64,11 +84,6 @@ function reagentsCalculation(calculationHelper) {
 
             return;
         }
-        if (fieldId === fieldTypes.rxnRole) {
-            onRxnRoleChanged(row);
-
-            return;
-        }
         if (fieldId === fieldTypes.volume) {
             row.setEntered(fieldId);
             onVolumeChanged(row);
@@ -87,23 +102,10 @@ function reagentsCalculation(calculationHelper) {
 
             return;
         }
-        if (fieldId === fieldTypes.saltCode || fieldId === fieldTypes.saltEq) {
-            onSaltChanged(row);
-
-            return;
-        }
         if (fieldId === fieldTypes.density) {
             row.setEntered(fieldId);
             onDensityChanged(row);
-
-            return;
         }
-        if (fieldId === fieldTypes.compoundId || fieldId === fieldTypes.fullNbkBatch) {
-            onNbkBatchOrCompoundIdChanged(row);
-
-            return;
-        }
-        onAddNewRow(row);
     }
 
     function onMolWeightChanged(row) {
@@ -165,9 +167,8 @@ function reagentsCalculation(calculationHelper) {
             return;
         }
 
-        var shouldResetVolume = row.isVolumePresent() && !row.isDensityPresent() && !row.isMolarityPresent();
-
-        if (shouldResetVolume) {
+        // reset volume
+        if (row.isVolumePresent() && !row.isDensityPresent() && !row.isMolarityPresent()) {
             row.resetFields([fieldTypes.volume]);
             setMolDependingOfLimiting(row, getLimitingRow());
 
@@ -349,8 +350,8 @@ function reagentsCalculation(calculationHelper) {
         }
 
         // should Update Weight
-        if ((row.isMolManuallyEntered() && row.isWeightPresent())
-            || (!row.isMolManuallyEntered() && !row.isWeightManuallyEntered())) {
+        var shouldUpdateWeight = row.isMolManuallyEntered() ? row.isWeightPresent() : !row.isWeightManuallyEntered();
+        if (shouldUpdateWeight) {
             var weight = mathCalculation.computeWeightByPurity(row.weight.value, currentPurity, prevPurity);
             row.setComputedWeight(weight, updateDependencies);
         }
