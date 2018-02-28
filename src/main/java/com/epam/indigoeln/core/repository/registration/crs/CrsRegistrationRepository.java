@@ -30,11 +30,14 @@ import com.epam.indigoeln.core.repository.registration.RegistrationException;
 import com.epam.indigoeln.core.repository.registration.RegistrationRepository;
 import com.epam.indigoeln.core.repository.registration.RegistrationRepositoryInfo;
 import com.epam.indigoeln.core.repository.registration.RegistrationStatus;
+import com.epam.indigoeln.core.service.calculation.CalculationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
@@ -52,6 +55,8 @@ public class CrsRegistrationRepository implements RegistrationRepository {
     private BingoRegistration registration;
     @Autowired
     private BingoSearch search;
+    @Autowired
+    private CalculationService calculationService;
 
     private String getToken() throws RegistrationException {
         try {
@@ -224,6 +229,11 @@ public class CrsRegistrationRepository implements RegistrationRepository {
         compound.setHazardComment(compoundInfo.getHazardComments());
         compound.setStereoisomerCode(compoundInfo.getStereoIsomerCode());
         compound.setStorageComment(compoundInfo.getStorageComments());
+
+        Map<String, String> map = calculationService.getMolecularInformation(compoundInfo.getData(),
+                Optional.of(compoundInfo.getSaltCode()), Optional.of((float)compoundInfo.getSaltEquivalents()));
+
+        compound.setFormula(map.get("molecularFormula"));
 
         if (compoundInfo.getRegistrationStatus() == CompoundRegistrationStatus.SUCCESSFUL) {
             compound.setRegistrationStatus(STATUS_PASSED);
