@@ -84,7 +84,6 @@ function setMolWeight() {
     }
 }
 
-// TODO: refactor
 function updateVolume() {
     var areMolarityAndMolPreset = this.isMolarityPresent() && this.isMolPresent();
     var areDensityAndWeightPresent = this.isDensityPresent() && this.isWeightPresent();
@@ -126,7 +125,6 @@ function setEntered(field) {
     this[field].entered = true;
 }
 
-// TODO: maybe it useless? just setDefaultValues
 function resetEntered(fields) {
     var self = this;
 
@@ -213,7 +211,6 @@ function setComputedWeight(weight, callback) {
 }
 
 function setComputedMol(mol, callback) {
-    // TODO: set limiting true if limitingRow doesn't exist
     this.mol.value = this.isSolventRow() ? 0 : mol;
     this.resetEntered([fieldTypes.mol]);
 

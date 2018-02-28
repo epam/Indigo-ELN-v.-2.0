@@ -19,7 +19,7 @@
  */
 
 /* @ngInject */
-function stoichReactantsColumns(appUnits, stoichColumnActions, notifyService, i18en, appValuesService,
+function stoichReactantsColumns(appUnits, stoichColumnActions, notifyService, translateService, appValuesService,
                                 selectService, unitService, calculationService) {
     return {
         compoundId: {
@@ -55,7 +55,6 @@ function stoichReactantsColumns(appUnits, stoichColumnActions, notifyService, i1
                 var row = data.row;
 
                 if (row) {
-                    // TODO: rework editable cell to mutate separate view model to be able to retrieve previous value
                     if (!row.$$fullNbkBatchOld && row.fullNbkImmutablePart) {
                         row.$$fullNbkBatchOld = data.oldVal;
                     }
@@ -85,8 +84,7 @@ function stoichReactantsColumns(appUnits, stoichColumnActions, notifyService, i1
                             // Removing queued changes is nothing is found
                             // The intention is to restore previous state
                             row.changesQueue = [];
-                            // TODO: USe translate service
-                            notifyService.error(i18en.NOTIFY_BATCH_NUMBER_ERROR);
+                            notifyService.error(translateService.translate('NOTIFY_BATCH_NUMBER_ERROR'));
                         });
                 }
             }
