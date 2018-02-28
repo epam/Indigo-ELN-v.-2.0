@@ -82,9 +82,9 @@ function isRxnRole(key) {
 }
 
 function isReagentField(key) {
-    return key === fieldTypes.weight || key === fieldTypes.volume
-        || key === fieldTypes.mol || key === fieldTypes.density
-        || key === fieldTypes.molarity;
+    var keys = [fieldTypes.weight, fieldTypes.volume, fieldTypes.mol, fieldTypes.density, fieldTypes.molarity];
+
+    return keys.indexOf(key) !== -1;
 }
 
 function isLimiting(key) {
