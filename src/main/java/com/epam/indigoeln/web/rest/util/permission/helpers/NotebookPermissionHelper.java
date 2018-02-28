@@ -149,6 +149,7 @@ public class NotebookPermissionHelper {
                     || !currentUserPermission.getPermissionCreationLevel().equals(NOTEBOOK)) {
 
                 currentUserPermission.setPermissions(updatedPermission.getPermissions());
+                currentUserPermission.setPermissionCreationLevel(updatedPermission.getPermissionCreationLevel());
                 updatedNotebookPermissions.add(currentUserPermission);
             }
         }
@@ -242,7 +243,7 @@ public class NotebookPermissionHelper {
      * @param notebook           Notebook to change permissions
      * @param newUserPermissions permissions that should be applied
      * @param authorOfChanges    author of permissions changes
-     * @return {@code Pair.of(wasProjectChanged, changedExperiments)}
+     * @return {@code tuple of projectChanges, notebookChanges and experimentsChanges)}
      */
     public static Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>
     changeNotebookPermissions(Project project,

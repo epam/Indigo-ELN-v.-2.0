@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2015-2018 EPAM Systems
- *  
+ *
  *  This file is part of Indigo ELN.
  *
  *  Indigo ELN is free software: you can redistribute it and/or modify
@@ -153,8 +153,9 @@ public class ExperimentPermissionHelper {
             } else if ((updatedPermission.getPermissionCreationLevel().equals(EXPERIMENT)
                     || !presentedPermission.getPermissionCreationLevel().equals(EXPERIMENT))
                     && !presentedPermission.getPermissionView().equals(updatedPermission.getPermissionView())) {
-                UserPermission changedPermission =
-                        presentedPermission.setPermissions(updatedPermission.getPermissions());
+                UserPermission changedPermission = presentedPermission
+                        .setPermissions(updatedPermission.getPermissions())
+                        .setPermissionCreationLevel(updatedPermission.getPermissionCreationLevel());
                 changedPermissions.add(changedPermission);
             }
         }
