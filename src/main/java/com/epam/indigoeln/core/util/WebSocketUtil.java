@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2015-2018 EPAM Systems
- *  
+ *
  *  This file is part of Indigo ELN.
  *
  *  Indigo ELN is free software: you can redistribute it and/or modify
@@ -32,6 +32,9 @@ import java.net.UnknownHostException;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singletonMap;
+
 /**
  * Utility class for getting host name and updating entities.
  */
@@ -61,27 +64,55 @@ public class WebSocketUtil {
 
 
     public void newProject(User user, Stream<String> recipients) {
-        new Thread(new SleepRunnable(() -> {
+        new Thread(getNewProjectNotification(user, recipients)).start();
+    }
+
+    /**
+     * Returns sub_entity_changes notification for root of the entity tree.
+     *
+     * @param user       Author of changes
+     * @param recipients user-names of recipients
+     * @return sub_entity_changes notification for root of the entity tree
+     */
+    public DelayedNotificationRunnable getNewProjectNotification(User user, Stream<String> recipients) {
+        return new DelayedNotificationRunnable(() -> {
             Map<String, Object> data = new HashMap<>();
             data.put(USER, user.getId());
             data.put(ENTITY, null);
             recipients.forEach(userName -> template.convertAndSendToUser(userName, SUB_ENTITY_CHANGES, data));
-        })).start();
+        });
     }
 
     /**
-     * Updates project.
+     * Returns entity_updated notification for project.
      *
      * @param user       User
      * @param project    Project
      * @param recipients user-names of recipients
+     * @return entity_updated notification for project
      */
-    public void updateProject(User user, Project project, Stream<String> recipients) {
-        informProject(user, project, recipients, ENTITY_DESTINATION);
+    public DelayedNotificationRunnable getUpdateProjectNotification(User user, Project project, Stream<String> recipients) {
+        return getProjectNotification(user, project, recipients, ENTITY_DESTINATION);
     }
 
-    private void informProject(User user, Project project, Stream<String> recipients, String notificationDestination) {
-        new Thread(new SleepRunnable(() -> {
+    /**
+     * Returns sub_entity_changes notification for project.
+     *
+     * @param user       User
+     * @param project    Project
+     * @param recipients user-names of recipients
+     * @return sub_entity_changes notification for project
+     */
+    public DelayedNotificationRunnable getProjectSubEntityNotification(User user, Project project, Stream<String> recipients) {
+        return getProjectNotification(user, project, recipients, SUB_ENTITY_CHANGES);
+    }
+
+    private DelayedNotificationRunnable getProjectNotification(User user,
+                                                               Project project,
+                                                               Stream<String> recipients,
+                                                               String notificationDestination
+    ) {
+        return new DelayedNotificationRunnable(() -> {
             Map<String, Object> data = new HashMap<>();
             data.put(USER, user.getId());
             Map<String, Object> entity = new HashMap<>();
@@ -89,27 +120,44 @@ public class WebSocketUtil {
             data.put(ENTITY, entity);
             data.put(VERSION, project.getVersion());
             recipients.forEach(userName -> template.convertAndSendToUser(userName, notificationDestination, data));
-        })).start();
-    }
-
-    public void newSubEntityForProject(User user, Project project, Stream<String> recipients) {
-        informProject(user, project, recipients, SUB_ENTITY_CHANGES);
+        });
     }
 
     /**
-     * Updates notebook.
+     * Returns entity_updated notification for notebook.
      *
      * @param user       User
      * @param projectId  Project's id
      * @param notebook   Notebook
      * @param recipients user-names of recipients
      */
-    public void updateNotebook(User user, String projectId, Notebook notebook, Stream<String> recipients) {
-        informNotebook(user, projectId, notebook, recipients, ENTITY_DESTINATION);
+    public DelayedNotificationRunnable getUpdateNotebookNotification(User user, String projectId, Notebook notebook, Stream<String> recipients) {
+        return getNotebookNotification(user, projectId, notebook, recipients, ENTITY_DESTINATION);
     }
 
-    private void informNotebook(User user, String projectId, Notebook notebook, Stream<String> recipients, String publishAddress) {
-        new Thread(new SleepRunnable(() -> {
+    /**
+     * Returns SUB_ENTITY_CHANGES notification for notebook.
+     *
+     * @param user       User
+     * @param projectId  Project's id
+     * @param notebook   Notebook
+     * @param recipients user-names of recipients
+     */
+    public DelayedNotificationRunnable getNotebookSubEntityNotification(User user,
+                                                                        String projectId,
+                                                                        Notebook notebook,
+                                                                        Stream<String> recipients
+    ) {
+        return getNotebookNotification(user, projectId, notebook, recipients, SUB_ENTITY_CHANGES);
+    }
+
+    private DelayedNotificationRunnable getNotebookNotification(User user,
+                                                                String projectId,
+                                                                Notebook notebook,
+                                                                Stream<String> recipients,
+                                                                String publishAddress
+    ) {
+        return new DelayedNotificationRunnable(() -> {
             Map<String, Object> data = new HashMap<>();
             data.put(USER, user.getId());
             Map<String, Object> entity = new HashMap<>();
@@ -118,13 +166,9 @@ public class WebSocketUtil {
             data.put(ENTITY, entity);
             data.put(VERSION, notebook.getVersion());
             recipients.forEach(userName -> template.convertAndSendToUser(userName, publishAddress, data));
-        })).start();
+        });
     }
 
-
-    public void newSubEntityForNotebook(User user, String projectId, Notebook notebook, Stream<String> recipients) {
-        informNotebook(user, projectId, notebook, recipients, SUB_ENTITY_CHANGES);
-    }
 
     /**
      * Updates experiment.
@@ -135,8 +179,33 @@ public class WebSocketUtil {
      * @param experiment Experiment
      * @param recipients user-names of recipients
      */
-    public void updateExperiment(User user, String projectId, String notebookId, Experiment experiment, Stream<String> recipients) {
-        new Thread(new SleepRunnable(() -> {
+    public void updateExperiment(User user,
+                                 String projectId,
+                                 String notebookId,
+                                 Experiment experiment,
+                                 Stream<String> recipients
+    ) {
+        new Thread(
+                getUpdateExperimentNotification(user, projectId, notebookId, experiment, recipients))
+                .start();
+    }
+
+    /**
+     * Returns entity_updated notification for  experiment.
+     *
+     * @param user       User
+     * @param projectId  Project's id
+     * @param notebookId Notebook's id
+     * @param experiment Experiment
+     * @param recipients user-names of recipients
+     */
+    public DelayedNotificationRunnable getUpdateExperimentNotification(User user,
+                                                                       String projectId,
+                                                                       String notebookId,
+                                                                       Experiment experiment,
+                                                                       Stream<String> recipients
+    ) {
+        return new DelayedNotificationRunnable(() -> {
             Map<String, Object> data = new HashMap<>();
             data.put(USER, user.getId());
             Map<String, Object> entity = new HashMap<>();
@@ -146,7 +215,7 @@ public class WebSocketUtil {
             data.put(ENTITY, entity);
             data.put(VERSION, experiment.getVersion());
             recipients.forEach(userName -> template.convertAndSendToUser(userName, ENTITY_DESTINATION, data));
-        })).start();
+        });
     }
 
     /**
@@ -155,8 +224,8 @@ public class WebSocketUtil {
      * @param login User's login
      */
     public void updateUser(String login) {
-        new Thread(new SleepRunnable(() -> template.convertAndSendToUser(login, USER_DESTINATION,
-                Collections.singletonMap("message", "User's permissions were changed. User should relogin")))).start();
+        new Thread(new DelayedNotificationRunnable(() -> template.convertAndSendToUser(login, USER_DESTINATION,
+                singletonMap("message", "User's permissions were changed. User should relogin")))).start();
     }
 
 
@@ -182,6 +251,18 @@ public class WebSocketUtil {
      * User names to notify about added or removed sub-entity for them.
      *
      * @param permissionChanges permission changes and entity
+     * @return stream of user-names that should be notified about permissionChanges
+     */
+    public static Stream<String> getSubEntityChangesRecipients(
+            PermissionChanges<?> permissionChanges
+    ) {
+        return getSubEntityChangesRecipients(permissionChanges, emptySet());
+    }
+
+    /**
+     * User names to notify about added or removed sub-entity for them.
+     *
+     * @param permissionChanges permission changes and entity
      * @param contentEditors    users with CONTENT_EDITOR authorities.
      * @return stream of user-names that should be notified about permissionChanges
      */
@@ -195,6 +276,18 @@ public class WebSocketUtil {
                         permissionChanges.getRemovedPermissions().stream().map(UserPermission::getUser)))
                 .map(User::getId)
                 .distinct();
+    }
+
+    /**
+     * User names to notify about added or removed sub-entity for them.
+     *
+     * @param permissionChanges permission changes and entity
+     * @return stream of user-names that should be notified about permissionChanges
+     */
+    public static <E extends BasicModelObject> Stream<String> getSubEntityChangesRecipients(
+            Collection<PermissionChanges<E>> permissionChanges
+    ) {
+        return getSubEntityChangesRecipients(permissionChanges, emptySet());
     }
 
     /**
@@ -221,11 +314,20 @@ public class WebSocketUtil {
 
     }
 
-    private static class SleepRunnable implements Runnable {
+    /**
+     * Send all notifications.
+     *
+     * @param notifications notifications to send
+     */
+    public void sendAll(List<DelayedNotificationRunnable> notifications) {
+        notifications.forEach(runnable -> new Thread(runnable).start());
+    }
+
+    public static class DelayedNotificationRunnable implements Runnable {
 
         private final Runnable runnable;
 
-        private SleepRunnable(Runnable runnable) {
+        private DelayedNotificationRunnable(Runnable runnable) {
             this.runnable = runnable;
         }
 

@@ -61,7 +61,7 @@ import java.util.stream.Collectors;
 import static com.epam.indigoeln.core.util.BatchComponentUtil.*;
 import static com.epam.indigoeln.core.util.WebSocketUtil.getEntityUpdateRecipients;
 import static com.epam.indigoeln.core.util.WebSocketUtil.getSubEntityChangesRecipients;
-import static java.util.Collections.emptySet;
+import static java.util.Arrays.asList;
 
 /**
  * The ExperimentService provides methods for
@@ -502,23 +502,36 @@ public class ExperimentService {
         Notebook savedNotebook = notebookRepository.save(notebook);
 
         Set<User> contentEditors = userService.getContentEditors();
-        if (changes.getRight().hadChanged()) {
-            updateProjectAndSendNotifications(user, changes.getLeft(), contentEditors);
 
-            PermissionChanges<Notebook> permissionChanges = changes.getMiddle();
-            if (permissionChanges.hadChanged()) {
+        PermissionChanges<Project> projectPermissions = changes.getLeft();
 
-                webSocketUtil.newSubEntityForProject(user, project,
-                        getSubEntityChangesRecipients(permissionChanges, contentEditors));
+        List<WebSocketUtil.DelayedNotificationRunnable> notifications = new ArrayList<>();
 
-                webSocketUtil.updateNotebook(user, project.getId(), savedNotebook,
-                        getEntityUpdateRecipients(
-                                contentEditors, savedNotebook, null));
-            }
+        if (projectPermissions.hadChanged()) {
+            Project savedProject = projectRepository.save(projectPermissions.getEntity());
+            notifications.add(
+                    webSocketUtil.getUpdateProjectNotification(user, savedProject,
+                            getEntityUpdateRecipients(contentEditors, savedProject, null)));
         }
 
-        sendExperimentNotifications(user, project.getId(),
-                notebook, changes.getRight(), contentEditors);
+        notifications.add(
+                webSocketUtil.getNewProjectNotification(user,
+                        getSubEntityChangesRecipients(projectPermissions)));
+
+        notifications.add(
+                webSocketUtil.getProjectSubEntityNotification(user, project,
+                        getSubEntityChangesRecipients(changes.getMiddle())));
+
+        notifications.add(
+                webSocketUtil.getUpdateNotebookNotification(user, projectId, savedNotebook,
+                        getEntityUpdateRecipients(
+                                contentEditors, savedNotebook, null)));
+
+        notifications.add(
+                webSocketUtil.getNotebookSubEntityNotification(user, projectId, savedNotebook,
+                        getSubEntityChangesRecipients(changes.getRight(), contentEditors)));
+
+        webSocketUtil.sendAll(notifications);
 
         return new ExperimentDTO(savedExperiment);
     }
@@ -594,19 +607,38 @@ public class ExperimentService {
 
         Set<User> contentEditors = userService.getContentEditors();
 
-        webSocketUtil.updateExperiment(user, projectId, notebookId, lastVersion,
-                getEntityUpdateRecipients(contentEditors, lastVersion, null));
+        List<WebSocketUtil.DelayedNotificationRunnable> notifications = new ArrayList<>();
 
-        if (changes.getLeft().hadChanged()) {
-            webSocketUtil.newProject(user, getSubEntityChangesRecipients(changes.getLeft(), emptySet()));
-        }
-        if (changes.getMiddle().hadChanged()) {
-            webSocketUtil.newSubEntityForProject(user, project,
-                    getSubEntityChangesRecipients(changes.getMiddle(), emptySet()));
+        //update lastVersion name and version
+        notifications.add(
+                webSocketUtil.getUpdateExperimentNotification(user, projectId, notebookId, lastVersion,
+                        getEntityUpdateRecipients(contentEditors, lastVersion, null)));
+
+        PermissionChanges<Project> projectPermissions = changes.getLeft();
+        if (projectPermissions.hadChanged()) {
+            Project savedProject = projectRepository.save(projectPermissions.getEntity());
+            notifications.add(
+                    webSocketUtil.getUpdateProjectNotification(user, savedProject,
+                            getEntityUpdateRecipients(contentEditors, savedProject, null)));
         }
 
-        webSocketUtil.newSubEntityForNotebook(user, projectId, savedNotebook,
-                getSubEntityChangesRecipients(changes.getRight(), contentEditors));
+        notifications.add(
+                webSocketUtil.getNewProjectNotification(user,
+                        getSubEntityChangesRecipients(projectPermissions)));
+
+        notifications.add(
+                webSocketUtil.getProjectSubEntityNotification(user, project,
+                        getSubEntityChangesRecipients(changes.getMiddle())));
+
+        notifications.add(
+                webSocketUtil.getUpdateNotebookNotification(user, projectId, savedNotebook,
+                        getEntityUpdateRecipients(contentEditors, savedNotebook, null)));
+
+        notifications.add(
+                webSocketUtil.getNotebookSubEntityNotification(user, projectId, savedNotebook,
+                        getSubEntityChangesRecipients(changes.getRight(), contentEditors)));
+
+        webSocketUtil.sendAll(notifications);
 
         return new ExperimentDTO(savedNewVersion);
     }
@@ -684,14 +716,19 @@ public class ExperimentService {
             }
 
             Set<User> contentEditors = userService.getContentEditors();
+            List<WebSocketUtil.DelayedNotificationRunnable> notifications = new ArrayList<>();
             if (changes.getRight().hadChanged()) {
-                updateProjectAndSendNotifications(user, changes.getLeft(), contentEditors);
+                notifications.addAll(
+                        updateProjectAndGetNotifications(user, changes.getLeft(), contentEditors));
 
-                updateNotebooksAndSendNotifications(user, project, changes.getMiddle(), contentEditors);
+                notifications.addAll(
+                        updateNotebooksAndSendNotifications(user, project, changes.getMiddle(), contentEditors));
             }
+            notifications.addAll(
+                    getExperimentNotifications(user, project.getId(),
+                            notebook, changes.getRight(), contentEditors));
 
-            sendExperimentNotifications(user, project.getId(),
-                    notebook, changes.getRight(), contentEditors);
+            webSocketUtil.sendAll(notifications);
 
             result = new ExperimentDTO(savedExperiment);
         } finally {
@@ -720,54 +757,70 @@ public class ExperimentService {
                 getEntityUpdateRecipients(contentEditors, experiment, null));
     }
 
-    private void updateNotebooksAndSendNotifications(User user,
-                                                     Project projectFromDb,
-                                                     PermissionChanges<Notebook> permissionChanges,
-                                                     Set<User> contentEditors
+    private List<WebSocketUtil.DelayedNotificationRunnable> updateNotebooksAndSendNotifications(
+            User user,
+            Project projectFromDb,
+            PermissionChanges<Notebook> permissionChanges,
+            Set<User> contentEditors
     ) {
+        List<WebSocketUtil.DelayedNotificationRunnable> result = new ArrayList<>(2);
         if (permissionChanges.hadChanged()) {
 
             Notebook savedNotebook = notebookRepository.save(permissionChanges.getEntity());
+            result.add(
+                    webSocketUtil.getProjectSubEntityNotification(user, projectFromDb,
+                            getSubEntityChangesRecipients(permissionChanges)));
 
-            webSocketUtil.newSubEntityForProject(user, projectFromDb,
-                    getSubEntityChangesRecipients(permissionChanges, contentEditors));
-
-            webSocketUtil.updateNotebook(user, projectFromDb.getId(), savedNotebook,
-                    getEntityUpdateRecipients(
-                            contentEditors, savedNotebook, null));
+            result.add(
+                    webSocketUtil.getUpdateNotebookNotification(user, projectFromDb.getId(), savedNotebook,
+                            getEntityUpdateRecipients(
+                                    contentEditors, savedNotebook, null)));
         }
+
+        return result;
     }
 
-    private void updateProjectAndSendNotifications(User user,
-                                                   PermissionChanges<Project> projectPermissions,
-                                                   Set<User> contentEditors
+    private List<WebSocketUtil.DelayedNotificationRunnable> updateProjectAndGetNotifications(
+            User user,
+            PermissionChanges<Project> projectPermissions,
+            Set<User> contentEditors
     ) {
+        List<WebSocketUtil.DelayedNotificationRunnable> result = new ArrayList<>();
+
         if (projectPermissions.hadChanged()) {
             Project savedProject = projectRepository.save(projectPermissions.getEntity());
 
-            webSocketUtil.updateProject(user, savedProject,
-                    getEntityUpdateRecipients(
-                            contentEditors, projectPermissions.getEntity(), null));
+            result.add(
+                    webSocketUtil.getUpdateProjectNotification(user, savedProject,
+                            getEntityUpdateRecipients(
+                                    contentEditors, projectPermissions.getEntity(), null)));
 
-            webSocketUtil.newProject(user, getSubEntityChangesRecipients(projectPermissions, contentEditors));
+            result.add(
+                    webSocketUtil.getNewProjectNotification(user,
+                            getSubEntityChangesRecipients(projectPermissions)));
         }
+        return result;
     }
 
-    private void sendExperimentNotifications(
+    private List<WebSocketUtil.DelayedNotificationRunnable> getExperimentNotifications(
             User user,
             String projectId,
             Notebook parentNotebook, PermissionChanges<Experiment> experimentPermissions,
             Set<User> contentEditors
     ) {
 
-        webSocketUtil.updateExperiment(user, projectId,
-                parentNotebook.getId(),
-                experimentPermissions.getEntity(),
-                getEntityUpdateRecipients(
-                        contentEditors, experimentPermissions.getEntity(), user.getId()));
+        WebSocketUtil.DelayedNotificationRunnable updateExperimentNotification =
+                webSocketUtil.getUpdateExperimentNotification(user, projectId,
+                        parentNotebook.getId(),
+                        experimentPermissions.getEntity(),
+                        getEntityUpdateRecipients(
+                                contentEditors, experimentPermissions.getEntity(), user.getId()));
 
-        webSocketUtil.newSubEntityForNotebook(user, projectId, parentNotebook,
-                getSubEntityChangesRecipients(experimentPermissions, contentEditors));
+        WebSocketUtil.DelayedNotificationRunnable notebookSubEntityNotification =
+                webSocketUtil.getNotebookSubEntityNotification(user, projectId, parentNotebook,
+                        getSubEntityChangesRecipients(experimentPermissions));
+
+        return asList(updateExperimentNotification, notebookSubEntityNotification);
     }
 
     private void checkAccess(User user, Experiment experimentFromDB) {
