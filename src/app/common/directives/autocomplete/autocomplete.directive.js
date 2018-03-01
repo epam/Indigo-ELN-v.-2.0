@@ -55,6 +55,13 @@ function autocompleteController($scope, translateService, dictionaryService) {
                 name: vm.dictionary
             }, function(dictionary) {
                 vm.items = dictionary.words;
+                vm.items = _.map(vm.items, function(item) {
+                    item.label = _.reduce(vm.field.split(','), function(acc, field) {
+                        return (acc.length ? acc + ' ' : '') + item[field];
+                    }, '');
+
+                    return item;
+                });
             });
         }
 
@@ -97,7 +104,7 @@ function autocompleteController($scope, translateService, dictionaryService) {
     function filterItems(query) {
         var queryLowerCase = _.lowerCase(query);
         vm.filteredItems = _.filter(vm.items, function(item) {
-            return _.includes(item[vm.field].toLowerCase(), queryLowerCase);
+            return _.includes(item.label ? item.label.toLowerCase() : '', queryLowerCase);
         });
     }
 }
