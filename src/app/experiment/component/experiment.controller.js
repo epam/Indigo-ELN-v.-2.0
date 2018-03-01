@@ -19,12 +19,11 @@
  */
 
 /* @ngInject */
-function ExperimentController($scope, dashboardService, configService, $filter, $timeout, experimentService) {
+function ExperimentController($scope, dashboardService, configService, $filter) {
     var vm = this;
     var openExperiments;
     var waitingExperiments;
     var submittedExperiments;
-    var etimeout;
 
     vm.experiments = [];
     vm.dView = 'open';
@@ -41,7 +40,6 @@ function ExperimentController($scope, dashboardService, configService, $filter, 
     vm.doPage = doPage;
     vm.refresh = refresh;
     vm.getIdleWorkdays = getIdleWorkdays;
-    vm.experimentEnter = experimentEnter;
     vm.clear = clear;
 
     vm.loadAll();
@@ -100,28 +98,6 @@ function ExperimentController($scope, dashboardService, configService, $filter, 
 
     function getIdleWorkdays(creationDate) {
         return Math.round((new Date() - Date.parse(creationDate)) / (1000 * 60 * 60 * 24));
-    }
-
-    function experimentEnter(experiment) {
-        if (etimeout) {
-            $timeout.cancel(etimeout);
-        }
-
-        if (experiment.components) {
-            return;
-        }
-
-        etimeout = $timeout(function() {
-            experimentService.get({
-                experimentId: experiment.experimentId,
-                notebookId: experiment.notebookId,
-                projectId: experiment.projectId
-            }).$promise.then(function(data) {
-                if (data.components.reaction) {
-                    experiment.reactionImage = data.components.reaction.image;
-                }
-            });
-        }, 500);
     }
 
     function clear() {

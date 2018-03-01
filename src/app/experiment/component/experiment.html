@@ -103,8 +103,7 @@
                     </thead>
                     <tbody class="main-table__body">
                     <tr ng-class="{'table-list' : true, 'reaction-popup' : !!exp.reactionImage}"
-                        ng-repeat="exp in vm.curExperimentsPaged track by $index"
-                        ng-mouseenter="vm.experimentEnter(exp)">
+                        ng-repeat="exp in vm.curExperimentsPaged track by $index">
                         <td class="table-list__item dash-exp-id">
                             <a class="ellipsis"
                                ui-sref="entities.experiment-detail({projectId: exp.projectId, notebookId: exp.notebookId, experimentId: exp.experimentId})"
