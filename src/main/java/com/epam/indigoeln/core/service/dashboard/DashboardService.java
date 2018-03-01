@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2015-2018 EPAM Systems
- *  
+ *
  *  This file is part of Indigo ELN.
  *
  *  Indigo ELN is free software: you can redistribute it and/or modify
@@ -120,6 +120,7 @@ public class DashboardService {
                 .find(new BasicDBObject()
                         .append("_id", new BasicDBObject("$in", componentIds))
                         .append("$or", Arrays.asList(
+                                new BasicDBObject("name", "reaction"),
                                 new BasicDBObject("name", "reactionDetails"),
                                 new BasicDBObject("name", "conceptDetails"))))
                 .forEach(c -> components.put(c.get("_id"), c));
@@ -306,8 +307,11 @@ public class DashboardService {
         result.setCreationDate(JSR310DateConverters.DateToZonedDateTimeConverter.INSTANCE.convert((Date) experiment.get("creationDate")));
         result.setLastEditDate(JSR310DateConverters.DateToZonedDateTimeConverter.INSTANCE.convert((Date) experiment.get("lastEditDate")));
 
-        val title = getExperimentDetailsValue(experiment, "title", components);
+        val title = getExperimentDetailsValue(experiment, Arrays.asList("reactionDetails", "conceptDetails"), "title", components);
         result.setName(title == null ? null : String.valueOf(title));
+
+        val reactionImage = getExperimentDetailsValue(experiment, Collections.singletonList("reaction"), "image", components);
+        result.setReactionImage(reactionImage == null ? null : String.valueOf(reactionImage));
 
         if (documents != null && experiment.get("documentId") != null) {
             val document = documents.get(experiment.get("documentId"));
@@ -327,7 +331,7 @@ public class DashboardService {
         result.setAuthor(getUserDTO(experiment, "author", users));
         result.setSubmitter(getUserDTO(experiment, "submittedBy", users));
 
-        val coAuthors = getExperimentDetailsValue(experiment, "coAuthors", components);
+        val coAuthors = getExperimentDetailsValue(experiment, Arrays.asList("reactionDetails", "conceptDetails"), "coAuthors", components);
         if (coAuthors instanceof Iterable) {
             val ca = new ArrayList<String>();
 
@@ -377,7 +381,7 @@ public class DashboardService {
      * @param components all components
      * @return the value for given key in reaction or concept details
      */
-    private Object getExperimentDetailsValue(DBObject experiment, String key, Map<Object, DBObject> components) {
+    private Object getExperimentDetailsValue(DBObject experiment, List<String> name, String key, Map<Object, DBObject> components) {
         if (experiment == null || key == null) {
             return null;
         }
@@ -385,7 +389,7 @@ public class DashboardService {
         for (val c : (Iterable) experiment.get("components")) {
             val component = components.get(((DBRef) c).getId());
 
-            if (component != null && ("reactionDetails".equals(component.get("name")) || "conceptDetails".equals(component.get("name")))) {
+            if (component != null && name.contains(component.get("name"))) {
                 val content = (DBObject) component.get("content");
 
                 if (content != null) {
