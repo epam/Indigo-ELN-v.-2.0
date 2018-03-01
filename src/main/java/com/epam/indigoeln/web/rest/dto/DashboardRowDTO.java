@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2015-2018 EPAM Systems
- *  
+ *
  *  This file is part of Indigo ELN.
  *
  *  Indigo ELN is free software: you can redistribute it and/or modify
@@ -36,6 +36,8 @@ public class DashboardRowDTO {
     private String name;
 
     private ExperimentStatus status;
+
+    private String reactionImage;
 
     private UserDTO author;
 
@@ -99,6 +101,14 @@ public class DashboardRowDTO {
 
     public void setStatus(ExperimentStatus status) {
         this.status = status;
+    }
+
+    public String getReactionImage() {
+        return reactionImage;
+    }
+
+    public void setReactionImage(String reactionImage) {
+        this.reactionImage = reactionImage;
     }
 
     public UserDTO getAuthor() {
