@@ -1,3 +1,23 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 var fieldTypes = require('../../../../services/calculation/field-types');
 var mathCalculation = require('../../../../services/calculation/math-calculation');
 
@@ -20,74 +40,89 @@ function reagentsCalculation(calculationHelper) {
 
     function recalculate(row, fieldId) {
         // Handle necessary recalculations here
-        switch (fieldId) {
-            case fieldTypes.molWeight:
-                row.setEntered(fieldId);
-                onMolWeightChanged(row);
-                break;
-            case fieldTypes.weight:
-                row.setEntered(fieldId);
-                onWeightChanged(row);
-                break;
-            case fieldTypes.mol:
-                row.setEntered(fieldId);
-                onMolChanged(row);
-                break;
-            case fieldTypes.eq:
-                row.setEntered(fieldId);
-                onEqChanged(row);
-                break;
-            case fieldTypes.rxnRole:
-                onRxnRoleChanged(row);
-                break;
-            case fieldTypes.volume:
-                row.setEntered(fieldId);
-                onVolumeChanged(row);
-                break;
-            case fieldTypes.molarity:
-                row.setEntered(fieldId);
-                onMolarityChanged(row);
-                break;
-            case fieldTypes.stoicPurity:
-                row.setEntered(fieldId);
-                onPurityChanged(row);
-                break;
-            case fieldTypes.saltCode:
-                onSaltChanged(row);
-                break;
-            case fieldTypes.saltEq:
-                onSaltChanged(row);
-                break;
-            case fieldTypes.density:
-                row.setEntered(fieldId);
-                onDensityChanged(row);
-                break;
-            case fieldTypes.compoundId:
-                onNbkBatchOrCompoundIdChanged(row);
-                break;
-            case fieldTypes.fullNbkBatch:
-                onNbkBatchOrCompoundIdChanged(row);
-                break;
-            default:
-                onAddNewRow(row);
-                break;
+        if (!fieldId) {
+            onAddNewRow(row);
+        }
+
+        recalculateNumberFields(row, fieldId);
+
+        if (fieldId === fieldTypes.rxnRole) {
+            onRxnRoleChanged(row);
+        }
+
+        if (fieldId === fieldTypes.saltCode || fieldId === fieldTypes.saltEq) {
+            onSaltChanged(row);
+        }
+
+        if (fieldId === fieldTypes.compoundId || fieldId === fieldTypes.fullNbkBatch) {
+            onNbkBatchOrCompoundIdChanged(row);
+        }
+    }
+
+    function recalculateNumberFields(row, fieldId) {
+        if (fieldId === fieldTypes.molWeight) {
+            row.setEntered(fieldId);
+            onMolWeightChanged(row);
+
+            return;
+        }
+        if (fieldId === fieldTypes.weight) {
+            row.setEntered(fieldId);
+            onWeightChanged(row);
+
+            return;
+        }
+        if (fieldId === fieldTypes.mol) {
+            row.setEntered(fieldId);
+            onMolChanged(row);
+
+            return;
+        }
+        if (fieldId === fieldTypes.eq) {
+            row.setEntered(fieldId);
+            onEqChanged(row);
+
+            return;
+        }
+        if (fieldId === fieldTypes.volume) {
+            row.setEntered(fieldId);
+            onVolumeChanged(row);
+
+            return;
+        }
+        if (fieldId === fieldTypes.molarity) {
+            row.setEntered(fieldId);
+            onMolarityChanged(row);
+
+            return;
+        }
+        if (fieldId === fieldTypes.stoicPurity) {
+            row.setEntered(fieldId);
+            onPurityChanged(row);
+
+            return;
+        }
+        if (fieldId === fieldTypes.density) {
+            row.setEntered(fieldId);
+            onDensityChanged(row);
         }
     }
 
     function onMolWeightChanged(row) {
         row.molWeight.originalValue = row.molWeight.value;
 
-        if (row.isMolWeightPresent()) {
-            if (row.isLimiting() && row.isWeightPresent()) {
-                var mol = mathCalculation.computeMol(row.weight.value, row.molWeight.value, row.stoicPurity.value);
-                updateMol(row, mol);
+        if (!row.isMolWeightPresent()) {
+            return;
+        }
+        if (row.isLimiting() && row.isWeightPresent()) {
+            var mol = mathCalculation.computeMol(row.weight.value, row.molWeight.value, row.stoicPurity.value);
+            updateMol(row, mol);
 
-                return;
-            }
-            if (row.isMolPresent()) {
-                var weight = mathCalculation.computeWeight(row.mol.value, row.molWeight.value, row.stoicPurity.value);
-                row.setComputedWeight(weight, onWeightChanged);
-            }
+            return;
+        }
+        if (row.isMolPresent()) {
+            var weight = mathCalculation.computeWeight(row.mol.value, row.molWeight.value, row.stoicPurity.value);
+            row.setComputedWeight(weight, onWeightChanged);
         }
     }
 
@@ -125,6 +160,10 @@ function reagentsCalculation(calculationHelper) {
         updateDependencies(row);
     }
 
+    function onEqChangedCanResetVolume(row) {
+        return row.isVolumePresent() && !row.isDensityPresent() && !row.isMolarityPresent();
+    }
+
     function onEqChanged(row) {
         if (!row.eq.value) {
             row.eq.value = row.eq.prevValue;
@@ -132,9 +171,8 @@ function reagentsCalculation(calculationHelper) {
             return;
         }
 
-        var shouldResetVolume = row.isVolumePresent() && !row.isDensityPresent() && !row.isMolarityPresent();
-
-        if (shouldResetVolume) {
+        // reset volume
+        if (onEqChangedCanResetVolume(row)) {
             row.resetFields([fieldTypes.volume]);
             setMolDependingOfLimiting(row, getLimitingRow());
 
@@ -152,9 +190,7 @@ function reagentsCalculation(calculationHelper) {
             if (row.isMolPresent()) {
                 updateRows();
             }
-        }
-
-        if (!row.isLimiting()) {
+        } else {
             if (row.isWeightPresent()) {
                 var weight = mathCalculation.computeWeightByEq(row.weight.value, row.eq.value, row.eq.prevValue);
                 row.setComputedWeight(weight);
@@ -200,10 +236,14 @@ function reagentsCalculation(calculationHelper) {
         row.prevRxnRole.name = row.rxnRole.name;
     }
 
+    function resetVolumeCanChangeDensity(row) {
+        return row.isMolPresent() && row.isWeightPresent() && row.isDensityPresent();
+    }
+
     function resetVolume(row) {
         row.resetFields([fieldTypes.volume]);
 
-        if (row.isMolPresent() && row.isWeightPresent() && row.isDensityPresent()) {
+        if (resetVolumeCanChangeDensity(row)) {
             // re-calculate volume based on mol, weight and density
             onDensityChanged(row);
 
@@ -291,10 +331,6 @@ function reagentsCalculation(calculationHelper) {
     function onPurityChanged(row) {
         var prevPurity = row.stoicPurity.prevValue;
         var currentPurity = row.stoicPurity.value;
-        var areMolAndWeightEmpty = !row.isMolPresent() && !row.isWeightPresent();
-        var shouldUpdateMol = row.isWeightManuallyEntered() && row.isMolPresent();
-        var shouldUpdateWeight = (row.isMolManuallyEntered() && row.isWeightPresent())
-            || (!row.isWeightManuallyEntered() && !row.isMolManuallyEntered());
 
         if (!row.isPurityPresent()) {
             row.stoicPurity.value = row.stoicPurity.prevValue;
@@ -304,30 +340,37 @@ function reagentsCalculation(calculationHelper) {
 
         row.stoicPurity.prevValue = row.stoicPurity.value;
 
-        if (areMolAndWeightEmpty) {
+        // Mol and Weight Empty
+        if (!row.isMolPresent() && !row.isWeightPresent()) {
             return;
         }
 
-        if (shouldUpdateMol) {
+        // should Update Mol
+        if (row.isWeightManuallyEntered() && row.isMolPresent()) {
             var mol = mathCalculation.computeMolByPurity(row.mol.value, currentPurity, prevPurity);
             row.setComputedMol(mol, updateDependencies);
 
             if (row.isLimiting()) {
                 updateRows();
             }
-        } else if (shouldUpdateWeight) {
+
+            return;
+        }
+
+        // should Update Weight
+        var shouldUpdateWeight = row.isMolManuallyEntered() ? row.isWeightPresent() : !row.isWeightManuallyEntered();
+        if (shouldUpdateWeight) {
             var weight = mathCalculation.computeWeightByPurity(row.weight.value, currentPurity, prevPurity);
             row.setComputedWeight(weight, updateDependencies);
         }
     }
 
     function onSaltChanged(row) {
-        // TODO just disable this field if molWeight doesn't exist
         if (!row.molWeight.originalValue) {
             return;
         }
 
-        if (row.saltCode.regValue === 0) {
+        if (row.saltCode.regValue === '00') {
             row.setDefaultValues([fieldTypes.saltEq]);
         }
 
@@ -367,7 +410,6 @@ function reagentsCalculation(calculationHelper) {
     }
 
     function onNbkBatchOrCompoundIdChanged(row) {
-        // TODO: should implement test
         if (!isLimitingRowExist()) {
             row.limiting.value = true;
 
@@ -381,16 +423,22 @@ function reagentsCalculation(calculationHelper) {
         if (newRow.isSolventRow()) {
             newRow.prevRxnRole.name = 'SOLVENT';
             newRow.setReadonly(newRow.getResetFieldsForSolvent(), true);
-        } else if (isLimitingRowExist()) {
-            setMolDependingOfLimiting(newRow, getLimitingRow());
-        } else {
-            newRow.limiting.value = true;
+
+            return;
         }
+        if (isLimitingRowExist()) {
+            setMolDependingOfLimiting(newRow, getLimitingRow());
+
+            return;
+        }
+
+        newRow.limiting.value = true;
     }
 
     function canBeLimiting(row) {
         var canCalcMol = row.volume.value > 0 && (row.molarity.value > 0 || row.density.value > 0);
         var hasDimension = row.mol.value > 0 || canCalcMol;
+
         return !row.isSolventRow() && row.eq.value === 1 && hasDimension;
     }
 
@@ -439,9 +487,7 @@ function reagentsCalculation(calculationHelper) {
     }
 
     function setMolFromLimitingRow(row, isMolOrWeightPresent) {
-        var shouldSetMolFromLimitingRow = !isMolOrWeightPresent && !row.isVolumePresent();
-
-        if (shouldSetMolFromLimitingRow) {
+        if (!isMolOrWeightPresent && !row.isVolumePresent()) {
             setMolDependingOfLimiting(row, getLimitingRow());
         }
     }

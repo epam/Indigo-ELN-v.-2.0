@@ -1,3 +1,23 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 var template = require('./indigo-stoich-table.html');
 var analyzeRxnTemplate = require('../../../../common/analyze-rxn/analyze-rxn.html');
 var searchReagentsTemplate = require('../../../../common/search-reagents/search-reagents.html');
@@ -28,7 +48,7 @@ function indigoStoichTable() {
 /* @ngInject */
 function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValuesService, stoichColumnActions,
                                      alertModal, notifyService, calculationService, stoichTableCache,
-                                     stoichReactantsColumns, stoichProductColumns, stoichTableHelper, i18en) {
+                                     stoichReactantsColumns, stoichProductColumns, stoichTableHelper, translateService) {
     var vm = this;
 
     var dlg;
@@ -146,8 +166,7 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
         getMissingReactionReactantsInStoic(vm.infoReactants)
             .then(function(reactantsToSearch) {
                 if (_.isEmpty(reactantsToSearch)) {
-                    // TODO: Use translate service
-                    alertModal.info(i18en.NOTIFY_STOICHIOMETRY_SYNCHRONISED, 'sm');
+                    alertModal.info(translateService.translate('NOTIFY_STOICHIOMETRY_SYNCHRONISED'), 'sm');
 
                     return;
                 }
@@ -303,13 +322,11 @@ function IndigoStoichTableController($scope, $rootScope, $q, $uibModal, appValue
             return;
         }
 
-        // TODO: Use translate service
-        notifyService.error(i18en.NOTIFY_COMPOUND_ERROR);
+        notifyService.error(translateService.translate('NOTIFY_COMPOUND_ERROR'));
     }
 
     function alertWrongButchNumberFormat() {
-        // TODO: Use translate service
-        notifyService.error(i18en.NOTIFY_BATCH_NUMBER_ERROR);
+        notifyService.error(translateService.translate('NOTIFY_BATCH_NUMBER_ERROR'));
     }
 
     function addReagentRow(reagentRow) {

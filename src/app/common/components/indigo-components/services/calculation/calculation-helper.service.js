@@ -1,12 +1,46 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 var mathCalculation = require('./math-calculation');
 var DEFAULT_PURITY = 100;
+
+function getBaseFormula(formula) {
+    if (!formula) {
+        return formula;
+    }
+    var extendedFormulaIndex = formula.indexOf('*');
+    if (extendedFormulaIndex !== -1) {
+        return formula.substring(0, extendedFormulaIndex).trim();
+    }
+
+    return formula;
+}
 
 /* @ngInject */
 function calculationHelper($http, $log, $q) {
     return {
+        getId: getId,
         clone: clone,
         findChangedRow: findChangedRow,
         getFormula: getFormula,
+        getBaseFormula: getBaseFormula,
         findLimitingRow: findLimitingRow,
         updateViewRows: updateViewRows,
         updateViewRow: updateViewRow,
@@ -114,6 +148,7 @@ function calculationHelper($http, $log, $q) {
 }
 
 calculationHelper.getId = getId;
+calculationHelper.getBaseFormula = getBaseFormula;
 
 function getId() {
     return Math.floor((1 + Math.random()) * 0x1000000)

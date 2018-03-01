@@ -1,3 +1,23 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 var BatchViewField = require('./batch-view-field');
 var BaseBatchRow = require('../base-batch-row');
 var fieldTypes = require('../../../../../services/calculation/field-types');
@@ -20,21 +40,33 @@ function BatchViewRow(props) {
 BatchViewRow.prototype = Object.create(BaseBatchRow.prototype);
 BatchViewRow.constructor = BatchViewRow;
 
+function setFormula(obj, value) {
+    obj.value = _.isObject(value) ? value.value : value;
+    obj.baseValue = calculationHelper.getBaseFormula(obj.value);
+}
+
 function setRowProperties(defaultProps, customProps) {
     // Assign known custom properties to default object
     _.forEach(customProps, function(value, key) {
         if (fieldTypes.isId(key)) {
             defaultProps[key] = value;
-        } else if (fieldTypes.isMolWeight(key)) {
+
+            return;
+        }
+        if (fieldTypes.isMolWeight(key)) {
             defaultProps[key].value = value.value;
             defaultProps[key].baseValue = value.value;
             defaultProps[key].entered = value.entered;
-        } else if (fieldTypes.isFormula(key)) {
-            defaultProps[key].value = _.isObject(value) ? value.value : value;
-            defaultProps[key].baseValue = _.isObject(value) ? value.baseValue : value;
-        } else {
-            defaultProps[key] = value;
+
+            return;
         }
+        if (fieldTypes.isFormula(key)) {
+            setFormula(defaultProps[key], value);
+
+            return;
+        }
+
+        defaultProps[key] = value;
     });
 }
 

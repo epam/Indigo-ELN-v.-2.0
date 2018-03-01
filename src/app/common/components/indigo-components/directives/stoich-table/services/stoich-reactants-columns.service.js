@@ -1,5 +1,25 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 /* @ngInject */
-function stoichReactantsColumns(appUnits, stoichColumnActions, notifyService, i18en, appValuesService,
+function stoichReactantsColumns(appUnits, stoichColumnActions, notifyService, translateService, appValuesService,
                                 selectService, unitService, calculationService) {
     return {
         compoundId: {
@@ -35,7 +55,6 @@ function stoichReactantsColumns(appUnits, stoichColumnActions, notifyService, i1
                 var row = data.row;
 
                 if (row) {
-                    // TODO: rework editable cell to mutate separate view model to be able to retrieve previous value
                     if (!row.$$fullNbkBatchOld && row.fullNbkImmutablePart) {
                         row.$$fullNbkBatchOld = data.oldVal;
                     }
@@ -65,8 +84,7 @@ function stoichReactantsColumns(appUnits, stoichColumnActions, notifyService, i1
                             // Removing queued changes is nothing is found
                             // The intention is to restore previous state
                             row.changesQueue = [];
-                            // TODO: USe translate service
-                            notifyService.error(i18en.NOTIFY_BATCH_NUMBER_ERROR);
+                            notifyService.error(translateService.translate('NOTIFY_BATCH_NUMBER_ERROR'));
                         });
                 }
             }
