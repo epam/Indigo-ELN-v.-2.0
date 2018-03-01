@@ -130,7 +130,7 @@
                             <div class="ellipsis" ng-bind="exp.lastEditDate | date:'MMM dd yyyy'"></div>
                         </td>
                         <td class="table-list__item"
-                            ng-bind="vm.getIdleWorkdays(exp.creationDate, exp.lastEditDate) + ' day(s)'"></td>
+                            ng-bind="exp.idleWorkdays + ' day(s)'"></td>
                     </tr>
                     </tbody>
                 </table>
@@ -218,7 +218,7 @@
                             <div class="ellipsis" ng-bind="exp.lastEditDate | date:'MMM dd yyyy'"></div>
                         </td>
                         <td class="table-list__item"
-                            ng-bind="vm.getIdleWorkdays(exp.creationDate, exp.lastEditDate) + ' day(s)'"></td>
+                            ng-bind="exp.idleWorkdays + ' day(s)'"></td>
                     </tr>
                     </tbody>
                 </table>

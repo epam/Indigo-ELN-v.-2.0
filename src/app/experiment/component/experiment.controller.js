@@ -51,6 +51,16 @@ function ExperimentController($scope, dashboardService, configService, $filter) 
             });
             waitingExperiments = result.waitingSignatureExp;
             submittedExperiments = result.submittedAndSigningExp;
+
+            _.forEach(waitingExperiments, function(exp) {
+                exp.idleWorkdays = getIdleWorkdays(exp.creationDate);
+            });
+            _.forEach(openExperiments, function(exp) {
+                exp.idleWorkdays = getIdleWorkdays(exp.creationDate);
+            });
+            _.forEach(submittedExperiments, function(exp) {
+                exp.idleWorkdays = getIdleWorkdays(exp.creationDate);
+            });
             vm.openExperimentsLength = openExperiments.length;
             vm.waitingExperimentsLength = waitingExperiments.length;
             vm.submittedExperimentsLength = submittedExperiments.length;
