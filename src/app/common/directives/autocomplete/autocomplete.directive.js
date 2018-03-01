@@ -83,6 +83,14 @@ function autocompleteController($scope, translateService, dictionaryService) {
                     return item;
                 });
             });
+        } else {
+            vm.items = _.map(vm.items, function(item) {
+                item.label = _.reduce(vm.field.split(','), function(acc, field) {
+                    return (acc.length ? acc + ' ' : '') + item[field];
+                }, '');
+
+                return item;
+            });
         }
 
         bindEvents();
