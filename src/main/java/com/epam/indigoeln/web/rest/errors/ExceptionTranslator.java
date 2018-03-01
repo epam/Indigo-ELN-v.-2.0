@@ -1,7 +1,28 @@
+/*
+ *  Copyright (C) 2015-2018 EPAM Systems
+ *  
+ *  This file is part of Indigo ELN.
+ *
+ *  Indigo ELN is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Indigo ELN is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.epam.indigoeln.web.rest.errors;
 
 import com.epam.indigo.IndigoException;
 import com.epam.indigoeln.IndigoRuntimeException;
+import com.epam.indigoeln.core.service.exception.OperationDeniedException;
+import com.epam.indigoeln.core.service.exception.OperationNotAvailableException;
+import com.epam.indigoeln.core.service.exception.PermissionIncorrectException;
 import com.epam.indigoeln.core.service.exception.UriProcessingException;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.dao.DataAccessException;
@@ -92,6 +113,27 @@ public class ExceptionTranslator {
         return new ErrorDTO(ErrorConstants.ERR_ACCESS_DENIED, e.getMessage());
     }
 
+    @ExceptionHandler(OperationDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public ParametrizedErrorDTO operationDeniedException(OperationDeniedException ex) {
+        return ex.getErrorDTO();
+    }
+
+    @ExceptionHandler(OperationNotAvailableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ParametrizedErrorDTO operationNotAvailableException(OperationNotAvailableException ex) {
+        return ex.getErrorDTO();
+    }
+
+    @ExceptionHandler(PermissionIncorrectException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public ParametrizedErrorDTO permissionIncorrectException(PermissionIncorrectException ex) {
+        return ex.getErrorDTO();
+    }
+
     private ErrorDTO processFieldErrors(List<FieldError> fieldErrors) {
         ErrorDTO dto = new ErrorDTO(ErrorConstants.ERR_VALIDATION);
 
@@ -135,6 +177,7 @@ public class ExceptionTranslator {
      * Default Error handler for Database Issues.
      * Database constraint violations and business logic issues, such as duplicate key exception, unique index etc.,
      * should be handed other way.
+     *
      * @return Error
      */
     @ExceptionHandler(DataAccessException.class)

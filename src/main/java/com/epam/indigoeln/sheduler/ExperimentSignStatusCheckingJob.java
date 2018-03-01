@@ -1,22 +1,36 @@
+/*
+ *  Copyright (C) 2015-2018 EPAM Systems
+ *  
+ *  This file is part of Indigo ELN.
+ *
+ *  Indigo ELN is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Indigo ELN is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.epam.indigoeln.sheduler;
 
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.ExperimentStatus;
 import com.epam.indigoeln.core.model.SignatureJob;
-import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.signature.SignatureJobRepository;
+import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.signature.SignatureService;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 @Component
@@ -31,28 +45,19 @@ public class ExperimentSignStatusCheckingJob {
     private SignatureService signatureService;
 
     @Autowired
-    private ExperimentRepository experimentRepository;
-
-    @Autowired
-    private SimpMessagingTemplate template;
+    private ExperimentService experimentService;
 
     @Scheduled(fixedRateString = "${indigoeln.schedule.experiment.sign.status.check.rate:10}000")
     public void execute() {
-        Map<String, ExperimentStatus> updatedExperimentStatuses = new HashMap<>();
 
         SignatureJob signatureJob = signatureJobRepository.findOneForCheck();
 
         if (signatureJob != null && !StringUtils.isBlank(signatureJob.getExperimentId())) {
-            Experiment experiment = experimentRepository.findOne(signatureJob.getExperimentId());
+            Experiment experiment = experimentService.getExperiment(signatureJob.getExperimentId());
 
             if (experiment != null) {
                 try {
-                    ExperimentStatus origStatus = experiment.getStatus();
-                    ExperimentStatus newStatus = signatureService.checkExperimentStatus(experiment);
-
-                    if (!Objects.equals(origStatus, newStatus)) {
-                        updatedExperimentStatuses.put(experiment.getId(), newStatus);
-                    }
+                    ExperimentStatus newStatus = signatureService.updateAndGetExperimentStatus(experiment);
 
                     ExperimentStatus finalStatus = signatureService
                             .getExperimentStatus(SignatureService.ISSStatus.valueOf(signatureService.getFinalStatus()));
@@ -70,10 +75,5 @@ public class ExperimentSignStatusCheckingJob {
             }
             signatureJobRepository.save(signatureJob);
         }
-
-        if (!MapUtils.isEmpty(updatedExperimentStatuses)) {
-            template.convertAndSend("/topic/experiment_status", updatedExperimentStatuses);
-        }
     }
 }
-

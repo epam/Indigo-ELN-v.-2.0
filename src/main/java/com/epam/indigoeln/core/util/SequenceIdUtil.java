@@ -1,3 +1,21 @@
+/*
+ *  Copyright (C) 2015-2018 EPAM Systems
+ *  
+ *  This file is part of Indigo ELN.
+ *
+ *  Indigo ELN is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Indigo ELN is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.epam.indigoeln.core.util;
 
 import com.epam.indigoeln.core.model.BasicModelObject;
@@ -28,7 +46,17 @@ public final class SequenceIdUtil {
         if (entity.getId() == null) {
             return null;
         }
-        String[] split = entity.getId().split(DELIMITER);
+        return extractShortId(entity.getId());
+    }
+
+    /**
+     * Extracts short part from given id.
+     *
+     * @param id id to extract short part
+     * @return short part from given id
+     */
+    public static String extractShortId(String id) {
+        String[] split = id.split(DELIMITER);
         return split[split.length - 1];
     }
 
@@ -42,12 +70,16 @@ public final class SequenceIdUtil {
         if (entity.getId() == null) {
             return null;
         }
-        String[] split = entity.getId().split(DELIMITER);
+        return extractParentId(entity.getId());
+    }
+
+    public static String extractParentId(String id) {
+        String[] split = id.split(DELIMITER);
         return split.length > 1 ? split[split.length - 2] : null;
     }
 
     /**
-     * Extracts first id from entity
+     * Extracts first id from entity.
      *
      * @param entity Entity
      * @return project's id
@@ -68,6 +100,16 @@ public final class SequenceIdUtil {
      */
     public static String buildFullId(String... ids) {
         return StringUtils.arrayToDelimitedString(ids, DELIMITER);
+    }
+
+    /**
+     * Separate full id to short identity of parent entity(ies) and current entity.
+     *
+     * @param fullId entities full id
+     * @return short identity of parent entity(ies) and current entity
+     */
+    public static String[] buildSeparatedIds(String fullId) {
+        return fullId.split(DELIMITER);
     }
 
     /**

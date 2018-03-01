@@ -1,3 +1,21 @@
+/*
+ *  Copyright (C) 2015-2018 EPAM Systems
+ *  
+ *  This file is part of Indigo ELN.
+ *
+ *  Indigo ELN is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Indigo ELN is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.model.User;
@@ -5,7 +23,6 @@ import com.epam.indigoeln.core.service.notebook.NotebookService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.NotebookDTO;
 import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
-import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.Api;
@@ -15,10 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -47,47 +62,6 @@ public class NotebookResource {
     @Autowired
     private UserService userService;
 
-    /**
-     * GET  /notebooks?:projectId -> Returns all notebooks of specified project for <b>current user</b>
-     * for tree representation according to his User permissions.
-     *
-     * @param projectId Project id
-     * @return List with notebooks
-     */
-    @ApiOperation(value = "Returns all notebooks of specified project "
-            + "for current user for tree representation according to his permissions.")
-    @RequestMapping(
-            value = PARENT_PATH_ID,
-            method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @PostFilter("hasAnyAuthority(T(com.epam.indigoeln.core.util.AuthoritiesUtil).NOTEBOOK_READERS)")
-    @ResponseStatus(value = HttpStatus.OK)
-    public List<TreeNodeDTO> getAllNotebooksByPermissions(
-            @ApiParam("Project id") @PathVariable String projectId) {
-        LOGGER.debug("REST request to get all notebooks of project: {} according to user permissions", projectId);
-        User user = userService.getUserWithAuthorities();
-        return notebookService.getAllNotebookTreeNodes(projectId, user);
-    }
-
-    /**
-     * GET  /notebooks/all?:projectId -> Returns all notebooks of specified project.
-     * without checking for User permissions.
-     *
-     * @param projectId Project's identifier
-     * @return List with notebooks
-     */
-    @ApiOperation(value = "Returns all notebooks of specified project for current user for tree representation.")
-    @RequestMapping(value = PARENT_PATH_ID + "/all", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TreeNodeDTO>> getAllNotebooks(
-            @ApiParam("Project id") @PathVariable String projectId) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("REST request to get all notebooks of project: {} "
-                    + "without checking for permissions", projectId);
-        }
-        List<TreeNodeDTO> result = notebookService.getAllNotebookTreeNodes(projectId);
-        return ResponseEntity.ok(result);
-    }
 
     /**
      * GET  /notebooks/permissions/user-removable -> Returns true if user can be removed

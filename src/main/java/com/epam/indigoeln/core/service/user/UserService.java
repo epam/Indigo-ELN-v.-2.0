@@ -1,9 +1,28 @@
+/*
+ *  Copyright (C) 2015-2018 EPAM Systems
+ *  
+ *  This file is part of Indigo ELN.
+ *
+ *  Indigo ELN is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Indigo ELN is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.epam.indigoeln.core.service.user;
 
 import com.epam.indigoeln.core.model.Role;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.role.RoleRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
+import com.epam.indigoeln.core.security.Authority;
 import com.epam.indigoeln.core.security.SecurityUtils;
 import com.epam.indigoeln.core.service.exception.DuplicateFieldException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
@@ -244,6 +263,16 @@ public class UserService {
     }
 
     /**
+     * Gets user from DB by his identity.
+     *
+     * @param username user identity
+     * @return user from DB by his identity
+     */
+    public User getUserById(String username) {
+        return userRepository.findOne(username);
+    }
+
+    /**
      * Search user by parameters.
      *
      * @param loginOrFirstNameOrLastNameOrRoleName parameter
@@ -289,5 +318,21 @@ public class UserService {
      */
     public boolean isNew(String login) {
         return !userRepository.existsByLogin(login);
+    }
+
+
+    /**
+     * Gets users from DB with authorities of CONTENT_EDITOR.
+     *
+     * @return all users with CONTENT_EDITOR authorities.
+     */
+    public Set<User> getContentEditors() {
+
+        List<String> contentEditorRoles = roleRepository
+                .findAllByAuthorities(Authority.CONTENT_EDITOR)
+                .map(Role::getId)
+                .collect(toList());
+
+        return userRepository.findAllByRolesIdIn(contentEditorRoles);
     }
 }

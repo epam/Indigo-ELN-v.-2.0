@@ -1,3 +1,21 @@
+/*
+ *  Copyright (C) 2015-2018 EPAM Systems
+ *  
+ *  This file is part of Indigo ELN.
+ *
+ *  Indigo ELN is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Indigo ELN is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.epam.indigoeln.core.service.project;
 
 import com.epam.indigoeln.core.model.*;
@@ -6,28 +24,39 @@ import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.file.GridFSFileUtil;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
-import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.*;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
+import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.core.util.WebSocketUtil;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
 import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
+import com.epam.indigoeln.web.rest.util.permission.helpers.PermissionChanges;
 import com.epam.indigoeln.web.rest.util.permission.helpers.ProjectPermissionHelper;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import com.mongodb.DBRef;
 import com.mongodb.gridfs.GridFSDBFile;
+import lombok.val;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import static com.epam.indigoeln.core.util.WebSocketUtil.getEntityUpdateRecipients;
+import static com.epam.indigoeln.core.util.WebSocketUtil.getSubEntityChangesRecipients;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Provides a number of methods for access to project's data in database.
@@ -57,10 +86,10 @@ public class ProjectService {
     private FileRepository fileRepository;
 
     /**
-     * Instance of UserRepository for access to users in database.
+     * Instance of UserService for access to users in database.
      */
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     /**
      * Instance of CustomDtoMapper for conversion from dto object.
@@ -73,6 +102,9 @@ public class ProjectService {
 
     @Autowired
     private WebSocketUtil webSocketUtil;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     /**
      * Returns all projects without checking for UserPermissions.
@@ -92,11 +124,34 @@ public class ProjectService {
      */
     public List<TreeNodeDTO> getAllProjectsAsTreeNodes(User user) {
         // if user is null, then get all projects
-        Collection<Project> projects = user == null ? projectRepository.findAll()
-                : projectRepository.findByUserId(user.getId());
-        return projects.stream().map(TreeNodeDTO::new).sorted(TreeNodeDTO.NAME_COMPARATOR)
+
+        val collection = mongoTemplate.getCollection(Project.COLLECTION_NAME);
+
+        val projects = (user == null) ? collection.find()
+                : collection.find(new BasicDBObject()
+                .append("accessList.user", new BasicDBObject()
+                        .append("$ref", User.COLLECTION_NAME).append("$id", user.getId())));
+
+        return StreamSupport.stream(projects.spliterator(), false)
+                .map(TreeNodeDTO::new)
+                .sorted(TreeNodeDTO.NAME_COMPARATOR)
                 .collect(Collectors.toList());
     }
+
+    public TreeNodeDTO getProjectAsTreeNode(String projectId) {
+        TreeNodeDTO result;
+        val collection = mongoTemplate.getCollection(Project.COLLECTION_NAME);
+        BasicDBObject searchQuery = new BasicDBObject();
+        searchQuery.put("_id", projectId);
+        val project = collection.find(searchQuery);
+        if (project.hasNext()) {
+            result = new TreeNodeDTO(project.next());
+        } else {
+            throw EntityNotFoundException.createWithProjectId(projectId);
+        }
+        return result;
+    }
+
 
     /**
      * Returns project by id according to permissions.
@@ -127,13 +182,49 @@ public class ProjectService {
      * @return list of projects available for notebook creation
      */
     public List<ShortEntityDTO> getProjectsForNotebookCreation(User user) {
-        List<Project> projects = PermissionUtil.isContentEditor(user)
-                ? projectRepository.findAllIgnoreChildren()
-                : projectRepository.findByUserIdAndPermissions(user.getId(),
-                Collections.singletonList(UserPermission.CREATE_SUB_ENTITY));
+        val projectCollection = mongoTemplate.getCollection(Project.COLLECTION_NAME);
+        val userCollection = mongoTemplate.getCollection(User.COLLECTION_NAME);
 
-        return projects.stream().map(ShortEntityDTO::new)
-                .sorted(Comparator.comparing(ShortEntityDTO::getName)).collect(Collectors.toList());
+        val projects = new HashMap<Object, DBObject>();
+
+        if (PermissionUtil.isContentEditor(user)) {
+            projectCollection
+                    .find()
+                    .forEach(p -> projects.put(p.get("_id"), p));
+        } else {
+            projectCollection
+                    .find(new BasicDBObject()
+                            .append("accessList", new BasicDBObject()
+                                    .append("$elemMatch", new BasicDBObject()
+                                            .append("user.$id", user.getId())
+                                            .append("permissions", new BasicDBObject()
+                                                    .append("$in", Collections.singletonList(UserPermission.CREATE_SUB_ENTITY))))))
+                    .forEach(p -> projects.put(p.get("_id"), p));
+        }
+
+        val userIds = new HashSet<Object>();
+        projects
+                .values()
+                .forEach(p -> {
+                    if (p.get("author") != null) {
+                        userIds.add(((DBRef) p.get("author")).getId());
+                    }
+                    if (p.get("lastModifiedBy") != null) {
+                        userIds.add(((DBRef) p.get("lastModifiedBy")).getId());
+                    }
+                });
+
+        val users = new HashMap<Object, DBObject>();
+        userCollection
+                .find(new BasicDBObject("_id", new BasicDBObject("$in", userIds)))
+                .forEach(u -> users.put(u.get("_id"), u));
+
+        return projects
+                .values()
+                .stream()
+                .map(p -> new ShortEntityDTO(p, users))
+                .sorted(Comparator.comparing(ShortEntityDTO::getName))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -147,10 +238,9 @@ public class ProjectService {
         Project project = mapper.convertFromDTO(projectDTO);
 
         // check of user permissions's correctness in access control list
-        PermissionUtil.checkCorrectnessOfAccessList(userRepository, project.getAccessList());
+        PermissionUtil.checkCorrectnessOfAccessList(userService, project.getAccessList());
 
-        //Add entity name
-        ProjectPermissionHelper.fillNewProjectPermissions(project, user);
+        PermissionChanges<Project> permissions = ProjectPermissionHelper.fillNewProjectPermissions(project, user);
 
         project.setId(sequenceIdService.getNextProjectId());
 
@@ -162,6 +252,9 @@ public class ProjectService {
             GridFSFileUtil.setTemporaryToMetadata(tf.getMetaData(), false);
             tf.save();
         });
+
+        webSocketUtil.newProject(user, getSubEntityChangesRecipients(permissions, userService.getContentEditors())
+                .filter(userId -> !userId.equals(user.getId())));
 
         return new ProjectDTO(project);
     }
@@ -186,7 +279,7 @@ public class ProjectService {
 
         Project project = mapper.convertFromDTO(projectDTO);
         // check of user permissions's correctness in access control list
-        PermissionUtil.checkCorrectnessOfAccessList(userRepository, project.getAccessList());
+        PermissionUtil.checkCorrectnessOfAccessList(userService, project.getAccessList());
 
         // do not change old project's notebooks and file ids and author
         projectFromDb.setName(project.getName());
@@ -196,25 +289,91 @@ public class ProjectService {
         projectFromDb.setReferences(project.getReferences());
         projectFromDb.setVersion(project.getVersion());
 
-        Map<Notebook, List<Experiment>> changedNotebooksAndExperiments =
-                ProjectPermissionHelper.changeProjectPermissions(projectFromDb, project.getAccessList());
+        Pair<PermissionChanges<Project>, Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>>
+                changes = ProjectPermissionHelper.changeProjectPermissions(projectFromDb, project.getAccessList(), user);
 
-        for (Map.Entry<Notebook, List<Experiment>> changedNotebookWithExperiments
-                : changedNotebooksAndExperiments.entrySet()) {
+        Set<User> contentEditors = userService.getContentEditors();
+        sendProjectNotifications(user, projectFromDb, changes.getLeft(), contentEditors);
+        if (changes.getLeft().hadChanged()) {
 
-            Notebook changedNotebook = changedNotebookWithExperiments.getKey();
-            List<Experiment> savedExperiments = experimentRepository.save(changedNotebookWithExperiments.getValue());
-            savedExperiments.forEach(experiment ->
-                    webSocketUtil.updateExperiment(user, projectFromDb.getId(), changedNotebook.getId(), experiment));
+            updateNotebooksAndSendNotifications(user, projectFromDb, changes.getRight().keySet(), contentEditors);
+            updateExperimentsAndSendNotifications(user, projectFromDb,
+                    changes.getRight().entrySet().stream()
+                            .map(e -> Pair.of(e.getKey(), e.getValue()))
+                            .collect(Collectors.toList()), contentEditors);
         }
 
-        List<Notebook> savedNotebooks = notebookRepository.save(changedNotebooksAndExperiments.keySet());
-        savedNotebooks.forEach(notebook -> webSocketUtil.updateNotebook(user, projectFromDb.getId(), notebook));
+        Project savedProject = saveProjectAndHandleError(projectFromDb);
 
-        project = saveProjectAndHandleError(projectFromDb);
-        webSocketUtil.updateProject(user, project);
-        return new ProjectDTO(project);
+        return new ProjectDTO(savedProject);
     }
+
+    private void sendProjectNotifications(User user,
+                                          Project projectFromDb,
+                                          PermissionChanges<Project> projectPermissionChanges,
+                                          Set<User> contentEditors
+    ) {
+        webSocketUtil.newProject(user, getSubEntityChangesRecipients(projectPermissionChanges, contentEditors));
+        Stream<String> recipients =
+                getEntityUpdateRecipients(contentEditors, projectFromDb, user.getId())
+                        .distinct();
+        webSocketUtil.updateProject(user, projectFromDb, recipients);
+    }
+
+    private void updateNotebooksAndSendNotifications(User user,
+                                                     Project projectFromDb,
+                                                     Set<PermissionChanges<Notebook>> permissionChanges,
+                                                     Set<User> contentEditors
+    ) {
+        Set<PermissionChanges<Notebook>> notebooksChanges = permissionChanges
+                .stream()
+                .filter(PermissionChanges::hadChanged)
+                .collect(toSet());
+
+        notebookRepository.save(notebooksChanges.stream()
+                .map(PermissionChanges::getEntity)
+                .collect(toSet()));
+
+        webSocketUtil.newSubEntityForProject(user, projectFromDb,
+                getSubEntityChangesRecipients(notebooksChanges, contentEditors));
+
+        notebooksChanges.forEach(notebookPermissionChanges ->
+                webSocketUtil.updateNotebook(user, projectFromDb.getId(),
+                        notebookPermissionChanges.getEntity(),
+                        getEntityUpdateRecipients(contentEditors,
+                                notebookPermissionChanges.getEntity(),
+                                null)));
+    }
+
+    private void updateExperimentsAndSendNotifications(
+            User user,
+            Project projectFromDb,
+            List<Pair<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>> changes,
+            Set<User> contentEditors
+    ) {
+        for (Pair<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>> change : changes) {
+            if (change.getKey().hadChanged()) {
+                List<PermissionChanges<Experiment>> experimentsChanges = change.getValue()
+                        .stream()
+                        .filter(PermissionChanges::hadChanged)
+                        .collect(Collectors.toList());
+                experimentRepository.save(experimentsChanges.stream()
+                        .map(PermissionChanges::getEntity)
+                        .collect(Collectors.toList()));
+                webSocketUtil.newSubEntityForNotebook(user, projectFromDb.getId(), change.getKey().getEntity(),
+                        getSubEntityChangesRecipients(experimentsChanges, contentEditors));
+
+                experimentsChanges.forEach(experimentPermissionChanges ->
+                        webSocketUtil.updateExperiment(user, projectFromDb.getId(),
+                                change.getKey().getEntity().getId(),
+                                experimentPermissionChanges.getEntity(),
+                                getEntityUpdateRecipients(contentEditors,
+                                        experimentPermissionChanges.getEntity(),
+                                        null)));
+            }
+        }
+    }
+
 
     /**
      * Removes project.
@@ -273,7 +432,7 @@ public class ProjectService {
         }
     }
 
-    public void deleteAll(){
+    public void deleteAll() {
         projectRepository.deleteAll();
     }
 

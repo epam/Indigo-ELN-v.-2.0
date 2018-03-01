@@ -1,13 +1,33 @@
+/*
+ *  Copyright (C) 2015-2018 EPAM Systems
+ *
+ *  This file is part of Indigo ELN.
+ *
+ *  Indigo ELN is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Indigo ELN is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.epam.indigoeln.web.rest.util.permission.helpers;
 
 import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import static com.epam.indigoeln.core.model.PermissionCreationLevel.EXPERIMENT;
+import static com.epam.indigoeln.core.model.PermissionCreationLevel.NOTEBOOK;
 import static com.epam.indigoeln.web.rest.util.PermissionUtil.*;
 import static java.util.stream.Collectors.toSet;
 
@@ -16,14 +36,24 @@ public class ExperimentPermissionHelper {
     private ExperimentPermissionHelper() {
     }
 
-    public static Pair<Boolean, Boolean> addPermissions(Project project,
-                                                        Notebook notebook,
-                                                        Experiment experiment,
-                                                        Set<UserPermission> addedPermissions
+    public static Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, PermissionChanges<Experiment>>
+    addPermissions(Project project,
+                   Notebook notebook,
+                   Experiment experiment,
+                   Set<UserPermission> addedPermissions
     ) {
-        experiment.getAccessList().addAll(addedPermissions);
+        Set<UserPermission> addedToExperimentPermissions = addAllIfNotPresent(experiment, addedPermissions);
 
-        return NotebookPermissionHelper.addPermissionsFromExperiment(project, notebook, addedPermissions);
+        PermissionChanges<Experiment> experimentPermissionChanges =
+                PermissionChanges.ofCreatedPermissions(experiment, addedToExperimentPermissions);
+
+        Pair<PermissionChanges<Project>, PermissionChanges<Notebook>> projectAndNotebookPermissionChanges =
+                NotebookPermissionHelper.addPermissionsFromExperiment(project, notebook, addedToExperimentPermissions);
+
+        return Triple.of(
+                projectAndNotebookPermissionChanges.getLeft(),
+                projectAndNotebookPermissionChanges.getRight(),
+                experimentPermissionChanges);
     }
 
     /**
@@ -37,44 +67,58 @@ public class ExperimentPermissionHelper {
      * @param experiment         entity to permission updates
      * @param updatedPermissions permissions witch should be updated
      */
-    public static void updatePermission(Experiment experiment, Set<UserPermission> updatedPermissions) {
-        updatePermissionFromNotebook(experiment, updatedPermissions);
+    public static PermissionChanges<Experiment> updatePermission(Experiment experiment,
+                                                                 Set<UserPermission> updatedPermissions
+    ) {
+        return updatePermissionFromNotebook(experiment, updatedPermissions);
     }
 
-    public static Pair<Boolean, Boolean> removePermissions(Project project,
-                                                           Notebook notebook,
-                                                           Experiment experiment,
-                                                           Set<UserPermission> removedPermissions
+    public static Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, PermissionChanges<Experiment>>
+    removePermissions(Project project,
+                      Notebook notebook,
+                      Experiment experiment,
+                      Set<UserPermission> removedPermissions
     ) {
 
-        removePermissionsFromNotebook(experiment, removedPermissions);
+        PermissionChanges<Experiment> experimentPermissionChanges =
+                removePermissionsFromNotebook(experiment, removedPermissions);
 
         Set<UserPermission> permissionsCreatedFromThisExperiment =
                 removedPermissions.stream()
                         .filter(removedPermission ->
                                 removedPermission.getPermissionCreationLevel()
-                                        .equals(PermissionCreationLevel.EXPERIMENT))
+                                        .equals(EXPERIMENT))
                         .collect(toSet());
 
-        return NotebookPermissionHelper.removePermissionFromExperiment(project, notebook,
-                experiment, permissionsCreatedFromThisExperiment);
+        Pair<PermissionChanges<Project>, PermissionChanges<Notebook>> projectAndNotebookChanges =
+                NotebookPermissionHelper.removePermissionFromExperiment(
+                        project, notebook, experiment, permissionsCreatedFromThisExperiment);
+
+        return Triple.of(projectAndNotebookChanges.getLeft(), projectAndNotebookChanges.getRight(), experimentPermissionChanges);
     }
 
     /**
      * @return {@code true} if some permissions were added to experiment's access list
      */
-    static boolean addPermissionsFromNotebook(Experiment experiment, Set<UserPermission> userPermissions) {
+    static PermissionChanges<Experiment> addPermissionsFromNotebook(Experiment experiment, Set<UserPermission> userPermissions) {
 
-        boolean experimentWasChanged = false;
+        Set<UserPermission> addedPermissions = new HashSet<>();
+
         for (UserPermission userPermission : userPermissions) {
             if (userPermission.getPermissionView().equals(UserPermission.USER)) {
-                experimentWasChanged |= experiment.getAccessList().add(new UserPermission(userPermission.getUser(),
-                        UserPermission.VIEWER_PERMISSIONS, userPermission.getPermissionCreationLevel()));
+                UserPermission addingPermission = new UserPermission(userPermission.getUser(),
+                        UserPermission.VIEWER_PERMISSIONS, userPermission.getPermissionCreationLevel());
+
+                experiment.getAccessList().add(addingPermission);
+
+                addedPermissions.add(addingPermission);
             } else {
-                experimentWasChanged |= experiment.getAccessList().add(userPermission);
+                experiment.getAccessList().add(userPermission);
+
+                addedPermissions.add(userPermission);
             }
         }
-        return experimentWasChanged;
+        return PermissionChanges.ofCreatedPermissions(experiment, addedPermissions);
     }
 
     /**
@@ -84,12 +128,14 @@ public class ExperimentPermissionHelper {
      *
      * @param experiment         to change accessList
      * @param updatedPermissions updated permissions
-     * @return {@code true} if some permissions were updated to experiment's access list
+     * @return permission changes
      */
-    static boolean updatePermissionFromNotebook(Experiment experiment,
-                                                Set<UserPermission> updatedPermissions
+    static PermissionChanges<Experiment> updatePermissionFromNotebook(Experiment experiment,
+                                                                      Set<UserPermission> updatedPermissions
     ) {
-        boolean experimentWasChanged = false;
+        Set<UserPermission> newPermissions = new HashSet<>();
+        Set<UserPermission> changedPermissions = new HashSet<>();
+
         for (UserPermission updatedPermission : updatedPermissions) {
             UserPermission presentedPermission =
                     findPermissionsByUserId(experiment.getAccessList(), updatedPermission.getUser().getId());
@@ -102,22 +148,30 @@ public class ExperimentPermissionHelper {
             if (presentedPermission == null) {
 
                 experiment.getAccessList().add(updatedPermission);
-                experimentWasChanged |= true;
+                newPermissions.add(updatedPermission);
 
             } else if ((updatedPermission.getPermissionCreationLevel().equals(EXPERIMENT)
                     || !presentedPermission.getPermissionCreationLevel().equals(EXPERIMENT))
                     && !presentedPermission.getPermissionView().equals(updatedPermission.getPermissionView())) {
-                presentedPermission.setPermissions(updatedPermission.getPermissions());
-                experimentWasChanged |= true;
+                UserPermission changedPermission = presentedPermission
+                        .setPermissions(updatedPermission.getPermissions())
+                        .setPermissionCreationLevel(updatedPermission.getPermissionCreationLevel());
+                changedPermissions.add(changedPermission);
             }
         }
-        return experimentWasChanged;
+        return new PermissionChanges<>(experiment, newPermissions, changedPermissions);
     }
 
-    static boolean removePermissionsFromNotebook(Experiment experiment,
-                                                 Set<UserPermission> updatedPermissions
+    static PermissionChanges<Experiment> removePermissionsFromNotebook(Experiment experiment,
+                                                                       Set<UserPermission> updatedPermissions
     ) {
-        return experiment.getAccessList().removeIf(userPermission -> hasUser(updatedPermissions, userPermission));
+        Set<UserPermission> removedPermissions = experiment.getAccessList().stream()
+                .filter(userPermission -> hasUser(updatedPermissions, userPermission))
+                .collect(toSet());
+
+        experiment.getAccessList().removeAll(removedPermissions);
+
+        return PermissionChanges.ofRemovedPermissions(experiment, removedPermissions);
     }
 
     /**
@@ -130,64 +184,75 @@ public class ExperimentPermissionHelper {
      * @param notebook           Notebook that contains changing {@code updatedExperiment}
      * @param updatedExperiment  Experiment to change permissions
      * @param newUserPermissions permissions that should be applied
+     * @param authorOfChanges    author of permission changes
      * @return pair of two boolean flags these mean (notebook was changed, project was changed).
      */
-    public static Pair<Boolean, Boolean> changeExperimentPermissions(Project project,
-                                                                     Notebook notebook,
-                                                                     Experiment updatedExperiment,
-                                                                     Set<UserPermission> newUserPermissions
+    public static Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, PermissionChanges<Experiment>>
+    changeExperimentPermissions(Project project,
+                                Notebook notebook,
+                                Experiment updatedExperiment,
+                                Set<UserPermission> newUserPermissions,
+                                User authorOfChanges
     ) {
-        boolean notebookHadChanged = false;
-        boolean projectHadChanged = false;
+
+        PermissionChanges<Experiment> experimentPermissionChanges = new PermissionChanges<>(updatedExperiment);
+        PermissionChanges<Notebook> notebookPermissionChanges = new PermissionChanges<>(notebook);
+        PermissionChanges<Project> projectPermissionChanges = new PermissionChanges<>(project);
 
         Set<UserPermission> createdPermissions =
                 getCreatedPermission(updatedExperiment, newUserPermissions, EXPERIMENT);
 
         if (!createdPermissions.isEmpty()) {
-            Pair<Boolean, Boolean> projectAndNotebookHadChanged =
+
+            Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, PermissionChanges<Experiment>> changes =
                     addPermissions(project, notebook, updatedExperiment, createdPermissions);
 
-            projectHadChanged = projectAndNotebookHadChanged.getLeft();
-            notebookHadChanged = projectAndNotebookHadChanged.getRight();
+            projectPermissionChanges.merge(changes.getLeft());
+            notebookPermissionChanges.merge(changes.getMiddle());
+            experimentPermissionChanges.merge(changes.getRight());
         }
 
         Set<UserPermission> updatedPermissions =
-                getUpdatedPermissions(updatedExperiment, newUserPermissions, EXPERIMENT);
+                getUpdatedPermissions(updatedExperiment, newUserPermissions, EXPERIMENT, authorOfChanges);
 
         if (!updatedPermissions.isEmpty()) {
-            updatePermission(updatedExperiment, updatedPermissions);
+            PermissionChanges<Experiment> updatedExperimentPermissions = updatePermission(updatedExperiment, updatedPermissions);
+
+            experimentPermissionChanges.merge(updatedExperimentPermissions);
         }
 
         Set<UserPermission> removedPermissions = getRemovedPermissions(updatedExperiment, newUserPermissions);
 
         if (!removedPermissions.isEmpty()) {
 
-            Pair<Boolean, Boolean> projectAndNotebookHadChanged =
+            Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, PermissionChanges<Experiment>> changes =
                     removePermissions(
                             project, notebook, updatedExperiment, removedPermissions);
 
-            projectHadChanged |= projectAndNotebookHadChanged.getLeft();
-            notebookHadChanged |= projectAndNotebookHadChanged.getRight();
+            projectPermissionChanges.merge(changes.getLeft());
+            notebookPermissionChanges.merge(changes.getMiddle());
+            experimentPermissionChanges.merge(changes.getRight());
         }
 
-        return Pair.of(notebookHadChanged, projectHadChanged);
+        return Triple.of(projectPermissionChanges, notebookPermissionChanges, experimentPermissionChanges);
     }
 
-    public static Pair<Boolean, Boolean> fillNewExperimentsPermissions(Project project,
-                                                                       Notebook notebook,
-                                                                       Experiment experiment,
-                                                                       User creator
+    public static Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, PermissionChanges<Experiment>>
+    fillNewExperimentsPermissions(Project project,
+                                  Notebook notebook,
+                                  Experiment experiment,
+                                  User creator
     ) {
 
-        Set<UserPermission> permissions = experiment.getAccessList();
+        Set<UserPermission> permissions = new HashSet<>();
+
+        PermissionUtil.addOwnerToAccessList(permissions, creator, EXPERIMENT);
+
+        PermissionUtil.addUsersFromUpperLevel(permissions, notebook.getAccessList(), NOTEBOOK);
+
+        addAllIfNotPresent(permissions, experiment.getAccessList());
         experiment.setAccessList(new HashSet<>());
-        PermissionUtil.addUsersFromUpperLevel(experiment.getAccessList(), notebook.getAccessList(),
-                PermissionCreationLevel.NOTEBOOK);
 
-        PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), creator,
-                PermissionCreationLevel.EXPERIMENT);
-
-        updatePermission(experiment, getUpdatedPermissions(experiment, permissions, EXPERIMENT));
-        return addPermissions(project, notebook, experiment, getCreatedPermission(experiment, permissions, EXPERIMENT));
+        return changeExperimentPermissions(project, notebook, experiment, permissions, creator);
     }
 }

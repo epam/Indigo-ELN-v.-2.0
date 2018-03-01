@@ -1,13 +1,31 @@
+/*
+ *  Copyright (C) 2015-2018 EPAM Systems
+ *  
+ *  This file is part of Indigo ELN.
+ *
+ *  Indigo ELN is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Indigo ELN is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.epam.indigoeln.core.service.notebook;
 
 import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
-import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.*;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
+import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.core.util.BatchComponentUtil;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.core.util.WebSocketUtil;
@@ -17,15 +35,25 @@ import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.epam.indigoeln.web.rest.util.permission.helpers.NotebookPermissionHelper;
-import org.apache.commons.lang3.tuple.Pair;
+import com.epam.indigoeln.web.rest.util.permission.helpers.PermissionChanges;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+import com.mongodb.DBRef;
+import lombok.val;
+import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.epam.indigoeln.core.util.WebSocketUtil.getEntityUpdateRecipients;
+import static com.epam.indigoeln.core.util.WebSocketUtil.getSubEntityChangesRecipients;
 
 /**
  * Provides a number of methods for notebook's data manipulation.
@@ -46,10 +74,10 @@ public class NotebookService {
     private NotebookRepository notebookRepository;
 
     /**
-     * Instance of UserRepository for access to user in database.
+     * Instance of UserService for access to user in database.
      */
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
     private ExperimentRepository experimentRepository;
@@ -72,10 +100,8 @@ public class NotebookService {
     @Autowired
     private ExperimentService experimentService;
 
-    private static List<Notebook> getNotebooksWithAccess(List<Notebook> notebooks, String userId) {
-        return notebooks.stream().filter(notebook -> PermissionUtil.findPermissionsByUserId(
-                notebook.getAccessList(), userId) != null).collect(Collectors.toList());
-    }
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     /**
      * Returns all notebooks of specified project for tree representation.
@@ -95,36 +121,51 @@ public class NotebookService {
      * @param user      User
      * @return List with notebooks for tree representation
      */
+    @SuppressWarnings("unchecked")
     public List<TreeNodeDTO> getAllNotebookTreeNodes(String projectId, User user) {
-        Collection<Notebook> notebooks = getAllNotebooks(projectId, user);
-        return notebooks.stream().map(TreeNodeDTO::new).sorted(TreeNodeDTO.NAME_COMPARATOR)
-                .collect(Collectors.toList());
-    }
+        val projectCollection = mongoTemplate.getCollection(Project.COLLECTION_NAME);
+        val notebookCollection = mongoTemplate.getCollection(Notebook.COLLECTION_NAME);
 
-    /**
-     * If user is null, then retrieve notebooks without checking for UserPermissions.
-     * Otherwise, use checking for UserPermissions
-     *
-     * @param projectId Project's identifier
-     * @param user      User
-     * @return All notebooks
-     */
-    private Collection<Notebook> getAllNotebooks(String projectId, User user) {
-        Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
-                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
-
-        if (user == null) {
-            return project.getNotebooks();
+        val project = projectCollection.findOne(new BasicDBObject().append("_id", projectId));
+        if (project == null) {
+            throw EntityNotFoundException.createWithProjectId(projectId);
         }
 
-        // Check of EntityAccess (User must have "Read Entity" permission in project access list)
-        if (!PermissionUtil.hasPermissions(user.getId(), project.getAccessList(),
-                UserPermission.READ_ENTITY)) {
-            throw OperationDeniedException.createProjectSubEntitiesReadOperation(project.getId());
+        if (project.get("notebooks") instanceof Iterable) {
+            val notebookIds = new ArrayList<String>();
+            ((Iterable) project.get("notebooks")).forEach(n -> notebookIds.add(String.valueOf(((DBRef) n).getId())));
+
+            val notebooks = new ArrayList<DBObject>();
+            notebookCollection.find(new BasicDBObject("_id", new BasicDBObject("$in", notebookIds)))
+                    .forEach(notebooks::add);
+
+            if (user == null) {
+                return notebooks.stream()
+                        .map(TreeNodeDTO::new)
+                        .sorted(TreeNodeDTO.NAME_COMPARATOR)
+                        .collect(Collectors.toList());
+            }
+
+            val projectAccessList = new HashSet<UserPermission>();
+            ((Iterable) project.get("accessList")).forEach(a -> projectAccessList.add(new UserPermission((DBObject) a)));
+
+            if (!PermissionUtil.hasPermissions(user.getId(), projectAccessList, UserPermission.READ_ENTITY)) {
+                throw OperationDeniedException.createProjectSubEntitiesReadOperation(String.valueOf(project.get("_id")));
+            }
+
+            return notebooks.stream()
+                    .filter(notebook -> {
+                        val notebookAccessList = new HashSet<UserPermission>();
+                        ((Iterable) notebook.get("accessList"))
+                                .forEach(a -> notebookAccessList.add(new UserPermission((DBObject) a)));
+                        return PermissionUtil.findPermissionsByUserId(notebookAccessList, user.getId()) != null;
+                    })
+                    .map(TreeNodeDTO::new)
+                    .sorted(TreeNodeDTO.NAME_COMPARATOR)
+                    .collect(Collectors.toList());
         }
 
-        return getNotebooksWithAccess(project.getNotebooks(), user.getId());
-
+        return Collections.emptyList();
     }
 
     /**
@@ -136,12 +177,49 @@ public class NotebookService {
      * @return list of notebooks available for experiment creation
      */
     public List<ShortEntityDTO> getNotebooksForExperimentCreation(User user) {
-        List<Notebook> notebooks = PermissionUtil.isContentEditor(user)
-                ? notebookRepository.findAllIgnoreChildren()
-                : notebookRepository.findByUserIdAndPermissionsShort(user.getId(),
-                Collections.singletonList(UserPermission.CREATE_SUB_ENTITY));
-        return notebooks.stream().map(ShortEntityDTO::new)
-                .sorted(Comparator.comparing(ShortEntityDTO::getName)).collect(Collectors.toList());
+        val notebookCollection = mongoTemplate.getCollection(Notebook.COLLECTION_NAME);
+        val userCollection = mongoTemplate.getCollection(User.COLLECTION_NAME);
+
+        val notebooks = new HashMap<Object, DBObject>();
+
+        if (PermissionUtil.isContentEditor(user)) {
+            notebookCollection
+                    .find()
+                    .forEach(n -> notebooks.put(n.get("_id"), n));
+        } else {
+            notebookCollection
+                    .find(new BasicDBObject()
+                            .append("accessList", new BasicDBObject()
+                                    .append("$elemMatch", new BasicDBObject()
+                                            .append("user.$id", user.getId())
+                                            .append("permissions", new BasicDBObject()
+                                                    .append("$in", Collections.singletonList(UserPermission.CREATE_SUB_ENTITY))))))
+                    .forEach(n -> notebooks.put(n.get("_id"), n));
+        }
+
+        val userIds = new HashSet<Object>();
+        notebooks
+                .values()
+                .forEach(n -> {
+                    if (n.get("author") != null) {
+                        userIds.add(((DBRef) n.get("author")).getId());
+                    }
+                    if (n.get("lastModifiedBy") != null) {
+                        userIds.add(((DBRef) n.get("lastModifiedBy")).getId());
+                    }
+                });
+
+        val users = new HashMap<Object, DBObject>();
+        userCollection
+                .find(new BasicDBObject("_id", new BasicDBObject("$in", userIds)))
+                .forEach(u -> users.put(u.get("_id"), u));
+
+        return notebooks
+                .values()
+                .stream()
+                .map(n -> new ShortEntityDTO(n, users))
+                .sorted(Comparator.comparing(ShortEntityDTO::getName))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -175,6 +253,18 @@ public class NotebookService {
         return new NotebookDTO(notebook);
     }
 
+    public TreeNodeDTO getNotebookAsTreeNode(String projectId, String notebookId) {
+        TreeNodeDTO result;
+        val notebookCollection = mongoTemplate.getCollection(Notebook.COLLECTION_NAME);
+        val notebook = notebookCollection.findOne(new BasicDBObject().append("_id", projectId + "-" + notebookId));
+        if (notebook == null) {
+            throw EntityNotFoundException.createWithNotebookId(notebookId);
+        }
+        result = new TreeNodeDTO(notebook);
+
+        return result;
+    }
+
     /**
      * Creates notebook with OWNER's permissions for current user.
      *
@@ -200,15 +290,26 @@ public class NotebookService {
         notebook.setId(sequenceIdService.getNextNotebookId(projectId));
 
         // check of user permissions correctness in access control list
-        PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
+        PermissionUtil.checkCorrectnessOfAccessList(userService, notebook.getAccessList());
         // add OWNER's permissions for specified User to notebook
-        NotebookPermissionHelper.fillNewNotebooksPermissions(project, notebook, user);
+        Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>> changes =
+                NotebookPermissionHelper.fillNewNotebooksPermissions(project, notebook, user);
 
         Notebook savedNotebook = saveNotebookAndHandleError(notebook);
 
         project.getNotebooks().add(savedNotebook);
         Project savedProject = projectRepository.save(project);
-        webSocketUtil.updateProject(user, savedProject);
+
+        Set<User> contentEditors = userService.getContentEditors();
+        PermissionChanges<Project> projectChanges = changes.getLeft();
+        if (projectChanges.hadChanged()) {
+            webSocketUtil.updateProject(user, savedProject,
+                    getEntityUpdateRecipients(
+                            contentEditors, projectChanges.getEntity(), null));
+
+            webSocketUtil.newProject(user, getSubEntityChangesRecipients(projectChanges, contentEditors));
+        }
+        sendNotebookNotifications(user, project, savedNotebook, contentEditors, changes.getMiddle());
 
         return new NotebookDTO(savedNotebook);
     }
@@ -245,53 +346,119 @@ public class NotebookService {
 
             Notebook notebook = dtoMapper.convertFromDTO(notebookDTO);
             // check of user permissions's correctness in access control list
-            PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
+            PermissionUtil.checkCorrectnessOfAccessList(userService, notebook.getAccessList());
 
-            boolean notebookNameChanged = !notebookFromDB.getName().equals(notebookDTO.getName());
+            boolean notebookNameChanged = !notebookFromDB.getName().equals(notebook.getName());
             if (notebookNameChanged) {
                 List<String> numbers = BatchComponentUtil.hasBatches(notebookFromDB);
                 if (!numbers.isEmpty()) {
-                    throw OperationDeniedException
+                    throw OperationNotAvailableException
                             .createNotebookUpdateNameOperation();
                 }
                 boolean hasNotOpen = notebookFromDB.getExperiments().stream()
                         .anyMatch(e -> e.getStatus() != ExperimentStatus.OPEN);
                 if (hasNotOpen) {
-                    throw OperationDeniedException
+                    throw OperationNotAvailableException
                             .createNotebookUpdateNameOperation();
                 }
-                notebookFromDB.setName(notebookDTO.getName());
-                notebookFromDB.getExperiments().forEach(e -> e.compileExperimentFullName(notebookDTO.getName()));
+                notebookFromDB.setName(notebook.getName());
+                notebookFromDB.getExperiments().forEach(e -> e.compileExperimentFullName(notebook.getName()));
             }
-            notebookFromDB.setDescription(notebookDTO.getDescription());
+            notebookFromDB.setDescription(notebook.getDescription());
             notebookFromDB.setVersion(notebook.getVersion());
 
-            Pair<Boolean, List<Experiment>> projectChangedAndChangedExperiments =
-                    NotebookPermissionHelper
-                            .changeNotebookPermissions(project, notebookFromDB, notebook.getAccessList());
+            Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>
+                    permissionsChanges = NotebookPermissionHelper
+                    .changeNotebookPermissions(project, notebookFromDB, notebook.getAccessList(), user);
 
-            if (notebookNameChanged) {
-                List<Experiment> savedExperiments = experimentRepository.save(notebookFromDB.getExperiments());
-                savedExperiments.forEach(experiment ->
-                        webSocketUtil.updateExperiment(user, projectId, notebookDTO.getId(), experiment));
-            } else {
-                experimentRepository.save(projectChangedAndChangedExperiments.getRight())
-                        .forEach(experiment ->
-                                webSocketUtil.updateExperiment(user, projectId, notebookDTO.getId(), experiment));
+            Set<User> contentEditors = userService.getContentEditors();
+
+            PermissionChanges<Notebook> notebooksChanges = permissionsChanges.getMiddle();
+            if (notebooksChanges.hadChanged() || notebookNameChanged) {
+                updateProjectAndSendNotifications(user, permissionsChanges.getLeft(), contentEditors);
+
+                updateExperimentsAndSendNotifications(user, project.getId(), contentEditors,
+                        notebooksChanges, permissionsChanges.getRight(), notebookNameChanged);
             }
+            sendNotebookNotifications(user, project, notebookFromDB,
+                    contentEditors, notebooksChanges);
 
             Notebook savedNotebook = saveNotebookAndHandleError(notebookFromDB);
-            webSocketUtil.updateNotebook(user, projectId, savedNotebook);
-
-            if (projectChangedAndChangedExperiments.getLeft()) {
-                Project savedProject = projectRepository.save(project);
-                webSocketUtil.updateProject(user, savedProject);
-            }
 
             return new NotebookDTO(savedNotebook);
         } finally {
             lock.unlock();
         }
+    }
+
+    private void sendNotebookNotifications(User user,
+                                           Project project,
+                                           Notebook notebook,
+                                           Set<User> contentEditors,
+                                           PermissionChanges<Notebook> notebooksChanges
+    ) {
+        webSocketUtil.newSubEntityForProject(user, project,
+                getSubEntityChangesRecipients(notebooksChanges, contentEditors));
+
+        Stream<String> recipients =
+                getEntityUpdateRecipients(contentEditors, notebook, user.getId());
+
+        webSocketUtil.updateNotebook(user, project.getId(), notebook,
+                recipients);
+    }
+
+    private void updateProjectAndSendNotifications(User user,
+                                                   PermissionChanges<Project> permissionChanges,
+                                                   Set<User> contentEditors
+    ) {
+        if (permissionChanges.hadChanged()) {
+            Project savedProject = projectRepository.save(permissionChanges.getEntity());
+
+            webSocketUtil.updateProject(user, savedProject,
+                    getEntityUpdateRecipients(
+                            contentEditors, permissionChanges.getEntity(), null));
+
+            webSocketUtil.newProject(user, getSubEntityChangesRecipients(permissionChanges, contentEditors));
+        }
+    }
+
+    private void updateExperimentsAndSendNotifications(
+            User user,
+            String projectId,
+            Set<User> contentEditors,
+            PermissionChanges<Notebook> notebookPermissionChanges, List<PermissionChanges<Experiment>> allExperimentsChanges,
+            boolean notebookNameChanged
+    ) {
+        List<PermissionChanges<Experiment>> experimentsChanges = allExperimentsChanges
+                .stream()
+                .filter(PermissionChanges::hadChanged)
+                .collect(Collectors.toList());
+
+        Notebook parentNotebook = notebookPermissionChanges.getEntity();
+        if (notebookNameChanged) {
+            //we need to re-save all experiments if name of the notebook was changed
+            List<Experiment> savedExperiments = experimentRepository.save(
+                    notebookPermissionChanges.getEntity().getExperiments());
+            savedExperiments.forEach(experiment ->
+                    webSocketUtil.updateExperiment(user, projectId, parentNotebook.getId(), experiment,
+                            getEntityUpdateRecipients(contentEditors, experiment, null)));
+        } else if (notebookPermissionChanges.hadChanged()) {
+            experimentRepository.save(experimentsChanges.stream()
+                    .map(PermissionChanges::getEntity)
+                    .collect(Collectors.toList()));
+
+            experimentsChanges.forEach(experimentPermissionChanges ->
+                    webSocketUtil.updateExperiment(
+                            user,
+                            projectId,
+                            parentNotebook.getId(),
+                            experimentPermissionChanges.getEntity(),
+                            getEntityUpdateRecipients(contentEditors,
+                                    experimentPermissionChanges.getEntity(),
+                                    null)));
+        }
+        webSocketUtil.newSubEntityForNotebook(user, projectId, parentNotebook,
+                getSubEntityChangesRecipients(experimentsChanges, contentEditors));
     }
 
     /**
@@ -346,7 +513,7 @@ public class NotebookService {
      * @param notebookName Notebook name to check
      * @return true if name is new and false if not
      */
-    public boolean isNew(String notebookName){
+    public boolean isNew(String notebookName) {
         return !notebookRepository.findByName(notebookName).isPresent();
     }
 
@@ -360,7 +527,7 @@ public class NotebookService {
         }
     }
 
-    public void deleteAll(){
+    public void deleteAll() {
         notebookRepository.deleteAll();
     }
 }

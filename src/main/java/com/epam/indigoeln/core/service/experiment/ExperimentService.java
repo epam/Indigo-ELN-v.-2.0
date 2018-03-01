@@ -1,3 +1,21 @@
+/*
+ *  Copyright (C) 2015-2018 EPAM Systems
+ *
+ *  This file is part of Indigo ELN.
+ *
+ *  Indigo ELN is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Indigo ELN is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.epam.indigoeln.core.service.experiment;
 
 import com.epam.indigoeln.IndigoRuntimeException;
@@ -7,11 +25,11 @@ import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
-import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.ConcurrencyException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
+import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.core.util.BatchComponentUtil;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.core.util.WebSocketUtil;
@@ -22,13 +40,16 @@ import com.epam.indigoeln.web.rest.dto.search.EntitiesIdsDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.epam.indigoeln.web.rest.util.permission.helpers.ExperimentPermissionHelper;
+import com.epam.indigoeln.web.rest.util.permission.helpers.PermissionChanges;
 import com.google.common.util.concurrent.Striped;
-import com.mongodb.DBRef;
+import com.mongodb.*;
+import lombok.val;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
@@ -37,8 +58,10 @@ import java.util.concurrent.locks.Lock;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.epam.indigoeln.core.model.PermissionCreationLevel.EXPERIMENT;
 import static com.epam.indigoeln.core.util.BatchComponentUtil.*;
+import static com.epam.indigoeln.core.util.WebSocketUtil.getEntityUpdateRecipients;
+import static com.epam.indigoeln.core.util.WebSocketUtil.getSubEntityChangesRecipients;
+import static java.util.Collections.emptySet;
 
 /**
  * The ExperimentService provides methods for
@@ -84,16 +107,19 @@ public class ExperimentService {
     private FileRepository fileRepository;
 
     /**
-     * Repository for user's data manipulation.
+     * Service for user's data manipulation.
      */
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
     private SequenceIdService sequenceIdService;
 
     @Autowired
     private WebSocketUtil webSocketUtil;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     private Striped<Lock> locks = Striped.lazyWeakLock(2);
 
@@ -104,11 +130,11 @@ public class ExperimentService {
 
     }
 
-    public Experiment getExperiment(String experimentId){
+    public Experiment getExperiment(String experimentId) {
         return experimentRepository.findOne(experimentId);
     }
 
-    public void saveExperiment(Experiment experiment){
+    public void saveExperiment(Experiment experiment) {
         experimentRepository.save(experiment);
     }
 
@@ -119,7 +145,7 @@ public class ExperimentService {
      * @param notebookId Notebook's identifier
      * @return List with tree representation of experiments of specified notebook
      */
-    public List<TreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId) {
+    public List<ExperimentTreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId) {
         return getAllExperimentTreeNodes(projectId, notebookId, null);
     }
 
@@ -131,10 +157,213 @@ public class ExperimentService {
      * @param user       User
      * @return List with tree representation of experiments of specified notebook for user
      */
-    public List<TreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId, User user) {
-        Collection<Experiment> experiments = getAllExperiments(projectId, notebookId, user);
-        return experiments.stream()
-                .map(ExperimentTreeNodeDTO::new).sorted(TreeNodeDTO.NAME_COMPARATOR).collect(Collectors.toList());
+    @SuppressWarnings("unchecked")
+    public List<ExperimentTreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId, User user) {
+        val notebookCollection = mongoTemplate.getCollection(Notebook.COLLECTION_NAME);
+        val experimentCollection = mongoTemplate.getCollection(Experiment.COLLECTION_NAME);
+        val userCollection = mongoTemplate.getCollection(User.COLLECTION_NAME);
+
+        val notebook = notebookCollection
+                .findOne(new BasicDBObject().append("_id", SequenceIdUtil.buildFullId(projectId, notebookId)));
+
+        if (notebook == null) {
+            throw EntityNotFoundException.createWithNotebookId(notebookId);
+        }
+
+        if (notebook.get("experiments") instanceof Iterable) {
+            val experimentIds = new ArrayList<String>();
+            ((Iterable) notebook.get("experiments"))
+                    .forEach(e -> experimentIds.add(String.valueOf(((DBRef) e).getId())));
+
+            val experiments = new ArrayList<DBObject>();
+            experimentCollection.find(new BasicDBObject()
+                    .append("_id", new BasicDBObject().append("$in", experimentIds))).forEach(experiments::add);
+
+
+            Map<Object, Object> experimentsWithUsers = getExperimentsWithUsers(experiments, userCollection);
+
+            Map<Object, List<Object>> experimentsWithComponents =
+                    getExperimentsWithComponents(experiments);
+
+            if (user != null) {
+                val notebookAccessList = new HashSet<UserPermission>();
+                ((Iterable) notebook.get("accessList"))
+                        .forEach(a -> notebookAccessList.add(new UserPermission((DBObject) a)));
+
+                if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, notebookAccessList,
+                        UserPermission.READ_ENTITY)) {
+                    throw OperationDeniedException
+                            .createNotebookSubEntitiesReadOperation(String.valueOf(notebook.get("_id")));
+                }
+
+                experiments.removeIf(experiment -> {
+                    val experimentAccessList = new HashSet<UserPermission>();
+                    ((Iterable) experiment.get("accessList"))
+                            .forEach(a -> experimentAccessList.add(new UserPermission((DBObject) a)));
+                    return !PermissionUtil.hasUser(experimentAccessList, user);
+                });
+            }
+
+            List<ExperimentTreeNodeDTO> result = experiments.stream()
+                    .map(ExperimentTreeNodeDTO::new)
+                    .collect(Collectors.toList());
+
+            result.forEach(e -> {
+                Optional userObject = (Optional) experimentsWithUsers.get(e.getFullId());
+                DBObject userBasicDBObject = null;
+                if ((userObject).isPresent()) {
+                    userBasicDBObject = (DBObject) userObject.get();
+                }
+                val components = experimentsWithComponents.get(e.getFullId());
+                setValuesForExperimentTreeNodeDTO(e, userBasicDBObject, components);
+            });
+
+            result = result.stream().sorted(TreeNodeDTO.NAME_COMPARATOR).collect(Collectors.toList());
+
+            return result;
+
+
+        }
+
+        return Collections.emptyList();
+    }
+
+    private void setValuesForExperimentTreeNodeDTO(ExperimentTreeNodeDTO experiment,
+                                                   DBObject user, List<?> components) {
+
+        if (components != null) {
+            val reactionComponent = components.stream()
+                    .filter(c -> ("reaction".equals(((BasicDBObject) c).get("name")))).findFirst();
+
+            val reactionDetailsComponent = components.stream()
+                    .filter(c -> ("reactionDetails".equals(((BasicDBObject) c).get("name")))).findFirst();
+
+            val conceptDetailsComponent = components.stream()
+                    .filter(c -> ("conceptDetails".equals(((BasicDBObject) c).get("name")))).findFirst();
+
+
+            Object image = null;
+
+            if (reactionComponent.isPresent()) {
+                image = ((BasicDBObject) ((BasicDBObject) reactionComponent.get()).get("content")).get("image");
+            }
+            if (image != null) {
+                experiment.setReactionImage(image.toString());
+            }
+            if (user != null) {
+                experiment.setAuthorFullName(String.format("%s %s",
+                        user.get("first_name"), user.get("last_name")));
+            }
+
+            if (reactionDetailsComponent.isPresent()) {
+                setSpecialFields(reactionDetailsComponent.get(), experiment);
+            } else conceptDetailsComponent.ifPresent(o -> setSpecialFields(o, experiment));
+        }
+    }
+
+    private void setSpecialFields(Object component, ExperimentTreeNodeDTO experiment) {
+        if (component != null && experiment != null) {
+            val titleObject = ((BasicDBObject) ((BasicDBObject) component)
+                    .get("content")).get("title");
+            if (titleObject != null) {
+                experiment.setTitle(String.valueOf(titleObject));
+            }
+            val therapeuticAreaObject = ((BasicDBObject) ((BasicDBObject) component)
+                    .get("content")).get("therapeuticArea");
+            if (therapeuticAreaObject != null) {
+                experiment.setTherapeuticAreaName(String.valueOf(((BasicDBObject) therapeuticAreaObject).get("name")));
+            }
+        }
+    }
+
+    public ExperimentTreeNodeDTO getExperimentAsTreeNode(String projectId, String notebookId, String experimentId) {
+        String experimentFullId = String.format("%s-%s-%s", projectId, notebookId, experimentId);
+        ExperimentTreeNodeDTO result;
+        List<Object> componentIds = new ArrayList<>();
+        val experimentCollection = mongoTemplate.getCollection(Experiment.COLLECTION_NAME);
+        val userCollection = mongoTemplate.getCollection(User.COLLECTION_NAME);
+        val experiment = experimentCollection
+                .findOne(new BasicDBObject().append("_id", experimentFullId));
+
+        if (experiment == null) {
+            throw EntityNotFoundException.createWithExperimentId(experimentId);
+        }
+
+        Object authorId = ((DBRef) experiment.get("author")).getId();
+        val user = userCollection.findOne(new BasicDBObject("_id", authorId));
+
+        result = new ExperimentTreeNodeDTO(experiment);
+        ((Iterable) experiment.get("components"))
+                .forEach(c -> componentIds.add(((DBRef) c).getId()));
+
+
+        val components = getComponents(componentIds);
+
+        setValuesForExperimentTreeNodeDTO(result, user, components);
+
+        return result;
+    }
+
+    private List getComponents(List<Object> componentIds) {
+        val componentCollection = mongoTemplate.getCollection(Component.COLLECTION_NAME);
+        val components = new ArrayList();
+        BasicDBList or = new BasicDBList();
+        or.add(new BasicDBObject("name", "reaction"));
+        or.add(new BasicDBObject("name", "reactionDetails"));
+        or.add(new BasicDBObject("name", "conceptDetails"));
+
+        componentCollection
+                .find(new BasicDBObject("_id", new BasicDBObject().append("$in", componentIds)
+                ).append("$or", or)).forEach(components::add);
+        return components;
+    }
+
+    private Map<Object, List<Object>> getExperimentsWithComponents(List<DBObject> experiments) {
+        Map<Object, List<Object>> experimentsWithComponents = new HashMap<>();
+        List<Object> allComponentIds = new ArrayList<>();
+        experiments.forEach(e -> {
+            List<Object> componentIds = new ArrayList<>();
+            ((Iterable) e.get("components"))
+                    .forEach(c -> {
+                        val id = ((DBRef) c).getId();
+                        componentIds.add(id);
+                        allComponentIds.add(id);
+                    });
+            experimentsWithComponents.put(e.get("_id"), componentIds);
+        });
+
+        val allComponents = getComponents(allComponentIds);
+        experimentsWithComponents.entrySet().forEach(entryObject -> {
+            val ids = entryObject.getValue();
+            val tmp = new ArrayList<>();
+            ids.forEach(id -> allComponents.forEach(c -> {
+                if (id.equals(((BasicDBObject) c).get("_id"))) {
+                    tmp.add(c);
+                }
+            }));
+            entryObject.setValue(tmp);
+        });
+
+        return experimentsWithComponents;
+    }
+
+
+    private Map<Object, Object> getExperimentsWithUsers(List<DBObject> experiments, DBCollection userCollection) {
+        List<Object> userIds = new ArrayList<>();
+        List<Object> users = new ArrayList<>();
+        Map<Object, Object> experimentsWithUsers = new HashMap<>();
+        experiments.forEach(e -> {
+            Object authorId = ((DBRef) e.get("author")).getId();
+            experimentsWithUsers.put(e.get("_id"), authorId);
+            userIds.add(authorId);
+        });
+        userCollection.find(new BasicDBObject().append("_id", new BasicDBObject().append("$in", userIds)))
+                .forEach(users::add);
+
+        experimentsWithUsers.entrySet().forEach(e -> e.setValue(users.stream()
+                .filter(u -> ((BasicDBObject) u).get("_id").equals(e.getValue())).findFirst()));
+
+        return experimentsWithUsers;
     }
 
     /**
@@ -248,10 +477,7 @@ public class ExperimentService {
             experiment.setTemplate(tmpl);
         }
         // check of user permissions's correctness in access control list
-        PermissionUtil.checkCorrectnessOfAccessList(userRepository, experiment.getAccessList());
-        // add OWNER's permissions for specified User to experiment
-        Pair<Boolean, Boolean> changes =
-                ExperimentPermissionHelper.fillNewExperimentsPermissions(project, notebook, experiment, user);
+        PermissionUtil.checkCorrectnessOfAccessList(userService, experiment.getAccessList());
 
         //increment sequence Id
         experiment.setId(sequenceIdService.getNextExperimentId(projectId, notebookId));
@@ -266,16 +492,33 @@ public class ExperimentService {
         experiment.setLastVersion(true);
         experiment.compileExperimentFullName(notebook.getName());
 
+        // add OWNER's permissions for specified User to experiment
+        Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, PermissionChanges<Experiment>> changes =
+                ExperimentPermissionHelper.fillNewExperimentsPermissions(project, notebook, experiment, user);
+
         Experiment savedExperiment = experimentRepository.save(experiment);
 
         notebook.getExperiments().add(savedExperiment);
         Notebook savedNotebook = notebookRepository.save(notebook);
-        webSocketUtil.updateNotebook(user, projectId, savedNotebook);
 
-        if (changes.getRight()) {
-            Project savedProject = projectRepository.save(project);
-            webSocketUtil.updateProject(user, savedProject);
+        Set<User> contentEditors = userService.getContentEditors();
+        if (changes.getRight().hadChanged()) {
+            updateProjectAndSendNotifications(user, changes.getLeft(), contentEditors);
+
+            PermissionChanges<Notebook> permissionChanges = changes.getMiddle();
+            if (permissionChanges.hadChanged()) {
+
+                webSocketUtil.newSubEntityForProject(user, project,
+                        getSubEntityChangesRecipients(permissionChanges, contentEditors));
+
+                webSocketUtil.updateNotebook(user, project.getId(), savedNotebook,
+                        getEntityUpdateRecipients(
+                                contentEditors, savedNotebook, null));
+            }
         }
+
+        sendExperimentNotifications(user, project.getId(),
+                notebook, changes.getRight(), contentEditors);
 
         return new ExperimentDTO(savedExperiment);
     }
@@ -319,7 +562,7 @@ public class ExperimentService {
                 && experimentName.equals(e.getName()))
                 .findFirst().orElseThrow(() -> EntityNotFoundException.createWithExperimentName(experimentName));
         lastVersion.setLastVersion(false);
-        experimentRepository.save(lastVersion);
+        lastVersion = experimentRepository.save(lastVersion);
 
         int newExperimentVersion = lastVersion.getExperimentVersion() + 1;
 
@@ -333,8 +576,6 @@ public class ExperimentService {
         }
         newVersion.setId(id + "_" + newExperimentVersion);
         newVersion.setName(experimentName);
-        newVersion.setAccessList(lastVersion.getAccessList());
-        PermissionUtil.addOwnerToAccessList(newVersion.getAccessList(), user, EXPERIMENT);
         newVersion.setTemplate(lastVersion.getTemplate());
         newVersion.setStatus(ExperimentStatus.OPEN);
         final List<Component> components = lastVersion.getComponents();
@@ -344,11 +585,28 @@ public class ExperimentService {
         newVersion.setLastVersion(true);
         newVersion.setExperimentVersion(newExperimentVersion);
         newVersion.compileExperimentFullName(notebook.getName());
+        Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, PermissionChanges<Experiment>> changes =
+                ExperimentPermissionHelper.fillNewExperimentsPermissions(project, notebook, newVersion, user);
 
         final Experiment savedNewVersion = experimentRepository.save(newVersion);
         notebook.getExperiments().add(savedNewVersion);
         Notebook savedNotebook = notebookRepository.save(notebook);
-        webSocketUtil.updateNotebook(user, projectId, savedNotebook);
+
+        Set<User> contentEditors = userService.getContentEditors();
+
+        webSocketUtil.updateExperiment(user, projectId, notebookId, lastVersion,
+                getEntityUpdateRecipients(contentEditors, lastVersion, null));
+
+        if (changes.getLeft().hadChanged()) {
+            webSocketUtil.newProject(user, getSubEntityChangesRecipients(changes.getLeft(), emptySet()));
+        }
+        if (changes.getMiddle().hadChanged()) {
+            webSocketUtil.newSubEntityForProject(user, project,
+                    getSubEntityChangesRecipients(changes.getMiddle(), emptySet()));
+        }
+
+        webSocketUtil.newSubEntityForNotebook(user, projectId, savedNotebook,
+                getSubEntityChangesRecipients(changes.getRight(), contentEditors));
 
         return new ExperimentDTO(savedNewVersion);
     }
@@ -395,7 +653,7 @@ public class ExperimentService {
 
 
             // check of user permissions's correctness in access control list
-            PermissionUtil.checkCorrectnessOfAccessList(userRepository, experimentForSave.getAccessList());
+            PermissionUtil.checkCorrectnessOfAccessList(userService, experimentForSave.getAccessList());
 
             experimentFromDB.setTemplate(experimentForSave.getTemplate());
             experimentFromDB.setComments(experimentForSave.getComments());
@@ -408,14 +666,15 @@ public class ExperimentService {
                     experimentForSave.getComponents(), experimentFromDB.getId()));
 
             // add all users as VIEWER to project and to notebook
-            Notebook notebook = Optional.ofNullable(notebookRepository.findOne(SequenceIdUtil
-                    .buildFullId(projectId, notebookId))).
+            String fullNotebookId = SequenceIdUtil.buildFullId(projectId, notebookId);
+            Notebook notebook = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
                     orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
             Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
                     orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
 
-            Pair<Boolean, Boolean> update = ExperimentPermissionHelper.changeExperimentPermissions(
-                    project, notebook, experimentFromDB, experimentForSave.getAccessList());
+            Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, PermissionChanges<Experiment>> changes =
+                    ExperimentPermissionHelper.changeExperimentPermissions(
+                            project, notebook, experimentFromDB, experimentForSave.getAccessList(), user);
 
             Experiment savedExperiment;
             try {
@@ -424,25 +683,91 @@ public class ExperimentService {
                 throw ConcurrencyException.createWithExperimentName(experimentFromDB.getName(), e);
             }
 
-            if (update.getLeft()) {
-                Notebook savedNotebook = notebookRepository.save(notebook);
-                webSocketUtil.updateNotebook(user, projectId, savedNotebook);
+            Set<User> contentEditors = userService.getContentEditors();
+            if (changes.getRight().hadChanged()) {
+                updateProjectAndSendNotifications(user, changes.getLeft(), contentEditors);
+
+                updateNotebooksAndSendNotifications(user, project, changes.getMiddle(), contentEditors);
             }
 
-            if (update.getRight()) {
-                Project savedProject = projectRepository.save(project);
-                webSocketUtil.updateProject(user, savedProject);
-            }
+            sendExperimentNotifications(user, project.getId(),
+                    notebook, changes.getRight(), contentEditors);
 
             result = new ExperimentDTO(savedExperiment);
-
-            webSocketUtil.updateExperiment(user, projectId, notebookId, savedExperiment);
-
-
         } finally {
             lock.unlock();
         }
         return result;
+    }
+
+    public void updateExperimentStatus(Experiment experiment) {
+        Experiment savedExperiment;
+        try {
+            savedExperiment = experimentRepository.save(experiment);
+        } catch (OptimisticLockingFailureException e) {
+            throw ConcurrencyException.createWithExperimentName(experiment.getName(), e);
+        }
+
+        String[] separatedIds = SequenceIdUtil.buildSeparatedIds(experiment.getId());
+        String projectId = separatedIds[0];
+        String notebookId = separatedIds[1];
+
+        Set<User> contentEditors = userService.getContentEditors();
+        webSocketUtil.updateExperiment(experiment.getSubmittedBy(),
+                projectId,
+                notebookId,
+                savedExperiment,
+                getEntityUpdateRecipients(contentEditors, experiment, null));
+    }
+
+    private void updateNotebooksAndSendNotifications(User user,
+                                                     Project projectFromDb,
+                                                     PermissionChanges<Notebook> permissionChanges,
+                                                     Set<User> contentEditors
+    ) {
+        if (permissionChanges.hadChanged()) {
+
+            Notebook savedNotebook = notebookRepository.save(permissionChanges.getEntity());
+
+            webSocketUtil.newSubEntityForProject(user, projectFromDb,
+                    getSubEntityChangesRecipients(permissionChanges, contentEditors));
+
+            webSocketUtil.updateNotebook(user, projectFromDb.getId(), savedNotebook,
+                    getEntityUpdateRecipients(
+                            contentEditors, savedNotebook, null));
+        }
+    }
+
+    private void updateProjectAndSendNotifications(User user,
+                                                   PermissionChanges<Project> projectPermissions,
+                                                   Set<User> contentEditors
+    ) {
+        if (projectPermissions.hadChanged()) {
+            Project savedProject = projectRepository.save(projectPermissions.getEntity());
+
+            webSocketUtil.updateProject(user, savedProject,
+                    getEntityUpdateRecipients(
+                            contentEditors, projectPermissions.getEntity(), null));
+
+            webSocketUtil.newProject(user, getSubEntityChangesRecipients(projectPermissions, contentEditors));
+        }
+    }
+
+    private void sendExperimentNotifications(
+            User user,
+            String projectId,
+            Notebook parentNotebook, PermissionChanges<Experiment> experimentPermissions,
+            Set<User> contentEditors
+    ) {
+
+        webSocketUtil.updateExperiment(user, projectId,
+                parentNotebook.getId(),
+                experimentPermissions.getEntity(),
+                getEntityUpdateRecipients(
+                        contentEditors, experimentPermissions.getEntity(), user.getId()));
+
+        webSocketUtil.newSubEntityForNotebook(user, projectId, parentNotebook,
+                getSubEntityChangesRecipients(experimentPermissions, contentEditors));
     }
 
     private void checkAccess(User user, Experiment experimentFromDB) {
@@ -510,7 +835,8 @@ public class ExperimentService {
                 throw ConcurrencyException.createWithExperimentName(experimentFromDB.getName(), e);
             }
             result = new ExperimentDTO(savedExperiment);
-            webSocketUtil.updateExperiment(user, projectId, notebookId, savedExperiment);
+            webSocketUtil.updateExperiment(user, projectId, notebookId, savedExperiment,
+                    getEntityUpdateRecipients(userService.getContentEditors(), savedExperiment, user.getId()));
         } finally {
             lock.unlock();
         }
@@ -655,7 +981,7 @@ public class ExperimentService {
                 .collect(Collectors.toList());
     }
 
-    public void deleteAll(){
+    public void deleteAll() {
         experimentRepository.deleteAll();
     }
 }

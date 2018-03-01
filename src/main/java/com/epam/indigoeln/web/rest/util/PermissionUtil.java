@@ -1,17 +1,37 @@
+/*
+ *  Copyright (C) 2015-2018 EPAM Systems
+ *  
+ *  This file is part of Indigo ELN.
+ *
+ *  Indigo ELN is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Indigo ELN is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.epam.indigoeln.web.rest.util;
 
 import com.epam.indigoeln.core.model.BasicModelObject;
 import com.epam.indigoeln.core.model.PermissionCreationLevel;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.model.UserPermission;
-import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.security.Authority;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.PermissionIncorrectException;
+import com.epam.indigoeln.core.service.user.UserService;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import static com.epam.indigoeln.core.model.PermissionCreationLevel.NOTEBOOK;
 import static com.epam.indigoeln.core.model.UserPermission.*;
@@ -79,7 +99,7 @@ public final class PermissionUtil {
                                             User user,
                                             PermissionCreationLevel permissionCreationLevel
     ) {
-        accessList.removeIf(up -> up.getUser().getId().equals(user.getId()));
+        accessList.removeIf(up -> Objects.deepEquals(up.getUser().getId().toCharArray(), user.getId().toCharArray()));
         UserPermission ownerPermission = new UserPermission(user, OWNER_PERMISSIONS, permissionCreationLevel, false);
         accessList.add(ownerPermission);
     }
@@ -121,14 +141,14 @@ public final class PermissionUtil {
                 && canBeChangedFromThisLevel(upperPermissionsLevel, userPermission.getPermissionCreationLevel());
     }
 
-    public static void checkCorrectnessOfAccessList(UserRepository userRepository,
+    public static void checkCorrectnessOfAccessList(UserService userService,
                                                     Set<UserPermission> accessList) {
         for (UserPermission userPermission : accessList) {
             if (userPermission.getUser() == null) {
                 throw PermissionIncorrectException.createWithoutUserId();
             }
 
-            User userFromDB = userRepository.findOne(userPermission.getUser().getId());
+            User userFromDB = userService.getUserById(userPermission.getUser().getId());
             if (userFromDB == null) {
                 throw EntityNotFoundException.createWithUserId(userPermission.getUser().getId());
             }
@@ -151,7 +171,7 @@ public final class PermissionUtil {
 
     public static boolean hasUser(Set<UserPermission> accessList, User user) {
         return accessList.stream()
-                .anyMatch(removingPermission -> Objects.equals(user.getId(), removingPermission.getUser().getId()));
+                .anyMatch(userPermission -> Objects.equals(user.getId(), userPermission.getUser().getId()));
     }
 
     /**
@@ -183,6 +203,37 @@ public final class PermissionUtil {
     }
 
     /**
+     * Add addingPermissions to entity's access list.
+     *
+     * @param entity            entity to change access list
+     * @param addingPermissions adding permissions
+     * @return added permissions
+     */
+    public static Set<UserPermission> addAllIfNotPresent(BasicModelObject entity, Set<UserPermission> addingPermissions) {
+
+        return addAllIfNotPresent(addingPermissions, entity.getAccessList());
+    }
+
+    /**
+     * Add addingPermissions to entity's access list.
+     *
+     * @param addingPermissions adding permissions
+     * @return added permissions
+     */
+    public static Set<UserPermission> addAllIfNotPresent(Set<UserPermission> addingPermissions, Set<UserPermission> accessList) {
+
+        HashSet<UserPermission> addedPermissions = new HashSet<>();
+
+        for (UserPermission addingPermission : addingPermissions) {
+            if (!hasUser(accessList, addingPermission.getUser())) {
+                accessList.add(addingPermission);
+                addedPermissions.add(addingPermission);
+            }
+        }
+        return addedPermissions;
+    }
+
+    /**
      * Compare actual entity accessList and newUserPermissions and returns permissions that should be removed from accessList.
      *
      * @param entity             modifying entity
@@ -207,18 +258,24 @@ public final class PermissionUtil {
      * @param entity             modifying entity
      * @param newUserPermissions applied permission list
      * @param creationLevel      level of applying
+     * @param authorOfChanges    author of changed permissions
      * @return updated permissions
+     * @throws PermissionIncorrectException if user try to update his own permission for entity
      */
     public static Set<UserPermission> getUpdatedPermissions(BasicModelObject entity,
                                                             Set<UserPermission> newUserPermissions,
-                                                            PermissionCreationLevel creationLevel
+                                                            PermissionCreationLevel creationLevel, User authorOfChanges
     ) {
-        return newUserPermissions.stream()
+        Set<UserPermission> updatedPermissions = newUserPermissions.stream()
                 .filter(newPermission -> entity.getAccessList().stream().anyMatch(oldPermission ->
                         equalsByUserId(newPermission, oldPermission)
                                 && !oldPermission.getPermissions().equals(newPermission.getPermissions())))
                 .map(userPermission -> userPermission.setPermissionCreationLevel(creationLevel))
                 .collect(toSet());
+        if (hasUser(updatedPermissions, authorOfChanges)) {
+            throw PermissionIncorrectException.createWithUserIdOnSelfPermissionChanges(authorOfChanges.getId());
+        }
+        return updatedPermissions;
     }
 
     /**
@@ -239,5 +296,32 @@ public final class PermissionUtil {
                                 equalsByUserId(newPermission, oldPermission)))
                 .map(userPermission -> userPermission.setPermissionCreationLevel(creationLevel))
                 .collect(toSet());
+    }
+
+    public static Set<UserPermission> addAllAsViewerIfNotPresent(BasicModelObject entity,
+                                                                 Set<UserPermission> addedToChildPermissions
+    ) {
+        Set<UserPermission> addedToNotebook = new HashSet<>();
+
+        for (UserPermission addedPermission : addedToChildPermissions) {
+            UserPermission presentedPermission =
+                    findPermissionsByUserId(entity.getAccessList(), addedPermission.getUser().getId());
+            if (presentedPermission == null) {
+                UserPermission addingPermission = new UserPermission(addedPermission.getUser(), VIEWER_PERMISSIONS,
+                        addedPermission.getPermissionCreationLevel());
+                entity.getAccessList().add(addingPermission);
+                addedToNotebook.add(addingPermission);
+            }
+        }
+        return addedToNotebook;
+    }
+
+    public static Set<UserPermission> removeIf(Set<UserPermission> accessList, Predicate<UserPermission> condition) {
+
+        Set<UserPermission> removedPermissions = accessList.stream().filter(condition).collect(toSet());
+
+        accessList.removeAll(removedPermissions);
+
+        return removedPermissions;
     }
 }

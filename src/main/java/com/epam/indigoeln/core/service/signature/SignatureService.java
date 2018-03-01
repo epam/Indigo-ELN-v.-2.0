@@ -1,6 +1,27 @@
+/*
+ *  Copyright (C) 2015-2018 EPAM Systems
+ *  
+ *  This file is part of Indigo ELN.
+ *
+ *  Indigo ELN is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Indigo ELN is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.epam.indigoeln.core.service.signature;
 
-import com.epam.indigoeln.core.model.*;
+import com.epam.indigoeln.core.model.Experiment;
+import com.epam.indigoeln.core.model.ExperimentStatus;
+import com.epam.indigoeln.core.model.SignatureJob;
+import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.repository.signature.SignatureJobRepository;
 import com.epam.indigoeln.core.repository.signature.SignatureRepository;
 import com.epam.indigoeln.core.security.SecurityUtils;
@@ -12,7 +33,6 @@ import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.core.util.WebSocketUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.print.PrintRequest;
-import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -50,9 +70,6 @@ public class SignatureService {
      */
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private CustomDtoMapper dtoMapper;
 
     @Autowired
     private ITextPrintService iTextPrintService;
@@ -98,8 +115,9 @@ public class SignatureService {
     public String uploadDocument(String projectId, String notebookId, String experimentId,
                                  com.epam.indigoeln.core.model.User user, String templateId,
                                  String fileName, PrintRequest printRequest) throws IOException {
-        ExperimentDTO experimentDto = experimentService.getExperiment(projectId, notebookId, experimentId, user);
-        Experiment experiment = dtoMapper.convertFromDTO(experimentDto);
+        Experiment experiment =
+                experimentService.getExperiment(SequenceIdUtil.buildFullId(projectId, notebookId, experimentId));
+
         if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, experiment.getAccessList(),
                 UserPermission.UPDATE_ENTITY)) {
             throw OperationDeniedException.createExperimentUpdateOperation(experiment.getId());
@@ -116,13 +134,12 @@ public class SignatureService {
             throw DocumentUploadException.createFailedUploading(experimentId);
         }
 
-        experimentDto.setDocumentId(documentId);
-        experimentDto.setStatus(ExperimentStatus.SUBMITTED);
-        experimentDto.setSubmittedBy(user);
-        experimentService.updateExperiment(projectId, notebookId, experimentDto, user);
+        experiment.setDocumentId(documentId);
+        experiment.setStatus(ExperimentStatus.SUBMITTED);
+        experiment.setSubmittedBy(user);
+        experimentService.updateExperimentStatus(experiment);
 
         // create status checking job
-
         SignatureJob signatureJob = new SignatureJob();
         signatureJob.setExperimentId(SequenceIdUtil.buildFullId(projectId, notebookId, experimentId));
         signatureJob.setExperimentStatus(ExperimentStatus.SUBMITTED);
@@ -144,8 +161,12 @@ public class SignatureService {
 
     public List<Document> getDocumentsByIds(Collection<String> documentIds) throws IOException {
         final String content = signatureRepository.getDocumentsInfo(documentIds);
-        final DocumentsWrapper wrapper = objectMapper.readValue(content, DocumentsWrapper.class);
-        return wrapper.getDocuments();
+        if (!StringUtils.isBlank(content)) {
+            final DocumentsWrapper wrapper = objectMapper.readValue(content, DocumentsWrapper.class);
+            return wrapper.getDocuments();
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     /**
@@ -175,9 +196,31 @@ public class SignatureService {
         return signatureRepository.downloadDocument(documentId);
     }
 
-    public ExperimentStatus checkExperimentStatus(Experiment experiment)
+    public ExperimentStatus updateAndGetExperimentStatus(Experiment experiment)
             throws IOException {
-        return checkExperimentStatus(new ExperimentDTO(experiment));
+        // check experiment in status Submitted or Signing
+        if (ExperimentStatus.SUBMITTED.equals(experiment.getStatus())
+                || ExperimentStatus.SINGING.equals(experiment.getStatus())
+                || ExperimentStatus.SINGED.equals(experiment.getStatus())) {
+
+            if (experiment.getDocumentId() == null) {
+                throw DocumentUploadException.createNullDocumentId(experiment.getId());
+            }
+
+            ISSStatus status = getStatus(experiment.getDocumentId());
+            final ExperimentStatus expectedStatus = getExperimentStatus(status);
+
+            // update experiment if differ
+            if (!expectedStatus.equals(experiment.getStatus())) {
+
+                experiment.setStatus(expectedStatus);
+
+                experimentService.updateExperimentStatus(experiment);
+
+                return expectedStatus;
+            }
+        }
+        return experiment.getStatus();
     }
 
     /**
@@ -187,29 +230,11 @@ public class SignatureService {
      * @return Experiment's status
      * @throws IOException If there is a low-level I/O problem
      */
-    public ExperimentStatus checkExperimentStatus(ExperimentDTO experimentDTO)
+    public ExperimentStatus updateAndGetExperimentStatus(ExperimentDTO experimentDTO)
             throws IOException {
-        // check experiment in status Submitted or Signing
-        if (ExperimentStatus.SUBMITTED.equals(experimentDTO.getStatus())
-                || ExperimentStatus.SINGING.equals(experimentDTO.getStatus())
-                || ExperimentStatus.SINGED.equals(experimentDTO.getStatus())) {
 
-            if (experimentDTO.getDocumentId() == null) {
-                throw DocumentUploadException.createNullDocumentId(experimentDTO.getId());
-            }
-
-            SignatureService.ISSStatus status = getStatus(experimentDTO.getDocumentId());
-            final ExperimentStatus expectedStatus = getExperimentStatus(status);
-
-            // update experiment if differ
-            if (!expectedStatus.equals(experimentDTO.getStatus())) {
-                final Experiment experiment = experimentService.getExperiment(experimentDTO.getFullId());
-                experiment.setStatus(expectedStatus);
-                experimentService.saveExperiment(experiment);
-                return expectedStatus;
-            }
-        }
-        return experimentDTO.getStatus();
+        Experiment experiment = experimentService.getExperiment(experimentDTO.getFullId());
+        return updateAndGetExperimentStatus(experiment);
     }
 
     /**

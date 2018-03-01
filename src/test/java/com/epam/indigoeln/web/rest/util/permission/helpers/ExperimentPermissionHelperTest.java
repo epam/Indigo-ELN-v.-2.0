@@ -1,7 +1,6 @@
 package com.epam.indigoeln.web.rest.util.permission.helpers;
 
 import com.epam.indigoeln.core.model.*;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,10 +48,9 @@ public class ExperimentPermissionHelperTest {
     public void addExperimentPermission() {
         UserPermission addedPermission = new UserPermission(testUser, UserPermission.VIEWER_PERMISSIONS, EXPERIMENT);
 
-        Pair<Boolean, Boolean> notebookAndProjectWasChanged = ExperimentPermissionHelper
+        ExperimentPermissionHelper
                 .addPermissions(testProject, testNotebook, testExperiment, singleton(addedPermission));
 
-        assertThat(notebookAndProjectWasChanged, is(Pair.of(true, true)));
         assertThat(testExperiment.getAccessList(), hasItem(addedPermission));
         assertThat(testNotebook.getAccessList(), hasItem(addedPermission));
         assertThat(testProject.getAccessList(), hasItem(addedPermission));
@@ -65,14 +63,13 @@ public class ExperimentPermissionHelperTest {
         UserPermission addedToOtherExperimentPermission =
                 new UserPermission(testUser, UserPermission.OWNER_PERMISSIONS, EXPERIMENT);
 
-        Pair<Boolean, Boolean> notebookAndProjectWasChanged = ExperimentPermissionHelper
+        ExperimentPermissionHelper
                 .addPermissions(testProject, testNotebook, testExperiment, singleton(addedPermission));
 
-        Pair<Boolean, Boolean> notebookAndProjectWasChangedWithSecondExperiment = ExperimentPermissionHelper
+
+        ExperimentPermissionHelper
                 .addPermissions(testProject, testNotebook, otherExperiment, singleton(addedToOtherExperimentPermission));
 
-        assertThat(notebookAndProjectWasChanged, is(Pair.of(true, true)));
-        assertThat(notebookAndProjectWasChangedWithSecondExperiment, is(Pair.of(false, false)));
         assertThat(testExperiment.getAccessList(), hasItem(addedPermission));
         assertThat(otherExperiment.getAccessList(), hasItem(addedToOtherExperimentPermission));
         assertThat(testNotebook.getAccessList(), hasItem(addedPermission));
@@ -104,10 +101,9 @@ public class ExperimentPermissionHelperTest {
         ExperimentPermissionHelper.addPermissions(
                 testProject, testNotebook, testExperiment, singleton(presentedPermission));
 
-        Pair<Boolean, Boolean> projectAndNotebookWasUpdated = ExperimentPermissionHelper.removePermissions(
+        ExperimentPermissionHelper.removePermissions(
                 testProject, testNotebook, testExperiment, singleton(presentedPermission));
 
-        assertThat(projectAndNotebookWasUpdated, is(Pair.of(true, true)));
         assertThat(testExperiment.getAccessList(), not(hasItem(presentedPermission)));
         assertThat(testNotebook.getAccessList(), not(hasItem(presentedPermission)));
         assertThat(testProject.getAccessList(), not(hasItem(presentedPermission)));
@@ -123,10 +119,9 @@ public class ExperimentPermissionHelperTest {
         ExperimentPermissionHelper.addPermissions(
                 testProject, testNotebook, otherExperiment, singleton(presentedPermission));
 
-        Pair<Boolean, Boolean> projectAndNotebookWasUpdated = ExperimentPermissionHelper.removePermissions(
+        ExperimentPermissionHelper.removePermissions(
                 testProject, testNotebook, testExperiment, singleton(presentedPermission));
 
-        assertThat(projectAndNotebookWasUpdated, is(Pair.of(false, false)));
         assertThat(testExperiment.getAccessList(), not(hasItem(presentedPermission)));
         assertThat(testNotebook.getAccessList(), hasItem(presentedPermission));
         assertThat(testProject.getAccessList(), hasItem(presentedPermission));
@@ -141,14 +136,12 @@ public class ExperimentPermissionHelperTest {
         ExperimentPermissionHelper.addPermissions(
                 testProject, testNotebook, otherExperiment, singleton(presentedPermission));
 
-        Pair<Boolean, Boolean> projectAndNotebookWasUpdated = ExperimentPermissionHelper.removePermissions(
+        ExperimentPermissionHelper.removePermissions(
                 testProject, testNotebook, testExperiment, singleton(presentedPermission));
-        Pair<Boolean, Boolean> projectAndNotebookWasUpdatedOnSecondRemove =
-                ExperimentPermissionHelper.removePermissions(
-                        testProject, testNotebook, otherExperiment, singleton(presentedPermission));
 
-        assertThat(projectAndNotebookWasUpdated, is(Pair.of(false, false)));
-        assertThat(projectAndNotebookWasUpdatedOnSecondRemove, is(Pair.of(true, true)));
+        ExperimentPermissionHelper.removePermissions(
+                testProject, testNotebook, otherExperiment, singleton(presentedPermission));
+
         assertThat(testExperiment.getAccessList(), not(hasItem(presentedPermission)));
         assertThat(otherExperiment.getAccessList(), not(hasItem(presentedPermission)));
         assertThat(testNotebook.getAccessList(), not(hasItem(presentedPermission)));

@@ -1,11 +1,32 @@
+/*
+ *  Copyright (C) 2015-2018 EPAM Systems
+ *  
+ *  This file is part of Indigo ELN.
+ *
+ *  Indigo ELN is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Indigo ELN is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.epam.indigoeln.core.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableSet;
+import com.mongodb.DBObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.val;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -73,6 +94,19 @@ public class UserPermission {
         this.permissionCreationLevel = permissionCreationLevel;
     }
 
+    @SuppressWarnings("unchecked")
+    public UserPermission(DBObject obj) {
+        if (obj.get("permissions") instanceof Iterable) {
+            val ps = new HashSet<String>();
+            ((Iterable) obj.get("permissions")).forEach(p -> ps.add(String.valueOf(p)));
+            this.permissions = ps;
+        }
+        if (obj.get("user") instanceof com.mongodb.DBRef) {
+            this.user = new User();
+            this.user.setId(String.valueOf(((com.mongodb.DBRef) obj.get("user")).getId()));
+        }
+    }
+
     public Boolean isRemovable() {
         return removable;
     }
@@ -107,7 +141,7 @@ public class UserPermission {
     }
 
     public boolean hasPermission(String permission) {
-        return permission != null && this.permissions.contains(permission);
+            return permission != null && this.permissions.contains(permission);
     }
 
     public String getPermissionView() {

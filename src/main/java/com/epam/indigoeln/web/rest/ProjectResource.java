@@ -1,3 +1,21 @@
+/*
+ *  Copyright (C) 2015-2018 EPAM Systems
+ *  
+ *  This file is part of Indigo ELN.
+ *
+ *  Indigo ELN is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Indigo ELN is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.model.User;
@@ -5,7 +23,6 @@ import com.epam.indigoeln.core.service.project.ProjectService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
 import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
-import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.Api;
@@ -41,35 +58,6 @@ public class ProjectResource {
     @Autowired
     private UserService userService;
 
-    /**
-     * GET  /projects -> Returns all projects for <b>current user</b>
-     * for tree representation according to his User permissions.
-     *
-     * @return Returns all projects for current user for tree representation according to his permissions
-     */
-    @ApiOperation(value = "Returns all projects for current user for tree representation according to his permissions.")
-    @RequestMapping(method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TreeNodeDTO>> getAllProjectsByPermissions() {
-        LOGGER.debug("REST request to get all projects according to user permissions");
-        User user = userService.getUserWithAuthorities();
-        List<TreeNodeDTO> result = projectService.getAllProjectsAsTreeNodes(user);
-        return ResponseEntity.ok(result);
-    }
-
-    /**
-     * GET  /projects/all -> Returns all projects without checking for User permissions.
-     *
-     * @return Returns all projects for current user for tree representation
-     */
-    @ApiOperation(value = "Returns all projects for current user for tree representation.")
-    @RequestMapping(value = "/all", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TreeNodeDTO>> getAllProjects() {
-        LOGGER.debug("REST request to get all projects without checking for permissions");
-        List<TreeNodeDTO> result = projectService.getAllProjectsAsTreeNodes();
-        return ResponseEntity.ok(result);
-    }
 
     /**
      * GET  /projects/permissions/user-removable -> Returns true if user can be removed from project without problems.

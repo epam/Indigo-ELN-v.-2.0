@@ -1,3 +1,21 @@
+/*
+ *  Copyright (C) 2015-2018 EPAM Systems
+ *
+ *  This file is part of Indigo ELN.
+ *
+ *  Indigo ELN is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Indigo ELN is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.epam.indigoeln.core.service.print.itext2.providers;
 
 import com.epam.indigoeln.core.model.Notebook;
@@ -9,9 +27,9 @@ import com.epam.indigoeln.core.service.print.itext2.model.common.DescriptionMode
 import com.epam.indigoeln.core.service.print.itext2.model.common.image.SvgPdfImage;
 import com.epam.indigoeln.core.service.print.itext2.model.notebook.NotebookContentModel;
 import com.epam.indigoeln.core.service.print.itext2.model.notebook.NotebookHeaderModel;
+import com.epam.indigoeln.core.service.print.itext2.sections.common.AbstractPdfSection;
 import com.epam.indigoeln.core.service.print.itext2.sections.common.DescriptionSection;
 import com.epam.indigoeln.core.service.print.itext2.sections.common.HeaderPdfSection;
-import com.epam.indigoeln.core.service.print.itext2.sections.common.AbstractPdfSection;
 import com.epam.indigoeln.core.service.print.itext2.sections.notebook.NotebookContentSection;
 import com.epam.indigoeln.core.service.print.itext2.sections.notebook.NotebookHeaderSection;
 import com.epam.indigoeln.core.service.print.itext2.utils.LogoUtils;
@@ -30,10 +48,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.epam.indigoeln.core.service.print.itext2.model.notebook.NotebookContentModel.*;
-import static com.epam.indigoeln.core.util.BatchComponentUtil.CONCEPT_DETAILS;
-import static com.epam.indigoeln.core.util.BatchComponentUtil.REACTION;
-import static com.epam.indigoeln.core.util.BatchComponentUtil.REACTION_DETAILS;
+import static com.epam.indigoeln.core.service.print.itext2.model.notebook.NotebookContentModel.ContentModelRow;
+import static com.epam.indigoeln.core.service.print.itext2.model.notebook.NotebookContentModel.Details;
+import static com.epam.indigoeln.core.util.BatchComponentUtil.*;
 
 /**
  * The class is responsible for mapping notebook to a list of pdf sections used by pdf generator.

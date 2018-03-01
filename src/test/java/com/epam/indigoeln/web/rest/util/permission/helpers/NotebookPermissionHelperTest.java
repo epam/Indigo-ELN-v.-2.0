@@ -91,13 +91,9 @@ public class NotebookPermissionHelperTest {
 
         UserPermission addedPermission = new UserPermission(testUser, UserPermission.VIEWER_PERMISSIONS, NOTEBOOK);
 
-        boolean projectWasUpdated1 =
-                NotebookPermissionHelper.addPermissions(testProject, testNotebook, singleton(addedPermission));
-        boolean projectWasUpdated2 =
-                NotebookPermissionHelper.addPermissions(testProject, otherNotebook, singleton(addedPermission));
+        NotebookPermissionHelper.addPermissions(testProject, testNotebook, singleton(addedPermission));
+        NotebookPermissionHelper.addPermissions(testProject, otherNotebook, singleton(addedPermission));
 
-        assertThat(projectWasUpdated1, is(true));
-        assertThat(projectWasUpdated2, is(false));
         assertThat(testNotebook.getAccessList(), hasItem(addedPermission));
         assertThat(testProject.getAccessList(), hasItem(addedPermission));
         assertThat(testExperiment.getAccessList(), hasItem(addedPermission));
@@ -140,10 +136,8 @@ public class NotebookPermissionHelperTest {
         NotebookPermissionHelper.addPermissions(testProject, testNotebook, singleton(presentedPermission));
         NotebookPermissionHelper.addPermissions(testProject, otherNotebook, singleton(presentedPermission));
 
-        boolean projectWasUpdated
-                = NotebookPermissionHelper.removePermissions(testProject, testNotebook, singleton(presentedPermission));
+        NotebookPermissionHelper.removePermissions(testProject, testNotebook, singleton(presentedPermission));
 
-        assertThat(projectWasUpdated, is(false));
         assertThat(otherNotebook.getAccessList(), hasItem(presentedPermission));
         assertThat(testNotebook.getAccessList(), not(hasItem(presentedPermission)));
         assertThat(testProject.getAccessList(), hasItem(presentedPermission));
@@ -157,13 +151,10 @@ public class NotebookPermissionHelperTest {
         NotebookPermissionHelper.addPermissions(testProject, testNotebook, singleton(presentedPermission));
         NotebookPermissionHelper.addPermissions(testProject, otherNotebook, singleton(presentedPermission));
 
-        boolean projectWasUpdated
-                = NotebookPermissionHelper.removePermissions(testProject, testNotebook, singleton(presentedPermission));
-        boolean projectWasUpdated2
-                = NotebookPermissionHelper.removePermissions(testProject, otherNotebook, singleton(presentedPermission));
+        NotebookPermissionHelper.removePermissions(testProject, testNotebook, singleton(presentedPermission));
 
-        assertThat(projectWasUpdated, is(false));
-        assertThat(projectWasUpdated2, is(true));
+        NotebookPermissionHelper.removePermissions(testProject, otherNotebook, singleton(presentedPermission));
+
         assertThat(otherNotebook.getAccessList(), not(hasItem(presentedPermission)));
         assertThat(testNotebook.getAccessList(), not(hasItem(presentedPermission)));
         assertThat(testProject.getAccessList(), not(hasItem(presentedPermission)));
