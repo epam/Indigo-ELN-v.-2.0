@@ -20,9 +20,8 @@
 
 var PerfectScrollbar = require('perfect-scrollbar/dist/perfect-scrollbar');
 
-indigoTabScroller.$inject = ['$timeout'];
-
-function indigoTabScroller($timeout) {
+/* @ngInject */
+function indigoTabScroller($timeout, $window) {
     return {
         restrict: 'A',
         link: link
@@ -37,17 +36,16 @@ function indigoTabScroller($timeout) {
             useBothWheelAxes: true
         });
 
-        // Update scrollbar to display immediately
-        $timeout(function() {
-            perfectScrollbar.update();
-        }, 0);
+        // Update scrollbar in next angular digit
+        function update() {
+            $timeout(function() {
+                perfectScrollbar.update();
+            }, 0);
+        }
 
-        // Update scrollbar on container resize
-        $scope.$watch(function() {
-            return $scope.vm.tabs && _.keys($scope.vm.tabs).length;
-        }, function() {
-            perfectScrollbar.update();
-        });
+        $scope.$watchCollection('vm.tabs', update);
+
+        $scope.$watch('vm.activeTab.$$title', update);
 
         $scope.$watch('vm.activeTab', function() {
             $timeout(function() {
@@ -57,10 +55,15 @@ function indigoTabScroller($timeout) {
             }, 100);
         });
 
+        angular.element($window).bind('resize', update);
+
         $scope.$on('$destroy', function() {
+            angular.element($window).unbind('resize', update);
             perfectScrollbar.destroy();
             perfectScrollbar = null;
         });
+
+        update();
     }
 }
 
