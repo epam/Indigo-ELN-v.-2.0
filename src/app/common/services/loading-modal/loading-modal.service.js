@@ -36,7 +36,8 @@ function loadingModalService($uibModal) {
             bindToController: true,
             controllerAs: 'vm',
             backdrop: 'static',
-            template: template
+            template: template,
+            size: 'sm'
         });
 
         return loader;
