@@ -1,10 +1,12 @@
-<li ng-class="{'active': node.fullId === vm.selectedFullId}"
-    class="simple-node">
+<li ng-class="{'active': node.fullId === vm.selectedFullId}" class="simple-node">
     <span class="name-wrapper">
+        <span ng-if="node.children" ng-click="vm.toggle(node);" class="icon-wrapper">
+            <i class="icon icon-arrow_up" ng-show="node.isCollapsed"></i>
+            <i class="icon icon-arrow_down" ng-show="!node.isCollapsed"></i>
+        </span>
         <a class="type-of-experiment"
            id="{{::vm.elementId + '_' + node.fullId}}"
            ui-sref="{{::vm.getSref(node)}}"
-           ng-click="vm.toggle(node);$event.stopPropagation();"
            ng-switch="node.params.length">
             <span ng-bind="node.name"
                   ng-switch-when="3"
