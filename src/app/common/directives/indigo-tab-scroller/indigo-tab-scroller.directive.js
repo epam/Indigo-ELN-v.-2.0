@@ -36,7 +36,7 @@ function indigoTabScroller($timeout, $window) {
             useBothWheelAxes: true
         });
 
-        // Update scrollbar in next angular digit
+        // Update scrollbar in next angular digest
         function update() {
             $timeout(function() {
                 perfectScrollbar.update();
