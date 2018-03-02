@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2015-2018 EPAM Systems
- *  
+ *
  *  This file is part of Indigo ELN.
  *
  *  Indigo ELN is free software: you can redistribute it and/or modify
@@ -56,6 +56,8 @@ import java.util.stream.StreamSupport;
 
 import static com.epam.indigoeln.core.util.WebSocketUtil.getEntityUpdateRecipients;
 import static com.epam.indigoeln.core.util.WebSocketUtil.getSubEntityChangesRecipients;
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 /**
@@ -292,65 +294,91 @@ public class ProjectService {
         Pair<PermissionChanges<Project>, Map<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>>
                 changes = ProjectPermissionHelper.changeProjectPermissions(projectFromDb, project.getAccessList(), user);
 
+        Project savedProject = saveProjectAndHandleError(projectFromDb);
+
         Set<User> contentEditors = userService.getContentEditors();
-        sendProjectNotifications(user, projectFromDb, changes.getLeft(), contentEditors);
+
+        List<WebSocketUtil.DelayedNotificationRunnable> notifications = new ArrayList<>(
+                getProjectNotifications(user, savedProject, changes.getLeft(), contentEditors));
+
         if (changes.getLeft().hadChanged()) {
 
-            updateNotebooksAndSendNotifications(user, projectFromDb, changes.getRight().keySet(), contentEditors);
-            updateExperimentsAndSendNotifications(user, projectFromDb,
-                    changes.getRight().entrySet().stream()
-                            .map(e -> Pair.of(e.getKey(), e.getValue()))
-                            .collect(Collectors.toList()), contentEditors);
+            notifications.addAll(
+                    updateNotebooksAndGetNotifications(user, projectFromDb, changes.getRight().keySet(), contentEditors));
+
+
+            notifications.addAll(
+                    updateExperimentsAndGetNotifications(user, projectFromDb,
+                            changes.getRight().entrySet().stream()
+                                    .map(e -> Pair.of(e.getKey(), e.getValue()))
+                                    .collect(Collectors.toList()), contentEditors));
         }
 
-        Project savedProject = saveProjectAndHandleError(projectFromDb);
+        webSocketUtil.sendAll(notifications);
 
         return new ProjectDTO(savedProject);
     }
 
-    private void sendProjectNotifications(User user,
-                                          Project projectFromDb,
-                                          PermissionChanges<Project> projectPermissionChanges,
-                                          Set<User> contentEditors
+    private List<WebSocketUtil.DelayedNotificationRunnable> getProjectNotifications(
+            User user,
+            Project projectFromDb,
+            PermissionChanges<Project> projectPermissionChanges,
+            Set<User> contentEditors
     ) {
-        webSocketUtil.newProject(user, getSubEntityChangesRecipients(projectPermissionChanges, contentEditors));
+        WebSocketUtil.DelayedNotificationRunnable newProjectNotification = webSocketUtil.getNewProjectNotification(user,
+                getSubEntityChangesRecipients(projectPermissionChanges));
+
         Stream<String> recipients =
                 getEntityUpdateRecipients(contentEditors, projectFromDb, user.getId())
                         .distinct();
-        webSocketUtil.updateProject(user, projectFromDb, recipients);
+
+        WebSocketUtil.DelayedNotificationRunnable updateProjectNotification =
+                webSocketUtil.getUpdateProjectNotification(user, projectFromDb, recipients);
+
+        return asList(newProjectNotification, updateProjectNotification);
     }
 
-    private void updateNotebooksAndSendNotifications(User user,
-                                                     Project projectFromDb,
-                                                     Set<PermissionChanges<Notebook>> permissionChanges,
-                                                     Set<User> contentEditors
+    private List<WebSocketUtil.DelayedNotificationRunnable> updateNotebooksAndGetNotifications(
+            User user,
+            Project projectFromDb,
+            Set<PermissionChanges<Notebook>> permissionChanges,
+            Set<User> contentEditors
     ) {
+        List<WebSocketUtil.DelayedNotificationRunnable> result = new ArrayList<>();
+
         Set<PermissionChanges<Notebook>> notebooksChanges = permissionChanges
                 .stream()
                 .filter(PermissionChanges::hadChanged)
                 .collect(toSet());
 
+
         notebookRepository.save(notebooksChanges.stream()
                 .map(PermissionChanges::getEntity)
                 .collect(toSet()));
 
-        webSocketUtil.newSubEntityForProject(user, projectFromDb,
-                getSubEntityChangesRecipients(notebooksChanges, contentEditors));
+        result.add(
+                webSocketUtil.getProjectSubEntityNotification(user, projectFromDb,
+                        getSubEntityChangesRecipients(notebooksChanges)));
 
-        notebooksChanges.forEach(notebookPermissionChanges ->
-                webSocketUtil.updateNotebook(user, projectFromDb.getId(),
-                        notebookPermissionChanges.getEntity(),
-                        getEntityUpdateRecipients(contentEditors,
-                                notebookPermissionChanges.getEntity(),
-                                null)));
+        result.addAll(notebooksChanges.stream()
+                .map(notebookPermissionChanges -> webSocketUtil
+                        .getUpdateNotebookNotification(user, projectFromDb.getId(),
+                                notebookPermissionChanges.getEntity(), getEntityUpdateRecipients(contentEditors,
+                                        notebookPermissionChanges.getEntity(), null)))
+                .collect(toList()));
+
+        return result;
+
     }
 
-    private void updateExperimentsAndSendNotifications(
+    private List<WebSocketUtil.DelayedNotificationRunnable> updateExperimentsAndGetNotifications(
             User user,
             Project projectFromDb,
             List<Pair<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>>> changes,
             Set<User> contentEditors
     ) {
+        List<WebSocketUtil.DelayedNotificationRunnable> result = new ArrayList<>();
+
         for (Pair<PermissionChanges<Notebook>, List<PermissionChanges<Experiment>>> change : changes) {
             if (change.getKey().hadChanged()) {
                 List<PermissionChanges<Experiment>> experimentsChanges = change.getValue()
@@ -360,18 +388,23 @@ public class ProjectService {
                 experimentRepository.save(experimentsChanges.stream()
                         .map(PermissionChanges::getEntity)
                         .collect(Collectors.toList()));
-                webSocketUtil.newSubEntityForNotebook(user, projectFromDb.getId(), change.getKey().getEntity(),
-                        getSubEntityChangesRecipients(experimentsChanges, contentEditors));
-
-                experimentsChanges.forEach(experimentPermissionChanges ->
-                        webSocketUtil.updateExperiment(user, projectFromDb.getId(),
-                                change.getKey().getEntity().getId(),
-                                experimentPermissionChanges.getEntity(),
-                                getEntityUpdateRecipients(contentEditors,
-                                        experimentPermissionChanges.getEntity(),
-                                        null)));
+                result.add(
+                        webSocketUtil.getNotebookSubEntityNotification(user,
+                                projectFromDb.getId(), change.getKey().getEntity(),
+                                getSubEntityChangesRecipients(experimentsChanges)));
+                result.addAll(
+                        experimentsChanges.stream()
+                                .map(experimentPermissionChanges ->
+                                        webSocketUtil.getUpdateExperimentNotification(user, projectFromDb.getId(),
+                                                change.getKey().getEntity().getId(),
+                                                experimentPermissionChanges.getEntity(),
+                                                getEntityUpdateRecipients(contentEditors,
+                                                        experimentPermissionChanges.getEntity(),
+                                                        null)))
+                                .collect(toList()));
             }
         }
+        return result;
     }
 
 
