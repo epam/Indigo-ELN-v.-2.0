@@ -231,7 +231,7 @@ public class CrsRegistrationRepository implements RegistrationRepository {
         compoundInfo.setFormula(map.get("molecularFormula"));
         MolecularWeight molecularWeight = new MolecularWeight();
         molecularWeight.setValue(map.get("molecularWeight"));
-        compoundInfo.setMolecularWeight(molecularWeight);
+        compoundInfo.setMolWeight(molecularWeight);
         compoundInfo.setCompoundId(info.getCompoundNumber());
         compoundInfo.setComments(info.getComments());
         SaltEquivalent saltEquivalent = new SaltEquivalent();

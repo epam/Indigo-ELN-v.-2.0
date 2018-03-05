@@ -20,7 +20,7 @@ public class CompoundTableRowInfo {
 
     private String hazardComments;
 
-    private MolecularWeight molecularWeight;
+    private MolecularWeight molWeight;
 
     private String saltCode;
 
@@ -94,12 +94,12 @@ public class CompoundTableRowInfo {
         this.hazardComments = hazardComments;
     }
 
-    public MolecularWeight getMolecularWeight() {
-        return molecularWeight;
+    public MolecularWeight getMolWeight() {
+        return molWeight;
     }
 
-    public void setMolecularWeight(MolecularWeight molecularWeight) {
-        this.molecularWeight = molecularWeight;
+    public void setMolWeight(MolecularWeight molecularWeight) {
+        this.molWeight = molecularWeight;
     }
 
 
