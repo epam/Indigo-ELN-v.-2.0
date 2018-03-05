@@ -119,19 +119,13 @@ function appValuesService($http, appUnits, apiUrl) {
 
     function convertSaltCodes(data) {
         return _.map(data, function(item) {
-            var regValue = getRegValue(item.SALT_CODE);
-
             return {
                 value: item.SALT_CODE,
                 weight: +item.SALT_WEIGHT,
-                name: regValue + ' - ' + item.SALT_DESC,
-                regValue: regValue
+                name: item.SALT_CODE + ' - ' + item.SALT_DESC,
+                regValue: item.SALT_CODE
             };
         });
-    }
-
-    function getRegValue(value) {
-        return (value < 10) ? ('0' + value) : value;
     }
 }
 
