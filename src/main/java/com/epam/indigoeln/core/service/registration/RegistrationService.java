@@ -20,6 +20,7 @@ package com.epam.indigoeln.core.service.registration;
 
 import com.epam.indigoeln.core.model.Component;
 import com.epam.indigoeln.core.model.Compound;
+import com.epam.indigoeln.core.model.CompoundTableRowInfo;
 import com.epam.indigoeln.core.model.RegistrationJob;
 import com.epam.indigoeln.core.repository.component.ComponentRepository;
 import com.epam.indigoeln.core.repository.registration.*;
@@ -274,7 +275,7 @@ public class RegistrationService {
      * @return compound info for compound
      * @throws RegistrationException if external registration service is not found in initial list
      */
-    public List<Compound> getCompoundInfoByCompoundNo(String id, String compoundNo) throws RegistrationException {
+    public List<CompoundTableRowInfo> getCompoundInfoByCompoundNo(String id, String compoundNo) throws RegistrationException {
         return getRegistrationRepository(id).getCompoundInfoByCompoundNo(compoundNo);
     }
 

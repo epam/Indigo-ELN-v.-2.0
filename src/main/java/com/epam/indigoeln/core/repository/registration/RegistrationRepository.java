@@ -19,6 +19,7 @@
 package com.epam.indigoeln.core.repository.registration;
 
 import com.epam.indigoeln.core.model.Compound;
+import com.epam.indigoeln.core.model.CompoundTableRowInfo;
 
 import java.util.List;
 
@@ -40,7 +41,7 @@ public interface RegistrationRepository {
 
     List<Integer> searchSim(String structure, String similarity, Double var3, Double var4) throws RegistrationException;
 
-    List<Compound> getCompoundInfoByCompoundNo(String compoundNo) throws RegistrationException;
+    List<CompoundTableRowInfo> getCompoundInfoByCompoundNo(String compoundNo) throws RegistrationException;
 
     List<Compound> getCompoundInfoByCasNo(String casNo) throws RegistrationException;
 
