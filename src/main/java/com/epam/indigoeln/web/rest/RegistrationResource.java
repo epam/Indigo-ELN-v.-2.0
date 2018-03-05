@@ -19,6 +19,7 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.model.Compound;
+import com.epam.indigoeln.core.model.CompoundTableRowInfo;
 import com.epam.indigoeln.core.repository.registration.RegistrationException;
 import com.epam.indigoeln.core.repository.registration.RegistrationRepositoryInfo;
 import com.epam.indigoeln.core.repository.registration.RegistrationStatus;
@@ -91,7 +92,7 @@ public class RegistrationResource {
     @ApiOperation(value = "Returns compounds by their number.")
     @RequestMapping(value = "/compounds/{compoundNo}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Compound> compoundsByCompoundNo(
+    public List<CompoundTableRowInfo> compoundsByCompoundNo(
             @ApiParam("Registration repository id") String id,
             @ApiParam("Compound id") @PathVariable("compoundNo") String compoundNo
     ) throws RegistrationException {

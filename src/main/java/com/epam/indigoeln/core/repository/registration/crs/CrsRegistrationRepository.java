@@ -26,11 +26,13 @@ import com.epam.indigo.crs.services.registration.BingoRegistration;
 import com.epam.indigo.crs.services.search.BingoSearch;
 import com.epam.indigoeln.config.crs.CrsProperties;
 import com.epam.indigoeln.core.model.Compound;
+import com.epam.indigoeln.core.model.CompoundTableRowInfo;
 import com.epam.indigoeln.core.repository.registration.RegistrationException;
 import com.epam.indigoeln.core.repository.registration.RegistrationRepository;
 import com.epam.indigoeln.core.repository.registration.RegistrationRepositoryInfo;
 import com.epam.indigoeln.core.repository.registration.RegistrationStatus;
 import com.epam.indigoeln.core.service.calculation.CalculationService;
+import com.epam.indigoeln.core.service.search.impl.pubchem.dto.Structure;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -147,9 +149,9 @@ public class CrsRegistrationRepository implements RegistrationRepository {
     }
 
     @Override
-    public List<Compound> getCompoundInfoByCompoundNo(String compoundNo) throws RegistrationException {
+    public List<CompoundTableRowInfo> getCompoundInfoByCompoundNo(String compoundNo) throws RegistrationException {
         try {
-            return search.getCompoundByNumber(compoundNo).stream().map(this::convert).
+            return search.getCompoundByNumber(compoundNo).stream().map(this::convertToCompoundTableRowInfo).
                     collect(Collectors.toList());
         } catch (CRSException e) {
             throw new RegistrationException(e);
@@ -207,6 +209,33 @@ public class CrsRegistrationRepository implements RegistrationRepository {
         compoundInfo.setStereoIsomerCode(compound.getStereoisomerCode());
         compoundInfo.setStorageComments(compound.getStorageComment());
 
+        return compoundInfo;
+
+    }
+
+    private CompoundTableRowInfo convertToCompoundTableRowInfo(FullCompoundInfo info){
+        CompoundTableRowInfo compoundInfo = new CompoundTableRowInfo();
+        compoundInfo.setSaltCode(info.getSaltCode());
+        compoundInfo.setHazardComments(info.getHazardComments());
+
+
+        Map<String, String> map = calculationService.getMolecularInformation(info.getData(),
+                Optional.of(compoundInfo.getSaltCode()), Optional.of((float)info.getSaltEquivalents()));
+
+        Structure structure = new Structure();
+        structure.setMolfile(info.getData());
+        structure.setImage(calculationService.getStructureWithImage(info.getData()).getImage());
+        compoundInfo.setChemicalName(map.get("name"));
+        compoundInfo.setFormula(map.get("molecularFormula"));
+        compoundInfo.setMolecularWeight(map.get("molecularWeight"));
+        compoundInfo.setCompoundId(info.getCompoundNumber());
+        compoundInfo.setComments(info.getComments());
+        compoundInfo.setSaltEq(map.get("saltEQ"));
+        compoundInfo.setFullNbkBatch(info.getBatchNumber());
+        compoundInfo.setStructure(structure);
+        compoundInfo.setConversationalBatchNumber(info.getConversationalBatchNumber());
+        compoundInfo.setStereoisomerCode(info.getStereoIsomerCode());
+        compoundInfo.setCasNumber(info.getCasNumber());
         return compoundInfo;
 
     }
