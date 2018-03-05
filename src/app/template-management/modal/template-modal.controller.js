@@ -32,6 +32,7 @@ function TemplateModalController($scope, $stateParams, templateService, notifySe
     vm.addTab = addTab;
     vm.removeTab = removeTab;
     vm.removeComponent = removeComponent;
+    vm.checkName = checkName;
 
     init();
 
@@ -136,6 +137,12 @@ function TemplateModalController($scope, $stateParams, templateService, notifySe
             ? 'Error saving, template name already exists.'
             : 'Template is not saved due to server error!';
         notifyService.error(mess);
+    }
+
+    function checkName(name) {
+        if (name.trim() === '') {
+            return 'Tab name shouldn\'t be empty';
+        }
     }
 }
 
