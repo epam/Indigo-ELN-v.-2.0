@@ -10,7 +10,7 @@ public class CompoundTableRowInfo {
 
     private String compoundId;
 
-    private String saltEq;
+    private SaltEquivalent saltEq;
 
     private Structure structure;
 
@@ -20,7 +20,7 @@ public class CompoundTableRowInfo {
 
     private String hazardComments;
 
-    private String molecularWeight;
+    private MolecularWeight molecularWeight;
 
     private String saltCode;
 
@@ -62,11 +62,11 @@ public class CompoundTableRowInfo {
         this.structure = structure;
     }
 
-    public String getSaltEq() {
+    public SaltEquivalent getSaltEq() {
         return saltEq;
     }
 
-    public void setSaltEq(String saltEq) {
+    public void setSaltEq(SaltEquivalent saltEq) {
         this.saltEq = saltEq;
     }
 
@@ -94,11 +94,11 @@ public class CompoundTableRowInfo {
         this.hazardComments = hazardComments;
     }
 
-    public String getMolecularWeight() {
+    public MolecularWeight getMolecularWeight() {
         return molecularWeight;
     }
 
-    public void setMolecularWeight(String molecularWeight) {
+    public void setMolecularWeight(MolecularWeight molecularWeight) {
         this.molecularWeight = molecularWeight;
     }
 
