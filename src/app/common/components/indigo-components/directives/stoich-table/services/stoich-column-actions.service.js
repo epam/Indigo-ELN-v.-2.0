@@ -73,9 +73,6 @@ function stoichColumnActions(registrationService, calculationService, $q, appVal
                 return _.map(compounds, function(compound) {
                     return getStoichRow(compound, dicts);
                 });
-            })
-            .then(function(stoichRows) {
-                return updateFieldsWhichRelatedToMolecule(stoichRows);
             });
     }
 
@@ -143,31 +140,15 @@ function stoichColumnActions(registrationService, calculationService, $q, appVal
     }
 
     function getStoichRow(compound, dicts) {
-        var rowProps = {
-            chemicalName: compound.chemicalName,
-            compoundId: compound.compoundNo,
-            conversationalBatchNumber: compound.conversationalBatchNo,
-            fullNbkBatch: compound.batchNo,
-            casNumber: compound.casNo,
-            structure: {
-                structureType: 'molecule',
-                molfile: compound.structure
-            },
-            formula: compound.formula,
-            stereoisomer: sdImportHelper.getWord(
-                'Stereoisomer Code',
-                'name',
-                compound.stereoisomerCode,
-                dicts
-            ),
-            saltCode: _.find(appValuesService.getSaltCodeValues(), function(sc) {
-                return sc.regValue === compound.saltCode;
-            }),
-            saltEq: {
-                value: compound.saltEquivs, entered: false
-            },
-            comments: compound.comment
-        };
+        var rowProps = _.assign({}, compound);
+        rowProps.stereoisomer = sdImportHelper.getWord(
+            'Stereoisomer Code',
+            'name',
+            compound.stereoisomerCode,
+            dicts
+        );
+        var saltCodes = appValuesService.getSaltCodeValues();
+        rowProps.saltCode = _.find(saltCodes, {regValue: compound.saltCode});
 
         return new ReagentViewRow(rowProps);
     }
@@ -188,33 +169,6 @@ function stoichColumnActions(registrationService, calculationService, $q, appVal
         }
 
         return batches;
-    }
-
-    function updateFieldsWhichRelatedToMolecule(stoichRows) {
-        return $q.all(_.map(stoichRows, function(row) {
-            return $q.all([
-                getMoleculaInfoPromise(row),
-                getImagePromise(row)
-            ]);
-        })).then(function() {
-            return stoichRows;
-        });
-
-        function getMoleculaInfoPromise(row) {
-            return calculationService.getMoleculeInfo(row)
-                .then(function(molInfo) {
-                    row.formula = molInfo.molecularFormula;
-                    row.molWeight.value = molInfo.molecularWeight;
-                    row.molWeight.originalValue = molInfo.molecularWeight;
-                });
-        }
-
-        function getImagePromise(row) {
-            return calculationService.getImageForStructure(row.structure.molfile, 'molecule')
-                .then(function(image) {
-                    row.structure.image = image;
-                });
-        }
     }
 
     function validateCompoundId(compoundId) {
