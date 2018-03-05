@@ -29,7 +29,6 @@ function autocomplete() {
         scope: {
             label: '@',
             placeholder: '@',
-            dictionary: '@',
             field: '@',
             elName: '=',
             autofocus: '=',
@@ -56,7 +55,7 @@ function autocomplete() {
 }
 
 /* @ngInject */
-function autocompleteController($scope, translateService, dictionaryService) {
+function autocompleteController($scope, translateService) {
     var vm = this;
 
     init();
@@ -69,29 +68,6 @@ function autocompleteController($scope, translateService, dictionaryService) {
         vm.isLoading = false;
         vm.loadingPlaceholder = translateService.translate('AUTOCOMPLETE_LOADING_PLACEHOLDER');
         vm.emptyListPlaceholder = translateService.translate('AUTOCOMPLETE_EMPTY_PLACEHOLDER');
-
-        if (vm.dictionary) {
-            dictionaryService.getByName({
-                name: vm.dictionary
-            }, function(dictionary) {
-                vm.items = dictionary.words;
-                vm.items = _.map(vm.items, function(item) {
-                    item.label = _.reduce(vm.field.split(','), function(acc, field) {
-                        return (acc.length ? acc + ' ' : '') + item[field];
-                    }, '');
-
-                    return item;
-                });
-            });
-        } else {
-            vm.items = _.map(vm.items, function(item) {
-                item.label = _.reduce(vm.field.split(','), function(acc, field) {
-                    return (acc.length ? acc + ' ' : '') + item[field];
-                }, '');
-
-                return item;
-            });
-        }
 
         bindEvents();
     }
@@ -132,7 +108,7 @@ function autocompleteController($scope, translateService, dictionaryService) {
     function filterItems(query) {
         var queryLowerCase = _.lowerCase(query);
         vm.filteredItems = _.filter(vm.items, function(item) {
-            return _.includes(item.label ? item.label.toLowerCase() : '', queryLowerCase);
+            return _.includes(item[vm.field].toLowerCase(), queryLowerCase);
         });
     }
 }
