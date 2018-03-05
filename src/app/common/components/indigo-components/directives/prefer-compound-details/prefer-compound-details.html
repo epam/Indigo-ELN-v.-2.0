@@ -80,12 +80,13 @@
                                ng-model="vm.selectedBatch.virtualCompoundId"
                                ng-disabled="vm.isEditDisabled">
                     </simple-input>
-                    <autocomplete label="Sterioisomer Code"
-                                   dictionary="Stereoisomer Code"
-                                   field="name,description"
-                                   model="vm.selectedBatch.stereoisomer"
-                                   readonly="vm.isEditDisabled">
-                    </autocomplete>
+                    <indigo-select indigo-label="Sterioisomer Code"
+                                   indigo-dictionary="Stereoisomer Code"
+                                   indigo-item-prop="name,description"
+                                   indigo-label-vertical="true"
+                                   indigo-model="vm.selectedBatch.stereoisomer"
+                                   indigo-readonly="vm.isEditDisabled">
+                    </indigo-select>
                     <indigo-simple-text indigo-label="Calculated Compound MW"
                                         indigo-model="vm.selectedBatch.molWeight.value | round"
                                         indigo-empty-text="none">

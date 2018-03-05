@@ -106,22 +106,25 @@
                            ng-disabled="vm.isEditDisabled"
                            ng-attr-title="vm.selectedBatch.virtualCompoundId">
                 </simple-input>
-                <autocomplete label="Source"
-                               model="vm.selectedBatch.source"
-                               dictionary="Source"
-                               readonly="vm.isEditDisabled"
-                ></autocomplete>
-                <autocomplete label="Source Detail"
-                               model="vm.selectedBatch.sourceDetail"
-                               dictionary="Source Details"
-                               readonly="vm.isEditDisabled"
-                ></autocomplete>
-                <autocomplete label="Stereoisomer Code"
-                               dictionary="Stereoisomer Code"
-                               field="name,description"
-                               model="vm.selectedBatch.stereoisomer"
-                               readonly="vm.isEditDisabled"
-                ></autocomplete>
+                <indigo-select indigo-label="Source"
+                               indigo-model="vm.selectedBatch.source"
+                               indigo-label-vertical="true"
+                               indigo-dictionary="Source"
+                               indigo-readonly="vm.isEditDisabled"
+                ></indigo-select>
+                <indigo-select indigo-label="Source Detail"
+                               indigo-model="vm.selectedBatch.sourceDetail"
+                               indigo-label-vertical="true"
+                               indigo-dictionary="Source Details"
+                               indigo-readonly="vm.isEditDisabled"
+                ></indigo-select>
+                <indigo-select indigo-label="Stereoisomer Code"
+                               indigo-dictionary="Stereoisomer Code"
+                               indigo-label-vertical="true"
+                               indigo-item-prop="name,description"
+                               indigo-model="vm.selectedBatch.stereoisomer"
+                               indigo-readonly="vm.isEditDisabled"
+                ></indigo-select>
                 <indigo-simple-text indigo-label="Calculated Batch MW"
                                     indigo-model="vm.selectedBatch.molWeight.value | round"
                                     indigo-empty-text="none"
@@ -150,11 +153,12 @@
                 ></indigo-text-area>
             </div>
             <div class="col-md-4 col-sm-6">
-                <autocomplete label="Compound State"
-                               dictionary="Compound State"
-                               model="vm.selectedBatch.compoundState"
-                               readonly="vm.isEditDisabled"
-                ></autocomplete>
+                <indigo-select indigo-label="Compound State"
+                               indigo-dictionary="Compound State"
+                               indigo-label-vertical="true"
+                               indigo-model="vm.selectedBatch.compoundState"
+                               indigo-readonly="vm.isEditDisabled"
+                ></indigo-select>
                 <simple-input>
                     <span i-translate="PRECURSOR_REACTANT_IDS"></span>
                     <input class="form-control"
@@ -195,11 +199,12 @@
 
             </div>
             <div class="col-md-4 col-sm-6">
-                <autocomplete label="Compound Protection"
-                               model="vm.selectedBatch.compoundProtection"
-                               dictionary="Compound Protection"
-                               readonly="vm.isEditDisabled"
-                ></autocomplete>
+                <indigo-select indigo-label="Compound Protection"
+                               indigo-model="vm.selectedBatch.compoundProtection"
+                               indigo-dictionary="Compound Protection"
+                               indigo-label-vertical="true"
+                               indigo-readonly="vm.isEditDisabled"
+                ></indigo-select>
 
                 <additional-editor-value model="vm.selectedBatch.healthHazards.asString"
                                          on-click="vm.editHealthHazards()"

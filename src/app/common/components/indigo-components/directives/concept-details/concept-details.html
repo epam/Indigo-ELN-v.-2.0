@@ -9,16 +9,18 @@
                            ng-model="vm.componentData.title"
                            ng-disabled="vm.isReadonly">
                 </simple-input>
-                <autocomplete label="Therapeutic Area"
-                               dictionary="Therapeutic Area"
-                               model="vm.componentData.therapeuticArea"
-                               readonly="vm.isReadonly">
-                </autocomplete>
-                <autocomplete label="Project Code & Name"
-                               dictionary="Project Code & Name"
-                               model="vm.componentData.codeAndName"
-                               readonly="vm.isReadonly">
-                </autocomplete>
+                <indigo-select indigo-label="Therapeutic Area"
+                               indigo-dictionary="Therapeutic Area"
+                               indigo-model="vm.componentData.therapeuticArea"
+                               indigo-label-vertical="true"
+                               indigo-readonly="vm.isReadonly">
+                </indigo-select>
+                <indigo-select indigo-label="Project Code & Name"
+                              indigo-dictionary="Project Code & Name"
+                              indigo-label-vertical="true"
+                              indigo-model="vm.componentData.codeAndName"
+                              indigo-readonly="vm.isReadonly">
+                </indigo-select>
                 <autocomplete label="Co-authors"
                               readonly="vm.isReadonly"
                               items="vm.users"

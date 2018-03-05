@@ -17,9 +17,9 @@
             <tbody ng-repeat="item in vm.solubility.data track by $index">
             <tr ng-class="{'search-table-row-highlight':item.isSelected}">
                 <td>
-                    <autocomplete dictionary="Solvent Name"
-                                   model="vm.solubility.data[$index].solventName">
-                    </autocomplete>
+                    <indigo-select indigo-dictionary="Solvent Name"
+                                   indigo-model="vm.solubility.data[$index].solventName">
+                    </indigo-select>
                 </td>
                 <td>
                     <autocomplete items="vm.solubilityTypeSelect"
