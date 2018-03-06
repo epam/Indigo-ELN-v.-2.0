@@ -27,7 +27,8 @@ function duplicateBatches() {
         require: ['^^indigoComponents', 'duplicateBatches'],
         scope: {
             isReadonly: '=',
-            batches: '='
+            batches: '=',
+            isDetails: '='
         },
         template: template,
         controller: DuplicateBatchesController,
@@ -52,8 +53,11 @@ function DuplicateBatchesController(productBatchSummaryOperations, batchHelper) 
     }
 
     function duplicateBatches() {
+        var batches = vm.isDetails
+            ? [vm.indigoComponents.selectedBatch]
+            : batchHelper.getCheckedBatches(vm.batches);
         vm.indigoComponents.batchOperation = productBatchSummaryOperations
-            .duplicateBatches(batchHelper.getCheckedBatches(vm.batches), false, vm.indigoComponents.experiment)
+            .duplicateBatches(batches, false, vm.indigoComponents.experiment)
             .then(successAddedBatches);
     }
 
