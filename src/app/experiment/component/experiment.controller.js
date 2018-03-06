@@ -19,7 +19,7 @@
  */
 
 /* @ngInject */
-function ExperimentController($scope, dashboardService, configService, $filter) {
+function ExperimentController($scope, dashboardService, configService, $filter, loadingModalService) {
     var vm = this;
     var openExperiments;
     var waitingExperiments;
@@ -45,6 +45,7 @@ function ExperimentController($scope, dashboardService, configService, $filter) 
     vm.loadAll();
 
     function loadAll() {
+        loadingModalService.openLoadingModal();
         vm.loading = dashboardService.get({}, function(result) {
             openExperiments = result.openAndCompletedExp.filter(function(e) {
                 return e.status === 'Open';
@@ -65,7 +66,10 @@ function ExperimentController($scope, dashboardService, configService, $filter) 
             vm.waitingExperimentsLength = waitingExperiments.length;
             vm.submittedExperimentsLength = submittedExperiments.length;
             vm.onViewChange();
-        }).$promise;
+        }).$promise.finally(
+            function() {
+                loadingModalService.close();
+            });
     }
 
     function onViewChange() {

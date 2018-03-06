@@ -334,6 +334,7 @@ var i18n = {
     THE_ROLE_ALREADY_IN_USE: 'The role already in use',
     USER_ALREADY_ADDED: 'The user already added',
     ATTENTION_AUTHORITY_IS_SET_AUTOMATICALLY: 'Attention: authority {{permission}} is set automatically',
+    LOADING_MESSAGE: 'Please wait...',
     USER_PERMISSIONS_WERE_CHANGE: 'Permissions of your account have changed and you were automatically logout.'
 };
 
