@@ -55,8 +55,8 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
         vm.stateData = $state.current.data;
         vm.deferLoading = $q.defer();
         vm.isInit = false;
+        loadingModalService.openLoadingModal();
         vm.loading = $q.all([
-            loadingModalService.openLoadingModal(),
             vm.deferLoading.promise,
             getPageInfo().then(function(response) {
                 if (vm.isNotHavePermissions) {
@@ -73,7 +73,6 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
                 hasEditAuthority = response.hasEditAuthority;
                 vm.notebook = response.notebook;
                 entityTitle = response.notebook.name + ' ' + response.experiment.name;
-                loadingModalService.close();
 
                 return initExperiment(response.experiment).then(function() {
                     updateOriginal(response.experiment);
@@ -81,6 +80,8 @@ function ExperimentDetailController($scope, $state, $stateParams, experimentServ
                     initPermissions();
                     fileUploader.setFiles([]);
                 });
+            }).finally(function() {
+                loadingModalService.close();
             })
         ]);
 

@@ -66,7 +66,7 @@ function ExperimentController($scope, dashboardService, configService, $filter, 
             vm.waitingExperimentsLength = waitingExperiments.length;
             vm.submittedExperimentsLength = submittedExperiments.length;
             vm.onViewChange();
-        }).$promise.then(
+        }).$promise.finally(
             function() {
                 loadingModalService.close();
             });

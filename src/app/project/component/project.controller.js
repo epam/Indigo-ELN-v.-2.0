@@ -121,11 +121,10 @@ function ProjectController($scope, $state, projectService, notifyService, permis
     }
 
     function save() {
-        loadingModalService.openLoadingModal();
         if (!vm.isEntityChanged) {
             return $q.resolve();
         }
-
+        loadingModalService.openLoadingModal();
         if (vm.project.id) {
             vm.loading = projectService.update($stateParams, vm.project).$promise
                 .then(function(result) {
@@ -136,11 +135,12 @@ function ProjectController($scope, $state, projectService, notifyService, permis
                     onUpdateSuccess({
                         id: vm.project.id
                     });
+                }, onSaveError).finally(function() {
                     loadingModalService.close();
-                }, onSaveError);
+                });
         } else {
             vm.loading = projectService.save(vm.project, onSaveSuccess, onSaveError)
-                .$promise.then(
+                .$promise.finally(
                     function() {
                         loadingModalService.close();
                     });

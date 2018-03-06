@@ -24,7 +24,8 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
                                   modalHelper, experimentUtil, pageInfo, entitiesBrowserService,
                                   $timeout, $stateParams, tabKeyService, autorecoveryHelper,
                                   notebookSummaryExperimentsService, $q, entitiesCache,
-                                  autorecoveryCache, confirmationModal, entityHelper, principalService) {
+                                  autorecoveryCache, confirmationModal, entityHelper, principalService,
+                                  loadingModalService) {
     var vm = this;
     var identity = pageInfo.identity;
     var isContentEditor = pageInfo.isContentEditor;
@@ -216,6 +217,8 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
 
             return;
         }
+
+        loadingModalService.openLoadingModal();
         vm.loading = notebookSummaryExperimentsService.query({
             notebookId: $stateParams.notebookId,
             projectId: $stateParams.projectId
@@ -237,6 +240,8 @@ function NotebookDetailController($scope, $state, notebookService, notifyService
             vm.isSummary = true;
         }, function() {
             notifyService.error('Cannot get summary right now due to server error');
+        }).finally(function() {
+            loadingModalService.close();
         });
     }
 
