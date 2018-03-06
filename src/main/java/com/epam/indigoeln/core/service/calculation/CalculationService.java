@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2015-2018 EPAM Systems
- *  
+ *
  *  This file is part of Indigo ELN.
  *
  *  Indigo ELN is free software: you can redistribute it and/or modify
@@ -26,6 +26,7 @@ import com.epam.indigoeln.core.service.codetable.CodeTableService;
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
 import com.google.common.collect.ImmutableMap;
 import lombok.val;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -184,7 +185,7 @@ public class CalculationService {
         Map<String, String> saltMetadata = getSaltMetadata(saltCodeOpt).orElse(SALT_METADATA_DEFAULT);
         float saltEq = saltEqOpt.orElse(1.0f);
         float molecularWeightOriginal = handle.molecularWeight();
-        float saltWeight = Optional.ofNullable(saltMetadata.get(SALT_WEIGHT)).map(Float::valueOf).orElse(0.0f);
+        float saltWeight = StringUtils.isEmpty(saltMetadata.get(SALT_WEIGHT)) ? 0.0f : Float.valueOf(saltMetadata.get(SALT_WEIGHT));
         float molecularWeightCalculated = molecularWeightOriginal + saltEq * saltWeight;
 
         String image = getStructureWithImage(molecule).getImageBase64();
