@@ -65,7 +65,7 @@ function getDefaultProductViewRow() {
         exactMass: null,
         theoWeight: {value: 0, unit: 'mg'},
         theoMoles: {value: 0, unit: 'mmol'},
-        saltCode: {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0},
+        saltCode: {name: '00 - Parent Structure', value: '00', regValue: '00', weight: 0},
         saltEq: {value: 0},
         hazardComments: null,
         eq: {value: 1, prevValue: 1, entered: false}

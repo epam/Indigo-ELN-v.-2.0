@@ -92,7 +92,7 @@ function onSaltCodeChanged() {
             expect(firstRow.weight.value).toBe(225);
             expect(firstRow.mol.value).toBe(15);
 
-            firstRow.saltCode = {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0};
+            firstRow.saltCode = {name: '00 - Parent Structure', value: '00', regValue: '00', weight: 0};
 
             reagentsData.rows = rows;
             reagentsData.idOfChangedRow = firstRow.id;
