@@ -2,7 +2,7 @@
   {
     "name": "USER_EDITOR",
     "description": "User editor",
-    "tooltip": "Allow to read / create / update / remove users",
+    "tooltip": "Allow to read / create / update users",
     "group": "other"
   },
   {
@@ -14,7 +14,7 @@
   {
     "name": "CONTENT_EDITOR",
     "description": "Content editor",
-    "tooltip": "Allow to read / create / update / remove entity (Project, Notebook or Experiment) in spite of absence in ACL for this entity or some restrictions by ACL for this entity",
+    "tooltip": "Allow to read / create / update entity (Project, Notebook or Experiment) in spite of absence in ACL for this entity or some restrictions by ACL for this entity",
     "group": "other"
   },
   {
