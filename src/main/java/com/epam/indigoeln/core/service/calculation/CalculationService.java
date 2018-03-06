@@ -185,7 +185,7 @@ public class CalculationService {
         Map<String, String> saltMetadata = getSaltMetadata(saltCodeOpt).orElse(SALT_METADATA_DEFAULT);
         float saltEq = saltEqOpt.orElse(1.0f);
         float molecularWeightOriginal = handle.molecularWeight();
-        float saltWeight = StringUtils.isEmpty(saltMetadata.get(SALT_WEIGHT)) ? 0.0f : Float.valueOf(saltMetadata.get(SALT_WEIGHT));
+        float saltWeight = StringUtils.isBlank(saltMetadata.get(SALT_WEIGHT)) ? 0.0f : Float.valueOf(saltMetadata.get(SALT_WEIGHT));
         float molecularWeightCalculated = molecularWeightOriginal + saltEq * saltWeight;
 
         String image = getStructureWithImage(molecule).getImageBase64();
@@ -203,6 +203,12 @@ public class CalculationService {
         result.put("saltFormula", saltMetadata.get(SALT_FORMULA));
         result.put("saltWeight", String.valueOf(saltWeight));
         result.put("saltEQ", String.valueOf(saltEq));
+
+        String molecularFormulaFull = handle.grossFormula();
+        if (saltCodeOpt.isPresent() && saltEqOpt.isPresent()) {
+            molecularFormulaFull += ("*" + ((saltEq == (long) saltEq) ? String.valueOf((long) saltEq) : String.valueOf(saltEq)) + "(" + StringUtils.trim(saltMetadata.get(SALT_DESC)) + ")");
+        }
+        result.put("molecularFormulaFull", molecularFormulaFull);
 
         return result;
     }
