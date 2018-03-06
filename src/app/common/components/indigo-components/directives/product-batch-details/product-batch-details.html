@@ -48,7 +48,7 @@
                                        is-readonly="vm.isReadonly">
                         </add-new-batch>
                         <duplicate-batches is-readonly="vm.isReadonly || !vm.selectedBatch"
-                                           batches="vm.batches">
+                                           batches="vm.batches" is-details="true">
                         </duplicate-batches>
                         <delete-batches is-readonly="vm.isEditDisabled"
                                         delete-batch="vm.selectedBatch"

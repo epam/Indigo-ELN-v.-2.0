@@ -57,7 +57,7 @@
                                         on-remove-batches="vm.onRemoveBatches({batches: vm.batches})">
                         </delete-batches>
                         <duplicate-batches is-readonly="vm.isEditDisabled"
-                                           batches="vm.batches">
+                                           batches="vm.batches" is-details="true">
                         </duplicate-batches>
                         <indigo-inline-loader promise="vm.batchOperation"></indigo-inline-loader>
                     </div>
