@@ -152,7 +152,7 @@ function getDefaultReagentViewRow() {
         molarity: new ReagentViewField(0, 'M'),
         stoicPurity: {value: 100, prevValue: 100, entered: false, readonly: false},
         formula: {value: null, baseValue: null},
-        saltCode: {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0, readonly: false},
+        saltCode: {name: '00 - Parent Structure', value: '00', regValue: '00', weight: 0, readonly: false},
         saltEq: {value: 0, entered: false},
         loadFactor: new ReagentViewField(1, 'mmol/g'),
         hazardComments: null,

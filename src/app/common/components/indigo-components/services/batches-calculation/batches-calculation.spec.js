@@ -136,7 +136,7 @@ describe('service: batchesCalculation', function() {
                 expect(firstRow.theoMoles.value).toBe(4);
                 expect(firstRow.theoWeight.value).toBe(60);
 
-                firstRow.saltCode = {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0};
+                firstRow.saltCode = {name: '00 - Parent Structure', value: '00', regValue: '00', weight: 0};
 
                 batchesData.changedRow = firstRow;
                 firstRow = service.calculateRow(batchesData);

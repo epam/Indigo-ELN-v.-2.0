@@ -84,7 +84,7 @@ function getDefaultBatchViewRow() {
         formula: {value: null, baseValue: null},
         stereoisomer: null,
         structureComments: null,
-        saltCode: {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0, readonly: false},
+        saltCode: {name: '00 - Parent Structure', value: '00', regValue: '00', weight: 0, readonly: false},
         saltEq: {value: 0},
         structure: null,
         precursors: null,
