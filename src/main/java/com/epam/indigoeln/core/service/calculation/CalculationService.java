@@ -205,7 +205,7 @@ public class CalculationService {
         result.put("saltEQ", String.valueOf(saltEq));
 
         String molecularFormulaFull = handle.grossFormula();
-        if (saltCodeOpt.isPresent() && saltEqOpt.isPresent()) {
+        if (saltCodeOpt.isPresent() && saltEqOpt.isPresent() && !StringUtils.equals(saltMetadata.get(SALT_DESC), SALT_METADATA_DEFAULT.get(SALT_DESC))) {
             molecularFormulaFull += ("*" + ((saltEq == (long) saltEq) ? String.valueOf((long) saltEq) : String.valueOf(saltEq)) + "(" + StringUtils.trim(saltMetadata.get(SALT_DESC)) + ")");
         }
         result.put("molecularFormulaFull", molecularFormulaFull);
