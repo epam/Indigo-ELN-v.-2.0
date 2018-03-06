@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2015-2018 EPAM Systems
- *  
+ *
  *  This file is part of Indigo ELN.
  *
  *  Indigo ELN is free software: you can redistribute it and/or modify
@@ -228,7 +228,7 @@ public class CrsRegistrationRepository implements RegistrationRepository {
         structure.setMolfile(info.getData());
         structure.setImage(calculationService.getStructureWithImage(info.getData()).getImage());
         compoundInfo.setChemicalName(map.get("name"));
-        compoundInfo.setFormula(map.get("molecularFormula"));
+        compoundInfo.setFormula(map.get("molecularFormulaFull"));
         MolecularWeight molecularWeight = new MolecularWeight();
         molecularWeight.setValue(map.get("molecularWeight"));
         compoundInfo.setMolWeight(molecularWeight);
