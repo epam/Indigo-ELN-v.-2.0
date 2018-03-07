@@ -88,10 +88,17 @@
 
                         <simple-input ng-if="!vm.user.id"
                                       validation-pattern-text="{{ ::vm.passwordValidationText }}">
-                            <span i-translate="PASSWORD"></span>
+                            <div>
+                                <span i-translate="PASSWORD"></span>
+                                <a class="btn btn-s btn-link pull-right" ng-click="vm.changePasswordVisibility()">
+                                    <i ng-class="vm.passwordIsVisible ? 'glyphicon glyphicon-eye-open' :
+                                        'glyphicon glyphicon-eye-close'">
+                                    </i>
+                                </a>
+                            </div>
                             <input class="form-control"
                                    name="password"
-                                   type="password"
+                                   type="{{ vm.passwordIsVisible ? 'text' : 'password' }}"
                                    autocomplete="new-password"
                                    maxlength="50"
                                    ng-model="vm.user.password"
