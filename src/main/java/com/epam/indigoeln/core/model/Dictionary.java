@@ -23,6 +23,7 @@ import lombok.ToString;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Persistable;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -51,7 +52,8 @@ public class Dictionary implements Serializable, Persistable<String> {
     @Field("description")
     private String description;
 
-    @Field("author")
+    @DBRef
+    @Field("user")
     private User author;
 
     @Field("words")
