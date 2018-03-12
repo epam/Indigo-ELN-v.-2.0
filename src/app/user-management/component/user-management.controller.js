@@ -57,7 +57,9 @@ function UserManagementController($scope, $uibModal, userService, parseLinks, pa
     vm.changePassword = changePassword;
     vm.sortUsers = sortUsers;
     vm.userExistValidation = userExistValidation;
-    vm.changePasswordVisibility = changePasswordVisibility;
+    vm.changePasswordVisibility = function() {
+        vm.passwordIsVisible = !vm.passwordIsVisible;
+    };
 
     vm.loadAll();
 
@@ -192,6 +194,10 @@ function UserManagementController($scope, $uibModal, userService, parseLinks, pa
             controllerAs: 'vm',
             controller: function($uibModalInstance, passwordValidationRegex, passwordValidationText) {
                 var vm = this;
+                vm.passwordIsVisible = false;
+                vm.changePasswordVisibility = function() {
+                    vm.passwordIsVisible = !vm.passwordIsVisible;
+                };
 
                 vm.passwordRegex = passwordValidationRegex;
                 vm.passwordValidationText = passwordValidationText;
@@ -229,10 +235,6 @@ function UserManagementController($scope, $uibModal, userService, parseLinks, pa
                     vm.isSaving = false;
                 });
         });
-    }
-
-    function changePasswordVisibility() {
-        vm.passwordIsVisible = !vm.passwordIsVisible;
     }
 
     function sortUsers(predicate, isAscending) {

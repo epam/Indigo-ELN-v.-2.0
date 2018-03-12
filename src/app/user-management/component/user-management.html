@@ -88,22 +88,21 @@
 
                         <simple-input ng-if="!vm.user.id"
                                       validation-pattern-text="{{ ::vm.passwordValidationText }}">
-                            <div>
-                                <span i-translate="PASSWORD"></span>
-                                <a class="btn btn-s btn-link pull-right" ng-click="vm.changePasswordVisibility()">
-                                    <i ng-class="vm.passwordIsVisible ? 'glyphicon glyphicon-eye-open' :
-                                        'glyphicon glyphicon-eye-close'">
+                            <span i-translate="PASSWORD"></span>
+                            <div class="password-block">
+                                <input class="form-control"
+                                       name="password"
+                                       type="{{ vm.passwordIsVisible ? 'text' : 'password' }}"
+                                       autocomplete="new-password"
+                                       maxlength="50"
+                                       ng-model="vm.user.password"
+                                       required
+                                       ng-pattern="vm.passwordRegex">
+                                    <i ng-click="vm.changePasswordVisibility()"
+                                       ng-class="vm.passwordIsVisible ? 'glyphicon glyphicon-eye-open pull-right eye-icon'
+                                                                      : 'glyphicon glyphicon-eye-close pull-right eye-icon'">
                                     </i>
-                                </a>
                             </div>
-                            <input class="form-control"
-                                   name="password"
-                                   type="{{ vm.passwordIsVisible ? 'text' : 'password' }}"
-                                   autocomplete="new-password"
-                                   maxlength="50"
-                                   ng-model="vm.user.password"
-                                   required
-                                   ng-pattern="vm.passwordRegex">
                         </simple-input>
                         <autocomplete label="Groups"
                                       items="vm.groups"
