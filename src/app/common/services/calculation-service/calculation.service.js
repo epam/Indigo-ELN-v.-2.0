@@ -218,12 +218,10 @@ function calculationService($rootScope, $http, $q, appValuesService, apiUrl, $lo
     }
 
     function resetValuesToDefault(values, batch) {
-        /* eslint no-shadow: "off"*/
-        // TODO Can we use global defaultBatch?
-        var defaultBatch = appValuesService.getDefaultBatch();
+        var defBatch = appValuesService.getDefaultBatch();
 
         _.each(values, function(value) {
-            batch[value] = angular.copy(defaultBatch[value]);
+            batch[value] = angular.copy(defBatch[value]);
         });
     }
 

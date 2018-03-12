@@ -23,6 +23,7 @@ var calculationService = require('./calculation-service/calculation.service');
 var configService = require('./config-service/config.service');
 var ConfirmationModalController = require('./confirmation-modal/confirmation-modal.controller');
 var confirmationModal = require('./confirmation-modal/confirmation-modal.service');
+var loadingModalService = require('./loading-modal/loading-modal.service');
 var notifyService = require('./notify-service/notify.service');
 var scrollToService = require('./scroll-to/scroll-to.service');
 var simpleLocalCache = require('./simple-local-cache/simple-local-cache.service');
@@ -44,6 +45,7 @@ module.exports = angular
 
     .controller('ConfirmationModalController', ConfirmationModalController)
 
+    .factory('loadingModalService', loadingModalService)
     .factory('appValuesService', appValuesService)
     .factory('calculationService', calculationService)
     .factory('configService', configService)

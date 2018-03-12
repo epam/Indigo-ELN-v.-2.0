@@ -19,7 +19,7 @@
                 </form>
             </div>
             <div class="panel-footer text-right">
-                <button type="submit" class="btn btn-info btn-can-loading" ng-class="{'btn-loading' : vm.loading}" form="login-form">Sign in</button>
+                <button type="submit" class="btn btn-info btn-can-loading" ng-class="{'btn-loading' : vm.loading}" form="login-form" ng-click="vm.login($event)">Sign in</button>
             </div>
         </div>
         <div class="alert alert-danger" ng-if="vm.authenticationError"

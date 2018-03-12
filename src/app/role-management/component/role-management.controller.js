@@ -29,7 +29,6 @@ function RoleManagementController(roleService, accountRoleService, i18en,
 
     function init() {
         vm.accountRoles = accountRoles;
-        // TODO: remove
         vm.authorities = authorities;
 
         vm.page = 1;

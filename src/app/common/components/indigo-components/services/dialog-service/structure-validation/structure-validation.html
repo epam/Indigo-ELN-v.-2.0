@@ -22,7 +22,7 @@
                 <td ng-bind="item.compoundId"></td>
                 <td ng-bind="item.fullNbkBatch"></td>
                 <td ng-bind="item.molWeight.value | round"></td>
-                <td ng-bind="item.formula"></td>
+                <td ng-bind="item.formula.value"></td>
             </tr>
             </tbody>
         </table>
@@ -71,7 +71,7 @@
                 <div class="col-xs-6">
                     <p i-translate="MOLECULAR_FORMULA_BATCH_MOL_WT_CALCD" i-end=":"></p></div>
                 <div class="col-xs-6">
-                    <p ng-bind="vm.selectedBatch.formula"></p>
+                    <p ng-bind="vm.selectedBatch.formula.value"></p>
                 </div>
             </div>
             <div class="row">

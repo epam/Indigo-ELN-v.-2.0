@@ -10,16 +10,18 @@
                            ng-disabled="vm.isReadonly"
                            ng-attr-title="vm.componentData.title">
                 </simple-input>
-                <autocomplete label="Therapeutic Area"
-                               dictionary="Therapeutic Area"
-                               model="vm.componentData.therapeuticArea"
-                               readonly="vm.isReadonly">
-                </autocomplete>
-                <autocomplete label="Project Code & Name"
-                               dictionary="Project Code & Name"
-                               model="vm.componentData.codeAndName"
-                               readonly="vm.isReadonly">
-                </autocomplete>
+                <indigo-select indigo-label="Therapeutic Area"
+                               indigo-dictionary="Therapeutic Area"
+                              indigo-label-vertical="true"
+                               indigo-model="vm.componentData.therapeuticArea"
+                               indigo-readonly="vm.isReadonly">
+                </indigo-select>
+                <indigo-select indigo-label="Project Code & Name"
+                               indigo-dictionary="Project Code & Name"
+                              indigo-label-vertical="true"
+                               indigo-model="vm.componentData.codeAndName"
+                               indigo-readonly="vm.isReadonly">
+                </indigo-select>
                 <simple-input>
                     <span i-translate="BATCH_CREATOR"></span>
                     <input class="form-control"

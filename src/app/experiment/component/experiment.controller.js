@@ -19,12 +19,11 @@
  */
 
 /* @ngInject */
-function ExperimentController($scope, dashboardService, configService, $filter, $timeout, experimentService) {
+function ExperimentController($scope, dashboardService, configService, $filter, loadingModalService) {
     var vm = this;
     var openExperiments;
     var waitingExperiments;
     var submittedExperiments;
-    var etimeout;
 
     vm.experiments = [];
     vm.dView = 'open';
@@ -41,23 +40,36 @@ function ExperimentController($scope, dashboardService, configService, $filter, 
     vm.doPage = doPage;
     vm.refresh = refresh;
     vm.getIdleWorkdays = getIdleWorkdays;
-    vm.experimentEnter = experimentEnter;
     vm.clear = clear;
 
     vm.loadAll();
 
     function loadAll() {
+        loadingModalService.openLoadingModal();
         vm.loading = dashboardService.get({}, function(result) {
             openExperiments = result.openAndCompletedExp.filter(function(e) {
                 return e.status === 'Open';
             });
             waitingExperiments = result.waitingSignatureExp;
             submittedExperiments = result.submittedAndSigningExp;
+
+            _.forEach(waitingExperiments, function(exp) {
+                exp.idleWorkdays = getIdleWorkdays(exp.creationDate);
+            });
+            _.forEach(openExperiments, function(exp) {
+                exp.idleWorkdays = getIdleWorkdays(exp.creationDate);
+            });
+            _.forEach(submittedExperiments, function(exp) {
+                exp.idleWorkdays = getIdleWorkdays(exp.creationDate);
+            });
             vm.openExperimentsLength = openExperiments.length;
             vm.waitingExperimentsLength = waitingExperiments.length;
             vm.submittedExperimentsLength = submittedExperiments.length;
             vm.onViewChange();
-        }).$promise;
+        }).$promise.finally(
+            function() {
+                loadingModalService.close();
+            });
     }
 
     function onViewChange() {
@@ -100,28 +112,6 @@ function ExperimentController($scope, dashboardService, configService, $filter, 
 
     function getIdleWorkdays(creationDate) {
         return Math.round((new Date() - Date.parse(creationDate)) / (1000 * 60 * 60 * 24));
-    }
-
-    function experimentEnter(experiment) {
-        if (etimeout) {
-            $timeout.cancel(etimeout);
-        }
-
-        if (experiment.components) {
-            return;
-        }
-
-        etimeout = $timeout(function() {
-            experimentService.get({
-                experimentId: experiment.experimentId,
-                notebookId: experiment.notebookId,
-                projectId: experiment.projectId
-            }).$promise.then(function(data) {
-                if (data.components.reaction) {
-                    experiment.reactionImage = data.components.reaction.image;
-                }
-            });
-        }, 500);
     }
 
     function clear() {

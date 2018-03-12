@@ -18,19 +18,37 @@
  *
  */
 
-/* @ngInject */
-function commonConfig(uibPagerConfig, uibPaginationConfig) {
-    uibPagerConfig.itemsPerPage = 20;
-    uibPagerConfig.previousText = '«';
-    uibPagerConfig.nextText = '»';
+var template = require('./loading-modal.html');
 
-    uibPaginationConfig.itemsPerPage = 20;
-    uibPaginationConfig.maxSize = 5;
-    uibPaginationConfig.boundaryLinks = true;
-    uibPaginationConfig.firstText = '«';
-    uibPaginationConfig.previousText = '‹';
-    uibPaginationConfig.nextText = '›';
-    uibPaginationConfig.lastText = '»';
+/* @ngInject */
+
+function loadingModalService($uibModal) {
+    var loader;
+
+    return {
+        openLoadingModal: openLoadingModal,
+        close: close
+    };
+
+    function openLoadingModal() {
+        close();
+        loader = $uibModal.open({
+            bindToController: true,
+            controllerAs: 'vm',
+            backdrop: 'static',
+            template: template,
+            size: 'sm'
+        });
+
+        return loader;
+    }
+
+    function close() {
+        if (loader) {
+            loader.dismiss();
+            loader = null;
+        }
+    }
 }
 
-module.exports = commonConfig;
+module.exports = loadingModalService;

@@ -173,10 +173,10 @@
                                         Compound State:</label>
                                 </div>
                                 <div class="col-xs-6" ng-class="{'info-col':!vm.isEditMode}">
-                                    <autocomplete ng-if="vm.isEditMode"
-                                                   dictionary="Compound State"
-                                                   model="item.compoundState">
-                                    </autocomplete>
+                                    <indigo-select ng-if="vm.isEditMode"
+                                                   indigo-dictionary="Compound State"
+                                                   indigo-model="item.compoundState">
+                                    </indigo-select>
                                     <p ng-if="!vm.isEditMode" ng-bind="item.compoundState.name"></p>
                                 </div>
                             </div>

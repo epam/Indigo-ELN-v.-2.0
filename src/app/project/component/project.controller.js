@@ -23,7 +23,7 @@ var roles = require('../../permissions/permission-roles.json');
 function ProjectController($scope, $state, projectService, notifyService, permissionService, fileUploader,
                            pageInfo, entitiesBrowserService, $timeout, $stateParams, tabKeyService,
                            autorecoveryHelper, autorecoveryCache, entitiesCache,
-                           confirmationModal, $q, entityHelper, apiUrl) {
+                           confirmationModal, $q, entityHelper, apiUrl, loadingModalService) {
     var vm = this;
     var identity = pageInfo.identity;
     var isContentEditor = pageInfo.isContentEditor;
@@ -124,7 +124,7 @@ function ProjectController($scope, $state, projectService, notifyService, permis
         if (!vm.isEntityChanged) {
             return $q.resolve();
         }
-
+        loadingModalService.openLoadingModal();
         if (vm.project.id) {
             vm.loading = projectService.update($stateParams, vm.project).$promise
                 .then(function(result) {
@@ -135,9 +135,15 @@ function ProjectController($scope, $state, projectService, notifyService, permis
                     onUpdateSuccess({
                         id: vm.project.id
                     });
-                }, onSaveError);
+                }, onSaveError).finally(function() {
+                    loadingModalService.close();
+                });
         } else {
-            vm.loading = projectService.save(vm.project, onSaveSuccess, onSaveError).$promise;
+            vm.loading = projectService.save(vm.project, onSaveSuccess, onSaveError)
+                .$promise.finally(
+                    function() {
+                        loadingModalService.close();
+                    });
         }
 
         return vm.loading;

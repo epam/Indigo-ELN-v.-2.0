@@ -40,21 +40,33 @@ function BatchViewRow(props) {
 BatchViewRow.prototype = Object.create(BaseBatchRow.prototype);
 BatchViewRow.constructor = BatchViewRow;
 
+function setFormula(obj, value) {
+    obj.value = _.isObject(value) ? value.value : value;
+    obj.baseValue = calculationHelper.getBaseFormula(obj.value);
+}
+
 function setRowProperties(defaultProps, customProps) {
     // Assign known custom properties to default object
     _.forEach(customProps, function(value, key) {
         if (fieldTypes.isId(key)) {
             defaultProps[key] = value;
-        } else if (fieldTypes.isMolWeight(key)) {
+
+            return;
+        }
+        if (fieldTypes.isMolWeight(key)) {
             defaultProps[key].value = value.value;
             defaultProps[key].baseValue = value.value;
             defaultProps[key].entered = value.entered;
-        } else if (fieldTypes.isFormula(key)) {
-            defaultProps[key].value = _.isObject(value) ? value.value : value;
-            defaultProps[key].baseValue = _.isObject(value) ? value.baseValue : value;
-        } else {
-            defaultProps[key] = value;
+
+            return;
         }
+        if (fieldTypes.isFormula(key)) {
+            setFormula(defaultProps[key], value);
+
+            return;
+        }
+
+        defaultProps[key] = value;
     });
 }
 
@@ -72,7 +84,7 @@ function getDefaultBatchViewRow() {
         formula: {value: null, baseValue: null},
         stereoisomer: null,
         structureComments: null,
-        saltCode: {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0, readonly: false},
+        saltCode: {name: '00 - Parent Structure', value: '00', regValue: '00', weight: 0, readonly: false},
         saltEq: {value: 0},
         structure: null,
         precursors: null,

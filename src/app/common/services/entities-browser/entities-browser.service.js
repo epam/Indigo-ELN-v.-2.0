@@ -128,25 +128,26 @@ function entitiesBrowserService($q, $state, notifyService, dialogService,
 
     function saveEntity(tab) {
         var entity = entitiesCache.get(tab.params);
-        if (entity) {
-            var service = getService(tab.kind);
-
-            if (service) {
-                if (tab.params.isNewEntity) {
-                    if (tab.params.parentId) {
-                        // notebook
-                        return service.save({projectId: tab.params.parentId}, entity).$promise;
-                    }
-
-                    // project
-                    return service.save(entity).$promise;
-                }
-
-                return service.update(tab.params, entity).$promise;
-            }
+        if (!entity) {
+            return $q.resolve();
         }
 
-        return $q.resolve();
+        var service = getService(tab.kind);
+        if (!service) {
+            return $q.resolve();
+        }
+
+        if (tab.params.isNewEntity) {
+            if (tab.params.parentId) {
+                // notebook
+                return service.save({projectId: tab.params.parentId}, entity).$promise;
+            }
+
+            // project
+            return service.save(entity).$promise;
+        }
+
+        return service.update(tab.params, entity).$promise;
     }
 
     function close(tabKey) {

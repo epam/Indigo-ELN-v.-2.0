@@ -29,7 +29,7 @@ var appUnits = {
     rxnRoleSolvent: {name: 'SOLVENT'},
     compoundProtectionValues: [{name: 'NONE - None'}, {name: 'ST1 - Standard 1'}, {name: 'ST2 - Standard 2'}],
     loadFactorUnits: ['mmol/g'],
-    defaultSaltCode: {name: '00 - Parent Structure', value: '0', regValue: '00', weight: 0},
+    defaultSaltCode: {name: '00 - Parent Structure', value: '00', regValue: '00', weight: 0},
 
     defaultBatch: {
         limiting: false,
@@ -47,7 +47,7 @@ var appUnits = {
         totalWeight: {value: 0, unit: 'mg', entered: false},
         totalMoles: {value: 0, unit: 'mmol', entered: false},
         rxnRole: {name: 'REACTANT', entered: false},
-        saltCode: {name: '00 - Parent Structure', value: '0', regValue: '00', entered: false},
+        saltCode: {name: '00 - Parent Structure', value: '00', regValue: '00', entered: false},
         molWeight: {value: 0, entered: false},
         structure: {
             image: null,

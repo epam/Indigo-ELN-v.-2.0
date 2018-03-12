@@ -21,12 +21,26 @@
 var mathCalculation = require('./math-calculation');
 var DEFAULT_PURITY = 100;
 
+function getBaseFormula(formula) {
+    if (!formula) {
+        return formula;
+    }
+    var extendedFormulaIndex = formula.indexOf('*');
+    if (extendedFormulaIndex !== -1) {
+        return formula.substring(0, extendedFormulaIndex).trim();
+    }
+
+    return formula;
+}
+
 /* @ngInject */
 function calculationHelper($http, $log, $q) {
     return {
+        getId: getId,
         clone: clone,
         findChangedRow: findChangedRow,
         getFormula: getFormula,
+        getBaseFormula: getBaseFormula,
         findLimitingRow: findLimitingRow,
         updateViewRows: updateViewRows,
         updateViewRow: updateViewRow,
@@ -134,6 +148,7 @@ function calculationHelper($http, $log, $q) {
 }
 
 calculationHelper.getId = getId;
+calculationHelper.getBaseFormula = getBaseFormula;
 
 function getId() {
     return Math.floor((1 + Math.random()) * 0x1000000)

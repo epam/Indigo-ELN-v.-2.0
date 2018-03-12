@@ -82,11 +82,6 @@ function IndigoSearchResultTableController(userReagentsService, appValuesService
     }
 
     function selectSingleItem(reactant) {
-        // _.forEach(vm.indigoTableContent, function(item) {
-        //     if (reactant !== item) {
-        //         item.$$isSelected = false;
-        //     }
-        // });
         vm.selectedReactant = reactant;
 
         vm.onSelected({item: reactant || null});
