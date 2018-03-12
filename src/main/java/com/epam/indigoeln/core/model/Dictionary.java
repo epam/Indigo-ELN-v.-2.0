@@ -51,6 +51,9 @@ public class Dictionary implements Serializable, Persistable<String> {
     @Field("description")
     private String description;
 
+    @Field("author")
+    private User author;
+
     @Field("words")
     private transient Set<Word> words = new HashSet<>();
 
@@ -82,6 +85,13 @@ public class Dictionary implements Serializable, Persistable<String> {
         this.description = description;
     }
 
+    public User getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(User author) {
+        this.author = author;
+    }
 
     public Set<Word> getWords() {
         return words;

@@ -32,6 +32,7 @@ public class DictionaryDTO {
     private Set<Word> words;
     private String name;
     private String description;
+    private UserDTO author;
 
     private Set<UserPermissionDTO> accessList = new HashSet<>();
 
@@ -44,6 +45,7 @@ public class DictionaryDTO {
         this.words = dictionary.getWords();
         this.name = dictionary.getName();
         this.description = dictionary.getDescription();
+        this.author = new UserDTO(dictionary.getAuthor());
         if (dictionary.getAccessList() != null) {
             this.accessList.addAll(dictionary.getAccessList()
                     .stream()
@@ -90,5 +92,13 @@ public class DictionaryDTO {
 
     public void setAccessList(Set<UserPermissionDTO> accessList) {
         this.accessList = accessList;
+    }
+
+    public UserDTO getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(UserDTO author) {
+        this.author = author;
     }
 }
