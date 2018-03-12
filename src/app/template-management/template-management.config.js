@@ -39,7 +39,8 @@ function templateManagementConfig($stateProvider) {
                     name: 'Templates',
                     kind: 'management',
                     state: 'entities.template',
-                    type: 'entity'
+                    type: 'entity',
+                    isSingle: true
                 }
             },
             views: {
