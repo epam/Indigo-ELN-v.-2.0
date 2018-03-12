@@ -23,6 +23,7 @@ import lombok.ToString;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Persistable;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -50,6 +51,10 @@ public class Dictionary implements Serializable, Persistable<String> {
 
     @Field("description")
     private String description;
+
+    @DBRef
+    @Field("user")
+    private User author;
 
     @Field("words")
     private transient Set<Word> words = new HashSet<>();
@@ -82,6 +87,13 @@ public class Dictionary implements Serializable, Persistable<String> {
         this.description = description;
     }
 
+    public User getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(User author) {
+        this.author = author;
+    }
 
     public Set<Word> getWords() {
         return words;
