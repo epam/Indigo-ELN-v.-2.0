@@ -57,7 +57,7 @@
                     <div class="list-group list-group-drug tab" ng-repeat="tab in vm.template.templateContent" >
                         <span class="list-group-item"  indigo-focus-on-create>
                             <span class="icon icon-delete pull-right" ng-click="vm.removeTab(tab)"></span>
-                            <span editable-text="tab.name" e-form="tabName" ng-click="tabName.$show()" class="semi-b"
+                            <span editable-text="tab.name" e-form="tabName" onbeforesave="vm.checkName($data)" ng-click="tabName.$show()" class="semi-b"
                                   ng-bind="tab.name">
                                 <span class="icon icon-edit m-l5"></span>
                             </span>
