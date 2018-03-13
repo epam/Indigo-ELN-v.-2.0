@@ -95,8 +95,9 @@ public class DictionaryService {
      * @param dictionaryDTO Dictionary to create
      * @return Created dictionary
      */
-    public DictionaryDTO createDictionary(DictionaryDTO dictionaryDTO) {
+    public DictionaryDTO createDictionary(DictionaryDTO dictionaryDTO, User user) {
         Dictionary dictionary = dtoMapper.convertFromDTO(dictionaryDTO);
+        dictionary.setAuthor(user);
         Dictionary savedDictionary = dictionaryRepository.save(dictionary);
         return new DictionaryDTO(savedDictionary);
     }

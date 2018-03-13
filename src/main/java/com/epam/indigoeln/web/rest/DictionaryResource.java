@@ -205,7 +205,8 @@ public class DictionaryResource {
             @ApiParam("Dictionary to create.") @RequestBody @Valid DictionaryDTO dictionaryDTO
     ) {
         LOGGER.debug("REST request to create new dictionary: {}", dictionaryDTO);
-        DictionaryDTO result = dictionaryService.createDictionary(dictionaryDTO);
+        User user = userService.getUserWithAuthorities();
+        DictionaryDTO result = dictionaryService.createDictionary(dictionaryDTO, user);
         HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, dictionaryDTO.getName());
         return ResponseEntity.ok().headers(headers).body(result);
     }
