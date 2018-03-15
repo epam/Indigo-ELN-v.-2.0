@@ -18,6 +18,7 @@
  */
 package com.epam.indigoeln.config.dbchangelogs;
 
+import com.epam.indigoeln.core.model.User;
 import com.github.mongobee.changeset.ChangeLog;
 import com.github.mongobee.changeset.ChangeSet;
 import com.mongodb.*;
@@ -180,7 +181,8 @@ public final class ChangeLogVersion10 {
                 createDictionaryWord("Source Details3", null, true, 2)
         );
 
-        createDictionary(SOURCE_DETAIL_ID, "Source Details", "Source Details", sourceDetailsList, db);
+        createDictionary(SOURCE_DETAIL_ID,
+                "Source Details", "Source Details", sourceDetailsList, db);
 
         final List<DBObject> stereoisomerCodeList = Arrays.asList(
                 createDictionaryWord("NOSTC", "Achiral - No Stereo Centers",
@@ -228,7 +230,8 @@ public final class ChangeLogVersion10 {
                 createDictionaryWord("liquid", null, true, 3)
         );
 
-        createDictionary(COMPOUND_STATE_ID, "Compound State", "Compound State", compoundStateList, db);
+        createDictionary(COMPOUND_STATE_ID,
+                "Compound State", "Compound State", compoundStateList, db);
 
         final List<DBObject> compoundProtectionList = Arrays.asList(
                 createDictionaryWord("Compound Protection1", null, true, 0),
@@ -268,7 +271,8 @@ public final class ChangeLogVersion10 {
                 createDictionaryWord("Flammable", null, true, 5)
         );
 
-        createDictionary(HEALTH_HAZARDS_ID, "Health Hazards", "Health Hazards", healthHazardsList, db);
+        createDictionary(HEALTH_HAZARDS_ID, "Health Hazards", "Health Hazards",
+                healthHazardsList, db);
 
         final List<DBObject> handlingPrecautionsList = Arrays.asList(
                 createDictionaryWord("Electrostatic", null, true, 0),
@@ -305,6 +309,7 @@ public final class ChangeLogVersion10 {
                     .add("description", description)
                     .add("words", words)
                     .add("accessList", Collections.emptyList())
+                    .add("author", new DBRef(User.COLLECTION_NAME, objectId(ADMIN)))
                     .get());
         } else {
             LOGGER.warn(String.format(message, ID_KEY, id));

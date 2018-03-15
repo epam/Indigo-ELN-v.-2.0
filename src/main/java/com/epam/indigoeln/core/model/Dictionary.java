@@ -53,7 +53,7 @@ public class Dictionary implements Serializable, Persistable<String> {
     private String description;
 
     @DBRef
-    @Field("user")
+    @Field("author")
     private User author;
 
     @Field("words")
