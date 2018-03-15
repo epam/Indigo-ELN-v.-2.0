@@ -309,7 +309,7 @@ public final class ChangeLogVersion10 {
                     .add("description", description)
                     .add("words", words)
                     .add("accessList", Collections.emptyList())
-                    .add("author", new DBRef(User.COLLECTION_NAME, objectId(ADMIN)))
+                    .add("author", new DBRef(User.COLLECTION_NAME, ADMIN))
                     .get());
         } else {
             LOGGER.warn(String.format(message, ID_KEY, id));
