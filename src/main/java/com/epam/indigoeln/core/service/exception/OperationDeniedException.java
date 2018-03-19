@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2015-2018 EPAM Systems
- *  
+ *
  *  This file is part of Indigo ELN.
  *
  *  Indigo ELN is free software: you can redistribute it and/or modify
@@ -148,11 +148,11 @@ public final class OperationDeniedException extends CustomParametrizedException 
      * Creates instance of OperationDeniedException with entity's id and message
      * if user tried to reopen experiment.
      *
-     * @param entityId Entity's identifier
      * @param message  Message
+     * @param entityId Entity's identifier
      * @return Instance of OperationDeniedException with entity's id and message
      */
-    public static OperationDeniedException createExperimentReopenOperation(String entityId, String message) {
+    public static OperationDeniedException createExperimentReopenOperation(String message, String entityId) {
         return new OperationDeniedException(message, entityId);
     }
 
