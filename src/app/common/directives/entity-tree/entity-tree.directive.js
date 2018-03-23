@@ -202,7 +202,14 @@ function EntityTreeController(entityTreeService, $timeout, $scope, scrollToServi
 
     function toggle(node) {
         node.isCollapsed = !node.isCollapsed;
-        vm.onSelectNode({node: node});
+        if (!node.isCollapsed) {
+            var path = _.split(node.fullId, '-');
+            if (path.length === 2) {
+                entityTreeService.getExperiments(path[0], path[1], vm.isAll);
+                return;
+            }
+            entityTreeService.getNotebooks(path[0], vm.isAll);
+        }
 
         return true;
     }
