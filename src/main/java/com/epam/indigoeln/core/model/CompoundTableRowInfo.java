@@ -1,6 +1,6 @@
 package com.epam.indigoeln.core.model;
 
-import com.epam.indigoeln.core.service.search.impl.pubchem.dto.Structure;
+import com.epam.indigoeln.core.chemistry.domain.Structure;
 
 public class CompoundTableRowInfo {
 

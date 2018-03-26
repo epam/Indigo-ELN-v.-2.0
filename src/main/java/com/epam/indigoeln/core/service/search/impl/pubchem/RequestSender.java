@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2015-2018 EPAM Systems
- *  
+ *
  *  This file is part of Indigo ELN.
  *
  *  Indigo ELN is free software: you can redistribute it and/or modify
@@ -19,11 +19,11 @@
 package com.epam.indigoeln.core.service.search.impl.pubchem;
 
 import com.epam.indigoeln.IndigoRuntimeException;
+import com.epam.indigoeln.core.chemistry.domain.Structure;
 import com.epam.indigoeln.core.chemistry.sdf.SdUnit;
 import com.epam.indigoeln.core.service.calculation.CalculationService;
 import com.epam.indigoeln.core.service.sd.SDService;
 import com.epam.indigoeln.core.service.search.impl.pubchem.dto.CidsDTO;
-import com.epam.indigoeln.core.service.search.impl.pubchem.dto.Structure;
 import com.epam.indigoeln.core.service.search.impl.pubchem.dto.WaitingDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.common.ScalarValueDTO;
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;

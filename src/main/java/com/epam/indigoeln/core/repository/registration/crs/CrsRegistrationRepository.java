@@ -25,6 +25,7 @@ import com.epam.indigo.crs.exceptions.CRSException;
 import com.epam.indigo.crs.services.registration.BingoRegistration;
 import com.epam.indigo.crs.services.search.BingoSearch;
 import com.epam.indigoeln.config.crs.CrsProperties;
+import com.epam.indigoeln.core.chemistry.domain.Structure;
 import com.epam.indigoeln.core.model.Compound;
 import com.epam.indigoeln.core.model.CompoundTableRowInfo;
 import com.epam.indigoeln.core.model.MolecularWeight;
@@ -34,7 +35,6 @@ import com.epam.indigoeln.core.repository.registration.RegistrationRepository;
 import com.epam.indigoeln.core.repository.registration.RegistrationRepositoryInfo;
 import com.epam.indigoeln.core.repository.registration.RegistrationStatus;
 import com.epam.indigoeln.core.service.calculation.CalculationService;
-import com.epam.indigoeln.core.service.search.impl.pubchem.dto.Structure;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

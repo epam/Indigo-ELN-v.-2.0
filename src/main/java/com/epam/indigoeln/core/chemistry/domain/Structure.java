@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2015-2018 EPAM Systems
- *  
+ *
  *  This file is part of Indigo ELN.
  *
  *  Indigo ELN is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.epam.indigoeln.core.service.search.impl.pubchem.dto;
+package com.epam.indigoeln.core.chemistry.domain;
 
 /**
  * Describes structure object.
