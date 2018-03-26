@@ -245,7 +245,9 @@ public class ExperimentService {
             Object image = null;
 
             if (reactionComponent.isPresent()) {
-                image = ((BasicDBObject) ((BasicDBObject) reactionComponent.get()).get("content")).get("image");
+                if (((BasicDBObject) reactionComponent.get()).get("content") != null) {
+                    image = ((BasicDBObject) ((BasicDBObject) reactionComponent.get()).get("content")).get("image");
+                }
             }
             if (image != null) {
                 experiment.setReactionImage(image.toString());
@@ -262,7 +264,7 @@ public class ExperimentService {
     }
 
     private void setSpecialFields(Object component, ExperimentTreeNodeDTO experiment) {
-        if (component != null && experiment != null) {
+        if (component != null && experiment != null && ((BasicDBObject) component).get("content") != null) {
             val titleObject = ((BasicDBObject) ((BasicDBObject) component)
                     .get("content")).get("title");
             if (titleObject != null) {
