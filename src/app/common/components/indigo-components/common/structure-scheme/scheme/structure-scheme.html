@@ -20,7 +20,6 @@
         <div ng-if="vm.structureModel.image" class="h-100">
             <img class="img-responsive center-block h-100"
                  ng-src="data:image/svg+xml;base64,{{vm.structureModel.image}}" alt="Image is unavailable.">
-            <span class="icon icon-drag_handle structure-scheme__option"></span>
         </div>
         <h3 ng-if="!vm.structureModel.image" class="text-muted" i-translate="EMPTY"></h3>
     </div>
