@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2015-2018 EPAM Systems
- *  
+ *
  *  This file is part of Indigo ELN.
  *
  *  Indigo ELN is free software: you can redistribute it and/or modify
@@ -31,6 +31,8 @@ import com.epam.indigoeln.web.rest.dto.DictionaryDTO;
 import com.epam.indigoeln.web.rest.dto.ExperimentDictionaryDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -76,7 +78,8 @@ public class DictionaryService {
      * @return The dictionary by identifier
      */
     public Optional<DictionaryDTO> getDictionaryById(String id) {
-        return Optional.ofNullable(dictionaryRepository.findOne(id)).map(DictionaryDTO::new);
+        ObjectId objectId = new ObjectId(DigestUtils.md5Hex(id).substring(0, 24));
+        return Optional.ofNullable(dictionaryRepository.findOne(objectId.toHexString())).map(DictionaryDTO::new);
     }
 
     /**
