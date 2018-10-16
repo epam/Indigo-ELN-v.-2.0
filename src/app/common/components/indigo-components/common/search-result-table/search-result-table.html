@@ -31,7 +31,7 @@
                     </simple-radio>
                 </div>
                 <div class="t-item" ng-bind="item.molWeight.value | round"></div>
-                <div class="t-item" ng-bind="item.formula"></div>
+                <div class="t-item" ng-bind="item.formula.length ? item.formula : item.formula.value || '-'"></div>
                 <div class="t-item" ng-bind="item.chemicalName"></div>
                 <div class="t-item" ng-bind="item.compoundId"></div>
                 <div class="search-table-popup" ng-if="item.structure.image && item.$$isCollapsed">
@@ -85,10 +85,10 @@
                                 <div class="col-xs-6" ng-class="{'info-col':!vm.isEditMode}">
                                     <simple-input ng-if="vm.isEditMode">
                                         <input class="form-control"
-                                               ng-model="item.formula"
+                                               ng-model="item.formula.value || item.formula"
                                                disabled="true">
                                     </simple-input>
-                                    <p ng-if="!vm.isEditMode" ng-bind="item.formula"></p>
+                                    <p ng-if="!vm.isEditMode" ng-bind="item.formula.length ? item.formula : item.formula.value || '-'"></p>
                                 </div>
                             </div>
                             <div class="row">
