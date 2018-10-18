@@ -399,11 +399,23 @@ body {
 .structure-scheme {
   &__img {
     height: 150px;
-  }
 
-  &__option {
-    color: #b2ebf2;
-    cursor: s-resize;
+    .ui-resizable-handle{
+      color: #b2ebf2;
+      font-family: 'icomoon' !important;
+      font-size: 18px;
+      speak: none;
+      font-style: normal;
+      font-weight: normal;
+      font-variant: normal;
+      text-transform: none;
+      line-height: 0.5;
+      height: 13px;
+
+      &:before {
+        content: "\e910";
+      }
+    }
   }
 }
 

@@ -85,7 +85,7 @@ function EditableCellController($scope, unitsConverter, roundFilter, notifyServi
 
     function closeThis() {
         var model = vm.row[vm.column.id];
-        if (_.isUndefined(model.value)) {
+        if (vm.column.type !== 'select' && _.isUndefined(model.value)) {
             model.value = vm.column.min || 0;
         }
         if ((vm.column.type === 'scalar' || vm.column.type === 'unit') && isChanged) {
