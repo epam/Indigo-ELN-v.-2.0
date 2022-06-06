@@ -8,6 +8,3 @@ RUN npm install
 RUN npm run build
 
 CMD npm run start:prod -- --env.apiUrl=${INDIGOELN_SERVER} --host 0.0.0.0
-
-
-
