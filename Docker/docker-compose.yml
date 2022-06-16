@@ -1,0 +1,47 @@
+version: "3.3"
+services:
+  mongo-db:
+    image: mongo:3.4.17
+    restart: always
+    ports:
+      - "27017:27017"
+
+  bingodb:
+    build: ./bingodb
+    environment:
+      - security.user.name=bingo
+      - security.user.password=pass
+      - spring.host=0.0.0.0
+    ports:
+      - "9999:9999"
+
+  indigoeln-server:
+    build: ./server
+    environment:
+      - spring.data.mongodb.uri=mongodb://mongo-db:27017/indigoeln
+      # URL for BingoDB api
+      - bingodb.api-url=http://bingodb:9999/api
+      # Username to access BingoDB api
+      - bingodb.username=bingo
+      # Password to access BingoDB api
+      - bingodb.password=pass
+      # allow cors for UI
+      - cors.origin=http://localhost:9000
+      # user/password = admin/admin
+      - default-admin-password=$$2a$$10$$jawSRFtkzurLE2mDbiAK0O3MDtxvBi1OlbJV8HLFKKpIUC/I7Gyrq
+      - spring.profiles.active=cors
+      - spring.host=0.0.0.0
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+
+  indigoeln-ui:
+    build: ./ui
+    environment:
+      - INDIGOELN_SERVER=http://localhost:8080/api/
+    expose:
+      - "9000"
+    ports:
+      - "9000:9000"
+
