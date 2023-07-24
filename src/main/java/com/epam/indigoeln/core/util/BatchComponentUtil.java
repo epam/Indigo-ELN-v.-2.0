@@ -139,7 +139,6 @@ public final class BatchComponentUtil {
                 .map(ComponentDTO::new)
                 .filter(batchFilter)
                 .map(component -> (List) component.getContent().get(COMPONENT_FIELD_BATCHES))
-                .flatMap(Collection::stream)
                 .map(o -> (Map<String, Object>) o)
                 .collect(toList());
     }
