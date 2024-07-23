@@ -1,0 +1,22 @@
+<div class="modal-header">
+    <h5 class="modal-title" i-translate="EXTERNAL_SUPPLIER_INFORMATION"></h5>
+</div>
+<div class="modal-body">
+    <autocomplete items="vm.externalSupplierCodeAndNameSelect"
+                  label="External Supplier Code & Name"
+                  model="vm.externalSupplier.codeAndName">
+    </autocomplete>
+    <simple-input>
+        <span i-translate="SUPPLIER_CATALOG_REGISTRY"></span>
+        <input class="form-control"
+               ng-model="vm.externalSupplier.catalogRegistryNumber">
+    </simple-input>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">
+        <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
+    </button>
+    <button class="btn btn-primary" type="button" ng-click="vm.save()">
+        <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
+    </button>
+</div>

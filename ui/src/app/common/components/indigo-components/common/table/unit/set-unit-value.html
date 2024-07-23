@@ -1,0 +1,31 @@
+<form id="productBatchSummarySetUnitValueForm" name="productBatchSummarySetUnitValueForm" ng-submit="vm.save()">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="vm.clear()">&times;
+        </button>
+        <h5 class="modal-title">Set value for <span ng-bind="vm.name"></span></h5>
+    </div>
+    <div class="modal-body additional-editor">
+        <label class="additional-editor__label" i-translate="VALUE"></label>
+        <div class="btn-group additional-editor__group">
+            <input class="form-control additional-editor__input"
+                   type="number"
+                   required
+                   step="any"
+                   ng-model="vm.value">
+            <unit-select unit="vm.unit"
+                         units="vm.unitNames"
+                         append-to-body="false"
+                         on-change="vm.unit = unit; vm.closeThis()">
+            </unit-select>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
+            <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
+        </button>
+        <button type="submit" ng-disabled="productBatchSummarySetUnitValueForm.$invalid" class="btn btn-primary"
+                form="productBatchSummarySetUnitValueForm">
+            <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
+        </button>
+    </div>
+</form>

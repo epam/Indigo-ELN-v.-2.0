@@ -1,0 +1,62 @@
+<div class="user-management">
+    <div class="row m-b20">
+        <div class="col-sm-6">
+            <button type="button" class="btn btn-primary" ng-disabled="vm.indigoReadonly" ng-click="vm.upload()">
+                <span class="glyphicon glyphicon-flash"></span>
+                <span class="m-l5" i-translate="ATTACH_FILE"></span>
+            </button>
+        </div>
+        <div class="col-sm-6 text-right">
+            <div class="search-field m-t5">
+                <span class="icon icon-search" ng-click="vm.search()"></span>
+                <input type="search" class="uui-search" placeholder="File name" id="searchFile"
+                       ng-change="vm.search()" press-enter="$event.preventDefault()" ng-model="vm.searchText">
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive" indigo-scroller="x">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th i-translate="FILE_NAME"></th>
+                <th i-translate="AUTHOR"></th>
+                <th i-translate="LENGTH_BYTES"></th>
+                <th i-translate="UPLOAD_DATE"></th>
+                <th i-translate="ACTION"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr
+                ng-repeat="file in vm.filteredFiles ? vm.filteredFiles : vm.files | limitTo:  vm.pagination.pageSize : vm.limit - vm.pagination.pageSize track by file.id">
+                <td ng-bind="file.filename"></td>
+                <td ng-bind="file.author.login  || file.author.firstName"></td>
+                <td ng-bind="file.length | prettyBytes"></td>
+                <td ng-bind="file.uploadDate | date:'d MMMM yyyy' : 'UTC'"></td>
+                <td>
+                    <a class="btn btn-info btn-small" href="{{vm.apiUrl}}project_files/{{file.id}}" target="_self">
+                        <span class="glyphicon glyphicon-download"></span>
+                        <span class="m-l5" i-translate="DOWNLOAD"></span>
+                    </a>
+                    <button type="button"
+                            ng-disabled="vm.indigoReadonly"
+                            ng-click="vm.deleteFile(file)"
+                            class="btn btn-info btn-small">
+                        <span class="icon icon-delete"></span>
+                        <span class="m-l5" i-translate="DELETE"></span>
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="text-center">
+        <div uib-pagination
+             class="pagination-sm"
+             total-items="vm.searchText ? vm.filteredFiles.length : vm.rowsForDisplay.length"
+             ng-model="vm.pagination.page"
+             ng-change="vm.onPageChanged()"
+             items-per-page="vm.pagination.pageSize">
+        </div>
+    </div>
+</div>
+

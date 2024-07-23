@@ -1,0 +1,43 @@
+<div class="modal-header">
+    <h5 class="modal-title" i-translate="MELTING_POINT_INFORMATION"></h5>
+</div>
+<div class="modal-body">
+    <p class="semi-b m-b20" i-translate="MELTING_POINT_RANGE" i-end=":"></p>
+    <div class="row">
+        <div class="col-xs-2">
+            <simple-input>
+                <span i-translate="LOWER"></span>
+                <input class="form-control"
+                       type="number"
+                       min="0"
+                       ng-model="vm.meltingPoint.lower">
+            </simple-input>
+            <span class="input-right-txt">&deg;C</span>
+        </div>
+        <div class="col-xs-2">
+            <simple-input>
+                <span i-translate="UPPER"></span>
+                <input class="form-control"
+                       type="number"
+                       min="0"
+                       ng-model="vm.meltingPoint.upper">
+            </simple-input>
+            <span class="input-right-txt" i-translate="CELSIUS"></span>
+        </div>
+        <div class="col-xs-8">
+            <simple-input>
+                <span i-translate="COMMENTS"></span>
+                <input class="form-control"
+                       ng-model="vm.meltingPoint.comments">
+            </simple-input>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">
+        <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL">Cancel</span>
+    </button>
+    <button class="btn btn-primary" type="button" ng-click="vm.save()">
+        <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE">Save</span>
+    </button>
+</div>

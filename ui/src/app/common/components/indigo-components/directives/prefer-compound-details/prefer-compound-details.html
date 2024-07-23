@@ -1,0 +1,128 @@
+<div class="compound-component panel panel-info component " indigo-collapsible-component>
+    <div class="panel-heading" i-translate="PREFERRED_COMPOUND_DETAILS"></div>
+    <div class="collapsible">
+        <div class="panel-body">
+            <form class="form-inline form-compound-details">
+                <label><span i-translate="NOTEBOOK_ID_N"></span>: <span
+                    ng-bind="vm.notebookId"></span><span> -</span></label>
+                <autocomplete model="vm.selectedBatch"
+                              items="vm.batches"
+                              on-select="vm.selectBatch(vm.selectedBatch)"
+                              field="nbkBatch"
+                              class="select-inline">
+                </autocomplete>
+                <indigo-checkbox
+                    indigo-model="vm.showSummary"
+                    indigo-label="Show Summary"
+                ></indigo-checkbox>
+            </form>
+
+            <indigo-compound-summary ng-if="vm.showSummary"
+                                     my-tab-support="true"
+                                     save-experiment-fn="vm.saveExperimentFn()"
+                                     is-hide-column-settings="true"
+                                     batches="vm.batches"
+                                     selected-batch="vm.selectedBatch"
+                                     selected-batch-trigger="vm.selectedBatchTrigger"
+                                     is-readonly="vm.isReadonly"
+                                     on-added-batch="vm.onAddedBatch({batch: batch})"
+                                     batch-operation="vm.batchOperation"
+                                     on-select-batch="vm.onSelectBatch({batch: batch})"
+                                     on-remove-batches="vm.onRemoveBatches({batches: batches})"
+            ></indigo-compound-summary>
+
+            <div class="row m-b20"></div>
+
+            <div class="m-b20 action-panel" ng-if="!vm.showSummary">
+                <div class="btn-toolbar action-panel__left">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-info btn-small" ng-disabled="true"
+                                ng-click="registerVC()">
+                            <span class="icon icon-save"></span>
+                            <span class="m-l5">Register VC</span>
+                        </button>
+                        <button type="button" class="btn btn-info btn-small"
+                                ng-disabled="true"
+                                ng-click="vnv()" i-translate="VNV">
+                        </button>
+                    </div>
+                    <div class="btn-group list-component-buttons" role="group">
+                        <add-new-batch batch-operation="vm.batchOperation"
+                                       on-added-batch="vm.onAddedBatch({batch: batch})"
+                                       on-select-batch="vm.onSelectBatch({batch: batch})"
+                                       is-readonly="vm.isReadonly">
+                        </add-new-batch>
+                        <delete-batches is-readonly="vm.isReadonly"
+                                        delete-batch="vm.selectedBatch"
+                                        on-remove-batches="vm.onRemoveBatches({batches: vm.batches})">
+                        </delete-batches>
+                        <duplicate-batches is-readonly="vm.isEditDisabled"
+                                           batches="vm.batches" is-details="true">
+                        </duplicate-batches>
+                        <indigo-inline-loader promise="vm.batchOperation"></indigo-inline-loader>
+                    </div>
+                </div>
+                <div class="action-panel__right">
+                    <span class="txt-small bold m-r5"><span i-translate="SD_FILE"></span>:</span>
+                    <div class="btn-group" role="group">
+                        <import-sdf-file is-readonly="vm.isReadonly"></import-sdf-file>
+                        <export-sdf-file is-readonly="!vm.selectedBatch"
+                                         is-selected-batch="true">
+                        </export-sdf-file>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6">
+                    <simple-input>
+                        <label i-translate="VIRTUAL_COMPOUND_ID"></label>
+                        <input class="form-control"
+                               ng-model="vm.selectedBatch.virtualCompoundId"
+                               ng-disabled="vm.isEditDisabled">
+                    </simple-input>
+                    <indigo-select indigo-label="Sterioisomer Code"
+                                   indigo-dictionary="Stereoisomer Code"
+                                   indigo-item-prop="name,description"
+                                   indigo-label-vertical="true"
+                                   indigo-model="vm.selectedBatch.stereoisomer"
+                                   indigo-readonly="vm.isEditDisabled">
+                    </indigo-select>
+                    <indigo-simple-text indigo-label="Calculated Compound MW"
+                                        indigo-model="vm.selectedBatch.molWeight.value | round"
+                                        indigo-empty-text="none">
+                    </indigo-simple-text>
+                    <indigo-simple-text indigo-label="Calculated Compound MF"
+                                        indigo-model="vm.selectedBatch.formula.value"
+                                        indigo-empty-text="none">
+                    </indigo-simple-text>
+
+                    <indigo-text-area indigo-label="Comments"
+                                      indigo-model="vm.selectedBatch.comments"
+                                      indigo-readonly="vm.isEditDisabled">
+                    </indigo-text-area>
+
+                </div>
+                <div class="col-xs-6">
+                    <indigo-text-area indigo-label="Structure comments"
+                                      indigo-model="vm.selectedBatch.structureComments"
+                                      indigo-readonly="vm.isEditDisabled">
+                    </indigo-text-area>
+                    <autocomplete label="Salt Code & Name"
+                                  items="vm.saltCodeValues"
+                                  model="vm.selectedBatch.saltCode"
+                                  on-select="vm.onBatchChanged({row: vm.selectedBatch, column: 'saltCode'})"
+                                  readonly="vm.isEditDisabled || !vm.canEditSaltCode(vm.selectedBatch)"
+                    ></autocomplete>
+                    <simple-input>
+                        <label i-translate="SALT_EQUIVALENT"></label>
+                        <input class="form-control"
+                               type="number"
+                               ng-model="vm.selectedBatch.saltEq.value"
+                               ng-change="vm.onBatchChanged({row: vm.selectedBatch, column: 'saltEq'})"
+                               ng-disabled="vm.isEditDisabled || !vm.canEditSaltEq(vm.selectedBatch)">
+                    </simple-input>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

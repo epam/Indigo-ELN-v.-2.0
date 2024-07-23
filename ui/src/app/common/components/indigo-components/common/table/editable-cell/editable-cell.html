@@ -1,0 +1,120 @@
+<div ng-switch="vm.isEditing && !vm.isReadonly && vm.isCheckEnabled">
+    <div ng-switch-when="false"
+         ng-switch="vm.isEmpty(vm.row[vm.column.id], vm.column)">
+
+        <span ng-switch-when="true" ng-switch="!vm.row[vm.column.id].readonly">
+            <a ng-switch-when="true"
+               ng-click="vm.isReadonly || vm.onStartEdit()">&mdash;</a>
+            <a ng-switch-when="false" class="not-editable"></a>
+        </span>
+
+        <a ng-switch-when="false"
+           ng-click="vm.isReadonly || !vm.isCheckEnabled || vm.onStartEdit()"
+           ng-switch="vm.column.type">
+                <span ng-switch-when="input"
+                      ng-switch="::!vm.column.hasStructurePopover">
+                <span ng-switch-when="true"
+                      ng-class="{'entered-value': vm.row[vm.column.id].entered}" ng-bind="vm.row[vm.column.id]">
+                </span>
+                <span ng-switch-when="false"
+                      uib-popover-template="'image-popover.html'"
+                      popover-title="{{vm.row[vm.column.id]}}"
+                      popover-trigger="'mouseenter'"
+                      popover-placement="top-right"
+                      popover-append-to-body="true"
+                      ng-class="{'entered-value': vm.row[vm.column.id].entered}"
+                      ng-bind="vm.row[vm.column.id]"></span>
+                </span>
+            <span ng-switch-when="select"
+                  ng-class="{'entered-value': vm.row[vm.column.id].entered, disabled: !vm.isCheckEnabled || vm.row[vm.column.id].readonly}"
+                  title="{{!vm.isCheckEnabled ? vm.column.disableTitle : ''}}"
+                  ng-bind="vm.row[vm.column.id].description ? vm.row[vm.column.id].name + ' - ' + vm.row[vm.column.id].description : vm.row[vm.column.id].name"></span>
+            <span ng-switch-when="unit"
+                  ng-class="{'entered-value': vm.row[vm.column.id].entered}"
+                  ng-bind="(vm.row[vm.column.id].value | unit:vm.row[vm.column.id].unit | customNumber:'-':column.sigDigits) + ' ' + vm.row[vm.column.id].unit"></span>
+            <span ng-switch-when="scalar"
+                  ng-class="{'entered-value': vm.row[vm.column.id].entered}"
+                  ng-bind="vm.row[vm.column.id].value | customNumber:'-':vm.column.sigDigits"></span>
+        </a>
+    </div>
+
+    <div ng-switch-when="true" nested-outside-click="vm.closeThis()"
+         ng-switch="vm.column.type">
+        <div ng-switch-when="unit" class="additional-editor">
+            <div class="additional-editor__group"
+                 press-enter="vm.closeThis()">
+                <input class="form-control additional-editor__input"
+                       type="number"
+                       min="{{vm.column.min || 0 }}"
+                       ng-disabled="vm.column.readonly || vm.row[vm.column.id].readonly"
+                       ng-click="vm.column.onClick({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
+                       ng-change="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
+                       ng-model="vm.row[vm.column.id].value">
+                <unit-select unit="vm.row[vm.column.id].unit"
+                             units="vm.column.unitItems"
+                             append-to-body="true"
+                             on-change="vm.row[vm.column.id].unit = unit; vm.closeThis()">
+                </unit-select>
+            </div>
+        </div>
+        <div ng-switch-when="scalar">
+            <simple-input>
+                <input class="form-control"
+                       type="number"
+                       min="{{vm.column.min || 0 }}"
+                       ng-model="vm.row[vm.column.id].value"
+                       ng-disabled="vm.column.readonly || vm.row[vm.column.id].readonly"
+                       ng-click="vm.column.onClick({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
+                       ng-change="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
+                       indigo-parsers-formatters="{indigoParsers: vm.unitParsers, indigoFormatters: vm.unitFormatters}"
+                       press-enter="vm.closeThis()">
+            </simple-input>
+        </div>
+        <div ng-switch-when="select" ng-switch="!vm.column.dictionary">
+            <autocomplete ng-switch-when="true"
+                          ng-click="$event.stopPropagation();"
+                          on-select="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id,})"
+                          model="vm.row[vm.column.id]"
+                          items="vm.column.values"
+                          readonly="vm.row[vm.column.id].readonly"
+                          class="form-group-sm autocomplete-inline">
+            </autocomplete>
+            <div ng-switch-when="false"
+                 ng-switch="!vm.column.hasCustomItemProp">
+                <indigo-select ng-switch-when="true"
+                               ng-click="$event.stopPropagation();"
+                               indigo-change="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
+                               indigo-model="vm.row[vm.column.id]"
+                               indigo-dictionary="{{vm.column.dictionary}}"
+                               indigo-classes="form-group-sm">
+                </indigo-select>
+                <indigo-select ng-switch-when="false"
+                               ng-click="$event.stopPropagation();"
+                               indigo-change="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
+                               indigo-model="vm.row[vm.column.id]"
+                               indigo-item-prop="name,description"
+                               indigo-dictionary="{{vm.column.dictionary}}"
+                               indigo-classes="form-group-sm">
+                </indigo-select>
+            </div>
+        </div>
+        <div></div>
+
+        <div ng-switch-when="input" class="cell-has-popup-{{vm.column.hasPopup}}">
+            <simple-input class="form-group-sm">
+                <input class="form-control"
+                       type="text"
+                       ng-model="vm.row[vm.column.id]"
+                       ng-click="vm.column.onClick(vm.row[vm.column.id])"
+                       ng-change="vm.column.onChange({model: vm.row[vm.column.id], row: vm.row, column: vm.column.id})"
+                       press-enter="vm.closeThis()">
+            </simple-input>
+            <ul ng-if="vm.column.hasPopup" class="grid-popup shown-{{!!vm.row.$$popItems.length}}">
+                <li ng-repeat="popitem in vm.row.$$popItems track by $index "
+                    ng-click="vm.column.popItemClick(vm.row, popitem.item);vm.closeThis();" class="popitem"
+                    ng-bind="popitem.title">
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,22 @@
+<form name="deleteForm" ng-submit="vm.confirmDelete()">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                ng-click="vm.dismiss()">&times;</button>
+        <h5 class="modal-title">
+            <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;
+            <span i-translate="CONFIRM_DELETE_OPERATION"></span>
+        </h5>
+    </div>
+    <div class="modal-body">
+        <p i-translate="ARE_YOU_SURE_YOU_WANT_TO_DELETE_THIS_DICTIONARY"></p>
+        <p i-translate="NOTE_THIS_DICTIONARY_CAN_BE_IN_USE"></p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.dismiss()">
+            <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
+        </button>
+        <button type="submit" ng-disabled="deleteForm.$invalid" class="btn btn-danger"
+                i-translate="DELETE">
+        </button>
+    </div>
+</form>

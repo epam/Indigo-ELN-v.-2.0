@@ -1,0 +1,32 @@
+<div class="col-xs-4 col-xs-offset-4 login-form">
+    <div class="row">
+        <div class="panel panel-info animated" ng-class="{'has-error': vm.shake}">
+            <div class="panel-heading" i-translate="SIGN_IN"></div>
+            <div class="panel-body">
+                <form class="form" id="login-form" role="form" ng-submit="vm.login($event)">
+                    <div class="form-group">
+                        <label for="username" i-translate="LOGIN"></label>
+                        <input type="text" class="form-control" id="username" autofocus
+                               placeholder="Your username"
+                               ng-model="vm.username">
+                    </div>
+                    <div class="form-group">
+                        <label for="password" i-translate="PASSWORD"></label>
+                        <input type="password" class="form-control" id="password" placeholder="Your password"
+                               ng-model="vm.password">
+                    </div>
+                    <indigo-checkbox indigo-model="vm.rememberMe" indigo-label="Remember me" ng-init="vm.rememberMe = true"></indigo-checkbox>
+                </form>
+            </div>
+            <div class="panel-footer text-right">
+                <button type="submit" class="btn btn-info btn-can-loading" ng-class="{'btn-loading' : vm.loading}" form="login-form" ng-click="vm.login($event)">Sign in</button>
+            </div>
+        </div>
+        <div class="alert alert-danger" ng-if="vm.authenticationError"
+             i-translate="FAILED_TO_SIGN_IN_PLEASE_CHECK">
+        </div>
+        <div class="alert alert-danger" ng-if="vm.serverError"
+             i-translate="LOGIN_FAILED_BECAUSE_OF_THE_SERVER_ERROR">
+        </div>
+    </div>
+</div>

@@ -1,0 +1,22 @@
+<div class="panel panel-info product-batch-summary" indigo-collapsible-component>
+    <div class="panel-heading" i-translate="PREFERRED_COMPOUND_SUMMARY">
+
+    </div>
+    <div class="panel-body collapsible">
+        <stucture-size ng-if="vm.isStructureVisible" model="vm.structureSize"></stucture-size>
+
+        <indigo-compound-summary batches="vm.batches"
+                                 batches-trigger="vm.batchesTrigger"
+                                 experiment-name="vm.experiment.name"
+                                 structure-size="vm.structureSize"
+                                 on-show-structure="vm.isStructureVisible = isVisible"
+                                 is-readonly="vm.isReadonly"
+                                 selected-batch="vm.selectedBatch"
+                                 batch-operation="vm.batchOperation"
+                                 selected-batch-trigger="vm.selectedBatchTrigger"
+                                 on-added-batch="vm.onAddedBatch({batch: batch})"
+                                 on-select-batch="vm.onSelectBatch({batch: batch})"
+                                 on-remove-batches="vm.onRemoveBatches({batches: batches})">
+        </indigo-compound-summary>
+    </div>
+</div>

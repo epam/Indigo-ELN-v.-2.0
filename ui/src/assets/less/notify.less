@@ -1,0 +1,71 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+.cg-notify-message {
+  position: absolute;
+  min-width: 100%;
+  font-family: Arial;
+  color: white;
+  margin: 0;
+  padding: 5px;
+  border-style: none;
+  border-radius: 0px;
+  text-align:left;
+}
+#content-wrapper {
+  position: relative;
+}
+.notify-close {
+  -webkit-appearance: none;
+  padding: 7px;
+  cursor: pointer;
+  background: 0 0;
+  border: 0;
+  font-size: 21px;
+  font-weight: 400;
+  line-height: 1;
+  color: @white;
+
+  position: absolute;
+  top: 0px;
+  right: 3px;
+  line-height: 17px;
+}
+
+.notify-close:hover, .notify-close:focus {
+  color: @white;
+  text-decoration: none;
+  cursor: pointer;
+  filter: alpha(opacity=50);
+  opacity: .5;
+}
+
+.success-notify {
+  background-color: @success-notify;
+}
+.danger-notify {
+  background-color: @danger-notify;
+}
+.warning-notify {
+  background-color: @warring-notify;
+}
+.info-notify {
+  background-color: @info-notify;
+}

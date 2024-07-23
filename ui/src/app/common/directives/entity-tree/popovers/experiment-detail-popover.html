@@ -1,0 +1,27 @@
+<div class="sidebar-popover">
+    <div class="sidebar-popover-number m-b5"><span i-translate="EXPERIMENT"></span>
+        <span ng-bind="node.parent.name"></span>-<span ng-bind="node.name"></span>
+    </div>
+    <div class="sidebar-popover-content">
+        <div>
+            <span class="bold" ng-bind="node.title"></span>
+            <span ng-bind="node.therapeuticArea"></span>
+        </div>
+        <div>
+            <span class="bold"><span i-translate="CREATION_DATE"></span>: </span>
+            <span ng-bind="node.creationDate  | date:'MMM dd yyyy'"></span>
+        </div>
+        <span class="bold">
+            <span i-translate="AUTHOR"></span>: </span>
+            <span ng-bind="node.authorFullName"></span>
+        </span>
+        <span class="bold">
+            <span i-translate="STATUS"></span>: </span>
+            <span ng-bind="node.status"></span>
+        </span>
+        <img ng-if="node.reactionImage"
+             class="sidebar-popover-sheme"
+             ng-src="data:image/svg+xml;base64,{{node.reactionImage}}"
+             alt="Reaction Scheme">
+    </div>
+</div>

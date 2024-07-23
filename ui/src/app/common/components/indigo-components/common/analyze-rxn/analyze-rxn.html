@@ -1,0 +1,79 @@
+<div class="modal-header">
+    <h5 class="modal-title" i-translate="REACTANT_STRUCTURE_SEARCH"></h5>
+</div>
+<div class="modal-body rxn-body-search">
+    <div class="well well-sm">
+
+
+        <div class="row analyze-rxn-row">
+            <div class="col-xs-12">
+                <div>
+                    <label><span i-translate="REACTANTS"></span>:</label>
+                    <span ng-repeat="reactant in vm.model.reactants track by $index">
+                        {{reactant.formula}}
+                        <span ng-if="!$last">, </span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <indigo-checklist indigo-items="vm.model.databases" indigo-label="Choose catalog to search in"></indigo-checklist>
+    </div>
+    <div>
+        <button class="btn btn-info btn-can-loading"
+                ng-class="{'btn-loading': vm.loading }"
+                type="button"
+                ng-click="vm.search()" i-translate="SEARCH">
+        </button>
+    </div>
+    <br>
+    <div ng-if="vm.isSearchCompleted" class="search-result-container">
+        <div class="row">
+            <div class="col-xs-3 reagent-search-collapse" ng-init="isSelectedReactantsCollapsed=true">
+                <a ng-click="isSelectedReactantsCollapsed = !isSelectedReactantsCollapsed"
+                   class="reagent-search-collapse-link">
+                        <span ng-class="{'icon icon-arrow_right':isSelectedReactantsCollapsed,
+                             'icon icon-arrow_down':!isSelectedReactantsCollapsed}"></span>
+                    Selected reactants ({{vm.countSelectedReactants}})
+                </a>
+            </div>
+        </div>
+
+        <div uib-collapse="$$isSelectedReactantsCollapsed" class="analyze-rxn-selected-reactants">
+            <div ng-repeat="reactant in vm.model.selectedReactants track by $index">
+                <span class="glyphicon glyphicon-ok">&nbsp;</span><span ng-bind="reactant.formula"></span>
+            </div>
+        </div>
+        <uib-tabset active="activeForm" class="inner-tabs">
+            <uib-tab ng-repeat="tab in vm.tabs track by $index"
+                     heading="{{tab.formula}} ({{tab.searchResult.length}} results)"
+                     active="tab.active">
+                <div class="reagent-search-tab">
+                    <strong><span ng-bind="tab.searchResult.length"></span> results found</strong>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <indigo-search-result-table indigo-table-content="tab.searchResult"
+                                                        indigo-editable-info="false"
+                                                        indigo-single-item-per-tab="true"
+                                                        on-selected="vm.onSelected(tab, item)"
+                                                        indigo-tab="tab"></indigo-search-result-table>
+                        </div>
+                    </div>
+                </div>
+            </uib-tab>
+        </uib-tabset>
+    </div>
+</div>
+
+
+</div>
+<div class="modal-footer">
+    <button class="btn btn-info"
+            type="button"
+            ng-click="vm.updateStoicAndExit(searchResult)"
+            ng-disabled="false">
+        <span class="icon icon-add"></span><span class="m-l5" i-translate="UPDATE_STOICH_AND_EXIT"></span>
+    </button>
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">
+        <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
+    </button>
+</div>

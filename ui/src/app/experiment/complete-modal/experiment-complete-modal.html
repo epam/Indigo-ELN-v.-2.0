@@ -1,0 +1,19 @@
+<form name="completeExperimentForm" ng-submit="vm.confirmCompletion()">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                ng-click="vm.dismiss()">&times;</button>
+        <h5 class="modal-title">
+            <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;
+            <span i-translate="CONFIRM_EXPERIMENT_COMPLETION_OPERATION"></span>
+        </h5>
+    </div>
+    <div class="modal-body">
+        <p>Are you sure you want to mark <span class="semi-b">Experiment <span ng-bind="vm.fullExperimentName"></span> Completed</span>?</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.dismiss()">
+            <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
+        </button>
+        <button type="submit" class="btn btn-primary" i-translate="SUBMIT"></button>
+    </div>
+</form>

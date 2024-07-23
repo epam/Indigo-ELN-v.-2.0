@@ -1,0 +1,112 @@
+<div class="tab-content-pad templates m-b20">
+    <form class="m-b10" name="createTemplateForm" novalidate autocomplete="off">
+        <div class="row">
+            <div class="col-sm-6">
+                <simple-input>
+                    <span i-translate="NAME"></span>
+                    <input class="form-control"
+                           ng-required="!vm.template.name.trim()"
+                           ng-model="vm.template.name">
+                </simple-input>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="inner-tabs">
+    <div class="admin-tab-content" id="entities-content-id">
+    <div class="row">
+        <div class="col-xs-6">
+            <div class="panel panel-info">
+                <div class="panel-heading" i-translate="COMPONENTS"></div>
+                <div class="panel-body panel-body-h">
+                    <div class="search-field search-full">
+                        <span class="icon icon-search" ng-click="search()"></span>
+                        <input type="search" class="uui-search" placeholder="Search by name or description"
+                               id="searchRole" ng-model="search">
+                    </div>
+                    <div class="panel-body-content-nopad">
+                        <div class="list-group templates-holder palette animated" scroller dragula='"components"'
+                             dragula-model='vm.components'
+                             indigo-indeln-scroll>
+                            <div class="list-group-container" ng-repeat="component in vm.components track by $index"
+                               data-id="{{component.id}}">
+                                <a class="list-group-item draggable-component" ng-if="component | containValue: search: ['name', 'desc']">
+                                    <h5 ng-bind="component.name"></h5>
+                                    <p ng-bind="component.desc"></p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <button class="btn btn-default btn-small pull-right" ng-click="vm.addTab()">
+                        <span class="icon icon-add" aria-hidden="true"></span>
+                        <span class="m-l5" i-translate="CREATE_NEW_TAB"></span>
+                    </button>
+                    <span i-translate="TEMPLATE_BUILDER"></span>
+                </div>
+                <div class="panel-body panel-body-nopad panel-body-h templates-and-tabs" scroller dragula='"tabs"' dragula-model='vm.template.templateContent'>
+                    <div class="text-center no-draggable m-t35 m-b35"
+                         ng-if="!vm.template.templateContent.length">
+                        <h3 class="no-draggable text-muted" i-translate="PLEASE_ADD_TABS"></h3>
+                    </div>
+                    <div class="list-group list-group-drug tab" ng-repeat="tab in vm.template.templateContent" >
+                        <span class="list-group-item"  indigo-focus-on-create>
+                            <span class="icon icon-delete pull-right" ng-click="vm.removeTab(tab)"></span>
+                            <span editable-text="tab.name" e-form="tabName" onbeforesave="vm.checkName($data)" ng-click="tabName.$show()" class="semi-b"
+                                  ng-bind="tab.name">
+                                <span class="icon icon-edit m-l5"></span>
+                            </span>
+                        </span>
+                        <div class="list-group" dragula='"components"' dragula-model='tab.components'>
+                            <div class="no-draggable " ng-if="!tab.components.length">
+                                <div class="no-draggable">
+                                    <h3 class="no-draggable text-muted drag-mess"
+                                        i-translate="YOU_CAN_DRAG_DROP_COMPONENTS_HERE"></h3>
+                                </div>
+                            </div>
+                            <a class="list-group-item draggable-component component"
+                               ng-repeat="component in tab.components">
+                                <span class="icon icon-close pull-right text-muted" title="Remove"
+                                      ng-click="vm.removeComponent(tab, component)"></span>
+                                <h5 class="draggable-component" ng-bind="component.name"></h5>
+                                <p class="draggable-component" ng-bind="component.desc"></p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div class="panel panel-info panel-info-collapse">
+            <div class="panel-heading clickable" ng-init="vm.showPreview = false" ng-click="vm.showPreview = !vm.showPreview">
+                <span class="pull-right glyphicon"
+                      ng-class="{'glyphicon-chevron-down': !vm.showPreview, 'glyphicon-chevron-up': vm.showPreview}"></span>
+                <span i-translate="SHOW_PREVIEW"></span>
+            </div>
+            <div class="preview-components panel-body panel-body-nopad" ng-if="vm.showPreview && vm.template.templateContent.length">
+                <indigo-components template="vm.template.templateContent"
+                                   is-readonly="true"
+                                   model="{}"
+                                   experiment="{}"
+                ></indigo-components>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="btn-bottom-block tab-content-pad">
+    <button ng-click="vm.save()" type="submit" class="btn btn-primary" ng-disabled="createTemplateForm.$invalid">
+        <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
+    </button>
+    <button type="button" class="btn btn-default" ng-click="vm.close()">
+        <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
+    </button>
+</div>
+
+
+

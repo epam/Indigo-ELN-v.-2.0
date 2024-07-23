@@ -1,0 +1,68 @@
+<div name="permissionsForm" ng-submit="managePermissions()">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                ng-click="vm.clear()">&times;
+        </button>
+        <h5 class="modal-title">
+            <span ng-bind="vm.entity"></span> <span i-translate="MEMBERS"></span>
+        </h5>
+    </div>
+    <div class="modal-body">
+        <autocomplete class="m-b20"
+                      label="Select a User to manage permissions"
+                      items="vm.users"
+                      model="vm.selectedMembers"
+                      on-select="vm.addMember(item, $model);vm.selectedMembers.length = 0"
+                      autofocus="true"
+                      field="login">
+        </autocomplete>
+        <h5><span i-translate="CURRENT_MEMBERS"></span>:</h5>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th i-translate="LAST_NAME"></th>
+                    <th i-translate="FIRST_NAME"></th>
+                    <th i-translate="LOGIN"></th>
+                    <th i-translate="PERMISSION"></th>
+                    <th class="permission-management__action" i-translate="ACTION"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="member in vm.accessList track by $index">
+                    <td ng-bind="member.user.lastName"></td>
+                    <td ng-bind="member.user.firstName"></td>
+                    <td ng-bind="member.user.login"></td>
+                    <td>
+                        <div>
+                            <a ng-class="{disabled: member.isAuthor}"
+                               ng-click="vm.show(perm, member)"
+                               e-form="perm"
+                               onbeforesave="vm.saveOldPermission(member.permissionView)"
+                               editable-select="member.permissionView"
+                               e-ng-options="p.id as p.name for p in member.views"
+                               ng-bind="member.permissionView">
+                            </a>
+                        </div>
+                    </td>
+                    <td>
+                        <button ng-disabled="!member.removable || member.isAuthor" type="button" class="btn btn-info btn-small"
+                                ng-click="vm.removeMember(member)">
+                            <span class="icon icon-delete"></span><span class="m-l5" i-translate="DELETE"></span>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
+            <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
+        </button>
+        <button type="submit" ng-disabled="permissionsForm.$invalid" ng-click="vm.ok()" class="btn btn-primary">
+            <span class="icon icon-done" aria-hidden="true"></span><span class="m-l5" i-translate="DONE"></span>
+        </button>
+    </div>
+</div>

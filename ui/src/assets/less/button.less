@@ -1,0 +1,138 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+@import "../../../node_modules/bootstrap/less/mixins/buttons.less";
+@import 'variables.less';
+@import 'mixin.less';
+@import 'helper.less';
+
+/******************BUTTONS*********************/
+
+.btn {
+  font-family: @btn-family;
+  padding: @btn-pad;
+  outline: none;
+  text-transform: uppercase;
+
+  &-small {
+    font-size: @btn-small-size;
+    padding: @btn-small-pad;
+
+    .icon {
+      margin-top: 2px;
+      vertical-align: top;
+    }
+  }
+
+  &-default {
+    border-color: @brand7;
+  }
+
+  &-transparent {
+    text-transform: inherit;
+    font-family:@font-family-base
+
+  }
+
+  &-primary {
+    border-color: @brand2;
+  }
+
+  &-info {
+
+    &:focus {
+      border-color: @btn-info-border-color;
+      background-color: @btn-info-bg;
+    }
+
+    &.status{
+      border-radius: 25px;
+      pointer-events: none;
+    }
+
+    &.active {
+      background-color: @brand2;
+      border-color: @brand2;
+
+      &:hover, &:focus, &:active {
+        background-color: @brand2;
+        border-color: @brand2;
+      }
+    }
+  }
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn.active:focus,
+.btn.focus, .btn:active.focus,
+.btn.active.focus {
+  outline: none;
+  outline-offset: -2px;
+}
+
+
+//Btn Group
+
+.btn-toolbar {
+
+    .btn-group + .btn-group {
+      margin-left: 20px;
+    }
+}
+
+.btn-group {
+
+  .btn + .btn {
+    margin-left: @space-between-btns + 2px;
+  }
+}
+
+//override xeditable
+
+.editable-buttons{
+
+  .btn{
+    padding: 6px 12px;
+    background-color: @brand3;
+    .button-variant(@white; @brand3; @btn-info-bg);
+  }
+}
+.btn-can-loading {
+    transition: padding-left ease-out 0.5s
+}
+
+.btn-loading {
+    padding-left: 40px;
+    position: relative;
+}
+
+.btn-loading:before {
+    background: url(../images/spin.svg) no-repeat center;
+    background-size: 36px;
+    height: 30px;
+    content: '';
+    width: 30px;
+    display: inline-block;
+    position: absolute;
+    margin-left: -40px;
+    top: 2px;
+}
+.btn-small.btn-loading:before { height:18px; width:18px; margin-left:-35px}

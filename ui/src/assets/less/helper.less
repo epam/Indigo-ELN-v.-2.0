@@ -1,0 +1,246 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+@import "mixin.less";
+@import "variables.less";
+
+// Helper Classes text
+// --------------------------------------------------
+
+.overflow {
+  overflow: hidden;
+}
+
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.h-100 {
+  height: 100%;
+}
+
+.full-img {
+  width: 100%;
+}
+
+.max-img {
+  max-width: 100%;
+}
+
+.w-5 {
+  width: 5%;
+}
+
+.w-15 {
+  width: 15%;
+}
+
+.w-20 {
+  width: 20%;
+}
+
+.w-25 {
+  width: 25%;
+}
+
+.w-35 {
+  width: 35%;
+}
+
+.w-50 {
+  width: 50%;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.block-center {
+  display: block;
+  margin: 0 auto;
+}
+
+.block {
+  display: block !important;
+}
+
+.hidden {
+  display: none;
+}
+
+.up {
+  text-transform: uppercase;
+}
+
+.top-3{
+  top:3px;
+}
+
+.top-7{
+  top:7px;
+}
+
+.m-auto {
+  margin: 0 auto;
+}
+
+.d-table {
+  .display-table();
+}
+
+.d-inline {
+  .display-inline();
+}
+
+.d-table-cell {
+  .display-cell();
+}
+
+.d-flex {
+  .display-flex-justify();
+}
+
+.w-space {
+  white-space: nowrap;
+}
+
+.bold {
+  font-family: 'Source Sans Pro Bold', sans-serif;
+}
+
+.semi-b {
+  font-family: 'Source Sans Pro Semibold', sans-serif;
+}
+
+.txt-larger {
+  font-size: @large-size;
+}
+
+.txt-small {
+  font-size: @small-size;
+}
+
+.ellipsis {
+  .text-overflow();
+  width: 100%;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.cursor-move {
+  cursor: move;
+}
+
+.capitalized {
+  text-transform: capitalize;
+}
+
+//Different Spaces
+
+.m-t35 {
+  margin-top: 35px;
+}
+
+.m-t20 {
+  margin-top: 20px;
+}
+
+.m-t10 {
+  margin-top: 10px;
+}
+
+.m-t5 {
+  margin-top: 5px;
+}
+
+.m-b20 {
+  margin-bottom: 20px;
+}
+
+.m-b10 {
+  margin-bottom: 10px;
+}
+
+.m-b15 {
+  margin-bottom: 15px;
+}
+
+.m-b5 {
+  margin-bottom: 5px;
+}
+
+.m-b35 {
+  margin-bottom: 35px;
+}
+
+.m-l10 {
+  margin-left: 10px;
+}
+
+.m-l5 {
+  margin-left: 5px;
+}
+
+.m-r10 {
+  margin-right: 10px;
+}
+
+.m-r5 {
+  margin-right: 5px;
+}
+
+.m-50 {
+  margin: 50px;
+}
+
+.nomarg {
+  margin-bottom: 0 !important;
+}
+
+.m-r30-imp{
+  margin-right: 30px !important;
+}
+
+.m-l15-imp{
+  margin-left: 15px !important;
+}
+
+.p-t14{
+  padding-top: 14px;
+}
+
+.p-l-r-0{
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+.p-l1-all-0{
+  padding: 0 0 0 1px;
+}
+
+.p-10 {
+  padding: 10px;
+}

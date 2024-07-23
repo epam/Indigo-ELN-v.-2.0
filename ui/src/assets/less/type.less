@@ -1,0 +1,59 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+@import 'variables.less';
+@import 'mixin.less';
+@import 'helper.less';
+
+/******************TYPE*********************/
+
+a {
+  cursor: pointer;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'RobotoCondensed Regular',Arial,sans-serif;
+  margin-top: 0;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+hr {
+  &.hr-top {
+    margin-top: 5px;
+  }
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.icon, .glyphicon {
+  cursor: pointer;
+}
+
+.btn[disabled] {
+  .icon, .glyphicon {
+    cursor: not-allowed;
+  }
+}
+

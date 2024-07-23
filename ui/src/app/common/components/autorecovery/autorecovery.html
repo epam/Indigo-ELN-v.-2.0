@@ -1,0 +1,13 @@
+<div ng-if="vm.isVisible" class="autorecovery">
+    <span>
+        <span class="message">
+            <span ng-bind="vm.kind" class="capitalized"></span>
+            <strong ng-bind="vm.name"></strong>
+            <span i-translate="WAS_NOT_SAVED_DO_YOU_WANT_TO_RESTORE_CHANGES"></span>
+        </span>
+        <span class="autorecovery-buttons">
+            <button class="btn btn-primary" ng-click="vm.restore()" i-translate="YES"></button>
+            <button  class="btn btn-default" ng-click="vm.remove()" i-translate="NO"></button>
+        </span>
+    </span>
+</div>

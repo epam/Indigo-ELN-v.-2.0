@@ -1,0 +1,136 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+@import 'variables.less';
+@import 'mixin.less';
+@import 'helper.less';
+
+/******************PANELS STYLE*********************/
+
+.panel {
+  box-shadow: none;
+
+  &-heading {
+    color: @panel-heading-color;
+    font: @panel-heading-size @panel-heading-family;
+    text-transform: uppercase;
+
+    .action-panel-btn {
+      padding: 5px 6px;
+      font-size: 18px;
+    }
+
+    .glyphicon {
+      margin-top: 4px;
+    }
+
+    .count {
+      margin-top: -4px;
+      margin-left: 15px;
+    }
+  }
+
+  &-body {
+
+    &-content-nopad {
+      margin-left: -@panel-space-horizontal;
+      margin-right: -@panel-space-horizontal;
+    }
+
+    &-nopad {
+      padding: 0;
+    }
+
+    &.panel-experiment-preview {
+      height: ~"calc(100vh - 180px)";
+      overflow-y: auto;
+
+      .row-preview{
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+      }
+    }
+
+    .list-group {
+      margin-bottom: 0;
+    }
+  }
+
+  &-footer {
+    background-color: transparent;
+    border: 0 none;
+
+    .btn + .btn {
+      margin-left: @space-between-btns;
+    }
+  }
+
+  &-info {
+
+    .panel-heading {
+      border: 0 none;
+    }
+
+    .panel-body {
+      border-top: 1px solid @border-color;
+    }
+  }
+
+  &-info-collapse {
+
+    .inner-tabs {
+      .tab-content {
+        border: 0 none;
+      }
+    }
+  }
+
+  &-info-table {
+
+    .table {
+      border: 0 none;
+      margin-bottom: 0;
+    }
+
+    .mCSB_scrollTools.mCSB_scrollTools_horizontal {
+      height: 0;
+    }
+  }
+
+  &-main-wrapper {
+    position: relative;
+    border-bottom: none;
+    border-top: none;
+    margin-top: -1px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+//Panel height for new templates page
+
+//.panel-body-h {
+//  height: @panel-body-h;
+//  overflow-y: auto;
+//}
+
+.panel-main-h {
+  min-height: 174px;
+}

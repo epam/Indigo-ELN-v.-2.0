@@ -1,0 +1,32 @@
+<div class="autocomplete form-group" ng-class="{required: vm.isRequired}">
+    <label ng-if="vm.label"
+           ng-bind="vm.label"></label>
+
+    <ui-select ng-model="vm.model"
+               theme="bootstrap"
+               ng-disabled="vm.readonly"
+               spinner-enabled="true"
+               ng-required="vm.isRequired"
+               on-select="vm.onSelect({item: $item})"
+               on-remove="vm.onRemove({item: $item})"
+               ng-change="vm.clearItem(vm.elName, $select.selected[vm.field])"
+               autofocus="vm.autofocus">
+        <ui-select-match placeholder="{{ ::vm.placeholder }}"
+                         allow-clear="{{ ::vm.allowClear }}">
+            {{ $select.selected[vm.field] }}
+        </ui-select-match>
+        <ui-select-choices refresh="vm.refresh($select.search)"
+                           refresh-delay="300"
+                           repeat="item in vm.filteredItems"
+                           scroll-spy="vm.loadPage($select.search)">
+            <div ng-bind-html="item[[vm.field]] | highlight: $select.search"
+                  class="tag-item"></div>
+            <div ng-if="vm.isLoading && $index === $select.items.length - 1">
+                {{ ::vm.loadingPlaceholder }}
+            </div>
+        </ui-select-choices>
+        <ui-select-no-choice>
+            {{ ::vm.emptyListPlaceholder }}
+        </ui-select-no-choice>
+    </ui-select>
+</div>

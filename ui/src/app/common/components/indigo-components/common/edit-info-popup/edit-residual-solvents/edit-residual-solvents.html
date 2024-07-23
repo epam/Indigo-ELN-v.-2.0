@@ -1,0 +1,66 @@
+<div class="modal-header">
+    <h5 class="modal-title" i-translate="EDIT_RESIDUAL_SOLVENTS_INFORMATION"></h5>
+</div>
+<div class="modal-body">
+    <p class="m-b20"><span class="semi-b" i-translate="PLEASE_ADD_RESIDUAL_SOLVENTS"></span></p>
+    <div ng-if="vm.solvents.length">
+        <table class="table table-striped" id="search-result-table">
+            <thead class="search-table-head">
+            <tr>
+                <th i-translate="SOLVENT_NAME"></th>
+                <th i-translate="EQ_OF_SOLVENT"></th>
+                <th i-translate="COMMENT"></th>
+                <th class="edit-residual-solvents__header"></th>
+            </tr>
+            </thead>
+            <tbody ng-repeat="item in vm.solvents track by $index">
+            <tr ng-class="{'search-table-row-highlight':item.isSelected}">
+                <td>
+                    <indigo-select indigo-dictionary="Solvent Name"
+                                   indigo-model="vm.solvents[$index].name">
+                    </indigo-select>
+                </td>
+                <td>
+                    <simple-input>
+                        <input class="form-control"
+                               type="number"
+                               ng-model="vm.solvents[$index].eq">
+                    </simple-input>
+                </td>
+                <td>
+                    <simple-input>
+                        <input class="form-control"
+                               ng-model="vm.solvents[$index].comment">
+                    </simple-input>
+                </td>
+                <td><a
+                        ng-click="vm.remove(vm.solvents[$index])"><span
+                        class="icon icon-delete"></span></a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="btn-group">
+        <button class="btn btn-info"
+                type="button"
+                ng-click="vm.addSolvent()">
+            <span class="icon icon-add"></span>
+            <span class="m-l5" i-translate="ADD_RESIDUAL_SOLVENT"></span>
+        </button>
+        <button class="btn btn-danger"
+                type="button"
+                ng-if="vm.solvents.length"
+                ng-click="vm.removeAll()">
+            <span class="icon icon-delete"></span>
+            <span class="m-l5" i-translate="REMOVE_ALL"></span>
+        </button>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">
+        <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
+    </button>
+    <button class="btn btn-primary" type="button" ng-click="vm.save()">
+        <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
+    </button>
+</div>
