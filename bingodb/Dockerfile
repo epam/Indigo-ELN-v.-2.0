@@ -3,7 +3,6 @@ FROM maven:3-alpine as builder
 COPY . /sources/
 WORKDIR /sources
 
-RUN mvn dependency:resolve
 RUN mvn clean package -P release
 
 FROM openjdk:8-jre

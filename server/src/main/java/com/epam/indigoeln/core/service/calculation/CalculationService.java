@@ -184,9 +184,9 @@ public class CalculationService {
 
         Map<String, String> saltMetadata = getSaltMetadata(saltCodeOpt).orElse(SALT_METADATA_DEFAULT);
         float saltEq = saltEqOpt.orElse(1.0f);
-        float molecularWeightOriginal = handle.molecularWeight();
+        double molecularWeightOriginal = handle.molecularWeight();
         float saltWeight = StringUtils.isBlank(saltMetadata.get(SALT_WEIGHT)) ? 0.0f : Float.valueOf(saltMetadata.get(SALT_WEIGHT));
-        float molecularWeightCalculated = molecularWeightOriginal + saltEq * saltWeight;
+        double molecularWeightCalculated = molecularWeightOriginal + saltEq * saltWeight;
 
         String image = getStructureWithImage(molecule).getImageBase64();
 
