@@ -26,22 +26,21 @@ services:
       # Password to access BingoDB api
       - bingodb.password=pass
       # allow cors for UI
-      - cors.origin=http://localhost:8080
+      - cors.origin=http://localhost:19000
       # user/password = admin/admin
       - default-admin-password=$$2a$$10$$jawSRFtkzurLE2mDbiAK0O3MDtxvBi1OlbJV8HLFKKpIUC/I7Gyrq
       - spring.profiles.active=cors
       - spring.host=0.0.0.0
     expose:
-      - "9000"
+      - "18080"
     ports:
-      - "9000:9000"
+      - "18080:18080"
 
   indigoeln-ui:
     build: ./ui
     environment:
-      - INDIGOELN_SERVER=http://localhost:9000/api/
+      - INDIGOELN_SERVER=http://localhost:18080/api/
     expose:
-      - "8080"
+      - "9000"
     ports:
-      - "8080:8080"
-
+      - "8080:9000"
