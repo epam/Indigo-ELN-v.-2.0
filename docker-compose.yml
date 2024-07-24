@@ -41,6 +41,13 @@ services:
     environment:
       - INDIGOELN_SERVER=http://localhost:18080/api/
     expose:
-      - "9000"
+      - "19000"
     ports:
-      - "8080:9000"
+      - "19000:9000"
+
+  nginx:
+    build: ./nginx
+    expose:
+      - "80"
+    ports:
+      - "8080:80"
