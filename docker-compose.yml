@@ -39,7 +39,7 @@ services:
   indigoeln-ui:
     build: ./ui
     environment:
-      - INDIGOELN_SERVER=http://localhost:18080/api/
+      - INDIGOELN_SERVER=https://edge.aws.cloud-pipeline.com/pipeline-61766-8080-0/api/
     expose:
       - "19000"
     ports:
