@@ -1,4 +1,4 @@
-FROM maven:3-alpine as builder
+FROM maven:3-eclipse-temurin-11-alpine as builder
 
 COPY . /sources/
 WORKDIR /sources
