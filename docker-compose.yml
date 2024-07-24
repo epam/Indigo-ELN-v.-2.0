@@ -32,9 +32,9 @@ services:
       - spring.profiles.active=cors
       - spring.host=0.0.0.0
     expose:
-      - "18080"
+      - "8080"
     ports:
-      - "18080:18080"
+      - "18080:8080"
 
   indigoeln-ui:
     build: ./ui
