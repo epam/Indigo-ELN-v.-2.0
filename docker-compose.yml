@@ -26,7 +26,7 @@ services:
       # Password to access BingoDB api
       - bingodb.password=pass
       # allow cors for UI
-      - cors.origin=http://localhost:19000
+      - cors.origin=https://edge.aws.cloud-pipeline.com
       # user/password = admin/admin
       - default-admin-password=$$2a$$10$$jawSRFtkzurLE2mDbiAK0O3MDtxvBi1OlbJV8HLFKKpIUC/I7Gyrq
       - spring.profiles.active=cors
