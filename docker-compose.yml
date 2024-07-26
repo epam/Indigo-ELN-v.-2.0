@@ -39,6 +39,7 @@ services:
       - default-admin-password=$$2a$$10$$jawSRFtkzurLE2mDbiAK0O3MDtxvBi1OlbJV8HLFKKpIUC/I7Gyrq
       - spring.profiles.active=cors
       - spring.host=0.0.0.0
+      - signatureservice.url=http://indigoeln-signature-service:8080/signatureservice
     expose:
       - "8080"
     ports:
