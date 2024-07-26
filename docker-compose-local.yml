@@ -1,0 +1,25 @@
+version: "3.3"
+services:
+  mongo-db:
+    image: mongo:3.4.17
+    restart: always
+    ports:
+      - "27017:27017"
+
+  postgres:
+    build: ./indigo-eln-old/IndigoSignatureService/database
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+
+  indigoeln-ui:
+    build: ./ui
+    environment:
+#      - INDIGOELN_SERVER=https://edge.aws.cloud-pipeline.com/pipeline-61766-8080-0/api/
+      - INDIGOELN_SERVER=http://localhost:8080/api/
+    expose:
+      - "19000"
+    ports:
+      - "19000:9000"

@@ -1,0 +1,38 @@
+// Buttons
+// --------------------------------------------------
+button {	
+	background: rgb(51,152,188);
+	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzMzOThiYyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjMwJSIgc3RvcC1jb2xvcj0iIzMxOTFiMyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9Ijc0JSIgc3RvcC1jb2xvcj0iIzJhODJhMiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMyNjdjOWIiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+	background: -moz-linear-gradient(top,  rgba(51,152,188,1) 0%, rgba(49,145,179,1) 30%, rgba(42,130,162,1) 74%, rgba(38,124,155,1) 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(51,152,188,1)), color-stop(30%,rgba(49,145,179,1)), color-stop(74%,rgba(42,130,162,1)), color-stop(100%,rgba(38,124,155,1)));
+	background: -webkit-linear-gradient(top,  rgba(51,152,188,1) 0%,rgba(49,145,179,1) 30%,rgba(42,130,162,1) 74%,rgba(38,124,155,1) 100%);
+	background: -o-linear-gradient(top,  rgba(51,152,188,1) 0%,rgba(49,145,179,1) 30%,rgba(42,130,162,1) 74%,rgba(38,124,155,1) 100%);
+	background: -ms-linear-gradient(top,  rgba(51,152,188,1) 0%,rgba(49,145,179,1) 30%,rgba(42,130,162,1) 74%,rgba(38,124,155,1) 100%);
+	background: linear-gradient(to bottom,  rgba(51,152,188,1) 0%,rgba(49,145,179,1) 30%,rgba(42,130,162,1) 74%,rgba(38,124,155,1) 100%);
+
+
+	border: 0 none; color: @white; display:block; padding:@btn-v-padding @btn-h-padding; text-decoration:none; font:@btn-font; font-size: @btn-size; font-weight: bold; outline: 0 none;
+		/*corners*/
+	.rounded-corners (13px);
+	&:hover {
+		background: rgb(27,131,169);
+		background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzFiODNhOSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUlIiBzdG9wLWNvbG9yPSIjNDBhNWNhIiBzdG9wLW9wYWNpdHk9IjEiLz4KICAgIDxzdG9wIG9mZnNldD0iMzYlIiBzdG9wLWNvbG9yPSIjNDBhNWNhIiBzdG9wLW9wYWNpdHk9IjEiLz4KICAgIDxzdG9wIG9mZnNldD0iOTYlIiBzdG9wLWNvbG9yPSIjMmU5MmI2IiBzdG9wLW9wYWNpdHk9IjEiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzFiODNhOSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgPC9saW5lYXJHcmFkaWVudD4KICA8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
+		background: -moz-linear-gradient(top,  rgba(27,131,169,1) 0%, rgba(64,165,202,1) 5%, rgba(64,165,202,1) 36%, rgba(46,146,182,1) 96%, rgba(27,131,169,1) 100%);
+		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(27,131,169,1)), color-stop(5%,rgba(64,165,202,1)), color-stop(36%,rgba(64,165,202,1)), color-stop(96%,rgba(46,146,182,1)), color-stop(100%,rgba(27,131,169,1)));
+		background: -webkit-linear-gradient(top,  rgba(27,131,169,1) 0%,rgba(64,165,202,1) 5%,rgba(64,165,202,1) 36%,rgba(46,146,182,1) 96%,rgba(27,131,169,1) 100%);
+		background: -o-linear-gradient(top,  rgba(27,131,169,1) 0%,rgba(64,165,202,1) 5%,rgba(64,165,202,1) 36%,rgba(46,146,182,1) 96%,rgba(27,131,169,1) 100%);
+		background: -ms-linear-gradient(top,  rgba(27,131,169,1) 0%,rgba(64,165,202,1) 5%,rgba(64,165,202,1) 36%,rgba(46,146,182,1) 96%,rgba(27,131,169,1) 100%);
+		background: linear-gradient(to bottom,  rgba(27,131,169,1) 0%,rgba(64,165,202,1) 5%,rgba(64,165,202,1) 36%,rgba(46,146,182,1) 96%,rgba(27,131,169,1) 100%);	
+
+		.rounded-corners (13px);
+	}	
+	&:active {background: #166a89;}		
+
+	&.pull-left {margin-right: 7px;}
+	&.btn-login { margin: 0 auto; margin-top: 16px; width: 170px;}
+	span { background: url(../images/icons-white.png) 0 0 no-repeat; display: block; float: left; height: 14px; margin-right: 6px; width: 14px;
+		&.refresh {background-position: 0 -236px; margin: 1px 5px 0 0;}
+		&.search  {background: url(../images/icons.png) 0 -170px no-repeat;}
+	}
+
+}

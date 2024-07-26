@@ -1,0 +1,2 @@
+DROP TABLESPACE Indigo_Signature_Service_Data INCLUDING CONTENTS AND DATAFILES ;
+DROP USER signature_service CASCADE ;

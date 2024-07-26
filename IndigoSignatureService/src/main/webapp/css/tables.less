@@ -1,0 +1,35 @@
+
+	
+table, .template { border: 1px solid @brand-2; margin-top: 13px; width: 100%;
+	&.templates {margin-top: 5px;}
+	th, td {padding: @padding-base;}
+	th {background: @brand-2; color: @white; font-weight: bold; text-align: left;}
+	tr {
+		&.odd {background: #f1f7f9;}
+		&.even {background: @white;}
+		&:hover {background: #dbebf0; 
+			a {
+				&.icons {visibility: visible; float: left;}
+			}
+		}			
+	}
+	
+	td, .tmpl-icons {font-size: @font-size-smaller;
+		&.last {padding: 0;}
+		a {
+			&.icons {background: url(../images/icons-gray.png) no-repeat; visibility: hidden; float: left; height: 26px; margin-left: 7px; width: 26px;
+				&:hover {background-image: url(../images/icons.png);}
+				&.tick {background-position:  0 -23px;}
+				&.cross {background-position:  0 -51px;}
+				&.download {background-position:  0 -79px;}
+				&.trash {background-position:  0 -104px;}
+				&.tick, &.cross, &.download, &.trash {
+					&:hover {background-color: @brand-2;}
+				}				
+			}
+		
+		}
+	}	
+}
+
+

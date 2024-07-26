@@ -1,0 +1,47 @@
+// Navigation in left panel
+// -------------------------
+.s4-ql {position:relative; margin: 0 0 @navbar-marg 0; z-index:100;
+	UL.root {list-style-type:none; padding:0; 
+		> li.static {margin:0;  position:relative; cursor:pointer; z-index:100;			
+			a.menu-item {border: 1px solid transparent; color:@navbar-link-color !important; font: bold 12px arial; text-decoration:none; display:block; position:relative;  line-height:auto; cursor:pointer; padding: @navbar-item-pad; text-transform: uppercase;
+				&:hover, &:focus {background: @brand-2; border: 1px solid @brand-3; text-decoration:none;}
+			}
+			&.selected {
+				> a.menu-item {background: @brand-2; border: 1px solid @brand-3; text-decoration:none;
+					&.selected {border: 1px solid @brand-3 !important; color:@navbar-link-color !important; padding: @navbar-item-pad  !important;}
+				}
+			}	
+		}
+	}
+}
+// Top navigation
+// -------------------------
+.top-navbar {overflow: hidden; position:relative; margin: 0 0 @navbar-marg 0; z-index:100;
+	 UL.root {list-style-type:none; padding:0; margin: 0;
+		> li.static {border: 1px solid @brand-1; border-top: 0 none; }
+		li.static {float: left; margin:0;  position:relative; cursor:pointer; z-index:100; border: 0 none;			
+			a.menu-item {
+				border: 0 none; background: @white; color: @brand-1; font: bold 12px arial; text-decoration:none;  display:block; position:relative;  line-height:auto; cursor:pointer; padding: @navbar-item-pad;
+				&:hover, &:focus {background: @brand-1; border: 0 none; color: #fff; text-decoration:none;}
+			}
+			&.selected { background: @brand-1;
+				> a.menu-item {background: @brand-1; border: 0 none; color: #fff; text-decoration:none;
+				}
+			}	
+		}
+	}
+}
+	// submenu
+	.submenu {display:none; position:absolute; top:100%; left:50%; zoom:1; font-size:@navbar-sub-size; z-index:101; margin:0 0 0 -1px; padding-top:@navbar-marg; cursor:default;
+		> div {border:1px solid @navbar-link-active-color; border-top:0 none; padding:@padding-small-vertical @padding-base-horizontal @padding-large-vertical @padding-base-horizontal; background:#fff;}
+		table td {
+			padding:@padding-xsmall-vertical @padding-base-horizontal; vertical-align:top;				
+			ul {padding:0; margin:0;
+				li {list-style-type:none;  margin:0; padding:@padding-xsmall-vertical 0;
+					a {white-space:nowrap;}
+				}
+			}
+		}
+		h6 {white-space:nowrap; }		
+	}
+	.act .submenu {display:block;}

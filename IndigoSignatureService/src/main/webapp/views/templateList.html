@@ -1,0 +1,130 @@
+<!--
+**************************************************************************
+* Copyright (C) 2009-2015 EPAM Systems
+*
+* This file is part of Indigo Signature Service.
+*
+* This file may be distributed and/or modified under the terms of the
+* GNU General Public License version 3 as published by the Free Software
+* Foundation and appearing in the file LICENSE.GPL included in the
+* packaging of this file.
+*
+* This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+* WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+***************************************************************************
+-->
+<div ng-include src="'views/shared/_header.html'"></div>
+
+<div class="content resp">
+    <div ng-include src="'views/shared/_menu.html'"></div>
+
+    <div class="container">
+        <button class="pull-left" ng-click="newTemplate()"><span></span>Create New Template</button>
+        <div class="clear"></div>
+        <h5 ng-if="MODEL.currentTemplate!=null">Edit Template</h5>
+        <div class="kit-box" ng-if="MODEL.currentTemplate!=null">
+            <form name="TemplateListModel.frmTemplate" novalidate  ng-class="(TemplateListModel.IsValidated && TemplateListModel.frmTemplate.$invalid) ? 'js-validated' : ''">
+            <div class="kit-header">
+                <div class="control-group-left">
+                    <input  type="text" ng-model="MODEL.currentTemplate.name" required name="inpName" focus-on="Templates:edit" placeholder="Template Name" maxlength="100"/>
+                </div>
+                <div class="kit-icons">
+                    <a href="" class="icons tick" title="Save" ng-click="saveTemplate()"></a>
+                    <a href="" class="icons cancel" title="Cancel" ng-click="cancelEdit()"></a>
+                </div>
+            </div>
+            <div class="error-templates-header" ng-if="TemplateListModel.IsValidated && TemplateListModel.frmTemplate.inpName.$invalid"> Fill template name!</div>
+            <div class="new-block"  ng-repeat="block in MODEL.currentTemplate.signatureBlocks | orderBy: 'index'">
+                <ng-form name="frmBlock">
+                <div class="control-group-row">
+                    <label>Signature Block {{block.index}}</label>
+                    <div class="error-wrap">
+                        <input type="text" ng-model="block.user" validate-user name="inpUsr"
+                               placeholder="Username, First Name or Last Name"
+                               typeahead="user as getTypeHeadLabel(user) for user in getUsers($viewValue) | limitTo:8"
+                               typeahead-loading="TemplateListModel.IsLoadingUsers"
+                               typeahead-wait-ms="200"
+                               typeahead-min-length="2"
+                               ng-class="TemplateListModel.IsLoadingUsers ? 'loading': ''"
+                               />
+                        <div class="error-templates" ng-if="TemplateListModel.IsValidated && frmBlock.inpUsr.$error.validateUser"> Fill user name!</div>
+                    </div>
+                </div>
+                <div class="control-group-row">
+                    <label>Reason:</label>                    
+                    <select ng-model="block.reason" ng-options="reason.name for reason in MODEL.reasons"></select>  
+                </div>
+                <div class="kit-icons">
+                    <a href="" class="icons up" title="Up" ng-if="!$first" ng-click="upSignBlock(block.index)"></a>
+                    <span class="icons up disabled" title="Up" ng-if="$first"></span>
+                    <a href="" class="icons down" title="Down" ng-if="!$last" ng-click="downSignBlock(block.index)"></a>
+                    <span class="icons down disabled" title="Down" ng-if="$last"></span>
+                    <a href="" class="icons cross" title="Delete" ng-click="deleteSignBlock(block.index)"></a>
+                </div>
+                </ng-form>
+            </div>
+            <div class="add-block">
+                <a href="" ng-click="newSignBlock()">Add Signature Block {{MODEL.currentTemplate.signatureBlocks.length+1}}</a>
+            </div>
+                <div class="error-templates" ng-if="TemplateListModel.IsValidated && MODEL.currentTemplate.signatureBlocks==0">Add at minimum one signature block!</div>
+            </form>
+        </div>
+
+        <h5>Templates</h5>
+        <table class="templates">
+            <thead>
+                <tr>
+                    <th width="30%"><a href="" ng-click="setSortOptions('name')">Template Name
+                        <span ng-if="TemplateListModel.Sort.Field=='name' && !TemplateListModel.Sort.IsDescending" class="arr-up"></span>
+                        <span ng-if="TemplateListModel.Sort.Field=='name' && TemplateListModel.Sort.IsDescending" class="arr-down"></span>
+                    </a></th>
+                    <th width="30%"><a href="" ng-click="setSortOptions('author')">Author
+                        <span ng-if="TemplateListModel.Sort.Field=='author' && !TemplateListModel.Sort.IsDescending" class="arr-up"></span>
+                        <span ng-if="TemplateListModel.Sort.Field=='author' && TemplateListModel.Sort.IsDescending" class="arr-down"></span>
+                    </a></th>
+                    <th width="30%">Signers</th>
+                    <th width="50px">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="template in TemplateListModel.Pager.ResultList[TemplateListModel.Pager.CurrentPage-1] track by template.id  | orderBy : TemplateListModel.Sort.Field : TemplateListModel.Sort.IsDescending"  ng-class="$even ? 'even' : ''" >
+                    <td>{{template.name}}</td>
+                    <td>{{template.author}}</td>
+                    <td><span ng-repeat="block in template.signatureBlocks | orderBy: 'index'">{{block.userName}}<span ng-if="template.signatureBlocks.length>1 && !$last">, </span></span></td>
+                    <td class="last">
+                        <a href="" class="icons edit" title="Edit" ng-click="editTemplate(template)"></a>
+                        <a href="" class="icons cross" title="Delete" ng-click="deleteTemplate(template)"></a>
+                    </td>
+                </tr>
+                <tr ng-if="TemplateListModel.Filter.ResultList.length==0">
+                    <td colspan="4">No templates found</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="pager">
+            <div class="pull-left">
+                <select ng-model="TemplateListModel.Pager.ItemsPerPage" ng-options="opt for opt in TemplateListModel.Pager.AvailableItemsPerPage" ng-change="search()" id="selItemPerPage"></select>
+                <label for="selItemPerPage">Templates on the page</label>
+            </div>
+            <div class="pull-left">
+                <p>Total Templates: {{TemplateListModel.Filter.ResultList.length}}</p>
+            </div>
+            <div class="pull-right">
+                <pagination total-items="TemplateListModel.Filter.ResultList.length"
+                            page="TemplateListModel.Pager.CurrentPage"
+                            items-per-page="TemplateListModel.Pager.ItemsPerPage"
+                            max-size="5"
+                            class="pagination-sm"
+                            boundary-links="true"
+                            rotate="false"
+                            on-select-page="setPage(page)"
+                            previous-text="<"
+                            next-text=">"
+                            first-text="<<"
+                            last-text=">>"></pagination>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div ng-include src="'views/shared/_templateDeleteTmpl.html'"></div>

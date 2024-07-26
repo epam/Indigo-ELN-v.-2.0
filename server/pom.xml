@@ -136,6 +136,12 @@
             <artifactId>indigo-renderer</artifactId>
             <version>${bingo.version}</version>
         </dependency>
+        <!-- Indigo seems to use JNA 5, which is binary-incompatible with 4 -->
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>5.14.0</version>
+        </dependency>
 
         <!-- CRS -->
 

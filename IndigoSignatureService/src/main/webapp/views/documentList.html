@@ -1,0 +1,128 @@
+<!--
+**************************************************************************
+* Copyright (C) 2009-2015 EPAM Systems
+*
+* This file is part of Indigo Signature Service.
+*
+* This file may be distributed and/or modified under the terms of the
+* GNU General Public License version 3 as published by the Free Software
+* Foundation and appearing in the file LICENSE.GPL included in the
+* packaging of this file.
+*
+* This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+* WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+***************************************************************************
+-->
+
+<div ng-include src="'views/shared/_header.html'"></div>
+
+<div class="content resp">
+    <div ng-include src="'views/shared/_menu.html'"></div>
+
+    <div class="container">
+        <button class="pull-left" ng-click="uploadDocument()" ng-if="UI.isUploadDocumentsAllowed"><span></span>Upload New Document</button>
+        <button class="pull-left" ng-click="loadDocuments()"><span class="refresh"></span>Refresh</button>
+        <div class="wrap-control-group">
+            <div class="control-group-left checkbox">
+                <input type="checkbox" ng-model="DocumentListModel.Filter.ShowAll" ng-change="changeShowAll()"/>
+                <label>Show all documents</label>
+            </div>
+            <div class="control-group-left">
+                <label>Status</label>
+                <select ng-model="DocumentListModel.Filter.Status" ng-options="status.name for status in UI.statuses" ng-if="DocumentListModel.Filter.ShowAll" ng-change="search()">
+                    <option value="">All</option>
+                </select>
+                <select ng-model="DocumentListModel.Filter.Status" ng-options="status.name for status in UI.awaitStatuses" ng-if="!DocumentListModel.Filter.ShowAll" ng-change="search()">
+                    <option value="">All</option>
+                </select>
+            </div>
+            <div class="control-group-left">
+                <label>Search</label>
+                <input type="text" ng-model="DocumentListModel.Filter.SearchText" ng-change="search()"/>
+            </div>
+            <div class="control-group-left">
+                <label>Time Period</label>
+                <select  ng-model="DocumentListModel.Filter.TimePeriod" ng-options="per.name for per in UI.timePeriods" ng-change="search()">
+                    <option value="">All</option>
+                </select>
+            </div>
+        </div>
+        <div class="clear"></div>
+        <table>
+            <thead>
+                <tr>
+                    <th width="20%"><a href="" ng-click="setSortOptions('name')">Document Name
+                        <span ng-if="DocumentListModel.Sort.Field=='name' && !DocumentListModel.Sort.IsDescending" class="arr-up"></span>
+                        <span ng-if="DocumentListModel.Sort.Field=='name' && DocumentListModel.Sort.IsDescending" class="arr-down"></span>
+                    </a></th>
+                    <th width="75">Status</th>
+                    <th width="115"><a href="" ng-click="setSortOptions('creationDate')">Signing Start Date
+                        <span ng-if="DocumentListModel.Sort.Field=='creationDate' && !DocumentListModel.Sort.IsDescending" class="arr-up"></span>
+                        <span ng-if="DocumentListModel.Sort.Field=='creationDate' && DocumentListModel.Sort.IsDescending" class="arr-down"></span>
+                    </a></th>
+                    <th width="110"><a href="" ng-click="setSortOptions('modifiedDate')">Last Update Date
+                        <span ng-if="DocumentListModel.Sort.Field=='modifiedDate' && !DocumentListModel.Sort.IsDescending" class="arr-up"></span>
+                        <span ng-if="DocumentListModel.Sort.Field=='modifiedDate' && DocumentListModel.Sort.IsDescending" class="arr-down"></span>
+                    </a></th>
+                    <th width="110">Author</th>
+                    <th width="220">Signers</th>
+                    <th width="125">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-class="$even ? 'even' : ''" ng-repeat="doc in DocumentListModel.Pager.ResultList[DocumentListModel.Pager.CurrentPage-1] track by doc.id | orderBy : DocumentListModel.Sort.Field : DocumentListModel.Sort.IsDescending">
+                    <td><a href="" ng-click="showDocumentInfo(doc)" title="{{doc.name}}">{{doc.name | characters:45}}</a></td>
+                    <td><span class="status-wrapper"><span status-icon="{{doc.statusId}}"></span><span class='status-text' status-text="{{doc.statusId}}"></span></span></td>
+                    <td>{{doc.creationDate | date:UI.dateFormat}}</td>
+                    <td>{{doc.modifiedDate  | date:UI.dateFormat}}</td>
+                    <td>{{doc.author}}</td>
+                    <td>
+                        <span ng-repeat="witness in doc.witnesses | orderBy:'step'" class="status-wrapper">
+                            <span status-icon="{{witness.statusId}}"></span>
+                            <span>{{witness.userName}}</span><span ng-if="doc.witnesses.length>1 && !$last">, </span>
+                        </span>
+                    </td>
+                    <td class="last">
+                        <span class="icons tick disabled" title="Sign" ng-if="!doc.actionRequired"></span>
+                        <a href="" class="icons tick" title="Sign" ng-click="signDocument(doc)" ng-if="doc.actionRequired"></a>
+                        <span class="icons cross disabled" title="Rejected" ng-if="!doc.actionRequired"></span>
+                        <a href="" class="icons cross" title="Rejected" ng-click="rejectDocument(doc)" ng-if="doc.actionRequired"></a>
+                        <a href="downloadDocument?id={{doc.id}}" target="_blank" ng-cloak class="icons download" title="View" ng-click="downloadDocument(doc)"></a>
+                        <a href="" class="icons info" title="Info"  ng-click="showDocumentInfo(doc)"></a>
+                    </td>
+                </tr>
+                <tr ng-if="DocumentListModel.Filter.ResultList.length==0">
+                    <td colspan="7">No documents found</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="pager">
+            <div class="pull-left">
+                <select ng-model="DocumentListModel.Pager.ItemsPerPage" ng-options="opt for opt in DocumentListModel.Pager.AvailableItemsPerPage" ng-change="search()" id="selItemPerPage"></select>
+                <label for="selItemPerPage">Documents on the page</label>
+            </div>
+            <div class="pull-left">
+                <p>Total Documents: {{DocumentListModel.Filter.ResultList.length}}</p>
+            </div>            
+            <div class="pull-right">
+                <pagination total-items="DocumentListModel.Filter.ResultList.length"
+                            page="DocumentListModel.Pager.CurrentPage"
+                            items-per-page="DocumentListModel.Pager.ItemsPerPage"
+                            max-size="5"
+                            class="pagination-sm"
+                            boundary-links="true"
+                            rotate="false"
+                            on-select-page="setPage(page)"
+                            previous-text="<"
+                            next-text=">"
+                            first-text="<<"
+                            last-text=">>"></pagination>
+            </div> 
+        </div>
+    </div>
+</div>
+
+<div ng-include src="'views/shared/_documentActionTmpl.html'"></div>
+<div ng-include src="'views/shared/_documentInfoTmpl.html'"></div>
+<div ng-include src="'views/shared/_dialogVerizonTmpl.html'"></div>
+<div ng-include src="'views/shared/_uploadDocumentTmpl.html'"></div>

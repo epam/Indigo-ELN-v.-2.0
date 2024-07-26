@@ -1,0 +1,36 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-sftp="http://www.springframework.org/schema/integration/sftp"
+       xsi:schemaLocation="http://www.springframework.org/schema/integration/sftp http://www.springframework.org/schema/integration/sftp/spring-integration-sftp-3.0.xsd
+                           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+                           http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-3.0.xsd">
+
+    <int:annotation-config/>
+
+    <!-- intercept and log every message -->
+
+    <int:logging-channel-adapter id="logger" level="DEBUG"/>
+
+    <int:wire-tap channel="logger"/>
+
+    <int:gateway id="ftpGateway"
+                 service-interface="com.chemistry.enotebook.signature.archiver.ftp.FtpGateway"
+                 default-request-channel="sftpChannel"/>
+
+    <bean id="sftpSessionFactory" class="org.springframework.integration.sftp.session.DefaultSftpSessionFactory">
+        <property name="host" value="${sftp.host}"/>
+        <property name="password" value="${sftp.password}"/>
+        <property name="port" value="${sftp.port}"/>
+        <property name="user" value="${sftp.user}"/>
+        <property name="timeout" value="${sftp.timeout}"/>
+    </bean>
+
+    <int:channel id="sftpChannel"/>
+
+    <int-sftp:outbound-channel-adapter id="sftpOutbound"
+                                       channel="sftpChannel"
+                                       remote-directory="${sftp.remote.dir}"
+                                       session-factory="sftpSessionFactory"/>
+
+</beans>

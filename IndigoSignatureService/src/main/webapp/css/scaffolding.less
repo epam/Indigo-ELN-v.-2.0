@@ -1,0 +1,67 @@
+//
+// Scaffolding
+// --------------------------------------------------
+   
+// Body reset
+// -------------------------
+
+
+body {
+font-size: @font-size-base;
+}
+
+// Reset fonts for relevant elements
+input,
+button,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  outline: none;
+}
+
+input { padding: 0 3px;}
+
+textarea {}
+
+select {}
+
+
+// Links
+// -------------------------
+
+a {
+	color: #096f8c;
+	text-decoration: none;
+	outline:0 none;
+	&:hover, &:focus {
+		color: #096f8c;
+		text-decoration: underline;
+	}
+	&:focus {outline:0 none;}
+	&.linkarr {background: url(images/icons.png) right -141px no-repeat; 
+		&:hover, &:focus {background-position:right -161px;}
+	}
+}
+
+
+
+
+// Images
+// -------------------------
+
+img {vertical-align: middle;}
+
+
+// Horizontal rules
+// -------------------------
+
+hr {
+  margin-top:    5px;
+  margin-bottom: 5px;
+  border: 0;
+  border-top: 1px solid #dddedf;
+}
+
+
