@@ -18,12 +18,12 @@
         <spring-security.version>3.2.10.RELEASE</spring-security.version>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>lib</id>
-            <url>file://${project.basedir}/lib</url>
-        </repository>
-    </repositories>
+<!--    <repositories>-->
+<!--        <repository>-->
+<!--            <id>lib</id>-->
+<!--            <url>file://${project.basedir}/lib</url>-->
+<!--        </repository>-->
+<!--    </repositories>-->
 
     <dependencies>
 
@@ -211,11 +211,11 @@
 
         <!-- Oracle -->
 
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
-            <version>12.1.0.2.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.oracle</groupId>-->
+<!--            <artifactId>ojdbc6</artifactId>-->
+<!--            <version>12.1.0.2.0</version>-->
+<!--        </dependency>-->
 
     </dependencies>
 
