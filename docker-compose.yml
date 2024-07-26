@@ -23,7 +23,7 @@ services:
     ports:
       - "9999:9999"
 
-  indigoeln-server:
+  server:
     build: ./server
     environment:
       - spring.data.mongodb.uri=mongodb://mongo-db:27017/indigoeln
@@ -39,13 +39,13 @@ services:
       - default-admin-password=$$2a$$10$$jawSRFtkzurLE2mDbiAK0O3MDtxvBi1OlbJV8HLFKKpIUC/I7Gyrq
       - spring.profiles.active=cors
       - spring.host=0.0.0.0
-      - signatureservice.url=http://indigoeln-signature-service:8080/signatureservice
+      - signatureservice.url=http://signature:8080/signatureservice
     expose:
       - "8080"
     ports:
       - "18080:8080"
 
-  indigoeln-ui:
+  ui:
     build: ./ui
     environment:
       - INDIGOELN_SERVER=https://edge.aws.cloud-pipeline.com/pipeline-61766-8080-0/api/
@@ -54,7 +54,7 @@ services:
     ports:
       - "19000:9000"
 
-  indigoeln-signature-service:
+  signature:
     build: ./IndigoSignatureService
     environment:
       - database-connection-url=jdbc:postgresql://postgres:5432/postgres
