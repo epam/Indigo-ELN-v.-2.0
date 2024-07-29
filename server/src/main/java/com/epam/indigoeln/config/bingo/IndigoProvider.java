@@ -42,12 +42,13 @@ public class IndigoProvider {
         if (libraryPathStr != null) {
             try {
                 Path libraryPath = Paths.get(libraryPathStr);
-                Files.createDirectories(libraryPath);
-                Path indigoPath = libraryPath.resolve("libindigo.so");
+                Path linuxLibraryPath = libraryPath.resolve("linux-x86_64");
+                Files.createDirectories(linuxLibraryPath);
+                Path indigoPath = linuxLibraryPath.resolve("libindigo.so");
                 try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64/libindigo.so")) {
                     Files.copy(is, indigoPath);
                 }
-                Path indigoRendererPath = libraryPath.resolve("libindigo-renderer.so");
+                Path indigoRendererPath = linuxLibraryPath.resolve("libindigo-renderer.so");
                 try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64/libindigo-renderer.so")) {
                     Files.copy(is, indigoRendererPath);
                 }
