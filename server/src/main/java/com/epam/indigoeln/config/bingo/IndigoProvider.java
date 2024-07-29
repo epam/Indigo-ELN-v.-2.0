@@ -51,7 +51,7 @@ public class IndigoProvider {
                 try (InputStream is = ClassLoader.getSystemClassLoader().getResourceAsStream("/linux-x86_64/libindigo-renderer.so")) {
                     Files.copy(is, indigoRendererPath);
                 }
-                INDIGO_PATH = indigoPath.toAbsolutePath().toString();
+                INDIGO_PATH = libraryPathStr;
             } catch (Exception e) {
                 LOGGER.error("Failed to extract native libs", e);
                 throw new RuntimeException(e);
