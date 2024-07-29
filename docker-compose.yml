@@ -40,7 +40,7 @@ services:
       - spring.profiles.active=cors
       - spring.host=0.0.0.0
       - signatureservice.url=http://signature:8080/signatureservice
-      - "JAVA_OPTS=-Djna.debug_load=true -Djna.debug_load.jna=true -Djna.library.path=/tmp/indigo-lib -Dindigoeln.library.path=/tmp/indigo-lib"
+      - "JAVA_OPTS=-Djna.debug_load=true -Djna.debug_load.jna=true -Dindigoeln.library.path=/tmp/indigo-lib"
       - LD_LIBRARY_PATH=/usr/lib64
       #-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     expose:

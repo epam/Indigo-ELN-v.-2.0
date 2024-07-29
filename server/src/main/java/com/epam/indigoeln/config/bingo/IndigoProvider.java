@@ -53,6 +53,7 @@ public class IndigoProvider {
                     Files.copy(is, indigoRendererPath);
                 }
                 INDIGO_PATH = libraryPathStr;
+                System.setProperty("jna.library.path", linuxLibraryPath.toAbsolutePath().toString());
             } catch (Exception e) {
                 LOGGER.error("Failed to extract native libs", e);
                 throw new RuntimeException(e);
