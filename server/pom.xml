@@ -25,7 +25,7 @@
         <org.mapstruct.version>1.0.0.Final</org.mapstruct.version>
         <springfox.version>2.3.1</springfox.version>
         <itext.version>2.1.7</itext.version>
-        <bingo.version>1.12.0</bingo.version>
+        <bingo.version>1.20.0</bingo.version>
         <jasper.version>6.4.1</jasper.version>
         <batik.version>1.9</batik.version>
         <streamex.version>0.6.5</streamex.version>
