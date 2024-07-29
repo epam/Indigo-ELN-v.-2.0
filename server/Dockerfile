@@ -7,7 +7,7 @@ WORKDIR /sources
 RUN mvn clean package -P release
 
 FROM eclipse-temurin:11-alpine
-RUN apk add libgcc
+RUN apk add libgcc gcompat
 
 WORKDIR /opt/jars
 COPY --from=builder /sources/target/indigoeln.war indigoeln.war
