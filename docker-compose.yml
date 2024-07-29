@@ -42,6 +42,7 @@ services:
       - signatureservice.url=http://signature:8080/signatureservice
       - "JAVA_OPTS=-Djna.debug_load=true -Djna.debug_load.jna=true -Djna.library.path=/lib:/usr/lib:/lib64:/usr/lib64"
       - LD_LIBRARY_PATH=/usr/lib64
+      - indigoeln.library.path=/tmp/indigo-lib
       #-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     expose:
       - "8080"

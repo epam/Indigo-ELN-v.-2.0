@@ -18,6 +18,8 @@
  */
 package com.epam.indigoeln;
 
+import com.epam.indigo.Indigo;
+import com.epam.indigoeln.config.bingo.IndigoProvider;
 import com.epam.indigoeln.core.service.print.itext2.utils.PdfConst;
 import com.lowagie.text.FontFactory;
 import org.springframework.boot.SpringApplication;
@@ -39,6 +41,8 @@ public class Application extends SpringBootServletInitializer {
      * @param args Arguments
      */
     public static void main(String[] args) {
+        IndigoProvider p = new IndigoProvider();
+        p.renderer(p.indigo());
         FontFactory.register(PdfConst.MAIN_FONT_FAMILY_DIR, PdfConst.MAIN_FONT_FAMILY);
         SpringApplication.run(Application.class, args);
     }
