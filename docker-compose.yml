@@ -41,7 +41,7 @@ services:
       - spring.host=0.0.0.0
       - signatureservice.url=http://signature:8080/signatureservice
       - "JAVA_OPTS=-Djna.debug_load=true -Djna.debug_load.jna=true -Dindigoeln.library.path=/tmp/indigo-lib"
-      - LD_LIBRARY_PATH=/usr/lib64
+      - "LD_LIBRARY_PATH=/usr/lib64:/tmp/indigo-lib/linux-x86_64"
       #-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     expose:
       - "8080"
