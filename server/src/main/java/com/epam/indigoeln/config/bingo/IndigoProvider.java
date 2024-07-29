@@ -26,9 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 
 @Configuration
 public class IndigoProvider {
@@ -46,11 +44,11 @@ public class IndigoProvider {
                 Files.createDirectories(linuxLibraryPath);
                 Path indigoPath = linuxLibraryPath.resolve("libindigo.so");
                 try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64/libindigo.so")) {
-                    Files.copy(is, indigoPath);
+                    Files.copy(is, indigoPath, StandardCopyOption.REPLACE_EXISTING);
                 }
                 Path indigoRendererPath = linuxLibraryPath.resolve("libindigo-renderer.so");
                 try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64/libindigo-renderer.so")) {
-                    Files.copy(is, indigoRendererPath);
+                    Files.copy(is, indigoRendererPath, StandardCopyOption.REPLACE_EXISTING);
                 }
                 INDIGO_PATH = libraryPathStr;
                 System.setProperty("jna.library.path", linuxLibraryPath.toAbsolutePath().toString());
