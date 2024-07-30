@@ -27,10 +27,7 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @ChangeLog(order = "001")
 public final class ChangeLogVersion10 {
@@ -329,6 +326,10 @@ public final class ChangeLogVersion10 {
 
     private String getDefaultAdminPassword() {
         System.out.println("!!! getDefaultAdminPassword: " + ChangeLogBase.getEnvironment().getProperty("default-admin-password"));
+        System.out.println("!!! env:");
+        for (Map.Entry<String, String> entry : System.getenv().entrySet()) {
+            System.out.println("!!! " + entry.getKey() + " = " + entry.getValue());
+        }
         return ChangeLogBase.getEnvironment().getProperty("default-admin-password");
     }
 
