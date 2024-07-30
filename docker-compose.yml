@@ -26,7 +26,7 @@ services:
   server:
     build: ./server
     environment:
-      - "spring.data.mongodb.uri=mongodb://mongo-db:27017/indigoeln"
+      - SPRING_DATA_BONGODB_URI=mongodb://mongo-db:27017/indigoeln
       # URL for BingoDB api
       - "bingodb.api-url=http://bingodb:9999/api"
       # Username to access BingoDB api
