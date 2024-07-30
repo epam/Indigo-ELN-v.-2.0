@@ -36,7 +36,7 @@ services:
       # allow cors for UI
       - cors.origin=https://edge.aws.cloud-pipeline.com
       # user/password = admin/admin
-      - default-admin-password=$$2a$$10$$jawSRFtkzurLE2mDbiAK0O3MDtxvBi1OlbJV8HLFKKpIUC/I7Gyrq
+      - "default-admin-password=$$2a$$10$$jawSRFtkzurLE2mDbiAK0O3MDtxvBi1OlbJV8HLFKKpIUC/I7Gyrq"
       - spring.profiles.active=cors
       - spring.host=0.0.0.0
       - signatureservice.url=http://signature:8080/signatureservice
