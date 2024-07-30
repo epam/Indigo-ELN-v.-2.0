@@ -26,20 +26,20 @@ services:
   server:
     build: ./server
     environment:
-      - spring.data.mongodb.uri=mongodb://mongo-db:27017/indigoeln
+      - "spring.data.mongodb.uri=mongodb://mongo-db:27017/indigoeln"
       # URL for BingoDB api
-      - bingodb.api-url=http://bingodb:9999/api
+      - "bingodb.api-url=http://bingodb:9999/api"
       # Username to access BingoDB api
-      - bingodb.username=bingo
+      - "bingodb.username=bingo"
       # Password to access BingoDB api
-      - bingodb.password=pass
+      - "bingodb.password=pass"
       # allow cors for UI
-      - cors.origin=https://edge.aws.cloud-pipeline.com
+      - "cors.origin=https://edge.aws.cloud-pipeline.com"
       # user/password = admin/admin
       - "default-admin-password=$$2a$$10$$jawSRFtkzurLE2mDbiAK0O3MDtxvBi1OlbJV8HLFKKpIUC/I7Gyrq"
-      - spring.profiles.active=cors
-      - spring.host=0.0.0.0
-      - signatureservice.url=http://signature:8080/signatureservice
+      - "spring.profiles.active=cors"
+      - "spring.host=0.0.0.0"
+      - "signatureservice.url=http://signature:8080/signatureservice"
       - "JAVA_OPTS=-Djna.debug_load=true -Djna.debug_load.jna=true -Dindigoeln.library.path=/tmp/indigo-lib"
       - "LD_LIBRARY_PATH=/usr/lib64:/tmp/indigo-lib/linux-x86_64"
       #-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
