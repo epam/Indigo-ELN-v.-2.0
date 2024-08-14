@@ -7,7 +7,7 @@ services:
       - "27017:27017"
 
   postgres:
-    build: ./IndigoSignatureService/database
+    build: ./signature/database
     restart: always
     environment:
       - POSTGRES_PASSWORD=postgres
@@ -57,7 +57,7 @@ services:
       - "19000:9000"
 
   signature:
-    build: ./IndigoSignatureService
+    build: ./signature
     environment:
       - DATABASE_CONNECTION_URL=jdbc:postgresql://postgres:5432/postgres
     expose:
