@@ -17,29 +17,29 @@ services:
   bingodb:
     build: ./bingodb
     environment:
-      - security.user.name=bingo
-      - security.user.password=pass
-      - spring.host=0.0.0.0
+      - SECURITY_USER_NAME=bingo
+      - SECURITY_USER_PASSWORD=pass
+      - SPRING_HOST=0.0.0.0
     ports:
       - "9999:9999"
 
   server:
     build: ./server
     environment:
-      - spring.data.mongodb.uri=mongodb://mongo-db:27017/indigoeln
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo-db:27017/indigoeln
       # URL for BingoDB api
-      - bingodb.api-url=http://bingodb:9999/api
+      - BINGODB_API_URL=http://bingodb:9999/api
       # Username to access BingoDB api
-      - bingodb.username=bingo
+      - BINGODB_USERNAME=bingo
       # Password to access BingoDB api
-      - bingodb.password=pass
+      - BINGODB_PASSWORD=pass
       # allow cors for UI
-      - cors.origin=http://localhost:9000
+      - CORS_ORIGIN=http://localhost:9000
       # user/password = admin/admin
-      - default-admin-password=$$2a$$10$$jawSRFtkzurLE2mDbiAK0O3MDtxvBi1OlbJV8HLFKKpIUC/I7Gyrq
-      - spring.profiles.active=cors
-      - spring.host=0.0.0.0
-      - signatureservice.url=http://signature:8080/signatureservice
+      - DEFAULT_ADMIN_PASSWORD=$$2a$$10$$jawSRFtkzurLE2mDbiAK0O3MDtxvBi1OlbJV8HLFKKpIUC/I7Gyrq
+      - SPRING_PROFILES_ACTIVE=cors
+      - SPRING_HOST=0.0.0.0
+      - SIGNATURESERVICE_URL=http://signature:8080/signatureservice
       - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     expose:
       - "8080"
@@ -61,7 +61,7 @@ services:
   signature:
     build: ./signature
     environment:
-      - database-connection-url=jdbc:postgresql://postgres:5432/postgres
+      - DATABASE_CONNECTION_URL=jdbc:postgresql://postgres:5432/postgres
     expose:
       - "8080"
     ports:
