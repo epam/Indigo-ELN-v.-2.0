@@ -1,8 +1,12 @@
-FROM maven:3-jdk-8
+FROM maven:3-alpine as builder
 
 COPY . /sources/
 WORKDIR /sources
 
-RUN mvn war:war --batch-mode
+RUN mvn package --batch-mode
 
-ENTRYPOINT mvn tomcat7:run-war
+FROM openjdk:8-jre
+WORKDIR /opt/jars
+COPY --from=builder /sources/target/signatureservice.war signatureservice.war
+
+ENTRYPOINT sh -c "java $JAVA_OPTS -jar signatureservice.war"
