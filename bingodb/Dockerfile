@@ -3,7 +3,7 @@ FROM maven:3-alpine as builder
 COPY . /sources/
 WORKDIR /sources
 
-RUN mvn clean package -P release
+RUN mvn clean package -P release --no-transfer-progress
 
 FROM openjdk:8-jre
 

@@ -14,12 +14,56 @@ services:
     ports:
       - "5432:5432"
 
+  bingodb:
+    build: ./bingodb
+    environment:
+      - security.user.name=bingo
+      - security.user.password=pass
+      - spring.host=0.0.0.0
+    ports:
+      - "9999:9999"
+
+  server:
+    build: ./server
+    environment:
+      - spring.data.mongodb.uri=mongodb://mongo-db:27017/indigoeln
+      # URL for BingoDB api
+      - bingodb.api-url=http://bingodb:9999/api
+      # Username to access BingoDB api
+      - bingodb.username=bingo
+      # Password to access BingoDB api
+      - bingodb.password=pass
+      # allow cors for UI
+      - cors.origin=http://localhost:9000
+      # user/password = admin/admin
+      - default-admin-password=$$2a$$10$$jawSRFtkzurLE2mDbiAK0O3MDtxvBi1OlbJV8HLFKKpIUC/I7Gyrq
+      - spring.profiles.active=cors
+      - spring.host=0.0.0.0
+      - signatureservice.url=http://signature:8080/signatureservice
+      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    expose:
+      - "8080"
+      - "5005"
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+
   indigoeln-ui:
     build: ./ui
     environment:
-#      - INDIGOELN_SERVER=https://edge.aws.cloud-pipeline.com/pipeline-61766-8080-0/api/
+      #      - INDIGOELN_SERVER=https://edge.aws.cloud-pipeline.com/pipeline-61766-8080-0/api/
       - INDIGOELN_SERVER=http://localhost:8080/api/
     expose:
-      - "19000"
+      - "9000"
     ports:
-      - "19000:9000"
+      - "9000:9000"
+
+  signature:
+    build: ./IndigoSignatureService
+    environment:
+      - database-connection-url=jdbc:postgresql://postgres:5432/postgres
+    expose:
+      - "8080"
+    ports:
+      - "28080:8080"
+

@@ -5,7 +5,7 @@ COPY . /sources/
 #COPY settings.xml /root/.m2/
 WORKDIR /sources
 
-RUN mvn clean package -P release
+RUN mvn clean package -P release --no-transfer-progress
 
 #FROM eclipse-temurin:11-alpine
 FROM openjdk:8-jre
