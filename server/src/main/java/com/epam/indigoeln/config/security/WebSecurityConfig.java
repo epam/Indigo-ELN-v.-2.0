@@ -270,17 +270,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/search/experiments").hasAnyAuthority(EXPERIMENT_READERS)
                 // spring boot endpoints
                 // https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html
-                .antMatchers("/health/**").authenticated()
-                .antMatchers("/trace/**").authenticated()
-                .antMatchers("/dump/**").authenticated()
-                .antMatchers("/shutdown/**").authenticated()
-                .antMatchers("/beans/**").authenticated()
-                .antMatchers("/configprops/**").authenticated()
-                .antMatchers("/info/**").authenticated()
-                .antMatchers("/autoconfig/**").authenticated()
-                .antMatchers("/env/**").authenticated()
-                .antMatchers("/trace/**").authenticated()
-                .antMatchers("/mappings/**").authenticated()
+                .antMatchers("/health/**").anonymous()
+                .antMatchers("/trace/**").anonymous()
+                .antMatchers("/dump/**").anonymous()
+                .antMatchers("/shutdown/**").anonymous()
+                .antMatchers("/beans/**").anonymous()
+                .antMatchers("/configprops/**").anonymous()
+                .antMatchers("/info/**").anonymous()
+                .antMatchers("/autoconfig/**").anonymous()
+                .antMatchers("/env/**").anonymous()
+                .antMatchers("/trace/**").anonymous()
+                .antMatchers("/mappings/**").anonymous()
 
                 // others
                 .antMatchers("/api/bingodb/**").authenticated()
