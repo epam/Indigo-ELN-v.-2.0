@@ -92,7 +92,7 @@
   "scripts": {
     "build": "webpack --config webpack.prod.config.js --env.build=prod --env.apiUrl=http://localhost:8080/api/",
     "start": "webpack-dev-server --config webpack.dev.config.js --env.build=dev --env.apiUrl=http://localhost:8080/api/",
-    "start:prod": "webpack-dev-server --open --port 9000 --config webpack.prod.config.js --env.build=prod --env.apiUrl=https://edge.aws.cloud-pipeline.com/pipeline-61766-8080-0/",
+    "start:prod": "webpack-dev-server --open --port 9000 --config webpack.prod.config.js --env.build=prod --disable-host-check",
     "eslint": "eslint src/app",
     "test": "karma start",
     "test:chrome": "npm run test -- --browser Chrome",
