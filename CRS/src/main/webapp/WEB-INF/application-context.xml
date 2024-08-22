@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <!-- Properties -->
+    
+    <bean id="properties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="classpath:crs.properties"/>
+    </bean>
+    
+    <!-- DataSource -->
+    
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${DATABASE_DRIVER_CLASS}"/>
+        <property name="url" value="${DATABASE_URL}"/>
+        <property name="username" value="${DATABASE_USERNAME}"/>
+        <property name="password" value="${DATABASE_PASSWORD}"/>
+    </bean>
+    
+    <!-- Services -->
+
+    <bean id="registrationService" class="com.epam.indigo.crs.services.registration.BingoRegistrationImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    
+    <bean id="searchService" class="com.epam.indigo.crs.services.search.BingoSearchImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- Service exporters -->
+
+    <bean id="registrationServiceExporter" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
+        <property name="service" ref="registrationService"/>
+        <property name="serviceInterface" value="com.epam.indigo.crs.services.registration.BingoRegistration"/>
+    </bean>
+
+    <bean id="searchServiceExporter" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
+        <property name="service" ref="searchService"/>
+        <property name="serviceInterface" value="com.epam.indigo.crs.services.search.BingoSearch"/>
+    </bean>
+
+    <!-- URL mapping -->
+
+    <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+        <property name="mappings">
+            <props>
+                <prop key="/RegistrationService">registrationServiceExporter</prop>
+                <prop key="/SearchService">searchServiceExporter</prop>
+            </props>
+        </property>
+    </bean>
+
+</beans>

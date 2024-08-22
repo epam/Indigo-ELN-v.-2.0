@@ -14,6 +14,14 @@ services:
     ports:
       - "5432:5432"
 
+  postgres-crs:
+    build: ./crs/database
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "15432:5432"
+
   bingodb:
     build: ./bingodb
     environment:
@@ -40,21 +48,26 @@ services:
       - SPRING_PROFILES_ACTIVE=cors
       - SPRING_HOST=0.0.0.0
       - SIGNATURESERVICE_URL=http://signature:8080/signatureservice
+      - INDIGOELN_CLIENT_SIGNATURESERVICE_URL=${INDIGOELN_URL}/signatureservice
+      - CRS_SEARCH_SERVICE_URL=http://crs:8080/crs/service/SearchService
+      - CRS_REGISTRATION_SERVICE-URL=http://crs:8080/crs/service/RegistrationService
+      - CRS_USERNAME=user
+      - CRS_PASSWORD=pass
       - "JAVA_OPTS=-Djna.debug_load=true -Djna.debug_load.jna=true -Dindigoeln.library.path=/tmp/indigo-lib"
       - "LD_LIBRARY_PATH=/usr/lib64:/tmp/indigo-lib/linux-x86_64"
     expose:
       - "8080"
     ports:
-      - "18080:8080"
+      - "8080:8080"
 
   ui:
     build: ./ui
     environment:
-      - INDIGOELN_SERVER=https://edge.aws.cloud-pipeline.com/pipeline-61766-8080-0/api/
+      - INDIGOELN_SERVER=${INDIGOELN_URL:?} #https://edge.aws.cloud-pipeline.com/pipeline-61766-8080-0/api/
     expose:
-      - "19000"
+      - "9000"
     ports:
-      - "19000:9000"
+      - "9000:9000"
 
   signature:
     build: ./signature
@@ -65,10 +78,11 @@ services:
     ports:
       - "28080:8080"
 
-  nginx:
-    build: ./nginx
-    command: [ nginx-debug, '-g', 'daemon off;' ]
+  crs:
+    build: ./crs
+    environment:
+      - DATABASE_URL=jdbc:postgresql://postgres-crs:5432/postgres
     expose:
-      - "80"
+      - "8080"
     ports:
-      - "8080:80"
+      - "38080:8080"
