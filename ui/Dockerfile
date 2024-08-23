@@ -10,5 +10,6 @@ COPY package-lock.json /sources/
 RUN npm install
 COPY . /sources/
 RUN npm run build
+RUN ls -lR
 
 CMD npm run start:prod -- --env.apiUrl=${INDIGOELN_SERVER} --host 0.0.0.0
