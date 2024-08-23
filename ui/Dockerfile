@@ -1,4 +1,4 @@
-FROM node:7-alpine
+FROM node:7-alpine as builder
 
 RUN apk update
 RUN apk add git
@@ -10,6 +10,6 @@ COPY package-lock.json /sources/
 RUN npm install
 COPY . /sources/
 RUN npm run build
-RUN ls -lR
 
-CMD npm run start:prod -- --env.apiUrl=${INDIGOELN_SERVER} --host 0.0.0.0
+FROM nginx:1.27
+COPY --from-builder /sources/dist/* /usr/share/nginx/html/
