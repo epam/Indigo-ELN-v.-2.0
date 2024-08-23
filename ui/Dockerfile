@@ -9,7 +9,7 @@ COPY package.json /sources/
 COPY package-lock.json /sources/
 RUN npm install
 COPY . /sources/
-RUN npm run build
+RUN npm run build --env.apiUrl=${INDIGOELN_SERVER}
 
 FROM nginx:1.27
 COPY --from=builder /sources/dist/* /usr/share/nginx/html/
