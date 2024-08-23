@@ -325,11 +325,6 @@ public final class ChangeLogVersion10 {
     }
 
     private String getDefaultAdminPassword() {
-        System.out.println("!!! getDefaultAdminPassword: " + ChangeLogBase.getEnvironment().getProperty("default-admin-password"));
-        System.out.println("!!! env:");
-        for (Map.Entry<String, String> entry : System.getenv().entrySet()) {
-            System.out.println("!!! " + entry.getKey() + " = " + entry.getValue());
-        }
         return ChangeLogBase.getEnvironment().getProperty("default-admin-password");
     }
 

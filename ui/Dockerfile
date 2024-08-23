@@ -12,4 +12,4 @@ COPY . /sources/
 RUN npm run build
 
 FROM nginx:1.27
-COPY --from-builder /sources/dist/* /usr/share/nginx/html/
+COPY --from=builder /sources/dist/* /usr/share/nginx/html/
