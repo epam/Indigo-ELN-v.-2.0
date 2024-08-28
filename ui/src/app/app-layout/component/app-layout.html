@@ -1,0 +1,11 @@
+<header class="uui-header" ng-cloak>
+    <app-navbar on-toggle-sidebar="vm.toggleSidebar()"></app-navbar>
+</header>
+<div id="page-wrapper" ng-class="{open: vm.isOpen}" class="main-container">
+    <aside id="sidebar-wrapper" ng-cloak class="uui-side">
+        <sidebar></sidebar>
+    </aside>
+    <div id="content-wrapper">
+        <div class="page-content animated" ui-view="content" ng-cloak></div>
+    </div>
+</div>

@@ -1,0 +1,37 @@
+<nav class="navbar">
+    <div ng-click="vm.onToggleSidebar()" class="uui-toggle-box">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <a class="logo" href="#"></a>
+    <div class="uui-header-tools">
+        <form class="navbar-form"
+              ng-submit="vm.search()"
+              indigo-has-authority="vm.GLOBAL_SEARCH">
+            <div class="search-field search-field-main" ng-class="{active: vm.focused}">
+                <span class="icon icon-search" ng-click="vm.search()"></span>
+                <input type="search"
+                       class="uui-search"
+                       placeholder="Search"
+                       ng-model="vm.query"
+                       ng-focus="vm.focused = true"
+                       ng-blur="vm.focused = false">
+            </div>
+        </form>
+        <div class="profile dropdown">
+            <a class="profile-photo dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+               aria-expanded="false" ng-switch="!!vm.user.image">
+                <img ng-switch-when="true"
+                     ng-src="data:image/svg+xml;base64,{{vm.user.image}}"
+                     alt="Profile photo"
+                     class="full-img">
+                <span ng-switch-default class="icon icon-person" aria-hidden="true"></span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-right">
+                <li class="current-user" ng-bind="vm.user.login"></li>
+                <li><a ng-click="vm.logout()" i-translate="LOGOUT"></a></li>
+            </ul>
+        </div>
+    </div>
+</nav>

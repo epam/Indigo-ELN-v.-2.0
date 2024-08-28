@@ -1,0 +1,12 @@
+<ul class="sidebar-menu__sub-menu animated" ng-if="vm.tree.length">
+    <simple-node ng-repeat="node in vm.tree track by node.id">
+        <ul class="sidebar-menu__sub-menu animated" ng-if="!node.isCollapsed">
+            <simple-node ng-repeat="node in node.children track by node.fullId">
+                <ul class="sidebar-menu__sub-menu animated" ng-if="!node.isCollapsed">
+                    <simple-node ng-repeat="node in node.children track by node.id" class="link-experiment">
+                    </simple-node>
+                </ul>
+            </simple-node>
+        </ul>
+    </simple-node>
+</ul>

@@ -1,0 +1,125 @@
+<div class="controls-row">
+    <ul class="controls-list">
+        <li ng-if="!vm.isDashboard" ui-sref="experiment">
+            <a>
+                <span class="icon icon-home"></span>
+                <span class="tooltip-icon-header" i-translate="HOME"></span>
+            </a>
+        </li>
+        <li uib-dropdown on-toggle="toggled(open)" id="new-entity-dropdown" uib-dropdown-toggle>
+            <a>
+                <span class="icon icon-file"></span>
+                <span class="tooltip-icon-header" i-translate="NEW_ENTITY"></span>
+            </a>
+            <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="new-entity-dropdown"
+                indigo-has-any-authority="{{vm.ENTITY_CREATORS}}">
+                <li indigo-has-any-authority="{{vm.PROJECT_CREATORS}}">
+                    <a ui-sref="entities.project-new" i-translate="NEW_PROJECT"></a>
+                </li>
+                <li indigo-has-any-authority="{{vm.NOTEBOOK_CREATORS}}">
+                    <a ng-click="vm.createNotebook()" i-translate="NEW_NOTEBOOK"></a>
+                </li>
+                <li indigo-has-any-authority="{{vm.EXPERIMENT_CREATORS}}">
+                    <a ng-click="vm.createExperiment()" i-translate="NEW_EXPERIMENT"></a>
+                </li>
+            </ul>
+        </li>
+        <li indigo-toggle-class-child="open-menu" ng-hide="true">
+            <a>
+                <span class="icon icon-arrow-up-bold-circle-outline"></span>
+                <span class="tooltip-icon-header" i-translate="FAKE_TOOLTIP"></span>
+            </a>
+        </li>
+        <li uib-dropdown on-toggle="toggled(open)" id="opened-entities-dropdown" uib-dropdown-toggle>
+            <a ng-class="{'disabled' : vm.isDashboard && !vm.entitiesCount}">
+                <span class="icon icon-view_module"></span>
+                <span class="tooltip-icon-header" i-translate="OPENED_ENTITIES"></span>
+            </a>
+            <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="opened-entities-dropdown">
+                <li ng-if="!vm.isDashboard" ng-click="vm.onCloseAllTabs()">
+                    <a i-translate="CLOSE_ALL"></a>
+                </li>
+                <li ng-if="!vm.isDashboard" ng-click="vm.onCloseNonActiveTabs()">
+                    <a i-translate="CLOSE_ALL_EXCEPT_ACTIVE_ENTITY"></a>
+                </li>
+
+                <li ng-repeat="entity in vm.entities">
+                    <a>
+                        <span class="capitalized d-flex" ng-click="vm.onTabClick(entity)" ng-class="{'active' : entity.tabKey === vm.activeTab.tabKey}">
+                            <span ng-bind="entity.name + ' '+ entity.$$title"></span>&nbsp;
+                        <span class="glyphicon glyphicon-remove text-muted pull-right clickable experiment-tab-close top-3"
+                            ng-click="vm.onCloseTabClick($event, entity);"></span>
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li indigo-has-authority="vm.GLOBAL_SEARCH"
+            ng-click="vm.openSearch()">
+            <a>
+                <span class="icon icon-search"></span>
+                <span class="tooltip-icon-header" i-translate="SEARCH"></span>
+            </a>
+        </li>
+        <li>
+            <a class="item-null-link"></a>
+        </li>
+        <li ng-if="!vm.isDashboard">
+            <a ng-click="vm.onSave()" ng-class="{'disabled' : !vm.activeTab.dirty }">
+                <span class="icon icon-save"></span>
+                <span class="tooltip-icon-header" i-translate="SAVE"></span>
+            </a>
+        </li>
+        <li ng-if="!vm.isDashboard">
+            <a ng-click="vm.duplicate()" ng-class="{'disabled' : !vm.canDuplicate() }">
+                <span class="icon icon-file-multiple"></span>
+                <span class="tooltip-icon-header" i-translate="DUPLICATE"></span>
+            </a>
+        </li>
+        <li ng-if="false">
+            <a ng-disabled="vm.canUndo()" ng-click="vm.onUndo()">
+                <span class="icon icon-undo"></span>
+                <span class="tooltip-icon-header" i-translate="UNDO"></span>
+            </a>
+        </li>
+        <li ng-if="false">
+            <a ng-disabled="vm.canRedo()" ng-click="vm.onRedo()">
+                <!--<span class="fa fa-mail-forward"></span>-->
+                <span class="tooltip-icon-header" i-translate="REDO"></span>
+            </a>
+        </li>
+        <li ng-if="false">
+            <a>
+                <span class="icon icon-inbox"></span>
+                <span class="tooltip-icon-header" i-translate="FAKE_TOOLTIP"></span>
+            </a>
+        </li>
+        <li ng-if="false">
+            <a>
+                <span class="icon icon-folder-open"></span>
+                <span class="tooltip-icon-header" i-translate="FAKE_TOOLTIP"></span>
+            </a>
+        </li>
+        <li ng-if="!vm.isDashboard">
+            <a ng-click="vm.print()" ng-class="{'disabled' : !vm.canPrint() }">
+                <span class="icon icon-print"></span>
+                <span class="tooltip-icon-header" i-translate="PRINT"></span>
+            </a>
+        </li>
+        <li ng-if="!vm.isDashboard">
+            <a class="item-null-link"></a>
+        </li>
+        <!--<li indigo-toggle-class-child="open-menu">-->
+            <!--<a>-->
+                <!--<span class="icon icon-settings"></span>-->
+                <!--<span class="tooltip-icon-header" i-translate="FAKE_TOOLTIP"></span>-->
+            <!--</a>-->
+        <!--</li>-->
+        <li indigo-toggle-class-child="open-menu">
+            <a href="user-guide/Indigo%20ELN%20v2.0%20User%20Guide.docx" target='_blank'>
+                <span class="icon icon-help_outline"></span>
+                <span class="tooltip-icon-header" i-translate="HELP"></span>
+            </a>
+        </li>
+    </ul>
+</div>

@@ -1,0 +1,167 @@
+<!--
+**************************************************************************
+* Copyright (C) 2009-2015 EPAM Systems
+*
+* This file is part of Indigo Signature Service.
+*
+* This file may be distributed and/or modified under the terms of the
+* GNU General Public License version 3 as published by the Free Software
+* Foundation and appearing in the file LICENSE.GPL included in the
+* packaging of this file.
+*
+* This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+* WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+***************************************************************************
+-->
+<div ng-include src="'views/shared/_header.html'"></div>
+
+<div class="content resp">
+    <div ng-include src="'views/shared/_menu.html'"></div>
+
+    <div class="container">
+        <button class="pull-left" ng-click="newUser()"><span></span>Create New User</button>
+        <div class="clear"></div>
+        <h5 ng-if="MODEL.currentUser != null && !UserListModel.isNewUser">Edit User</h5>
+        <h5 ng-if="MODEL.currentUser != null && UserListModel.isNewUser">New User</h5>
+        <div class="error-templates pull-right" ng-if="UserListModel.Error != null">{{UserListModel.Error}}</div>
+        <div class="kit-box" ng-if="MODEL.currentUser != null">
+            <form name="UserListModel.frmUser" novalidate  ng-class="(UserListModel.IsValidated && UserListModel.frmUser.$invalid) ? 'js-validated' : ''">
+                <div class="kit-header">
+                    <div class="control-group-left">
+                        <input  type="text" ng-model="MODEL.currentUser.login" required name="inpName" focus-on="Users:edit" placeholder="Username" maxlength="100"/>
+                    </div>
+                    <div class="kit-icons">
+                        <a href="" class="icons tick" title="Save" ng-click="saveUser()"></a>
+                        <a href="" class="icons cancel" title="Cancel" ng-click="cancelEdit()"></a>
+                    </div>
+                </div>
+                <div class="error-templates-header" ng-if="UserListModel.IsValidated && UserListModel.frmUser.inpName.$invalid"> Fill username!</div>
+                <div class="new-block">
+                    <div class="control-group-row">
+                        <label class="middle">First Name</label>
+                        <div class="error-wrap">
+                        <input type="text" ng-model="MODEL.currentUser.firstName" required name="inpFirstName" maxlength="100"/>
+                        <div class="error-templates" ng-if="UserListModel.IsValidated && UserListModel.frmUser.inpFirstName.$error.required"> Fill user first name!</div>
+                        </div>
+                    </div>
+                    <div class="control-group-row">
+                        <label class="big">Last Name</label>
+                        <div class="error-wrap">
+                            <input type="text" ng-model="MODEL.currentUser.lastName" required name="inpLastName" maxlength="100"/>
+                            <div class="error-templates" ng-if="UserListModel.IsValidated && UserListModel.frmUser.inpLastName.$error.required"> Fill user last name!</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="new-block" ng-if="UserListModel.isNewUser">
+                    <div class="control-group-row">
+                        <label class="middle">Password</label>
+                        <div class="error-wrap">
+                            <input type="password" ng-model="MODEL.currentUser.password1" required name="inpPassword1" validate-password validate-compared-password="MODEL.currentUser.password2" maxlength="100"/>
+                            <div class="error-templates" ng-if="UserListModel.IsValidated && UserListModel.frmUser.inpPassword1.$error.required"> Fill password!</div>
+                            <div class="error-templates" ng-if="UserListModel.IsValidated && UserListModel.frmUser.inpPassword1.$error.validatePassword">Password should be more 6 symbols and contains numbers and capitalize letters.</div>
+                            <div class="error-templates" ng-if="UserListModel.IsValidated && UserListModel.frmUser.inpPassword1.$error.validateComparedPassword">Passwords  should be identical.</div>
+                        </div>
+                    </div>
+                    <div class="control-group-row">
+                        <label class="big">Confirm Password</label>
+                        <div class="error-wrap">
+                            <input type="password" ng-model="MODEL.currentUser.password2" required name="inpPassword2" validate-password validate-compared-password="MODEL.currentUser.password1" maxlength="100"/>
+                            <div class="error-templates" ng-if="UserListModel.IsValidated && UserListModel.frmUser.inpPassword2.$error.required"> Fill confirm password!</div>
+                            <div class="error-templates" ng-if="UserListModel.IsValidated && UserListModel.frmUser.inpPassword2.$error.validatePassword">Password should be more 6 symbols and contains numbers and capitalize letters.</div>
+                            <div class="error-templates" ng-if="UserListModel.IsValidated && UserListModel.frmUser.inpPassword2.$error.validateComparedPassword">Passwords  should be identical.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="new-block" ng-if="!UserListModel.isNewUser">
+                    <div class="control-group-row">
+                        <label class="middle">Password</label>
+                        <div class="error-wrap">
+                            <input type="password" ng-model="MODEL.currentUser.password1" name="inpPassword3" validate-password validate-compared-password="MODEL.currentUser.password2" maxlength="100"/>
+                            <div class="error-templates" ng-if="UserListModel.IsValidated && UserListModel.frmUser.inpPassword3.$error.validatePassword">Password should be more 6 symbols and contains numbers and capitalize letters.</div>
+                            <div class="error-templates" ng-if="UserListModel.IsValidated && UserListModel.frmUser.inpPassword3.$error.validateComparedPassword">Passwords  should be identical.</div>
+                        </div>
+                    </div>
+                    <div class="control-group-row">
+                        <label class="big">Confirm Password</label>
+                        <div class="error-wrap">
+                            <input type="password" ng-model="MODEL.currentUser.password2" name="inpPassword4" validate-password validate-compared-password="MODEL.currentUser.password1" maxlength="100"/>
+                            <div class="error-templates" ng-if="UserListModel.IsValidated && UserListModel.frmUser.inpPassword4.$error.validatePassword">Password should be more 6 symbols and contains numbers and capitalize letters.</div>
+                            <div class="error-templates" ng-if="UserListModel.IsValidated && UserListModel.frmUser.inpPassword4.$error.validateComparedPassword">Passwords  should be identical.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="new-block">
+                    <div class="control-group-row">
+                        <label class="middle">Email</label>
+                        <div class="error-wrap">
+                        <input type="email" ng-model="MODEL.currentUser.email" name="inpEmail" required maxlength="100"/>
+                        <div class="error-templates" ng-if="UserListModel.IsValidated && UserListModel.frmUser.inpEmail.$error.required">Fill email address.</div>
+                        <div class="error-templates" ng-if="UserListModel.IsValidated && UserListModel.frmUser.inpEmail.$error.email">Incorrect email format.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="new-block white">
+                    <div class="control-group-row">
+                        <input type="checkbox" ng-model="MODEL.currentUser.isAdmin"/>
+                        <label>Administrator</label>
+                    </div>
+                    <div class="control-group-row">
+                        <input type="checkbox" ng-model="MODEL.currentUser.isActive"/>
+                        <label>Active</label>
+                    </div>
+                </div>
+            </form>
+        </div> 
+        <h5>Users
+            <div class="wrap-control-group users">
+            <div class="control-group-left">
+                <label>Search User</label>
+                <input type="text" ng-model="UserListModel.SearchUserTerm" placeholder="Username, first name or last name" maxlength="100" ng-enter="searchUsers()"/>
+            </div>            
+            <button class="pull-right" ng-click="searchUsers()" ng-enter="searchUsers()"><span class="search"></span>Search</button>
+        </div> 
+        </h5>
+        <table class="templates">
+            <thead>
+                <tr>
+                    <th width="20%"><a href="" ng-click="setSortOptions('login')">Username
+                        <span ng-if="UserListModel.Sort.Field=='login' && !UserListModel.Sort.IsDescending" class="arr-up"></span>
+                        <span ng-if="UserListModel.Sort.Field=='login' && UserListModel.Sort.IsDescending" class="arr-down"></span>
+                    </a></th>
+                    <th width="20%"><a href="" ng-click="setSortOptions('firstName')">First Name
+                        <span ng-if="UserListModel.Sort.Field=='firstName' && !UserListModel.Sort.IsDescending" class="arr-up"></span>
+                        <span ng-if="UserListModel.Sort.Field=='firstName' && UserListModel.Sort.IsDescending" class="arr-down"></span>
+                    </a></th>
+                    <th width="20%"><a href="" ng-click="setSortOptions('lastName')">Last Name
+                        <span ng-if="UserListModel.Sort.Field=='lastName' && !UserListModel.Sort.IsDescending" class="arr-up"></span>
+                        <span ng-if="UserListModel.Sort.Field=='lastName' && UserListModel.Sort.IsDescending" class="arr-down"></span>
+                    </a></th>
+                    <th width="20%">Email</th>
+                    <th width="20%"><a href="" ng-click="setSortOptions('isActive')">Active
+                        <span ng-if="UserListModel.Sort.Field=='isActive' && !UserListModel.Sort.IsDescending" class="arr-up"></span>
+                        <span ng-if="UserListModel.Sort.Field=='isActive' && UserListModel.Sort.IsDescending" class="arr-down"></span>
+                    </a></th>
+                    <th width="50px">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="user in MODEL.users | orderBy : UserListModel.Sort.Field : UserListModel.Sort.IsDescending"  ng-class="$even ? 'even' : ''" >
+                    <td>{{user.login}}</td>
+                    <td>{{user.firstName}}</td>
+                    <td>{{user.lastName}}</td>
+                    <td>{{user.email}}</td>
+                    <td>
+                        <span ng-if="user.isActive">Yes</span>
+                        <span ng-if="!user.isActive">No</span>
+                    </td>
+                    <td class="last">
+                        <a href="" class="icons edit" title="Edit" ng-click="editUser(user)"></a>
+                    </td>
+                </tr>
+                <tr ng-if="MODEL.users.length==0">
+                    <td colspan="6">No users found</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

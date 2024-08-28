@@ -1,0 +1,76 @@
+<div class="tab-content-pad template-management">
+    <div class="m-b20">
+        <button class="btn btn-primary" ui-sref="entities.template-new">
+            <span class="icon icon-add" aria-hidden="true"></span>
+            <span class="m-l5">Create a new Template</span>
+        </button>
+    </div>
+    <div class="table-responsive" indigo-scroller="x">
+        <table class="table table-striped">
+            <thead>
+            <tr indigo-sort="vm.sortBy.field"
+                is-ascending="vm.sortBy.isAscending"
+                on-sort="vm.sortTemplates(predicate, isAscending)">
+                <th indigo-sort-by="name">
+                    <span i-translate="TEMPLATE_NAME"></span>
+                    <span class="glyphicon glyphicon-sort template-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="author">
+                    <span i-translate="CREATED_BY"></span>
+                    <span class="glyphicon glyphicon-sort template-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="creationDate">
+                    <span i-translate="CREATION_DATE"></span>
+                    <span class="glyphicon glyphicon-sort template-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="lastEditDate">
+                    <span i-translate="LAST_EDIT_DATE"></span>
+                    <span class="glyphicon glyphicon-sort template-management__icon-sort"></span>
+                </th>
+                <th>
+                    <span i-translate="ACTIONS"></span>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="template in vm.templates track by template.id">
+                <td ng-bind="template.name"></td>
+                <td ng-bind="template.author.login"></td>
+                <td ng-bind="template.creationDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>
+                <td ng-bind="template.lastEditDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>
+                <td>
+                    <div class="btn-group">
+                        <button type="submit"
+                                ui-sref="entities.template-detail({id:template.id})"
+                                class="btn btn-info btn-small">
+                            <span class="icon icon-eye"></span>
+                            <span class="m-l5" i-translate="VIEW"></span>
+                        </button>
+                        <button type="submit"
+                                ui-sref="entities.template-edit({id:template.id})"
+                                class="btn btn-info btn-small">
+                            <span class="icon icon-edit"></span>
+                            <span class="m-l5" i-translate="EDIT"></span>
+                        </button>
+                        <button type="submit"
+                                ui-sref="entities.template.delete({id:template.id})"
+                                class="btn btn-info btn-small">
+                            <span class="icon icon-delete"></span>
+                            <span class="m-l5" i-translate="DELETE"></span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="text-center">
+        <div uib-pagination
+             class="pagination-sm"
+             total-items="vm.totalItems"
+             items-per-page="vm.itemsPerPage"
+             ng-model="vm.page"
+             ng-change="vm.loadAll()">
+        </div>
+    </div>
+</div>

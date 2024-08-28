@@ -1,0 +1,46 @@
+<div class="modal-header">
+    <h5 class="modal-title" i-translate="UPLOAD_FILE"></h5>
+</div>
+<div class="modal-body">
+    <div>
+        <div nv-file-drop="" uploader="vm.uploader" filters="queueLimit, customFilter">
+            <div ng-if="vm.uploader.isHTML5" nv-file-drop="" uploader="vm.uploader" filters="queueLimit, customFilter">
+                <div class="well my-drop-zone" nv-file-over="" uploader="vm.uploader">
+                    <input type="file"
+                           nv-file-select=""
+                           uploader="vm.uploader"
+                           class="my-drop-zone-input"/>
+                    <div class="semi-b my-drop-zone-file" i-translate="DROP_FILE_HERE"></div>
+                </div>
+            </div>
+            <div>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th class="w-50">Name</th>
+                        <th ng-if="vm.uploader.isHTML5" i-translate="SIZE"></th>
+                        <th ng-if="vm.uploader.isHTML5" i-translate="PROGRESS"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="item in vm.uploader.queue track by $index">
+                        <td><strong ng-bind="item.file.name"></strong></td>
+                        <td ng-if="vm.uploader.isHTML5"><span ng-bind="item.file.size/1024/1024|number:2"></span> MB</td>
+                        <td ng-if="vm.uploader.isHTML5">
+                            <div class="progress nomarg">
+                                <div class="progress-bar" role="progressbar"
+                                     ng-style="{ 'width': item.progress + '%' }"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">
+        <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
+    </button>
+</div>

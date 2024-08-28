@@ -1,0 +1,22 @@
+<form id="productBatchSummarySetScalarValueForm" name="productBatchSummarySetScalarValueForm" ng-submit="vm.save()">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="vm.clear()">&times;</button>
+        <h5 class="modal-title"><span i-translate="SET_VALUE_FOR_$"></span> <span>{{vm.name}}</span></h5>
+    </div>
+    <div class="modal-body">
+        <simple-input>
+            <input class="form-control"
+                   type="number"
+                   ng-model="vm.value">
+        </simple-input>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
+            <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
+        </button>
+        <button type="submit" ng-disabled="productBatchSummarySetScalarValueForm.$invalid" class="btn btn-primary"
+                form="productBatchSummarySetScalarValueForm">
+            <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
+        </button>
+    </div>
+</form>

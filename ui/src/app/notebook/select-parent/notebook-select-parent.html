@@ -1,0 +1,42 @@
+<form id="select-parent-dialog" name="selectParentDialog" role="form" novalidate ng-submit="vm.ok()" autocomplete="off">
+    <div>
+        <div class="modal-header">
+            <h5 class="modal-title" i-translate="PROJECT_SELECTION"></h5>
+        </div>
+        <div class="modal-body">
+            <autocomplete label="Please select a project for new notebook"
+                          model="vm.selectedParent"
+                          items="vm.parents"
+                          on-select="vm.onSelect()"
+                          field="name"
+            ></autocomplete>
+            <div class="select-parent-dialog__table">
+                <table class="table table-striped" ng-if="vm.selectedParent">
+                    <thead>
+                    <tr>
+                        <th i-translate="PROJECT_NAME"></th>
+                        <th i-translate="CREATED_BY"></th>
+                        <th i-translate="CREATION_DATE"></th>
+                        <th i-translate="LAST_EDIT_DATE"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td ng-bind="vm.selectedParent.name"></td>
+                        <td ng-bind="vm.selectedParent.author.firstName + ' ' + vm.selectedParent.author.lastName"></td>
+                        <td ng-bind="vm.selectedParent.creationDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>
+                        <td ng-bind="vm.selectedParent.lastEditDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.cancel()">
+                <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
+            </button>
+            <button type="submit" form="select-parent-dialog" ng-disabled="!vm.selectedParent.id"
+                    class="btn btn-primary" i-translate="OK"></button>
+        </div>
+    </div>
+</form>

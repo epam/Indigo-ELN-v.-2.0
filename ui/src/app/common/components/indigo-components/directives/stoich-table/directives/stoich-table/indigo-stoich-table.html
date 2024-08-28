@@ -1,0 +1,75 @@
+<div class="panel panel-info component" indigo-collapsible-component>
+    <div class="panel-heading" i-translate="STOICHIOMETRY_TABLE"></div>
+    <div class="panel-body collapsible">
+        <indigo-table indigo-id="reactants"
+                      indigo-columns="vm.reactantsColumns"
+                      indigo-rows="vm.componentData.reactants"
+                      indigo-draggable-columns="true"
+                      indigo-draggable-rows="true"
+                      on-select-row="vm.onRowSelected(row)"
+                      is-readonly="vm.isReadonly"
+                      indigo-label="Reactants, Reagents, Solvents"
+                      on-changed="vm.onChange()"
+                      selected-batch="vm.selectedRow"
+                      on-close-cell="vm.onReagentsChanged(data)">
+            <div class="row m-b20">
+                <div class="col-lg-8 m-bt-lg">
+                    <div class="btn-group">
+                        <button type="button" ng-click="vm.searchReagents(0)" class="btn btn-info btn-small"
+                                ng-disabled="vm.isReadonly">
+                            <span class="icon icon-list"></span>
+                            <span class="m-l5" i-translate="MY_REAGENT_LIST"></span>
+                        </button>
+                        <button type="button" ng-click="vm.searchReagents(1)" class="btn btn-info btn-small"
+                                ng-disabled="vm.isReadonly">
+                            <span class="icon icon-search"></span>
+                            <span class="m-l5" i-translate="SEARCH_DBS"></span>
+                        </button>
+                        <button type="button" class="btn btn-info btn-small" disabled>
+                            <span class="icon icon-search"></span>
+                            <span class="m-l5" i-translate="MSDS_SEARCH"></span>
+                        </button>
+                        <button type="button" class="btn btn-info btn-small" ng-disabled="vm.isReadonly"
+                                ng-click="vm.appendRow()">
+                            <span class="icon icon-add"></span>
+                            <span class="m-l5" i-translate="ADD"></span>
+                        </button>
+                        <button type="button" class="btn btn-info btn-small"
+                                ng-disabled="vm.isReadonly || !vm.selectedRow" ng-click="vm.clear()">
+                            <span class="icon icon-eraser"></span>
+                            <span class="m-l5" i-translate="CLEAR"></span>
+                        </button>
+                        <button type="button" class="btn btn-info btn-small"
+                                ng-disabled="vm.isReadonly || !vm.selectedRow" ng-click="vm.removeRow()">
+                            <span class="icon icon-delete"></span>
+                            <span class="m-l5" i-translate="DELETE"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-align-lg">
+                    <div class="btn-group">
+                        <button type="button" ng-click="vm.analyzeRxn()"
+                                ng-disabled="vm.isReadonly || !vm.infoReactants.length"
+                                class="btn btn-info btn-small">
+                            <span class="icon icon-trending_up"></span>
+                            <span class="m-l5" i-translate="ANALYZE_RXN"></span>
+                        </button>
+                        <button type="button" class="btn btn-info btn-small" ng-click="vm.createRxn()"
+                                ng-disabled="vm.isReadonly || vm.noReactantsInStoic()">
+                            <span class="icon icon-add"></span>
+                            <span class="m-l5" i-translate="CREATE_RXN"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </indigo-table>
+        <indigo-table indigo-id="intended"
+                      indigo-columns="vm.productsColumns"
+                      indigo-rows="vm.componentData.products"
+                      is-readonly="vm.isReadonly"
+                      indigo-label="Intended Reaction Products"
+                      on-changed="vm.onChange()"
+                      on-close-cell="vm.onProductsChanged(data)">
+        </indigo-table>
+    </div>
+</div>

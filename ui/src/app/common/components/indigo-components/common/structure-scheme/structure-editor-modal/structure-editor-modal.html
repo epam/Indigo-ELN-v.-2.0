@@ -1,0 +1,14 @@
+<div>
+    <div class="modal-header">
+        <h5 class="modal-title" i-translate="STRUCTURE_EDITOR"></h5>
+    </div>
+    <div class="modal-body">
+        <indigo-editor indigo-structure="vm.structure" indigo-editor-name="{{vm.editor}}"></indigo-editor>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" type="button" ng-click="vm.cancel()">
+            <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
+        </button>
+        <button class="btn btn-primary" type="button" ng-click="vm.ok()" i-translate="OK"></button>
+    </div>
+</div>

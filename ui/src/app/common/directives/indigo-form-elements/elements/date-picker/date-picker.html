@@ -1,0 +1,9 @@
+<div class="form-group {{indigoClasses}}">
+    <label ng-bind="indigoLabel"></label>
+    <input type="{{indigoType}}" class="form-control" ng-model-options="{ debounce: 150 }"
+           ng-model="ctrl.model" date-time type="date"
+           format="MMM DD, YYYY HH:mm:ss z" ng-disabled="indigoReadonly" ng-required="indigoValidationRequired"/>
+    <div ng-if="ngModelCtrl.$invalid">
+        <p class="help-block" ng-if="ngModelCtrl.$error.required" i-translate="FIELD_REQUIRED_HINT"></p>
+    </div>
+</div>

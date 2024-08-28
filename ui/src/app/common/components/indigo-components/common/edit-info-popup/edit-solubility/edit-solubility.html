@@ -1,0 +1,90 @@
+<div class="modal-header">
+    <h5 class="modal-title" i-translate="EDIT_SOLUBILITY_IN_SOLVENTS_INFORMATION"></h5>
+</div>
+<div class="modal-body">
+    <p class="m-b20"><span class="semi-b" i-translate="PLEASE_ADD_SOLVENT_TO_SET_UP_SOLUBILITY"></span></p>
+    <div ng-if="vm.solubility.data.length">
+        <table class="table table-striped" id="search-result-table">
+            <thead class="search-table-head">
+            <tr>
+                <th class="w-20" i-translate="SOLVENT_NAME"></th>
+                <th class="w-20" i-translate="SOLUBILITY_TYPE"></th>
+                <th i-translate="SOLUBILITY_VALUE"></th>
+                <th class="w-25" i-translate="COMMENT"></th>
+                <th class="w-5"></th>
+            </tr>
+            </thead>
+            <tbody ng-repeat="item in vm.solubility.data track by $index">
+            <tr ng-class="{'search-table-row-highlight':item.isSelected}">
+                <td>
+                    <indigo-select indigo-dictionary="Solvent Name"
+                                   indigo-model="vm.solubility.data[$index].solventName">
+                    </indigo-select>
+                </td>
+                <td>
+                    <autocomplete items="vm.solubilityTypeSelect"
+                                  model="vm.solubility.data[$index].type">
+                    </autocomplete>
+                </td>
+                <td>
+                    <div class="row"
+                         ng-init="vm.solubility.data[$index].value.unit = vm.unitSelect[0]; vm.solubility.data[$index].value.operator= vm.operatorSelect[0]"
+                         ng-if="vm.solubility.data[$index].type && vm.solubility.data[$index].type.name == 'Quantitative'">
+                        <autocomplete class="col-xs-4 p-l1-all-0"
+                                      items="vm.operatorSelect"
+                                      model="vm.solubility.data[$index].value.operator">
+                        </autocomplete>
+                        <simple-input class="col-xs-4 p-l1-all-0">
+                            <input class="form-control"
+                                   type="number"
+                                   ng-model="vm.solubility.data[$index].value.value">
+                        </simple-input>
+                        <autocomplete class="col-xs-4 p-l1-all-0"
+                                      items="vm.unitSelect"
+                                      model="vm.solubility.data[$index].value.unit">
+                        </autocomplete>
+                    </div>
+                    <div class="row col-xs-12"
+                         ng-if="vm.solubility.data[$index].type && vm.solubility.data[$index].type.name == 'Qualitative'">
+                        <autocomplete items="vm.qualitativeSolubilitySelect"
+                                      model="vm.solubility.data[$index].value.value">
+                        </autocomplete>
+                    </div>
+                </td>
+                <td>
+                    <simple-input>
+                        <input class="form-control"
+                               ng-model="vm.solubility.data[$index].comment">
+                    </simple-input>
+                </td>
+                <td><a
+                        ng-click="vm.remove(vm.solubility.data[$index])"><span
+                        class="icon icon-delete"></span></a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="btn-group">
+        <button class="btn btn-info"
+                type="button"
+                ng-click="vm.addSolvent()">
+            <span class="icon icon-add"></span>
+            <span class="m-l5" i-translate="ADD_SOLVENT"></span>
+        </button>
+        <button class="btn btn-danger"
+                type="button"
+                ng-if="vm.solubility.data.length"
+                ng-click="vm.removeAll()">
+            <span class="icon icon-delete"></span>
+            <span class="m-l5" i-translate="REMOVE_ALL"></span>
+        </button>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">
+        <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
+    </button>
+    <button class="btn btn-primary" type="button" ng-click="vm.save()">
+        <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
+    </button>
+</div>

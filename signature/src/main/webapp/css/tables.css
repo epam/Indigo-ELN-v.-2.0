@@ -1,0 +1,10 @@
+/* '\\chr-0956\webapp\css'
+CMD.EXE was started with the above path as the current directory.
+UNC paths are not supported.  Defaulting to Windows directory.
+NameError: variable @brand-2 is undefined in \\chr-0956\webapp\css\tables.less on line 3, column 38:
+2 	
+3 table, .template { border: 1px solid @brand-2; margin-top: 13px; width: 100%;
+4 	&.templates {margin-top: 5px;}
+
+
+ */

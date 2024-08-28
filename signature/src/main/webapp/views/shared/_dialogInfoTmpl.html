@@ -1,0 +1,27 @@
+<!--
+**************************************************************************
+* Copyright (C) 2009-2015 EPAM Systems
+*
+* This file is part of Indigo Signature Service.
+*
+* This file may be distributed and/or modified under the terms of the
+* GNU General Public License version 3 as published by the Free Software
+* Foundation and appearing in the file LICENSE.GPL included in the
+* packaging of this file.
+*
+* This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+* WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+***************************************************************************
+-->
+<script type="text/ng-template" id="dialogInfoTmpl">
+    <div class="modal-header">
+        <h2>{{InfoModel.header}}</h2>
+    </div>
+    <div class="modal-body">
+        <p ng-bind-html="InfoModel.message"></p>
+        <p class="error-templates text-center" ng-if="InfoModel.error != ''">{{InfoModel.error}}</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" ng-click="cancel()">Close</button>
+    </div>
+</script>

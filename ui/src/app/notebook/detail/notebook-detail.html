@@ -1,0 +1,164 @@
+<div class="notebooks" ng-class="{'notebook-create': !vm.notebook.id}" ng-show="!vm.isNotHavePermissions" cg-busy="{promise:vm.loading}">
+    <autorecovery kind="{{vm.stateData.tab.kind}}"
+                  name="{{vm.notebook.name}}"
+                  on-restore="vm.onRestore(recoveryData)">
+    </autorecovery>
+    <div class="tab-content-pad">
+        <div class="row m-b20">
+            <div class="col-sm-6 col-xs-9">
+                <div class="row-inline">
+                    <span class="txt-larger"><span i-translate="NOTEBOOK_MEMBERS"></span>:</span>
+                    <button ui-sref=".permissions"
+                            class="btn btn-default btn-small"
+                            ng-disabled="!vm.isEditAllowed">
+                        <span class="icon icon-edit"></span>
+                        <span class="m-l5" i-translate="EDIT"></span>
+                    </button>
+                    <button type="button" class="btn btn-default btn-small"
+                            ui-sref=".permissions-view">
+                        <span class="icon icon-eye"></span><span class="m-l5" i-translate="VIEW_MEMBERS"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <form id="createNotebookForm"
+          name="createNotebookForm"
+          role="form"
+          novalidate
+          ng-submit="vm.save()"
+          autocomplete="off"
+          ng-class="vm.hasError ? 'has-error' : ''">
+        <div class="inner-tabs">
+            <div class="simple-tab-content">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <simple-input
+                            validation-pattern-text="Only 8 digits possible in this field. Example : 01234567">
+                            <span i-translate="NOTEBOOK_NAME"></span>
+                            <input class="form-control"
+                                   name="notebookName"
+                                   type="text"
+                                   required
+                                   ng-model="vm.notebook.name"
+                                   ng-model-options="{ debounce: 300 }"
+                                   ng-pattern="/^\d{8}$/"
+                                   ng-disabled="!vm.isEditAllowed"
+                                   dynamic-async-validators="{ notebookExists: vm.notebookExistValidation }">
+                            <p ng-if="createNotebookForm.notebookName.$error.notebookExists"
+                               class="help-block"
+                               i-translate="NAME_ALREADY_EXIST"></p>
+                        </simple-input>
+                        <label i-translate="NOTEBOOK_DESCRIPTION"></label>
+                        <indigo-text-editor indigo-name="notebookDescription"
+                                            indigo-model="vm.notebook.description"
+                                            indigo-readonly="!vm.isEditAllowed"
+                                            on-changed="vm.onChangedDescription(text)">
+                        </indigo-text-editor>
+
+
+                        <div ng-if="vm.isSummary && vm.experiments.length"
+                             class="panel panel-info panel-info-table m-t20">
+                            <div class="panel-heading">
+                                <span i-translate="CONTENTS_FOR_NOTEBOOK"></span> <span
+                                ng-bind="notebook.name"></span></div>
+                            <div class="panel-body panel-body-nopad">
+                                <div class="table-responsive" indigo-scroller="x">
+                                    <table class="main-table table table-striped table-condensed">
+                                        <thead class="main-table__header">
+                                        <tr class="table-list">
+                                            <th class="table-list__item table-list__item_header w-15"
+                                                i-translate="NOTEBOOK_EXPERIMENT">
+                                            </th>
+                                            <th class="table-list__item table-list__item_header w-35"
+                                                i-translate="EXPERIMENT_DETAILS">
+                                            </th>
+                                            <th class="table-list__item table-list__item_header w-35"
+                                                i-translate="REACTION_SCHEME">
+                                            </th>
+                                            <th class="table-list__item table-list__item_header w-15"
+                                                i-translate="ACTIONS">
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody class="main-table__body">
+                                        <tr class="table-list" ng-repeat="exp in vm.experiments track by $index">
+                                            <td class="table-list__item"><a
+                                                ng-click="vm.goToExp(exp)" ng-bind="exp.fullName"></a></td>
+                                            <td class="table-list__item">
+                                                <p>
+                                                    <span i-translate="CREATION_DATE"></span>: <span ng-bind="exp.creationDate |
+                                                    date:'MMM dd yyyy'"></span>
+                                                </p>
+                                                <p><span i-translate="SUBJECT_TITLE"></span>: <span ng-bind="exp.reactionDetails.title ||
+                                                    exp.conceptDetails.title"></span></p>
+                                                <p><span i-translate="AUTHOR"></span>: <span
+                                                    ng-bind="exp.author.firstName + ' ' + exp.author.lastName"></span>
+                                                </p>
+                                                <p><span i-translate="EXPERIMENT_STATUS"></span>: <span
+                                                    ng-bind="exp.status"></span></p>
+                                            </td>
+                                            <td class="table-list__item">
+                                                <img ng-if="!!exp.components.reaction.image"
+                                                     class="img-fill img-responsive center-block notebook-reaction-img"
+                                                     ng-src="data:image/svg+xml;base64,{{exp.components.reaction.image}}"
+                                                     alt="Image is unavailable.">
+                                            </td>
+                                            <td class="table-list__item">
+                                                <a ui-sref="entities.experiment-detail({projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})"
+                                                   i-translate="OPEN"></a>,
+                                                <a ui-sref="entities.experiment-detail.print({projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})"
+                                                   i-translate="PRINT"></a>,
+                                                <a ng-click="vm.repeatExperiment(exp, {projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})"
+                                                   i-translate="REPEAT"></a>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class="btn-bottom-block tab-content-pad">
+        <div class="pull-left">
+            <button class="btn btn-info"
+                    type="button" ng-click="vm.showSummary()"
+                    ng-switch="!vm.isSummary"
+                    ng-disabled="!vm.allowContent || !vm.notebook.id">
+                <span class="m-l5" ng-switch-when="true" i-translate="SHOW_NOTEBOOK_CONTENT"></span>
+                <span class="m-l5" ng-switch-default i-translate="HIDE_NOTEBOOK_CONTENT"></span>
+            </button>
+            <!--TODO: Task EPMLSOPELN-532: Functionality is temporarily removed-->
+            <!--<button type="button" class="btn btn-default" ng-disabled="!vm.canUndo()" ng-click="vm.undoAction()">-->
+            <!--<span class="icon icon-undo"></span><span class="m-l5">Undo Action</span>-->
+            <!--</button>-->
+            <!--<button type="button" class="btn btn-default" ng-disabled="!vm.canRedo()" ng-click="vm.redoAction()">-->
+            <!--<span class="fa fa-redo"></span><span class="m-l5">Redo Action</span>-->
+            <!--</button>-->
+        </div>
+        <button class="btn btn-info" type="button"
+                ng-disabled="!vm.isCreateChildAllowed || !vm.notebook.id"
+                ng-click="vm.createExperiment()" i-translate="CREATE_EXPERIMENT">
+        </button>
+        <button class="btn btn-info" type="button" ng-click="vm.print()" i-translate="PRINT"></button>
+        <button type="submit" form="createNotebookForm"
+                ng-disabled="!vm.isEditAllowed || createNotebookForm.$invalid || vm.isSaving || !vm.isEntityChanged"
+                class="btn btn-primary">
+            <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
+        </button>
+        <button class="btn btn-default" ng-click="vm.refresh()"
+                ng-disabled="!vm.isEditAllowed || !vm.isEntityChanged">
+            <span class="icon icon-refresh"></span><span class="m-l5" i-translate="RESET"></span>
+        </button>
+        <button type="button" class="btn btn-default" onclick="window.history.back()">
+            <span class="icon icon-undo"></span><span class="m-l5" i-translate="BACK"></span>
+        </button>
+    </div>
+</div>
+<div  class="access-notification" i-translate="ACCESS_DENIED" ng-if="vm.isNotHavePermissions"></div>
+

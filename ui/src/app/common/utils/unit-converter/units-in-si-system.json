@@ -1,0 +1,26 @@
+[
+  {
+    "si": "g",
+    "indigoBase": "mg"
+  },
+  {
+    "si": "b",
+    "indigoBase": "b"
+  },
+  {
+    "si": "l",
+    "indigoBase": "ml"
+  },
+  {
+    "si": "m",
+    "indigoBase": "m"
+  },
+  {
+    "si": "mol",
+    "indigoBase": "mmol"
+  },
+  {
+    "si": "M",
+    "indigoBase": "M"
+  }
+]

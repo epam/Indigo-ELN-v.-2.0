@@ -1,0 +1,24 @@
+<div class="modal-header">
+    <h5 class="modal-title" i-translate="SELECT_ENTITIES_TO_SAVE" i-end=":"></h5>
+</div>
+<div class="modal-body">
+    <div class="long-content-popup">
+        <div class="select-from-dictionary" ng-repeat="entity in vm.entities track by entity.tabKey">
+            <indigo-checkbox
+                    indigo-model="entity.$$saveEntity"
+                    indigo-label="{{entity.name | capitalize}} {{entity.$$title}}"
+            ></indigo-checkbox>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">
+        <span class="icon icon-stop"></span>
+        <span class="m-l5" i-translate="CANCEL"></span>
+    </button>
+    <button class="btn btn-primary" type="button" ng-click="vm.save()" ng-disabled="!vm.isSelected()">
+        <span class="icon icon-save"></span>
+        <span class="m-l5" i-translate="SAVE"></span>
+    </button>
+    <button class="btn btn-info" type="button" ng-click="vm.discardAll()" i-translate="DISCARD_ALL"></button>
+</div>

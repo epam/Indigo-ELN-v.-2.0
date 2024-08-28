@@ -1,0 +1,61 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+                           http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd">
+
+    <import resource="security-context.xml"/>
+
+    <import resource="mvc-dispatcher-servlet.xml"/>
+
+    <context:property-placeholder location="classpath:user.properties,classpath:sftp.properties"/>
+
+    <context:component-scan base-package="com.chemistry.enotebook.signature"/>
+
+    <import resource="integration-context.xml"/>
+
+    <!-- perform async tasks, i.e. ftp sending -->
+
+    <task:annotation-driven executor="myExecutor" scheduler="myScheduler"/>
+    <task:executor id="myExecutor" pool-size="5"/>
+    <task:scheduler id="myScheduler" pool-size="10"/>
+
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${database-driver-class}"/>
+        <property name="url" value="${database-connection-url}"/>
+        <property name="username" value="${database-user}"/>
+        <property name="password" value="${database-password}"/>
+    </bean>
+
+    <bean id="database" class="com.chemistry.enotebook.signature.database.DatabaseConnector">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="driverClassName" value="${database-driver-class}"/>
+    </bean>
+
+    <bean id="emailSender" class="com.chemistry.enotebook.signature.email.EmailSender">
+        <constructor-arg name="emailFrom" value="${mail-from}"/>
+        <constructor-arg name="emailUser" value="${mail-username}"/>
+        <constructor-arg name="emailPassword" value="${mail-password}"/>
+        <constructor-arg name="emailSmtpHost" value="${mail-smtp-host}"/>
+        <constructor-arg name="emailSmtpPort" value="${mail-smtp-port}"/>
+        <constructor-arg name="emailAuth" value="${mail-auth}"/>
+        <constructor-arg name="emailSsl" value="${mail-ssl}"/>
+        <constructor-arg name="emailTls" value="${mail-tls}"/>
+    </bean>
+
+    <bean id="signatureProperties" class="com.chemistry.enotebook.signature.SignatureProperties">
+        <constructor-arg name="finalStatus" value="${final-status}"/>
+        <constructor-arg name="isUploadDocumentsAllowed" value="${is-upload-documents-allowed}"/>
+        <constructor-arg name="signingMethod" value="${signing-method}"/>
+        <constructor-arg name="indigoElnAddress" value="${signature-service-address}"/>
+    </bean>
+
+    <bean id="signatureServiceArchiver" class="com.chemistry.enotebook.signature.archiver.SignatureServiceArchiver">
+        <constructor-arg name="archiverClassName" value="${com.chemistry.enotebook.signature.archiver.Archiver}"/>
+    </bean>
+
+    <bean id="signatureUtil" class="com.chemistry.enotebook.signature.SignatureUtil"/>
+
+</beans>

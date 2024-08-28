@@ -1,0 +1,101 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+@import 'variables.less';
+@import 'mixin.less';
+@import 'helper.less';
+
+/******************SEARCH*********************/
+
+.search-info {
+  display: inline-block;
+  padding-right: 10px;
+}
+.search-action {
+  margin-right: 20px;
+}
+.search-field {
+  display: inline-block;
+  height: @search-field-height;
+  position: relative;
+
+  .uui-search {
+    background-color: @search-bg;
+    border: @search-border;
+    .border-radius(@search-radius);
+    .h-w(100%, @search-width);
+    padding: @search-pad;
+    outline: none;
+    .transition(all, 0.3s, linear);
+  }
+
+  .icon {
+    color: @search-icon-color;
+    cursor: pointer;
+    .position-abs-top-left(10px, 50%);
+    .transform-center(0, -50%);
+  }
+
+  &-main {
+    height: @search-main-height;
+
+    .uui-search {
+      background-color: @search-main-bg;
+      border-color: transparent;
+      color: @search-main-color;
+      font-size: @search-main-size;
+      .placeholder(@search-main-placeholder-color);
+      width: @search-main-width;
+    }
+
+    .icon {
+      color: @search-main-placeholder-color;
+    }
+
+    &.active {
+
+      .uui-search {
+        background-color: @search-main-active-bg;
+        color: @search-main-active-color;
+        .placeholder(@search-main-active-color);
+        width: @search-active-width;
+      }
+
+      .icon {
+        color: @search-main-active-color;
+      }
+    }
+  }
+
+  &.search-full {
+    display: block;
+    margin-bottom: 20px;
+
+    .uui-search {
+      width: 100%;
+    }
+  }
+}
+
+.search-panel {
+  &__line-height {
+    line-height: 1.5;
+  }
+}

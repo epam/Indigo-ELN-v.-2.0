@@ -1,0 +1,79 @@
+/*
+ * Copyright (C) 2015-2018 EPAM Systems
+ *
+ * This file is part of Indigo ELN.
+ *
+ * Indigo ELN is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Indigo ELN is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Indigo ELN.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+@import 'variables.less';
+@import 'mixin.less';
+@import 'helper.less';
+
+/******************DIALOGS STYLE*********************/
+@media (min-width: @screen-sm) {
+  .modal-dialog {
+    margin: 100px auto;
+  }
+}
+.modal-dialog {
+  .modal-title{
+    font-size: @modal-title-size;
+
+    .glyphicon, .icon {
+      margin-right: 5px;
+    }
+  }
+
+  .modal-footer {
+    border: 0 none;
+
+    .btn + .btn {
+      margin-left: @space-between-btns;
+    }
+  }
+}
+
+.countdown-dialog {
+  .progress-striped{
+    margin-bottom: 0;
+  }
+}
+
+.modal-body-search {
+  padding-left: 0;
+  padding-right: 0;
+
+  .tab-content {
+    background-color: transparent;
+    border: 0 none;
+    height: auto;
+    padding: 10px 20px 0;
+  }
+}
+
+.rxn-body-search {
+  .tab-content {
+    background-color: transparent;
+    border: 0 none;
+    height: auto;
+    padding: 10px 0px 0;
+    overflow-x: hidden;
+  }
+
+  .inner-tabs .nav-tabs {
+    padding: 0px;
+  }
+}

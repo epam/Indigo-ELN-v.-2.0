@@ -1,0 +1,6 @@
+<div class="readonly-text"
+     ng-class="{editable: !vm.indigoReadonly}"
+     ng-if="vm.indigoReadonly || !vm.isEditing"
+     ng-bind-html="vm.indigoModel"
+     ng-click="vm.startEdit()">
+</div>

@@ -1,0 +1,10 @@
+<div class="cg-notify-message" ng-class="[$classes]">
+
+    <span ng-show="!$messageTemplate" ng-bind="$message"></span>
+
+    <button type="button" class="notify-close" ng-click="$close()">
+        <span aria-hidden="true">&times;</span>
+        <span class="cg-notify-sr-only" i-translate="CLOSE"></span>
+    </button>
+
+</div>

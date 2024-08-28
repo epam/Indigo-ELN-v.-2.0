@@ -1,0 +1,51 @@
+<form id="select-parent-dialog" name="selectParentDialog" role="form" novalidate ng-submit="vm.ok()" autocomplete="off">
+    <div>
+        <div class="modal-header">
+            <h5 class="modal-title" i-translate="EXPERIMENT_CREATION"></h5>
+        </div>
+        <div class="modal-body">
+            <autocomplete label="Please select a Template for new experiment"
+                          model="vm.selectedTemplate"
+                          on-select="vm.onTemplateSelect()"
+                          items="vm.templates"
+                          field="name">
+            </autocomplete>
+            <autocomplete ng-if="!vm.fullNotebookId"
+                          label="Please select a Notebook for new experiment"
+                          model="vm.selectedNotebook"
+                          on-select="vm.onNotebookSelect()"
+                          items="vm.notebooks"
+                          field="name">
+            </autocomplete>
+            <div class="create-experiment__table">
+                <table class="table table-striped" ng-if="vm.selectedNotebook">
+                    <thead>
+                    <tr>
+                        <th i-translate="NOTEBOOK_NAME"></th>
+                        <th i-translate="CREATED_BY"></th>
+                        <th i-translate="CREATION_DATE"></th>
+                        <th i-translate="LAST_EDIT_DATE"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td ng-bind="vm.selectedNotebook.name"></td>
+                        <td ng-bind="vm.selectedNotebook.author.firstName + ' ' + vm.selectedNotebook.author.lastName"></td>
+                        <td ng-bind="vm.selectedNotebook.creationDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>
+                        <td ng-bind="vm.selectedNotebook.lastEditDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.cancel()">
+                <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
+            </button>
+            <button type="submit" form="select-parent-dialog"
+                    ng-disabled="selectParentDialog.$invalid || !vm.selectedNotebook.id ||
+                    !vm.selectedTemplate.id || vm.isSaving" class="btn btn-primary" i-translate="OK">
+            </button>
+        </div>
+    </div>
+</form>

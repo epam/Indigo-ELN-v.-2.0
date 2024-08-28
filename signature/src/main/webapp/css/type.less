@@ -1,0 +1,48 @@
+//
+// Typography
+// --------------------------------------------------
+
+// Body text
+// -------------------------
+
+p {margin: 0 0 (@line-height-computed / 2);}
+.bold {font-weight:700;}
+.lead {margin-bottom: (@line-height-computed / 2);font-size: @font-size-large;font-weight: 200;color:@text-secondary-color;}
+small, .small   {font-size: 80%;} // ~11px for base font
+.upp {text-transform:uppercase;}
+.bigtext {font-size:@font-size-large;}
+
+// Alignment
+.text-left           {text-align: left;}
+.text-right          {text-align: right;}
+.text-center         {text-align: center;}
+
+.text-secondary      {color: @text-secondary-color;}
+
+// Headings
+// -------------------------
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: @headings-font-family;
+  font-weight: @headings-font-weight;
+  line-height: @headings-line-height;
+  color:@headings-color;
+  margin-top:	 (@line-height-computed / 2);
+  margin-bottom: (@line-height-computed / 2);  
+}
+h1, h2, h3, h4, h5, h6 {margin-top:0;}
+
+
+h1 { font-size: ceil(@font-size-base * 2.1); } // ~26px
+h2 { font-size: ceil(@font-size-base * 1.8); } // ~22px
+h3 { font-size: ceil(@font-size-base * 1.5); } // ~18px
+h4 { font-size: ceil(@font-size-base * 1.08); } // ~13px
+h5 { font-size: ceil(@font-size-base * 1.1); } // ~14px
+h6 { font-size: @font-size-base;} // ~12px
+
+.small {font-size:@font-size-small;}
+.comment {font-size:@font-size-small; color:@link-color;}
+.up {text-transform:uppercase;}
+
+
+

@@ -1,0 +1,81 @@
+<!--
+**************************************************************************
+* Copyright (C) 2009-2015 EPAM Systems
+*
+* This file is part of Indigo Signature Service.
+*
+* This file may be distributed and/or modified under the terms of the
+* GNU General Public License version 3 as published by the Free Software
+* Foundation and appearing in the file LICENSE.GPL included in the
+* packaging of this file.
+*
+* This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+* WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+***************************************************************************
+-->
+<script type="text/ng-template" id="documentActionTmpl">
+    <div class="modal-header">
+        <h2 ng-if="MODEL.currentAction == 'sign'" >Signing Document<span ng-click="cancel()" title="Close"></span></h2>
+        <h2 ng-if="MODEL.currentAction == 'reject'" >Rejecting Document<span ng-click="cancel()" title="Close"></span></h2>
+    </div>
+    <div class="modal-body">
+        <form name="ActionModel.frmAct"  novalidate  ng-class="(ActionModel.IsValidated && ActionModel.frmAct.$invalid) ? 'js-validated' : ''">
+        <div class="popup-control-group">
+            <label>Document Name:</label>
+            <p title="{{MODEL.currentDocument.name}}">{{MODEL.currentDocument.name | characters:55}}</p>
+        </div>
+        <div class="popup-control-group">
+            <label>Status:</label>
+            <p><span class="status-wrapper"><span status-icon="{{MODEL.currentDocument.statusId}}"></span><span class='status-text' status-text="{{MODEL.currentDocument.statusId}}"></span></span></p>
+        </div>
+        <div class="popup-control-group">
+            <label>Signing Start Date:</label>
+            <p>{{MODEL.currentDocument.creationDate  | date:UI.dateFormat}}</p>
+        </div>
+        <div class="popup-control-group">
+            <label>Last Update Date:</label>
+            <p>{{MODEL.currentDocument.modifiedDate | date:UI.dateFormat}}</p>
+        </div>
+        <div class="popup-control-group">
+            <label>Author:</label>
+            <p>{{MODEL.currentDocument.author}}</p>
+        </div>
+        <div class="popup-control-group">
+            <label>Witness:</label>
+            <p><span ng-repeat="witness in MODEL.currentDocument.witnesses">{{witness.userName}}<span ng-if="MODEL.currentDocument.witnesses.length>1 && !$last">, </span></span></p>
+        </div>
+        <div class="popup-control-group" ng-if="MODEL.currentAction == 'sign' && UI.signMethod != 1">
+            <label>Password:</label>
+            <div class="error-wrap">
+                <input type="password" ng-model="ActionModel.password" required name="inpPassword"/>
+                <div class="clear"></div>
+                <div class="error-templates" ng-if="ActionModel.IsValidated && ActionModel.frmAct.inpPassword.$invalid">Fill password!</div>
+            </div>
+        </div>
+        <div class="popup-control-group" ng-if="MODEL.currentAction == 'sign' && UI.signMethod != 1">
+            <label>Certificate:</label>
+            <div class="error-wrap">
+                <input type="text" value="{{ActionModel.File.name}}" readonly ng-class="(ActionModel.IsValidated && ActionModel.File == null)?'ng-invalid':''"  required/>
+                <div class="add-file"><input type="file" ng-file-select="onFileSelect($files)" name="inpFile" id="inpFile" required/><label for="inpFile" class="btn btn-primary">Browse</label></div>
+                <div class="clear"></div>
+                <div class="error-templates" ng-if="ActionModel.IsValidated && ActionModel.File == null">Select certificate!</div>
+            </div>
+        </div>
+        <div class="popup-control-group">
+            <label>Comment:</label>
+            <div class="error-wrap">
+                <textarea ng-model="ActionModel.comment" ng-required="MODEL.currentAction == 'reject'" name="inpComment"></textarea>
+                <div class="clear"></div>
+                <div class="error-templates" ng-if="ActionModel.IsValidated && ActionModel.frmAct.inpComment.$invalid">Fill comment!</div>
+            </div>
+        </div>
+        </form>
+        <div class="error-templates text-center" ng-if="ActionModel.Error != ''">{{ActionModel.Error}}</div>
+    </div>
+    <div class="modal-footer">
+        <a class="btn" href="downloadDocument?id={{MODEL.currentDocument.id}}" target="_blank" ng-click="download()">View</a>
+        <button class="btn text-left" ng-if="MODEL.currentAction == 'sign'" ng-click="sign()" ng-disabled="!MODEL.currentDocument.isViewed"><span class="tick"></span>Sign</button>
+        <button class="btn text-left" ng-if="MODEL.currentAction == 'reject'" ng-click="reject()" ng-disabled="!MODEL.currentDocument.isViewed"><span class="cross"></span>Reject</button>
+        <button class="btn" ng-click="cancel()">Cancel</button>
+    </div>
+</script>

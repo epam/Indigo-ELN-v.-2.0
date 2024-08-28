@@ -1,0 +1,19 @@
+<div ng-if="ngModelCtrl.$invalid && ngModelCtrl.$dirty">
+    <p class="help-block"
+       ng-if="ngModelCtrl.$error.required"
+       i-translate="FIELD_REQUIRED_HINT">
+    </p>
+    <p class="help-block"
+       ng-if="ngModelCtrl.$error.maxlength">
+        <span i-translate="MAXLENGTH_HINT"></span>
+        <span ng-bind="ngModelCtrl.maxlength"></span>
+        <span i-translate="CHARACTERS"></span>
+    </p>
+    <p class="help-block"
+       ng-if="ngModelCtrl.$error.email"
+       i-translate="EMAIL_HINT">
+    </p>
+    <p class="help-block"
+       ng-if="ngModelCtrl.$error.pattern"
+       ng-bind="validationPatternText"></p>
+</div>

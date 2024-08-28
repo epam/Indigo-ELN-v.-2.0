@@ -1,0 +1,40 @@
+<!--
+**************************************************************************
+* Copyright (C) 2009-2015 EPAM Systems
+*
+* This file is part of Indigo Signature Service.
+*
+* This file may be distributed and/or modified under the terms of the
+* GNU General Public License version 3 as published by the Free Software
+* Foundation and appearing in the file LICENSE.GPL included in the
+* packaging of this file.
+*
+* This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+* WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+***************************************************************************
+-->
+<div class="header">
+    <div class="logo">
+        <em></em><span></span>
+    </div>
+</div>
+<div class="content">
+    <form name="LoginModel.frmLogin" novalidate  ng-class="(LoginModel.IsValidated && LoginModel.frmLogin.$invalid) ? 'js-validated' : ''">
+    <h1 class="text-center">Authorization</h1>
+    <div class="control-group-registry">
+        <label>Login</label>
+        <input type="text" name="inpLogin" required ng-enter="doLogin()" ng-model="LoginModel.login" auto-fill-sync/>
+        <div class="error-registration" ng-if="LoginModel.IsValidated && LoginModel.frmLogin.inpLogin.$invalid"><span></span>Enter login!</div>
+    </div>
+    <div class="control-group-registry">
+        <label>Password</label>
+        <input type="password" name="inpPassw" required ng-enter="doLogin()" ng-model="LoginModel.password" auto-fill-sync/>
+        <div class="error-registration" ng-if="LoginModel.IsValidated && LoginModel.frmLogin.inpPassw.$invalid"><span></span>Enter password!</div>
+    </div>
+    <div class="control-group-registry" ng-if="LoginModel.Error != null">
+        <div class="error-authorization">{{LoginModel.Error}}</div>
+    </div>
+    <div class="rhombus"></div>
+    <button class="btn-login" ng-click="doLogin()">Login</button>
+    </form>
+</div>

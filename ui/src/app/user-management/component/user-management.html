@@ -1,0 +1,219 @@
+<div class="tab-content-pad user-management">
+    <div class="row m-b20">
+        <div class="col-sm-6">
+            <button class="btn btn-primary" ng-click="vm.create()">
+                <span class="icon icon-add" aria-hidden="true"></span>
+                <span class="m-l5" i-translate="CREATE_NEW_USER"></span>
+            </button>
+        </div>
+        <div class="col-sm-6 text-right">
+            <div class="search-field m-t5">
+                <span class="icon icon-search" ng-click="vm.search()"></span>
+                <input type="search"
+                       class="uui-search"
+                       placeholder="Search"
+                       ng-change="vm.search()"
+                       ng-model="vm.searchText"
+                       ng-model-options="{ debounce: 300 }">
+            </div>
+        </div>
+    </div>
+    <div ng-if="vm.user" class="panel panel-info edit-form animated">
+        <div class="panel-heading" i-translate="CREATE_EDIT_USER"></div>
+        <div class="panel-body ">
+            <form id="vm.editForm"
+                  name="vm.editForm"
+                  role="form"
+                  novalidate
+                  autocomplete="off">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <simple-input validation-pattern-text="{{ ::vm.loginValidationText}}">
+                            <span i-translate="LOGIN"></span>
+                            <input class="form-control"
+                                   name="login"
+                                   ng-required="!vm.user.id"
+                                   ng-disabled="vm.user.id"
+                                   type="text"
+                                   maxlength="50"
+                                   ng-pattern="/^[a-z0-9]*$/"
+                                   ng-model="vm.user.login"
+                                   dynamic-async-validators="{ userExists: vm.userExistValidation }">
+                            <p ng-if="vm.editForm.login.$error.userExists"
+                               class="help-block">The user with login {{vm.editForm.login.$viewValue}} is already exists in the system. Please provide new login.</p>
+                        </simple-input>
+                        <simple-input>
+                            <span i-translate="FIRST_NAME"></span>
+                            <input class="form-control"
+                                   name="firstName"
+                                   required
+                                   type="text"
+                                   maxlength="50"
+                                   ng-model="vm.user.firstName">
+                        </simple-input>
+                        <simple-input>
+                            <span i-translate="LAST_NAME"></span>
+                            <input class="form-control"
+                                   name="lastName"
+                                   required
+                                   type="text"
+                                   maxlength="50"
+                                   ng-model="vm.user.lastName">
+                        </simple-input>
+                        <autocomplete label="System Roles"
+                                      el-name="role"
+                                      is-required="true"
+                                      readonly="vm.isEditingSelf"
+                                      model="vm.user.roles"
+                                      items="vm.roles"
+                                      is-multiple="true"
+                                      on-refresh="vm.searchRoles(query)"
+                                      on-load-page="vm.loadRolesPage(query)">
+                        </autocomplete>
+                        <p class="help-block" ng-if="vm.editForm.role.$invalid && vm.editForm.role.$dirty"
+                           i-translate="FIELD_REQUIRED_HINT"></p>
+                        <p class="help-block" ng-if="vm.isEditingSelf"
+                           i-translate="SELF_ROLE_CHANGE_HINT"></p>
+                    </div>
+                    <div class="col-xs-6">
+                        <simple-input>
+                            <span i-translate="EMAIL"></span>
+                            <input class="form-control"
+                                   name="email"
+                                   required
+                                   type="email"
+                                   maxlength="100"
+                                   ng-model="vm.user.email">
+                        </simple-input>
+
+                        <simple-input ng-if="!vm.user.id"
+                                      validation-pattern-text="{{ ::vm.passwordValidationText }}">
+                            <span i-translate="PASSWORD"></span>
+                            <div class="password-block">
+                                <input class="form-control"
+                                       name="password"
+                                       type="{{ vm.passwordIsVisible ? 'text' : 'password' }}"
+                                       autocomplete="new-password"
+                                       maxlength="50"
+                                       ng-model="vm.user.password"
+                                       required
+                                       ng-pattern="vm.passwordRegex">
+                                    <i ng-click="vm.changePasswordVisibility()"
+                                       ng-class="vm.passwordIsVisible ? 'glyphicon glyphicon-eye-open pull-right eye-icon'
+                                                                      : 'glyphicon glyphicon-eye-close pull-right eye-icon'">
+                                    </i>
+                            </div>
+                        </simple-input>
+                        <autocomplete label="Groups"
+                                      items="vm.groups"
+                                      model="vm.user.group"
+                        ></autocomplete>
+
+                        <button class="btn btn-info"
+                                ng-if="vm.user.id"
+                                ng-click="vm.changePassword()"
+                                i-translate="CHANGE_PASSWORD">
+                        </button>
+
+                        <indigo-checkbox
+                            indigo-label="Activated"
+                            indigo-model="vm.user.activated"
+                        ></indigo-checkbox>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="panel-footer text-right">
+            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
+                <span class="icon icon-stop"></span><span class="m-l5" i-translate="CANCEL"></span>
+            </button>
+            <button ng-click="vm.saveUser()" form="vm.editForm"
+                    ng-disabled="vm.editForm.$invalid || vm.isSaving"
+                    class="btn btn-primary m-l5">
+                <span class="icon icon-save"></span><span class="m-l5" i-translate="SAVE"></span>
+            </button>
+        </div>
+    </div>
+    <div class="table-responsive" indigo-scroller="x">
+        <table class="table table-striped">
+            <thead>
+            <tr indigo-sort="vm.sortBy.field"
+                is-ascending="vm.sortBy.isAscending"
+                on-sort="vm.sortUsers(predicate, isAscending)">
+                <th indigo-sort-by="login">
+                    <span i-translate="USERNAME"></span>
+                    <span class="glyphicon glyphicon-sort user-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="firstName">
+                    <span i-translate="FIRST_NAME"></span>
+                    <span class="glyphicon glyphicon-sort user-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="lastName">
+                    <span i-translate="LAST_NAME"></span>
+                    <span class="glyphicon glyphicon-sort user-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="role">
+                    <span i-translate="SYSTEM_ROLES"></span>
+                    <span class="glyphicon glyphicon-sort user-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="email">
+                    <span i-translate="EMAIL"></span>
+                    <span class="glyphicon glyphicon-sort user-management__icon-sort"></span>
+                </th>
+                <th indigo-sort-by="activated">
+                    <span i-translate="ACTIVE"></span>
+                    <span class="glyphicon glyphicon-sort user-management__icon-sort"></span>
+                </th>
+                <th>
+                    <span i-translate="ACTION"></span>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="user in vm.users track by user.id">
+                <td ng-bind="user.login"></td>
+                <td ng-bind="user.firstName"></td>
+                <td ng-bind="user.lastName"></td>
+                <td>
+                    <div ng-bind="user.roles | joinBy: ', ': 'name'"></div>
+                </td>
+                <td ng-bind="user.email"></td>
+                <td>
+                    <span role="button" class="uui-label uui-label-red" ng-click="vm.setActive(user, true)"
+                          ng-if="!user.system && !user.activated" i-translate="DEACTIVATED"></span>
+                    <span role="button" class="uui-label uui-label-green" ng-click="vm.setActive(user, false)"
+                          ng-if="!user.system && user.activated" i-translate="ACTIVATED"></span>
+                    <span class="uui-label uui-label-green" ng-if="user.system" i-translate="ACTIVATED"></span>
+                </td>
+                <td>
+                    <button type="submit"
+                            ng-click="vm.edit(user)"
+                            ng-if="!user.system"
+                            class="btn btn-info btn-small">
+                        <span class="icon icon-edit"></span>
+                        <span class="m-l5" i-translate="EDIT"></span>
+                    </button>
+                    <!--Deactivate for all now (Task EPMLSOPELN-629)-->
+                    <!--<button type="submit"-->
+                    <!--ui-sref="entities.user-management.delete({login:user.login})"-->
+                    <!--ng-if="!user.system"-->
+                    <!--class="btn btn-info btn-small">-->
+                    <!--<span class="icon icon-delete"></span>-->
+                    <!--<span class="m-l5">delete</span>-->
+                    <!--</button>-->
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="text-center">
+        <div uib-pagination
+             class="pagination-sm"
+             total-items="vm.totalItems"
+             items-per-page="vm.itemsPerPage"
+             ng-model="vm.page"
+             ng-change="vm.loadAll()">
+        </div>
+    </div>
+</div>
+

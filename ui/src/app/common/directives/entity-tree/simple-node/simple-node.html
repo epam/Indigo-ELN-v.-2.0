@@ -1,0 +1,38 @@
+<li ng-class="{'active': node.fullId === vm.selectedFullId}" class="simple-node">
+    <span class="name-wrapper">
+        <a class="type-of-experiment"
+           id="{{::vm.elementId + '_' + node.fullId}}"
+           ui-sref="{{::vm.getSref(node)}}"
+           ng-switch="node.params.length">
+            <span class="experiment-status icon "
+                  ng-if="node.status"
+                  ng-class="{'icon-done': node.status === 'Completed',
+                  'icon-text_document': node.status === 'Signing',
+                  'icon-edit': node.status === 'Signed',
+                  'icon-paper_plane': node.status === 'Submitted',
+                  'icon-archive': node.status === 'Archived',
+                  'icon-stop': node.status === 'Submit_Fail',
+                  'icon-file': node.status === 'Open'}">
+            </span>
+            <span ng-bind="node.name"
+                  ng-switch-when="3"
+                  ng-mouseenter="vm.getPopoverExperiment(node);"
+                  ng-mouseleave="vm.hidePopover()"
+                  uib-popover-template="'experiment-detail-popover.html'"
+                  popover-class="sidebar-popover-basis"
+                  popover-placement="right"
+                  popover-is-open="vm.popoverExperiment === node && node.params.length === 3"
+                  popover-append-to-body="true">
+            </span>
+            <span ng-switch-default ng-bind="node.name"></span>
+        </a>
+        <span ng-if="node.children"
+              ng-click="vm.toggle(node);"
+              class="icon-wrapper">
+            <i class="icon icon-arrow_up" ng-show="node.isCollapsed && (node.children.length || (!node.children.length && !node.hasLoadedChildren))"></i>
+            <i class="icon icon-arrow_down" ng-show="!node.isCollapsed && (node.children.length || (!node.children.length && !node.hasLoadedChildren))"></i>
+        </span>
+    </span>
+
+    <ng-transclude></ng-transclude>
+</li>
