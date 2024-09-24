@@ -90,7 +90,7 @@
     "node": "^7.0.0"
   },
   "scripts": {
-    "build": "webpack --config webpack.prod.config.js --env.build=prod --env.apiUrl=https://indigo-eln.test.lifescience.opensource.epam.com/api/",
+    "build": "webpack --config webpack.prod.config.js --env.build=prod --env.apiUrl=/api/",
     "start": "webpack-dev-server --config webpack.dev.config.js --env.build=dev --env.apiUrl=http://localhost:8080/api/",
     "start:prod": "webpack-dev-server --open --port 9000 --config webpack.prod.config.js --env.build=prod --disable-host-check",
     "eslint": "eslint src/app",
