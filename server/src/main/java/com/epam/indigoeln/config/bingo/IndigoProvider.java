@@ -37,27 +37,23 @@ public class IndigoProvider {
 
     static {
         String libraryPathStr = System.getProperty("indigoeln.library.path");
-        if (libraryPathStr != null) {
-            try {
-                Path libraryPath = Paths.get(libraryPathStr);
-                Path linuxLibraryPath = libraryPath.resolve("linux-x86_64");
-                Files.createDirectories(linuxLibraryPath);
-                Path indigoPath = linuxLibraryPath.resolve("libindigo.so");
-                try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64/libindigo.so")) {
-                    Files.copy(is, indigoPath, StandardCopyOption.REPLACE_EXISTING);
-                }
-                Path indigoRendererPath = linuxLibraryPath.resolve("libindigo-renderer.so");
-                try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64/libindigo-renderer.so")) {
-                    Files.copy(is, indigoRendererPath, StandardCopyOption.REPLACE_EXISTING);
-                }
-                INDIGO_PATH = libraryPathStr;
-                System.setProperty("jna.library.path", linuxLibraryPath.toAbsolutePath().toString());
-            } catch (Exception e) {
-                LOGGER.error("Failed to extract native libs", e);
-                throw new RuntimeException(e);
+        try {
+            Path libraryPath = libraryPathStr != null ? Paths.get(libraryPathStr) : Files.createTempDirectory("indigo-lib");
+            Path linuxLibraryPath = libraryPath.resolve("linux-x86_64");
+            Files.createDirectories(linuxLibraryPath);
+            Path indigoPath = linuxLibraryPath.resolve("libindigo.so");
+            try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64/libindigo.so")) {
+                Files.copy(is, indigoPath, StandardCopyOption.REPLACE_EXISTING);
             }
-        } else {
-            INDIGO_PATH = null;
+            Path indigoRendererPath = linuxLibraryPath.resolve("libindigo-renderer.so");
+            try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64/libindigo-renderer.so")) {
+                Files.copy(is, indigoRendererPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+            INDIGO_PATH = libraryPathStr;
+            System.setProperty("jna.library.path", linuxLibraryPath.toAbsolutePath().toString());
+        } catch (Exception e) {
+            LOGGER.error("Failed to extract native libs", e);
+            throw new RuntimeException(e);
         }
     }
 

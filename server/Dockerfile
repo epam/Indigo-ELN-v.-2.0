@@ -13,4 +13,4 @@ RUN apk add libgcc gcompat
 WORKDIR /opt/jars
 COPY --from=builder /sources/target/indigoeln.war indigoeln.war
 
-ENTRYPOINT sh -c "java $JAVA_OPTS -jar indigoeln.war -Dindigoeln.library.path=/tmp/indigolib"
+ENTRYPOINT sh -c "java $JAVA_OPTS -jar indigoeln.war"
