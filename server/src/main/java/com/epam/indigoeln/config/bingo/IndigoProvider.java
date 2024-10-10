@@ -21,6 +21,7 @@ package com.epam.indigoeln.config.bingo;
 import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoRenderer;
 import com.epam.indigoeln.config.audit.CustomAuditProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +29,7 @@ import org.springframework.context.annotation.Configuration;
 import java.io.InputStream;
 import java.nio.file.*;
 
+@Slf4j
 @Configuration
 public class IndigoProvider {
 
@@ -40,15 +42,18 @@ public class IndigoProvider {
         try {
             Path libraryPath = libraryPathStr != null ? Paths.get(libraryPathStr) : Files.createTempDirectory("indigo-lib");
             Path linuxLibraryPath = libraryPath.resolve("linux-x86_64");
+            log.info("Using indigo native library path: {}", linuxLibraryPath.toAbsolutePath());
             Files.createDirectories(linuxLibraryPath);
             Path indigoPath = linuxLibraryPath.resolve("libindigo.so");
             try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64/libindigo.so")) {
                 Files.copy(is, indigoPath, StandardCopyOption.REPLACE_EXISTING);
             }
+            log.info("Extracted libindigo.so to {}", indigoPath.toAbsolutePath());
             Path indigoRendererPath = linuxLibraryPath.resolve("libindigo-renderer.so");
             try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64/libindigo-renderer.so")) {
                 Files.copy(is, indigoRendererPath, StandardCopyOption.REPLACE_EXISTING);
             }
+            log.info("Extracted libindigo-renderer.so to {}", indigoRendererPath.toAbsolutePath());
             INDIGO_PATH = libraryPathStr;
             System.setProperty("jna.library.path", linuxLibraryPath.toAbsolutePath().toString());
         } catch (Exception e) {
