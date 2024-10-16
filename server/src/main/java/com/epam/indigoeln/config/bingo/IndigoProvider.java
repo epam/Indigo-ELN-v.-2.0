@@ -61,10 +61,6 @@ public class IndigoProvider {
             log.info("Extracted libindigo-renderer.so to {}", indigoRendererPath.toAbsolutePath());
             this.indigoPath = libraryPath.toAbsolutePath().toString();
             System.setProperty("jna.library.path", linuxLibraryPath.toAbsolutePath().toString());
-
-            Indigo indigo = new Indigo(this.indigoPath);
-            IndigoRenderer renderer = new IndigoRenderer(indigo);
-
         } catch (Exception e) {
             LOGGER.error("Failed to extract native libs", e);
             throw new RuntimeException(e);
