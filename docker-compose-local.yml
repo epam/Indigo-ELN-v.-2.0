@@ -28,8 +28,15 @@ services:
       - SECURITY_USER_NAME=bingo
       - SECURITY_USER_PASSWORD=pass
       - SPRING_HOST=0.0.0.0
+      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Djna.debug_load=true -Djna.debug_load.jna=true
+      - INDIGOELN_LIBRARY_PATH=/tmp/indigolibs
+      - LD_LIBRARY_PATH=/tmp/indigolibs/linux-x86_64
+    expose:
+      - "9999"
+      - "5005"
     ports:
       - "9999:9999"
+      - "5005:5005"
 
   server:
     build: ./server
@@ -55,21 +62,28 @@ services:
       - CRS_PASSWORD=pass
 
       - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      - INDIGOELN_LIBRARY_PATH=/tmp/indigolibs
+      - LD_LIBRARY_PATH=/tmp/indigolibs/linux-x86_64
+
     expose:
       - "8080"
       - "5005"
     ports:
       - "8080:8080"
-      - "5005:5005"
+#      - "5005:5005"
+    volumes:
+      - type: bind
+        source: /mnt/c/Work/IndigoELN/Indigo/dist/lib
+        target: /tmp/indigolibs
 
-  indigoeln-ui:
-    build: ./ui
-    environment:
-      - INDIGOELN_SERVER=https://edge.aws.cloud-pipeline.com/pipeline-61766-8080-0/api/
-    expose:
-      - "9000"
-    ports:
-      - "9000:9000"
+#  indigoeln-ui:
+#    build: ./ui
+#    environment:
+#      - INDIGOELN_SERVER=http://localhost:8080/api/
+#    expose:
+#      - "9000"
+#    ports:
+#      - "9000:9000"
 
   signature:
     build: ./signature
@@ -81,7 +95,7 @@ services:
       - "28080:8080"
 
   crs:
-    build: ./crs
+    build: ./CRS
     environment:
       - DATABASE_URL=jdbc:postgresql://postgres-crs:5432/postgres
     expose:

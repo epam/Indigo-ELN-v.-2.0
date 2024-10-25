@@ -50,11 +50,13 @@ public class IndigoProvider {
             log.info("Using indigo native library path: {}", linuxLibraryPath.toAbsolutePath());
             Files.createDirectories(linuxLibraryPath);
             Path indigoPath = linuxLibraryPath.resolve("libindigo.so");
+//            try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64_debug/libindigo.so")) {
             try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64/libindigo.so")) {
                 Files.copy(is, indigoPath, StandardCopyOption.REPLACE_EXISTING);
             }
             log.info("Extracted libindigo.so to {}", indigoPath.toAbsolutePath());
             Path indigoRendererPath = linuxLibraryPath.resolve("libindigo-renderer.so");
+//            try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64_debug/libindigo-renderer.so")) {
             try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64/libindigo-renderer.so")) {
                 Files.copy(is, indigoRendererPath, StandardCopyOption.REPLACE_EXISTING);
             }
@@ -69,6 +71,7 @@ public class IndigoProvider {
 
     @Bean
     public Indigo indigo(@Value("${indigoeln.library.path:}") String libraryPath) {
+        log.info("!!! Indigo being created");
         extractLibs(libraryPath);
         Indigo indigo = new Indigo(indigoPath);
         indigo.setOption("ignore-stereochemistry-errors", "true");
@@ -78,6 +81,7 @@ public class IndigoProvider {
 
     @Bean
     public IndigoRenderer renderer(Indigo indigo, @Value("${indigoeln.library.path:}") String libraryPath) {
+        log.info("!!! IndigoRenderer being created");
         extractLibs(libraryPath);
         IndigoRenderer renderer = new IndigoRenderer(indigo);
 

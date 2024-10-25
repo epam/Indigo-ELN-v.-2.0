@@ -28,6 +28,8 @@ services:
       - SECURITY_USER_NAME=bingo
       - SECURITY_USER_PASSWORD=pass
       - SPRING_HOST=0.0.0.0
+      - INDIGOELN_LIBRARY_PATH=/tmp/indigolibs
+      - LD_LIBRARY_PATH=/tmp/indigolibs/linux-x86_64
     ports:
       - "9999:9999"
 
@@ -53,8 +55,9 @@ services:
       - CRS_REGISTRATION_SERVICE-URL=http://crs:8080/crs/service/RegistrationService
       - CRS_USERNAME=user
       - CRS_PASSWORD=pass
-      - "JAVA_OPTS=-Djna.debug_load=true -Djna.debug_load.jna=true -Dindigoeln.library.path=/tmp/indigo-lib"
-      - "LD_LIBRARY_PATH=/usr/lib64:/tmp/indigo-lib/linux-x86_64"
+#      - "JAVA_OPTS=-Djna.debug_load=true -Djna.debug_load.jna=true -Dindigoeln.library.path=/tmp/indigo-lib"
+      - INDIGOELN_LIBRARY_PATH=/tmp/indigolibs
+      - LD_LIBRARY_PATH=/tmp/indigolibs/linux-x86_64
     expose:
       - "8080"
     ports:

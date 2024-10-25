@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 
 import static com.epam.indigoeln.core.service.codetable.CodeTableService.*;
@@ -64,6 +65,45 @@ public class CalculationService {
 
     @Autowired
     private CodeTableService codeTableService;
+
+/*
+    @PostConstruct
+    protected void test() {
+        String input = "\n" +
+                "  Ketcher 10232410 62D 1   1.00000     0.00000     0\n" +
+                "\n" +
+                " 13 12  0     0  0            999 V2000\n" +
+                "    2.0250   -2.3500    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n" +
+                "    2.5250   -3.2160    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n" +
+                "    3.5250   -3.2160    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n" +
+                "    4.0250   -4.0821    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n" +
+                "    5.0250   -4.0821    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n" +
+                "    5.5250   -4.9481    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n" +
+                "    6.5250   -4.9481    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n" +
+                "    7.0250   -5.8141    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n" +
+                "    8.0250   -5.8141    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n" +
+                "    8.5250   -6.6801    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n" +
+                "    9.5250   -6.6801    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n" +
+                "   10.0250   -7.5462    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n" +
+                "   11.0250   -7.5462    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n" +
+                "  1  2  1  0     0  0\n" +
+                "  2  3  1  0     0  0\n" +
+                "  3  4  1  0     0  0\n" +
+                "  4  5  1  0     0  0\n" +
+                "  5  6  1  0     0  0\n" +
+                "  6  7  1  0     0  0\n" +
+                "  7  8  1  0     0  0\n" +
+                "  8  9  1  0     0  0\n" +
+                "  9 10  1  0     0  0\n" +
+                " 10 11  1  0     0  0\n" +
+                " 11 12  1  0     0  0\n" +
+                " 12 13  1  0     0  0\n" +
+                "M  END\n";
+        System.out.println("CalculationService.test: init");
+        RendererResult result = getStructureWithImage(input);
+        System.out.println("CalculationService.test: result = " + result);
+    }
+*/
 
     private boolean isMolecule(String s) {
         try {
@@ -315,6 +355,7 @@ public class CalculationService {
      */
     public RendererResult getStructureWithImage(String structure) {
         IndigoObject io = isMolecule(structure) ? indigo.loadMolecule(structure) : indigo.loadReaction(structure);
+        System.out.println("CalculationService.getStructureWithImage: output format = " + indigo.getOption("render-output-format"));
         return new RendererResult(renderer.renderToBuffer(io));
     }
 
