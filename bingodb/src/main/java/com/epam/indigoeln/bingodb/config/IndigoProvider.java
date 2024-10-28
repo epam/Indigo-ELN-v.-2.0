@@ -18,7 +18,6 @@
  */
 package com.epam.indigoeln.bingodb.config;
 
-import com.epam.indigo.Bingo;
 import com.epam.indigo.Indigo;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
@@ -38,14 +37,22 @@ import java.nio.file.StandardCopyOption;
 @Configuration
 public class IndigoProvider {
 
+    /** Logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(IndigoProvider.class);
 
+    /** Path where native libraries will be extracted. */
     @Value("${indigoeln.library.path:}")
     private String indigoLibraryPath;
 
+    /** Extract native libs.
+     *
+     * @param libraryPathStr path to extract
+     */
     private void extractLibs(String libraryPathStr) {
         try {
-            Path libraryPath = !Strings.isNullOrEmpty(libraryPathStr) ? Paths.get(libraryPathStr) : Files.createTempDirectory("indigo-lib");
+            Path libraryPath = !Strings.isNullOrEmpty(libraryPathStr)
+                    ? Paths.get(libraryPathStr)
+                    : Files.createTempDirectory("indigo-lib");
             Path linuxLibraryPath = libraryPath.resolve("linux-x86_64");
             LOGGER.info("Using indigo native library path: {}", linuxLibraryPath.toAbsolutePath());
             Files.createDirectories(linuxLibraryPath);

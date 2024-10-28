@@ -21,15 +21,15 @@
     </licenses>
 
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <indigo.version>1.24.0</indigo.version>
-        <swagger.version>2.6.1</swagger.version>
+        <swagger.version>3.0.0</swagger.version>
     </properties>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.8.RELEASE</version>
+        <version>3.3.5</version>
     </parent>
 
     <dependencies>
@@ -65,12 +65,17 @@
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
-            <version>5.14.0</version>
+            <version>5.15.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.6</version>
+            <version>3.17.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>33.3.1-jre</version>
         </dependency>
     </dependencies>
 
@@ -101,6 +106,7 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>4.8.6.5</version>
                 <configuration>
                     <effort>Max</effort>
                     <threshold>Low</threshold>
