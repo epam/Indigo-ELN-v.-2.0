@@ -1,4 +1,4 @@
-FROM maven:3-eclipse-temurin-17-noble as builder
+FROM maven:3-eclipse-temurin-17 as builder
 
 COPY . /sources/
 WORKDIR /sources
