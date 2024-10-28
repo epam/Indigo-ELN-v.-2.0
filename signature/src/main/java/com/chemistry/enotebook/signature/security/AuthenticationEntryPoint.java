@@ -23,10 +23,6 @@ import java.io.IOException;
 
 public class AuthenticationEntryPoint extends LoginUrlAuthenticationEntryPoint {
 
-    public AuthenticationEntryPoint() {
-        super();
-    }
-
     public AuthenticationEntryPoint(String loginFormUrl) {
         super(loginFormUrl);
     }

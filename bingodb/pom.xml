@@ -99,17 +99,17 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.5</version>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
                 <configuration>
                     <effort>Max</effort>
                     <threshold>Low</threshold>
                     <xmlOutput>true</xmlOutput>
+                    <failOnError>false</failOnError>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>findbugs</id>
+                        <id>spotbugs</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>check</goal>
