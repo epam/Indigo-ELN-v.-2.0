@@ -19,13 +19,11 @@
 package com.epam.indigoeln.bingodb.web.rest;
 
 import com.epam.indigoeln.bingodb.service.BingoService;
-import com.epam.indigoeln.bingodb.web.rest.dto.ErrorDTO;
 import com.epam.indigoeln.bingodb.web.rest.dto.ResponseDTO;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import jakarta.servlet.http.HttpServletResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -61,17 +59,17 @@ public class StructureResource {
      * @param structure molecule or reaction in Molfile/Rxnfile/Smiles format
      * @return REST response with OK status and inserted structure with its ID
      */
-    @ApiOperation("Insert a new structure")
+    @Operation(summary = "Insert a new structure")
     @ApiResponses({
-            @ApiResponse(code = HttpServletResponse.SC_OK, message = "Structure inserted"),
+            @ApiResponse(responseCode = "200", description = "Structure inserted"),
             @ApiResponse(
-                    code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                    message = "Server error occurred",
-                    response = ErrorDTO.class)
+                    responseCode = "500",
+                    description = "Server error occurred"
+            )
     })
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO> insert(
-            @ApiParam("Molecule or reaction in Molfile/Rxnfile/Smiles format") @RequestBody String structure) {
+            @Parameter(description = "Molecule or reaction in Molfile/Rxnfile/Smiles format") @RequestBody String structure) {
         return ResponseEntity.ok().body(new ResponseDTO(Collections.singletonList(bingoService.insert(structure))));
     }
 
@@ -82,18 +80,18 @@ public class StructureResource {
      * @param structure molecule or reaction in Molfile/Rxnfile/Smiles format
      * @return REST response with OK status and updated structure with its ID
      */
-    @ApiOperation("Update structure with given ID")
+    @Operation(summary = "Update structure with given ID")
     @ApiResponses({
-            @ApiResponse(code = HttpServletResponse.SC_OK, message = "Structure updated"),
+            @ApiResponse(responseCode = "200", description = "Structure updated"),
             @ApiResponse(
-                    code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                    message = "Server error occurred",
-                    response = ErrorDTO.class)
+                    responseCode = "500",
+                    description = "Server error occurred"
+            )
     })
     @PutMapping(value = "{id}", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO> update(
-            @ApiParam("Structure ID") @PathVariable String id,
-            @ApiParam("Molecule or reaction in Molfile/Rxnfile/Smiles format") @RequestBody String structure) {
+            @Parameter(description = "Structure ID") @PathVariable String id,
+            @Parameter(description = "Molecule or reaction in Molfile/Rxnfile/Smiles format") @RequestBody String structure) {
         return ResponseEntity.ok().body(new ResponseDTO(Collections.singletonList(bingoService.update(id, structure))));
     }
 
@@ -103,16 +101,16 @@ public class StructureResource {
      * @param id structure ID
      * @return REST response with OK status
      */
-    @ApiOperation("Delete structure with given ID")
+    @Operation(summary = "Delete structure with given ID")
     @ApiResponses({
-            @ApiResponse(code = HttpServletResponse.SC_OK, message = "Structure deleted"),
+            @ApiResponse(responseCode = "200", description = "Structure deleted"),
             @ApiResponse(
-                    code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                    message = "Server error occurred",
-                    response = ErrorDTO.class)
+                    responseCode = "500",
+                    description = "Server error occurred"
+            )
     })
     @DeleteMapping(value = "{id}")
-    public ResponseEntity<Void> delete(@ApiParam("Structure ID") @PathVariable String id) {
+    public ResponseEntity<Void> delete(@Parameter(description = "Structure ID") @PathVariable String id) {
         bingoService.delete(id);
         return ResponseEntity.ok().build();
     }
@@ -123,16 +121,16 @@ public class StructureResource {
      * @param id structure ID
      * @return REST response with OK status and found structure with its ID
      */
-    @ApiOperation("Retrieve structure with given ID")
+    @Operation(summary = "Retrieve structure with given ID")
     @ApiResponses({
-            @ApiResponse(code = HttpServletResponse.SC_OK, message = "Found structure"),
+            @ApiResponse(responseCode = "200", description = "Found structure"),
             @ApiResponse(
-                    code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                    message = "Server error occurred",
-                    response = ErrorDTO.class)
+                    responseCode = "500",
+                    description = "Server error occurred"
+            )
     })
     @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseDTO> getById(@ApiParam("Structure ID") @PathVariable String id) {
+    public ResponseEntity<ResponseDTO> getById(@Parameter(description = "Structure ID") @PathVariable String id) {
         return ResponseEntity.ok().body(new ResponseDTO(Collections.singletonList(bingoService.getById(id))));
     }
 }
