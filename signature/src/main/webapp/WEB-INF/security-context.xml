@@ -2,7 +2,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:security="http://www.springframework.org/schema/security"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
-                           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.2.xsd">
+                           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-6.3.xsd">
 
     <security:http use-expressions='true' auto-config="false" entry-point-ref="authenticationEntryPoint">
 
@@ -13,21 +13,27 @@
         <security:intercept-url pattern="/views/**" access="permitAll"/>
 
         <security:intercept-url pattern="/" access="permitAll"/>
-        <security:intercept-url pattern="/loginProcess" access="permitAll"/>
+<!--        <security:intercept-url pattern="/#/**" access="permitAll"/>-->
+<!--        <security:intercept-url pattern="/loginProcess" access="permitAll"/>-->
         <security:intercept-url pattern="/getUser" access="permitAll"/>
+        <security:intercept-url pattern="/me" access="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')"/>
 
         <security:intercept-url pattern="/api/**" access="hasAnyRole('ROLE_ADMIN')"/>
 
         <security:intercept-url pattern="/**" access="hasAnyRole('ROLE_USER','ROLE_ADMIN')"/>
 
-        <security:form-login login-page="/#/login" authentication-failure-url="/#/login"/>
+        <security:form-login login-page="/#/login" authentication-failure-url="/#/login" authentication-success-forward-url="/me"/>
         <security:logout logout-url="/logout"/>
 
+        <security:csrf disabled="true"/>
     </security:http>
 
     <bean id="userDetailsService" class="com.chemistry.enotebook.signature.security.UserDetailsServiceImpl"/>
 
-    <bean id="passwordEncoder" class="org.springframework.security.authentication.encoding.Md5PasswordEncoder"/>
+<!--    <bean id="passwordEncoder" class="org.springframework.security.crypto.password.MessageDigestPasswordEncoder">-->
+<!--        <constructor-arg value="MD5"/>-->
+<!--    </bean>-->
+    <bean id="passwordEncoder" class="com.chemistry.enotebook.signature.NoPasswordEncoder"/>
 
     <security:authentication-manager alias="authenticationManager">
         <security:authentication-provider user-service-ref="userDetailsService">

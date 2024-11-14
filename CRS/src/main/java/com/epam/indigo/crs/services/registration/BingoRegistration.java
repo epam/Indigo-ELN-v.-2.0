@@ -16,18 +16,25 @@ package com.epam.indigo.crs.services.registration;
 import com.epam.indigo.crs.classes.CompoundInfo;
 import com.epam.indigo.crs.classes.CompoundRegistrationStatus;
 import com.epam.indigo.crs.exceptions.CRSException;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
 public interface BingoRegistration {
 
-    String getTokenHash(String username, String password) throws CRSException;
+    @PostMapping("token-hash")
+    String getTokenHash(@RequestParam String username, @RequestParam String password) throws CRSException;
 
-    long submitForRegistration(String tokenHash, CompoundInfo compoundInfo) throws CRSException;
-    long submitListForRegistration(String tokenHash, List<CompoundInfo> compoundInfoList) throws CRSException;
+    @PostMapping("/submit")
+    long submitForRegistration(@RequestParam String tokenHash, CompoundInfo compoundInfo) throws CRSException;
+    @PostMapping("/submit-list")
+    long submitListForRegistration(@RequestParam String tokenHash, List<CompoundInfo> compoundInfoList) throws CRSException;
 
-    CompoundRegistrationStatus checkRegistrationStatus(String tokenHash, long jobId) throws CRSException;
+    @PostMapping("/status")
+    CompoundRegistrationStatus checkRegistrationStatus(@RequestParam String tokenHash, @RequestParam long jobId) throws CRSException;
 
-    boolean isUnique(String compound) throws CRSException;
+    @PostMapping("/unique")
+    boolean isUnique(@RequestParam String compound) throws CRSException;
 
 }

@@ -18,10 +18,11 @@
  */
 package com.epam.indigoeln.config;
 
-import com.epam.indigoeln.config.dbchangelogs.ChangeLogBase;
 import com.epam.indigoeln.core.util.JSR310DateConverters.*;
-import com.github.mongobee.Mongobee;
-import com.mongodb.Mongo;
+import com.mongodb.client.MongoClient;
+import io.mongock.driver.api.driver.ConnectionDriver;
+import io.mongock.driver.mongodb.sync.v4.driver.MongoSync4Driver;
+import io.mongock.runner.springboot.EnableMongock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
@@ -30,27 +31,34 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.Environment;
-import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+import org.springframework.data.auditing.DateTimeProvider;
+import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
-import org.springframework.data.mongodb.core.convert.CustomConversions;
+import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 import org.springframework.data.mongodb.core.mapping.event.ValidatingMongoEventListener;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
+import java.time.ZonedDateTime;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Configuration
-@EnableMongoAuditing
+@EnableMongock
+@EnableMongoAuditing(dateTimeProviderRef = "zonedDateTimeProvider")
 @EnableMongoRepositories("com.epam.indigoeln.core.repository")
 @Import(value = MongoAutoConfiguration.class)
-public class DatabaseConfiguration extends AbstractMongoConfiguration {
+public class DatabaseConfiguration extends AbstractMongoClientConfiguration {
 
     @Autowired
     private Environment environment;
 
     @Autowired
-    private Mongo mongo;
+    private MongoClient mongoClient;
 
     @Autowired
     private MongoProperties mongoProperties;
@@ -71,26 +79,18 @@ public class DatabaseConfiguration extends AbstractMongoConfiguration {
     }
 
     @Override
-    public Mongo mongo() throws Exception {
-        return mongo;
+    public MongoClient mongoClient() {
+        return mongoClient;
     }
 
     @Bean
-    public Mongobee mongobee() {
-        ChangeLogBase.setEnvironment(environment);
-
-        Mongobee runner = new Mongobee(mongo);
-
-        runner.setChangeLogsScanPackage("com.epam.indigoeln.config.dbchangelogs");
-        runner.setDbName(mongoProperties.getMongoClientDatabase());
-        runner.setEnabled(true);
-
-        return runner;
+    public ConnectionDriver mongockConnectionDriver(MongoClient mongoClient) {
+        return MongoSync4Driver.withDefaultLock(mongoClient, mongoProperties.getMongoClientDatabase());
     }
 
     @Bean
     @Override
-    public CustomConversions customConversions() {
+    public MongoCustomConversions customConversions() {
         List<Converter<?, ?>> converters = new ArrayList<>();
         converters.add(DateToZonedDateTimeConverter.INSTANCE);
         converters.add(ZonedDateTimeToDateConverter.INSTANCE);
@@ -98,6 +98,16 @@ public class DatabaseConfiguration extends AbstractMongoConfiguration {
         converters.add(LocalDateToDateConverter.INSTANCE);
         converters.add(DateToLocalDateTimeConverter.INSTANCE);
         converters.add(LocalDateTimeToDateConverter.INSTANCE);
-        return new CustomConversions(converters);
+        return new MongoCustomConversions(converters);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public DateTimeProvider zonedDateTimeProvider() {
+        return () -> Optional.of(ZonedDateTime.now());
     }
 }

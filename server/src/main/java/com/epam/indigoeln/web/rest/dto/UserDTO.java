@@ -20,11 +20,11 @@ package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.security.Authority;
-import org.hibernate.validator.constraints.Email;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
 

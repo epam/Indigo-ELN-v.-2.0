@@ -43,16 +43,19 @@ import com.epam.indigoeln.web.rest.util.permission.helpers.ExperimentPermissionH
 import com.epam.indigoeln.web.rest.util.permission.helpers.PermissionChanges;
 import com.google.common.util.concurrent.Striped;
 import com.mongodb.*;
+import com.mongodb.client.MongoCollection;
+import jakarta.validation.ValidationException;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
-import javax.validation.ValidationException;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Function;
@@ -131,7 +134,7 @@ public class ExperimentService {
     }
 
     public Experiment getExperiment(String experimentId) {
-        return experimentRepository.findOne(experimentId);
+        return experimentRepository.findById(experimentId).orElse(null);
     }
 
     public void saveExperiment(Experiment experiment) {
@@ -164,7 +167,7 @@ public class ExperimentService {
         val userCollection = mongoTemplate.getCollection(User.COLLECTION_NAME);
 
         val notebook = notebookCollection
-                .findOne(new BasicDBObject().append("_id", SequenceIdUtil.buildFullId(projectId, notebookId)));
+                .find(new Document().append("_id", SequenceIdUtil.buildFullId(projectId, notebookId))).first();
 
         if (notebook == null) {
             throw EntityNotFoundException.createWithNotebookId(notebookId);
@@ -175,9 +178,9 @@ public class ExperimentService {
             ((Iterable) notebook.get("experiments"))
                     .forEach(e -> experimentIds.add(String.valueOf(((DBRef) e).getId())));
 
-            val experiments = new ArrayList<DBObject>();
-            experimentCollection.find(new BasicDBObject()
-                    .append("_id", new BasicDBObject().append("$in", experimentIds))).forEach(experiments::add);
+            val experiments = new ArrayList<Document>();
+            experimentCollection.find(new Document()
+                    .append("_id", new Document().append("$in", experimentIds))).forEach(experiments::add);
 
 
             Map<Object, Object> experimentsWithUsers = getExperimentsWithUsers(experiments, userCollection);
@@ -188,7 +191,7 @@ public class ExperimentService {
             if (user != null) {
                 val notebookAccessList = new HashSet<UserPermission>();
                 ((Iterable) notebook.get("accessList"))
-                        .forEach(a -> notebookAccessList.add(new UserPermission((DBObject) a)));
+                        .forEach(a -> notebookAccessList.add(new UserPermission((Document) a)));
 
                 if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, notebookAccessList,
                         UserPermission.READ_ENTITY)) {
@@ -199,7 +202,7 @@ public class ExperimentService {
                 experiments.removeIf(experiment -> {
                     val experimentAccessList = new HashSet<UserPermission>();
                     ((Iterable) experiment.get("accessList"))
-                            .forEach(a -> experimentAccessList.add(new UserPermission((DBObject) a)));
+                            .forEach(a -> experimentAccessList.add(new UserPermission((Document) a)));
                     return !PermissionUtil.hasUser(experimentAccessList, user);
                 });
             }
@@ -210,9 +213,9 @@ public class ExperimentService {
 
             result.forEach(e -> {
                 Optional userObject = (Optional) experimentsWithUsers.get(e.getFullId());
-                DBObject userBasicDBObject = null;
+                Document userBasicDBObject = null;
                 if ((userObject).isPresent()) {
-                    userBasicDBObject = (DBObject) userObject.get();
+                    userBasicDBObject = (Document) userObject.get();
                 }
                 val components = experimentsWithComponents.get(e.getFullId());
                 setValuesForExperimentTreeNodeDTO(e, userBasicDBObject, components);
@@ -229,24 +232,24 @@ public class ExperimentService {
     }
 
     private void setValuesForExperimentTreeNodeDTO(ExperimentTreeNodeDTO experiment,
-                                                   DBObject user, List<?> components) {
+                                                   Document user, List<?> components) {
 
         if (components != null) {
             val reactionComponent = components.stream()
-                    .filter(c -> ("reaction".equals(((BasicDBObject) c).get("name")))).findFirst();
+                    .filter(c -> ("reaction".equals(((Document) c).get("name")))).findFirst();
 
             val reactionDetailsComponent = components.stream()
-                    .filter(c -> ("reactionDetails".equals(((BasicDBObject) c).get("name")))).findFirst();
+                    .filter(c -> ("reactionDetails".equals(((Document) c).get("name")))).findFirst();
 
             val conceptDetailsComponent = components.stream()
-                    .filter(c -> ("conceptDetails".equals(((BasicDBObject) c).get("name")))).findFirst();
+                    .filter(c -> ("conceptDetails".equals(((Document) c).get("name")))).findFirst();
 
 
             Object image = null;
 
             if (reactionComponent.isPresent()) {
-                if (((BasicDBObject) reactionComponent.get()).get("content") != null) {
-                    image = ((BasicDBObject) ((BasicDBObject) reactionComponent.get()).get("content")).get("image");
+                if (((Document) reactionComponent.get()).get("content") != null) {
+                    image = ((Document) ((Document) reactionComponent.get()).get("content")).get("image");
                 }
             }
             if (image != null) {
@@ -264,16 +267,16 @@ public class ExperimentService {
     }
 
     private void setSpecialFields(Object component, ExperimentTreeNodeDTO experiment) {
-        if (component != null && experiment != null && ((BasicDBObject) component).get("content") != null) {
-            val titleObject = ((BasicDBObject) ((BasicDBObject) component)
+        if (component != null && experiment != null && ((Document) component).get("content") != null) {
+            val titleObject = ((Document) ((Document) component)
                     .get("content")).get("title");
             if (titleObject != null) {
                 experiment.setTitle(String.valueOf(titleObject));
             }
-            val therapeuticAreaObject = ((BasicDBObject) ((BasicDBObject) component)
+            val therapeuticAreaObject = ((Document) ((Document) component)
                     .get("content")).get("therapeuticArea");
             if (therapeuticAreaObject != null) {
-                experiment.setTherapeuticAreaName(String.valueOf(((BasicDBObject) therapeuticAreaObject).get("name")));
+                experiment.setTherapeuticAreaName(String.valueOf(((Document) therapeuticAreaObject).get("name")));
             }
         }
     }
@@ -285,14 +288,14 @@ public class ExperimentService {
         val experimentCollection = mongoTemplate.getCollection(Experiment.COLLECTION_NAME);
         val userCollection = mongoTemplate.getCollection(User.COLLECTION_NAME);
         val experiment = experimentCollection
-                .findOne(new BasicDBObject().append("_id", experimentFullId));
+                .find(new Document().append("_id", experimentFullId)).first();
 
         if (experiment == null) {
             throw EntityNotFoundException.createWithExperimentId(experimentId);
         }
 
         Object authorId = ((DBRef) experiment.get("author")).getId();
-        val user = userCollection.findOne(new BasicDBObject("_id", authorId));
+        val user = userCollection.find(new Document("_id", authorId)).first();
 
         result = new ExperimentTreeNodeDTO(experiment);
         ((Iterable) experiment.get("components"))
@@ -309,18 +312,18 @@ public class ExperimentService {
     private List getComponents(List<Object> componentIds) {
         val componentCollection = mongoTemplate.getCollection(Component.COLLECTION_NAME);
         val components = new ArrayList();
-        BasicDBList or = new BasicDBList();
-        or.add(new BasicDBObject("name", "reaction"));
-        or.add(new BasicDBObject("name", "reactionDetails"));
-        or.add(new BasicDBObject("name", "conceptDetails"));
+        List<Document> or = new ArrayList<>();
+        or.add(new Document("name", "reaction"));
+        or.add(new Document("name", "reactionDetails"));
+        or.add(new Document("name", "conceptDetails"));
 
         componentCollection
-                .find(new BasicDBObject("_id", new BasicDBObject().append("$in", componentIds)
+                .find(new Document("_id", new Document().append("$in", componentIds)
                 ).append("$or", or)).forEach(components::add);
         return components;
     }
 
-    private Map<Object, List<Object>> getExperimentsWithComponents(List<DBObject> experiments) {
+    private Map<Object, List<Object>> getExperimentsWithComponents(List<Document> experiments) {
         Map<Object, List<Object>> experimentsWithComponents = new HashMap<>();
         List<Object> allComponentIds = new ArrayList<>();
         experiments.forEach(e -> {
@@ -339,7 +342,7 @@ public class ExperimentService {
             val ids = entryObject.getValue();
             val tmp = new ArrayList<>();
             ids.forEach(id -> allComponents.forEach(c -> {
-                if (id.equals(((BasicDBObject) c).get("_id"))) {
+                if (id.equals(((Document) c).get("_id"))) {
                     tmp.add(c);
                 }
             }));
@@ -350,7 +353,7 @@ public class ExperimentService {
     }
 
 
-    private Map<Object, Object> getExperimentsWithUsers(List<DBObject> experiments, DBCollection userCollection) {
+    private Map<Object, Object> getExperimentsWithUsers(List<Document> experiments, MongoCollection<Document> userCollection) {
         List<Object> userIds = new ArrayList<>();
         List<Object> users = new ArrayList<>();
         Map<Object, Object> experimentsWithUsers = new HashMap<>();
@@ -359,11 +362,11 @@ public class ExperimentService {
             experimentsWithUsers.put(e.get("_id"), authorId);
             userIds.add(authorId);
         });
-        userCollection.find(new BasicDBObject().append("_id", new BasicDBObject().append("$in", userIds)))
+        userCollection.find(new Document().append("_id", new Document().append("$in", userIds)))
                 .forEach(users::add);
 
         experimentsWithUsers.entrySet().forEach(e -> e.setValue(users.stream()
-                .filter(u -> ((BasicDBObject) u).get("_id").equals(e.getValue())).findFirst()));
+                .filter(u -> ((Document) u).get("_id").equals(e.getValue())).findFirst()));
 
         return experimentsWithUsers;
     }
@@ -396,8 +399,8 @@ public class ExperimentService {
      * @return Returns experiments
      */
     private Collection<Experiment> getAllExperiments(String projectId, String notebookId, User user) {
-        Notebook notebook = Optional.ofNullable(notebookRepository
-                .findOne(SequenceIdUtil.buildFullId(projectId, notebookId))).
+        Notebook notebook = notebookRepository
+                .findById(SequenceIdUtil.buildFullId(projectId, notebookId)).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
 
         if (user == null) {
@@ -423,8 +426,8 @@ public class ExperimentService {
      * @return Experiment with specified experiment's id
      */
     public ExperimentDTO getExperiment(String projectId, String notebookId, String id, User user) {
-        Experiment experiment = Optional
-                .ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, id)))
+        Experiment experiment =
+                experimentRepository.findById(SequenceIdUtil.buildFullId(projectId, notebookId, id))
                 .orElseThrow(() -> EntityNotFoundException.createWithExperimentId(id));
 
         // Check of EntityAccess (User must have "Read Entity" permission in notebook's access list and
@@ -455,12 +458,10 @@ public class ExperimentService {
      */
     public ExperimentDTO createExperiment(ExperimentDTO experimentDTO, String projectId,
                                           String notebookId, User user) {
-        Project project = projectRepository.findOne(projectId);
-        if (project == null) {
-            throw EntityNotFoundException.createWithProjectId(projectId);
-        }
-        Notebook notebook = Optional.ofNullable(notebookRepository
-                .findOne(SequenceIdUtil.buildFullId(projectId, notebookId))).
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
+        Notebook notebook = notebookRepository
+                .findById(SequenceIdUtil.buildFullId(projectId, notebookId)).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
 
         // check of EntityAccess (User must have "Create Sub-Entity" permission in notebook's access list,
@@ -551,12 +552,10 @@ public class ExperimentService {
         if (StringUtils.isEmpty(experimentName)) {
             throw new IllegalArgumentException("Experiment name cannot be null.");
         }
-        Project project = projectRepository.findOne(projectId);
-        if (project == null) {
-            throw EntityNotFoundException.createWithProjectId(projectId);
-        }
-        Notebook notebook = Optional.ofNullable(notebookRepository
-                .findOne(SequenceIdUtil.buildFullId(projectId, notebookId))).
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
+        Notebook notebook = notebookRepository
+                .findById(SequenceIdUtil.buildFullId(projectId, notebookId)).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
 
         // check of EntityAccess (User must have "Create Sub-Entity" permission in notebook's access list,
@@ -659,8 +658,8 @@ public class ExperimentService {
         ExperimentDTO result;
         try {
             lock.lock();
-            Experiment experimentFromDB = Optional.ofNullable(experimentRepository
-                    .findOne(SequenceIdUtil.buildFullId(projectId, notebookId, experimentDTO.getId()))).
+            Experiment experimentFromDB = experimentRepository
+                    .findById(SequenceIdUtil.buildFullId(projectId, notebookId, experimentDTO.getId())).
                     orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentDTO.getId()));
 
             // Check of EntityAccess (User must have "Read Entity" permission in notebook's access list and
@@ -701,9 +700,9 @@ public class ExperimentService {
 
             // add all users as VIEWER to project and to notebook
             String fullNotebookId = SequenceIdUtil.buildFullId(projectId, notebookId);
-            Notebook notebook = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
+            Notebook notebook = notebookRepository.findById(fullNotebookId).
                     orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
-            Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
+            Project project = projectRepository.findById(projectId).
                     orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
 
             Triple<PermissionChanges<Project>, PermissionChanges<Notebook>, PermissionChanges<Experiment>> changes =
@@ -856,8 +855,8 @@ public class ExperimentService {
         ExperimentDTO result;
         try {
             lock.lock();
-            Experiment experimentFromDB = Optional.ofNullable(experimentRepository
-                    .findOne(SequenceIdUtil.buildFullId(projectId, notebookId, experimentId))).
+            Experiment experimentFromDB = experimentRepository
+                    .findById(SequenceIdUtil.buildFullId(projectId, notebookId, experimentId)).
                     orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentId));
 
             // Check of EntityAccess (User must have "Read Entity" permission in notebook's access list and
@@ -928,13 +927,13 @@ public class ExperimentService {
             }
         }
 
-        componentRepository.delete(
+        componentRepository.deleteAll(
                 componentsFromDb.stream()
                         .filter(Objects::nonNull)
                         .filter(c -> componentIdsForRemove.contains(c.getId()))
                         .collect(Collectors.toList()));
 
-        return componentRepository.save(componentsForSave);
+        return componentRepository.saveAll(componentsForSave);
     }
 
     private void updateRegistrationStatus(Component newComponent, List<Component> oldComponents) {
@@ -985,11 +984,11 @@ public class ExperimentService {
      * @param notebookId Notebook's identifier
      */
     public void deleteExperiment(String id, String projectId, String notebookId) {
-        Experiment experiment = Optional.ofNullable(experimentRepository
-                .findOne(SequenceIdUtil.buildFullId(projectId, notebookId, id))).
+        Experiment experiment = experimentRepository
+                .findById(SequenceIdUtil.buildFullId(projectId, notebookId, id)).
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(id));
 
-        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(notebookId)).
+        Notebook notebook = notebookRepository.findById(notebookId).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookChildId(experiment.getId()));
 
         notebook.getExperiments().remove(experiment);

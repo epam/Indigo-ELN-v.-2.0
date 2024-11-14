@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -348,9 +349,14 @@ public class BingoService {
                 try (InputStream is = connection.getInputStream()) {
                     return objectMapper.readValue(IOUtils.toString(is, Charset.forName("UTF-8")), BingoResponse.class);
                 }
+            } else {
+                try (InputStream is = connection.getInputStream(); ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+                    IOUtils.copy(is, os);
+                    LOGGER.error("Error executing BingoDB request {} {}: status={}, response={}", method, endpoint, connection.getResponseCode(), new String(os.toByteArray(), Charset.forName("UTF-8")));
+                }
             }
         } catch (IOException e) {
-            LOGGER.warn("Error executing BingoDB request: " + e.getMessage(), e);
+            LOGGER.error("Error executing BingoDB request: " + e.getMessage(), e);
         }
 
         throw new IndigoRuntimeException("Error executing BingoDB request");

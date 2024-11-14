@@ -21,7 +21,7 @@ package com.epam.indigoeln.core.service.autosave;
 import com.epam.indigoeln.core.model.AutosaveItem;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.autosave.AutosaveRepository;
-import com.mongodb.BasicDBObject;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +46,7 @@ public class AutosaveService {
         autosaveRepository.save(item);
     }
 
-    public BasicDBObject get(String id, User user) {
+    public Document get(String id, User user) {
         final AutosaveItem autosaveItem = autosaveRepository.findByIdAndUser(id, user);
         return autosaveItem == null ? null : autosaveItem.getContent();
     }
@@ -57,6 +57,6 @@ public class AutosaveService {
      * @param id Object's identifier
      */
     public void delete(String id) {
-        autosaveRepository.delete(id);
+        autosaveRepository.deleteById(id);
     }
 }

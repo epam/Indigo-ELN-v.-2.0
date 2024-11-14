@@ -6,7 +6,7 @@ services:
     ports:
       - "27017:27017"
 
-  postgres:
+  postgres-signature:
     build: ./signature/database
     restart: always
     environment:
@@ -25,8 +25,8 @@ services:
   bingodb:
     build: ./bingodb
     environment:
-      - SECURITY_USER_NAME=bingo
-      - SECURITY_USER_PASSWORD=pass
+      - BINGO_USERNAME=bingo
+      - BINGO_PASSWORD=pass
       - SPRING_HOST=0.0.0.0
       - INDIGOELN_LIBRARY_PATH=/tmp/indigolibs
       - LD_LIBRARY_PATH=/tmp/indigolibs/linux-x86_64
@@ -51,8 +51,8 @@ services:
       - SPRING_HOST=0.0.0.0
       - SIGNATURESERVICE_URL=http://signature:8080/signatureservice
       - INDIGOELN_CLIENT_SIGNATURESERVICE_URL=${INDIGOELN_URL}/signatureservice
-      - CRS_SEARCH_SERVICE_URL=http://crs:8080/crs/service/SearchService
-      - CRS_REGISTRATION_SERVICE-URL=http://crs:8080/crs/service/RegistrationService
+      - CRS_SEARCH_SERVICE_URL=http://crs:8080/crs/service/search
+      - CRS_REGISTRATION_SERVICE-URL=http://crs:8080/crs/service/registration
       - CRS_USERNAME=user
       - CRS_PASSWORD=pass
 #      - "JAVA_OPTS=-Djna.debug_load=true -Djna.debug_load.jna=true -Dindigoeln.library.path=/tmp/indigo-lib"
@@ -75,7 +75,7 @@ services:
   signature:
     build: ./signature
     environment:
-      - DATABASE_CONNECTION_URL=jdbc:postgresql://postgres:5432/postgres
+      - DATABASE_CONNECTION_URL=jdbc:postgresql://postgres-signature:5432/postgres
     expose:
       - "8080"
     ports:

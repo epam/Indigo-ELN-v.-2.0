@@ -26,9 +26,9 @@ import com.epam.indigoeln.core.repository.registration.RegistrationStatus;
 import com.epam.indigoeln.core.service.registration.RegistrationService;
 import com.epam.indigoeln.core.util.BatchComponentUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
-import com.mongodb.BasicDBObject;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +70,7 @@ public class BatchRegisterStatusCheckingJob {
                     RegistrationStatus status = registrationService.getStatus(repositoryId, jobId);
 
                     if (status.getStatus() != RegistrationStatus.Status.IN_PROGRESS) {
-                        List<BasicDBObject> batchesOnRegistration = experimentRepository.findAll()
+                        List<Document> batchesOnRegistration = experimentRepository.findAll()
                                 .stream()
                                 .map(ExperimentDTO::new)
                                 .flatMap(e -> BatchComponentUtil.retrieveBatches(e.getComponents()).stream())

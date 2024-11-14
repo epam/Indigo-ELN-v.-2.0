@@ -18,9 +18,9 @@
  */
 package com.epam.indigoeln.core.model;
 
+import jakarta.validation.constraints.NotEmpty;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.mongodb.core.mapping.DBRef;

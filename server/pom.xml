@@ -21,8 +21,8 @@
     </licenses>
 
     <properties>
-        <java.version>11</java.version>
-        <org.mapstruct.version>1.0.0.Final</org.mapstruct.version>
+        <java.version>17</java.version>
+        <org.mapstruct.version>1.6.2</org.mapstruct.version>
         <springfox.version>2.3.1</springfox.version>
         <itext.version>2.1.7</itext.version>
         <bingo.version>1.24.0</bingo.version>
@@ -34,7 +34,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.4.RELEASE</version>
+        <version>3.3.5</version>
     </parent>
 
     <repositories>
@@ -44,6 +44,18 @@
         </repository>
     </repositories>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.mongock</groupId>
+                <artifactId>mongock-bom</artifactId>
+                <version>5.5.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
 
         <!-- Code generation -->
@@ -51,7 +63,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.26</version>
+            <version>1.18.34</version>
             <scope>provided</scope>
         </dependency>
 
@@ -62,13 +74,12 @@
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.mongobee</groupId>
-            <artifactId>mongobee</artifactId>
-            <version>0.11</version>
+            <groupId>io.mongock</groupId>
+            <artifactId>mongock-springboot</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
+            <groupId>io.mongock</groupId>
+            <artifactId>mongodb-sync-v4-driver</artifactId>
         </dependency>
 
         <!-- Spring Configuration -->
@@ -86,6 +97,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
         <!-- Web MVC -->
@@ -124,7 +139,7 @@
 
         <dependency>
             <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-jdk8</artifactId>
+            <artifactId>mapstruct</artifactId>
             <version>${org.mapstruct.version}</version>
         </dependency>
 
@@ -144,7 +159,7 @@
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
-            <version>5.14.0</version>
+            <version>5.15.0</version>
         </dependency>
 
         <!-- CRS -->
@@ -155,23 +170,12 @@
             <version>1.0</version>
         </dependency>
 
-        <!-- Swagger Dependencies-->
+        <!-- OpenAPI-->
 
         <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>${springfox.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>${springfox.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.mapstruct</groupId>
-                    <artifactId>mapstruct</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.8.0</version>
         </dependency>
 
         <!-- Guava -->
@@ -179,7 +183,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>21.0</version>
+            <version>33.3.1-jre</version>
         </dependency>
 
         <!-- iText PDF -->
@@ -195,7 +199,7 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.5</version>
+            <version>2.17.0</version>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
@@ -210,7 +214,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.4</version>
+            <version>3.17.0</version>
         </dependency>
 
         <!-- Apache Commons CSV-->
@@ -218,7 +222,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
-            <version>1.2</version>
+            <version>1.12.0</version>
         </dependency>
 
         <!-- Apache Batik -->
@@ -264,6 +268,12 @@
             <version>${spring-security.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20240303</version>
+        </dependency>
+
     </dependencies>
 
     <profiles>
@@ -283,18 +293,6 @@
             <properties>
                 <spring.profiles.active>release</spring.profiles.active>
             </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
-                    <scope>provided</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.tomcat.embed</groupId>
-                    <artifactId>tomcat-embed-el</artifactId>
-                    <scope>provided</scope>
-                </dependency>
-            </dependencies>
         </profile>
 
     </profiles>
@@ -392,6 +390,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
+                <version>3.4.0</version>
                 <configuration>
                     <attachClasses>true</attachClasses>
                 </configuration>
@@ -402,7 +401,6 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <executable>true</executable>
-                    <fork>false</fork>
                 </configuration>
             </plugin>
 

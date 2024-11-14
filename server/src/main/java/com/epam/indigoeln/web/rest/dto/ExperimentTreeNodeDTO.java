@@ -23,6 +23,7 @@ import com.epam.indigoeln.core.model.ExperimentStatus;
 import com.epam.indigoeln.core.util.JSR310DateConverters;
 import com.mongodb.DBObject;
 import lombok.val;
+import org.bson.Document;
 
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -49,7 +50,7 @@ public class ExperimentTreeNodeDTO extends TreeNodeDTO {
         setName(experiment.getFullName());
     }
 
-    public ExperimentTreeNodeDTO(DBObject obj) {
+    public ExperimentTreeNodeDTO(Document obj) {
         super(obj);
         this.status = ExperimentStatus.fromValue(String.valueOf(obj.get("status"))).toString();
         this.creationDate = JSR310DateConverters

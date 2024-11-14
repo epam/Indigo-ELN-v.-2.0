@@ -18,7 +18,7 @@ import com.chemistry.enotebook.signature.Util;
 import com.chemistry.enotebook.signature.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Method;
@@ -32,12 +32,12 @@ public class DatabaseConnector {
     private DataSource dataSource;
     private String driverClassName;
 
-    @Required
+    @Autowired
     public void setDriverClassName(String driverClassName) {
         this.driverClassName = driverClassName;
     }
 
-    @Required
+    @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }

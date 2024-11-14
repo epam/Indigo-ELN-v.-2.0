@@ -24,6 +24,8 @@ import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.service.exception.OperationNotAvailableException;
 import com.epam.indigoeln.core.service.exception.PermissionIncorrectException;
 import com.epam.indigoeln.core.service.exception.UriProcessingException;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.ValidationException;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -38,8 +40,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartException;
 
-import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;

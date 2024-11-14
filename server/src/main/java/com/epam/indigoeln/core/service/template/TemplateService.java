@@ -75,7 +75,7 @@ public class TemplateService {
      * @return Template by id
      */
     public Optional<TemplateDTO> getTemplateById(String id) {
-        return Optional.ofNullable(templateRepository.findOne(id)).map(TemplateDTO::new);
+        return templateRepository.findById(id).map(TemplateDTO::new);
     }
 
     /**
@@ -132,7 +132,7 @@ public class TemplateService {
      * @return Updated template
      */
     public TemplateDTO updateTemplate(TemplateDTO templateDTO) {
-        Template template = Optional.ofNullable(templateRepository.findOne(templateDTO.getId())).
+        Template template = templateRepository.findById(templateDTO.getId()).
                 orElseThrow(() -> EntityNotFoundException.createWithTemplateId(templateDTO.getId()));
 
         template.setName(templateDTO.getName());
@@ -147,7 +147,7 @@ public class TemplateService {
      * @param templateId Template's id
      */
     public void deleteTemplate(String templateId) {
-        templateRepository.delete(templateId);
+        templateRepository.deleteById(templateId);
     }
 
     private Template saveTemplateAndHandleError(Template template) {

@@ -23,6 +23,11 @@ import com.epam.indigo.Indigo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.web.SecurityFilterChain;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +46,7 @@ import java.nio.file.Paths;
  * - All structure loading/parsing should be processed with these Indigo instances
  */
 @Configuration
+@EnableWebSecurity
 public class BingoConfig {
 
     /**
@@ -119,5 +125,23 @@ public class BingoConfig {
         bingo.optimize();
 
         return bingo;
+    }
+
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        auth
+                .inMemoryAuthentication()
+                .withUser(bingoProperties.getUsername()).password(bingoProperties.getPassword()).roles("USER");
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(requests -> requests
+//                        .requestMatchers("/api/**").hasRole("USER")
+                                .requestMatchers("/**").permitAll()
+                );
+        http.csrf(AbstractHttpConfigurer::disable);
+        return http.build();
     }
 }

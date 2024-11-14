@@ -5,14 +5,7 @@
 
     <bean id="properties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
 
-    <bean id="crsService" class="org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean">
-        <property name="serviceUrl" value="${CRS_SERVICE_URL}/service/${CRS_SERVICE_NAME}"/>
-        <property name="serviceInterface" value="${CRS_SERVICE_CLASS}"/>
-        <property name="httpInvokerRequestExecutor">
-            <bean class="org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor">
-                <property name="readTimeout" value="300000"/> <!-- 5 minutes (default value is 1 minute) -->
-            </bean>
-        </property>
-    </bean>
+    <bean id="bingoRegistration" class="com.epam.indigo.crs.services.registration.BingoRegistrationImpl"/>
+    <bean id="bingoSearch" class="com.epam.indigo.crs.services.search.BingoSearchImpl"/>
 
 </beans>

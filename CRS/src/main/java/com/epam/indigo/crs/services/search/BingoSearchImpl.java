@@ -17,6 +17,7 @@ import com.epam.indigo.crs.classes.BingoService;
 import com.epam.indigo.crs.classes.CompoundRegistrationStatus;
 import com.epam.indigo.crs.classes.FullCompoundInfo;
 import com.epam.indigo.crs.exceptions.CRSException;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -24,6 +25,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+@RestController("/crs/search")
 public class BingoSearchImpl extends BingoService implements BingoSearch {
 	
 //  final private int compoundsColumndsCount = 11;
@@ -60,15 +62,18 @@ public class BingoSearchImpl extends BingoService implements BingoSearch {
         }
     }
 
-    public List<Integer> searchExact(String compound, String options) throws CRSException {
+    @PostMapping("exact")
+    public List<Integer> searchExact(@RequestParam String compound, @RequestParam String options) throws CRSException {
         return doBingoSearch("exact", compound, options);
     }
 
-    public List<Integer> searchSub(String compound, String options) throws CRSException {
+    @PostMapping("sub")
+    public List<Integer> searchSub(@RequestParam String compound, @RequestParam String options) throws CRSException {
         return doBingoSearch("sub", compound, options);
     }
 
-    public List<Integer> searchSmarts(String compound) throws CRSException {
+    @PostMapping("smarts")
+    public List<Integer> searchSmarts(@RequestParam String compound) throws CRSException {
         Connection dbConnection = getConnection();
 
         try {
@@ -91,7 +96,8 @@ public class BingoSearchImpl extends BingoService implements BingoSearch {
         }
     }
 
-    public List<Integer> searchSim(String compound, String metric, Double bottomValue, Double topValue) throws CRSException {
+    @PostMapping("sim")
+    public List<Integer> searchSim(@RequestParam String compound, @RequestParam String metric, @RequestParam Double bottomValue, @RequestParam Double topValue) throws CRSException {
         Connection dbConnection = getConnection();
 
         try {
@@ -122,7 +128,8 @@ public class BingoSearchImpl extends BingoService implements BingoSearch {
         }
     }
 
-    public FullCompoundInfo getCompoundById(int id) throws CRSException {
+    @PostMapping("/compound-by-id")
+    public FullCompoundInfo getCompoundById(@RequestParam int id) throws CRSException {
         Connection dbConnection = getConnection();
 
         try {
@@ -147,7 +154,8 @@ public class BingoSearchImpl extends BingoService implements BingoSearch {
         }
     }
 
-    public List<FullCompoundInfo> getCompoundByNumber(String compoundNumber) throws CRSException {
+    @PostMapping("/compound-by-number")
+    public List<FullCompoundInfo> getCompoundByNumber(@RequestParam String compoundNumber) throws CRSException {
         Connection dbConnection = getConnection();
         try {
             String query = getQuery + " where compoundNumber like ?";
@@ -173,7 +181,8 @@ public class BingoSearchImpl extends BingoService implements BingoSearch {
         }
     }
 
-    public FullCompoundInfo getCompoundByConversationalBatchNumber(String conversationalBatchNumber) throws CRSException {
+    @PostMapping("/compound-by-conversational-batch-number")
+    public FullCompoundInfo getCompoundByConversationalBatchNumber(@RequestParam String conversationalBatchNumber) throws CRSException {
         Connection dbConnection = getConnection();
 
         try {
@@ -198,7 +207,8 @@ public class BingoSearchImpl extends BingoService implements BingoSearch {
         }
     }
 
-    public List<FullCompoundInfo> getCompoundByCasNumber(String casNumber) throws CRSException {
+    @PostMapping("/compound-by-cas-number")
+    public List<FullCompoundInfo> getCompoundByCasNumber(@RequestParam String casNumber) throws CRSException {
         Connection dbConnection = getConnection();
 
         try {
@@ -224,7 +234,8 @@ public class BingoSearchImpl extends BingoService implements BingoSearch {
         }
     }
 
-    public List<FullCompoundInfo> getCompoundByJobId(String jobId) throws CRSException {
+    @PostMapping("/compound-by-job-id")
+    public List<FullCompoundInfo> getCompoundByJobId(@RequestParam String jobId) throws CRSException {
         Connection dbConnection = getConnection();
 
         try {
@@ -250,7 +261,8 @@ public class BingoSearchImpl extends BingoService implements BingoSearch {
         }
     }
 
-    public FullCompoundInfo getCompoundByBatchNumber(String batchNumber) throws CRSException {
+    @PostMapping("/compound-by-batch-number")
+    public FullCompoundInfo getCompoundByBatchNumber(@RequestParam String batchNumber) throws CRSException {
         Connection dbConnection = getConnection();
 
         try {

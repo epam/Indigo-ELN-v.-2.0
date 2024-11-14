@@ -1,18 +1,26 @@
 version: "3.3"
 services:
   mongo-db:
-    image: mongo:3.4.17
+    image: mongo:5
     restart: always
     ports:
       - "27017:27017"
+    volumes:
+      - type: bind
+        source: /var/local/indigoeln/mongo-db
+        target: /data/db
 
-  postgres:
+  postgres-signature:
     build: ./signature/database
     restart: always
     environment:
       - POSTGRES_PASSWORD=postgres
     ports:
       - "5432:5432"
+    volumes:
+      - type: bind
+        source: /var/local/indigoeln/postgres-signature
+        target: /var/lib/postgresql/data
 
   postgres-crs:
     build: ./crs/database
@@ -21,12 +29,16 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - "15432:5432"
+    volumes:
+      - type: bind
+        source: /var/local/indigoeln/postgres-crs
+        target: /var/lib/postgresql/data
 
   bingodb:
     build: ./bingodb
     environment:
-      - SECURITY_USER_NAME=bingo
-      - SECURITY_USER_PASSWORD=pass
+      - BINGO_USERNAME=bingo
+      - BINGO_PASSWORD=pass
       - SPRING_HOST=0.0.0.0
       - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Djna.debug_load=true -Djna.debug_load.jna=true
       - INDIGOELN_LIBRARY_PATH=/tmp/indigolibs
@@ -36,7 +48,11 @@ services:
       - "5005"
     ports:
       - "9999:9999"
-      - "5005:5005"
+#      - "5005:5005"
+    volumes:
+      - type: bind
+        source: /var/local/indigoeln/bingodb
+        target: /opt/jars/bingo
 
   server:
     build: ./server
@@ -56,8 +72,8 @@ services:
       - SPRING_HOST=0.0.0.0
       - SIGNATURESERVICE_URL=http://signature:8080/signatureservice
       - INDIGOELN_CLIENT_SIGNATURESERVICE_URL=http://localhost:28080/signatureservice
-      - CRS_SEARCH_SERVICE_URL=http://crs:8080/crs/service/SearchService
-      - CRS_REGISTRATION_SERVICE-URL=http://crs:8080/crs/service/RegistrationService
+      - CRS_SEARCH_SERVICE_URL=http://crs:8080/crs/service/search
+      - CRS_REGISTRATION_SERVICE-URL=http://crs:8080/crs/service/registration
       - CRS_USERNAME=user
       - CRS_PASSWORD=pass
 
@@ -70,7 +86,7 @@ services:
       - "5005"
     ports:
       - "8080:8080"
-#      - "5005:5005"
+      - "5005:5005"
     volumes:
       - type: bind
         source: /mnt/c/Work/IndigoELN/Indigo/dist/lib
@@ -88,11 +104,14 @@ services:
   signature:
     build: ./signature
     environment:
-      - DATABASE_CONNECTION_URL=jdbc:postgresql://postgres:5432/postgres
+      - DATABASE_CONNECTION_URL=jdbc:postgresql://postgres-signature:5432/postgres
+      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     expose:
       - "8080"
+      - "5005:5005"
     ports:
       - "28080:8080"
+#      - "5005:5005"
 
   crs:
     build: ./CRS

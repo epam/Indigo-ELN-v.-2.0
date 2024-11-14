@@ -20,14 +20,14 @@ package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.Component;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.mongodb.BasicDBObject;
+import org.bson.Document;
 
 @JsonTypeName("Component")
 public class ComponentDTO {
 
     private String id;
     private String name;
-    private BasicDBObject content;
+    private Document content;
 
     public ComponentDTO() {
         super();
@@ -57,11 +57,11 @@ public class ComponentDTO {
         this.name = name;
     }
 
-    public BasicDBObject getContent() {
+    public Document getContent() {
         return content;
     }
 
-    public void setContent(BasicDBObject content) {
+    public void setContent(Document content) {
         this.content = content;
     }
 

@@ -20,9 +20,11 @@ package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.file.GridFSFileUtil;
-import com.mongodb.DBObject;
-import com.mongodb.gridfs.GridFSFile;
+import lombok.SneakyThrows;
+import org.bson.Document;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
 
+import java.io.IOException;
 import java.util.Date;
 
 public class FileDTO {
@@ -38,13 +40,14 @@ public class FileDTO {
         super();
     }
 
-    public FileDTO(GridFSFile file) {
+    @SneakyThrows
+    public FileDTO(GridFsResource file) {
         this.id = file.getId().toString();
         this.filename = file.getFilename();
         this.contentType = file.getContentType();
-        this.uploadDate = file.getUploadDate();
-        this.length = file.getLength();
-        convertMetadata(file.getMetaData());
+        this.uploadDate = file.getGridFSFile().getUploadDate();
+        this.length = file.contentLength();
+        convertMetadata(file.getOptions().getMetadata());
     }
 
     public String getId() {
@@ -95,7 +98,7 @@ public class FileDTO {
         this.author = author;
     }
 
-    private void convertMetadata(DBObject metadata) {
+    private void convertMetadata(Document metadata) {
         author = GridFSFileUtil.getAuthorFromMetadata(metadata);
     }
 }

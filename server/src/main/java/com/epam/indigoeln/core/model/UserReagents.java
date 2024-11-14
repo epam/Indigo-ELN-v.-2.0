@@ -18,14 +18,15 @@
  */
 package com.epam.indigoeln.core.model;
 
-import com.mongodb.BasicDBList;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.bson.BsonValue;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
+import java.util.List;
 
 @ToString
 @EqualsAndHashCode
@@ -41,7 +42,7 @@ public class UserReagents implements Serializable {
     @DBRef(lazy = true)
     private User user;
 
-    private BasicDBList reagents;
+    private List<Object> reagents;
 
     public String getId() {
         return id;
@@ -59,11 +60,11 @@ public class UserReagents implements Serializable {
         this.user = user;
     }
 
-    public BasicDBList getReagents() {
+    public List<Object> getReagents() {
         return reagents;
     }
 
-    public void setReagents(BasicDBList reagents) {
+    public void setReagents(List<Object> reagents) {
         this.reagents = reagents;
     }
 }

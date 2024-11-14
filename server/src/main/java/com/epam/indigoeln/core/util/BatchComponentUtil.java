@@ -22,8 +22,7 @@ import com.epam.indigoeln.core.model.Component;
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.web.rest.dto.ComponentDTO;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
+import org.bson.Document;
 import org.springframework.util.StringUtils;
 
 import java.text.DecimalFormat;
@@ -100,7 +99,7 @@ public final class BatchComponentUtil {
     }
 
     private static Object getComponentField(ComponentDTO component, String fieldName) {
-        final BasicDBObject content = component.getContent();
+        final Document content = component.getContent();
         return content.get(fieldName);
     }
 
@@ -112,14 +111,13 @@ public final class BatchComponentUtil {
      * @return list of batches
      */
     @SuppressWarnings("unchecked")
-    public static List<BasicDBObject> retrieveBatches(Collection<ComponentDTO> components) {
+    public static List<Document> retrieveBatches(Collection<ComponentDTO> components) {
         Predicate<ComponentDTO> batchFilter = c -> PRODUCT_BATCH_SUMMARY.equals(c.getName())
-                && c.getContent() != null && c.getContent().containsField(COMPONENT_FIELD_BATCHES);
+                && c.getContent() != null && c.getContent().containsKey(COMPONENT_FIELD_BATCHES);
 
         return components.stream().filter(batchFilter).
-                map(component -> (BasicDBList) component.getContent().get(COMPONENT_FIELD_BATCHES)).
+                map(component -> (List<Document>) component.getContent().get(COMPONENT_FIELD_BATCHES)).
                 flatMap(Collection::stream).
-                map(o -> (BasicDBObject) o).
                 collect(toList());
     }
 
@@ -133,7 +131,7 @@ public final class BatchComponentUtil {
     @SuppressWarnings("unchecked")
     public static List<Map<String, Object>> retrieveBatchesFromClient(Collection<Component> components) {
         Predicate<ComponentDTO> batchFilter = c -> PRODUCT_BATCH_SUMMARY.equals(c.getName())
-                && c.getContent() != null && c.getContent().containsField(COMPONENT_FIELD_BATCHES);
+                && c.getContent() != null && c.getContent().containsKey(COMPONENT_FIELD_BATCHES);
 
         return components.stream()
                 .map(ComponentDTO::new)
@@ -151,7 +149,7 @@ public final class BatchComponentUtil {
      */
     private static List<String> retrieveBatchNumbers(Collection<ComponentDTO> components) {
         return retrieveBatches(components).stream().
-                filter(batch -> batch.containsField(COMPONENT_FIELD_NBK_BATCH)).
+                filter(batch -> batch.containsKey(COMPONENT_FIELD_NBK_BATCH)).
                 map(batch -> batch.get(COMPONENT_FIELD_NBK_BATCH).toString()).collect(toList());
     }
 
@@ -210,7 +208,7 @@ public final class BatchComponentUtil {
     }
 
     private static List<String> retrieveFullBatchNumbers(Collection<ComponentDTO> components) {
-        return retrieveBatches(components).stream().filter(b -> b.containsField(COMPONENT_FIELD_FULL_NBK_BATCH))
+        return retrieveBatches(components).stream().filter(b -> b.containsKey(COMPONENT_FIELD_FULL_NBK_BATCH))
                 .map(b -> b.get(COMPONENT_FIELD_FULL_NBK_BATCH).toString()).collect(toList());
     }
 }

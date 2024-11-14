@@ -22,9 +22,8 @@ import com.epam.indigoeln.core.service.calculation.CalculationService;
 import com.epam.indigoeln.web.rest.dto.calculation.ListContainsDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
 import com.google.common.base.Strings;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@Api
 @RestController
 @RequestMapping("/api/calculations")
 public class CalculationResource {
@@ -52,14 +50,14 @@ public class CalculationResource {
      * @param saltEq   Salt Eq
      * @return Returns calculated molecular fields
      */
-    @ApiOperation(value = "Gets calculated molecular fields.")
+    @Operation(summary = "Gets calculated molecular fields.")
     @RequestMapping(value = "/molecule/info",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> getMolecularInformation(
-            @ApiParam("Molecule") @RequestBody(required = false) String molecule,
-            @ApiParam("Salt Code") @RequestParam(required = false) String saltCode,
-            @ApiParam("Salt Eq") @RequestParam(required = false) Float saltEq) {
+            @Parameter(description = "Molecule") @RequestBody(required = false) String molecule,
+            @Parameter(description = "Salt Code") @RequestParam(required = false) String saltCode,
+            @Parameter(description = "Salt Eq") @RequestParam(required = false) Float saltEq) {
         if (Strings.isNullOrEmpty(molecule)) {
             return ResponseEntity.ok(new HashMap<>());
 
@@ -75,7 +73,7 @@ public class CalculationResource {
      * @param tableName Table's name
      * @return Data from {@code tableName}
      */
-    @ApiOperation(value = "Returns all data from csv file.")
+    @Operation(summary = "Returns all data from csv file.")
     @RequestMapping(value = "salt_code_table", method = RequestMethod.GET)
     public List<Map<String, String>> getAllSaltCode(@RequestParam String tableName) {
         return calculationService.getCodeTableRows(tableName);
@@ -87,12 +85,12 @@ public class CalculationResource {
      * @param molecule Molecule
      * @return Return true is molecule is chiral
      */
-    @ApiOperation(value = "Checks if molecule is chiral.")
+    @Operation(summary = "Checks if molecule is chiral.")
     @RequestMapping(value = "/molecule/chiral",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> isMoleculeChiral(
-            @ApiParam("Molecule") @RequestBody String molecule
+            @Parameter(description = "Molecule") @RequestBody String molecule
     ) {
         return ResponseEntity.ok(calculationService.isMoleculeChiral(normalizeMolFile(molecule)));
     }
@@ -103,13 +101,13 @@ public class CalculationResource {
      * @param molecule Molecule
      * @return Returns true if molecule is empty
      */
-    @ApiOperation(value = "Checks if molecule is empty.")
+    @Operation(summary = "Checks if molecule is empty.")
     @RequestMapping(value = "/molecule/empty",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<Boolean> isEmptyMolecule(
-            @ApiParam("Molecule") @RequestBody String molecule
+            @Parameter(description = "Molecule") @RequestBody String molecule
     ) {
         return ResponseEntity.ok(calculationService.isMoleculeEmpty(normalizeMolFile(molecule)));
     }
@@ -120,12 +118,12 @@ public class CalculationResource {
      * @param molecules Molecules
      * @return Returns true if molecules have equal structure
      */
-    @ApiOperation(value = "Checks that all molecules have equal structure.")
+    @Operation(summary = "Checks that all molecules have equal structure.")
     @RequestMapping(value = "/molecule/equals",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> moleculesEquals(
-            @ApiParam("Molecules") @RequestBody List<String> molecules
+            @Parameter(description = "Molecules") @RequestBody List<String> molecules
     ) {
         return ResponseEntity.ok(calculationService.chemistryEquals(molecules));
     }
@@ -136,13 +134,13 @@ public class CalculationResource {
      * @param query query object with molecule list and query molecule
      * @return true if at least one molecule in list contains query molecule (substructure matching is used)
      */
-    @ApiOperation("Check that at least one molecule in list contains query molecule (substructure matching is used)")
+    @Operation(summary = "Check that at least one molecule in list contains query molecule (substructure matching is used)")
     @RequestMapping(
             value = "/molecule/listContains",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Boolean> listContainsMolecule(@ApiParam("Molecules") @RequestBody ListContainsDTO query) {
+    public ResponseEntity<Boolean> listContainsMolecule(@Parameter(description = "Molecules") @RequestBody ListContainsDTO query) {
         return ResponseEntity.ok(calculationService.listContainsStructure(query.getStructures(), query.getQuery()));
     }
 
@@ -152,12 +150,12 @@ public class CalculationResource {
      * @param reaction Reaction
      * @return Extracted reaction components
      */
-    @ApiOperation(value = "Extracts reaction components (structure, reactants and products).")
+    @Operation(summary = "Extracts reaction components (structure, reactants and products).")
     @RequestMapping(value = "/reaction/extract",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ReactionPropertiesDTO> extractReactionComponents(
-            @ApiParam("Reaction") @RequestBody String reaction
+            @Parameter(description = "Reaction") @RequestBody String reaction
     ) {
         return ResponseEntity.ok(calculationService.extractReactionComponents(normalizeMolFile(reaction)));
     }
@@ -168,12 +166,12 @@ public class CalculationResource {
      * @param reaction Reaction data
      * @return Reaction properties
      */
-    @ApiOperation(value = "Combine reaction components (structure, reactants and products.")
+    @Operation(summary = "Combine reaction components (structure, reactants and products.")
     @RequestMapping(value = "/reaction/combine",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ReactionPropertiesDTO> combineReactionComponents(
-            @ApiParam("Reaction data") @RequestBody ReactionPropertiesDTO reaction
+            @Parameter(description = "Reaction data") @RequestBody ReactionPropertiesDTO reaction
     ) {
         return ResponseEntity.ok(calculationService.combineReactionComponents(reaction));
     }
@@ -184,12 +182,12 @@ public class CalculationResource {
      * @param reactions Reactions
      * @return Returns true if all reactions have equal structure
      */
-    @ApiOperation(value = "Checks that all reactions have equal structure.")
+    @Operation(summary = "Checks that all reactions have equal structure.")
     @RequestMapping(value = "/reaction/equals",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> reactionsEquals(
-            @ApiParam("Reactions") @RequestBody List<String> reactions
+            @Parameter(description = "Reactions") @RequestBody List<String> reactions
     ) {
         return ResponseEntity.ok(calculationService.chemistryEquals(reactions));
     }
@@ -200,12 +198,12 @@ public class CalculationResource {
      * @param reaction Reaction
      * @return Returns true if reaction structure is valid
      */
-    @ApiOperation(value = "Checks that reaction structure is valid.")
+    @Operation(summary = "Checks that reaction structure is valid.")
     @RequestMapping(value = "/reaction/valid",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> isValidReaction(
-            @ApiParam("Reaction") @RequestBody String reaction
+            @Parameter(description = "Reaction") @RequestBody String reaction
     ) {
         return ResponseEntity.ok(calculationService.isValidReaction(normalizeMolFile(reaction)));
     }

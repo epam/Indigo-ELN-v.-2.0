@@ -120,7 +120,7 @@ public class RoleService {
      * @return role with given ID
      */
     public Role getRole(String id) {
-        return roleRepository.findOne(id);
+        return roleRepository.findById(id).orElse(null);
     }
 
     /**
@@ -147,10 +147,8 @@ public class RoleService {
      * @return updated role
      */
     public Role updateRole(Role role) {
-        Role roleFromDB = roleRepository.findOne(role.getId());
-        if (roleFromDB == null) {
-            throw EntityNotFoundException.createWithRoleId(role.getId());
-        }
+        Role roleFromDB = roleRepository.findById(role.getId())
+                .orElseThrow(() -> EntityNotFoundException.createWithRoleId(role.getId()));
         if (roleFromDB.isSystem()) {
             throw new IllegalArgumentException("Cannot update system role.");
         }
@@ -168,10 +166,8 @@ public class RoleService {
      * @param id role ID
      */
     public void deleteRole(String id) {
-        Role role = roleRepository.findOne(id);
-        if (role == null) {
-            throw EntityNotFoundException.createWithRoleId(id);
-        }
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> EntityNotFoundException.createWithRoleId(id));
         if (role.isSystem()) {
             throw new IllegalArgumentException("Cannot delete system role.");
         }
@@ -179,6 +175,6 @@ public class RoleService {
             throw AlreadyInUseException.createWithRoleId(id);
         }
 
-        roleRepository.delete(id);
+        roleRepository.deleteById(id);
     }
 }
