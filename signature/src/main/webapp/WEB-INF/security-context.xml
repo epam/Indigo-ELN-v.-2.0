@@ -30,10 +30,9 @@
 
     <bean id="userDetailsService" class="com.chemistry.enotebook.signature.security.UserDetailsServiceImpl"/>
 
-<!--    <bean id="passwordEncoder" class="org.springframework.security.crypto.password.MessageDigestPasswordEncoder">-->
-<!--        <constructor-arg value="MD5"/>-->
-<!--    </bean>-->
-    <bean id="passwordEncoder" class="com.chemistry.enotebook.signature.NoPasswordEncoder"/>
+    <bean id="passwordEncoder" class="org.springframework.security.crypto.password.MessageDigestPasswordEncoder">
+        <constructor-arg value="MD5"/>
+    </bean>
 
     <security:authentication-manager alias="authenticationManager">
         <security:authentication-provider user-service-ref="userDetailsService">
