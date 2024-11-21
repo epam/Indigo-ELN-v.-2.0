@@ -72,7 +72,7 @@ public class UserService {
                 "role",
                 u -> u.getRoles().stream().findFirst().map(Role::getName).orElse(""));
 
-        USER_SORTED_PAGE_UTIL = new SortedPageUtil<>(functionMap);
+        USER_SORTED_PAGE_UTIL = new SortedPageUtil<>(functionMap, "login");
     }
 
     private static final SortedPageUtil<User> USER_SORTED_PAGE_UTIL;

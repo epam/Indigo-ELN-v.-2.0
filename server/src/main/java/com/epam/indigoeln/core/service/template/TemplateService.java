@@ -65,7 +65,7 @@ public class TemplateService {
         functionMap.put("creationDate", template -> template.getCreationDate().toInstant().toString());
         functionMap.put("lastEditDate", template -> template.getLastEditDate().toInstant().toString());
 
-        TEMPLATE_SORTED_PAGE_UTIL = new SortedPageUtil<>(functionMap);
+        TEMPLATE_SORTED_PAGE_UTIL = new SortedPageUtil<>(functionMap, "name");
     }
 
     /**

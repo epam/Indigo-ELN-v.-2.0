@@ -68,7 +68,7 @@ public class DictionaryService {
         functionMap.put("name", Dictionary::getName);
         functionMap.put("description", Dictionary::getDescription);
 
-        dictionarySortedPageUtil = new SortedPageUtil<>(functionMap);
+        dictionarySortedPageUtil = new SortedPageUtil<>(functionMap, "name");
     }
 
     /**

@@ -65,7 +65,7 @@ public class RoleService {
     static {
         Map<String, Function<Role, String>> functionMap = new HashMap<>();
         functionMap.put("name", Role::getName);
-        ROLE_SORTED_PAGE_UTIL = new SortedPageUtil<>(functionMap);
+        ROLE_SORTED_PAGE_UTIL = new SortedPageUtil<>(functionMap, "name");
     }
 
     /**
