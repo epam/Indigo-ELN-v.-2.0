@@ -7,4 +7,4 @@ COPY bingo-lib /bingo-lib
 WORKDIR /bingo-lib
 RUN ./bingo-pg-install.sh -libdir /usr/local/lib/postgresql -y
 RUN cp bingo_install.sql /docker-entrypoint-initdb.d/00_bingo_install.sql
-RUN rm -rf /bingo-lib /bingo-pg-install.sh
+#RUN rm -rf /bingo-lib /bingo-pg-install.sh
