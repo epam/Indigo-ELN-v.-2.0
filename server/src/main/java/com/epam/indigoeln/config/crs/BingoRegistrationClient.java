@@ -11,31 +11,31 @@
  * This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
  * WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  ***************************************************************************/
-package com.epam.indigo.crs.services.registration;
+package com.epam.indigoeln.config.crs;
 
 import com.epam.indigo.crs.classes.CompoundInfo;
 import com.epam.indigo.crs.classes.CompoundRegistrationStatus;
 import com.epam.indigo.crs.exceptions.CRSException;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.service.annotation.PostExchange;
 
 import java.util.List;
 
-public interface BingoRegistration {
+public interface BingoRegistrationClient {
 
-    @PostMapping("/token-hash")
+    @PostExchange("/token-hash")
     String getTokenHash(@RequestParam String username, @RequestParam String password) throws CRSException;
 
-    @PostMapping("/submit")
+    @PostExchange("/submit")
     long submitForRegistration(@RequestParam String tokenHash, @RequestBody CompoundInfo compoundInfo) throws CRSException;
-    @PostMapping("/submit-list")
+    @PostExchange("/submit-list")
     long submitListForRegistration(@RequestParam String tokenHash, @RequestBody List<CompoundInfo> compoundInfoList) throws CRSException;
 
-    @PostMapping("/status")
+    @PostExchange("/status")
     CompoundRegistrationStatus checkRegistrationStatus(@RequestParam String tokenHash, @RequestParam long jobId) throws CRSException;
 
-    @PostMapping("/unique")
+    @PostExchange("/unique")
     boolean isUnique(@RequestParam String compound) throws CRSException;
 
 }

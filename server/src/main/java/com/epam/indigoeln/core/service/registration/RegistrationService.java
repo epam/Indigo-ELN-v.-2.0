@@ -343,15 +343,20 @@ public class RegistrationService {
 
         result.setBatchNo(batch.getString("fullNbkBatch"));
         result.setStructure(((Document) batch.get("structure")).getString("molfile"));
-        result.setFormula(batch.getString("formula"));
+        String formula = batch.get("formula") instanceof Document
+                ? ((Document) batch.get("formula")).getString("value")
+                : batch.getString("formula");
+        result.setFormula(formula);
         result.setStereoisomerCode(((Document) batch.get("stereoisomer")).getString("name"));
         result.setSaltCode(((Document) batch.get("saltCode")).getString("regValue"));
 
-        String saltEq = ((Document) batch.get("saltEq")).getString("value");
+        Object saltEq = ((Document) batch.get("saltEq")).get("value");
 
-        if (saltEq != null) {
+        if (saltEq instanceof Number) {
+            result.setSaltEquivs(((Number) saltEq).doubleValue());
+        } else if (saltEq instanceof String) {
             try {
-                result.setSaltEquivs(Double.parseDouble(saltEq));
+                result.setSaltEquivs(Double.parseDouble((String) saltEq));
             } catch (NumberFormatException e) {
                 LOGGER.warn("Unable to parse Salt Eq");
             }

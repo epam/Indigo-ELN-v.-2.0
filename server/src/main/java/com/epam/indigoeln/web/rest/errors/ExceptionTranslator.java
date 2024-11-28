@@ -26,6 +26,7 @@ import com.epam.indigoeln.core.service.exception.PermissionIncorrectException;
 import com.epam.indigoeln.core.service.exception.UriProcessingException;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ValidationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -48,6 +49,7 @@ import java.util.stream.Collectors;
 /**
  * Controller advice to translate the server side exceptions to client-friendly json structures.
  */
+@Slf4j
 @ControllerAdvice
 public class ExceptionTranslator {
 
@@ -62,9 +64,9 @@ public class ExceptionTranslator {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ErrorDTO processValidationError(MethodArgumentNotValidException ex) {
+        log.error("Bad request", ex);
         BindingResult result = ex.getBindingResult();
         List<FieldError> fieldErrors = result.getFieldErrors();
-
         return processFieldErrors(fieldErrors);
     }
 
@@ -72,6 +74,7 @@ public class ExceptionTranslator {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ErrorDTO processJpaValidationError(ValidationException exception) {
+        log.error("Bad request", exception);
         return (exception instanceof ConstraintViolationException)
                 ? processConstraintViolationError((ConstraintViolationException) exception)
                 : new ErrorDTO(ErrorConstants.ERR_VALIDATION, exception.getMessage());
@@ -89,6 +92,7 @@ public class ExceptionTranslator {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ErrorDTO processJpaValidationError(IndigoException exception) {
+        log.error("Bad request", exception);
         return new ErrorDTO(ErrorConstants.ERR_VALIDATION, exception.getMessage());
     }
 
@@ -96,6 +100,7 @@ public class ExceptionTranslator {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ParametrizedErrorDTO processParametrizedValidationError(CustomParametrizedException ex) {
+        log.error("Bad request", ex);
         return ex.getErrorDTO();
     }
 
@@ -103,6 +108,7 @@ public class ExceptionTranslator {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ParametrizedErrorDTO processUriProcessingError(UriProcessingException ex) {
+        log.error("Bad request", ex);
         return ex.getErrorDTO();
     }
 
@@ -124,6 +130,7 @@ public class ExceptionTranslator {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ParametrizedErrorDTO operationNotAvailableException(OperationNotAvailableException ex) {
+        log.error("Bad request", ex);
         return ex.getErrorDTO();
     }
 
@@ -155,6 +162,7 @@ public class ExceptionTranslator {
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDTO processIndigoRuntimeException(IndigoRuntimeException exception) {
+        log.error("Bad request", exception);
         return new ErrorDTO(ErrorConstants.ERR_URI_SYNTAX, exception.getMessage());
     }
 
@@ -162,6 +170,7 @@ public class ExceptionTranslator {
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDTO processURISyntaxException(URISyntaxException exception) {
+        log.error("Bad request", exception);
         return new ErrorDTO(ErrorConstants.ERR_URI_SYNTAX, exception.getMessage());
     }
 
@@ -169,6 +178,7 @@ public class ExceptionTranslator {
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDTO processIOException(IOException exception) {
+        log.error("Bad request", exception);
         return new ErrorDTO(ErrorConstants.ERR_IO, exception.getMessage());
     }
 
@@ -183,7 +193,8 @@ public class ExceptionTranslator {
     @ExceptionHandler(DataAccessException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorDTO processDataAccessException() {
+    public ErrorDTO processDataAccessException(DataAccessException exception) {
+        log.error("Bad request", exception);
         return new ErrorDTO(ErrorConstants.ERR_DATABASE_ACCESS, "Internal Data Access error occurred");
     }
 

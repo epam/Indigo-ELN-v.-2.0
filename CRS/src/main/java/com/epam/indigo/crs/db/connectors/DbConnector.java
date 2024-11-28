@@ -34,7 +34,7 @@ public abstract class DbConnector {
 		Properties crsProperties = PropertyReader.getCrsProperties();
 		
 		bingoSchema = DbConnector.BINGO;
-		dbSchema = crsProperties.getProperty("DATABASE_USERNAME");
+		dbSchema = "crs"; //crsProperties.getProperty("DATABASE_USERNAME");
 	}
 
 	public abstract String getBingoQuery(String searchFunctionName, String fieldName, Double bottomValue, Double topValue);

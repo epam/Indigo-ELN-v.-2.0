@@ -18,8 +18,6 @@
  */
 package com.epam.indigoeln.config.crs;
 
-import com.epam.indigo.crs.services.registration.BingoRegistration;
-import com.epam.indigo.crs.services.search.BingoSearch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,19 +32,23 @@ public class CrsConfiguration {
     private CrsProperties crsProperties;
 
     @Bean
-    public BingoSearch getSearch() {
+    public BingoSearchClient getSearch() {
+        System.err.println("!!! crsProperties.getSearchServiceUrl = " + crsProperties.getSearchServiceUrl());
+        System.err.println("!!! crsProperties.getRegistrationServiceUrl = " + crsProperties.getRegistrationServiceUrl());
+        System.err.println("!!! crsProperties.getUsername = " + crsProperties.getUsername());
+        System.err.println("!!! crsProperties.getPassword = " + crsProperties.getPassword());
         RestClient restClient = RestClient.builder().baseUrl(crsProperties.getSearchServiceUrl()).build();
         RestClientAdapter adapter = RestClientAdapter.create(restClient);
         HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
-        return factory.createClient(BingoSearch.class);
+        return factory.createClient(BingoSearchClient.class);
     }
 
     @Bean
-    public BingoRegistration getRegistration() {
+    public BingoRegistrationClient getRegistration() {
         RestClient restClient = RestClient.builder().baseUrl(crsProperties.getRegistrationServiceUrl()).build();
         RestClientAdapter adapter = RestClientAdapter.create(restClient);
         HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
-        return factory.createClient(BingoRegistration.class);
+        return factory.createClient(BingoRegistrationClient.class);
     }
 
 }

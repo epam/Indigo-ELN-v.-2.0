@@ -17,6 +17,7 @@ import com.epam.indigo.crs.classes.BingoService;
 import com.epam.indigo.crs.classes.CompoundRegistrationStatus;
 import com.epam.indigo.crs.classes.FullCompoundInfo;
 import com.epam.indigo.crs.exceptions.CRSException;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Connection;
@@ -25,7 +26,8 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-@RestController("/crs/search")
+@RestController
+@RequestMapping("/crs/search")
 public class BingoSearchImpl extends BingoService implements BingoSearch {
 	
 //  final private int compoundsColumndsCount = 11;

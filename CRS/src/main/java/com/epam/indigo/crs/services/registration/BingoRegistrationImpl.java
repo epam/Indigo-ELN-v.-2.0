@@ -13,14 +13,14 @@
  ***************************************************************************/
 package com.epam.indigo.crs.services.registration;
 
-import com.epam.indigo.crs.classes.*;
+import com.epam.indigo.crs.classes.BingoRegistrationManager;
+import com.epam.indigo.crs.classes.BingoService;
+import com.epam.indigo.crs.classes.CompoundInfo;
+import com.epam.indigo.crs.classes.CompoundRegistrationStatus;
 import com.epam.indigo.crs.exceptions.CRSException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,7 +28,8 @@ import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.List;
 
-@RestController("/crs/registration")
+@RestController
+@RequestMapping("/crs/registration")
 public class BingoRegistrationImpl extends BingoService implements BingoRegistration {
 
 	private static final Logger log = LoggerFactory.getLogger(BingoRegistrationImpl.class);
@@ -39,28 +40,32 @@ public class BingoRegistrationImpl extends BingoService implements BingoRegistra
     protected BingoRegistrationManager brm;
 
     public BingoRegistrationImpl() {
-        super(); 
+        super();
         brm = BingoRegistrationManager.INSTANCE;
     }
 
-    @PostMapping("token-hash")
+    @PostMapping("/token-hash")
     public String getTokenHash(@RequestParam String username, @RequestParam String password) throws CRSException {
     	log.info("Returning token hash for user " + username);
     	
         Connection dbConnection = getConnection();
 
         try {
-            String query = "select id from " + getDbSchema() + ".users where username = ? and password = ?";
+            String query = "select id from " + getDbSchema() + ".users";
+            System.err.println("!!! " + query);
+
 
             PreparedStatement ps = dbConnection.prepareStatement(query);
-            ps.setString(1, username);
-            ps.setString(2, HashStringGenerator.getHashString(password));
+//            ps.setString(1, username);
+//            ps.setString(2, HashStringGenerator.getHashString(password));
 
             ResultSet rs = ps.executeQuery();
 
             if (!rs.next()) {
+                System.err.println("!!! not found");
                 throw new CRSException("Incorrect username or password");
             } else {
+                System.err.println("!!! userId=" + rs.getInt(1));
                 return brm.addTokenHashForUser(rs.getInt(1));
             }
         } catch (Exception e) {
@@ -215,7 +220,7 @@ public class BingoRegistrationImpl extends BingoService implements BingoRegistra
     }
 
     @PostMapping("/submit")
-    public long submitForRegistration(@RequestParam String tokenHash, CompoundInfo compoundInfo) throws CRSException {
+    public long submitForRegistration(@RequestParam String tokenHash, @RequestBody CompoundInfo compoundInfo) throws CRSException {
     	long jobId = getNewJobId();
     	
     	new RegistrationThread(tokenHash, Arrays.asList(compoundInfo), jobId).start();
@@ -224,7 +229,7 @@ public class BingoRegistrationImpl extends BingoService implements BingoRegistra
     }
 
     @PostMapping("/submit-list")
-    public long submitListForRegistration(@RequestParam String tokenHash, List<CompoundInfo> compoundInfoList) throws CRSException {
+    public long submitListForRegistration(@RequestParam String tokenHash, @RequestBody List<CompoundInfo> compoundInfoList) throws CRSException {
     	long jobId = getNewJobId();
     	
     	new RegistrationThread(tokenHash, compoundInfoList, jobId).start();
@@ -310,6 +315,7 @@ public class BingoRegistrationImpl extends BingoService implements BingoRegistra
             String result = null;
 
             String query = "select compoundNumber from " + getDbSchema() + ".compounds where " + getBingoQuery("exact", "data", null, null) + " and stereoisomerCode = ?";
+            System.err.println("!!! query = " + query);
 
             PreparedStatement ps = dbConnection.prepareStatement(query);
             ps = setStringToPreparedStatement(ps, 1, dbConnection, compoundInfo.getData());

@@ -9,6 +9,11 @@ services:
       - type: bind
         source: /var/local/indigoeln/mongo-db
         target: /data/db
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   postgres-signature:
     build: ./signature/database
@@ -21,6 +26,11 @@ services:
       - type: bind
         source: /var/local/indigoeln/postgres-signature
         target: /var/lib/postgresql/data
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   postgres-crs:
     build: ./crs/database
@@ -33,6 +43,11 @@ services:
       - type: bind
         source: /var/local/indigoeln/postgres-crs
         target: /var/lib/postgresql/data
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   bingodb:
     build: ./bingodb
@@ -53,6 +68,11 @@ services:
       - type: bind
         source: /var/local/indigoeln/bingodb
         target: /opt/jars/bingo
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   server:
     build: ./server
@@ -72,8 +92,8 @@ services:
       - SPRING_HOST=0.0.0.0
       - SIGNATURESERVICE_URL=http://signature:8080/signatureservice
       - INDIGOELN_CLIENT_SIGNATURESERVICE_URL=http://localhost:28080/signatureservice
-      - CRS_SEARCH_SERVICE_URL=http://crs:8080/crs/service/search
-      - CRS_REGISTRATION_SERVICE-URL=http://crs:8080/crs/service/registration
+      - CRS_SEARCH_SERVICE_URL=http://crs:8080/crs/search
+      - CRS_REGISTRATION_SERVICE_URL=http://crs:8080/crs/registration
       - CRS_USERNAME=user
       - CRS_PASSWORD=pass
 
@@ -91,6 +111,11 @@ services:
       - type: bind
         source: /mnt/c/Work/IndigoELN/Indigo/dist/lib
         target: /tmp/indigolibs
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 #  indigoeln-ui:
 #    build: ./ui
@@ -112,12 +137,22 @@ services:
     ports:
       - "28080:8080"
 #      - "5005:5005"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   crs:
     build: ./CRS
     environment:
-      - DATABASE_URL=jdbc:postgresql://postgres-crs:5432/postgres
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-crs:5432/postgres
     expose:
       - "8080"
     ports:
       - "38080:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
