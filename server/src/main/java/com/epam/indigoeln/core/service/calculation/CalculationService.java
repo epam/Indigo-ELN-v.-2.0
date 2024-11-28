@@ -354,7 +354,7 @@ public class CalculationService {
      */
     public RendererResult getStructureWithImage(String structure) {
         IndigoObject io = isMolecule(structure) ? indigo.loadMolecule(structure) : indigo.loadReaction(structure);
-        System.out.println("CalculationService.getStructureWithImage: output format = " + indigo.getOption("render-output-format"));
+        System.out.println("CalculationService.getStructureWithImage:\n[" + structure + "\n]");
         return new RendererResult(renderer.renderToBuffer(io));
     }
 
