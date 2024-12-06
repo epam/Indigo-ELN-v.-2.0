@@ -354,7 +354,7 @@ public class CalculationService {
      * @param structure string structure representation (Mol, Smiles etc.)
      * @return RendererResult
      */
-    public RendererResult getStructureWithImage(String structure) {
+    public synchronized RendererResult getStructureWithImage(String structure) {
         log.info("!!! 0 getStructureWithImage: structure = {}", structure);
         IndigoObject io = isMolecule(structure) ? indigo.loadMolecule(structure) : indigo.loadReaction(structure);
         log.info("!!! 1");
