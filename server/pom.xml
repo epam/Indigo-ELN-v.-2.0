@@ -28,7 +28,6 @@
         <bingo.version>1.24.0</bingo.version>
         <jasper.version>6.4.1</jasper.version>
         <batik.version>1.9</batik.version>
-        <streamex.version>0.6.5</streamex.version>
     </properties>
 
     <parent>
@@ -253,7 +252,7 @@
         <dependency>
             <groupId>one.util</groupId>
             <artifactId>streamex</artifactId>
-            <version>${streamex.version}</version>
+            <version>0.8.3</version>
         </dependency>
 
         <!-- WebSockets -->

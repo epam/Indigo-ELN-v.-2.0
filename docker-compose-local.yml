@@ -156,3 +156,8 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+  indigo:
+    image: epmlsop/indigo-service:latest
+    ports:
+      - "8002:80"

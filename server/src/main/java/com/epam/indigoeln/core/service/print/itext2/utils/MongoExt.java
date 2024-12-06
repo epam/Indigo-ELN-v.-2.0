@@ -136,7 +136,7 @@ public final class MongoExt {
         validatePath(path);
 
         String lastField = path[path.length - 1];
-        return findDeepestObject(path).map(o -> o.origin.getString(lastField)).orElse(StringUtils.EMPTY);
+        return findDeepestObject(path).map(o -> o.origin.get(lastField)).map(Object::toString).orElse(StringUtils.EMPTY);
     }
 
     private Optional<MongoExt> findDeepestObject(String[] path) {

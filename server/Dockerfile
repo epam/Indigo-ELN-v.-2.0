@@ -11,4 +11,4 @@ FROM public.ecr.aws/docker/library/eclipse-temurin:17-jre-noble
 WORKDIR /opt/jars
 COPY --from=builder /sources/target/indigoeln.war indigoeln.war
 
-ENTRYPOINT sh -c "java $JAVA_OPTS -Djna.debug_load=true --add-opens=java.base/java.lang=ALL-UNNAMED -jar indigoeln.war"
+ENTRYPOINT sh -c "java $JAVA_OPTS -Djna.debug_load=true --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util.stream=ALL-UNNAMED -jar indigoeln.war"
