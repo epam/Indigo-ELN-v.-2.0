@@ -25,6 +25,7 @@ import com.epam.indigoeln.core.service.calculation.helper.RendererResult;
 import com.epam.indigoeln.core.service.codetable.CodeTableService;
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
 import com.google.common.collect.ImmutableMap;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -42,6 +43,7 @@ import static com.epam.indigoeln.core.service.codetable.CodeTableService.*;
  * @author Sergei Bolbin
  */
 @Service
+@Slf4j
 public class CalculationService {
 
     /**
@@ -353,9 +355,13 @@ public class CalculationService {
      * @return RendererResult
      */
     public RendererResult getStructureWithImage(String structure) {
+        log.info("!!! 0 getStructureWithImage: structure = {}", structure);
         IndigoObject io = isMolecule(structure) ? indigo.loadMolecule(structure) : indigo.loadReaction(structure);
-        System.out.println("CalculationService.getStructureWithImage:\n[" + structure + "\n]");
-        return new RendererResult(renderer.renderToBuffer(io));
+        log.info("!!! 1");
+        log.info("!!! 2 io = {}", io);
+        RendererResult rendererResult = new RendererResult(renderer.renderToBuffer(io));
+        log.info("!!! 3 rendererResult = {}", rendererResult);
+        return rendererResult;
     }
 
     private Optional<Map<String, String>> getSaltMetadata(Optional<String> saltCode) {
