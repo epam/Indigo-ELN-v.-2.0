@@ -55,12 +55,12 @@ services:
       - BINGO_USERNAME=bingo
       - BINGO_PASSWORD=pass
       - SPRING_HOST=0.0.0.0
-      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Djna.debug_load=true -Djna.debug_load.jna=true
+#      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Djna.debug_load=true -Djna.debug_load.jna=true
       - INDIGOELN_LIBRARY_PATH=/tmp/indigolibs
       - LD_LIBRARY_PATH=/tmp/indigolibs/linux-x86_64
     expose:
       - "9999"
-      - "5005"
+#      - "5005"
     ports:
       - "9999:9999"
 #      - "5005:5005"
@@ -97,16 +97,16 @@ services:
       - CRS_USERNAME=user
       - CRS_PASSWORD=pass
 
-      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+#      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
       - INDIGOELN_LIBRARY_PATH=/tmp/indigolibs
       - LD_LIBRARY_PATH=/tmp/indigolibs/linux-x86_64
 
     expose:
       - "8080"
-      - "5005"
+#      - "5005"
     ports:
       - "8080:8080"
-      - "5005:5005"
+#      - "5005:5005"
     volumes:
       - type: bind
         source: /mnt/c/Work/IndigoELN/Indigo/dist/lib
@@ -117,23 +117,23 @@ services:
         max-size: "10m"
         max-file: "3"
 
-#  indigoeln-ui:
-#    build: ./ui
-#    environment:
-#      - INDIGOELN_SERVER=http://localhost:8080/api/
-#    expose:
-#      - "9000"
-#    ports:
-#      - "9000:9000"
+  indigoeln-ui:
+    build: ./ui
+    environment:
+      - INDIGOELN_SERVER=http://localhost:8080/api/
+    expose:
+      - "9000"
+    ports:
+      - "9000:9000"
 
   signature:
     build: ./signature
     environment:
       - DATABASE_CONNECTION_URL=jdbc:postgresql://postgres-signature:5432/postgres
-      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+#      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     expose:
       - "8080"
-      - "5005:5005"
+#      - "5005:5005"
     ports:
       - "28080:8080"
 #      - "5005:5005"
