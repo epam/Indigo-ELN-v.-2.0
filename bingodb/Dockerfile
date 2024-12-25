@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/maven:3-eclipse-temurin-17 as builder
+FROM public.ecr.aws/docker/library/maven:3-eclipse-temurin-17 AS builder
 
 COPY . /sources/
 WORKDIR /sources

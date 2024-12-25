@@ -97,16 +97,16 @@ services:
       - CRS_USERNAME=user
       - CRS_PASSWORD=pass
 
-#      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
       - INDIGOELN_LIBRARY_PATH=/tmp/indigolibs
       - LD_LIBRARY_PATH=/tmp/indigolibs/linux-x86_64
 
     expose:
       - "8080"
-#      - "5005"
+      - "5005"
     ports:
       - "8080:8080"
-#      - "5005:5005"
+      - "5005:5005"
     volumes:
       - type: bind
         source: /mnt/c/Work/IndigoELN/Indigo/dist/lib
@@ -120,11 +120,13 @@ services:
   indigoeln-ui:
     build: ./ui
     environment:
-      - INDIGOELN_SERVER=http://localhost:8080/api/
+      - INDIGOELN_SERVER=http://host.docker.internal:8080/api
     expose:
-      - "9000"
+      - "80"
     ports:
-      - "9000:9000"
+      - "9000:80"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   signature:
     build: ./signature
