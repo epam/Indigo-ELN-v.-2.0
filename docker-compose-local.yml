@@ -33,7 +33,7 @@ services:
         max-file: "3"
 
   postgres-crs:
-    build: ./crs/database
+    build: ./CRS/database
     restart: always
     environment:
       - POSTGRES_PASSWORD=postgres
@@ -119,14 +119,10 @@ services:
 
   indigoeln-ui:
     build: ./ui
-    environment:
-      - INDIGOELN_SERVER=http://host.docker.internal:8080/api
     expose:
-      - "80"
+      - "9000"
     ports:
-      - "9000:80"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - "9000:9000"
 
   signature:
     build: ./signature

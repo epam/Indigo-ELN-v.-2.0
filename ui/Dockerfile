@@ -1,7 +1,5 @@
 FROM node:7-alpine AS builder
 
-ARG INDIGOELN_SERVER
-
 RUN apk update
 RUN apk add git
 RUN mkdir /sources
@@ -10,8 +8,15 @@ WORKDIR /sources
 COPY package.json /sources/
 COPY package-lock.json /sources/
 RUN --mount=type=cache,id=cache_npm,target=/root/.npm npm install --silent --prefer-offline
-COPY . /sources/
+
+COPY src /sources/src
+COPY webpack /sources/webpack
+COPY *.js /sources/
+COPY *.ipr /sources/
+COPY *.txt /sources/
 RUN --mount=type=cache,id=cache_npm,target=/root/.npm npm run build
+
+COPY indigoeln-ui-local.conf.template /sources/
 
 FROM nginx:1.27
 COPY --from=builder /sources/dist/ /usr/share/nginx/html/
