@@ -120,11 +120,13 @@ services:
   indigoeln-ui:
     build: ./ui
     environment:
-      - INDIGOELN_SERVER=http://localhost:8080/api/
+      - INDIGOELN_SERVER=http://host.docker.internal:8080/api
     expose:
-      - "9000"
+      - "80"
     ports:
-      - "9000:9000"
+      - "9000:80"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   signature:
     build: ./signature
