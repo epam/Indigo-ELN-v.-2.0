@@ -1,4 +1,4 @@
-FROM node:7-alpine as builder
+FROM node:7-alpine AS builder
 
 ARG INDIGOELN_SERVER
 
@@ -9,9 +9,10 @@ WORKDIR /sources
 
 COPY package.json /sources/
 COPY package-lock.json /sources/
-RUN npm install --silent
+RUN --mount=type=cache,id=cache_npm,target=/root/.npm npm install --silent --prefer-offline
 COPY . /sources/
-RUN npm run build --env.apiUrl=$INDIGOELN_SERVER
+RUN --mount=type=cache,id=cache_npm,target=/root/.npm npm run build
 
 FROM nginx:1.27
 COPY --from=builder /sources/dist/ /usr/share/nginx/html/
+COPY indigoeln-ui-local.conf.template /etc/nginx/templates/default.conf.template
