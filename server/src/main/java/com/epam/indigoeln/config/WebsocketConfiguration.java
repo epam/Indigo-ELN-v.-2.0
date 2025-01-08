@@ -32,10 +32,10 @@ import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.security.messaging.context.SecurityContextChannelInterceptor;
 import org.springframework.web.socket.WebSocketHandler;
-import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.StompWebSocketEndpointRegistration;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import java.util.Arrays;
@@ -43,7 +43,7 @@ import java.util.Map;
 
 @Configuration
 @EnableWebSocketMessageBroker
-public class WebsocketConfiguration extends AbstractWebSocketMessageBrokerConfigurer {
+public class WebsocketConfiguration implements WebSocketMessageBrokerConfigurer {
 
     static final String IP_ADDRESS = "IP_ADDRESS";
 
@@ -60,7 +60,7 @@ public class WebsocketConfiguration extends AbstractWebSocketMessageBrokerConfig
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.setInterceptors(new SecurityContextChannelInterceptor());
+        registration.interceptors(new SecurityContextChannelInterceptor());
     }
 
     @Override

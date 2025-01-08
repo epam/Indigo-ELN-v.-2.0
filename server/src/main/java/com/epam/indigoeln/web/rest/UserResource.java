@@ -25,9 +25,8 @@ import com.epam.indigoeln.web.rest.dto.UserDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +69,6 @@ import java.util.stream.Collectors;
  * </p>
  * <p>Another option would be to have a specific JPA entity graph to handle this case.</p>
  */
-@Api
 @RestController
 @RequestMapping(UserResource.URL_MAPPING)
 public class UserResource {
@@ -103,9 +101,9 @@ public class UserResource {
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Returns all users (with paging).")
+    @Operation(summary = "Returns all users (with paging).")
     public ResponseEntity<List<ManagedUserDTO>> getAllUsers(
-            @ApiParam("Paging data.") Pageable pageable
+            @Parameter(description = "Paging data.") Pageable pageable
     ) throws URISyntaxException {
         LOGGER.debug("REST request to get all users");
         Page<User> page = userService.getAllUsers(pageable);
@@ -124,11 +122,11 @@ public class UserResource {
      * @return List with users
      * @throws URISyntaxException If URI is not correct
      */
-    @ApiOperation(value = "Returns users for Entity Permission Management (with paging).")
+    @Operation(summary = "Returns users for Entity Permission Management (with paging).")
     @RequestMapping(value = "/permission-management", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDTO>> getAllUsersWithAuthorities(
-            @ApiParam("Paging data.") Pageable pageable
+            @Parameter(description = "Paging data.") Pageable pageable
     ) throws URISyntaxException {
         LOGGER.debug("REST request to get all users for permission management");
         Page<User> page = userService.getAllUsers(pageable);
@@ -146,11 +144,11 @@ public class UserResource {
      * @param login Login
      * @return User
      */
-    @ApiOperation(value = "Returns user by it's login.")
+    @Operation(summary = "Returns user by it's login.")
     @RequestMapping(value = "/{login:[_'.@a-z0-9-]+}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ManagedUserDTO> getUser(
-            @ApiParam("User login") @PathVariable String login
+            @Parameter(description = "User login") @PathVariable String login
     ) {
         LOGGER.debug("REST request to get user : {}", login);
         User user = userService.getUserWithAuthoritiesByLogin(login);
@@ -167,13 +165,13 @@ public class UserResource {
      * @return users with login firstName of lastName like query param {@code search}
      * @throws URISyntaxException If URI is not correct
      */
-    @ApiOperation(value = "Returns users with login or firstName or lastName like in request param.")
+    @Operation(summary = "Returns users with login or firstName or lastName like in request param.")
     @RequestMapping(method = RequestMethod.GET,
             params = {"search"},
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ManagedUserDTO>> getUserByLoginOrFirstNameOrLastName(
-            @ApiParam("Paging data.") Pageable pageable,
-            @ApiParam("User login or firstName or lastName")
+            @Parameter(description = "Paging data.") Pageable pageable,
+            @Parameter(description = "User login or firstName or lastName")
             @RequestParam("search") String loginOrFirstNameOrLastNameOrSystemRoleName
     ) throws URISyntaxException {
         LOGGER.debug("REST request to search users");
@@ -199,12 +197,12 @@ public class UserResource {
      * @return User
      * @throws URISyntaxException If URI is not correct
      */
-    @ApiOperation(value = "Creates user.")
+    @Operation(summary = "Creates user.")
     @RequestMapping(method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ManagedUserDTO> createUser(
-            @ApiParam("User to create") @RequestBody ManagedUserDTO managedUserDTO
+            @Parameter(description = "User to create") @RequestBody ManagedUserDTO managedUserDTO
     ) throws URISyntaxException {
         LOGGER.debug("REST request to create user: {}", managedUserDTO);
         User user = dtoMapper.convertFromDTO(managedUserDTO);
@@ -220,12 +218,12 @@ public class UserResource {
      * @param managedUserDTO User
      * @return User
      */
-    @ApiOperation(value = "Updates user.")
+    @Operation(summary = "Updates user.")
     @RequestMapping(method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ManagedUserDTO> updateUser(
-            @ApiParam("User to update") @RequestBody ManagedUserDTO managedUserDTO
+            @Parameter(description = "User to update") @RequestBody ManagedUserDTO managedUserDTO
     ) {
         LOGGER.debug("REST request to update user: {}", managedUserDTO);
         User currentUser = userService.getUserWithAuthorities();
@@ -240,10 +238,10 @@ public class UserResource {
      *
      * @param login Login
      */
-    @ApiOperation(value = "Removes user.")
+    @Operation(summary = "Removes user.")
     @RequestMapping(value = "/{login}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteUser(
-            @ApiParam("User login to delete") @PathVariable String login
+            @Parameter(description = "User login to delete") @PathVariable String login
     ) {
         LOGGER.debug("REST request to delete user: {}", login);
         User currentUser = userService.getUserWithAuthorities();
@@ -258,7 +256,7 @@ public class UserResource {
      *
      * @return password validation regex
      */
-    @ApiOperation(value = "Returns password validation regex.")
+    @Operation(summary = "Returns password validation regex.")
     @RequestMapping(value = "/passwordValidationRegex", method = RequestMethod.GET)
     public String getUserPasswordValidationRegex() {
         return passwordValidationRegex;
@@ -270,9 +268,9 @@ public class UserResource {
      * @param login user login to check
      * @return Map with only one key where value is true or false
      */
-    @ApiOperation(value = "Checks if user login is new or not")
+    @Operation(summary = "Checks if user login is new or not")
     @RequestMapping(value = "/new", method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Boolean>> isNew(@ApiParam("user name to check") @RequestParam String login) {
+    public ResponseEntity<Map<String, Boolean>> isNew(@Parameter(description = "user name to check") @RequestParam String login) {
         boolean isNew = userService.isNew(login);
         return ResponseEntity.ok(Collections.singletonMap("isNew", isNew));
     }

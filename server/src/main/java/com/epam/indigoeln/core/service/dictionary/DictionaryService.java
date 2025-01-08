@@ -68,7 +68,7 @@ public class DictionaryService {
         functionMap.put("name", Dictionary::getName);
         functionMap.put("description", Dictionary::getDescription);
 
-        dictionarySortedPageUtil = new SortedPageUtil<>(functionMap);
+        dictionarySortedPageUtil = new SortedPageUtil<>(functionMap, "name");
     }
 
     /**
@@ -79,7 +79,7 @@ public class DictionaryService {
      */
     public Optional<DictionaryDTO> getDictionaryById(String id) {
         ObjectId objectId = new ObjectId(DigestUtils.md5Hex(id).substring(0, 24));
-        return Optional.ofNullable(dictionaryRepository.findOne(objectId.toHexString())).map(DictionaryDTO::new);
+        return dictionaryRepository.findById(objectId.toHexString()).map(DictionaryDTO::new);
     }
 
     /**
@@ -113,7 +113,7 @@ public class DictionaryService {
      */
     public DictionaryDTO updateDictionary(DictionaryDTO dictionaryDTO) {
 
-        Dictionary dictionary = Optional.ofNullable(dictionaryRepository.findOne(dictionaryDTO.getId())).
+        Dictionary dictionary = dictionaryRepository.findById(dictionaryDTO.getId()).
                 orElseThrow(() -> EntityNotFoundException.createWithDictionaryId(dictionaryDTO.getId()));
 
         dictionary.setName(dictionaryDTO.getName());
@@ -130,7 +130,7 @@ public class DictionaryService {
      * @param dictionaryId Identifier of the dictionary to delete
      */
     public void deleteDictionary(String dictionaryId) {
-        dictionaryRepository.delete(dictionaryId);
+        dictionaryRepository.deleteById(dictionaryId);
     }
 
     /**

@@ -18,19 +18,40 @@
  */
 package com.epam.indigoeln.config;
 
+import lombok.RequiredArgsConstructor;
+import org.apache.catalina.Context;
+import org.apache.catalina.connector.Connector;
 import org.apache.coyote.http11.AbstractHttp11Protocol;
-import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
+import org.apache.tomcat.util.descriptor.web.SecurityCollection;
+import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 @Configuration
+@RequiredArgsConstructor
 public class EmbeddedTomcatConfig {
 
+    private final Environment environment;
+
     @Bean
-    public TomcatEmbeddedServletContainerFactory containerFactory() {
-        TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory();
-        factory.addConnectorCustomizers(con -> ((AbstractHttp11Protocol<?>) con.getProtocolHandler())
-                .setMaxSwallowSize(-1));
-        return factory;
+    public ServletWebServerFactory servletContainer() {
+        return new TomcatServletWebServerFactory() {
+            @Override
+            protected void postProcessContext(Context context) {
+//                SecurityConstraint securityConstraint = new SecurityConstraint();
+//                securityConstraint.setUserConstraint("CONFIDENTIAL");
+//                SecurityCollection collection = new SecurityCollection();
+//                collection.addPattern("/*");
+//                securityConstraint.addCollection(collection);
+//                context.addConstraint(securityConstraint);
+            }
+            protected void customizeConnector(Connector connector) {
+                ((AbstractHttp11Protocol <?>) connector.getProtocolHandler()).setMaxSwallowSize(-1);
+                connector.setPort(Integer.parseInt(environment.getProperty("server.port")));
+            }
+        };
     }
 }

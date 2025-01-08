@@ -1,0 +1,43 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="1" author="alex">
+
+        <ext:createCollection collectionName="person"/>
+
+    </changeSet>
+
+    <changeSet id="2" author="alex">
+        <ext:insertMany collectionName="person">
+            <ext:documents>
+                <!-- @formatter:off -->
+                [
+                {
+                "name": "Joe",
+                "address": "China"
+                },
+                {
+                "name": "Ben",
+                "address": "Brazil"
+                }
+                ]
+                <!-- @formatter:on -->
+            </ext:documents>
+
+        </ext:insertMany>
+    </changeSet>
+
+    <changeSet id="3" author="alex">
+
+        <customChange class="org.liquibase.ext.mongodb.quickstart.custom.UpsertAgeChange">
+            <param name="collectionName" value="person"/>
+            <param name="age" value="40"/>
+        </customChange>
+
+    </changeSet>
+
+</databaseChangeLog>

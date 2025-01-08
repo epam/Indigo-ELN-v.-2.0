@@ -35,17 +35,16 @@ import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.epam.indigoeln.web.rest.util.permission.helpers.PermissionChanges;
 import com.epam.indigoeln.web.rest.util.permission.helpers.ProjectPermissionHelper;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import com.mongodb.DBRef;
-import com.mongodb.gridfs.GridFSDBFile;
 import lombok.val;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -130,8 +129,8 @@ public class ProjectService {
         val collection = mongoTemplate.getCollection(Project.COLLECTION_NAME);
 
         val projects = (user == null) ? collection.find()
-                : collection.find(new BasicDBObject()
-                .append("accessList.user", new BasicDBObject()
+                : collection.find(new Document()
+                .append("accessList.user", new Document()
                         .append("$ref", User.COLLECTION_NAME).append("$id", user.getId())));
 
         return StreamSupport.stream(projects.spliterator(), false)
@@ -143,11 +142,11 @@ public class ProjectService {
     public TreeNodeDTO getProjectAsTreeNode(String projectId) {
         TreeNodeDTO result;
         val collection = mongoTemplate.getCollection(Project.COLLECTION_NAME);
-        BasicDBObject searchQuery = new BasicDBObject();
+        Document searchQuery = new Document();
         searchQuery.put("_id", projectId);
-        val project = collection.find(searchQuery);
-        if (project.hasNext()) {
-            result = new TreeNodeDTO(project.next());
+        val project = collection.find(searchQuery).first();
+        if (project != null) {
+            result = new TreeNodeDTO(project);
         } else {
             throw EntityNotFoundException.createWithProjectId(projectId);
         }
@@ -163,7 +162,7 @@ public class ProjectService {
      * @return Project by id
      */
     public ProjectDTO getProjectById(String id, User user) {
-        Optional<Project> projectOpt = Optional.ofNullable(projectRepository.findOne(id));
+        Optional<Project> projectOpt = projectRepository.findById(id);
         Project project = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(id));
 
         // Check of EntityAccess (User must have "Read Entity" permission in project's access list,
@@ -187,7 +186,7 @@ public class ProjectService {
         val projectCollection = mongoTemplate.getCollection(Project.COLLECTION_NAME);
         val userCollection = mongoTemplate.getCollection(User.COLLECTION_NAME);
 
-        val projects = new HashMap<Object, DBObject>();
+        val projects = new HashMap<Object, Document>();
 
         if (PermissionUtil.isContentEditor(user)) {
             projectCollection
@@ -195,11 +194,11 @@ public class ProjectService {
                     .forEach(p -> projects.put(p.get("_id"), p));
         } else {
             projectCollection
-                    .find(new BasicDBObject()
-                            .append("accessList", new BasicDBObject()
-                                    .append("$elemMatch", new BasicDBObject()
+                    .find(new Document()
+                            .append("accessList", new Document()
+                                    .append("$elemMatch", new Document()
                                             .append("user.$id", user.getId())
-                                            .append("permissions", new BasicDBObject()
+                                            .append("permissions", new Document()
                                                     .append("$in", Collections.singletonList(UserPermission.CREATE_SUB_ENTITY))))))
                     .forEach(p -> projects.put(p.get("_id"), p));
         }
@@ -216,9 +215,9 @@ public class ProjectService {
                     }
                 });
 
-        val users = new HashMap<Object, DBObject>();
+        val users = new HashMap<Object, Document>();
         userCollection
-                .find(new BasicDBObject("_id", new BasicDBObject("$in", userIds)))
+                .find(new Document("_id", new Document("$in", userIds)))
                 .forEach(u -> users.put(u.get("_id"), u));
 
         return projects
@@ -249,10 +248,10 @@ public class ProjectService {
         project = saveProjectAndHandleError(project);
 
         final Set<String> fileIds = project.getFileIds();
-        final List<GridFSDBFile> temporaryFiles = fileRepository.findTemporary(fileIds);
+        final List<GridFsResource> temporaryFiles = fileRepository.findTemporary(fileIds);
         temporaryFiles.forEach(tf -> {
-            GridFSFileUtil.setTemporaryToMetadata(tf.getMetaData(), false);
-            tf.save();
+            GridFSFileUtil.setTemporaryToMetadata(tf.getOptions().getMetadata(), false);
+            fileRepository.updateMetadata(tf, tf.getOptions().getMetadata());
         });
 
         webSocketUtil.newProject(user, getSubEntityChangesRecipients(permissions, userService.getContentEditors())
@@ -269,7 +268,7 @@ public class ProjectService {
      * @return Updated project
      */
     public ProjectDTO updateProject(ProjectDTO projectDTO, User user) {
-        Project projectFromDb = Optional.ofNullable(projectRepository.findOne(projectDTO.getId()))
+        Project projectFromDb = projectRepository.findById(projectDTO.getId())
                 .orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectDTO.getId()));
 
         // check of EntityAccess (User must have "Update Entity" permission in project's access list,
@@ -352,7 +351,7 @@ public class ProjectService {
                 .collect(toSet());
 
 
-        notebookRepository.save(notebooksChanges.stream()
+        notebookRepository.saveAll(notebooksChanges.stream()
                 .map(PermissionChanges::getEntity)
                 .collect(toSet()));
 
@@ -385,7 +384,7 @@ public class ProjectService {
                         .stream()
                         .filter(PermissionChanges::hadChanged)
                         .collect(Collectors.toList());
-                experimentRepository.save(experimentsChanges.stream()
+                experimentRepository.saveAll(experimentsChanges.stream()
                         .map(PermissionChanges::getEntity)
                         .collect(Collectors.toList()));
                 result.add(
@@ -414,7 +413,7 @@ public class ProjectService {
      * @param id Project's identifier
      */
     public void deleteProject(String id) {
-        Optional<Project> projectOpt = Optional.ofNullable(projectRepository.findOne(id));
+        Optional<Project> projectOpt = projectRepository.findById(id);
         Project project = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(id));
 
         if (project.getNotebooks() != null && !project.getNotebooks().isEmpty()) {
@@ -434,7 +433,7 @@ public class ProjectService {
      * @return true if none of notebooks or experiments has user added to it, true otherwise
      */
     public boolean isUserRemovable(String projectId, String userId) {
-        Optional<Project> projectOpt = Optional.ofNullable(projectRepository.findOne(projectId));
+        Optional<Project> projectOpt = projectRepository.findById(projectId);
         Project project = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
 
         List<Notebook> notebooks = project.getNotebooks();

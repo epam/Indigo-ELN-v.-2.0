@@ -72,7 +72,7 @@ public class UserService {
                 "role",
                 u -> u.getRoles().stream().findFirst().map(Role::getName).orElse(""));
 
-        USER_SORTED_PAGE_UTIL = new SortedPageUtil<>(functionMap);
+        USER_SORTED_PAGE_UTIL = new SortedPageUtil<>(functionMap, "login");
     }
 
     private static final SortedPageUtil<User> USER_SORTED_PAGE_UTIL;
@@ -94,7 +94,7 @@ public class UserService {
     }
 
     public List<String> getAllUsersByIds(List<String> coAuthorsIds) {
-        return userRepository.findAll(coAuthorsIds).stream()
+        return userRepository.findAllById(coAuthorsIds).stream()
                 .map(User::getFullName)
                 .collect(Collectors.toList());
     }
@@ -237,7 +237,7 @@ public class UserService {
      * @return user with given ID
      */
     public User getUserWithAuthorities(String id) {
-        User user = userRepository.findOne(id);
+        User user = userRepository.findOneById(id);
         if (user == null) {
             throw EntityNotFoundException.createWithUserId(id);
         }
@@ -269,7 +269,7 @@ public class UserService {
      * @return user from DB by his identity
      */
     public User getUserById(String username) {
-        return userRepository.findOne(username);
+        return userRepository.findOneByLogin(username);
     }
 
     /**
@@ -299,10 +299,8 @@ public class UserService {
     private Set<Role> checkRolesExistenceAndGet(Set<Role> roles) {
         Set<Role> checkedRoles = new HashSet<>(roles.size());
         for (Role role : roles) {
-            Role roleFromDB = roleRepository.findOne(role.getId());
-            if (roleFromDB == null) {
-                throw EntityNotFoundException.createWithRoleId(role.getId());
-            }
+            Role roleFromDB = roleRepository.findById(role.getId())
+                    .orElseThrow(() -> EntityNotFoundException.createWithRoleId(role.getId()));
             checkedRoles.add(roleFromDB);
         }
 

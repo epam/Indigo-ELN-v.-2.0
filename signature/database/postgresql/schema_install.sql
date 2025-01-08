@@ -157,7 +157,7 @@ INSERT INTO Status (StatusId, Name) VALUES (8, 'ARCHIVED') ;
 -- Admin user with username 'admin' and temporary password '1234'
 
 INSERT INTO UserAccount (UserId, Active, Admin, Username, Password, FirstName, LastName, Email) 
-        VALUES('d8fd0f74-33ac-4c84-b8ec-af5863dea126', 'TRUE', 'TRUE', 'admin', '81dc9bdb52d04dc20036dbd8313ed055', 'System', 'Administrator', 'admin@e.mail') ;
+        VALUES('d8fd0f74-33ac-4c84-b8ec-af5863dea126', 'TRUE', 'TRUE', 'admin', '{IjFrTA9lv20QsyGhWIYfU3gTnwI/yOdveAWHYhnihQA=}754864deaddc7e325ece00ab6a9ad972', 'System', 'Administrator', 'admin@e.mail') ;
 
 -- commit changes
 

@@ -30,6 +30,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
@@ -183,12 +184,17 @@ public class SignatureRepository {
     }
 
     private Cookie login(String username, String password) {
-        Map<String, Object> o = new HashMap<>();
-        o.put(USERNAME, username);
-        o.put("password", password);
+        LinkedMultiValueMap<String, String> o = new LinkedMultiValueMap<>();
+        o.add(USERNAME, username);
+        o.add("password", password);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(o, headers);
 
         ResponseEntity<Object> responseEntity = restTemplate
-                .postForEntity(signatureProperties.getUrl() + "/loginProcess", o, Object.class);
+                .postForEntity(signatureProperties.getUrl() + "/login", request, Object.class);
 
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             List<String> cookies = responseEntity.getHeaders().get(HttpHeaders.SET_COOKIE);

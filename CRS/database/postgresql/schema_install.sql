@@ -22,6 +22,8 @@ create table crs.users(
 	password varchar(4000) not null,
 	constraint username_unique unique (username)
 ) ;
+-- default credentials: user/pass
+insert into crs.users(id, username, password) values (1, 'user', '1a1dc91c907325c69271ddf0c944bc72') ;
 
 create table crs.compounds(
 	id integer primary key,

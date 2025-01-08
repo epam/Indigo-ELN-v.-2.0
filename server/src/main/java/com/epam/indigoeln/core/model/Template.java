@@ -26,6 +26,8 @@ import org.json.JSONArray;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.util.List;
+
 
 /**
  * Entity class presents Template.
@@ -41,13 +43,13 @@ public class Template extends BasicModelObject {
 
 
     @Field("content")
-    private BasicDBList templateContent;
+    private List<Object> templateContent;
 
-    public BasicDBList getTemplateContent() {
+    public List<Object> getTemplateContent() {
         return templateContent;
     }
 
-    public void setTemplateContent(BasicDBList templateContent) {
+    public void setTemplateContent(List<Object> templateContent) {
         this.templateContent = templateContent;
     }
 

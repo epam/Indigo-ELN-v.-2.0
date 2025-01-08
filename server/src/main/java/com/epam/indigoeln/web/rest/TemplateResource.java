@@ -22,9 +22,9 @@ import com.epam.indigoeln.core.service.template.TemplateService;
 import com.epam.indigoeln.web.rest.dto.TemplateDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +34,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
@@ -45,7 +44,6 @@ import java.util.Map;
 /**
  * REST controller for managing Resources.
  */
-@Api
 @RestController
 @RequestMapping("/api/templates")
 public class TemplateResource {
@@ -60,11 +58,11 @@ public class TemplateResource {
      * @param id Template's identifier
      * @return Template
      */
-    @ApiOperation(value = "Returns template by it's id.")
+    @Operation(summary = "Returns template by it's id.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TemplateDTO> getTemplate(
-            @ApiParam("Template id") @PathVariable String id
+            @Parameter(description = "Template id") @PathVariable String id
     ) {
         return templateService.getTemplateById(id)
                 .map(template -> new ResponseEntity<>(template, HttpStatus.OK))
@@ -80,9 +78,9 @@ public class TemplateResource {
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Returns all templates (with paging).")
+    @Operation(summary = "Returns all templates (with paging).")
     public ResponseEntity<List<TemplateDTO>> getAllTemplates(
-            @ApiParam("Paging data") Pageable pageable
+            @Parameter(description = "Paging data") Pageable pageable
     ) throws URISyntaxException {
         Page<TemplateDTO> page = templateService.getAllTemplates(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/templates");
@@ -100,10 +98,10 @@ public class TemplateResource {
     @RequestMapping(method = RequestMethod.GET,
             params = "search",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Returns templates with likely name(with paging).")
+    @Operation(summary = "Returns templates with likely name(with paging).")
     public ResponseEntity<List<TemplateDTO>> getTemplatesByNameLike(
-            @ApiParam("Paging data") Pageable pageable,
-            @ApiParam("Name to search") @RequestParam("search") String nameLike
+            @Parameter(description = "Paging data") Pageable pageable,
+            @Parameter(description = "Name to search") @RequestParam("search") String nameLike
     ) throws URISyntaxException {
         Page<TemplateDTO> page = templateService.getTemplatesNameLike(nameLike, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/templates");
@@ -124,12 +122,12 @@ public class TemplateResource {
      * @return saved template item wrapped to ResponseEntity
      * @throws URISyntaxException if URI is not correct
      */
-    @ApiOperation(value = "Creates new template.")
+    @Operation(summary = "Creates new template.")
     @RequestMapping(method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity createTemplate(
-            @ApiParam("Template to create") @Valid @RequestBody TemplateDTO templateDTO
+            @Parameter(description = "Template to create") @Valid @RequestBody TemplateDTO templateDTO
     ) throws URISyntaxException {
         TemplateDTO result = templateService.createTemplate(templateDTO);
         return ResponseEntity.created(new URI("/api/templates/" + result.getId()))
@@ -152,12 +150,12 @@ public class TemplateResource {
      * @param template template for save
      * @return saved template item wrapped to ResponseEntity
      */
-    @ApiOperation(value = "Updates existing template.")
+    @Operation(summary = "Updates existing template.")
     @RequestMapping(method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TemplateDTO> updateTemplate(
-            @ApiParam("Template to update") @RequestBody TemplateDTO template
+            @Parameter(description = "Template to update") @RequestBody TemplateDTO template
     ) {
         if (!templateService.getTemplateById(template.getId()).isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -179,10 +177,10 @@ public class TemplateResource {
      * @param id id of template
      * @return operation status Response Entity
      */
-    @ApiOperation(value = "Removes template.")
+    @Operation(summary = "Removes template.")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteTemplate(
-            @ApiParam("Template id to delete") @PathVariable String id
+            @Parameter(description = "Template id to delete") @PathVariable String id
     ) {
         templateService.deleteTemplate(id);
         return ResponseEntity.ok().headers(
@@ -196,9 +194,9 @@ public class TemplateResource {
      * @param templateName Template's name to check
      * @return Map with only one key where value is true or false
      */
-    @ApiOperation(value = "Checks if template's name is new or not")
+    @Operation(summary = "Checks if template's name is new or not")
     @RequestMapping(value = "/new", method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Boolean>> isNew(@ApiParam("Template's name to check")
+    public ResponseEntity<Map<String, Boolean>> isNew(@Parameter(description = "Template's name to check")
                                                       @RequestParam String templateName) {
         boolean notNew = templateService.nameAlreadyExists(templateName);
         return ResponseEntity.ok(Collections.singletonMap("nameAlreadyExists", notNew));

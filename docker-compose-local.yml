@@ -1,18 +1,36 @@
 version: "3.3"
 services:
   mongo-db:
-    image: mongo:3.4.17
+    image: mongo:5
     restart: always
     ports:
       - "27017:27017"
+    volumes:
+      - type: bind
+        source: /var/local/indigoeln/mongo-db
+        target: /data/db
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
-  postgres:
+  postgres-signature:
     build: ./signature/database
     restart: always
     environment:
       - POSTGRES_PASSWORD=postgres
     ports:
       - "5432:5432"
+    volumes:
+      - type: bind
+        source: /var/local/indigoeln/postgres-signature
+        target: /var/lib/postgresql/data
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   postgres-crs:
     build: ./crs/database
@@ -21,15 +39,40 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - "15432:5432"
+    volumes:
+      - type: bind
+        source: /var/local/indigoeln/postgres-crs
+        target: /var/lib/postgresql/data
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   bingodb:
     build: ./bingodb
     environment:
-      - SECURITY_USER_NAME=bingo
-      - SECURITY_USER_PASSWORD=pass
+      - BINGO_USERNAME=bingo
+      - BINGO_PASSWORD=pass
       - SPRING_HOST=0.0.0.0
+#      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Djna.debug_load=true -Djna.debug_load.jna=true
+      - INDIGOELN_LIBRARY_PATH=/tmp/indigolibs
+      - LD_LIBRARY_PATH=/tmp/indigolibs/linux-x86_64
+    expose:
+      - "9999"
+#      - "5005"
     ports:
       - "9999:9999"
+#      - "5005:5005"
+    volumes:
+      - type: bind
+        source: /var/local/indigoeln/bingodb
+        target: /opt/jars/bingo
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   server:
     build: ./server
@@ -49,23 +92,35 @@ services:
       - SPRING_HOST=0.0.0.0
       - SIGNATURESERVICE_URL=http://signature:8080/signatureservice
       - INDIGOELN_CLIENT_SIGNATURESERVICE_URL=http://localhost:28080/signatureservice
-      - CRS_SEARCH_SERVICE_URL=http://crs:8080/crs/service/SearchService
-      - CRS_REGISTRATION_SERVICE-URL=http://crs:8080/crs/service/RegistrationService
+      - CRS_SEARCH_SERVICE_URL=http://crs:8080/crs/search
+      - CRS_REGISTRATION_SERVICE_URL=http://crs:8080/crs/registration
       - CRS_USERNAME=user
       - CRS_PASSWORD=pass
 
-      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+#      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      - INDIGOELN_LIBRARY_PATH=/tmp/indigolibs
+      - LD_LIBRARY_PATH=/tmp/indigolibs/linux-x86_64
+
     expose:
       - "8080"
-      - "5005"
+#      - "5005"
     ports:
       - "8080:8080"
-      - "5005:5005"
+#      - "5005:5005"
+    volumes:
+      - type: bind
+        source: /mnt/c/Work/IndigoELN/Indigo/dist/lib
+        target: /tmp/indigolibs
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   indigoeln-ui:
     build: ./ui
     environment:
-      - INDIGOELN_SERVER=https://edge.aws.cloud-pipeline.com/pipeline-61766-8080-0/api/
+      - INDIGOELN_SERVER=http://localhost:8080/api/
     expose:
       - "9000"
     ports:
@@ -74,17 +129,35 @@ services:
   signature:
     build: ./signature
     environment:
-      - DATABASE_CONNECTION_URL=jdbc:postgresql://postgres:5432/postgres
+      - DATABASE_CONNECTION_URL=jdbc:postgresql://postgres-signature:5432/postgres
+#      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     expose:
       - "8080"
+#      - "5005:5005"
     ports:
       - "28080:8080"
+#      - "5005:5005"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   crs:
-    build: ./crs
+    build: ./CRS
     environment:
-      - DATABASE_URL=jdbc:postgresql://postgres-crs:5432/postgres
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-crs:5432/postgres
     expose:
       - "8080"
     ports:
       - "38080:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  indigo:
+    image: epmlsop/indigo-service:latest
+    ports:
+      - "8002:80"

@@ -30,7 +30,6 @@ import com.epam.indigoeln.web.rest.dto.search.EntitySearchResultDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
-import com.mongodb.BasicDBList;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -78,7 +77,7 @@ public class NotebookSearchRepository implements InitializingBean {
 
     Optional<List<EntitySearchResultDTO>> searchNotebooks(EntitySearchRequest searchRequest, User user) {
         return search(searchRequest).map(ids -> {
-            final Iterable<Notebook> notebooks = notebookRepository.findAll(ids);
+            final Iterable<Notebook> notebooks = notebookRepository.findAllById(ids);
             return StreamSupport.stream(notebooks.spliterator(), false).filter(
                     n -> PermissionUtil.hasEditorAuthorityOrPermissions(user, n.getAccessList(),
                             UserPermission.READ_ENTITY)
@@ -132,9 +131,8 @@ public class NotebookSearchRepository implements InitializingBean {
     }
 
     private Set<String> find(Criteria criteria) {
-        return ((BasicDBList) template.scriptOps().execute(searchScript, criteria.getCriteriaObject()))
+        return ((List<String>) template.scriptOps().execute(searchScript, criteria.getCriteriaObject()))
                 .stream()
-                .map(o -> (String) o)
                 .collect(Collectors.toSet());
     }
 

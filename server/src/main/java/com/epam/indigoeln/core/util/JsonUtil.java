@@ -20,10 +20,10 @@ package com.epam.indigoeln.core.util;
 
 import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.BasicDBList;
 import org.json.JSONArray;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,8 +41,8 @@ public final class JsonUtil {
      * @param jsonArray Json array
      * @return Returns BasicDbList
      */
-    public static BasicDBList basicDBListFromJsonArray(JSONArray jsonArray) {
-        BasicDBList result = new BasicDBList();
+    public static List<Object> basicDBListFromJsonArray(JSONArray jsonArray) {
+        List<Object> result = new ArrayList<>();
         result.addAll(Arrays.asList(jsonToArray(jsonArray)));
         return result;
     }

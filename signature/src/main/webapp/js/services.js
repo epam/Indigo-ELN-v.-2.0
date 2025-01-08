@@ -379,7 +379,8 @@ angular.module('App.services', ['ngResource'])
                 username: login,
                 password: password
             };
-            return $http.post('loginProcess', paramsData).success(function(data){
+            // use jQuery post to send application/x-www-form-urlencoded
+            return $.post('login', paramsData).done(function(data){
                     if(data.loggedIn){
                         var newUser = DataMapper.transformUser(angular.fromJson(data.user));
                         if(cb){
@@ -390,7 +391,7 @@ angular.module('App.services', ['ngResource'])
                             errorCb();
                         }
                     }
-            }).error(function(data, status, headers, config){
+            }).fail(function(data, status, headers, config){
                 if(status == 403){
                     if(errorCb){
                         errorCb();

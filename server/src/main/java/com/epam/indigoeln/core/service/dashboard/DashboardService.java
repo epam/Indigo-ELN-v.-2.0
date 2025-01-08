@@ -29,11 +29,10 @@ import com.epam.indigoeln.web.rest.DashboardResource;
 import com.epam.indigoeln.web.rest.dto.DashboardDTO;
 import com.epam.indigoeln.web.rest.dto.DashboardRowDTO;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import com.mongodb.DBRef;
 import lombok.val;
 import org.apache.commons.lang3.tuple.Triple;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,34 +94,34 @@ public class DashboardService {
 
         // Load all necessary entities
 
-        val experiments = new HashMap<Object, DBObject>();
+        val experiments = new HashMap<Object, Document>();
         experimentCollection
-                .find(new BasicDBObject("$or", Arrays.asList(
-                        new BasicDBObject("author.$id", user.getId()),
-                        new BasicDBObject("submittedBy.$id", user.getId()))))
+                .find(new Document("$or", Arrays.asList(
+                        new Document("author.$id", user.getId()),
+                        new Document("submittedBy.$id", user.getId()))))
                 .forEach(e -> experiments.put(e.get("_id"), e));
 
-        val notebooks = new HashMap<Object, DBObject>();
+        val notebooks = new HashMap<Object, Document>();
         notebookCollection
-                .find(new BasicDBObject("experiments.$id", new BasicDBObject("$in", experiments.keySet())))
+                .find(new Document("experiments.$id", new Document("$in", experiments.keySet())))
                 .forEach(n -> notebooks.put(n.get("_id"), n));
 
-        val projects = new HashMap<Object, DBObject>();
+        val projects = new HashMap<Object, Document>();
         projectCollection
-                .find(new BasicDBObject("notebooks.$id", new BasicDBObject("$in", notebooks.keySet())))
+                .find(new Document("notebooks.$id", new Document("$in", notebooks.keySet())))
                 .forEach(p -> projects.put(p.get("_id"), p));
 
         val componentIds = new HashSet<Object>();
         experiments.values().forEach(e -> ((Iterable) e.get("components")).forEach(c -> componentIds.add(((DBRef) c).getId())));
 
-        val components = new HashMap<Object, DBObject>();
+        val components = new HashMap<Object, Document>();
         componentCollection
-                .find(new BasicDBObject()
-                        .append("_id", new BasicDBObject("$in", componentIds))
+                .find(new Document()
+                        .append("_id", new Document("$in", componentIds))
                         .append("$or", Arrays.asList(
-                                new BasicDBObject("name", "reaction"),
-                                new BasicDBObject("name", "reactionDetails"),
-                                new BasicDBObject("name", "conceptDetails"))))
+                                new Document("name", "reaction"),
+                                new Document("name", "reactionDetails"),
+                                new Document("name", "conceptDetails"))))
                 .forEach(c -> components.put(c.get("_id"), c));
 
         val userIds = new HashSet<Object>();
@@ -137,13 +136,13 @@ public class DashboardService {
                 });
         components.values()
                 .forEach(c -> {
-                    if (c.get("content") != null && ((DBObject) c.get("content")).get("coAuthors") != null) {
-                        ((Iterable) ((DBObject) c.get("content")).get("coAuthors")).forEach(userIds::add);
+                    if (c.get("content") != null && ((Document) c.get("content")).get("coAuthors") != null) {
+                        ((Iterable) ((Document) c.get("content")).get("coAuthors")).forEach(userIds::add);
                     }
                 });
 
-        val users = new HashMap<Object, DBObject>();
-        userCollection.find(new BasicDBObject("_id", new BasicDBObject("$in", userIds))).forEach(u -> users.put(u.get("_id"), u));
+        val users = new HashMap<Object, Document>();
+        userCollection.find(new Document("_id", new Document("$in", userIds))).forEach(u -> users.put(u.get("_id"), u));
 
         // Fill dashboard
 
@@ -168,12 +167,12 @@ public class DashboardService {
      */
     private List<DashboardRowDTO> openExperiments(Date threshold,
                                                   User user,
-                                                  Map<Object, DBObject> projects,
-                                                  Map<Object, DBObject> notebooks,
-                                                  Map<Object, DBObject> experiments,
-                                                  Map<Object, DBObject> components,
-                                                  Map<Object, DBObject> users) {
-        val openExperiments = new HashMap<Object, DBObject>();
+                                                  Map<Object, Document> projects,
+                                                  Map<Object, Document> notebooks,
+                                                  Map<Object, Document> experiments,
+                                                  Map<Object, Document> components,
+                                                  Map<Object, Document> users) {
+        val openExperiments = new HashMap<Object, Document>();
         experiments
                 .forEach((k, v) -> {
                     if (threshold.before((Date) v.get("creationDate")) && "open".equalsIgnoreCase(String.valueOf(v.get("status")))) {
@@ -201,11 +200,11 @@ public class DashboardService {
      * @return experiments which are waiting for user's signature
      */
     private List<DashboardRowDTO> waitingExperiments(User user,
-                                                     Map<Object, DBObject> projects,
-                                                     Map<Object, DBObject> notebooks,
-                                                     Map<Object, DBObject> experiments,
-                                                     Map<Object, DBObject> components,
-                                                     Map<Object, DBObject> users) {
+                                                     Map<Object, Document> projects,
+                                                     Map<Object, Document> notebooks,
+                                                     Map<Object, Document> experiments,
+                                                     Map<Object, Document> components,
+                                                     Map<Object, Document> users) {
         val waitingDocuments = new HashMap<String, SignatureService.Document>();
         try {
             signatureService.getDocumentsByUser().stream()
@@ -218,7 +217,7 @@ public class DashboardService {
             throw new IndigoRuntimeException(EXCEPTION_MESSAGE);
         }
 
-        val waitingExperiments = new HashMap<Object, DBObject>();
+        val waitingExperiments = new HashMap<Object, Document>();
         experiments
                 .forEach((k, v) -> {
                     if (v.get("documentId") != null && waitingDocuments.containsKey(v.get("documentId"))) {
@@ -247,12 +246,12 @@ public class DashboardService {
      */
     private List<DashboardRowDTO> submittedExperiments(Date threshold,
                                                        User user,
-                                                       Map<Object, DBObject> projects,
-                                                       Map<Object, DBObject> notebooks,
-                                                       Map<Object, DBObject> experiments,
-                                                       Map<Object, DBObject> components,
-                                                       Map<Object, DBObject> users) {
-        val submittedExperiments = new HashMap<Object, DBObject>();
+                                                       Map<Object, Document> projects,
+                                                       Map<Object, Document> notebooks,
+                                                       Map<Object, Document> experiments,
+                                                       Map<Object, Document> components,
+                                                       Map<Object, Document> users) {
+        val submittedExperiments = new HashMap<Object, Document>();
         experiments
                 .forEach((k, v) -> {
                     if (threshold.before((Date) v.get("creationDate")) && v.get("documentId") != null && !"open".equals(v.get("status")) && !"completed".equals(v.get("status"))) {
@@ -287,9 +286,9 @@ public class DashboardService {
      */
     @SuppressWarnings("unchecked")
     private DashboardRowDTO convert(
-            Triple<DBObject, DBObject, DBObject> t,
-            Map<Object, DBObject> components,
-            Map<Object, DBObject> users,
+            Triple<Document, Document, Document> t,
+            Map<Object, Document> components,
+            Map<Object, Document> users,
             Map<String, SignatureService.Document> documents) {
         val project = t.getLeft();
         val notebook = t.getMiddle();
@@ -355,7 +354,7 @@ public class DashboardService {
      * @param users      all users
      * @return the UserDTO for given key
      */
-    private DashboardRowDTO.UserDTO getUserDTO(DBObject experiment, String key, Map<Object, DBObject> users) {
+    private DashboardRowDTO.UserDTO getUserDTO(Document experiment, String key, Map<Object, Document> users) {
         if (experiment != null) {
             val value = experiment.get(key);
 
@@ -381,7 +380,7 @@ public class DashboardService {
      * @param components all components
      * @return the value for given key in reaction or concept details
      */
-    private Object getExperimentDetailsValue(DBObject experiment, List<String> name, String key, Map<Object, DBObject> components) {
+    private Object getExperimentDetailsValue(Document experiment, List<String> name, String key, Map<Object, Document> components) {
         if (experiment == null || key == null) {
             return null;
         }
@@ -390,7 +389,7 @@ public class DashboardService {
             val component = components.get(((DBRef) c).getId());
 
             if (component != null && name.contains(component.get("name"))) {
-                val content = (DBObject) component.get("content");
+                val content = (Document) component.get("content");
 
                 if (content != null) {
                     return content.get(key);
@@ -412,7 +411,7 @@ public class DashboardService {
      * @return triple with notebook and project for experiment
      */
     @SuppressWarnings("unchecked")
-    private Triple<DBObject, DBObject, DBObject> getEntities(DBObject experiment, Map<Object, DBObject> notebooks, Map<Object, DBObject> projects) {
+    private Triple<Document, Document, Document> getEntities(Document experiment, Map<Object, Document> notebooks, Map<Object, Document> projects) {
         val notebook = experiment == null ? null : notebooks.values().stream()
                 .filter(n -> {
                     for (val e : (Iterable) n.get("experiments")) {
@@ -448,7 +447,7 @@ public class DashboardService {
      * @return true if user has access to each of project/notebook/experiment
      */
     @SuppressWarnings("unchecked")
-    private boolean hasAccess(User user, Triple<DBObject, DBObject, DBObject> t) {
+    private boolean hasAccess(User user, Triple<Document, Document, Document> t) {
         val project = t.getLeft();
         val notebook = t.getMiddle();
         val experiment = t.getRight();
@@ -457,19 +456,19 @@ public class DashboardService {
             return false;
         }
         val projectAccessList = new HashSet<UserPermission>();
-        ((Iterable) project.get("accessList")).forEach(a -> projectAccessList.add(new UserPermission((DBObject) a)));
+        ((Iterable) project.get("accessList")).forEach(a -> projectAccessList.add(new UserPermission((Document) a)));
 
         if (notebook == null) {
             return false;
         }
         val notebookAccessList = new HashSet<UserPermission>();
-        ((Iterable) notebook.get("accessList")).forEach(a -> notebookAccessList.add(new UserPermission((DBObject) a)));
+        ((Iterable) notebook.get("accessList")).forEach(a -> notebookAccessList.add(new UserPermission((Document) a)));
 
         if (experiment == null) {
             return false;
         }
         val experimentAccessList = new HashSet<UserPermission>();
-        ((Iterable) experiment.get("accessList")).forEach(a -> experimentAccessList.add(new UserPermission((DBObject) a)));
+        ((Iterable) experiment.get("accessList")).forEach(a -> experimentAccessList.add(new UserPermission((Document) a)));
 
         if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, projectAccessList, UserPermission.READ_ENTITY)) {
             return false;

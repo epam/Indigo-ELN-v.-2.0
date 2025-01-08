@@ -26,16 +26,14 @@ import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.FileDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
-import com.mongodb.gridfs.GridFSDBFile;
-import com.mongodb.gridfs.GridFSFile;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +47,6 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Api
 @RestController
 @RequestMapping(ExperimentFileResource.URL_MAPPING)
 public class ExperimentFileResource {
@@ -80,14 +77,14 @@ public class ExperimentFileResource {
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Returns all experiment files.")
+    @Operation(summary = "Returns all experiment files.")
     public ResponseEntity<List<FileDTO>> getAllFiles(
-            @ApiParam("Experiment id") @RequestParam String experimentId,
-            @ApiParam("Notebook id") @RequestParam String notebookId,
-            @ApiParam("Project id") @RequestParam String projectId) throws URISyntaxException {
+            @Parameter(description = "Experiment id") @RequestParam String experimentId,
+            @Parameter(description = "Notebook id") @RequestParam String notebookId,
+            @Parameter(description = "Project id") @RequestParam String projectId) throws URISyntaxException {
         String fullId = SequenceIdUtil.buildFullId(projectId, notebookId, experimentId);
         LOGGER.debug("REST request to get files's metadata for experiment: {}", fullId);
-        Page<GridFSDBFile> page = fileService.getAllFilesByExperimentId(fullId);
+        Page<GridFsResource> page = fileService.getAllFilesByExperimentId(fullId);
         String urlParameter = "projectId=" + projectId + "&notebookId=" + notebookId
                 + "&experimentId=" + experimentId;
 
@@ -104,14 +101,14 @@ public class ExperimentFileResource {
      * @param id Experiment file id
      * @return Returns experiment file by it's id
      */
-    @ApiOperation(value = "Returns experiment file by it's id.")
+    @Operation(summary = "Returns experiment file by it's id.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<InputStreamResource> getFile(
-            @ApiParam("Experiment file id.") @PathVariable("id") String id
-    ) {
+            @Parameter(description = "Experiment file id.") @PathVariable("id") String id
+    ) throws IOException {
         LOGGER.debug("REST request to get experiment file: {}", id);
-        GridFSDBFile file = fileService.getFileById(id);
+        GridFsResource file = fileService.getFileById(id);
 
         HttpHeaders headers = HeaderUtil.createAttachmentDescription(file.getFilename());
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(file.getInputStream()));
@@ -125,13 +122,13 @@ public class ExperimentFileResource {
      * @return Created file
      * @throws URISyntaxException If URI is not correct
      */
-    @ApiOperation(value = "Creates new file for the experiment.")
+    @Operation(summary = "Creates new file for the experiment.")
     @RequestMapping(method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<FileDTO> saveFile(
-            @ApiParam("Experiment file.") @RequestParam MultipartFile file,
-            @ApiParam("Identifier of the experiment.") @RequestParam String experimentId
-    ) throws URISyntaxException {
+            @Parameter(description = "Experiment file.") @RequestParam MultipartFile file,
+            @Parameter(description = "Identifier of the experiment.") @RequestParam String experimentId
+    ) throws URISyntaxException, IOException {
         LOGGER.debug("REST request to save file for experiment: {}", experimentId);
         InputStream inputStream;
         try {
@@ -140,7 +137,7 @@ public class ExperimentFileResource {
             throw new IndigoRuntimeException("Unable to get file content.", e);
         }
         User user = userService.getUserWithAuthorities();
-        GridFSFile gridFSFile = fileService.saveFileForExperiment(experimentId, inputStream,
+        GridFsResource gridFSFile = fileService.saveFileForExperiment(experimentId, inputStream,
                 file.getOriginalFilename(), file.getContentType(), user);
         return ResponseEntity.created(new URI(URL_MAPPING + "/" + gridFSFile.getId()))
                 .body(new FileDTO(gridFSFile));
@@ -151,10 +148,10 @@ public class ExperimentFileResource {
      *
      * @param id Experiment file id
      */
-    @ApiOperation(value = "Removes experiment file.")
+    @Operation(summary = "Removes experiment file.")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteFile(
-            @ApiParam("Experiment file id.") @PathVariable("id") String id
+            @Parameter(description = "Experiment file id.") @PathVariable("id") String id
     ) {
         LOGGER.debug("REST request to remove experiment file: {}", id);
         fileService.deleteExperimentFile(id);

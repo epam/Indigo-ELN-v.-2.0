@@ -23,8 +23,9 @@ import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.RoleDTO;
 import com.epam.indigoeln.web.rest.dto.UserDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +35,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Api
 @RestController
 @RequestMapping("/api/accounts")
 public class AccountResource {
@@ -58,7 +57,7 @@ public class AccountResource {
      * @param request Request for authentication
      * @return Returns the login of the user making this request
      */
-    @ApiOperation(value = "Checks if user is authenticated and returns it's login.")
+    @Operation(summary = "Checks if user is authenticated and returns it's login.")
     @RequestMapping(value = "/authenticate", method = RequestMethod.GET)
     public String isAuthenticated(HttpServletRequest request) {
         LOGGER.debug("REST request to check if the current user is authenticated");
@@ -70,7 +69,7 @@ public class AccountResource {
      *
      * @return Returns current user
      */
-    @ApiOperation(value = "Returns current user.")
+    @Operation(summary = "Returns current user.")
     @RequestMapping(value = "/account", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserDTO> getAccount() {
@@ -83,7 +82,7 @@ public class AccountResource {
      *
      * @return Returns current user roles
      */
-    @ApiOperation(value = "Returns current user roles.", responseContainer = "List")
+    @Operation(summary = "Returns current user roles.")
     @RequestMapping(value = "/account/roles", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<RoleDTO>> getAccountRoles() {
@@ -94,7 +93,7 @@ public class AccountResource {
         return ResponseEntity.ok(result);
     }
 
-    @ApiOperation(value = "Prolongs user's session.")
+    @Operation(summary = "Prolongs user's session.")
     @RequestMapping(value = "/prolong", method = RequestMethod.GET)
     public ResponseEntity<Void> prolongSession() {
         return ResponseEntity.ok().build();

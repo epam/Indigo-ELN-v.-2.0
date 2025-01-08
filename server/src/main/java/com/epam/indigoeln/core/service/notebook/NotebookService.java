@@ -36,11 +36,10 @@ import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.epam.indigoeln.web.rest.util.permission.helpers.NotebookPermissionHelper;
 import com.epam.indigoeln.web.rest.util.permission.helpers.PermissionChanges;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import com.mongodb.DBRef;
 import lombok.val;
 import org.apache.commons.lang3.tuple.Triple;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -127,7 +126,7 @@ public class NotebookService {
         val projectCollection = mongoTemplate.getCollection(Project.COLLECTION_NAME);
         val notebookCollection = mongoTemplate.getCollection(Notebook.COLLECTION_NAME);
 
-        val project = projectCollection.findOne(new BasicDBObject().append("_id", projectId));
+        val project = projectCollection.find(new Document().append("_id", projectId)).first();
         if (project == null) {
             throw EntityNotFoundException.createWithProjectId(projectId);
         }
@@ -136,8 +135,8 @@ public class NotebookService {
             val notebookIds = new ArrayList<String>();
             ((Iterable) project.get("notebooks")).forEach(n -> notebookIds.add(String.valueOf(((DBRef) n).getId())));
 
-            val notebooks = new ArrayList<DBObject>();
-            notebookCollection.find(new BasicDBObject("_id", new BasicDBObject("$in", notebookIds)))
+            val notebooks = new ArrayList<Document>();
+            notebookCollection.find(new Document("_id", new Document("$in", notebookIds)))
                     .forEach(notebooks::add);
 
             if (user == null) {
@@ -148,7 +147,7 @@ public class NotebookService {
             }
 
             val projectAccessList = new HashSet<UserPermission>();
-            ((Iterable) project.get("accessList")).forEach(a -> projectAccessList.add(new UserPermission((DBObject) a)));
+            ((Iterable) project.get("accessList")).forEach(a -> projectAccessList.add(new UserPermission((Document) a)));
 
             if (!PermissionUtil.hasPermissions(user.getId(), projectAccessList, UserPermission.READ_ENTITY)) {
                 throw OperationDeniedException.createProjectSubEntitiesReadOperation(String.valueOf(project.get("_id")));
@@ -158,7 +157,7 @@ public class NotebookService {
                     .filter(notebook -> {
                         val notebookAccessList = new HashSet<UserPermission>();
                         ((Iterable) notebook.get("accessList"))
-                                .forEach(a -> notebookAccessList.add(new UserPermission((DBObject) a)));
+                                .forEach(a -> notebookAccessList.add(new UserPermission((Document) a)));
                         return PermissionUtil.findPermissionsByUserId(notebookAccessList, user.getId()) != null;
                     })
                     .map(TreeNodeDTO::new)
@@ -181,7 +180,7 @@ public class NotebookService {
         val notebookCollection = mongoTemplate.getCollection(Notebook.COLLECTION_NAME);
         val userCollection = mongoTemplate.getCollection(User.COLLECTION_NAME);
 
-        val notebooks = new HashMap<Object, DBObject>();
+        val notebooks = new HashMap<Object, Document>();
 
         if (PermissionUtil.isContentEditor(user)) {
             notebookCollection
@@ -189,11 +188,11 @@ public class NotebookService {
                     .forEach(n -> notebooks.put(n.get("_id"), n));
         } else {
             notebookCollection
-                    .find(new BasicDBObject()
-                            .append("accessList", new BasicDBObject()
-                                    .append("$elemMatch", new BasicDBObject()
+                    .find(new Document()
+                            .append("accessList", new Document()
+                                    .append("$elemMatch", new Document()
                                             .append("user.$id", user.getId())
-                                            .append("permissions", new BasicDBObject()
+                                            .append("permissions", new Document()
                                                     .append("$in", Collections.singletonList(UserPermission.CREATE_SUB_ENTITY))))))
                     .forEach(n -> notebooks.put(n.get("_id"), n));
         }
@@ -210,9 +209,9 @@ public class NotebookService {
                     }
                 });
 
-        val users = new HashMap<Object, DBObject>();
+        val users = new HashMap<Object, Document>();
         userCollection
-                .find(new BasicDBObject("_id", new BasicDBObject("$in", userIds)))
+                .find(new Document("_id", new Document("$in", userIds)))
                 .forEach(u -> users.put(u.get("_id"), u));
 
         return notebooks
@@ -233,7 +232,7 @@ public class NotebookService {
      */
     public NotebookDTO getNotebookById(String projectId, String id, User user) {
         String fullNotebookId = SequenceIdUtil.buildFullId(projectId, id);
-        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
+        Notebook notebook = notebookRepository.findById(fullNotebookId).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(id));
 
         // Check of EntityAccess (User must have "Read Entity" permission in project access list and
@@ -257,7 +256,7 @@ public class NotebookService {
     public TreeNodeDTO getNotebookAsTreeNode(String projectId, String notebookId) {
         TreeNodeDTO result;
         val notebookCollection = mongoTemplate.getCollection(Notebook.COLLECTION_NAME);
-        val notebook = notebookCollection.findOne(new BasicDBObject().append("_id", projectId + "-" + notebookId));
+        val notebook = notebookCollection.find(new Document().append("_id", projectId + "-" + notebookId)).first();
         if (notebook == null) {
             throw EntityNotFoundException.createWithNotebookId(notebookId);
         }
@@ -275,7 +274,7 @@ public class NotebookService {
      * @return Created notebook
      */
     public NotebookDTO createNotebook(NotebookDTO notebookDTO, String projectId, User user) {
-        Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
+        Project project = projectRepository.findById(projectId).
                 orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
 
         // Check of EntityAccess (User must have "Create Sub-Entity" permission in project access list,
@@ -336,7 +335,7 @@ public class NotebookService {
         try {
             lock.lock();
             String fullNotebookId = SequenceIdUtil.buildFullId(projectId, notebookDTO.getId());
-            Notebook notebookFromDB = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
+            Notebook notebookFromDB = notebookRepository.findById(fullNotebookId).
                     orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookDTO.getId()));
 
             // Check of EntityAccess (User must have "Read Entity" permission in project access list and
@@ -466,14 +465,14 @@ public class NotebookService {
         Notebook parentNotebook = notebookPermissionChanges.getEntity();
         if (notebookNameChanged) {
             //we need to re-save all experiments if name of the notebook was changed
-            List<Experiment> savedExperiments = experimentRepository.save(
+            List<Experiment> savedExperiments = experimentRepository.saveAll(
                     notebookPermissionChanges.getEntity().getExperiments());
             result = savedExperiments.stream().map(experiment ->
                     webSocketUtil.getUpdateExperimentNotification(user, projectId, parentNotebook.getId(), experiment,
                             getEntityUpdateRecipients(contentEditors, experiment, null)))
                     .collect(toList());
         } else if (notebookPermissionChanges.hadChanged()) {
-            List<Experiment> savedExperiments = experimentRepository.save(experimentsChanges.stream()
+            List<Experiment> savedExperiments = experimentRepository.saveAll(experimentsChanges.stream()
                     .map(PermissionChanges::getEntity)
                     .collect(toList()));
 
@@ -498,7 +497,7 @@ public class NotebookService {
      */
     public void deleteNotebook(String projectId, String id) {
         String fullNotebookId = SequenceIdUtil.buildFullId(projectId, id);
-        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
+        Notebook notebook = notebookRepository.findById(fullNotebookId).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(id));
 
         if (notebook.getExperiments() != null && !notebook.getExperiments().isEmpty()) {
@@ -527,7 +526,8 @@ public class NotebookService {
      */
     public boolean isUserRemovable(String projectId, String notebookId, String userId) {
         String fullNotebookId = SequenceIdUtil.buildFullId(projectId, notebookId);
-        Optional<Notebook> notebookOpt = Optional.ofNullable(notebookRepository.findOne(fullNotebookId));
+        Optional<Notebook> notebookOpt =
+                notebookRepository.findById(fullNotebookId);
         Notebook notebook = notebookOpt.orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
 
         return notebook.getExperiments().stream().noneMatch(e -> {

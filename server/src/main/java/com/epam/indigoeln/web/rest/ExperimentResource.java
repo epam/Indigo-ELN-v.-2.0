@@ -27,9 +27,8 @@ import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.google.common.collect.ImmutableMap;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +43,6 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
-@Api
 @RestController
 @RequestMapping(ExperimentResource.URL_MAPPING)
 public class ExperimentResource {
@@ -76,13 +74,13 @@ public class ExperimentResource {
      * @param notebookId Notebook id
      * @return Returns all experiments, or experiments for specified notebook, which author is current user
      */
-    @ApiOperation(value = "Returns all experiments, "
+    @Operation(summary = "Returns all experiments, "
             + "or experiments for specified notebook, which author is current user.")
     @RequestMapping(value = "/notebook-summary", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ExperimentDTO>> getAllExperimentsForNotebookSummary(
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String notebookId
+            @Parameter(description = "Project id") @PathVariable String projectId,
+            @Parameter(description = "Notebook id") @PathVariable String notebookId
     ) {
         User user = userService.getUserWithAuthorities();
         if (LOGGER.isDebugEnabled()) {
@@ -104,13 +102,13 @@ public class ExperimentResource {
      * @return Returns experiment with specified id according to User permissions
      * @throws IOException if there is a low-level I/O problem in experiment status
      */
-    @ApiOperation(value = "Returns experiment with specified id according to User permissions.")
+    @Operation(summary = "Returns experiment with specified id according to User permissions.")
     @RequestMapping(value = PATH_ID, method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ExperimentDTO> getExperiment(
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String notebookId,
-            @ApiParam("Experiment id") @PathVariable String id
+            @Parameter(description = "Project id") @PathVariable String projectId,
+            @Parameter(description = "Notebook id") @PathVariable String notebookId,
+            @Parameter(description = "Experiment id") @PathVariable String id
     ) throws IOException {
         LOGGER.debug("REST request to get experiment: {}", id);
         User user = userService.getUserWithAuthorities();
@@ -128,14 +126,14 @@ public class ExperimentResource {
      * @param clientLatestBatchNumber If latest number should be returned
      * @return Returns batch_number
      */
-    @ApiOperation(value = "Returns batch number.")
+    @Operation(summary = "Returns batch number.")
     @RequestMapping(value = PATH_ID + "/batch_number", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, String>> getNotebookBatchNumber(
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String notebookId,
-            @ApiParam("Experiment id") @PathVariable String id,
-            @ApiParam("If latest number should be returned")
+            @Parameter(description = "Project id") @PathVariable String projectId,
+            @Parameter(description = "Notebook id") @PathVariable String notebookId,
+            @Parameter(description = "Experiment id") @PathVariable String id,
+            @Parameter(description = "If latest number should be returned")
             @RequestParam(required = false, name = "latest") String clientLatestBatchNumber
     ) {
         String batchNumber = sequenceIdService.getNotebookBatchNumber(projectId, notebookId,
@@ -154,15 +152,15 @@ public class ExperimentResource {
      * @return Created experiment
      * @throws URISyntaxException Id URI is not correct
      */
-    @ApiOperation(value = "Creates experiment with OWNER's permissions for current user.")
+    @Operation(summary = "Creates experiment with OWNER's permissions for current user.")
     @RequestMapping(
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ExperimentDTO> createExperiment(
-            @ApiParam("Experiment to create") @RequestBody ExperimentDTO experimentDTO,
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String notebookId
+            @Parameter(description = "Experiment to create") @RequestBody ExperimentDTO experimentDTO,
+            @Parameter(description = "Project id") @PathVariable String projectId,
+            @Parameter(description = "Notebook id") @PathVariable String notebookId
     ) throws URISyntaxException {
         LOGGER.debug("REST request to create experiment: {} for notebook: {}", experimentDTO, notebookId);
         User user = userService.getUserWithAuthorities();
@@ -184,16 +182,16 @@ public class ExperimentResource {
      * @return Created experiment
      * @throws URISyntaxException If URI is not correct
      */
-    @ApiOperation(value = "Creates experiment version with OWNER's permissions for current user.")
+    @Operation(summary = "Creates experiment version with OWNER's permissions for current user.")
     @RequestMapping(
             path = "/version",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ExperimentDTO> versionExperiment(
-            @ApiParam("Experiment name") @RequestBody String experimentName,
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String notebookId
+            @Parameter(description = "Experiment name") @RequestBody String experimentName,
+            @Parameter(description = "Project id") @PathVariable String projectId,
+            @Parameter(description = "Notebook id") @PathVariable String notebookId
     ) throws URISyntaxException {
         LOGGER.debug("REST request to create a version of an experiment: {} for notebook: {}",
                 experimentName, notebookId);
@@ -218,11 +216,11 @@ public class ExperimentResource {
             method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Updates experiment according to permissions.")
+    @Operation(summary = "Updates experiment according to permissions.")
     public ResponseEntity<ExperimentDTO> updateExperiment(
-            @ApiParam("Experiment to update") @RequestBody ExperimentDTO experimentDTO,
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String notebookId
+            @Parameter(description = "Experiment to update") @RequestBody ExperimentDTO experimentDTO,
+            @Parameter(description = "Project id") @PathVariable String projectId,
+            @Parameter(description = "Notebook id") @PathVariable String notebookId
     ) {
         LOGGER.debug("REST request to update experiment: {}", experimentDTO);
         User user = userService.getUserWithAuthorities();
@@ -246,12 +244,12 @@ public class ExperimentResource {
             method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Reopen experiment according to permissions.")
+    @Operation(summary = "Reopen experiment according to permissions.")
     public ResponseEntity<ExperimentDTO> reopenExperiment(
-            @ApiParam("Experiment version") @RequestBody Long version,
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String notebookId,
-            @ApiParam("Experiment id") @PathVariable String id
+            @Parameter(description = "Experiment version") @RequestBody Long version,
+            @Parameter(description = "Project id") @PathVariable String projectId,
+            @Parameter(description = "Notebook id") @PathVariable String notebookId,
+            @Parameter(description = "Experiment id") @PathVariable String id
     ) {
         LOGGER.debug("REST request to reopen experiment: {}", SequenceIdUtil.buildFullId(projectId, notebookId, id));
         User user = userService.getUserWithAuthorities();
@@ -268,12 +266,12 @@ public class ExperimentResource {
      * @param notebookId Notebook id
      * @param id         Experiment id
      */
-    @ApiOperation(value = "Removes experiment.")
+    @Operation(summary = "Removes experiment.")
     @RequestMapping(value = PATH_ID, method = RequestMethod.DELETE)
     public ResponseEntity deleteExperiment(
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String notebookId,
-            @ApiParam("Experiment id") @PathVariable String id
+            @Parameter(description = "Project id") @PathVariable String projectId,
+            @Parameter(description = "Notebook id") @PathVariable String notebookId,
+            @Parameter(description = "Experiment id") @PathVariable String id
     ) {
         LOGGER.debug("REST request to remove experiment: {}", id);
         experimentService.deleteExperiment(id, projectId, notebookId);

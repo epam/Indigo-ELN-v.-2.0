@@ -17,6 +17,9 @@ import com.chemistry.enotebook.signature.security.LoginResult;
 import com.chemistry.enotebook.signature.security.LoginUser;
 import com.chemistry.enotebook.signature.security.SessionCache;
 import com.chemistry.enotebook.signature.security.UserDetailsImpl;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +33,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Controller
@@ -65,5 +65,11 @@ public class AuthController {
             response.sendError(403);
             return new LoginResult().failed();
         }
+    }
+
+    @RequestMapping(value = "/me", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody LoginResult getMe() throws IOException {
+        UserDetailsImpl user = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return new LoginResult().success().username(user.getUsername()).user(user.getDbUser().asJson().toString());
     }
 }

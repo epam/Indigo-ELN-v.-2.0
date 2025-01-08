@@ -19,9 +19,13 @@
 package com.epam.indigoeln.web.rest.util;
 
 import com.epam.indigoeln.core.model.*;
+import com.epam.indigoeln.core.util.JsonUtil;
 import com.epam.indigoeln.web.rest.dto.*;
+import org.json.JSONArray;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
+import java.util.List;
 
 /**
  * Custom MapStruct mapper for converting DTO/Model objects.
@@ -60,4 +64,8 @@ public interface CustomDtoMapper {
 
     @Mapping(target = "accessList", expression = ACCESS_LIST_MAPPER)
     Notebook convertFromDTO(NotebookDTO dto);
+
+    default List<Object> jsonToDBList(JSONArray json) {
+        return json != null ? JsonUtil.basicDBListFromJsonArray(json) : null;
+    }
 }

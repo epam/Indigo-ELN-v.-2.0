@@ -20,7 +20,7 @@ package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.BasicModelObject;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 import java.time.ZonedDateTime;
 import java.util.HashSet;

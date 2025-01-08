@@ -19,9 +19,9 @@
 package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.security.Authority;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.Set;
 
 public class RoleDTO {

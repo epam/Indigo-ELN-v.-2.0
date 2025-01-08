@@ -318,7 +318,7 @@ public class SignatureService {
             return value;
         }
 
-        @JsonCreator
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public static ISSStatus fromValue(Integer value) {
             for (ISSStatus status : ISSStatus.values()) {
                 if (status.getValue().equals(value)) {

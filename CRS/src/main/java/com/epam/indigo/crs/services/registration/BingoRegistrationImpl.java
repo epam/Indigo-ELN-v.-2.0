@@ -17,6 +17,7 @@ import com.epam.indigo.crs.classes.*;
 import com.epam.indigo.crs.exceptions.CRSException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -24,6 +25,8 @@ import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.List;
 
+@RestController
+@RequestMapping("/crs/registration")
 public class BingoRegistrationImpl extends BingoService implements BingoRegistration {
 
 	private static final Logger log = LoggerFactory.getLogger(BingoRegistrationImpl.class);
@@ -34,17 +37,19 @@ public class BingoRegistrationImpl extends BingoService implements BingoRegistra
     protected BingoRegistrationManager brm;
 
     public BingoRegistrationImpl() {
-        super(); 
+        super();
         brm = BingoRegistrationManager.INSTANCE;
     }
 
-    public String getTokenHash(String username, String password) throws CRSException {
+    @PostMapping("/token-hash")
+    public String getTokenHash(@RequestParam String username, @RequestParam String password) throws CRSException {
     	log.info("Returning token hash for user " + username);
     	
         Connection dbConnection = getConnection();
 
         try {
             String query = "select id from " + getDbSchema() + ".users where username = ? and password = ?";
+
 
             PreparedStatement ps = dbConnection.prepareStatement(query);
             ps.setString(1, username);
@@ -208,7 +213,8 @@ public class BingoRegistrationImpl extends BingoService implements BingoRegistra
     	}
     }
 
-    public long submitForRegistration(String tokenHash, CompoundInfo compoundInfo) throws CRSException {
+    @PostMapping("/submit")
+    public long submitForRegistration(@RequestParam String tokenHash, @RequestBody CompoundInfo compoundInfo) throws CRSException {
     	long jobId = getNewJobId();
     	
     	new RegistrationThread(tokenHash, Arrays.asList(compoundInfo), jobId).start();
@@ -216,7 +222,8 @@ public class BingoRegistrationImpl extends BingoService implements BingoRegistra
         return jobId;
     }
 
-    public long submitListForRegistration(String tokenHash, List<CompoundInfo> compoundInfoList) throws CRSException {
+    @PostMapping("/submit-list")
+    public long submitListForRegistration(@RequestParam String tokenHash, @RequestBody List<CompoundInfo> compoundInfoList) throws CRSException {
     	long jobId = getNewJobId();
     	
     	new RegistrationThread(tokenHash, compoundInfoList, jobId).start();
@@ -224,7 +231,8 @@ public class BingoRegistrationImpl extends BingoService implements BingoRegistra
         return jobId;
     }
 
-    public CompoundRegistrationStatus checkRegistrationStatus(String tokenHash, long jobId) throws CRSException {
+    @PostMapping("/status")
+    public CompoundRegistrationStatus checkRegistrationStatus(@RequestParam String tokenHash, @RequestParam long jobId) throws CRSException {
         try {
             CompoundRegistrationStatus result;
 
@@ -243,7 +251,8 @@ public class BingoRegistrationImpl extends BingoService implements BingoRegistra
         }
     }
 
-    public boolean isUnique(String compound) throws CRSException {
+    @PostMapping("/unique")
+    public boolean isUnique(@RequestParam String compound) throws CRSException {
         Connection dbConnection = getConnection();
         try {
             boolean result = false;

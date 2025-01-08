@@ -40,12 +40,12 @@ public class AutosaveItem implements Serializable, Persistable<String> {
 
     private User user;
 
-    private BasicDBObject content;
+    private org.bson.Document content;
 
     public AutosaveItem() {
     }
 
-    public AutosaveItem(String id, User user, BasicDBObject content) {
+    public AutosaveItem(String id, User user, org.bson.Document content) {
         this.id = id;
         this.user = user;
         this.content = content;
@@ -68,11 +68,11 @@ public class AutosaveItem implements Serializable, Persistable<String> {
         this.user = user;
     }
 
-    public BasicDBObject getContent() {
+    public org.bson.Document getContent() {
         return content;
     }
 
-    public void setContent(BasicDBObject content) {
+    public void setContent(org.bson.Document content) {
         this.content = content;
     }
 

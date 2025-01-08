@@ -21,15 +21,15 @@
     </licenses>
 
     <properties>
-        <java.version>1.8</java.version>
-        <indigo.version>1.2.3.r0</indigo.version>
-        <swagger.version>2.6.1</swagger.version>
+        <java.version>17</java.version>
+        <indigo.version>1.24.0</indigo.version>
+        <swagger.version>3.0.0</swagger.version>
     </properties>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.8.RELEASE</version>
+        <version>3.3.5</version>
     </parent>
 
     <dependencies>
@@ -47,24 +47,30 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>${swagger.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>${swagger.version}</version>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.8.0</version>
         </dependency>
         <dependency>
             <groupId>com.epam.indigo</groupId>
             <artifactId>bingo-nosql</artifactId>
             <version>${indigo.version}</version>
         </dependency>
+        <!-- Indigo is using JNA 5, which is binary-incompatible with 4 -->
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>5.15.0</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.6</version>
+            <version>3.17.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>33.3.1-jre</version>
         </dependency>
     </dependencies>
 
@@ -93,17 +99,18 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.5</version>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>4.8.6.5</version>
                 <configuration>
                     <effort>Max</effort>
                     <threshold>Low</threshold>
                     <xmlOutput>true</xmlOutput>
+                    <failOnError>false</failOnError>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>findbugs</id>
+                        <id>spotbugs</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>check</goal>

@@ -24,6 +24,7 @@ import com.mongodb.DBObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.val;
+import org.bson.Document;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.util.HashSet;
@@ -95,7 +96,7 @@ public class UserPermission {
     }
 
     @SuppressWarnings("unchecked")
-    public UserPermission(DBObject obj) {
+    public UserPermission(Document obj) {
         if (obj.get("permissions") instanceof Iterable) {
             val ps = new HashSet<String>();
             ((Iterable) obj.get("permissions")).forEach(p -> ps.add(String.valueOf(p)));

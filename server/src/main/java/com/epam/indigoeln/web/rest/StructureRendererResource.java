@@ -20,15 +20,13 @@ package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.service.calculation.CalculationService;
 import com.epam.indigoeln.core.service.calculation.helper.RendererResult;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Api
 @RestController
 @RequestMapping("/api/renderer")
 public class StructureRendererResource {
@@ -43,11 +41,11 @@ public class StructureRendererResource {
      * @param structure Molecule's structure
      * @return Renderer result
      */
-    @ApiOperation(value = "Returns molecule's graphical representation.")
+    @Operation(summary = "Returns molecule's graphical representation.")
     @RequestMapping(value = "/{type}/image", method = RequestMethod.POST)
     public ResponseEntity<RendererResult> getMoleculeImagePOST(
-            @ApiParam("Representation type.") @PathVariable String type,
-            @ApiParam("Molecule structure.") @RequestBody String structure
+            @Parameter(description = "Representation type.") @PathVariable String type,
+            @Parameter(description = "Molecule structure.") @RequestBody String structure
     ) {
         RendererResult result = calculationService.getStructureWithImage(structure);
         return new ResponseEntity<>(result, HttpStatus.OK);

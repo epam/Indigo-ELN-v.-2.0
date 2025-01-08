@@ -25,9 +25,9 @@ import com.epam.indigoeln.web.rest.dto.NotebookDTO;
 import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.google.common.collect.ImmutableMap;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,14 +36,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-@Api
 @RestController
 @RequestMapping(NotebookResource.URL_MAPPING)
 public class NotebookResource {
@@ -72,13 +70,13 @@ public class NotebookResource {
      * @param userId     User id
      * @return Returns true if user can be removed from notebook without problems
      */
-    @ApiOperation(value = "Returns true if user can be removed from notebook without problems.")
+    @Operation(summary = "Returns true if user can be removed from notebook without problems.")
     @RequestMapping(value = "notebooks/permissions/user-removable", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Boolean>> isUserRemovable(
-            @ApiParam("Project id") String projectId,
-            @ApiParam("Notebook id") String notebookId,
-            @ApiParam("User id") String userId
+            @Parameter(description = "Project id") String projectId,
+            @Parameter(description = "Notebook id") String notebookId,
+            @Parameter(description = "User id") String userId
     ) {
         LOGGER.debug("REST request to check if user can be deleted from notebook's access list without problems");
         boolean result = notebookService.isUserRemovable(projectId, notebookId, userId);
@@ -90,7 +88,7 @@ public class NotebookResource {
      *
      * @return List with notebooks
      */
-    @ApiOperation(value = "Returns all notebooks available for experiment creation.")
+    @Operation(summary = "Returns all notebooks available for experiment creation.")
     @RequestMapping(value = "notebooks/sub-creations", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ShortEntityDTO>> getNotebooksForExperimentCreation() {
@@ -107,12 +105,12 @@ public class NotebookResource {
      * @param id        Notebook id
      * @return Returns notebook with specified id according to User permissions
      */
-    @ApiOperation(value = "Returns notebook by it's id according to permissions.")
+    @Operation(summary = "Returns notebook by it's id according to permissions.")
     @RequestMapping(value = PATH_ID, method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<NotebookDTO> getNotebook(
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String id
+            @Parameter(description = "Project id") @PathVariable String projectId,
+            @Parameter(description = "Notebook id") @PathVariable String id
     ) {
         LOGGER.debug("REST request to get notebook: {}", id);
         User user = userService.getUserWithAuthorities();
@@ -130,13 +128,13 @@ public class NotebookResource {
      * @return Created notebook
      * @throws URISyntaxException If URI is not correct
      */
-    @ApiOperation(value = "Creates notebook with OWNER's permissions for current user.")
+    @Operation(summary = "Creates notebook with OWNER's permissions for current user.")
     @RequestMapping(value = PARENT_PATH_ID, method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<NotebookDTO> createNotebook(
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook to create") @RequestBody @Valid NotebookDTO notebook
+            @Parameter(description = "Project id") @PathVariable String projectId,
+            @Parameter(description = "Notebook to create") @RequestBody @Valid NotebookDTO notebook
     ) throws URISyntaxException {
         LOGGER.debug("REST request to create notebook: {} for project: {}", notebook, projectId);
         User user = userService.getUserWithAuthorities();
@@ -153,13 +151,13 @@ public class NotebookResource {
      * @param notebook  Notebook
      * @return Updated notebook
      */
-    @ApiOperation(value = "Updates notebook according to permissions.")
+    @Operation(summary = "Updates notebook according to permissions.")
     @RequestMapping(value = PARENT_PATH_ID, method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<NotebookDTO> updateNotebook(
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook to update") @RequestBody @Valid NotebookDTO notebook
+            @Parameter(description = "Project id") @PathVariable String projectId,
+            @Parameter(description = "Notebook to update") @RequestBody @Valid NotebookDTO notebook
     ) {
         LOGGER.debug("REST request to update notebook: {}", notebook);
         User user = userService.getUserWithAuthorities();
@@ -174,11 +172,11 @@ public class NotebookResource {
      * @param projectId Project's identifier
      * @param id        Identifier
      */
-    @ApiOperation(value = "Removes notebook.")
+    @Operation(summary = "Removes notebook.")
     @RequestMapping(value = PATH_ID, method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteNotebook(
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String id) {
+            @Parameter(description = "Project id") @PathVariable String projectId,
+            @Parameter(description = "Notebook id") @PathVariable String id) {
         LOGGER.debug("REST request to remove notebook: {}", id);
         notebookService.deleteNotebook(projectId, id);
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, null);
@@ -191,9 +189,9 @@ public class NotebookResource {
      * @param name Notebook name to check
      * @return Map with only one key where value is true or false
      */
-    @ApiOperation(value = "Checks if notebook name is new or not")
+    @Operation(summary = "Checks if notebook name is new or not")
     @RequestMapping(value = "notebooks/new", method = RequestMethod.GET)
-    public ResponseEntity<Map<String, Boolean>> isNew(@ApiParam("Notebook name to check") @RequestParam String name) {
+    public ResponseEntity<Map<String, Boolean>> isNew(@Parameter(description = "Notebook name to check") @RequestParam String name) {
         boolean isNew = notebookService.isNew(name);
         return ResponseEntity.ok(Collections.singletonMap("isNew", isNew));
     }

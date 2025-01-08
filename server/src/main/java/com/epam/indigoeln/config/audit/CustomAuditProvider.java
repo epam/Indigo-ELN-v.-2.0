@@ -45,19 +45,16 @@ public class CustomAuditProvider implements AuditorAware<User> {
     private UserService userService;
 
     @Override
-    public User getCurrentAuditor() {
+    public Optional<User> getCurrentAuditor() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user;
         try {
-            user = Optional.ofNullable(auth).map(Authentication::getName)
-                    .map(userService::getUserWithAuthoritiesByLogin)
-                    .orElse(null);
+            return Optional.ofNullable(auth).map(Authentication::getName)
+                    .map(userService::getUserWithAuthoritiesByLogin);
         } catch (EntityNotFoundException e) {
             if (LOGGER.isErrorEnabled()) {
                 LOGGER.error("User with name " + auth.getName() + " cannot be found.", e);
             }
-            user = null;
+            return Optional.empty();
         }
-        return user;
     }
 }

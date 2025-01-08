@@ -18,7 +18,6 @@
  */
 package com.epam.indigoeln.core.model;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.DBRef;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -43,7 +42,7 @@ public class Component implements Serializable {
     @Id
     private String id;
     private String name;
-    private BasicDBObject content;
+    private org.bson.Document content;
 
     private DBRef experiment;
 
@@ -54,7 +53,7 @@ public class Component implements Serializable {
         return id;
     }
 
-    public BasicDBObject getContent() {
+    public org.bson.Document getContent() {
         return content;
     }
 
@@ -63,7 +62,7 @@ public class Component implements Serializable {
         this.id = id;
     }
 
-    public void setContent(BasicDBObject content) {
+    public void setContent(org.bson.Document content) {
         this.content = content;
     }
 

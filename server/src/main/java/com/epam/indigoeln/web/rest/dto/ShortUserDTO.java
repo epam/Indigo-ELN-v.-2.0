@@ -20,6 +20,7 @@ package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.User;
 import com.mongodb.DBObject;
+import org.bson.Document;
 
 /**
  * Short transfer object for User.
@@ -42,7 +43,7 @@ public class ShortUserDTO {
         this.email = user.getEmail();
     }
 
-    ShortUserDTO(DBObject user) {
+    ShortUserDTO(Document user) {
         this.id = String.valueOf(user.get("_id"));
         this.firstName = String.valueOf(user.get("first_name"));
         this.lastName = String.valueOf(user.get("last_name"));

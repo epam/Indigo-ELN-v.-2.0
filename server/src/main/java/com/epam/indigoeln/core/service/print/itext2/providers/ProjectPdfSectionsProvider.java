@@ -34,9 +34,10 @@ import com.epam.indigoeln.core.service.print.itext2.sections.project.ProjectSumm
 import com.epam.indigoeln.core.service.print.itext2.utils.LogoUtils;
 import com.epam.indigoeln.web.rest.dto.FileDTO;
 import com.epam.indigoeln.web.rest.dto.print.PrintRequest;
-import com.mongodb.gridfs.GridFSDBFile;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.Arrays;
@@ -51,7 +52,7 @@ import java.util.stream.Collectors;
 public class ProjectPdfSectionsProvider implements PdfSectionsProvider {
     private Project project;
     private FileRepository fileRepository;
-    private List<GridFSDBFile> files;
+    private List<GridFsResource> files;
     private PrintRequest printRequest;
 
     public ProjectPdfSectionsProvider(Project project, FileRepository fileRepository, PrintRequest printRequest) {
@@ -100,9 +101,9 @@ public class ProjectPdfSectionsProvider implements PdfSectionsProvider {
         return new AttachmentsSection(new AttachmentsModel(list));
     }
 
-    private List<GridFSDBFile> getFiles(Set<String> fileIds) {
+    private List<GridFsResource> getFiles(Set<String> fileIds) {
         if (!fileIds.isEmpty()) {
-            return fileRepository.findAll(fileIds, new PageRequest(0, fileIds.size())).getContent();
+            return fileRepository.findAll(fileIds, PageRequest.of(0, fileIds.size())).getContent();
         } else {
             return Collections.emptyList();
         }
@@ -113,7 +114,13 @@ public class ProjectPdfSectionsProvider implements PdfSectionsProvider {
         if (printRequest.includeAttachments()) {
             return files.stream()
                     .filter(f -> "application/pdf".equals(f.getContentType()))
-                    .map(GridFSDBFile::getInputStream)
+                    .map(gridFsResource -> {
+                        try {
+                            return gridFsResource.getInputStream();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
                     .collect(Collectors.toList());
         } else {
             return PdfSectionsProvider.super.getExtraPdf();
