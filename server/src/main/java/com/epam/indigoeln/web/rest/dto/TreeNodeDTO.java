@@ -22,6 +22,7 @@ import com.epam.indigoeln.core.model.BasicModelObject;
 import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.mongodb.DBObject;
+import org.bson.Document;
 
 import java.util.Comparator;
 import java.util.HashSet;
@@ -52,7 +53,7 @@ public class TreeNodeDTO {
         this.accessList = new HashSet<>(obj.getAccessList());
     }
 
-    public TreeNodeDTO(DBObject obj) {
+    public TreeNodeDTO(Document obj) {
         this.id = SequenceIdUtil.extractShortId(String.valueOf(obj.get("_id")));
         this.fullId = String.valueOf(obj.get("_id"));
         this.name = String.valueOf(obj.get("name"));

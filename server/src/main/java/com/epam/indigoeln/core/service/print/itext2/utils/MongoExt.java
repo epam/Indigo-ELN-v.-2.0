@@ -20,11 +20,10 @@ package com.epam.indigoeln.core.service.print.itext2.utils;
 
 import com.epam.indigoeln.core.model.Component;
 import com.epam.indigoeln.core.service.print.itext2.sections.common.AbstractPdfSection;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
 import com.mongodb.Function;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
 
 import java.util.Date;
 import java.util.List;
@@ -36,9 +35,9 @@ import java.util.Optional;
  * Used to eliminate boilerplate code while mapping mongo jsons to pdf section models.
  */
 public final class MongoExt {
-    private BasicDBObject origin;
+    private Document origin;
 
-    private MongoExt(BasicDBObject origin) {
+    private MongoExt(Document origin) {
         this.origin = origin;
     }
 
@@ -49,11 +48,11 @@ public final class MongoExt {
      * @return Returns instance of MongoExt for origin
      * @see com.mongodb.BasicDBObject
      */
-    public static MongoExt of(BasicDBObject origin) {
+    public static MongoExt of(Document origin) {
         if (origin != null) {
             return new MongoExt(origin);
         } else {
-            return new MongoExt(new BasicDBObject());
+            return new MongoExt(new Document());
         }
     }
 
@@ -68,7 +67,7 @@ public final class MongoExt {
         if (component.getContent() != null) {
             return new MongoExt(component.getContent());
         } else {
-            return new MongoExt(new BasicDBObject());
+            return new MongoExt(new Document());
         }
     }
 
@@ -77,20 +76,14 @@ public final class MongoExt {
     }
 
     public StreamEx<MongoExt> streamObjects(String field) {
-        BasicDBList array = Optional
-                .ofNullable(origin.get(field))
-                .map(BasicDBList.class::cast)
-                .orElse(null);
+        List<Document> array = (List<Document>) origin.get(field);
         return Objects.nonNull(array)
-                ? StreamEx.of(array).select(BasicDBObject.class).map(MongoExt::of)
+                ? StreamEx.of(array).select(Document.class).map(MongoExt::of)
                 : StreamEx.empty();
     }
 
     public StreamEx<String> streamStrings(String field) {
-        BasicDBList array = Optional
-                .ofNullable(origin.get(field))
-                .map(BasicDBList.class::cast)
-                .orElse(null);
+        List<String> array = (List<String>) origin.get(field);
         return Objects.nonNull(array)
                 ? StreamEx.of(array).select(String.class)
                 : StreamEx.empty();
@@ -122,7 +115,7 @@ public final class MongoExt {
     }
 
     public MongoExt getObject(String field) {
-        BasicDBObject object = (BasicDBObject) get(field);
+        Document object = (Document) get(field);
         return MongoExt.of(object);
     }
 
@@ -143,7 +136,7 @@ public final class MongoExt {
         validatePath(path);
 
         String lastField = path[path.length - 1];
-        return findDeepestObject(path).map(o -> o.origin.getString(lastField)).orElse(StringUtils.EMPTY);
+        return findDeepestObject(path).map(o -> o.origin.get(lastField)).map(Object::toString).orElse(StringUtils.EMPTY);
     }
 
     private Optional<MongoExt> findDeepestObject(String[] path) {

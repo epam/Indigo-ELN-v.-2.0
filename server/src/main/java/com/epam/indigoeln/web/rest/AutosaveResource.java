@@ -22,12 +22,10 @@ import com.epam.indigoeln.core.model.AutosaveItem;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.service.autosave.AutosaveService;
 import com.epam.indigoeln.core.service.user.UserService;
-import com.mongodb.BasicDBObject;
-import io.swagger.annotations.Api;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-@Api
 @RestController
 @RequestMapping(AutosaveResource.URL_MAPPING)
 public class AutosaveResource {
@@ -41,14 +39,14 @@ public class AutosaveResource {
     private AutosaveService autosaveService;
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public void save(@PathVariable("id") String id, @RequestBody BasicDBObject content) {
+    public void save(@PathVariable("id") String id, @RequestBody Document content) {
         final User user = userService.getUserWithAuthorities();
         AutosaveItem item = new AutosaveItem(id, user, content);
         autosaveService.save(item);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public BasicDBObject get(@PathVariable("id") String id) {
+    public Document get(@PathVariable("id") String id) {
         final User user = userService.getUserWithAuthorities();
         return autosaveService.get(id, user);
     }

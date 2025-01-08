@@ -25,9 +25,8 @@ import com.epam.indigoeln.core.service.project.ProjectService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +38,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Api
 @RestController
 @RequestMapping(TreeResource.URL_MAPPING)
 public class TreeResource {
@@ -71,11 +69,11 @@ public class TreeResource {
      * @param projectId Identifier
      * @return Project
      */
-    @ApiOperation(value = "Returns project by it's id as tree node.")
+    @Operation(summary = "Returns project by it's id as tree node.")
     @RequestMapping(value = PROJECT_PATH_ID, method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TreeNodeDTO> getProjectForTree(
-            @ApiParam("Project id") @PathVariable String projectId
+            @Parameter(description = "Project id") @PathVariable String projectId
     ) {
         LOGGER.debug("REST request to get project tree node: {}", projectId);
         TreeNodeDTO project = projectService.getProjectAsTreeNode(projectId);
@@ -88,12 +86,12 @@ public class TreeResource {
      * @param notebookId Notebook id
      * @return Returns notebook with specified id
      */
-    @ApiOperation(value = "Returns notebook by it's id for tree.")
+    @Operation(summary = "Returns notebook by it's id for tree.")
     @RequestMapping(value = NOTEBOOK_PATH_ID, method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TreeNodeDTO> getNotebookAsTree(
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String notebookId
+            @Parameter(description = "Project id") @PathVariable String projectId,
+            @Parameter(description = "Notebook id") @PathVariable String notebookId
     ) {
         LOGGER.debug("REST request to get notebook: {}", notebookId);
         TreeNodeDTO notebook = notebookService.getNotebookAsTreeNode(projectId, notebookId);
@@ -101,13 +99,13 @@ public class TreeResource {
     }
 
 
-    @ApiOperation(value = "Returns experiment with specified id for tree.")
+    @Operation(summary = "Returns experiment with specified id for tree.")
     @RequestMapping(value = EXPERIMENT_PATH_ID, method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ExperimentTreeNodeDTO> getExperimentAsTreeNode(
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String notebookId,
-            @ApiParam("Experiment id") @PathVariable String experimentId
+            @Parameter(description = "Project id") @PathVariable String projectId,
+            @Parameter(description = "Notebook id") @PathVariable String notebookId,
+            @Parameter(description = "Experiment id") @PathVariable String experimentId
     ) {
         ExperimentTreeNodeDTO experimentTreeNodeDTO = experimentService
                 .getExperimentAsTreeNode(projectId, notebookId, experimentId);
@@ -120,7 +118,7 @@ public class TreeResource {
      *
      * @return Returns all projects for current user for tree representation according to his permissions
      */
-    @ApiOperation(value = "Returns all projects for current user for tree representation according to his permissions.")
+    @Operation(summary = "Returns all projects for current user for tree representation according to his permissions.")
     @RequestMapping(value = PROJECTS_PATH, method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TreeNodeDTO>> getAllProjectsByPermissions() {
@@ -135,7 +133,7 @@ public class TreeResource {
      *
      * @return Returns all projects for current user for tree representation
      */
-    @ApiOperation(value = "Returns all projects for current user for tree representation.")
+    @Operation(summary = "Returns all projects for current user for tree representation.")
     @RequestMapping(value = PROJECTS_PATH + "/all", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TreeNodeDTO>> getAllProjects() {
@@ -151,7 +149,7 @@ public class TreeResource {
      * @param projectId Project id
      * @return List with notebooks
      */
-    @ApiOperation(value = "Returns all notebooks of specified project "
+    @Operation(summary = "Returns all notebooks of specified project "
             + "for current user for tree representation according to his permissions.")
     @RequestMapping(
             value = NOTEBOOKS_PATH,
@@ -160,7 +158,7 @@ public class TreeResource {
     @PostFilter("hasAnyAuthority(T(com.epam.indigoeln.core.util.AuthoritiesUtil).NOTEBOOK_READERS)")
     @ResponseStatus(value = HttpStatus.OK)
     public List<TreeNodeDTO> getAllNotebooksByPermissions(
-            @ApiParam("Project id") @PathVariable String projectId) {
+            @Parameter(description = "Project id") @PathVariable String projectId) {
         LOGGER.debug("REST request to get all notebooks of project: {} according to user permissions", projectId);
         User user = userService.getUserWithAuthorities();
         return notebookService.getAllNotebookTreeNodes(projectId, user);
@@ -173,11 +171,11 @@ public class TreeResource {
      * @param projectId Project's identifier
      * @return List with notebooks
      */
-    @ApiOperation(value = "Returns all notebooks of specified project for current user for tree representation.")
+    @Operation(summary = "Returns all notebooks of specified project for current user for tree representation.")
     @RequestMapping(value = NOTEBOOKS_PATH + "/all", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TreeNodeDTO>> getAllNotebooks(
-            @ApiParam("Project id") @PathVariable String projectId) {
+            @Parameter(description = "Project id") @PathVariable String projectId) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("REST request to get all notebooks of project: {} "
                     + "without checking for permissions", projectId);
@@ -194,14 +192,14 @@ public class TreeResource {
      * @param notebookId Notebook id
      * @return Returns all experiments, or experiments for specified notebook, which author is current user
      */
-    @ApiOperation(value = "Returns all experiments, or experiments for specified notebook, "
+    @Operation(summary = "Returns all experiments, or experiments for specified notebook, "
             + "which author is current user.")
     @RequestMapping(value = EXPERIMENTS_PATH, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PostFilter("hasAnyAuthority(T(com.epam.indigoeln.core.util.AuthoritiesUtil).EXPERIMENT_READERS)")
     @ResponseStatus(HttpStatus.OK)
     public List<ExperimentTreeNodeDTO> getAllExperimentsByPermissions(
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String notebookId
+            @Parameter(description = "Project id") @PathVariable String projectId,
+            @Parameter(description = "Notebook id") @PathVariable String notebookId
     ) {
         User user = userService.getUserWithAuthorities();
 
@@ -220,12 +218,12 @@ public class TreeResource {
      * @param notebookId Notebook id
      * @return Returns all experiments of specified notebook
      */
-    @ApiOperation(value = "Returns all experiments of specified notebook for current user for tree representation")
+    @Operation(summary = "Returns all experiments of specified notebook for current user for tree representation")
     @RequestMapping(value = EXPERIMENTS_PATH + "/all", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ExperimentTreeNodeDTO>> getAllExperiments(
-            @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String notebookId) {
+            @Parameter(description = "Project id") @PathVariable String projectId,
+            @Parameter(description = "Notebook id") @PathVariable String notebookId) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("REST request to get all experiments of notebook: {} "
                     + "without checking for permissions", notebookId);

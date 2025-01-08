@@ -19,9 +19,10 @@
 package com.epam.indigoeln.core.repository.file;
 
 import com.epam.indigoeln.core.model.User;
-import com.mongodb.gridfs.GridFSFile;
 import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
+import org.bson.Document;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
 
 import java.util.Comparator;
 import java.util.Optional;
@@ -33,22 +34,22 @@ public final class GridFSFileUtil {
     private static final String LENGTH = "length";
     private static final String UPLOAD_DATE = "uploadDate";
 
-    private static final Comparator<GridFSFile> FILENAME_COMPARATOR =
+    private static final Comparator<GridFsResource> FILENAME_COMPARATOR =
             (o1, o2) -> compare(o1.getFilename(), o2.getFilename());
 
-    private static final Comparator<GridFSFile> CONTENT_TYPE_COMPARATOR =
+    private static final Comparator<GridFsResource> CONTENT_TYPE_COMPARATOR =
             (o1, o2) -> compare(o1.getContentType(), o2.getContentType());
 
-    private static final Comparator<GridFSFile> LENGTH_COMPARATOR =
-            (o1, o2) -> compare(o1.getLength(), o2.getLength());
+    private static final Comparator<GridFsResource> LENGTH_COMPARATOR =
+            (o1, o2) -> compare(o1.getGridFSFile().getLength(), o2.getGridFSFile().getLength());
 
-    static final Comparator<GridFSFile> UPLOAD_DATE_COMPARATOR =
-            (o1, o2) -> compare(o1.getUploadDate(), o2.getUploadDate());
+    static final Comparator<GridFsResource> UPLOAD_DATE_COMPARATOR =
+            (o1, o2) -> compare(o1.getGridFSFile().getUploadDate(), o2.getGridFSFile().getUploadDate());
 
     private GridFSFileUtil() {
     }
 
-    public static User getAuthorFromMetadata(BSONObject metadata) {
+    public static User getAuthorFromMetadata(Document metadata) {
         User author = new User();
         BasicBSONObject bsonAuthor = (BasicBSONObject) metadata.get("author");
         if (bsonAuthor != null) {
@@ -63,7 +64,7 @@ public final class GridFSFileUtil {
         return (Boolean) metadata.get("temporary");
     }
 
-    static void setAuthorToMetadata(BSONObject metadata, User author) {
+    static void setAuthorToMetadata(Document metadata, User author) {
         BSONObject bsonAuthor = new BasicBSONObject(3);
         bsonAuthor.put("id", author.getId());
         bsonAuthor.put("firstName", author.getFirstName());
@@ -72,12 +73,12 @@ public final class GridFSFileUtil {
         metadata.put("author", bsonAuthor);
     }
 
-    public static void setTemporaryToMetadata(BSONObject metadata, boolean temporary) {
+    public static void setTemporaryToMetadata(Document metadata, boolean temporary) {
         metadata.put("temporary", temporary);
     }
 
-    static Optional<Comparator<GridFSFile>> getComparator(String gridFSFileField) {
-        Comparator<GridFSFile> comparator = null;
+    static Optional<Comparator<GridFsResource>> getComparator(String gridFSFileField) {
+        Comparator<GridFsResource> comparator = null;
         if (FILENAME.equals(gridFSFileField)) {
             comparator = FILENAME_COMPARATOR;
         } else if (CONTENT_TYPE.equals(gridFSFileField)) {

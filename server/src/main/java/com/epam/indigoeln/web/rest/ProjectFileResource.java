@@ -25,11 +25,8 @@ import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.FileDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
-import com.mongodb.gridfs.GridFSDBFile;
-import com.mongodb.gridfs.GridFSFile;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +35,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -52,7 +50,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Api
 @RestController
 @RequestMapping(ProjectFileResource.URL_MAPPING)
 public class ProjectFileResource {
@@ -80,14 +77,14 @@ public class ProjectFileResource {
      * @return Returns metadata for all files of specified project
      * @throws URISyntaxException If URI is not correct
      */
-    @ApiOperation(value = "Returns all project files (with paging).")
+    @Operation(summary = "Returns all project files (with paging).")
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<FileDTO>> getAllFiles(
-            @ApiParam("Identifier of the project to get files for.") @RequestParam String projectId,
-            @ApiParam("Paging data.") Pageable pageable)
+            @Parameter(description = "Identifier of the project to get files for.") @RequestParam String projectId,
+            @Parameter(description = "Paging data.") Pageable pageable)
             throws URISyntaxException {
         LOGGER.debug("REST request to get files's metadata for project: {}", projectId);
-        Page<GridFSDBFile> page;
+        Page<GridFsResource> page;
         if (StringUtils.isEmpty(projectId)) {
             page = new PageImpl<>(new ArrayList<>());
         } else {
@@ -108,12 +105,12 @@ public class ProjectFileResource {
      * @return File
      * @throws URISyntaxException If URI is nor correct
      */
-    @ApiOperation(value = "Creates new file for the project.")
+    @Operation(summary = "Creates new file for the project.")
     @RequestMapping(method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<FileDTO> saveFile(
-            @ApiParam("Experiment file.") @RequestParam MultipartFile file,
-            @ApiParam("Identifier of the project.") @RequestParam String projectId
+            @Parameter(description = "Experiment file.") @RequestParam MultipartFile file,
+            @Parameter(description = "Identifier of the project.") @RequestParam String projectId
     ) throws URISyntaxException {
         LOGGER.debug("REST request to save file for project: {}", projectId);
         InputStream inputStream;
@@ -123,7 +120,7 @@ public class ProjectFileResource {
             throw new IndigoRuntimeException("Unable to get file content.", e);
         }
         User user = userService.getUserWithAuthorities();
-        GridFSFile gridFSFile = fileService.saveFileForProject(projectId, inputStream,
+        GridFsResource gridFSFile = fileService.saveFileForProject(projectId, inputStream,
                 file.getOriginalFilename(), file.getContentType(), user);
         return ResponseEntity.created(new URI(URL_MAPPING + "/" + gridFSFile.getId()))
                 .body(new FileDTO(gridFSFile));
@@ -135,14 +132,14 @@ public class ProjectFileResource {
      * @param id Identifier
      * @return Returns file with specified id
      */
-    @ApiOperation(value = "Returns project file by it's id.")
+    @Operation(summary = "Returns project file by it's id.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<InputStreamResource> getFile(
-            @ApiParam("Project file id.") @PathVariable("id") String id
-    ) {
+            @Parameter(description = "Project file id.") @PathVariable("id") String id
+    ) throws IOException {
         LOGGER.debug("REST request to get project file: {}", id);
-        GridFSDBFile file = fileService.getFileById(id);
+        GridFsResource file = fileService.getFileById(id);
 
         HttpHeaders headers = HeaderUtil.createAttachmentDescription(file.getFilename());
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(file.getInputStream()));
@@ -153,10 +150,10 @@ public class ProjectFileResource {
      *
      * @param id Identifier
      */
-    @ApiOperation(value = "Removes project file.")
+    @Operation(summary = "Removes project file.")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteFile(
-            @ApiParam("Project file id.") @PathVariable("id") String id
+            @Parameter(description = "Project file id.") @PathVariable("id") String id
     ) {
         LOGGER.debug("REST request to remove project file: {}", id);
         fileService.deleteProjectFile(id);

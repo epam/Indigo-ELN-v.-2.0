@@ -44,7 +44,7 @@ public enum ExperimentStatus {
         return value;
     }
 
-    @JsonCreator
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static ExperimentStatus fromValue(String value) {
         for (ExperimentStatus status : ExperimentStatus.values()) {
             if (status.toString().equalsIgnoreCase(value)) {

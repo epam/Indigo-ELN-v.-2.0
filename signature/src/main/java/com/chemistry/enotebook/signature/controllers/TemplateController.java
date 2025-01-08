@@ -17,14 +17,15 @@ import com.chemistry.enotebook.signature.database.DatabaseConnector;
 import com.chemistry.enotebook.signature.entity.Template;
 import com.chemistry.enotebook.signature.entity.User;
 import com.chemistry.enotebook.signature.Util;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;

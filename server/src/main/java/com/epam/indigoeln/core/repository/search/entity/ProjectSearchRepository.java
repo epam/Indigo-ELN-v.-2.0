@@ -30,7 +30,6 @@ import com.epam.indigoeln.web.rest.dto.search.EntitySearchResultDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
-import com.mongodb.BasicDBList;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -82,7 +81,7 @@ public class ProjectSearchRepository implements InitializingBean {
 
     Optional<List<EntitySearchResultDTO>> searchProjects(EntitySearchRequest searchRequest, User user) {
         return search(searchRequest).map(ids -> {
-            final Iterable<Project> projects = projectRepository.findAll(ids);
+            final Iterable<Project> projects = projectRepository.findAllById(ids);
             return StreamSupport.stream(projects.spliterator(), false).filter(
                     p -> PermissionUtil.hasEditorAuthorityOrPermissions(user, p.getAccessList(),
                             UserPermission.READ_ENTITY)
@@ -136,9 +135,8 @@ public class ProjectSearchRepository implements InitializingBean {
     }
 
     private Set<String> find(Criteria criteria) {
-        return ((BasicDBList) template.scriptOps().execute(searchScript, criteria.getCriteriaObject()))
+        return ((List<String>) template.scriptOps().execute(searchScript, criteria.getCriteriaObject()))
                 .stream()
-                .map(o -> (String) o)
                 .collect(Collectors.toSet());
     }
 

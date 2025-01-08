@@ -28,6 +28,7 @@ import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -60,6 +61,7 @@ public class SequenceIdService {
     /**
      * ExperimentService instance for working with experiments.
      */
+    @Lazy
     @Autowired
     private ExperimentService experimentService;
 
@@ -75,7 +77,7 @@ public class SequenceIdService {
      * @return new value of project id
      */
     public String getNextProjectId() {
-        Pageable request = new PageRequest(0, 1, new Sort(Sort.Direction.DESC, FIELD_SEQ_ID));
+        Pageable request = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, FIELD_SEQ_ID));
         Page<SequenceId> page = repository.findAll(request);
         SequenceId newSequenceId = new SequenceId(page.getContent().isEmpty()
                 ? 1L : page.getContent().get(0).getSequence() + 1L);

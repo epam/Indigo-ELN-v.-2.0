@@ -22,7 +22,6 @@ import com.epam.indigoeln.core.repository.search.AggregationUtils;
 import com.epam.indigoeln.core.repository.search.ResourceUtils;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
-import com.mongodb.BasicDBList;
 import com.mongodb.DBRef;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,9 +128,8 @@ public class ComponentSearchRepository implements InitializingBean {
     }
 
     private Set<Object> find(Criteria criteria) {
-        return ((BasicDBList) mongoTemplate.scriptOps().execute(searchScript, criteria.getCriteriaObject()))
+        return ((List<DBRef>) mongoTemplate.scriptOps().execute(searchScript, criteria.getCriteriaObject()))
                 .stream()
-                .map(o -> (DBRef) o)
                 .map(DBRef::getId)
                 .collect(Collectors.toSet()
                 );

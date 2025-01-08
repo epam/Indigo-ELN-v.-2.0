@@ -24,6 +24,7 @@ import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.mongodb.DBObject;
 import com.mongodb.DBRef;
 import lombok.val;
+import org.bson.Document;
 
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -58,7 +59,7 @@ public class ShortEntityDTO {
         this.lastModifiedBy = obj.getLastModifiedBy() != null ? new ShortUserDTO(obj.getLastModifiedBy()) : null;
     }
 
-    public ShortEntityDTO(DBObject obj, Map<Object, DBObject> users) {
+    public ShortEntityDTO(Document obj, Map<Object, Document> users) {
         this.fullId = String.valueOf(obj.get("_id"));
         this.id = SequenceIdUtil.extractShortId(this.fullId);
         this.parentId = SequenceIdUtil.extractParentId(this.fullId);

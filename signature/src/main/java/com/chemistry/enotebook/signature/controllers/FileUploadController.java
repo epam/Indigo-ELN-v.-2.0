@@ -18,6 +18,7 @@ import com.chemistry.enotebook.signature.Util;
 import com.chemistry.enotebook.signature.database.DatabaseConnector;
 import com.chemistry.enotebook.signature.email.EmailSender;
 import com.chemistry.enotebook.signature.entity.*;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.UUID;
 
 @Controller

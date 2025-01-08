@@ -25,10 +25,9 @@ import com.epam.indigoeln.core.model.RegistrationJob;
 import com.epam.indigoeln.core.repository.component.ComponentRepository;
 import com.epam.indigoeln.core.repository.registration.*;
 import com.epam.indigoeln.core.util.WebSocketUtil;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,9 +138,9 @@ public class RegistrationService {
         Map<BatchSummary, Component> batchesMap = new HashMap<>();
 
         supplier.get()
-                .forEach(c -> ((BasicDBList) c.getContent().get("batches"))
+                .forEach(c -> ((List<Document>) c.getContent().get("batches"))
                         .forEach(b -> {
-                            BasicDBObject batch = (BasicDBObject) b;
+                            Document batch = b;
                             batchesMap.put(new BatchSummary(batch), c);
                         }));
 
@@ -198,7 +197,7 @@ public class RegistrationService {
                     b.setRegistrationRepositoryId(id);
                 });
 
-        componentRepository.save(new HashSet<>(batches.values()));
+        componentRepository.saveAll(new HashSet<>(batches.values()));
 
         RegistrationJob registrationJob = new RegistrationJob();
 
@@ -249,7 +248,7 @@ public class RegistrationService {
                             }
                     );
 
-            componentRepository.save(new HashSet<>(batches.values()));
+            componentRepository.saveAll(new HashSet<>(batches.values()));
         }
 
         return registrationStatus;
@@ -339,20 +338,25 @@ public class RegistrationService {
      * @param batch batch representation in Mongo
      * @return converted Compound
      */
-    private Compound convert(BasicDBObject batch) {
+    private Compound convert(Document batch) {
         Compound result = new Compound();
 
         result.setBatchNo(batch.getString("fullNbkBatch"));
-        result.setStructure(((BasicDBObject) batch.get("structure")).getString("molfile"));
-        result.setFormula(batch.getString("formula"));
-        result.setStereoisomerCode(((BasicDBObject) batch.get("stereoisomer")).getString("name"));
-        result.setSaltCode(((BasicDBObject) batch.get("saltCode")).getString("regValue"));
+        result.setStructure(((Document) batch.get("structure")).getString("molfile"));
+        String formula = batch.get("formula") instanceof Document
+                ? ((Document) batch.get("formula")).getString("value")
+                : batch.getString("formula");
+        result.setFormula(formula);
+        result.setStereoisomerCode(((Document) batch.get("stereoisomer")).getString("name"));
+        result.setSaltCode(((Document) batch.get("saltCode")).getString("regValue"));
 
-        String saltEq = ((BasicDBObject) batch.get("saltEq")).getString("value");
+        Object saltEq = ((Document) batch.get("saltEq")).get("value");
 
-        if (saltEq != null) {
+        if (saltEq instanceof Number) {
+            result.setSaltEquivs(((Number) saltEq).doubleValue());
+        } else if (saltEq instanceof String) {
             try {
-                result.setSaltEquivs(Double.parseDouble(saltEq));
+                result.setSaltEquivs(Double.parseDouble((String) saltEq));
             } catch (NumberFormatException e) {
                 LOGGER.warn("Unable to parse Salt Eq");
             }
@@ -360,11 +364,11 @@ public class RegistrationService {
 
         result.setComment(batch.getString("comments"));
 
-        BasicDBObject healthHazards = (BasicDBObject) batch.get("healthHazards");
+        Document healthHazards = (Document) batch.get("healthHazards");
         result.setHazardComment(Optional.ofNullable(healthHazards)
                 .map(hh -> hh.getString("asString")).orElse(null));
 
-        BasicDBObject storageInstructions = (BasicDBObject) batch.get("storageInstructions");
+        Document storageInstructions = (Document) batch.get("storageInstructions");
         result.setStorageComment(Optional.ofNullable(storageInstructions)
                 .map(hh -> hh.getString("asString")).orElse(null));
 
@@ -379,14 +383,14 @@ public class RegistrationService {
         /**
          * Batch representation in Mongo.
          */
-        private BasicDBObject delegate;
+        private Document delegate;
 
         /**
          * Create a new BatchSummary instance.
          *
          * @param delegate Batch representation in Mongo
          */
-        BatchSummary(BasicDBObject delegate) {
+        BatchSummary(Document delegate) {
             this.delegate = delegate;
         }
 
@@ -395,7 +399,7 @@ public class RegistrationService {
          *
          * @return batch representation in Mongo
          */
-        BasicDBObject getDelegate() {
+        Document getDelegate() {
             return delegate;
         }
 

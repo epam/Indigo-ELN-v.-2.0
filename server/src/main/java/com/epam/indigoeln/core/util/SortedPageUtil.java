@@ -34,9 +34,10 @@ public class SortedPageUtil<T> {
 
     private final Function<String, Comparator<T>> ascComparator;
     private final Function<String, Comparator<T>> descComparator;
+    private final String defaultSort;
 
-    public SortedPageUtil(Map<String, Function<T, String>> functionMap) {
-
+    public SortedPageUtil(Map<String, Function<T, String>> functionMap, String defaultSort) {
+        this.defaultSort = defaultSort;
         ascComparator = field -> (entity1, entity2) -> {
             Function<T, String> getValue = Optional.ofNullable(functionMap.get(field)).orElseThrow(() ->
                     UriProcessingException.cantParseSortingField(field));
@@ -68,7 +69,8 @@ public class SortedPageUtil<T> {
 
     private Comparator<T> pageableToComparator(Pageable pageable) {
         Comparator<T> comparator = null;
-        for (Sort.Order order : pageable.getSort()) {
+        Iterable<Sort.Order> orders = !pageable.getSort().isEmpty() ? pageable.getSort() : List.of(Sort.Order.by(defaultSort));
+        for (Sort.Order order : orders) {
             String property = order.getProperty();
             Comparator<T> userComparator = order.isAscending()
                     ? ascComparator.apply(property)

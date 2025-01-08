@@ -18,7 +18,7 @@ import java.util.Properties;
 
 public class PropertyReader {
 	
-	private static final String PROPERTIES_FILE = "crs.properties";
+	private static final String PROPERTIES_FILE = "application.properties";
 	
     public static Properties getProperties(String file) throws RuntimeException {
         Properties prop = null;

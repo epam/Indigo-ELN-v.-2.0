@@ -33,7 +33,6 @@ import com.epam.indigoeln.web.rest.dto.search.EntitySearchResultDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
-import com.mongodb.BasicDBList;
 import com.mongodb.DBRef;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,7 +82,7 @@ public class ExperimentSearchRepository implements InitializingBean {
     Optional<List<EntitySearchResultDTO>> searchExperiments(EntitySearchRequest searchRequest,
                                                             List<String> bingoIds, User user) {
         return search(searchRequest, bingoIds).map(ids -> {
-                    final Iterable<Experiment> experiments = experimentRepository.findAll(ids);
+                    final Iterable<Experiment> experiments = experimentRepository.findAllById(ids);
 
                     Map<String, String> notebookNameMap = new HashMap<>();
                     final Set<DBRef> dbRefs = ids.stream().map(id -> new DBRef("experiment", id))
@@ -176,9 +175,8 @@ public class ExperimentSearchRepository implements InitializingBean {
     }
 
     private Set<String> find(Criteria criteria) {
-        return ((BasicDBList) template.scriptOps().execute(searchScript, criteria.getCriteriaObject()))
+        return ((List<String>) template.scriptOps().execute(searchScript, criteria.getCriteriaObject()))
                 .stream()
-                .map(o -> (String) o)
                 .collect(Collectors.toSet());
     }
 

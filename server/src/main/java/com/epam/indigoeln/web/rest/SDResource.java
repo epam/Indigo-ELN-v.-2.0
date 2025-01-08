@@ -28,9 +28,9 @@ import com.epam.indigoeln.core.service.util.TempFileUtil;
 import com.epam.indigoeln.web.rest.dto.SDEntryDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.google.common.collect.ImmutableMap;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.websocket.server.PathParam;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.websocket.server.PathParam;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -48,7 +47,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Api
 @RestController
 @RequestMapping("/api/sd")
 public class SDResource {
@@ -61,10 +59,10 @@ public class SDResource {
     @Autowired
     private UserService userService;
 
-    @ApiOperation(value = "Imports sdf file.")
+    @Operation(summary = "Imports sdf file.")
     @PostMapping(value = "/import", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<SDEntryDTO>> importFile(
-            @ApiParam("File") @RequestParam MultipartFile file) throws IOException {
+            @Parameter(description = "File") @RequestParam MultipartFile file) throws IOException {
         try (InputStream is = file.getInputStream()) {
             try (Reader r = new InputStreamReader(is, StandardCharsets.UTF_8)) {
                 List<SDEntryDTO> result = sdService.parse(r)
@@ -84,10 +82,10 @@ public class SDResource {
         }
     }
 
-    @ApiOperation(value = "Exports sdf file.")
+    @Operation(summary = "Exports sdf file.")
     @PostMapping(value = "/export", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> exportFile(
-            @ApiParam("List of sdf items.") @RequestBody List<SDExportItem> items) throws IOException {
+            @Parameter(description = "List of sdf items.") @RequestBody List<SDExportItem> items) throws IOException {
         try {
             SDFileInfo sdFileInfo = sdService.create(items);
 
@@ -105,9 +103,9 @@ public class SDResource {
         }
     }
 
-    @ApiOperation(value = "Download file.")
+    @Operation(summary = "Download file.")
     @GetMapping(value = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<byte[]> downloadFile(@ApiParam("File name") @PathParam("fileName") String fileName)
+    public ResponseEntity<byte[]> downloadFile(@Parameter(description = "File name") @PathParam("fileName") String fileName)
             throws IOException {
         File file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
 

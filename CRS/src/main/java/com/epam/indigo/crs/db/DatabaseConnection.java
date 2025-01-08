@@ -47,8 +47,8 @@ public class DatabaseConnection {
 	private DatabaseConnection() {
 		Properties crsProperties = PropertyReader.getCrsProperties();
 
-		dbType = crsProperties.getProperty("DATABASE_DRIVER_CLASS");
-		dbSchema = crsProperties.getProperty("DATABASE_USERNAME");
+		dbType = POSTGRESQL;
+		dbSchema = "crs";
 	}
 
 	private synchronized DbConnector getDbConnector() {

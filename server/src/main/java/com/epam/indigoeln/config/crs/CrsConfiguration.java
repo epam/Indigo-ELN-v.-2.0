@@ -18,12 +18,12 @@
  */
 package com.epam.indigoeln.config.crs;
 
-import com.epam.indigo.crs.services.registration.BingoRegistration;
-import com.epam.indigo.crs.services.search.BingoSearch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.support.RestClientAdapter;
+import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
 @Configuration
 public class CrsConfiguration {
@@ -32,20 +32,19 @@ public class CrsConfiguration {
     private CrsProperties crsProperties;
 
     @Bean
-    public HttpInvokerProxyFactoryBean getSearch() {
-        HttpInvokerProxyFactoryBean factory = new HttpInvokerProxyFactoryBean();
-        factory.setServiceUrl(crsProperties.getSearchServiceUrl());
-        factory.setServiceInterface(BingoSearch.class);
-        return factory;
+    public BingoSearchClient getSearch() {
+        RestClient restClient = RestClient.builder().baseUrl(crsProperties.getSearchServiceUrl()).build();
+        RestClientAdapter adapter = RestClientAdapter.create(restClient);
+        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
+        return factory.createClient(BingoSearchClient.class);
     }
 
     @Bean
-    public HttpInvokerProxyFactoryBean getRegistration() {
-        HttpInvokerProxyFactoryBean factory = new HttpInvokerProxyFactoryBean();
-        factory.setServiceUrl(crsProperties.getRegistrationServiceUrl());
-        factory.setServiceInterface(BingoRegistration.class);
-        return factory;
+    public BingoRegistrationClient getRegistration() {
+        RestClient restClient = RestClient.builder().baseUrl(crsProperties.getRegistrationServiceUrl()).build();
+        RestClientAdapter adapter = RestClientAdapter.create(restClient);
+        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
+        return factory.createClient(BingoRegistrationClient.class);
     }
-
 
 }

@@ -20,8 +20,7 @@ package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.service.dashboard.DashboardService;
 import com.epam.indigoeln.web.rest.dto.DashboardDTO;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-@Api
 @RestController
 @RequestMapping(DashboardResource.URL_MAPPING)
 public class DashboardResource {
@@ -46,7 +44,7 @@ public class DashboardResource {
      *
      * @return Returns dashboard content
      */
-    @ApiOperation(value = "Returns dashboard content.")
+    @Operation(summary = "Returns dashboard content.")
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DashboardDTO> getDashboard() {

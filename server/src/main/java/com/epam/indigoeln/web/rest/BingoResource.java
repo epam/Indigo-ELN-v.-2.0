@@ -20,9 +20,8 @@ package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.service.bingo.BingoService;
 import com.epam.indigoeln.core.service.calculation.CalculationService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,7 +34,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@Api
 @RestController
 @RequestMapping("/api/bingodb")
 public class BingoResource {
@@ -54,10 +52,10 @@ public class BingoResource {
      * @param id Identifier of the molecule
      * @return Returns the structure of molecule
      */
-    @ApiOperation(value = "Returns the structure of molecule.")
+    @Operation(summary = "Returns the structure of molecule.")
     @RequestMapping(value = "/molecule/{id}", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> getMolecule(
-            @ApiParam("Identifier of the molecule.") @PathVariable String id
+            @Parameter(description = "Identifier of the molecule.") @PathVariable String id
     ) {
         return bingoService
                 .getById(id)
@@ -72,11 +70,11 @@ public class BingoResource {
      * @return Created molecule
      * @throws URISyntaxException If URI is not correct
      */
-    @ApiOperation(value = "Creates a new molecule.")
+    @Operation(summary = "Creates a new molecule.")
     @RequestMapping(value = "/molecule/", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
     @SuppressWarnings("unchecked")
     public ResponseEntity<String> addMolecule(
-            @ApiParam("The molecule to create.") @RequestBody String molecule
+            @Parameter(description = "The molecule to create.") @RequestBody String molecule
     ) throws URISyntaxException {
         Optional<String> result = bingoService.insert(molecule);
 
@@ -96,11 +94,11 @@ public class BingoResource {
      * @param molecule New molecule data
      * @return Updated molecule
      */
-    @ApiOperation(value = "Updates the molecule.")
+    @Operation(summary = "Updates the molecule.")
     @RequestMapping(value = "/molecule/{id}", method = RequestMethod.PUT, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> updateMolecule(
-            @ApiParam("Id of the molecule to update.") @PathVariable String id,
-            @ApiParam("New molecule data.") @RequestBody String molecule
+            @Parameter(description = "Id of the molecule to update.") @PathVariable String id,
+            @Parameter(description = "New molecule data.") @RequestBody String molecule
     ) {
         if (!bingoService.getById(id).isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -123,10 +121,10 @@ public class BingoResource {
      * @param molecule Molecule
      * @return Returns true if molecule is empty
      */
-    @ApiOperation(value = "Checks if molecule is empty.")
+    @Operation(summary = "Checks if molecule is empty.")
     @RequestMapping(value = "/molecule/empty", method = RequestMethod.POST)
     public ResponseEntity<Object> isEmptyMolecule(
-            @ApiParam("Molecule to check.") @RequestBody String molecule) {
+            @Parameter(description = "Molecule to check.") @RequestBody String molecule) {
         Optional<Boolean> result = calculationService.isEmptyMolecule(molecule);
 
         if (result.isPresent()) {
@@ -142,10 +140,10 @@ public class BingoResource {
      *
      * @param id Id of the molecule to delete
      */
-    @ApiOperation(value = "Deletes the molecule.")
+    @Operation(summary = "Deletes the molecule.")
     @RequestMapping(value = "/molecule/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteTemplate(
-            @ApiParam("Id of the molecule to delete.") @PathVariable String id
+            @Parameter(description = "Id of the molecule to delete.") @PathVariable String id
     ) {
         bingoService.delete(id);
         return ResponseEntity
@@ -159,10 +157,10 @@ public class BingoResource {
      * @param id Id of the reaction
      * @return Returns structure of the reaction
      */
-    @ApiOperation(value = "Returns structure of the reaction.")
+    @Operation(summary = "Returns structure of the reaction.")
     @RequestMapping(value = "/reaction/{id}", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> getReaction(
-            @ApiParam("Id of the reaction.") @PathVariable String id
+            @Parameter(description = "Id of the reaction.") @PathVariable String id
     ) {
         return bingoService
                 .getById(id)
@@ -177,10 +175,10 @@ public class BingoResource {
      * @return Created reaction
      * @throws URISyntaxException If URI is not correct
      */
-    @ApiOperation(value = "Creates new reaction.")
+    @Operation(summary = "Creates new reaction.")
     @RequestMapping(value = "/reaction/", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> addReaction(
-            @ApiParam("Reaction to create.") @RequestBody String reaction
+            @Parameter(description = "Reaction to create.") @RequestBody String reaction
     ) throws URISyntaxException {
         Optional<String> result = bingoService.insert(reaction);
 
@@ -200,11 +198,11 @@ public class BingoResource {
      * @param reaction New reaction data
      * @return Updated reaction
      */
-    @ApiOperation(value = "Updates the reaction.")
+    @Operation(summary = "Updates the reaction.")
     @RequestMapping(value = "/reaction/{id}", method = RequestMethod.PUT, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> updateReaction(
-            @ApiParam("Id of the reaction to update.") @PathVariable String id,
-            @ApiParam("New reaction data.") @RequestBody String reaction
+            @Parameter(description = "Id of the reaction to update.") @PathVariable String id,
+            @Parameter(description = "New reaction data.") @RequestBody String reaction
     ) {
         if (!bingoService.getById(id).isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -226,10 +224,10 @@ public class BingoResource {
      * @param reaction Reaction to check
      * @return True if reaction is empty
      */
-    @ApiOperation(value = "Checks if reaction is empty.")
+    @Operation(summary = "Checks if reaction is empty.")
     @RequestMapping(value = "/reaction/empty", method = RequestMethod.POST)
     public ResponseEntity<Object> isEmptyReaction(
-            @ApiParam("Reaction to check.") @RequestBody String reaction) {
+            @Parameter(description = "Reaction to check.") @RequestBody String reaction) {
         Optional<Boolean> result = calculationService.isEmptyReaction(reaction);
 
         if (result.isPresent()) {
@@ -245,10 +243,10 @@ public class BingoResource {
      *
      * @param id Id of the reaction to delete
      */
-    @ApiOperation(value = "Deletes the reaction.")
+    @Operation(summary = "Deletes the reaction.")
     @RequestMapping(value = "/reaction/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteReaction(
-            @ApiParam("Id of the reaction to delete.") @PathVariable String id
+            @Parameter(description = "Id of the reaction to delete.") @PathVariable String id
     ) {
         bingoService.delete(id);
         return ResponseEntity
@@ -263,11 +261,11 @@ public class BingoResource {
      * @param options   Search options
      * @return Returns molecule
      */
-    @ApiOperation(value = "Searches for exact molecule.")
+    @Operation(summary = "Searches for exact molecule.")
     @RequestMapping(value = "/molecule/search/exact", method = RequestMethod.POST)
     public ResponseEntity<List<String>> searchMoleculeExact(
-            @ApiParam("Molecule structure to search for.") @RequestBody String structure,
-            @ApiParam("Search options.") @RequestParam(required = false) String options) {
+            @Parameter(description = "Molecule structure to search for.") @RequestBody String structure,
+            @Parameter(description = "Search options.") @RequestParam(required = false) String options) {
         return ResponseEntity.ok(bingoService.searchMoleculeExact(structure, options));
     }
 
@@ -279,11 +277,11 @@ public class BingoResource {
      * @param options   Search options
      * @return Returns molecule
      */
-    @ApiOperation(value = "Searches for molecule by substructure.")
+    @Operation(summary = "Searches for molecule by substructure.")
     @RequestMapping(value = "/molecule/search/substructure", method = RequestMethod.POST)
     public ResponseEntity<List<String>> searchMoleculeSubstructure(
-            @ApiParam("Molecule substructure to search for.") @RequestBody String structure,
-            @ApiParam("Search options.") @RequestParam(required = false) String options) {
+            @Parameter(description = "Molecule substructure to search for.") @RequestBody String structure,
+            @Parameter(description = "Search options.") @RequestParam(required = false) String options) {
         return ResponseEntity.ok(bingoService.searchMoleculeSub(structure, options));
     }
 
@@ -296,13 +294,13 @@ public class BingoResource {
      * @param options   Search options
      * @return Returns molecule
      */
-    @ApiOperation(value = "Searches for molecule by similarity.")
+    @Operation(summary = "Searches for molecule by similarity.")
     @RequestMapping(value = "/molecule/search/similarity", method = RequestMethod.POST)
     public ResponseEntity<List<String>> searchMoleculeSimilarity(
-            @ApiParam("Molecule substructure to search for.") @RequestBody String structure,
-            @ApiParam("Min similarity.") @RequestParam Float min,
-            @ApiParam("Max similarity.") @RequestParam Float max,
-            @ApiParam("Search options.") @RequestParam(required = false) String options
+            @Parameter(description = "Molecule substructure to search for.") @RequestBody String structure,
+            @Parameter(description = "Min similarity.") @RequestParam Float min,
+            @Parameter(description = "Max similarity.") @RequestParam Float max,
+            @Parameter(description = "Search options.") @RequestParam(required = false) String options
     ) {
         return ResponseEntity.ok(bingoService.searchMoleculeSim(structure, min, max, options));
     }
@@ -314,11 +312,11 @@ public class BingoResource {
      * @param options Search options
      * @return Returns molecule
      */
-    @ApiOperation(value = "Searches for molecule by formula.")
+    @Operation(summary = "Searches for molecule by formula.")
     @RequestMapping(value = "/molecule/search/molformula", method = RequestMethod.POST)
     public ResponseEntity<List<String>> searchMoleculeByMolFormula(
-            @ApiParam("Molecule formula to search for.") @RequestBody String formula,
-            @ApiParam("Search options.") @RequestParam(required = false) String options
+            @Parameter(description = "Molecule formula to search for.") @RequestBody String formula,
+            @Parameter(description = "Search options.") @RequestParam(required = false) String options
     ) {
         return ResponseEntity.ok(bingoService.searchMoleculeMolFormula(formula, options));
     }
@@ -330,11 +328,11 @@ public class BingoResource {
      * @param options   Search options
      * @return Returns reaction
      */
-    @ApiOperation(value = "Searches for exact reaction.")
+    @Operation(summary = "Searches for exact reaction.")
     @RequestMapping(value = "/reaction/search/exact", method = RequestMethod.POST)
     public ResponseEntity<List<String>> searchReactionExact(
-            @ApiParam("Reaction structure to search for.") @RequestBody String structure,
-            @ApiParam("Search options.") @RequestParam(required = false) String options
+            @Parameter(description = "Reaction structure to search for.") @RequestBody String structure,
+            @Parameter(description = "Search options.") @RequestParam(required = false) String options
     ) {
         return ResponseEntity.ok(bingoService.searchReactionExact(structure, options));
     }
@@ -346,11 +344,11 @@ public class BingoResource {
      * @param options   Search options
      * @return Returns reaction
      */
-    @ApiOperation(value = "Searches for reaction by substructure.")
+    @Operation(summary = "Searches for reaction by substructure.")
     @RequestMapping(value = "/reaction/search/substructure", method = RequestMethod.POST)
     public ResponseEntity<List<String>> searchReactionSubstructure(
-            @ApiParam("Reaction substructure to search for.") @RequestBody String structure,
-            @ApiParam("Search options.") @RequestParam(required = false) String options) {
+            @Parameter(description = "Reaction substructure to search for.") @RequestBody String structure,
+            @Parameter(description = "Search options.") @RequestParam(required = false) String options) {
         return ResponseEntity.ok(bingoService.searchReactionSub(structure, options));
     }
 
@@ -363,13 +361,13 @@ public class BingoResource {
      * @param options   Search options
      * @return Returns reaction
      */
-    @ApiOperation(value = "Searches for reaction by similarity.")
+    @Operation(summary = "Searches for reaction by similarity.")
     @RequestMapping(value = "/reaction/search/similarity", method = RequestMethod.POST)
     public ResponseEntity<List<String>> searchReactionSimilarity(
-            @ApiParam("Reaction substructure to search for.") @RequestBody String structure,
-            @ApiParam("Min similarity.") @RequestParam Float min,
-            @ApiParam("Max similarity.") @RequestParam Float max,
-            @ApiParam("Search options.") @RequestParam(required = false) String options
+            @Parameter(description = "Reaction substructure to search for.") @RequestBody String structure,
+            @Parameter(description = "Min similarity.") @RequestParam Float min,
+            @Parameter(description = "Max similarity.") @RequestParam Float max,
+            @Parameter(description = "Search options.") @RequestParam(required = false) String options
     ) {
         return ResponseEntity.ok(bingoService.searchReactionSim(structure, min, max, options));
     }
@@ -381,11 +379,11 @@ public class BingoResource {
      * @param options Search options
      * @return Returns reaction
      */
-    @ApiOperation(value = "Searches for reaction by formula.")
+    @Operation(summary = "Searches for reaction by formula.")
     @RequestMapping(value = "/reaction/search/molformula", method = RequestMethod.POST)
     public ResponseEntity<List<String>> searchReactionByMolFormula(
-            @ApiParam("Reaction formula to search for.") @RequestBody String formula,
-            @ApiParam("Search options.") @RequestParam(required = false) String options) {
+            @Parameter(description = "Reaction formula to search for.") @RequestBody String formula,
+            @Parameter(description = "Search options.") @RequestParam(required = false) String options) {
         return ResponseEntity.ok(bingoService.searchReactionMolFormula(formula, options));
     }
 }

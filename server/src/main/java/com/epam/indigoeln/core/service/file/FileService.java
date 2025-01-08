@@ -26,14 +26,13 @@ import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.FileNotFoundException;
-import com.mongodb.gridfs.GridFSDBFile;
-import com.mongodb.gridfs.GridFSFile;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -71,8 +70,8 @@ public class FileService {
      * @param pageable  Pagination information
      * @return Page with GridFS files
      */
-    public Page<GridFSDBFile> getAllFilesByProjectId(String projectId, Pageable pageable) {
-        Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
+    public Page<GridFsResource> getAllFilesByProjectId(String projectId, Pageable pageable) {
+        Project project = projectRepository.findById(projectId).
                 orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
         return fileRepository.findAll(project.getFileIds(), pageable);
     }
@@ -83,13 +82,13 @@ public class FileService {
      * @param experimentId Experiment's identifier
      * @return Page with GridFS files
      */
-    public Page<GridFSDBFile> getAllFilesByExperimentId(String experimentId) {
-        Experiment experiment = Optional.ofNullable(experimentRepository.findOne(experimentId)).
+    public Page<GridFsResource> getAllFilesByExperimentId(String experimentId) {
+        Experiment experiment = experimentRepository.findById(experimentId).
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentId));
         if (experiment.getFileIds().isEmpty()) {
             return new PageImpl<>(Collections.emptyList());
         } else {
-            return fileRepository.findAll(experiment.getFileIds(), new PageRequest(0, experiment.getFileIds().size()));
+            return fileRepository.findAll(experiment.getFileIds(), PageRequest.of(0, experiment.getFileIds().size()));
         }
     }
 
@@ -99,8 +98,8 @@ public class FileService {
      * @param id File's identifier
      * @return GridFS file
      */
-    public GridFSDBFile getFileById(String id) {
-        GridFSDBFile gridFSDBFile = fileRepository.findOneById(id);
+    public GridFsResource getFileById(String id) {
+        GridFsResource gridFSDBFile = fileRepository.findOneById(id);
         if (gridFSDBFile == null) {
             throw new FileNotFoundException(id);
         }
@@ -117,15 +116,15 @@ public class FileService {
      * @param user        User
      * @return Created GridFS file
      */
-    public GridFSFile saveFileForProject(String projectId, InputStream content,
-                                         String filename, String contentType, User user) {
+    public GridFsResource saveFileForProject(String projectId, InputStream content,
+                                             String filename, String contentType, User user) {
         Project project = null;
         if (!StringUtils.isEmpty(projectId)) {
-            project = Optional.ofNullable(projectRepository.findOne(projectId)).
+            project = projectRepository.findById(projectId).
                     orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
         }
 
-        GridFSFile gridFSFile = fileRepository.store(content, filename, contentType, user, project == null);
+        GridFsResource gridFSFile = fileRepository.store(content, filename, contentType, user, project == null);
         if (project != null) {
             project.getFileIds().add(gridFSFile.getId().toString());
             projectRepository.save(project);
@@ -143,12 +142,12 @@ public class FileService {
      * @param user         User
      * @return Created GridFS file
      */
-    public GridFSFile saveFileForExperiment(String experimentId, InputStream content,
+    public GridFsResource saveFileForExperiment(String experimentId, InputStream content,
                                             String filename, String contentType, User user) {
-        Experiment experiment = Optional.ofNullable(experimentRepository.findOne(experimentId)).
+        Experiment experiment = experimentRepository.findById(experimentId).
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentId));
 
-        GridFSFile gridFSFile = fileRepository.store(content, filename, contentType, user, false);
+        GridFsResource gridFSFile = fileRepository.store(content, filename, contentType, user, false);
         experiment.getFileIds().add(gridFSFile.getId().toString());
         experimentRepository.save(experiment);
 

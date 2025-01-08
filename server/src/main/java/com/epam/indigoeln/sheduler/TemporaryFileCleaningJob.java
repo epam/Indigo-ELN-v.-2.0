@@ -19,10 +19,10 @@
 package com.epam.indigoeln.sheduler;
 
 import com.epam.indigoeln.core.repository.file.FileRepository;
-import com.mongodb.gridfs.GridFSDBFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -48,15 +48,15 @@ public class TemporaryFileCleaningJob {
         LOGGER.debug("Temporary file cleaning job started");
         try {
             final LocalDateTime threshold = LocalDateTime.now().minus(1, ChronoUnit.WEEKS);
-            final List<GridFSDBFile> temporaryFiles = fileRepository.findAllTemporary();
+            final List<GridFsResource> temporaryFiles = fileRepository.findAllTemporary();
             final Set<String> fileIdsToDelete = temporaryFiles.stream().filter(tf -> {
-                final LocalDateTime uploadDate = tf.getUploadDate().toInstant()
+                final LocalDateTime uploadDate = tf.getGridFSFile().getUploadDate().toInstant()
                         .atZone(ZoneId.systemDefault()).toLocalDateTime();
                 return uploadDate.isBefore(threshold);
-            }).map(tf -> (String) tf.getId()).collect(Collectors.toSet());
+            }).map(tf -> (String) tf.getId().toString()).collect(Collectors.toSet());
             if (!fileIdsToDelete.isEmpty()) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Deleting temporary files: " + fileIdsToDelete);
+                    LOGGER.debug("Deleting temporary files: {}", fileIdsToDelete);
                 }
                 fileRepository.delete(fileIdsToDelete);
             }

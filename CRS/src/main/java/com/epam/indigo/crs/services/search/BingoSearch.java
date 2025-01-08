@@ -15,22 +15,34 @@ package com.epam.indigo.crs.services.search;
 
 import com.epam.indigo.crs.classes.FullCompoundInfo;
 import com.epam.indigo.crs.exceptions.CRSException;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
 public interface BingoSearch {
 
-    List<Integer> searchExact(String compound, String options) throws CRSException;
-    List<Integer> searchSub(String compound, String options) throws CRSException;
-    List<Integer> searchSmarts(String compound) throws CRSException;
-    List<Integer> searchSim(String compound, String metric, Double bottomValue, Double topValue) throws CRSException;
+    @PostMapping("exact")
+    List<Integer> searchExact(@RequestParam String compound, @RequestParam String options) throws CRSException;
+    @PostMapping("sub")
+    List<Integer> searchSub(@RequestParam String compound, @RequestParam String options) throws CRSException;
+    @PostMapping("smarts")
+    List<Integer> searchSmarts(@RequestParam String compound) throws CRSException;
+    @PostMapping("sim")
+    List<Integer> searchSim(@RequestParam String compound, @RequestParam String metric, @RequestParam Double bottomValue, @RequestParam Double topValue) throws CRSException;
 
-    List<FullCompoundInfo> getCompoundByNumber(String compoundNumber) throws CRSException;
-    List<FullCompoundInfo> getCompoundByCasNumber(String casNumber) throws CRSException;
-    List<FullCompoundInfo> getCompoundByJobId(String jobId) throws CRSException;
+    @PostMapping("/compound-by-number")
+    List<FullCompoundInfo> getCompoundByNumber(@RequestParam String compoundNumber) throws CRSException;
+    @PostMapping("/compound-by-cas-number")
+    List<FullCompoundInfo> getCompoundByCasNumber(@RequestParam String casNumber) throws CRSException;
+    @PostMapping("/compound-by-job-id")
+    List<FullCompoundInfo> getCompoundByJobId(@RequestParam String jobId) throws CRSException;
 
-    FullCompoundInfo getCompoundById(int id) throws CRSException;
-    FullCompoundInfo getCompoundByConversationalBatchNumber(String conversationalBatchNumber) throws CRSException;
-    FullCompoundInfo getCompoundByBatchNumber(String batchNumber) throws CRSException;
+    @PostMapping("/compound-by-id")
+    FullCompoundInfo getCompoundById(@RequestParam int id) throws CRSException;
+    @PostMapping("/compound-by-conversational-batch-number")
+    FullCompoundInfo getCompoundByConversationalBatchNumber(@RequestParam String conversationalBatchNumber) throws CRSException;
+    @PostMapping("/compound-by-batch-number")
+    FullCompoundInfo getCompoundByBatchNumber(@RequestParam String batchNumber) throws CRSException;
 
 }

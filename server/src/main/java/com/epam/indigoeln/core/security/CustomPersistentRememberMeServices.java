@@ -23,6 +23,8 @@ import com.epam.indigoeln.core.model.PersistentToken;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.PersistentTokenRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +41,6 @@ import org.springframework.security.web.authentication.rememberme.RememberMeAuth
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.time.LocalDate;
@@ -195,11 +195,8 @@ public class CustomPersistentRememberMeServices extends AbstractRememberMeServic
                     + " tokens, but contained '" + Arrays.asList(cookieTokens) + "'");
         }
         String presentedSeries = cookieTokens[0];
-        PersistentToken token = persistentTokenRepository.findOne(presentedSeries);
-        if (token == null) {
-            // No series match, so we can't authenticate using this cookie
-            throw new RememberMeAuthenticationException("No persistent token found for series id: " + presentedSeries);
-        }
+        PersistentToken token = persistentTokenRepository.findById(presentedSeries)
+                .orElseThrow(() -> new RememberMeAuthenticationException("No persistent token found for series id: " + presentedSeries));
 
         String presentedToken = cookieTokens[1];
 

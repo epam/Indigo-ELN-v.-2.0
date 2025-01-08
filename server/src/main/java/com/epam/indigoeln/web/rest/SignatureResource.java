@@ -25,9 +25,8 @@ import com.epam.indigoeln.web.rest.dto.print.PrintRequest;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -43,7 +42,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 
-@Api
 @RestController
 @RequestMapping("/api/signature")
 public class SignatureResource {
@@ -55,44 +53,44 @@ public class SignatureResource {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @ApiOperation(value = "Returns reasons.")
+    @Operation(summary = "Returns reasons.")
     @RequestMapping(value = "/reason", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getReasons() {
         return ResponseEntity.ok(signatureService.getReasons());
     }
 
-    @ApiOperation(value = "Returns statuses.")
+    @Operation(summary = "Returns statuses.")
     @RequestMapping(value = "/status", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getStatuses() {
         return ResponseEntity.ok(signatureService.getStatuses());
     }
 
-    @ApiOperation(value = "Returns final statuses.")
+    @Operation(summary = "Returns final statuses.")
     @RequestMapping(value = "/status/final", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getFinalStatus() {
         return ResponseEntity.ok(signatureService.getFinalStatus());
     }
 
-    @ApiOperation(value = "Returns templates.")
+    @Operation(summary = "Returns templates.")
     @RequestMapping(value = "/template", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getTemplates() {
         return ResponseEntity.ok(signatureService.getSignatureTemplates());
     }
 
-    @ApiOperation(value = "Sends document to signature.")
+    @Operation(summary = "Sends document to signature.")
     @RequestMapping(value = "/document", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> uploadDocument(
-            @ApiParam("File name.") @RequestParam("fileName") String fileName,
-            @ApiParam("Signature template.") @RequestParam("templateId") String templateId,
-            @ApiParam("Experiment id.") @RequestParam("experimentId") String experimentId,
-            @ApiParam("Notebook id.") @RequestParam("notebookId") String notebookId,
-            @ApiParam("Project id.") @RequestParam("projectId") String projectId,
-            @ApiParam("Print params.") PrintRequest printRequest) throws IOException {
+            @Parameter(description = "File name.") @RequestParam("fileName") String fileName,
+            @Parameter(description = "Signature template.") @RequestParam("templateId") String templateId,
+            @Parameter(description = "Experiment id.") @RequestParam("experimentId") String experimentId,
+            @Parameter(description = "Notebook id.") @RequestParam("notebookId") String notebookId,
+            @Parameter(description = "Project id.") @RequestParam("projectId") String projectId,
+            @Parameter(description = "Print params.") PrintRequest printRequest) throws IOException {
 
         User user = userService.getUserWithAuthorities();
 
@@ -100,36 +98,36 @@ public class SignatureResource {
                 experimentId, user, templateId, fileName, printRequest));
     }
 
-    @ApiOperation(value = "Returns signature document info.")
+    @Operation(summary = "Returns signature document info.")
     @RequestMapping(value = "/document/info", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getDocumentInfo(
-            @ApiParam("Document id.") String documentId
+            @Parameter(description = "Document id.") String documentId
     ) {
         return ResponseEntity.ok(signatureService.getDocumentInfo(documentId));
     }
 
-    @ApiOperation(value = "Returns signature documents info.")
+    @Operation(summary = "Returns signature documents info.")
     @RequestMapping(value = "/document/info", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SignatureService.Document>> getDocumentsInfo(
-            @ApiParam("Documents ids.") List<String> documentIds
+            @Parameter(description = "Documents ids.") List<String> documentIds
     ) throws IOException {
         return ResponseEntity.ok(signatureService.getDocumentsByIds(documentIds));
     }
 
-    @ApiOperation(value = "Returns all signature documents info.")
+    @Operation(summary = "Returns all signature documents info.")
     @RequestMapping(value = "/document", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SignatureService.Document>> getDocuments() throws IOException {
         return ResponseEntity.ok(signatureService.getDocumentsByUser());
     }
 
-    @ApiOperation(value = "Returns signature document content.")
+    @Operation(summary = "Returns signature document content.")
     @RequestMapping(value = "/document/content", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<InputStreamResource> downloadDocument(
-            @ApiParam("Document id.") String documentId
+            @Parameter(description = "Document id.") String documentId
     ) throws IOException {
 
         final String info = signatureService.getDocumentInfo(documentId);

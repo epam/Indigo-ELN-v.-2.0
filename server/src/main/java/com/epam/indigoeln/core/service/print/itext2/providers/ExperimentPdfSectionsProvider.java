@@ -39,11 +39,12 @@ import com.epam.indigoeln.core.service.print.itext2.utils.LogoUtils;
 import com.epam.indigoeln.core.service.print.itext2.utils.MongoExt;
 import com.epam.indigoeln.web.rest.dto.FileDTO;
 import com.epam.indigoeln.web.rest.dto.print.PrintRequest;
-import com.mongodb.gridfs.GridFSDBFile;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.*;
@@ -70,7 +71,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     private final Notebook notebook;
     private final Experiment experiment;
     private final FileRepository fileRepository;
-    private final List<GridFSDBFile> files;
+    private final List<GridFsResource> files;
     private final PrintRequest printRequest;
     private final UserRepository userRepository;
 
@@ -159,7 +160,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                         .setLinkedExperiment(content.streamObjects("linkedExperiments")
                                 .map(m -> m.getString("name")).toList())
                         .setLiteratureReference(content.getString("literature"))
-                        .setCoAuthors(userRepository.findAll(content.streamStrings("coAuthors").toList())
+                        .setCoAuthors(userRepository.findAllById(content.streamStrings("coAuthors").toList())
                                 .stream().map(User::getFullName).collect(toList())))
         ));
     }
@@ -171,9 +172,9 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                 content.streamObjects("linkedExperiments").map(m -> m.getString("name")).toList(),
                 content.getString(CODE_AND_NAME_NAME),
                 content.getString("keywords"),
-                userRepository.findAll(content.streamStrings("designers").toList())
+                userRepository.findAllById(content.streamStrings("designers").toList())
                         .stream().map(User::getFullName).collect(toList()),
-                userRepository.findAll(content.streamStrings("coAuthors").toList())
+                userRepository.findAllById(content.streamStrings("coAuthors").toList())
                         .stream().map(User::getFullName).collect(toList())
         ))));
     }
@@ -253,7 +254,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         Optional<List<String>> batchOwner = p.getRight().getComponents().stream()
                 .filter(component -> REACTION_DETAILS.equals(component.getName()))
                 .map(MongoExt::of)
-                .map(m -> userRepository.findAll(m.streamStrings("batchOwner").toList())
+                .map(m -> userRepository.findAllById(m.streamStrings("batchOwner").toList())
                         .stream().map(User::getFullName).collect(toList()))
                 .findAny();
 
@@ -313,7 +314,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         Optional<List<String>> batchOwner = p.getRight().getComponents().stream()
                 .filter(component -> REACTION_DETAILS.equals(component.getName()))
                 .map(MongoExt::of)
-                .map(m -> userRepository.findAll(m.streamStrings("batchOwner").toList())
+                .map(m -> userRepository.findAllById(m.streamStrings("batchOwner").toList())
                         .stream().map(User::getFullName).collect(toList()))
                 .findAny();
 
@@ -339,9 +340,9 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         return sections.orElse(emptyList());
     }
 
-    private List<GridFSDBFile> getFiles(Set<String> fileIds) {
+    private List<GridFsResource> getFiles(Set<String> fileIds) {
         if (!fileIds.isEmpty()) {
-            return fileRepository.findAll(fileIds, new PageRequest(0, fileIds.size())).getContent();
+            return fileRepository.findAll(fileIds, PageRequest.of(0, fileIds.size())).getContent();
         } else {
             return emptyList();
         }
@@ -359,7 +360,13 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         if (printRequest.includeAttachments()) {
             return files.stream()
                     .filter(f -> "application/pdf".equals(f.getContentType()))
-                    .map(GridFSDBFile::getInputStream)
+                    .map(gridFsResource -> {
+                        try {
+                            return gridFsResource.getInputStream();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
                     .collect(toList());
         } else {
             return PdfSectionsProvider.super.getExtraPdf();

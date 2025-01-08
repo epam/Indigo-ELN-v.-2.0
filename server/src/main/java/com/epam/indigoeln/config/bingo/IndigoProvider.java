@@ -21,54 +21,64 @@ package com.epam.indigoeln.config.bingo;
 import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoRenderer;
 import com.epam.indigoeln.config.audit.CustomAuditProvider;
+import com.google.common.base.Strings;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.InputStream;
 import java.nio.file.*;
 
+@Slf4j
 @Configuration
 public class IndigoProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomAuditProvider.class);
 
-    private static final String INDIGO_PATH;
+    private String indigoPath;
 
-    static {
-        String libraryPathStr = System.getProperty("indigoeln.library.path");
-        if (libraryPathStr != null) {
-            try {
-                Path libraryPath = Paths.get(libraryPathStr);
-                Path linuxLibraryPath = libraryPath.resolve("linux-x86_64");
-                Files.createDirectories(linuxLibraryPath);
-                Path indigoPath = linuxLibraryPath.resolve("libindigo.so");
-                try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64/libindigo.so")) {
-                    Files.copy(is, indigoPath, StandardCopyOption.REPLACE_EXISTING);
-                }
-                Path indigoRendererPath = linuxLibraryPath.resolve("libindigo-renderer.so");
-                try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64/libindigo-renderer.so")) {
-                    Files.copy(is, indigoRendererPath, StandardCopyOption.REPLACE_EXISTING);
-                }
-                INDIGO_PATH = libraryPathStr;
-                System.setProperty("jna.library.path", linuxLibraryPath.toAbsolutePath().toString());
-            } catch (Exception e) {
-                LOGGER.error("Failed to extract native libs", e);
-                throw new RuntimeException(e);
+    private synchronized void extractLibs(String libraryPathStr) {
+        if (indigoPath != null) {
+            return;
+        }
+        try {
+            Path libraryPath = !Strings.isNullOrEmpty(libraryPathStr) ? Paths.get(libraryPathStr) : Files.createTempDirectory("indigo-lib");
+            Path linuxLibraryPath = libraryPath.resolve("linux-x86_64");
+            log.info("Using indigo native library path: {}", linuxLibraryPath.toAbsolutePath());
+            Files.createDirectories(linuxLibraryPath);
+            Path indigoPath = linuxLibraryPath.resolve("libindigo.so");
+            try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64/libindigo.so")) {
+                Files.copy(is, indigoPath, StandardCopyOption.REPLACE_EXISTING);
             }
-        } else {
-            INDIGO_PATH = null;
+            log.info("Extracted libindigo.so to {}", indigoPath.toAbsolutePath());
+            Path indigoRendererPath = linuxLibraryPath.resolve("libindigo-renderer.so");
+            try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64/libindigo-renderer.so")) {
+                Files.copy(is, indigoRendererPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+            log.info("Extracted libindigo-renderer.so to {}", indigoRendererPath.toAbsolutePath());
+            this.indigoPath = libraryPath.toAbsolutePath().toString();
+            System.setProperty("jna.library.path", linuxLibraryPath.toAbsolutePath().toString());
+        } catch (Exception e) {
+            LOGGER.error("Failed to extract native libs", e);
+            throw new RuntimeException(e);
         }
     }
 
-    public Indigo indigo() {
-        Indigo indigo = new Indigo(INDIGO_PATH);
+    @Bean
+    public Indigo indigo(@Value("${indigoeln.library.path:}") String libraryPath) {
+        extractLibs(libraryPath);
+        Indigo indigo = new Indigo(indigoPath);
         indigo.setOption("ignore-stereochemistry-errors", "true");
 
         return indigo;
     }
 
-    public IndigoRenderer renderer(Indigo indigo) {
+    @Bean
+    public IndigoRenderer renderer(Indigo indigo, @Value("${indigoeln.library.path:}") String libraryPath) {
+        extractLibs(libraryPath);
         IndigoRenderer renderer = new IndigoRenderer(indigo);
 
         indigo.setOption("render-label-mode", "hetero");

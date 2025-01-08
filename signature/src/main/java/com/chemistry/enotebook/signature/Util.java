@@ -15,10 +15,12 @@ package com.chemistry.enotebook.signature;
 
 import com.chemistry.enotebook.signature.entity.JsonRepresentable;
 import com.chemistry.enotebook.signature.security.SessionCache;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.json.*;
-import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -115,7 +117,8 @@ public class Util {
     }
 
     public static String getUsername(HttpServletRequest request) {
-        return SessionCache.getInstance().getUsername(request.getSession().getId());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null ? authentication.getName() : null;
     }
 
     public static String getMessageAboutDocumentRemove(String documentName) {

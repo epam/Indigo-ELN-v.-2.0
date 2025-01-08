@@ -24,9 +24,8 @@ import com.epam.indigoeln.core.repository.registration.RegistrationException;
 import com.epam.indigoeln.core.repository.registration.RegistrationRepositoryInfo;
 import com.epam.indigoeln.core.repository.registration.RegistrationStatus;
 import com.epam.indigoeln.core.service.registration.RegistrationService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -36,7 +35,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Arrays;
 import java.util.List;
 
-@Api
 @RestController
 @RequestMapping("/api/registration")
 public class RegistrationResource {
@@ -44,104 +42,104 @@ public class RegistrationResource {
     @Autowired
     private RegistrationService registrationService;
 
-    @ApiOperation(value = "Gets registration repositories info.")
+    @Operation(summary = "Gets registration repositories info.")
     @RequestMapping(value = "/info", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<RegistrationRepositoryInfo>> info() {
         return ResponseEntity.ok(registrationService.getRepositoriesInfo());
     }
 
-    @ApiOperation(value = "Registers batches.")
+    @Operation(summary = "Registers batches.")
     @RequestMapping(value = "/{repositoryId}/register", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public String register(
-            @ApiParam("Registration repository id") @PathVariable("repositoryId") String id,
-            @ApiParam("Batch numbers") @RequestBody String[] fullBatchNumbers
+            @Parameter(description = "Registration repository id") @PathVariable("repositoryId") String id,
+            @Parameter(description = "Batch numbers") @RequestBody String[] fullBatchNumbers
     ) throws RegistrationException {
         return registrationService.register(id, Arrays.asList(fullBatchNumbers));
     }
 
-    @ApiOperation(value = "Registers batches.")
+    @Operation(summary = "Registers batches.")
     @RequestMapping(value = "/register", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public String register(@ApiParam("Batch numbers") @RequestBody String[] fullBatchNumbers
+    public String register(@Parameter(description = "Batch numbers") @RequestBody String[] fullBatchNumbers
     ) throws RegistrationException {
         return registrationService.register(getRepositoryId(), Arrays.asList(fullBatchNumbers));
     }
 
-    @ApiOperation(value = "Returns registration status.")
+    @Operation(summary = "Returns registration status.")
     @RequestMapping(value = "/status", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public RegistrationStatus status(
-            @ApiParam("Registration repository id") String id,
-            @ApiParam("Registration job id") String jobId
+            @Parameter(description = "Registration repository id") String id,
+            @Parameter(description = "Registration job id") String jobId
     ) throws RegistrationException {
         return registrationService.getStatus(StringUtils.isBlank(id) ? getRepositoryId() : id, jobId);
     }
 
-    @ApiOperation(value = "Returns registration compounds.")
+    @Operation(summary = "Returns registration compounds.")
     @RequestMapping(value = "/compounds", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Compound> compoundsByJobId(
-            @ApiParam("Registration repository id") String id,
-            @ApiParam("Registration job id") String jobId
+            @Parameter(description = "Registration repository id") String id,
+            @Parameter(description = "Registration job id") String jobId
     ) throws RegistrationException {
         return registrationService.getRegisteredCompounds(StringUtils.isBlank(id) ? getRepositoryId() : id, jobId);
     }
 
-    @ApiOperation(value = "Returns compounds by their number.")
+    @Operation(summary = "Returns compounds by their number.")
     @RequestMapping(value = "/compounds/{compoundNo}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public List<CompoundTableRowInfo> compoundsByCompoundNo(
-            @ApiParam("Registration repository id") String id,
-            @ApiParam("Compound id") @PathVariable("compoundNo") String compoundNo
+            @Parameter(description = "Registration repository id") String id,
+            @Parameter(description = "Compound id") @PathVariable("compoundNo") String compoundNo
     ) throws RegistrationException {
         return registrationService.getCompoundInfoByCompoundNo(StringUtils.isBlank(id)
                 ? getRepositoryId() : id, compoundNo);
     }
 
-    @ApiOperation(value = "Searches for compounds by substructure.")
+    @Operation(summary = "Searches for compounds by substructure.")
     @RequestMapping(value = "/search/substructure", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Integer>> searchSubstructure(
-            @ApiParam("Registration repository id") String id,
-            @ApiParam("Substructure") String structure,
-            @ApiParam("Search options") String searchOption
+            @Parameter(description = "Registration repository id") String id,
+            @Parameter(description = "Substructure") String structure,
+            @Parameter(description = "Search options") String searchOption
     ) throws RegistrationException {
         return ResponseEntity.ok(registrationService.searchSubstructure(StringUtils.isBlank(id)
                 ? getRepositoryId() : id, structure, searchOption));
     }
 
-    @ApiOperation(value = "Searches for compounds by similarity.")
+    @Operation(summary = "Searches for compounds by similarity.")
     @RequestMapping(value = "/search/similarity", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Integer>> searchSimilarity(
-            @ApiParam("Registration repository id") String id,
-            @ApiParam("Structure") String structure,
-            @ApiParam("Search options") String searchOption
+            @Parameter(description = "Registration repository id") String id,
+            @Parameter(description = "Structure") String structure,
+            @Parameter(description = "Search options") String searchOption
     ) throws RegistrationException {
         return ResponseEntity.ok(registrationService.searchSimilarity(StringUtils.isBlank(id)
                 ? getRepositoryId() : id, structure, searchOption));
     }
 
-    @ApiOperation(value = "Smarts search.")
+    @Operation(summary = "Smarts search.")
     @RequestMapping(value = "/search/smarts", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Integer>> searchSmarts(
-            @ApiParam("Registration repository id") String id,
-            @ApiParam("Structure") String structure
+            @Parameter(description = "Registration repository id") String id,
+            @Parameter(description = "Structure") String structure
     ) throws RegistrationException {
         return ResponseEntity.ok(registrationService.searchSmarts(StringUtils.isBlank(id)
                 ? getRepositoryId() : id, structure));
     }
 
-    @ApiOperation(value = "Exact search.")
+    @Operation(summary = "Exact search.")
     @RequestMapping(value = "/search/exact", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Integer>> searchExact(
-            @ApiParam("Registration repository id") String id,
-            @ApiParam("Structure") String structure,
-            @ApiParam("Search options") String searchOption
+            @Parameter(description = "Registration repository id") String id,
+            @Parameter(description = "Structure") String structure,
+            @Parameter(description = "Search options") String searchOption
     ) throws RegistrationException {
         return ResponseEntity.ok(registrationService.searchExact(StringUtils.isBlank(id)
                 ? getRepositoryId() : id, structure, searchOption));

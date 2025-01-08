@@ -32,7 +32,7 @@ public enum StructureSearchType {
         this.value = value;
     }
 
-    @JsonCreator
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static StructureSearchType fromValue(String value) {
         for (StructureSearchType type : StructureSearchType.values()) {
             if (type.toString().equals(value)) {

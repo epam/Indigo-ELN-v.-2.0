@@ -14,9 +14,9 @@
 package com.chemistry.enotebook.signature.archiver.ftp;
 
 import org.springframework.integration.annotation.Gateway;
-import org.springframework.integration.annotation.Header;
-import org.springframework.integration.annotation.Payload;
 import org.springframework.integration.file.FileHeaders;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.Payload;
 
 
 public interface FtpGateway {

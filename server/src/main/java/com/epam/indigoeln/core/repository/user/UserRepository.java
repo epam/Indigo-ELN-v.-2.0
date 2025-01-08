@@ -32,6 +32,8 @@ import java.util.Set;
  */
 public interface UserRepository extends MongoRepository<User, String> {
 
+    User findOneById(String id);
+
     User findOneByLogin(String login);
 
     User findOneByLoginAndActivated(String login, boolean activated);
@@ -45,8 +47,6 @@ public interface UserRepository extends MongoRepository<User, String> {
     Collection<User> findByRoleId(String roleId);
 
     Set<User> findAllByRolesIdIn(List<String> roleIds);
-
-    List<User> findAll(Iterable<String> ids);
 
     List<User> findByLoginIgnoreCaseLikeOrFirstNameIgnoreCaseLikeOrLastNameIgnoreCaseLikeOrRolesIdIn(
             String login,

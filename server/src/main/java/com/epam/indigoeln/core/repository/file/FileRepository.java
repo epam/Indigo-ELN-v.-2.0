@@ -19,19 +19,24 @@
 package com.epam.indigoeln.core.repository.file;
 
 import com.epam.indigoeln.core.model.User;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Ordering;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import com.mongodb.gridfs.GridFSDBFile;
-import com.mongodb.gridfs.GridFSFile;
+import com.mongodb.client.gridfs.GridFSFindIterable;
+import com.mongodb.client.gridfs.model.GridFSFile;
+import lombok.SneakyThrows;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,26 +50,35 @@ public class FileRepository {
     @Autowired
     private GridFsTemplate gridFsTemplate;
 
-    public GridFSFile store(InputStream content, String filename, String contentType, User author, boolean temporary) {
-        return gridFsTemplate.store(content, filename, contentType, getMetadata(author, temporary));
+    public GridFsResource store(InputStream content, String filename, String contentType, User author, boolean temporary) {
+        ObjectId objectID = gridFsTemplate.store(content, filename, contentType, getMetadata(author, temporary));
+        return gridFsTemplate.getResource(filename);
     }
 
-    public GridFSDBFile findOneById(String id) {
-        return gridFsTemplate.findOne(query(where("_id").is(id)));
+    @SneakyThrows
+    public void updateMetadata(GridFsResource file, Document metadata) {
+        byte[] content = file.getContentAsByteArray();
+        gridFsTemplate.store(new ByteArrayInputStream(content), file.getFilename(), metadata);
     }
 
-    public List<GridFSDBFile> findTemporary(Collection<String> ids) {
-        return gridFsTemplate.find(query(where("metadata.temporary").is(true)).addCriteria(where("_id").in(ids)));
+    public GridFsResource findOneById(String id) {
+        GridFSFile file = gridFsTemplate.findOne(query(where("_id").is(id)));
+        return file != null ? gridFsTemplate.getResource(file) : null;
     }
 
-    public List<GridFSDBFile> findAllTemporary() {
-        return gridFsTemplate.find(query(where("metadata.temporary").is(true)));
+    // !!! ALLOW REWRITE METADATA FOR A FILE
+    public List<GridFsResource> findTemporary(Collection<String> ids) {
+        return findResources(query(where("metadata.temporary").is(true)).addCriteria(where("_id").in(ids)));
     }
 
-    public Page<GridFSDBFile> findAll(Collection<String> ids, Pageable pageable) {
+    public List<GridFsResource> findAllTemporary() {
+        return findResources(query(where("metadata.temporary").is(true)));
+    }
+
+    public Page<GridFsResource> findAll(Collection<String> ids, Pageable pageable) {
         // gridFsTemplate uses a driver that doesn't know about "sort", "skip", "limit"
         // pageable is not suitable for this, therefore pagination have to be in memory
-        List<GridFSDBFile> list = gridFsTemplate.find(query(where("_id").in(ids)));
+        List<GridFsResource> list = findResources(query(where("_id").in(ids)));
 
         // Mongo driver returns Unmodifiable list which cannot be sorted
         list = new ArrayList<>(list);
@@ -83,8 +97,13 @@ public class FileRepository {
         gridFsTemplate.delete(query(where("_id").in(ids)));
     }
 
-    private DBObject getMetadata(User author, boolean temporary) {
-        DBObject metadata = new BasicDBObject(1);
+    private List<GridFsResource> findResources(Query query) {
+        GridFSFindIterable it = gridFsTemplate.find(query);
+        return FluentIterable.from(it).transform(file -> gridFsTemplate.getResource(file)).toList();
+    }
+
+    private Document getMetadata(User author, boolean temporary) {
+        Document metadata = new Document();
         // Adding metadata about "author"
         GridFSFileUtil.setAuthorToMetadata(metadata, author);
         // Adding metadata flag if file is temporary (not attached to entity)
@@ -92,13 +111,13 @@ public class FileRepository {
         return metadata;
     }
 
-    private List<GridFSDBFile> applyPageable(List<GridFSDBFile> files, Pageable pageable) {
-        Ordering<GridFSFile> ordering = null;
+    private List<GridFsResource> applyPageable(List<GridFsResource> files, Pageable pageable) {
+        Ordering<GridFsResource> ordering = null;
         if (pageable.getSort() != null) {
             for (Sort.Order order : pageable.getSort()) {
-                Optional<Comparator<GridFSFile>> optional = GridFSFileUtil.getComparator(order.getProperty());
+                Optional<Comparator<GridFsResource>> optional = GridFSFileUtil.getComparator(order.getProperty());
                 if (optional.isPresent()) {
-                    Comparator<GridFSFile> comparator = order.isAscending()
+                    Comparator<GridFsResource> comparator = order.isAscending()
                             ? optional.get() : optional.get().reversed();
                     ordering = ordering != null ? ordering.compound(comparator) : Ordering.from(comparator);
                 }
@@ -107,7 +126,7 @@ public class FileRepository {
         if (ordering == null) {
             ordering = Ordering.from(GridFSFileUtil.UPLOAD_DATE_COMPARATOR.reversed());
         }
-        Collections.sort(files, ordering);
+        files.sort(ordering);
 
         return files.stream().skip(pageable.getOffset()).limit(pageable.getPageSize())
                 .collect(Collectors.toList());

@@ -15,7 +15,7 @@ package com.epam.indigo.crs.classes;
 
 import com.epam.indigo.crs.db.DatabaseConnection;
 import com.epam.indigo.crs.exceptions.CRSException;
-import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -25,7 +25,7 @@ public abstract class BingoService {
 
     private DataSource dataSource;
 
-    @Required
+    @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }

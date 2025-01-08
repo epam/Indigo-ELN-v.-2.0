@@ -206,7 +206,7 @@ public class ITextPrintService {
 
 
     private static <T> T findChecked(CrudRepository<T, String> repository, String id, String entity) {
-        return Optional.ofNullable(repository.findOne(id))
+        return repository.findById(id)
                 .orElseThrow(() -> new UnknownEntityException(entity, id));
     }
 

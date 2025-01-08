@@ -1,9 +1,14 @@
-FROM maven:3-alpine as builder
+FROM public.ecr.aws/docker/library/maven:3-eclipse-temurin-17 as builder
 
 COPY . /sources/
 WORKDIR /sources
 
+#RUN --mount=type=cache,id=cache_maven,target=/root/.m2 mvn package --batch-mode
 RUN mvn package --batch-mode
 
-FROM tomcat:7.0.109-jdk8-adoptopenjdk-hotspot
-COPY --from=builder /sources/target/crs.war /usr/local/tomcat/webapps/crs.war
+FROM public.ecr.aws/docker/library/eclipse-temurin:17-jre-noble
+
+WORKDIR /opt/jars
+COPY --from=builder /sources/target/crs.jar crs.jar
+
+ENTRYPOINT sh -c "java $JAVA_OPTS --add-opens=java.base/java.lang=ALL-UNNAMED  -jar crs.jar"

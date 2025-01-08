@@ -22,8 +22,8 @@ import com.epam.indigo.crs.classes.CompoundInfo;
 import com.epam.indigo.crs.classes.CompoundRegistrationStatus;
 import com.epam.indigo.crs.classes.FullCompoundInfo;
 import com.epam.indigo.crs.exceptions.CRSException;
-import com.epam.indigo.crs.services.registration.BingoRegistration;
-import com.epam.indigo.crs.services.search.BingoSearch;
+import com.epam.indigoeln.config.crs.BingoRegistrationClient;
+import com.epam.indigoeln.config.crs.BingoSearchClient;
 import com.epam.indigoeln.config.crs.CrsProperties;
 import com.epam.indigoeln.core.chemistry.domain.Structure;
 import com.epam.indigoeln.core.model.Compound;
@@ -56,9 +56,9 @@ public class CrsRegistrationRepository implements RegistrationRepository {
     @Autowired
     private CrsProperties crsProperties;
     @Autowired
-    private BingoRegistration registration;
+    private BingoRegistrationClient registration;
     @Autowired
-    private BingoSearch search;
+    private BingoSearchClient search;
     @Autowired
     private CalculationService calculationService;
 
