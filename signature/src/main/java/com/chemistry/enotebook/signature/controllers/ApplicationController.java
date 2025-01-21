@@ -207,17 +207,9 @@ public class ApplicationController {
     @RequestMapping(value = "/downloadDocument", method = RequestMethod.GET)
     public void downloadDocument(@RequestParam("id") String id, HttpServletRequest request, HttpServletResponse response) {
         try {
-            byte[] content = database.getDocumentContent(id);
-            InputStream is;
-            if(content != null && content.length > 0) {
-                is = new ByteArrayInputStream(content);
-            } else {
-                is = new ByteArrayInputStream(("Content of file " + id + " is empty.").getBytes("UTF-8"));
-            }
-            IOUtils.copy(is, response.getOutputStream());
-            response.flushBuffer();
-
             Document document = database.getDocument(id);
+            outputDocument(document, response);
+
             for(DocumentSignatureBlock documentSignatureBlock : document.getDocumentSignatureBlocks()) {
                 if(documentSignatureBlock.getSigner().getUsername().equals(Util.getUsername(request))) {
                     documentSignatureBlock.setInspected(true);
@@ -251,18 +243,23 @@ public class ApplicationController {
         database.updateDocument(document, true);
 
         try {
-            byte[] content = database.getDocumentContent(id);
-            InputStream is;
-            if(content != null && content.length > 0) {
-                is = new ByteArrayInputStream(content);
-            } else {
-                is = new ByteArrayInputStream(("Content of file " + id + " is empty.").getBytes("UTF-8"));
-            }
-            IOUtils.copy(is, response.getOutputStream());
-            response.flushBuffer();
+            outputDocument(document, response);
         } catch (IOException ex) {
             throw new IndigoSignatureServiceException("IOError writing file to output stream.'" + id + "'");
         }
         
+    }
+
+    private void outputDocument(Document document, HttpServletResponse response) throws IOException {
+        byte[] content = database.getDocumentContent(document.getId());
+        response.addHeader("Content-Disposition", "attachment; filename=\"" + document.getDocumentName() + "\"");
+        InputStream is;
+        if(content != null && content.length > 0) {
+            is = new ByteArrayInputStream(content);
+        } else {
+            is = new ByteArrayInputStream(("Content of file " + document.getId() + " is empty.").getBytes("UTF-8"));
+        }
+        IOUtils.copy(is, response.getOutputStream());
+        response.flushBuffer();
     }
 }
