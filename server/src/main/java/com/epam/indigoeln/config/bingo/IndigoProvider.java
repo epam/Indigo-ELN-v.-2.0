@@ -19,6 +19,7 @@
 package com.epam.indigoeln.config.bingo;
 
 import com.epam.indigo.Indigo;
+import com.epam.indigo.IndigoInchi;
 import com.epam.indigo.IndigoRenderer;
 import com.epam.indigoeln.config.audit.CustomAuditProvider;
 import com.google.common.base.Strings;
@@ -50,36 +51,40 @@ public class IndigoProvider {
         }
         try {
             Path libraryPath = !Strings.isNullOrEmpty(libraryPathStr) ? Paths.get(libraryPathStr) : Files.createTempDirectory("indigo-lib");
+            String platformName;
+            String libraryPattern;
             if (Platform.isLinux()) {
-                Path linuxLibraryPath = libraryPath.resolve("linux-x86_64");
-                log.info("Using indigo native library path: {}", linuxLibraryPath.toAbsolutePath());
-                Files.createDirectories(linuxLibraryPath);
-                Path indigoPath = linuxLibraryPath.resolve("libindigo.so");
-                try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64/libindigo.so")) {
-                    Files.copy(is, indigoPath, StandardCopyOption.REPLACE_EXISTING);
-                }
-                log.info("Extracted libindigo.so to {}", indigoPath.toAbsolutePath());
-                Path indigoRendererPath = linuxLibraryPath.resolve("libindigo-renderer.so");
-                try (InputStream is = Indigo.class.getResourceAsStream("/linux-x86_64/libindigo-renderer.so")) {
-                    Files.copy(is, indigoRendererPath, StandardCopyOption.REPLACE_EXISTING);
-                }
-                log.info("Extracted libindigo-renderer.so to {}", indigoRendererPath.toAbsolutePath());
-                System.setProperty("jna.library.path", linuxLibraryPath.toAbsolutePath().toString());
+                platformName = "linux";
+                libraryPattern = "*.so";
             } else if (Platform.isWindows()) {
-                Path windowsLibraryPath = libraryPath.resolve("windows-x86_64");
-                log.info("Using indigo native library path: {}", windowsLibraryPath.toAbsolutePath());
-                Files.createDirectories(windowsLibraryPath);
-                // find all *.dll files in classpath package
-                for (Resource resource : new PathMatchingResourcePatternResolver().getResources("classpath*:/windows-x86_64/*.dll")) {
-                    Path dllPath = windowsLibraryPath.resolve(resource.getFilename());
-                    try (InputStream is = resource.getInputStream()) {
-                        Files.copy(is, dllPath, StandardCopyOption.REPLACE_EXISTING);
-                    } catch (Exception e) {
-                        LOGGER.error("Failed to extract native libs", e);
-                        throw new RuntimeException(e);
-                    }
+                platformName = "windows";
+                libraryPattern = "*.dll";
+            } else if (Platform.isMac()) {
+                platformName = "darwin";
+                libraryPattern = "*.dylib";
+            } else {
+                throw new RuntimeException("Unsupported platform");
+            }
+            if (Platform.isARM() && Platform.is64Bit()) {
+                platformName += "-aarch64";
+            } else if (Platform.is64Bit()) {
+                platformName += "-x86_64";
+            } else {
+                platformName += "-i386";
+            }
+            Path platformLibraryPath = libraryPath.resolve(platformName);
+            log.info("Using indigo native library path: {}", platformLibraryPath.toAbsolutePath());
+            Files.createDirectories(platformLibraryPath);
+            System.setProperty("jna.library.path", platformLibraryPath.toAbsolutePath().toString());
+            // find all *.dll files in classpath package
+            for (Resource resource : new PathMatchingResourcePatternResolver().getResources("classpath*:/" + platformName + "/" + libraryPattern)) {
+                Path path = platformLibraryPath.resolve(resource.getFilename());
+                try (InputStream is = resource.getInputStream()) {
+                    Files.copy(is, path, StandardCopyOption.REPLACE_EXISTING);
+                } catch (Exception e) {
+                    LOGGER.error("Failed to extract native libs", e);
+                    throw new RuntimeException(e);
                 }
-                System.setProperty("jna.library.path", windowsLibraryPath.toAbsolutePath().toString());
             }
             this.indigoPath = libraryPath.toAbsolutePath().toString();
         } catch (Exception e) {
@@ -99,9 +104,8 @@ public class IndigoProvider {
     }
 
     @Bean
-    public IndigoRenderer renderer(Indigo indigo, @Value("${indigoeln.library.path:}") String libraryPath) {
+    public IndigoRenderer renderer(Indigo indigo) {
         log.info("!!! IndigoRenderer being created");
-        extractLibs(libraryPath);
         IndigoRenderer renderer = new IndigoRenderer(indigo);
 
         indigo.setOption("render-label-mode", "hetero");
@@ -110,5 +114,12 @@ public class IndigoProvider {
         indigo.setOption("render-margins", 0, 0);
 
         return renderer;
+    }
+
+    @Bean
+    public IndigoInchi inchi(Indigo indigo) {
+        log.info("!!! IndigoInchi being created");
+        IndigoInchi inchi = new IndigoInchi(indigo);
+        return inchi;
     }
 }

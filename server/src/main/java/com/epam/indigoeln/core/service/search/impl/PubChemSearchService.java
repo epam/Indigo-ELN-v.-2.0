@@ -1,19 +1,22 @@
 package com.epam.indigoeln.core.service.search.impl;
 
 import com.epam.indigo.Indigo;
+import com.epam.indigo.IndigoInchi;
 import com.epam.indigo.IndigoObject;
+import com.epam.indigo.IndigoRenderer;
 import com.epam.indigoeln.core.service.search.SearchServiceAPI;
 import com.epam.indigoeln.core.service.search.SearchServiceConstants;
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -21,6 +24,7 @@ import org.springframework.web.client.RestClient;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -29,7 +33,12 @@ public class PubChemSearchService implements SearchServiceAPI {
 
     private static final String URL = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/";
 
+    @Value("${pubchem.maxResults:10}")
+    private final int maxResults;
     private final Indigo indigo;
+    private final IndigoInchi indigoInchi;
+    private final IndigoRenderer indigoRenderer;
+
     private final RestClient restClient = RestClient.create();
     private ObjectReader compoundsResponseReader;
 
@@ -46,15 +55,35 @@ public class PubChemSearchService implements SearchServiceAPI {
 
     @Override
     public Collection<ProductBatchDetailsDTO> findBatches(BatchSearchRequest searchRequest) {
+        Triple<String, Map<String, Object>, Map<String, Object>> result = prepareURL(searchRequest);
+        try {
+            String url = result.getLeft() + "?" + formatURLParams(result.getMiddle());
+            RestClient.RequestBodySpec request = restClient.post().uri(url);
+            if (!result.getRight().isEmpty()) {
+                request = request.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .body(formatURLParams(result.getRight()));
+            }
+            String response = request.retrieve().body(String.class);
+            return parseCompounds(response);
+        } catch (Exception e) {
+            throw new RuntimeException("PubChem search failed: " + e.getMessage(), e);
+        }
+    }
+
+    private String formatURLParams(Map<String, Object> params) {
+        return params.entrySet().stream()
+                .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue().toString(), StandardCharsets.UTF_8))
+                .collect(Collectors.joining("&"));
+    }
+
+    Triple<String, Map<String, Object>, Map<String, Object>> prepareURL(BatchSearchRequest searchRequest) {
         Set<String> conditions = new HashSet<>();
-        List<String> queryArgs = new ArrayList<>();
-        List<String> formArgs = new ArrayList<>();
+        Map<String, Object> queryArgs = new LinkedHashMap<>();
+        Map<String, Object> formArgs = new LinkedHashMap<>();
         searchRequest.getSearchQuery().ifPresent(query -> {
             conditions.add("name/" + URLEncoder.encode(query, StandardCharsets.UTF_8));
         });
         searchRequest.getStructure().ifPresent(structure -> {
-            IndigoObject indigoObject = indigo.loadMolecule(structure.getMolfile());
-            String smarts = indigoObject.smarts();
             String queryType = switch (structure.getSearchMode()) {
                 case SearchServiceConstants.CHEMISTRY_SEARCH_EXACT -> "fastidentity";
                 case SearchServiceConstants.CHEMISTRY_SEARCH_SUBSTRUCTURE -> "fastsubstructure";
@@ -63,29 +92,19 @@ public class PubChemSearchService implements SearchServiceAPI {
                 default -> throw new IllegalArgumentException("Unknown search mode: " + structure.getSearchMode());
             };
             if (structure.getSearchMode().equals(SearchServiceConstants.CHEMISTRY_SEARCH_SIMILARITY)) {
-                queryArgs.add("Threshold=" + structure.getSimilarity());
+                queryArgs.put("Threshold", (int) (structure.getSimilarity() * 100.0f));
             }
-            conditions.add(queryType + "/smarts");
-            formArgs.add("smarts=" + URLEncoder.encode(smarts, StandardCharsets.UTF_8));
+            conditions.add(queryType + "/sdf");
+            formArgs.put("sdf", structure.getMolfile());
         });
-        queryArgs.add("MaxRecords=10"); // !!!
+        queryArgs.put("MaxRecords", maxResults);
         if (conditions.size() != 1) {
             log.error("Invalid search conditions: {}", conditions);
             throw new IllegalArgumentException("Invalid or unsupported search request");
         }
-        try {
-            String url = URL + conditions.iterator().next() + "/JSON?" + String.join("&", queryArgs);
-            System.err.println("!!! url = " + url);
-            RestClient.RequestBodySpec request = restClient.post().uri(url);
-            if (!formArgs.isEmpty()) {
-                request = request.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                        .body(String.join("&", formArgs));
-            }
-            String response = request.retrieve().body(String.class);
-            return parseCompounds(response);
-        } catch (Exception e) {
-            throw new RuntimeException("PubChem search failed: " + e.getMessage(), e);
-        }
+        String url = URL + conditions.iterator().next() + "/JSON";
+        System.err.println("!!! url = " + url);
+        return Triple.of(url, queryArgs, formArgs);
     }
 
     List<ProductBatchDetailsDTO> parseCompounds(String responseStr) {
@@ -101,10 +120,16 @@ public class PubChemSearchService implements SearchServiceAPI {
 
     private ProductBatchDetailsDTO parseCompound(PCCompound compound) {
         ProductBatchDetailsDTO dto = new ProductBatchDetailsDTO(null, new HashMap<>());
-        dto.getDetails().put("molWeight", compound.getPropertyValue("Molecular Weight", null));
+        dto.getDetails().put("molWeight", new ProductBatchDetailsDTO.WithValue(compound.getPropertyValue("Molecular Weight", null)));
         dto.getDetails().put("formula", compound.getPropertyValue("Molecular Formula", null));
         dto.getDetails().put("chemicalName", compound.getPropertyValue("IUPAC Name", "Preferred"));
         dto.getDetails().put("compoundId", "" + compound.id().id().cid());
+        String inchi = compound.getPropertyValue("InChI", "Standard");
+        if (inchi != null) {
+            IndigoObject indigoObject = indigoInchi.loadMolecule(inchi);
+            byte[] bytes = indigoRenderer.renderToBuffer(indigoObject);
+            dto.getDetails().put("structure", new ProductBatchDetailsDTO.WithImage(Base64.getEncoder().encodeToString(bytes)));
+        }
         return dto;
     }
 }

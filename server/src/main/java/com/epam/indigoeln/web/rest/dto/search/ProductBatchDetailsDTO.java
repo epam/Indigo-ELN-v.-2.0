@@ -18,8 +18,10 @@
  */
 package com.epam.indigoeln.web.rest.dto.search;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
 
@@ -29,4 +31,33 @@ public class ProductBatchDetailsDTO {
 
     private String notebookBatchNumber;
     private Map<String, Object> details;
+
+//    @Data
+//    public static class Details {
+//
+//        private String compoundId;
+//        private String fullNbkBatch;
+//        private String formula;
+//        private WithValue molWeight;
+//        private String chemicalName;
+//        private String externalNumber;
+//        //private ?? compoundState
+//        private String comments;
+//        private String hazardComments;
+//        private String casNumber;
+//        private WithImage structure;
+//    }
+
+    @Data
+    @RequiredArgsConstructor
+    public static class WithValue {
+
+        private final Object value;
+    }
+
+    @Data
+    public static class WithImage {
+
+        private final String image;
+    }
 }

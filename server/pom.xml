@@ -154,6 +154,11 @@
             <artifactId>indigo-renderer</artifactId>
             <version>${bingo.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.epam.indigo</groupId>
+            <artifactId>indigo-inchi</artifactId>
+            <version>${bingo.version}</version>
+        </dependency>
         <!-- Indigo seems to use JNA 5, which is binary-incompatible with 4 -->
         <dependency>
             <groupId>net.java.dev.jna</groupId>
@@ -282,6 +287,12 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.9.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
             <version>5.9.1</version>
             <scope>test</scope>
         </dependency>
