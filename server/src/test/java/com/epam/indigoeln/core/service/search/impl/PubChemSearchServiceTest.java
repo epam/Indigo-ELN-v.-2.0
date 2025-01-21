@@ -42,7 +42,11 @@ class PubChemSearchServiceTest {
             "M  END\n";
     IndigoProvider indigoProvider = new IndigoProvider();
     Indigo indigo = indigoProvider.indigo("");
-    PubChemSearchService service = new PubChemSearchService(10, indigo, indigoProvider.inchi(indigo), indigoProvider.renderer(indigo));
+    PubChemSearchService service = new PubChemSearchService(indigo, indigoProvider.inchi(indigo), indigoProvider.renderer(indigo));
+
+    {
+        service.setMaxResults(10);
+    }
 
     @Test
     void testQuickSearch() {

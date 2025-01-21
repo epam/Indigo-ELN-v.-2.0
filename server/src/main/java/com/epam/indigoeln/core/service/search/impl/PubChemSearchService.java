@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -33,14 +34,15 @@ public class PubChemSearchService implements SearchServiceAPI {
 
     private static final String URL = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/";
 
-    @Value("${pubchem.maxResults:10}")
-    private final int maxResults;
     private final Indigo indigo;
     private final IndigoInchi indigoInchi;
     private final IndigoRenderer indigoRenderer;
 
     private final RestClient restClient = RestClient.create();
     private ObjectReader compoundsResponseReader;
+
+    @Setter(onMethod_ = @Value("${pubchem.maxResults:10}"))
+    private int maxResults;
 
     {
         compoundsResponseReader = new ObjectMapper()
