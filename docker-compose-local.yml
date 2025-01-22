@@ -106,11 +106,7 @@ services:
 #      - "5005"
     ports:
       - "8080:8080"
-#      - "5005:5005"
-    volumes:
-      - type: bind
-        source: /mnt/c/Work/IndigoELN/Indigo/dist/lib
-        target: /tmp/indigolibs
+      - "5005:5005"
     logging:
       driver: json-file
       options:
