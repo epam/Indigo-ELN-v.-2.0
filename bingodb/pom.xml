@@ -56,7 +56,7 @@
             <artifactId>bingo-nosql</artifactId>
             <version>${indigo.version}</version>
         </dependency>
-        <!-- Indigo is using JNA 5, which is binary-incompatible with 4 -->
+        <!-- Indigo seems to use JNA 5, which is binary-incompatible with 4 -->
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
