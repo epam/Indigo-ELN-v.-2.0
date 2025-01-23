@@ -1,6 +1,12 @@
 # Indigo-ELN-v.-2.0
 Indigo - The Open-Source Chemistry Electronic Lab Notebook
 
+# Sandbox
+
+https://indigo-eln.test.lifescience.opensource.epam.com/
+login: community
+password: Qwe1234
+
 # Installation
 
 **NB**: Indigo ELN is currently being severely transformed. Deployment script, application code and documentation may contain errors and inconsistencies.
