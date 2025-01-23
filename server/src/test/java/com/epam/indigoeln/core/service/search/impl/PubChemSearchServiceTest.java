@@ -53,9 +53,9 @@ class PubChemSearchServiceTest {
         BatchSearchRequest request = new BatchSearchRequest();
         request.setSearchQuery("aspirin");
         Triple<String, Map<String, Object>, Map<String, Object>> result = service.prepareURL(request);
-        assert "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/aspirin/JSON".equals(result.getLeft());
+        assert "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/JSON".equals(result.getLeft());
         assert Map.of("MaxRecords", 10).equals(result.getMiddle());
-        assert Map.of().equals(result.getRight());
+        assert Map.of("name", "aspirin").equals(result.getRight());
     }
 
     @Test
@@ -91,12 +91,20 @@ class PubChemSearchServiceTest {
     }
 
     @Test
-    void testRealSimilatirySearch() {
+    void testRealSimilaritySearch() {
         BatchSearchRequest request = new BatchSearchRequest();
         request.setStructure(new BatchSearchStructure());
         request.getStructure().get().setMolfile(MOLFILE);
         request.getStructure().get().setSearchMode(SearchServiceConstants.CHEMISTRY_SEARCH_SIMILARITY);
         request.getStructure().get().setSimilarity(0.9f);
+        Collection<ProductBatchDetailsDTO> result = service.findBatches(request);
+        assert !result.isEmpty();
+    }
+
+    @Test
+    void testRealSearchByName() {
+        BatchSearchRequest request = new BatchSearchRequest();
+        request.setSearchQuery("Salicylic acid ");
         Collection<ProductBatchDetailsDTO> result = service.findBatches(request);
         assert !result.isEmpty();
     }

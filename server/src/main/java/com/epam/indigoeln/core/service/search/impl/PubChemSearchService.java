@@ -15,11 +15,11 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import java.net.URLEncoder;
@@ -67,6 +67,8 @@ public class PubChemSearchService implements SearchServiceAPI {
             }
             String response = request.retrieve().body(String.class);
             return parseCompounds(response);
+        } catch (HttpClientErrorException.NotFound ex) {
+            return Collections.emptyList();
         } catch (Exception e) {
             throw new RuntimeException("PubChem search failed: " + e.getMessage(), e);
         }
@@ -83,7 +85,8 @@ public class PubChemSearchService implements SearchServiceAPI {
         Map<String, Object> queryArgs = new LinkedHashMap<>();
         Map<String, Object> formArgs = new LinkedHashMap<>();
         searchRequest.getSearchQuery().ifPresent(query -> {
-            conditions.add("name/" + URLEncoder.encode(query, StandardCharsets.UTF_8));
+            conditions.add("name");
+            formArgs.put("name", query.trim().toLowerCase());
         });
         searchRequest.getStructure().ifPresent(structure -> {
             String queryType = switch (structure.getSearchMode()) {
