@@ -4,7 +4,6 @@ COPY . /sources/
 WORKDIR /sources
 
 RUN --mount=type=cache,id=cache_maven,target=/root/.m2 mvn clean package -P release --batch-mode
-#RUN mvn clean package -P release --batch-mode
 
 FROM public.ecr.aws/docker/library/eclipse-temurin:17-jre-noble
 

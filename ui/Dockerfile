@@ -9,14 +9,8 @@ COPY package.json /sources/
 COPY package-lock.json /sources/
 RUN --mount=type=cache,id=cache_npm,target=/root/.npm npm install --silent --prefer-offline
 
-COPY src /sources/src
-COPY webpack /sources/webpack
-COPY *.js /sources/
-COPY *.ipr /sources/
-COPY *.txt /sources/
+COPY . /sources/
 RUN --mount=type=cache,id=cache_npm,target=/root/.npm npm run build
-
-COPY indigoeln-ui-local.conf.template /sources/
 
 FROM nginx:1.27
 COPY --from=builder /sources/dist/ /usr/share/nginx/html/
