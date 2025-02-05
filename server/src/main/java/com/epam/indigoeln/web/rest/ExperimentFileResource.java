@@ -139,7 +139,7 @@ public class ExperimentFileResource {
         User user = userService.getUserWithAuthorities();
         GridFsResource gridFSFile = fileService.saveFileForExperiment(experimentId, inputStream,
                 file.getOriginalFilename(), file.getContentType(), user);
-        return ResponseEntity.created(new URI(URL_MAPPING + "/" + gridFSFile.getId()))
+        return ResponseEntity.created(new URI(URL_MAPPING + "/" + gridFSFile.getGridFSFile().getObjectId()))
                 .body(new FileDTO(gridFSFile));
     }
 

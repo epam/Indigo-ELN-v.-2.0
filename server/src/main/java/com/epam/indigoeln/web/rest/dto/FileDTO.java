@@ -42,7 +42,7 @@ public class FileDTO {
 
     @SneakyThrows
     public FileDTO(GridFsResource file) {
-        this.id = file.getId().toString();
+        this.id = file.getGridFSFile().getObjectId().toString();
         this.filename = file.getFilename();
         this.contentType = file.getContentType();
         this.uploadDate = file.getGridFSFile().getUploadDate();

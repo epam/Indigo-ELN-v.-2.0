@@ -53,7 +53,7 @@ public class TemporaryFileCleaningJob {
                 final LocalDateTime uploadDate = tf.getGridFSFile().getUploadDate().toInstant()
                         .atZone(ZoneId.systemDefault()).toLocalDateTime();
                 return uploadDate.isBefore(threshold);
-            }).map(tf -> (String) tf.getId().toString()).collect(Collectors.toSet());
+            }).map(tf -> (String) tf.getGridFSFile().getObjectId().toString()).collect(Collectors.toSet());
             if (!fileIdsToDelete.isEmpty()) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Deleting temporary files: {}", fileIdsToDelete);

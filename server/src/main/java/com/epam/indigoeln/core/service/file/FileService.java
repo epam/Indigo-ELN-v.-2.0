@@ -126,7 +126,7 @@ public class FileService {
 
         GridFsResource gridFSFile = fileRepository.store(content, filename, contentType, user, project == null);
         if (project != null) {
-            project.getFileIds().add(gridFSFile.getId().toString());
+            project.getFileIds().add(gridFSFile.getGridFSFile().getObjectId().toString());
             projectRepository.save(project);
         }
         return gridFSFile;
@@ -148,7 +148,7 @@ public class FileService {
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentId));
 
         GridFsResource gridFSFile = fileRepository.store(content, filename, contentType, user, false);
-        experiment.getFileIds().add(gridFSFile.getId().toString());
+        experiment.getFileIds().add(gridFSFile.getGridFSFile().getObjectId().toString());
         experimentRepository.save(experiment);
 
         return gridFSFile;
