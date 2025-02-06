@@ -1,10 +1,36 @@
 server {
-    listen       80;
-    listen  [::]:80;
+    listen       9000;
+    listen  [::]:9000;
     server_name  localhost;
 
+    client_max_body_size 128M;
+
     location /api {
-        proxy_pass ${INDIGOELN_SERVER};
+        proxy_pass http://server:8080/api;
+    }
+
+    location /signatureservice {
+        proxy_pass http://signature:8080/signatureservice;
+    }
+
+    location /crs {
+        proxy_pass http://crs:8080/crs;
+    }
+
+    location /vendors/ketcher/info {
+        proxy_pass http://indigo:80/v2/info;
+    }
+    location /vendors/ketcher/indigo {
+        proxy_pass http://indigo:80/v2/indigo;
+    }
+    location /vendors/ketcher/imago {
+        proxy_pass http://indigo:80/v2/imago;
+    }
+    location /vendors/ketcher/libraries {
+        proxy_pass http://indigo:80/v2/libraries;
+    }
+    location /v2 {
+        proxy_pass http://indigo:80/v2;
     }
 
     location / {
