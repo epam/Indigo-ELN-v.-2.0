@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { ApiService } from '../../core/api.service';
+import { ApiService } from '@core/services/api.service';
 
 @Component({
   selector: 'app-login',
