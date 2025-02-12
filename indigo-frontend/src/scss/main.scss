@@ -1,2 +1,18 @@
+@use '@angular/material' as mat;
+
 @use 'variables';
 @use 'typography';
+
+html {
+  @include mat.theme(
+    (
+      typography: (
+        brand-family: Open Sans,
+        bold-weight: 800,
+        medium-weight: 500,
+        regular-weight: 400,
+      ),
+      density: 0,
+    )
+  );
+}
