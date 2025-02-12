@@ -1,20 +1,5 @@
 @use 'sass:list';
-
-@mixin generate($prefix, $properties) {
-  $sizes: 2, 4, 8, 12, 16, 20, 24, 32, 40, 48;
-  $base-font-size: 16;
-
-  @for $i from 1 through list.length($sizes) {
-    $size: list.nth($sizes, $i);
-    $rem-size: calc($size / $base-font-size) * 1rem;
-
-    .#{$prefix}-#{$i} {
-      @each $property in $properties {
-        #{$property}: $rem-size;
-      }
-    }
-  }
-}
+@use 'mixins' as *;
 
 $rules: (
   m: margin,
@@ -37,5 +22,51 @@ $rules: (
 );
 
 @each $label, $props in $rules {
-  @include generate($label, $props);
+  @include generate-spacing($label, $props);
+}
+
+@include generate-radius('radius', (0, 2, 4, 6, 8, 12, 16, 24));
+
+$side-map: (
+  'all': (
+    'border-radius',
+  ),
+  't': (
+    'border-top-left-radius',
+    'border-top-right-radius',
+  ),
+  'r': (
+    'border-top-right-radius',
+    'border-bottom-right-radius',
+  ),
+  'b': (
+    'border-bottom-left-radius',
+    'border-bottom-right-radius',
+  ),
+  'l': (
+    'border-top-left-radius',
+    'border-bottom-left-radius',
+  ),
+  'tl': (
+    'border-top-left-radius',
+  ),
+  'tr': (
+    'border-top-right-radius',
+  ),
+  'bl': (
+    'border-bottom-left-radius',
+  ),
+  'br': (
+    'border-bottom-right-radius',
+  ),
+);
+
+@each $side, $properties in $side-map {
+  $class-name: if($side == 'all', 'radius-full', 'radius-#{$side}-full');
+
+  .#{$class-name} {
+    @each $property in $properties {
+      #{$property}: calc(infinity * 1px);
+    }
+  }
 }
