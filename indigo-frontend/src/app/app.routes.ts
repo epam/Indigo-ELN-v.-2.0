@@ -7,6 +7,15 @@ export const routes: Routes = [
       import('@core/components/layout/master.component').then(
         (c) => c.MasterComponent,
       ),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('@pages/projects/project-list.component').then(
+            (c) => c.ProjectListComponent,
+          ),
+      },
+    ],
   },
   {
     path: 'login',

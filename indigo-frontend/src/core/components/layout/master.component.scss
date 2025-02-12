@@ -14,11 +14,6 @@
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid #e0e0e0;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
   padding: 0 16px;
   height: 64px;
 }
@@ -85,21 +80,15 @@
 
 .content {
   display: flex;
-  height: 100vh;
-  padding: 80px 16px 16px;
+  gap: 16px;
+  padding: 16px;
+  min-height: calc(100vh - 64px);
   box-sizing: border-box;
-  position: relative;
 }
 
 .page-content {
   flex: 1;
-  padding: 0 0 0 calc(250px + 32px);
   overflow-y: auto;
-  height: 100%;
-
-  @media (max-width: 768px) {
-    padding: 16px;
-  }
 }
 
 :host ::ng-deep {

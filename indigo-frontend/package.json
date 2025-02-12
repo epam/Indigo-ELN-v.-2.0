@@ -21,7 +21,9 @@
     "@angular/platform-browser": "^19.1.0",
     "@angular/platform-browser-dynamic": "^19.1.0",
     "@angular/router": "^19.1.0",
+    "clsx": "^2.1.1",
     "rxjs": "~7.8.0",
+    "tailwind-merge": "^3.0.1",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
   },
@@ -30,6 +32,7 @@
     "@angular-devkit/build-angular": "^19.1.5",
     "@angular/cli": "^19.1.5",
     "@angular/compiler-cli": "^19.1.0",
+    "@tailwindcss/postcss": "^4.0.6",
     "@types/jasmine": "~5.1.0",
     "@types/node": "^22.13.1",
     "angular-eslint": "19.0.2",
@@ -42,8 +45,10 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "postcss": "^8.5.2",
     "prettier": "^3.4.2",
     "prettier-eslint": "^16.3.0",
+    "tailwindcss": "^4.0.6",
     "typescript": "~5.7.2",
     "typescript-eslint": "8.18.0"
   }

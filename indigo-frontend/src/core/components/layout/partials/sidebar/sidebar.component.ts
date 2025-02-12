@@ -6,13 +6,17 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterModule],
   selector: 'app-sidebar',
-  template: `<nav id="sidebar" [class.collapsed]="!isSidebarOpen" class="m-5">
+  template: `<nav
+    id="sidebar"
+    class="h-full"
+    [class.collapsed]="!isSidebarOpen"
+  >
     <ul>
       <li class="mt-4 mb-5">
         <a (click)="toggleSidebar()">
           <em
-            [class.indicon-sidebar_open]="isSidebarOpen"
-            [class.indicon-sidebar_close]="!isSidebarOpen"
+            [class.indicon-sidebar_open]="!isSidebarOpen"
+            [class.indicon-sidebar_close]="isSidebarOpen"
           ></em>
           <span class="font-semibold text-h4">Menu</span>
         </a>
