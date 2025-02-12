@@ -6,6 +6,13 @@
 @use 'reset';
 @use 'utilities';
 
+* {
+  font-family: 'Open Sans', serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings: 'wdth' 100;
+}
 html {
   @include mat.theme(
     (
@@ -18,4 +25,8 @@ html {
       density: 0,
     )
   );
+}
+
+body {
+  background-color: var(--neutral-100);
 }

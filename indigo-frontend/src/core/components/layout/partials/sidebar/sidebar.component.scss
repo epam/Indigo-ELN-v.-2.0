@@ -1,0 +1,166 @@
+$sidebar-width: 250px;
+$sidebar-collapsed-width: 60px;
+$sidebar-padding: 5px 1em;
+$sidebar-collapsed-padding: 5px;
+$mobile-height: 60px;
+$text-color: var(--neutral-1000);
+$active-color: var(--primary-400);
+$hover-color: var(--primary-alpha-10);
+
+#sidebar {
+  border-radius: 12px;
+  border: 1px solid var(--neutral-200);
+  background: var(--neutral);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+  height: 100vh;
+  width: $sidebar-width;
+  padding: $sidebar-padding;
+  background-color: var(--neutral);
+  position: sticky;
+  top: 0;
+  align-self: start;
+  transition: 300ms ease-in-out;
+  overflow: hidden;
+  text-wrap: nowrap;
+
+  em {
+    font-size: 24px;
+  }
+
+  &.collapsed {
+    padding: $sidebar-collapsed-padding;
+    width: $sidebar-collapsed-width;
+  }
+
+  ul {
+    list-style: none;
+
+    > li:first-child {
+      border-top: none;
+      cursor: pointer;
+      .logo {
+        font-weight: 600;
+      }
+    }
+
+    li.active a {
+      em {
+        color: $active-color;
+      }
+      background-color: $hover-color;
+      svg {
+        fill: $active-color;
+      }
+    }
+  }
+
+  a,
+  .logo {
+    border-radius: 0.5em;
+    padding: 0.85em;
+    text-decoration: none;
+    color: $text-color;
+    display: flex;
+    align-items: center;
+    gap: 1em;
+  }
+
+  svg {
+    flex-shrink: 0;
+    fill: $text-color;
+  }
+
+  a span {
+    flex-grow: 1;
+  }
+
+  a:hover {
+    background-color: $hover-color;
+  }
+}
+
+.dropdown-btn {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+
+  svg {
+    transition: 200ms ease;
+  }
+}
+
+.rotate svg:last-child {
+  rotate: 180deg;
+}
+
+#toggle-btn {
+  margin-left: auto;
+  padding: 1em;
+  border: none;
+  border-radius: 0.5em;
+  background: none;
+  cursor: pointer;
+
+  svg {
+    transition: rotate 150ms ease;
+  }
+
+  &:hover {
+    background-color: $hover-color;
+  }
+}
+
+@media (max-width: 800px) {
+  body {
+    grid-template-columns: 1fr;
+  }
+
+  main {
+    padding: 2em 1em $mobile-height 1em;
+  }
+
+  .container {
+    border: none;
+    padding: 0;
+  }
+
+  #sidebar {
+    height: $mobile-height;
+    width: 100%;
+    border-right: none;
+    padding: 0;
+    position: fixed;
+    top: unset;
+    bottom: 0;
+
+    > ul {
+      padding: 0;
+      display: grid;
+      grid-auto-columns: $mobile-height;
+      grid-auto-flow: column;
+      align-items: center;
+      overflow-x: scroll;
+
+      li {
+        height: 100%;
+
+        span,
+        &:first-child {
+          display: none;
+        }
+      }
+
+      a {
+        width: $mobile-height;
+        height: $mobile-height;
+        padding: 0;
+        border-radius: 0;
+        justify-content: center;
+      }
+    }
+  }
+}
