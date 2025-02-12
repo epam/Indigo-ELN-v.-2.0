@@ -2,6 +2,7 @@
 
 @use 'variables';
 @use 'typography';
+@use 'icons';
 
 html {
   @include mat.theme(

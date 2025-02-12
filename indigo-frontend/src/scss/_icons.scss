@@ -1,0 +1,321 @@
+@use 'variables' as *;
+
+@font-face {
+  font-family: '#{$indigo-icons-font-family}';
+  src: url('#{$indigo-icons-font-path}/#{$indigo-icons-font-family}.eot?ir603p');
+  src:
+    url('#{$indigo-icons-font-path}/#{$indigo-icons-font-family}.eot?ir603p#iefix')
+      format('embedded-opentype'),
+    url('#{$indigo-icons-font-path}/#{$indigo-icons-font-family}.ttf?ir603p')
+      format('truetype'),
+    url('#{$indigo-icons-font-path}/#{$indigo-icons-font-family}.woff?ir603p')
+      format('woff'),
+    url('#{$indigo-icons-font-path}/#{$indigo-icons-font-family}.svg?ir603p##{$indigo-icons-font-family}')
+      format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^='indicon-'],
+[class*=' indicon-'] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: '#{$indigo-icons-font-family}' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.indicon-delete {
+  &:before {
+    content: $indicon-delete;
+  }
+}
+.indicon-printer {
+  &:before {
+    content: $indicon-printer;
+  }
+}
+.indicon-table {
+  &:before {
+    content: $indicon-table;
+  }
+}
+.indicon-image {
+  &:before {
+    content: $indicon-image;
+  }
+}
+.indicon-paperclip {
+  &:before {
+    content: $indicon-paperclip;
+  }
+}
+.indicon-edit-2 {
+  &:before {
+    content: $indicon-edit-2;
+  }
+}
+.indicon-edit {
+  &:before {
+    content: $indicon-edit;
+  }
+}
+.indicon-save {
+  &:before {
+    content: $indicon-save;
+  }
+}
+.indicon-copy {
+  &:before {
+    content: $indicon-copy;
+  }
+}
+.indicon-share {
+  &:before {
+    content: $indicon-share;
+  }
+}
+.indicon-settings {
+  &:before {
+    content: $indicon-settings;
+  }
+}
+.indicon-book {
+  &:before {
+    content: $indicon-book;
+  }
+}
+.indicon-sort {
+  &:before {
+    content: $indicon-sort;
+  }
+}
+.indicon-file-plus {
+  &:before {
+    content: $indicon-file-plus;
+  }
+}
+.indicon-file-text {
+  &:before {
+    content: $indicon-file-text;
+  }
+}
+.indicon-file {
+  &:before {
+    content: $indicon-file;
+  }
+}
+.indicon-file-minus {
+  &:before {
+    content: $indicon-file-minus;
+  }
+}
+.indicon-link {
+  &:before {
+    content: $indicon-link;
+  }
+}
+.indicon-link-2 {
+  &:before {
+    content: $indicon-link-2;
+  }
+}
+.indicon-external-link {
+  &:before {
+    content: $indicon-external-link;
+  }
+}
+.indicon-plus {
+  &:before {
+    content: $indicon-plus;
+  }
+}
+.indicon-add {
+  &:before {
+    content: $indicon-add;
+  }
+}
+.indicon-eye-off {
+  &:before {
+    content: $indicon-eye-off;
+  }
+}
+.indicon-send {
+  &:before {
+    content: $indicon-send;
+  }
+}
+.indicon-block {
+  &:before {
+    content: $indicon-block;
+  }
+}
+.indicon-search {
+  &:before {
+    content: $indicon-search;
+  }
+}
+.indicon-eye {
+  &:before {
+    content: $indicon-eye;
+  }
+}
+.indicon-menu {
+  &:before {
+    content: $indicon-menu;
+  }
+}
+.indicon-check-circle {
+  &:before {
+    content: $indicon-check-circle;
+  }
+}
+.indicon-bell-off {
+  &:before {
+    content: $indicon-bell-off;
+  }
+}
+.indicon-bell {
+  &:before {
+    content: $indicon-bell;
+  }
+}
+.indicon-arrow-up {
+  &:before {
+    content: $indicon-arrow-up;
+  }
+}
+.indicon-arrow-down {
+  &:before {
+    content: $indicon-arrow-down;
+  }
+}
+.indicon-arrow-right {
+  &:before {
+    content: $indicon-arrow-right;
+  }
+}
+.indicon-arrow-left {
+  &:before {
+    content: $indicon-arrow-left;
+  }
+}
+.indicon-alert-triangle {
+  &:before {
+    content: $indicon-alert-triangle;
+  }
+}
+.indicon-info {
+  &:before {
+    content: $indicon-info;
+  }
+}
+.indicon-more-horizontal {
+  &:before {
+    content: $indicon-more-horizontal;
+    color: #4a4a4a;
+  }
+}
+.indicon-list {
+  &:before {
+    content: $indicon-list;
+  }
+}
+.indicon-filter {
+  &:before {
+    content: $indicon-filter;
+  }
+}
+.indicon-terminal {
+  &:before {
+    content: $indicon-terminal;
+  }
+}
+.indicon-briefcase {
+  &:before {
+    content: $indicon-briefcase;
+  }
+}
+.indicon-layers {
+  &:before {
+    content: $indicon-layers;
+  }
+}
+.indicon-sidebar_open {
+  &:before {
+    content: $indicon-sidebar_open;
+  }
+}
+.indicon-sidebar_close {
+  &:before {
+    content: $indicon-sidebar_close;
+  }
+}
+.indicon-grid {
+  &:before {
+    content: $indicon-grid;
+  }
+}
+.indicon-code {
+  &:before {
+    content: $indicon-code;
+  }
+}
+.indicon-close {
+  &:before {
+    content: $indicon-close;
+  }
+}
+.indicon-circle {
+  &:before {
+    content: $indicon-circle;
+  }
+}
+.indicon-chevrons_right {
+  &:before {
+    content: $indicon-chevrons_right;
+  }
+}
+.indicon-chevrons_left {
+  &:before {
+    content: $indicon-chevrons_left;
+  }
+}
+.indicon-chevrons_up {
+  &:before {
+    content: $indicon-chevrons_up;
+  }
+}
+.indicon-chevrons_down {
+  &:before {
+    content: $indicon-chevrons_down;
+  }
+}
+.indicon-chevron_right {
+  &:before {
+    content: $indicon-chevron_right;
+  }
+}
+.indicon-chevron_left {
+  &:before {
+    content: $indicon-chevron_left;
+  }
+}
+.indicon-chevron_up {
+  &:before {
+    content: $indicon-chevron_up;
+  }
+}
+.indicon-chevron_down {
+  &:before {
+    content: $indicon-chevron_down;
+  }
+}
