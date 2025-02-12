@@ -4,7 +4,7 @@
 @use 'typography';
 @use 'icons';
 @use 'reset';
-@use 'spacing';
+@use 'utilities';
 
 html {
   @include mat.theme(
