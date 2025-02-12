@@ -13,13 +13,14 @@ $hover-color: var(--primary-alpha-10);
   background: var(--neutral);
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.08);
   box-sizing: border-box;
-  height: 100vh;
+  height: calc(100vh - 80px - 32px);
   width: $sidebar-width;
   padding: $sidebar-padding;
   background-color: var(--neutral);
-  position: sticky;
-  top: 0;
-  align-self: start;
+  position: fixed;
+  top: 80px;
+  left: 16px;
+  margin: 16px 0;
   transition: 300ms ease-in-out;
   overflow: hidden;
   text-wrap: nowrap;
@@ -31,6 +32,10 @@ $hover-color: var(--primary-alpha-10);
   &.collapsed {
     padding: $sidebar-collapsed-padding;
     width: $sidebar-collapsed-width;
+
+    & + .page-content {
+      padding-left: calc($sidebar-collapsed-width + 32px);
+    }
   }
 
   ul {
@@ -78,6 +83,45 @@ $hover-color: var(--primary-alpha-10);
   a:hover {
     background-color: $hover-color;
   }
+
+  @media (max-width: 768px) {
+    top: unset;
+    left: unset;
+    bottom: 0;
+    height: $mobile-height;
+    width: 100%;
+    border-right: none;
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+
+    > ul {
+      padding: 0;
+      display: grid;
+      grid-auto-columns: $mobile-height;
+      grid-auto-flow: column;
+      align-items: center;
+      overflow-x: scroll;
+
+      li {
+        height: 100%;
+
+        span,
+        &:first-child {
+          display: none;
+        }
+      }
+
+      a {
+        width: $mobile-height;
+        height: $mobile-height;
+        padding: 0;
+        border-radius: 0;
+        justify-content: center;
+      }
+    }
+  }
 }
 
 .dropdown-btn {
@@ -111,56 +155,5 @@ $hover-color: var(--primary-alpha-10);
 
   &:hover {
     background-color: $hover-color;
-  }
-}
-
-@media (max-width: 800px) {
-  body {
-    grid-template-columns: 1fr;
-  }
-
-  main {
-    padding: 2em 1em $mobile-height 1em;
-  }
-
-  .container {
-    border: none;
-    padding: 0;
-  }
-
-  #sidebar {
-    height: $mobile-height;
-    width: 100%;
-    border-right: none;
-    padding: 0;
-    position: fixed;
-    top: unset;
-    bottom: 0;
-
-    > ul {
-      padding: 0;
-      display: grid;
-      grid-auto-columns: $mobile-height;
-      grid-auto-flow: column;
-      align-items: center;
-      overflow-x: scroll;
-
-      li {
-        height: 100%;
-
-        span,
-        &:first-child {
-          display: none;
-        }
-      }
-
-      a {
-        width: $mobile-height;
-        height: $mobile-height;
-        padding: 0;
-        border-radius: 0;
-        justify-content: center;
-      }
-    }
   }
 }
