@@ -1,15 +1,16 @@
 @use 'sass:list';
 
 @mixin generate($prefix, $properties) {
-  $sizes: 0, 0.25, 0.5, 1, 1.5, 3;
-  $spacing: 1rem;
+  $sizes: 2, 4, 8, 12, 16, 20, 24, 32, 40, 48;
+  $base-font-size: 16;
 
   @for $i from 1 through list.length($sizes) {
     $size: list.nth($sizes, $i);
+    $rem-size: calc($size / $base-font-size) * 1rem;
 
-    .#{$prefix}-#{$i - 1} {
+    .#{$prefix}-#{$i} {
       @each $property in $properties {
-        #{$property}: $spacing * $size;
+        #{$property}: $rem-size;
       }
     }
   }
