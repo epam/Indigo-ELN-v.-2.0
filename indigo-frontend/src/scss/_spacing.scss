@@ -1,0 +1,40 @@
+@use 'sass:list';
+
+@mixin generate($prefix, $properties) {
+  $sizes: 0, 0.25, 0.5, 1, 1.5, 3;
+  $spacing: 1rem;
+
+  @for $i from 1 through list.length($sizes) {
+    $size: list.nth($sizes, $i);
+
+    .#{$prefix}-#{$i - 1} {
+      @each $property in $properties {
+        #{$property}: $spacing * $size;
+      }
+    }
+  }
+}
+
+$rules: (
+  m: margin,
+  p: padding,
+  ml: margin-left,
+  mt: margin-top,
+  mb: margin-bottom,
+  mr: margin-right,
+  pl: padding-left,
+  pt: padding-top,
+  pb: padding-bottom,
+  pr: padding-right,
+  px: padding-left padding-right,
+  py: padding-top padding-bottom,
+  mx: margin-left margin-right,
+  my: margin-top margin-bottom,
+  gx: column-gap row-gap,
+  gy: column-gap row-gap,
+  g: gap,
+);
+
+@each $label, $props in $rules {
+  @include generate($label, $props);
+}
