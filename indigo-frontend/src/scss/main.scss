@@ -1,2 +1,92 @@
+@use 'tailwindcss';
+@use '@angular/material' as mat;
+
 @use 'variables';
 @use 'typography';
+@use 'icons';
+@use 'utilities';
+
+* {
+  font-family: 'Open Sans', serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings: 'wdth' 100;
+}
+
+@theme {
+  --color-primary-100: var(--primary-100);
+  --color-primary-200: var(--primary-200);
+  --color-primary-300: var(--primary-300);
+  --color-primary-400: var(--primary-400);
+  --color-primary-500: var(--primary-500);
+  --color-primary-600: var(--primary-600);
+
+  --color-primary-alpha-5: var(--primary-alpha-5);
+  --color-primary-alpha-10: var(--primary-alpha-10);
+
+  --color-secondary-100: var(--secondary-100);
+  --color-secondary-200: var(--secondary-200);
+  --color-secondary-300: var(--secondary-300);
+  --color-secondary-400: var(--secondary-400);
+  --color-secondary-500: var(--secondary-500);
+  --color-secondary-600: var(--secondary-600);
+
+  --color-secondary-alpha-10: var(--secondary-alpha-10);
+
+  --color-neutral: var(--neutral);
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-200: var(--neutral-200);
+  --color-neutral-300: var(--neutral-300);
+  --color-neutral-400: var(--neutral-400);
+  --color-neutral-500: var(--neutral-500);
+  --color-neutral-600: var(--neutral-600);
+  --color-neutral-700: var(--neutral-700);
+  --color-neutral-800: var(--neutral-800);
+  --color-neutral-900: var(--neutral-900);
+  --color-neutral-1000: var(--neutral-1000);
+
+  --color-neutral-alpha-10: var(--neutral-alpha-10);
+
+  --color-red-100: var(--red-100);
+  --color-red-200: var(--red-200);
+  --color-red-300: var(--red-300);
+
+  --color-red-alpha-10: var(--red-alpha-10);
+
+  --color-orange-100: var(--orange-100);
+  --color-orange-200: var(--orange-200);
+  --color-orange-300: var(--orange-300);
+
+  --color-orange-alpha-10: var(--orange-alpha-10);
+
+  --color-yellow-100: var(--yellow-100);
+  --color-yellow-200: var(--yellow-200);
+  --color-yellow-300: var(--yellow-300);
+
+  --color-yellow-alpha-10: var(--yellow-alpha-10);
+
+  --color-green-100: var(--green-100);
+  --color-green-200: var(--green-200);
+  --color-green-300: var(--green-300);
+
+  --color-green-alpha-10: var(--green-alpha-10);
+}
+
+html {
+  @include mat.theme(
+    (
+      typography: (
+        brand-family: Open Sans,
+        bold-weight: 800,
+        medium-weight: 500,
+        regular-weight: 400,
+      ),
+      density: 0,
+    )
+  );
+}
+
+body {
+  background-color: var(--neutral-100);
+}

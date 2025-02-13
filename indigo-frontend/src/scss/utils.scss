@@ -1,7 +1,0 @@
-@function getAlpha($color, $opacity: 1) {
-  $red: red($color);
-  $green: green($color);
-  $blue: blue($color);
-
-  @return rgba($red, $green, $blue, $opacity);
-}

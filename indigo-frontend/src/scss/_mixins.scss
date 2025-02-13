@@ -1,0 +1,72 @@
+@use 'sass:list';
+
+@mixin generate-radius($prefix, $radii) {
+  $side-map: (
+    'all': (
+      'border-radius',
+    ),
+    't': (
+      'border-top-left-radius',
+      'border-top-right-radius',
+    ),
+    'r': (
+      'border-top-right-radius',
+      'border-bottom-right-radius',
+    ),
+    'b': (
+      'border-bottom-left-radius',
+      'border-bottom-right-radius',
+    ),
+    'l': (
+      'border-top-left-radius',
+      'border-bottom-left-radius',
+    ),
+    'tl': (
+      'border-top-left-radius',
+    ),
+    'tr': (
+      'border-top-right-radius',
+    ),
+    'bl': (
+      'border-bottom-left-radius',
+    ),
+    'br': (
+      'border-bottom-right-radius',
+    ),
+  );
+
+  @for $i from 1 through list.length($radii) {
+    $radius: list.nth($radii, $i);
+    $rem-radius: calc($radius / 16) * 1rem;
+
+    @each $side, $properties in $side-map {
+      $class-name: if(
+        $side == 'all',
+        '#{$prefix}-#{$i - 1}',
+        '#{$prefix}-#{$side}-#{$i - 1}'
+      );
+
+      .#{$class-name} {
+        @each $property in $properties {
+          #{$property}: $rem-radius;
+        }
+      }
+    }
+  }
+}
+
+@mixin generate-spacing($prefix, $properties) {
+  $sizes: 2, 4, 8, 12, 16, 20, 24, 32, 40, 48;
+  $base-font-size: 16;
+
+  @for $i from 1 through list.length($sizes) {
+    $size: list.nth($sizes, $i);
+    $rem-size: calc($size / $base-font-size) * 1rem;
+
+    .#{$prefix}-#{$i} {
+      @each $property in $properties {
+        #{$property}: $rem-size;
+      }
+    }
+  }
+}

@@ -1,0 +1,92 @@
+@use 'sass:list';
+@use 'mixins' as *;
+
+$rules: (
+  m: margin,
+  p: padding,
+  ml: margin-left,
+  mt: margin-top,
+  mb: margin-bottom,
+  mr: margin-right,
+  pl: padding-left,
+  pt: padding-top,
+  pb: padding-bottom,
+  pr: padding-right,
+  px: padding-left padding-right,
+  py: padding-top padding-bottom,
+  mx: margin-left margin-right,
+  my: margin-top margin-bottom,
+  gx: column-gap row-gap,
+  gy: column-gap row-gap,
+  g: gap,
+);
+
+@each $label, $props in $rules {
+  @include generate-spacing($label, $props);
+}
+
+@include generate-radius('radius', (0, 2, 4, 6, 8, 12, 16, 24));
+
+$side-map: (
+  'all': (
+    'border-radius',
+  ),
+  't': (
+    'border-top-left-radius',
+    'border-top-right-radius',
+  ),
+  'r': (
+    'border-top-right-radius',
+    'border-bottom-right-radius',
+  ),
+  'b': (
+    'border-bottom-left-radius',
+    'border-bottom-right-radius',
+  ),
+  'l': (
+    'border-top-left-radius',
+    'border-bottom-left-radius',
+  ),
+  'tl': (
+    'border-top-left-radius',
+  ),
+  'tr': (
+    'border-top-right-radius',
+  ),
+  'bl': (
+    'border-bottom-left-radius',
+  ),
+  'br': (
+    'border-bottom-right-radius',
+  ),
+);
+
+@each $side, $properties in $side-map {
+  $class-name: if($side == 'all', 'radius-full', 'radius-#{$side}-full');
+
+  .#{$class-name} {
+    @each $property in $properties {
+      #{$property}: calc(infinity * 1px);
+    }
+  }
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 800;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.h-full {
+  height: 100%;
+}

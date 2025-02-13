@@ -1,0 +1,30 @@
+<div class="top-bar p-5">
+  <div class="top-bar-left">
+    <img src="assets/logo.png" alt="Logo" />
+  </div>
+  <div class="search-wrapper">
+    <mat-icon>search</mat-icon>
+    <input type="text" placeholder="Search" [formControl]="searchControl" />
+  </div>
+  <div class="top-bar-right">
+    <button mat-icon-button class="notification-btn">
+      <em class="indicon-bell"></em>
+    </button>
+    <div class="user-profile" [matMenuTriggerFor]="userMenu">
+      <img [src]="userAvatar" alt="User avatar" class="avatar" />
+      <span class="user-name">{{ userName }}</span>
+    </div>
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item>Profile</button>
+      <button mat-menu-item>Settings</button>
+      <button mat-menu-item>Logout</button>
+    </mat-menu>
+  </div>
+</div>
+<div class="content">
+  <app-sidebar></app-sidebar>
+
+  <main class="page-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>
