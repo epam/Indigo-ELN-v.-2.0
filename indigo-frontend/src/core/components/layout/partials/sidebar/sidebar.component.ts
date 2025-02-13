@@ -6,33 +6,7 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterModule],
   selector: 'app-sidebar',
-  template: `<nav
-    id="sidebar"
-    class="h-full"
-    [class.collapsed]="!isSidebarOpen"
-  >
-    <ul>
-      <li class="mt-4 mb-5">
-        <a (click)="toggleSidebar()">
-          <em
-            [class.indicon-sidebar_open]="!isSidebarOpen"
-            [class.indicon-sidebar_close]="isSidebarOpen"
-          ></em>
-          <span class="font-semibold text-h4">Menu</span>
-        </a>
-      </li>
-      <li
-        *ngFor="let item of menu"
-        [routerLinkActive]="['active']"
-        class="my-5"
-      >
-        <a [routerLink]="item.path">
-          <em [class]="item.icon"></em>
-          <span class="font-semibold text-h4">{{ item.name }}</span>
-        </a>
-      </li>
-    </ul>
-  </nav>`,
+  templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss'],
 })
 export class SidebarComponent {
