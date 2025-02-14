@@ -1,16 +1,28 @@
-<div class="top-bar p-5">
+<div class="top-bar p-5 flex items-center justify-between bg-primary-600">
   <div class="top-bar-left">
     <img src="assets/logo.png" alt="Logo" />
   </div>
-  <div class="search-wrapper">
-    <mat-icon>search</mat-icon>
-    <input type="text" placeholder="Search" [formControl]="searchControl" />
-  </div>
-  <div class="top-bar-right">
-    <button mat-icon-button class="notification-btn">
-      <em class="indicon-bell"></em>
+  <div
+    class="h-[44px] flex items-center gap-2 bg-primary-500 px-4 py-2 rounded-full max-w-lg w-full"
+  >
+    <input
+      class="bg-transparent border-none outline-none text-neutral flex-1 placeholder:text-neutral"
+      type="text"
+      placeholder="Search"
+      [formControl]="searchControl"
+    />
+    <button mat-icon-button class="text-neutral-600">
+      <mat-icon class="text-neutral!">search</mat-icon>
     </button>
-    <div class="user-profile" [matMenuTriggerFor]="userMenu">
+  </div>
+  <div class="flex items-center gap-2">
+    <button mat-icon-button>
+      <em class="indicon-bell text-neutral"></em>
+    </button>
+    <div
+      class="flex items-center gap-2 hover:bg-neutral p-2 rounded-sm cursor-pointer text-neutral hover:text-neutral-1000"
+      [matMenuTriggerFor]="userMenu"
+    >
       <img [src]="userAvatar" alt="User avatar" class="avatar" />
       <span class="user-name">{{ userName }}</span>
     </div>

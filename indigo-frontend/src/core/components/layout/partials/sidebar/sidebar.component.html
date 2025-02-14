@@ -1,12 +1,15 @@
-<nav id="sidebar" class="h-full" [class.collapsed]="!isSidebarOpen">
+<nav
+  id="sidebar"
+  class="h-full overflow-hidden"
+  [class.collapsed]="!isSidebarOpen"
+>
   <ul>
-    <li class="mt-4 mb-5">
+    <li class="pt-4 pb-5 border-b border-b-neutral-300">
       <a (click)="toggleSidebar()">
         <em
           [class.indicon-sidebar_open]="!isSidebarOpen"
           [class.indicon-sidebar_close]="isSidebarOpen"
         ></em>
-        <span class="font-semibold text-h4">Menu</span>
       </a>
     </li>
     <li *ngFor="let item of menu" [routerLinkActive]="['active']" class="my-5">
