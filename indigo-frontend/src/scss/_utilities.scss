@@ -16,8 +16,8 @@ $rules: (
   py: padding-top padding-bottom,
   mx: margin-left margin-right,
   my: margin-top margin-bottom,
-  gx: column-gap row-gap,
-  gy: column-gap row-gap,
+  gx: column-gap,
+  gy: row-gap,
   g: gap,
 );
 
@@ -69,24 +69,4 @@ $side-map: (
       #{$property}: calc(infinity * 1px);
     }
   }
-}
-
-.font-semibold {
-  font-weight: 600;
-}
-
-.font-bold {
-  font-weight: 800;
-}
-
-.font-medium {
-  font-weight: 500;
-}
-
-.w-full {
-  width: 100%;
-}
-
-.h-full {
-  height: 100%;
 }

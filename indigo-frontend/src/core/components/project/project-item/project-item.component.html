@@ -1,0 +1,71 @@
+<app-card [classList]="'p-4'">
+  <div class="flex items-center justify-between">
+    <h3 class="text-h4 text-neutral-1000 flex items-center gx-3">
+      <em class="indicon-briefcase text-primary-400 text-[1.25rem]"></em
+      >{{ project.name }}
+    </h3>
+    <button
+      mat-icon-button
+      [matMenuTriggerFor]="menu"
+      class="flex items-center"
+      aria-label="Example icon-button with a menu"
+    >
+      <mat-icon>more_horiz</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item>
+        <mat-icon>dialpad</mat-icon>
+        <span>Redial</span>
+      </button>
+      <button mat-menu-item disabled>
+        <mat-icon>voicemail</mat-icon>
+        <span>Check voice mail</span>
+      </button>
+      <button mat-menu-item>
+        <mat-icon>notifications_off</mat-icon>
+        <span>Disable alerts</span>
+      </button>
+    </mat-menu>
+  </div>
+  <div class="grid gy-3 py-4 border-b-neutral-300 border-b text-xs">
+    <div class="flex items-center justify-between">
+      <div>Notebook</div>
+      <div class="text-h4 font-semibold">12</div>
+    </div>
+    <div class="flex items-center justify-between">
+      <div>Experiments</div>
+      <div class="text-h4 [&_span]:font-semibold [&_i]:text-neutral-500">
+        <span class="text-primary-400">2</span>
+        <i class="text-b2">/</i>
+        <span class="text-orange-200">11</span>
+        <i class="text-b2">/</i>
+        <span class="text-green-200">1</span>
+        <i class="text-b2">/</i>
+        <span class="text-red-200">0</span>
+        <span class="text-neutral-500 mx-3 font-thin!">|</span>
+        <span class="text-neutral-1000 text-h4 font-semibold">145</span>
+      </div>
+    </div>
+    <div class="flex items-center justify-between">
+      <div>Last Edited</div>
+      <div>14 Oct 2024 by Emmy Cooper</div>
+    </div>
+    <div class="flex items-center justify-between">
+      <div>Created</div>
+      <div>08 Oct 2024 by John Doe</div>
+    </div>
+  </div>
+  <div class="flex items-center mt-4">
+    <div class="flex -space-x-2">
+      <app-avatar classList="w-6 h-6" img="assets/avatar1.png" />
+      <app-avatar classList="w-6 h-6" img="assets/avatar2.png" />
+      <app-avatar classList="w-6 h-6" img="assets/avatar3.png" />
+      <div
+        class="w-6 h-6 rounded-full bg-primary-400 text-white text-xs flex items-center justify-center"
+      >
+        +12
+      </div>
+    </div>
+    <span class="ml-2 text-b2 text-neutral-800">15 Members</span>
+  </div>
+</app-card>

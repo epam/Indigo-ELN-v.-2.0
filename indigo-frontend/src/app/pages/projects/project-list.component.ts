@@ -1,10 +1,22 @@
-import { CardComponent } from '@/core/components/card/card.component';
+import { CardComponent } from '@/core/components/common/card/card.component';
+import { ProjectItemComponent } from '@/core/components/project/project-item/project-item.component';
+import { getRandomStr } from '@/core/utils/string.util';
 import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-project-list',
   templateUrl: './project-list.component.html',
   standalone: true,
-  imports: [CardComponent],
+  imports: [CardComponent, ProjectItemComponent],
 })
-export class ProjectListComponent {}
+export class ProjectListComponent {
+  projects = [
+    { id: getRandomStr(), name: 'Project 1', description: 'Description 1' },
+    { id: getRandomStr(), name: 'Project 2', description: 'Description 2' },
+    { id: getRandomStr(), name: 'Project 3', description: 'Description 2' },
+    { id: getRandomStr(), name: 'Project 4', description: 'Description 2' },
+    { id: getRandomStr(), name: 'Project 5', description: 'Description 2' },
+    { id: getRandomStr(), name: 'Project 6', description: 'Description 2' },
+    { id: getRandomStr(), name: 'Project 7', description: 'Description 2' },
+  ];
+}
