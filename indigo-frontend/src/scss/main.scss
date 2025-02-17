@@ -4,15 +4,6 @@
 @use 'variables';
 @use 'typography';
 @use 'icons';
-@use 'utilities';
-
-* {
-  font-family: 'Open Sans', serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
-  font-variation-settings: 'wdth' 100;
-}
 
 @theme {
   --color-primary-100: var(--primary-100);
@@ -74,6 +65,12 @@
 }
 
 html {
+  font-family: 'Open Sans', serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings: 'wdth' 100;
+
   @include mat.theme(
     (
       typography: (

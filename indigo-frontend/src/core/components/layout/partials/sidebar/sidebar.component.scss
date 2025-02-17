@@ -8,6 +8,7 @@ $active-color: var(--primary-400);
 $hover-color: var(--primary-alpha-10);
 
 #sidebar {
+  flex-shrink: 0;
   border-radius: 12px;
   border: 1px solid var(--neutral-200);
   background: var(--neutral);
@@ -16,21 +17,17 @@ $hover-color: var(--primary-alpha-10);
   width: $sidebar-width;
   padding: $sidebar-padding;
   background-color: var(--neutral);
-  align-self: stretch;
-  margin-bottom: 16px;
-  position: sticky;
-  top: 16px;
-  transition: 300ms ease-in-out;
-  overflow: hidden;
+  overflow-y: auto;
   text-wrap: nowrap;
+  transition: 300ms ease-in-out;
 
   em {
     font-size: 24px;
   }
 
   &.collapsed {
-    padding: $sidebar-collapsed-padding;
     width: $sidebar-collapsed-width;
+    padding: $sidebar-collapsed-padding;
 
     & + .page-content {
       padding-left: calc($sidebar-collapsed-width + 32px);
