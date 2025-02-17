@@ -57,15 +57,18 @@
   </div>
   <div class="flex items-center mt-4">
     <div class="flex -space-x-2">
-      <app-avatar classList="w-6 h-6" img="assets/avatar1.png" />
-      <app-avatar classList="w-6 h-6" img="assets/avatar2.png" />
-      <app-avatar classList="w-6 h-6" img="assets/avatar3.png" />
-      <div
-        class="w-6 h-6 rounded-full bg-primary-400 text-white text-xs flex items-center justify-center"
-      >
-        +12
-      </div>
+      @for (user of project.users.slice(0, 3); track user) {
+        <app-avatar classList="w-6 h-6" [img]="user" />
+      }
+      @if (project.users.length > 3) {
+        <span
+          class="w-6 h-6 rounded-full bg-primary-400 text-white text-xs flex items-center justify-center"
+          >+{{ project.users.length - 3 }}</span
+        >
+      }
     </div>
-    <span class="ml-2 text-b2 text-neutral-800">15 Members</span>
+    <span class="ml-2 text-b2 text-neutral-800"
+      >{{ project.users.length }} Members</span
+    >
   </div>
 </app-card>

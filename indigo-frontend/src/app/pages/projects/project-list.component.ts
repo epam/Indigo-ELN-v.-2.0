@@ -3,6 +3,24 @@ import { ProjectItemComponent } from '@/core/components/project/project-item/pro
 import { getRandomStr } from '@/core/utils/string.util';
 import { Component } from '@angular/core';
 
+const mock_users = [
+  'assets/avatar1.png',
+  'assets/avatar2.png',
+  'assets/avatar3.png',
+  '-',
+  '-',
+  '-',
+  '-',
+  '-',
+  '-',
+  '-',
+  '-',
+  '-',
+  '-',
+  '-',
+  '-',
+];
+
 @Component({
   selector: 'app-project-list',
   templateUrl: './project-list.component.html',
@@ -18,5 +36,8 @@ export class ProjectListComponent {
     { id: getRandomStr(), name: 'Project 5', description: 'Description 2' },
     { id: getRandomStr(), name: 'Project 6', description: 'Description 2' },
     { id: getRandomStr(), name: 'Project 7', description: 'Description 2' },
-  ];
+  ].map((project) => ({
+    ...project,
+    users: mock_users,
+  }));
 }
