@@ -44,7 +44,7 @@ const mock_users = [
   ],
 })
 export class ProjectListComponent {
-  selectedView = 'grid';
+  selectedView: 'grid' | 'list' = 'grid';
 
   options: ToggleOption[] = [{ value: 'grid', icon: 'indicon-grid' }];
 

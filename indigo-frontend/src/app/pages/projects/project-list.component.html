@@ -18,6 +18,6 @@
   }"
 >
   @for (project of projects; track project.id) {
-    <app-project-item [project]="project" />
+    <app-project-item [project]="project" [variant]="selectedView" />
   }
 </div>
