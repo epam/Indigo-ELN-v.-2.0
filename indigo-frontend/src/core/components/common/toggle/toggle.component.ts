@@ -12,31 +12,11 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
       multi: true,
     },
   ],
-  template: ` <label [for]="id" class="flex items-center cursor-pointer">
-    <div class="relative">
-      <input
-        [id]="id"
-        type="checkbox"
-        class="sr-only peer"
-        [checked]="value"
-        (change)="onInputChange($event)"
-        [disabled]="disabled"
-      />
-      <div class="w-10 h-4 bg-primary-100 rounded-full shadow-inner"></div>
-      <div
-        class="absolute w-6 h-6 bg-white rounded-full shadow -left-1 -top-1 transition peer-checked:translate-x-full peer-checked:bg-primary-400"
-      ></div>
-    </div>
-    @if (label.length > 0) {
-      <div class="ml-3 text-neutral-1000 font-medium select-none">
-        {{ label }}
-      </div>
-    }
-  </label>`,
+  templateUrl: './toggle.component.html',
 })
 export class ToggleComponent implements ControlValueAccessor {
   @Input() id = getRandomStr();
-  @Input() label: string = '';
+  @Input() label = '';
 
   value = false;
   disabled = false;
