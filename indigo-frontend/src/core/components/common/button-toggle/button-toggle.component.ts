@@ -5,7 +5,7 @@ import {
   FormsModule,
   NG_VALUE_ACCESSOR,
 } from '@angular/forms';
-import { ToggleGroupVariantPipe } from './toggle-group-variant.pipe';
+import { ButtonToggleVariantPipe } from './button-toggle-variant.pipe';
 
 export interface ToggleOption {
   value: string;
@@ -14,21 +14,21 @@ export interface ToggleOption {
 }
 
 @Component({
-  selector: 'app-toggle-group',
+  selector: 'app-button-toggle',
   standalone: true,
-  imports: [CommonModule, FormsModule, ToggleGroupVariantPipe],
+  imports: [CommonModule, FormsModule, ButtonToggleVariantPipe],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => ToggleGroupComponent),
+      useExisting: forwardRef(() => ButtonToggleComponent),
       multi: true,
     },
   ],
-  templateUrl: './toggle-group.component.html',
+  templateUrl: './button-toggle.component.html',
 })
-export class ToggleGroupComponent implements ControlValueAccessor {
+export class ButtonToggleComponent implements ControlValueAccessor {
   @Input() options: ToggleOption[] = [];
-  @Input() variant: 'default' | 'seamless' = 'default';
+  @Input() variant: 'default' | 'alpha' = 'default';
   @Input() classList = '';
 
   selectedValue: string | null = null;

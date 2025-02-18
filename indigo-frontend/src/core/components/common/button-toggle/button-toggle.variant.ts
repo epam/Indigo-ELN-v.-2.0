@@ -1,18 +1,21 @@
 import { cva } from 'class-variance-authority';
 
-export const buttonGroup = cva(['inline-flex rounded-lg overflow-hidden'], {
-  variants: {
-    variant: {
-      default: 'bg-transparent border border-primary-400',
-      seamless: 'bg-neutral-200',
+export const buttonToggleVariants = cva(
+  ['inline-flex rounded-lg overflow-hidden'],
+  {
+    variants: {
+      variant: {
+        default: 'bg-transparent border border-primary-400',
+        alpha: 'bg-neutral-200',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
     },
   },
-  defaultVariants: {
-    variant: 'default',
-  },
-});
+);
 
-export const button = cva(
+export const buttonToggleButtonVariants = cva(
   [
     'flex items-center justify-center min-w-[40px] h-[40px]',
     'transition-colors cursor-pointer',
@@ -28,9 +31,9 @@ export const button = cva(
           'hover:bg-primary-100',
           'data-[selected=true]:bg-primary-100',
         ],
-        seamless: [
+        alpha: [
           'text-primary-400',
-          'hover:bg-neutral-100',
+          'hover:bg-primary-100',
           'data-[selected=true]:bg-primary-100',
         ],
       },

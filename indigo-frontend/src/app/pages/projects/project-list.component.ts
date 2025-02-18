@@ -1,13 +1,15 @@
-import { CardComponent } from '@/core/components/common/card/card.component';
 import {
-  ToggleGroupComponent,
+  ButtonToggleComponent,
   ToggleOption,
-} from '@/core/components/common/toggle-group/toggle-group.component';
+} from '@/core/components/common/button-toggle/button-toggle.component';
+import { CardComponent } from '@/core/components/common/card/card.component';
+import { ToggleComponent } from '@/core/components/common/toggle/toggle.component';
 import { ProjectItemComponent } from '@/core/components/project/project-item/project-item.component';
 import { getRandomStr } from '@/core/utils/string.util';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 const mock_users = [
   'assets/avatar1.png',
@@ -36,7 +38,9 @@ const mock_users = [
     FormsModule,
     CardComponent,
     ProjectItemComponent,
-    ToggleGroupComponent,
+    ButtonToggleComponent,
+    MatSlideToggleModule,
+    ToggleComponent,
   ],
 })
 export class ProjectListComponent {
