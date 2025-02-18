@@ -1,0 +1,12 @@
+<div [class]="'group' | toggleGroupVariant: variant : classList">
+  <button
+    *ngFor="let option of options"
+    type="button"
+    [disabled]="disabled || option.disabled"
+    [attr.data-selected]="selectedValue === option.value"
+    (click)="onButtonClick(option)"
+    [class]="'button' | toggleGroupVariant: variant"
+  >
+    <em *ngIf="option.icon" [class]="option.icon"></em>
+  </button>
+</div>
