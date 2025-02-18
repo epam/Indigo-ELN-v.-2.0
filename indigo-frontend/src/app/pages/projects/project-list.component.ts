@@ -6,6 +6,7 @@ import { CardComponent } from '@/core/components/common/card/card.component';
 import { ToggleComponent } from '@/core/components/common/toggle/toggle.component';
 import { ProjectItemComponent } from '@/core/components/project/project-item/project-item.component';
 import { getRandomStr } from '@/core/utils/string.util';
+import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -33,6 +34,14 @@ const mock_users = [
   selector: 'app-project-list',
   templateUrl: './project-list.component.html',
   standalone: true,
+  animations: [
+    trigger('viewChange', [
+      transition('grid <=> list', [
+        style({ opacity: 0, transform: 'scale(0.95)' }),
+        animate('200ms ease-out', style({ opacity: 1, transform: 'scale(1)' })),
+      ]),
+    ]),
+  ],
   imports: [
     CommonModule,
     FormsModule,
