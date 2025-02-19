@@ -1,0 +1,122 @@
+@use 'helpers' as *;
+
+$indigo-icons-font-family: 'IndigoELNIcons' !default;
+$indigo-icons-font-path: 'fonts' !default;
+
+$indicon-add: '\e900';
+$indicon-alert-triangle: '\e901';
+$indicon-arrow-down: '\e902';
+$indicon-arrow-left: '\e903';
+$indicon-arrow-right: '\e904';
+$indicon-arrow-up: '\e905';
+$indicon-bell-off: '\e906';
+$indicon-bell: '\e907';
+$indicon-block: '\e908';
+$indicon-book: '\e909';
+$indicon-briefcase: '\e90a';
+$indicon-check-circle: '\e90b';
+$indicon-chevron_down: '\e90c';
+$indicon-chevron_left: '\e90d';
+$indicon-chevron_right: '\e90e';
+$indicon-chevron_up: '\e90f';
+$indicon-chevrons_down: '\e910';
+$indicon-chevrons_left: '\e911';
+$indicon-chevrons_right: '\e912';
+$indicon-chevrons_up: '\e913';
+$indicon-circle: '\e914';
+$indicon-close: '\e915';
+$indicon-code: '\e916';
+$indicon-copy: '\e917';
+$indicon-delete: '\e918';
+$indicon-edit-2: '\e919';
+$indicon-edit: '\e91a';
+$indicon-external-link: '\e91b';
+$indicon-eye-off: '\e91c';
+$indicon-eye: '\e91d';
+$indicon-file-minus: '\e91e';
+$indicon-file-plus: '\e91f';
+$indicon-file-text: '\e920';
+$indicon-file: '\e921';
+$indicon-filter: '\e922';
+$indicon-grid: '\e923';
+$indicon-image: '\e924';
+$indicon-info: '\e925';
+$indicon-layers: '\e926';
+$indicon-link-2: '\e927';
+$indicon-link: '\e928';
+$indicon-list: '\e929';
+$indicon-menu: '\e92a';
+$indicon-more-horizontal: '\e92b';
+$indicon-paperclip: '\e92c';
+$indicon-plus: '\e92d';
+$indicon-printer: '\e92e';
+$indicon-save: '\e92f';
+$indicon-search: '\e930';
+$indicon-send: '\e931';
+$indicon-settings: '\e932';
+$indicon-share: '\e933';
+$indicon-sidebar_close: '\e934';
+$indicon-sidebar_open: '\e935';
+$indicon-sort: '\e936';
+$indicon-table: '\e937';
+$indicon-terminal: '\e938';
+
+:root {
+  --primary-50: #eff0f9;
+  --primary-100: #dee1f3;
+  --primary-200: #bdc3e8;
+  --primary-300: #7b88d1;
+  --primary-400: #3f50b5;
+  --primary-500: #313e8c;
+  --primary-600: #232c64;
+
+  --primary-alpha-5: #{getAlpha(#3f50b50d, 0.05)};
+  --primary-alpha-10: #{getAlpha(#3f50b51a, 0.1)};
+
+  --secondary-100: #ecf8d7;
+  --secondary-200: #daf2af;
+  --secondary-300: #b5e45e;
+  --secondary-400: #9edb2b;
+  --secondary-500: #7bae1d;
+  --secondary-600: #577b15;
+
+  --secondary-alpha-10: #{getAlpha(#b5e45e1a, 0.1)};
+
+  --neutral: #ffffff;
+  --neutral-100: #f9f9f9;
+  --neutral-200: #f3f3f3;
+  --neutral-300: #e8e8e8;
+  --neutral-400: #d2d2d2;
+  --neutral-500: #aaaaaa;
+  --neutral-600: #858585;
+  --neutral-700: #606060;
+  --neutral-800: #4a4a4a;
+  --neutral-900: #333333;
+  --neutral-1000: #242424;
+
+  --neutral-alpha-10: #{getAlpha(#3333331a, 0.1)};
+
+  --red-100: #fb3748;
+  --red-200: #fb3748;
+  --red-300: #d00416;
+
+  --red-alpha-10: #{getAlpha(#fb37481a, 0.1)};
+
+  --orange-100: #ffa366;
+  --orange-200: #ff7c24;
+  --orange-300: #cc631d;
+
+  --orange-alpha-10: #{getAlpha(#ff7c241a, 0.1)};
+
+  --yellow-100: #ffe67b;
+  --yellow-200: #ffdb43;
+  --yellow-300: #dfb400;
+
+  --yellow-alpha-10: #{getAlpha(#ffdb431a, 0.1)};
+
+  --green-100: #84ebb4;
+  --green-200: #1fc16b;
+  --green-300: #199a56;
+
+  --green-alpha-10: #{getAlpha(#1fc16b1a, 0.1)};
+}

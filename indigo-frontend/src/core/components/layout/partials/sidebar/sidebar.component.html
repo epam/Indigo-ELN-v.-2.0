@@ -1,0 +1,22 @@
+<nav
+  id="sidebar"
+  class="h-full overflow-hidden"
+  [class.collapsed]="!isSidebarOpen"
+>
+  <ul>
+    <li class="pt-4 pb-5 border-b border-b-neutral-300">
+      <a (click)="toggleSidebar()">
+        <em
+          [class.indicon-sidebar_open]="!isSidebarOpen"
+          [class.indicon-sidebar_close]="isSidebarOpen"
+        ></em>
+      </a>
+    </li>
+    <li *ngFor="let item of menu" [routerLinkActive]="['active']" class="my-5">
+      <a [routerLink]="item.path">
+        <em [class]="item.icon"></em>
+        <span class="font-semibold text-h4">{{ item.name }}</span>
+      </a>
+    </li>
+  </ul>
+</nav>
