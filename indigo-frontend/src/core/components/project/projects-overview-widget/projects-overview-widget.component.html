@@ -1,0 +1,50 @@
+<app-card>
+  <div class="flex items-center justify-between flex-wrap">
+    <div class="font-semibold">All Projects</div>
+    <app-button variant="blue" classList="flex items-center gap-2">
+      <em class="text-xl indicon-plus"></em>
+      Add Project
+    </app-button>
+  </div>
+  <div class="text-2xl flex items-center justify-between">
+    <div
+      class="flex items-center bg-primary-alpha-10 rounded-lg [&_em]:text-primary-400 mt-4 md:[&>*:not(:last-child)]:border-r md:[&>*:not(:last-child)]:border-r-neutral md:[&>*]:min-w-[160px] [&>*>p]:text-sm [&>*]:py-2 [&>*]:px-3 flex-wrap"
+    >
+      <div>
+        <em class="indicon-briefcase mr-2"></em>
+        <span>{{ data.projects }}</span>
+        <p>Projects</p>
+      </div>
+      <div>
+        <em class="indicon-briefcase mr-2"></em>
+        <span>{{ data.notebooks }}</span>
+        <p>Notebooks</p>
+      </div>
+      <div>
+        <em class="indicon-briefcase mr-2"></em>
+        <span>{{ data.experiments }}</span>
+        <p>Experiments</p>
+      </div>
+    </div>
+    <div
+      class="flex items-center rounded-lg mt-4 md:[&>*:not(:last-child)]:border-r md:[&>*:not(:last-child)]:border-r-neutral-300 md:[&>*]:min-w-[160px] [&>*>p]:text-sm [&>*]:py-2 [&>*]:px-3 flex-wrap border-neutral-300 border"
+    >
+      <div>
+        <span class="text-primary-400">{{ data.openExperiments }}</span>
+        <p>Open Experiments</p>
+      </div>
+      <div>
+        <span class="text-orange-200">{{ data.waitingSignature }}</span>
+        <p>Waiting Signature</p>
+      </div>
+      <div>
+        <span class="text-green-200">{{ data.completed }}</span>
+        <p>Completed</p>
+      </div>
+      <div>
+        <span class="text-red-200">{{ data.rejected }}</span>
+        <p>Rejected</p>
+      </div>
+    </div>
+  </div>
+</app-card>

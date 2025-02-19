@@ -2,9 +2,9 @@ import {
   ButtonToggleComponent,
   ToggleOption,
 } from '@/core/components/common/button-toggle/button-toggle.component';
-import { CardComponent } from '@/core/components/common/card/card.component';
 import { ToggleComponent } from '@/core/components/common/toggle/toggle.component';
 import { ProjectItemComponent } from '@/core/components/project/project-item/project-item.component';
+import { ProjectsOverviewWidgetComponent } from '@/core/components/project/projects-overview-widget/projects-overview-widget.component';
 import { getRandomStr } from '@/core/utils/string.util';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
@@ -45,11 +45,11 @@ const mock_users = [
   imports: [
     CommonModule,
     FormsModule,
-    CardComponent,
     ProjectItemComponent,
     ButtonToggleComponent,
     MatSlideToggleModule,
     ToggleComponent,
+    ProjectsOverviewWidgetComponent,
   ],
 })
 export class ProjectListComponent {

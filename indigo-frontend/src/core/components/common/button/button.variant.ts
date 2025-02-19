@@ -13,7 +13,7 @@ export const ButtonVariant = cva(
     variants: {
       variant: {
         green: ['bg-green-400', 'hover:bg-green-300'],
-        blue: ['bg-primary-400', 'hover:bg-primary-500'],
+        blue: ['bg-primary-400', 'hover:bg-primary-500', 'text-neutral'],
         'blue-outline': [
           'bg-neutral',
           'text-primary-400',
