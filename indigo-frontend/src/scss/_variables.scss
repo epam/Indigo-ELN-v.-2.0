@@ -119,4 +119,10 @@ $indicon-terminal: '\e938';
   --green-300: #199a56;
 
   --green-alpha-10: #{getAlpha(#1fc16b1a, 0.1)};
+
+  --violet-50: #e1a8ff;
+  --violet-100: #ca67ff;
+  --violet-200: #b326ff;
+  --violet-300: #8f1ecc;
+  --violet-alpha-10: #{getAlpha(#b326ff1a, 0.1)};
 }
