@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { ClassValue } from 'clsx';
+import { ClassNameValue } from 'tailwind-merge';
 import { twsx } from '../utils/twsx';
 
 @Pipe({
@@ -7,7 +7,7 @@ import { twsx } from '../utils/twsx';
   standalone: true,
 })
 export class TwsxPipe implements PipeTransform {
-  transform(...classvalues: ClassValue[]): string {
+  transform(...classvalues: ClassNameValue[]): string {
     return twsx(...classvalues);
   }
 }
