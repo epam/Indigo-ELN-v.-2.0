@@ -1,5 +1,4 @@
 import { Attachment } from '@/core/types/attachment.i';
-import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -7,7 +6,7 @@ import { CardComponent } from '../card/card.component';
 
 @Component({
   standalone: true,
-  imports: [CardComponent, DatePipe, MatMenuModule, MatIconModule],
+  imports: [CardComponent, MatMenuModule, MatIconModule],
   selector: 'app-attachment',
   templateUrl: './attachment.component.html',
 })

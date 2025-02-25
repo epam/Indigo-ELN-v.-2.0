@@ -60,20 +60,25 @@
     <div class="space-y-2">
       @for (member of project.team; track member) {
         <div
-          class="flex items-center justify-between p-2 hover:bg-neutral-100 rounded-lg"
+          class="grid grid-cols-[auto_1fr_auto_auto] gap-4 items-center p-2 hover:bg-neutral-100 rounded-lg text-neutral-1000"
         >
+          <app-avatar [img]="member.avatar" classList="w-8 h-8" />
+          <p class="text-neutral-1000">{{ member.name }}</p>
+          <p
+            class="text-neutral-800 overflow-hidden text-ellipsis whitespace-nowrap max-w-[148px] text-ellipsis"
+          >
+            {{ member.email }}
+          </p>
           <div class="flex items-center gap-2">
-            <app-avatar [img]="member.avatar" classList="w-8 h-8" />
-            <div>
-              <p class="text-neutral-1000">{{ member.name }}</p>
-              <p class="text-neutral-800 text-sm">{{ member.email }}</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <app-badge>{{ member.role }}</app-badge>
-            <button mat-icon-button>
-              <em class="indicon-more-vertical"></em>
-            </button>
+            <app-copy [text]="member.email" />
+            <app-dropdown-menu
+              class="[&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-[110px]"
+              [selected]="member.role"
+              [items]="[
+                { label: 'Admin', value: 'Admin' },
+                { label: 'Member', value: 'Member' },
+              ]"
+            />
           </div>
         </div>
       }
