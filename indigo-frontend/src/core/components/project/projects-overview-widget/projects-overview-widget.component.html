@@ -1,4 +1,6 @@
-<app-card classList="px-8">
+<app-card
+  [classList]="{ 'px-8': true, 'pb-0': shouldRenderProjectLinks } | classPicker"
+>
   <div class="flex items-center justify-between flex-wrap">
     <div class="font-semibold">All Projects</div>
     <app-button variant="blue" classList="flex items-center gap-2">
@@ -47,4 +49,13 @@
       </div>
     </div>
   </div>
+  <!-- TODO: Current project id should be passed in the route -->
+  @if (shouldRenderProjectLinks) {
+    <div class="flex items-center mt-3">
+      <a href="#" class="border-b-primary-400 border-b-2 p-4 text-primary-400"
+        >Project Info</a
+      >
+      <a href="#" class="p-4">Notebooks</a>
+    </div>
+  }
 </app-card>
