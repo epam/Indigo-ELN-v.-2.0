@@ -1,0 +1,41 @@
+<app-card classList="h-full">
+  <div
+    class="flex items-center justify-between border-b border-b-neutral-200 pb-3"
+  >
+    <div class="flex items-center gap-2">
+      <h2 class="font-semibold text-base">Team</h2>
+      <app-counter [count]="team.length" variant="grey" size="large" />
+    </div>
+    <app-button variant="blue-outline" classList="text-primary-400">
+      <em class="indicon-share"></em>
+      Share
+    </app-button>
+  </div>
+
+  <div class="space-y-2 py-3">
+    @for (member of team; track member) {
+      <div
+        class="grid grid-cols-[auto_1fr_auto_auto] gap-4 items-center p-2 hover:bg-neutral-100 rounded-lg text-neutral-1000"
+      >
+        <app-avatar [img]="member.avatar" classList="w-8 h-8" />
+        <p class="text-neutral-1000">{{ member.name }}</p>
+        <p
+          class="text-neutral-800 overflow-hidden text-ellipsis whitespace-nowrap max-w-[148px] text-ellipsis"
+        >
+          {{ member.email }}
+        </p>
+        <div class="flex items-center gap-2">
+          <app-copy [text]="member.email" />
+          <app-dropdown-menu
+            class="[&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-[110px]"
+            [selected]="member.role"
+            [items]="[
+              { label: 'Admin', value: 'Admin' },
+              { label: 'Member', value: 'Member' },
+            ]"
+          />
+        </div>
+      </div>
+    }
+  </div>
+</app-card>

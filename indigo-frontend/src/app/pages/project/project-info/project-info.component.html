@@ -1,21 +1,23 @@
 <div class="grid grid-cols-[1fr_auto] gap-4 pt-4">
-  <div class="bg-neutral rounded-xl border border-neutral-200 p-6">
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-h3">Project Description</h2>
+  <app-card>
+    <div
+      class="flex items-center justify-between pb-3 border-b border-b-neutral-200"
+    >
+      <h2 class="font-semibold text-base">Project Description</h2>
       <app-button variant="blue-outline" classList="text-primary-400">
         <em class="indicon-edit"></em>
         Edit
       </app-button>
     </div>
 
-    <div class="space-y-6">
+    <div class="space-y-6 mt-3 text-sm">
       <div>
-        <h3 class="text-b2 text-neutral-800 mb-2">Project Name</h3>
+        <h3 class="font-semibold text-neutral-800 mb-2">Project Name</h3>
         <p class="text-neutral-1000">{{ project.name }}</p>
       </div>
 
       <div>
-        <h3 class="text-b2 text-neutral-800 mb-2">Project Keywords</h3>
+        <h3 class="text-neutral-800 mb-2 font-semibold">Project Keywords</h3>
         <div class="flex flex-wrap gap-2">
           @for (keyword of project.keywords; track keyword) {
             <app-chip>{{ keyword }}</app-chip>
@@ -24,18 +26,18 @@
       </div>
 
       <div>
-        <h3 class="text-b2 text-neutral-800 mb-2">Literature</h3>
+        <h3 class="text-neutral-800 mb-2 font-semibold">Literature</h3>
         <p class="text-neutral-400">-</p>
       </div>
 
       <div>
-        <h3 class="text-b2 text-neutral-800 mb-2">Project Description</h3>
+        <h3 class="text-neutral-800 mb-2 font-semibold">Project Description</h3>
         <p class="text-neutral-1000">{{ project.description }}</p>
         <p class="text-neutral-1000 mt-4">{{ project.details }}</p>
       </div>
 
       <div>
-        <h3 class="text-b2 text-neutral-800 mb-2">Attachments</h3>
+        <h3 class="text-neutral-800 mb-2 font-semibold">Attachments</h3>
         <div class="space-y-2 grid">
           @for (file of project.attachments; track file) {
             <app-attachment [attachment]="file" />
@@ -43,45 +45,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </app-card>
 
-  <div class="bg-neutral rounded-xl border border-neutral-200 p-6">
-    <div class="flex items-center justify-between mb-6">
-      <div class="flex items-center gap-2">
-        <h2 class="text-h3">Team</h2>
-        <app-counter [count]="project.team.length" variant="blue" />
-      </div>
-      <app-button variant="blue-outline" classList="text-primary-400">
-        <em class="indicon-share"></em>
-        Share
-      </app-button>
-    </div>
-
-    <div class="space-y-2">
-      @for (member of project.team; track member) {
-        <div
-          class="grid grid-cols-[auto_1fr_auto_auto] gap-4 items-center p-2 hover:bg-neutral-100 rounded-lg text-neutral-1000"
-        >
-          <app-avatar [img]="member.avatar" classList="w-8 h-8" />
-          <p class="text-neutral-1000">{{ member.name }}</p>
-          <p
-            class="text-neutral-800 overflow-hidden text-ellipsis whitespace-nowrap max-w-[148px] text-ellipsis"
-          >
-            {{ member.email }}
-          </p>
-          <div class="flex items-center gap-2">
-            <app-copy [text]="member.email" />
-            <app-dropdown-menu
-              class="[&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-[110px]"
-              [selected]="member.role"
-              [items]="[
-                { label: 'Admin', value: 'Admin' },
-                { label: 'Member', value: 'Member' },
-              ]"
-            />
-          </div>
-        </div>
-      }
-    </div>
-  </div>
+  <app-team [team]="project.team" />
 </div>

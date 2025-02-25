@@ -1,10 +1,8 @@
 import { AttachmentComponent } from '@/core/components/common/attachment/attachment.component';
-import { AvatarComponent } from '@/core/components/common/avatar/avatar.component';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
+import { CardComponent } from '@/core/components/common/card/card.component';
 import { ChipComponent } from '@/core/components/common/chip/chip.component';
-import { CopyComponent } from '@/core/components/common/copy/copy.component';
-import { CounterComponent } from '@/core/components/common/counter/counter.component';
-import { DropdownMenuComponent } from '@/core/components/common/dropdown-menu/dropdown-menu.component';
+import { TeamComponent } from '@/core/components/project/team/team.component';
 import { Attachment } from '@/core/types/attachment.i';
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
@@ -16,11 +14,9 @@ import { Component, Input } from '@angular/core';
     CommonModule,
     ButtonComponent,
     ChipComponent,
-    CounterComponent,
-    AvatarComponent,
     AttachmentComponent,
-    DropdownMenuComponent,
-    CopyComponent,
+    TeamComponent,
+    CardComponent,
   ],
 
   templateUrl: './project-info.component.html',
