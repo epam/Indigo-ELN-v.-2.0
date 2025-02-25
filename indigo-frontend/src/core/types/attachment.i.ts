@@ -1,5 +1,8 @@
 export interface Attachment {
   name: string;
   url: string;
-  user: string;
+  type: string;
+  size: string;
+  date: string;
+  author: string;
 }

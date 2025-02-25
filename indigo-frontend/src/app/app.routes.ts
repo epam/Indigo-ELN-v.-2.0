@@ -27,6 +27,13 @@ export const routes: Routes = [
                 (c) => c.ProjectListComponent,
               ),
           },
+          {
+            path: ':id',
+            loadComponent: () =>
+              import('@pages/project/project-info/project-info.component').then(
+                (c) => c.ProjectInfoComponent,
+              ),
+          },
         ],
       },
     ],

@@ -1,4 +1,7 @@
-<app-card [classList]="'p-4'">
+<app-card
+  [classList]="'p-4 cursor-pointer'"
+  [routerLink]="['/projects', project.id]"
+>
   <div
     class="project-item grid gap-y-2 text-neutral-800 text-[.875rem]"
     [ngClass]="{

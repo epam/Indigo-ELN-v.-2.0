@@ -16,7 +16,10 @@ export class AttachmentComponent {
   @Input() attachment: Attachment = {
     name: '',
     url: '',
-    user: '',
+    type: '',
+    size: '',
+    date: '',
+    author: '',
   };
 
   /// TODO: Remove this

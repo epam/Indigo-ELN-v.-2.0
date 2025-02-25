@@ -4,11 +4,9 @@
       <em [class]="computedIcon" class="text-primary-400"></em>
       <span>{{ attachment.name }}</span>
     </div>
-    <span>by {{ attachment.user }}</span>
-    <span>100 KB</span>
-    <span class="flex justify-end items-center">{{
-      date | date: 'MMM dd, yyyy HH:mm:ss z'
-    }}</span>
+    <span>by {{ attachment.author }}</span>
+    <span>{{ attachment.size }}</span>
+    <span class="flex justify-end items-center">{{ attachment.date }}</span>
     <div class="flex ml-auto items-center">
       <!-- TODO: Add related options -->
       <button
