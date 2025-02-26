@@ -18,6 +18,11 @@ import {
 } from '@angular/core';
 import { DropdownMenuItem } from './dropdown-menu.i';
 
+const DROPDOWN_CONSTANTS = {
+  MIN_SPACE_BELOW: 200, // Minimum space needed below the dropdown (in pixels)
+  VIEWPORT_MARGIN: 10, // Safety margin from viewport edge (in pixels)
+};
+
 @Component({
   selector: 'app-dropdown-menu',
   standalone: true,
@@ -70,7 +75,7 @@ export class DropdownMenuComponent implements AfterViewInit {
 
   @HostListener('document:click', ['$event'])
   onClickOutside(event: MouseEvent) {
-    if (!(event.target as HTMLElement).closest('.dropdown-container')) {
+    if (!(event.target as HTMLElement).closest('.dd-container')) {
       this.isOpen = false;
     }
   }
@@ -105,7 +110,10 @@ export class DropdownMenuComponent implements AfterViewInit {
     const spaceBelow = window.innerHeight - containerRect.bottom;
     const spaceAbove = containerRect.top;
 
-    if (spaceBelow < 200 && spaceAbove > spaceBelow) {
+    if (
+      spaceBelow < DROPDOWN_CONSTANTS.MIN_SPACE_BELOW &&
+      spaceAbove > spaceBelow
+    ) {
       this.dropdownDirection = 'up';
     } else {
       this.dropdownDirection = 'down';
@@ -115,8 +123,8 @@ export class DropdownMenuComponent implements AfterViewInit {
     const viewportWidth = window.innerWidth;
     const rightEdge = containerRect.left + dropdownRect.width;
 
-    if (rightEdge > viewportWidth - 10) {
-      // Add 10px buffer
+    if (rightEdge > viewportWidth - DROPDOWN_CONSTANTS.VIEWPORT_MARGIN) {
+      // Add margin buffer
       this.dropdownAlignment = 'right';
     } else {
       this.dropdownAlignment = 'left';
