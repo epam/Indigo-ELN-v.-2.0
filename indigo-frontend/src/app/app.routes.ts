@@ -10,10 +10,34 @@ export const routes: Routes = [
     children: [
       {
         path: '',
+        redirectTo: 'projects',
+        pathMatch: 'full',
+      },
+      {
+        path: 'projects',
         loadComponent: () =>
-          import('@pages/projects/project-list.component').then(
-            (c) => c.ProjectListComponent,
+          import('@pages/project/project-layout/project-layout.component').then(
+            (c) => c.ProjectLayoutComponent,
           ),
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('@pages/project/project-list/project-list.component').then(
+                (c) => c.ProjectListComponent,
+              ),
+          },
+          {
+            path: ':id',
+            loadComponent: () =>
+              import('@pages/project/project-info/project-info.component').then(
+                (c) => c.ProjectInfoComponent,
+              ),
+            data: {
+              title: 'Project',
+            },
+          },
+        ],
       },
     ],
   },

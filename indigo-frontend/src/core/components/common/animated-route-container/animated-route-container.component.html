@@ -1,0 +1,18 @@
+<div
+  [@fadeAnimation]="prepareRouteTransition(outlet)"
+  [@slideLeftAnimation]="
+    animationType === 'slideLeft' ? prepareRouteTransition(outlet) : null
+  "
+  [@slideRightAnimation]="
+    animationType === 'slideRight' ? prepareRouteTransition(outlet) : null
+  "
+  [@slideUpAnimation]="
+    animationType === 'slideUp' ? prepareRouteTransition(outlet) : null
+  "
+  [@slideDownAnimation]="
+    animationType === 'slideDown' ? prepareRouteTransition(outlet) : null
+  "
+  class="relative w-full h-full overflow-hidden"
+>
+  <ng-content></ng-content>
+</div>

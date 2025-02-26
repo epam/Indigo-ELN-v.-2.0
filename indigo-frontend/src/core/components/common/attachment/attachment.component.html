@@ -1,0 +1,36 @@
+<app-card classList="py-2 px-3 rounded-md">
+  <div class="grid grid-cols-[1fr_1fr_100px_auto_20px] gap-6 text-sm">
+    <div class="col-span-1 flex gap-1 items-center">
+      <em [class]="computedIcon" class="text-primary-400"></em>
+      <span>{{ attachment.name }}</span>
+    </div>
+    <span>by {{ attachment.author }}</span>
+    <span>{{ attachment.size }}</span>
+    <span class="flex justify-end items-center">{{ attachment.date }}</span>
+    <div class="flex ml-auto items-center">
+      <!-- TODO: Add related options -->
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="menu"
+        class="flex items-center"
+        aria-label="Example icon-button with a menu"
+      >
+        <mat-icon>more_horiz</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item>
+          <mat-icon>dialpad</mat-icon>
+          <span>Redial</span>
+        </button>
+        <button mat-menu-item disabled>
+          <mat-icon>voicemail</mat-icon>
+          <span>Check voice mail</span>
+        </button>
+        <button mat-menu-item>
+          <mat-icon>notifications_off</mat-icon>
+          <span>Disable alerts</span>
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+</app-card>
