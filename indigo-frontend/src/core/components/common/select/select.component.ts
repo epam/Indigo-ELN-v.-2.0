@@ -11,6 +11,7 @@ import {
   Output,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ChipComponent } from '../chip/chip.component';
 import { DropdownMenuItem } from '../dropdown-menu/dropdown-menu.i';
 
 type SelectValue = string | string[] | null;
@@ -18,7 +19,7 @@ type SelectValue = string | string[] | null;
 @Component({
   selector: 'app-select',
   standalone: true,
-  imports: [CommonModule, ClassPickerPipe],
+  imports: [CommonModule, ClassPickerPipe, ChipComponent],
   templateUrl: './select.component.html',
   providers: [
     {
@@ -40,6 +41,7 @@ export class SelectComponent
   @Input() disabled = false;
   @Input() hasError = false;
   @Input() multiple = false;
+  @Input() renderChips = false;
   @Output() selectionChange = new EventEmitter<SelectValue>();
 
   value: SelectValue = null;
@@ -105,8 +107,8 @@ export class SelectComponent
     return this.value === item.value;
   }
 
-  removeItem(value: string, event: MouseEvent): void {
-    event.stopPropagation();
+  removeItem(value: string, event: MouseEvent | null): void {
+    event?.stopPropagation();
 
     if (!this.multiple || !Array.isArray(this.value)) return;
 

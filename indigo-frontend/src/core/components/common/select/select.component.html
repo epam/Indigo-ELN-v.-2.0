@@ -35,31 +35,41 @@
 
       @if (multiple) {
         <div class="flex flex-wrap gap-1 flex-1 min-w-0">
-          <ng-container *ngIf="selectedValues.length > 0">
-            <div
-              *ngFor="let val of selectedValues; let i = index"
-              [class]="
-                {
-                  'inline-flex items-center gap-1 bg-primary-alpha-10 text-primary-500 px-2 py-0.5 rounded-sm': true,
-                  'bg-red-alpha-10 text-red-200': hasError,
-                } | classPicker
-              "
-            >
-              <span class="truncate">
+          @if (selectedValues.length > 0) {
+            @if (renderChips) {
+              <app-chip
+                *ngFor="let val of selectedValues; let i = index"
+                (emitClose)="removeItem(val, null)"
+                [deleteable]="!disabled"
+                [error]="hasError"
+                [active]="!disabled"
+              >
                 {{ getItemLabel(val) }}
-              </span>
-              <em
-                class="indicon-close cursor-pointer text-lg hover:bg-red-200 hover:text-neutral rounded-sm transition-colors duration-200"
-                (click)="removeItem(val, $event)"
-              ></em>
-            </div>
-          </ng-container>
-          <span
-            *ngIf="selectedValues.length === 0"
-            class="text-neutral-500 dd-placeholder"
-          >
-            {{ placeholder }}
-          </span>
+              </app-chip>
+            } @else {
+              <div
+                *ngFor="let val of selectedValues; let i = index"
+                [class]="
+                  {
+                    'inline-flex items-center gap-1 bg-primary-alpha-10 text-primary-500 px-2 py-0.5 rounded-sm': true,
+                    'bg-red-alpha-10 text-red-200': hasError,
+                  } | classPicker
+                "
+              >
+                <span class="truncate">
+                  {{ getItemLabel(val) }}
+                </span>
+                <em
+                  class="indicon-close cursor-pointer text-lg hover:bg-red-200 hover:text-neutral rounded-sm transition-colors duration-200"
+                  (click)="removeItem(val, $event)"
+                ></em>
+              </div>
+            }
+          } @else {
+            <span class="text-neutral-500 dd-placeholder">
+              {{ placeholder }}
+            </span>
+          }
         </div>
       }
 
