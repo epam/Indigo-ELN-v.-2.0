@@ -1,0 +1,71 @@
+<div class="flex flex-col gap-1" [class.text-red-200]="hasError">
+  <label *ngIf="label" class="text-sm font-medium">
+    {{ label }}
+    <span *ngIf="required" class="text-red-200">*</span>
+  </label>
+
+  <div #selectContainer class="select-container relative text-sm">
+    <div
+      [class]="
+        {
+          'select-trigger relative inline-flex w-full items-center gap-2 rounded-sm border px-3 py-2 transition-colors duration-200 cursor-pointer select-none': true,
+          'bg-neutral-100': isOpen && !disabled,
+          'cursor-not-allowed': disabled,
+          'border-neutral-300': !isOpen,
+          'border-primary-400': isOpen,
+          'hover:bg-neutral-100': !isOpen && !disabled,
+          'hover:border-primary-400': !disabled,
+          'active:bg-neutral-200': !disabled,
+          'opacity-60': disabled,
+          'border-red-200': hasError,
+        } | classPicker
+      "
+      (click)="toggleDropdown($event)"
+    >
+      <em *ngIf="selectedLabel" class="indicon-check text-primary-400"></em>
+      <span
+        [class.text-neutral-500]="!selectedLabel"
+        class="dd-label"
+        [class.dd-placeholder]="!selectedLabel"
+      >
+        {{ selectedLabel || placeholder }}
+      </span>
+      <em
+        class="indicon-chevron_down ml-auto transition-transform duration-200"
+        [class.rotate-180]="isOpen"
+      ></em>
+    </div>
+
+    @if (isOpen) {
+      <ul
+        #dropdownList
+        [@dropdownAnimation]
+        class="absolute bg-neutral border border-neutral-300 rounded-sm shadow-lg z-50 whitespace-nowrap w-full"
+        [class.top-full]="dropdownDirection === 'down'"
+        [class.bottom-full]="dropdownDirection === 'up'"
+        [class.mt-1]="dropdownDirection === 'down'"
+        [class.mb-1]="dropdownDirection === 'up'"
+        [class.left-0]="dropdownAlignment === 'left'"
+        [class.right-0]="dropdownAlignment === 'right'"
+      >
+        @for (item of items; track item) {
+          <li
+            class="px-3 py-2 flex items-center gap-2 text-neutral-1000 text-sm hover:bg-neutral-100"
+            [class.bg-primary-alpha-10]="item.value === value"
+            [class.text-primary-400]="item.value === value"
+            [class.opacity-50]="item.disabled"
+            [class.cursor-not-allowed]="item.disabled"
+            [class.cursor-pointer]="!item.disabled"
+            (click)="!item.disabled && selectItem(item, $event)"
+          >
+            <em *ngIf="item.icon" [class]="item.icon"></em>
+            {{ item.label }}
+            @if (item.value === value) {
+              <em class="indicon-check-circle ml-auto"></em>
+            }
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</div>
