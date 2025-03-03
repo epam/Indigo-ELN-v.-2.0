@@ -39,9 +39,11 @@ export class SelectComponent
   @Input() hasError = false;
   @Output() selectionChange = new EventEmitter<string>();
 
-  value: any = null;
-  onChange: any = () => {};
-  onTouched: any = () => {};
+  value: string | null = null;
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  onChange: (value: string | null) => void = () => {};
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  onTouched: () => void = () => {};
 
   readonly containerSelector = '.select-container';
 
@@ -50,7 +52,7 @@ export class SelectComponent
     return selectedItem?.label;
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     this.checkDropdownPosition();
   }
 
@@ -71,23 +73,23 @@ export class SelectComponent
     event.stopPropagation();
 
     if (this.value !== item.value) {
-      this.value = item.value;
+      this.value = item.value as string;
       this.onChange(this.value);
-      this.selectionChange.emit(item.value);
+      this.selectionChange.emit(this.value);
     }
 
     this.isOpen = false;
   }
 
-  writeValue(value: any): void {
+  writeValue(value: string | null): void {
     this.value = value;
   }
 
-  registerOnChange(fn: any): void {
+  registerOnChange(fn: (value: string | null) => void): void {
     this.onChange = fn;
   }
 
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
 
