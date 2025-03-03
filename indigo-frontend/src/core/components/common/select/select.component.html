@@ -22,8 +22,7 @@
       "
       (click)="toggleDropdown($event)"
     >
-      <!-- Single select display -->
-      <ng-container *ngIf="!multiple">
+      @if (!multiple) {
         <em *ngIf="selectedLabel" class="indicon-check text-primary-400"></em>
         <span
           [class.text-neutral-500]="!selectedLabel"
@@ -32,22 +31,25 @@
         >
           {{ selectedLabel || placeholder }}
         </span>
-      </ng-container>
+      }
 
-      <!-- Multi select display -->
-      <ng-container *ngIf="multiple">
+      @if (multiple) {
         <div class="flex flex-wrap gap-1 flex-1 min-w-0">
           <ng-container *ngIf="selectedValues.length > 0">
             <div
               *ngFor="let val of selectedValues; let i = index"
-              class="inline-flex items-center gap-1 bg-primary-alpha-10 text-primary-500 px-2 py-0.5 rounded-sm text-xs"
-              [class.hidden]="i > 1 && selectedValues.length > 3"
+              [class]="
+                {
+                  'inline-flex items-center gap-1 bg-primary-alpha-10 text-primary-500 px-2 py-0.5 rounded-sm': true,
+                  'bg-red-alpha-10 text-red-200': hasError,
+                } | classPicker
+              "
             >
               <span class="truncate">
                 {{ getItemLabel(val) }}
               </span>
               <em
-                class="indicon-close cursor-pointer"
+                class="indicon-close cursor-pointer text-lg hover:bg-red-200 hover:text-neutral rounded-sm transition-colors duration-200"
                 (click)="removeItem(val, $event)"
               ></em>
             </div>
@@ -59,7 +61,7 @@
             {{ placeholder }}
           </span>
         </div>
-      </ng-container>
+      }
 
       <em
         class="indicon-chevron_down ml-auto transition-transform duration-200"
@@ -90,7 +92,7 @@
             (click)="!item.disabled && selectItem(item, $event)"
           >
             <!-- Checkbox for multiselect -->
-            <ng-container *ngIf="multiple">
+            @if (multiple) {
               <div
                 class="w-4 h-4 border rounded flex items-center justify-center"
                 [class.border-primary-400]="isSelected(item)"
@@ -101,7 +103,7 @@
                   class="indicon-check text-white text-xs"
                 ></em>
               </div>
-            </ng-container>
+            }
 
             <!-- Icon for single select -->
             <em *ngIf="!multiple && item.icon" [class]="item.icon"></em>
