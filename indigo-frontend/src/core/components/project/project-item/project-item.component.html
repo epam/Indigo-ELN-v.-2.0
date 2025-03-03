@@ -18,6 +18,7 @@
     <div class="[grid-area:clickMore] flex ml-auto">
       <button
         mat-icon-button
+        (click)="$event.stopPropagation()"
         [matMenuTriggerFor]="menu"
         class=""
         aria-label="Example icon-button with a menu"
