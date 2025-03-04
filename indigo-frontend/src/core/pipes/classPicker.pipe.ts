@@ -1,4 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import { twsx } from '../utils/twsx';
 
 @Pipe({
   name: 'classPicker',
@@ -10,9 +11,11 @@ export class ClassPickerPipe implements PipeTransform {
       return '';
     }
 
-    return Object.entries(value)
-      .filter(([, isActive]) => isActive)
-      .map(([className]) => className)
-      .join(' ');
+    return twsx(
+      Object.entries(value)
+        .filter(([, isActive]) => isActive)
+        .map(([className]) => className)
+        .join(' '),
+    );
   }
 }
