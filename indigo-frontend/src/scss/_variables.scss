@@ -1,5 +1,6 @@
 @use 'helpers' as *;
 
+@use '@angular/material' as mat;
 $indigo-icons-font-family: 'IndigoELNIcons' !default;
 $indigo-icons-font-path: 'fonts' !default;
 
@@ -62,6 +63,19 @@ $indicon-table: '\e937';
 $indicon-terminal: '\e938';
 
 :root {
+  @include mat.tooltip-overrides(
+    (
+      container-color: var(--neutral),
+      supporting-text-color: var(--neutral-1000),
+      supporting-text-size: 12px,
+      container-shape: 3px,
+    )
+  );
+
+  mat-tooltip-component {
+    box-shadow: 0px 4px 16px var(--RADIUSradius-6) #00000029;
+  }
+
   --primary-50: #eff0f9;
   --primary-100: #dee1f3;
   --primary-200: #bdc3e8;
