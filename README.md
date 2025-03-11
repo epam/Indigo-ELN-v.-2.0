@@ -5,6 +5,7 @@ Indigo - The Open-Source Chemistry Electronic Lab Notebook
 # Sandbox
 
 https://indigo-eln.test.lifescience.opensource.epam.com/
+please contact indigoeln@epam.com to request access
 
 # Installation
 
