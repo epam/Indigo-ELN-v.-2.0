@@ -5,8 +5,6 @@ Indigo - The Open-Source Chemistry Electronic Lab Notebook
 # Sandbox
 
 https://indigo-eln.test.lifescience.opensource.epam.com/
-login: community
-password: Qwe1234
 
 # Installation
 
