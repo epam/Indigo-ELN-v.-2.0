@@ -1,4 +1,5 @@
 # Indigo-ELN-v.-2.0
+
 Indigo - The Open-Source Chemistry Electronic Lab Notebook
 
 # Sandbox
@@ -10,12 +11,6 @@ password: Qwe1234
 # Installation
 
 **NB**: Indigo ELN is currently being severely transformed. Deployment script, application code and documentation may contain errors and inconsistencies.
-
-Right now the most recent code, including transition to CloudFormation, is stored in work-in-progress branches:
-- `indigo-eln` for Cloud Automation repository: https://git.epam.com/epm-lsop/cloud-automation.git
-- `upgrade-java` for Indigo ELN repository: https://github.com/epam/Indigo-ELN-v.-2.0.git
-
-This guide will use mention which branches to use.
 
 Please contact the Indigo ELN team in case of any questions.
 
@@ -29,7 +24,10 @@ However, you can copy images to your own ECR repository and adjust XXXServiceTag
 ```bash
 git clone https://github.com/epam/Indigo-ELN-v.-2.0.git
 cd Indigo-ELN-v.-2.0
-git switch upgrade-java
+```
+- Create directories for persistent data:
+```bash
+sudo mkdir -p /var/local/indigoeln/{mongo-db,postgres-signature,postgres-crs,bingodb}
 ```
 - From the root of the repository, run:
 ```bash
@@ -40,13 +38,10 @@ It will build all containers and start the application. You can access the appli
 
 ## Installation on AWS
 
-**NB**: Only accessible within EPAM
-
-### Clone Cloud Automation repository and switch to branch
+### Clone Cloud Automation repository
 ```bash
 git clone https://git.epam.com/epm-lsop/cloud-automation.git
 cd cloud-automation
-git switch indigo-eln
 ```
 
 ### Deploy a CloudFormation script
@@ -54,7 +49,11 @@ git switch indigo-eln
 
 You can do it via AWS Console or AWS CLI (`aws cloudformation create-stack`) or a helper tool like Rain (https://github.com/aws-cloudformation/rain)
 
-Be sure to adjust the script parameters, at least these:
+Be sure to review the script adjust parameters before deploy. Also, adjust lines marked with UPDATEME to your AWS environment.
+
+*NB* Script contains references to example resources with non-existing keys, so be sure to update it.
+
+Some required parameters:
 - KeyPairName: Name of an existing Amazon EC2 key pair to enable SSH or RDP access to the instances
 - VPCId: ID of your existing AWS VPC
 - HostedZoneId: Existing Route53 Hosted zone ID
@@ -65,13 +64,7 @@ Be sure to adjust the script parameters, at least these:
 - MongoDBPassword: password for the created instance of MongoDB
 - DefaultAdminPassword: password for main application admin user, BCrypt encoded
 
-Also, update image tags for the Docker images used. Typically, you need the latest time tag with given prefix. Latest tags at the time of writing are listed below. Alternatively, you can find it here https://gallery.ecr.aws/m5k0g6n7/indigo_eln. 
-- IndigoServerTag: public.ecr.aws/m5k0g6n7/indigo_eln:server-20241206-150630
-- IndigoBingoServiceTag: public.ecr.aws/m5k0g6n7/indigo_eln:bingodb-20241114-210249
-- IndigoSignatureServiceTag: public.ecr.aws/m5k0g6n7/indigo_eln:signature-20241114-220535
-- IndigoCrsServiceTag: public.ecr.aws/m5k0g6n7/indigo_eln:crs-20241128-204151
-- IndigoPostgresServiceTag: public.ecr.aws/m5k0g6n7/indigo_eln:postgres-20241114-220535
-- IndigoPostgresCrsServiceTag: public.ecr.aws/m5k0g6n7/indigo_eln:postgres-crs-20241128-204151
+Also, update image tags for the Docker images used. Typically, you need the latest time tag with given prefix. Latest tags at the time of writing are already included in the CloudFormation script. Alternatively, you can find it here https://gallery.ecr.aws/m5k0g6n7/indigo_eln. 
 
 ### Validate installation and troubleshooting
 
@@ -81,7 +74,6 @@ Also, update image tags for the Docker images used. Typically, you need the late
 ```bash
 docker ps
 ```
-
 There should be 8 containers running: mongo-db, postgres-signature, postgres-crs, bingodb, server, signature, crs, indigo
 
 If there are fewer of them, you can find IDs of stopped containers and inspect its logs:

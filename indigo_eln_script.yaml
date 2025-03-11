@@ -1,0 +1,935 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Indigo ELN (Electronic Lab Notebook)
+Parameters:
+  LatestAmiId:
+    Description: Latest Amazon Linux AMI for EC2 IndigoService
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  IndigoElnBranchName:
+    Description: Indigo-ELN Git branch name
+    Type: String
+    Default: master
+  IndigoServerTag:
+    Description: Indigo Server Docker image tag
+    Type: String
+    Default: public.ecr.aws/m5k0g6n7/indigo_eln:server-20250205-074927
+  IndigoBingoServiceTag:
+    Description: Indigo Bingo Service Docker image tag
+    Type: String
+    Default: public.ecr.aws/m5k0g6n7/indigo_eln:bingodb-20241114-210249
+  IndigoSignatureServiceTag:
+    Description: Indigo Signature Service Docker image tag
+    Type: String
+    Default: public.ecr.aws/m5k0g6n7/indigo_eln:signature-20250121-214015
+  IndigoCrsServiceTag:
+    Description: Indigo Crs Service Docker image tag
+    Type: String
+    Default: public.ecr.aws/m5k0g6n7/indigo_eln:crs-20250108-040611
+  IndigoMongoServiceTag:
+    Description: Indigo Mongo Service Docker image tag
+    Type: String
+    Default: mongo:5
+  IndigoPostgresServiceTag:
+    Description: Indigo Postgres Service Docker image tag
+    Type: String
+    Default: public.ecr.aws/m5k0g6n7/indigo_eln:postgres-20250121-214015
+  IndigoPostgresCrsServiceTag:
+    Description: Indigo Postgres Crs Service Docker image tag
+    Type: String
+    Default: public.ecr.aws/m5k0g6n7/indigo_eln:postgres-crs-20250108-040611
+  PermissionsBoundaryArn:
+    Type: String
+    Description: Enter ARN for roles permission boundary
+    Default: arn:aws:iam::12345678:policy/some_role_boundary # UPDATEME
+  KeyPairName:
+    Description: >-
+      Name of an existing Amazon EC2 key pair to enable SSH or RDP access to the
+      instances.
+    Type: String
+    MinLength: '1'
+    MaxLength: '255'
+    AllowedPattern: '[ -~]*'
+    ConstraintDescription: KeyPairName is a required Field and can contain only ASCII characters.
+    Default: indigo_service # UPDATEME
+  VPCId:
+    Type: String
+    Description: VPC to use
+    Default: vpc-12345678 # UPDATEME
+  HostedZoneId:
+    Description: Route53 Hosted zone id
+    Type: String
+    Default: Z12345678 # UPDATEME
+  IndigoELNDomainName:
+    Type: String
+    Description: Host without http|https protocol.
+    MinLength: '1'
+    ConstraintDescription: IndigoELNDomainName is a required Field
+    Default: indigo-eln.test.lifescience.opensource.epam.com # UPDATEME
+  IndigoELNAPIDomainName:
+    Type: String
+    Description: Host without http|https protocol.
+    MinLength: '1'
+    ConstraintDescription: IndigoELNDomainName is a required Field
+    Default: api.indigo-eln.test.lifescience.opensource.epam.com # UPDATEME
+  IndigoELNContentBucketName:
+    Type: String
+    Description: S3 bucket where frontend code will be served from
+    MinLength: '1'
+    ConstraintDescription: IndigoELNContentBucketName is a required field
+    Default: indigo-eln-artifacts # UPDATEME
+  IndigoELNBuildLogsBucketName:
+    Type: String
+    Description: S3 bucket where build logs are stored
+    MinLength: '1'
+    ConstraintDescription: IndigoELNBuildLogsBucketName is a required field
+    Default: indigo-eln-build-logs # UPDATEME
+  MongoDBPassword:
+    Type: String
+    Description: MongoDB password
+    MinLength: '1'
+    ConstraintDescription: MongoDBPassword is a required field
+    Default: changeit # UPDATEME
+  DefaultAdminPassword:
+    Type: String
+    Description: Default admin password for the application, BCrypt encoded; default is encrypted for "admin"
+    Default: "$2a$10$jawSRFtkzurLE2mDbiAK0O3MDtxvBi1OlbJV8HLFKKpIUC/I7Gyrq" # UPDATEME
+
+Resources:
+  RolePortalCodeBuild:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${AWS::StackName}-RolePortalCodeBuild
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-RolePortalCodeBuildPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                  - 'logs:GetLogEvents'
+                  - 'logs:FilterLogEvents'
+                  - 's3:PutObject'
+                  - 's3:GetObject'
+                  - 's3:GetObjectVersion'
+                  - 's3:GetBucketAcl'
+                  - 's3:GetBucketLocation'
+                  - 's3:CreateBucket'
+                  - 's3:List*'
+                  - 's3:DeleteObject'
+                  - 'cloudfront:CreateInvalidation'
+                  - 'iam:*'
+                  - 'codebuild:*'
+                  - 'sts:GetServiceBearerToken'
+                  - 'ecr-public:GetAuthorizationToken'
+                  - 'ecr-public:InitiateLayerUpload'
+                  - 'ecr-public:UploadLayerPart'
+                  - 'ecr-public:CompleteLayerUpload'
+                  - 'ecr-public:PutImage'
+                  - "ecr-public:BatchCheckLayerAvailability"
+                Resource: '*'
+      PermissionsBoundary: !Ref PermissionsBoundaryArn
+
+  BuildUI:
+    Type: 'AWS::CodeBuild::Project'
+    DependsOn: RolePortalCodeBuild
+    Properties:
+      Name: !Sub ${AWS::StackName}-ui
+      BadgeEnabled: false
+      Cache:
+        Type: NO_CACHE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Type: LINUX_CONTAINER
+        Image: 'aws/codebuild/amazonlinux2-x86_64-standard:5.0'
+        ImagePullCredentialsType: CODEBUILD
+        PrivilegedMode: true
+        EnvironmentVariables:
+          - Name: BUCKET
+            Value: !Ref IndigoELNContentBucketName
+            Type: PLAINTEXT
+          - Name: DISTRIBUTION
+            Value: !Ref CloudFront
+            Type: PLAINTEXT
+      FileSystemLocations: []
+      LogsConfig:
+        CloudWatchLogs:
+          Status: DISABLED
+        S3Logs:
+          Status: ENABLED
+          Location: !Ref S3BuildLogs
+      QueuedTimeoutInMinutes: 480
+      Source:
+        BuildSpec: !Sub |
+          version: 0.2
+          phases:
+            install:
+              runtime-versions:
+                nodejs: 18
+            pre_build:
+              commands:
+                - set -ex
+                - cd ui
+                - npm install
+            build:
+              commands:
+                - npm run build --env.apiUrl=https://${IndigoELNDomainName}/api/
+                - aws s3 sync dist "s3://$BUCKET/"
+                - aws cloudfront create-invalidation --distribution-id $DISTRIBUTION --paths "/*"
+        Type: GITHUB
+        InsecureSsl: false
+        Location: 'https://github.com/epam/Indigo-ELN-v.-2.0.git'
+      Artifacts:
+        Type: NO_ARTIFACTS
+      SourceVersion: !Ref IndigoElnBranchName
+      TimeoutInMinutes: 10
+      ServiceRole: !GetAtt [ RolePortalCodeBuild, Arn ]
+
+  BuildBingo:
+    Type: 'AWS::CodeBuild::Project'
+    DependsOn: RolePortalCodeBuild
+    Properties:
+      Name: !Sub ${AWS::StackName}-bingo
+      BadgeEnabled: false
+      Cache:
+        Type: NO_CACHE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Type: LINUX_CONTAINER
+        Image: 'aws/codebuild/amazonlinux2-x86_64-standard:5.0'
+        ImagePullCredentialsType: CODEBUILD
+        PrivilegedMode: true
+      FileSystemLocations: []
+      LogsConfig:
+        CloudWatchLogs:
+          Status: DISABLED
+        S3Logs:
+          Status: ENABLED
+          Location: !Ref S3BuildLogs
+      QueuedTimeoutInMinutes: 480
+      Source:
+        BuildSpec: !Sub |
+          version: 0.2
+          phases:
+            pre_build:
+              commands:
+                - set -e
+                - echo $(date +%Y%m%d-%H%M%S) > /tmp/timestamp
+                - echo $(cat /tmp/timestamp)
+                - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/m5k0g6n7
+            build:
+              commands:
+                - docker build -t indigo_eln ./bingodb
+                - docker tag indigo_eln:latest public.ecr.aws/m5k0g6n7/indigo_eln:bingodb-$(cat /tmp/timestamp)
+            post_build:
+              commands:
+                - docker push public.ecr.aws/m5k0g6n7/indigo_eln:bingodb-$(cat /tmp/timestamp)
+        Type: GITHUB
+        InsecureSsl: false
+        Location: 'https://github.com/epam/Indigo-ELN-v.-2.0.git'
+      Artifacts:
+        Type: NO_ARTIFACTS
+      SourceVersion: !Ref IndigoElnBranchName
+      TimeoutInMinutes: 10
+      ServiceRole: !GetAtt [ RolePortalCodeBuild, Arn ]
+
+  BuildServer:
+    Type: 'AWS::CodeBuild::Project'
+    DependsOn: RolePortalCodeBuild
+    Properties:
+      Name: !Sub ${AWS::StackName}-server
+      BadgeEnabled: false
+      Cache:
+        Type: NO_CACHE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Type: LINUX_CONTAINER
+        Image: 'aws/codebuild/amazonlinux2-x86_64-standard:5.0'
+        ImagePullCredentialsType: CODEBUILD
+        PrivilegedMode: true
+      FileSystemLocations: []
+      LogsConfig:
+        CloudWatchLogs:
+          Status: DISABLED
+        S3Logs:
+          Status: ENABLED
+          Location: !Ref S3BuildLogs
+      QueuedTimeoutInMinutes: 480
+      Source:
+        BuildSpec: !Sub |
+          version: 0.2
+          phases:
+            pre_build:
+              commands:
+                - set -e
+                - echo $(date +%Y%m%d-%H%M%S) > /tmp/timestamp
+                - echo $(cat /tmp/timestamp)
+                - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/m5k0g6n7
+            build:
+              commands:
+                - docker build -t indigo_eln ./server
+                - docker tag indigo_eln:latest public.ecr.aws/m5k0g6n7/indigo_eln:server-$(cat /tmp/timestamp)
+            post_build:
+              commands:
+                - docker push public.ecr.aws/m5k0g6n7/indigo_eln:server-$(cat /tmp/timestamp)
+        Type: GITHUB
+        InsecureSsl: false
+        Location: 'https://github.com/epam/Indigo-ELN-v.-2.0.git'
+      Artifacts:
+        Type: NO_ARTIFACTS  
+      SourceVersion: !Ref IndigoElnBranchName
+      TimeoutInMinutes: 10
+      ServiceRole: !GetAtt [ RolePortalCodeBuild, Arn ]
+       
+  BuildSignature:
+    Type: 'AWS::CodeBuild::Project'
+    DependsOn: RolePortalCodeBuild
+    Properties:
+      Name: !Sub ${AWS::StackName}-signature
+      BadgeEnabled: false
+      Cache:
+        Type: NO_CACHE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Type: LINUX_CONTAINER
+        Image: 'aws/codebuild/amazonlinux2-x86_64-standard:5.0'
+        ImagePullCredentialsType: CODEBUILD
+        PrivilegedMode: true
+      FileSystemLocations: []
+      LogsConfig:
+        CloudWatchLogs:
+          Status: DISABLED
+        S3Logs:
+          Status: ENABLED
+          Location: !Ref S3BuildLogs
+      QueuedTimeoutInMinutes: 480
+      Source:
+        BuildSpec: !Sub |
+          version: 0.2
+          phases:
+            pre_build:
+              commands:
+                - set -e
+                - echo $(date +%Y%m%d-%H%M%S) > /tmp/timestamp
+                - echo $(cat /tmp/timestamp)
+                - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/m5k0g6n7
+            build:
+              commands:
+                - docker build -t indigo_eln ./signature
+                - docker tag indigo_eln:latest public.ecr.aws/m5k0g6n7/indigo_eln:signature-$(cat /tmp/timestamp)
+                - docker build -t indigo_eln ./signature/database
+                - docker tag indigo_eln:latest public.ecr.aws/m5k0g6n7/indigo_eln:postgres-$(cat /tmp/timestamp)
+            post_build:
+              commands:
+                - docker push public.ecr.aws/m5k0g6n7/indigo_eln:signature-$(cat /tmp/timestamp)
+                - docker push public.ecr.aws/m5k0g6n7/indigo_eln:postgres-$(cat /tmp/timestamp)
+        Type: GITHUB
+        InsecureSsl: false
+        Location: 'https://github.com/epam/Indigo-ELN-v.-2.0.git'
+      Artifacts:
+        Type: NO_ARTIFACTS
+      SourceVersion: !Ref IndigoElnBranchName
+      TimeoutInMinutes: 10
+      ServiceRole: !GetAtt [ RolePortalCodeBuild, Arn ]
+
+  BuildCrs:
+    Type: 'AWS::CodeBuild::Project'
+    DependsOn: RolePortalCodeBuild
+    Properties:
+      Name: !Sub ${AWS::StackName}-crs
+      BadgeEnabled: false
+      Cache:
+        Type: NO_CACHE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Type: LINUX_CONTAINER
+        Image: 'aws/codebuild/amazonlinux2-x86_64-standard:5.0'
+        ImagePullCredentialsType: CODEBUILD
+        PrivilegedMode: true
+      FileSystemLocations: []
+      LogsConfig:
+        CloudWatchLogs:
+          Status: DISABLED
+        S3Logs:
+          Status: ENABLED
+          Location: !Ref S3BuildLogs
+      QueuedTimeoutInMinutes: 480
+      Source:
+        BuildSpec: !Sub |
+          version: 0.2
+          phases:
+            pre_build:
+              commands:
+                - set -e
+                - echo $(date +%Y%m%d-%H%M%S) > /tmp/timestamp
+                - echo $(cat /tmp/timestamp)
+                - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/m5k0g6n7
+            build:
+              commands:
+                - docker build -t indigo_eln ./CRS
+                - docker tag indigo_eln:latest public.ecr.aws/m5k0g6n7/indigo_eln:crs-$(cat /tmp/timestamp)
+                - docker build -t indigo_eln ./CRS/database
+                - docker tag indigo_eln:latest public.ecr.aws/m5k0g6n7/indigo_eln:postgres-crs-$(cat /tmp/timestamp)
+            post_build:
+              commands:
+                - docker push public.ecr.aws/m5k0g6n7/indigo_eln:crs-$(cat /tmp/timestamp)
+                - docker push public.ecr.aws/m5k0g6n7/indigo_eln:postgres-crs-$(cat /tmp/timestamp)
+        Type: GITHUB
+        InsecureSsl: false
+        Location: 'https://github.com/epam/Indigo-ELN-v.-2.0.git'
+      Artifacts:
+        Type: NO_ARTIFACTS
+      SourceVersion: !Ref IndigoElnBranchName
+      TimeoutInMinutes: 10
+      ServiceRole: !GetAtt [ RolePortalCodeBuild, Arn ]
+
+  IndigoService:
+    Type: 'AWS::EC2::Instance'
+    Metadata:
+      'AWS::CloudFormation::Init':
+        config:
+          files:
+            /home/ec2-user/docker-compose.yml:
+              content: !Sub
+                - |
+                  version: "3.3"
+                  services:
+                    mongo-db:
+                      image: ${IndigoMongoServiceTag}
+                      restart: always
+                      environment:
+                        - "MONGO_INITDB_ROOT_USERNAME=root"
+                        - "MONGO_INITDB_ROOT_PASSWORD=${MongoDBPassword}"
+                        - "MONGO_INITDB_DATABASE=indigoeln"
+                      ports:
+                        - "27017:27017"
+                      deploy:
+                        resources:
+                          limits:
+                            memory: 128M
+                      volumes:
+                        - type: bind
+                          source: /var/local/indigoeln/mongo-db
+                          target: /data/db
+                            
+                    postgres-signature:
+                      image: ${IndigoPostgresServiceTag}
+                      restart: always
+                      environment:
+                        - POSTGRES_PASSWORD=postgres
+                      ports:
+                        - "5432:5432"
+                      deploy:
+                        resources:
+                          limits:
+                            memory: 128M
+                      volumes:
+                        - type: bind
+                          source: /var/local/indigoeln/postgres-signature
+                          target: /var/lib/postgresql/data
+                    
+                    postgres-crs:
+                      image: ${IndigoPostgresCrsServiceTag}
+                      restart: always
+                      environment:
+                        - POSTGRES_PASSWORD=postgres
+                      ports:
+                        - "15432:5432"
+                      deploy:
+                        resources:
+                          limits:
+                            memory: 128M
+                      volumes:
+                        - type: bind
+                          source: /var/local/indigoeln/postgres-crs
+                          target: /var/lib/postgresql/data
+                    
+                    bingodb:
+                      image: ${IndigoBingoServiceTag}
+                      environment:
+                        - BINGO_USERNAME=bingo
+                        - BINGO_PASSWORD=pass
+                        - SPRING_HOST=0.0.0.0
+                        - INDIGOELN_LIBRARY_PATH=/tmp/indigolibs
+                        - LD_LIBRARY_PATH=/tmp/indigolibs/linux-x86_64
+                      ports:
+                        - "9999:9999"
+                      deploy:
+                        resources:
+                          limits:
+                            memory: 768M
+                      volumes:
+                        - type: bind
+                          source: /var/local/indigoeln/bingodb
+                          target: /opt/jars/bingo
+                    
+                    server:
+                      image: ${IndigoServerTag}
+                      environment:
+                        - "SPRING_DATA_MONGODB_URI=mongodb://root:${MongoDBPassword}@mongo-db:27017/indigoeln?authSource=admin"
+                        # URL for BingoDB api
+                        - BINGODB_API_URL=http://bingodb:9999/api
+                        # Username to access BingoDB api
+                        - BINGODB_USERNAME=bingo
+                        # Password to access BingoDB api
+                        - BINGODB_PASSWORD=pass
+                        # allow cors for UI
+                        - CORS_ORIGIN=https://${IndigoELNDomainName}
+                        # user/password = admin/admin
+                        - DEFAULT-ADMIN-PASSWORD=${DefaultAdminPassword}
+                        - SPRING_PROFILES_ACTIVE=cors
+                        - SPRING_HOST=0.0.0.0
+                        - SIGNATURESERVICE_URL=http://signature:8080/signatureservice
+                        - INDIGOELN_CLIENT_SIGNATURESERVICE_URL=https://${IndigoELNDomainName}/signatureservice
+                        - CRS_SEARCH_SERVICE_URL=http://crs:8080/crs/search
+                        - CRS_REGISTRATION_SERVICE_URL=http://crs:8080/crs/registration
+                        - CRS_USERNAME=user
+                        - CRS_PASSWORD=pass
+                        - INDIGOELN_LIBRARY_PATH=/tmp/indigolibs
+                        - LD_LIBRARY_PATH=/tmp/indigolibs/linux-x86_64
+                      expose:
+                        - "8080"
+                      ports:
+                        - "8080:8080"
+                      deploy:
+                        resources:
+                          limits:
+                            memory: 768M
+                    
+                    signature:
+                      image: ${IndigoSignatureServiceTag}
+                      environment:
+                        - DATABASE_CONNECTION_URL=jdbc:postgresql://postgres-signature:5432/postgres
+                      expose:
+                        - "8080"
+                      ports:
+                        - "28080:8080"
+                      deploy:
+                        resources:
+                          limits:
+                            memory: 512M
+                    
+                    crs:
+                      image: ${IndigoCrsServiceTag}
+                      environment:
+                        - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-crs:5432/postgres
+                      expose:
+                        - "8080"
+                      ports:
+                        - "38080:8080"
+                      deploy:
+                        resources:
+                          limits:
+                            memory: 512M
+
+                    indigo:
+                      image: epmlsop/indigo-service:latest
+                      ports:
+                        - "8002:80"
+
+                - IndigoMongoServiceTag: !Ref IndigoMongoServiceTag
+                  IndigoPostgresServiceTag: !Ref IndigoPostgresServiceTag
+                  IndigoBingoServiceTag: !Ref IndigoBingoServiceTag
+                  IndigoServerTag: !Ref IndigoServerTag
+                  IndigoSignatureServiceTag: !Ref IndigoSignatureServiceTag
+                  IndigoELNDomainName: !Ref IndigoELNDomainName
+                  MongoDBPassword: !Ref MongoDBPassword
+                  DefaultAdminPassword: !Ref DefaultAdminPassword
+              mode: '000744'
+              owner: ec2-user
+              group: ec2-user
+          services:
+            sysvint:
+              codedeploy-agent:
+                enabled: true
+                ensureRunning: true
+              docker:
+                enabled: true
+                ensureRunning: true
+    Properties:
+      SecurityGroupIds:
+        - sg-12345678 # UPDATEME enter your security groups here
+      ImageId: !Ref LatestAmiId
+      InstanceType: t3.medium
+      KeyName: !Ref KeyPairName
+      BlockDeviceMappings:
+      - DeviceName: "/dev/xvda"
+        Ebs:
+          DeleteOnTermination: true
+          Encrypted: true
+      UserData:
+        'Fn::Base64': !Sub
+        - |
+          #!/bin/bash -ex
+          yum update -y
+          yum install -y aws-cli
+          systemctl daemon-reload
+          # Install docker, docker-compose
+          yum install docker -y
+          systemctl start docker
+          systemctl enable docker
+          sudo curl -L https://github.com/docker/compose/releases/download/1.29.1/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
+          usermod -aG docker ec2-user
+          # Install AWS CodeDeploy
+          cd /home/ec2-user
+          wget https://aws-codedeploy-eu-central-1.s3.eu-central-1.amazonaws.com/latest/codedeploy-agent.noarch.rpm
+          yum -y install codedeploy-agent.noarch.rpm
+          # Up service
+          /opt/aws/bin/cfn-init --stack ${StackName} --resource IndigoService --region ${Region}
+          sudo mkdir -p /var/local/indigoeln/{bingodb,mongo-db,postgres-crs,postgres-signature}
+          sudo chmod 0777 /var/local/indigoeln/*
+          docker-compose up -d
+          # Signal the status from cfn-init
+          /opt/aws/bin/cfn-signal -e $? --stack ${StackName} --resource IndigoService --region ${Region}
+        - StackName: !Ref 'AWS::StackName'
+          Region: !Ref 'AWS::Region'
+
+  LoadBalancerCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref IndigoELNAPIDomainName
+      DomainValidationOptions:
+        - DomainName: !Ref IndigoELNAPIDomainName
+          HostedZoneId: !Ref HostedZoneId
+      ValidationMethod: DNS
+
+  Certificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref IndigoELNDomainName
+      DomainValidationOptions:
+        - DomainName: !Ref IndigoELNDomainName
+          HostedZoneId: !Ref HostedZoneId
+      ValidationMethod: DNS
+
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub ${AWS::StackName}-loadbalancer
+      Scheme: internet-facing
+      SecurityGroups:
+        - sg-12345678 # UPDATEME enter your security groups here
+      Subnets:
+        - subnet-12345678 # UPDATEME enter your subnets here
+
+  LoadBalancerHTTPSListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Protocol: HTTPS
+      Port: 443
+      Certificates:
+        - CertificateArn: !Ref LoadBalancerCertificate
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref LoadBalancerAPITargetGroup
+      SslPolicy: ELBSecurityPolicy-TLS13-1-2-2021-06
+
+
+  LoadBalancerHTTPListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Protocol: HTTP
+      Port: 80
+      DefaultActions:
+        - Type: redirect
+          RedirectConfig:
+            Protocol: HTTPS
+            Port: 443
+            StatusCode: HTTP_301
+
+  LoadBalancerAPITargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${AWS::StackName}-api-targetgroup
+      Port: 8080
+      Protocol: HTTP
+      HealthCheckPath: /actuator/health
+      TargetType: instance
+      Targets:
+        - Id: !Ref IndigoService
+      VpcId: !Ref VPCId
+
+  LoadBalancerSignatureTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${AWS::StackName}-signature-targetgroup
+      Port: 28080
+      Protocol: HTTP
+      HealthCheckPath: /signatureservice/
+      TargetType: instance
+      Targets:
+        - Id: !Ref IndigoService
+      VpcId: !Ref VPCId
+
+  LoadBalancerCrsTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${AWS::StackName}-crs-targetgroup
+      Port: 38080
+      Protocol: HTTP
+      HealthCheckPath: /actuator/health
+      TargetType: instance
+      Targets:
+        - Id: !Ref IndigoService
+      VpcId: !Ref VPCId
+
+  LoadBalancerSignatureListenerRule:
+    Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
+    Properties:
+      Actions:
+        - Order: 1
+          TargetGroupArn:
+            Ref: LoadBalancerSignatureTargetGroup
+          Type: "forward"
+      Priority: 20
+      Conditions:
+        - Values:
+            - "/signatureservice*"
+          Field: "path-pattern"
+      ListenerArn: !Ref LoadBalancerHTTPSListener
+
+  LoadBalancerCrsListenerRule:
+    Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
+    Properties:
+      Actions:
+        - Order: 1
+          TargetGroupArn:
+            Ref: LoadBalancerCrsTargetGroup
+          Type: "forward"
+      Priority: 30
+      Conditions:
+        - Values:
+            - "/crs/*"
+          Field: "path-pattern"
+      ListenerArn: !Ref LoadBalancerHTTPSListener
+
+  DNSRecordSetGroup:
+    Type: "AWS::Route53::RecordSetGroup"
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      RecordSets:
+        - Name: !Ref IndigoELNDomainName
+          Type: A
+          AliasTarget:
+            DNSName: !GetAtt 'CloudFront.DomainName'
+            HostedZoneId: ZXXX # UPDATEME enter your hosted zone id
+        - Name: !Ref IndigoELNAPIDomainName
+          Type: A
+          AliasTarget:
+            DNSName: !GetAtt 'LoadBalancer.DNSName'
+            HostedZoneId: !GetAtt 'LoadBalancer.CanonicalHostedZoneID'
+
+  S3ContentBucket:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Ref IndigoELNContentBucketName
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: 'true'
+        BlockPublicPolicy: 'true'
+        IgnorePublicAcls: 'true'
+        RestrictPublicBuckets: 'true'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'AES256'
+
+  S3BuildLogs:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Ref IndigoELNBuildLogsBucketName
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: 'true'
+        BlockPublicPolicy: 'true'
+        IgnorePublicAcls: 'true'
+        RestrictPublicBuckets: 'true'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'AES256'
+
+  CloudFront:
+    Type: "AWS::CloudFront::Distribution"
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - !Ref IndigoELNDomainName
+        DefaultRootObject: index.html
+        Enabled: true
+        HttpVersion: http2
+        IPV6Enabled: true
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - HEAD
+            - DELETE
+            - POST
+            - GET
+            - OPTIONS
+            - PUT
+            - PATCH
+          CachedMethods:
+            - HEAD
+            - GET
+          CachePolicyId: !Ref CloudFrontCachePolicy
+          TargetOriginId: FrontendOrigin
+          ViewerProtocolPolicy: redirect-to-https
+        CacheBehaviors:
+          - AllowedMethods:
+              - HEAD
+              - DELETE
+              - POST
+              - GET
+              - OPTIONS
+              - PUT
+              - PATCH
+            PathPattern: api/*
+            CachePolicyId: '4135ea2d-6df8-44a3-9df3-4b5a84be39ad' # CachingDisabled
+            OriginRequestPolicyId: '216adef6-5c7f-47e4-b989-5492eafa07d3' # AllViewer
+            TargetOriginId: ApiOrigin
+            ViewerProtocolPolicy: redirect-to-https
+          - AllowedMethods:
+              - HEAD
+              - DELETE
+              - POST
+              - GET
+              - OPTIONS
+              - PUT
+              - PATCH
+            PathPattern: signatureservice*
+            CachePolicyId: '4135ea2d-6df8-44a3-9df3-4b5a84be39ad' # CachingDisabled
+            OriginRequestPolicyId: '216adef6-5c7f-47e4-b989-5492eafa07d3' # AllViewer
+            TargetOriginId: ApiOrigin
+            ViewerProtocolPolicy: redirect-to-https
+          - AllowedMethods:
+              - HEAD
+              - DELETE
+              - POST
+              - GET
+              - OPTIONS
+              - PUT
+              - PATCH
+            PathPattern: crs/*
+            CachePolicyId: '4135ea2d-6df8-44a3-9df3-4b5a84be39ad' # CachingDisabled
+            OriginRequestPolicyId: '216adef6-5c7f-47e4-b989-5492eafa07d3' # AllViewer
+            TargetOriginId: ApiOrigin
+            ViewerProtocolPolicy: redirect-to-https
+        Origins:
+          - ConnectionAttempts: 3
+            ConnectionTimeout: 10
+            DomainName: !GetAtt
+              - S3ContentBucket
+              - DomainName
+            Id: FrontendOrigin
+            S3OriginConfig:
+              OriginAccessIdentity: !Join
+                - /
+                - - origin-access-identity/cloudfront
+                  - !Ref CloudFrontOriginAccessIdentity
+          - ConnectionAttempts: 3
+            ConnectionTimeout: 10
+            DomainName: !Ref IndigoELNAPIDomainName
+            Id: ApiOrigin
+            CustomOriginConfig:
+              HTTPSPort: 443
+              OriginKeepaliveTimeout: 5
+              OriginProtocolPolicy: https-only
+        ViewerCertificate:
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+          AcmCertificateArn: !Ref Certificate
+
+  CloudFrontCachePolicy:
+    Type: 'AWS::CloudFront::CachePolicy'
+    Properties:
+      CachePolicyConfig:
+        Comment: Cache Policy
+        DefaultTTL: 86400
+        MaxTTL: 31536000
+        MinTTL: 1
+        Name: !Sub '${AWS::StackName}-cachePolicy'
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: none
+          EnableAcceptEncodingGzip: true
+          HeadersConfig:
+            HeaderBehavior: none
+          QueryStringsConfig:
+            QueryStringBehavior: none
+
+  CloudFrontOriginAccessIdentity:
+    Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: Access from CloudFront to S3 and API
+
+  S3PortalPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3ContentBucket
+      PolicyDocument:
+        Version: 2008-10-17
+        Id: PolicyForCloudFrontPrivateContent
+        Statement:
+          - Sid: AllowCloudFrontServicePrincipal
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub arn:aws:s3:::${IndigoELNContentBucketName}/*
+            Condition:
+              StringEquals:
+                "AWS:SourceArn": !Ref CloudFront
+          - Sid: '2'
+            Effect: Deny
+            Principal:
+              AWS: '*'
+            Action: 's3:*'
+            Resource:
+              - !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref S3ContentBucket
+                  - /*
+              - !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref S3ContentBucket
+            Condition:
+              Bool:
+                'aws:SecureTransport': 'false'
+
+    # lambda@edge function to remap /vendors/ketcher/* to /v2/*
+    KetcherRewriteFunction:
+        Type: 'AWS::Lambda::Function'
+        Properties:
+        Handler: index.handler
+        Role: !GetAtt 'KetcherRewriteFunctionRole.Arn'
+        Code:
+            ZipFile: |
+            const { URL } = require('url');
+            exports.handler = async (event) => {
+                const request = event.Records[0].cf.request;
+                const uri = request.uri;
+                if (uri.startsWith('/vendors/ketcher/')) {
+                const url = new URL(request.uri, 'https://example.com');
+                url.pathname = url.pathname.replace('/vendors/ketcher/', '/v2/');
+                request.uri = url.pathname;
+                }
+                return request;
+            };
+        Runtime: nodejs14.x
