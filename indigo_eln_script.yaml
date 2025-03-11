@@ -40,59 +40,65 @@ Parameters:
   PermissionsBoundaryArn:
     Type: String
     Description: Enter ARN for roles permission boundary
-    Default: arn:aws:iam::12345678:policy/some_role_boundary # UPDATEME
+    Default: arn:aws:iam::12345678:policy/some_role_boundary
   KeyPairName:
     Description: >-
       Name of an existing Amazon EC2 key pair to enable SSH or RDP access to the
       instances.
-    Type: String
-    MinLength: '1'
-    MaxLength: '255'
-    AllowedPattern: '[ -~]*'
+    Type: AWS::EC2::KeyPair::KeyName
     ConstraintDescription: KeyPairName is a required Field and can contain only ASCII characters.
-    Default: indigo_service # UPDATEME
   VPCId:
-    Type: String
+    Type: AWS::EC2::VPC::Id
     Description: VPC to use
-    Default: vpc-12345678 # UPDATEME
   HostedZoneId:
     Description: Route53 Hosted zone id
-    Type: String
-    Default: Z12345678 # UPDATEME
+    Type: AWS::Route53::HostedZone::Id
+  CloudFrontHostedZoneId:
+    Description: Route53 Hosted zone id for CloudFront
+    Type: AWS::Route53::HostedZone::Id
   IndigoELNDomainName:
     Type: String
     Description: Host without http|https protocol.
     MinLength: '1'
     ConstraintDescription: IndigoELNDomainName is a required Field
-    Default: indigo-eln.test.lifescience.opensource.epam.com # UPDATEME
+    Default: indigo-eln.test.com
   IndigoELNAPIDomainName:
     Type: String
     Description: Host without http|https protocol.
     MinLength: '1'
     ConstraintDescription: IndigoELNDomainName is a required Field
-    Default: api.indigo-eln.test.lifescience.opensource.epam.com # UPDATEME
+    Default: api.test.com
   IndigoELNContentBucketName:
     Type: String
     Description: S3 bucket where frontend code will be served from
     MinLength: '1'
     ConstraintDescription: IndigoELNContentBucketName is a required field
-    Default: indigo-eln-artifacts # UPDATEME
+    Default: test-artifacts
   IndigoELNBuildLogsBucketName:
     Type: String
     Description: S3 bucket where build logs are stored
     MinLength: '1'
     ConstraintDescription: IndigoELNBuildLogsBucketName is a required field
-    Default: indigo-eln-build-logs # UPDATEME
+    Default: test-build-logs
   MongoDBPassword:
     Type: String
+    NoEcho: true
     Description: MongoDB password
     MinLength: '1'
     ConstraintDescription: MongoDBPassword is a required field
-    Default: changeit # UPDATEME
   DefaultAdminPassword:
     Type: String
-    Description: Default admin password for the application, BCrypt encoded; default is encrypted for "admin"
-    Default: "$2a$10$jawSRFtkzurLE2mDbiAK0O3MDtxvBi1OlbJV8HLFKKpIUC/I7Gyrq" # UPDATEME
+    NoEcho: true
+    Description: Default admin password for the application, BCrypt encoded. Use BCrypt encoder to generate the password.
+  EC2SecurityGroups:
+    Type: List<AWS::EC2::SecurityGroup::Id>
+    Description: Security groups to use for EC2 instance
+  LoadBalancerSecurityGroups:
+    Type: List<AWS::EC2::SecurityGroup::Id>
+    Description: Security groups to use for Load Balancer
+  LoadBalancerSubnets:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Subnets to use for Load Balancer
 
 Resources:
   RolePortalCodeBuild:
@@ -558,8 +564,7 @@ Resources:
                 enabled: true
                 ensureRunning: true
     Properties:
-      SecurityGroupIds:
-        - sg-12345678 # UPDATEME enter your security groups here
+      SecurityGroupIds: !Ref EC2SecurityGroups
       ImageId: !Ref LatestAmiId
       InstanceType: t3.medium
       KeyName: !Ref KeyPairName
@@ -619,10 +624,8 @@ Resources:
     Properties:
       Name: !Sub ${AWS::StackName}-loadbalancer
       Scheme: internet-facing
-      SecurityGroups:
-        - sg-12345678 # UPDATEME enter your security groups here
-      Subnets:
-        - subnet-12345678 # UPDATEME enter your subnets here
+      SecurityGroups: !Ref LoadBalancerSecurityGroups
+      Subnets: !Ref LoadBalancerSubnets
 
   LoadBalancerHTTPSListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -726,7 +729,7 @@ Resources:
           Type: A
           AliasTarget:
             DNSName: !GetAtt 'CloudFront.DomainName'
-            HostedZoneId: ZXXX # UPDATEME enter your hosted zone id
+            HostedZoneId: !Ref CloudFrontHostedZoneId
         - Name: !Ref IndigoELNAPIDomainName
           Type: A
           AliasTarget:
@@ -913,23 +916,23 @@ Resources:
               Bool:
                 'aws:SecureTransport': 'false'
 
-    # lambda@edge function to remap /vendors/ketcher/* to /v2/*
-    KetcherRewriteFunction:
-        Type: 'AWS::Lambda::Function'
-        Properties:
-        Handler: index.handler
-        Role: !GetAtt 'KetcherRewriteFunctionRole.Arn'
-        Code:
-            ZipFile: |
-            const { URL } = require('url');
-            exports.handler = async (event) => {
-                const request = event.Records[0].cf.request;
-                const uri = request.uri;
-                if (uri.startsWith('/vendors/ketcher/')) {
-                const url = new URL(request.uri, 'https://example.com');
-                url.pathname = url.pathname.replace('/vendors/ketcher/', '/v2/');
-                request.uri = url.pathname;
-                }
-                return request;
-            };
-        Runtime: nodejs14.x
+  # lambda@edge function to remap /vendors/ketcher/* to /v2/*
+  KetcherRewriteFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+    Handler: index.handler
+    Role: !GetAtt 'KetcherRewriteFunctionRole.Arn'
+    Code:
+        ZipFile: |
+        const { URL } = require('url');
+        exports.handler = async (event) => {
+            const request = event.Records[0].cf.request;
+            const uri = request.uri;
+            if (uri.startsWith('/vendors/ketcher/')) {
+            const url = new URL(request.uri, 'https://example.com');
+            url.pathname = url.pathname.replace('/vendors/ketcher/', '/v2/');
+            request.uri = url.pathname;
+            }
+            return request;
+        };
+    Runtime: nodejs14.x

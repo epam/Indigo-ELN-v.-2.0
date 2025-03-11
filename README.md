@@ -20,7 +20,7 @@ However, you can copy images to your own ECR repository and adjust XXXServiceTag
 
 ## Local Installation
 - You must have recent version of Docker installed
-- Check our Indigo ELN repository and switch to branch:
+- Check our Indigo ELN repository:
 ```bash
 git clone https://github.com/epam/Indigo-ELN-v.-2.0.git
 cd Indigo-ELN-v.-2.0
@@ -37,21 +37,18 @@ It will build all containers and start the application. You can access the appli
 
 
 ## Installation on AWS
-
-### Clone Cloud Automation repository
+- Check our Indigo ELN repository:
 ```bash
-git clone https://git.epam.com/epm-lsop/cloud-automation.git
-cd cloud-automation
+git clone https://github.com/epam/Indigo-ELN-v.-2.0.git
+cd Indigo-ELN-v.-2.0
 ```
 
 ### Deploy a CloudFormation script
-`scripts/indigo_eln_script.yaml`
+`indigo_eln_script.yaml`
 
 You can do it via AWS Console or AWS CLI (`aws cloudformation create-stack`) or a helper tool like Rain (https://github.com/aws-cloudformation/rain)
 
-Be sure to review the script adjust parameters before deploy. Also, adjust lines marked with UPDATEME to your AWS environment.
-
-*NB* Script contains references to example resources with non-existing keys, so be sure to update it.
+Be sure to review the script adjust parameters before deploy.
 
 Some required parameters:
 - KeyPairName: Name of an existing Amazon EC2 key pair to enable SSH or RDP access to the instances
