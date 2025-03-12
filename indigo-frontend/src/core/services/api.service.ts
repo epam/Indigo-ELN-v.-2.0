@@ -15,9 +15,9 @@ export class ApiService {
   constructor(private readonly httpClient: HttpClient) {}
 
   // POST
-  post<ResponseType>(url: string, data: any, options: { headers?: HttpHeaders | { [header: string]: string | string[] } } = {}): Observable<ResponseType> {
+  post<ResponseType>(url: string, body: any, options: { headers?: HttpHeaders | { [header: string]: string | string[] } } = {}): Observable<ResponseType> {
     const mergedHeaders = this.mergeHeaders(options.headers);
-    return this.httpClient.post<ResponseType>(url, data, { headers: mergedHeaders });
+    return this.httpClient.post<ResponseType>(url, body, { headers: mergedHeaders });
   }
 
   // GET
@@ -28,9 +28,9 @@ export class ApiService {
   }
 
   // PUT
-  put<ResponseType>(url: string, data: any, options: { headers?: HttpHeaders | { [header: string]: string | string[] } } = {}): Observable<ResponseType> {
+  put<ResponseType>(url: string, body: any, options: { headers?: HttpHeaders | { [header: string]: string | string[] } } = {}): Observable<ResponseType> {
     const mergedHeaders = this.mergeHeaders(options.headers);
-    return this.httpClient.put<ResponseType>(url, data, { headers: mergedHeaders });
+    return this.httpClient.put<ResponseType>(url, body, { headers: mergedHeaders });
   }
 
   // DELETE
