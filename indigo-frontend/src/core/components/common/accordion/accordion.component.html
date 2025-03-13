@@ -1,22 +1,21 @@
 <cdk-accordion class="block max-w-[500px]">
-  @for (item of items; track item; let index = $index) {
   <cdk-accordion-item #accordionItem="cdkAccordionItem"
     class="block border border-gray-300 first:rounded-t-lg last:rounded-b-lg">
     <button
       class="flex items-center justify-between w-full bg-none border-none p-4 text-left hover:cursor-pointer hover:bg-gray-200"
-      (click)="accordionItem.toggle()" tabindex="0" [attr.id]="'accordion-header-' + index"
-      [attr.aria-expanded]="accordionItem.expanded" [attr.aria-controls]="'accordion-body-' + index">
-      {{ item.title }}
+      (click)="accordionItem.toggle()" tabindex="0" [attr.id]="'accordion-header-'"
+      [attr.aria-expanded]="accordionItem.expanded" [attr.aria-controls]="'accordion-body-'">
+      <ng-content select="header"></ng-content>
       <span class="text-sm text-gray-600">
-        <em [class.indicon-chevron_up]="!accordionItem.expanded"
-          [class.indicon-chevron_down]="accordionItem.expanded"></em>
+        <em [class.indicon-chevron_up]="accordionItem.expanded"
+          [class.indicon-chevron_down]="!accordionItem.expanded"></em>
       </span>
     </button>
     @if(accordionItem.expanded) {
     <div class="p-4" role="region" [style.display]="accordionItem.expanded ? '' : 'none'"
-      [attr.id]="'accordion-body-' + index" [attr.aria-labelledby]="'accordion-header-' + index" [innerHTML]="item.description">
+      [attr.id]="'accordion-body-'" [attr.aria-labelledby]="'accordion-header-'">
+        <ng-content select="body"></ng-content>
     </div>
     }
   </cdk-accordion-item>
-  }
 </cdk-accordion>
