@@ -1,0 +1,70 @@
+<div class="flex flex-col gap-2">
+  <label>
+    <span
+      class="text-sm font-medium"
+      [class]="{
+        'text-red-200': hasError(),
+      }"
+    >
+      {{ label() }}
+    </span>
+    @if (required()) {
+      <span class="text-red-200">*</span>
+    }
+  </label>
+  <form
+    [formGroup]="formGroup"
+    [class]="
+      {
+        'box-content grid grid-cols-4 rounded-sm border transition-colors duration-200 border-neutral-300': true,
+        'focus:border-primary-400 focus:text-black': !disabled(),
+        'cursor-not-allowed bg-neutral-100 border-neutral-300': disabled(),
+        'hover:border-primary-400 active:border-primary-400':
+          !disabled() && !hasError(),
+        'border-red-200 text-red-200': hasError(),
+      } | classPicker
+    "
+  >
+    <div
+      [class]="
+        {
+          'transition-colors duration-200 border-r border-r-transparent': true,
+          'focus:border-r-primary-400': !disabled(),
+          'border-r-neutral-300': disabled(),
+          'hover:border-r-primary-400 active:border-r-primary-400':
+            !disabled() && !hasError(),
+          'border-r-red-200 text-red-200': hasError(),
+        } | classPicker
+      "
+    >
+      <app-select
+        [formControlName]="'suffix'"
+        [items]="items()"
+        [required]="required()"
+        [hasError]="hasError()"
+        [placeholder]="getPlaceholder('suffix')"
+        [suffixStyle]="true"
+      >
+      </app-select>
+    </div>
+    <div
+      [class]="
+        {
+          'relative left-[-1px] col-span-3 transition-colors duration-200 border-l border-l-transparent': true,
+          'hover:border-l-primary-400 active:border-primary-400':
+            !disabled() && !hasError(),
+        } | classPicker
+      "
+    >
+      <app-input
+        class=""
+        [formControlName]="'input'"
+        [required]="required()"
+        [hasError]="hasError()"
+        [placeholder]="getPlaceholder('input')"
+        [suffixStyle]="true"
+      >
+      </app-input>
+    </div>
+  </form>
+</div>

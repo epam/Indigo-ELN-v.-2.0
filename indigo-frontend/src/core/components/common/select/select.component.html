@@ -8,16 +8,22 @@
     <div
       [class]="
         {
-          'select-trigger relative inline-flex w-full items-center gap-2 rounded-sm border px-3 py-2 transition-colors duration-200 cursor-pointer select-none': true,
+          'border select-trigger relative inline-flex w-full items-center gap-2 rounded-sm  px-3 py-2 transition-colors duration-200 cursor-pointer select-none': true,
           'bg-neutral-100': isOpen && !disabled,
           'cursor-not-allowed': disabled,
           'border-neutral-300': !isOpen,
-          'border-primary-400': isOpen,
+          'border-r-transparent': isOpen && suffixStyle,
           'hover:bg-neutral-100': !isOpen && !disabled,
-          'hover:border-primary-400': !disabled,
+          'bg-primary-50 hover:bg-primary-50': !disabled && suffixStyle,
           'active:bg-neutral-200': !disabled,
           'opacity-60': disabled,
-          'border-red-200': hasError,
+          'border-red-200': hasError && !suffixStyle,
+          'bg-red-alpha-10 hover:bg-red-alpha-10 border-r-transparent':
+            hasError && suffixStyle,
+          'border-primary-400': isOpen && !suffixStyle,
+          'hover:border-primary-400': !disabled && !suffixStyle,
+          'focus:border-r-transparent active:border-r-transparent hover:border-r-transparent border-t-transparent border-b-transparent border-l-transparent rounded-r-none':
+            suffixStyle,
         } | classPicker
       "
       (click)="toggleDropdown($event)"
