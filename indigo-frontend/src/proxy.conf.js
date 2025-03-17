@@ -1,7 +1,7 @@
 module.exports = [
   {
     context: ['/api'],
-    target: 'https://indigo-eln.test.lifescience.opensource.epam.com',
+    target: 'https://indigo-eln-dev.test.lifescience.opensource.epam.com',
     secure: false,
     changeOrigin: true,
     logLevel: 'debug',
