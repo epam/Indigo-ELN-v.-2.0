@@ -1,6 +1,7 @@
 import {
   HTTP_INTERCEPTORS,
   provideHttpClient,
+  withInterceptorsFromDi,
   withXsrfConfiguration,
 } from '@angular/common/http';
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
@@ -21,6 +22,7 @@ export const appConfig: ApplicationConfig = {
         cookieName: 'CSRF-TOKEN',
         headerName: 'X-CSRF-TOKEN',
       }),
+      withInterceptorsFromDi(),
     ),
     provideAuth(authConfig),
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

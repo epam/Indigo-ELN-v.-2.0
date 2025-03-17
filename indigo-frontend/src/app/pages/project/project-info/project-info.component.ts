@@ -3,7 +3,7 @@ import { ButtonComponent } from '@/core/components/common/button/button.componen
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ChipComponent } from '@/core/components/common/chip/chip.component';
 import { TeamComponent } from '@/core/components/project/team/team.component';
-import { Attachment } from '@/core/types/attachment.i';
+import { Attachment } from '@/core/types/entities/attachment.i';
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 

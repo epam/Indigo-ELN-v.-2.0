@@ -7,6 +7,7 @@
   />
 </div>
 <div
+  *ngIf="dataList$ | async"
   [@viewChange]="selectedView"
   [ngClass]="{
     'grid gap-x-4 mt-5 gap-y-4': true,

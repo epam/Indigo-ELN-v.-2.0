@@ -4,6 +4,8 @@ import {
 } from '@/core/components/common/button-toggle/button-toggle.component';
 import { ToggleComponent } from '@/core/components/common/toggle/toggle.component';
 import { ProjectItemComponent } from '@/core/components/project/project-item/project-item.component';
+import { PaginatedComponent } from '@/core/components/util/paginated.component';
+import { Project } from '@/core/types/entities/project.i';
 import { getRandomStr } from '@/core/utils/string.util';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
@@ -50,8 +52,15 @@ const mock_users = [
     ToggleComponent,
   ],
 })
-export class ProjectListComponent {
+export class ProjectListComponent extends PaginatedComponent<Project> {
   selectedView: 'grid' | 'list' = 'grid';
+
+  constructor() {
+    super();
+    this.setup({
+      controller: 'projects',
+    });
+  }
 
   options: ToggleOption[] = [{ value: 'grid', icon: 'indicon-grid' }];
 
