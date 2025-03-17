@@ -1,32 +1,38 @@
-<mat-card>
-  <mat-card-title>Login</mat-card-title>
-  <mat-card-content>
-    <form [formGroup]="form" (ngSubmit)="submit()">
-      <p>
-        <mat-form-field>
-          <input
-            type="text"
-            matInput
-            placeholder="Username"
-            formControlName="username"
-          />
-        </mat-form-field>
-      </p>
-
-      <p>
-        <mat-form-field>
-          <input
-            type="password"
-            matInput
-            placeholder="Password"
-            formControlName="password"
-          />
-        </mat-form-field>
-      </p>
-
-      <div class="button">
-        <button type="submit" mat-button>Login</button>
+<div class="flex justify-center items-center min-h-[80vh]">
+  <mat-card class="w-full max-w-md p-6 shadow-lg">
+    <mat-card-title class="text-2xl font-bold text-center mb-6"
+      >Login</mat-card-title
+    >
+    <mat-card-content>
+      <div *ngIf="!isAuthenticated" class="flex flex-col items-center">
+        <p class="text-gray-600 mb-6 text-center">
+          Please click the button below to sign in with your account.
+        </p>
+        <div class="mt-4">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="login()"
+            class="w-full min-w-[200px] py-2"
+          >
+            Sign in with Cognito
+          </button>
+        </div>
       </div>
-    </form>
-  </mat-card-content>
-</mat-card>
+
+      <div *ngIf="isAuthenticated" class="flex flex-col items-center">
+        <p class="text-gray-600 mb-6 text-center">You are already logged in.</p>
+        <div class="mt-4">
+          <button
+            mat-raised-button
+            color="warn"
+            (click)="logout()"
+            class="w-full min-w-[200px] py-2"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

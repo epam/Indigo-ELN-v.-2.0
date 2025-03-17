@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
@@ -8,6 +8,8 @@ import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { RouterOutlet } from '@angular/router';
+import { OidcSecurityService } from 'angular-auth-oidc-client';
+import { take } from 'rxjs';
 import { SidebarComponent } from './partials/sidebar/sidebar.component';
 
 @Component({
@@ -29,8 +31,13 @@ import { SidebarComponent } from './partials/sidebar/sidebar.component';
   styleUrls: ['./master.component.scss'],
 })
 export class MasterComponent {
-  isCollapsed = false;
-  searchControl = new FormControl('');
+  protected authService = inject(OidcSecurityService);
+  public isCollapsed = false;
+  public searchControl = new FormControl('');
   userName = 'John D.';
   userAvatar = 'assets/avatar-placeholder.png';
+
+  logout() {
+    this.authService.logoff().pipe(take(1)).subscribe();
+  }
 }
