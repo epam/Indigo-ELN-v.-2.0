@@ -88,17 +88,15 @@ export abstract class PaginatedComponent<T> {
       ? this.activatedRoute.queryParams.pipe(
           take(1),
           switchMap((params) => {
-            if (this.config.enableQueryParams) {
-              const queryFilters = Object.keys(
-                params as Record<string, unknown>,
-              ).reduce((acc: Record<string, unknown>, curr) => {
-                acc[curr] = params[curr];
-                return acc;
-              }, {});
+            const queryFilters = Object.keys(
+              params as Record<string, unknown>,
+            ).reduce((acc: Record<string, unknown>, curr) => {
+              acc[curr] = params[curr];
+              return acc;
+            }, {});
 
-              Object.assign(this.filters, queryFilters);
-              this.fetchDataAndUpdateQueryParams(false);
-            }
+            Object.assign(this.filters, queryFilters);
+            this.fetchDataAndUpdateQueryParams(false);
 
             return dataLogic$;
           }),
