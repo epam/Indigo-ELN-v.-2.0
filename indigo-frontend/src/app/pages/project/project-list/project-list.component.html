@@ -12,7 +12,7 @@
   [ngClass]="{
     'grid gap-x-4 mt-5 gap-y-4': true,
     'grid-cols-1': selectedView === 'list',
-    'md:grid-cols-2 lg:grid-cols-3': selectedView === 'grid',
+    'md:grid-cols-2 2xl:grid-cols-3': selectedView === 'grid',
   }"
 >
   @for (project of data.items; track project.id) {
