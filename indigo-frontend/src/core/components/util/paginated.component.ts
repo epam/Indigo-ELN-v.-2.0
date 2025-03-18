@@ -13,15 +13,13 @@ import {
   take,
   tap,
 } from 'rxjs';
+import { PaginatedConfig } from './paginated.i';
 
-interface PaginatedConfig {
-  controller: string;
-  enableQueryParams?: boolean;
-}
 @Component({
   template: '',
 })
 export abstract class PaginatedComponent<T> {
+  protected firstLoad = true;
   protected config: PaginatedConfig = {
     controller: 'unknown',
     enableQueryParams: true,
@@ -30,16 +28,15 @@ export abstract class PaginatedComponent<T> {
   protected service: ApiService<T>;
   protected router: Router;
   protected total = 0;
-  private filters: Record<string, unknown> = {};
+  protected filters: Record<string, unknown> = {};
   protected isLoading = false;
-  private pager: PagedRequest = {
+  protected pager: PagedRequest = {
     pageSize: 10,
     pageNo: 1,
   };
 
   protected dataList$: Observable<PaginatedResponse<T>>;
-
-  private dataSubject$ = new BehaviorSubject<PaginatedResponse<T>>(null);
+  protected dataSubject$ = new BehaviorSubject<PaginatedResponse<T>>(null);
   constructor() {
     this.activatedRoute = inject(ActivatedRoute);
     this.service = inject(ApiService);
@@ -51,7 +48,7 @@ export abstract class PaginatedComponent<T> {
     this.initialize();
   }
 
-  private initialize() {
+  protected initialize() {
     this.service.setup(this.config.controller);
 
     // Initiate rxjs logic
@@ -61,25 +58,40 @@ export abstract class PaginatedComponent<T> {
           ? of(res)
           : defer(() => {
               this.isLoading = true;
-              return this.service.getPaged(this.pager, this.filters).pipe(
-                tap({
-                  next: (res) => {
-                    this.total = res.totalItems;
-                    if (res && res.items.length == 0 && this.pager.pageNo > 1) {
-                      this.pager.pageNo = res.totalPages;
-                      this.fetchDataAndUpdateQueryParams(false);
+              const firstLoadPager = {
+                pageNo: 1,
+                pageSize: this.pager.pageNo * this.pager.pageSize,
+              };
 
-                      this.dataSubject$.next(null);
-                    } else {
-                      this.dataSubject$.next(res);
-                    }
-                  },
-                }),
+              return this.service
+                .getPaged(
+                  this.firstLoad ? firstLoadPager : this.pager,
+                  this.filters,
+                )
+                .pipe(
+                  tap({
+                    next: (res) => {
+                      this.firstLoad = false;
+                      this.total = res.totalItems;
+                      if (
+                        res &&
+                        res.items.length == 0 &&
+                        this.pager.pageNo > 1
+                      ) {
+                        this.pager.pageNo = res.totalPages;
+                        this.fetchDataAndUpdateQueryParams(false);
 
-                finalize(() => {
-                  this.isLoading = false;
-                }),
-              );
+                        this.dataSubject$.next(null);
+                      } else {
+                        this.dataSubject$.next(res);
+                      }
+                    },
+                  }),
+
+                  finalize(() => {
+                    this.isLoading = false;
+                  }),
+                );
             });
       }),
     );

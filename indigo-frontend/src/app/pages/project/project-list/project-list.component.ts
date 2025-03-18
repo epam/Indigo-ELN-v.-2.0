@@ -4,7 +4,8 @@ import {
 } from '@/core/components/common/button-toggle/button-toggle.component';
 import { ToggleComponent } from '@/core/components/common/toggle/toggle.component';
 import { ProjectItemComponent } from '@/core/components/project/project-item/project-item.component';
-import { PaginatedComponent } from '@/core/components/util/paginated.component';
+import { InfiniteScrollComponent } from '@/core/components/util/infinite-scroll.component';
+import { IsInViewportDirective } from '@/core/directives/is-in-viewport.directive';
 import { Project } from '@/core/types/entities/project.i';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
@@ -31,9 +32,10 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     ButtonToggleComponent,
     MatSlideToggleModule,
     ToggleComponent,
+    IsInViewportDirective,
   ],
 })
-export class ProjectListComponent extends PaginatedComponent<Project> {
+export class ProjectListComponent extends InfiniteScrollComponent<Project> {
   selectedView: 'grid' | 'list' = 'grid';
 
   constructor() {
@@ -49,4 +51,8 @@ export class ProjectListComponent extends PaginatedComponent<Project> {
     { value: 'grid', icon: 'indicon-grid' },
     { value: 'list', icon: 'indicon-list' },
   ];
+
+  onEnter() {
+    console.log('viewpopo');
+  }
 }
