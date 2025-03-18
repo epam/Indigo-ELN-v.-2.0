@@ -19,10 +19,16 @@
     <app-project-item [project]="project" [variant]="selectedView" />
   }
   <div
-    class="invisible"
+    [class]="
+      {
+        invisible: true,
+        'col-span-1': selectedView == 'list',
+        '2xl:col-span-3 md:col-span-2': selectedView == 'grid',
+      } | classPicker
+    "
     [appIsInViewport]="true"
     (enteredViewport)="infiniteLoad()"
   >
-    lalal
+    simplicity is the ultimate sophistication
   </div>
 </div>
