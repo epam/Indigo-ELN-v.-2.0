@@ -9,7 +9,7 @@ export abstract class InfiniteScrollComponent<T> extends PaginatedComponent<T> {
 
   protected override initialize(): void {
     super.initialize();
-
+    this.config.enableScrollRestoration = true;
     this.data$ = this.dataList$.pipe(
       switchMap((data) => {
         const currValue = this.dataBh.value;
