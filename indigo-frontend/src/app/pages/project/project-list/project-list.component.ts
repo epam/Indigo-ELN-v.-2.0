@@ -53,8 +53,4 @@ export class ProjectListComponent extends InfiniteScrollComponent<Project> {
     { value: 'grid', icon: 'indicon-grid' },
     { value: 'list', icon: 'indicon-list' },
   ];
-
-  onEnter() {
-    console.log('viewpopo');
-  }
 }
