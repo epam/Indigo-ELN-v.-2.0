@@ -74,7 +74,8 @@
         'ml-auto': variant === 'grid',
       }"
     >
-      14 Oct 2024 by Emmy Cooper
+      {{ project.modifiedAt | date: 'dd MMM yyyy' }} by
+      {{ project.modifiedBy.displayName }}
     </div>
     <div class="[grid-area:createdLabel]">Created</div>
     <div
@@ -83,7 +84,8 @@
         'ml-auto': variant === 'grid',
       }"
     >
-      08 Oct 2024 by John Doe
+      {{ project.createdAt | date: 'dd MM yyyy' }} by
+      {{ project.createdBy.displayName }}
     </div>
 
     @if (variant === 'grid') {
@@ -91,18 +93,18 @@
         class="[grid-area:members] flex items-center border-t-neutral-300 border-t w-full pt-3"
       >
         <div class="[grid-area:membersLabel] flex -space-x-2">
-          @for (user of project.users.slice(0, 3); track user) {
+          @for (user of mock_users.slice(0, 3); track user) {
             <app-avatar classList="w-6 h-6" [img]="user" />
           }
-          @if (project.users.length > 3) {
+          @if (mock_users.length > 3) {
             <span
               class="w-6 h-6 rounded-full bg-primary-400 text-white text-xs flex items-center justify-center"
-              >+{{ project.users.length - 3 }}</span
+              >+{{ mock_users.length - 3 }}</span
             >
           }
         </div>
         <span class="ml-2 text-b2 text-neutral-800"
-          >{{ project.users.length }} Members</span
+          >{{ mock_users.length }} Members</span
         >
       </div>
     } @else {
@@ -111,13 +113,13 @@
       </div>
       <div class="[grid-area:membersValue] flex items-center">
         <div class="flex -space-x-2">
-          @for (user of project.users.slice(0, 3); track user) {
+          @for (user of mock_users.slice(0, 3); track user) {
             <app-avatar classList="w-6 h-6" [img]="user" />
           }
-          @if (project.users.length > 3) {
+          @if (mock_users.length > 3) {
             <span
               class="w-6 h-6 rounded-full bg-primary-400 text-white text-xs flex items-center justify-center"
-              >+{{ project.users.length - 3 }}</span
+              >+{{ mock_users.length - 3 }}</span
             >
           }
         </div>

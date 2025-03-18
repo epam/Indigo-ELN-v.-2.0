@@ -7,7 +7,7 @@
   />
 </div>
 <div
-  *ngIf="dataList$ | async"
+  *ngIf="dataList$ | async as data"
   [@viewChange]="selectedView"
   [ngClass]="{
     'grid gap-x-4 mt-5 gap-y-4': true,
@@ -15,7 +15,7 @@
     'md:grid-cols-2 lg:grid-cols-3': selectedView === 'grid',
   }"
 >
-  @for (project of projects; track project.id) {
+  @for (project of data.items; track project.id) {
     <app-project-item [project]="project" [variant]="selectedView" />
   }
 </div>

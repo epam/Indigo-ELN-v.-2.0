@@ -65,8 +65,8 @@ export abstract class PaginatedComponent<T> {
                 tap({
                   next: (res) => {
                     this.total = res.totalItems;
-                    if (res && res.items.length == 0 && this.pager.pageNo > 0) {
-                      this.pager.pageNo = res.lastIndex;
+                    if (res && res.items.length == 0 && this.pager.pageNo > 1) {
+                      this.pager.pageNo = res.totalPages;
                       this.fetchDataAndUpdateQueryParams(false);
 
                       this.dataSubject$.next(null);
@@ -95,7 +95,15 @@ export abstract class PaginatedComponent<T> {
               return acc;
             }, {});
 
+            Object.keys(queryFilters).forEach((key) => {
+              if (key in this.pager) {
+                this.pager[key] = queryFilters[key];
+                delete queryFilters[key];
+              }
+            });
+
             Object.assign(this.filters, queryFilters);
+
             this.fetchDataAndUpdateQueryParams(false);
 
             return dataLogic$;

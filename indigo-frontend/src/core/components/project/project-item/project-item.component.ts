@@ -1,3 +1,4 @@
+import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,6 +24,23 @@ import { CardComponent } from '../../common/card/card.component';
   styleUrls: ['./project-item.component.scss'],
 })
 export class ProjectItemComponent {
-  @Input() project: any;
+  mock_users = [
+    'assets/avatar1.png',
+    'assets/avatar2.png',
+    'assets/avatar3.png',
+    '-',
+    '-',
+    '-',
+    '-',
+    '-',
+    '-',
+    '-',
+    '-',
+    '-',
+    '-',
+    '-',
+    '-',
+  ];
+  @Input() project: Project;
   @Input() variant: 'grid' | 'list' = 'grid';
 }
