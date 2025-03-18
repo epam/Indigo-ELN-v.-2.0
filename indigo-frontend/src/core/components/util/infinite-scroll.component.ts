@@ -7,12 +7,6 @@ export abstract class InfiniteScrollComponent<T> extends PaginatedComponent<T> {
   data$: Observable<T[]>;
   search = '';
 
-  refresh() {
-    this.pager.pageNo = 1;
-    this.dataBh.next([]);
-    this.dataSubject$.next(null);
-  }
-
   protected override initialize(): void {
     super.initialize();
 
