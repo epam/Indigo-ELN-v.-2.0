@@ -1,259 +1,140 @@
-import { HttpHeaders } from '@angular/common/http';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { PagedRequest } from '../types/request/paged-request.i';
+import { PaginatedResponse } from '../types/response/paginated-response.i';
 import { ApiService } from './api.service';
 
-describe('HttpRequestFormatService', () => {
-  let service: ApiService;
+interface TestItem {
+  id: number;
+  name?: string;
+}
+
+interface ApiServicePrivate {
+  buildUrl: (str?: string) => string;
+}
+
+describe('ApiService', () => {
+  let service: ApiService<TestItem>;
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [ApiService]
+      providers: [ApiService],
     });
     service = TestBed.inject(ApiService);
     httpMock = TestBed.inject(HttpTestingController);
   });
 
   afterEach(() => {
-    httpMock.verify(); // Ensure that there are no outstanding requests
+    httpMock.verify();
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  describe('postData', () => {
-    it('should send a POST request with default headers', () => {
-      const testData = { message: 'Test POST' };
-      const url = '/api/test';
-
-      service.post(url, testData).subscribe(response => {
-        expect(response).toEqual(testData);
-      });
-
-      const req = httpMock.expectOne(url);
-      expect(req.request.method).toBe('POST');
-      expect(req.request.headers.get('X-Requested-With')).toBe('XMLHttpRequest');
-      expect(req.request.body).toEqual(testData);
-      req.flush(testData);
-    });
-
-    it('should send a POST request with custom headers (HttpHeaders object)', () => {
-      const testData = { message: 'Test POST' };
-      const url = '/api/test';
-      const customHeaders = new HttpHeaders({ 'Authorization': 'Bearer token' });
-
-      service.post(url, testData, { headers: customHeaders }).subscribe();
-
-      const req = httpMock.expectOne(url);
-      expect(req.request.headers.get('Authorization')).toBe('Bearer token');
-      expect(req.request.headers.get('X-Requested-With')).toBe('XMLHttpRequest'); // Default header should still be present
-      req.flush(testData);
-    });
-
-    it('should send a POST request with custom headers (plain object)', () => {
-      const testData = { message: 'Test POST' };
-      const url = '/api/test';
-      const customHeaders = { 'Authorization': 'Bearer token' };
-
-      service.post(url, testData, { headers: customHeaders }).subscribe();
-
-      const req = httpMock.expectOne(url);
-      expect(req.request.headers.get('Authorization')).toBe('Bearer token');
-      expect(req.request.headers.get('X-Requested-With')).toBe('XMLHttpRequest');
-      req.flush(testData);
+  describe('setup', () => {
+    it('should set the controller name', () => {
+      service.setup('test-controller');
+      expect(service.controller).toBe('test-controller');
     });
   });
 
-  describe('getData', () => {
-    it('should send a GET request with default headers', () => {
-      const testData = [{ id: 1, name: 'Test' }];
-      const url = '/api/test';
+  describe('getPaged', () => {
+    it('should send a GET request with paging parameters', () => {
+      service.setup('projects');
+      const pager: PagedRequest = { pageNo: 1, pageSize: 10 };
+      const mockResponse: PaginatedResponse<TestItem> = {
+        pageNo: 1,
+        pageSize: 10,
+        totalItems: 30,
+        items: [{ id: 1 }, { id: 2 }, { id: 3 }],
+        firstIndex: 0,
+        lastIndex: 2,
+        totalPages: 3,
+      };
 
-      service.get(url).subscribe(response => {
-        expect(response).toEqual(testData);
+      service.getPaged(pager).subscribe((response) => {
+        expect(response).toEqual(mockResponse);
       });
 
-      const req = httpMock.expectOne(url);
+      const req = httpMock.expectOne((r) => r.url === '/api/eln/projects');
       expect(req.request.method).toBe('GET');
-      expect(req.request.headers.get('X-Requested-With')).toBe('XMLHttpRequest');
-      expect(req.request.params.toString()).toBe(''); // No params
-      req.flush(testData);
+      expect(req.request.params.get('pageNo')).toBe('1');
+      expect(req.request.params.get('pageSize')).toBe('10');
+      req.flush(mockResponse);
     });
 
-    it('should send a GET request with query parameters', () => {
-      const testData = [{ id: 1, name: 'Test' }];
-      const url = '/api/test';
-      const params = { page: 1, limit: 10 };
+    it('should send a GET request with filter and paging parameters', () => {
+      service.setup('projects');
+      const pager: PagedRequest = { pageNo: 2, pageSize: 20 };
+      const filter = { search: 'test', status: 'active' };
+      const mockResponse: PaginatedResponse<TestItem> = {
+        pageNo: 2,
+        pageSize: 20,
+        totalItems: 50,
+        items: [{ id: 21 }, { id: 22 }],
+        firstIndex: 20,
+        lastIndex: 21,
+        totalPages: 3,
+      };
 
-      service.get(url, params).subscribe();
+      service.getPaged(pager, filter).subscribe((response) => {
+        expect(response).toEqual(mockResponse);
+      });
 
-      const req = httpMock.expectOne(r => r.url === url && r.params.toString() === 'page=1&limit=10');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url === '/api/eln/projects' &&
+          r.params.get('search') === 'test' &&
+          r.params.get('status') === 'active',
+      );
       expect(req.request.method).toBe('GET');
-      expect(req.request.params.get('page')).toBe('1');
-      expect(req.request.params.get('limit')).toBe('10');
-      req.flush(testData);
+      expect(req.request.params.get('pageNo')).toBe('2');
+      expect(req.request.params.get('pageSize')).toBe('20');
+      expect(req.request.params.get('search')).toBe('test');
+      expect(req.request.params.get('status')).toBe('active');
+      req.flush(mockResponse);
     });
 
-    it('should send a GET request with custom headers and params', () => {
-      const testData = [{ id: 1, name: 'Test' }];
-      const url = '/api/test';
-      const params = { page: 1, limit: 10 };
-      const customHeaders = { 'X-Custom-Header': 'value' };
+    it('should exclude null or undefined filter values', () => {
+      service.setup('projects');
+      const pager: PagedRequest = { pageNo: 1, pageSize: 10 };
+      const filter = {
+        search: 'test',
+        status: null,
+        category: undefined,
+        active: true,
+      };
 
-      service.get(url, params, { headers: customHeaders }).subscribe();
+      service.getPaged(pager, filter).subscribe();
 
-      const req = httpMock.expectOne(r => r.url === url && r.params.toString() === 'page=1&limit=10');
-      expect(req.request.headers.get('X-Custom-Header')).toBe('value');
-      expect(req.request.headers.get('X-Requested-With')).toBe('XMLHttpRequest');
-      expect(req.request.params.get('page')).toBe('1');
-      req.flush(testData);
-    });
-
-    it('should exclude null and undefined parameters', () => {
-      const url = '/api/test';
-      const params = { page: 1, limit: null, search: undefined, valid: 'yes' };
-
-      service.get(url, params).subscribe();
-      const req = httpMock.expectOne(r => r.url === url);
-      expect(req.request.params.get('page')).toBe('1');
-      expect(req.request.params.get('valid')).toBe('yes');
-      expect(req.request.params.has('limit')).toBe(false);
-      expect(req.request.params.has('search')).toBe(false);
-      req.flush([]);
+      const req = httpMock.expectOne((r) => r.url === '/api/eln/projects');
+      expect(req.request.params.get('search')).toBe('test');
+      expect(req.request.params.get('active')).toBe('true');
+      expect(req.request.params.has('status')).toBeFalse();
+      expect(req.request.params.has('category')).toBeFalse();
+      req.flush({ items: [] });
     });
   });
 
-  describe('putData', () => {
-    it('should send a PUT request with default headers', () => {
-      const testData = { id: 1, message: 'Updated' };
-      const url = '/api/test/1';
+  describe('buildUrl', () => {
+    it('should build a URL with the controller name', () => {
+      service.setup('projects');
 
-      service.put(url, testData).subscribe(response => {
-        expect(response).toEqual(testData);
-      });
-
-      const req = httpMock.expectOne(url);
-      expect(req.request.method).toBe('PUT');
-      expect(req.request.headers.get('X-Requested-With')).toBe('XMLHttpRequest');
-      expect(req.request.body).toEqual(testData);
-      req.flush(testData);
+      const url = (service as unknown as ApiServicePrivate).buildUrl();
+      expect(url).toBe('/api/eln/projects');
     });
 
-    it('should send a PUT request with custom headers', () => {
-      const testData = { id: 1, message: 'Updated' };
-      const url = '/api/test/1';
-      const customHeaders = { 'Authorization': 'Bearer token' };
+    it('should build a URL with the controller name and additional path', () => {
+      service.setup('projects');
 
-      service.put(url, testData, { headers: customHeaders }).subscribe();
-
-      const req = httpMock.expectOne(url);
-      expect(req.request.headers.get('Authorization')).toBe('Bearer token');
-      expect(req.request.headers.get('X-Requested-With')).toBe('XMLHttpRequest');
-      req.flush(testData);
-    });
-  });
-
-  describe('deleteData', () => {
-    it('should send a DELETE request with default headers', () => {
-      const url = '/api/test/1';
-
-      service.delete(url).subscribe();
-
-      const req = httpMock.expectOne(url);
-      expect(req.request.method).toBe('DELETE');
-      expect(req.request.headers.get('X-Requested-With')).toBe('XMLHttpRequest');
-      expect(req.request.body).toBeNull();
-      req.flush({}); // Usually, DELETE responses are empty
-    });
-
-    it('should send a DELETE request with custom headers', () => {
-      const url = '/api/test/1';
-      const customHeaders = { 'Authorization': 'Bearer token' };
-
-      service.delete(url, { headers: customHeaders }).subscribe();
-
-      const req = httpMock.expectOne(url);
-      expect(req.request.headers.get('Authorization')).toBe('Bearer token');
-      expect(req.request.headers.get('X-Requested-With')).toBe('XMLHttpRequest');
-      req.flush({});
-    });
-    it('should send a DELETE request with query parameters', () => {
-          const url = '/api/test/1';
-          const params = { force: true };
-          service.delete(url, {params}).subscribe();
-          const req = httpMock.expectOne(r => r.url === url && r.params.toString() === 'force=true');
-          expect(req.request.method).toBe('DELETE');
-          expect(req.request.params.get('force')).toBe('true');
-          req.flush({});
-    });
-      it('should exclude null and undefined parameters from delete', () => {
-        const url = '/api/test';
-        const params = { page: 1, limit: null, search: undefined, valid: 'yes' };
-
-        service.delete(url, {params}).subscribe();
-        const req = httpMock.expectOne(r => r.url === url);
-        expect(req.request.params.get('page')).toBe('1');
-        expect(req.request.params.get('valid')).toBe('yes');
-        expect(req.request.params.has('limit')).toBe(false);
-        expect(req.request.params.has('search')).toBe(false);
-        req.flush({});
-      });
-  });
-
-  describe('mergeHeaders', () => {
-    it('should merge headers correctly with HttpHeaders object', () => {
-        const customHeaders = new HttpHeaders({ 'Authorization': 'Bearer token', 'X-Another-Header': 'value' });
-        const mergedHeaders = service['mergeHeaders'](customHeaders); // Access private method
-        expect(mergedHeaders.get('X-Requested-With')).toBe('XMLHttpRequest');
-        expect(mergedHeaders.get('Authorization')).toBe('Bearer token');
-        expect(mergedHeaders.get('X-Another-Header')).toBe('value');
-    });
-
-    it('should merge headers correctly with plain object', () => {
-        const customHeaders = { 'Authorization': 'Bearer token', 'X-Another-Header': 'value' };
-        const mergedHeaders = service['mergeHeaders'](customHeaders);
-        expect(mergedHeaders.get('X-Requested-With')).toBe('XMLHttpRequest');
-        expect(mergedHeaders.get('Authorization')).toBe('Bearer token');
-        expect(mergedHeaders.get('X-Another-Header')).toBe('value');
-    });
-
-    it('should return default headers if no custom headers are provided', () => {
-        const mergedHeaders = service['mergeHeaders']();
-        expect(mergedHeaders.get('X-Requested-With')).toBe('XMLHttpRequest');
-        expect(mergedHeaders.keys().length).toBe(1);
-    });
-
-    it('should handle multi-value headers correctly', () => {
-        const customHeaders = new HttpHeaders({
-            'X-Multi-Header': ['value1', 'value2']
-        });
-        const merged = service['mergeHeaders'](customHeaders);
-        expect(merged.getAll('X-Multi-Header')).toEqual(['value1', 'value2']);
-    });
-  });
-
-  describe('createHttpParams', () => {
-    it('should create HttpParams from a plain object', () => {
-        const params = { page: 1, limit: 10, search: 'test' };
-        const httpParams = service['createHttpParams'](params);
-        expect(httpParams.get('page')).toBe('1');
-        expect(httpParams.get('limit')).toBe('10');
-        expect(httpParams.get('search')).toBe('test');
-    });
-    it('should exclude null and undefined values', () => {
-        const params = { page: 1, limit: null, search: undefined, valid: 'yes' };
-        const httpParams = service['createHttpParams'](params);
-        expect(httpParams.get('page')).toBe('1');
-        expect(httpParams.has('limit')).toBe(false);
-        expect(httpParams.has('search')).toBe(false);
-        expect(httpParams.get('valid')).toBe('yes');
-    });
-    it('should return an empty HttpParams object if no params are provided', () => {
-        const httpParams = service['createHttpParams']();
-        expect(httpParams.keys().length).toBe(0);
+      const url = (service as unknown as ApiServicePrivate).buildUrl('123');
+      expect(url).toBe('/api/eln/projects/123');
     });
   });
 });
