@@ -10,8 +10,7 @@ export function getRequestParams(
   const filters = { ...filter, ...paging };
 
   Object.keys(filters).forEach(
-    (key) =>
-      Boolean(filters[key]) && (params = params.append(key, filters[key])),
+    (key) => !!filters[key] && (params = params.append(key, filters[key])),
   );
 
   return params;
