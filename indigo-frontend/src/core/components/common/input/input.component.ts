@@ -17,14 +17,14 @@ import { CommonModule } from '@angular/common';
   imports: [ClassPickerPipe, CommonModule],
 })
 export class InputComponent implements ControlValueAccessor {
-  label = input.required<string>();
+  label = input<string>();
   placeholder = input<string>();
   required = input<boolean>(false);
-  disabled = input<boolean>(false);
   hasError = input<boolean>(false);
+  suffixStyle = input<boolean>(false);
   valueChange = output<string>();
-
   value = signal<string>('');
+  disabled = signal<boolean>(false);
 
   onChange = (value: string) => {
     this.value.set(value);
@@ -42,6 +42,10 @@ export class InputComponent implements ControlValueAccessor {
 
   registerOnTouched(fn: any): void {
     this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled.set(isDisabled);
   }
 
   onInput(event: any) {

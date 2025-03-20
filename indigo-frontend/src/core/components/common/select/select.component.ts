@@ -42,6 +42,7 @@ export class SelectComponent
   @Input() hasError = false;
   @Input() multiple = false;
   @Input() renderChips = false;
+  @Input() suffixStyle = false;
   @Output() selectionChange = new EventEmitter<SelectValue>();
 
   value: SelectValue = null;
