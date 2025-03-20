@@ -33,7 +33,7 @@ export abstract class PaginatedComponent<T> {
   protected isLoading = false;
   protected pager: PagedRequest = {
     pageSize: 10,
-    pageNo: 1,
+    pageNo: 0,
   };
 
   protected dataList$: Observable<PaginatedResponse<T>>;
@@ -64,7 +64,7 @@ export abstract class PaginatedComponent<T> {
                 this.config.enableScrollRestoration && this.firstLoad
                   ? // On first load with restoration enabled, fetch all data up to current page
                     {
-                      pageNo: 1,
+                      pageNo: 0,
                       pageSize: this.pager.pageNo * this.pager.pageSize,
                     }
                   : // For subsequent loads or restoration disabled, use standard pager
@@ -75,7 +75,7 @@ export abstract class PaginatedComponent<T> {
                   next: (res) => {
                     this.firstLoad = false;
                     this.total = res.totalItems;
-                    if (res && res.items.length == 0 && this.pager.pageNo > 1) {
+                    if (res && res.items.length == 0 && this.pager.pageNo > 0) {
                       this.pager.pageNo = res.totalPages;
                       this.fetchDataAndUpdateQueryParams(false);
 
