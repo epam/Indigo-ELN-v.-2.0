@@ -4,8 +4,8 @@ import {
 } from '@/core/components/common/button-toggle/button-toggle.component';
 import { ToggleComponent } from '@/core/components/common/toggle/toggle.component';
 import { ProjectItemComponent } from '@/core/components/project/project-item/project-item.component';
+import { InfiniteLoaderComponent } from '@/core/components/util/infinite-loader/infinite-loader.component';
 import { InfiniteScrollComponent } from '@/core/components/util/infinite-scroll.component';
-import { IsInViewportDirective } from '@/core/directives/is-in-viewport.directive';
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { Project } from '@/core/types/entities/project.i';
 import { animate, style, transition, trigger } from '@angular/animations';
@@ -33,8 +33,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     ButtonToggleComponent,
     MatSlideToggleModule,
     ToggleComponent,
-    IsInViewportDirective,
     ClassPickerPipe,
+    InfiniteLoaderComponent,
   ],
 })
 export class ProjectListComponent extends InfiniteScrollComponent<Project> {

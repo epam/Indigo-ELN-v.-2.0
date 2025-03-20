@@ -66,8 +66,7 @@ export abstract class PaginatedComponent<T> {
                     {
                       pageNo: 0,
                       // + 1 since pageNo 0 = Page 1
-                      pageSize:
-                        Number(this.pager.pageNo) + 1 * this.pager.pageSize,
+                      pageSize: (this.pager.pageNo + 1) * this.pager.pageSize,
                     }
                   : // For subsequent loads or restoration disabled, use standard pager
                     this.pager;
@@ -109,12 +108,11 @@ export abstract class PaginatedComponent<T> {
 
             Object.keys(queryFilters).forEach((key) => {
               if (key in this.pager) {
-                this.pager[key] = queryFilters[key];
+                this.pager[key] = Number(queryFilters[key]);
                 delete queryFilters[key];
               }
             });
 
-            // Object.assign creates properties as string always causing to need Number() ctor on line 69
             Object.assign(this.filters, queryFilters);
 
             this.fetchDataAndUpdateQueryParams(false);

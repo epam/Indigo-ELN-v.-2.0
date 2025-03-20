@@ -23,9 +23,14 @@ export abstract class InfiniteScrollComponent<T> extends PaginatedComponent<T> {
   }
 
   infiniteLoad() {
-    const newPageSize = Number(this.pager.pageNo) + Number(1);
-    if (newPageSize <= Math.ceil(this.total / this.pager.pageSize)) {
-      this.pager.pageNo = newPageSize;
+    // Since backend uses zero-based indexing (pageNo=0 equals page 1),
+    const currentBackendPage = this.pager.pageNo;
+    const nextBackendPage = currentBackendPage + 1;
+
+    const totalPages = Math.ceil(this.total / this.pager.pageSize);
+
+    if (nextBackendPage < totalPages) {
+      this.pager.pageNo = nextBackendPage;
       this.fetchDataAndUpdateQueryParams(true);
     }
   }

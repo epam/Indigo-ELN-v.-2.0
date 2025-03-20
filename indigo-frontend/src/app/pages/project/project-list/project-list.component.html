@@ -1,4 +1,4 @@
-<div class="flex items-center justify-between my-4">
+<div class="flex justify-between items-center my-4">
   <app-toggle label="My Entities" />
   <app-button-toggle
     [(ngModel)]="selectedView"
@@ -18,17 +18,13 @@
   @for (project of data; track project.id) {
     <app-project-item [project]="project" [variant]="selectedView" />
   }
-  <div
-    [class]="
+  <app-infinite-loader
+    [classNames]="
       {
-        invisible: true,
         'col-span-1': selectedView == 'list',
         '2xl:col-span-3 md:col-span-2': selectedView == 'grid',
       } | classPicker
     "
-    [appIsInViewport]="true"
-    (enteredViewport)="infiniteLoad()"
-  >
-    simplicity is the ultimate sophistication
-  </div>
+    (infiniteLoad)="infiniteLoad()"
+  />
 </div>
