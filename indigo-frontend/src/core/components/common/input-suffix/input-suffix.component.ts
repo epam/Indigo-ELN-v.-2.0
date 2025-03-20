@@ -32,7 +32,7 @@ import { InputSuffixValue } from '../../../types/input-suffix.i';
 })
 export class InputSuffixComponent implements ControlValueAccessor {
   label = input.required<string>();
-  placeholder = input<[string, string]>();
+  placeholder = input<InputSuffixValue>();
   required = input<boolean>(false);
   hasError = input<boolean>(false);
   items = input<DropdownMenuItem[]>([]);
@@ -86,10 +86,12 @@ export class InputSuffixComponent implements ControlValueAccessor {
   }
 
   getPlaceholder(item: 'suffix' | 'input') {
-    const placeholderTuple = this.placeholder();
-    if (placeholderTuple?.length) {
-      item === 'suffix' ? placeholderTuple[0] : placeholderTuple[1];
+    const placeholder = this.placeholder();
+    if (item === 'suffix' && placeholder?.suffix) {
+      return placeholder.suffix;
+    } else if (item === 'input' && placeholder?.input) {
+      return placeholder.input;
     }
-    return item === 'suffix' ? 'Select an option' : this.label();
+    return item === 'suffix' ? 'Select an option' : this.label() || 'Enter text';
   }
 }
