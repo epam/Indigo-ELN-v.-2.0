@@ -4,30 +4,15 @@ import {
 } from '@/core/components/common/button-toggle/button-toggle.component';
 import { ToggleComponent } from '@/core/components/common/toggle/toggle.component';
 import { ProjectItemComponent } from '@/core/components/project/project-item/project-item.component';
-import { getRandomStr } from '@/core/utils/string.util';
+import { InfiniteLoaderComponent } from '@/core/components/util/infinite-loader/infinite-loader.component';
+import { InfiniteScrollComponent } from '@/core/components/util/infinite-scroll.component';
+import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
+import { Project } from '@/core/types/entities/project.i';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-
-const mock_users = [
-  'assets/avatar1.png',
-  'assets/avatar2.png',
-  'assets/avatar3.png',
-  '-',
-  '-',
-  '-',
-  '-',
-  '-',
-  '-',
-  '-',
-  '-',
-  '-',
-  '-',
-  '-',
-  '-',
-];
 
 @Component({
   selector: 'app-project-list',
@@ -48,10 +33,19 @@ const mock_users = [
     ButtonToggleComponent,
     MatSlideToggleModule,
     ToggleComponent,
+    ClassPickerPipe,
+    InfiniteLoaderComponent,
   ],
 })
-export class ProjectListComponent {
+export class ProjectListComponent extends InfiniteScrollComponent<Project> {
   selectedView: 'grid' | 'list' = 'grid';
+
+  constructor() {
+    super();
+    this.setup({
+      controller: 'projects',
+    });
+  }
 
   options: ToggleOption[] = [{ value: 'grid', icon: 'indicon-grid' }];
 
@@ -59,17 +53,4 @@ export class ProjectListComponent {
     { value: 'grid', icon: 'indicon-grid' },
     { value: 'list', icon: 'indicon-list' },
   ];
-
-  projects = [
-    { id: getRandomStr(), name: 'Project 1', description: 'Description 1' },
-    { id: getRandomStr(), name: 'Project 2', description: 'Description 2' },
-    { id: getRandomStr(), name: 'Project 3', description: 'Description 2' },
-    { id: getRandomStr(), name: 'Project 4', description: 'Description 2' },
-    { id: getRandomStr(), name: 'Project 5', description: 'Description 2' },
-    { id: getRandomStr(), name: 'Project 6', description: 'Description 2' },
-    { id: getRandomStr(), name: 'Project 7', description: 'Description 2' },
-  ].map((project) => ({
-    ...project,
-    users: mock_users,
-  }));
 }

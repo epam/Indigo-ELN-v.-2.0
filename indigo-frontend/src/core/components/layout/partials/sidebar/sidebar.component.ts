@@ -7,7 +7,6 @@ import { RouterModule } from '@angular/router';
   imports: [CommonModule, RouterModule],
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.scss'],
 })
 export class SidebarComponent {
   menu = [

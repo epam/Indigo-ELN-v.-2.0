@@ -1,76 +1,61 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { PagedRequest } from '../types/request/paged-request.i';
+import { PaginatedResponse } from '../types/response/paginated-response.i';
+import { getRequestParams } from '../utils/http.util';
+
+interface UrlMapType {
+  getPagedUrl?: string;
+  getSingleUrl?: string;
+  createUrl?: string;
+  updateUrl?: string;
+  deleteUrl?: string;
+}
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-export class ApiService {
-  private readonly headers = new HttpHeaders({
-    'X-Requested-With': 'XMLHttpRequest',
-    // Consider adding 'Content-Type': 'application/json' as a default,
-    // but it can be overridden in options.
-  });
+export class ApiService<T> {
+  // In order to support some urls like /notebooks/{notebookId}/experiments
+  protected urlMap: UrlMapType = {
+    getPagedUrl: '',
+    getSingleUrl: '',
+    createUrl: '',
+    updateUrl: '',
+    deleteUrl: '',
+  };
 
-  constructor(private readonly httpClient: HttpClient) {}
+  controller = 'unknown';
+  protected httpClient = inject(HttpClient);
 
-  // POST
-  post<ResponseType>(url: string, body: any, options: { headers?: HttpHeaders | { [header: string]: string | string[] } } = {}): Observable<ResponseType> {
-    const mergedHeaders = this.mergeHeaders(options.headers);
-    return this.httpClient.post<ResponseType>(url, body, { headers: mergedHeaders });
-  }
-
-  // GET
-  get<ResponseType>(url: string, params?: any, options: { headers?: HttpHeaders | { [header: string]: string | string[] } } = {}): Observable<ResponseType> {
-    const mergedHeaders = this.mergeHeaders(options.headers);
-    const httpParams = this.createHttpParams(params);
-    return this.httpClient.get<ResponseType>(url, { headers: mergedHeaders, params: httpParams });
-  }
-
-  // PUT
-  put<ResponseType>(url: string, body: any, options: { headers?: HttpHeaders | { [header: string]: string | string[] } } = {}): Observable<ResponseType> {
-    const mergedHeaders = this.mergeHeaders(options.headers);
-    return this.httpClient.put<ResponseType>(url, body, { headers: mergedHeaders });
-  }
-
-  // DELETE
-  delete<ResponseType>(url: string, options: { headers?: HttpHeaders | { [header: string]: string | string[] }; params?: any; } = {}): Observable<ResponseType> {
-    const mergedHeaders = this.mergeHeaders(options.headers);
-    const httpParams = this.createHttpParams(options.params);
-    return this.httpClient.delete<ResponseType>(url, { headers: mergedHeaders, params: httpParams });
-  }
-
-
-  private mergeHeaders(customHeaders?: HttpHeaders | { [header: string]: string | string[] }): HttpHeaders {
-    let mergedHeaders = this.headers;
-    if (customHeaders) {
-      if (customHeaders instanceof HttpHeaders) {
-        customHeaders.keys().forEach(key => {
-          mergedHeaders = mergedHeaders.set(key, customHeaders.getAll(key) || []);
-        });
-      } else { // Handle plain object
-        for (const key in customHeaders) {
-          if (customHeaders.hasOwnProperty(key)) {
-            mergedHeaders = mergedHeaders.set(key, customHeaders[key]);
-          }
-        }
-      }
+  public setup(controller: string, urlOverrides?: UrlMapType) {
+    this.controller = controller;
+    if (urlOverrides) {
+      Object.keys(urlOverrides).forEach(
+        (key) => (this.urlMap[key] = urlOverrides[key]),
+      );
     }
-    return mergedHeaders;
   }
 
-  private createHttpParams(params?: any): HttpParams {
-      let httpParams = new HttpParams();
-      if (params) {
-          for (const key in params) {
-              if (params.hasOwnProperty(key)) {
-                  const value = params[key];
-                  if (value !== null && value !== undefined) {
-                      httpParams = httpParams.set(key, value);
-                  }
-              }
-          }
-      }
-      return httpParams;
+  public getPaged(
+    pager: PagedRequest,
+    filter?,
+  ): Observable<PaginatedResponse<T>> {
+    return this.httpClient.get<PaginatedResponse<T>>(
+      this.buildUrl(this.urlMap.getPagedUrl),
+      {
+        params: getRequestParams(filter, pager),
+      },
+    );
   }
+
+  public create(body: unknown): Observable<T> {
+    return this.httpClient.post<T>(this.buildUrl(this.urlMap.createUrl), body);
+  }
+
+  private buildUrl = (str?: string) =>
+    `/api/eln/${this.controller}/${str || ''}`
+      .replace(/\/\//g, '/')
+      .replace(/\/+$/, '');
 }

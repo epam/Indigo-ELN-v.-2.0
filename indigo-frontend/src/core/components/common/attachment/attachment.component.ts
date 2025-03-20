@@ -1,4 +1,4 @@
-import { Attachment } from '@/core/types/attachment.i';
+import { Attachment } from '@/core/types/entities/attachment.i';
 import { Component, Input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';

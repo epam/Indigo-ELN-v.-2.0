@@ -1,6 +1,7 @@
 import { IEnvironment } from '@/core/types/environment.i';
+import { mergeEnvironments } from './env.util';
 
-export const environment: IEnvironment = {
+export const environment: IEnvironment = mergeEnvironments({
   production: true,
   authConfig: {
     authority: '',
@@ -9,4 +10,4 @@ export const environment: IEnvironment = {
     scope: '',
     responseType: '',
   },
-};
+});

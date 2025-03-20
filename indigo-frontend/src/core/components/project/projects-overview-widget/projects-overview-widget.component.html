@@ -1,61 +1,83 @@
 <app-card
-  [classList]="{ 'px-8': true, 'pb-0': shouldRenderProjectLinks } | classPicker"
+  [classList]="
+    { 'px-4 sm:px-6 md:px-8': true, 'pb-0': shouldRenderProjectLinks }
+      | classPicker
+  "
 >
-  <div class="flex items-center justify-between flex-wrap">
-    <div class="font-semibold">All Projects</div>
+  <div class="flex items-center justify-between flex-wrap gap-4">
+    <div class="font-semibold text-lg">All Projects</div>
     <app-button variant="blue" classList="flex items-center gap-2">
       <em class="text-xl indicon-plus"></em>
-      Add Project
+      <span class="whitespace-nowrap">Add Project</span>
     </app-button>
   </div>
-  <div class="text-2xl flex items-center justify-between">
+
+  <div
+    class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
+  >
+    <!-- Projects stats -->
     <div
-      class="flex items-center bg-primary-alpha-10 rounded-lg [&_em]:text-primary-400 mt-4 md:[&>*:not(:last-child)]:border-r md:[&>*:not(:last-child)]:border-r-neutral md:[&>*]:min-w-[160px] [&>*>p]:text-sm [&>*]:py-2 [&>*]:px-3 flex-wrap"
+      class="flex flex-wrap items-center bg-primary-alpha-10 rounded-lg [&_em]:text-primary-400 mt-4 w-full lg:w-auto"
     >
-      <div>
+      <div
+        class="flex-1 min-w-[140px] py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral"
+      >
         <em class="indicon-briefcase mr-2"></em>
-        <span>{{ data.projects }}</span>
-        <p>Projects</p>
+        <span class="text-xl">{{ data.projects }}</span>
+        <p class="text-sm">Projects</p>
       </div>
-      <div>
+      <div
+        class="flex-1 min-w-[140px] py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral"
+      >
         <em class="indicon-briefcase mr-2"></em>
-        <span>{{ data.notebooks }}</span>
-        <p>Notebooks</p>
+        <span class="text-xl">{{ data.notebooks }}</span>
+        <p class="text-sm">Notebooks</p>
       </div>
-      <div>
+      <div class="flex-1 min-w-[140px] py-2 px-3 text-center sm:text-left">
         <em class="indicon-briefcase mr-2"></em>
-        <span>{{ data.experiments }}</span>
-        <p>Experiments</p>
+        <span class="text-xl">{{ data.experiments }}</span>
+        <p class="text-sm">Experiments</p>
       </div>
     </div>
+
+    <!-- Experiments status -->
     <div
-      class="flex items-center rounded-lg mt-4 md:[&>*:not(:last-child)]:border-r md:[&>*:not(:last-child)]:border-r-neutral-300 md:[&>*]:min-w-[160px] [&>*>p]:text-sm [&>*]:py-2 [&>*]:px-3 flex-wrap border-neutral-300 border"
+      class="flex flex-wrap items-center rounded-lg mt-4 border-neutral-300 border w-full lg:w-auto"
     >
-      <div>
-        <span class="text-primary-400">{{ data.openExperiments }}</span>
-        <p>Open Experiments</p>
+      <div
+        class="flex-1 min-w-[140px] py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral-300"
+      >
+        <span class="text-xl text-primary-400">{{ data.openExperiments }}</span>
+        <p class="text-sm">Open Experiments</p>
       </div>
-      <div>
-        <span class="text-orange-200">{{ data.waitingSignature }}</span>
-        <p>Waiting Signature</p>
+      <div
+        class="flex-1 min-w-[140px] py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral-300"
+      >
+        <span class="text-xl text-orange-200">{{ data.waitingSignature }}</span>
+        <p class="text-sm">Waiting Signature</p>
       </div>
-      <div>
-        <span class="text-green-200">{{ data.completed }}</span>
-        <p>Completed</p>
+      <div
+        class="flex-1 min-w-[140px] py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral-300"
+      >
+        <span class="text-xl text-green-200">{{ data.completed }}</span>
+        <p class="text-sm">Completed</p>
       </div>
-      <div>
-        <span class="text-red-200">{{ data.rejected }}</span>
-        <p>Rejected</p>
+      <div class="flex-1 min-w-[140px] py-2 px-3 text-center sm:text-left">
+        <span class="text-xl text-red-200">{{ data.rejected }}</span>
+        <p class="text-sm">Rejected</p>
       </div>
     </div>
   </div>
-  <!-- TODO: Current project id should be passed in the route -->
+
+  <!-- Navigation tabs -->
   @if (shouldRenderProjectLinks) {
-    <div class="flex items-center mt-3">
-      <a href="#" class="border-b-primary-400 border-b-2 p-4 text-primary-400"
+    <div class="flex items-center mt-6 overflow-x-auto">
+      <a
+        href="#"
+        class="border-b-primary-400 border-b-2 p-3 md:p-4 text-primary-400 whitespace-nowrap"
         >Project Info</a
       >
-      <a href="#" class="p-4">Notebooks</a>
+      <a href="#" class="p-3 md:p-4 whitespace-nowrap">Notebooks</a>
     </div>
   }
 </app-card>

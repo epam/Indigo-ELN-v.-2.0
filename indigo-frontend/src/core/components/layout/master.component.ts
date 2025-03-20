@@ -28,7 +28,6 @@ import { SidebarComponent } from './partials/sidebar/sidebar.component';
     SidebarComponent,
   ],
   templateUrl: './master.component.html',
-  styleUrls: ['./master.component.scss'],
 })
 export class MasterComponent {
   protected authService = inject(OidcSecurityService);

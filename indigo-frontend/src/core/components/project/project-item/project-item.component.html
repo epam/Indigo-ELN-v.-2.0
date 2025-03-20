@@ -2,125 +2,157 @@
   [classList]="'p-4 cursor-pointer'"
   [routerLink]="['/projects', project.id]"
 >
-  <div
-    class="project-item grid gap-y-2 text-neutral-800 text-[.875rem]"
-    [ngClass]="{
-      'list-view': variant === 'list',
-      'grid-view': variant === 'grid',
-    }"
-  >
-    <h3
-      class="[grid-area:projectTitle] font-semibold text-[1rem] text-neutral-1000 flex items-center gap-x-2"
-    >
-      <em class="indicon-briefcase text-primary-400 text-[1.25rem]"></em
-      >{{ project.name }}
-    </h3>
-    <div class="[grid-area:clickMore] flex ml-auto">
-      <button
-        mat-icon-button
-        (click)="$event.stopPropagation()"
-        [matMenuTriggerFor]="menu"
-        class=""
-        aria-label="Example icon-button with a menu"
+  <div class="flex flex-col w-full">
+    <div class="flex justify-between items-center mb-3 w-full">
+      <h3
+        class="flex items-center gap-x-2 font-semibold text-neutral-1000 text-base"
       >
-        <mat-icon>more_horiz</mat-icon>
-      </button>
-      <mat-menu #menu="matMenu">
-        <button mat-menu-item>
-          <mat-icon>dialpad</mat-icon>
-          <span>Redial</span>
+        <em class="text-primary-400 text-xl indicon-briefcase"></em>
+        {{ project.name }}
+      </h3>
+      <div class="right-0">
+        <button
+          class="flex items-center hover:bg-neutral-200 rounded-full cursor-pointer"
+          (click)="$event.stopPropagation()"
+          [matMenuTriggerFor]="menu"
+          aria-label="Project options menu"
+        >
+          <mat-icon>more_horiz</mat-icon>
         </button>
-        <button mat-menu-item disabled>
-          <mat-icon>voicemail</mat-icon>
-          <span>Check voice mail</span>
-        </button>
-        <button mat-menu-item>
-          <mat-icon>notifications_off</mat-icon>
-          <span>Disable alerts</span>
-        </button>
-      </mat-menu>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item>
+            <mat-icon>visibility</mat-icon>
+            <span>Action</span>
+          </button>
+        </mat-menu>
+      </div>
     </div>
-    <div class="[grid-area:notebookLabel]">Notebook</div>
-    <div
-      [ngClass]="{
-        'ml-auto': variant === 'grid',
-      }"
-      class="[grid-area:notebookValue] text-h4 font-semibold"
-    >
-      12
-    </div>
-    <div class="[grid-area:experimentLabel]">Experiments</div>
-    <div
-      [ngClass]="{
-        'ml-auto': variant === 'grid',
-        flex: variant === 'list',
-      }"
-      class="[grid-area:experimentValue] text-h4 [&_span]:font-semibold [&_i]:text-neutral-500"
-    >
-      <span class="text-primary-400">2</span>
-      <i class="text-b2">/</i>
-      <span class="text-orange-200">11</span>
-      <i class="text-b2">/</i>
-      <span class="text-green-200">1</span>
-      <i class="text-b2">/</i>
-      <span class="text-red-200">0</span>
-      <span class="text-neutral-500 mx-3 font-thin!">|</span>
-      <span class="text-neutral-1000 text-h4 font-semibold">145</span>
-    </div>
-    <div class="[grid-area:lastEditedLabel]">Last Edited</div>
-    <div
-      class="[grid-area:lastEditedValue]"
-      [ngClass]="{
-        'ml-auto': variant === 'grid',
-      }"
-    >
-      14 Oct 2024 by Emmy Cooper
-    </div>
-    <div class="[grid-area:createdLabel]">Created</div>
-    <div
-      class="[grid-area:createdValue]"
-      [ngClass]="{
-        'ml-auto': variant === 'grid',
-      }"
-    >
-      08 Oct 2024 by John Doe
+
+    <div [ngClass]="variant === 'grid' ? 'space-y-2' : 'w-full'">
+      <div
+        class="w-full"
+        [ngClass]="{
+          'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6':
+            variant === 'list',
+          'space-y-2': variant === 'grid',
+        }"
+      >
+        <div
+          class="flex flex-col"
+          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
+        >
+          <div class="text-neutral-800 text-sm">Notebook</div>
+          <div
+            class="font-semibold text-h4"
+            [ngClass]="{ 'ml-auto': variant === 'grid' }"
+          >
+            12
+          </div>
+        </div>
+
+        <div
+          class="flex flex-col"
+          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
+        >
+          <div class="text-neutral-800 text-sm">Experiments</div>
+          <div
+            class="flex items-center"
+            [ngClass]="{ 'ml-auto': variant === 'grid' }"
+          >
+            @if (project.experimentCount.OPEN) {
+              <span class="font-semibold text-h4 text-primary-400">{{
+                project.experimentCount.OPEN
+              }}</span>
+            }
+            @if (project.experimentCount.WAITING_FOR_SIGNATURE) {
+              <i class="text-neutral-500">/</i>
+              <span class="font-semibold text-h4 text-orange-200">{{
+                project.experimentCount.WAITING_FOR_SIGNATURE
+              }}</span>
+            }
+            @if (project.experimentCount.COMPLETED) {
+              <i class="text-neutral-500">/</i>
+              <span class="font-semibold text-green-200 text-h4">{{
+                project.experimentCount.COMPLETED
+              }}</span>
+            }
+            @if (project.experimentCount.REJECTED) {
+              <i class="text-neutral-500">/</i>
+              <span class="font-semibold text-h4 text-red-200">{{
+                project.experimentCount.REJECTED
+              }}</span>
+            }
+            <span class="mx-3 font-thin text-neutral-500">|</span>
+            <!-- TODO -->
+            <span class="font-semibold text-h4 text-neutral-1000">145</span>
+          </div>
+        </div>
+
+        <div
+          class="flex flex-col"
+          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
+          *ngIf="variant === 'list'"
+        >
+          <div class="text-neutral-800 text-sm">Members</div>
+          <div class="flex items-center">
+            <div class="flex -space-x-2">
+              @for (user of mock_users.slice(0, 3); track user) {
+                <app-avatar classList="w-6 h-6" [img]="user" />
+              }
+              @if (mock_users.length > 3) {
+                <span
+                  class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs"
+                >
+                  +{{ mock_users.length - 3 }}
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="flex flex-col text-sm"
+          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
+        >
+          <div class="text-neutral-800 text-sm">Last Edited</div>
+          <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
+            {{ project.modifiedAt | date: 'dd MMM yyyy' }} by
+            {{ project.modifiedBy.displayName }}
+          </div>
+        </div>
+
+        <div
+          class="flex flex-col text-sm"
+          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
+        >
+          <div class="text-neutral-800">Created</div>
+          <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
+            {{ project.createdAt | date: 'dd MMM yyyy' }} by
+            {{ project.createdBy.displayName }}
+          </div>
+        </div>
+      </div>
     </div>
 
     @if (variant === 'grid') {
       <div
-        class="[grid-area:members] flex items-center border-t-neutral-300 border-t w-full pt-3"
+        class="flex items-center mt-2 pt-3 border-t border-t-neutral-300 w-full"
       >
-        <div class="[grid-area:membersLabel] flex -space-x-2">
-          @for (user of project.users.slice(0, 3); track user) {
+        <div class="flex -space-x-2">
+          @for (user of mock_users.slice(0, 3); track user) {
             <app-avatar classList="w-6 h-6" [img]="user" />
           }
-          @if (project.users.length > 3) {
+          @if (mock_users.length > 3) {
             <span
-              class="w-6 h-6 rounded-full bg-primary-400 text-white text-xs flex items-center justify-center"
-              >+{{ project.users.length - 3 }}</span
+              class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs"
             >
+              +{{ mock_users.length - 3 }}
+            </span>
           }
         </div>
         <span class="ml-2 text-b2 text-neutral-800"
-          >{{ project.users.length }} Members</span
+          >{{ mock_users.length }} Members</span
         >
-      </div>
-    } @else {
-      <div class="[grid-area:membersLabel]">
-        <span class="text-b2 text-neutral-800"> Members</span>
-      </div>
-      <div class="[grid-area:membersValue] flex items-center">
-        <div class="flex -space-x-2">
-          @for (user of project.users.slice(0, 3); track user) {
-            <app-avatar classList="w-6 h-6" [img]="user" />
-          }
-          @if (project.users.length > 3) {
-            <span
-              class="w-6 h-6 rounded-full bg-primary-400 text-white text-xs flex items-center justify-center"
-              >+{{ project.users.length - 3 }}</span
-            >
-          }
-        </div>
       </div>
     }
   </div>

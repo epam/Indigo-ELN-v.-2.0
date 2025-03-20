@@ -1,42 +1,51 @@
-<div class="top-bar p-5 flex items-center justify-between bg-primary-600">
-  <div class="top-bar-left">
-    <img src="assets/logo.png" alt="Logo" />
-  </div>
-  <div
-    class="h-[44px] flex items-center gap-2 bg-primary-500 px-4 py-2 rounded-full max-w-lg w-full"
+<div class="flex flex-col h-screen">
+  <header
+    class="flex-shrink-0 p-4 flex items-center justify-between bg-primary-600 shadow-md"
   >
-    <input
-      class="bg-transparent border-none outline-none text-neutral flex-1 placeholder:text-neutral"
-      type="text"
-      placeholder="Search"
-      [formControl]="searchControl"
-    />
-    <button mat-icon-button class="text-neutral-600">
-      <mat-icon class="text-neutral!">search</mat-icon>
-    </button>
-  </div>
-  <div class="flex items-center gap-2">
-    <button mat-icon-button>
-      <em class="indicon-bell text-neutral"></em>
-    </button>
-    <div
-      class="flex items-center gap-2 hover:bg-neutral p-2 rounded-sm cursor-pointer text-neutral hover:text-neutral-1000"
-      [matMenuTriggerFor]="userMenu"
-    >
-      <img [src]="userAvatar" alt="User avatar" class="avatar" />
-      <span class="user-name">{{ userName }}</span>
+    <div>
+      <img src="assets/logo.png" alt="Logo" class="h-8" />
     </div>
-    <mat-menu #userMenu="matMenu">
-      <button mat-menu-item>Profile</button>
-      <button mat-menu-item>Settings</button>
-      <button mat-menu-item (click)="logout()">Logout</button>
-    </mat-menu>
-  </div>
-</div>
-<div class="content">
-  <app-sidebar></app-sidebar>
+    <div
+      class="flex items-center gap-2 bg-primary-500 px-4 py-2 rounded-full max-w-xl w-full"
+    >
+      <input
+        class="bg-transparent border-none outline-none text-neutral flex-1 placeholder:text-neutral w-full"
+        type="text"
+        placeholder="Search"
+        [formControl]="searchControl"
+      />
+      <button mat-icon-button class="text-neutral-600">
+        <mat-icon class="text-neutral">search</mat-icon>
+      </button>
+    </div>
+    <div class="flex items-center gap-2">
+      <button mat-icon-button>
+        <em class="indicon-bell text-neutral"></em>
+      </button>
+      <div
+        class="flex items-center gap-2 hover:bg-neutral p-2 rounded-sm cursor-pointer text-neutral hover:text-neutral-1000"
+        [matMenuTriggerFor]="userMenu"
+      >
+        <img
+          [src]="userAvatar"
+          alt="User avatar"
+          class="h-8 w-8 rounded-full"
+        />
+        <span>{{ userName }}</span>
+      </div>
+      <mat-menu #userMenu="matMenu">
+        <button mat-menu-item>Profile</button>
+        <button mat-menu-item>Settings</button>
+        <button mat-menu-item (click)="logout()">Logout</button>
+      </mat-menu>
+    </div>
+  </header>
 
-  <main class="page-content">
-    <router-outlet></router-outlet>
-  </main>
+  <div class="flex flex-1 gap-4 p-4 overflow-hidden min-h-0">
+    <app-sidebar></app-sidebar>
+
+    <main class="flex-1 overflow-y-auto p-1">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
 </div>
