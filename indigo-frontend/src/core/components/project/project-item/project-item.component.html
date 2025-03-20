@@ -3,19 +3,19 @@
   [routerLink]="['/projects', project.id]"
 >
   <div
-    class="project-item grid gap-y-2 text-neutral-800 text-[.875rem]"
+    class="gap-y-2 grid text-[.875rem] text-neutral-800 project-item"
     [ngClass]="{
       'list-view': variant === 'list',
       'grid-view': variant === 'grid',
     }"
   >
     <h3
-      class="[grid-area:projectTitle] font-semibold text-[1rem] text-neutral-1000 flex items-center gap-x-2"
+      class="flex items-center gap-x-2 font-semibold text-[1rem] text-neutral-1000 [grid-area:projectTitle]"
     >
-      <em class="indicon-briefcase text-primary-400 text-[1.25rem]"></em
+      <em class="text-[1.25rem] text-primary-400 indicon-briefcase"></em
       >{{ project.name }}
     </h3>
-    <div class="[grid-area:clickMore] flex ml-auto">
+    <div class="flex ml-auto [grid-area:clickMore]">
       <button
         mat-icon-button
         (click)="$event.stopPropagation()"
@@ -45,7 +45,7 @@
       [ngClass]="{
         'ml-auto': variant === 'grid',
       }"
-      class="[grid-area:notebookValue] text-h4 font-semibold"
+      class="font-semibold text-h4 [grid-area:notebookValue]"
     >
       12
     </div>
@@ -55,17 +55,30 @@
         'ml-auto': variant === 'grid',
         flex: variant === 'list',
       }"
-      class="[grid-area:experimentValue] text-h4 [&_span]:font-semibold [&_i]:text-neutral-500"
+      class="[&_span]:font-semibold text-h4 [&_i]:text-neutral-500 [grid-area:experimentValue]"
     >
-      <span class="text-primary-400">2</span>
-      <i class="text-b2">/</i>
-      <span class="text-orange-200">11</span>
-      <i class="text-b2">/</i>
-      <span class="text-green-200">1</span>
-      <i class="text-b2">/</i>
-      <span class="text-red-200">0</span>
-      <span class="text-neutral-500 mx-3 font-thin!">|</span>
-      <span class="text-neutral-1000 text-h4 font-semibold">145</span>
+      @if (project.experimentCount.OPEN) {
+        <span class="text-primary-400">{{ project.experimentCount.OPEN }}</span>
+      }
+      @if (project.experimentCount.WAITING_FOR_SIGNATURE) {
+        <i class="text-b2">/</i>
+        <span class="text-orange-200">{{
+          project.experimentCount.WAITING_FOR_SIGNATURE
+        }}</span>
+      }
+      @if (project.experimentCount.COMPLETED) {
+        <i class="text-b2">/</i>
+        <span class="text-green-200">{{
+          project.experimentCount.COMPLETED
+        }}</span>
+      }
+      @if (project.experimentCount.REJECTED) {
+        <i class="text-b2">/</i>
+        <span class="text-red-200">{{ project.experimentCount.REJECTED }}</span>
+      }
+      <span class="mx-3 font-thin! text-neutral-500">|</span>
+      <!-- TODO -->
+      <span class="font-semibold text-h4 text-neutral-1000">145</span>
     </div>
     <div class="[grid-area:lastEditedLabel]">Last Edited</div>
     <div
@@ -90,15 +103,15 @@
 
     @if (variant === 'grid') {
       <div
-        class="[grid-area:members] flex items-center border-t-neutral-300 border-t w-full pt-3"
+        class="flex items-center pt-3 border-t border-t-neutral-300 w-full [grid-area:members]"
       >
-        <div class="[grid-area:membersLabel] flex -space-x-2">
+        <div class="flex -space-x-2 [grid-area:membersLabel]">
           @for (user of mock_users.slice(0, 3); track user) {
             <app-avatar classList="w-6 h-6" [img]="user" />
           }
           @if (mock_users.length > 3) {
             <span
-              class="w-6 h-6 rounded-full bg-primary-400 text-white text-xs flex items-center justify-center"
+              class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs"
               >+{{ mock_users.length - 3 }}</span
             >
           }
@@ -111,14 +124,14 @@
       <div class="[grid-area:membersLabel]">
         <span class="text-b2 text-neutral-800"> Members</span>
       </div>
-      <div class="[grid-area:membersValue] flex items-center">
+      <div class="flex items-center [grid-area:membersValue]">
         <div class="flex -space-x-2">
           @for (user of mock_users.slice(0, 3); track user) {
             <app-avatar classList="w-6 h-6" [img]="user" />
           }
           @if (mock_users.length > 3) {
             <span
-              class="w-6 h-6 rounded-full bg-primary-400 text-white text-xs flex items-center justify-center"
+              class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs"
               >+{{ mock_users.length - 3 }}</span
             >
           }
