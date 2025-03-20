@@ -65,7 +65,9 @@ export abstract class PaginatedComponent<T> {
                   ? // On first load with restoration enabled, fetch all data up to current page
                     {
                       pageNo: 0,
-                      pageSize: this.pager.pageNo * this.pager.pageSize,
+                      // + 1 since pageNo 0 = Page 1
+                      pageSize:
+                        Number(this.pager.pageNo) + 1 * this.pager.pageSize,
                     }
                   : // For subsequent loads or restoration disabled, use standard pager
                     this.pager;
@@ -112,6 +114,7 @@ export abstract class PaginatedComponent<T> {
               }
             });
 
+            // Object.assign creates properties as string always causing to need Number() ctor on line 69
             Object.assign(this.filters, queryFilters);
 
             this.fetchDataAndUpdateQueryParams(false);
