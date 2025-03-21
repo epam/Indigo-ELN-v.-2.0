@@ -1,8 +1,8 @@
 <app-card
-  [classList]="'p-4 cursor-pointer'"
+  [classList]="'cursor-pointer'"
   [routerLink]="['/projects', project.id]"
 >
-  <div class="flex flex-col w-full">
+  <div class="flex flex-col w-full px-4">
     <div class="flex justify-between items-center mb-3 w-full">
       <h3
         class="flex items-center gap-x-2 font-semibold text-neutral-1000 text-base"
@@ -10,7 +10,7 @@
         <em class="text-primary-400 text-xl indicon-briefcase"></em>
         {{ project.name }}
       </h3>
-      <div class="right-0">
+      <div class="relative -right-1">
         <button
           class="flex items-center hover:bg-neutral-200 rounded-full cursor-pointer"
           (click)="$event.stopPropagation()"
@@ -41,7 +41,7 @@
           class="flex flex-col"
           [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
         >
-          <div class="text-neutral-800 text-sm">Notebook</div>
+          <div class="text-neutral-1000 text-sm">Notebook</div>
           <div
             class="font-semibold text-h4"
             [ngClass]="{ 'ml-auto': variant === 'grid' }"
@@ -54,7 +54,7 @@
           class="flex flex-col"
           [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
         >
-          <div class="text-neutral-800 text-sm">Experiments</div>
+          <div class="text-neutral-1000 text-sm">Experiments</div>
           <div
             class="flex items-center"
             [ngClass]="{ 'ml-auto': variant === 'grid' }"
@@ -93,7 +93,7 @@
           [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
           *ngIf="variant === 'list'"
         >
-          <div class="text-neutral-800 text-sm">Members</div>
+          <div class="text-neutral-1000 text-sm">Members</div>
           <div class="flex items-center">
             <div class="flex -space-x-2">
               @for (user of mock_users.slice(0, 3); track user) {
@@ -114,7 +114,7 @@
           class="flex flex-col text-sm"
           [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
         >
-          <div class="text-neutral-800 text-sm">Last Edited</div>
+          <div class="text-neutral-1000 text-sm">Last Edited</div>
           <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
             {{ project.modifiedAt | date: 'dd MMM yyyy' }} by
             {{ project.modifiedBy.displayName }}
@@ -125,7 +125,7 @@
           class="flex flex-col text-sm"
           [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
         >
-          <div class="text-neutral-800">Created</div>
+          <div class="text-neutral-1000">Created</div>
           <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
             {{ project.createdAt | date: 'dd MMM yyyy' }} by
             {{ project.createdBy.displayName }}
@@ -150,7 +150,7 @@
             </span>
           }
         </div>
-        <span class="ml-2 text-b2 text-neutral-800"
+        <span class="ml-2 text-b2 text-neutral-1000"
           >{{ mock_users.length }} Members</span
         >
       </div>

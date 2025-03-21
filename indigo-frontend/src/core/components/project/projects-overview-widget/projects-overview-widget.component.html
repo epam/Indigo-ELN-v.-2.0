@@ -1,70 +1,70 @@
 <app-card
   [classList]="
-    { 'px-4 sm:px-6 md:px-8': true, 'pb-0': shouldRenderProjectLinks }
+    { 'px-4 sm:px-2 md:px-4 shadow-md': true, 'pb-0': shouldRenderProjectLinks }
       | classPicker
   "
 >
   <div class="flex items-center justify-between flex-wrap gap-4">
-    <div class="font-semibold text-lg">All Projects</div>
-    <app-button variant="blue" classList="flex items-center gap-2">
+    <div class="font-semibold text-lg">Projects</div>
+    <app-button variant="blue" classList="flex items-center">
       <em class="text-xl indicon-plus"></em>
       <span class="whitespace-nowrap">Add Project</span>
     </app-button>
   </div>
 
   <div
-    class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
+    class="flex flex-col flex-wrap lg:flex-row lg:items-center lg:justify-between gap-2"
   >
     <!-- Projects stats -->
     <div
-      class="flex flex-wrap items-center bg-primary-alpha-10 rounded-lg [&_em]:text-primary-400 mt-4 w-full lg:w-auto"
+      class="flex justify-between flex-nowrap items-center bg-primary-alpha-10 rounded-lg [&_em]:text-primary-400 text-neutral-1000 mt-4 w-full lg:w-auto"
     >
       <div
-        class="flex-1 min-w-[140px] py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral"
+        class="max-w-[140px] w-[140px] overflow-hidden py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral "
       >
-        <em class="indicon-briefcase mr-2"></em>
+        <em class="indicon-briefcase mr-1"></em>
         <span class="text-xl">{{ data.projects }}</span>
-        <p class="text-sm">Projects</p>
+        <p class="text-sm overflow-hidden text-ellipsis text-nowrap">Projects</p>
       </div>
       <div
-        class="flex-1 min-w-[140px] py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral"
+        class="max-w-[140px] w-[140px] py-3 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral overflow-hidden"
       >
-        <em class="indicon-briefcase mr-2"></em>
+        <em class="indicon-briefcase mr-1"></em>
         <span class="text-xl">{{ data.notebooks }}</span>
-        <p class="text-sm">Notebooks</p>
+        <p class="text-sm overflow-hidden text-ellipsis text-nowrap">Notebooks</p>
       </div>
-      <div class="flex-1 min-w-[140px] py-2 px-3 text-center sm:text-left">
-        <em class="indicon-briefcase mr-2"></em>
+      <div class="max-w-[140px] w-[140px] py-2 px-3 text-center sm:text-left overflow-hidden">
+        <em class="indicon-briefcase mr-1"></em>
         <span class="text-xl">{{ data.experiments }}</span>
-        <p class="text-sm">Experiments</p>
+        <p class="text-sm overflow-hidden text-ellipsis text-nowrap">Experiments</p>
       </div>
     </div>
 
     <!-- Experiments status -->
     <div
-      class="flex flex-wrap items-center rounded-lg mt-4 border-neutral-300 border w-full lg:w-auto"
+      class="flex flex-nowrap items-center rounded-lg mt-4 border-neutral-300 border w-full lg:w-auto"
     >
       <div
-        class="flex-1 min-w-[140px] py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral-300"
+        class="max-w-[140px] w-[140px] overflow-hidden py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral-300"
       >
         <span class="text-xl text-primary-400">{{ data.openExperiments }}</span>
-        <p class="text-sm">Open Experiments</p>
+        <p class="text-sm overflow-hidden text-ellipsis text-nowrap">Open Experiments</p>
       </div>
       <div
-        class="flex-1 min-w-[140px] py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral-300"
+        class="max-w-[140px] w-[140px] overflow-hidden py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral-300"
       >
         <span class="text-xl text-orange-200">{{ data.waitingSignature }}</span>
-        <p class="text-sm">Waiting Signature</p>
+        <p class="text-sm overflow-hidden text-ellipsis text-nowrap">Waiting Signature</p>
       </div>
       <div
-        class="flex-1 min-w-[140px] py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral-300"
+        class="max-w-[140px] w-[140px] overflow-hidden py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral-300"
       >
         <span class="text-xl text-green-200">{{ data.completed }}</span>
-        <p class="text-sm">Completed</p>
+        <p class="text-sm overflow-hidden text-ellipsis text-nowrap">Completed</p>
       </div>
-      <div class="flex-1 min-w-[140px] py-2 px-3 text-center sm:text-left">
+      <div class="max-w-[140px] w-[140px] overflow-hidden py-2 px-3 text-center sm:text-left">
         <span class="text-xl text-red-200">{{ data.rejected }}</span>
-        <p class="text-sm">Rejected</p>
+        <p class="text-sm overflow-hidden text-ellipsis text-nowrap">Rejected</p>
       </div>
     </div>
   </div>

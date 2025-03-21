@@ -1,7 +1,7 @@
 <nav
   id="sidebar"
   class="h-full flex-shrink-0 rounded-xl border border-neutral-200 bg-neutral shadow-md overflow-y-auto transition-all duration-300 ease-in-out"
-  [ngClass]="isSidebarOpen ? 'w-60 px-4 py-1' : 'w-16 p-1'"
+  [ngClass]="isSidebarOpen ? 'w-76 px-4 py-1' : 'w-13.5 p-1'"
 >
   <ul class="list-none">
     <li class="pt-4 pb-5 border-b border-b-neutral-300">
@@ -10,7 +10,7 @@
         class="flex items-center gap-4 rounded-lg p-3 text-neutral-1000 cursor-pointer hover:bg-primary-alpha-10 hover:text-primary-400"
       >
         <em
-          class="text-2xl"
+          class="text-xl"
           [class.indicon-sidebar_open]="!isSidebarOpen"
           [class.indicon-sidebar_close]="isSidebarOpen"
         ></em>
@@ -19,13 +19,13 @@
     <li
       *ngFor="let item of menu"
       routerLinkActive="active"
-      class="my-5 [&.active]:bg-primary-alpha-10 [&.active_a_em]:text-primary-400 rounded-lg"
+      class="my-3 [&.active]:bg-primary-alpha-10 [&.active_a_em]:text-primary-400 rounded-lg"
     >
       <a
         [routerLink]="item.path"
-        class="flex items-center gap-4 rounded-lg p-3 text-neutral-1000 hover:bg-primary-alpha-10 hover:text-primary-400"
+        class="flex items-center gap-2 rounded-lg p-3 text-neutral-1000 hover:bg-primary-alpha-10 hover:text-primary-400"
       >
-        <em [class]="item.icon" class="text-2xl flex-shrink-0"></em>
+        <em [class]="item.icon" class="text-xl flex-shrink-0"></em>
         <span
           class="font-semibold text-h4 whitespace-nowrap"
           *ngIf="isSidebarOpen"

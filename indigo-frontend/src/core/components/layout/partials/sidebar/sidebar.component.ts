@@ -11,7 +11,7 @@ import { RouterModule } from '@angular/router';
 export class SidebarComponent {
   menu = [
     {
-      name: 'All Projects',
+      name: 'Projects',
       icon: 'indicon-briefcase',
       path: '/',
     },
