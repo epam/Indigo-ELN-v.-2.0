@@ -1,29 +1,27 @@
 <div class="flex flex-col h-screen">
   <header
-    class="flex-shrink-0 p-4 flex items-center justify-between bg-primary-600 shadow-md"
+    class="flex-shrink-0 p-4 flex items-center justify-between bg-primary-600 shadow-md max-h-18"
   >
     <div>
       <img src="assets/logo.png" alt="Logo" class="h-8" />
     </div>
     <div
-      class="flex items-center gap-2 bg-primary-500 px-4 py-2 rounded-full max-w-xl w-full"
+      class="flex my-4 items-center gap-2 bg-primary-500 px-4 rounded-full max-w-xl w-full"
     >
+      <em class="indicon-search text-xl text-neutral"></em>
       <input
-        class="bg-transparent border-none outline-none text-neutral flex-1 placeholder:text-neutral w-full"
+        class="bg-transparent border-none h-10 outline-none text-neutral flex-1 placeholder:text-neutral-400 w-full"
         type="text"
         placeholder="Search"
         [formControl]="searchControl"
       />
-      <button mat-icon-button class="text-neutral-600">
-        <mat-icon class="text-neutral">search</mat-icon>
-      </button>
     </div>
     <div class="flex items-center gap-2">
       <button mat-icon-button>
-        <em class="indicon-bell text-neutral"></em>
+        <em class="indicon-bell text-neutral relative -top-1"></em>
       </button>
       <div
-        class="flex items-center gap-2 hover:bg-neutral p-2 rounded-sm cursor-pointer text-neutral hover:text-neutral-1000"
+        class="flex items-center gap-2 hover:bg-neutral p-2 rounded-sm cursor-pointer text-neutral hover:text-neutral-100"
         [matMenuTriggerFor]="userMenu"
       >
         <img

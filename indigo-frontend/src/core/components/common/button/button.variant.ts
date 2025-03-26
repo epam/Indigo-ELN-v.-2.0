@@ -8,7 +8,7 @@ export const ButtonVariant = cva(
     'inline-flex items-center justify-center rounded-lg transition-colors',
     'focus:ring-2 focus:ring-primary-500',
     'disabled:pointer-events-none disabled:bg-neutral-200',
-    '[&_em:first-child]:mr-2',
+    '[&_em:first-child]:mr-1',
   ],
   {
     variants: {
