@@ -1,13 +1,12 @@
-import { IEnvironment } from '@/core/types/environment.i';
 import { mergeEnvironments } from './env.util';
 
-export const environment: IEnvironment = mergeEnvironments({
+export const environment = mergeEnvironments({
   production: true,
   authConfig: {
-    authority: '',
-    redirectUrl: '',
-    clientId: '',
-    scope: '',
-    responseType: '',
+    postLogoutRedirectUri: window.location.origin,
+    authority:
+      'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_6DirgtQ1p',
+    redirectUrl: `${window.location.protocol}//${window.location.host}/`,
+    clientId: 'a4kkh00ob23l7upm88hh3mmj5',
   },
 });
