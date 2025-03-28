@@ -5,8 +5,8 @@ export const environment = mergeEnvironments({
   authConfig: {
     postLogoutRedirectUri: window.location.origin,
     authority:
-      'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_GnMjXfy1G',
+      'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_6DirgtQ1p',
     redirectUrl: 'http://localhost:4200',
-    clientId: '2a4sr216nlm9me536ev8tic5uk',
+    clientId: 'a4kkh00ob23l7upm88hh3mmj5',
   },
 });
