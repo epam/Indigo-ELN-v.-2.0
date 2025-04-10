@@ -10,9 +10,11 @@ import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { Project } from '@/core/types/entities/project.i';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { Subscription } from 'rxjs';
+import { ProjectRefreshService } from '../project-refresh.service';
 
 @Component({
   selector: 'app-project-list',
@@ -37,10 +39,11 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     InfiniteLoaderComponent,
   ],
 })
-export class ProjectListComponent extends InfiniteScrollComponent<Project> {
+export class ProjectListComponent extends InfiniteScrollComponent<Project> implements OnInit {
   selectedView: 'grid' | 'list' = 'grid';
+  private refreshSub!: Subscription;
 
-  constructor() {
+  constructor(private projectRefreshService: ProjectRefreshService) {
     super();
     this.setup({
       controller: 'projects',
@@ -53,4 +56,19 @@ export class ProjectListComponent extends InfiniteScrollComponent<Project> {
     { value: 'grid', icon: 'indicon-grid' },
     { value: 'list', icon: 'indicon-list' },
   ];
+
+  ngOnInit(): void {
+    this.refreshSub = this.projectRefreshService.refresh$.subscribe(() => {
+      this.refreshList(); // Custom method to reload the list
+    });
+  }
+  
+  refreshList(): void {
+    this.reload();
+  }
+  
+  ngOnDestroy(): void {
+    this.refreshSub?.unsubscribe();
+  }
+  
 }
