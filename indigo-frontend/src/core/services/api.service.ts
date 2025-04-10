@@ -50,6 +50,10 @@ export class ApiService<T> {
     );
   }
 
+  public uploadAttachment(id: string, body: unknown): Observable<T> {
+    return this.httpClient.post<T>(this.buildUrl(this.urlMap.createUrl?.replace('{projectId}', id)), body);
+  }
+
   public create(body: unknown): Observable<T> {
     return this.httpClient.post<T>(this.buildUrl(this.urlMap.createUrl), body);
   }
