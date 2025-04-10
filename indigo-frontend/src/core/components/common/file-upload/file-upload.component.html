@@ -1,0 +1,23 @@
+<label class="block text-gray-700 text-sm font-bold mb-2 cursor-pointer text-primary-400">
+  <div class="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:bg-gray-100">
+    <em class="indicon-paperclip"></em>
+      Attach file 
+    <input type="file" class="hidden" (change)="onFileSelect($event)" [accept]="acceptedExtensions" multiple>
+  </div>
+</label>
+
+<!-- Preview Selected Files -->
+<div *ngIf="files.length" class="mt-4">
+  <div *ngFor="let file of files; let i = index" class="flex items-center justify-between p-2 bg-gray-100 rounded-lg mt-2">
+    <div class="flex items-center space-x-2">
+      <img *ngIf="file.type.startsWith('image/')" [src]="previews[i]" class="w-8 h-8 object-cover rounded">
+      <em *ngIf="!file.type.startsWith('image/')" class="indicon-file-text text-4xl"></em>
+      <span>{{ file.name | titlecase }}</span>
+      <span>by {{ user.given_name }} {{ user.family_name }}</span>
+      <span>{{ file.size | filesize }}</span>
+      <span>{{ today | date: 'long' }}</span>
+      <button class="text-red-500 hover:text-red-700" (click)="removeFile(i)"><em class="indicon-delete"></em></button>
+    </div>
+</div>
+</div>
+  
