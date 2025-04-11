@@ -4,16 +4,19 @@
             <ng-content #modalContent>
                 <app-input label="Project Name" placeholder="Project Name" [formControlName]="'name'"
                     [required]="true"></app-input>
-                    <p *ngIf="formGroup.get('name')?.hasError('required') && isSubmitted" class="text-red-500 text-sm mt-1">
-                        Email is required
-                    </p>
+                @if (formGroup.get('name')?.hasError('required') && isSubmitted) {
+                <p class="text-red-500 text-sm mt-1">
+                    Email is required
+                </p>
+                }
 
                 <label class="flex flex-col gap-2 my-1" for="keywords">
                     <span class="text-sm font-medium">Keywords</span>
                 </label>
                 <div class="w-xl p-4 border rounded-lg shadow-md">
                     <div class="flex flex-wrap gap-2">
-                        <span *ngFor="let chip of chips; let i = index"
+                        @for (chip of chips; track chip; let i = $index) {
+                        <span
                             class="flex items-center px-3 py-1 text-sm font-medium text-white bg-blue-500 rounded-full">
                             {{ chip }}
                             <button class="text-neutral-500 hover:text-neutral-700 focus:outline-none cursor-pointer"
@@ -21,6 +24,7 @@
                                 <em class="indicon-close text-lg"></em>
                             </button>
                         </span>
+                        }
                         <input [formControlName]="'keywords'" (keydown.enter)="addChip($event)"
                             class="p-2 border rounded outline-none focus:ring-2 focus:ring-blue-400"
                             placeholder="Project Keywords" />
@@ -33,8 +37,7 @@
                     <span class="text-sm font-medium"> Attachments
                     </span>
                 </label>
-                <app-file-upload [maxSizeMB]="5"
-                    (filesSelected)="onFilesUploaded($event)"></app-file-upload>
+                <app-file-upload [maxSizeMB]="5" (filesSelected)="onFilesUploaded($event)"></app-file-upload>
             </ng-content>
             <ng-content #modalFooter>
                 <div class="flex justify-end space-x-2 mt-3">
