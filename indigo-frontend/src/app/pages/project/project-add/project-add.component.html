@@ -1,0 +1,50 @@
+<app-modal #addProjectModal title="Add Project" (closed)="close('close')">
+    <div class="w-xl">
+        <form [formGroup]="formGroup" (ngSubmit)="createProject()">
+            <ng-content #modalContent>
+                <app-input label="Project Name" placeholder="Project Name" [formControlName]="'name'"
+                    [required]="true"></app-input>
+                @if (formGroup.get('name')?.hasError('required') && isSubmitted) {
+                <p class="text-red-500 text-sm mt-1">
+                    Email is required
+                </p>
+                }
+
+                <label class="flex flex-col gap-2 my-1" for="keywords">
+                    <span class="text-sm font-medium">Keywords</span>
+                </label>
+                <div class="w-xl p-4 border rounded-lg shadow-md">
+                    <div class="flex flex-wrap gap-2">
+                        @for (chip of chips; track chip; let i = $index) {
+                        <span
+                            class="flex items-center px-3 py-1 text-sm font-medium text-white bg-blue-500 rounded-full">
+                            {{ chip }}
+                            <button class="text-neutral-500 hover:text-neutral-700 focus:outline-none cursor-pointer"
+                                type="button" (click)="removeChip(i)">
+                                <em class="indicon-close text-lg"></em>
+                            </button>
+                        </span>
+                        }
+                        <input [formControlName]="'keywords'" (keydown.enter)="addChip($event)"
+                            class="p-2 border rounded outline-none focus:ring-2 focus:ring-blue-400"
+                            placeholder="Project Keywords" />
+                    </div>
+                </div>
+                <app-input label="Literature" placeholder="Literature" [formControlName]="'literature'"></app-input>
+                <app-input label="Project Description" placeholder="Project Description"
+                    [formControlName]="'description'"></app-input>
+                <label class="flex flex-col gap-2 my-1">
+                    <span class="text-sm font-medium"> Attachments
+                    </span>
+                </label>
+                <app-file-upload [maxSizeMB]="5" (filesSelected)="onFilesUploaded($event)"></app-file-upload>
+            </ng-content>
+            <ng-content #modalFooter>
+                <div class="flex justify-end space-x-2 mt-3">
+                    <app-button [type]="'button'" [variant]="'grey'" (click)="close('cancel')">Cancel</app-button>
+                    <app-button [type]="'button'" [variant]="'blue'" (click)="createProject()">Add Project</app-button>
+                </div>
+            </ng-content>
+        </form>
+    </div>
+</app-modal>

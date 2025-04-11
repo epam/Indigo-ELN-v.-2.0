@@ -6,6 +6,7 @@ export abstract class InfiniteScrollComponent<T> extends PaginatedComponent<T> {
   dataBh = new BehaviorSubject<T[]>([]);
   data$: Observable<T[]>;
   search = '';
+  appendToTop: boolean = false;
 
   protected override initialize(): void {
     super.initialize();
@@ -13,7 +14,7 @@ export abstract class InfiniteScrollComponent<T> extends PaginatedComponent<T> {
     this.data$ = this.dataList$.pipe(
       switchMap((data) => {
         const currValue = this.dataBh.value;
-        const result = [...currValue, ...data.items];
+        const result = this.appendToTop ? [...data.items, ...currValue] : [...currValue, ...data.items];
 
         this.dataBh.next(ensureDistinct(result, 'id'));
 
@@ -33,5 +34,11 @@ export abstract class InfiniteScrollComponent<T> extends PaginatedComponent<T> {
       this.pager.pageNo = nextBackendPage;
       this.fetchDataAndUpdateQueryParams(true);
     }
+  }
+
+  reload() {
+    this.firstLoad = true;
+    this.appendToTop = true;
+    this.dataSubject$.next(null);
   }
 }

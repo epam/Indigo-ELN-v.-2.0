@@ -1,17 +1,15 @@
-<label class="flex flex-col gap-2">
-  @if (label()) {
-    <span
-      class="text-sm font-medium"
-      [class]="{
-        'text-red-200': hasError(),
-      }"
-    >
-      {{ label() }}
-    </span>
-    @if (required()) {
+<label class="flex flex-col gap-2 my-1">
+  <span
+    class="text-sm font-medium"
+    [class]="{
+      'text-red-200': hasError(),
+    }"
+  >
+    {{ label() }} @if (required()) {
       <span class="text-red-200">*</span>
     }
-  }
+  </span>
+
   <div class="relative flex items-center">
     <input
       [class]="
