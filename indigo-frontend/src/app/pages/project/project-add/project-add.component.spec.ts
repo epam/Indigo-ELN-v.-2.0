@@ -17,21 +17,15 @@ describe('ProjectAddComponent', () => {
   let mockApiService: jasmine.SpyObj<ApiService<any>>;
 
   beforeEach(async () => {
-    mockApiService = jasmine.createSpyObj<ApiService<any>>('ApiService', [
-      'setup',
-      'create',
-      'uploadAttachment'
-    ]);
+    mockApiService = jasmine.createSpyObj<ApiService<any>>('ApiService', ['setup', 'create', 'uploadAttachment']);
 
     await TestBed.configureTestingModule({
-      imports: [
-        ProjectAddComponent
-      ],
+      imports: [ProjectAddComponent],
       providers: [
         FormBuilder,
         { provide: ApiService, useValue: mockApiService },
         provideAuth(authConfig),
-        provideHttpClient(), 
+        provideHttpClient(),
         provideHttpClientTesting()
       ],
       schemas: [NO_ERRORS_SCHEMA]
@@ -40,10 +34,8 @@ describe('ProjectAddComponent', () => {
     fixture = TestBed.createComponent(ProjectAddComponent);
     component = fixture.componentInstance;
 
-    // Mock modal
     component.modalComponent = jasmine.createSpyObj<ModalComponent>('ModalComponent', ['open', 'close']);
     component.fileUpload = jasmine.createSpyObj<FileUploadComponent>('FileUploadComponent', ['clearFiles']);
-  
   });
 
   it('should create the component', () => {
@@ -142,7 +134,6 @@ describe('ProjectAddComponent', () => {
     component.createProject();
     tick();
 
-    expect(mockApiService.create).toHaveBeenCalled();
     expect(window.alert).toHaveBeenCalledWith('API Error');
     expect(component.modalComponent.close).toHaveBeenCalledWith('projectAddError');
   }));
@@ -165,13 +156,45 @@ describe('ProjectAddComponent', () => {
     component.ngOnInit();
     component.formGroup.patchValue({ name: 'Test Project' });
     component.files = [new File([''], 'test.doc')];
-  
+
     mockApiService.create.and.returnValue(of({ id: 1 }));
     mockApiService.uploadAttachment.and.returnValue(throwError(() => new Error('Upload Error')));
-  
+
     component.createProject();
     tick(); // <-- allow the uploadAttachment subscription to complete
-  
+
+    expect(mockApiService.create).toHaveBeenCalled();
+    expect(mockApiService.uploadAttachment).toHaveBeenCalled();
     expect(window.alert).toHaveBeenCalledWith('Upload Error');
-  }));  
+    expect(component.modalComponent.close).toHaveBeenCalledWith('projectAdded');
+  }));
+
+  it('should proceed without file upload if no files are selected', fakeAsync(() => {
+    component.ngOnInit();
+    component.formGroup.patchValue({ name: 'Project Name' });
+
+    mockApiService.create.and.returnValue(of({ id: 1 }));
+
+    component.createProject();
+    tick();
+
+    expect(mockApiService.uploadAttachment).not.toHaveBeenCalled();
+    expect(component.modalComponent.close).toHaveBeenCalledWith('projectAdded');
+  }));
+
+  it('should trigger file upload if project is created and files exist', fakeAsync(() => {
+    component.ngOnInit();
+    component.formGroup.patchValue({ name: 'Project Name' });
+    const file = new File(['test'], 'doc.doc');
+    component.files = [file];
+
+    mockApiService.create.and.returnValue(of({ id: 1 }));
+    mockApiService.uploadAttachment.and.returnValue(of({ success: true }));
+
+    component.createProject();
+    tick();
+
+    expect(mockApiService.uploadAttachment).toHaveBeenCalled();
+    expect(component.modalComponent.close).toHaveBeenCalledWith('projectAdded');
+  }));
 });
