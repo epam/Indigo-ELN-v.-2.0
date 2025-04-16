@@ -16,18 +16,18 @@
                 <div class="w-xl p-4 border rounded-lg shadow-md">
                     <div class="flex flex-wrap gap-2">
                         @for (chip of chips; track chip; let i = $index) {
-                        <span
-                            class="flex items-center px-3 py-1 text-sm font-medium text-white bg-blue-500 rounded-full">
-                            {{ chip }}
-                            <button class="text-neutral-500 hover:text-neutral-700 focus:outline-none cursor-pointer"
-                                type="button" (click)="removeChip(i)">
-                                <em class="indicon-close text-lg"></em>
-                            </button>
-                        </span>
+                            <app-chip
+                                (emitClose)="removeChip(i)"
+                                [deleteable]="true"
+                                [active]="true"
+                            >
+                                {{ chip }}
+                            </app-chip>
                         }
+                        <div>
                         <input [formControlName]="'keywords'" (keydown.enter)="addChip($event)"
                             class="p-2 border rounded outline-none focus:ring-2 focus:ring-blue-400"
-                            placeholder="Project Keywords" />
+                            placeholder="Project Keywords" /></div>
                     </div>
                 </div>
                 <app-input label="Literature" placeholder="Literature" [formControlName]="'literature'"></app-input>
