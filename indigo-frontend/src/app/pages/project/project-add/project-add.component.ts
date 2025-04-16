@@ -7,12 +7,14 @@ import { FileUploadComponent } from '@/core/components/common/file-upload/file-u
 import { InputComponent } from '@/core/components/common/input/input.component';
 import { ModalComponent } from '@/core/components/common/modal/modal.component';
 import { ApiService } from '@/core/services/api.service';
+import { ChipComponent } from '@/core/components/common/chip/chip.component';
 import { ProjectRefreshService } from '../project-refresh.service';
+import { catchError, of, switchMap, tap } from 'rxjs';
 
 @Component({
   standalone: true,
   selector: 'app-project-add',
-  imports: [ModalComponent, ButtonComponent, InputComponent, MatInputModule, FileUploadComponent, FormsModule, ReactiveFormsModule, CommonModule],
+  imports: [ModalComponent, ButtonComponent, ChipComponent, InputComponent, MatInputModule, FileUploadComponent, FormsModule, ReactiveFormsModule, CommonModule],
   templateUrl: './project-add.component.html'
 })
 export class ProjectAddComponent<T> implements OnInit {
@@ -22,10 +24,8 @@ export class ProjectAddComponent<T> implements OnInit {
   formGroup!: FormGroup;
   chips: string[] = [];
   isSubmitted = false;
-  allowedFileTypes = ['doc'];
 
-  constructor(private service: ApiService<T>, private fb: FormBuilder, private projectRefreshService: ProjectRefreshService){
-    this.service = inject(ApiService);
+  constructor(private service: ApiService<T>, private fb: FormBuilder, private projectRefreshService: ProjectRefreshService) {
   }
 
   ngOnInit(): void {
@@ -68,38 +68,44 @@ export class ProjectAddComponent<T> implements OnInit {
   createProject() {
     this.isSubmitted = true;
     if (this.formGroup.valid) {
-      const data = this.formGroup.value;
-      data.keywords = this.chips;
-      this.service.create(data).subscribe({
-        next: (res: any) => {
-        if(res?.id && this.files.length > 0) {
-          this.service.setup('projects', {
-            createUrl: '{projectId}/attachments'
-          });
-          const formData = new FormData();
-          this.files.forEach((file) => {
-            formData.append('file', file[0]);
-          });
-          this.service.uploadAttachment(res.id, formData).subscribe({
-            next: (response) => {
-              this.close('projectAdded');
-              this.projectRefreshService.triggerRefresh();
-            },
-            error: (error) => {
-              this.close('projectAdded');
-              alert(error.message); // Display error message to user
-            }
-          })
-        } else {
-          this.close('projectAdded');
-          this.projectRefreshService.triggerRefresh();
-        }
-      },
-      error: (error) => {
-        this.close('projectAddError');
-        alert(error.message); // Display error message to user
-      }}
-      )
+      const data = { ...this.formGroup.value, keywords: this.chips };
+  
+      this.service.create(data).pipe(
+        switchMap((res: any) => {
+          if (res.id && this.files.length > 0) {
+            this.service.setup('projects', {
+              createUrl: '{projectId}/attachments'
+            });
+  
+            const formData = new FormData();
+            this.files.forEach((file) => {
+              formData.append('file', file[0]);
+            });
+  
+            return this.service.uploadAttachment(res.id, formData).pipe(
+              tap(() => {
+                this.close('projectAdded');
+                this.projectRefreshService.triggerRefresh();
+              }),
+              catchError((uploadError) => {
+                this.close('projectAdded');
+                this.projectRefreshService.triggerRefresh();
+                alert(uploadError.message);
+                return of(null);
+              })
+            );
+          } else {
+            this.close('projectAdded');
+            this.projectRefreshService.triggerRefresh();
+            return of(null);
+          }
+        }),
+        catchError((createError) => {
+          this.close('projectAddError');
+          alert(createError.message);
+          return of(null);
+        })
+      ).subscribe();
     }
   }
 }
