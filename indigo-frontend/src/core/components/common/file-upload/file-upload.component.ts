@@ -3,6 +3,7 @@ import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { FileSizePipe } from './file-size.pipe';
 import { UserConfig } from './user.i';
+import { fileTypeConfig } from './file-upload.config'
 
 @Component({
   imports: [CommonModule, FileSizePipe],
@@ -29,30 +30,13 @@ export class FileUploadComponent implements OnInit {
     this.authService.checkAuth().subscribe((res: any) => {
       this.user = res.userData;
     });
-    if (this.allowedTypes.includes('doc')) {
-      this.mimeTypes.push(...['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']);
-      this.acceptedExtensions = `${this.acceptedExtensions}.doc,.docx,`;
-    }
-    if (this.allowedTypes.includes('image')) {
-      this.mimeTypes.push(...['image/png', 'image/jpeg']);
-      this.acceptedExtensions = `${this.acceptedExtensions}.jpg, .jpeg, .png,`;
-    }
-    if (this.allowedTypes.includes('pdf')) {
-      this.mimeTypes.push(...['application/pdf']);
-      this.acceptedExtensions = `${this.acceptedExtensions}.pdf,`;
-    }
-    if (this.allowedTypes.includes('xls')) {
-      this.mimeTypes.push(...['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']);
-      this.acceptedExtensions = `${this.acceptedExtensions}.xls, .xlsx,`;
-    }
-    if (this.allowedTypes.includes('ppt')) {
-      this.mimeTypes.push(...['application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.ms-powerpoint']);
-      this.acceptedExtensions = `${this.acceptedExtensions}.ppt, .pptx,`;
-    }
-    if (this.allowedTypes.includes('csv')) {
-      this.mimeTypes.push(...['text/csv']);
-      this.acceptedExtensions = `${this.acceptedExtensions}.csv,`;
-    }
+    this.allowedTypes.forEach(type => {
+      const config = fileTypeConfig[type];
+      if (config) {
+        this.mimeTypes.push(...config.mimeTypes);
+        this.acceptedExtensions += `${config.extensions},`;
+      }
+    });
   }
 
   onFileSelect(event: Event) {
