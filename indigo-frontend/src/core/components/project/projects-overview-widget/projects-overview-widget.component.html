@@ -6,6 +6,10 @@
 >
   <div class="flex items-center justify-between flex-wrap gap-4">
     <div class="font-semibold text-lg">Projects</div>
+    <app-button variant="blue" classList="flex items-center gap-2" (click)="openExperimentModal()">
+      <em class="text-xl indicon-plus"></em>
+      <span class="whitespace-nowrap">Add Experiment</span>
+    </app-button>
     <app-button variant="blue" classList="flex items-center gap-2" (click)="openModal()">
       <em class="text-xl indicon-plus"></em>
       <span class="whitespace-nowrap">Add Project</span>
@@ -83,3 +87,4 @@
 </app-card>
 
 <app-project-add #projectAddModal></app-project-add>
+<app-experiment-add #experimentAddModal></app-experiment-add>
