@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
-import {} from 'aws-amplify';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, AmplifyAuthenticatorModule],
