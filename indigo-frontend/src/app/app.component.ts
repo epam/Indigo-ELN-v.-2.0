@@ -1,18 +1,14 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { OidcSecurityService } from 'angular-auth-oidc-client';
-
+import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
+import {} from 'aws-amplify';
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  template: '<router-outlet />',
+  imports: [RouterOutlet, AmplifyAuthenticatorModule],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
   standalone: true,
 })
 export class AppComponent {
   title = 'indigo-frontend';
-  private oidcSecurityService = inject(OidcSecurityService);
-
-  ngOnInit() {
-    this.oidcSecurityService.checkAuth().subscribe();
-  }
 }

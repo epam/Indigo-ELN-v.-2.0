@@ -1,36 +1,41 @@
+import { UserService } from '@/core/services/user.service';
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
-import { OidcSecurityService } from 'angular-auth-oidc-client';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
+import { take } from 'rxjs';
 import { FileSizePipe } from './file-size.pipe';
-import { UserConfig } from './user.i';
-import { fileTypeConfig } from './file-upload.config'
+import { fileTypeConfig } from './file-upload.config';
 
 @Component({
   imports: [CommonModule, FileSizePipe],
   standalone: true,
   selector: 'app-file-upload',
-  templateUrl: './file-upload.component.html'
+  templateUrl: './file-upload.component.html',
 })
 export class FileUploadComponent implements OnInit {
   @Input() maxSizeMB = 5; // Default max file size (5MB)
   @Input() allowedTypes = ['doc', 'image', 'pdf', 'xls', 'ppt', 'csv'];
   mimeTypes: string[] = [];
-  acceptedExtensions: string = '';
-  user: UserConfig;
-  
+  acceptedExtensions = '';
+  userService = inject(UserService);
+  user;
   @Output() filesSelected = new EventEmitter<File[]>();
 
-  protected authService = inject(OidcSecurityService);
-  
   files: File[] = [];
   previews: string[] = [];
   today = Date.now();
 
   ngOnInit(): void {
-    this.authService.checkAuth().subscribe((res: any) => {
-      this.user = res.userData;
+    this.userService.user$.pipe(take(1)).subscribe((user) => {
+      this.user = user;
     });
-    this.allowedTypes.forEach(type => {
+    this.allowedTypes.forEach((type) => {
       const config = fileTypeConfig[type];
       if (config) {
         this.mimeTypes.push(...config.mimeTypes);
@@ -49,7 +54,9 @@ export class FileUploadComponent implements OnInit {
   handleFiles(fileList: FileList) {
     Array.from(fileList).forEach((file) => {
       if (this.mimeTypes.length && !this.mimeTypes.includes(file.type)) {
-        alert(`Invalid file type: ${file.name}, Please upload files with extensions ${this.allowedTypes.join(', ')}`);
+        alert(
+          `Invalid file type: ${file.name}, Please upload files with extensions ${this.allowedTypes.join(', ')}`,
+        );
         return;
       }
 

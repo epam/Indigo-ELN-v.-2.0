@@ -7,9 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { RouterOutlet } from '@angular/router';
-import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { take } from 'rxjs';
+import { Router, RouterOutlet } from '@angular/router';
+import { AuthenticatorService } from '@aws-amplify/ui-angular';
 import { SidebarComponent } from './partials/sidebar/sidebar.component';
 
 @Component({
@@ -30,13 +29,16 @@ import { SidebarComponent } from './partials/sidebar/sidebar.component';
   templateUrl: './master.component.html',
 })
 export class MasterComponent {
-  protected authService = inject(OidcSecurityService);
+  authenticatorService = inject(AuthenticatorService);
   public isCollapsed = false;
   public searchControl = new FormControl('');
+  router = inject(Router);
+
   userName = 'John D.';
   userAvatar = 'assets/avatar-placeholder.png';
 
   logout() {
-    this.authService.logoff().pipe(take(1)).subscribe();
+    this.authenticatorService.signOut();
+    this.router.navigateByUrl('/');
   }
 }

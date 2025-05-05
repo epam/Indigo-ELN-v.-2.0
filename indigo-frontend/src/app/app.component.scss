@@ -1,0 +1,22 @@
+:host ::ng-deep {
+  [data-amplify-authenticator] {
+    --amplify-components-button-primary-background-color: var(--primary-500);
+    --amplify-components-button-primary-hover-background-color: var(
+      --primary-400
+    );
+    --amplify-components-button-link-hover-background-color: var(
+      --primary-alpha-10
+    );
+    --amplify-internal-button-color: var(--primary-500);
+    --amplify-internal-button-background-color: var(--primary-alpha-5);
+    background-color: var(--primary-500);
+    @apply min-h-screen;
+
+    [data-amplify-router] {
+      border-radius: 14px;
+    }
+    amplify-password-field input {
+      border-right: 0;
+    }
+  }
+}

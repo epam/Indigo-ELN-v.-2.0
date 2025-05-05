@@ -1,0 +1,17 @@
+<amplify-authenticator [hideSignUp]="true">
+  <ng-template amplifySlot="header">
+    <div
+      class="mx-auto h-full"
+      style="padding: var(--amplify-space-large); text-align: center"
+    >
+      <img class="mx-auto" src="assets/logo-full.svg" alt="Logo" height="138" />
+    </div>
+  </ng-template>
+  <ng-template
+    amplifySlot="authenticated"
+    let-user="user"
+    let-signOut="signOut"
+  >
+    <router-outlet />
+  </ng-template>
+</amplify-authenticator>
