@@ -1,15 +1,15 @@
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
+import { ChipComponent } from '@/core/components/common/chip/chip.component';
 import { FileUploadComponent } from '@/core/components/common/file-upload/file-upload.component';
 import { InputComponent } from '@/core/components/common/input/input.component';
 import { ModalComponent } from '@/core/components/common/modal/modal.component';
 import { ApiService } from '@/core/services/api.service';
-import { ChipComponent } from '@/core/components/common/chip/chip.component';
-import { ProjectRefreshService } from '../project-refresh.service';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
 import { catchError, of, switchMap, tap } from 'rxjs';
+import { ProjectRefreshService } from '../project-refresh.service';
 
 @Component({
   standalone: true,

@@ -58,6 +58,10 @@ export class ApiService<T> {
     return this.httpClient.post<T>(this.buildUrl(this.urlMap.createUrl), body);
   }
 
+  public getDictionary(dictionary: string): Observable<T> {
+    return this.httpClient.get<T>(this.buildUrl(dictionary));
+  }
+
   private buildUrl = (str?: string) =>
     `/api/eln/${this.controller}/${str || ''}`
       .replace(/\/\//g, '/')
