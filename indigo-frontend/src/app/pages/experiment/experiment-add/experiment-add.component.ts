@@ -6,64 +6,100 @@ import { SelectComponent } from '@/core/components/common/select/select.componen
 import { ApiService } from '@/core/services/api.service';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, viewChild } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { forkJoin } from 'rxjs';
 
 @Component({
   standalone: true,
   selector: 'app-experiment-add',
-  imports: [ModalComponent, ButtonComponent, InputComponent, SelectComponent,
-    MatInputModule, FormsModule, ReactiveFormsModule, CommonModule],
-  templateUrl: './experiment-add.component.html'
+  imports: [
+    ModalComponent,
+    ButtonComponent,
+    InputComponent,
+    SelectComponent,
+    MatInputModule,
+    FormsModule,
+    ReactiveFormsModule,
+    CommonModule,
+  ],
+  templateUrl: './experiment-add.component.html',
 })
 export class ExperimentAddComponent<T> implements OnInit {
-  readonly modalComponent = viewChild.required<ModalComponent>('addExperimentModal');
-  files: File[] = [];
+  readonly modalComponent =
+    viewChild.required<ModalComponent>('addExperimentModal');
   formGroup!: FormGroup;
   chips: string[] = [];
+  linkedExperiments: string[] = [];
+  batchCreators: string[] = [];
   isSubmitted = false;
-  allowedFileTypes = ['doc'];
-  dropdownMenuItem = [{
-    label: 'Project',
-    value: 'project'
-  }];
+  dropdownMenuItem = [
+    {
+      label: 'Project',
+      value: 'project',
+    },
+  ];
   projectCodeItem: DropdownMenuItem[] = [];
   theraputicItem: DropdownMenuItem[] = [];
 
-  constructor(private service: ApiService<T>, private fb: FormBuilder){
-  }
+  constructor(
+    private service: ApiService<T>,
+    private fb: FormBuilder,
+  ) {}
 
   ngOnInit(): void {
     this.service.setup('projects');
     this.getDictionaries();
     this.formGroup = this.fb.group({
       name: ['', [Validators.required]],
-      keywords: [''],
+      template: [['', true]],
+      therapeuticArea: [''],
+      contFromRxn: [''],
+      projectCode: [''],
+      contToRxn: [''],
+      coAuthors: [''],
       literature: [''],
-      description: ['']
+      projectAlias: [''],
+      linkedExperiments: [''],
+      batchCreators: [''],
     });
   }
 
   getDictionaries() {
     this.service.setup('dictionaries');
     const dictionaryKeys = ['THERAPEUTIC_AREA', 'PROJECT_CODE'];
-    const dictionaryCall = dictionaryKeys.map((key: string) => this.service.getDictionary(key));
-    forkJoin(dictionaryCall).subscribe(([theraputicArr, projectCodeArr]: any[]) => {
-      this.theraputicItem = theraputicArr.map(e => ({ label: e.name, value: e.id }));
-      this.projectCodeItem = projectCodeArr.map(e => ({ label: e.name, value: e.id }));;
-    })
+    const dictionaryCall = dictionaryKeys.map((key: string) =>
+      this.service.getDictionary(key),
+    );
+    forkJoin(dictionaryCall).subscribe(
+      ([theraputicArr, projectCodeArr]: any[]) => {
+        this.theraputicItem = theraputicArr.map((e) => ({
+          label: e.name,
+          value: e.id,
+        }));
+        this.projectCodeItem = projectCodeArr.map((e) => ({
+          label: e.name,
+          value: e.id,
+        }));
+      },
+    );
   }
 
-  addChip(event: any) {
-    if (this.formGroup.value.keywords.trim() && event.key === 'Enter') {
-      this.chips.push(this.formGroup.value.keywords.trim());
-      this.formGroup.patchValue({ 'keywords': '' });
+  addChip(event: any, field: 'linkedExperiments' | 'batchCreators') {
+    if (this.formGroup.value[field].trim() && event.key === 'Enter') {
+      this[field].push(this.formGroup.value[field].trim());
+      this.formGroup.controls[field].setValue('');
     }
   }
 
-  removeChip(index: number) {
-    this.chips.splice(index, 1);
+  removeChip(index: number, field: 'linkedExperiments' | 'batchCreators') {
+    this[field].splice(index, 1);
   }
 
   async open() {
@@ -73,48 +109,32 @@ export class ExperimentAddComponent<T> implements OnInit {
   close(reason) {
     this.formGroup.reset();
     this.isSubmitted = false;
-    this.chips = [];
+    this.linkedExperiments = [];
+    this.batchCreators = [];
     this.modalComponent().close(reason);
   }
 
-  onFilesUploaded(e: any) {
-    this.files.push(e);
-  }
-
-  createProject() {
+  createExperiment() {
     this.isSubmitted = true;
     if (this.formGroup.valid) {
       const data = this.formGroup.value;
-      data.keywords = this.chips;
+      data.linkedExperiments = this.linkedExperiments;
+      data.batchCreators = this.batchCreators;
+      console.log(data);
+      this.service.setup('notebooks', {
+        createUrl: '{notebookId}/experiments',
+      });
       this.service.create(data).subscribe({
         next: (res: any) => {
-          if (res?.id && this.files.length > 0) {
-            this.service.setup('projects', {
-              createUrl: '{projectId}/attachments'
-            });
-            const formData = new FormData();
-            this.files.forEach((file) => {
-              formData.append('file', file[0]);
-            });
-            this.service.uploadAttachment(res.id, formData).subscribe({
-              next: (response) => {
-                this.close('projectAdded');
-              },
-              error: (error) => {
-                this.close('projectAdded');
-                alert(error.message); // Display error message to user
-              }
-            })
-          } else {
-            this.close('projectAdded');
+          if (res?.id) {
+            this.close('experimentAdded');
           }
         },
         error: (error) => {
-          this.close('projectAddError');
+          this.close('experimentAddError');
           alert(error.message); // Display error message to user
-        }
-      }
-      )
+        },
+      });
     }
   }
 }

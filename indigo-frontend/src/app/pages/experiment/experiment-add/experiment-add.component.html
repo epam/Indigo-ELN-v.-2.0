@@ -1,8 +1,8 @@
 <app-modal #addExperimentModal title="Add Experiment" (closed)="close('close')">
     <div class="w-250">
-        <form [formGroup]="formGroup" (ngSubmit)="createProject()">
+        <form [formGroup]="formGroup" (ngSubmit)="createExperiment()">
             <ng-content #modalContent>
-                <app-select label="Select Template" [required]="true" [disabled]="true"
+                <app-select label="Select Template" [required]="true" [formControlName]="'template'"
                     [items]=dropdownMenuItem></app-select>
                 <label class="flex flex-col gap-2 my-4">
                     <span class="text-lg font-medium">Experiment Details</span>
@@ -18,73 +18,80 @@
 
                 <div class="flex flex-row space-x-4 my-1">
                     <div class="basis-128">
-                        <app-select label="Therapeutic Area" [items]=theraputicItem></app-select>
+                        <app-select [formControlName]="'therapeuticArea'" label="Therapeutic Area"
+                            [items]=theraputicItem></app-select>
                     </div>
                     <div class="basis-128">
-                        <app-select label="Cont. FROM Rxn" [items]=dropdownMenuItem></app-select>
+                        <app-select [formControlName]="'contFromRxn'" label="Cont. FROM Rxn"
+                            [items]=dropdownMenuItem></app-select>
                     </div>
                 </div>
 
                 <div class="flex flex-row space-x-4 my-1">
                     <div class="basis-128">
-                        <app-select label="Project Code & Name" [items]=projectCodeItem></app-select>
+                        <app-select [formControlName]="'projectCode'" label="Project Code & Name"
+                            [items]=projectCodeItem></app-select>
                     </div>
-                    <div class="basis-128"><app-select label="Cont. TO Rxn" [items]=dropdownMenuItem></app-select></div>
+                    <div class="basis-128"><app-select [formControlName]="'contToRxn'" label="Cont. TO Rxn"
+                            [items]=dropdownMenuItem></app-select></div>
                 </div>
 
                 <div class="flex flex-row space-x-4 my-1">
-                    <div class="basis-128"><app-input label="Co-authors" placeholder="Text"></app-input></div>
-                    <div class="basis-128"> <label class="flex flex-col gap-2 my-1" for="keywords">
+                    <div class="basis-128"><app-input label="Co-authors" [formControlName]="'coAuthors'"
+                            placeholder="Text"></app-input></div>
+                    <div class="basis-128"> <label class="flex flex-col gap-2 my-1" for="linkedExperiments">
                             <span class="text-sm font-medium">Linked Experiment</span>
                         </label>
                         <div class="border rounded-lg shadow-md">
                             <div class="flex flex-wrap gap-2">
-                                @for (chip of chips; track chip; let i = $index) {
+                                @for (chip of linkedExperiments; track chip; let i = $index) {
                                 <span
                                     class="flex items-center px-3 py-1 text-sm font-medium text-white bg-blue-500 rounded-full">
                                     {{ chip }}
                                     <button
                                         class="text-neutral-500 hover:text-neutral-700 focus:outline-none cursor-pointer"
-                                        type="button" (click)="removeChip(i)">
+                                        type="button" (click)="removeChip(i, 'linkedExperiments')">
                                         <em class="indicon-close text-lg"></em>
                                     </button>
                                 </span>
                                 }
-                                <input [formControlName]="'keywords'" (keydown.enter)="addChip($event)"
-                                    class="p-2 border rounded outline-none focus:ring-2 focus:ring-blue-400"
-                                    placeholder="Project Keywords" />
+                                <input [formControlName]="'linkedExperiments'" placeholder="Type and press enter"
+                                    (keydown.enter)="addChip($event, 'linkedExperiments')"
+                                    class="p-2 border rounded outline-none focus:ring-2 focus:ring-blue-400" />
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="flex flex-row space-x-4 my-1">
-                    <div class="basis-128"> <label class="flex flex-col gap-2 my-1" for="keywords">
+                    <div class="basis-128"> <label class="flex flex-col gap-2 my-1" for="batchCreators">
                             <span class="text-sm font-medium">Batch Creator</span>
                         </label>
                         <div class="border rounded-lg shadow-md">
                             <div class="flex flex-wrap gap-2">
-                                @for (chip of chips; track chip; let i = $index) {
+                                @for (chip of batchCreators; track chip; let i = $index) {
                                 <span
                                     class="flex items-center px-3 py-1 text-sm font-medium text-white bg-blue-500 rounded-full">
                                     {{ chip }}
                                     <button
                                         class="text-neutral-500 hover:text-neutral-700 focus:outline-none cursor-pointer"
-                                        type="button" (click)="removeChip(i)">
+                                        type="button" (click)="removeChip(i, 'batchCreators')">
                                         <em class="indicon-close text-lg"></em>
                                     </button>
                                 </span>
                                 }
-                                <input [formControlName]="'keywords'" (keydown.enter)="addChip($event)"
-                                    class="p-2 border rounded outline-none focus:ring-2 focus:ring-blue-400"
-                                    placeholder="Project Keywords" />
+                                <input [formControlName]="'batchCreators'"
+                                    (keydown.enter)="addChip($event, 'batchCreators')"
+                                    placeholder="Type and press enter"
+                                    class="p-2 border rounded outline-none focus:ring-2 focus:ring-blue-400" />
                             </div>
                         </div>
                     </div>
-                    <div class="basis-128"><app-input label="Project Alias Name" placeholder="Text"></app-input></div>
+                    <div class="basis-128"><app-input label="Project Alias Name" [formControlName]="'projectAlias'"
+                            placeholder="Text"></app-input></div>
                 </div>
 
-                <app-input label="Literature" placeholder="Text"></app-input>
+                <app-input label="Literature" placeholder="Text" [formControlName]="'literature'"></app-input>
 
 
 
@@ -93,7 +100,7 @@
             <ng-content #modalFooter>
                 <div class="flex justify-end space-x-2 mt-3">
                     <app-button [type]="'button'" [variant]="'grey'" (click)="close('cancel')">Cancel</app-button>
-                    <app-button [type]="'button'" [variant]="'blue'" (click)="createProject()">Add
+                    <app-button [type]="'button'" [variant]="'blue'" (click)="createExperiment()">Add
                         Experiment</app-button>
                 </div>
             </ng-content>
