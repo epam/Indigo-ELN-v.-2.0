@@ -28,3 +28,15 @@
     (infiniteLoad)="infiniteLoad()"
   />
 </div>
+
+<app-button
+  *projectOverviewWidget="'button'"
+  variant="blue"
+  classList="flex items-center gap-2"
+  (click)="openModal()"
+>
+  <em class="text-xl indicon-plus"></em>
+  <span class="whitespace-nowrap">Add Project</span>
+</app-button>
+
+<app-project-add #projectAddModal></app-project-add>
