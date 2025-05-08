@@ -15,6 +15,31 @@
     [data-amplify-router] {
       border-radius: 14px;
     }
+    [data-amplify-footer] {
+      display: none;
+    }
+
+    [data-amplify-form] {
+      padding: 1rem;
+    }
+
+    [amplify-button] {
+      &.amplify-button--primary {
+        border-radius: 8px;
+        margin-top: 28px;
+        position: relative;
+        &::after {
+          width: 100%;
+          content: '';
+          height: 1px;
+          background: var(--color-neutral-300);
+          position: absolute;
+          top: -12px;
+          left: 0;
+        }
+      }
+    }
+
     amplify-password-field input {
       border-right: 0;
     }
