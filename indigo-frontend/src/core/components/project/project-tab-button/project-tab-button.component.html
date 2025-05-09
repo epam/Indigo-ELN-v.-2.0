@@ -1,9 +1,15 @@
 <a
-  [class]="['p-3 md:p-4 text-primary-400 whitespace-nowrap', className] | twsx"
-  [routerLink]="clicked ? null : routerLink"
+  [class]="
+    [
+      'p-3 md:p-4 text-primary-400 whitespace-nowrap',
+      'cursor-pointer',
+      className,
+    ] | twsx
+  "
+  [routerLink]="routerLink"
   routerLinkActive="border-b-primary-400 border-b-2"
-  (click)="clicked ? clicked.emit() : null"
+  (click)="clicked.emit()"
   [class.border-b-primary-400]="active"
   [class.border-b-2]="active"
-  >{{ label }}</a
->
+  >{{ label }}
+</a>

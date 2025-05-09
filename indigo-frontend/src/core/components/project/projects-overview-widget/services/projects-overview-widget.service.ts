@@ -1,5 +1,5 @@
 import { inject, Injectable, TemplateRef } from '@angular/core';
-import { NavigationStart, Router } from '@angular/router';
+import { NavigationError, NavigationStart, Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ProjectOverviewWidgetSlot } from '../types/project-overview-widget.i';
 
@@ -22,6 +22,11 @@ export class ProjectsOverviewWidgetService {
     TemplateRef<unknown>[]
   >([]);
 
+  private lastBackup: {
+    tabs: Set<TemplateRef<unknown>>;
+    buttons: Set<TemplateRef<unknown>>;
+  } | null = null;
+
   readonly tabTemplates$: Observable<TemplateRef<unknown>[]> =
     this.tabTemplatesSubject.asObservable();
 
@@ -36,6 +41,9 @@ export class ProjectsOverviewWidgetService {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationStart) {
         this.clearAllTemplates();
+      }
+      if (event instanceof NavigationError) {
+        this.restoreLatest();
       }
     });
   }
@@ -63,6 +71,18 @@ export class ProjectsOverviewWidgetService {
     }
   }
 
+  restoreLatest(): void {
+    if (!this.lastBackup) {
+      return;
+    }
+
+    this.slotTemplates.set('tab', new Set(this.lastBackup.tabs));
+    this.slotTemplates.set('button', new Set(this.lastBackup.buttons));
+
+    this.emitTemplates('tab');
+    this.emitTemplates('button');
+  }
+
   private emitTemplates(slot: ProjectOverviewWidgetSlot): void {
     const templates = Array.from(this.slotTemplates.get(slot)!);
     if (slot === 'tab') {
@@ -73,6 +93,13 @@ export class ProjectsOverviewWidgetService {
   }
 
   private clearAllTemplates(): void {
+    // Backup current state
+    this.lastBackup = {
+      tabs: new Set(this.slotTemplates.get('tab')!),
+      buttons: new Set(this.slotTemplates.get('button')!),
+    };
+
+    // Clear all templates
     this.slotTemplates.get('tab')!.clear();
     this.slotTemplates.get('button')!.clear();
     this.tabTemplatesSubject.next([]);
