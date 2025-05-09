@@ -44,6 +44,13 @@ export const routes: Routes = [
                     '@pages/project/project-info/project-info.component'
                   ).then((c) => c.ProjectInfoComponent),
               },
+              {
+                path: 'notebooks',
+                loadComponent: () =>
+                  import(
+                    '@core/components/notebook/notebook-list.component'
+                  ).then((c) => c.NotebookListComponent),
+              },
             ],
           },
         ],

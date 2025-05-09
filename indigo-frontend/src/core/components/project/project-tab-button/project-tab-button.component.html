@@ -1,13 +1,14 @@
 <a
   [class]="
     [
-      'p-3 md:p-4 text-primary-400 whitespace-nowrap',
+      'p-3 md:p-4 text-primary-400 whitespace-nowrap h-[56px]',
       'cursor-pointer',
       className,
     ] | twsx
   "
   [routerLink]="routerLink"
   routerLinkActive="border-b-primary-400 border-b-2"
+  [routerLinkActiveOptions]="{ exact: true }"
   (click)="clicked.emit()"
   [class.border-b-primary-400]="active"
   [class.border-b-2]="active"

@@ -1,5 +1,5 @@
 import { inject, Injectable, TemplateRef } from '@angular/core';
-import { NavigationError, NavigationStart, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ProjectOverviewWidgetSlot } from '../types/project-overview-widget.i';
 
@@ -36,16 +36,6 @@ export class ProjectsOverviewWidgetService {
   constructor() {
     this.slotTemplates.set('tab', new Set());
     this.slotTemplates.set('button', new Set());
-
-    // Clear all templates on navigation starts
-    this.router.events.subscribe((event) => {
-      if (event instanceof NavigationStart) {
-        this.clearAllTemplates();
-      }
-      if (event instanceof NavigationError) {
-        this.restoreLatest();
-      }
-    });
   }
 
   addTemplate(
