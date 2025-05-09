@@ -13,7 +13,7 @@ import { take } from 'rxjs';
 import { SidebarComponent } from './partials/sidebar/sidebar.component';
 
 @Component({
-  selector: 'app-master',
+  selector: 'eln-master',
   standalone: true,
   imports: [
     CommonModule,

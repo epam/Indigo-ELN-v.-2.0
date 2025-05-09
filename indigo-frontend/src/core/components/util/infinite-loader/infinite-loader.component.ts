@@ -3,7 +3,7 @@ import { TwsxPipe } from '@/core/pipes/twsx.pipe';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
-  selector: 'app-infinite-loader',
+  selector: 'eln-infinite-loader',
   templateUrl: './infinite-loader.component.html',
   imports: [IsInViewportDirective, TwsxPipe],
 })

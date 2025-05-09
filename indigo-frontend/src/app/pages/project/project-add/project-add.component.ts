@@ -19,7 +19,7 @@ import { ProjectRefreshService } from '../project-refresh.service';
 
 @Component({
   standalone: true,
-  selector: 'app-project-add',
+  selector: 'eln-project-add',
   imports: [
     ModalComponent,
     ButtonComponent,

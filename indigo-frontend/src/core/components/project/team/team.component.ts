@@ -6,7 +6,7 @@ import { CopyComponent } from '../../common/copy/copy.component';
 import { CounterComponent } from '../../common/counter/counter.component';
 import { DropdownMenuComponent } from '../../common/dropdown-menu/dropdown-menu.component';
 @Component({
-  selector: 'app-team',
+  selector: 'eln-team',
   templateUrl: './team.component.html',
   standalone: true,
   imports: [

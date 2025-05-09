@@ -43,7 +43,7 @@
         <div class="flex flex-wrap gap-1 flex-1 min-w-0">
           @if (selectedValues.length > 0) {
             @if (renderChips) {
-              <app-chip
+              <eln-chip
                 *ngFor="let val of selectedValues; let i = index"
                 (emitClose)="removeItem(val, null)"
                 [deleteable]="!disabled"
@@ -51,7 +51,7 @@
                 [active]="!disabled"
               >
                 {{ getItemLabel(val) }}
-              </app-chip>
+              </eln-chip>
             } @else {
               <div
                 *ngFor="let val of selectedValues; let i = index"

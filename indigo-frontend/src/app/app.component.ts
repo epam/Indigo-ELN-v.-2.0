@@ -3,7 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 
 @Component({
-  selector: 'app-root',
+  selector: 'eln-root',
   imports: [RouterOutlet],
   template: '<router-outlet />',
   standalone: true,

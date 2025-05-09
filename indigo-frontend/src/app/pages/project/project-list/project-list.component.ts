@@ -20,7 +20,7 @@ import { ProjectAddComponent } from '../project-add/project-add.component';
 import { ProjectRefreshService } from '../project-refresh.service';
 
 @Component({
-  selector: 'app-project-list',
+  selector: 'eln-project-list',
   templateUrl: './project-list.component.html',
   standalone: true,
   animations: [

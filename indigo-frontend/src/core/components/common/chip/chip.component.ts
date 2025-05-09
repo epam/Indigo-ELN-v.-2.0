@@ -6,7 +6,7 @@ import { ChipVariantProps } from './chip.variant';
 @Component({
   standalone: true,
   imports: [CommonModule, ChipVariantPipe],
-  selector: 'app-chip',
+  selector: 'eln-chip',
   templateUrl: './chip.component.html',
 })
 export class ChipComponent {

@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-copy',
+  selector: 'eln-copy',
   templateUrl: './copy.component.html',
 })
 export class CopyComponent {

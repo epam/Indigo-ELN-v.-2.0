@@ -37,7 +37,7 @@
         } | classPicker
       "
     >
-      <app-select
+      <eln-select
         [formControlName]="'suffix'"
         [items]="items()"
         [required]="required()"
@@ -45,7 +45,7 @@
         [placeholder]="getPlaceholder('suffix')"
         [suffixStyle]="true"
       >
-      </app-select>
+      </eln-select>
     </div>
     <div
       [class]="
@@ -56,7 +56,7 @@
         } | classPicker
       "
     >
-      <app-input
+      <eln-input
         class=""
         [formControlName]="'input'"
         [required]="required()"
@@ -64,7 +64,7 @@
         [placeholder]="getPlaceholder('input')"
         [suffixStyle]="true"
       >
-      </app-input>
+      </eln-input>
     </div>
   </form>
 </div>

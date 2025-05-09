@@ -6,7 +6,7 @@ import { BadgeVariantProps } from './badge.variant';
 @Component({
   standalone: true,
   imports: [CommonModule, BadgeVariantPipe],
-  selector: 'app-badge',
+  selector: 'eln-badge',
   templateUrl: './badge.component.html',
 })
 export class BadgeComponent {

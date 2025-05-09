@@ -1,13 +1,13 @@
-<app-modal #addProjectModal title="Add Project" (closed)="close('close')">
+<eln-modal #addProjectModal title="Add Project" (closed)="close('close')">
   <div class="w-xl">
     <form [formGroup]="formGroup" (ngSubmit)="createProject()">
       <ng-content #modalContent>
-        <app-input
+        <eln-input
           label="Project Name"
           placeholder="Project Name"
           [formControlName]="'name'"
           [required]="true"
-        ></app-input>
+        ></eln-input>
         @if (formGroup.get('name')?.hasError('required') && isSubmitted) {
           <p class="text-red-500 text-sm mt-1">Email is required</p>
         }
@@ -18,13 +18,13 @@
         <div class="w-xl p-4 border rounded-lg shadow-md">
           <div class="flex flex-wrap gap-2">
             @for (chip of chips; track chip; let i = $index) {
-              <app-chip
+              <eln-chip
                 (emitClose)="removeChip(i)"
                 [deleteable]="true"
                 [active]="true"
               >
                 {{ chip }}
-              </app-chip>
+              </eln-chip>
             }
             <div>
               <input
@@ -36,40 +36,40 @@
             </div>
           </div>
         </div>
-        <app-input
+        <eln-input
           label="Literature"
           placeholder="Literature"
           [formControlName]="'literature'"
-        ></app-input>
-        <app-input
+        ></eln-input>
+        <eln-input
           label="Project Description"
           placeholder="Project Description"
           [formControlName]="'description'"
-        ></app-input>
+        ></eln-input>
         <label class="flex flex-col gap-2 my-1">
           <span class="text-sm font-medium"> Attachments </span>
         </label>
-        <app-file-upload
+        <eln-file-upload
           [maxSizeMB]="5"
           (filesSelected)="onFilesUploaded($event)"
-        ></app-file-upload>
+        ></eln-file-upload>
       </ng-content>
       <ng-content #modalFooter>
         <div class="flex justify-end space-x-2 mt-3">
-          <app-button
+          <eln-button
             [type]="'button'"
             [variant]="'grey'"
             (click)="close('cancel')"
-            >Cancel</app-button
+            >Cancel</eln-button
           >
-          <app-button
+          <eln-button
             [type]="'button'"
             [variant]="'blue'"
             (click)="createProject()"
-            >Add Project</app-button
+            >Add Project</eln-button
           >
         </div>
       </ng-content>
     </form>
   </div>
-</app-modal>
+</eln-modal>

@@ -4,7 +4,7 @@ import { ButtonVariantPipe } from './button-variant.pipe';
 import { ButtonVariants } from './button.variant';
 
 @Component({
-  selector: 'app-button',
+  selector: 'eln-button',
   standalone: true,
   imports: [CommonModule, ButtonVariantPipe],
   templateUrl: './button.component.html',
