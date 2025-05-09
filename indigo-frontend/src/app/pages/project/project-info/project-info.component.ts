@@ -2,6 +2,7 @@ import { AttachmentComponent } from '@/core/components/common/attachment/attachm
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ChipComponent } from '@/core/components/common/chip/chip.component';
+import { ProjectTabButtonComponent } from '@/core/components/project/project-tab-button/project-tab-button.component';
 import { ProjectOverviewWidgetDirective } from '@/core/components/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { TeamComponent } from '@/core/components/project/team/team.component';
 import { Attachment } from '@/core/types/entities/attachment.i';
@@ -19,6 +20,7 @@ import { Component, Input } from '@angular/core';
     TeamComponent,
     CardComponent,
     ProjectOverviewWidgetDirective,
+    ProjectTabButtonComponent,
   ],
   templateUrl: './project-info.component.html',
 })

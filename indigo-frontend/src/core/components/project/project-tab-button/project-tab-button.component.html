@@ -1,0 +1,9 @@
+<a
+  [class]="['p-3 md:p-4 text-primary-400 whitespace-nowrap', className] | twsx"
+  [routerLink]="clicked ? null : routerLink"
+  routerLinkActive="border-b-primary-400 border-b-2"
+  (click)="clicked ? clicked.emit() : null"
+  [class.border-b-primary-400]="active"
+  [class.border-b-2]="active"
+  >{{ label }}</a
+>
