@@ -6,7 +6,7 @@ import { CounterVariants } from './counter.variant';
 @Component({
   standalone: true,
   imports: [CommonModule, CounterVariantPipe],
-  selector: 'app-counter',
+  selector: 'eln-counter',
   templateUrl: './counter.component.html',
 })
 export class CounterComponent {

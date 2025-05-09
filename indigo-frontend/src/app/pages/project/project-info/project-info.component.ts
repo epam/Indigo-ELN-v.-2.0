@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-project-info',
+  selector: 'eln-project-info',
   standalone: true,
   imports: [
     CommonModule,

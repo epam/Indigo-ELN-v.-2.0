@@ -1,15 +1,22 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { FileSizePipe } from './file-size.pipe';
+import { fileTypeConfig } from './file-upload.config';
 import { UserConfig } from './user.i';
-import { fileTypeConfig } from './file-upload.config'
 
 @Component({
   imports: [CommonModule, FileSizePipe],
   standalone: true,
-  selector: 'app-file-upload',
-  templateUrl: './file-upload.component.html'
+  selector: 'eln-file-upload',
+  templateUrl: './file-upload.component.html',
 })
 export class FileUploadComponent implements OnInit {
   @Input() maxSizeMB = 5; // Default max file size (5MB)
@@ -17,11 +24,11 @@ export class FileUploadComponent implements OnInit {
   mimeTypes: string[] = [];
   acceptedExtensions: string = '';
   user: UserConfig;
-  
+
   @Output() filesSelected = new EventEmitter<File[]>();
 
   protected authService = inject(OidcSecurityService);
-  
+
   files: File[] = [];
   previews: string[] = [];
   today = Date.now();
@@ -30,7 +37,7 @@ export class FileUploadComponent implements OnInit {
     this.authService.checkAuth().subscribe((res: any) => {
       this.user = res.userData;
     });
-    this.allowedTypes.forEach(type => {
+    this.allowedTypes.forEach((type) => {
       const config = fileTypeConfig[type];
       if (config) {
         this.mimeTypes.push(...config.mimeTypes);
@@ -49,7 +56,9 @@ export class FileUploadComponent implements OnInit {
   handleFiles(fileList: FileList) {
     Array.from(fileList).forEach((file) => {
       if (this.mimeTypes.length && !this.mimeTypes.includes(file.type)) {
-        alert(`Invalid file type: ${file.name}, Please upload files with extensions ${this.allowedTypes.join(', ')}`);
+        alert(
+          `Invalid file type: ${file.name}, Please upload files with extensions ${this.allowedTypes.join(', ')}`,
+        );
         return;
       }
 

@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 @Component({
   standalone: true,
   imports: [CommonModule, RouterModule],
-  selector: 'app-sidebar',
+  selector: 'eln-sidebar',
   templateUrl: './sidebar.component.html',
 })
 export class SidebarComponent {

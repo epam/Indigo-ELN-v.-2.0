@@ -1,4 +1,4 @@
-<app-card
+<eln-card
   [classList]="'cursor-pointer'"
   [routerLink]="['/projects', project.id]"
 >
@@ -97,7 +97,7 @@
           <div class="flex items-center">
             <div class="flex -space-x-2">
               @for (user of mock_users.slice(0, 3); track user) {
-                <app-avatar classList="w-6 h-6" [img]="user" />
+                <eln-avatar classList="w-6 h-6" [img]="user" />
               }
               @if (mock_users.length > 3) {
                 <span
@@ -140,7 +140,7 @@
       >
         <div class="flex -space-x-2">
           @for (user of mock_users.slice(0, 3); track user) {
-            <app-avatar classList="w-6 h-6" [img]="user" />
+            <eln-avatar classList="w-6 h-6" [img]="user" />
           }
           @if (mock_users.length > 3) {
             <span
@@ -156,4 +156,4 @@
       </div>
     }
   </div>
-</app-card>
+</eln-card>

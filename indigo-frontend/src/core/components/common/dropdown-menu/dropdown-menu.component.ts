@@ -11,7 +11,7 @@ import {
 import { DropdownMenuItem } from './dropdown-menu.i';
 
 @Component({
-  selector: 'app-dropdown-menu',
+  selector: 'eln-dropdown-menu',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './dropdown-menu.component.html',

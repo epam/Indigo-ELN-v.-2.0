@@ -9,7 +9,7 @@ import { AvatarComponent } from '../../common/avatar/avatar.component';
 import { CardComponent } from '../../common/card/card.component';
 
 @Component({
-  selector: 'app-project-item',
+  selector: 'eln-project-item',
   standalone: true,
   imports: [
     CommonModule,

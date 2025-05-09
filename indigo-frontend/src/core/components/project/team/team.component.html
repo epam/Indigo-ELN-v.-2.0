@@ -1,15 +1,15 @@
-<app-card classList="h-full">
+<eln-card classList="h-full">
   <div
     class="flex items-center justify-between border-b border-b-neutral-200 pb-3"
   >
     <div class="flex items-center gap-2">
       <h2 class="font-semibold text-base">Team</h2>
-      <app-counter [count]="team.length" variant="grey" size="large" />
+      <eln-counter [count]="team.length" variant="grey" size="large" />
     </div>
-    <app-button variant="blue-outline" classList="text-primary-400">
+    <eln-button variant="blue-outline" classList="text-primary-400">
       <em class="indicon-share"></em>
       Share
-    </app-button>
+    </eln-button>
   </div>
 
   <div class="space-y-2 py-3">
@@ -17,7 +17,7 @@
       <div
         class="grid grid-cols-[auto_1fr_auto_auto] gap-4 items-center p-2 hover:bg-neutral-100 rounded-lg text-neutral-1000"
       >
-        <app-avatar [img]="member.avatar" classList="w-8 h-8" />
+        <eln-avatar [img]="member.avatar" classList="w-8 h-8" />
         <p class="text-neutral-1000">{{ member.name }}</p>
         <p
           class="text-neutral-800 overflow-hidden text-ellipsis whitespace-nowrap max-w-[148px] text-ellipsis"
@@ -25,8 +25,8 @@
           {{ member.email }}
         </p>
         <div class="flex items-center gap-2">
-          <app-copy [text]="member.email" />
-          <app-dropdown-menu
+          <eln-copy [text]="member.email" />
+          <eln-dropdown-menu
             class="[&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-[110px]"
             [selected]="member.role"
             [items]="[
@@ -38,4 +38,4 @@
       </div>
     }
   </div>
-</app-card>
+</eln-card>

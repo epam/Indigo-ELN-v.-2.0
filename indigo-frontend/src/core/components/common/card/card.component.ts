@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-card',
+  selector: 'eln-card',
   templateUrl: './card.component.html',
   standalone: true,
   imports: [CommonModule, TwsxPipe],
