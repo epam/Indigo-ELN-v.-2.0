@@ -2,18 +2,21 @@ import {
   ButtonToggleComponent,
   ToggleOption,
 } from '@/core/components/common/button-toggle/button-toggle.component';
+import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { ToggleComponent } from '@/core/components/common/toggle/toggle.component';
 import { ProjectItemComponent } from '@/core/components/project/project-item/project-item.component';
+import { ProjectOverviewWidgetDirective } from '@/core/components/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { InfiniteLoaderComponent } from '@/core/components/util/infinite-loader/infinite-loader.component';
 import { InfiniteScrollComponent } from '@/core/components/util/infinite-scroll.component';
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { Project } from '@/core/types/entities/project.i';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Subscription } from 'rxjs';
+import { ProjectAddComponent } from '../project-add/project-add.component';
 import { ProjectRefreshService } from '../project-refresh.service';
 
 @Component({
@@ -37,9 +40,17 @@ import { ProjectRefreshService } from '../project-refresh.service';
     ToggleComponent,
     ClassPickerPipe,
     InfiniteLoaderComponent,
+    ProjectOverviewWidgetDirective,
+    ButtonComponent,
+    ProjectAddComponent,
   ],
 })
-export class ProjectListComponent extends InfiniteScrollComponent<Project> implements OnInit {
+export class ProjectListComponent
+  extends InfiniteScrollComponent<Project>
+  implements OnInit, OnDestroy
+{
+  @ViewChild('projectAddModal') projectAddModal!: ProjectAddComponent<unknown>;
+
   selectedView: 'grid' | 'list' = 'grid';
   private refreshSub!: Subscription;
 
@@ -62,13 +73,16 @@ export class ProjectListComponent extends InfiniteScrollComponent<Project> imple
       this.refreshList(); // Custom method to reload the list
     });
   }
-  
+
   refreshList(): void {
     this.reload();
   }
-  
+
   ngOnDestroy(): void {
     this.refreshSub?.unsubscribe();
   }
-  
+
+  async openModal() {
+    return await this.projectAddModal.open();
+  }
 }

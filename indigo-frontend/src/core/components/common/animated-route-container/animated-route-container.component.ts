@@ -11,7 +11,7 @@ import { Component, ContentChild, Input } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
-  selector: 'app-animated-route-container',
+  selector: 'eln-animated-route-container',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './animated-route-container.component.html',
