@@ -1,5 +1,5 @@
 export interface PaginatedConfig {
-  controller: string;
+  loadUrl: string;
   enableQueryParams?: boolean;
   enableScrollRestoration?: boolean;
 }

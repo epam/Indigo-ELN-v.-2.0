@@ -1,5 +1,4 @@
-import { inject, Injectable, TemplateRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { Injectable, TemplateRef } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ProjectOverviewWidgetSlot } from '../types/project-overview-widget.i';
 
@@ -7,8 +6,6 @@ import { ProjectOverviewWidgetSlot } from '../types/project-overview-widget.i';
   providedIn: 'root',
 })
 export class ProjectsOverviewWidgetService {
-  private router: Router = inject(Router);
-
   private readonly slotTemplates = new Map<
     ProjectOverviewWidgetSlot,
     Set<TemplateRef<unknown>>
