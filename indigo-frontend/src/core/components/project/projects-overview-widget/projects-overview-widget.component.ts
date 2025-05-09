@@ -1,11 +1,8 @@
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { AsyncPipe, NgIf, NgTemplateOutlet } from '@angular/common';
 import { Component, inject, Input } from '@angular/core';
-import { Router } from '@angular/router';
 import { CardComponent } from '../../common/card/card.component';
 import { ProjectsOverviewWidgetService } from './services/projects-overview-widget.service';
-
-const regex = /^\/projects\/[a-zA-Z0-9]+$/;
 
 interface ProjectsOverviewWidgetData {
   openExperiments: number;
@@ -25,6 +22,7 @@ interface ProjectsOverviewWidgetData {
 })
 export class ProjectsOverviewWidgetComponent {
   public projectsOverviewWidgetService = inject(ProjectsOverviewWidgetService);
+
   @Input() data: ProjectsOverviewWidgetData = {
     openExperiments: 0,
     waitingSignature: 0,
@@ -34,10 +32,4 @@ export class ProjectsOverviewWidgetComponent {
     notebooks: 0,
     experiments: 0,
   };
-
-  constructor(protected router: Router) {}
-
-  get shouldRenderProjectLinks() {
-    return regex.test(this.router.url);
-  }
 }
