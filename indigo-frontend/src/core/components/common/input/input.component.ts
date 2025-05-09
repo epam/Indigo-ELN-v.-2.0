@@ -1,10 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { Component, forwardRef, input, output, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ClassPickerPipe } from '../../../pipes/classPicker.pipe';
-import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-input',
+  selector: 'eln-input',
   templateUrl: './input.component.html',
   standalone: true,
   providers: [

@@ -16,7 +16,7 @@ import {
 type ModalSize = 'small' | 'medium' | 'large' | 'auto';
 
 @Component({
-  selector: 'app-modal',
+  selector: 'eln-modal',
   standalone: true,
   imports: [CommonModule, DialogModule, ClassPickerPipe],
   templateUrl: './modal.component.html',

@@ -1,9 +1,9 @@
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
-import { Component, Input, ViewChild } from '@angular/core';
+import { AsyncPipe, NgIf, NgTemplateOutlet } from '@angular/common';
+import { Component, inject, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { ButtonComponent } from '../../common/button/button.component';
 import { CardComponent } from '../../common/card/card.component';
-import { ProjectAddComponent } from '@/app/pages/project/project-add/project-add.component';
+import { ProjectsOverviewWidgetService } from './services/projects-overview-widget.service';
 
 const regex = /^\/projects\/[a-zA-Z0-9]+$/;
 
@@ -19,11 +19,12 @@ interface ProjectsOverviewWidgetData {
 
 @Component({
   standalone: true,
-  imports: [CardComponent, ButtonComponent, ProjectAddComponent, ClassPickerPipe],
-  selector: 'app-projects-overview-widget',
+  imports: [CardComponent, ClassPickerPipe, AsyncPipe, NgTemplateOutlet, NgIf],
+  selector: 'eln-projects-overview-widget',
   templateUrl: './projects-overview-widget.component.html',
 })
 export class ProjectsOverviewWidgetComponent {
+  public projectsOverviewWidgetService = inject(ProjectsOverviewWidgetService);
   @Input() data: ProjectsOverviewWidgetData = {
     openExperiments: 0,
     waitingSignature: 0,
@@ -33,16 +34,10 @@ export class ProjectsOverviewWidgetComponent {
     notebooks: 0,
     experiments: 0,
   };
-  @ViewChild('projectAddModal') projectAddModal!: ProjectAddComponent<any>;
-
 
   constructor(protected router: Router) {}
 
   get shouldRenderProjectLinks() {
     return regex.test(this.router.url);
-  }
-
-  async openModal() {
-    return await this.projectAddModal.open();
   }
 }

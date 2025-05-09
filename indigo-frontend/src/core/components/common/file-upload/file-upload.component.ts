@@ -15,7 +15,7 @@ import { fileTypeConfig } from './file-upload.config';
 @Component({
   imports: [CommonModule, FileSizePipe],
   standalone: true,
-  selector: 'app-file-upload',
+  selector: 'eln-file-upload',
   templateUrl: './file-upload.component.html',
 })
 export class FileUploadComponent implements OnInit {

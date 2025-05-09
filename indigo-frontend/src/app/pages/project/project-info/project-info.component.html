@@ -1,13 +1,13 @@
 <div class="grid grid-cols-[1fr_auto] gap-4 pt-4">
-  <app-card>
+  <eln-card>
     <div
       class="flex items-center justify-between pb-3 border-b border-b-neutral-200"
     >
       <h2 class="font-semibold text-base">Project Description</h2>
-      <app-button variant="blue-outline" classList="text-primary-400">
+      <eln-button variant="blue-outline" classList="text-primary-400">
         <em class="indicon-edit"></em>
         Edit
-      </app-button>
+      </eln-button>
     </div>
 
     <div class="space-y-6 mt-3 text-sm">
@@ -20,7 +20,7 @@
         <h3 class="text-neutral-800 mb-2 font-semibold">Project Keywords</h3>
         <div class="flex flex-wrap gap-2">
           @for (keyword of project.keywords; track keyword) {
-            <app-chip>{{ keyword }}</app-chip>
+            <eln-chip>{{ keyword }}</eln-chip>
           }
         </div>
       </div>
@@ -40,12 +40,24 @@
         <h3 class="text-neutral-800 mb-2 font-semibold">Attachments</h3>
         <div class="space-y-2 grid">
           @for (file of project.attachments; track file) {
-            <app-attachment [attachment]="file" />
+            <eln-attachment [attachment]="file" />
           }
         </div>
       </div>
     </div>
-  </app-card>
+  </eln-card>
 
-  <app-team [team]="project.team" />
+  <eln-team [team]="project.team" />
+</div>
+
+<div
+  *projectOverviewWidget="'tab'"
+  class="flex items-center mt-6 overflow-x-auto"
+>
+  <a
+    href="#"
+    class="border-b-primary-400 border-b-2 p-3 md:p-4 text-primary-400 whitespace-nowrap"
+    >Project Info</a
+  >
+  <a href="#" class="p-3 md:p-4 whitespace-nowrap">Notebooks</a>
 </div>

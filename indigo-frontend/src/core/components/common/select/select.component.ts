@@ -17,7 +17,7 @@ import { DropdownMenuItem } from '../dropdown-menu/dropdown-menu.i';
 type SelectValue = string | string[] | null;
 
 @Component({
-  selector: 'app-select',
+  selector: 'eln-select',
   standalone: true,
   imports: [CommonModule, ClassPickerPipe, ChipComponent],
   templateUrl: './select.component.html',

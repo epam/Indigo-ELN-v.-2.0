@@ -6,14 +6,14 @@ import {
   NG_VALUE_ACCESSOR,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { SelectComponent } from '../select/select.component';
-import { InputComponent } from '../input/input.component';
-import { DropdownMenuItem } from '../dropdown-menu/dropdown-menu.i';
 import { ClassPickerPipe } from '../../../pipes/classPicker.pipe';
 import { InputSuffixValue } from '../../../types/input-suffix.i';
+import { DropdownMenuItem } from '../dropdown-menu/dropdown-menu.i';
+import { InputComponent } from '../input/input.component';
+import { SelectComponent } from '../select/select.component';
 
 @Component({
-  selector: 'app-input-suffix',
+  selector: 'eln-input-suffix',
   templateUrl: './input-suffix.component.html',
   standalone: true,
   providers: [
@@ -92,6 +92,8 @@ export class InputSuffixComponent implements ControlValueAccessor {
     } else if (item === 'input' && placeholder?.input) {
       return placeholder.input;
     }
-    return item === 'suffix' ? 'Select an option' : this.label() || 'Enter text';
+    return item === 'suffix'
+      ? 'Select an option'
+      : this.label() || 'Enter text';
   }
 }

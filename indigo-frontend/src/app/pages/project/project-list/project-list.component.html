@@ -1,6 +1,6 @@
 <div class="flex justify-between items-center my-4">
-  <app-toggle label="My Entities" />
-  <app-button-toggle
+  <eln-toggle label="My Entities" />
+  <eln-button-toggle
     [(ngModel)]="selectedView"
     [options]="viewOptions"
     variant="alpha"
@@ -16,9 +16,9 @@
   }"
 >
   @for (project of data; track project.id) {
-    <app-project-item [project]="project" [variant]="selectedView" />
+    <eln-project-item [project]="project" [variant]="selectedView" />
   }
-  <app-infinite-loader
+  <eln-infinite-loader
     [classNames]="
       {
         'col-span-1': selectedView == 'list',
@@ -28,3 +28,15 @@
     (infiniteLoad)="infiniteLoad()"
   />
 </div>
+
+<eln-button
+  *projectOverviewWidget="'button'"
+  variant="blue"
+  classList="flex items-center gap-2"
+  (click)="openModal()"
+>
+  <em class="text-xl indicon-plus"></em>
+  <span class="whitespace-nowrap">Add Project</span>
+</eln-button>
+
+<eln-project-add #projectAddModal></eln-project-add>

@@ -14,7 +14,7 @@ export interface ToggleOption {
 }
 
 @Component({
-  selector: 'app-button-toggle',
+  selector: 'eln-button-toggle',
   standalone: true,
   imports: [CommonModule, FormsModule, ButtonToggleVariantPipe],
   providers: [

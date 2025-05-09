@@ -7,7 +7,7 @@ import { CardComponent } from '../card/card.component';
 @Component({
   standalone: true,
   imports: [CardComponent, MatMenuModule, MatIconModule],
-  selector: 'app-attachment',
+  selector: 'eln-attachment',
   templateUrl: './attachment.component.html',
 })
 export class AttachmentComponent {
