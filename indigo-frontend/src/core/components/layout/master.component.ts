@@ -1,5 +1,6 @@
+import { UserService } from '@/core/services/user.service';
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
@@ -9,6 +10,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { Router, RouterOutlet } from '@angular/router';
 import { AuthenticatorService } from '@aws-amplify/ui-angular';
+import { Subject, takeUntil } from 'rxjs';
 import { SidebarComponent } from './partials/sidebar/sidebar.component';
 
 @Component({
@@ -28,8 +30,10 @@ import { SidebarComponent } from './partials/sidebar/sidebar.component';
   ],
   templateUrl: './master.component.html',
 })
-export class MasterComponent {
+export class MasterComponent implements OnInit, OnDestroy {
+  destroy$ = new Subject<void>();
   authenticatorService = inject(AuthenticatorService);
+  userService = inject(UserService);
   public isCollapsed = false;
   public searchControl = new FormControl('');
   router = inject(Router);
@@ -40,5 +44,16 @@ export class MasterComponent {
   logout() {
     this.authenticatorService.signOut();
     this.router.navigateByUrl('/');
+  }
+
+  ngOnInit(): void {
+    this.userService.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
+      this.userName = `${user.given_name} ${user.family_name}`;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
