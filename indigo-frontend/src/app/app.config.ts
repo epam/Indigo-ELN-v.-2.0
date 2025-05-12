@@ -8,9 +8,8 @@ import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
 
-import { AuthInterceptor, provideAuth } from 'angular-auth-oidc-client';
+import { JwtInterceptor } from '@/core/interceptors/jwt.interceptor';
 import { routes } from './app.routes';
-import { authConfig } from './auth/auth.config';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -24,7 +23,6 @@ export const appConfig: ApplicationConfig = {
       }),
       withInterceptorsFromDi(),
     ),
-    provideAuth(authConfig),
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
   ],
 };

@@ -1,15 +1,18 @@
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { ProjectAddComponent } from './project-add.component';
+import { FileUploadComponent } from '@/core/components/common/file-upload/file-upload.component';
+import { ModalComponent } from '@/core/components/common/modal/modal.component';
 import { ApiService } from '@/core/services/api.service';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { of, throwError } from 'rxjs';
-import { ModalComponent } from '@/core/components/common/modal/modal.component';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { authConfig } from '@/app/auth/auth.config';
-import { provideAuth } from 'angular-auth-oidc-client';
-import { FileUploadComponent } from '@/core/components/common/file-upload/file-upload.component';
-import { provideHttpClient } from '@angular/common/http';
+import { ProjectAddComponent } from './project-add.component';
 
 describe('ProjectAddComponent', () => {
   let component: ProjectAddComponent<any>;
@@ -17,25 +20,34 @@ describe('ProjectAddComponent', () => {
   let mockApiService: jasmine.SpyObj<ApiService<any>>;
 
   beforeEach(async () => {
-    mockApiService = jasmine.createSpyObj<ApiService<any>>('ApiService', ['setup', 'create', 'uploadAttachment']);
+    mockApiService = jasmine.createSpyObj<ApiService<any>>('ApiService', [
+      'setup',
+      'create',
+      'uploadAttachment',
+    ]);
 
     await TestBed.configureTestingModule({
       imports: [ProjectAddComponent],
       providers: [
         FormBuilder,
         { provide: ApiService, useValue: mockApiService },
-        provideAuth(authConfig),
         provideHttpClient(),
-        provideHttpClientTesting()
+        provideHttpClientTesting(),
       ],
-      schemas: [NO_ERRORS_SCHEMA]
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProjectAddComponent);
     component = fixture.componentInstance;
 
-    component.modalComponent = jasmine.createSpyObj<ModalComponent>('ModalComponent', ['open', 'close']);
-    component.fileUpload = jasmine.createSpyObj<FileUploadComponent>('FileUploadComponent', ['clearFiles']);
+    component.modalComponent = jasmine.createSpyObj<ModalComponent>(
+      'ModalComponent',
+      ['open', 'close'],
+    );
+    component.fileUpload = jasmine.createSpyObj<FileUploadComponent>(
+      'FileUploadComponent',
+      ['clearFiles'],
+    );
   });
 
   it('should create the component', () => {
@@ -89,8 +101,8 @@ describe('ProjectAddComponent', () => {
 
   it('should close the modal with a reason', () => {
     component.ngOnInit();
-    // @ts-ignore
-    component.fileUpload = { clearFiles: () => {} }; // Stub to prevent error
+    // @ts-expect-error - Stub to prevent error
+    component.fileUpload = { clearFiles: () => {} };
     spyOn(component.fileUpload, 'clearFiles');
 
     component.close('closedByUser');
@@ -98,7 +110,9 @@ describe('ProjectAddComponent', () => {
   });
 
   it('should add uploaded file to the files array', () => {
-    const file = new File(['content'], 'test.doc', { type: 'application/msword' });
+    const file = new File(['content'], 'test.doc', {
+      type: 'application/msword',
+    });
     component.onFilesUploaded(file);
     expect(component.files).toContain(file);
   });
@@ -130,12 +144,16 @@ describe('ProjectAddComponent', () => {
     component.ngOnInit();
     component.formGroup.patchValue({ name: 'Test Project' });
 
-    mockApiService.create.and.returnValue(throwError(() => new Error('API Error')));
+    mockApiService.create.and.returnValue(
+      throwError(() => new Error('API Error')),
+    );
     component.createProject();
     tick();
 
     expect(window.alert).toHaveBeenCalledWith('API Error');
-    expect(component.modalComponent.close).toHaveBeenCalledWith('projectAddError');
+    expect(component.modalComponent.close).toHaveBeenCalledWith(
+      'projectAddError',
+    );
   }));
 
   it('should upload files after project creation', () => {
@@ -158,7 +176,9 @@ describe('ProjectAddComponent', () => {
     component.files = [new File([''], 'test.doc')];
 
     mockApiService.create.and.returnValue(of({ id: 1 }));
-    mockApiService.uploadAttachment.and.returnValue(throwError(() => new Error('Upload Error')));
+    mockApiService.uploadAttachment.and.returnValue(
+      throwError(() => new Error('Upload Error')),
+    );
 
     component.createProject();
     tick(); // <-- allow the uploadAttachment subscription to complete

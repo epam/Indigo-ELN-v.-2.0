@@ -1,0 +1,47 @@
+:host ::ng-deep {
+  [data-amplify-authenticator] {
+    --amplify-components-button-primary-background-color: var(--primary-500);
+    --amplify-components-button-primary-hover-background-color: var(
+      --primary-400
+    );
+    --amplify-components-button-link-hover-background-color: var(
+      --primary-alpha-10
+    );
+    --amplify-internal-button-color: var(--primary-500);
+    --amplify-internal-button-background-color: var(--primary-alpha-5);
+    background-color: var(--primary-500);
+    @apply min-h-screen;
+
+    [data-amplify-router] {
+      border-radius: 14px;
+    }
+    [data-amplify-footer] {
+      display: none;
+    }
+
+    [data-amplify-form] {
+      padding: 1rem;
+    }
+
+    [amplify-button] {
+      &.amplify-button--primary {
+        border-radius: 8px;
+        margin-top: 28px;
+        position: relative;
+        &::after {
+          width: 100%;
+          content: '';
+          height: 1px;
+          background: var(--color-neutral-300);
+          position: absolute;
+          top: -12px;
+          left: 0;
+        }
+      }
+    }
+
+    amplify-password-field input {
+      border-right: 0;
+    }
+  }
+}
