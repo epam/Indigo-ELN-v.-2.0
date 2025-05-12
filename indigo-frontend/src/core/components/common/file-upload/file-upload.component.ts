@@ -1,3 +1,4 @@
+import { UserService } from '@/core/services/user.service';
 import { CommonModule } from '@angular/common';
 import {
   Component,
@@ -7,10 +8,9 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { OidcSecurityService } from 'angular-auth-oidc-client';
+import { take } from 'rxjs';
 import { FileSizePipe } from './file-size.pipe';
 import { fileTypeConfig } from './file-upload.config';
-import { UserConfig } from './user.i';
 
 @Component({
   imports: [CommonModule, FileSizePipe],
@@ -22,20 +22,18 @@ export class FileUploadComponent implements OnInit {
   @Input() maxSizeMB = 5; // Default max file size (5MB)
   @Input() allowedTypes = ['doc', 'image', 'pdf', 'xls', 'ppt', 'csv'];
   mimeTypes: string[] = [];
-  acceptedExtensions: string = '';
-  user: UserConfig;
-
+  acceptedExtensions = '';
+  userService = inject(UserService);
+  user;
   @Output() filesSelected = new EventEmitter<File[]>();
-
-  protected authService = inject(OidcSecurityService);
 
   files: File[] = [];
   previews: string[] = [];
   today = Date.now();
 
   ngOnInit(): void {
-    this.authService.checkAuth().subscribe((res: any) => {
-      this.user = res.userData;
+    this.userService.user$.pipe(take(1)).subscribe((user) => {
+      this.user = user;
     });
     this.allowedTypes.forEach((type) => {
       const config = fileTypeConfig[type];

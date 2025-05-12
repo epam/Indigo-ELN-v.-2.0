@@ -1,6 +1,10 @@
-import { type PassedInitialConfig } from 'angular-auth-oidc-client';
-
 export interface IEnvironment {
   production: boolean;
-  authConfig: PassedInitialConfig['config'];
+  authConfig: IAuthConfig;
+}
+
+export interface IAuthConfig {
+  userPoolId: string;
+  userPoolClientId: string;
+  identityPoolId: string;
 }

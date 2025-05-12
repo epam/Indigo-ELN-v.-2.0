@@ -30,6 +30,7 @@
               }
             ],
             "styles": [
+              "node_modules/@aws-amplify/ui-angular/theme.css",
               "@angular/material/prebuilt-themes/azure-blue.css",
               "src/styles.scss"
             ],
