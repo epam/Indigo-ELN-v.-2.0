@@ -1,0 +1,73 @@
+<div
+  class="modal-backdrop fixed inset-0 flex items-center justify-center p-4 z-50"
+>
+  <div
+    class="modal-container bg-white rounded-lg shadow-lg overflow-hidden flex flex-col max-h-[90vh] max-w-full"
+    [class]="
+      [
+        {
+          'w-[800px] h-[400px]': size == 'lg',
+          'w-[600px] h-[400px]': size == 'md',
+          'w-[400px] h-[400px]': size == 'sm',
+          'w-auto h-auto': size == 'auto',
+        } | classPicker,
+        containerClass,
+      ] | twsx
+    "
+    (click)="$event.stopPropagation()"
+  >
+    <div
+      class="modal-header p-4 border-b border-neutral-200 flex justify-between items-center"
+    >
+      @if (modalHeader) {
+        <ng-container *ngTemplateOutlet="modalHeader"></ng-container>
+      } @else {
+        <h2 class="text-lg font-semibold text-neutral-900">{{ title }}</h2>
+      }
+
+      <ng-template #defaultHeader>
+        <h2 class="text-lg font-semibold text-neutral-900">{{ title }}</h2>
+      </ng-template>
+
+      <button
+        mat-dialog-close
+        class="text-neutral-500 hover:text-neutral-700 focus:outline-none cursor-pointer"
+      >
+        <em class="indicon-close text-lg"></em>
+      </button>
+    </div>
+
+    <div class="modal-content p-4 overflow-y-auto flex-grow">
+      <formly-form
+        [model]="model"
+        [fields]="fields"
+        [form]="form"
+      ></formly-form>
+      <ng-content></ng-content>
+    </div>
+
+    @if (modalFooter) {
+      <div class="modal-footer p-4 border-t border-neutral-200">
+        <ng-container *ngTemplateOutlet="modalFooter"></ng-container>
+      </div>
+    } @else {
+      <div class="modal-footer p-4 border-t border-neutral-200">
+        <div class="flex justify-end space-x-2 mt-3">
+          @if (!hideCancelButton) {
+            <eln-button [type]="'button'" [variant]="'grey'" mat-dialog-close>{{
+              cancelButtonText
+            }}</eln-button>
+          }
+          @if (!hideSubmitButton) {
+            <eln-button
+              [type]="'button'"
+              [variant]="'blue'"
+              (click)="submit()"
+              >{{ submitButtonText }}</eln-button
+            >
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>
