@@ -8,7 +8,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { FieldType, FieldTypeConfig, FormlyModule } from '@ngx-formly/core';
-import { ChipComponent } from '../common/chip/chip.component';
+import { ChipComponent } from '../../common/chip/chip.component';
 
 @Component({
   selector: 'eln-formly-chip-grid',

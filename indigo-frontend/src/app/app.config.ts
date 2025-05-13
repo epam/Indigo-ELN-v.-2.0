@@ -1,6 +1,6 @@
-import { ChipGridFieldComponent } from '@/core/components/formly/chip-grid-field.component';
-import { ElnWrapperFormField } from '@/core/components/formly/field-wrapper.component';
-import { InputFieldComponent } from '@/core/components/formly/input-field.component';
+import { ChipGridFieldComponent } from '@/core/components/formly/fields/chip-grid-field.component';
+import { InputFieldComponent } from '@/core/components/formly/fields/input-field.component';
+import { ElnWrapperFormField } from '@/core/components/formly/wrappers/field-wrapper.component';
 import { JwtInterceptor } from '@/core/interceptors/jwt.interceptor';
 import {
   HTTP_INTERCEPTORS,
@@ -14,7 +14,7 @@ import {
   provideZoneChangeDetection,
 } from '@angular/core';
 
-import { EditorFormlyFieldComponent } from '@/core/components/formly/editor/editor-field.component';
+import { EditorFormlyFieldComponent } from '@/core/components/formly/fields/editor/editor-field.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
 import { FormlyModule } from '@ngx-formly/core';
