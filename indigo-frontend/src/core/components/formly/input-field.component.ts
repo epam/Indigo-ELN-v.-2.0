@@ -1,8 +1,8 @@
+import { twsx } from '@/core/utils/twsx';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FieldType, FieldTypeConfig, FormlyModule } from '@ngx-formly/core';
-import { twMerge } from 'tailwind-merge';
 
 @Component({
   selector: 'eln-formly-input',
@@ -31,7 +31,7 @@ export class InputFieldComponent extends FieldType<FieldTypeConfig> {
   }
 
   getInputClasses(): string {
-    return twMerge(
+    return twsx(
       'relative inline-flex w-full items-center gap-2 rounded-sm border px-3 py-2 transition-colors duration-200 border-neutral-300 outline-none placeholder:text-neutral-600 text-sm',
       !this.formControl.disabled && 'focus:border-primary-400 focus:text-black',
       this.formControl.disabled &&
