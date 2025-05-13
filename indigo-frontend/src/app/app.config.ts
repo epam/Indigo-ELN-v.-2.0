@@ -13,7 +13,6 @@ import {
   importProvidersFrom,
   provideZoneChangeDetection,
 } from '@angular/core';
-// import { provideQuillConfig } from 'ngx-quill';
 
 import { EditorFormlyFieldComponent } from '@/core/components/formly/editor/editor-field.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -76,17 +75,5 @@ export const appConfig: ApplicationConfig = {
       withInterceptorsFromDi(),
     ),
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
-    // provideQuillConfig({
-    //   modules: {
-    //     toolbar: [
-    //       ['bold', 'italic', 'underline', 'strike'],
-    //       ['blockquote', 'code-block'],
-    //       [{ list: 'ordered' }, { list: 'bullet' }],
-    //       [{ header: [1, 2, 3, 4, 5, 6, false] }],
-    //       ['clean'],
-    //       ['link', 'image'],
-    //     ],
-    //   },
-    // }),
   ],
 };
