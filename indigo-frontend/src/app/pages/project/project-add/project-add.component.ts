@@ -65,7 +65,10 @@ export class ProjectAddComponent {
     this.service
       .create('projects', {
         ...data,
-        description: toHTML(data.description),
+        description:
+          typeof data.description === 'object'
+            ? toHTML(data.description)
+            : data.description,
       })
       .pipe(
         tap(() => {
