@@ -61,4 +61,16 @@ export class FormDialogComponent {
 
     // this.formSubmit.emit(this.form.value);
   }
+
+  onBackdropClick(event: MouseEvent): void {
+    if ((event.target as HTMLElement).classList.contains('modal-backdrop')) {
+      this.dialogRef.close('backdrop');
+    }
+  }
+
+  onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      this.dialogRef.close('escape');
+    }
+  }
 }
