@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FieldType, FieldTypeConfig, FormlyModule } from '@ngx-formly/core';
-import { Editor, NgxEditorModule, toHTML, Toolbar } from 'ngx-editor';
+import { Editor, NgxEditorModule, Toolbar } from 'ngx-editor';
 
 @Component({
   selector: 'eln-formly-editor',
@@ -53,18 +53,6 @@ export class EditorFormlyFieldComponent
     if (this.props['toolbar']) {
       this.toolbar = this.props['toolbar'];
     }
-
-    if (this.formControl.value) {
-      setTimeout(() => {
-        this.editor.setContent(toHTML(this.formControl.value));
-      });
-    }
-
-    this.editor.valueChanges.subscribe((val) => {
-      this.formControl.setValue(toHTML(val));
-      this.formControl.markAsDirty();
-      this.formControl.markAsTouched();
-    });
   }
 
   ngOnDestroy(): void {

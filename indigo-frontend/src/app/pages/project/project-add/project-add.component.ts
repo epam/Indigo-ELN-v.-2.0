@@ -6,6 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { toHTML } from 'ngx-editor';
 import { catchError, of, tap } from 'rxjs';
 
 @Component({
@@ -62,7 +63,10 @@ export class ProjectAddComponent {
 
   createProject(data: any) {
     this.service
-      .create('projects', data)
+      .create('projects', {
+        ...data,
+        description: toHTML(data.description),
+      })
       .pipe(
         tap(() => {
           this.dialogRef.close('refresh');
