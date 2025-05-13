@@ -1,12 +1,12 @@
 import { ensureDistinct } from '@/core/utils/array.util';
 import { BehaviorSubject, Observable, switchMap } from 'rxjs';
-import { PaginatedComponent } from './paginated.component';
+import { PaginatedBase } from './paginated.base';
 
-export abstract class InfiniteScrollComponent<T> extends PaginatedComponent<T> {
+export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
   dataBh = new BehaviorSubject<T[]>([]);
   data$: Observable<T[]>;
   search = '';
-  appendToTop: boolean = false;
+  appendToTop = false;
 
   protected override initialize(): void {
     super.initialize();
@@ -14,7 +14,9 @@ export abstract class InfiniteScrollComponent<T> extends PaginatedComponent<T> {
     this.data$ = this.dataList$.pipe(
       switchMap((data) => {
         const currValue = this.dataBh.value;
-        const result = this.appendToTop ? [...data.items, ...currValue] : [...currValue, ...data.items];
+        const result = this.appendToTop
+          ? [...data.items, ...currValue]
+          : [...currValue, ...data.items];
 
         this.dataBh.next(ensureDistinct(result, 'id'));
 

@@ -31,12 +31,25 @@ export const routes: Routes = [
           {
             path: ':id',
             loadComponent: () =>
-              import('@pages/project/project-info/project-info.component').then(
-                (c) => c.ProjectInfoComponent,
-              ),
-            data: {
-              title: 'Project',
-            },
+              import(
+                '@pages/project/project-detail/project-detail.component'
+              ).then((c) => c.ProjectDetailComponent),
+            children: [
+              {
+                path: '',
+                loadComponent: () =>
+                  import(
+                    '@pages/project/project-info/project-info.component'
+                  ).then((c) => c.ProjectInfoComponent),
+              },
+              {
+                path: 'notebooks',
+                loadComponent: () =>
+                  import(
+                    '@core/components/notebook/notebook-list.component'
+                  ).then((c) => c.NotebookListComponent),
+              },
+            ],
           },
         ],
       },

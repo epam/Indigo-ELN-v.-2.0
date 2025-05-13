@@ -60,7 +60,7 @@ export class ProjectAddComponent {
 
   createProject(data: any) {
     this.service
-      .create(data)
+      .create('projects', data)
       .pipe(
         catchError((createError) => {
           alert(createError.message);

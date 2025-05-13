@@ -7,14 +7,13 @@ import { ToggleComponent } from '@/core/components/common/toggle/toggle.componen
 import { ProjectItemComponent } from '@/core/components/project/project-item/project-item.component';
 import { ProjectOverviewWidgetDirective } from '@/core/components/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { InfiniteLoaderComponent } from '@/core/components/util/infinite-loader/infinite-loader.component';
-import { InfiniteScrollComponent } from '@/core/components/util/infinite-scroll.component';
+import { InfiniteScrollBase } from '@/core/components/util/infinite-scroll.base';
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { Project } from '@/core/types/entities/project.i';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Subscription } from 'rxjs';
 import { ProjectAddComponent } from '../project-add/project-add.component';
@@ -45,18 +44,16 @@ import { ProjectAddComponent } from '../project-add/project-add.component';
   ],
 })
 export class ProjectListComponent
-  extends InfiniteScrollComponent<Project>
+  extends InfiniteScrollBase<Project>
   implements OnDestroy
 {
-  dialog = inject(MatDialog);
   selectedView: 'grid' | 'list' = 'grid';
   private refreshSub!: Subscription;
 
   constructor() {
     super();
-    this.setup({
-      controller: 'projects',
-    });
+    this.config.loadUrl = 'projects';
+    this.initialize();
   }
 
   options: ToggleOption[] = [{ value: 'grid', icon: 'indicon-grid' }];
