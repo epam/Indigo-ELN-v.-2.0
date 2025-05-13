@@ -59,7 +59,7 @@ export class FormDialogComponent {
       return;
     }
 
-    // this.formSubmit.emit(this.form.value);
+    this.formSubmit.emit(this.form.value);
   }
 
   onBackdropClick(event: MouseEvent): void {

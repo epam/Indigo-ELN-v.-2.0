@@ -16,7 +16,7 @@ import { Component, inject, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { Subscription } from 'rxjs';
+import { Subscription, take } from 'rxjs';
 import { ProjectAddComponent } from '../project-add/project-add.component';
 
 @Component({
@@ -74,11 +74,14 @@ export class ProjectListComponent
   }
 
   async openModal() {
-    this.dialog.open(ProjectAddComponent, {
-      data: {
-        title: 'Add Project',
-        fields: [],
-      },
-    });
+    const ref = this.dialog.open(ProjectAddComponent);
+    ref
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe((result) => {
+        if (result === 'refresh') {
+          this.refreshList();
+        }
+      });
   }
 }

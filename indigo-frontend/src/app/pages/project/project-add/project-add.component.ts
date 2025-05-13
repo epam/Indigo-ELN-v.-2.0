@@ -1,11 +1,12 @@
 import { FormDialogComponent } from '@/core/components/common/form-dialog/form-dialog.component';
 import { ApiService } from '@/core/services/api.service';
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { catchError, of } from 'rxjs';
+import { catchError, of, tap } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -20,6 +21,7 @@ import { catchError, of } from 'rxjs';
   templateUrl: './project-add.component.html',
 })
 export class ProjectAddComponent {
+  dialogRef = inject(MatDialogRef);
   fields: FormlyFieldConfig[] = [
     {
       type: 'input',
@@ -62,6 +64,9 @@ export class ProjectAddComponent {
     this.service
       .create('projects', data)
       .pipe(
+        tap(() => {
+          this.dialogRef.close('refresh');
+        }),
         catchError((createError) => {
           alert(createError.message);
           return of(null);
