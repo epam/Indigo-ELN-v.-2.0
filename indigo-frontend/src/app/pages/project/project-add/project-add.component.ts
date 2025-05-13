@@ -4,6 +4,7 @@ import { FileUploadComponent } from '@/core/components/common/file-upload/file-u
 import { InputComponent } from '@/core/components/common/input/input.component';
 import { ModalComponent } from '@/core/components/common/modal/modal.component';
 import { ApiService } from '@/core/services/api.service';
+import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import {
@@ -33,7 +34,7 @@ import { ProjectRefreshService } from '../project-refresh.service';
   ],
   templateUrl: './project-add.component.html',
 })
-export class ProjectAddComponent<T> implements OnInit {
+export class ProjectAddComponent implements OnInit {
   @ViewChild('addProjectModal') modalComponent!: ModalComponent;
   @ViewChild(FileUploadComponent) fileUpload!: FileUploadComponent;
   files: File[] = [];
@@ -42,13 +43,12 @@ export class ProjectAddComponent<T> implements OnInit {
   isSubmitted = false;
 
   constructor(
-    private service: ApiService<T>,
+    private service: ApiService<Project>,
     private fb: FormBuilder,
     private projectRefreshService: ProjectRefreshService,
   ) {}
 
   ngOnInit(): void {
-    this.service.setup('projects');
     this.formGroup = this.fb.group({
       name: ['', [Validators.required]],
       keywords: [''],
@@ -57,7 +57,8 @@ export class ProjectAddComponent<T> implements OnInit {
     });
   }
 
-  addChip(event: any) {
+  addChip(e: Event) {
+    const event = e as KeyboardEvent;
     if (this.formGroup.value.keywords.trim() && event.key === 'Enter') {
       this.chips.push(this.formGroup.value.keywords.trim());
       this.formGroup.patchValue({ keywords: '' });
@@ -80,8 +81,8 @@ export class ProjectAddComponent<T> implements OnInit {
     this.modalComponent.close(reason);
   }
 
-  onFilesUploaded(e: any) {
-    this.files.push(e);
+  onFilesUploaded(e: File[]) {
+    this.files.push(...e);
   }
 
   createProject() {
@@ -90,31 +91,29 @@ export class ProjectAddComponent<T> implements OnInit {
       const data = { ...this.formGroup.value, keywords: this.chips };
 
       this.service
-        .create(data)
+        .create('projects', data)
         .pipe(
-          switchMap((res: any) => {
+          switchMap((res) => {
             if (res.id && this.files.length > 0) {
-              this.service.setup('projects', {
-                createUrl: '{projectId}/attachments',
-              });
-
               const formData = new FormData();
               this.files.forEach((file) => {
                 formData.append('file', file[0]);
               });
 
-              return this.service.uploadAttachment(res.id, formData).pipe(
-                tap(() => {
-                  this.close('projectAdded');
-                  this.projectRefreshService.triggerRefresh();
-                }),
-                catchError((uploadError) => {
-                  this.close('projectAdded');
-                  this.projectRefreshService.triggerRefresh();
-                  alert(uploadError.message);
-                  return of(null);
-                }),
-              );
+              return this.service
+                .request('post', `${res.id}/attachments`, formData)
+                .pipe(
+                  tap(() => {
+                    this.close('projectAdded');
+                    this.projectRefreshService.triggerRefresh();
+                  }),
+                  catchError((uploadError) => {
+                    this.close('projectAdded');
+                    this.projectRefreshService.triggerRefresh();
+                    alert(uploadError.message);
+                    return of(null);
+                  }),
+                );
             } else {
               this.close('projectAdded');
               this.projectRefreshService.triggerRefresh();

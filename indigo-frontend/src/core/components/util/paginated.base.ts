@@ -1,7 +1,7 @@
 import { ApiService } from '@/core/services/api.service';
 import { PagedRequest } from '@/core/types/request/paged-request.i';
 import { PaginatedResponse } from '@/core/types/response/paginated-response.i';
-import { Component, inject } from '@angular/core';
+import { inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   BehaviorSubject,
@@ -15,13 +15,10 @@ import {
 } from 'rxjs';
 import { PaginatedConfig } from './paginated.i';
 
-@Component({
-  template: '',
-})
-export abstract class PaginatedComponent<T> {
+export abstract class PaginatedBase<T> {
   protected firstLoad = true;
   protected config: PaginatedConfig = {
-    controller: 'unknown',
+    loadUrl: 'unknown',
     enableQueryParams: true,
     enableScrollRestoration: false,
   };
@@ -50,8 +47,6 @@ export abstract class PaginatedComponent<T> {
   }
 
   protected initialize() {
-    this.service.setup(this.config.controller);
-
     // Initiate rxjs logic
     const dataLogic$ = this.dataSubject$.pipe(
       switchMap((res) => {
@@ -71,26 +66,32 @@ export abstract class PaginatedComponent<T> {
                   : // For subsequent loads or restoration disabled, use standard pager
                     this.pager;
 
-              return this.service.getPaged(computedPager, this.filters).pipe(
-                tap({
-                  next: (res) => {
-                    this.firstLoad = false;
-                    this.total = res.totalItems;
-                    if (res && res.items.length == 0 && this.pager.pageNo > 0) {
-                      this.pager.pageNo = res.totalPages;
-                      this.fetchDataAndUpdateQueryParams(false);
+              return this.service
+                .getPaged(this.config.loadUrl, computedPager, this.filters)
+                .pipe(
+                  tap({
+                    next: (res) => {
+                      this.firstLoad = false;
+                      this.total = res.totalItems;
+                      if (
+                        res &&
+                        res.items.length == 0 &&
+                        this.pager.pageNo > 0
+                      ) {
+                        this.pager.pageNo = res.totalPages;
+                        this.fetchDataAndUpdateQueryParams(false);
 
-                      this.dataSubject$.next(null);
-                    } else {
-                      this.dataSubject$.next(res);
-                    }
-                  },
-                }),
+                        this.dataSubject$.next(null);
+                      } else {
+                        this.dataSubject$.next(res);
+                      }
+                    },
+                  }),
 
-                finalize(() => {
-                  this.isLoading = false;
-                }),
-              );
+                  finalize(() => {
+                    this.isLoading = false;
+                  }),
+                );
             });
       }),
     );
