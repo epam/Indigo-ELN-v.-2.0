@@ -1,0 +1,28 @@
+<eln-modal #addNotebookModal title="Add Notebook" (closed)="close()">
+  <div class="flex flex-col gap-4 max-w-200 min-w-200 mx-auto">
+    <div>
+      <eln-input
+        label="Notebook Name"
+        placeholder="Notebook Name"
+        [(ngModel)]="notebookName"
+        [required]="true"
+        [hasError]="notebookNameError"
+      ></eln-input>
+      @if (notebookNameError) {
+        <span class="text-red-500 text-sm top-[-4px]">
+          Notebook Name is required
+        </span>
+      }
+    </div>
+    <label class="text-sm font-medium"> Notebook Description </label>
+    <div #description class="pell"></div>
+  </div>
+  <div class="flex justify-end mt-4 border-t border-neutral-300 pt-4">
+    <eln-button type="reset" variant="grey" (click)="close()" class="mr-2"
+      >Cancel</eln-button
+    >
+    <eln-button type="button" variant="blue" (click)="createNotebook()"
+      >Add Notebook</eln-button
+    >
+  </div>
+</eln-modal>
