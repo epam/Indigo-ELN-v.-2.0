@@ -12,12 +12,12 @@ import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { Project } from '@/core/types/entities/project.i';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { Subscription } from 'rxjs';
+import { Subscription, take } from 'rxjs';
 import { ProjectAddComponent } from '../project-add/project-add.component';
-import { ProjectRefreshService } from '../project-refresh.service';
 
 @Component({
   selector: 'eln-project-list',
@@ -42,19 +42,17 @@ import { ProjectRefreshService } from '../project-refresh.service';
     InfiniteLoaderComponent,
     ProjectOverviewWidgetDirective,
     ButtonComponent,
-    ProjectAddComponent,
   ],
 })
 export class ProjectListComponent
   extends InfiniteScrollBase<Project>
-  implements OnInit, OnDestroy
+  implements OnDestroy
 {
-  @ViewChild('projectAddModal') projectAddModal!: ProjectAddComponent;
-
+  dialog = inject(MatDialog);
   selectedView: 'grid' | 'list' = 'grid';
   private refreshSub!: Subscription;
 
-  constructor(private projectRefreshService: ProjectRefreshService) {
+  constructor() {
     super();
     this.config.loadUrl = 'projects';
     this.initialize();
@@ -67,12 +65,6 @@ export class ProjectListComponent
     { value: 'list', icon: 'indicon-list' },
   ];
 
-  ngOnInit(): void {
-    this.refreshSub = this.projectRefreshService.refresh$.subscribe(() => {
-      this.refreshList(); // Custom method to reload the list
-    });
-  }
-
   refreshList(): void {
     this.reload();
   }
@@ -82,6 +74,14 @@ export class ProjectListComponent
   }
 
   async openModal() {
-    return await this.projectAddModal.open();
+    const ref = this.dialog.open(ProjectAddComponent);
+    ref
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe((result) => {
+        if (result === 'refresh') {
+          this.refreshList();
+        }
+      });
   }
 }
