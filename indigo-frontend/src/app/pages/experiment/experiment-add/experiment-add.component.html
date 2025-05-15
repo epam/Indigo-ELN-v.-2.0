@@ -19,7 +19,7 @@
                 <div class="flex flex-row space-x-4 my-1">
                     <div class="basis-128">
                         <app-select [formControlName]="'therapeuticArea'" label="Therapeutic Area"
-                            [items]=theraputicItem></app-select>
+                            [items]="theraputicItem$ | async"></app-select>
                     </div>
                     <div class="basis-128">
                         <app-select [formControlName]="'contFromRxn'" label="Cont. FROM Rxn"
@@ -30,7 +30,7 @@
                 <div class="flex flex-row space-x-4 my-1">
                     <div class="basis-128">
                         <app-select [formControlName]="'projectCode'" label="Project Code & Name"
-                            [items]=projectCodeItem></app-select>
+                            [items]="projectCodeItem$ | async"></app-select>
                     </div>
                     <div class="basis-128"><app-select [formControlName]="'contToRxn'" label="Cont. TO Rxn"
                             [items]=dropdownMenuItem></app-select></div>
@@ -45,15 +45,13 @@
                         <div class="border rounded-lg shadow-md">
                             <div class="flex flex-wrap gap-2">
                                 @for (chip of linkedExperiments; track chip; let i = $index) {
-                                <span
-                                    class="flex items-center px-3 py-1 text-sm font-medium text-white bg-blue-500 rounded-full">
-                                    {{ chip }}
-                                    <button
-                                        class="text-neutral-500 hover:text-neutral-700 focus:outline-none cursor-pointer"
-                                        type="button" (click)="removeChip(i, 'linkedExperiments')">
-                                        <em class="indicon-close text-lg"></em>
-                                    </button>
-                                </span>
+                                    <app-chip
+                                        (emitClose)="removeChip(i, 'linkedExperiments')"
+                                        [deleteable]="true"
+                                        [active]="true"
+                                    >
+                                        {{ chip }}
+                                    </app-chip>
                                 }
                                 <input [formControlName]="'linkedExperiments'" placeholder="Type and press enter"
                                     (keydown.enter)="addChip($event, 'linkedExperiments')"
@@ -70,15 +68,13 @@
                         <div class="border rounded-lg shadow-md">
                             <div class="flex flex-wrap gap-2">
                                 @for (chip of batchCreators; track chip; let i = $index) {
-                                <span
-                                    class="flex items-center px-3 py-1 text-sm font-medium text-white bg-blue-500 rounded-full">
-                                    {{ chip }}
-                                    <button
-                                        class="text-neutral-500 hover:text-neutral-700 focus:outline-none cursor-pointer"
-                                        type="button" (click)="removeChip(i, 'batchCreators')">
-                                        <em class="indicon-close text-lg"></em>
-                                    </button>
-                                </span>
+                                <app-chip
+                                        (emitClose)="removeChip(i, 'batchCreators')"
+                                        [deleteable]="true"
+                                        [active]="true"
+                                    >
+                                        {{ chip }}
+                                    </app-chip>
                                 }
                                 <input [formControlName]="'batchCreators'"
                                     (keydown.enter)="addChip($event, 'batchCreators')"
