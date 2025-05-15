@@ -1,8 +1,6 @@
-export interface Attachment {
+import { BaseEntity } from './base-entity.i';
+
+export interface Attachment extends BaseEntity {
   name: string;
-  url: string;
-  type: string;
-  size: string;
-  date: string;
-  author: string;
+  size: number;
 }

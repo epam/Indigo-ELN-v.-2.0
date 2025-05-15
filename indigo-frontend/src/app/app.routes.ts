@@ -46,7 +46,7 @@ export const routes: Routes = [
                 path: 'notebooks',
                 loadComponent: () =>
                   import(
-                    '@core/components/notebook/notebook-list.component'
+                    '@/app/pages/project/notebook/notebook-list/notebook-list.component'
                   ).then((c) => c.NotebookListComponent),
               },
             ],

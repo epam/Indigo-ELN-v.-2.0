@@ -8,7 +8,12 @@
   "
   [routerLink]="routerLink"
   routerLinkActive="border-b-primary-400 border-b-2"
-  [routerLinkActiveOptions]="{ exact: true }"
+  [routerLinkActiveOptions]="{
+    queryParams: 'ignored',
+    matrixParams: 'exact',
+    paths: 'exact',
+    fragment: 'exact',
+  }"
   (click)="clicked.emit()"
   [class.border-b-primary-400]="active"
   [class.border-b-2]="active"

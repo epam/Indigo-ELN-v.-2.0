@@ -1,4 +1,5 @@
 import { Attachment } from '@/core/types/entities/attachment.i';
+import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -6,25 +7,17 @@ import { CardComponent } from '../card/card.component';
 
 @Component({
   standalone: true,
-  imports: [CardComponent, MatMenuModule, MatIconModule],
+  imports: [CardComponent, MatMenuModule, MatIconModule, DatePipe],
   selector: 'eln-attachment',
   templateUrl: './attachment.component.html',
 })
 export class AttachmentComponent {
   @Input() icon = '';
   @Input() attachment: Attachment = {
+    id: '',
     name: '',
-    url: '',
-    type: '',
-    size: '',
-    date: '',
-    author: '',
+    size: 0,
   };
-
-  /// TODO: Remove this
-  get date() {
-    return new Date();
-  }
 
   get computedIcon() {
     if (this.icon.length) {
