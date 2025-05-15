@@ -1,4 +1,5 @@
 import { ButtonComponent } from '@/core/components/common/button/button.component';
+import { ChipComponent } from '@/core/components/common/chip/chip.component';
 import { DropdownMenuItem } from '@/core/components/common/dropdown-menu/dropdown-menu.i';
 import { InputComponent } from '@/core/components/common/input/input.component';
 import { ModalComponent } from '@/core/components/common/modal/modal.component';
@@ -14,7 +15,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
-import { forkJoin } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -27,6 +28,7 @@ import { forkJoin } from 'rxjs';
     MatInputModule,
     FormsModule,
     ReactiveFormsModule,
+    ChipComponent,
     CommonModule,
   ],
   templateUrl: './experiment-add.component.html',
@@ -45,8 +47,8 @@ export class ExperimentAddComponent<T> implements OnInit {
       value: 'project',
     },
   ];
-  projectCodeItem: DropdownMenuItem[] = [];
-  theraputicItem: DropdownMenuItem[] = [];
+  projectCodeItem$: Observable<DropdownMenuItem[]>;
+  theraputicItem$: Observable<DropdownMenuItem[]>;
 
   constructor(
     private service: ApiService<T>,
@@ -73,22 +75,12 @@ export class ExperimentAddComponent<T> implements OnInit {
 
   getDictionaries() {
     this.service.setup('dictionaries');
-    const dictionaryKeys = ['THERAPEUTIC_AREA', 'PROJECT_CODE'];
-    const dictionaryCall = dictionaryKeys.map((key: string) =>
-      this.service.getDictionary(key),
-    );
-    forkJoin(dictionaryCall).subscribe(
-      ([theraputicArr, projectCodeArr]: any[]) => {
-        this.theraputicItem = theraputicArr.map((e) => ({
-          label: e.name,
-          value: e.id,
-        }));
-        this.projectCodeItem = projectCodeArr.map((e) => ({
-          label: e.name,
-          value: e.id,
-        }));
-      },
-    );
+    this.theraputicItem$ = this.service
+      .getDictionary<{ id: string; name: string }[]>('THERAPEUTIC_AREA')
+      .pipe(map((items) => items.map((e) => ({ label: e.name, value: e.id }))));
+    this.projectCodeItem$ = this.service
+      .getDictionary<{ id: string; name: string }[]>('PROJECT_CODE')
+      .pipe(map((items) => items.map((e) => ({ label: e.name, value: e.id }))));
   }
 
   addChip(event: any, field: 'linkedExperiments' | 'batchCreators') {
@@ -120,7 +112,6 @@ export class ExperimentAddComponent<T> implements OnInit {
       const data = this.formGroup.value;
       data.linkedExperiments = this.linkedExperiments;
       data.batchCreators = this.batchCreators;
-      console.log(data);
       this.service.setup('notebooks', {
         createUrl: '{notebookId}/experiments',
       });
