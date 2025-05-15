@@ -51,7 +51,7 @@ export class NotebookListComponent
 
   constructor(activatedRoute: ActivatedRoute) {
     super();
-    activatedRoute.parent.params.subscribe((params) => {
+    activatedRoute.parent.params.pipe(take(1)).subscribe((params) => {
       this.projectId = params['id'];
       this.config.loadUrl = `projects/${this.projectId}/notebooks`;
       this.initialize();
