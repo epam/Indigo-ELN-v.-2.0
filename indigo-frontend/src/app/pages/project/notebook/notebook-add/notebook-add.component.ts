@@ -1,5 +1,6 @@
 import { FormDialogComponent } from '@/core/components/common/form-dialog/form-dialog.component';
 import { ApiService } from '@/core/services/api.service';
+import { Notebook } from '@/core/types/entities/notebook.i';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -44,9 +45,9 @@ export class NotebookAddComponent {
     },
   ];
 
-  constructor(protected service: ApiService<any>) {}
+  constructor(protected service: ApiService<Notebook>) {}
 
-  createProject(data: any) {
+  createNotebook(data: Notebook) {
     this.service
       .create(`projects/${this.projectId}/notebooks`, {
         ...data,
