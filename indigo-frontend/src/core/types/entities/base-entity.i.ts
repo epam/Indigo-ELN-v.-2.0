@@ -1,13 +1,13 @@
 export interface BaseEntity {
-  id: number;
-  createdBy: EdBy;
-  createdAt: Date;
-  modifiedBy: EdBy;
-  modifiedAt: Date;
+  id: string;
+  createdBy?: EdBy;
+  createdAt?: Date;
+  modifiedBy?: EdBy;
+  modifiedAt?: Date;
 }
 
 export interface EdBy {
-  id: number;
+  id: string;
   username: string;
   displayName: string;
 }

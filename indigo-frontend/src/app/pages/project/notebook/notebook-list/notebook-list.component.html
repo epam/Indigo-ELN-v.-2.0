@@ -8,8 +8,8 @@
     'md:grid-cols-2 2xl:grid-cols-3': selectedView === 'grid',
   }"
 >
-  @for (project of data; track project.id) {
-    <eln-project-item [project]="project" [variant]="selectedView" />
+  @for (notebook of data; track notebook.id) {
+    <eln-notebook-item [notebook]="notebook" [variant]="selectedView" />
   }
   <eln-infinite-loader
     [classNames]="
@@ -29,5 +29,5 @@
   (click)="openModal()"
 >
   <em class="text-xl indicon-plus"></em>
-  <span class="whitespace-nowrap">Add Project</span>
+  <span class="whitespace-nowrap">Add Notebook</span>
 </eln-button>

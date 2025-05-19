@@ -4,9 +4,11 @@
       <em [class]="computedIcon" class="text-primary-400"></em>
       <span>{{ attachment.name }}</span>
     </div>
-    <span>by {{ attachment.author }}</span>
+    <span>by {{ attachment.createdBy?.displayName }}</span>
     <span>{{ attachment.size }}</span>
-    <span class="flex justify-end items-center">{{ attachment.date }}</span>
+    <span class="flex justify-end items-center">{{
+      attachment.createdAt | date: 'dd MMM yyyy'
+    }}</span>
     <div class="flex ml-auto items-center">
       <!-- TODO: Add related options -->
       <button
@@ -19,16 +21,8 @@
       </button>
       <mat-menu #menu="matMenu">
         <button mat-menu-item>
-          <mat-icon>dialpad</mat-icon>
-          <span>Redial</span>
-        </button>
-        <button mat-menu-item disabled>
-          <mat-icon>voicemail</mat-icon>
-          <span>Check voice mail</span>
-        </button>
-        <button mat-menu-item>
-          <mat-icon>notifications_off</mat-icon>
-          <span>Disable alerts</span>
+          <mat-icon>delete</mat-icon>
+          <span>Delete</span>
         </button>
       </mat-menu>
     </div>

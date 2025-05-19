@@ -1,23 +1,24 @@
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { ListHeaderComponent } from '@/core/components/common/list-header/list-header.component';
-import { ProjectItemComponent } from '@/core/components/project/project-item/project-item.component';
+import { NotebookItemComponent } from '@/core/components/project/notebook/notebook-item/notebook-item.component';
 import { ProjectOverviewWidgetDirective } from '@/core/components/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { InfiniteLoaderComponent } from '@/core/components/util/infinite-loader/infinite-loader.component';
 import { InfiniteScrollBase } from '@/core/components/util/infinite-scroll.base';
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
-import { Project } from '@/core/types/entities/project.i';
+import { Notebook } from '@/core/types/entities/notebook.i';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { ActivatedRoute } from '@angular/router';
 import { Subscription, take } from 'rxjs';
-import { ProjectAddComponent } from '../project-add/project-add.component';
+import { NotebookAddComponent } from '../notebook-add/notebook-add.component';
 
 @Component({
-  selector: 'eln-project-list',
-  templateUrl: './project-list.component.html',
+  selector: 'eln-notebook-list',
+  templateUrl: './notebook-list.component.html',
   standalone: true,
   animations: [
     trigger('viewChange', [
@@ -30,7 +31,7 @@ import { ProjectAddComponent } from '../project-add/project-add.component';
   imports: [
     CommonModule,
     FormsModule,
-    ProjectItemComponent,
+    NotebookItemComponent,
     MatSlideToggleModule,
     ClassPickerPipe,
     InfiniteLoaderComponent,
@@ -39,18 +40,22 @@ import { ProjectAddComponent } from '../project-add/project-add.component';
     ListHeaderComponent,
   ],
 })
-export class ProjectListComponent
-  extends InfiniteScrollBase<Project>
+export class NotebookListComponent
+  extends InfiniteScrollBase<Notebook>
   implements OnDestroy
 {
   dialog = inject(MatDialog);
   selectedView: 'grid' | 'list' = 'grid';
   private refreshSub!: Subscription;
+  projectId: string;
 
-  constructor() {
+  constructor(activatedRoute: ActivatedRoute) {
     super();
-    this.config.loadUrl = 'projects';
-    this.initialize();
+    activatedRoute.parent.params.pipe(take(1)).subscribe((params) => {
+      this.projectId = params['id'];
+      this.config.loadUrl = `projects/${this.projectId}/notebooks`;
+      this.initialize();
+    });
   }
 
   refreshList(): void {
@@ -62,7 +67,8 @@ export class ProjectListComponent
   }
 
   async openModal() {
-    const ref = this.dialog.open(ProjectAddComponent);
+    const ref = this.dialog.open(NotebookAddComponent);
+    ref.componentInstance.projectId = this.projectId;
     ref
       .afterClosed()
       .pipe(take(1))
