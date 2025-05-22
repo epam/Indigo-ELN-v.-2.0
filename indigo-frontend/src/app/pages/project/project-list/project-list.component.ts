@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Subscription, take } from 'rxjs';
+import { ExperimentAddComponent } from '../../experiment/experiment-add/experiment-add.component';
 import { ProjectAddComponent } from '../project-add/project-add.component';
 
 @Component({
@@ -69,6 +70,18 @@ export class ProjectListComponent
       .subscribe((result) => {
         if (result === 'refresh') {
           this.refreshList();
+        }
+      });
+  }
+
+  async openExperimentModal() {
+    const ref = this.dialog.open(ExperimentAddComponent);
+    ref
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe((result) => {
+        if (result === 'refresh') {
+          // do something after experiment is added
         }
       });
   }
