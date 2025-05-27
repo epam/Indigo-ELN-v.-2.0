@@ -23,7 +23,7 @@ import { map, Observable } from 'rxjs';
 })
 export class ExperimentAddComponent<T> implements OnInit {
   projectCodeItem$: Observable<DropdownMenuItem[]>;
-  theraputicItem$: Observable<DropdownMenuItem[]>;
+  therapeuticItem$: Observable<DropdownMenuItem[]>;
   dialogRef = inject(MatDialogRef);
   dropdownMenuItem = [
     {
