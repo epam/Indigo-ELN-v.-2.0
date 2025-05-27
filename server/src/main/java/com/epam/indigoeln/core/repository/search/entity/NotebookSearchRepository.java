@@ -18,6 +18,7 @@
  */
 package com.epam.indigoeln.core.repository.search.entity;
 
+import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.model.UserPermission;
@@ -36,6 +37,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.script.ExecutableMongoScript;
 import org.springframework.stereotype.Component;
 
@@ -131,9 +133,8 @@ public class NotebookSearchRepository implements InitializingBean {
     }
 
     private Set<String> find(Criteria criteria) {
-        return ((List<String>) template.scriptOps().execute(searchScript, criteria.getCriteriaObject()))
-                .stream()
-                .collect(Collectors.toSet());
+        return template.find(Query.query(criteria), Notebook.class)
+                .stream().map(Notebook::getId).collect(Collectors.toSet());
     }
 
     private EntitySearchResultDTO convert(NotebookDTO notebook) {

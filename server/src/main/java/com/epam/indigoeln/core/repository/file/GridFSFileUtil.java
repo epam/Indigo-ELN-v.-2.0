@@ -51,7 +51,7 @@ public final class GridFSFileUtil {
 
     public static User getAuthorFromMetadata(Document metadata) {
         User author = new User();
-        BasicBSONObject bsonAuthor = (BasicBSONObject) metadata.get("author");
+        Document bsonAuthor = (Document) metadata.get("author");
         if (bsonAuthor != null) {
             author.setId(bsonAuthor.getString("id"));
             author.setFirstName(bsonAuthor.getString("firstName"));
