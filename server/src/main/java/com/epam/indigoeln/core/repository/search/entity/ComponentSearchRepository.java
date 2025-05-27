@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.script.ExecutableMongoScript;
 import org.springframework.stereotype.Component;
 
@@ -128,10 +129,7 @@ public class ComponentSearchRepository implements InitializingBean {
     }
 
     private Set<Object> find(Criteria criteria) {
-        return ((List<DBRef>) mongoTemplate.scriptOps().execute(searchScript, criteria.getCriteriaObject()))
-                .stream()
-                .map(DBRef::getId)
-                .collect(Collectors.toSet()
-                );
+        return mongoTemplate.find(Query.query(criteria), com.epam.indigoeln.core.model.Component.class)
+                .stream().map(com.epam.indigoeln.core.model.Component::getId).collect(Collectors.toSet());
     }
 }
