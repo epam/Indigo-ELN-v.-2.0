@@ -72,7 +72,7 @@ export class ExperimentAddComponent<T> implements OnInit {
         props: {
           label: 'Therapeutic Area',
           placeholder: 'Text',
-          options: this.theraputicItem$,
+          options: this.therapeuticItem$,
         },
       },
       {
@@ -146,7 +146,7 @@ export class ExperimentAddComponent<T> implements OnInit {
   }
 
   getDictionaries() {
-    this.theraputicItem$ = this.service
+    this.therapeuticItem$ = this.service
       .getDictionary<
         { id: string; name: string }[]
       >('dictionaries/THERAPEUTIC_AREA')
