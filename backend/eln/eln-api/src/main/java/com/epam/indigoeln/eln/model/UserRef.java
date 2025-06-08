@@ -1,0 +1,22 @@
+package com.epam.indigoeln.eln.model;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.UUID;
+
+@Data
+@NoArgsConstructor(onConstructor_ = @JsonCreator)
+@AllArgsConstructor
+public class UserRef {
+
+    @NotNull
+    UUID id;
+
+    @NotEmpty
+    String displayName;
+}

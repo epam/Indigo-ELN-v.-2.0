@@ -1,0 +1,79 @@
+http:
+  routers:
+    example:
+      service: example
+      rule: "PathPrefix(`/api/example`)"
+    #      middlewares:
+    #        - authenticate
+    signature:
+      service: signature
+      rule: "PathPrefix(`/api/signature`)"
+#      middlewares:
+#        - authenticate
+    eln:
+      service: eln
+      rule: "PathPrefix(`/api/eln`)"
+  #      middlewares:
+  #        - authenticate
+    example-openapi:
+      service: example
+      rule: "PathPrefix(`/openapi/example`)"
+    example-swagger:
+      service: example
+      rule: "PathPrefix(`/swagger/example`)"
+    signature-openapi:
+      service: signature
+      rule: "PathPrefix(`/openapi/signature`)"
+    signature-swagger:
+      service: signature
+      rule: "PathPrefix(`/swagger/signature`)"
+    eln-openapi:
+      service: eln
+      rule: "PathPrefix(`/openapi/eln`)"
+    eln-swagger:
+      service: eln
+      rule: "PathPrefix(`/swagger/eln`)"
+
+  services:
+    example:
+      loadBalancer:
+        servers:
+          - url: "http://example-service:8080"
+    signature:
+      loadBalancer:
+        servers:
+          - url: "http://signature-service:8080"
+    eln:
+      loadBalancer:
+        servers:
+          - url: "http://eln-service:8080"
+
+  middlewares:
+    authenticate:
+      forwardAuth:
+        address: "https://keycloak.indigoeln.local:8443/realms/indigo-eln/protocol/openid-connect/userinfo"
+        trustForwardHeader: true
+        tls:
+          insecureSkipVerify: true
+
+#  middlewares:
+#    authenticate:
+#      plugin:
+#        traefik-oidc-auth:
+#          Secret: "MLFs4TT99kOOq8h3UAVRtYoCTDYXiRcZ" # Please change this secret for your setup
+#          Provider:
+#            Url: "https://keycloak.indigoeln.local:8443/realms/indigo-eln"
+#            ClientId: "indigo-eln-client"
+#            ClientSecret: "<YourClientSecret>"
+#            UsePkce: true # Or use PKCE if your Provider supports this
+#            InsecureSkipVerify: true
+#          Scopes: [ "openid", "profile", "email" ]
+
+#        keycloakopenid:
+#          KeycloakURL: "https://keycloak.indigoeln.local:8443"
+#          KeycloakURL: "http://keycloak.indigoeln.local:8080"
+#          ClientID: "indigo-eln-client"
+#          ClientSecret: "secret"
+#          KeycloakRealm: "indigo-eln"
+#          UseAuthHeader: "true"
+#          IgnorePathPrefixes: "/api,/favicon.ico [comma deliminated] (optional)"
