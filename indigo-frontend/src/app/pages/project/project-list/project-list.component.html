@@ -1,0 +1,45 @@
+<eln-list-header (viewChange)="selectedView = $any($event)" />
+<div
+  *ngIf="data$ | async as data"
+  [@viewChange]="selectedView"
+  [ngClass]="{
+    'grid gap-x-4 mt-5 gap-y-4': true,
+    'grid-cols-1': selectedView === 'list',
+    'md:grid-cols-2 2xl:grid-cols-3': selectedView === 'grid',
+  }"
+>
+  @for (project of data; track project.id) {
+    <eln-project-item [project]="project" [variant]="selectedView" />
+  }
+  <eln-infinite-loader
+    [classNames]="
+      {
+        'col-span-1': selectedView == 'list',
+        '2xl:col-span-3 md:col-span-2': selectedView == 'grid',
+      } | classPicker
+    "
+    (infiniteLoad)="infiniteLoad()"
+  />
+</div>
+
+<!-- TODO revert when experiments will be implemented -->
+
+<!--<eln-button-->
+<!--  *projectOverviewWidget="'button'"-->
+<!--  variant="blue"-->
+<!--  classList="flex items-center gap-2"-->
+<!--  (click)="openExperimentModal()"-->
+<!--&gt;-->
+<!--  <em class="text-xl indicon-plus"></em>-->
+<!--  <span class="whitespace-nowrap">Add Experiment</span>-->
+<!--</eln-button>-->
+
+<eln-button
+  *projectOverviewWidget="'button'"
+  variant="blue"
+  classList="flex items-center gap-2"
+  (click)="openModal()"
+>
+  <em class="text-xl indicon-plus"></em>
+  <span class="whitespace-nowrap">Add Project</span>
+</eln-button>

@@ -1,0 +1,9 @@
+<div class="flex justify-between items-center my-4">
+  <eln-toggle label="My Entities" />
+  <eln-button-toggle
+    [(ngModel)]="selectedView"
+    [options]="viewOptions"
+    variant="alpha"
+    (ngModelChange)="viewChange.emit($event)"
+  />
+</div>

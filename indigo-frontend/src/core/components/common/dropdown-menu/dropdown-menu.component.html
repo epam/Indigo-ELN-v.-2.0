@@ -1,0 +1,46 @@
+<div #dropdownContainer class="dd-container relative text-sm">
+  <div
+    class="dd-trigger relative inline-flex items-center gap-2 rounded-lg px-3 py-2 transition-colors duration-200 cursor-pointer select-none hover:bg-neutral-100 active:bg-neutral-200"
+    [class.bg-neutral-100]="isOpen"
+    (click)="toggleDropdown($event)"
+  >
+    <em *ngIf="selected" class="indicon-check text-primary-400"></em>
+    <span>{{ selected || 'Select Item' }}</span>
+    <em
+      class="indicon-chevron_down ml-auto transition-transform duration-200"
+      [class.rotate-180]="isOpen"
+    ></em>
+  </div>
+
+  @if (isOpen) {
+    <ul
+      #dropdownList
+      [@dropdownAnimation]
+      class="absolute py-1 bg-neutral border border-neutral-300 rounded-lg shadow-lg z-50 whitespace-nowrap"
+      [class.top-full]="dropdownDirection === 'down'"
+      [class.bottom-full]="dropdownDirection === 'up'"
+      [class.mt-1]="dropdownDirection === 'down'"
+      [class.mb-1]="dropdownDirection === 'up'"
+      [class.left-0]="dropdownAlignment === 'left'"
+      [class.right-0]="dropdownAlignment === 'right'"
+    >
+      @for (item of items; track item) {
+        <li
+          class="px-3 py-2 flex items-center gap-2 text-neutral-1000 text-sm hover:bg-neutral-100"
+          [class.bg-primary-alpha-10]="item.label === selected"
+          [class.text-primary-400]="item.label === selected"
+          [class.opacity-50]="item.disabled"
+          [class.cursor-not-allowed]="item.disabled"
+          [class.cursor-pointer]="!item.disabled"
+          (click)="!item.disabled && selectItem(item, $event)"
+        >
+          <em *ngIf="item.icon" [class]="item.icon"></em>
+          {{ item.label }}
+          @if (item.label === selected) {
+            <em class="indicon-check-circle ml-auto"></em>
+          }
+        </li>
+      }
+    </ul>
+  }
+</div>

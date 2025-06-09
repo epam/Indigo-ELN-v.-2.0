@@ -1,0 +1,56 @@
+<ng-template #modalTemplate>
+  <div
+    class="modal-backdrop fixed inset-0 flex items-center justify-center p-4 z-50"
+    (click)="onBackdropClick($event)"
+    (keydown)="onKeydown($event)"
+  >
+    <div
+      class="modal-container bg-white rounded-lg shadow-lg overflow-hidden flex flex-col max-h-[90vh] max-w-full"
+      [class]="
+        {
+          'w-[800px] h-[400px]': size == 'large',
+          'w-[600px] h-[400px]': size == 'medium',
+          'w-[400px] h-[400px]': size == 'small',
+          'w-auto h-auto': size == 'auto',
+        } | classPicker
+      "
+      (click)="$event.stopPropagation()"
+    >
+      <div
+        class="modal-header p-4 border-b border-neutral-200 flex justify-between items-center"
+      >
+        @if (modalHeader) {
+          <ng-container *ngTemplateOutlet="modalHeader"></ng-container>
+        } @else {
+          <h2 class="text-lg font-semibold text-neutral-900">{{ title }}</h2>
+        }
+
+        <ng-template #defaultHeader>
+          <h2 class="text-lg font-semibold text-neutral-900">{{ title }}</h2>
+        </ng-template>
+
+        @if (showCloseButton) {
+          <button
+            class="text-neutral-500 hover:text-neutral-700 focus:outline-none cursor-pointer"
+            (click)="close('close')"
+          >
+            <em class="indicon-close text-lg"></em>
+          </button>
+        }
+      </div>
+
+      <div class="modal-content p-4 overflow-y-auto flex-grow">
+        <ng-content></ng-content>
+        @if (modalContent) {
+          <ng-container *ngTemplateOutlet="modalContent"></ng-container>
+        }
+      </div>
+
+      @if (modalFooter) {
+        <div class="modal-footer p-4 border-t border-neutral-200">
+          <ng-container *ngTemplateOutlet="modalFooter"></ng-container>
+        </div>
+      }
+    </div>
+  </div>
+</ng-template>
