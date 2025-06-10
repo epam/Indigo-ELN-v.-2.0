@@ -19,8 +19,10 @@ WORKDIR /work/
 RUN chown 1001 /work \
     && chmod "g+rwX" /work \
     && chown 1001:root /work
-COPY --chown=1001:root --from=builder build/native-libs/* /work/nativelibs
-COPY --chown=1001:root --from=builder build/*-runner /work/application
+#COPY --chown=1001:root --from=builder build/native-libs/* /work/nativelibs
+#COPY --chown=1001:root --from=builder build/*-runner /work/application
+COPY --chown=1001:root build/nativelibs/* /work/nativelibs
+COPY --chown=1001:root build/*runner* /work/application
 
 EXPOSE 8080
 USER 1001
