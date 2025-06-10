@@ -1,7 +1,7 @@
 # to run lambda container locally
 services:
   postgres:
-    image: indigoeln-postgres-bingo
+    image: public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres:latest
     environment:
       - POSTGRES_USER=quarkus
       - POSTGRES_PASSWORD=quarkus
