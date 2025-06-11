@@ -8,11 +8,12 @@ import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subject } from 'rxjs';
+import { of, Subject, take } from 'rxjs';
 import { takeUntil, catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
 import { FileUploadComponent } from "@/core/components/common/file-upload/file-upload.component";
 import { Attachment } from '@/core/types/entities/attachment.i';
+import { MatDialog } from '@angular/material/dialog';
+import { ProjectAddComponent } from '../project-add/project-add.component';
 
 @Component({
   selector: 'eln-project-info',
@@ -30,14 +31,20 @@ import { Attachment } from '@/core/types/entities/attachment.i';
 })
 export class ProjectInfoComponent implements OnInit, OnDestroy {
   activatedRoute = inject(ActivatedRoute);
-  private destroy$ = new Subject<void>();
 
-  constructor(protected service: ApiService<Project>) { }
+  dialog = inject(MatDialog);
+
+  service = inject(ApiService);
 
   project: Project | null = null;
+
   isLoading = false;
+
   hasError = false;
+
   isUploadingAttachment = false;
+
+  private destroy$ = new Subject<void>();
 
   ngOnInit() {
     this.activatedRoute.params
@@ -120,4 +127,29 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
         },
       });
   }
+
+    async openEditDialog() {
+      const ref = this.dialog.open(ProjectAddComponent, {
+        data: {
+          project: this.project,
+        },
+      });
+      ref
+        .afterClosed()
+        .pipe(
+          take(1)
+        )
+        .subscribe((result) => {
+            if (result === 'refresh') {
+              this.service
+                .request('get', `projects/${this.project.id}`)
+                .pipe(take(1))
+                .subscribe((project) => {
+                    this.project = project as typeof this.project;
+                  }
+                );
+            }
+          }
+        );
+    }
 }
