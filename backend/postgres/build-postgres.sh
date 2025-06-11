@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
 
-docker build . -t indigoeln-postgres-bingo
+podman build --arch amd64 . -t indigoeln-postgres-bingo
