@@ -29,6 +29,7 @@ public abstract class BaseTest {
     protected ExperimentsClient experimentsClient;
     protected TemplatesClient templatesClient;
     protected MiscClient miscClient;
+    protected UsersClient usersClient;
 
     protected TestHelper testHelper;
 
@@ -48,9 +49,10 @@ public abstract class BaseTest {
         experimentsClient = FeignUtil.buildFeignClient(baseURL, ExperimentsClient.class, username, authorization);
         templatesClient = FeignUtil.buildFeignClient(baseURL, TemplatesClient.class, username, authorization);
         miscClient = FeignUtil.buildFeignClient(baseURL, MiscClient.class, username, authorization);
+        usersClient = FeignUtil.buildFeignClient(baseURL, UsersClient.class, username, authorization);
 
         miscClient.migrate(); // TODO remove, not needed?
-        testHelper = new TestHelper(miscClient);
+        testHelper = new TestHelper(usersClient, miscClient);
         testHelper.createTestUsers();
     }
 

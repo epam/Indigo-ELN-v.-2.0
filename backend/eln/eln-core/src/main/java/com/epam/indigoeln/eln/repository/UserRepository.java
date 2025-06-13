@@ -1,17 +1,17 @@
 package com.epam.indigoeln.eln.repository;
 
 import com.epam.indigoeln.eln.entity.UserEntity;
-import com.epam.indigoeln.eln.mapper.ProjectMapper;
-import com.epam.indigoeln.eln.model.EntityType;
-import com.epam.indigoeln.eln.model.Paging;
-import com.epam.indigoeln.eln.model.UserRef;
+import com.epam.indigoeln.eln.mapper.UserMapper;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.Conditions;
+import com.epam.indigoeln.eln.util.ListWithTotal;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 
 @ApplicationScoped
 public class UserRepository extends BaseRepository<UserEntity> {
@@ -19,7 +19,7 @@ public class UserRepository extends BaseRepository<UserEntity> {
     protected static final Sort USER_SORT = io.quarkus.panache.common.Sort.by("displayName");
 
     @Inject
-    ProjectMapper projectMapper;
+    UserMapper userMapper;
 
     public UserRepository() {
         super(EntityType.USER);
@@ -36,7 +36,27 @@ public class UserRepository extends BaseRepository<UserEntity> {
                 paging,
                 USER_SORT,
                 null,
-                projectMapper::userRef
+                userMapper::userRef
         );
     }
+
+    public UserDetailsDTO loadDetails(UUID id) {
+        return doLoadDetails(
+                id,
+                em.getEntityGraph("User.details"),
+                userMapper::entityToDetailsDTO
+        );
+    }
+
+    public ListWithTotal<UserDTO> findAll(@jakarta.annotation.Nullable String search, Paging paging) {
+        return doFindWithTotals(
+                new Conditions()
+                        .addIfNotNull("full_text_search(searchVector, to_tsquery('english', ?))", search),
+                paging,
+                DEFAULT_SORT,
+                em.getEntityGraph("Project.list"),
+                userMapper::entityToDTO
+        );
+    }
+
 }

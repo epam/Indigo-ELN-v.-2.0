@@ -3,16 +3,16 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.common.config.UserInfo;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.entity.UserEntity;
-import com.epam.indigoeln.eln.mapper.ProjectMapper;
-import com.epam.indigoeln.eln.model.ApplicationRole;
-import com.epam.indigoeln.eln.model.Paging;
-import com.epam.indigoeln.eln.model.UserRef;
+import com.epam.indigoeln.eln.mapper.UserMapper;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,7 @@ public class UserService {
     @Inject
     Provider<UserContext> userContext;
     @Inject
-    ProjectMapper projectMapper;
+    UserMapper userMapper;
 
     public UserEntity getCurrentUser() {
         UserEntity user = userContext.get().getCurrentUser();
@@ -57,16 +57,23 @@ public class UserService {
         return user;
     }
 
-    public UserEntity getUser(UUID id) {
-        return userRepository.get(id);
+    public UserDetailsDTO getUser(UUID id) {
+        return userRepository.loadDetails(id);
     }
 
     public List<UserRef> suggestUsers(@Nullable String search, Paging paging) {
         return userRepository.suggest(search, paging);
     }
 
-    public UserRef convertToRef(UserEntity user) {
-        return projectMapper.userRef(user);
+    public @NotNull @Valid UserDetailsDTO createUser(UserRequest request) {
+        var entity = userMapper.requestToUser(request);
+        userRepository.persist(entity);
+        return userMapper.entityToDetailsDTO(entity);
+    }
+
+    public @NotNull @Valid Page<UserDTO> getUsers(String search, Paging paging) {
+        var list = userRepository.findAll(search, paging);
+        return Page.of(paging, list.total(), list.list());
     }
 
     @Getter

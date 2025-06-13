@@ -1,17 +1,14 @@
-package com.epam.indigoeln.eln.api;
+package com.epam.indigoeln.eln.model;
 
-import com.epam.indigoeln.eln.model.ApplicationRole;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public
-class CreateUserForm {
+@AllArgsConstructor(onConstructor_ = @JsonCreator)
+public class UserRequest {
 
     @NotEmpty
     private String username;

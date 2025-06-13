@@ -1,8 +1,9 @@
 package com.epam.indigoeln.eln.util;
 
-import com.epam.indigoeln.eln.api.CreateUserForm;
 import com.epam.indigoeln.eln.client.MiscClient;
+import com.epam.indigoeln.eln.client.UsersClient;
 import com.epam.indigoeln.eln.model.ApplicationRole;
+import com.epam.indigoeln.eln.model.UserRequest;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
@@ -40,7 +41,8 @@ public class TestHelper {
     public static final String LISA_DISPLAY_NAME = "Lisa Green";
     public static final ApplicationRole[] LISA_ROLES = {ApplicationRole.TEMPLATE_EDITOR};
 
-    private final MiscClient client;
+    private final UsersClient usersClient;
+    private final MiscClient miscClient;
 
     @Getter
     private UUID johnUserID;
@@ -52,13 +54,13 @@ public class TestHelper {
     private UUID lisaUserID;
 
     public void cleanupDatabase() {
-        client.cleanupDatabase();
+        miscClient.cleanupDatabase();
     }
 
     public void createTestUsers() {
-        johnUserID = client.getOrCreateUser(new CreateUserForm(TestHelper.JOHN_USERNAME, TestHelper.JOHN_FIRST_NAME, TestHelper.JOHN_LAST_NAME, TestHelper.JOHN_ROLES)).getId();
-        willowUserID = client.getOrCreateUser(new CreateUserForm(TestHelper.WILLOW_USERNAME, TestHelper.WILLOW_FIRST_NAME, TestHelper.WILLOW_LAST_NAME, TestHelper.WILLOW_ROLES)).getId();
-        bartUserID = client.getOrCreateUser(new CreateUserForm(TestHelper.BART_USERNAME, TestHelper.BART_FIRST_NAME, TestHelper.BART_LAST_NAME, TestHelper.BART_ROLES)).getId();
-        lisaUserID = client.getOrCreateUser(new CreateUserForm(TestHelper.LISA_USERNAME, TestHelper.LISA_FIRST_NAME, TestHelper.LISA_LAST_NAME, TestHelper.LISA_ROLES)).getId();
+        johnUserID = usersClient.createUser(new UserRequest(TestHelper.JOHN_USERNAME, TestHelper.JOHN_FIRST_NAME, TestHelper.JOHN_LAST_NAME, TestHelper.JOHN_ROLES)).getId();
+        willowUserID = usersClient.createUser(new UserRequest(TestHelper.WILLOW_USERNAME, TestHelper.WILLOW_FIRST_NAME, TestHelper.WILLOW_LAST_NAME, TestHelper.WILLOW_ROLES)).getId();
+        bartUserID = usersClient.createUser(new UserRequest(TestHelper.BART_USERNAME, TestHelper.BART_FIRST_NAME, TestHelper.BART_LAST_NAME, TestHelper.BART_ROLES)).getId();
+        lisaUserID = usersClient.createUser(new UserRequest(TestHelper.LISA_USERNAME, TestHelper.LISA_FIRST_NAME, TestHelper.LISA_LAST_NAME, TestHelper.LISA_ROLES)).getId();
     }
 }
