@@ -12,10 +12,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Path(BaseAPI.BASE_PATH)
 public class ExperimentsResource implements ExperimentsAPI {
 
@@ -87,7 +90,8 @@ public class ExperimentsResource implements ExperimentsAPI {
     }
 
     @Override
-    public ExperimentModel mutateExperimentModel(UUID experimentId, MutateModelForm modelAndMutation) {
-        return experimentService.mutateModel(experimentId, modelAndMutation.getModel(), modelAndMutation.getMutation());
+    public Map<String, String> mutateExperimentModel(UUID experimentId, MutateModelForm modelAndMutation) {
+        String modelStr = experimentService.mutateModel(experimentId, modelAndMutation.getModel(), modelAndMutation.getMutation());
+        return Map.of("data", modelStr);
     }
 }

@@ -38,7 +38,7 @@ public abstract class BaseTest {
     void setupAllBase() throws Exception {
         System.out.println("BaseTest.setupAllBase: " + serverURL);
         if (integrationTest) {
-            serverURL = URI.create("http://localhost:8081");
+            serverURL = URI.create("http://localhost:8082"); // !!! 8081
         }
         URI baseURL = serverURL.resolve("/");
 

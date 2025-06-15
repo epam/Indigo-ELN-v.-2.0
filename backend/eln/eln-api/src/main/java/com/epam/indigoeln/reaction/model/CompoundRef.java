@@ -3,6 +3,7 @@ package com.epam.indigoeln.reaction.model;
 import com.epam.indigoeln.eln.model.DictionaryRef;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.MoreObjects;
@@ -116,6 +117,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
 
         @Override
         @Nullable
+        @JsonIgnore
         public String getMolFile() {
             return null;
         }

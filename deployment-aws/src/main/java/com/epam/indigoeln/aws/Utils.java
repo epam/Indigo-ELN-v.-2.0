@@ -3,12 +3,12 @@ package com.epam.indigoeln.aws;
 import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.services.ec2.ISecurityGroup;
+import software.amazon.awscdk.services.ecr.IRepository;
 import software.amazon.awscdk.services.iam.ManagedPolicy;
 import software.amazon.awscdk.services.iam.Role;
 import software.amazon.awscdk.services.iam.ServicePrincipal;
 import software.amazon.awscdk.services.lambda.Runtime;
 import software.amazon.awscdk.services.lambda.*;
-import software.amazon.awscdk.services.s3.assets.AssetOptions;
 import software.constructs.Construct;
 
 import java.io.*;
@@ -42,16 +42,17 @@ public class Utils {
         }
     }
 
-    public static Function createQuarkusFunction(Construct parent, ELNLambdaStack.Props props, String id, File functionCode, ISecurityGroup securityGroup, Map<String, String> environment) {
+    public static Function createQuarkusFunction(Construct parent, ELNLambdaStack.Props props, String id, /*File functionCode, */IRepository repository, String image, ISecurityGroup securityGroup, Map<String, String> environment) {
         environment = new HashMap<>(environment);
 //        environment.putIfAbsent("JAVA_TOOL_OPTIONS", "-XX:+TieredCompilation -XX:TieredStopAtLevel=1");
         return Function.Builder.create(parent, id)
                 .vpc(props.getVpc())
                 .allowPublicSubnet(true)
                 .securityGroups(List.of(securityGroup))
-                .runtime(Runtime.PROVIDED_AL2023)
-                .code(Code.fromAsset(functionCode.getPath(), AssetOptions.builder().assetHash(Utils.calculateHashCode(functionCode)).build()))
-                .handler("ignored") // not used in Provided runtime
+                .runtime(Runtime.FROM_IMAGE)
+                .code(Code.fromEcrImage(repository, EcrImageCodeProps.builder().tagOrDigest(image).build()))
+//                .code(Code.fromAsset(functionCode.getPath(), AssetOptions.builder().assetHash(Utils.calculateHashCode(functionCode)).build()))
+                .handler(Handler.FROM_IMAGE)
                 .role(Role.Builder.create(parent, id + "-role")
                                 .assumedBy(ServicePrincipal.fromStaticServicePrincipleName("lambda.amazonaws.com"))
                                 .managedPolicies(List.of(
@@ -61,8 +62,8 @@ public class Utils {
                                 .build()
                 )
                 .environment(environment)
-                .memorySize(1024) // !!! 128
-                .timeout(Duration.seconds(120)) // !!! 15 seconds
+                .memorySize(1024)
+                .timeout(Duration.seconds(120))
                 .currentVersionOptions(VersionOptions.builder().removalPolicy(RemovalPolicy.DESTROY).build())
                 .tracing(Tracing.ACTIVE)
                 .build();

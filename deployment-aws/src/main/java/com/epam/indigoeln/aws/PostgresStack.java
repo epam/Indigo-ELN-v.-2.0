@@ -32,7 +32,7 @@ public class PostgresStack extends NestedStack {
                 .build();
 
         postgresTask.addContainer("ecs-task-postgres-container", ContainerDefinitionOptions.builder()
-                .image(ContainerImage.fromRegistry("public.ecr.aws/docker/library/postgres:17.4"))
+                .image(ContainerImage.fromRegistry("public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres:" + props.getPostgresImageTag())) // TODO take repo name from BuildStack
                 .environment(mapOf(
                         "POSTGRES_USER", Credentials.fromSecret(dbSecret).getUsername(),
                         "POSTGRES_PASSWORD", Credentials.fromSecret(dbSecret).getPassword().unsafeUnwrap()
@@ -55,5 +55,7 @@ public class PostgresStack extends NestedStack {
 
         String postgresMasterUsername;
         ICluster ecsCluster;
+        String postgresRepoName;
+        String postgresImageTag;
     }
 }

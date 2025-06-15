@@ -4,6 +4,7 @@ import lombok.Value;
 import org.jetbrains.annotations.Nullable;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
+import software.amazon.awscdk.services.ecr.Repository;
 import software.amazon.awscdk.services.rds.Credentials;
 import software.constructs.Construct;
 
@@ -22,10 +23,15 @@ public class MainStack extends Stack {
                 parameters.getSecurityGroups()
         ));
 
+        BuildStack buildStack = new BuildStack(this, "build-stack", new BuildStack.Props());
+
         PostgresStack postgresStack = new PostgresStack(this, "postgres-stack", new PostgresStack.Props(
                 parameters.getPostgresMasterUsername(),
-                infraStack.getEcsCluster()
+                infraStack.getEcsCluster(),
+                buildStack.getPostgresRepoName(),
+                parameters.getPostgresImageTag()
         ));
+        postgresStack.addDependency(buildStack);
         postgresStack.addDependency(infraStack);
 
         CognitoStack cognitoStack = new CognitoStack(this, "cognito-stack", new CognitoStack.Props(
@@ -39,8 +45,11 @@ public class MainStack extends Stack {
                 Credentials.fromSecret(postgresStack.getDbSecret()),
                 infraStack.getLambdaSecurityGroup(),
                 cognitoStack.getUserPool(),
-                cognitoStack.getUserPoolClient()
+                cognitoStack.getUserPoolClient(),
+                Repository.fromRepositoryName(this, "eln-lambda-ecr-ref", buildStack.getElnLambdaRepoName()),
+                parameters.getElnLambdaImageTag()
         ));
+        elnLambdaStack.addDependency(buildStack);
         elnLambdaStack.addDependency(infraStack);
         elnLambdaStack.addDependency(postgresStack);
 

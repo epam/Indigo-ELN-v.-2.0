@@ -14,13 +14,9 @@ public enum ApplicationRole {
     CONTENT_EDITOR(EnumSet.of(
             AccessOperation.VIEW,
             AccessOperation.EDIT,
-            AccessOperation.MANAGE_ATTACHMENTS,
             AccessOperation.CREATE_PROJECT,
-            AccessOperation.LIST_NOTEBOOKS,
             AccessOperation.CREATE_NOTEBOOK,
-            AccessOperation.LIST_EXPERIMENTS,
-            AccessOperation.CREATE_EXPERIMENT,
-            AccessOperation.MARK_EXPERIMENT
+            AccessOperation.CREATE_EXPERIMENT
     )),
     TEMPLATE_EDITOR(EnumSet.of(
             AccessOperation.CREATE_TEMPLATE,

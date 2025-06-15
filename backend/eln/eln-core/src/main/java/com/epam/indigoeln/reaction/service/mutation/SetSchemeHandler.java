@@ -1,7 +1,6 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
-import com.epam.indigo.IndigoObject;
-import com.epam.indigoeln.compound.config.IndigoAPI;
+import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -21,51 +20,34 @@ public class SetSchemeHandler extends AbstractMutationHandler {
     IndigoAPI indigo;
 
     public void handle(ExperimentModel model, ReactionMutation.SetScheme mutation) {
-        log.debug("!!! Applying SetScheme mutation: {}", mutation);
         Reaction reaction = model.getReactions().get(mutation.reactionNo());
         reaction.setMolFile(mutation.molFile());
         // TODO match into existing inputs/outputs
         reaction.setInputs(new ArrayList<>());
         reaction.setOutputs(new ArrayList<>());
 
-        log.debug("!!! before indigo");
-        IndigoObject indigoReaction = indigo.loadReaction(mutation.molFile());
-        log.debug("!!! after indigo");
-        for (IndigoObject iter = indigoReaction.iterateReactants(); iter.hasNext(); ) {
-            log.debug("!!! indigo 1");
-            IndigoObject reactant = iter.next();
-            log.debug("!!! indigo 2");
-            reaction.getInputs().add(createInputLine(reaction, reactant, ReactionInputRole.REACTANT));
-            log.debug("!!! indigo 3");
-        }
-        log.debug("!!! indigo 4");
-        for (IndigoObject iter = indigoReaction.iterateCatalysts(); iter.hasNext(); ) {
-            log.debug("!!! indigo 5");
-            IndigoObject catalyst = iter.next();
-            log.debug("!!! indigo 6");
-            reaction.getInputs().add(createInputLine(reaction, catalyst, ReactionInputRole.CATALYST));
-            log.debug("!!! indigo 7");
-        }
-        log.debug("!!! indigo 8");
-        for (IndigoObject iter = indigoReaction.iterateProducts(); iter.hasNext(); ) {
-            log.debug("!!! indigo 9");
-            IndigoObject product = iter.next();
-            log.debug("!!! indigo 10");
-            reaction.getOutputs().add(createOutputLine(reaction, product));
-            log.debug("!!! indigo 11");
-        }
-        log.debug("!!! indigo 12");
-        if (!reaction.getInputs().isEmpty() && reaction.getLimitingInput() == null) {
-            reaction.getInputs().getFirst().setLimiting(true);
-        }
-        log.debug("!!! indigo 13");
+        indigo.withSession(indigoSession -> {
+            IndigoAPI.IndigoReaction indigoReaction = indigoSession.loadReaction(mutation.molFile());
+            for (IndigoAPI.IndigoMolecule reactant : indigoReaction.reactants()) {
+                reaction.getInputs().add(createInputLine(reaction, reactant, ReactionInputRole.REACTANT));
+            }
+            for (IndigoAPI.IndigoMolecule catalyst : indigoReaction.catalysts()) {
+                reaction.getInputs().add(createInputLine(reaction, catalyst, ReactionInputRole.CATALYST));
+            }
+            for (IndigoAPI.IndigoMolecule product : indigoReaction.products()) {
+                reaction.getOutputs().add(createOutputLine(reaction, product));
+            }
+            if (!reaction.getInputs().isEmpty() && reaction.getLimitingInput() == null) {
+                reaction.getInputs().getFirst().setLimiting(true);
+            }
+        });
     }
 
-    private ReactionInput createInputLine(Reaction reaction, IndigoObject indigoObject, ReactionInputRole role) {
+    private ReactionInput createInputLine(Reaction reaction, IndigoAPI.IndigoMolecule molecule, ReactionInputRole role) {
         ReactionInput row = new ReactionInput();
         row.setReaction(reaction);
         row.setRole(role);
-        row.setCompound(virtualCompoundRef(indigoObject));
+        row.setCompound(virtualCompoundRef(molecule));
         row.setEq(DEFAULT_ONE);
         ReactionInputSample reactionInputSample = new ReactionInputSample();
         reactionInputSample.setRow(row);
@@ -74,10 +56,10 @@ public class SetSchemeHandler extends AbstractMutationHandler {
         return row;
     }
 
-    private ReactionOutput createOutputLine(Reaction reaction, IndigoObject indigoObject) {
+    private ReactionOutput createOutputLine(Reaction reaction, IndigoAPI.IndigoMolecule molecule) {
         ReactionOutput row = new ReactionOutput();
         row.setReaction(reaction);
-        row.setCompound(virtualCompoundRef(indigoObject));
+        row.setCompound(virtualCompoundRef(molecule));
         row.setEq(DEFAULT_ONE);
         boolean hasFinalProduct = false;
         for (ReactionOutput output : reaction.getOutputs()) {
