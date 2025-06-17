@@ -98,7 +98,7 @@ public class ExperimentService {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, AccessOperation.MANAGE_PERMISSIONS);
         for (AccessForm item : form) {
-            UserEntity user = userService.getUser(item.getUserID());
+            UserEntity user = userService.getUserEntity(item.getUserID());
             aclService.updateExperimentACL(experiment.getNotebook().getProject(), experiment.getNotebook(), experiment, user, item.getLevel());
         }
         return experimentMapper.convertACLMap(experiment.getAclEntities());

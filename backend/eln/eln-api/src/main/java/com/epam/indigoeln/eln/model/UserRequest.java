@@ -14,6 +14,9 @@ public class UserRequest {
     private String username;
 
     @Nullable
+    private String displayName;
+
+    @Nullable
     private String firstName;
 
     @Nullable

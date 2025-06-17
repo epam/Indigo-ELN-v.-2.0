@@ -61,6 +61,10 @@ public class UserService {
         return userRepository.loadDetails(id);
     }
 
+    public UserEntity getUserEntity(@NotNull UUID userID) {
+        return userRepository.get(userID);
+    }
+
     public List<UserRef> suggestUsers(@Nullable String search, Paging paging) {
         return userRepository.suggest(search, paging);
     }

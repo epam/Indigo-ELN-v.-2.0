@@ -58,9 +58,9 @@ public class TestHelper {
     }
 
     public void createTestUsers() {
-        johnUserID = usersClient.createUser(new UserRequest(TestHelper.JOHN_USERNAME, TestHelper.JOHN_FIRST_NAME, TestHelper.JOHN_LAST_NAME, TestHelper.JOHN_ROLES)).getId();
-        willowUserID = usersClient.createUser(new UserRequest(TestHelper.WILLOW_USERNAME, TestHelper.WILLOW_FIRST_NAME, TestHelper.WILLOW_LAST_NAME, TestHelper.WILLOW_ROLES)).getId();
-        bartUserID = usersClient.createUser(new UserRequest(TestHelper.BART_USERNAME, TestHelper.BART_FIRST_NAME, TestHelper.BART_LAST_NAME, TestHelper.BART_ROLES)).getId();
-        lisaUserID = usersClient.createUser(new UserRequest(TestHelper.LISA_USERNAME, TestHelper.LISA_FIRST_NAME, TestHelper.LISA_LAST_NAME, TestHelper.LISA_ROLES)).getId();
+        johnUserID = usersClient.createUser(new UserRequest(TestHelper.JOHN_USERNAME, TestHelper.JOHN_DISPLAY_NAME, TestHelper.JOHN_FIRST_NAME, TestHelper.JOHN_LAST_NAME, TestHelper.JOHN_ROLES)).getId();
+        willowUserID = usersClient.createUser(new UserRequest(TestHelper.WILLOW_USERNAME, TestHelper.WILLOW_DISPLAY_NAME, TestHelper.WILLOW_FIRST_NAME, TestHelper.WILLOW_LAST_NAME, TestHelper.WILLOW_ROLES)).getId();
+        bartUserID = usersClient.createUser(new UserRequest(TestHelper.BART_USERNAME, TestHelper.BART_DISPLAY_NAME, TestHelper.BART_FIRST_NAME, TestHelper.BART_LAST_NAME, TestHelper.BART_ROLES)).getId();
+        lisaUserID = usersClient.createUser(new UserRequest(TestHelper.LISA_USERNAME, TestHelper.LISA_DISPLAY_NAME, TestHelper.LISA_FIRST_NAME, TestHelper.LISA_LAST_NAME, TestHelper.LISA_ROLES)).getId();
     }
 }

@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.eln.entity.UserEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -15,25 +16,24 @@ public class CognitoService {
     @ConfigProperty(name = "aws.cognito.user-pool-id")
     String userPoolId;
 
-    public String createUser(String username, String email, String tempPassword) {
-        AdminCreateUserRequest request = AdminCreateUserRequest.builder()
+    public String createUser(UserEntity user) {
+        var request = AdminCreateUserRequest.builder()
                 .userPoolId(userPoolId)
-                .username(username)
-                .temporaryPassword(tempPassword)
+                .username(user.getUsername())
                 .userAttributes(
-                        AttributeType.builder().name("email").value(email).build(),
+                        AttributeType.builder().name("email").value(user.getUsername()).build(),
                         AttributeType.builder().name("email_verified").value("true").build()
                 )
                 .build();
 
-        AdminCreateUserResponse response = cognitoClient.adminCreateUser(request);
+        var response = cognitoClient.adminCreateUser(request);
         return response.user().username();
     }
 
-    public void updateUser(String username, String attributeName, String attributeValue) {
-        AdminUpdateUserAttributesRequest request = AdminUpdateUserAttributesRequest.builder()
+    public void updateUser(String email, String attributeName, String attributeValue) {
+        var request = AdminUpdateUserAttributesRequest.builder()
                 .userPoolId(userPoolId)
-                .username(username)
+                .username(email)
                 .userAttributes(
                         AttributeType.builder().name(attributeName).value(attributeValue).build()
                 )
@@ -42,46 +42,46 @@ public class CognitoService {
         cognitoClient.adminUpdateUserAttributes(request);
     }
 
-    public void deleteUser(String username) {
-        AdminDeleteUserRequest request = AdminDeleteUserRequest.builder()
+    public void deleteUser(String email) {
+        var request = AdminDeleteUserRequest.builder()
                 .userPoolId(userPoolId)
-                .username(username)
+                .username(email)
                 .build();
 
         cognitoClient.adminDeleteUser(request);
     }
 
-    public void disableUser(String username) {
-        AdminDisableUserRequest request = AdminDisableUserRequest.builder()
+    public void disableUser(String email) {
+        var request = AdminDisableUserRequest.builder()
                 .userPoolId(userPoolId)
-                .username(username)
+                .username(email)
                 .build();
 
         cognitoClient.adminDisableUser(request);
     }
 
-    public void enableUser(String username) {
-        AdminEnableUserRequest request = AdminEnableUserRequest.builder()
+    public void enableUser(String email) {
+        var request = AdminEnableUserRequest.builder()
                 .userPoolId(userPoolId)
-                .username(username)
+                .username(email)
                 .build();
 
         cognitoClient.adminEnableUser(request);
     }
 
-    public AdminGetUserResponse getUser(String username) {
-        AdminGetUserRequest request = AdminGetUserRequest.builder()
+    public AdminGetUserResponse getUser(String email) {
+        var request = AdminGetUserRequest.builder()
                 .userPoolId(userPoolId)
-                .username(username)
+                .username(email)
                 .build();
 
         return cognitoClient.adminGetUser(request);
     }
 
-    public void resetPassword(String username) {
-        AdminResetUserPasswordRequest request = AdminResetUserPasswordRequest.builder()
+    public void resetPassword(String email) {
+        var request = AdminResetUserPasswordRequest.builder()
                 .userPoolId(userPoolId)
-                .username(username)
+                .username(email)
                 .build();
 
         cognitoClient.adminResetUserPassword(request);

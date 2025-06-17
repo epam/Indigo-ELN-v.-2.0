@@ -25,10 +25,6 @@ public interface UsersAPI extends BaseAPI {
     @Path("/users/{userId}")
     UserDetailsDTO getUser(@PathParam("userId") UUID userId);
 
-    @PATCH
-    @Path("/users/{userId}")
-    UserDetailsDTO editUser(@PathParam("userId") UUID userId, UserRequest request);
-
     @POST
     @Path("/users/{userId}/access")
     List<ACLEntryDTO> updateUserAccess(@PathParam("userId") UUID userId, List<AccessForm> form);

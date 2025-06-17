@@ -83,7 +83,7 @@ public class ProjectService {
 //        projectRepository.getEntityManager().lock(project, LockModeType.PESSIMISTIC_WRITE);
         aclService.ensureAccess(project, AccessOperation.MANAGE_PERMISSIONS);
         for (AccessForm item : form) {
-            UserEntity user = userService.getUser(item.getUserID());
+            UserEntity user = userService.getUserEntity(item.getUserID());
             aclService.updateProjectACL(project, user, item.getLevel());
         }
         return projectMapper.convertACLMap(project.getAclEntities());

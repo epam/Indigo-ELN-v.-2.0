@@ -36,12 +36,6 @@ public class UsersResource implements UsersAPI {
     }
 
     @Override
-    public @NotNull @Valid UserDetailsDTO editUser(UUID userId, UserRequest request) {
-        return null;
-    }
-
-
-    @Override
     public @NotNull @Valid List<ACLEntryDTO> updateUserAccess(UUID userId, List<AccessForm> form) {
         return List.of();
     }

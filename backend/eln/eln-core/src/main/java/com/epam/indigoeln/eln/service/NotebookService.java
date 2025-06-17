@@ -75,7 +75,7 @@ public class NotebookService {
 //        notebookRepository.getEntityManager().lock(notebook.getProject(), LockModeType.PESSIMISTIC_WRITE);
         aclService.ensureAccess(notebook, AccessOperation.MANAGE_PERMISSIONS);
         for (AccessForm item : form) {
-            UserEntity user = userService.getUser(item.getUserID());
+            UserEntity user = userService.getUserEntity(item.getUserID());
             aclService.updateNotebookACL(notebook.getProject(), notebook, user, item.getLevel());
         }
         return notebookMapper.convertACLMap(notebook.getAclEntities());
