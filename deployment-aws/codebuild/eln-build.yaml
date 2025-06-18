@@ -5,7 +5,7 @@ phases:
       java: corretto21
   pre_build:
     commands:
-      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin $REPO_URI
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
       - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
