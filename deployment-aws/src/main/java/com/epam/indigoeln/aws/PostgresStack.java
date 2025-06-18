@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Value;
 import software.amazon.awscdk.NestedStack;
 import software.amazon.awscdk.NestedStackProps;
+import software.amazon.awscdk.services.ecr.Repository;
 import software.amazon.awscdk.services.ecs.*;
 import software.amazon.awscdk.services.rds.Credentials;
 import software.amazon.awscdk.services.rds.DatabaseSecret;
@@ -32,12 +33,13 @@ public class PostgresStack extends NestedStack {
                 .build();
 
         postgresTask.addContainer("ecs-task-postgres-container", ContainerDefinitionOptions.builder()
-                .image(ContainerImage.fromRegistry("public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres:" + props.getPostgresImageTag())) // TODO take repo name from BuildStack
+                .image(ContainerImage.fromEcrRepository(props.getPostgresRepo(), props.getPostgresImageTag()))
                 .environment(mapOf(
                         "POSTGRES_USER", Credentials.fromSecret(dbSecret).getUsername(),
                         "POSTGRES_PASSWORD", Credentials.fromSecret(dbSecret).getPassword().unsafeUnwrap()
                 ))
                 .portMappings(List.of(PortMapping.builder().containerPort(5432).hostPort(5432).build()))
+                .logging(LogDriver.awsLogs(AwsLogDriverProps.builder().streamPrefix("postgres").build()))
                 .build());
 
         // TODO use EBS for persistent storage
@@ -55,7 +57,7 @@ public class PostgresStack extends NestedStack {
 
         String postgresMasterUsername;
         ICluster ecsCluster;
-        String postgresRepoName;
+        Repository postgresRepo;
         String postgresImageTag;
     }
 }

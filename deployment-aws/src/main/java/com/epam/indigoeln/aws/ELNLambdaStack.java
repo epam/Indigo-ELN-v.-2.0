@@ -13,7 +13,7 @@ import software.amazon.awscdk.services.cognito.IUserPool;
 import software.amazon.awscdk.services.cognito.IUserPoolClient;
 import software.amazon.awscdk.services.ec2.ISecurityGroup;
 import software.amazon.awscdk.services.ec2.IVpc;
-import software.amazon.awscdk.services.ecr.IRepository;
+import software.amazon.awscdk.services.ecr.Repository;
 import software.amazon.awscdk.services.lambda.Function;
 import software.amazon.awscdk.services.rds.Credentials;
 import software.constructs.Construct;
@@ -43,7 +43,7 @@ public class ELNLambdaStack extends NestedStack {
                 .build();
 
         Map<String, String> elnFunctionEnvironment = mapOf(
-                "QUARKUS_DATASOURCE_JDBC_URL", String.format("jdbc:postgresql://%s/postgres", "xxx"), // TODO
+                "QUARKUS_DATASOURCE_JDBC_URL", String.format("jdbc:postgresql://%s/%s", "xxx", props.getDbCredentials().getUsername()), // TODO
                 "QUARKUS_DATASOURCE_USERNAME", props.getDbCredentials().getUsername(),
                 "QUARKUS_DATASOURCE_PASSWORD", props.getDbCredentials().getPassword().unsafeUnwrap() // TODO retrieve credentials in lambda code
 //                , "QUARKUS_LOG_LEVEL", "DEBUG"
@@ -55,7 +55,7 @@ public class ELNLambdaStack extends NestedStack {
                 "eln-function",
 //                new File(elnBuild, "function.zip"),
                 props.getElnRepository(),
-                props.getElnLambdaImage(),
+                props.getElnImageTag(),
                 props.getLambdaSecurityGroup(),
                 elnFunctionEnvironment
         );
@@ -114,7 +114,7 @@ public class ELNLambdaStack extends NestedStack {
         ISecurityGroup lambdaSecurityGroup;
         IUserPool userPool;
         IUserPoolClient userPoolClient;
-        IRepository elnRepository;
-        String elnLambdaImage;
+        Repository elnRepository;
+        String elnImageTag;
     }
 }

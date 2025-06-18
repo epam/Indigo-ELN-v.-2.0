@@ -3,7 +3,7 @@ package com.epam.indigoeln.aws;
 import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.services.ec2.ISecurityGroup;
-import software.amazon.awscdk.services.ecr.IRepository;
+import software.amazon.awscdk.services.ecr.Repository;
 import software.amazon.awscdk.services.iam.ManagedPolicy;
 import software.amazon.awscdk.services.iam.Role;
 import software.amazon.awscdk.services.iam.ServicePrincipal;
@@ -21,6 +21,8 @@ import java.util.*;
 
 public class Utils {
 
+//    public static final Map<String, String> FUNCTION_IMAGE_URIS = new ConcurrentHashMap<>();
+//
     public static String calculateHashCode(File location) {
         try {
             List<File> files = location.isDirectory()
@@ -42,7 +44,7 @@ public class Utils {
         }
     }
 
-    public static Function createQuarkusFunction(Construct parent, ELNLambdaStack.Props props, String id, /*File functionCode, */IRepository repository, String image, ISecurityGroup securityGroup, Map<String, String> environment) {
+    public static Function createQuarkusFunction(Construct parent, ELNLambdaStack.Props props, String id, /*File functionCode, */Repository repository, String imageTag, ISecurityGroup securityGroup, Map<String, String> environment) {
         environment = new HashMap<>(environment);
 //        environment.putIfAbsent("JAVA_TOOL_OPTIONS", "-XX:+TieredCompilation -XX:TieredStopAtLevel=1");
         return Function.Builder.create(parent, id)
@@ -50,9 +52,11 @@ public class Utils {
                 .allowPublicSubnet(true)
                 .securityGroups(List.of(securityGroup))
                 .runtime(Runtime.FROM_IMAGE)
-                .code(Code.fromEcrImage(repository, EcrImageCodeProps.builder().tagOrDigest(image).build()))
-//                .code(Code.fromAsset(functionCode.getPath(), AssetOptions.builder().assetHash(Utils.calculateHashCode(functionCode)).build()))
                 .handler(Handler.FROM_IMAGE)
+                .code(Code.fromEcrImage(repository, EcrImageCodeProps.builder().tagOrDigest(imageTag).build()))
+//                .runtime(Runtime.PROVIDED_AL2023)
+//                .handler("ignored")
+//                .code(Code.fromAsset(functionCode.getPath(), AssetOptions.builder().assetHash(Utils.calculateHashCode(functionCode)).build()))
                 .role(Role.Builder.create(parent, id + "-role")
                                 .assumedBy(ServicePrincipal.fromStaticServicePrincipleName("lambda.amazonaws.com"))
                                 .managedPolicies(List.of(

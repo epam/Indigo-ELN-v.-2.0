@@ -4,7 +4,6 @@ import lombok.Value;
 import org.jetbrains.annotations.Nullable;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
-import software.amazon.awscdk.services.ecr.Repository;
 import software.amazon.awscdk.services.rds.Credentials;
 import software.constructs.Construct;
 
@@ -28,7 +27,7 @@ public class MainStack extends Stack {
         PostgresStack postgresStack = new PostgresStack(this, "postgres-stack", new PostgresStack.Props(
                 parameters.getPostgresMasterUsername(),
                 infraStack.getEcsCluster(),
-                buildStack.getPostgresRepoName(),
+                buildStack.getPostgresRepo(),
                 parameters.getPostgresImageTag()
         ));
         postgresStack.addDependency(buildStack);
@@ -46,7 +45,7 @@ public class MainStack extends Stack {
                 infraStack.getLambdaSecurityGroup(),
                 cognitoStack.getUserPool(),
                 cognitoStack.getUserPoolClient(),
-                Repository.fromRepositoryName(this, "eln-lambda-ecr-ref", buildStack.getElnLambdaRepoName()),
+                buildStack.getElnLambdaRepo(),
                 parameters.getElnLambdaImageTag()
         ));
         elnLambdaStack.addDependency(buildStack);

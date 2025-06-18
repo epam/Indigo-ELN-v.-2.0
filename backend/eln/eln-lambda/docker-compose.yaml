@@ -5,6 +5,8 @@ services:
     environment:
       - POSTGRES_USER=quarkus
       - POSTGRES_PASSWORD=quarkus
+    ports:
+      - "5432:5432"
   eln:
     image: "user/eln-lambda:3.0.0-SNAPSHOT"
     depends_on:

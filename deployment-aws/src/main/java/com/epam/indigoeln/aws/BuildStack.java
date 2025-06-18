@@ -1,13 +1,17 @@
 package com.epam.indigoeln.aws;
 
+import com.google.common.base.MoreObjects;
 import lombok.Getter;
 import lombok.Value;
+import org.jspecify.annotations.Nullable;
 import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.NestedStack;
 import software.amazon.awscdk.NestedStackProps;
 import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.services.codebuild.*;
 import software.amazon.awscdk.services.ecr.CfnPublicRepository;
+import software.amazon.awscdk.services.ecr.Repository;
+import software.amazon.awscdk.services.ecr.TagMutability;
 import software.amazon.awscdk.services.iam.Effect;
 import software.amazon.awscdk.services.iam.PolicyStatement;
 import software.amazon.awscdk.services.s3.Bucket;
@@ -15,20 +19,19 @@ import software.constructs.Construct;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public class BuildStack extends NestedStack {
 
     @Getter
-    String elnLambdaRepoName;
+    Repository elnLambdaRepo;
     @Getter
-    String postgresRepoName;
+    Repository postgresRepo;
 
     public BuildStack(final Construct scope, final String id, final Props props) {
         super(scope, id, props);
 
-        elnLambdaRepoName = createECRRepo("ecr-indigo-eln", "indigoeln/indigo-eln-lambda");
-        postgresRepoName = createECRRepo("ecr-indigo-eln-postgres", "indigoeln/indigo-eln-postgres");
+        elnLambdaRepo = createECRRepo("ecr-indigo-eln", "indigoeln/indigo-eln-lambda");
+        postgresRepo = createECRRepo("ecr-indigo-eln-postgres", "indigoeln/indigo-eln-postgres");
 
         Bucket buildLogsBucket = Bucket.Builder.create(this, "build-logs-bucket")
                 .build();
@@ -52,6 +55,7 @@ public class BuildStack extends NestedStack {
 
         createBuild("eln-postgres-build"
                 , "indigo-eln-postgres-build"
+                , postgresRepo
                 , "public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres"
                 , "deployment-aws/codebuild/eln-build-postgres.yaml"
                 , buildLogsBucket
@@ -60,14 +64,15 @@ public class BuildStack extends NestedStack {
 
         createBuild("eln-build"
                 , "indigo-eln-build"
-                , "public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-lambda"
+                , elnLambdaRepo
+                , null
                 , "deployment-aws/codebuild/eln-build.yaml"
                 , buildLogsBucket
                 , ecrPublicPermissions
         );
     }
 
-    private Project createBuild(String id, String projectName, String repositoryURL, String buildSpecFile, Bucket buildLogsBucket, PolicyStatement policy) {
+    private Project createBuild(String id, String projectName, Repository repository, @Nullable String publicRepo, String buildSpecFile, Bucket buildLogsBucket, PolicyStatement policy) {
         Project project = Project.Builder.create(this, id)
                 .projectName(projectName)
                 .source(Source.gitHub(GitHubSourceProps.builder()
@@ -81,10 +86,10 @@ public class BuildStack extends NestedStack {
                         .computeType(ComputeType.LARGE)
                         .privileged(true) // The 'privileged' flag is required for the CodeBuild project to build Docker images.
                         .build())
-                // Pass the ECR repository URI as an environment variable to the build.
-                .environmentVariables(Map.of(
-                        // TODO read created repo URL
-                        "REPO_URI", BuildEnvironmentVariable.builder().value(repositoryURL).build()
+                .environmentVariables(Utils.mapOf(
+                        "REGISTRY_URI", BuildEnvironmentVariable.builder().value(repository.getRegistryUri()).build(),
+                        "REPO_URI", BuildEnvironmentVariable.builder().value(repository.getRepositoryUri()).build(),
+                        "REPO_URI_PUBLIC", BuildEnvironmentVariable.builder().value(MoreObjects.firstNonNull(publicRepo, "")).build()
                 ))
                 // The BuildSpec defines the commands to run during the build.
                 .buildSpec(BuildSpec.fromSourceFilename(buildSpecFile))
@@ -95,22 +100,20 @@ public class BuildStack extends NestedStack {
                         .build())
                 .build();
         project.addToRolePolicy(policy);
+        repository.grantPullPush(project);
         return project;
     }
 
-    private String createECRRepo(String id, String repositoryName) {
-        CfnPublicRepository repo = CfnPublicRepository.Builder.create(this, id)
+    private Repository createECRRepo(String id, String repositoryName) {
+        Repository repo = Repository.Builder.create(this, id)
+                .repositoryName(repositoryName)
+                .imageTagMutability(TagMutability.MUTABLE)
+                .build();
+        CfnPublicRepository privateRepo = CfnPublicRepository.Builder.create(this, id + "-public")
                 .repositoryName(repositoryName)
                 .build();
-
-        // It's a CDK feature applied to the construct's "node".
         repo.applyRemovalPolicy(RemovalPolicy.RETAIN);
-
-//        return CfnOutput.Builder.create(this, id + "-arn-output")
-//                .value(repo.getAttrArn())
-//                .exportName(id + "-arn")
-//                .build();
-        return repositoryName;
+        return repo;
     }
 
     @Value

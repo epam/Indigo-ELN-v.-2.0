@@ -14,14 +14,14 @@
 #    ./gradlew build
     # ":eln:eln-lambda:quarkusIntTest" --info --stacktrace
 
-FROM quay.io/quarkus/quarkus-micro-image:2.0
+FROM quay.io/quarkus/ubi9-quarkus-micro-image:2.0
 WORKDIR /work/
 RUN chown 1001 /work \
     && chmod "g+rwX" /work \
     && chown 1001:root /work
 #COPY --chown=1001:root --from=builder build/native-libs/* /work/nativelibs
 #COPY --chown=1001:root --from=builder build/*-runner /work/application
-COPY --chown=1001:root build/nativelibs/* /work/nativelibs
+COPY --chown=1001:root build/nativelibs/linux-x86_64/* /work/nativelibs/linux-x86_64/
 COPY --chown=1001:root build/*runner* /work/application
 
 EXPOSE 8080
