@@ -107,14 +107,14 @@ public class ExperimentService {
         return experimentModelService.deserializeModel(experimentRepository.get(experimentId).getModel());
     }
 
-    public String mutateModel(UUID experimentId, ExperimentModel model, Mutation mutation) {
+    public ExperimentModel mutateModel(UUID experimentId, ExperimentModel model, Mutation mutation) {
         try {
             log.debug("Mutating model for experiment {} with mutation {}", experimentId, mutation);
             ExperimentEntity experiment = experimentRepository.get(experimentId);
             model = experimentModelService.applyMutation(model, mutation);
-            String model1 = experimentModelService.serializeModel(model);
-            experiment.setModel(model1);
-            return model1;
+            String modelStr = experimentModelService.serializeModel(model);
+            experiment.setModel(modelStr);
+            return model;
         } catch (Throwable e) {
             log.error("Failed to mutate model for experiment {}: {}", experimentId, e.getMessage(), e);
             throw new RuntimeException("Failed to mutate model", e);

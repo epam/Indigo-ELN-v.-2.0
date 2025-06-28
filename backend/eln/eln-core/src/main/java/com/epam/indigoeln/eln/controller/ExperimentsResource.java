@@ -15,7 +15,6 @@ import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -90,8 +89,7 @@ public class ExperimentsResource implements ExperimentsAPI {
     }
 
     @Override
-    public Map<String, String> mutateExperimentModel(UUID experimentId, MutateModelForm modelAndMutation) {
-        String modelStr = experimentService.mutateModel(experimentId, modelAndMutation.getModel(), modelAndMutation.getMutation());
-        return Map.of("data", modelStr);
+    public ExperimentModel mutateExperimentModel(UUID experimentId, MutateModelForm modelAndMutation) {
+        return experimentService.mutateModel(experimentId, modelAndMutation.getModel(), modelAndMutation.getMutation());
     }
 }
