@@ -89,7 +89,6 @@ public class ExperimentService {
 
     public Boolean markExperiment(UUID experimentId, boolean isMarked) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, AccessOperation.MARK_EXPERIMENT);
         experimentRepository.markExperiment(experimentId, userService.getCurrentUser(), isMarked);
         return isMarked;
     }
@@ -113,7 +112,8 @@ public class ExperimentService {
             log.debug("Mutating model for experiment {} with mutation {}", experimentId, mutation);
             ExperimentEntity experiment = experimentRepository.get(experimentId);
             model = experimentModelService.applyMutation(model, mutation);
-            experiment.setModel(experimentModelService.serializeModel(model));
+            String modelStr = experimentModelService.serializeModel(model);
+            experiment.setModel(modelStr);
             return model;
         } catch (Throwable e) {
             log.error("Failed to mutate model for experiment {}: {}", experimentId, e.getMessage(), e);

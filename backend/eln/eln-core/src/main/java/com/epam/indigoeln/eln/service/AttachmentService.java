@@ -47,7 +47,7 @@ public class AttachmentService {
 
     public List<AttachmentDTO> createProjectAttachment(UUID projectId, FileUpload file) {
         ProjectEntity project = projectRepository.get(projectId);
-        aclService.ensureAccess(project, AccessOperation.MANAGE_ATTACHMENTS);
+        aclService.ensureAccess(project, AccessOperation.EDIT);
         AttachmentEntity attachment = doCreateAttachment(file);
         project.getAttachments().add(attachment);
         attachment.getProjects().add(project);
@@ -56,7 +56,7 @@ public class AttachmentService {
     
     public List<AttachmentDTO> createNotebookAttachment(UUID notebookId, FileUpload file) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
-        aclService.ensureAccess(notebook, AccessOperation.MANAGE_ATTACHMENTS);
+        aclService.ensureAccess(notebook, AccessOperation.EDIT);
         AttachmentEntity attachment = doCreateAttachment(file);
         notebook.getAttachments().add(attachment);
         attachment.getNotebooks().add(notebook);
@@ -65,7 +65,7 @@ public class AttachmentService {
 
     public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, FileUpload file) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, AccessOperation.MANAGE_ATTACHMENTS);
+        aclService.ensureAccess(experiment, AccessOperation.EDIT);
         AttachmentEntity attachment = doCreateAttachment(file);
         experiment.getAttachments().add(attachment);
         attachment.getExperiments().add(experiment);
@@ -116,7 +116,7 @@ public class AttachmentService {
 
     public void deleteProjectAttachment(UUID projectId, UUID attachmentId) {
         ProjectEntity project = projectRepository.get(projectId);
-        aclService.ensureAccess(project, AccessOperation.MANAGE_ATTACHMENTS);
+        aclService.ensureAccess(project, AccessOperation.EDIT);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
         ensureCorrectParent(attachment, attachment.getProjects(), project);
         doDeleteAttachment(project, attachment.getProjects(), attachment);
@@ -124,7 +124,7 @@ public class AttachmentService {
 
     public void deleteNotebookAttachment(UUID notebookId, UUID attachmentId) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
-        aclService.ensureAccess(notebook, AccessOperation.MANAGE_ATTACHMENTS);
+        aclService.ensureAccess(notebook, AccessOperation.EDIT);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
         ensureCorrectParent(attachment, attachment.getNotebooks(), notebook);
         doDeleteAttachment(notebook, attachment.getNotebooks(), attachment);
@@ -132,7 +132,7 @@ public class AttachmentService {
 
     public void deleteExperimentAttachment(UUID experimentId, UUID attachmentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, AccessOperation.MANAGE_ATTACHMENTS);
+        aclService.ensureAccess(experiment, AccessOperation.EDIT);
         AttachmentEntity attachment = attachmentRepository.load(attachmentId);
         ensureCorrectParent(attachment, attachment.getExperiments(), experiment);
         doDeleteAttachment(experiment, attachment.getExperiments(), attachment);
