@@ -244,15 +244,15 @@ public class ReactionCalculator {
     }
 
     private boolean updateCycle(String displayName, BooleanSupplier block) {
-//        log.debug("updateCycle: started: {}", displayName);
+        log.debug("updateCycle: started: {}", displayName);
         boolean anyUpdates = false;
         boolean lastUpdated = true;
         while (lastUpdated) {
             lastUpdated = block.getAsBoolean();
             anyUpdates |= lastUpdated;
-//            log.debug("updateCycle: iteration done: {}", displayName);
+            log.debug("updateCycle: iteration done: {}", displayName);
         }
-//        log.debug("updateCycle: complete{}: {}", anyUpdates ? " with updates" : " without updates", displayName);
+        log.debug("updateCycle: complete{}: {}", anyUpdates ? " with updates" : " without updates", displayName);
         return anyUpdates;
     }
 }

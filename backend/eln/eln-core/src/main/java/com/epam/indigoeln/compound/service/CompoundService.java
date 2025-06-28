@@ -1,8 +1,6 @@
 package com.epam.indigoeln.compound.service;
 
-import com.epam.indigo.IndigoObject;
 import com.epam.indigoeln.common.util.Pair;
-import com.epam.indigoeln.compound.config.IndigoAPI;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.mapper.SampleMapper;
@@ -11,6 +9,7 @@ import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.repository.CompoundRepository;
 import com.epam.indigoeln.compound.repository.SampleRepository;
+import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -44,7 +43,7 @@ public class CompoundService {
     @Inject
     IndigoAPI indigo;
 
-    public Pair<CompoundEntity, SampleEntity> findOrCreateByCanonicalSmiles(String canonicalSmiles, IndigoObject indigoObject) {
+    public Pair<CompoundEntity, SampleEntity> findOrCreateByCanonicalSmiles(String canonicalSmiles, IndigoAPI.IndigoMolecule indigoObject) {
         CompoundEntity compound = compoundRepository.findByCanonicalSmiles(canonicalSmiles);
         SampleEntity sample;
         if (compound == null) {
@@ -64,12 +63,14 @@ public class CompoundService {
 
     public LoadStatistics loadCompoundsFromFile(InputStream is) throws IOException {
         LoadStatistics stats = new LoadStatistics();
-        StreamEx.of(readSDFFile(is))
-                .map(indigo::loadMolecule)
-                .forEach(indigoObject -> {
-                    findOrCreateByCanonicalSmiles(indigoObject.canonicalSmiles(), indigoObject);
-                    stats.processed++;
-                });
+        indigo.withSession(indigoSession -> {
+            StreamEx.of(readSDFFile(is))
+                    .map(indigoSession::loadMolecule)
+                    .forEach(molecule -> {
+                        findOrCreateByCanonicalSmiles(molecule.canonicalSmiles(), molecule);
+                        stats.processed++;
+                    });
+        });
         log.info("Loaded compounds from file: {}", stats);
         return stats;
     }
@@ -97,7 +98,7 @@ public class CompoundService {
         return result;
     }
 
-    private void fillCompoundFromIndigo(IndigoObject molecule, CompoundEntity compound) {
+    private void fillCompoundFromIndigo(IndigoAPI.IndigoMolecule molecule, CompoundEntity compound) {
         compound.setSource(CompoundSource.ELN);
         compound.setFormula(molecule.grossFormula());
         compound.setMolFile(molecule.molfile());

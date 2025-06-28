@@ -1,4 +1,4 @@
-package com.epam.indigoeln.compound.config;
+package com.epam.indigoeln.indigowrapper;
 
 import com.epam.indigo.IndigoObject;
 import com.epam.indigo.IndigoRenderer;

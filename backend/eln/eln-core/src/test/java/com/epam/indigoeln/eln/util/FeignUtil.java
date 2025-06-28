@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class FeignUtil {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .registerModule(new VertxModule())
             .registerModule(new JavaTimeModule())
             .registerModule(new Jdk8Module())

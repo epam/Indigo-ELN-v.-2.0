@@ -1,13 +1,24 @@
-package com.epam.indigoeln.compound.config;
+package com.epam.indigoeln.indigowrapper;
 
 import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoObject;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public interface IndigoAPI {
+
+    <T> T withSession(Function<IndigoSession, T> block);
+
+    void withSession(Consumer<IndigoSession> block);
 
     IndigoObject iterateSDFile(String filename);
 
@@ -51,8 +62,6 @@ public interface IndigoAPI {
 
     String getUserSpecifiedPath();
 
-    IndigoObject loadMoleculeFromBuffer(byte[] buf);
-
     @Deprecated
     IndigoObject unserialize(byte[] data);
 
@@ -63,8 +72,6 @@ public interface IndigoAPI {
     IndigoObject deserialize(byte[] data);
 
     IndigoObject loadMonomerLibrary(String str);
-
-    IndigoObject loadReactionFromFile(String path);
 
     IndigoObject loadFastaFromFile(String path, String seq_type, IndigoObject library);
 
@@ -117,8 +124,6 @@ public interface IndigoAPI {
 
     int buildPkaModel(int level, float threshold, String filename);
 
-    IndigoObject loadMolecule(String str);
-
     IndigoObject loadQueryReaction(String str);
 
     void setOption(String option, int value);
@@ -136,8 +141,6 @@ public interface IndigoAPI {
     IndigoObject transform(IndigoObject reaction, IndigoObject monomer);
 
     IndigoObject transformHELMtoSCSR(IndigoObject item);
-
-    IndigoObject loadReaction(String str);
 
     String version();
 
@@ -176,8 +179,6 @@ public interface IndigoAPI {
 
     String getOption(String option);
 
-    IndigoObject loadMolecule(byte[] buf);
-
     void setSessionID();
 
     void setOption(String option, double value);
@@ -191,8 +192,6 @@ public interface IndigoAPI {
     IndigoObject loadSmartsFromFile(String path);
 
     IndigoObject loadFasta(String str, String seq_type, IndigoObject library);
-
-    IndigoObject loadReaction(byte[] buf);
 
     IndigoObject createMolecule();
 
@@ -232,19 +231,194 @@ public interface IndigoAPI {
 
     Integer getOptionInt(String option);
 
-    IndigoObject loadMoleculeFromFile(String path);
-
     long getSid();
 
     IndigoObject loadStructureFromBuffer(byte[] buf, String params);
 
     IndigoObject reactionProductEnumerate(IndigoObject reaction, Iterable<Iterable<IndigoObject>> monomers);
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    class IndigoSession implements AutoCloseable {
+
+        private final Indigo indigo;
+        private final List<IndigoObject> cleanup = new ArrayList<>();
+
+        // !!! entire session in one synchronized block
+
+        public IndigoMolecule loadMolecule(byte[] buf) {
+            return new IndigoMolecule(this, indigo.loadMolecule(buf));
+        }
+
+        public IndigoMolecule loadMoleculeFromBuffer(byte[] buf) {
+            return new IndigoMolecule(this, indigo.loadMoleculeFromBuffer(buf));
+        }
+
+        public IndigoMolecule loadMoleculeFromFile(String path) {
+            return new IndigoMolecule(this, indigo.loadMoleculeFromFile(path));
+        }
+
+        public IndigoMolecule loadMolecule(String str) {
+            return new IndigoMolecule(this, indigo.loadMolecule(str));
+        }
+
+        public IndigoReaction loadReaction(byte[] buf) {
+            return new IndigoReaction(this, indigo.loadReaction(buf));
+        }
+
+        public IndigoReaction loadReaction(String str) {
+            return new IndigoReaction(this, indigo.loadReaction(str));
+        }
+
+        public IndigoReaction loadReactionFromFile(String path) {
+            return new IndigoReaction(this, indigo.loadReactionFromFile(path));
+        }
+
+        @Override
+        public void close() {
+//            cleanup.reversed().forEach(IndigoObject::close);
+        }
+    }
+
+    abstract class AbstractIndigoObject {
+
+        protected final IndigoSession session;
+        protected final IndigoObject obj;
+
+        AbstractIndigoObject(IndigoSession session, IndigoObject obj) {
+            this.session = session;
+            this.obj = obj;
+            session.cleanup.add(obj);
+        }
+
+        public boolean hasProperty(String prop) {
+            return obj.hasProperty(prop);
+        }
+
+        public String getProperty(String prop) {
+            return obj.getProperty(prop);
+        }
+
+        public void setProperty(String prop, String value) {
+            obj.setProperty(prop, value);
+        }
+
+        public void removeProperty(String prop) {
+            obj.removeProperty(prop);
+        }
+
+        public IndigoObject iterateProperties() {
+            return obj.iterateProperties();
+        }
+
+        public void clearProperties() {
+            obj.clearProperties();
+        }
+    }
+
+    class IndigoReaction extends AbstractIndigoObject {
+
+        IndigoReaction(IndigoSession session, IndigoObject obj) {
+            super(session, obj);
+        }
+
+        public Iterable<IndigoMolecule> reactants() {
+            return new IndigoIterable<>(session, obj::iterateReactants, o -> new IndigoMolecule(session, o));
+        }
+
+        public Iterable<IndigoMolecule> catalysts() {
+            return new IndigoIterable<>(session, obj::iterateCatalysts, o -> new IndigoMolecule(session, o));
+        }
+
+        public Iterable<IndigoMolecule> products() {
+            return new IndigoIterable<>(session, obj::iterateProducts, o -> new IndigoMolecule(session, o));
+        }
+    }
+
+    class IndigoMolecule extends AbstractIndigoObject {
+
+        IndigoMolecule(IndigoSession session, IndigoObject obj) {
+            super(session, obj);
+        }
+
+        public Iterable<IndigoAtom> atoms() {
+            return new IndigoIterable<>(session, obj::iterateAtoms, o -> new IndigoAtom(session, o));
+        }
+
+        public String canonicalSmiles() {
+            return obj.canonicalSmiles();
+        }
+
+        public String molfile() {
+            return obj.molfile();
+        }
+
+        public String grossFormula() {
+            return obj.grossFormula();
+        }
+
+        public double molecularWeight() {
+            return obj.molecularWeight();
+        }
+    }
+
+    class IndigoAtom extends AbstractIndigoObject {
+
+        IndigoAtom(IndigoSession session, IndigoObject obj) {
+            super(session, obj);
+        }
+
+        public Integer charge() {
+            return obj.charge();
+        }
+    }
+
+    @RequiredArgsConstructor
+    class IndigoIterable<O extends AbstractIndigoObject> implements Iterable<O> {
+
+        private final IndigoSession session;
+        private final Supplier<IndigoObject> iteratorCreator;
+        private final Function<IndigoObject, O> objectCreator;
+
+        @Override
+        public Iterator<O> iterator() {
+            IndigoObject iter = iteratorCreator.get();
+            session.cleanup.add(iter);
+            return new Iterator<O>() {
+                @Override
+                public boolean hasNext() {
+                    return iter.hasNext();
+                }
+                @Override
+                public O next() {
+                    IndigoObject next = iter.next();
+                    return objectCreator.apply(next);
+                }
+            };
+        }
+    }
+
     @RequiredArgsConstructor
     class Impl implements IndigoAPI {
 
         @Getter
         private final Indigo indigo;
+
+        @Override
+        public <T> T withSession(Function<IndigoSession, T> block) {
+            synchronized (indigo) {
+                try (IndigoSession session = new IndigoSession(indigo)) {
+                    return block.apply(session);
+                }
+            }
+        }
+
+        @Override
+        public void withSession(Consumer<IndigoSession> block) {
+            withSession(indigoSession -> {
+                block.accept(indigoSession);
+                return null;
+            });
+        }
 
         @Override
         public synchronized IndigoObject iterateSDFile(String filename) {
@@ -351,11 +525,6 @@ public interface IndigoAPI {
             return indigo.getUserSpecifiedPath();
         }
 
-        @Override
-        public synchronized IndigoObject loadMoleculeFromBuffer(byte[] buf) {
-            return indigo.loadMoleculeFromBuffer(buf);
-        }
-
         @Deprecated
         @Override
         public synchronized IndigoObject unserialize(byte[] data) {
@@ -380,11 +549,6 @@ public interface IndigoAPI {
         @Override
         public synchronized IndigoObject loadMonomerLibrary(String str) {
             return indigo.loadMonomerLibrary(str);
-        }
-
-        @Override
-        public synchronized IndigoObject loadReactionFromFile(String path) {
-            return indigo.loadReactionFromFile(path);
         }
 
         @Override
@@ -514,11 +678,6 @@ public interface IndigoAPI {
         }
 
         @Override
-        public synchronized IndigoObject loadMolecule(String str) {
-            return indigo.loadMolecule(str);
-        }
-
-        @Override
         public synchronized IndigoObject loadQueryReaction(String str) {
             return indigo.loadQueryReaction(str);
         }
@@ -561,11 +720,6 @@ public interface IndigoAPI {
         @Override
         public synchronized IndigoObject transformHELMtoSCSR(IndigoObject item) {
             return indigo.transformHELMtoSCSR(item);
-        }
-
-        @Override
-        public synchronized IndigoObject loadReaction(String str) {
-            return indigo.loadReaction(str);
         }
 
         @Override
@@ -660,11 +814,6 @@ public interface IndigoAPI {
         }
 
         @Override
-        public synchronized IndigoObject loadMolecule(byte[] buf) {
-            return indigo.loadMolecule(buf);
-        }
-
-        @Override
         public synchronized void setSessionID() {
             indigo.setSessionID();
         }
@@ -697,11 +846,6 @@ public interface IndigoAPI {
         @Override
         public synchronized IndigoObject loadFasta(String str, String seq_type, IndigoObject library) {
             return indigo.loadFasta(str, seq_type, library);
-        }
-
-        @Override
-        public synchronized IndigoObject loadReaction(byte[] buf) {
-            return indigo.loadReaction(buf);
         }
 
         @Override
@@ -797,11 +941,6 @@ public interface IndigoAPI {
         @Override
         public synchronized Integer getOptionInt(String option) {
             return indigo.getOptionInt(option);
-        }
-
-        @Override
-        public synchronized IndigoObject loadMoleculeFromFile(String path) {
-            return indigo.loadMoleculeFromFile(path);
         }
 
         @Override

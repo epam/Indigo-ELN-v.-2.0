@@ -9,26 +9,16 @@ import java.util.Set;
 public enum AccessLevel {
     NONE(EnumSet.noneOf(AccessOperation.class)),
     IMPLICIT_VIEW(EnumSet.of(
-            AccessOperation.VIEW,
-            AccessOperation.LIST_NOTEBOOKS,
-            AccessOperation.LIST_EXPERIMENTS,
-            AccessOperation.MARK_EXPERIMENT
+            AccessOperation.VIEW
     )),
     VIEW(EnumSet.of(
-            AccessOperation.VIEW,
-            AccessOperation.LIST_NOTEBOOKS,
-            AccessOperation.LIST_EXPERIMENTS,
-            AccessOperation.MARK_EXPERIMENT
+            AccessOperation.VIEW
     )),
     EDIT(EnumSet.of(
             AccessOperation.VIEW,
             AccessOperation.EDIT,
-            AccessOperation.MANAGE_ATTACHMENTS,
-            AccessOperation.LIST_NOTEBOOKS,
             AccessOperation.CREATE_NOTEBOOK,
-            AccessOperation.LIST_EXPERIMENTS,
-            AccessOperation.CREATE_EXPERIMENT,
-            AccessOperation.MARK_EXPERIMENT
+            AccessOperation.CREATE_EXPERIMENT
     )),
     ADMIN(EnumSet.allOf(AccessOperation.class)),
     AUTHOR(EnumSet.allOf(AccessOperation.class));

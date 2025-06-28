@@ -71,8 +71,8 @@ public class InfraStack extends NestedStack {
                 .build();
 
         LaunchTemplate launchTemplate = LaunchTemplate.Builder.create(this, "ec2-launch-template")
-                .instanceType(InstanceType.of(InstanceClass.T4G, InstanceSize.MICRO))
-                .machineImage(EcsOptimizedImage.amazonLinux2023(AmiHardwareType.ARM))
+                .instanceType(InstanceType.of(InstanceClass.T3, InstanceSize.MICRO))
+                .machineImage(EcsOptimizedImage.amazonLinux2023(AmiHardwareType.STANDARD))
                 .userData(UserData.forLinux())
                 .securityGroup(ec2SecurityGroup)
                 .role(ec2Role)

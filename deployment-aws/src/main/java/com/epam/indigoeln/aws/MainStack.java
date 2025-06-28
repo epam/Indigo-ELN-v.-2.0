@@ -22,10 +22,15 @@ public class MainStack extends Stack {
                 parameters.getSecurityGroups()
         ));
 
+        BuildStack buildStack = new BuildStack(this, "build-stack", new BuildStack.Props());
+
         PostgresStack postgresStack = new PostgresStack(this, "postgres-stack", new PostgresStack.Props(
                 parameters.getPostgresMasterUsername(),
-                infraStack.getEcsCluster()
+                infraStack.getEcsCluster(),
+                buildStack.getPostgresRepo(),
+                parameters.getPostgresImageTag()
         ));
+        postgresStack.addDependency(buildStack);
         postgresStack.addDependency(infraStack);
 
         CognitoStack cognitoStack = new CognitoStack(this, "cognito-stack", new CognitoStack.Props(
@@ -39,8 +44,11 @@ public class MainStack extends Stack {
                 Credentials.fromSecret(postgresStack.getDbSecret()),
                 infraStack.getLambdaSecurityGroup(),
                 cognitoStack.getUserPool(),
-                cognitoStack.getUserPoolClient()
+                cognitoStack.getUserPoolClient(),
+                buildStack.getElnLambdaRepo(),
+                parameters.getElnLambdaImageTag()
         ));
+        elnLambdaStack.addDependency(buildStack);
         elnLambdaStack.addDependency(infraStack);
         elnLambdaStack.addDependency(postgresStack);
 
