@@ -75,27 +75,30 @@ public class Utils {
 
     // Map.of(...) may mix the order of elements, forcing CloudFormation to do unnecessary updates; so stick to LinkedHashMap
     public static <K, V> Map<K, V> mapOf() {
-        return Map.of();
+        return new LinkedHashMap<>();
     }
 
     public static <K, V> Map<K, V> mapOf(K k1, V v1) {
-        Map<K, V> map = new LinkedHashMap<>();
+        Map<K, V> map = mapOf();
         map.put(k1, v1);
         return map;
     }
 
     public static <K, V> Map<K, V> mapOf(K k1, V v1, K k2, V v2) {
-        Map<K, V> map = new LinkedHashMap<>();
-        map.put(k1, v1);
+        Map<K, V> map = mapOf(k1, v1);
         map.put(k2, v2);
         return map;
     }
 
     public static <K, V> Map<K, V> mapOf(K k1, V v1, K k2, V v2, K k3, V v3) {
-        Map<K, V> map = new LinkedHashMap<>();
-        map.put(k1, v1);
-        map.put(k2, v2);
+        Map<K, V> map = mapOf(k1, v1, k2, v2);
         map.put(k3, v3);
+        return map;
+    }
+
+    public static <K, V> Map<K, V> mapOf(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4) {
+        Map<K, V> map = mapOf(k1, v1, k2, v2, k3, v3);
+        map.put(k4, v4);
         return map;
     }
 }

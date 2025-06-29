@@ -15,15 +15,15 @@ public interface UsersAPI extends BaseAPI {
 
     @POST
     @Path("/users")
-    UserDetailsDTO createUser(UserRequest request);
+    UserDTO createUser(UserRequest request);
 
     @GET
     @Path("/users")
-    Page<UserDTO> getUsers(@QueryParam("search") @Nullable String search, @BeanParam Paging paging);
+    Page<UserDTO> getUsers(@QueryParam("search") @Nullable String search, @QueryParam("username") @Nullable String username, @BeanParam Paging paging);
 
     @GET
     @Path("/users/{userId}")
-    UserDetailsDTO getUser(@PathParam("userId") UUID userId);
+    UserDTO getUser(@PathParam("userId") UUID userId);
 
     @POST
     @Path("/users/{userId}/access")

@@ -6,9 +6,9 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.Conditions;
 import com.epam.indigoeln.eln.util.ListWithTotal;
 import io.quarkus.panache.common.Sort;
+import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
@@ -40,7 +40,7 @@ public class UserRepository extends BaseRepository<UserEntity> {
         );
     }
 
-    public UserDetailsDTO loadDetails(UUID id) {
+    public UserDTO loadDetails(UUID id) {
         return doLoadDetails(
                 id,
                 em.getEntityGraph("User.details"),
@@ -48,10 +48,11 @@ public class UserRepository extends BaseRepository<UserEntity> {
         );
     }
 
-    public ListWithTotal<UserDTO> findAll(@jakarta.annotation.Nullable String search, Paging paging) {
+    public ListWithTotal<UserDTO> findAll(@Nullable String search, String username, Paging paging) {
         return doFindWithTotals(
                 new Conditions()
-                        .addIfNotNull("full_text_search(searchVector, to_tsquery('english', ?))", search),
+                        .addIfNotNull("full_text_search(searchVector, to_tsquery('english', ?))", search)
+                        .addIfNotNull("username = ?", username),
                 paging,
                 DEFAULT_SORT,
                 em.getEntityGraph("Project.list"),

@@ -43,9 +43,10 @@ public class ELNLambdaStack extends NestedStack {
                 .build();
 
         Map<String, String> elnFunctionEnvironment = mapOf(
-                "QUARKUS_DATASOURCE_JDBC_URL", String.format("jdbc:postgresql://%s/%s", "xxx", props.getDbCredentials().getUsername()), // TODO
-                "QUARKUS_DATASOURCE_USERNAME", props.getDbCredentials().getUsername(),
-                "QUARKUS_DATASOURCE_PASSWORD", props.getDbCredentials().getPassword().unsafeUnwrap() // TODO retrieve credentials in lambda code
+                "QUARKUS_DATASOURCE_JDBC_URL", String.format("jdbc:postgresql://%s/%s", "xxx", props.getDbCredentials().getUsername()) // TODO
+                , "QUARKUS_DATASOURCE_USERNAME", props.getDbCredentials().getUsername()
+                , "QUARKUS_DATASOURCE_PASSWORD", props.getDbCredentials().getPassword().unsafeUnwrap() // TODO retrieve credentials in lambda code
+                , "ELN_COGNITO_USER_POOL_ID", props.getUserPool().getUserPoolId()
 //                , "QUARKUS_LOG_LEVEL", "DEBUG"
         );
         File elnBuild = new File("../backend/eln/eln-lambda/build");

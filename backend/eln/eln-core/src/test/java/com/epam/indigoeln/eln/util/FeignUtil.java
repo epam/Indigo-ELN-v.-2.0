@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import com.google.common.base.MoreObjects;
 import feign.Feign;
 import feign.Logger;
 import feign.Request;
@@ -18,6 +19,7 @@ import feign.jackson.JacksonEncoder;
 import feign.jaxrs3.JAXRS3Contract;
 import feign.slf4j.Slf4jLogger;
 import io.vertx.core.json.jackson.VertxModule;
+import jakarta.annotation.Nullable;
 import jakarta.ws.rs.core.HttpHeaders;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
 
@@ -47,12 +49,9 @@ public class FeignUtil {
                 .requestInterceptor(request -> {
                     extractParam(request, "pageNo", "pageNo=", ",");
                     extractParam(request, "pageSize", "pageSize=", ")");
-                    if (testUsername.get() != null) {
-                        request.header(UserInfo.X_TEST_AUTHORIZATION, testUsername.get());
-                    }
-                    if (authorization.get() != null) {
-                        request.header(HttpHeaders.AUTHORIZATION, authorization.get());
-                    }
+                    // use admin by default; to allow testing without need to specify username, and also to enable calls from setUp/tearDown methods, where @TestSecurity doesn't work
+                    request.header(UserInfo.X_TEST_AUTHORIZATION, MoreObjects.firstNonNull(testUsername.get(), TestHelper.ADMIN_USERNAME));
+                    request.header(HttpHeaders.AUTHORIZATION, authorization.get());
                 })
                 .logLevel(Logger.Level.FULL)
                 .logger(new Slf4jLogger(MiscClient.class))

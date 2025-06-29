@@ -6,15 +6,29 @@ CREATE TYPE Experiment_Count AS (status Experiment_Status, count INT);
 
 CREATE TABLE User_Account (
     id UUID PRIMARY KEY,
+    created_by_id UUID NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL,
+    modified_by_id UUID NOT NULL,
+    modified_at TIMESTAMPTZ NOT NULL,
     username VARCHAR(256) NOT NULL,
     first_name VARCHAR(256),
     last_name VARCHAR(256),
     display_name VARCHAR(256) NOT NULL,
 --     roles Application_Role[] NOT NULL,
     roles VARCHAR[] NOT NULL,
+    CONSTRAINT user_account_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
+    CONSTRAINT user_account_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT user_account_username_uq UNIQUE (username)
 );
 CREATE UNIQUE INDEX ix_user_account_display_name ON User_Account (lower(display_name));
+
+INSERT INTO User_Account (id
+        , created_by_id, created_at, modified_by_id, modified_at
+        , username, last_name, display_name, roles)
+VALUES ('00000000-0000-0000-0000-000000000001'
+        , '00000000-0000-0000-0000-000000000001', NOW(), '00000000-0000-0000-0000-000000000001', NOW()
+        , 'admin', 'Administrator', 'Administrator', '{ADMINISTRATOR}'
+);
 
 CREATE TABLE Attachment (
     id UUID PRIMARY KEY,

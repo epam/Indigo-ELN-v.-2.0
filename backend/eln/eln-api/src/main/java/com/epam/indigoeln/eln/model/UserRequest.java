@@ -22,5 +22,8 @@ public class UserRequest {
     @Nullable
     private String lastName;
 
+    @Nullable
+    private String password;
+
     private ApplicationRole @Nullable [] roles;
 }

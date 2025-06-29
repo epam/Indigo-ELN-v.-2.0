@@ -19,19 +19,18 @@ public class UsersResource implements UsersAPI {
     @Inject
     UserService userService;
 
-
     @Override
-    public @NotNull @Valid UserDetailsDTO createUser(UserRequest request) {
+    public @NotNull @Valid UserDTO createUser(UserRequest request) {
         return userService.createUser(request);
     }
 
     @Override
-    public @NotNull @Valid Page<UserDTO> getUsers(@Nullable String search, Paging paging) {
-        return userService.getUsers(search, paging);
+    public @NotNull @Valid Page<UserDTO> getUsers(@Nullable String search, @Nullable String username, Paging paging) {
+        return userService.getUsers(search, username, paging);
     }
 
     @Override
-    public @NotNull @Valid UserDetailsDTO getUser(UUID userId) {
+    public @NotNull @Valid UserDTO getUser(UUID userId) {
         return userService.getUser(userId);
     }
 

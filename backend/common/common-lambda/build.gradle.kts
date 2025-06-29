@@ -5,7 +5,6 @@ plugins {
 }
 
 dependencies {
-    implementation("io.quarkiverse.amazonservices:quarkus-amazon-cognito-user-pools")
     api("io.quarkus:quarkus-amazon-lambda-http")
     implementation("io.quarkus:quarkus-amazon-lambda-xray")
 

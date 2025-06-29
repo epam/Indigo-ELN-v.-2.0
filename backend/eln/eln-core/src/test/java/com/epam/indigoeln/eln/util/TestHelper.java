@@ -2,12 +2,15 @@ package com.epam.indigoeln.eln.util;
 
 import com.epam.indigoeln.eln.client.MiscClient;
 import com.epam.indigoeln.eln.client.UsersClient;
-import com.epam.indigoeln.eln.model.ApplicationRole;
-import com.epam.indigoeln.eln.model.UserRequest;
+import com.epam.indigoeln.eln.model.*;
+import jakarta.ws.rs.WebApplicationException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.http.HttpStatus;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
+import org.jboss.resteasy.reactive.ClientWebApplicationException;
 
+import javax.net.ssl.SSLSession;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -16,6 +19,9 @@ public class TestHelper {
     public static final RecursiveComparisonConfiguration COMPARE_WITHOUT_MODIFIED_AT = RecursiveComparisonConfiguration.builder()
             .withIgnoredFields("modifiedAt")
             .build();
+
+    public static final String ADMIN_USERNAME = "admin";
+    public static final String ADMIN_DISPLAY_NAME = "Administrator";
 
     public static final String JOHN_USERNAME = "john";
     public static final String JOHN_FIRST_NAME = "John";
@@ -58,9 +64,17 @@ public class TestHelper {
     }
 
     public void createTestUsers() {
-        johnUserID = usersClient.createUser(new UserRequest(TestHelper.JOHN_USERNAME, TestHelper.JOHN_DISPLAY_NAME, TestHelper.JOHN_FIRST_NAME, TestHelper.JOHN_LAST_NAME, TestHelper.JOHN_ROLES)).getId();
-        willowUserID = usersClient.createUser(new UserRequest(TestHelper.WILLOW_USERNAME, TestHelper.WILLOW_DISPLAY_NAME, TestHelper.WILLOW_FIRST_NAME, TestHelper.WILLOW_LAST_NAME, TestHelper.WILLOW_ROLES)).getId();
-        bartUserID = usersClient.createUser(new UserRequest(TestHelper.BART_USERNAME, TestHelper.BART_DISPLAY_NAME, TestHelper.BART_FIRST_NAME, TestHelper.BART_LAST_NAME, TestHelper.BART_ROLES)).getId();
-        lisaUserID = usersClient.createUser(new UserRequest(TestHelper.LISA_USERNAME, TestHelper.LISA_DISPLAY_NAME, TestHelper.LISA_FIRST_NAME, TestHelper.LISA_LAST_NAME, TestHelper.LISA_ROLES)).getId();
+        johnUserID = getOrCreateUser(new UserRequest(TestHelper.JOHN_USERNAME, TestHelper.JOHN_DISPLAY_NAME, TestHelper.JOHN_FIRST_NAME, TestHelper.JOHN_LAST_NAME, "password", TestHelper.JOHN_ROLES)).getId();
+        willowUserID = getOrCreateUser(new UserRequest(TestHelper.WILLOW_USERNAME, TestHelper.WILLOW_DISPLAY_NAME, TestHelper.WILLOW_FIRST_NAME, TestHelper.WILLOW_LAST_NAME, "password", TestHelper.WILLOW_ROLES)).getId();
+        bartUserID = getOrCreateUser(new UserRequest(TestHelper.BART_USERNAME, TestHelper.BART_DISPLAY_NAME, TestHelper.BART_FIRST_NAME, TestHelper.BART_LAST_NAME, "password", TestHelper.BART_ROLES)).getId();
+        lisaUserID = getOrCreateUser(new UserRequest(TestHelper.LISA_USERNAME, TestHelper.LISA_DISPLAY_NAME, TestHelper.LISA_FIRST_NAME, TestHelper.LISA_LAST_NAME, "password", TestHelper.LISA_ROLES)).getId();
+    }
+
+    private UserDTO getOrCreateUser(UserRequest request) {
+        Page<UserDTO> found = usersClient.getUsers(null, request.getUsername(), Paging.DEFAULT);
+        if (!found.getItems().isEmpty()) {
+            return found.getItems().getFirst();
+        }
+        return usersClient.createUser(request);
     }
 }

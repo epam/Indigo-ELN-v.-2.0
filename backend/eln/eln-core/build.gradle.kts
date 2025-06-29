@@ -30,8 +30,8 @@ dependencies {
 //    implementation("com.epam.indigo:bingo-nosql:1.30.1")
 
     implementation("io.quarkiverse.amazonservices:quarkus-amazon-cognito-user-pools")
-    implementation("software.amazon.awssdk:cognitoidentityprovider:2.31.62")
-    implementation("software.amazon.awssdk:url-connection-client:2.31.63")
+//    implementation("software.amazon.awssdk:cognitoidentityprovider:2.31.62")
+    implementation("software.amazon.awssdk:url-connection-client")
     testImplementation(project(":common:common-test"))
 
     // for integration tests

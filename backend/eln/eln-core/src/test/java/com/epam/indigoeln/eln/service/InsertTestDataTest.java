@@ -52,9 +52,9 @@ class InsertTestDataTest {
 //    @Test
     @Order(2)
     void insertUsers() {
-        usersClient.createUser(new UserRequest("alice", "Alice Smith", "Alice", "Smith", new ApplicationRole[]{ApplicationRole.CONTENT_EDITOR, ApplicationRole.TEMPLATE_EDITOR}));
-        usersClient.createUser(new UserRequest("bob", "Bob Johnson", "Bob", "Johnson", new ApplicationRole[]{ApplicationRole.ADMINISTRATOR}));
-        usersClient.createUser(new UserRequest("charlie", "Charlie Williams", "Charlie", "Williams", new ApplicationRole[]{ApplicationRole.CONTENT_EDITOR}));
+        usersClient.createUser(new UserRequest("alice@eln.com", "Alice Smith", "Alice", "Smith", "password", new ApplicationRole[]{ApplicationRole.CONTENT_EDITOR, ApplicationRole.TEMPLATE_EDITOR}));
+        usersClient.createUser(new UserRequest("bob@eln.com", "Bob Johnson", "Bob", "Johnson", "password", new ApplicationRole[]{ApplicationRole.ADMINISTRATOR}));
+        usersClient.createUser(new UserRequest("charlie@eln.com", "Charlie Williams", "Charlie", "Williams", "password", new ApplicationRole[]{ApplicationRole.CONTENT_EDITOR}));
     }
 
 //    @Test
