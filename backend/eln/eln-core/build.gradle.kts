@@ -30,7 +30,6 @@ dependencies {
 //    implementation("com.epam.indigo:bingo-nosql:1.30.1")
 
     implementation("io.quarkiverse.amazonservices:quarkus-amazon-cognito-user-pools")
-//    implementation("software.amazon.awssdk:cognitoidentityprovider:2.31.62")
     implementation("software.amazon.awssdk:url-connection-client")
     testImplementation(project(":common:common-test"))
 
@@ -44,8 +43,6 @@ dependencies {
     testImplementation("com.fasterxml.jackson.module:jackson-module-parameter-names:2.18.2")
     testImplementation("io.smallrye:smallrye-jwt-common") //:4.6.1")
     testImplementation("io.smallrye:smallrye-jwt-build")
-    testImplementation("org.testcontainers:localstack:1.19.0")
-    testImplementation("software.amazon.awssdk:cognitoidentityprovider:2.20.128")
     // for calculation reports
     testImplementation("io.github.java-diff-utils:java-diff-utils:4.12")
 }
