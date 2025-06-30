@@ -19,6 +19,7 @@ dependencies {
     api("io.quarkus:quarkus-hibernate-orm-panache")
     api("io.hypersistence:hypersistence-utils-hibernate-63:3.9.9")
     api("com.github.starnowski.posjsonhelper.text:hibernate6-text:0.4.2") // TODO remove
+    api("io.quarkus:quarkus-rest-client")
 //    api("io.quarkiverse.hibernatetypes:quarkus-hibernate-types:2.2.0")
 
     api(project(":eln:eln-api"))
@@ -31,6 +32,7 @@ dependencies {
 
     implementation("io.quarkiverse.amazonservices:quarkus-amazon-cognito-user-pools")
     implementation("software.amazon.awssdk:url-connection-client")
+
     testImplementation(project(":common:common-test"))
 
     // for integration tests
