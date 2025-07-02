@@ -8,10 +8,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.google.common.base.MoreObjects;
-import feign.Feign;
-import feign.Logger;
-import feign.Request;
-import feign.RequestTemplate;
+import feign.*;
 import feign.form.FormEncoder;
 import feign.httpclient.ApacheHttpClient;
 import feign.jackson.JacksonDecoder;
@@ -63,6 +60,7 @@ public class FeignUtil {
                     }
                     return new ClientWebApplicationException(response.status() + " " + response.reason() + ": " + body, response.status());
                 })
+                .retryer(Retryer.NEVER_RETRY)
                 .target(klass, baseURL.toString());
 //        client = RestClientBuilder.newBuilder().baseUri(baseURL).build(ELNClient.class);
     }
