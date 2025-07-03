@@ -2,7 +2,7 @@ package com.epam.indigoeln.reaction.service.mutation;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.entity.SaltCodeEntity;
-import com.epam.indigoeln.eln.model.DictionaryRef;
+import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.repository.SaltCodeRepository;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
@@ -86,7 +86,7 @@ public class SaltCodeEQHandler extends AbstractMutationHandler{
         }
     }
 
-    private SaltCodeRef saltCodeRef(DictionaryRef ref) {
+    private SaltCodeRef saltCodeRef(DictionaryItemRef ref) {
         SaltCodeEntity entity = saltCodeRepository.findById(ref.getId());
         return new SaltCodeRef(entity.getName(), entity.getCharge(), entity.getMolWeight());
     }

@@ -63,8 +63,8 @@ class InsertTestDataTest {
 //    @Test
     @Order(2)
     void insertTestData(@TempDir Path tempDir) {
-        List<DictionaryRef> therapeuticAreas = miscClient.getDictionary(Dictionary.THERAPEUTIC_AREA);
-        List<DictionaryRef> projectCodes = miscClient.getDictionary(Dictionary.PROJECT_CODE);
+        List<DictionaryItemRef> therapeuticAreas = miscClient.getDictionary(Dictionary.THERAPEUTIC_AREA);
+        List<DictionaryItemRef> projectCodes = miscClient.getDictionary(Dictionary.PROJECT_CODE);
         int lastUsedNotebookNumber = 0;
         UUID templateID = templatesClient.createTemplate(new TemplateRequest("Empty template", List.of(new TemplateComponent.Attachments()))).getId();
         for (int projectNo = 1; projectNo <= random.nextInt(4, 16); projectNo++) {

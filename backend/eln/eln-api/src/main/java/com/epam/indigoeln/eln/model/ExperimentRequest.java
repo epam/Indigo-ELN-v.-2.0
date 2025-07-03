@@ -1,7 +1,6 @@
 package com.epam.indigoeln.eln.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,10 +19,10 @@ public class ExperimentRequest {
     String description;
 
     @Nullable
-    DictionaryRef therapeuticArea;
+    DictionaryItemRef therapeuticArea;
 
     @Nullable
-    DictionaryRef projectCode;
+    DictionaryItemRef projectCode;
 
     public ExperimentRequest(UUID templateID) {
         this(templateID, null, null, null);

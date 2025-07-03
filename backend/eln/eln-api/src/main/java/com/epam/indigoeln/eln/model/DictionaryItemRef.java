@@ -11,18 +11,13 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DictionaryDTO {
+public class DictionaryItemRef {
 
     @NotNull
     private UUID id;
 
     @NotEmpty
     private String name;
-
-    private String description;
-
-    @NotNull
-    private Boolean deleted;
 
     @Override
     public String toString() {

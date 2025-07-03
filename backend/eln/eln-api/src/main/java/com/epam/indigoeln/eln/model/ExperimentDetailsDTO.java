@@ -10,9 +10,9 @@ import java.util.List;
 @Setter
 public class ExperimentDetailsDTO extends ExperimentDTO {
 
-    DictionaryRef therapeuticArea;
+    DictionaryItemRef therapeuticArea;
 
-    DictionaryRef projectCode;
+    DictionaryItemRef projectCode;
 
     @NotNull
     List<AttachmentDTO> attachments;

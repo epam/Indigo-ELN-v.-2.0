@@ -1,6 +1,6 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.eln.model.DictionaryRef;
+import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -40,7 +40,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         private final UUID compoundID;
 
         @Nullable
-        private DictionaryRef stereoisomerCode;
+        private DictionaryItemRef stereoisomerCode;
 
         @Nullable
         private SaltCodeRef saltCode;
@@ -79,7 +79,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         private final String molFile;
 
         @Nullable
-        private DictionaryRef stereoisomerCode;
+        private DictionaryItemRef stereoisomerCode;
 
         @Nullable
         private SaltCodeRef saltCode;

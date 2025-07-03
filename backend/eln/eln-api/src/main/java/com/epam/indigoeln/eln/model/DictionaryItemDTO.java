@@ -1,28 +1,27 @@
 package com.epam.indigoeln.eln.model;
 
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DictionaryRequest {
+public class DictionaryItemDTO {
 
-    @Nullable
+    @NotNull
     private UUID id;
 
     @NotEmpty
     private String name;
 
-    @Nullable
     private String description;
 
-    @Nullable
+    @NotNull
     private Boolean deleted;
 
     @Override

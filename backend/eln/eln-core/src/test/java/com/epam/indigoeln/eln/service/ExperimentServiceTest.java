@@ -6,14 +6,12 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.ResponseWithHeaders;
 import com.epam.indigoeln.eln.util.TestHelper;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
-import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -36,8 +34,8 @@ class ExperimentServiceTest extends BaseTest {
 
     ProjectDetailsDTO project;
     NotebookDetailsDTO notebook;
-    List<DictionaryRef> therapeuticAreas;
-    List<DictionaryRef> projectCodes;
+    List<DictionaryItemRef> therapeuticAreas;
+    List<DictionaryItemRef> projectCodes;
 
     @BeforeEach
     void setUp() {
@@ -55,7 +53,7 @@ class ExperimentServiceTest extends BaseTest {
 
     @Test
     void testCreateExperimentBadDictionary() {
-        assertThatClientCall(() -> experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID(), null, new DictionaryRef(UUID.randomUUID(), "Invalid"), null)))
+        assertThatClientCall(() -> experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID(), null, new DictionaryItemRef(UUID.randomUUID(), "Invalid"), null)))
                 .isNotFound("THERAPEUTIC_AREA .+ not found");
     }
 

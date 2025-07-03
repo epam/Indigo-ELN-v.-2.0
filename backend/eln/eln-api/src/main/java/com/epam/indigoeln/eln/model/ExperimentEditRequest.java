@@ -2,7 +2,6 @@ package com.epam.indigoeln.eln.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,8 +17,8 @@ import java.util.Optional;
 public class ExperimentEditRequest {
 
     @Nullable
-    Optional<DictionaryRef> therapeuticArea;
+    Optional<DictionaryItemRef> therapeuticArea;
 
     @Nullable
-    Optional<DictionaryRef> projectCode;
+    Optional<DictionaryItemRef> projectCode;
 }

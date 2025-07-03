@@ -5,7 +5,6 @@ import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.eln.model.*;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -18,26 +17,6 @@ public interface MiscAPI extends BaseAPI {
     @GET
     @Path("/total-counts")
     TotalCounts getTotalCounts();
-
-    @GET
-    @Path("/dictionaries")
-    List<Dictionary> getDictionaries();
-
-    @GET
-    @Path("/dictionaries/{dictionary}")
-    List<DictionaryRef> getDictionary(@PathParam("dictionary") Dictionary dictionary);
-
-    @GET
-    @Path("/dictionaries/{dictionary}/full")
-    List<DictionaryDTO> getDictionaryFull(@PathParam("dictionary") Dictionary dictionary);
-
-    @PATCH
-    @Path("/dictionaries/{dictionary}")
-    List<DictionaryDTO> updateDictionary(@PathParam("dictionary") Dictionary dictionary, List<DictionaryRequest> content);
-
-    @GET
-    @Path("/saltCodes")
-    List<DictionaryRef> getSaltCodes();
 
     // TODO remove from API after Flyway is automated
     @POST

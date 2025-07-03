@@ -46,22 +46,22 @@ public class MiscResource implements MiscAPI {
     }
 
     @Override
-    public List<DictionaryRef> getDictionary(Dictionary dictionary) {
+    public List<DictionaryItemRef> getDictionary(Dictionary dictionary) {
         return dictionaryService.getDictionary(dictionary);
     }
 
     @Override
-    public List<DictionaryDTO> getDictionaryFull(@NotNull Dictionary dictionary) {
+    public List<DictionaryItemDTO> getDictionaryFull(@NotNull Dictionary dictionary) {
         return dictionaryService.getDictionaryFull(dictionary);
     }
 
     @Override
-    public List<DictionaryDTO> updateDictionary(@NotNull Dictionary dictionary, @NotNull @Valid List<DictionaryRequest> content) {
+    public List<DictionaryItemDTO> updateDictionary(@NotNull Dictionary dictionary, @NotNull @Valid List<DictionaryItemRequest> content) {
         return dictionaryService.updateDictionary(dictionary, content);
     }
 
     @Override
-    public List<DictionaryRef> getSaltCodes() {
+    public List<DictionaryItemRef> getSaltCodes() {
         return dictionaryService.getSaltCodes();
     }
 

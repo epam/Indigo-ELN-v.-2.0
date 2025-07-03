@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.common.exception.DictionaryNotFoundException;
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.DictionaryEntity;
@@ -45,15 +44,15 @@ public class DictionaryService {
         return Arrays.asList(Dictionary.values());
     }
 
-    public List<DictionaryRef> getDictionary(Dictionary dictionary) {
+    public List<DictionaryItemRef> getDictionary(Dictionary dictionary) {
         return dictionaryMapper.dictionaryToRefList(dictionaryRepository.list(dictionary, false));
     }
 
-    public List<DictionaryDTO> getDictionaryFull(Dictionary dictionary) {
+    public List<DictionaryItemDTO> getDictionaryFull(Dictionary dictionary) {
         return dictionaryMapper.dictionaryToDTOList(dictionaryRepository.list(dictionary, false));
     }
 
-    public List<DictionaryDTO> updateDictionary(Dictionary dictionary, @Valid List<DictionaryRequest> content) {
+    public List<DictionaryItemDTO> updateDictionary(Dictionary dictionary, @Valid List<DictionaryItemRequest> content) {
         if (log.isDebugEnabled()) {
             log.debug("updateDictionary: before update:\n{}", StreamEx.of(dictionaryRepository.list(dictionary, true)).joining("\n"));
         }
@@ -61,7 +60,7 @@ public class DictionaryService {
         Map<UUID, DictionaryEntity> existing = StreamEx.of(dictionaryRepository.list(dictionary, true))
                 .toMap(IdentifiableEntity::getId, Function.identity());
         int ordinal = 0;
-        for (DictionaryRequest request : content) {
+        for (DictionaryItemRequest request : content) {
             DictionaryEntity entity;
             if (request.getId() != null) {
                 entity = existing.remove(request.getId());
@@ -86,7 +85,7 @@ public class DictionaryService {
         return getDictionaryFull(dictionary);
     }
 
-    public @Nullable DictionaryEntity lookup(Dictionary dictionary, @Nullable DictionaryRef ref) {
+    public @Nullable DictionaryEntity lookup(Dictionary dictionary, @Nullable DictionaryItemRef ref) {
         if (ref == null) {
             return null;
         }
@@ -97,7 +96,7 @@ public class DictionaryService {
         return entity;
     }
 
-    public List<DictionaryRef> getSaltCodes() {
+    public List<DictionaryItemRef> getSaltCodes() {
         return dictionaryMapper.saltCodeToRefList(saltCodeRepository.listAll());
     }
 }

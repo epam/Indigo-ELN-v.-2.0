@@ -405,7 +405,7 @@ class PermissionsTest extends BaseTest {
     @Transactional
     @TestSecurity(user = JOHN_USERNAME)
     void testAdminCanManageDictionaries() {
-        miscClient.updateDictionary(Dictionary.THERAPEUTIC_AREA, List.of(new DictionaryRequest(null, "A", null, false)));
+        miscClient.updateDictionary(Dictionary.THERAPEUTIC_AREA, List.of(new DictionaryItemRequest(null, "A", null, false)));
     }
 
     @Test
