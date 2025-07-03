@@ -1,8 +1,40 @@
 CREATE TYPE Experiment_Status AS ENUM ('OPEN', 'WAITING_FOR_SIGNATURE', 'COMPLETED', 'REJECTED');
+
 CREATE TYPE Access_Level AS ENUM ('IMPLICIT_VIEW', 'VIEW', 'EDIT', 'ADMIN', 'AUTHOR');
+
 CREATE TYPE ACL_Entry AS (user_id UUID, display_name TEXT, level Access_Level, inherited BOOLEAN);
+
 CREATE TYPE Experiment_Count AS (status Experiment_Status, count INT);
--- CREATE TYPE Application_Role AS ENUM ('ADMINISTRATOR', 'CONTENT_EDITOR', 'TEMPLATE_EDITOR');
+
+CREATE TYPE Application_Permission AS ENUM (
+    'MANAGE_USERS',
+    'MANAGE_ROLES',
+    'MANAGE_DICTIONARIES',
+    'MANAGE_TEMPLATES',
+
+    'VIEW_PROJECTS',
+    'CREATE_PROJECTS',
+    'EDIT_PROJECTS',
+    'DELETE_PROJECTS',
+
+    'VIEW_NOTEBOOKS',
+    'CREATE_NOTEBOOKS',
+    'EDIT_NOTEBOOKS',
+    'DELETE_NOTEBOOKS',
+
+    'VIEW_EXPERIMENTS',
+    'CREATE_EXPERIMENTS',
+    'EDIT_EXPERIMENTS',
+    'DELETE_EXPERIMENTS'
+);
+
+CREATE TABLE Application_Role (
+    id UUID PRIMARY KEY,
+    name VARCHAR(256) NOT NULL,
+--     permissions Application_Permission[] NOT NULL,
+    permissions VARCHAR[] NOT NULL,
+    CONSTRAINT application_role_name_uq UNIQUE (name)
+);
 
 CREATE TABLE User_Account (
     id UUID PRIMARY KEY,
@@ -14,21 +46,73 @@ CREATE TABLE User_Account (
     first_name VARCHAR(256),
     last_name VARCHAR(256),
     display_name VARCHAR(256) NOT NULL,
---     roles Application_Role[] NOT NULL,
-    roles VARCHAR[] NOT NULL,
     CONSTRAINT user_account_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT user_account_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT user_account_username_uq UNIQUE (username)
 );
 CREATE UNIQUE INDEX ix_user_account_display_name ON User_Account (lower(display_name));
 
+CREATE TABLE User_Account_Application_Role (
+    user_id UUID NOT NULL,
+    role_id UUID NOT NULL,
+    CONSTRAINT user_account_role_pk PRIMARY KEY (user_id, role_id),
+    CONSTRAINT user_account_role_user_id_fk FOREIGN KEY (user_id) REFERENCES User_Account (id) ON DELETE CASCADE,
+    CONSTRAINT user_account_role_role_id_fk FOREIGN KEY (role_id) REFERENCES Application_Role (id) ON DELETE CASCADE
+);
+
+INSERT INTO Application_Role (id, name, permissions) VALUES
+    ('00000000-0000-0000-0000-000000000002', 'Administrators', ARRAY[
+        'MANAGE_USERS',
+        'MANAGE_ROLES',
+        'MANAGE_DICTIONARIES',
+        'MANAGE_TEMPLATES',
+
+        'VIEW_PROJECTS',
+        'CREATE_PROJECTS',
+        'EDIT_PROJECTS',
+        'DELETE_PROJECTS',
+
+        'VIEW_NOTEBOOKS',
+        'CREATE_NOTEBOOKS',
+        'EDIT_NOTEBOOKS',
+        'DELETE_NOTEBOOKS',
+
+        'VIEW_EXPERIMENTS',
+        'CREATE_EXPERIMENTS',
+        'EDIT_EXPERIMENTS',
+        'DELETE_EXPERIMENTS'
+    ]),
+    ('00000000-0000-0000-0000-000000000003', 'Content Editor', ARRAY[
+        'VIEW_PROJECTS',
+        'CREATE_PROJECTS',
+        'EDIT_PROJECTS',
+        'DELETE_PROJECTS',
+
+        'VIEW_NOTEBOOKS',
+        'CREATE_NOTEBOOKS',
+        'EDIT_NOTEBOOKS',
+        'DELETE_NOTEBOOKS',
+
+        'VIEW_EXPERIMENTS',
+        'CREATE_EXPERIMENTS',
+        'EDIT_EXPERIMENTS',
+        'DELETE_EXPERIMENTS'
+    ]),
+    ('00000000-0000-0000-0000-000000000004', 'Template Editor', ARRAY[
+        'MANAGE_TEMPLATES'
+    ])
+;
+
 INSERT INTO User_Account (id
         , created_by_id, created_at, modified_by_id, modified_at
-        , username, last_name, display_name, roles)
+        , username, last_name, display_name)
 VALUES ('00000000-0000-0000-0000-000000000001'
         , '00000000-0000-0000-0000-000000000001', NOW(), '00000000-0000-0000-0000-000000000001', NOW()
-        , 'admin', 'Administrator', 'Administrator', '{ADMINISTRATOR}'
+        , 'admin', 'Administrator', 'Administrator'
 );
+
+INSERT INTO User_Account_Application_Role (user_id, role_id)
+VALUES ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002');
 
 CREATE TABLE Attachment (
     id UUID PRIMARY KEY,

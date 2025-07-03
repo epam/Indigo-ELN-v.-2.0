@@ -40,7 +40,7 @@ public class NotebookService {
 
     public NotebookDetailsDTO createNotebook(UUID projectId, NotebookRequest request) {
         ProjectEntity project = projectRepository.get(projectId);
-        aclService.ensureAccess(project, AccessOperation.CREATE_NOTEBOOK);
+        aclService.ensureAccess(project, ApplicationPermission.CREATE_NOTEBOOKS);
         NotebookEntity notebook = notebookMapper.requestToNotebook(request);
         project.getNotebooks().add(notebook);
         notebook.setProject(project);
@@ -70,7 +70,7 @@ public class NotebookService {
     @SuppressWarnings("OptionalAssignedToNull")
     public NotebookDetailsDTO editNotebook(UUID notebookId, NotebookEditRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
-        aclService.ensureAccess(notebook, AccessOperation.EDIT);
+        aclService.ensureAccess(notebook, ApplicationPermission.EDIT_NOTEBOOKS);
         editProperty(request.getName(), notebook::setName);
         editProperty(request.getDescription(), notebook::setDescription);
         updateDates(notebook, userService.getCurrentUser());
@@ -81,7 +81,7 @@ public class NotebookService {
     public List<ACLEntryDTO> updateNotebookAccess(UUID notebookId, List<AccessForm> form) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
 //        notebookRepository.getEntityManager().lock(notebook.getProject(), LockModeType.PESSIMISTIC_WRITE);
-        aclService.ensureAccess(notebook, AccessOperation.MANAGE_PERMISSIONS);
+        aclService.ensureAccess(notebook, ApplicationPermission.MANAGE_NOTEBOOK_ACCESS);
         for (AccessForm item : form) {
             UserEntity user = userService.getUserEntity(item.getUserID());
             aclService.updateNotebookACL(notebook.getProject(), notebook, user, item.getLevel());

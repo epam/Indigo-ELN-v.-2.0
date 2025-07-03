@@ -4,8 +4,7 @@ import com.epam.indigoeln.common.exception.AccessDeniedException;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.model.AccessLevel;
-import com.epam.indigoeln.eln.model.AccessOperation;
-import com.epam.indigoeln.eln.model.ApplicationRole;
+import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.EntityType;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
@@ -17,6 +16,7 @@ import one.util.streamex.EntryStream;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.epam.indigoeln.eln.model.AccessLevel.*;
@@ -33,47 +33,43 @@ public class ACLService {
     @Inject
     ExperimentRepository experimentRepository;
 
-    public void ensureTopLevelAccess(AccessOperation operation) {
+    public void ensureTopLevelAccess(ApplicationPermission operation) {
         if (isUserRolesAllow(operation)) {
             return;
         }
-        throw new AccessDeniedException(operation, userService.getCurrentUser().getUsername(), userService.getCurrentUser().getRoles());
+        throw new AccessDeniedException(operation, userService.getCurrentUser().getUsername());
     }
 
-    public void ensureAccess(ProjectEntity project, AccessOperation operation) {
+    public void ensureAccess(ProjectEntity project, ApplicationPermission operation) {
         if (isUserRolesAllow(operation)) {
             return;
         }
         if (!operation.isAllowedBy(project.getCurrentAccess())) {
-            throw new AccessDeniedException(EntityType.PROJECT, project.getId(), operation, project.getCurrentAccess(), userService.getCurrentUser().getUsername(), userService.getCurrentUser().getRoles());
+            throw new AccessDeniedException(EntityType.PROJECT, project.getId(), operation, project.getCurrentAccess(), userService.getCurrentUser().getUsername());
         }
     }
 
-    public void ensureAccess(NotebookEntity notebook, AccessOperation operation) {
+    public void ensureAccess(NotebookEntity notebook, ApplicationPermission operation) {
         if (isUserRolesAllow(operation)) {
             return;
         }
         if (!operation.isAllowedBy(notebook.getCurrentAccess())) {
-            throw new AccessDeniedException(EntityType.NOTEBOOK, notebook.getId(), operation, notebook.getCurrentAccess(), userService.getCurrentUser().getUsername(), userService.getCurrentUser().getRoles());
+            throw new AccessDeniedException(EntityType.NOTEBOOK, notebook.getId(), operation, notebook.getCurrentAccess(), userService.getCurrentUser().getUsername());
         }
     }
 
-    public void ensureAccess(ExperimentEntity experiment, AccessOperation operation) {
+    public void ensureAccess(ExperimentEntity experiment, ApplicationPermission operation) {
         if (isUserRolesAllow(operation)) {
             return;
         }
         if (!operation.isAllowedBy(experiment.getCurrentAccess())) {
-            throw new AccessDeniedException(EntityType.EXPERIMENT, experiment.getId(), operation, experiment.getCurrentAccess(), userService.getCurrentUser().getUsername(), userService.getCurrentUser().getRoles());
+            throw new AccessDeniedException(EntityType.EXPERIMENT, experiment.getId(), operation, experiment.getCurrentAccess(), userService.getCurrentUser().getUsername());
         }
     }
 
-    private boolean isUserRolesAllow(AccessOperation operation) {
-        for (ApplicationRole role : userService.getCurrentUser().getRoles()) {
-            if (role.allows(operation)) {
-                return true;
-            }
-        }
-        return false;
+    private boolean isUserRolesAllow(ApplicationPermission operation) {
+        Set<ApplicationPermission> permissions = userService.getCurrentUser().collectPermissions();
+        return permissions.contains(operation);
     }
 
     public void initProjectACL(ProjectEntity project) {

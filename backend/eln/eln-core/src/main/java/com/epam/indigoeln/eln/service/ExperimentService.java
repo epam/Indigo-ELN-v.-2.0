@@ -50,7 +50,7 @@ public class ExperimentService {
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
-        aclService.ensureAccess(notebook, AccessOperation.CREATE_EXPERIMENT);
+        aclService.ensureAccess(notebook, ApplicationPermission.CREATE_EXPERIMENTS);
         ExperimentEntity experiment = experimentMapper.requestToExperiment(request, ExperimentStatus.OPEN);
         experiment.setName(generateExperimentName(notebook));
         experiment.setTherapeuticArea(dictionaryService.lookup(Dictionary.THERAPEUTIC_AREA, request.getTherapeuticArea()));
@@ -82,7 +82,7 @@ public class ExperimentService {
 
     public ExperimentDetailsDTO editExperiment(UUID experimentId, ExperimentEditRequest request) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, AccessOperation.EDIT);
+        aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
         editProperty(request.getTherapeuticArea(), v -> {
             experiment.setTherapeuticArea(dictionaryService.lookup(Dictionary.THERAPEUTIC_AREA, v));
         });
@@ -102,7 +102,7 @@ public class ExperimentService {
 
     public List<ACLEntryDTO> updateExperimentAccess(UUID experimentId, List<AccessForm> form) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, AccessOperation.MANAGE_PERMISSIONS);
+        aclService.ensureAccess(experiment, ApplicationPermission.MANAGE_EXPERIMENT_ACCESS);
         for (AccessForm item : form) {
             UserEntity user = userService.getUserEntity(item.getUserID());
             aclService.updateExperimentACL(experiment.getNotebook().getProject(), experiment.getNotebook(), experiment, user, item.getLevel());
@@ -130,7 +130,7 @@ public class ExperimentService {
 
     public byte[] getExperimentPicture(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, AccessOperation.VIEW);
+        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
         return experiment.getPicture() != null ? experiment.getPicture() : EMPTY_PICTURE;
     }
 

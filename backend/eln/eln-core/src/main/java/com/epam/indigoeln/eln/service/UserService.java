@@ -3,11 +3,14 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.common.config.UserInfo;
 import com.epam.indigoeln.common.exception.AccessDeniedException;
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
+import com.epam.indigoeln.eln.entity.RoleEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.UserMapper;
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.repository.RoleRepository;
 import com.epam.indigoeln.eln.repository.UserRepository;
 import com.epam.indigoeln.eln.util.ModelUtil;
+import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -18,9 +21,12 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
@@ -38,6 +44,8 @@ public class UserService {
     UserMapper userMapper;
     @Inject
     ExternalUserService externalUserService;
+    @Inject
+    RoleRepository roleRepository;
 
     public UserEntity getCurrentUser() {
         UserEntity user = userContext.get().getCurrentUser();
@@ -66,7 +74,7 @@ public class UserService {
         return userMapper.entityToDetailsDTO(user);
     }
 
-    public UserEntity getUserEntity(@NotNull UUID userID) {
+    public UserEntity getUserEntity(UUID userID) {
         return userRepository.get(userID);
     }
 
@@ -74,15 +82,20 @@ public class UserService {
         return userRepository.suggest(search, paging);
     }
 
-    public @NotNull @Valid UserDTO createUser(UserRequest request) {
+    public UserDTO createUser(UserRequest request) {
         UserEntity entity = userMapper.requestToUser(request);
+        Set<RoleEntity> roles = StreamEx.ofNullable(request.getRoles())
+                .flatMap(Collection::stream)
+                .map(ref -> roleRepository.get(ref.getId()))
+                .toSet();
+        entity.setRoles(roles);
         ModelUtil.updateDates(entity, getCurrentUser());
         userRepository.persist(entity);
         externalUserService.createUser(request);
         return userMapper.entityToDetailsDTO(entity);
     }
 
-    public @NotNull @Valid Page<UserDTO> getUsers(String search, String username, Paging paging) {
+    public Page<UserDTO> getUsers(String search, String username, Paging paging) {
         var list = userRepository.findAll(search, username, paging);
         return Page.of(paging, list.total(), list.list());
     }

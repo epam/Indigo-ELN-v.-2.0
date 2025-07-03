@@ -4,12 +4,14 @@ import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.model.UserDTO;
 import com.epam.indigoeln.eln.model.UserRequest;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR)
 public abstract class UserMapper extends AbstractMapper {
 
     @IgnoreBaseFields
+    @Mapping(target = "roles", ignore = true)
     public abstract UserEntity requestToUser(UserRequest user);
 
     public abstract UserDTO entityToDTO(UserEntity entity);

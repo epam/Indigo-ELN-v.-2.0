@@ -29,7 +29,7 @@ public class TemplateService {
     ACLService aclService;
 
     public TemplateDetailsDTO createTemplate(TemplateRequest request) {
-        aclService.ensureTopLevelAccess(AccessOperation.CREATE_TEMPLATE);
+        aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_TEMPLATES);
         TemplateEntity template = templateMapper.requestToTemplate(request);
         ModelUtil.updateDates(template, userService.getCurrentUser());
         templateRepository.persist(template);
@@ -47,7 +47,7 @@ public class TemplateService {
     }
 
     public TemplateDetailsDTO editTemplate(UUID templateId, TemplateEditRequest request) {
-        aclService.ensureTopLevelAccess(AccessOperation.EDIT_TEMPLATE);
+        aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_TEMPLATES);
         TemplateEntity template = templateRepository.get(templateId);
         editProperty(request.getName(), template::setName);
         ModelUtil.updateDates(template, userService.getCurrentUser());

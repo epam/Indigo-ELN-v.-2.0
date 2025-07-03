@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -16,6 +17,10 @@ public class TestHelper {
             .withIgnoredFields("modifiedAt")
             .build();
 
+    public static final RoleRef ROLE_ADMINISTRATOR = new RoleRef(UUID.fromString("00000000-0000-0000-0000-000000000002"), "Administrator");
+    public static final RoleRef ROLE_CONTENT_EDITOR = new RoleRef(UUID.fromString("00000000-0000-0000-0000-000000000003"), "Content Editor");
+    public static final RoleRef ROLE_TEMPLATE_EDITOR = new RoleRef(UUID.fromString("00000000-0000-0000-0000-000000000004"), "Template Editor");
+
     public static final String ADMIN_USERNAME = "admin";
     public static final String ADMIN_DISPLAY_NAME = "Administrator";
 
@@ -23,25 +28,25 @@ public class TestHelper {
     public static final String JOHN_FIRST_NAME = "John";
     public static final String JOHN_LAST_NAME = "Doe";
     public static final String JOHN_DISPLAY_NAME = "John Doe";
-    public static final ApplicationRole[] JOHN_ROLES = {ApplicationRole.CONTENT_EDITOR, ApplicationRole.TEMPLATE_EDITOR, ApplicationRole.ADMINISTRATOR};
+    public static final List<RoleRef> JOHN_ROLES = List.of(ROLE_CONTENT_EDITOR, ROLE_TEMPLATE_EDITOR, ROLE_ADMINISTRATOR);
 
     public static final String WILLOW_USERNAME = "willow";
     public static final String WILLOW_FIRST_NAME = "Willow";
     public static final String WILLOW_LAST_NAME = "Johnson";
     public static final String WILLOW_DISPLAY_NAME = "Willow Johnson";
-    public static final ApplicationRole[] WILLOW_ROLES = {};
+    public static final List<RoleRef> WILLOW_ROLES = List.of();
 
     public static final String BART_USERNAME = "bart";
     public static final String BART_FIRST_NAME = "Bart";
     public static final String BART_LAST_NAME = "Brown";
     public static final String BART_DISPLAY_NAME = "Bart Brown";
-    public static final ApplicationRole[] BART_ROLES = {ApplicationRole.CONTENT_EDITOR};
+    public static final List<RoleRef> BART_ROLES = List.of(ROLE_CONTENT_EDITOR);
 
     public static final String LISA_USERNAME = "lisa";
     public static final String LISA_FIRST_NAME = "Lisa";
     public static final String LISA_LAST_NAME = "Green";
     public static final String LISA_DISPLAY_NAME = "Lisa Green";
-    public static final ApplicationRole[] LISA_ROLES = {ApplicationRole.TEMPLATE_EDITOR};
+    public static final List<RoleRef> LISA_ROLES = List.of(ROLE_TEMPLATE_EDITOR);
 
     private final UserClient userClient;
     private final MiscClient miscClient;

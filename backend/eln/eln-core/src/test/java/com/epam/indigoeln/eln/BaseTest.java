@@ -41,6 +41,7 @@ public abstract class BaseTest {
     protected MiscClient miscClient;
     protected UserClient userClient;
     protected DictionaryClient dictionaryClient;
+    protected RoleClient roleClient;
 
     protected TestHelper testHelper;
 
@@ -67,6 +68,7 @@ public abstract class BaseTest {
         miscClient = FeignUtil.buildFeignClient(baseURL, MiscClient.class, username, authorization);
         userClient = FeignUtil.buildFeignClient(baseURL, UserClient.class, username, authorization);
         dictionaryClient = FeignUtil.buildFeignClient(baseURL, DictionaryClient.class, username, authorization);
+        roleClient = FeignUtil.buildFeignClient(baseURL, RoleClient.class, username, authorization);
         miscClient.migrate();
         testHelper = new TestHelper(userClient, miscClient);
         testHelper.cleanupDatabase();

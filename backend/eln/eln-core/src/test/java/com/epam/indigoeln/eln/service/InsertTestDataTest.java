@@ -3,6 +3,7 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.FeignUtil;
+import com.epam.indigoeln.eln.util.TestHelper;
 import io.quarkus.test.junit.QuarkusTest;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.*;
@@ -15,6 +16,8 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
+
+import static com.epam.indigoeln.eln.util.TestHelper.*;
 
 
 @QuarkusTest
@@ -57,9 +60,9 @@ class InsertTestDataTest {
 //    @Test
     @Order(2)
     void insertUsers() {
-        userClient.createUser(new UserRequest("alice@eln.com", "Alice Smith", "Alice", "Smith", "password", new ApplicationRole[]{ApplicationRole.CONTENT_EDITOR, ApplicationRole.TEMPLATE_EDITOR}));
-        userClient.createUser(new UserRequest("bob@eln.com", "Bob Johnson", "Bob", "Johnson", "password", new ApplicationRole[]{ApplicationRole.ADMINISTRATOR}));
-        userClient.createUser(new UserRequest("charlie@eln.com", "Charlie Williams", "Charlie", "Williams", "password", new ApplicationRole[]{ApplicationRole.CONTENT_EDITOR}));
+        userClient.createUser(new UserRequest("alice@eln.com", "Alice Smith", "Alice", "Smith", "password", List.of(ROLE_CONTENT_EDITOR, ROLE_TEMPLATE_EDITOR)));
+        userClient.createUser(new UserRequest("bob@eln.com", "Bob Johnson", "Bob", "Johnson", "password", List.of(ROLE_ADMINISTRATOR)));
+        userClient.createUser(new UserRequest("charlie@eln.com", "Charlie Williams", "Charlie", "Williams", "password", List.of(ROLE_CONTENT_EDITOR)));
     }
 
 //    @Test

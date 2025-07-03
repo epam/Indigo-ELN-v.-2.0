@@ -1,13 +1,16 @@
 package com.epam.indigoeln.eln.entity;
 
-import com.epam.indigoeln.eln.model.ApplicationRole;
+import com.epam.indigoeln.eln.model.ApplicationPermission;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -36,15 +39,16 @@ public class UserEntity extends BaseEntity {
     @Column(name = "display_name")
     private String displayName;
 
-    @Basic
     @NotNull
-    @Enumerated(EnumType.STRING)
-//    @JdbcTypeCode(Types.ARRAY)
-//    @Type(value = EnumArrayType.class, parameters = @Parameter(name = AbstractArrayType.SQL_ARRAY_TYPE, value = "Application_Role"))
-    // TODO make array of enum in Postgres when https://hibernate.atlassian.net/browse/HHH-18329 is fixed
-    private ApplicationRole[] roles;
+    @ManyToMany()
+    @JoinTable(name = "User_Account_Application_Role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<RoleEntity> roles = new HashSet<>(0);
 
-    public boolean hasRole(ApplicationRole role) {
-        return Arrays.asList(roles).contains(role);
+    public Set<ApplicationPermission> collectPermissions() {
+        Set<ApplicationPermission> set = EnumSet.noneOf(ApplicationPermission.class);
+        for (RoleEntity role : roles) {
+            Collections.addAll(set, role.getPermissions());
+        }
+        return set;
     }
 }

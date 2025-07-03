@@ -7,7 +7,6 @@ import com.epam.indigoeln.eln.mapper.DictionaryMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.DictionaryRepository;
 import com.epam.indigoeln.eln.repository.SaltCodeRepository;
-import com.epam.indigoeln.eln.util.ModelUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -69,7 +68,7 @@ public class DictionaryService {
     }
 
     public List<DictionaryItemDTO> addDictionaryItem(Dictionary dictionary, DictionaryItemRequest item) {
-        aclService.ensureTopLevelAccess(AccessOperation.MANAGE_DICTIONARIES);
+        aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
         List<DictionaryItemEntity> list = dictionaryRepository.list(dictionary, true);
         DictionaryItemEntity entity = dictionaryMapper.dictionaryToEntity(item, dictionary);
         updateDates(entity, userService.getCurrentUser());
@@ -80,7 +79,7 @@ public class DictionaryService {
     }
 
     public List<DictionaryItemDTO> updateDictionaryItem(Dictionary dictionary, UUID itemID, DictionaryItemEditRequest request) {
-        aclService.ensureTopLevelAccess(AccessOperation.MANAGE_DICTIONARIES);
+        aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
         List<DictionaryItemEntity> list = dictionaryRepository.list(dictionary, true);
         DictionaryItemEntity entity = StreamEx.of(list).filterBy(DictionaryItemEntity::getId, itemID).findFirst()
                 .orElseThrow(() -> new EntityNotFoundException(dictionary, itemID));
@@ -97,7 +96,7 @@ public class DictionaryService {
     }
 
     public List<DictionaryItemDTO> removeDictionaryItem(Dictionary dictionary, UUID itemID) {
-        aclService.ensureTopLevelAccess(AccessOperation.MANAGE_DICTIONARIES);
+        aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
         List<DictionaryItemEntity> list = dictionaryRepository.list(dictionary, true);
         DictionaryItemEntity entity = StreamEx.of(list).filterBy(DictionaryItemEntity::getId, itemID).findFirst()
                 .orElseThrow(() -> new EntityNotFoundException(dictionary, itemID));

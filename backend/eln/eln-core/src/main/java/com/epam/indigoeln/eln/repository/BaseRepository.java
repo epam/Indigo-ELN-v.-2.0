@@ -51,14 +51,14 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
         E entity = query
                 .withHint("jakarta.persistence.fetchgraph", entityGraph)
                 .singleResultOptional()
-                .orElseThrow(() -> new AccessDeniedException(entityType, id, userService.getCurrentUser().getUsername(), userService.getCurrentUser().getRoles()));
+                .orElseThrow(() -> new AccessDeniedException(entityType, id, userService.getCurrentUser().getUsername()));
         return mapper.apply(entity);
     }
 
     public E get(UUID id) {
         E entity = findById(id);
         if (entity == null) {
-            throw new AccessDeniedException(entityType, id, userService.getCurrentUser().getUsername(), userService.getCurrentUser().getRoles());
+            throw new AccessDeniedException(entityType, id, userService.getCurrentUser().getUsername());
         }
         return entity;
     }

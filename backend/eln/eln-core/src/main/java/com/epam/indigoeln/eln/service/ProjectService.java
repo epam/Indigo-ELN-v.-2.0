@@ -16,7 +16,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import one.util.streamex.StreamEx;
-import org.hibernate.exception.ConstraintViolationException;
 
 import java.util.List;
 import java.util.Set;
@@ -42,7 +41,7 @@ public class ProjectService {
     ACLService aclService;
 
     public ProjectDetailsDTO createProject(ProjectRequest request) {
-        aclService.ensureTopLevelAccess(AccessOperation.CREATE_PROJECT);
+        aclService.ensureTopLevelAccess(ApplicationPermission.CREATE_PROJECTS);
         ProjectEntity project = projectMapper.requestToProject(request);
         if (request.getKeywords() != null) {
             updateKeywords(project, request.getKeywords());
@@ -72,7 +71,7 @@ public class ProjectService {
 
     public ProjectDetailsDTO editProject(UUID projectId, ProjectEditRequest request) {
         ProjectEntity project = projectRepository.get(projectId);
-        aclService.ensureAccess(project, AccessOperation.EDIT);
+        aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
         editProperty(request.getName(), project::setName);
         editProperty(request.getKeywords(), v -> updateKeywords(project, v));
         editProperty(request.getLiterature(), project::setLiterature);
@@ -90,7 +89,7 @@ public class ProjectService {
         ProjectEntity project = projectRepository.get(projectId);
         // TODO issue separate select for update
 //        projectRepository.getEntityManager().lock(project, LockModeType.PESSIMISTIC_WRITE);
-        aclService.ensureAccess(project, AccessOperation.MANAGE_PERMISSIONS);
+        aclService.ensureAccess(project, ApplicationPermission.MANAGE_PROJECT_ACCESS);
         for (AccessForm item : form) {
             UserEntity user = userService.getUserEntity(item.getUserID());
             aclService.updateProjectACL(project, user, item.getLevel());

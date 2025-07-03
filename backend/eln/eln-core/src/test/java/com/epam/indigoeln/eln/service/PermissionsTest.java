@@ -384,15 +384,15 @@ class PermissionsTest extends BaseTest {
     void testContentEditorHasEditPermissions() {
         for (TestRow row : rows) {
             ProjectEntity project = projectRepository.get(row.projectId);
-            for (AccessOperation operation : EnumSet.of(AccessOperation.VIEW, AccessOperation.EDIT, AccessOperation.CREATE_NOTEBOOK)) {
+            for (ApplicationPermission operation : EnumSet.of(ApplicationPermission.VIEW_PROJECTS, ApplicationPermission.EDIT_PROJECTS, ApplicationPermission.CREATE_NOTEBOOKS)) {
                 aclService.ensureAccess(project, operation);
             }
             NotebookEntity notebook = notebookRepository.get(row.notebookId);
-            for (AccessOperation operation : EnumSet.of(AccessOperation.VIEW, AccessOperation.EDIT, AccessOperation.CREATE_EXPERIMENT)) {
+            for (ApplicationPermission operation : EnumSet.of(ApplicationPermission.VIEW_NOTEBOOKS, ApplicationPermission.EDIT_NOTEBOOKS, ApplicationPermission.CREATE_EXPERIMENTS)) {
                 aclService.ensureAccess(notebook, operation);
             }
             ExperimentEntity experiment = experimentRepository.get(row.experimentId);
-            for (AccessOperation operation : EnumSet.of(AccessOperation.VIEW, AccessOperation.EDIT)) {
+            for (ApplicationPermission operation : EnumSet.of(ApplicationPermission.VIEW_EXPERIMENTS, ApplicationPermission.EDIT_EXPERIMENTS)) {
                 aclService.ensureAccess(experiment, operation);
             }
         }

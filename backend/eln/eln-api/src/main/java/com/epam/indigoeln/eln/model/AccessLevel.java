@@ -7,29 +7,41 @@ import java.util.Set;
 
 @RequiredArgsConstructor
 public enum AccessLevel {
-    NONE(EnumSet.noneOf(AccessOperation.class)),
+    NONE(EnumSet.noneOf(ApplicationPermission.class)),
     IMPLICIT_VIEW(EnumSet.of(
-            AccessOperation.VIEW
+            ApplicationPermission.VIEW_PROJECTS,
+            ApplicationPermission.VIEW_NOTEBOOKS,
+            ApplicationPermission.VIEW_EXPERIMENTS
     )),
     VIEW(EnumSet.of(
-            AccessOperation.VIEW
+            ApplicationPermission.VIEW_PROJECTS,
+            ApplicationPermission.VIEW_NOTEBOOKS,
+            ApplicationPermission.VIEW_EXPERIMENTS
     )),
     EDIT(EnumSet.of(
-            AccessOperation.VIEW,
-            AccessOperation.EDIT,
-            AccessOperation.CREATE_NOTEBOOK,
-            AccessOperation.CREATE_EXPERIMENT
+            ApplicationPermission.VIEW_PROJECTS,
+            ApplicationPermission.CREATE_PROJECTS,
+            ApplicationPermission.EDIT_PROJECTS,
+            ApplicationPermission.DELETE_PROJECTS,
+            ApplicationPermission.VIEW_NOTEBOOKS,
+            ApplicationPermission.CREATE_NOTEBOOKS,
+            ApplicationPermission.EDIT_NOTEBOOKS,
+            ApplicationPermission.DELETE_NOTEBOOKS,
+            ApplicationPermission.VIEW_EXPERIMENTS,
+            ApplicationPermission.CREATE_EXPERIMENTS,
+            ApplicationPermission.EDIT_EXPERIMENTS,
+            ApplicationPermission.DELETE_EXPERIMENTS
     )),
-    ADMIN(EnumSet.allOf(AccessOperation.class)),
-    AUTHOR(EnumSet.allOf(AccessOperation.class));
+    ADMIN(EnumSet.allOf(ApplicationPermission.class)),
+    AUTHOR(EnumSet.allOf(ApplicationPermission.class));
 
-    private final Set<AccessOperation> grants;
+    private final Set<ApplicationPermission> grants;
 
     public boolean isSufficientFor(AccessLevel level) {
         return this.ordinal() >= level.ordinal();
     }
 
-    public boolean allows(AccessOperation operation) {
+    public boolean allows(ApplicationPermission operation) {
         return grants.contains(operation);
     }
 }

@@ -6,31 +6,26 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Getter
 @Setter
-public class UserDTO extends BaseDTO {
-
-    @NotEmpty
-    String username;
-
-    @NotEmpty
-    String firstName;
-
-    @NotEmpty
-    String lastName;
-
-    @NotEmpty
-    String displayName;
+public class RoleDTO {
 
     @NotNull
-    Set<RoleRef> roles;
+    UUID id;
+
+    @NotEmpty
+    String name;
+
+    @NotNull
+    Set<ApplicationPermission> permissions;
 
     @Override
     public String toString() {
-        return "UserDTO{" +
+        return "RoleDTO{" +
                 "id=" + id +
-                ", username='" + username + '\'' +
+                ", name='" + name + '\'' +
                 '}';
     }
 }

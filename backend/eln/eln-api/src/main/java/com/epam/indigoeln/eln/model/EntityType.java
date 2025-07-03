@@ -12,6 +12,7 @@ public enum EntityType {
     ATTACHMENT,
 
     USER,
+    ROLE,
 
     COMPOUND,
     SAMPLE,
