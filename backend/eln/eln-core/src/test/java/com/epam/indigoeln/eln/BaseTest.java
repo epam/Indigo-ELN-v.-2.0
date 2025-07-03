@@ -11,10 +11,6 @@ import io.quarkus.test.security.TestSecurity;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.*;
 import org.junit.platform.commons.support.AnnotationSupport;
-import software.amazon.awssdk.auth.credentials.AnonymousCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
-import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.*;
 
@@ -28,6 +24,9 @@ public abstract class BaseTest {
     @TestHTTPResource
     @TestHTTPEndpoint(MiscResource.class)
     URI serverURL;
+
+    @Inject
+    CognitoIdentityProviderClient cognito;
 
     protected final boolean integrationTest = AnnotationSupport.isAnnotated(getClass(), QuarkusIntegrationTest.class);
 
@@ -57,6 +56,35 @@ public abstract class BaseTest {
         templatesClient = FeignUtil.buildFeignClient(baseURL, TemplatesClient.class, username, authorization);
         miscClient = FeignUtil.buildFeignClient(baseURL, MiscClient.class, username, authorization);
         usersClient = FeignUtil.buildFeignClient(baseURL, UsersClient.class, username, authorization);
+
+        ListUserPoolsResponse existingUserPools = cognito.listUserPools(ListUserPoolsRequest.builder().build());
+        if (existingUserPools.userPools().isEmpty()) {
+            String userPoolId = cognito.createUserPool(CreateUserPoolRequest.builder()
+                    .poolName("TestUserPool")
+                    .policies(UserPoolPolicyType.builder()
+                            .passwordPolicy(PasswordPolicyType.builder()
+                                    .minimumLength(8)
+                                    .requireSymbols(false)
+                                    .requireUppercase(false)
+                                    .requireNumbers(false)
+                                    .build()
+                            )
+                            .build()
+                    )
+                    .build()
+            ).userPool().id();
+            cognito.adminCreateUser(AdminCreateUserRequest.builder()
+                    .userPoolId(userPoolId)
+                    .username(TestHelper.ADMIN_USERNAME)
+                    .build()
+            );
+            cognito.adminSetUserPassword(AdminSetUserPasswordRequest.builder()
+                    .userPoolId(userPoolId)
+                    .username(TestHelper.ADMIN_USERNAME)
+                    .password("password")
+                    .build()
+            );
+        }
 
         miscClient.migrate(); // TODO remove, not needed?
         testHelper = new TestHelper(usersClient, miscClient);

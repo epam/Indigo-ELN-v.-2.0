@@ -34,13 +34,12 @@ class InsertTestDataTest {
         URI baseURI = URI.create("https://indigo-eln-dev.test.lifescience.opensource.epam.com/");
         AtomicReference<String> testUsername = new AtomicReference<>();
         AtomicReference<String> authorization = new AtomicReference<>(
-                "Bearer eyJraWQiOiJUbTFZSmg5UUJjZkQrVnBKVlc1WEQ3UEV5NEh1d2gxeUlvVlZwcmYxb0UwPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJiNGI4MjQwOC1mMDYxLTcwNzQtY2VkMC1kNjFhYWNlOWJjNGIiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV82RGlyZ3RRMXAiLCJjbGllbnRfaWQiOiJhNGtraDAwb2IyM2w3dXBtODhoaDNtbWo1Iiwib3JpZ2luX2p0aSI6ImM5N2UzN2Y2LTc0YTItNGE3Yi1hNjQ0LTYwYWExZWFkNmFkZCIsImV2ZW50X2lkIjoiMGM0M2Y3YjgtNjc2MC00OWY3LWI2ZDItMzAyODA2N2ExOGEzIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTc1MTIxOTg3MSwiZXhwIjoxNzUxMjk4MDkxLCJpYXQiOjE3NTEyOTQ0OTEsImp0aSI6ImNmYTI4MjEyLWEwOTMtNDllMi1iOTQxLTZlM2JiNGE1NmJiNSIsInVzZXJuYW1lIjoiYWRtaW4ifQ.dFxt0SXaWHx14ogOFLDQhFjM2yVXMysN2I_gCqLuzNAxsmTbYgA5vSPXjfDiRoSB--QPMAYvTdRtL4qOcc8q_ns8dfXeR2nc49t1Ez-4kFPuc-WCps_cYA_jYDWkr5HwEyOMdyH2xvw7RUXBaKiFIPZ7H-1-EzG24_uDtqEIsKIzy7wRzB8qCBEi9TVd-1ApZMIi-nnrhLDKX0CyxtjcApLBMkF5AZoAVlYnTD_zR4Zj18x2Ff6KKQiDVa547DGZBlkRR6LyTsLGVxFlEJ5-XTLKygIlowTJDVybdTeNoMyw8rheix1BfE6aWMHGpxbjbzkBR4jbJU_ryyCOnGGovg"
+                "Bearer eyJraWQiOiJUbTFZSmg5UUJjZkQrVnBKVlc1WEQ3UEV5NEh1d2gxeUlvVlZwcmYxb0UwPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIwNDY4ZTQyOC1hMGYxLTcwN2YtYWE1Yy0zMjgzZGY3NWY2ZjgiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV82RGlyZ3RRMXAiLCJjbGllbnRfaWQiOiJhNGtraDAwb2IyM2w3dXBtODhoaDNtbWo1Iiwib3JpZ2luX2p0aSI6IjcwOWNiYmU5LTMzZmUtNGY1NS1hMzI2LWQxZjMwYmFjMzVkZiIsImV2ZW50X2lkIjoiNWU4ZjI1YjgtZWE3My00MDkxLWJlYWMtMWM3ZjU3YjE3ZmViIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTc1MTA0NzQxMCwiZXhwIjoxNzUxMTA4NzQ2LCJpYXQiOjE3NTExMDUxNDYsImp0aSI6ImVkMjBhNmNkLTI5ZWQtNDA4OC1hNzk1LTQyNTgwMGZlM2NkNyIsInVzZXJuYW1lIjoiYWxpY2UifQ.sCVFeBU5fXkBo3AI1dfAPBi2iz6BQ3F4YmlmoWhicoBAvaeQ7vmnGZyIdeR4G9_rfD9wv-HjAFuvOMro1lg7CgSt7ESs50O8QtRx3LB_7f8b4Suy9znkPlfHagPO3IjNSVQwkkvRRxz0WQVgUC3QIAZM-kaA4aLK5wuxu09SHro1rSCeCJqUYbvmgrhB3RmfDVmCkm8Kx843uKFFsVmyaH_WYHKAGztbKzvz0O0HRaartbtQ64FUpa4YPAqjxEAWGDZdb8rOpybnQ7alGdmRUcy_XXwWLPNqQu8TgAqeFjv4sNUJz9MaEJtYAJJqwChrjYljuNKDzM0G3d_3lC3qrQ"
         );
         projectsClient = FeignUtil.buildFeignClient(baseURI, ProjectsClient.class, testUsername, authorization);
         notebooksClient = FeignUtil.buildFeignClient(baseURI, NotebooksClient.class, testUsername, authorization);
         experimentsClient = FeignUtil.buildFeignClient(baseURI, ExperimentsClient.class, testUsername, authorization);
         miscClient = FeignUtil.buildFeignClient(baseURI, MiscClient.class, testUsername, authorization);
-        usersClient = FeignUtil.buildFeignClient(baseURI, UsersClient.class, testUsername, authorization);
     }
 
 //    @Test
@@ -50,7 +49,7 @@ class InsertTestDataTest {
         System.out.println(result);
     }
 
-    @Test
+//    @Test
     @Order(2)
     void insertUsers() {
         usersClient.createUser(new UserRequest("alice@eln.com", "Alice Smith", "Alice", "Smith", "password", new ApplicationRole[]{ApplicationRole.CONTENT_EDITOR, ApplicationRole.TEMPLATE_EDITOR}));
