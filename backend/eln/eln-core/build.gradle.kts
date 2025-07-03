@@ -29,6 +29,8 @@ dependencies {
 //    implementation("com.epam.indigo:indigo-inchi:1.30.0")
 //    implementation("com.epam.indigo:bingo-nosql:1.30.1")
 
+    implementation("io.quarkiverse.amazonservices:quarkus-amazon-cognito-user-pools")
+    implementation("software.amazon.awssdk:url-connection-client")
     testImplementation(project(":common:common-test"))
 
     // for integration tests
@@ -41,7 +43,6 @@ dependencies {
     testImplementation("com.fasterxml.jackson.module:jackson-module-parameter-names:2.18.2")
     testImplementation("io.smallrye:smallrye-jwt-common") //:4.6.1")
     testImplementation("io.smallrye:smallrye-jwt-build")
-
     // for calculation reports
     testImplementation("io.github.java-diff-utils:java-diff-utils:4.12")
 }
@@ -50,7 +51,7 @@ group = "com.epam.indigoeln"
 version = "3.0.0-SNAPSHOT"
 
 flyway {
-    url= "jdbc:postgresql://localhost:15432/quarkus"
+    url= "jdbc:postgresql://localhost:15433/quarkus"
     driver = "org.postgresql.Driver"
     user = "quarkus"
     password = "quarkus"

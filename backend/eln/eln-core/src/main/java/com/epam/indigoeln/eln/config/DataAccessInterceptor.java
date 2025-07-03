@@ -30,7 +30,7 @@ public class DataAccessInterceptor {
         if (invoked.get() != Boolean.TRUE) {
             em.createNativeQuery("SELECT SET_CONFIG('eln.currentUserId', CAST(? AS VARCHAR), TRUE), SET_CONFIG('eln.isContentEditor', CAST(? AS VARCHAR), TRUE)")
                     .setParameter(1, userService.getCurrentUser().getId())
-                    .setParameter(2, userService.getCurrentUser().hasRole(ApplicationRole.CONTENT_EDITOR))
+                    .setParameter(2, userService.getCurrentUser().hasRole(ApplicationRole.ADMINISTRATOR) || userService.getCurrentUser().hasRole(ApplicationRole.CONTENT_EDITOR))
                     .getSingleResult();
             invoked.set(true);
             executed = true;

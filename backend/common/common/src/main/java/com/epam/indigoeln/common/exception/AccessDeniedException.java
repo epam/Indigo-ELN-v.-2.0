@@ -18,4 +18,8 @@ public class AccessDeniedException extends RuntimeException {
     public AccessDeniedException(Enum<?> entityType, UUID id, Enum<?> operation, @Nullable Enum<?> currentLevel, String currentUser, Object[] currentRoles) {
         super(String.format("Operation not permitted: %s on %s %s; current access %s doesn't allow it; current user %s with roles %s", operation, entityType, id, currentLevel, currentUser, Arrays.toString(currentRoles)));
     }
+
+    public AccessDeniedException(String missingUser) {
+        super(String.format("User not found: %s", missingUser));
+    }
 }

@@ -1,5 +1,6 @@
 plugins {
     java
+    id("com.github.ben-manes.versions")
 }
 
 repositories {
@@ -10,10 +11,11 @@ repositories {
 val quarkusPlatformGroupId: String by project
 val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
+val quarkusAmazonServicesVersion: String by project
 
 dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
-    implementation(enforcedPlatform("io.quarkus.platform:quarkus-amazon-services-bom:3.18.4"))
+    implementation(enforcedPlatform("io.quarkus.platform:quarkus-amazon-services-bom:${quarkusAmazonServicesVersion}"))
 
     compileOnly("org.projectlombok:lombok:1.18.38")
     annotationProcessor("org.projectlombok:lombok:1.18.38")

@@ -39,14 +39,6 @@ public interface MiscAPI extends BaseAPI {
     @Path("/saltCodes")
     List<DictionaryRef> getSaltCodes();
 
-    @POST
-    @Path("/users")
-    UserRef getOrCreateUser(CreateUserForm form);
-
-    @GET
-    @Path("/users/suggest")
-    List<UserRef> suggestUsers(@QueryParam("search") @Nullable String search, @BeanParam Paging paging);
-
     // TODO remove from API after Flyway is automated
     @POST
     @Path("/admin/flyway")

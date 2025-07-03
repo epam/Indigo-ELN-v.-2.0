@@ -41,6 +41,6 @@ public class SupportService {
         em.createNativeQuery("delete from Sample").executeUpdate();
         em.createNativeQuery("delete from Compound").executeUpdate();
         // users
-        em.createNativeQuery("delete from User_Account").executeUpdate();
+        em.createNativeQuery("delete from User_Account where username not in ('admin', 'john', 'willow', 'bart', 'lisa')").executeUpdate();
     }
 }

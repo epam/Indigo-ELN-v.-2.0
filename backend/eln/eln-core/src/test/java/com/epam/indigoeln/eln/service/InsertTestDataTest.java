@@ -1,10 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.eln.api.CreateUserForm;
-import com.epam.indigoeln.eln.client.ExperimentsClient;
-import com.epam.indigoeln.eln.client.MiscClient;
-import com.epam.indigoeln.eln.client.NotebooksClient;
-import com.epam.indigoeln.eln.client.ProjectsClient;
+import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.FeignUtil;
 import io.quarkus.test.junit.QuarkusTest;
@@ -31,6 +27,7 @@ class InsertTestDataTest {
     NotebooksClient notebooksClient;
     ExperimentsClient experimentsClient;
     MiscClient miscClient;
+    UsersClient usersClient;
 
     @BeforeEach
     void setup() {
@@ -55,9 +52,9 @@ class InsertTestDataTest {
 //    @Test
     @Order(2)
     void insertUsers() {
-        miscClient.getOrCreateUser(new CreateUserForm("alice", "Alice", "Smith", new ApplicationRole[]{ApplicationRole.CONTENT_EDITOR, ApplicationRole.TEMPLATE_EDITOR}));
-        miscClient.getOrCreateUser(new CreateUserForm("bob", "Bob", "Johnson", new ApplicationRole[]{ApplicationRole.ADMINISTRATOR}));
-        miscClient.getOrCreateUser(new CreateUserForm("charlie", "Charlie", "Williams", new ApplicationRole[]{ApplicationRole.CONTENT_EDITOR}));
+        usersClient.createUser(new UserRequest("alice@eln.com", "Alice Smith", "Alice", "Smith", "password", new ApplicationRole[]{ApplicationRole.CONTENT_EDITOR, ApplicationRole.TEMPLATE_EDITOR}));
+        usersClient.createUser(new UserRequest("bob@eln.com", "Bob Johnson", "Bob", "Johnson", "password", new ApplicationRole[]{ApplicationRole.ADMINISTRATOR}));
+        usersClient.createUser(new UserRequest("charlie@eln.com", "Charlie Williams", "Charlie", "Williams", "password", new ApplicationRole[]{ApplicationRole.CONTENT_EDITOR}));
     }
 
 //    @Test

@@ -8,9 +8,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public enum ApplicationRole {
 
-    ADMINISTRATOR(EnumSet.of(
-            AccessOperation.MANAGE_DICTIONARIES
-    )),
+    ADMINISTRATOR(EnumSet.allOf(AccessOperation.class)),
     CONTENT_EDITOR(EnumSet.of(
             AccessOperation.VIEW,
             AccessOperation.EDIT,

@@ -1,18 +1,20 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.config.UserInfo;
-import com.epam.indigoeln.common.util.ModelUtil;
+import com.epam.indigoeln.common.exception.AccessDeniedException;
+import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.eln.entity.UserEntity;
-import com.epam.indigoeln.eln.mapper.ProjectMapper;
-import com.epam.indigoeln.eln.model.ApplicationRole;
-import com.epam.indigoeln.eln.model.Paging;
-import com.epam.indigoeln.eln.model.UserRef;
+import com.epam.indigoeln.eln.mapper.UserMapper;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.UserRepository;
+import com.epam.indigoeln.eln.util.ModelUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -33,40 +35,56 @@ public class UserService {
     @Inject
     Provider<UserContext> userContext;
     @Inject
-    ProjectMapper projectMapper;
+    UserMapper userMapper;
+    @Inject
+    ExternalUserService externalUserService;
 
     public UserEntity getCurrentUser() {
         UserEntity user = userContext.get().getCurrentUser();
         if (user == null) {
-            user = getOrCreateUser(userInfo.getUserName(), userInfo.getFirstName(), userInfo.getLastName(), new ApplicationRole[0]);
+            String username = userInfo.getUserName();
+            userInfo.getFirstName();
+            userInfo.getLastName();
+            user = userRepository.findByUsername(username);
+            if (user == null) {
+                throw new AccessDeniedException(username);
+            }
             userContext.get().setCurrentUser(user);
         }
         return user;
     }
 
-    public UserEntity getOrCreateUser(String username) {
-        return getOrCreateUser(username, null, null, new ApplicationRole[0]);
+    public UserDTO getUser(UUID id) {
+        return userRepository.loadDetails(id);
     }
 
-    public UserEntity getOrCreateUser(String username, @Nullable String firstName, @Nullable String lastName, ApplicationRole[] roles) {
+    public UserDTO getUser(String username) {
         UserEntity user = userRepository.findByUsername(username);
         if (user == null) {
-            user = new UserEntity(username, firstName, lastName, ModelUtil.formatUser(firstName, lastName, username), roles);
-            userRepository.persist(user);
+            throw new EntityNotFoundException(EntityType.USER, username);
         }
-        return user;
+        return userMapper.entityToDetailsDTO(user);
     }
 
-    public UserEntity getUser(UUID id) {
-        return userRepository.get(id);
+    public UserEntity getUserEntity(@NotNull UUID userID) {
+        return userRepository.get(userID);
     }
 
     public List<UserRef> suggestUsers(@Nullable String search, Paging paging) {
         return userRepository.suggest(search, paging);
     }
 
-    public UserRef convertToRef(UserEntity user) {
-        return projectMapper.userRef(user);
+    public @NotNull @Valid UserDTO createUser(UserRequest request) {
+        UserEntity entity = userMapper.requestToUser(request);
+        ModelUtil.updateDates(entity, getCurrentUser());
+        userRepository.persist(entity);
+        externalUserService.createUser(request);
+        return userMapper.entityToDetailsDTO(entity);
+    }
+
+    public @NotNull @Valid Page<UserDTO> getUsers(String search, String username, Paging paging) {
+        var list = userRepository.findAll(search, username, paging);
+        return Page.of(paging, list.total(), list.list());
     }
 
     @Getter

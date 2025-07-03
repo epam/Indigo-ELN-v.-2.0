@@ -5,21 +5,17 @@ import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.api.BaseAPI;
-import com.epam.indigoeln.eln.api.CreateUserForm;
 import com.epam.indigoeln.eln.api.MiscAPI;
 import com.epam.indigoeln.eln.api.UploadForm;
-import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.ProjectService;
 import com.epam.indigoeln.eln.service.SupportService;
-import com.epam.indigoeln.eln.service.UserService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Path;
 import lombok.SneakyThrows;
-import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -32,8 +28,6 @@ public class MiscResource implements MiscAPI {
 
     @Inject
     ProjectService projectService;
-    @Inject
-    UserService userService;
     @Inject
     SupportService supportService;
     @Inject
@@ -69,17 +63,6 @@ public class MiscResource implements MiscAPI {
     @Override
     public List<DictionaryRef> getSaltCodes() {
         return dictionaryService.getSaltCodes();
-    }
-
-    @Override
-    public UserRef getOrCreateUser(@NotNull @Valid CreateUserForm form) {
-        UserEntity user = userService.getOrCreateUser(form.getUsername(), form.getFirstName(), form.getLastName(), form.getRoles() != null ? form.getRoles() : new ApplicationRole[0]);
-        return userService.convertToRef(user);
-    }
-
-    @Override
-    public List<UserRef> suggestUsers(@Nullable String search, Paging paging) {
-        return userService.suggestUsers(search, paging);
     }
 
     @Override

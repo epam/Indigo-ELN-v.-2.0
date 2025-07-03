@@ -33,9 +33,7 @@ public class CognitoStack extends NestedStack {
                 .cognitoDomain(CognitoDomainOptions.builder().domainPrefix("indigoeln-" + props.getEnvName()).build())
                 .build();
 
-        createUser(userPool, "alice", "Alice", "Smith");
-        createUser(userPool, "bob", "Bob", "Johnson");
-        createUser(userPool, "charlie", "Charlie", "Williams");
+        createUser(userPool, "admin", "Administrator", "Administrator");
         userPoolClient = userPool.addClient("user-pool-eln-client", UserPoolClientOptions.builder()
                 .userPoolClientName("eln-client")
                 .generateSecret(false)

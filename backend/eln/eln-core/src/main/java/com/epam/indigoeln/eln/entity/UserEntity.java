@@ -16,7 +16,7 @@ import java.util.Arrays;
 @Entity(name = "User")
 @Table(name = "User_Account")
 @ToString(of = {"id", "username"}, includeFieldNames = false)
-public class UserEntity extends IdentifiableEntity {
+public class UserEntity extends BaseEntity {
 
     @NotEmpty
     @Basic(fetch = FetchType.LAZY)
