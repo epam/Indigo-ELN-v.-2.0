@@ -49,6 +49,7 @@ public class ExperimentService {
         NotebookEntity notebook = notebookRepository.get(notebookId);
         aclService.ensureAccess(notebook, AccessOperation.CREATE_EXPERIMENT);
         ExperimentEntity experiment = experimentMapper.requestToExperiment(request, ExperimentStatus.OPEN);
+        experiment.setName(generateExperimentName(notebook));
         experiment.setTherapeuticArea(dictionaryService.lookup(Dictionary.THERAPEUTIC_AREA, request.getTherapeuticArea()));
         experiment.setProjectCode(dictionaryService.lookup(Dictionary.PROJECT_CODE, request.getProjectCode()));
         notebook.getProject().getExperiments().add(experiment);
@@ -68,6 +69,10 @@ public class ExperimentService {
         return Page.of(paging, list.total(), list.list());
     }
 
+    public List<ExperimentDTO> getMarkedExperiments() {
+        return experimentRepository.findMarked();
+    }
+
     public ExperimentDetailsDTO getExperiment(UUID experimentId) {
         return experimentRepository.load(experimentId);
     }
@@ -75,7 +80,6 @@ public class ExperimentService {
     public ExperimentDetailsDTO editExperiment(UUID experimentId, ExperimentEditRequest request) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, AccessOperation.EDIT);
-        editProperty(request.getName(), experiment::setName);
         editProperty(request.getTherapeuticArea(), v -> {
             experiment.setTherapeuticArea(dictionaryService.lookup(Dictionary.THERAPEUTIC_AREA, v));
         });
@@ -119,5 +123,11 @@ public class ExperimentService {
             log.error("Failed to mutate model for experiment {}: {}", experimentId, e.getMessage(), e);
             throw new RuntimeException("Failed to mutate model", e);
         }
+    }
+
+    private String generateExperimentName(NotebookEntity notebook) {
+        String last = experimentRepository.getLastExperimentName(notebook);
+        int lastNumber = last == null ? 0 : Integer.parseInt(last.substring(last.lastIndexOf('-') + 1));
+        return "%s-%04d".formatted(notebook.getName(), lastNumber + 1);
     }
 }

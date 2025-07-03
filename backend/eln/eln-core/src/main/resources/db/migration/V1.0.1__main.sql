@@ -54,7 +54,8 @@ CREATE TABLE Project (
     description TEXT,
     search_vector TSVECTOR,
     CONSTRAINT project_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
-    CONSTRAINT project_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id)
+    CONSTRAINT project_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
+    CONSTRAINT project_name_uq UNIQUE (name)
 );
 CREATE INDEX ix_project_search_vector ON Project USING GIN(search_vector);
 
@@ -102,7 +103,8 @@ CREATE TABLE Notebook (
     search_vector TSVECTOR,
     CONSTRAINT notebook_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT notebook_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
-    CONSTRAINT notebook_project_id_fk FOREIGN KEY (project_id) REFERENCES Project (id)
+    CONSTRAINT notebook_project_id_fk FOREIGN KEY (project_id) REFERENCES Project (id),
+    CONSTRAINT notebook_name_uq UNIQUE (name)
 );
 CREATE INDEX ix_notebook_search_vector ON Notebook USING GIN(search_vector);
 
@@ -156,7 +158,8 @@ CREATE TABLE Experiment (
     CONSTRAINT experiment_project_id_fk FOREIGN KEY (project_id) REFERENCES Project (id),
     CONSTRAINT experiment_notebook_id_fk FOREIGN KEY (notebook_id) REFERENCES Notebook (id),
     CONSTRAINT experiment_therapeutic_area_id_fk FOREIGN KEY (therapeutic_area_id) REFERENCES Dictionary_Item (id),
-    CONSTRAINT experiment_project_code_id FOREIGN KEY (project_code_id) REFERENCES Dictionary_Item (id)
+    CONSTRAINT experiment_project_code_id FOREIGN KEY (project_code_id) REFERENCES Dictionary_Item (id),
+    CONSTRAINT experiment_name_uq UNIQUE (name)
 );
 CREATE INDEX ix_experiment_search_vector ON Experiment USING GIN(search_vector);
 

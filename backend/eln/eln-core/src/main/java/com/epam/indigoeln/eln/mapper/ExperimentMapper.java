@@ -14,6 +14,7 @@ import org.mapstruct.ReportingPolicy;
 public abstract class ExperimentMapper extends AbstractMapper {
 
     @IgnoreBaseFields
+    @Mapping(target = "name", ignore = true)
     @Mapping(target = "currentAccess", ignore = true)
     @Mapping(target = "project", ignore = true)
     @Mapping(target = "notebook", ignore = true)

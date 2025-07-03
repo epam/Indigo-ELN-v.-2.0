@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.exception.DictionaryNotFoundException;
+import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.DictionaryEntity;
 import com.epam.indigoeln.eln.entity.IdentifiableEntity;
@@ -65,7 +66,7 @@ public class DictionaryService {
             if (request.getId() != null) {
                 entity = existing.remove(request.getId());
                 if (entity == null) {
-                    throw new DictionaryNotFoundException(dictionary, request.getId());
+                    throw new EntityNotFoundException(dictionary, request.getId());
                 }
                 dictionaryMapper.dictionaryToEntity(request, dictionary, ++ordinal, entity);
             } else {
@@ -91,7 +92,7 @@ public class DictionaryService {
         }
         DictionaryEntity entity = dictionaryRepository.findById(ref.getId());
         if (entity == null || entity.getDictionary() != dictionary) {
-            throw new DictionaryNotFoundException(dictionary, ref.getId(), ref.getName(), dictionaryRepository.list(dictionary, true));
+            throw new EntityNotFoundException(dictionary, ref.getId());
         }
         return entity;
     }

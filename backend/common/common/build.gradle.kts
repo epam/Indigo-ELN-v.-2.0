@@ -19,6 +19,8 @@ dependencies {
     api("org.flywaydb:flyway-database-postgresql")
 
     api("org.jspecify:jspecify:1.0.0")
+    api("com.google.guava:guava:33.4.8-jre")
+    api("one.util:streamex:0.8.3")
 
     testImplementation(project(":common:common-test"))
 }

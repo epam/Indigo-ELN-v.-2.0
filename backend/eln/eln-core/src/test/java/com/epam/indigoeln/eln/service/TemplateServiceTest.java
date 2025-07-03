@@ -25,7 +25,7 @@ class TemplateServiceTest extends BaseTest {
     @Test
     void testCreateTemplateValidation() {
         assertThatClientCall(() -> templatesClient.createTemplate(new TemplateRequest(null, List.of())))
-                .isBadRequest();
+                .isBadRequest("must not be empty");
     }
 
     @Test

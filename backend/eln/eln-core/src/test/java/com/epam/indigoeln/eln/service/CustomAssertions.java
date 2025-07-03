@@ -1,8 +1,15 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.config.ErrorDTO;
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.model.ACLEntryDTO;
 import com.epam.indigoeln.eln.model.AccessLevel;
+import com.epam.indigoeln.eln.util.APICallException;
+import com.epam.indigoeln.eln.util.FeignUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import lombok.SneakyThrows;
 import one.util.streamex.StreamEx;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.AbstractAssert;
@@ -13,8 +20,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class CustomAssertions {
 
@@ -91,27 +100,38 @@ public class CustomAssertions {
             return this;
         }
 
-        public ClientCallAssert<T> isFailedWithStatusCode(int statusCode) {
+        public ClientCallAssert<T> isFailedWithStatusCode(int statusCode, String messagePattern, String... messagePatterns) {
             assertThat(exception).as(descriptionText() + "\nCall expected to fail with code %s, but succeeded", statusCode).isNotNull();
-            assertThat(exception).isInstanceOfSatisfying(ClientWebApplicationException.class, e -> {
-                assertThat(e.getResponse().getStatus()).as(descriptionText() + "\nCall failed with wrong code").isEqualTo(statusCode);
+            assertThat(exception).isInstanceOfSatisfying(APICallException.class, e -> {
+                assertThat(e.getStatusCode()).as(descriptionText() + "\nCall failed with wrong code").isEqualTo(statusCode);
+                List<String> allPatterns = StreamEx.of(messagePatterns).prepend(messagePattern).toList();
+                for (String pattern : allPatterns) {
+                    Pattern pt = Pattern.compile(pattern);
+                    if (e.getErrors().stream().noneMatch(err -> pt.matcher(err.getMessage()).find())) {
+                        fail("Expected error messages to contain pattern %s:\n\n%s", pattern, StreamEx.of(e.getErrors()).joining("\n"));
+                    }
+                }
             });
             return this;
         }
 
-        public ClientCallAssert<T> isBadRequest() {
-            return isFailedWithStatusCode(HttpStatus.SC_BAD_REQUEST);
+        public ClientCallAssert<T> isBadRequest(String messagePattern, String... messagePatterns) {
+            return isFailedWithStatusCode(HttpStatus.SC_BAD_REQUEST, messagePattern, messagePatterns);
         }
 
-        public ClientCallAssert<T> isForbidden() {
-            return isFailedWithStatusCode(HttpStatus.SC_FORBIDDEN);
+        public ClientCallAssert<T> isForbidden(String messagePattern, String... messagePatterns) {
+            return isFailedWithStatusCode(HttpStatus.SC_FORBIDDEN, messagePattern, messagePatterns);
         }
 
-        public ClientCallAssert<T> isAllowedIf(boolean condition) {
+        public ClientCallAssert<T> isNotFound(String messagePattern, String... messagePatterns) {
+            return isFailedWithStatusCode(HttpStatus.SC_NOT_FOUND, messagePattern, messagePatterns);
+        }
+
+        public ClientCallAssert<T> isAllowedIf(boolean condition, String messagePattern, String... messagePatterns) {
             if (condition) {
                 return isSuccessful();
             } else {
-                return isForbidden();
+                return isForbidden(messagePattern, messagePatterns);
             }
         }
     }

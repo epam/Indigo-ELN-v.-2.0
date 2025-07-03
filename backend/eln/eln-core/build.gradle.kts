@@ -22,8 +22,6 @@ dependencies {
 //    api("io.quarkiverse.hibernatetypes:quarkus-hibernate-types:2.2.0")
 
     api(project(":eln:eln-api"))
-    api("one.util:streamex:0.8.3")
-    api("com.google.guava:guava:33.4.0-jre")
     implementation("com.epam.indigo:indigo:1.30.1")
     implementation("com.epam.indigo:indigo-renderer:1.30.1")
 //    implementation("com.epam.indigo:indigo-inchi:1.30.0")

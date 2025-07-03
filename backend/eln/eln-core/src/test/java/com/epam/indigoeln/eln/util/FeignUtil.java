@@ -1,8 +1,11 @@
 package com.epam.indigoeln.eln.util;
 
+import com.epam.indigoeln.common.config.ErrorDTO;
 import com.epam.indigoeln.common.config.UserInfo;
 import com.epam.indigoeln.eln.api.BaseAPI;
 import com.epam.indigoeln.eln.client.MiscClient;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -26,6 +29,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class FeignUtil {
@@ -54,12 +58,17 @@ public class FeignUtil {
                 .logger(new Slf4jLogger(MiscClient.class))
                 .retryer(Retryer.NEVER_RETRY)
                 .errorDecoder((methodKey, response) -> {
-                    String body = null;
+                    String body = "";
                     try (InputStream is = response.body().asInputStream()) {
                         body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                     } catch (Exception ignore) {
                     }
-                    return new ClientWebApplicationException(response.status() + " " + response.reason() + ": " + body, response.status());
+                    try {
+                        List<ErrorDTO> errors = OBJECT_MAPPER.readValue(body, new TypeReference<>() {});
+                        return new APICallException(response.status(), response.reason(), errors);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Server didn't return a valid JSON error response: " + body, e);
+                    }
                 })
                 .target(klass, baseURL.toString());
 //        client = RestClientBuilder.newBuilder().baseUri(baseURL).build(ELNClient.class);

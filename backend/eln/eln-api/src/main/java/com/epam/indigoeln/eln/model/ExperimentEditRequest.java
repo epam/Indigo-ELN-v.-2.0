@@ -18,9 +18,6 @@ import java.util.Optional;
 public class ExperimentEditRequest {
 
     @Nullable
-    Optional<@NotEmpty String> name;
-
-    @Nullable
     Optional<DictionaryRef> therapeuticArea;
 
     @Nullable

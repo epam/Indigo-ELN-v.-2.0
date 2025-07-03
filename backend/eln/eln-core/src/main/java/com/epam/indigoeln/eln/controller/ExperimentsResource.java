@@ -49,6 +49,11 @@ public class ExperimentsResource implements ExperimentsAPI {
     }
 
     @Override
+    public List<ExperimentDTO> getMarkedExperiments() {
+        return experimentService.getMarkedExperiments();
+    }
+
+    @Override
     public @NotNull @Valid ExperimentDetailsDTO editExperiment(@NotNull UUID experimentId, @NotNull @Valid ExperimentEditRequest request) {
         return experimentService.editExperiment(experimentId, request);
     }

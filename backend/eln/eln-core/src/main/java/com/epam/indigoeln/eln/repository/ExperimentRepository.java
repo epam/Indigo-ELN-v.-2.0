@@ -56,6 +56,13 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 .getSingleResult();
     }
 
+    public List<ExperimentDTO> findMarked() {
+        return em.createQuery("from Experiment e where e.marked order by name", ExperimentEntity.class)
+                .getResultList().stream()
+                .map(experimentMapper::entityToDTO)
+                .toList();
+    }
+
     public List<ExperimentEntity> findByProjectWithACLEntities(ProjectEntity project) {
         return find("project", project)
                 .withHint("jakarta.persistence.fetchgraph", em.getEntityGraph("Experiment.withACL"))
@@ -70,5 +77,13 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
 
     public boolean hasAccessibleExperiments(NotebookEntity notebook) {
         return find("notebook", notebook).firstResult() != null;
+    }
+
+    @Nullable
+    public String getLastExperimentName(NotebookEntity notebook) {
+        List<@Nullable String> found = em.createQuery("select max(e.name) from Experiment e where e.notebook.id = ?1", String.class)
+                .setParameter(1, notebook.getId())
+                .getResultList();
+        return found.isEmpty() || found.getFirst() == null ? null : found.getFirst();
     }
 }

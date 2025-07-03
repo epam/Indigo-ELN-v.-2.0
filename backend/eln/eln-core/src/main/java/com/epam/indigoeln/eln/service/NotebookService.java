@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
@@ -45,8 +46,15 @@ public class NotebookService {
         notebook.setProject(project);
         updateDates(notebook, userService.getCurrentUser());
         aclService.initNotebookACL(notebook);
-        notebookRepository.persist(notebook);
-        notebookRepository.flushAndClear();
+        try {
+            notebookRepository.persist(notebook);
+            notebookRepository.flushAndClear();
+        } catch (org.hibernate.exception.ConstraintViolationException e) {
+            if ("notebook_name_uq".equals(e.getConstraintName())) {
+                throw new InvalidRequestException("Notebook with name '" + notebook.getName() + "' already exists");
+            }
+            throw e;
+        }
         return getNotebook(notebook.getId());
     }
 

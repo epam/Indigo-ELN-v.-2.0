@@ -12,6 +12,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
@@ -28,6 +29,7 @@ class InsertTestDataTest {
     ExperimentsClient experimentsClient;
     MiscClient miscClient;
     UsersClient usersClient;
+    TemplatesClient templatesClient;
 
     @BeforeEach
     void setup() {
@@ -40,6 +42,7 @@ class InsertTestDataTest {
         notebooksClient = FeignUtil.buildFeignClient(baseURI, NotebooksClient.class, testUsername, authorization);
         experimentsClient = FeignUtil.buildFeignClient(baseURI, ExperimentsClient.class, testUsername, authorization);
         miscClient = FeignUtil.buildFeignClient(baseURI, MiscClient.class, testUsername, authorization);
+        templatesClient = FeignUtil.buildFeignClient(baseURI, TemplatesClient.class, testUsername, authorization);
     }
 
 //    @Test
@@ -62,6 +65,8 @@ class InsertTestDataTest {
     void insertTestData(@TempDir Path tempDir) {
         List<DictionaryRef> therapeuticAreas = miscClient.getDictionary(Dictionary.THERAPEUTIC_AREA);
         List<DictionaryRef> projectCodes = miscClient.getDictionary(Dictionary.PROJECT_CODE);
+        int lastUsedNotebookNumber = 0;
+        UUID templateID = templatesClient.createTemplate(new TemplateRequest("Empty template", List.of(new TemplateComponent.Attachments()))).getId();
         for (int projectNo = 1; projectNo <= random.nextInt(4, 16); projectNo++) {
             System.out.println("project " + projectNo);
             List<String> keywords = IntStream.range(0, random.nextInt(4)).mapToObj(i -> "keyword" + i).toList();
@@ -72,14 +77,14 @@ class InsertTestDataTest {
             }
             for (int notebookNo = 1; notebookNo <= random.nextInt(1, 4); notebookNo++) {
                 System.out.println("\tnotebook " + notebookNo);
-                NotebookDetailsDTO notebook = notebooksClient.createNotebook(project.getId(), new NotebookRequest("Test Notebook " + notebookNo, "description"));
+                NotebookDetailsDTO notebook = notebooksClient.createNotebook(project.getId(), new NotebookRequest("%08d".formatted(++lastUsedNotebookNumber), "description"));
                 for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 4); attachmentNo++) {
                     System.out.println("\tattachment " + attachmentNo);
                     notebooksClient.createNotebookAttachment(notebook.getId(), "attachment" + attachmentNo + ".txt", tempDir, "content".getBytes());
                 }
                 for (int experimentNo = 1; experimentNo <= random.nextInt(1, 12); experimentNo++) {
                     System.out.println("\t\texperiment " + experimentNo);
-                    ExperimentDetailsDTO experiment = experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest("Test Experiment " + experimentNo
+                    ExperimentDetailsDTO experiment = experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest(templateID
                             , "image"
                             , randomOrNone(therapeuticAreas)
                             , randomOrNone(projectCodes)

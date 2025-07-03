@@ -8,6 +8,7 @@ import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.Type;
@@ -56,6 +57,7 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
     private ProjectEntity project;
 
     @NotEmpty
+    @Pattern(regexp = "^\\d{8}$", message = "Notebook name must be 8 digits")
     private String name;
 
     @Nullable

@@ -2,6 +2,9 @@ package com.epam.indigoeln.eln;
 
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.controller.MiscResource;
+import com.epam.indigoeln.eln.model.TemplateComponent;
+import com.epam.indigoeln.eln.model.TemplateDetailsDTO;
+import com.epam.indigoeln.eln.model.TemplateRequest;
 import com.epam.indigoeln.eln.util.FeignUtil;
 import com.epam.indigoeln.eln.util.TestHelper;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
@@ -9,12 +12,15 @@ import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.inject.Inject;
+import lombok.Getter;
 import org.junit.jupiter.api.*;
 import org.junit.platform.commons.support.AnnotationSupport;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.*;
 
 import java.net.URI;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -41,6 +47,11 @@ public abstract class BaseTest {
 
     private final AtomicReference<String> username = new AtomicReference<>();
 
+    private int lastUsedNotebookNumber = 0;
+
+    @Getter
+    private UUID emptyTemplateID;
+
     @BeforeAll
     void setupAllBase() throws Exception {
         System.out.println("BaseTest.setupAllBase: " + serverURL);
@@ -56,39 +67,11 @@ public abstract class BaseTest {
         templatesClient = FeignUtil.buildFeignClient(baseURL, TemplatesClient.class, username, authorization);
         miscClient = FeignUtil.buildFeignClient(baseURL, MiscClient.class, username, authorization);
         usersClient = FeignUtil.buildFeignClient(baseURL, UsersClient.class, username, authorization);
-
-        ListUserPoolsResponse existingUserPools = cognito.listUserPools(ListUserPoolsRequest.builder().build());
-        if (existingUserPools.userPools().isEmpty()) {
-            String userPoolId = cognito.createUserPool(CreateUserPoolRequest.builder()
-                    .poolName("TestUserPool")
-                    .policies(UserPoolPolicyType.builder()
-                            .passwordPolicy(PasswordPolicyType.builder()
-                                    .minimumLength(8)
-                                    .requireSymbols(false)
-                                    .requireUppercase(false)
-                                    .requireNumbers(false)
-                                    .build()
-                            )
-                            .build()
-                    )
-                    .build()
-            ).userPool().id();
-            cognito.adminCreateUser(AdminCreateUserRequest.builder()
-                    .userPoolId(userPoolId)
-                    .username(TestHelper.ADMIN_USERNAME)
-                    .build()
-            );
-            cognito.adminSetUserPassword(AdminSetUserPasswordRequest.builder()
-                    .userPoolId(userPoolId)
-                    .username(TestHelper.ADMIN_USERNAME)
-                    .password("password")
-                    .build()
-            );
-        }
-
-        miscClient.migrate(); // TODO remove, not needed?
+        miscClient.migrate();
         testHelper = new TestHelper(usersClient, miscClient);
+        testHelper.cleanupDatabase();
         testHelper.createTestUsers();
+        emptyTemplateID = templatesClient.createTemplate(new TemplateRequest("Empty template", List.of(new TemplateComponent.Attachments()))).getId();
     }
 
     @BeforeEach
@@ -101,5 +84,9 @@ public abstract class BaseTest {
         if (testSecurity != null) {
             username.set(testSecurity.user());
         }
+    }
+
+    protected String nextNotebookName() {
+        return "%08d".formatted(++lastUsedNotebookNumber);
     }
 }

@@ -51,8 +51,8 @@ public class ExperimentModelServiceTest extends BaseTest {
     @Order(0)
     void testCreateExperiment() {
         ProjectDetailsDTO project = projectsClient.createProject(new ProjectRequest("ExperimentModelServiceTest"));
-        NotebookDetailsDTO notebook = notebooksClient.createNotebook(project.getId(), new NotebookRequest("ExperimentModelServiceTest"));
-        experiment = experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest("ExperimentModelServiceTest"));
+        NotebookDetailsDTO notebook = notebooksClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        experiment = experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
         model = experimentsClient.getExperimentModel(experiment.getId());
     }
 

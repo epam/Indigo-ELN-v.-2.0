@@ -18,8 +18,7 @@ import java.util.UUID;
 
 import static com.epam.indigoeln.eln.service.CustomAssertions.assertThatACL;
 import static com.epam.indigoeln.eln.service.CustomAssertions.assertThatClientCall;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.*;
 
 
 @QuarkusTest
@@ -30,7 +29,7 @@ class ProjectServiceTest extends BaseTest {
     @Test
     void testCreateProjectValidation() {
         assertThatClientCall(() -> projectsClient.createProject(new ProjectRequest(null, List.of(), null, null)))
-                .isBadRequest();
+                .isBadRequest("must not be empty");
     }
 
     @Test
@@ -49,6 +48,13 @@ class ProjectServiceTest extends BaseTest {
         assertThat(project.getExperimentCount()).isEmpty();
         assertThat(project.getAttachments()).isEmpty();
         assertThatACL(project.getAcl()).containsOnly(TestHelper.JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false);
+    }
+
+    @Test
+    void testDuplicateNames() {
+        projectsClient.createProject(new ProjectRequest("testDuplicateNames"));
+        assertThatClientCall(() -> projectsClient.createProject(new ProjectRequest("testDuplicateNames")))
+                .isBadRequest("Project with name 'testDuplicateNames' already exists");
     }
 
     @Test
@@ -115,11 +121,11 @@ class ProjectServiceTest extends BaseTest {
     @Test
     void testCounts() {
         UUID projectId = projectsClient.createProject(new ProjectRequest("testCounts")).getId();
-        UUID notebook1Id = notebooksClient.createNotebook(projectId, new NotebookRequest("testCounts1")).getId();
-        UUID notebook2Id = notebooksClient.createNotebook(projectId, new NotebookRequest("testCounts2")).getId();
-        experimentsClient.createExperiment(notebook1Id, new ExperimentRequest("testCounts1"));
-        experimentsClient.createExperiment(notebook1Id, new ExperimentRequest("testCounts1"));
-        experimentsClient.createExperiment(notebook2Id, new ExperimentRequest("testCounts1"));
+        UUID notebook1Id = notebooksClient.createNotebook(projectId, new NotebookRequest(nextNotebookName())).getId();
+        UUID notebook2Id = notebooksClient.createNotebook(projectId, new NotebookRequest(nextNotebookName())).getId();
+        experimentsClient.createExperiment(notebook1Id, new ExperimentRequest(getEmptyTemplateID()));
+        experimentsClient.createExperiment(notebook1Id, new ExperimentRequest(getEmptyTemplateID()));
+        experimentsClient.createExperiment(notebook2Id, new ExperimentRequest(getEmptyTemplateID()));
 
         TotalCounts totalCounts = miscClient.getTotalCounts();
         assertThat(totalCounts.getProjects()).isGreaterThanOrEqualTo(1);

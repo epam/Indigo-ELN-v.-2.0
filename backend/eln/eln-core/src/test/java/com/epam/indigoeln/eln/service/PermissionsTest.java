@@ -92,13 +92,13 @@ class PermissionsTest extends BaseTest {
                 projectsClient.updateProjectAccess(row.projectId, AccessForm.of(testHelper.getWillowUserID(), row.project));
             }
             row.projectDetails = projectsClient.getProject(row.projectId);
-            row.notebookId = notebooksClient.createNotebook(row.projectId, new NotebookRequest("notebook" + row.testId)).getId();
+            row.notebookId = notebooksClient.createNotebook(row.projectId, new NotebookRequest(nextNotebookName())).getId();
             notebooksClient.createNotebookAttachment(row.notebookId, "attachment.txt", tempDir, new byte[0]);
             if (row.notebook != NONE) {
                 notebooksClient.updateNotebookAccess(row.notebookId, AccessForm.of(testHelper.getWillowUserID(), row.notebook));
             }
             row.notebookDetails = notebooksClient.getNotebook(row.notebookId);
-            row.experimentId = experimentsClient.createExperiment(row.notebookId, new ExperimentRequest("experiment" + row.testId)).getId();
+            row.experimentId = experimentsClient.createExperiment(row.notebookId, new ExperimentRequest(getEmptyTemplateID())).getId();
             experimentsClient.createExperimentAttachment(row.experimentId, "attachment.txt", tempDir, new byte[0]);
             if (row.experiment != NONE) {
                 experimentsClient.updateExperimentAccess(row.experimentId, AccessForm.of(testHelper.getWillowUserID(), row.experiment));
@@ -158,19 +158,19 @@ class PermissionsTest extends BaseTest {
     @Test
     void testCreateProjectRejected() {
         assertThatClientCall(() -> projectsClient.createProject(new ProjectRequest("testCreateProjectRejected")))
-                .isForbidden();
+                .isForbidden("Operation not permitted");
     }
 
     @Test
     void testCreateTemplateRejected() {
         assertThatClientCall(() -> templatesClient.createTemplate(new TemplateRequest("testCreateTemplateRejected", components)))
-                .isForbidden();
+                .isForbidden("Operation not permitted");
     }
 
     @Test
     void testEditTemplateRejected() {
         assertThatClientCall(() -> templatesClient.editTemplate(template.getId(), new TemplateEditRequest()))
-                .isForbidden();
+                .isForbidden("Operation not permitted");
     }
 
     @Test
@@ -186,7 +186,7 @@ class PermissionsTest extends BaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> projectsClient.getProject(row.projectId))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveProject.isSufficientFor(IMPLICIT_VIEW));
+                    .isAllowedIf(row.effectiveProject.isSufficientFor(IMPLICIT_VIEW), "not found or not accessible");
         }
     }
 
@@ -195,7 +195,7 @@ class PermissionsTest extends BaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> projectsClient.editProject(row.projectId, new ProjectEditRequest()))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT));
+                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
         }
     }
 
@@ -204,13 +204,13 @@ class PermissionsTest extends BaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> projectsClient.createProjectAttachment(row.projectId, "a", tempDir, new byte[0]))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT));
+                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
             assertThatClientCall(() -> projectsClient.downloadProjectAttachmentClient(row.projectId, row.projectDetails.getAttachments().getFirst().getId()))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveProject.isSufficientFor(IMPLICIT_VIEW));
+                    .isAllowedIf(row.effectiveProject.isSufficientFor(IMPLICIT_VIEW), "(Operation not permitted)|(not found or not accessible)");
             assertThatClientCall(() -> projectsClient.deleteProjectAttachment(row.projectId, row.projectDetails.getAttachments().getFirst().getId()))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT));
+                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
         }
     }
 
@@ -219,7 +219,7 @@ class PermissionsTest extends BaseTest {
         for (TestRow row : rows) {
             if (row.project != NONE) {
                 assertThatClientCall(() -> projectsClient.updateProjectAccess(row.projectId, AccessForm.of(testHelper.getWillowUserID(), row.project)))
-                        .isAllowedIf(row.effectiveProject.isSufficientFor(ADMIN));
+                        .isAllowedIf(row.effectiveProject.isSufficientFor(ADMIN), "Operation not permitted");
             }
         }
     }
@@ -240,9 +240,9 @@ class PermissionsTest extends BaseTest {
     @Test
     void testCreateNotebook() {
         for (TestRow row : rows) {
-            assertThatClientCall(() -> notebooksClient.createNotebook(row.projectId, new NotebookRequest("notebook_new")))
+            assertThatClientCall(() -> notebooksClient.createNotebook(row.projectId, new NotebookRequest(nextNotebookName())))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT));
+                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
         }
     }
     
@@ -251,7 +251,7 @@ class PermissionsTest extends BaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> notebooksClient.getNotebook(row.notebookId))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(IMPLICIT_VIEW));
+                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(IMPLICIT_VIEW), "not found or not accessible");
         }
     }
 
@@ -260,7 +260,7 @@ class PermissionsTest extends BaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> notebooksClient.editNotebook(row.notebookId, new NotebookEditRequest()))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT));
+                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
         }
     }
 
@@ -269,13 +269,13 @@ class PermissionsTest extends BaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> notebooksClient.createNotebookAttachment(row.notebookId, "a", tempDir, new byte[0]))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT));
+                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
             assertThatClientCall(() -> notebooksClient.downloadNotebookAttachmentClient(row.notebookId, row.notebookDetails.getAttachments().getFirst().getId()))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(IMPLICIT_VIEW));
+                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(IMPLICIT_VIEW), "(Operation not permitted)|(not found or not accessible)");
             assertThatClientCall(() -> notebooksClient.deleteNotebookAttachment(row.notebookId, row.notebookDetails.getAttachments().getFirst().getId()))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT));
+                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
         }
     }
 
@@ -284,7 +284,7 @@ class PermissionsTest extends BaseTest {
         for (TestRow row : rows) {
             if (row.notebook != NONE) {
                 assertThatClientCall(() -> notebooksClient.updateNotebookAccess(row.notebookId, AccessForm.of(testHelper.getWillowUserID(), row.notebook)))
-                        .isAllowedIf(row.effectiveNotebook.isSufficientFor(ADMIN));
+                        .isAllowedIf(row.effectiveNotebook.isSufficientFor(ADMIN), "Operation not permitted");
             }
         }
     }
@@ -292,9 +292,9 @@ class PermissionsTest extends BaseTest {
     @Test
     void testCreateExperiment() {
         for (TestRow row : rows) {
-            assertThatClientCall(() -> experimentsClient.createExperiment(row.notebookId, new ExperimentRequest("experiment_new")))
+            assertThatClientCall(() -> experimentsClient.createExperiment(row.notebookId, new ExperimentRequest(getEmptyTemplateID())))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT));
+                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
         }
     }
 
@@ -315,7 +315,7 @@ class PermissionsTest extends BaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> experimentsClient.getExperiment(row.experimentId))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(IMPLICIT_VIEW));
+                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(IMPLICIT_VIEW), "not found or not accessible");
         }
     }
 
@@ -324,7 +324,7 @@ class PermissionsTest extends BaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> experimentsClient.editExperiment(row.experimentId, new ExperimentEditRequest()))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT));
+                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
         }
     }
 
@@ -333,13 +333,13 @@ class PermissionsTest extends BaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> experimentsClient.createExperimentAttachment(row.experimentId, "a", tempDir, new byte[0]))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT));
+                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
             assertThatClientCall(() -> experimentsClient.downloadExperimentAttachmentClient(row.experimentId, row.experimentDetails.getAttachments().getFirst().getId()))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(IMPLICIT_VIEW));
+                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(IMPLICIT_VIEW), "(Operation not permitted)|(not found or not accessible)");
             assertThatClientCall(() -> experimentsClient.deleteExperimentAttachment(row.experimentId, row.experimentDetails.getAttachments().getFirst().getId()))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT));
+                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
         }
     }
 
@@ -347,7 +347,7 @@ class PermissionsTest extends BaseTest {
     void testMarkExperiment() {
         for (TestRow row : rows) {
             assertThatClientCall(() -> experimentsClient.markExperiment(row.experimentId))
-                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(VIEW));
+                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(VIEW), "not found or not accessible");
         }
     }
 
@@ -356,7 +356,7 @@ class PermissionsTest extends BaseTest {
         for (TestRow row : rows) {
             if (row.experiment != NONE) {
                 assertThatClientCall(() -> experimentsClient.updateExperimentAccess(row.experimentId, AccessForm.of(testHelper.getWillowUserID(), row.experiment)))
-                        .isAllowedIf(row.effectiveExperiment.isSufficientFor(ADMIN));
+                        .isAllowedIf(row.effectiveExperiment.isSufficientFor(ADMIN), "Operation not permitted");
             }
         }
     }
@@ -414,7 +414,7 @@ class PermissionsTest extends BaseTest {
     @TestSecurity(user = BART_USERNAME)
     void testNotAdminCannotManageDictionaries() {
         assertThatClientCall(() -> miscClient.updateDictionary(Dictionary.THERAPEUTIC_AREA, List.of()))
-                .isForbidden();
+                .isForbidden("Operation not permitted");
     }
 
     @Nested
@@ -430,12 +430,14 @@ class PermissionsTest extends BaseTest {
         NotebookDetailsDTO notebook2;
         ExperimentDetailsDTO experiment2;
 
+        String secondNotebookName;
+
         @Test
         @Order(0)
         void testCreate() {
             project = projectsClient.createProject(new ProjectRequest("testExperimentAccess"));
-            notebook = notebooksClient.createNotebook(project.getId(), new NotebookRequest("testExperimentAccess"));
-            experiment = experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest("testExperimentAccess"));
+            notebook = notebooksClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+            experiment = experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
         }
 
         @Test
@@ -450,14 +452,14 @@ class PermissionsTest extends BaseTest {
         @Order(101)
         void testCannotAssignAuthorPermission() {
             assertThatClientCall(() -> projectsClient.updateProjectAccess(project.getId(), AccessForm.of(testHelper.getWillowUserID(), AUTHOR)))
-                    .isBadRequest();
+                    .isBadRequest("Cannot assign AUTHOR permission to anyone else");
         }
 
         @Test
         @Order(101)
         void testCannotRemoveAuthorPermission() {
             assertThatClientCall(() -> projectsClient.updateProjectAccess(project.getId(), AccessForm.of(testHelper.getJohnUserID(), VIEW)))
-                    .isBadRequest();
+                    .isBadRequest("AUTHOR permission cannot be removed");
         }
 
         @Test
@@ -499,8 +501,9 @@ class PermissionsTest extends BaseTest {
         void testCreateSecondExperiment() {
             projectsClient.updateProjectAccess(project.getId(), AccessForm.of(testHelper.getWillowUserID(), NONE));
             notebooksClient.updateNotebookAccess(notebook.getId(), AccessForm.of(testHelper.getWillowUserID(), NONE));
-            notebook2 = notebooksClient.createNotebook(project.getId(), new NotebookRequest("testCreateSecondExperiment"));
-            experiment2 = experimentsClient.createExperiment(notebook2.getId(), new ExperimentRequest("testCreateSecondExperiment"));
+            secondNotebookName = nextNotebookName();
+            notebook2 = notebooksClient.createNotebook(project.getId(), new NotebookRequest(secondNotebookName));
+            experiment2 = experimentsClient.createExperiment(notebook2.getId(), new ExperimentRequest(getEmptyTemplateID()));
             experimentsClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(testHelper.getWillowUserID(), EDIT));
         }
 
@@ -510,9 +513,9 @@ class PermissionsTest extends BaseTest {
         @TestSecurity(user = WILLOW_USERNAME)
         void testImplicitViewDoesntListSiblingEntities() {
             Page<NotebookDTO> notebooks = notebooksClient.getProjectNotebooks(project.getId(), null, PAGING);
-            assertThat(notebooks.getItems()).extracting(NotebookDTO::getName).containsOnly("testCreateSecondExperiment");
+            assertThat(notebooks.getItems()).extracting(NotebookDTO::getName).containsOnly(secondNotebookName);
             Page<ExperimentDTO> experiments = experimentsClient.getNotebookExperiments(notebook2.getId(), PAGING);
-            assertThat(experiments.getItems()).extracting(ExperimentDTO::getName).containsOnly("testCreateSecondExperiment");
+            assertThat(experiments.getItems()).extracting(ExperimentDTO::getName).containsOnly(experiment2.getName());
         }
 
         @Test

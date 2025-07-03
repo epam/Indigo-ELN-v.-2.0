@@ -7,6 +7,7 @@ import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -68,6 +69,7 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     private NotebookEntity notebook;
 
     @NotEmpty
+    @Pattern(regexp = "^\\d{8}-\\d{4}$")
     private String name;
 
     @NotNull

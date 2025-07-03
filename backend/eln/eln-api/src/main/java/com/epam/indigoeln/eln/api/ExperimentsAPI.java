@@ -30,6 +30,10 @@ public interface ExperimentsAPI extends BaseAPI {
     @Path("/notebooks/{notebookId}/experiments")
     Page<ExperimentDTO> getNotebookExperiments(@PathParam("notebookId") UUID notebookId, @BeanParam Paging paging);
 
+    @GET
+    @Path("/experiments/marked")
+    List<ExperimentDTO> getMarkedExperiments();
+
     @PATCH
     @Path("/experiments/{experimentId}")
     ExperimentDetailsDTO editExperiment(@PathParam("experimentId") UUID experimentId, ExperimentEditRequest request);

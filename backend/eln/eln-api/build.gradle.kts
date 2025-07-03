@@ -6,7 +6,6 @@ plugins {
 
 dependencies {
     api(project(":common:common"))
-    api("com.google.guava:guava:33.4.8-jre")
 }
 
 group = "com.epam.indigoeln"

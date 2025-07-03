@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
@@ -15,6 +16,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import one.util.streamex.StreamEx;
+import org.hibernate.exception.ConstraintViolationException;
 
 import java.util.List;
 import java.util.Set;
@@ -47,8 +49,15 @@ public class ProjectService {
         }
         updateDates(project, userService.getCurrentUser());
         aclService.initProjectACL(project);
-        projectRepository.persist(project);
-        projectRepository.flushAndClear();
+        try {
+            projectRepository.persist(project);
+            projectRepository.flushAndClear();
+        } catch (org.hibernate.exception.ConstraintViolationException e) {
+            if ("project_name_uq".equals(e.getConstraintName())) {
+                throw new InvalidRequestException("Project with name '" + project.getName() + "' already exists");
+            }
+            throw e;
+        }
         return getProject(project.getId());
     }
 
