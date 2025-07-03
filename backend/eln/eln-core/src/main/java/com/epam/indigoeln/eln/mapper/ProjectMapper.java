@@ -1,7 +1,6 @@
 package com.epam.indigoeln.eln.mapper;
 
 import com.epam.indigoeln.eln.entity.ProjectEntity;
-import com.epam.indigoeln.eln.entity.ProjectKeywordEntity;
 import com.epam.indigoeln.eln.entity.TotalCountsEntity;
 import com.epam.indigoeln.eln.model.ProjectDTO;
 import com.epam.indigoeln.eln.model.ProjectDetailsDTO;
@@ -20,7 +19,7 @@ import java.util.List;
 public abstract class ProjectMapper extends AbstractMapper {
 
     @IgnoreBaseFields
-    @Mapping(target = "keywords", ignore = true)
+    @Mapping(target = "keywords", defaultExpression = "java(new String[0])")
     @Mapping(target = "searchVector", ignore = true)
     @Mapping(target = "currentAccess", ignore = true)
     @Mapping(target = "notebookCount", constant = "0")
@@ -39,10 +38,6 @@ public abstract class ProjectMapper extends AbstractMapper {
     @Mapping(target = "acl", source = "aclEntities")
     @Mapping(target = "aclCount", expression = "java(entity.getAclEntities().size())")
     public abstract ProjectDetailsDTO entityToDetailsDTO(ProjectEntity entity);
-
-    protected List<String> convertKeywords(List<ProjectKeywordEntity> keywords) {
-        return StreamEx.of(keywords).map(ProjectKeywordEntity::getName).sorted().toList();
-    }
 
     @Mapping(target = "experiments", expression = "java(convertTotalCountsSum(struct))")
     public abstract TotalCounts convertTotalCounts(TotalCountsEntity struct);

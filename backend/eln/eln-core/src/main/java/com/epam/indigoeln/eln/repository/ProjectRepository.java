@@ -9,7 +9,10 @@ import com.epam.indigoeln.eln.util.ListWithTotal;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 
+import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -44,5 +47,19 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
     public TotalCounts getTotalCounts() {
         TotalCountsEntity entity = em.createQuery("from TotalCounts", TotalCountsEntity.class).getSingleResult();
         return projectMapper.convertTotalCounts(entity);
+    }
+
+    public List<String> suggestProjectKeywords(@Nullable String search) {
+        Query query = em.createNativeQuery(
+                "SELECT unnest\n" +
+                "FROM (SELECT DISTINCT UNNEST(keywords) FROM Project) t\n" +
+                "WHERE " + (search != null ? "LOWER(unnest) LIKE ?" : "1=1") + "\n" +
+                "ORDER BY unnest", String.class)
+                .setMaxResults(10);
+        if (search != null) {
+            query.setParameter(1, search.toLowerCase() + '%');
+        }
+        //noinspection unchecked
+        return (List<String>) query.getResultList();
     }
 }

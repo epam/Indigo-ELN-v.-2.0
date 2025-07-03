@@ -67,7 +67,7 @@ public class ProjectResource implements ProjectAPI {
     }
 
     @Override
-    public List<String> suggestProjectKeywords(@Nullable String search, Paging paging) {
-        return projectService.suggestProjectKeywords(search, paging);
+    public List<String> suggestProjectKeywords(@Nullable String search) {
+        return projectService.suggestProjectKeywords(search);
     }
 }

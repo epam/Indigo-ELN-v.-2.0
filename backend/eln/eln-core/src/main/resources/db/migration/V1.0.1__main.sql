@@ -134,6 +134,7 @@ CREATE TABLE Project (
     modified_by_id UUID NOT NULL,
     modified_at TIMESTAMPTZ NOT NULL,
     name VARCHAR(256) NOT NULL,
+    keywords VARCHAR(256)[] NOT NULL,
     literature TEXT,
     description TEXT,
     search_vector TSVECTOR,
@@ -158,21 +159,6 @@ CREATE TABLE Project_ACL (
     CONSTRAINT project_acl_pk PRIMARY KEY (project_id, user_id),
     CONSTRAINT project_acl_project_id_fk FOREIGN KEY (project_id) REFERENCES Project (id) ON DELETE CASCADE,
     CONSTRAINT project_acl_user_id_fk FOREIGN KEY (user_id) REFERENCES User_Account (id) ON DELETE CASCADE
-);
-
-CREATE TABLE Project_Keyword (
-    id UUID PRIMARY KEY,
-    name VARCHAR(256) NOT NULL,
-    CONSTRAINT project_keyword_name_uq UNIQUE (name)
-);
-CREATE INDEX ix_project_keyword_name ON Project_Keyword (name);
-
-CREATE TABLE Project_Project_Keyword (
-    project_id UUID NOT NULL,
-    project_keyword_id UUID NOT NULL,
-    CONSTRAINT project_project_keyword_pk PRIMARY KEY (project_id, project_keyword_id),
-    CONSTRAINT project_project_keyword_project_id_fk FOREIGN KEY (project_id) REFERENCES Project (id) ON DELETE CASCADE,
-    CONSTRAINT project_project_keyword_project_keyword_id_fk FOREIGN KEY (project_keyword_id) REFERENCES Project_Keyword (id) ON DELETE CASCADE
 );
 
 CREATE TABLE Notebook (

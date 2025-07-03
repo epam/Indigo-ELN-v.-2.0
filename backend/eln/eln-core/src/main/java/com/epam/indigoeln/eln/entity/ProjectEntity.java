@@ -51,10 +51,7 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
     private String name;
 
     @NotNull
-    @ManyToMany()
-    @JoinTable(name = "project_project_keyword", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "project_keyword_id"))
-    @OrderBy("name")
-    private List<ProjectKeywordEntity> keywords = new ArrayList<>(0);
+    private String[] keywords = new String[0];
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)

@@ -4,11 +4,9 @@ import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
-import com.epam.indigoeln.eln.entity.ProjectKeywordEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.repository.ProjectKeywordsRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.util.ListWithTotal;
 import jakarta.annotation.Nullable;
@@ -36,16 +34,11 @@ public class ProjectService {
     @Inject
     ProjectRepository projectRepository;
     @Inject
-    ProjectKeywordsRepository projectKeywordsRepository;
-    @Inject
     ACLService aclService;
 
     public ProjectDetailsDTO createProject(ProjectRequest request) {
         aclService.ensureTopLevelAccess(ApplicationPermission.CREATE_PROJECTS);
         ProjectEntity project = projectMapper.requestToProject(request);
-        if (request.getKeywords() != null) {
-            updateKeywords(project, request.getKeywords());
-        }
         updateDates(project, userService.getCurrentUser());
         aclService.initProjectACL(project);
         try {
@@ -73,7 +66,7 @@ public class ProjectService {
         ProjectEntity project = projectRepository.get(projectId);
         aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
         editProperty(request.getName(), project::setName);
-        editProperty(request.getKeywords(), v -> updateKeywords(project, v));
+        editProperty(request.getKeywords(), v -> project.setKeywords(v.toArray(new String[0])));
         editProperty(request.getLiterature(), project::setLiterature);
         editProperty(request.getDescription(), project::setDescription);
         updateDates(project, userService.getCurrentUser());
@@ -97,30 +90,7 @@ public class ProjectService {
         return projectMapper.convertACLMap(project.getAclEntities());
     }
 
-    public List<String> suggestProjectKeywords(@Nullable String search, Paging paging) {
-        return projectKeywordsRepository.suggest(search, paging);
-    }
-
-    private void updateKeywords(ProjectEntity project, List<String> keywords) {
-        Set<String> existing = StreamEx.of(project.getKeywords()).map(ProjectKeywordEntity::getName).toSet();
-        Set<String> updated = StreamEx.of(keywords).map(String::toLowerCase).toMutableSet();
-        // deleted
-        project.getKeywords().removeIf(keyword -> !updated.contains(keyword.getName()));
-        // new
-        Set<String> added = StreamEx.of(updated)
-                .remove(existing::contains)
-                .toMutableSet();
-        if (!added.isEmpty()) {
-            List<ProjectKeywordEntity> found = projectKeywordsRepository.find(added);
-            project.getKeywords().addAll(found);
-            for (ProjectKeywordEntity entity : found) {
-                added.remove(entity.getName());
-            }
-            for (String notFound : added) {
-                ProjectKeywordEntity entity = new ProjectKeywordEntity(notFound);
-                projectKeywordsRepository.persist(entity);
-                project.getKeywords().add(entity);
-            }
-        }
+    public List<String> suggestProjectKeywords(@Nullable String search) {
+        return projectRepository.suggestProjectKeywords(search);
     }
 }

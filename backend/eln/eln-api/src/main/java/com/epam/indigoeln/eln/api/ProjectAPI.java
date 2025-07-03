@@ -51,5 +51,5 @@ public interface ProjectAPI extends BaseAPI {
 
     @GET
     @Path("/projects/keywords/suggest")
-    List<String> suggestProjectKeywords(@Nullable @QueryParam("search") String search, @BeanParam Paging paging);
+    List<String> suggestProjectKeywords(@Nullable @QueryParam("search") String search);
 }
