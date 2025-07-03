@@ -1,6 +1,6 @@
 package com.epam.indigoeln.eln.client;
 
-import com.epam.indigoeln.eln.api.ProjectsAPI;
+import com.epam.indigoeln.eln.api.ProjectAPI;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
 import com.epam.indigoeln.eln.util.ResponseWithHeaders;
 import jakarta.ws.rs.*;
@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
-public interface ProjectsClient extends ProjectsAPI {
+public interface ProjectClient extends ProjectAPI {
 
     @SneakyThrows
     default List<AttachmentDTO> createProjectAttachment(UUID projectId, String filename, Path tempDirectory, byte[] content) {

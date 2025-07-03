@@ -1,48 +1,46 @@
-CREATE TYPE Dictionary AS ENUM ('THERAPEUTIC_AREA', 'PROJECT_CODE', 'STEREOISOMER_CODE');
+CREATE TYPE Dictionary AS ENUM ('THERAPEUTIC_AREA', 'PROJECT_CODE', 'STEREOISOMER_CODE', 'TEST');
 
 CREATE TABLE Dictionary_Item (
     id UUID PRIMARY KEY,
+    created_by_id UUID NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL,
+    modified_by_id UUID NOT NULL,
+    modified_at TIMESTAMPTZ NOT NULL,
     dictionary Dictionary NOT NULL,
     ordinal INT NOT NULL,
     name VARCHAR(1000) NOT NULL,
     description VARCHAR(1000),
-    deleted BOOL NOT NULL,
+    active BOOL NOT NULL,
     CONSTRAINT dictionary_dictionary_ordinal_uq UNIQUE (dictionary, ordinal) DEFERRABLE INITIALLY DEFERRED,
     CONSTRAINT dictionary_dictionary_name_uq UNIQUE (dictionary, name) DEFERRABLE INITIALLY DEFERRED
 );
 
-INSERT INTO Dictionary_Item (id, dictionary, ordinal, name, deleted) VALUES
-    (gen_random_uuid(), 'THERAPEUTIC_AREA', 1, 'Obesity', false),
-    (gen_random_uuid(), 'THERAPEUTIC_AREA', 2, 'Diabetes', false),
-    (gen_random_uuid(), 'THERAPEUTIC_AREA', 3, 'Pulmonology', false),
-    (gen_random_uuid(), 'THERAPEUTIC_AREA', 4, 'Cancer', false)
-;
-
-INSERT INTO Dictionary_Item (id, dictionary, ordinal, name, deleted) VALUES
-    (gen_random_uuid(), 'PROJECT_CODE', 1, 'Code 1', false),
-    (gen_random_uuid(), 'PROJECT_CODE', 2, 'Code 2', false),
-    (gen_random_uuid(), 'PROJECT_CODE', 3, 'Code 3', false)
-;
-
-INSERT INTO Dictionary_Item (id, dictionary, ordinal, name, description, deleted) VALUES
-    (gen_random_uuid(), 'STEREOISOMER_CODE', 1, 'NOSTC', 'Achiral - No Stereo Centers', false),
-    (gen_random_uuid(), 'STEREOISOMER_CODE', 2, 'AMESO', 'Achiral - Meso Stereomers', false),
-    (gen_random_uuid(), 'STEREOISOMER_CODE', 3, 'CISTR', 'Achiral - Cis/Trans Stereomers', false),
-    (gen_random_uuid(), 'STEREOISOMER_CODE', 4, 'SNENK', 'Single Enantiomer (chirality known)', false),
-    (gen_random_uuid(), 'STEREOISOMER_CODE', 5, 'RMCMX', 'Racemic (stereochemistry known)', false),
-    (gen_random_uuid(), 'STEREOISOMER_CODE', 6, 'ENENK', 'Enantio-Enriched (chirality known)', false),
-    (gen_random_uuid(), 'STEREOISOMER_CODE', 7, 'DSTRK', 'Diastereomers (stereochemistry known)', false),
-    (gen_random_uuid(), 'STEREOISOMER_CODE', 8, 'SNENU', 'Other - Single Enantiomer (chirality unknown)', false),
-    (gen_random_uuid(), 'STEREOISOMER_CODE', 9, 'LRCMX', 'Other - Racemic (relative stereochemistry unknown)', false),
-    (gen_random_uuid(), 'STEREOISOMER_CODE', 10, 'ENENU', 'Other - Enantio-Enriched (chirality unknown)', false),
-    (gen_random_uuid(), 'STEREOISOMER_CODE', 11, 'DSTRU', 'Other - Diastereomers (relative stereochemistry unknown)', false),
-    (gen_random_uuid(), 'STEREOISOMER_CODE', 12, 'UNKWN', 'Other - Unknown Stereomer/Mixture', false),
-    (gen_random_uuid(), 'STEREOISOMER_CODE', 13, 'HSREG', 'Flag for automatic stereoisomer code assignment for multi-registration', false),
-    (gen_random_uuid(), 'STEREOISOMER_CODE', 14, 'ACHIR', 'ACHIRAL', false),
-    (gen_random_uuid(), 'STEREOISOMER_CODE', 15, 'HOMO', 'HOMO-CHIRAL', false),
-    (gen_random_uuid(), 'STEREOISOMER_CODE', 16, 'MESO', 'MESO', false),
-    (gen_random_uuid(), 'STEREOISOMER_CODE', 17, 'RACEM', 'RACEMIC', false),
-    (gen_random_uuid(), 'STEREOISOMER_CODE', 18, 'SCALE', 'SCALEMIC', false)
+INSERT INTO Dictionary_Item (id, dictionary, created_by_id, created_at, modified_by_id, modified_at, ordinal, name, description, active) VALUES
+    (gen_random_uuid(), 'THERAPEUTIC_AREA', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 1, 'Obesity', null, true),
+    (gen_random_uuid(), 'THERAPEUTIC_AREA', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 2, 'Diabetes', null, true),
+    (gen_random_uuid(), 'THERAPEUTIC_AREA', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 3, 'Pulmonology', null, true),
+    (gen_random_uuid(), 'THERAPEUTIC_AREA', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 4, 'Cancer', null, true),
+    (gen_random_uuid(), 'PROJECT_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 1, 'Code 1', null, true),
+    (gen_random_uuid(), 'PROJECT_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 2, 'Code 2', null, true),
+    (gen_random_uuid(), 'PROJECT_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 3, 'Code 3', null, true),
+    (gen_random_uuid(), 'STEREOISOMER_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 1, 'NOSTC', 'Achiral - No Stereo Centers', true),
+    (gen_random_uuid(), 'STEREOISOMER_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 2, 'AMESO', 'Achiral - Meso Stereomers', true),
+    (gen_random_uuid(), 'STEREOISOMER_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 3, 'CISTR', 'Achiral - Cis/Trans Stereomers', true),
+    (gen_random_uuid(), 'STEREOISOMER_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 4, 'SNENK', 'Single Enantiomer (chirality known)', true),
+    (gen_random_uuid(), 'STEREOISOMER_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 5, 'RMCMX', 'Racemic (stereochemistry known)', true),
+    (gen_random_uuid(), 'STEREOISOMER_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 6, 'ENENK', 'Enantio-Enriched (chirality known)', true),
+    (gen_random_uuid(), 'STEREOISOMER_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 7, 'DSTRK', 'Diastereomers (stereochemistry known)', true),
+    (gen_random_uuid(), 'STEREOISOMER_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 8, 'SNENU', 'Other - Single Enantiomer (chirality unknown)', true),
+    (gen_random_uuid(), 'STEREOISOMER_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 9, 'LRCMX', 'Other - Racemic (relative stereochemistry unknown)', true),
+    (gen_random_uuid(), 'STEREOISOMER_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 10, 'ENENU', 'Other - Enantio-Enriched (chirality unknown)', true),
+    (gen_random_uuid(), 'STEREOISOMER_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 11, 'DSTRU', 'Other - Diastereomers (relative stereochemistry unknown)', true),
+    (gen_random_uuid(), 'STEREOISOMER_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 12, 'UNKWN', 'Other - Unknown Stereomer/Mixture', true),
+    (gen_random_uuid(), 'STEREOISOMER_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 13, 'HSREG', 'Flag for automatic stereoisomer code assignment for multi-registration', true),
+    (gen_random_uuid(), 'STEREOISOMER_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 14, 'ACHIR', 'ACHIRAL', true),
+    (gen_random_uuid(), 'STEREOISOMER_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 15, 'HOMO', 'HOMO-CHIRAL', true),
+    (gen_random_uuid(), 'STEREOISOMER_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 16, 'MESO', 'MESO', true),
+    (gen_random_uuid(), 'STEREOISOMER_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 17, 'RACEM', 'RACEMIC', true),
+    (gen_random_uuid(), 'STEREOISOMER_CODE', '00000000-0000-0000-0000-000000000001', now(), '00000000-0000-0000-0000-000000000001', now(), 18, 'SCALE', 'SCALEMIC', true)
 ;
 
 CREATE TABLE Salt_Code (

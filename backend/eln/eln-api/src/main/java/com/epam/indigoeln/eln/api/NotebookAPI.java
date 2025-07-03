@@ -12,7 +12,7 @@ import java.util.UUID;
 @Path(BaseAPI.BASE_PATH)
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public interface NotebooksAPI extends BaseAPI {
+public interface NotebookAPI extends BaseAPI {
 
     @POST
     @Path("/projects/{projectId}/notebooks")

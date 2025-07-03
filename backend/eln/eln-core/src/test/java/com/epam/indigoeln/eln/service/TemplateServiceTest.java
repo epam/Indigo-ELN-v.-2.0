@@ -24,13 +24,13 @@ class TemplateServiceTest extends BaseTest {
 
     @Test
     void testCreateTemplateValidation() {
-        assertThatClientCall(() -> templatesClient.createTemplate(new TemplateRequest(null, List.of())))
+        assertThatClientCall(() -> templateClient.createTemplate(new TemplateRequest(null, List.of())))
                 .isBadRequest("must not be empty");
     }
 
     @Test
     void testCreateTemplate() {
-        TemplateDetailsDTO template = templatesClient.createTemplate(new TemplateRequest("testCreateTemplate", components));
+        TemplateDetailsDTO template = templateClient.createTemplate(new TemplateRequest("testCreateTemplate", components));
         assertThat(template.getId()).isNotNull();
         assertThat(template.getName()).isEqualTo("testCreateTemplate");
         assertThat(template.getCreatedBy().getDisplayName()).isEqualTo(TestHelper.LISA_DISPLAY_NAME);
@@ -41,15 +41,15 @@ class TemplateServiceTest extends BaseTest {
 
     @Test
     void testGetTemplate() {
-        TemplateDetailsDTO createdTemplate = templatesClient.createTemplate(new TemplateRequest("testGetTemplate", components));
-        TemplateDetailsDTO loadedTemplate = templatesClient.getTemplate(createdTemplate.getId());
+        TemplateDetailsDTO createdTemplate = templateClient.createTemplate(new TemplateRequest("testGetTemplate", components));
+        TemplateDetailsDTO loadedTemplate = templateClient.getTemplate(createdTemplate.getId());
         assertThat(loadedTemplate).usingRecursiveComparison().isEqualTo(createdTemplate);
     }
 
     @Test
     void testGetTemplates() {
-        templatesClient.createTemplate(new TemplateRequest("testGetTemplates", components));
-        Page<TemplateDTO> templates = templatesClient.getTemplates(Paging.DEFAULT);
+        templateClient.createTemplate(new TemplateRequest("testGetTemplates", components));
+        Page<TemplateDTO> templates = templateClient.getTemplates(Paging.DEFAULT);
         assertThat(templates.getItems()).first().satisfies(template -> {
             assertThat(template.getId()).isNotNull();
             assertThat(template.getName()).isEqualTo("testGetTemplates");
@@ -62,12 +62,12 @@ class TemplateServiceTest extends BaseTest {
     
     @Test
     void testEditTemplate() {
-        TemplateDetailsDTO template = templatesClient.createTemplate(new TemplateRequest("testEditTemplate", components));
-        TemplateDetailsDTO notModified = templatesClient.editTemplate(template.getId(), new TemplateEditRequest(null));
+        TemplateDetailsDTO template = templateClient.createTemplate(new TemplateRequest("testEditTemplate", components));
+        TemplateDetailsDTO notModified = templateClient.editTemplate(template.getId(), new TemplateEditRequest(null));
         assertThat(notModified).usingRecursiveComparison(TestHelper.COMPARE_WITHOUT_MODIFIED_AT).isEqualTo(template);
-        TemplateDetailsDTO modified = templatesClient.editTemplate(template.getId(), new TemplateEditRequest(Optional.of("testEditTemplate_new")));
+        TemplateDetailsDTO modified = templateClient.editTemplate(template.getId(), new TemplateEditRequest(Optional.of("testEditTemplate_new")));
         assertThat(modified.getName()).isEqualTo("testEditTemplate_new");
-        TemplateDetailsDTO saved = templatesClient.getTemplate(template.getId());
+        TemplateDetailsDTO saved = templateClient.getTemplate(template.getId());
         assertThat(saved).usingRecursiveComparison().isEqualTo(modified);
     }
 }

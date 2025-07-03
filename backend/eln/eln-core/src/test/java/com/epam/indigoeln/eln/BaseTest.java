@@ -3,7 +3,6 @@ package com.epam.indigoeln.eln;
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.controller.MiscResource;
 import com.epam.indigoeln.eln.model.TemplateComponent;
-import com.epam.indigoeln.eln.model.TemplateDetailsDTO;
 import com.epam.indigoeln.eln.model.TemplateRequest;
 import com.epam.indigoeln.eln.util.FeignUtil;
 import com.epam.indigoeln.eln.util.TestHelper;
@@ -16,7 +15,6 @@ import lombok.Getter;
 import org.junit.jupiter.api.*;
 import org.junit.platform.commons.support.AnnotationSupport;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.*;
 
 import java.net.URI;
 import java.util.List;
@@ -36,12 +34,13 @@ public abstract class BaseTest {
 
     protected final boolean integrationTest = AnnotationSupport.isAnnotated(getClass(), QuarkusIntegrationTest.class);
 
-    protected ProjectsClient projectsClient;
-    protected NotebooksClient notebooksClient;
-    protected ExperimentsClient experimentsClient;
-    protected TemplatesClient templatesClient;
+    protected ProjectClient projectClient;
+    protected NotebookClient notebookClient;
+    protected ExperimentClient experimentClient;
+    protected TemplateClient templateClient;
     protected MiscClient miscClient;
-    protected UsersClient usersClient;
+    protected UserClient userClient;
+    protected DictionaryClient dictionaryClient;
 
     protected TestHelper testHelper;
 
@@ -61,17 +60,18 @@ public abstract class BaseTest {
         URI baseURL = serverURL.resolve("/");
 
         AtomicReference<String> authorization = new AtomicReference<>();
-        projectsClient = FeignUtil.buildFeignClient(baseURL, ProjectsClient.class, username, authorization);
-        notebooksClient = FeignUtil.buildFeignClient(baseURL, NotebooksClient.class, username, authorization);
-        experimentsClient = FeignUtil.buildFeignClient(baseURL, ExperimentsClient.class, username, authorization);
-        templatesClient = FeignUtil.buildFeignClient(baseURL, TemplatesClient.class, username, authorization);
+        projectClient = FeignUtil.buildFeignClient(baseURL, ProjectClient.class, username, authorization);
+        notebookClient = FeignUtil.buildFeignClient(baseURL, NotebookClient.class, username, authorization);
+        experimentClient = FeignUtil.buildFeignClient(baseURL, ExperimentClient.class, username, authorization);
+        templateClient = FeignUtil.buildFeignClient(baseURL, TemplateClient.class, username, authorization);
         miscClient = FeignUtil.buildFeignClient(baseURL, MiscClient.class, username, authorization);
-        usersClient = FeignUtil.buildFeignClient(baseURL, UsersClient.class, username, authorization);
+        userClient = FeignUtil.buildFeignClient(baseURL, UserClient.class, username, authorization);
+        dictionaryClient = FeignUtil.buildFeignClient(baseURL, DictionaryClient.class, username, authorization);
         miscClient.migrate();
-        testHelper = new TestHelper(usersClient, miscClient);
+        testHelper = new TestHelper(userClient, miscClient);
         testHelper.cleanupDatabase();
         testHelper.createTestUsers();
-        emptyTemplateID = templatesClient.createTemplate(new TemplateRequest("Empty template", List.of(new TemplateComponent.Attachments()))).getId();
+        emptyTemplateID = templateClient.createTemplate(new TemplateRequest("Empty template", List.of(new TemplateComponent.Attachments()))).getId();
     }
 
     @BeforeEach

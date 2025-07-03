@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Path(BaseAPI.BASE_PATH)
-public class UsersResource implements UsersAPI {
+public class UserResource implements UserAPI {
 
     @Inject
     UserService userService;

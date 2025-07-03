@@ -50,10 +50,10 @@ public class ExperimentModelServiceTest extends BaseTest {
     @Test
     @Order(0)
     void testCreateExperiment() {
-        ProjectDetailsDTO project = projectsClient.createProject(new ProjectRequest("ExperimentModelServiceTest"));
-        NotebookDetailsDTO notebook = notebooksClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-        experiment = experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
-        model = experimentsClient.getExperimentModel(experiment.getId());
+        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("ExperimentModelServiceTest"));
+        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        model = experimentClient.getExperimentModel(experiment.getId());
     }
 
     @Test
@@ -84,7 +84,7 @@ public class ExperimentModelServiceTest extends BaseTest {
     @Test
     @Order(300)
     void testSelectSaltCode() {
-        applyMutation(new ReactionOutputMutation.SetOutputSaltCode(0, 0, miscClient.getSaltCodes().getFirst()));
+        applyMutation(new ReactionOutputMutation.SetOutputSaltCode(0, 0, dictionaryClient.getSaltCodes().getFirst()));
     }
 
     @Test
@@ -133,7 +133,7 @@ public class ExperimentModelServiceTest extends BaseTest {
     private void applyMutation(Mutation mutation) {
         System.out.println("Applying mutation: " + mutation);
         reportBuilder.addMutation(mutation);
-        model = experimentsClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(model, mutation));
+        model = experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(model, mutation));
         reportBuilder.addModel(model);
         System.out.println(model);
     }

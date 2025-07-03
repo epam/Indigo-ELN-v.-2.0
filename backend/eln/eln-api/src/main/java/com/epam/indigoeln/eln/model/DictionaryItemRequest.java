@@ -13,17 +13,11 @@ import java.util.UUID;
 @AllArgsConstructor
 public class DictionaryItemRequest {
 
-    @Nullable
-    private UUID id;
-
     @NotEmpty
     private String name;
 
     @Nullable
     private String description;
-
-    @Nullable
-    private Boolean deleted;
 
     @Override
     public String toString() {

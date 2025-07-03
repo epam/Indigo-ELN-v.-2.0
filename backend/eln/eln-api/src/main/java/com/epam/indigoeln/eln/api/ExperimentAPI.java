@@ -6,14 +6,13 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
 @Path(BaseAPI.BASE_PATH)
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public interface ExperimentsAPI extends BaseAPI {
+public interface ExperimentAPI extends BaseAPI {
 
     @POST
     @Path("/notebooks/{notebookId}/experiments")

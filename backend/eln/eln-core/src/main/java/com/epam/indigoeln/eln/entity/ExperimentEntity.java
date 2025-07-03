@@ -80,12 +80,12 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @Nullable
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "therapeutic_area_id")
-    private DictionaryEntity therapeuticArea;
+    private DictionaryItemEntity therapeuticArea;
 
     @Nullable
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_code_id")
-    private DictionaryEntity projectCode;
+    private DictionaryItemEntity projectCode;
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)

@@ -2,7 +2,7 @@ package com.epam.indigoeln.eln.controller;
 
 
 import com.epam.indigoeln.eln.api.BaseAPI;
-import com.epam.indigoeln.eln.api.TemplatesAPI;
+import com.epam.indigoeln.eln.api.TemplateAPI;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.*;
 import jakarta.inject.Inject;
@@ -13,7 +13,7 @@ import jakarta.ws.rs.Path;
 import java.util.UUID;
 
 @Path(BaseAPI.BASE_PATH)
-public class TemplatesResource implements TemplatesAPI {
+public class TemplateResource implements TemplateAPI {
 
     @Inject
     ProjectService projectService;

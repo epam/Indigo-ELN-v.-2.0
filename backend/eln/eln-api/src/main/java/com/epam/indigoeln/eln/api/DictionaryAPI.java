@@ -5,6 +5,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
 import java.util.List;
+import java.util.UUID;
 
 @Path(BaseAPI.BASE_PATH)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -23,9 +24,17 @@ public interface DictionaryAPI extends BaseAPI {
     @Path("/dictionaries/{dictionary}/full")
     List<DictionaryItemDTO> getDictionaryFull(@PathParam("dictionary") Dictionary dictionary);
 
-    @PATCH
+    @POST
     @Path("/dictionaries/{dictionary}")
-    List<DictionaryItemDTO> updateDictionary(@PathParam("dictionary") Dictionary dictionary, List<DictionaryItemRequest> content);
+    List<DictionaryItemDTO> addDictionaryItem(@PathParam("dictionary") Dictionary dictionary, DictionaryItemRequest item);
+
+    @PATCH
+    @Path("/dictionaries/{dictionary}/{itemID}")
+    List<DictionaryItemDTO> updateDictionaryItem(@PathParam("dictionary") Dictionary dictionary, @PathParam("itemID") UUID itemID, DictionaryItemEditRequest request);
+
+    @DELETE
+    @Path("/dictionaries/{dictionary}/{itemID}")
+    List<DictionaryItemDTO> removeDictionaryItem(@PathParam("dictionary") Dictionary dictionary, @PathParam("itemID") UUID itemID);
 
     @GET
     @Path("/saltCodes")

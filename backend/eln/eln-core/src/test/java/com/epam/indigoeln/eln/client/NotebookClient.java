@@ -1,6 +1,6 @@
 package com.epam.indigoeln.eln.client;
 
-import com.epam.indigoeln.eln.api.NotebooksAPI;
+import com.epam.indigoeln.eln.api.NotebookAPI;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
 import com.epam.indigoeln.eln.util.ResponseWithHeaders;
 import jakarta.ws.rs.*;
@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
-public interface NotebooksClient extends NotebooksAPI {
+public interface NotebookClient extends NotebookAPI {
 
     @SneakyThrows
     default List<AttachmentDTO> createNotebookAttachment(UUID notebookId, String filename, Path tempDirectory, byte[] content) {

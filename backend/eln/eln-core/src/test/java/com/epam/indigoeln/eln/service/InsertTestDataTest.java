@@ -24,12 +24,13 @@ class InsertTestDataTest {
 
     private final Random random = new Random();
 
-    ProjectsClient projectsClient;
-    NotebooksClient notebooksClient;
-    ExperimentsClient experimentsClient;
+    ProjectClient projectClient;
+    NotebookClient notebookClient;
+    ExperimentClient experimentClient;
     MiscClient miscClient;
-    UsersClient usersClient;
-    TemplatesClient templatesClient;
+    UserClient userClient;
+    TemplateClient templateClient;
+    DictionaryClient dictionaryClient;
 
     @BeforeEach
     void setup() {
@@ -38,11 +39,12 @@ class InsertTestDataTest {
         AtomicReference<String> authorization = new AtomicReference<>(
                 "Bearer eyJraWQiOiJUbTFZSmg5UUJjZkQrVnBKVlc1WEQ3UEV5NEh1d2gxeUlvVlZwcmYxb0UwPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIwNDY4ZTQyOC1hMGYxLTcwN2YtYWE1Yy0zMjgzZGY3NWY2ZjgiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV82RGlyZ3RRMXAiLCJjbGllbnRfaWQiOiJhNGtraDAwb2IyM2w3dXBtODhoaDNtbWo1Iiwib3JpZ2luX2p0aSI6IjcwOWNiYmU5LTMzZmUtNGY1NS1hMzI2LWQxZjMwYmFjMzVkZiIsImV2ZW50X2lkIjoiNWU4ZjI1YjgtZWE3My00MDkxLWJlYWMtMWM3ZjU3YjE3ZmViIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTc1MTA0NzQxMCwiZXhwIjoxNzUxMTA4NzQ2LCJpYXQiOjE3NTExMDUxNDYsImp0aSI6ImVkMjBhNmNkLTI5ZWQtNDA4OC1hNzk1LTQyNTgwMGZlM2NkNyIsInVzZXJuYW1lIjoiYWxpY2UifQ.sCVFeBU5fXkBo3AI1dfAPBi2iz6BQ3F4YmlmoWhicoBAvaeQ7vmnGZyIdeR4G9_rfD9wv-HjAFuvOMro1lg7CgSt7ESs50O8QtRx3LB_7f8b4Suy9znkPlfHagPO3IjNSVQwkkvRRxz0WQVgUC3QIAZM-kaA4aLK5wuxu09SHro1rSCeCJqUYbvmgrhB3RmfDVmCkm8Kx843uKFFsVmyaH_WYHKAGztbKzvz0O0HRaartbtQ64FUpa4YPAqjxEAWGDZdb8rOpybnQ7alGdmRUcy_XXwWLPNqQu8TgAqeFjv4sNUJz9MaEJtYAJJqwChrjYljuNKDzM0G3d_3lC3qrQ"
         );
-        projectsClient = FeignUtil.buildFeignClient(baseURI, ProjectsClient.class, testUsername, authorization);
-        notebooksClient = FeignUtil.buildFeignClient(baseURI, NotebooksClient.class, testUsername, authorization);
-        experimentsClient = FeignUtil.buildFeignClient(baseURI, ExperimentsClient.class, testUsername, authorization);
+        projectClient = FeignUtil.buildFeignClient(baseURI, ProjectClient.class, testUsername, authorization);
+        notebookClient = FeignUtil.buildFeignClient(baseURI, NotebookClient.class, testUsername, authorization);
+        experimentClient = FeignUtil.buildFeignClient(baseURI, ExperimentClient.class, testUsername, authorization);
         miscClient = FeignUtil.buildFeignClient(baseURI, MiscClient.class, testUsername, authorization);
-        templatesClient = FeignUtil.buildFeignClient(baseURI, TemplatesClient.class, testUsername, authorization);
+        templateClient = FeignUtil.buildFeignClient(baseURI, TemplateClient.class, testUsername, authorization);
+        dictionaryClient = FeignUtil.buildFeignClient(baseURI, DictionaryClient.class, testUsername, authorization);
     }
 
 //    @Test
@@ -55,43 +57,43 @@ class InsertTestDataTest {
 //    @Test
     @Order(2)
     void insertUsers() {
-        usersClient.createUser(new UserRequest("alice@eln.com", "Alice Smith", "Alice", "Smith", "password", new ApplicationRole[]{ApplicationRole.CONTENT_EDITOR, ApplicationRole.TEMPLATE_EDITOR}));
-        usersClient.createUser(new UserRequest("bob@eln.com", "Bob Johnson", "Bob", "Johnson", "password", new ApplicationRole[]{ApplicationRole.ADMINISTRATOR}));
-        usersClient.createUser(new UserRequest("charlie@eln.com", "Charlie Williams", "Charlie", "Williams", "password", new ApplicationRole[]{ApplicationRole.CONTENT_EDITOR}));
+        userClient.createUser(new UserRequest("alice@eln.com", "Alice Smith", "Alice", "Smith", "password", new ApplicationRole[]{ApplicationRole.CONTENT_EDITOR, ApplicationRole.TEMPLATE_EDITOR}));
+        userClient.createUser(new UserRequest("bob@eln.com", "Bob Johnson", "Bob", "Johnson", "password", new ApplicationRole[]{ApplicationRole.ADMINISTRATOR}));
+        userClient.createUser(new UserRequest("charlie@eln.com", "Charlie Williams", "Charlie", "Williams", "password", new ApplicationRole[]{ApplicationRole.CONTENT_EDITOR}));
     }
 
 //    @Test
     @Order(2)
     void insertTestData(@TempDir Path tempDir) {
-        List<DictionaryItemRef> therapeuticAreas = miscClient.getDictionary(Dictionary.THERAPEUTIC_AREA);
-        List<DictionaryItemRef> projectCodes = miscClient.getDictionary(Dictionary.PROJECT_CODE);
+        List<DictionaryItemRef> therapeuticAreas = dictionaryClient.getDictionary(Dictionary.THERAPEUTIC_AREA);
+        List<DictionaryItemRef> projectCodes = dictionaryClient.getDictionary(Dictionary.PROJECT_CODE);
         int lastUsedNotebookNumber = 0;
-        UUID templateID = templatesClient.createTemplate(new TemplateRequest("Empty template", List.of(new TemplateComponent.Attachments()))).getId();
+        UUID templateID = templateClient.createTemplate(new TemplateRequest("Empty template", List.of(new TemplateComponent.Attachments()))).getId();
         for (int projectNo = 1; projectNo <= random.nextInt(4, 16); projectNo++) {
             System.out.println("project " + projectNo);
             List<String> keywords = IntStream.range(0, random.nextInt(4)).mapToObj(i -> "keyword" + i).toList();
-            ProjectDetailsDTO project = projectsClient.createProject(new ProjectRequest("Test Project " + projectNo, keywords, "literature", "description"));
+            ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("Test Project " + projectNo, keywords, "literature", "description"));
             for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 2); attachmentNo++) {
                 System.out.println("\tattachment " + attachmentNo);
-                projectsClient.createProjectAttachment(project.getId(), "attachment" + attachmentNo + ".txt", tempDir, "content".getBytes());
+                projectClient.createProjectAttachment(project.getId(), "attachment" + attachmentNo + ".txt", tempDir, "content".getBytes());
             }
             for (int notebookNo = 1; notebookNo <= random.nextInt(1, 4); notebookNo++) {
                 System.out.println("\tnotebook " + notebookNo);
-                NotebookDetailsDTO notebook = notebooksClient.createNotebook(project.getId(), new NotebookRequest("%08d".formatted(++lastUsedNotebookNumber), "description"));
+                NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest("%08d".formatted(++lastUsedNotebookNumber), "description"));
                 for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 4); attachmentNo++) {
                     System.out.println("\tattachment " + attachmentNo);
-                    notebooksClient.createNotebookAttachment(notebook.getId(), "attachment" + attachmentNo + ".txt", tempDir, "content".getBytes());
+                    notebookClient.createNotebookAttachment(notebook.getId(), "attachment" + attachmentNo + ".txt", tempDir, "content".getBytes());
                 }
                 for (int experimentNo = 1; experimentNo <= random.nextInt(1, 12); experimentNo++) {
                     System.out.println("\t\texperiment " + experimentNo);
-                    ExperimentDetailsDTO experiment = experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest(templateID
+                    ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(templateID
                             , "image"
                             , randomOrNone(therapeuticAreas)
                             , randomOrNone(projectCodes)
                     ));
                     for (int attachmentNo = 1; attachmentNo <= random.nextInt(0, 4); attachmentNo++) {
                         System.out.println("\tattachment " + attachmentNo);
-                        experimentsClient.createExperimentAttachment(experiment.getId(), "attachment" + attachmentNo + ".txt", tempDir, "content".getBytes());
+                        experimentClient.createExperimentAttachment(experiment.getId(), "attachment" + attachmentNo + ".txt", tempDir, "content".getBytes());
                     }
                 }
             }

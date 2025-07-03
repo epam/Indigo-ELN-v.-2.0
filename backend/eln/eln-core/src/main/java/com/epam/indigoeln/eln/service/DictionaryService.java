@@ -2,25 +2,24 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.eln.config.DataAccess;
-import com.epam.indigoeln.eln.entity.DictionaryEntity;
-import com.epam.indigoeln.eln.entity.IdentifiableEntity;
+import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.mapper.DictionaryMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.DictionaryRepository;
 import com.epam.indigoeln.eln.repository.SaltCodeRepository;
+import com.epam.indigoeln.eln.util.ModelUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
+
+import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
+import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 
 @Slf4j
 @DataAccess
@@ -39,9 +38,11 @@ public class DictionaryService {
 
     @Inject
     ACLService aclService;
+    @Inject
+    UserService userService;
 
     public List<Dictionary> getDictionaries() {
-        return Arrays.asList(Dictionary.values());
+        return StreamEx.of(Dictionary.values()).remove(x -> x == Dictionary.TEST).toList();
     }
 
     public List<DictionaryItemRef> getDictionary(Dictionary dictionary) {
@@ -49,47 +50,14 @@ public class DictionaryService {
     }
 
     public List<DictionaryItemDTO> getDictionaryFull(Dictionary dictionary) {
-        return dictionaryMapper.dictionaryToDTOList(dictionaryRepository.list(dictionary, false));
+        return dictionaryMapper.dictionaryToDTOList(dictionaryRepository.list(dictionary, true));
     }
 
-    public List<DictionaryItemDTO> updateDictionary(Dictionary dictionary, @Valid List<DictionaryItemRequest> content) {
-        if (log.isDebugEnabled()) {
-            log.debug("updateDictionary: before update:\n{}", StreamEx.of(dictionaryRepository.list(dictionary, true)).joining("\n"));
-        }
-        aclService.ensureTopLevelAccess(AccessOperation.MANAGE_DICTIONARIES);
-        Map<UUID, DictionaryEntity> existing = StreamEx.of(dictionaryRepository.list(dictionary, true))
-                .toMap(IdentifiableEntity::getId, Function.identity());
-        int ordinal = 0;
-        for (DictionaryItemRequest request : content) {
-            DictionaryEntity entity;
-            if (request.getId() != null) {
-                entity = existing.remove(request.getId());
-                if (entity == null) {
-                    throw new EntityNotFoundException(dictionary, request.getId());
-                }
-                dictionaryMapper.dictionaryToEntity(request, dictionary, ++ordinal, entity);
-            } else {
-                entity = dictionaryMapper.dictionaryToEntity(request, dictionary, ++ordinal, new DictionaryEntity());
-                dictionaryRepository.persist(entity);
-            }
-        }
-        for (DictionaryEntity value : existing.values()) {
-            value.setOrdinal(++ordinal);
-            value.setDeleted(true);
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("updateDictionary: after update:\n{}", StreamEx.of(dictionaryRepository.list(dictionary, true)).joining("\n"));
-        }
-        long hardDeleted = dictionaryRepository.hardDelete();
-        log.debug("updateDictionary: {} entries hard deleted", hardDeleted);
-        return getDictionaryFull(dictionary);
-    }
-
-    public @Nullable DictionaryEntity lookup(Dictionary dictionary, @Nullable DictionaryItemRef ref) {
+    public @Nullable DictionaryItemEntity lookup(Dictionary dictionary, @Nullable DictionaryItemRef ref) {
         if (ref == null) {
             return null;
         }
-        DictionaryEntity entity = dictionaryRepository.findById(ref.getId());
+        DictionaryItemEntity entity = dictionaryRepository.findById(ref.getId());
         if (entity == null || entity.getDictionary() != dictionary) {
             throw new EntityNotFoundException(dictionary, ref.getId());
         }
@@ -98,5 +66,50 @@ public class DictionaryService {
 
     public List<DictionaryItemRef> getSaltCodes() {
         return dictionaryMapper.saltCodeToRefList(saltCodeRepository.listAll());
+    }
+
+    public List<DictionaryItemDTO> addDictionaryItem(Dictionary dictionary, DictionaryItemRequest item) {
+        aclService.ensureTopLevelAccess(AccessOperation.MANAGE_DICTIONARIES);
+        List<DictionaryItemEntity> list = dictionaryRepository.list(dictionary, true);
+        DictionaryItemEntity entity = dictionaryMapper.dictionaryToEntity(item, dictionary);
+        updateDates(entity, userService.getCurrentUser());
+        list.add(entity);
+        renumberItems(list);
+        dictionaryRepository.persist(entity);
+        return dictionaryMapper.dictionaryToDTOList(list);
+    }
+
+    public List<DictionaryItemDTO> updateDictionaryItem(Dictionary dictionary, UUID itemID, DictionaryItemEditRequest request) {
+        aclService.ensureTopLevelAccess(AccessOperation.MANAGE_DICTIONARIES);
+        List<DictionaryItemEntity> list = dictionaryRepository.list(dictionary, true);
+        DictionaryItemEntity entity = StreamEx.of(list).filterBy(DictionaryItemEntity::getId, itemID).findFirst()
+                .orElseThrow(() -> new EntityNotFoundException(dictionary, itemID));
+        editProperty(request.getName(), entity::setName);
+        editProperty(request.getDescription(), entity::setDescription);
+        editProperty(request.getActive(), entity::setActive);
+        editProperty(request.getOrdinal(), order -> {
+            renumberItems(list);
+            list.remove(entity);
+            list.add(order - 1, entity);
+            renumberItems(list);
+        });
+        return dictionaryMapper.dictionaryToDTOList(list);
+    }
+
+    public List<DictionaryItemDTO> removeDictionaryItem(Dictionary dictionary, UUID itemID) {
+        aclService.ensureTopLevelAccess(AccessOperation.MANAGE_DICTIONARIES);
+        List<DictionaryItemEntity> list = dictionaryRepository.list(dictionary, true);
+        DictionaryItemEntity entity = StreamEx.of(list).filterBy(DictionaryItemEntity::getId, itemID).findFirst()
+                .orElseThrow(() -> new EntityNotFoundException(dictionary, itemID));
+        list.remove(entity);
+        dictionaryRepository.delete(entity);
+        renumberItems(list);
+        return dictionaryMapper.dictionaryToDTOList(list);
+    }
+
+    private void renumberItems(List<DictionaryItemEntity> items) {
+        for (int i = 0; i < items.size(); i++) {
+            items.get(i).setOrdinal(i + 1);
+        }
     }
 }

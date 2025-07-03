@@ -1,6 +1,6 @@
 package com.epam.indigoeln.eln.client;
 
-import com.epam.indigoeln.eln.api.ExperimentsAPI;
+import com.epam.indigoeln.eln.api.ExperimentAPI;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
 import com.epam.indigoeln.eln.util.ResponseWithHeaders;
 import jakarta.ws.rs.*;
@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
-public interface ExperimentsClient extends ExperimentsAPI {
+public interface ExperimentClient extends ExperimentAPI {
 
     @SneakyThrows
     default List<AttachmentDTO> createExperimentAttachment(UUID experimentId, String filename, Path tempDirectory, byte[] content) {

@@ -11,7 +11,7 @@ import java.util.UUID;
 @Path(BaseAPI.BASE_PATH)
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public interface UsersAPI extends BaseAPI {
+public interface UserAPI extends BaseAPI {
 
     @POST
     @Path("/users")

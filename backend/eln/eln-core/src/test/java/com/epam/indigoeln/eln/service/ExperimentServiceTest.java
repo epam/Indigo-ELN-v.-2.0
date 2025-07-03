@@ -39,27 +39,27 @@ class ExperimentServiceTest extends BaseTest {
 
     @BeforeEach
     void setUp() {
-        therapeuticAreas = miscClient.getDictionary(Dictionary.THERAPEUTIC_AREA);
-        projectCodes = miscClient.getDictionary(Dictionary.PROJECT_CODE);
-        project = projectsClient.createProject(new ProjectRequest("ExperimentServiceTest" + UUID.randomUUID()));
-        notebook = notebooksClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        therapeuticAreas = dictionaryClient.getDictionary(Dictionary.THERAPEUTIC_AREA);
+        projectCodes = dictionaryClient.getDictionary(Dictionary.PROJECT_CODE);
+        project = projectClient.createProject(new ProjectRequest("ExperimentServiceTest" + UUID.randomUUID()));
+        notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
     }
 
     @Test
     void testCreateExperimentValidation() {
-        assertThatClientCall(() -> experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest(null)))
+        assertThatClientCall(() -> experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(null)))
                 .isBadRequest("must not be null");
     }
 
     @Test
     void testCreateExperimentBadDictionary() {
-        assertThatClientCall(() -> experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID(), null, new DictionaryItemRef(UUID.randomUUID(), "Invalid"), null)))
+        assertThatClientCall(() -> experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID(), null, new DictionaryItemRef(UUID.randomUUID(), "Invalid"), null)))
                 .isNotFound("THERAPEUTIC_AREA .+ not found");
     }
 
     @Test
     void testCreateExperiment() {
-        ExperimentDetailsDTO experiment = experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()
                 , "description"
                 , therapeuticAreas.getFirst()
                 , projectCodes.getFirst()
@@ -79,15 +79,15 @@ class ExperimentServiceTest extends BaseTest {
 
     @Test
     void testGetExperiment() {
-        ExperimentDetailsDTO createdExperiment = experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
-        ExperimentDetailsDTO loadedExperiment = experimentsClient.getExperiment(createdExperiment.getId());
+        ExperimentDetailsDTO createdExperiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        ExperimentDetailsDTO loadedExperiment = experimentClient.getExperiment(createdExperiment.getId());
         assertThat(loadedExperiment).usingRecursiveComparison().isEqualTo(createdExperiment);
     }
 
     @Test
     void testGetExperiments() {
-        ExperimentDetailsDTO createdExperiment = experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
-        Page<ExperimentDTO> experiments = experimentsClient.getProjectExperiments(project.getId(), Paging.DEFAULT);
+        ExperimentDetailsDTO createdExperiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), Paging.DEFAULT);
         assertThat(experiments.getItems()).hasSize(1).first().satisfies(experiment -> {
             assertThat(experiment.getId()).isNotNull();
             assertThat(experiment.getName()).isEqualTo(createdExperiment.getName());
@@ -100,64 +100,64 @@ class ExperimentServiceTest extends BaseTest {
 
     @Test
     void testEditExperiment() {
-        ExperimentDetailsDTO experiment = experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()
                 , "d"
                 , therapeuticAreas.getFirst()
                 , projectCodes.getFirst()
         ));
-        ExperimentDetailsDTO notModified = experimentsClient.editExperiment(experiment.getId(), new ExperimentEditRequest(null, null));
+        ExperimentDetailsDTO notModified = experimentClient.editExperiment(experiment.getId(), new ExperimentEditRequest(null, null));
         assertThat(notModified).usingRecursiveComparison(TestHelper.COMPARE_WITHOUT_MODIFIED_AT).isEqualTo(experiment);
-        ExperimentDetailsDTO modified = experimentsClient.editExperiment(experiment.getId(), new ExperimentEditRequest(
+        ExperimentDetailsDTO modified = experimentClient.editExperiment(experiment.getId(), new ExperimentEditRequest(
                 Optional.of(therapeuticAreas.get(1)),
                 Optional.of(projectCodes.get(1)
         )));
         assertThat(modified.getName()).isEqualTo(experiment.getName());
         assertThat(modified.getTherapeuticArea()).isEqualTo(therapeuticAreas.get(1));
         assertThat(modified.getProjectCode()).isEqualTo(projectCodes.get(1));
-        ExperimentDetailsDTO saved = experimentsClient.getExperiment(experiment.getId());
+        ExperimentDetailsDTO saved = experimentClient.getExperiment(experiment.getId());
         assertThat(saved).usingRecursiveComparison().isEqualTo(modified);
     }
 
     @Test
     void testMarkExperiment() {
-        ExperimentDetailsDTO experiment = experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
         assertThat(experiment.getMarked()).isFalse();
-        assertThat(experimentsClient.getMarkedExperiments()).isEmpty();
+        assertThat(experimentClient.getMarkedExperiments()).isEmpty();
 
-        assertThat(experimentsClient.markExperiment(experiment.getId())).isTrue();
-        Page<ExperimentDTO> experiments = experimentsClient.getProjectExperiments(project.getId(), Paging.DEFAULT);
+        assertThat(experimentClient.markExperiment(experiment.getId())).isTrue();
+        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), Paging.DEFAULT);
         assertThat(experiments.getItems()).singleElement().satisfies(e -> {
             assertThat(e.getMarked()).isTrue();
         });
-        experiments = experimentsClient.getNotebookExperiments(notebook.getId(), Paging.DEFAULT);
+        experiments = experimentClient.getNotebookExperiments(notebook.getId(), Paging.DEFAULT);
         assertThat(experiments.getItems()).singleElement().satisfies(e -> {
             assertThat(e.getMarked()).isTrue();
         });
-        ExperimentDTO loadedExperiment = experimentsClient.getExperiment(experiment.getId());
+        ExperimentDTO loadedExperiment = experimentClient.getExperiment(experiment.getId());
         assertThat(loadedExperiment.getMarked()).isTrue();
-        assertThat(experimentsClient.getMarkedExperiments()).singleElement().satisfies(e -> {
+        assertThat(experimentClient.getMarkedExperiments()).singleElement().satisfies(e -> {
             assertThat(e.getId()).isEqualTo(experiment.getId());
             assertThat(e.getMarked()).isTrue();
         });
 
-        assertThat(experimentsClient.unmarkExperiment(experiment.getId())).isFalse();
-        experiments = experimentsClient.getProjectExperiments(project.getId(), Paging.DEFAULT);
+        assertThat(experimentClient.unmarkExperiment(experiment.getId())).isFalse();
+        experiments = experimentClient.getProjectExperiments(project.getId(), Paging.DEFAULT);
         assertThat(experiments.getItems()).singleElement().satisfies(e -> {
             assertThat(e.getMarked()).isFalse();
         });
-        experiments = experimentsClient.getNotebookExperiments(notebook.getId(), Paging.DEFAULT);
+        experiments = experimentClient.getNotebookExperiments(notebook.getId(), Paging.DEFAULT);
         assertThat(experiments.getItems()).singleElement().satisfies(e -> {
             assertThat(e.getMarked()).isFalse();
         });
-        loadedExperiment = experimentsClient.getExperiment(experiment.getId());
+        loadedExperiment = experimentClient.getExperiment(experiment.getId());
         assertThat(loadedExperiment.getMarked()).isFalse();
-        assertThat(experimentsClient.getMarkedExperiments()).isEmpty();
+        assertThat(experimentClient.getMarkedExperiments()).isEmpty();
     }
 
     @Test
     void testCreateAttachment(@TempDir Path tempDir) {
-        ExperimentDetailsDTO experiment = experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
-        List<AttachmentDTO> attachments = experimentsClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "content".getBytes());
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "content".getBytes());
         assertThat(attachments).singleElement().satisfies(a -> {
             assertThat(a.getId()).isNotNull();
             assertThat(a.getName()).isEqualTo("attachment.txt");
@@ -170,32 +170,32 @@ class ExperimentServiceTest extends BaseTest {
 
     @Test
     void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
-        ExperimentDetailsDTO experiment = experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
-        List<AttachmentDTO> attachments = experimentsClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "content".getBytes());
-        ResponseWithHeaders response = experimentsClient.downloadExperimentAttachmentClient(experiment.getId(), attachments.getFirst().getId());
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "content".getBytes());
+        ResponseWithHeaders response = experimentClient.downloadExperimentAttachmentClient(experiment.getId(), attachments.getFirst().getId());
         assertThat(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).containsExactly("attachment; filename=attachment.txt");
         assertThat(response.getContent()).hasContent("content");
     }
 
     @Test
     void testDeleteAttachment(@TempDir Path tempDir) {
-        ExperimentDetailsDTO experiment = experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
-        List<AttachmentDTO> attachments = experimentsClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "content".getBytes());
-        experimentsClient.deleteExperimentAttachment(experiment.getId(), attachments.getFirst().getId());
-        experiment = experimentsClient.getExperiment(experiment.getId());
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "content".getBytes());
+        experimentClient.deleteExperimentAttachment(experiment.getId(), attachments.getFirst().getId());
+        experiment = experimentClient.getExperiment(experiment.getId());
         assertThat(experiment.getAttachments()).isEmpty();
     }
 
     @Test
     @SneakyThrows
     void testGetPicture() {
-        ExperimentDetailsDTO experiment = experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
-        ResponseWithHeaders response = experimentsClient.getExperimentPictureClient(experiment.getId());
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        ResponseWithHeaders response = experimentClient.getExperimentPictureClient(experiment.getId());
         assertThat(response.getContent()).hasBinaryContent(ExperimentService.EMPTY_PICTURE);
-        ExperimentModel model = experimentsClient.getExperimentModel(experiment.getId());
+        ExperimentModel model = experimentClient.getExperimentModel(experiment.getId());
         String molFile = new String(getClass().getResourceAsStream("/reaction.rxn").readAllBytes());
-        experimentsClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(model, new ReactionMutation.SetScheme(0, molFile)));
-        response = experimentsClient.getExperimentPictureClient(experiment.getId());
+        experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(model, new ReactionMutation.SetScheme(0, molFile)));
+        response = experimentClient.getExperimentPictureClient(experiment.getId());
 //        assertThat(response).isNotEqualTo(ExperimentService.EMPTY_PICTURE);
         Files.write(Paths.get("picture.svg"), response.getContent().readAllBytes());
     }

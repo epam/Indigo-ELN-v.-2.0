@@ -1,6 +1,6 @@
 package com.epam.indigoeln.eln.repository;
 
-import com.epam.indigoeln.eln.entity.DictionaryEntity;
+import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.model.Dictionary;
 import com.epam.indigoeln.eln.util.Conditions;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
@@ -11,20 +11,16 @@ import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
-public class DictionaryRepository implements PanacheRepositoryBase<DictionaryEntity, UUID> {
+public class DictionaryRepository implements PanacheRepositoryBase<DictionaryItemEntity, UUID> {
 
     private static final Sort SORT = Sort.by("ordinal");
 
-    public List<DictionaryEntity> list(Dictionary dictionary, boolean includeDeleted) {
+    public List<DictionaryItemEntity> list(Dictionary dictionary, boolean includeInactive) {
         Conditions conditions = new Conditions()
                 .add("dictionary=?", dictionary);
-        if (!includeDeleted) {
-            conditions.add("not deleted");
+        if (!includeInactive) {
+            conditions.add("active");
         }
         return find(conditions.getQuery(), SORT, conditions.getValues()).list();
-    }
-
-    public long hardDelete() {
-        return delete("deleted");
     }
 }

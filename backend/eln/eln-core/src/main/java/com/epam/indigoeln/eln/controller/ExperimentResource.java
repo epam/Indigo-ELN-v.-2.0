@@ -14,13 +14,12 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
 @Slf4j
 @Path(BaseAPI.BASE_PATH)
-public class ExperimentsResource implements ExperimentsAPI {
+public class ExperimentResource implements ExperimentAPI {
 
     @Inject
     ExperimentService experimentService;

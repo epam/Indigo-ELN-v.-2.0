@@ -1,80 +1,157 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.eln.BaseTest;
-import com.epam.indigoeln.eln.model.Dictionary;
-import com.epam.indigoeln.eln.model.DictionaryItemDTO;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.DictionaryItemRequest;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.TestHelper;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import lombok.SneakyThrows;
+import org.assertj.core.api.AbstractListAssert;
+import org.assertj.core.api.ObjectAssert;
+import org.assertj.core.groups.Tuple;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 @QuarkusTest
 @JwtSecurity
 @TestSecurity(user = TestHelper.JOHN_USERNAME)
 public class DictionaryServiceTest extends BaseTest {
 
+    List<DictionaryItemDTO> items;
+
     @BeforeAll
     @SneakyThrows
     void setUpClass() {
         testHelper.cleanupDatabase();
         testHelper.createTestUsers();
+        dictionaryClient.getDictionaryFull(Dictionary.TEST).reversed().forEach(item -> {
+            dictionaryClient.removeDictionaryItem(Dictionary.TEST, item.getId());
+        });
+    }
+
+    @AfterAll
+    void tearDownClass() {
+        dictionaryClient.getDictionaryFull(Dictionary.TEST).reversed().forEach(item -> {
+            dictionaryClient.removeDictionaryItem(Dictionary.TEST, item.getId());
+        });
     }
 
     @Test
     @Order(1)
     void testGetDictionaries() {
-        assertThat(miscClient.getDictionaries()).containsExactly(Dictionary.values());
+        List<Dictionary> expected = new ArrayList<>(Arrays.asList(Dictionary.values()));
+        expected.remove(Dictionary.TEST);
+        assertThat(dictionaryClient.getDictionaries()).isEqualTo(expected);
     }
 
     @Test
     @Order(2)
     void testGetDictionaryFull() {
-        List<DictionaryItemDTO> original = miscClient.getDictionaryFull(Dictionary.THERAPEUTIC_AREA);
+        List<DictionaryItemDTO> original = dictionaryClient.getDictionaryFull(Dictionary.THERAPEUTIC_AREA);
         assertThat(original).isNotEmpty();
     }
 
     @Test
     @Order(3)
-    void testUpdateDictionary() {
-        List<DictionaryItemDTO> list1 = miscClient.updateDictionary(Dictionary.THERAPEUTIC_AREA, List.of(
-                new DictionaryItemRequest(null, "A", null, false)
-        ));
-        List<DictionaryItemDTO> list2 = miscClient.updateDictionary(Dictionary.THERAPEUTIC_AREA, List.of(
-                new DictionaryItemRequest(null, "0", null, null),
-                new DictionaryItemRequest(list1.getFirst().getId(), "Anew", null, null),
-                new DictionaryItemRequest(null, "B", null, null)
-        ));
-        assertThat(list2).map(DictionaryItemDTO::getName).containsExactly("0", "Anew", "B");
-        assertThat(list2.get(1).getId()).isEqualTo(list1.getFirst().getId());
+    void testAddFirstItem() {
+        items = dictionaryClient.addDictionaryItem(Dictionary.TEST, new DictionaryItemRequest("A", "Adescription"));
+        verify(items).containsExactly(
+                tuple("A", "Adescription", 1, true)
+        );
     }
 
     @Test
     @Order(4)
-    void testGetDictionary() {
-        List<DictionaryItemRef> list = miscClient.getDictionary(Dictionary.THERAPEUTIC_AREA);
-        var names = assertThat(list).map(DictionaryItemRef::getName);
-        names.containsExactly("0", "Anew", "B");
+    void testAddSecondItem() {
+        items = dictionaryClient.addDictionaryItem(Dictionary.TEST, new DictionaryItemRequest("B", "Bdescription"));
+        verify(items).containsExactly(
+                tuple("A", "Adescription", 1, true),
+                tuple("B", "Bdescription", 2, true)
+        );
     }
 
     @Test
-    @Order(999)
-    void testRestoreOriginal() {
-        // it should be a tearDown method, but authorization is not available in tearDown, so use regular test
-        miscClient.updateDictionary(Dictionary.THERAPEUTIC_AREA, List.of(
-                new DictionaryItemRequest(null, "A", null, false),
-                new DictionaryItemRequest(null, "B", null, false)
+    @Order(5)
+    void testUpdateItem() {
+        items = dictionaryClient.updateDictionaryItem(Dictionary.TEST, items.getFirst().getId(), new DictionaryItemEditRequest(
+                Optional.of("Anew"),
+                Optional.of("AdescriptionNew"),
+                null,
+                null
         ));
-        List<DictionaryItemDTO> result = miscClient.getDictionaryFull(Dictionary.THERAPEUTIC_AREA);
-        assertThat(result).isNotEmpty();
+        verify(items).containsExactly(
+                tuple("Anew", "AdescriptionNew", 1, true),
+                tuple("B", "Bdescription", 2, true)
+        );
+    }
+
+    @Test
+    @Order(6)
+    void testDeactivateItem() {
+        items = dictionaryClient.updateDictionaryItem(Dictionary.TEST, items.getFirst().getId(), new DictionaryItemEditRequest(
+                null,
+                null,
+                null,
+                Optional.of(false)
+        ));
+        verify(items).containsExactly(
+                tuple("Anew", "AdescriptionNew", 1, false),
+                tuple("B", "Bdescription", 2, true)
+        );
+        assertThat(dictionaryClient.getDictionary(Dictionary.TEST))
+                .extracting(DictionaryItemRef::getName)
+                .containsExactly("B");
+    }
+
+    @Test
+    @Order(7)
+    void testAddThirdItem() {
+        items = dictionaryClient.addDictionaryItem(Dictionary.TEST, new DictionaryItemRequest("C", "Cdescription"));
+        verify(items).containsExactly(
+                tuple("Anew", "AdescriptionNew", 1, false),
+                tuple("B", "Bdescription", 2, true),
+                tuple("C", "Cdescription", 3, true)
+        );
+    }
+
+    @Test
+    @Order(8)
+    void testReorderItems() {
+        items = dictionaryClient.updateDictionaryItem(Dictionary.TEST, items.get(2).getId(), new DictionaryItemEditRequest(
+                null,
+                null,
+                Optional.of(2), // move C to position 2
+                null
+        ));
+        verify(items).containsExactly(
+                tuple("Anew", "AdescriptionNew", 1, false),
+                tuple("C", "Cdescription", 2, true),
+                tuple("B", "Bdescription", 3, true)
+        );
+    }
+
+    @Test
+    @Order(9)
+    void testDeleteItem() {
+        items = dictionaryClient.removeDictionaryItem(Dictionary.TEST, items.getFirst().getId());
+        verify(items).containsExactly(
+                tuple("C", "Cdescription", 1, true),
+                tuple("B", "Bdescription", 2, true)
+        );
+    }
+
+    private AbstractListAssert<?, List<? extends Tuple>, Tuple, ObjectAssert<Tuple>> verify(List<DictionaryItemDTO> items) {
+        return assertThat(items).extracting(DictionaryItemDTO::getName, DictionaryItemDTO::getDescription, DictionaryItemDTO::getOrdinal, DictionaryItemDTO::getActive);
     }
 }

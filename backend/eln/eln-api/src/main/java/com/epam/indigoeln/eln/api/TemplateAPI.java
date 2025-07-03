@@ -9,7 +9,7 @@ import java.util.UUID;
 @Path(BaseAPI.BASE_PATH)
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public interface TemplatesAPI extends BaseAPI {
+public interface TemplateAPI extends BaseAPI {
 
     @POST
     @Path("/templates")

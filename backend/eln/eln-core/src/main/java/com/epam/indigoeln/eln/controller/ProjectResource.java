@@ -3,7 +3,7 @@ package com.epam.indigoeln.eln.controller;
 
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.api.BaseAPI;
-import com.epam.indigoeln.eln.api.ProjectsAPI;
+import com.epam.indigoeln.eln.api.ProjectAPI;
 import com.epam.indigoeln.eln.api.UploadForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.AttachmentService;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Path(BaseAPI.BASE_PATH)
-public class ProjectsResource implements ProjectsAPI {
+public class ProjectResource implements ProjectAPI {
 
     @Inject
     ProjectService projectService;

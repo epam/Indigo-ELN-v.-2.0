@@ -7,7 +7,7 @@ import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.api.BaseAPI;
 import com.epam.indigoeln.eln.api.MiscAPI;
 import com.epam.indigoeln.eln.api.UploadForm;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.TotalCounts;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.ProjectService;
 import com.epam.indigoeln.eln.service.SupportService;
@@ -31,38 +31,11 @@ public class MiscResource implements MiscAPI {
     @Inject
     SupportService supportService;
     @Inject
-    DictionaryService dictionaryService;
-    @Inject
     CompoundService compoundService;
 
     @Override
     public @NotNull @Valid TotalCounts getTotalCounts() {
         return projectService.getTotalCounts();
-    }
-
-    @Override
-    public List<Dictionary> getDictionaries() {
-        return dictionaryService.getDictionaries();
-    }
-
-    @Override
-    public List<DictionaryItemRef> getDictionary(Dictionary dictionary) {
-        return dictionaryService.getDictionary(dictionary);
-    }
-
-    @Override
-    public List<DictionaryItemDTO> getDictionaryFull(@NotNull Dictionary dictionary) {
-        return dictionaryService.getDictionaryFull(dictionary);
-    }
-
-    @Override
-    public List<DictionaryItemDTO> updateDictionary(@NotNull Dictionary dictionary, @NotNull @Valid List<DictionaryItemRequest> content) {
-        return dictionaryService.updateDictionary(dictionary, content);
-    }
-
-    @Override
-    public List<DictionaryItemRef> getSaltCodes() {
-        return dictionaryService.getSaltCodes();
     }
 
     @Override

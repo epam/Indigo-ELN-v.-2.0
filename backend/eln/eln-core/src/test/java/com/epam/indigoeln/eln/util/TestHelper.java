@@ -1,16 +1,12 @@
 package com.epam.indigoeln.eln.util;
 
 import com.epam.indigoeln.eln.client.MiscClient;
-import com.epam.indigoeln.eln.client.UsersClient;
+import com.epam.indigoeln.eln.client.UserClient;
 import com.epam.indigoeln.eln.model.*;
-import jakarta.ws.rs.WebApplicationException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.http.HttpStatus;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
-import org.jboss.resteasy.reactive.ClientWebApplicationException;
 
-import javax.net.ssl.SSLSession;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -47,7 +43,7 @@ public class TestHelper {
     public static final String LISA_DISPLAY_NAME = "Lisa Green";
     public static final ApplicationRole[] LISA_ROLES = {ApplicationRole.TEMPLATE_EDITOR};
 
-    private final UsersClient usersClient;
+    private final UserClient userClient;
     private final MiscClient miscClient;
 
     @Getter
@@ -71,10 +67,10 @@ public class TestHelper {
     }
 
     private UserDTO getOrCreateUser(UserRequest request) {
-        Page<UserDTO> found = usersClient.getUsers(null, request.getUsername(), Paging.DEFAULT);
+        Page<UserDTO> found = userClient.getUsers(null, request.getUsername(), Paging.DEFAULT);
         if (!found.getItems().isEmpty()) {
             return found.getItems().getFirst();
         }
-        return usersClient.createUser(request);
+        return userClient.createUser(request);
     }
 }

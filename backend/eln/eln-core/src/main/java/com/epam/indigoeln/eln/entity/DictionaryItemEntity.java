@@ -12,13 +12,14 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
+import org.jspecify.annotations.Nullable;
 
 @Getter
 @Setter
 @Entity(name = "DictionaryItem")
 @Table(name = "Dictionary_Item")
-@ToString(of = {"id", "dictionary", "ordinal", "name", "deleted"})
-public class DictionaryEntity extends IdentifiableEntity {
+@ToString(of = {"id", "dictionary", "ordinal", "name", "active"})
+public class DictionaryItemEntity extends BaseEntity {
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -31,8 +32,9 @@ public class DictionaryEntity extends IdentifiableEntity {
     @NotEmpty
     private String name;
 
+    @Nullable
     private String description;
 
     @NotNull
-    private Boolean deleted;
+    private Boolean active;
 }
