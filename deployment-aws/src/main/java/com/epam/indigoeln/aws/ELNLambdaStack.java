@@ -2,20 +2,28 @@ package com.epam.indigoeln.aws;
 
 import lombok.Getter;
 import lombok.Value;
-import software.amazon.awscdk.NestedStack;
-import software.amazon.awscdk.NestedStackProps;
+import software.amazon.awscdk.*;
 import software.amazon.awscdk.aws_apigatewayv2_authorizers.HttpUserPoolAuthorizer;
 import software.amazon.awscdk.aws_apigatewayv2_integrations.HttpLambdaIntegration;
-import software.amazon.awscdk.services.apigatewayv2.AddRoutesOptions;
-import software.amazon.awscdk.services.apigatewayv2.HttpApi;
-import software.amazon.awscdk.services.apigatewayv2.IHttpRouteAuthorizer;
+import software.amazon.awscdk.services.apigateway.EndpointConfiguration;
+import software.amazon.awscdk.services.apigateway.RestApi;
+import software.amazon.awscdk.services.apigatewayv2.*;
 import software.amazon.awscdk.services.cognito.IUserPool;
 import software.amazon.awscdk.services.cognito.IUserPoolClient;
 import software.amazon.awscdk.services.ec2.ISecurityGroup;
 import software.amazon.awscdk.services.ec2.IVpc;
+import software.amazon.awscdk.services.ec2.InterfaceVpcEndpoint;
+import software.amazon.awscdk.services.ec2.VpcEndpoint;
 import software.amazon.awscdk.services.ecr.Repository;
-import software.amazon.awscdk.services.lambda.Function;
+import software.amazon.awscdk.services.iam.*;
+import software.amazon.awscdk.services.lambda.*;
+import software.amazon.awscdk.services.lambda.Runtime;
+import software.amazon.awscdk.services.lambda.eventsources.SqsEventSource;
+import software.amazon.awscdk.services.logs.LogGroup;
+import software.amazon.awscdk.services.logs.RetentionDays;
 import software.amazon.awscdk.services.rds.Credentials;
+import software.amazon.awscdk.services.sqs.DeadLetterQueue;
+import software.amazon.awscdk.services.sqs.Queue;
 import software.constructs.Construct;
 
 import java.io.File;
@@ -43,7 +51,7 @@ public class ELNLambdaStack extends NestedStack {
                 .build();
 
         Map<String, String> elnFunctionEnvironment = mapOf(
-                "QUARKUS_DATASOURCE_JDBC_URL", String.format("jdbc:postgresql://%s/%s", "xxx", props.getDbCredentials().getUsername()) // TODO
+                "QUARKUS_DATASOURCE_JDBC_URL", String.format("jdbc:postgresql://%s/%s", "172.31.52.120", props.getDbCredentials().getUsername()) // TODO
                 , "QUARKUS_DATASOURCE_USERNAME", props.getDbCredentials().getUsername()
                 , "QUARKUS_DATASOURCE_PASSWORD", props.getDbCredentials().getPassword().unsafeUnwrap() // TODO retrieve credentials in lambda code
                 , "ELN_COGNITO_USER_POOL_ID", props.getUserPool().getUserPoolId()

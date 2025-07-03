@@ -1,0 +1,62 @@
+package com.epam.indigoeln.eln.service;
+
+import com.epam.indigoeln.eln.model.UserRequest;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Alternative;
+import jakarta.inject.Inject;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.*;
+
+import java.util.Optional;
+
+@Alternative
+@ApplicationScoped
+class CognitoExternalUserService implements ExternalUserService{
+
+    @Inject
+    CognitoIdentityProviderClient cognitoClient;
+
+    @ConfigProperty(name = "eln.cognito.user-pool-id")
+    String userPoolId;
+
+    public void createUser(UserRequest request) {
+        try {
+            cognitoClient.adminCreateUser(AdminCreateUserRequest.builder()
+                    .userPoolId(userPoolId)
+                    .username(request.getUsername())
+                    .userAttributes(
+                            AttributeType.builder().name("email").value(request.getUsername()).build()
+//                        AttributeType.builder().name("email_verified").value("true").build()
+                    )
+                    .build());
+        } catch (UsernameExistsException ignore) {
+        }
+        if (request.getPassword() != null) {
+            cognitoClient.adminSetUserPassword(AdminSetUserPasswordRequest.builder()
+                    .userPoolId(userPoolId)
+                    .username(request.getUsername())
+                    .password(request.getPassword())
+                    .permanent(true)
+                    .build());
+        }
+    }
+
+//    public void deleteUser(String email) {
+//        var request = AdminDeleteUserRequest.builder()
+//                .userPoolId(userPoolId)
+//                .username(email)
+//                .build();
+//
+//        cognitoClient.adminDeleteUser(request);
+//    }
+//
+//    public void resetPassword(String email) {
+//        var request = AdminResetUserPasswordRequest.builder()
+//                .userPoolId(userPoolId)
+//                .username(email)
+//                .build();
+//
+//        cognitoClient.adminResetUserPassword(request);
+//    }
+}

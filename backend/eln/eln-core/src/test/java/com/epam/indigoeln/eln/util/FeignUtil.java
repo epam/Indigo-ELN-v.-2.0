@@ -8,10 +8,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.google.common.base.MoreObjects;
-import feign.Feign;
-import feign.Logger;
-import feign.Request;
-import feign.RequestTemplate;
+import feign.*;
 import feign.form.FormEncoder;
 import feign.httpclient.ApacheHttpClient;
 import feign.jackson.JacksonDecoder;
@@ -55,6 +52,7 @@ public class FeignUtil {
                 })
                 .logLevel(Logger.Level.FULL)
                 .logger(new Slf4jLogger(MiscClient.class))
+                .retryer(Retryer.NEVER_RETRY)
                 .errorDecoder((methodKey, response) -> {
                     String body = null;
                     try (InputStream is = response.body().asInputStream()) {
