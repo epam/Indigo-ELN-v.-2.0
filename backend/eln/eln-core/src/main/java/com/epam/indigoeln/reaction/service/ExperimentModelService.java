@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.service;
 
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.mutation.*;
@@ -57,11 +58,11 @@ public class ExperimentModelService {
     }
 
     @Valid
-    public ExperimentModel applyMutation(@Valid ExperimentModel model, @Valid Mutation mutation) {
+    public ExperimentModel applyMutation(ExperimentEntity experiment, ExperimentModel model, Mutation mutation) {
         model.prepareToRecalculate();
         // don't rewrite to dynamic lookup to have compile-time guarantee that all mutations are handled
         switch (mutation) {
-            case ReactionMutation.SetScheme m -> setSchemeHandler.handle(model, m);
+            case ReactionMutation.SetScheme m -> setSchemeHandler.handle(experiment, model, m);
             case ReactionMutation.ResolveInputs m -> resolveInputsHandler.handle(model, m);
             case ReactionInputMutation.SetInputRole m -> inputMutationHandler.handle(model, m);
             case ReactionInputMutation.SetLimiting m -> inputMutationHandler.handle(model, m);

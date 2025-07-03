@@ -1,19 +1,26 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.eln.BaseTest;
+import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.ResponseWithHeaders;
 import com.epam.indigoeln.eln.util.TestHelper;
+import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -169,7 +176,7 @@ class ExperimentServiceTest extends BaseTest {
         List<AttachmentDTO> attachments = experimentsClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "content".getBytes());
         ResponseWithHeaders response = experimentsClient.downloadExperimentAttachmentClient(experiment.getId(), attachments.getFirst().getId());
         assertThat(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).containsExactly("attachment; filename=attachment.txt");
-        assertThat(response.getValue().asInputStream()).hasContent("content");
+        assertThat(response.getContent()).hasContent("content");
     }
 
     @Test
@@ -179,5 +186,19 @@ class ExperimentServiceTest extends BaseTest {
         experimentsClient.deleteExperimentAttachment(experiment.getId(), attachments.getFirst().getId());
         experiment = experimentsClient.getExperiment(experiment.getId());
         assertThat(experiment.getAttachments()).isEmpty();
+    }
+
+    @Test
+    @SneakyThrows
+    void testGetPicture() {
+        ExperimentDetailsDTO experiment = experimentsClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        ResponseWithHeaders response = experimentsClient.getExperimentPictureClient(experiment.getId());
+        assertThat(response.getContent()).hasBinaryContent(ExperimentService.EMPTY_PICTURE);
+        ExperimentModel model = experimentsClient.getExperimentModel(experiment.getId());
+        String molFile = new String(getClass().getResourceAsStream("/reaction.rxn").readAllBytes());
+        experimentsClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(model, new ReactionMutation.SetScheme(0, molFile)));
+        response = experimentsClient.getExperimentPictureClient(experiment.getId());
+//        assertThat(response).isNotEqualTo(ExperimentService.EMPTY_PICTURE);
+        Files.write(Paths.get("picture.svg"), response.getContent().readAllBytes());
     }
 }

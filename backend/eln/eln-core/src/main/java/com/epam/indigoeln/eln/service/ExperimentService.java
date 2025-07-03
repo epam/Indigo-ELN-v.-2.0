@@ -19,6 +19,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,6 +30,8 @@ import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
 @Transactional
 @ApplicationScoped
 public class ExperimentService {
+
+    static final byte[] EMPTY_PICTURE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"/>".getBytes(StandardCharsets.UTF_8);
 
     @Inject
     NotebookRepository notebookRepository;
@@ -115,7 +118,7 @@ public class ExperimentService {
         try {
             log.debug("Mutating model for experiment {} with mutation {}", experimentId, mutation);
             ExperimentEntity experiment = experimentRepository.get(experimentId);
-            model = experimentModelService.applyMutation(model, mutation);
+            model = experimentModelService.applyMutation(experiment, model, mutation);
             String modelStr = experimentModelService.serializeModel(model);
             experiment.setModel(modelStr);
             return model;
@@ -123,6 +126,12 @@ public class ExperimentService {
             log.error("Failed to mutate model for experiment {}: {}", experimentId, e.getMessage(), e);
             throw new RuntimeException("Failed to mutate model", e);
         }
+    }
+
+    public byte[] getExperimentPicture(UUID experimentId) {
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        aclService.ensureAccess(experiment, AccessOperation.VIEW);
+        return experiment.getPicture() != null ? experiment.getPicture() : EMPTY_PICTURE;
     }
 
     private String generateExperimentName(NotebookEntity notebook) {

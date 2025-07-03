@@ -27,4 +27,9 @@ public interface ExperimentsClient extends ExperimentsAPI {
     @jakarta.ws.rs.Path("/experiment/{experimentId}/attachments/{attachmentId}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     ResponseWithHeaders downloadExperimentAttachmentClient(@PathParam("experimentId") UUID experimentId, @PathParam("attachmentId") UUID attachmentId);
+
+    @GET
+    @jakarta.ws.rs.Path("/experiments/{experimentId}/picture")
+    @Produces("image/svg+xml")
+    ResponseWithHeaders getExperimentPictureClient(@PathParam("experimentId") UUID experimentId);
 }

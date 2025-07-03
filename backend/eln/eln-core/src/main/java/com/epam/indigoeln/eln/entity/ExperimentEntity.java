@@ -113,6 +113,10 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
 //    private ExperimentModel model;
     private String model;
 
+    @Nullable
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] picture;
+
     @NotNull
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "acl_short", insertable = false, updatable = false)

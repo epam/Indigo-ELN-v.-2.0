@@ -10,6 +10,7 @@ import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.repository.CompoundRepository;
 import com.epam.indigoeln.compound.repository.SampleRepository;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -43,7 +44,7 @@ public class CompoundService {
     @Inject
     IndigoAPI indigo;
 
-    public Pair<CompoundEntity, SampleEntity> findOrCreateByCanonicalSmiles(String canonicalSmiles, IndigoAPI.IndigoMolecule indigoObject) {
+    public Pair<CompoundEntity, SampleEntity> findOrCreateByCanonicalSmiles(String canonicalSmiles, IndigoMolecule indigoObject) {
         CompoundEntity compound = compoundRepository.findByCanonicalSmiles(canonicalSmiles);
         SampleEntity sample;
         if (compound == null) {
@@ -98,7 +99,7 @@ public class CompoundService {
         return result;
     }
 
-    private void fillCompoundFromIndigo(IndigoAPI.IndigoMolecule molecule, CompoundEntity compound) {
+    private void fillCompoundFromIndigo(IndigoMolecule molecule, CompoundEntity compound) {
         compound.setSource(CompoundSource.ELN);
         compound.setFormula(molecule.grossFormula());
         compound.setMolFile(molecule.molfile());

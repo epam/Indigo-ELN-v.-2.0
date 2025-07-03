@@ -2,6 +2,8 @@ package com.epam.indigoeln.reaction.service.calculator;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.indigowrapper.IndigoAtom;
+import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.reaction.model.SaltCodeRef;
 import com.google.common.math.DoubleMath;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -21,7 +23,7 @@ public class MolWeightCalculator {
 
     public double calculateMolWeightWithoutSalt(String molFile) {
         return indigo.withSession(indigoSession -> {
-            IndigoAPI.IndigoMolecule molecule = indigoSession.loadMolecule(molFile);
+            IndigoMolecule molecule = indigoSession.loadMolecule(molFile);
             return molecule.molecularWeight();
         });
     }
@@ -56,10 +58,10 @@ public class MolWeightCalculator {
         //
         // finalMolWeight = totalBaseWeightWithHydrogen + totalSaltWeight
         return indigo.withSession(indigoSession -> {
-            IndigoAPI.IndigoMolecule molecule = indigoSession.loadMolecule(molFile);
+            IndigoMolecule molecule = indigoSession.loadMolecule(molFile);
             double molWeight = molecule.molecularWeight();
             int moleculeCharge = 0;
-            for (IndigoAPI.IndigoAtom atom : molecule.atoms()) {
+            for (IndigoAtom atom : molecule.atoms()) {
                 moleculeCharge += atom.charge();
             }
             int mainEQ, addEQ;

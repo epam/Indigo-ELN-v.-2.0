@@ -263,7 +263,8 @@ BEGIN
         description = new.description,
         therapeutic_area_id = new.therapeutic_area_id,
         project_code_id = new.project_code_id,
-        model = new.model
+        model = new.model,
+        picture = new.picture
     WHERE id = new.id;
 
     UPDATE Experiment SET search_vector = get_experiment_search_vector(new.id) WHERE id = new.id;

@@ -6,6 +6,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,6 +53,11 @@ public interface ExperimentsAPI extends BaseAPI {
     @Path("/experiments/{experimentId}/attachments/{attachmentId}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     void deleteExperimentAttachment(@PathParam("experimentId") UUID experimentId, @PathParam("attachmentId") UUID attachmentId);
+
+    @GET
+    @Path("/experiments/{experimentId}/picture")
+    @Produces("image/svg+xml")
+    byte[] getExperimentPicture(@PathParam("experimentId") UUID experimentId);
 
     @POST
     @Path("/experiments/{experimentId}/mark")

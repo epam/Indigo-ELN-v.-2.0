@@ -122,7 +122,7 @@ class NotebookServiceTest extends BaseTest {
         List<AttachmentDTO> attachments = notebooksClient.createNotebookAttachment(notebook.getId(), "attachment.txt", tempDir, "content".getBytes());
         ResponseWithHeaders response = notebooksClient.downloadNotebookAttachmentClient(notebook.getId(), attachments.getFirst().getId());
         assertThat(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).containsExactly("attachment; filename=attachment.txt");
-        assertThat(response.getValue().asInputStream()).hasContent("content");
+        assertThat(response.getContent()).hasContent("content");
     }
 
     @Test

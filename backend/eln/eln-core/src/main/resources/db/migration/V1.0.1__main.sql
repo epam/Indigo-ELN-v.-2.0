@@ -152,6 +152,7 @@ CREATE TABLE Experiment (
     project_code_id UUID,
     description TEXT,
     model JSONB NOT NULL,
+    picture BYTEA,
     search_vector TSVECTOR,
     CONSTRAINT experiment_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT experiment_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),

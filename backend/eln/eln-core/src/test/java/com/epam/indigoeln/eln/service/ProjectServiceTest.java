@@ -176,7 +176,7 @@ class ProjectServiceTest extends BaseTest {
         List<AttachmentDTO> attachments = projectsClient.createProjectAttachment(project.getId(), "attachment.txt", tempDir, "content".getBytes());
         ResponseWithHeaders response = projectsClient.downloadProjectAttachmentClient(project.getId(), attachments.getFirst().getId());
         assertThat(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).containsExactly("attachment; filename=attachment.txt");
-        assertThat(response.getValue().asInputStream()).hasContent("content");
+        assertThat(response.getContent()).hasContent("content");
     }
 
     @Test

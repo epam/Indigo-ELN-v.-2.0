@@ -21,7 +21,7 @@ public class ResponseWithHeadersDecoder implements Decoder {
         if (response.status() == 404 || response.status() == 204) return Util.emptyValueOf(type);
         if (response.body() == null) return null;
         if (type.getTypeName().equals(ResponseWithHeaders.class.getName())) {
-            return new ResponseWithHeaders(response.body(), response.headers());
+            return new ResponseWithHeaders(response.body().asInputStream(), response.headers());
         }
         return delegate.decode(response, type);
     }

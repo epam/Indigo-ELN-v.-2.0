@@ -1,6 +1,9 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.indigowrapper.IndigoMolecule;
+import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -19,7 +22,7 @@ public class SetSchemeHandler extends AbstractMutationHandler {
     @Inject
     IndigoAPI indigo;
 
-    public void handle(ExperimentModel model, ReactionMutation.SetScheme mutation) {
+    public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionMutation.SetScheme mutation) {
         Reaction reaction = model.getReactions().get(mutation.reactionNo());
         reaction.setMolFile(mutation.molFile());
         // TODO match into existing inputs/outputs
@@ -27,23 +30,27 @@ public class SetSchemeHandler extends AbstractMutationHandler {
         reaction.setOutputs(new ArrayList<>());
 
         indigo.withSession(indigoSession -> {
-            IndigoAPI.IndigoReaction indigoReaction = indigoSession.loadReaction(mutation.molFile());
-            for (IndigoAPI.IndigoMolecule reactant : indigoReaction.reactants()) {
+            IndigoReaction indigoReaction = indigoSession.loadReaction(mutation.molFile());
+            for (IndigoMolecule reactant : indigoReaction.reactants()) {
                 reaction.getInputs().add(createInputLine(reaction, reactant, ReactionInputRole.REACTANT));
             }
-            for (IndigoAPI.IndigoMolecule catalyst : indigoReaction.catalysts()) {
+            for (IndigoMolecule catalyst : indigoReaction.catalysts()) {
                 reaction.getInputs().add(createInputLine(reaction, catalyst, ReactionInputRole.CATALYST));
             }
-            for (IndigoAPI.IndigoMolecule product : indigoReaction.products()) {
+            for (IndigoMolecule product : indigoReaction.products()) {
                 reaction.getOutputs().add(createOutputLine(reaction, product));
             }
             if (!reaction.getInputs().isEmpty() && reaction.getLimitingInput() == null) {
                 reaction.getInputs().getFirst().setLimiting(true);
             }
+            indigoSession.setOption("render-output-format", "svg");
+            indigoSession.setOption("render-image-size", 500, 200);
+            byte[] buf = indigoSession.renderToBuffer(indigoReaction);
+            experiment.setPicture(buf);
         });
     }
 
-    private ReactionInput createInputLine(Reaction reaction, IndigoAPI.IndigoMolecule molecule, ReactionInputRole role) {
+    private ReactionInput createInputLine(Reaction reaction, IndigoMolecule molecule, ReactionInputRole role) {
         ReactionInput row = new ReactionInput();
         row.setReaction(reaction);
         row.setRole(role);
@@ -56,7 +63,7 @@ public class SetSchemeHandler extends AbstractMutationHandler {
         return row;
     }
 
-    private ReactionOutput createOutputLine(Reaction reaction, IndigoAPI.IndigoMolecule molecule) {
+    private ReactionOutput createOutputLine(Reaction reaction, IndigoMolecule molecule) {
         ReactionOutput row = new ReactionOutput();
         row.setReaction(reaction);
         row.setCompound(virtualCompoundRef(molecule));

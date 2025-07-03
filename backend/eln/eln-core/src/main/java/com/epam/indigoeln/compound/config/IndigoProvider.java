@@ -3,7 +3,7 @@ package com.epam.indigoeln.compound.config;
 import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoRenderer;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
-import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
+import com.epam.indigoeln.indigowrapper.IndigoAPIImpl;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 
@@ -19,17 +19,11 @@ public class IndigoProvider {
         }
         Indigo indigo = new Indigo(path);
         indigo.setOption("ignore-stereochemistry-errors", "true");
-        return new IndigoAPI.Impl(indigo);
-    }
-
-    @Produces
-    @ApplicationScoped
-    IndigoRendererAPI getIndigoRenderer(IndigoAPI indigo) {
-        IndigoRenderer indigoRenderer = new IndigoRenderer(((IndigoAPI.Impl) indigo).getIndigo());
+        IndigoRenderer indigoRenderer = new IndigoRenderer(indigo);
         indigo.setOption("render-label-mode", "hetero");
         indigo.setOption("render-output-format", "svg");
         indigo.setOption("render-coloring", true);
         indigo.setOption("render-margins", 0, 0);
-        return new IndigoRendererAPI.Impl(indigoRenderer);
+        return new IndigoAPIImpl(indigo, indigoRenderer);
     }
 }

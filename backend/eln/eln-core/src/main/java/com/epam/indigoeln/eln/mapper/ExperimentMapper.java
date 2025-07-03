@@ -27,6 +27,7 @@ public abstract class ExperimentMapper extends AbstractMapper {
     @Mapping(target = "aclEntities", expression = "java(java.util.Map.of())")
     @Mapping(target = "attachments", expression = "java(java.util.List.of())")
     @Mapping(target = "model", ignore = true)
+    @Mapping(target = "picture", ignore = true)
     public abstract ExperimentEntity requestToExperiment(ExperimentRequest experiment, ExperimentStatus status);
 
     @Mapping(target = "acl", source = "aclShort")

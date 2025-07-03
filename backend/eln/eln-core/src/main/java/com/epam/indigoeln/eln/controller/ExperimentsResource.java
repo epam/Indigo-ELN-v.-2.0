@@ -14,6 +14,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -71,6 +72,11 @@ public class ExperimentsResource implements ExperimentsAPI {
     @Override
     public void deleteExperimentAttachment(UUID experimentId, UUID attachmentId) {
         attachmentService.deleteExperimentAttachment(experimentId, attachmentId);
+    }
+
+    @Override
+    public byte[] getExperimentPicture(UUID experimentId) {
+        return experimentService.getExperimentPicture(experimentId);
     }
 
     @Override
