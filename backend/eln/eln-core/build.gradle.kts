@@ -19,7 +19,7 @@ dependencies {
     api("io.quarkus:quarkus-hibernate-orm-panache")
     api("io.hypersistence:hypersistence-utils-hibernate-63:3.9.9")
     api("com.github.starnowski.posjsonhelper.text:hibernate6-text:0.4.2") // TODO remove
-    api("io.quarkiverse.amazonservices:quarkus-amazon-sqs")
+    api("io.quarkus:quarkus-rest-client")
 //    api("io.quarkiverse.hibernatetypes:quarkus-hibernate-types:2.2.0")
 
     api(project(":eln:eln-api"))
