@@ -131,6 +131,7 @@ CREATE TABLE Template (
     modified_by_id UUID NOT NULL,
     modified_at TIMESTAMPTZ NOT NULL,
     name VARCHAR(256) NOT NULL,
+    components JSONB NOT NULL,
     CONSTRAINT template_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT template_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id)
 );

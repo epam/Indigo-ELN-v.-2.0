@@ -56,6 +56,8 @@ class PermissionsTest extends BaseTest {
     TemplateDetailsDTO template;
     List<TestRow> rows;
 
+    List<TemplateComponent> components = List.of(new TemplateComponent.Attachments());
+
     @BeforeAll
     @Transactional
     void setupAll() {
@@ -82,7 +84,7 @@ class PermissionsTest extends BaseTest {
     @Order(-100)
     @TestSecurity(user = JOHN_USERNAME)
     void insertTestData(@TempDir Path tempDir) {
-        template = templatesClient.createTemplate(new TemplateRequest("template"));
+        template = templatesClient.createTemplate(new TemplateRequest("template", components));
         for (TestRow row : rows) {
             row.projectId = projectsClient.createProject(new ProjectRequest("project" + row.testId)).getId();
             projectsClient.createProjectAttachment(row.projectId, "attachment.txt", tempDir, new byte[0]);
@@ -161,7 +163,7 @@ class PermissionsTest extends BaseTest {
 
     @Test
     void testCreateTemplateRejected() {
-        assertThatClientCall(() -> templatesClient.createTemplate(new TemplateRequest("testCreateTemplateRejected")))
+        assertThatClientCall(() -> templatesClient.createTemplate(new TemplateRequest("testCreateTemplateRejected", components)))
                 .isForbidden();
     }
 
