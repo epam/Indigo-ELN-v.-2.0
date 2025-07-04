@@ -10,11 +10,9 @@ import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.quarkus.test.security.TestSecurity;
-import jakarta.inject.Inject;
 import lombok.Getter;
 import org.junit.jupiter.api.*;
 import org.junit.platform.commons.support.AnnotationSupport;
-import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 
 import java.net.URI;
 import java.util.List;
@@ -28,9 +26,6 @@ public abstract class BaseTest {
     @TestHTTPResource
     @TestHTTPEndpoint(MiscResource.class)
     URI serverURL;
-
-    @Inject
-    CognitoIdentityProviderClient cognito;
 
     protected final boolean integrationTest = AnnotationSupport.isAnnotated(getClass(), QuarkusIntegrationTest.class);
 
@@ -56,7 +51,7 @@ public abstract class BaseTest {
     void setupAllBase() throws Exception {
         System.out.println("BaseTest.setupAllBase: " + serverURL);
         if (integrationTest) {
-            serverURL = URI.create("http://localhost:8082"); // !!! 8081
+            serverURL = URI.create("http://localhost:8081");
         }
         URI baseURL = serverURL.resolve("/");
 

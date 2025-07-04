@@ -21,3 +21,12 @@ phases:
     commands:
       - docker push $REPO_URI:latest
       - docker push $REPO_URI:$IMAGE_TAG
+reports:
+  unit_tests:
+    files:
+      - backend/**/build/test-results/test/TEST-*.xml
+    file-format: JUNITXML
+  integration_tests:
+    files:
+      - backend/**/build/test-results/quarkusIntTest/TEST-*.xml
+    file-format: JUNITXML
