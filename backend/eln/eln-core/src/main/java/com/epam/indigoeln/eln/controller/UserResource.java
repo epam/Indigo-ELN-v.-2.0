@@ -35,12 +35,17 @@ public class UserResource implements UserAPI {
     }
 
     @Override
+    public byte[] getUserPicture(UUID userId, @Nullable Boolean large) {
+        return userService.getUserPicture(userId, large);
+    }
+
+    @Override
     public @NotNull @Valid List<ACLEntryDTO> updateUserAccess(UUID userId, List<AccessForm> form) {
         return List.of();
     }
 
     @Override
-    public List<UserRef> suggestUsers(@Nullable String search, Paging paging) {
-        return userService.suggestUsers(search, paging);
+    public List<UserRef> suggestUsers(@Nullable String search) {
+        return userService.suggestUsers(search);
     }
 }

@@ -25,12 +25,16 @@ public interface UserAPI extends BaseAPI {
     @Path("/users/{userId}")
     UserDTO getUser(@PathParam("userId") UUID userId);
 
+    @GET
+    @Path("/users/{userId}/picture")
+    @Produces("image/png")
+    byte[] getUserPicture(@PathParam("userId") UUID userId, @QueryParam("small") @Nullable Boolean large);
+
     @POST
     @Path("/users/{userId}/access")
     List<ACLEntryDTO> updateUserAccess(@PathParam("userId") UUID userId, List<AccessForm> form);
 
     @GET
     @Path("/users/suggest")
-    List<UserRef> suggestUsers(@QueryParam("search") @Nullable String search, @BeanParam Paging paging);
-
+    List<UserRef> suggestUsers(@QueryParam("search") @Nullable String search);
 }

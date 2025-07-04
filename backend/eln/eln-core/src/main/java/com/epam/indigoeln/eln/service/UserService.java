@@ -3,13 +3,13 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.common.config.UserInfo;
 import com.epam.indigoeln.common.exception.AccessDeniedException;
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
+import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.entity.RoleEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.UserMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.RoleRepository;
 import com.epam.indigoeln.eln.repository.UserRepository;
-import com.epam.indigoeln.eln.util.ModelUtil;
 import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
@@ -20,6 +20,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
@@ -29,10 +30,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
+
 @Slf4j
 @Transactional
 @ApplicationScoped
 public class UserService {
+
+    private static final byte[] DEFAULT_PICTURE_SMALL = loadResource(UserService.class, "/user-default-picture-small.png");
+    private static final byte[] DEFAULT_PICTURE_LARGE = loadResource(UserService.class, "/user-default-picture.png");
 
     @Inject
     UserInfo userInfo;
@@ -74,12 +80,16 @@ public class UserService {
         return userMapper.entityToDetailsDTO(user);
     }
 
+    public byte[] getUserPicture(UUID userId, @Nullable Boolean large) {
+        return Boolean.TRUE.equals(large) ? DEFAULT_PICTURE_LARGE : DEFAULT_PICTURE_SMALL;
+    }
+
     public UserEntity getUserEntity(UUID userID) {
         return userRepository.get(userID);
     }
 
-    public List<UserRef> suggestUsers(@Nullable String search, Paging paging) {
-        return userRepository.suggest(search, paging);
+    public List<UserRef> suggestUsers(@Nullable String search) {
+        return userRepository.suggest(search);
     }
 
     public UserDTO createUser(UserRequest request) {
@@ -89,7 +99,7 @@ public class UserService {
                 .map(ref -> roleRepository.get(ref.getId()))
                 .toSet();
         entity.setRoles(roles);
-        ModelUtil.updateDates(entity, getCurrentUser());
+        com.epam.indigoeln.eln.util.ModelUtil.updateDates(entity, getCurrentUser());
         userRepository.persist(entity);
         externalUserService.createUser(request);
         return userMapper.entityToDetailsDTO(entity);

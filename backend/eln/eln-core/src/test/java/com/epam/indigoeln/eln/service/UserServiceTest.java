@@ -3,14 +3,18 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.eln.BaseTest;
 import com.epam.indigoeln.eln.model.Paging;
 import com.epam.indigoeln.eln.model.UserRef;
+import com.epam.indigoeln.eln.util.ResponseWithHeaders;
 import com.epam.indigoeln.eln.util.TestHelper;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.Claim;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.inject.Inject;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,9 +59,18 @@ class UserServiceTest extends BaseTest {
     @Test
     @TestSecurity(user = TestHelper.JOHN_USERNAME)
     void testSuggestUsers() {
-        List<UserRef> all = userClient.suggestUsers(null, Paging.DEFAULT);
+        List<UserRef> all = userClient.suggestUsers(null);
         assertThat(all).map(UserRef::getDisplayName).containsExactly(TestHelper.ADMIN_DISPLAY_NAME, TestHelper.BART_DISPLAY_NAME, TestHelper.JOHN_DISPLAY_NAME, TestHelper.LISA_DISPLAY_NAME, TestHelper.WILLOW_DISPLAY_NAME);
-        List<UserRef> filtered = userClient.suggestUsers("l", Paging.DEFAULT);
+        List<UserRef> filtered = userClient.suggestUsers("l");
         assertThat(filtered).map(UserRef::getDisplayName).containsExactly(TestHelper.LISA_DISPLAY_NAME);
+    }
+
+    @Test
+    @SneakyThrows
+    @TestSecurity(user = TestHelper.JOHN_USERNAME)
+    void testGetUserPicture() {
+        List<UserRef> all = userClient.suggestUsers(null);
+        ResponseWithHeaders response = userClient.getUserPictureClient(all.getFirst().getId(), null);
+        Files.write(Paths.get("user.png"), response.getContent().readAllBytes());
     }
 }

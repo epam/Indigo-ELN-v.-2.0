@@ -29,11 +29,11 @@ public class UserRepository extends BaseRepository<UserEntity> {
         return find("username", username).firstResult();
     }
 
-    public List<UserRef> suggest(@Nullable String search, Paging paging) {
+    public List<UserRef> suggest(@Nullable String search) {
         return doFind(
                 new Conditions()
                         .addIfNotNull("lower(displayName) like ?", search != null ? search.toLowerCase() + '%' : null),
-                paging,
+                Paging.DEFAULT,
                 USER_SORT,
                 null,
                 userMapper::userRef

@@ -1,9 +1,12 @@
 package com.epam.indigoeln.common.util;
 
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -33,6 +36,16 @@ public class ModelUtil {
         //noinspection OptionalAssignedToNull
         if (property != null) {
             consumer.accept(property.orElse(null));
+        }
+    }
+
+    @SneakyThrows
+    public byte[] loadResource(Class<?> klass, String resourceName) {
+        try (InputStream is = ModelUtil.class.getResourceAsStream(resourceName)) {
+            if (is == null) {
+                throw new IllegalArgumentException("Resource not found: " + resourceName);
+            }
+            return is.readAllBytes();
         }
     }
 }
