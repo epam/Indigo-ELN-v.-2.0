@@ -1,4 +1,4 @@
-FROM bash AS builder
+FROM public.ecr.aws/docker/library/bash:latest AS builder
 
 RUN mkdir /build
 WORKDIR /build
@@ -10,6 +10,6 @@ WORKDIR /build/bingo-postgres
 RUN chmod +x ./bingo-pg-install.sh
 RUN ./bingo-pg-install.sh -libdir /usr/local/lib/postgresql -y
 
-FROM postgres:15
+FROM public.ecr.aws/docker/library/postgres:15
 COPY --from=builder /build/bingo-postgres/lib/libbingo-postgres.so /usr/local/lib/postgresql/
 COPY --from=builder /build/bingo-postgres/bingo_install.sql /docker-entrypoint-initdb.d/00_bingo_install.sql

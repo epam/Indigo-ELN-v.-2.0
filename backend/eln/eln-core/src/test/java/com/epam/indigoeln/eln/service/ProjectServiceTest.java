@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.epam.indigoeln.eln.service.CustomAssertions.assertThatACL;
-import static com.epam.indigoeln.eln.service.CustomAssertions.assertThatClientCall;
+import static com.epam.indigoeln.eln.util.CustomAssertions.assertThatACL;
+import static com.epam.indigoeln.eln.util.CustomAssertions.assertThatClientCall;
 import static org.assertj.core.api.Assertions.*;
 
 

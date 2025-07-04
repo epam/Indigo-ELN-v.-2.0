@@ -29,8 +29,8 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static com.epam.indigoeln.eln.model.AccessLevel.*;
-import static com.epam.indigoeln.eln.service.CustomAssertions.assertThatACL;
-import static com.epam.indigoeln.eln.service.CustomAssertions.assertThatClientCall;
+import static com.epam.indigoeln.eln.util.CustomAssertions.assertThatACL;
+import static com.epam.indigoeln.eln.util.CustomAssertions.assertThatClientCall;
 import static com.epam.indigoeln.eln.util.TestHelper.*;
 import static org.assertj.core.api.Assertions.*;
 

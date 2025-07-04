@@ -1,19 +1,11 @@
-package com.epam.indigoeln.eln.service;
+package com.epam.indigoeln.eln.util;
 
-import com.epam.indigoeln.common.config.ErrorDTO;
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.model.ACLEntryDTO;
 import com.epam.indigoeln.eln.model.AccessLevel;
-import com.epam.indigoeln.eln.util.APICallException;
-import com.epam.indigoeln.eln.util.FeignUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import lombok.SneakyThrows;
 import one.util.streamex.StreamEx;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.AbstractAssert;
-import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
