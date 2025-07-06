@@ -111,7 +111,9 @@ public class ExperimentService {
     }
 
     public ExperimentModel getModel(UUID experimentId) {
-        return experimentModelService.deserializeModel(experimentRepository.get(experimentId).getModel());
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
+        return experimentModelService.deserializeModel(experiment.getModel());
     }
 
     public ExperimentModel mutateModel(UUID experimentId, ExperimentModel model, Mutation mutation) {

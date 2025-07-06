@@ -11,7 +11,6 @@ import java.util.function.Supplier;
 public
 class IndigoIterable<O extends AbstractIndigoObject> implements Iterable<O> {
 
-    private final IndigoSession session;
     private final Supplier<IndigoObject> iteratorCreator;
     private final Function<IndigoObject, O> objectCreator;
 

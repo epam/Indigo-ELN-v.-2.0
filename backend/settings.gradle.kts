@@ -18,11 +18,6 @@ include("common:common-service")
 include("common:common-lambda")
 include("common:common-test")
 
-//include("example:example-api")
-//include("example:example-core")
-//include("example:example-service")
-//include("example:example-lambda")
-
 //include("signature:signature-api")
 //include("signature:signature-core")
 //include("signature:signature-service")

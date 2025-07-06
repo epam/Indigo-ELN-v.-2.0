@@ -3,5 +3,5 @@ package com.epam.indigoeln.eln.service;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 
 @QuarkusIntegrationTest
-public class ProjectServiceIT extends ProjectServiceTest {
+public class RoleServiceIT extends RoleServiceTest {
 }

@@ -9,13 +9,10 @@ phases:
 #      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REGISTRY_URI
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
-      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
   build:
     commands:
       - cd backend
-#      - ./gradlew build :eln:eln-lambda:quarkusIntTest
-      - ./gradlew build -x test
+      - ./gradlew test build :eln:eln-lambda:quarkusIntTest
       - cd eln/eln-lambda
       - docker build -t $REPO_URI:latest .
       - docker tag $REPO_URI:latest $REPO_URI:$IMAGE_TAG
@@ -23,3 +20,12 @@ phases:
     commands:
       - docker push $REPO_URI:latest
       - docker push $REPO_URI:$IMAGE_TAG
+reports:
+  unit_tests:
+    files:
+      - backend/**/build/test-results/test/TEST-*.xml
+    file-format: JUNITXML
+  integration_tests:
+    files:
+      - backend/**/build/test-results/quarkusIntTest/TEST-*.xml
+    file-format: JUNITXML

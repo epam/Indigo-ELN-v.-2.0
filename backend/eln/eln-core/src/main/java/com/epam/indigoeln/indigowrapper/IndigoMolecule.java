@@ -4,12 +4,12 @@ import com.epam.indigo.IndigoObject;
 
 public class IndigoMolecule extends AbstractIndigoObject {
 
-    IndigoMolecule(IndigoSession session, IndigoObject obj) {
-        super(session, obj);
+    IndigoMolecule(IndigoSession indigo, IndigoObject obj) {
+        super(indigo, obj);
     }
 
     public Iterable<IndigoAtom> atoms() {
-        return new IndigoIterable<>(session, obj::iterateAtoms, o -> new IndigoAtom(session, o));
+        return new IndigoIterable<>(obj::iterateAtoms, o -> new IndigoAtom(session, o));
     }
 
     public String canonicalSmiles() {

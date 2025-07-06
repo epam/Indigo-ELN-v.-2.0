@@ -11,7 +11,9 @@ phases:
     commands:
       - cd backend/postgres
       - docker build -t $REPO_URI:latest .
-      - docker tag $REPO_URI:latest $REPO_URI:$IMAGE_TAG $REPO_URI_PUBLIC:latest $REPO_URI_PUBLIC:$IMAGE_TAG
+      - docker tag $REPO_URI:latest $REPO_URI:$IMAGE_TAG
+      - docker tag $REPO_URI:latest $REPO_URI_PUBLIC:latest
+      - docker tag $REPO_URI:latest $REPO_URI_PUBLIC:$IMAGE_TAG
   post_build:
     commands:
       - docker push $REPO_URI:latest
