@@ -1,16 +1,14 @@
 package com.epam.indigoeln.indigowrapper;
 
 import com.epam.indigo.IndigoObject;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractIndigoObject {
 
     protected final IndigoSession session;
     protected final IndigoObject obj;
-
-    AbstractIndigoObject(IndigoSession session, IndigoObject obj) {
-        this.session = session;
-        this.obj = obj;
-    }
 
     public boolean hasProperty(String prop) {
         return obj.hasProperty(prop);

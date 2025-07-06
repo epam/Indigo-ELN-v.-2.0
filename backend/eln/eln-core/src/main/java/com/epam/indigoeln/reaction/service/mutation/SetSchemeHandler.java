@@ -1,9 +1,9 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
+import com.epam.indigoeln.indigowrapper.IndigoWrapper;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -20,7 +20,7 @@ import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 public class SetSchemeHandler extends AbstractMutationHandler {
 
     @Inject
-    IndigoAPI indigo;
+    IndigoWrapper indigo;
 
     public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionMutation.SetScheme mutation) {
         Reaction reaction = model.getReactions().get(mutation.reactionNo());

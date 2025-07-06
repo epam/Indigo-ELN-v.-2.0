@@ -13,7 +13,6 @@ phases:
     commands:
       - cd backend
       - ./gradlew test build :eln:eln-lambda:quarkusIntTest
-#      - ./gradlew build
       - cd eln/eln-lambda
       - docker build -t $REPO_URI:latest .
       - docker tag $REPO_URI:latest $REPO_URI:$IMAGE_TAG
