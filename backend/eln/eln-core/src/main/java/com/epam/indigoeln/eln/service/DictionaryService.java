@@ -3,10 +3,12 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
+import com.epam.indigoeln.eln.entity.SaltCodeEntity;
 import com.epam.indigoeln.eln.mapper.DictionaryMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.DictionaryRepository;
 import com.epam.indigoeln.eln.repository.SaltCodeRepository;
+import com.epam.indigoeln.reaction.model.SaltCodeRef;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -63,8 +65,20 @@ public class DictionaryService {
         return entity;
     }
 
+    public DictionaryItemEntity get(UUID id) {
+        return dictionaryRepository.findById(id);
+    }
+
     public List<DictionaryItemRef> getSaltCodes() {
         return dictionaryMapper.saltCodeToRefList(saltCodeRepository.listAll());
+    }
+
+    public SaltCodeEntity getSalt(UUID id) {
+        return saltCodeRepository.findById(id);
+    }
+
+    public SaltCodeRef getSaltRef(UUID id) {
+        return dictionaryMapper.saltCodeToRef(getSalt(id));
     }
 
     public List<DictionaryItemDTO> addDictionaryItem(Dictionary dictionary, DictionaryItemRequest item) {

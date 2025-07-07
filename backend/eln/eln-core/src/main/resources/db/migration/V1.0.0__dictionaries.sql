@@ -45,13 +45,14 @@ INSERT INTO Dictionary_Item (id, dictionary, created_by_id, created_at, modified
 
 CREATE TABLE Salt_Code (
     id UUID PRIMARY KEY,
+    code VARCHAR(2) NOT NULL UNIQUE,
     name VARCHAR(200) NOT NULL UNIQUE,
     charge INT NOT NULL,
     mol_weight FLOAT8 NOT NULL
 );
 
-INSERT INTO Salt_Code (id, name, charge, mol_weight) VALUES
-    (gen_random_uuid(), 'Sulphate', -2, 96.063);
+INSERT INTO Salt_Code (id, code, name, charge, mol_weight) VALUES
+    (gen_random_uuid(), '01', '01 - Sulphate', -2, 96.063);
 
 -- Remaining dictionaries from Indigo 2.0:
 -- Source: Source 1, Source 2

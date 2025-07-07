@@ -39,6 +39,20 @@ public class Conditions {
         return this;
     }
 
+    public Conditions addIf(boolean condition, String field) {
+        if (condition) {
+            add(field);
+        }
+        return this;
+    }
+
+    public Conditions addIf(boolean condition, String field, Object value) {
+        if (condition) {
+            add(field, value);
+        }
+        return this;
+    }
+
     public Conditions addIfNotNull(String field, @Nullable Object value) {
         if (value != null) {
             add(field, value);

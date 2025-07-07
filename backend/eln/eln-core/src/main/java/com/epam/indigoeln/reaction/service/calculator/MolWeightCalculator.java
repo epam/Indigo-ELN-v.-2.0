@@ -1,9 +1,9 @@
 package com.epam.indigoeln.reaction.service.calculator;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoAtom;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
-import com.epam.indigoeln.indigowrapper.IndigoWrapper;
 import com.epam.indigoeln.reaction.model.SaltCodeRef;
 import com.google.common.math.DoubleMath;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -19,13 +19,11 @@ public class MolWeightCalculator {
     private static final double HYDROGEN_MASS = 1.00784;
 
     @Inject
-    IndigoWrapper indigoRunner;
+    IndigoAPI indigo;
 
     public double calculateMolWeightWithoutSalt(String molFile) {
-        return indigoRunner.withSession(indigoSession -> {
-            IndigoMolecule molecule = indigoSession.loadMolecule(molFile);
-            return molecule.molecularWeight();
-        });
+        IndigoMolecule molecule = indigo.loadMolecule(molFile);
+        return molecule.molecularWeight();
     }
 
     public double calculateMolWeightWithSalt(String molFile, SaltCodeRef salt, double saltEQ) {
@@ -57,32 +55,30 @@ public class MolWeightCalculator {
         //     - total mol weight of added compound
         //
         // finalMolWeight = totalBaseWeightWithHydrogen + totalSaltWeight
-        return indigoRunner.withSession(indigoSession -> {
-            IndigoMolecule molecule = indigoSession.loadMolecule(molFile);
-            double molWeight = molecule.molecularWeight();
-            int moleculeCharge = 0;
-            for (IndigoAtom atom : molecule.atoms()) {
-                moleculeCharge += atom.charge();
-            }
-            int mainEQ, addEQ;
-            if (DoubleMath.fuzzyEquals(saltEQ, 0.5, 0.0001)) {
-                mainEQ = 2;
-                addEQ = 1;
-            } else if (DoubleMath.fuzzyEquals(saltEQ, Math.round(saltEQ), 0.0001)) {
-                mainEQ = 1;
-                addEQ = (int) Math.round(saltEQ);
-                validate(addEQ > 0, "saltEQ must be positive");
-            } else {
-                throw new InvalidRequestException("saltEQ must be 0.5 or integer");
-            }
-            double totalBaseWeight = molWeight * mainEQ;
-            int totalBaseCharge = moleculeCharge * mainEQ;
-            int expectedCharge = -(salt.getCharge() * addEQ);
-            int addHydrogen = expectedCharge - totalBaseCharge;
-            // TODO validate if there are enough hydrogen to remove
-            double totalBaseWeightWithHydrogen = totalBaseWeight + addHydrogen * HYDROGEN_MASS;
-            double totalSaltWeight = salt.getMolWeight() * addEQ;
-            return totalBaseWeightWithHydrogen + totalSaltWeight;
-        });
+        IndigoMolecule molecule = indigo.loadMolecule(molFile);
+        double molWeight = molecule.molecularWeight();
+        int moleculeCharge = 0;
+        for (IndigoAtom atom : molecule.atoms()) {
+            moleculeCharge += atom.charge();
+        }
+        int mainEQ, addEQ;
+        if (DoubleMath.fuzzyEquals(saltEQ, 0.5, 0.0001)) {
+            mainEQ = 2;
+            addEQ = 1;
+        } else if (DoubleMath.fuzzyEquals(saltEQ, Math.round(saltEQ), 0.0001)) {
+            mainEQ = 1;
+            addEQ = (int) Math.round(saltEQ);
+            validate(addEQ > 0, "saltEQ must be positive");
+        } else {
+            throw new InvalidRequestException("saltEQ must be 0.5 or integer");
+        }
+        double totalBaseWeight = molWeight * mainEQ;
+        int totalBaseCharge = moleculeCharge * mainEQ;
+        int expectedCharge = -(salt.getCharge() * addEQ);
+        int addHydrogen = expectedCharge - totalBaseCharge;
+        // TODO validate if there are enough hydrogen to remove
+        double totalBaseWeightWithHydrogen = totalBaseWeight + addHydrogen * HYDROGEN_MASS;
+        double totalSaltWeight = salt.getMolWeight() * addEQ;
+        return totalBaseWeightWithHydrogen + totalSaltWeight;
     }
 }

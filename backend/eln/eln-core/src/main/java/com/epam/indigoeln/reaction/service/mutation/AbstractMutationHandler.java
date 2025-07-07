@@ -14,8 +14,6 @@ abstract class AbstractMutationHandler {
     }
 
     protected CompoundRef.Virtual virtualCompoundRef(IndigoMolecule molecule) {
-        CompoundRef.Virtual ref = new CompoundRef.Virtual(molecule.molfile(), molecule.grossFormula());
-        ref.setMolWeight(fixed(molecule.molecularWeight(), MolWeightUnit.G_PER_MOL));
-        return ref;
+        return new CompoundRef.Virtual(molecule.molfile(), molecule.grossFormula(), molecule.molecularWeight());
     }
 }

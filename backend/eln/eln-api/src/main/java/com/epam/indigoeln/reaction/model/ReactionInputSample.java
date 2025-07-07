@@ -5,6 +5,7 @@ import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +15,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ReactionInputSample extends ReactionSample implements ExperimentModelNode, ToStringTree {
 
     @JsonBackReference
@@ -29,9 +30,9 @@ public final class ReactionInputSample extends ReactionSample implements Experim
     @Nullable
     private EnteredValue<WeightUnit> weight;
 
-    @JsonIgnore
-    public int getSampleNo() {
-        return row.getSamples().indexOf(this);
+    public ReactionInputSample(ReactionInput row, UUID anchor) {
+        this.row = row;
+        this.anchor = anchor;
     }
 
     @Override
@@ -44,6 +45,7 @@ public final class ReactionInputSample extends ReactionSample implements Experim
     @Override
     public void toStringTree(Builder builder) {
         builder.open("ReactionInputSample")
+                .property("anchor", anchor)
                 .property("sampleId", sampleId)
                 .property("mol", mol)
                 .property("weight", weight)

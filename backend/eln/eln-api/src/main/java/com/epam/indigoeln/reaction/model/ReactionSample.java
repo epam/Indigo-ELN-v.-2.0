@@ -7,10 +7,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @NoArgsConstructor
 public abstract class ReactionSample implements ExperimentModelNode, ToStringTree {
+
+    @NotNull
+    protected UUID anchor;
 
     @Nullable
     protected EnteredValue<DensityUnit> density;

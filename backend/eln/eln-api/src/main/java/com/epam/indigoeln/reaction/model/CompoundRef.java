@@ -3,17 +3,17 @@ package com.epam.indigoeln.reaction.model;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.MoreObjects;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
@@ -34,6 +34,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
 
     @Getter
     @RequiredArgsConstructor
+    @EqualsAndHashCode(of = {"compoundID", "stereoisomerCode", "saltCode", "saltEQ"})
     final class Stored implements CompoundRef {
 
         @NotNull
@@ -73,10 +74,13 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
 
     @Getter
     @Setter
-    @RequiredArgsConstructor
+    @EqualsAndHashCode(of = {"molFile", "stereoisomerCode", "saltCode", "saltEQ"})
     final class Virtual implements CompoundRef {
 
         private final String molFile;
+
+        @NotNull
+        private final String formula;
 
         @Nullable
         private DictionaryItemRef stereoisomerCode;
@@ -91,8 +95,16 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Positive
         private EnteredValue<MolWeightUnit> molWeight;
 
-        @NotNull
-        private final String formula;
+        public Virtual(String molFile, String formula, Double molWeight) {
+            this(molFile, formula, EnteredValue.fixed(molWeight, MolWeightUnit.G_PER_MOL));
+        }
+
+        @JsonCreator
+        Virtual(String molFile, String formula, EnteredValue<MolWeightUnit> molWeight) {
+            this.molFile = molFile;
+            this.formula = formula;
+            this.molWeight = molWeight;
+        }
 
         @Override
         public String toString() {
@@ -108,6 +120,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     @Getter
     @Setter
     @RequiredArgsConstructor
+    // no equals and hashCode - each unknown compound is unique
     final class Unknown implements CompoundRef {
 
         private String formula;

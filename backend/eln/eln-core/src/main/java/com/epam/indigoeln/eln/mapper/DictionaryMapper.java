@@ -6,6 +6,7 @@ import com.epam.indigoeln.eln.model.Dictionary;
 import com.epam.indigoeln.eln.model.DictionaryItemDTO;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.DictionaryItemRequest;
+import com.epam.indigoeln.reaction.model.SaltCodeRef;
 import org.mapstruct.*;
 
 import java.util.Collection;
@@ -24,5 +25,6 @@ public abstract class DictionaryMapper extends AbstractMapper {
     @Mapping(target = "ordinal", ignore = true)
     public abstract DictionaryItemEntity dictionaryToEntity(DictionaryItemRequest request, Dictionary dictionary);
 
+    public abstract SaltCodeRef saltCodeToRef(SaltCodeEntity entity);
     public abstract List<DictionaryItemRef> saltCodeToRefList(Collection<SaltCodeEntity> entities);
 }

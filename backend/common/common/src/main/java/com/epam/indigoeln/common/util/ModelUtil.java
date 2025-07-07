@@ -41,11 +41,17 @@ public class ModelUtil {
 
     @SneakyThrows
     public byte[] loadResource(Class<?> klass, String resourceName) {
-        try (InputStream is = ModelUtil.class.getResourceAsStream(resourceName)) {
-            if (is == null) {
-                throw new IllegalArgumentException("Resource not found: " + resourceName);
-            }
+        try (InputStream is = loadResourceAsStream(klass, resourceName)) {
             return is.readAllBytes();
         }
+    }
+
+    @SneakyThrows
+    public InputStream loadResourceAsStream(Class<?> klass, String resourceName) {
+        InputStream is = ModelUtil.class.getResourceAsStream(resourceName);
+        if (is == null) {
+            throw new IllegalArgumentException("Resource not found: " + resourceName);
+        }
+        return is;
     }
 }

@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @ToString
@@ -15,6 +17,9 @@ public sealed abstract class ReactionRow implements ExperimentModelNode, ToStrin
 
     @JsonBackReference
     protected Reaction reaction;
+
+    @NotNull
+    protected UUID anchor;
 
     @NotNull
     protected CompoundRef compound;

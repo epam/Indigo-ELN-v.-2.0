@@ -14,7 +14,9 @@ import jakarta.validation.Valid;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Transactional
@@ -39,6 +41,8 @@ public class ExperimentModelService {
     OutputMutationHandler outputMutationHandler;
     @Inject
     OutputSampleMutationHandler outputSampleMutationHandler;
+    @Inject
+    RegisterSampleHandler registerSampleHandler;
 
     @SneakyThrows
     public String serializeModel(ExperimentModel model) {
@@ -52,8 +56,9 @@ public class ExperimentModelService {
 
     @Valid
     public ExperimentModel createNewModel() {
-        ExperimentModel model = new ExperimentModel(List.of(new Reaction()));
-        model.getReactions().getFirst().setModel(model);
+        ExperimentModel model = new ExperimentModel();
+        Reaction reaction = new Reaction(model, UUID.randomUUID());
+        model.setReactions(List.of(reaction));
         return model;
     }
 
@@ -63,8 +68,8 @@ public class ExperimentModelService {
         // don't rewrite to dynamic lookup to have compile-time guarantee that all mutations are handled
         switch (mutation) {
             case ReactionMutation.SetScheme m -> setSchemeHandler.handle(experiment, model, m);
-            case ReactionMutation.ResolveInputs m -> resolveInputsHandler.handle(model, m);
-            case ReactionInputMutation.SetInputRole m -> inputMutationHandler.handle(model, m);
+            case ReactionMutation.ResolveInputs m -> resolveInputsHandler.handle(experiment, model, m);
+            case ReactionInputMutation.SetInputRole m -> inputMutationHandler.handle(experiment, model, m);
             case ReactionInputMutation.SetLimiting m -> inputMutationHandler.handle(model, m);
             case ReactionInputMutation.SetInputSaltCode m -> saltCodeEQHandler.handle(model, m);
             case ReactionInputMutation.SetInputSaltEQ m -> saltCodeEQHandler.handle(model, m);
@@ -86,6 +91,7 @@ public class ExperimentModelService {
             case ReactionOutputSampleMutation.SetOutputPurity m -> outputSampleMutationHandler.handle(model, m);
             case ReactionOutputSampleMutation.SetOutputActualMol m -> outputSampleMutationHandler.handle(model, m);
             case ReactionOutputSampleMutation.SetOutputActualWeight m -> outputSampleMutationHandler.handle(model, m);
+            case ReactionOutputSampleMutation.RegisterSample m -> registerSampleHandler.handle(model, m);
         }
         reactionCalculator.recalculate(model);
         return model;

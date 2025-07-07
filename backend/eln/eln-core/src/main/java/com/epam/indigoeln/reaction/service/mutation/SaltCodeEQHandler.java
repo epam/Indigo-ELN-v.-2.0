@@ -4,6 +4,7 @@ import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.entity.SaltCodeEntity;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.repository.SaltCodeRepository;
+import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
@@ -22,6 +23,8 @@ public class SaltCodeEQHandler extends AbstractMutationHandler{
     SaltCodeRepository saltCodeRepository;
     @Inject
     MolWeightCalculator molWeightCalculator;
+    @Inject
+    DictionaryService dictionaryService;
 
     public void handle(ExperimentModel model, ReactionInputMutation.SetInputSaltCode mutation) {
         ReactionInput row = model.locate(mutation);
@@ -87,7 +90,6 @@ public class SaltCodeEQHandler extends AbstractMutationHandler{
     }
 
     private SaltCodeRef saltCodeRef(DictionaryItemRef ref) {
-        SaltCodeEntity entity = saltCodeRepository.findById(ref.getId());
-        return new SaltCodeRef(entity.getName(), entity.getCharge(), entity.getMolWeight());
+        return dictionaryService.getSaltRef(ref.getId());
     }
 }

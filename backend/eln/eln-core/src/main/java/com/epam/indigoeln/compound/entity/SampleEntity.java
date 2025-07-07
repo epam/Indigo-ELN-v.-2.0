@@ -23,4 +23,7 @@ public class SampleEntity extends IdentifiableEntity {
 
     @Column(name = "batch_number")
     private String batchNumber;
+
+    @Column(name = "str_code")
+    private String strCode;
 }

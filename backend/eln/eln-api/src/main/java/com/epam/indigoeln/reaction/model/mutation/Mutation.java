@@ -29,6 +29,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = ReactionOutputSampleMutation.SetOutputPurity.class, name = "SetOutputPurity"),
         @JsonSubTypes.Type(value = ReactionOutputSampleMutation.SetOutputActualMol.class, name = "SetOutputActualMol"),
         @JsonSubTypes.Type(value = ReactionOutputSampleMutation.SetOutputActualWeight.class, name = "SetOutputActualWeight"),
+        @JsonSubTypes.Type(value = ReactionOutputSampleMutation.RegisterSample.class, name = "RegisterSample"),
 })
-public sealed interface Mutation permits ReactionMutation {
+public sealed interface Mutation permits
+        ReactionMutation,
+        ReactionInputMutation,
+        ReactionInputSampleMutation,
+        ReactionOutputMutation,
+        ReactionOutputSampleMutation
+{
 }

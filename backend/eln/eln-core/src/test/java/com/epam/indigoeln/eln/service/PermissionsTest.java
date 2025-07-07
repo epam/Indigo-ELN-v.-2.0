@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.exception.AccessDeniedException;
+import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.BaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
@@ -28,6 +29,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.*;
 
+import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsStream;
 import static com.epam.indigoeln.eln.model.AccessLevel.*;
 import static com.epam.indigoeln.eln.util.CustomAssertions.assertThatACL;
 import static com.epam.indigoeln.eln.util.CustomAssertions.assertThatClientCall;
@@ -62,7 +64,7 @@ class PermissionsTest extends BaseTest {
         testHelper.cleanupDatabase();
         testHelper.createTestUsers();
 
-        rows = new BufferedReader(new InputStreamReader(PermissionsTest.class.getResourceAsStream("permissions.csv")))
+        rows = new BufferedReader(new InputStreamReader(loadResourceAsStream(getClass(), "/com/epam/indigoeln/eln/service/permissions.csv")))
                 .lines()
                 .skip(1)
                 .map(line -> line.split(","))

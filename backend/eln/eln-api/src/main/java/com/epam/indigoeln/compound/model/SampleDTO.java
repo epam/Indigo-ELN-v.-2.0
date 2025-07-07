@@ -1,12 +1,18 @@
 package com.epam.indigoeln.compound.model;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
 @Data
 public class SampleDTO {
 
+    @NotNull
     private UUID id;
+    @Nullable
     private String batchNumber;
+    @Nullable
+    private String strCode;
 }

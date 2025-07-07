@@ -1,7 +1,9 @@
 package com.epam.indigoeln.compound.entity;
 
 import com.epam.indigoeln.compound.model.CompoundSource;
+import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.IdentifiableEntity;
+import com.epam.indigoeln.eln.entity.SaltCodeEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -18,7 +20,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "Compound")
-@ToString(of = {"id", "name", "formula", "canonicalSmiles"})
+@ToString(of = {"id", "name", "formula", "canSmiles", "strCode"})
 public class CompoundEntity extends IdentifiableEntity {
 
     @NotNull
@@ -26,12 +28,26 @@ public class CompoundEntity extends IdentifiableEntity {
     @JdbcType(PostgreSQLEnumJdbcType.class)
     private CompoundSource source;
 
-    @Column(name = "compound_key")
-    private String compoundKey; // ID specific to source
+    @Column(name = "str_code")
+    private String strCode; // STR code for compounds registered from Indigo ELN
 
     @NotEmpty
-    @Column(name = "canonical_smiles")
-    private String canonicalSmiles; // natural key
+    @Column(name = "can_smiles")
+    private String canSmiles;
+
+    @Nullable
+    @ManyToOne
+    @JoinColumn(name = "stereoisomer_code_id")
+    private DictionaryItemEntity stereoisomerCode;
+
+    @Nullable
+    @ManyToOne
+    @JoinColumn(name = "salt_code_id")
+    private SaltCodeEntity saltCode;
+
+    @Nullable
+    @Column(name = "salt_eq_100")
+    private Integer saltEQ100;
 
     @NotEmpty
     private String formula;
