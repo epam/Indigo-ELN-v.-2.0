@@ -34,11 +34,6 @@ public final class ReactionInput extends ReactionRow implements ExperimentModelN
 
     private boolean limiting;
 
-    @JsonIgnore
-    public int getRowNo() {
-        return reaction.getInputs().indexOf(this);
-    }
-
     public ReactionInput(Reaction reaction, UUID anchor, ReactionInputRole role) {
         this.reaction = reaction;
         this.anchor = anchor;

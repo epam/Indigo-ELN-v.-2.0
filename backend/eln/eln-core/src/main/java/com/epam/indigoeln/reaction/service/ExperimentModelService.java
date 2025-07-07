@@ -41,6 +41,8 @@ public class ExperimentModelService {
     OutputMutationHandler outputMutationHandler;
     @Inject
     OutputSampleMutationHandler outputSampleMutationHandler;
+    @Inject
+    RegisterSampleHandler registerSampleHandler;
 
     @SneakyThrows
     public String serializeModel(ExperimentModel model) {
@@ -89,6 +91,7 @@ public class ExperimentModelService {
             case ReactionOutputSampleMutation.SetOutputPurity m -> outputSampleMutationHandler.handle(model, m);
             case ReactionOutputSampleMutation.SetOutputActualMol m -> outputSampleMutationHandler.handle(model, m);
             case ReactionOutputSampleMutation.SetOutputActualWeight m -> outputSampleMutationHandler.handle(model, m);
+            case ReactionOutputSampleMutation.RegisterSample m -> registerSampleHandler.handle(model, m);
         }
         reactionCalculator.recalculate(model);
         return model;

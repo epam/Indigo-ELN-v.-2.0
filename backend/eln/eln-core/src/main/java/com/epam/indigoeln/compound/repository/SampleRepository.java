@@ -1,11 +1,13 @@
 package com.epam.indigoeln.compound.repository;
 
+import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.mapper.SampleMapper;
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.eln.model.EntityType;
 import com.epam.indigoeln.eln.repository.BaseRepository;
 import com.epam.indigoeln.eln.util.Conditions;
+import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -35,5 +37,10 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
             conditions.add("bingo_substructure_match(compound.molFile, ?, '')", request.getStructure());
         }
         return find(conditions.getQuery(), conditions.getValues()).list();
+    }
+
+    public SampleEntity getLastSampleByStrCode(CompoundEntity compound) {
+        return find("compound=?1 and strCode is not null", Sort.descending("strCode"), compound)
+                .firstResult();
     }
 }

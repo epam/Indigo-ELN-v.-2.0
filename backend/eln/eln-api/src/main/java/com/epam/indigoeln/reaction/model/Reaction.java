@@ -90,11 +90,6 @@ public class Reaction implements ExperimentModelNode, ToStringTree {
         return null;
     }
 
-    @JsonIgnore
-    public int getReactionNo() {
-        return model.getReactions().indexOf(this);
-    }
-
     @Override
     public void prepareToRecalculate() {
         for (ReactionInput input : inputs) {

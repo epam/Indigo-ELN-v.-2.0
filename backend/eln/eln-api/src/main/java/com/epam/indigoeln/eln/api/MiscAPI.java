@@ -26,13 +26,4 @@ public interface MiscAPI extends BaseAPI {
     @POST
     @Path("/admin/cleanupDatabase")
     void cleanupDatabase();
-
-    @POST
-    @Path("/compounds/loadFromFile")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    void loadCompoundsFromFile(UploadForm form);
-
-    @POST
-    @Path("/samples/search")
-    List<SampleDTO> findSamples(FindSamplesRequest request);
 }

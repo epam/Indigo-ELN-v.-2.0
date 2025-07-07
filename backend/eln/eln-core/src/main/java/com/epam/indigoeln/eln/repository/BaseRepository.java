@@ -41,6 +41,13 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
         return new ListWithTotal<>(list, count);
     }
 
+    @Nullable
+    protected <DTO> DTO doFindOne(Conditions conditions, @Nullable EntityGraph<?> entityGraph, Function<E, DTO> mapper) {
+        PanacheQuery<E> query = doCreateQuery(conditions, entityGraph);
+        E entity = query.firstResult();
+        return entity == null ? null : mapper.apply(entity);
+    }
+
     protected <DTO> List<DTO> doFind(Conditions conditions, @Nullable Paging paging, Sort sort, @Nullable EntityGraph<?> entityGraph, Function<E, DTO> mapper) {
         PanacheQuery<E> query = doCreateQuery(conditions, paging, sort, entityGraph);
         return query.stream().map(mapper).toList();
@@ -73,6 +80,14 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
         paging = ModelUtil.firstNotNull(paging, Paging.DEFAULT);
         PanacheQuery<E> query = conditions.isEmpty() ? findAll(sort) : find(conditions.getQuery(), sort, conditions.getValues());
         query = query.page(paging.getPageNoOrDefault(), paging.getPageSizeOrDefault());
+        if (entityGraph != null) {
+            query.withHint("jakarta.persistence.fetchgraph", entityGraph);
+        }
+        return query;
+    }
+
+    private PanacheQuery<E> doCreateQuery(Conditions conditions, @Nullable EntityGraph<?> entityGraph) {
+        PanacheQuery<E> query = find(conditions.getQuery(), conditions.getValues());
         if (entityGraph != null) {
             query.withHint("jakarta.persistence.fetchgraph", entityGraph);
         }

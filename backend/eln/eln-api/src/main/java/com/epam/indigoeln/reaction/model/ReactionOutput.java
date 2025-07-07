@@ -35,11 +35,6 @@ public final class ReactionOutput extends ReactionRow implements ExperimentModel
     @JsonManagedReference
     private List<ReactionOutputSample> samples;
 
-    @JsonIgnore
-    public int getRowNo() {
-        return reaction.getOutputs().indexOf(this);
-    }
-
     public ReactionOutput(Reaction reaction, UUID anchor, ReactionOutputType type) {
         this.reaction = reaction;
         this.anchor = anchor;

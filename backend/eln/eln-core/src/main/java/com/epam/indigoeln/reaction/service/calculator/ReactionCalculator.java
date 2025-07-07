@@ -44,7 +44,7 @@ public class ReactionCalculator {
 
     private boolean recalculateInput(ReactionInput input) {
         EnteredValue<MolWeightUnit> molWeight = input.getCompound().getMolWeight();
-        return updateCycle("input " + input.getRowNo(), () -> {
+        return updateCycle("input " + input.getAnchor(), () -> {
             boolean updated = false;
             EnteredValueOpt mol = opt(ZERO_MOL);
             for (ReactionInputSample sample : input.getSamples()) {
@@ -78,7 +78,7 @@ public class ReactionCalculator {
     }
 
     private boolean recalculateInputSample(ReactionInputSample sample, @Nullable EnteredValue<MolWeightUnit> molWeight) {
-        return updateCycle("input sample " + sample.getSampleNo(), () -> {
+        return updateCycle("input sample " + sample.getAnchor(), () -> {
             boolean updated = false;
             EnteredValueOpt mol = opt(sample.getRow().getMol());
             for (ReactionInputSample otherSample : sample.getRow().getSamples()) {
@@ -115,7 +115,7 @@ public class ReactionCalculator {
 
     private boolean recalculateOutput(ReactionOutput output) {
         EnteredValue<MolWeightUnit> molWeight = output.getCompound().getMolWeight();
-        return updateCycle("output " + output.getRowNo(), () -> {
+        return updateCycle("output " + output.getAnchor(), () -> {
             boolean updated = false;
             EnteredValueOpt theoMol = opt(null);
             EnteredValueOpt eq = opt(null);
@@ -145,7 +145,7 @@ public class ReactionCalculator {
     }
 
     private boolean recalculateOutputSample(ReactionOutputSample sample, @Nullable EnteredValue<MolWeightUnit> molWeight) {
-        return updateCycle("output sample " + sample.getSampleNo(), () -> {
+        return updateCycle("output sample " + sample.getAnchor(), () -> {
             boolean updated = false;
             updated |= tryUpdate(
                     "outputSample.actualMol", sample.getActualMol(), sample::setActualMol,

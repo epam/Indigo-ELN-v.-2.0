@@ -3,12 +3,13 @@ package com.epam.indigoeln.eln.controller;
 
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
+import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.api.BaseAPI;
+import com.epam.indigoeln.eln.api.CompoundAPI;
 import com.epam.indigoeln.eln.api.MiscAPI;
 import com.epam.indigoeln.eln.api.UploadForm;
 import com.epam.indigoeln.eln.model.TotalCounts;
-import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.ProjectService;
 import com.epam.indigoeln.eln.service.SupportService;
 import jakarta.inject.Inject;
@@ -24,25 +25,21 @@ import java.util.List;
 import java.util.Map;
 
 @Path(BaseAPI.BASE_PATH)
-public class MiscResource implements MiscAPI {
+public class CompoundResource implements CompoundAPI {
 
     @Inject
-    ProjectService projectService;
-    @Inject
-    SupportService supportService;
+    CompoundService compoundService;
 
     @Override
-    public @NotNull @Valid TotalCounts getTotalCounts() {
-        return projectService.getTotalCounts();
+    @SneakyThrows
+    public void loadCompoundsFromFile(UploadForm form) {
+        try (InputStream is = new BufferedInputStream(new FileInputStream(form.getFile().uploadedFile().toFile()))) {
+            compoundService.loadCompoundsFromFile(is);
+        }
     }
 
     @Override
-    public Map<String, String> migrate() {
-        return supportService.migrate();
-    }
-
-    @Override
-    public void cleanupDatabase() {
-        supportService.cleanupDatabase();
+    public List<SampleDTO> findSamples(FindSamplesRequest request) {
+        return compoundService.findSamples(request);
     }
 }

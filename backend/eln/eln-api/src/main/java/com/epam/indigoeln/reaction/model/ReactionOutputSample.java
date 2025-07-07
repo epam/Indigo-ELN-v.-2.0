@@ -31,10 +31,14 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     @Nullable
     private EnteredValue<NoUnit> yield;
 
-    @JsonIgnore
-    public int getSampleNo() {
-        return row.getSamples().indexOf(this);
-    }
+    @Nullable
+    private SampleRegistrationStatus registrationStatus;
+
+    @Nullable
+    private UUID sampleId;
+
+    @Nullable
+    private String strCode;
 
     public ReactionOutputSample(ReactionOutput row, UUID anchor) {
         this.row = row;
@@ -60,6 +64,9 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
                 .property("volume", volume)
                 .property("purity", purity)
                 .property("yield", yield)
+                .property("registrationStatus", registrationStatus)
+                .property("sampleId", sampleId)
+                .property("strCode", strCode)
                 .close();
     }
 }

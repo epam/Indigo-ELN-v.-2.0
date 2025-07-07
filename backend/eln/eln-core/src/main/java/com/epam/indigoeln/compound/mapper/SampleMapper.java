@@ -11,5 +11,6 @@ import java.util.List;
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR)
 public abstract class SampleMapper {
 
+    public abstract SampleDTO sampleToDTO(SampleEntity entity);
     public abstract List<SampleDTO> sampleToDTOList(List<SampleEntity> entities);
 }

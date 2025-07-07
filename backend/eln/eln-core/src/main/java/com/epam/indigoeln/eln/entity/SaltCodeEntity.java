@@ -13,8 +13,11 @@ import lombok.ToString;
 @Setter
 @Entity(name = "SaltCode")
 @Table(name = "Salt_Code")
-@ToString(of = {"id", "ordinal", "name"})
+@ToString(of = {"id", "code", "ordinal", "name"})
 public class SaltCodeEntity extends IdentifiableEntity {
+
+    @NotEmpty
+    private String code;
 
     @NotEmpty
     private String name;

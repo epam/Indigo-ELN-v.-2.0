@@ -30,11 +30,6 @@ public final class ReactionInputSample extends ReactionSample implements Experim
     @Nullable
     private EnteredValue<WeightUnit> weight;
 
-    @JsonIgnore
-    public int getSampleNo() {
-        return row.getSamples().indexOf(this);
-    }
-
     public ReactionInputSample(ReactionInput row, UUID anchor) {
         this.row = row;
         this.anchor = anchor;

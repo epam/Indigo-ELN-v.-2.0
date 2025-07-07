@@ -51,6 +51,7 @@ public class ExperimentModelServiceTest extends BaseTest {
     UUID output1Anchor;
     UUID output2Anchor;
     UUID output2Sample1Anchor;
+    UUID output2Sample2Anchor;
 
     byte @Nullable[] picture = null;
 
@@ -92,7 +93,7 @@ public class ExperimentModelServiceTest extends BaseTest {
     void testResolveInputs() {
         ReactionMutation.ResolveInputs mutation = new ReactionMutation.ResolveInputs(reactionAnchor, new HashMap<>());
         for (ReactionInput input : model.getReactions().getFirst().getInputs()) {
-            List<SampleDTO> samples = miscClient.findSamples(new FindSamplesRequest(
+            List<SampleDTO> samples = compoundClient.findSamples(new FindSamplesRequest(
                     StructureSearchType.SUBSTRUCTURE,
                     input.getCompound().getMolFile()
             ));
@@ -173,6 +174,25 @@ public class ExperimentModelServiceTest extends BaseTest {
     @Order(1000)
     void testSetActualWeight() {
         applyMutation(new ReactionOutputSampleMutation.SetOutputActualWeight(output2Sample1Anchor, 10.0, WeightUnit.G));
+    }
+
+    @Test
+    @Order(1100)
+    void testRegisterSample() {
+        applyMutation(new ReactionOutputSampleMutation.RegisterSample(output2Sample1Anchor));
+    }
+
+    @Test
+    @Order(1101)
+    void testAddAnotherOutputSample() {
+        applyMutation(new ReactionOutputMutation.AddProductSample(output2Anchor));
+        output2Sample2Anchor = model.getReactions().getFirst().getOutputs().get(1).getSamples().get(1).getAnchor();
+    }
+
+    @Test
+    @Order(1102)
+    void testRegisterAnotherSample() {
+        applyMutation(new ReactionOutputSampleMutation.RegisterSample(output2Sample2Anchor));
     }
 
     @SneakyThrows

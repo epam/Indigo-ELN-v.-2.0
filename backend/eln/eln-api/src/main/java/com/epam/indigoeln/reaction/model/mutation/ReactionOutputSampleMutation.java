@@ -12,7 +12,8 @@ public sealed interface ReactionOutputSampleMutation extends Mutation permits
         ReactionOutputSampleMutation.SetOutputVolume,
         ReactionOutputSampleMutation.SetOutputPurity,
         ReactionOutputSampleMutation.SetOutputActualMol,
-        ReactionOutputSampleMutation.SetOutputActualWeight
+        ReactionOutputSampleMutation.SetOutputActualWeight,
+        ReactionOutputSampleMutation.RegisterSample
 {
 
     UUID anchor();
@@ -55,6 +56,11 @@ public sealed interface ReactionOutputSampleMutation extends Mutation permits
             @NotNull UUID anchor,
             @Nullable Double actualWeight,
             @Nullable WeightUnit unit
+    ) implements ReactionOutputSampleMutation {
+    }
+
+    record RegisterSample (
+            @NotNull UUID anchor
     ) implements ReactionOutputSampleMutation {
     }
 }
