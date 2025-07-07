@@ -25,7 +25,7 @@ public class SetSchemeHandler extends AbstractMutationHandler {
 
     public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionMutation.SetScheme mutation) {
         Reaction reaction = model.locate(mutation);
-        reaction.setMolFile(mutation.molFile());
+        reaction.setRxnfile(mutation.molFile());
         // TODO match into existing inputs/outputs
         reaction.setInputs(new ArrayList<>());
         reaction.setOutputs(new ArrayList<>());

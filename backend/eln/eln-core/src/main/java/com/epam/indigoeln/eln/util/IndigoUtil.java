@@ -39,10 +39,4 @@ public class IndigoUtil {
             throw new IllegalArgumentException(role.name());
         }
     }
-
-    public static void rebuildReactionScheme(IndigoReaction reaction, ReactionInputRole role, List<IndigoMolecule> molecules) {
-        reactionIterable(reaction, role).forEach(IndigoMolecule::remove);
-        // Indigo adds reaction components in the beginning of the list, so adding in the reverse order
-        molecules.reversed().forEach(molecule -> addToReaction(reaction, role, molecule));
-    }
 }

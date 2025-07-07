@@ -3,21 +3,17 @@ package com.epam.indigoeln.reaction.service.mutation;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.eln.util.IndigoUtil;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.indigowrapper.IndigoWrapper;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
+import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import one.util.streamex.StreamEx;
-import org.jspecify.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Consumer;
 
-import static com.epam.indigoeln.eln.util.IndigoUtil.rebuildReactionScheme;
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 
 @ApplicationScoped
@@ -26,39 +22,23 @@ public class ResolveInputsHandler extends AbstractMutationHandler {
     @Inject
     CompoundService compoundService;
     @Inject
-    IndigoWrapper indigoWrapper;
+    ExperimentModelHelperService modelHelperService;
 
     public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionMutation.ResolveInputs mutation) {
-        indigoWrapper.withSession(indigo -> {
-            mutation.inputSamples().forEach((inputAnchor, sampleId) -> {
-                ReactionInput row = model.locateReactionInput(inputAnchor);
-                SampleEntity sample = compoundService.getSample(sampleId);
-                row.setCompound(realCompoundRef(sample.getCompound()));
+        Reaction reaction = model.locate(mutation);
+        Set<ReactionInputRole> affectedRoles = EnumSet.noneOf(ReactionInputRole.class);
+        mutation.inputSamples().forEach((inputAnchor, sampleId) -> {
+            ReactionInput row = model.locateReactionInput(inputAnchor);
+            SampleEntity sample = compoundService.getSample(sampleId);
+            row.setCompound(realCompoundRef(sample.getCompound()));
 
-                ReactionInputSample reactionInputSample = new ReactionInputSample(row, UUID.randomUUID());
-                reactionInputSample.setSampleId(sampleId);
-                reactionInputSample.setPurity(DEFAULT_ONE);
-                row.setSamples(List.of(reactionInputSample));
+            ReactionInputSample reactionInputSample = new ReactionInputSample(row, UUID.randomUUID());
+            reactionInputSample.setSampleId(sampleId);
+            reactionInputSample.setPurity(DEFAULT_ONE);
+            row.setSamples(List.of(reactionInputSample));
 
-                IndigoReaction reactionScheme = indigo.loadReaction(row.getReaction().getMolFile());
-
-                List<IndigoMolecule> molecules = new ArrayList<>();
-                for (ReactionInput input : row.getReaction().getInputs()) {
-                    String molfile = switch (input.getCompound()) {
-                        case CompoundRef.Stored stored -> compoundService.getCompound(stored.getCompoundID()).getMolFile();
-                        case CompoundRef.Virtual virtual -> virtual.getMolFile();
-                        case CompoundRef.Unknown unknown -> null;
-                    };
-                    if (molfile != null) {
-                        molecules.add(indigo.loadMolecule(molfile));
-                    }
-                }
-                rebuildReactionScheme(reactionScheme, row.getRole(), molecules);
-
-                byte[] picture = indigo.renderToBuffer(reactionScheme);
-                row.getReaction().setMolFile(reactionScheme.rxnfile());
-                experiment.setPicture(picture);
-            });
+            affectedRoles.add(row.getRole());
         });
+        modelHelperService.rebuildReactionScheme(experiment, reaction, affectedRoles);
     }
 }

@@ -67,7 +67,7 @@ public class ExperimentModelService {
         switch (mutation) {
             case ReactionMutation.SetScheme m -> setSchemeHandler.handle(experiment, model, m);
             case ReactionMutation.ResolveInputs m -> resolveInputsHandler.handle(experiment, model, m);
-            case ReactionInputMutation.SetInputRole m -> inputMutationHandler.handle(model, m);
+            case ReactionInputMutation.SetInputRole m -> inputMutationHandler.handle(experiment, model, m);
             case ReactionInputMutation.SetLimiting m -> inputMutationHandler.handle(model, m);
             case ReactionInputMutation.SetInputSaltCode m -> saltCodeEQHandler.handle(model, m);
             case ReactionInputMutation.SetInputSaltEQ m -> saltCodeEQHandler.handle(model, m);

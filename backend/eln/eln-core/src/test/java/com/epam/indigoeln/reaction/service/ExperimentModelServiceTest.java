@@ -11,6 +11,7 @@ import com.epam.indigoeln.eln.util.ResponseWithHeaders;
 import com.epam.indigoeln.eln.util.TestHelper;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.ReactionInputRole;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
@@ -102,6 +103,27 @@ public class ExperimentModelServiceTest extends BaseTest {
         }
         applyMutation(mutation);
         input1Sample1Anchor = model.getReactions().getFirst().getInputs().get(0).getSamples().get(0).getAnchor();
+    }
+
+    @Test
+    @Order(250)
+    void testSetInputRoleToCatalyst() {
+        ReactionInputMutation.SetInputRole mutation = new ReactionInputMutation.SetInputRole(input2Anchor, ReactionInputRole.CATALYST);
+        applyMutation(mutation);
+    }
+
+    @Test
+    @Order(251)
+    void testSetInputRoleToSolvent() {
+        ReactionInputMutation.SetInputRole mutation = new ReactionInputMutation.SetInputRole(input2Anchor, ReactionInputRole.SOLVENT);
+        applyMutation(mutation);
+    }
+
+    @Test
+    @Order(252)
+    void testSetInputRoleBack() {
+        ReactionInputMutation.SetInputRole mutation = new ReactionInputMutation.SetInputRole(input2Anchor, ReactionInputRole.REACTANT);
+        applyMutation(mutation);
     }
 
     @Test

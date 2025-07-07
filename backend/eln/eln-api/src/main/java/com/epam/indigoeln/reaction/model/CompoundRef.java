@@ -9,11 +9,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.MoreObjects;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
@@ -34,6 +36,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
 
     @Getter
     @RequiredArgsConstructor
+    @EqualsAndHashCode(of = {"compoundID", "stereoisomerCode", "saltCode", "saltEQ"})
     final class Stored implements CompoundRef {
 
         @NotNull
@@ -74,6 +77,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     @Getter
     @Setter
     @RequiredArgsConstructor
+    @EqualsAndHashCode(of = {"molFile", "stereoisomerCode", "saltCode", "saltEQ"})
     final class Virtual implements CompoundRef {
 
         private final String molFile;
@@ -108,6 +112,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     @Getter
     @Setter
     @RequiredArgsConstructor
+    // no equals and hashCode - each unknown compound is unique
     final class Unknown implements CompoundRef {
 
         private String formula;

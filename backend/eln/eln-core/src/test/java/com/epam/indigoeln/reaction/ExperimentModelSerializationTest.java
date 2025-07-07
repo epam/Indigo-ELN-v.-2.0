@@ -21,7 +21,7 @@ public class ExperimentModelSerializationTest {
         ExperimentModel model = new ExperimentModel();
         Reaction reaction = new Reaction(model, UUID.randomUUID());
         model.setReactions(List.of(reaction));
-        reaction.setMolFile("molFile");
+        reaction.setRxnfile("molFile");
 
         ReactionInput input1 = new ReactionInput(reaction, UUID.randomUUID(), ReactionInputRole.REACTANT);
         input1.setCompound(new CompoundRef.Stored(UUID.randomUUID(), "realCompound", EnteredValue.fixed(1.0, MolWeightUnit.G_PER_MOL), "molFile", "C"));

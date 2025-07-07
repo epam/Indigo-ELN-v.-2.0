@@ -3,6 +3,7 @@ package com.epam.indigoeln.reaction.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.google.common.collect.Iterables;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
@@ -26,7 +27,7 @@ public class Reaction implements ExperimentModelNode, ToStringTree {
     private UUID anchor;
 
     @NotNull
-    private String molFile = "";
+    private String rxnfile = "";
 
     @Valid
     @NotNull
@@ -102,6 +103,10 @@ public class Reaction implements ExperimentModelNode, ToStringTree {
         for (ReactionOutput output : outputs) {
             output.prepareToRecalculate();
         }
+    }
+
+    public Iterable<ReactionInput> getInputsOfType(ReactionInputRole role) {
+        return Iterables.filter(inputs, input -> input.getRole() == role);
     }
 
     @Override
