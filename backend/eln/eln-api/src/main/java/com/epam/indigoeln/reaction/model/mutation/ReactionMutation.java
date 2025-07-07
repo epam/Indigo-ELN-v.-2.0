@@ -6,32 +6,28 @@ import java.util.Map;
 import java.util.UUID;
 
 public sealed interface ReactionMutation extends Mutation permits
-        ReactionInputMutation,
-        ReactionOutputMutation,
         ReactionMutation.SetScheme,
         ReactionMutation.ResolveInputs
 {
 
-    int reactionNo();
+    UUID anchor();
 
     record SetScheme (
-        int reactionNo,
-        @NotNull
-        String molFile
+        @NotNull UUID anchor,
+        @NotNull String molFile
     ) implements ReactionMutation {
 
         @Override
         public String toString() {
             return "SetScheme[" +
-                    "reactionNo=" + reactionNo +
+                    "anchor=" + anchor +
                     ']';
         }
     }
 
     record ResolveInputs(
-            int reactionNo,
-            @NotNull
-            Map<Integer, UUID> inputSamples
+        @NotNull UUID anchor,
+        @NotNull Map<UUID, UUID> inputSamples // anchor -> sampleID
     ) implements ReactionMutation {
     }
 }

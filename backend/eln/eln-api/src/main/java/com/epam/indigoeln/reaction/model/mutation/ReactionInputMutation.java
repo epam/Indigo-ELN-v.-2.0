@@ -5,8 +5,9 @@ import com.epam.indigoeln.reaction.model.ReactionInputRole;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
-public sealed interface ReactionInputMutation extends ReactionMutation permits
-        ReactionInputSampleMutation,
+import java.util.UUID;
+
+public sealed interface ReactionInputMutation extends Mutation permits
         ReactionInputMutation.SetInputRole,
         ReactionInputMutation.SetLimiting,
         ReactionInputMutation.SetInputSaltCode,
@@ -14,40 +15,33 @@ public sealed interface ReactionInputMutation extends ReactionMutation permits
         ReactionInputMutation.SetInputEQ
 {
 
-    int rowNo();
+    UUID anchor();
 
     record SetInputRole (
-            int reactionNo,
-            int rowNo,
-            @NotNull
-            ReactionInputRole role
+            @NotNull UUID anchor,
+            @NotNull ReactionInputRole role
     ) implements ReactionInputMutation {
     }
 
     record SetLimiting (
-            int reactionNo,
-            int rowNo
+            @NotNull UUID anchor
     ) implements ReactionInputMutation {
     }
 
     record SetInputSaltCode (
-            int reactionNo,
-            int rowNo,
-            @Nullable
-            DictionaryItemRef saltCode
+            @NotNull UUID anchor,
+            @Nullable DictionaryItemRef saltCode
     ) implements ReactionInputMutation {
     }
 
     record SetInputSaltEQ (
-            int reactionNo,
-            int rowNo,
+            @NotNull UUID anchor,
             @Nullable Double saltEQ
     ) implements ReactionInputMutation {
     }
 
     record SetInputEQ (
-            int reactionNo,
-            int rowNo,
+            @NotNull UUID anchor,
             @Nullable Double eq
     ) implements ReactionInputMutation {
     }

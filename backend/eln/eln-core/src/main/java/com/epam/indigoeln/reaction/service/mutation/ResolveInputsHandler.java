@@ -14,10 +14,7 @@ import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static com.epam.indigoeln.eln.util.IndigoUtil.rebuildReactionScheme;
@@ -33,13 +30,12 @@ public class ResolveInputsHandler extends AbstractMutationHandler {
 
     public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionMutation.ResolveInputs mutation) {
         indigoWrapper.withSession(indigo -> {
-            mutation.inputSamples().forEach((inputNo, sampleId) -> {
-                ReactionInput row = model.getReactions().get(mutation.reactionNo()).getInputs().get(inputNo);
+            mutation.inputSamples().forEach((inputAnchor, sampleId) -> {
+                ReactionInput row = model.locateReactionInput(inputAnchor);
                 SampleEntity sample = compoundService.getSample(sampleId);
                 row.setCompound(realCompoundRef(sample.getCompound()));
 
-                ReactionInputSample reactionInputSample = new ReactionInputSample();
-                reactionInputSample.setRow(row);
+                ReactionInputSample reactionInputSample = new ReactionInputSample(row, UUID.randomUUID());
                 reactionInputSample.setSampleId(sampleId);
                 reactionInputSample.setPurity(DEFAULT_ONE);
                 row.setSamples(List.of(reactionInputSample));

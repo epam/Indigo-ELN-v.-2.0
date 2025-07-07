@@ -5,8 +5,9 @@ import com.epam.indigoeln.reaction.model.ReactionOutputType;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
-public sealed interface ReactionOutputMutation extends ReactionMutation permits
-        ReactionOutputSampleMutation,
+import java.util.UUID;
+
+public sealed interface ReactionOutputMutation extends Mutation permits
         ReactionOutputMutation.AddProductSample,
         ReactionOutputMutation.SetOutputType,
         ReactionOutputMutation.SetOutputSaltCode,
@@ -14,40 +15,35 @@ public sealed interface ReactionOutputMutation extends ReactionMutation permits
         ReactionOutputMutation.SetOutputEQ
 {
 
-    int rowNo();
+    UUID anchor();
 
     record AddProductSample(
-            int reactionNo,
-            int rowNo
+            @NotNull UUID anchor
     ) implements ReactionOutputMutation {
     }
 
     record SetOutputType(
-            int reactionNo,
-            int rowNo,
+            @NotNull UUID anchor,
             @NotNull
             ReactionOutputType type
     ) implements ReactionOutputMutation {
     }
 
     record SetOutputSaltCode (
-            int reactionNo,
-            int rowNo,
+            @NotNull UUID anchor,
             @Nullable
             DictionaryItemRef saltCode
     ) implements ReactionOutputMutation {
     }
 
     record SetOutputSaltEQ (
-            int reactionNo,
-            int rowNo,
+            @NotNull UUID anchor,
             @Nullable Double saltEQ
     ) implements ReactionOutputMutation {
     }
 
     record SetOutputEQ (
-            int reactionNo,
-            int rowNo,
+            @NotNull UUID anchor,
             @Nullable Double eq
     ) implements ReactionOutputMutation {
     }

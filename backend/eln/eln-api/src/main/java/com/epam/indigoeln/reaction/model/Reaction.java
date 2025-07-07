@@ -6,17 +6,24 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Data
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class Reaction implements ExperimentModelNode, ToStringTree {
 
     @JsonBackReference
     private ExperimentModel model;
+
+    @NotNull
+    private UUID anchor;
 
     @NotNull
     private String molFile = "";
@@ -31,9 +38,15 @@ public class Reaction implements ExperimentModelNode, ToStringTree {
     @JsonManagedReference
     private List<ReactionOutput> outputs = new ArrayList<>(0);
 
+    public Reaction(ExperimentModel model, UUID anchor) {
+        this.model = model;
+        this.anchor = anchor;
+    }
+
     @Override
     public void toStringTree(Builder builder) {
         builder.open("Reaction")
+                .property("anchor", anchor)
                 .open("inputs").nest(inputs).close()
                 .open("outputs").nest(outputs).close()
                 .close();
@@ -60,6 +73,17 @@ public class Reaction implements ExperimentModelNode, ToStringTree {
         for (ReactionInput input : inputs) {
             if (input.isLimiting()) {
                 return input;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    @JsonIgnore
+    public ReactionOutput getFinalOutput() {
+        for (ReactionOutput output : outputs) {
+            if (output.getType() == ReactionOutputType.FINAL) {
+                return output;
             }
         }
         return null;

@@ -6,14 +6,17 @@ import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
+import java.util.UUID;
+
 @Getter
 @Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ReactionOutputSample extends ReactionSample implements ExperimentModelNode, ToStringTree {
 
     @JsonBackReference
@@ -33,6 +36,11 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
         return row.getSamples().indexOf(this);
     }
 
+    public ReactionOutputSample(ReactionOutput row, UUID anchor) {
+        this.row = row;
+        this.anchor = anchor;
+    }
+
     @Override
     public void prepareToRecalculate() {
         super.prepareToRecalculate();
@@ -44,6 +52,7 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     @Override
     public void toStringTree(Builder builder) {
         builder.open("ReactionOutputSample")
+                .property("anchor", anchor)
                 .property("actualMol", actualMol)
                 .property("actualWeight", actualWeight)
                 .property("density", density)

@@ -7,14 +7,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ReactionOutput extends ReactionRow implements ExperimentModelNode, ToStringTree {
 
     @NotNull
@@ -36,6 +40,12 @@ public final class ReactionOutput extends ReactionRow implements ExperimentModel
         return reaction.getOutputs().indexOf(this);
     }
 
+    public ReactionOutput(Reaction reaction, UUID anchor, ReactionOutputType type) {
+        this.reaction = reaction;
+        this.anchor = anchor;
+        this.type = type;
+    }
+
     @Override
     public void prepareToRecalculate() {
         super.prepareToRecalculate();
@@ -49,6 +59,7 @@ public final class ReactionOutput extends ReactionRow implements ExperimentModel
     @Override
     public void toStringTree(Builder builder) {
         builder.open("ReactionOutput")
+                .property("anchor", anchor)
                 .property("compound", compound)
                 .property("eq", eq)
                 .property("type", type)

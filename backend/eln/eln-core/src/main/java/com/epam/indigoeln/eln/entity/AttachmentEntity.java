@@ -39,7 +39,6 @@ public class AttachmentEntity extends BaseEntity {
     @NotNull
     private Long size;
 
-    @NotNull
     @Basic(fetch = FetchType.LAZY)
-    private byte[] content;
+    private byte @NotNull[] content;
 }

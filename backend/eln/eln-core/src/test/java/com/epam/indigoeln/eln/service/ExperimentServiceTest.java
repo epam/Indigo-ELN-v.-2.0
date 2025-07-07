@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.BaseTest;
 import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 import static com.epam.indigoeln.eln.util.CustomAssertions.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -193,8 +195,8 @@ class ExperimentServiceTest extends BaseTest {
         ResponseWithHeaders response = experimentClient.getExperimentPictureClient(experiment.getId());
         assertThat(response.getContent()).hasBinaryContent(ExperimentService.EMPTY_PICTURE);
         ExperimentModel model = experimentClient.getExperimentModel(experiment.getId());
-        String molFile = new String(getClass().getResourceAsStream("/reaction.rxn").readAllBytes());
-        experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(model, new ReactionMutation.SetScheme(0, molFile)));
+        String molFile = new String(loadResource(getClass(), "/reaction.rxn"));
+        experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(model, new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), molFile)));
         response = experimentClient.getExperimentPictureClient(experiment.getId());
 //        assertThat(response).isNotEqualTo(ExperimentService.EMPTY_PICTURE);
         Files.write(Paths.get("picture.svg"), response.getContent().readAllBytes());

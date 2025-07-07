@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 
@@ -23,7 +24,7 @@ public class SetSchemeHandler extends AbstractMutationHandler {
     IndigoWrapper indigo;
 
     public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionMutation.SetScheme mutation) {
-        Reaction reaction = model.getReactions().get(mutation.reactionNo());
+        Reaction reaction = model.locate(mutation);
         reaction.setMolFile(mutation.molFile());
         // TODO match into existing inputs/outputs
         reaction.setInputs(new ArrayList<>());
@@ -51,31 +52,19 @@ public class SetSchemeHandler extends AbstractMutationHandler {
     }
 
     private ReactionInput createInputLine(Reaction reaction, IndigoMolecule molecule, ReactionInputRole role) {
-        ReactionInput row = new ReactionInput();
-        row.setReaction(reaction);
-        row.setRole(role);
+        ReactionInput row = new ReactionInput(reaction, UUID.randomUUID(), role);
         row.setCompound(virtualCompoundRef(molecule));
         row.setEq(DEFAULT_ONE);
-        ReactionInputSample reactionInputSample = new ReactionInputSample();
-        reactionInputSample.setRow(row);
+        ReactionInputSample reactionInputSample = new ReactionInputSample(row, UUID.randomUUID());
         reactionInputSample.setPurity(DEFAULT_ONE);
         row.setSamples(List.of(reactionInputSample));
         return row;
     }
 
     private ReactionOutput createOutputLine(Reaction reaction, IndigoMolecule molecule) {
-        ReactionOutput row = new ReactionOutput();
-        row.setReaction(reaction);
+        ReactionOutput row = new ReactionOutput(reaction, UUID.randomUUID(), reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL);
         row.setCompound(virtualCompoundRef(molecule));
         row.setEq(DEFAULT_ONE);
-        boolean hasFinalProduct = false;
-        for (ReactionOutput output : reaction.getOutputs()) {
-            if (output.getType() == ReactionOutputType.FINAL) {
-                hasFinalProduct = true;
-                break;
-            }
-        }
-        row.setType(hasFinalProduct ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL);
         row.setSamples(List.of());
         return row;
     }

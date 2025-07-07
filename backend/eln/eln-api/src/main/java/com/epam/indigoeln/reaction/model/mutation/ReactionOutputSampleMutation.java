@@ -1,9 +1,12 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
 import com.epam.indigoeln.reaction.model.units.*;
+import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
-public sealed interface ReactionOutputSampleMutation extends ReactionOutputMutation permits
+import java.util.UUID;
+
+public sealed interface ReactionOutputSampleMutation extends Mutation permits
         ReactionOutputSampleMutation.SetOutputDensity,
         ReactionOutputSampleMutation.SetOutputMolarity,
         ReactionOutputSampleMutation.SetOutputVolume,
@@ -12,56 +15,44 @@ public sealed interface ReactionOutputSampleMutation extends ReactionOutputMutat
         ReactionOutputSampleMutation.SetOutputActualWeight
 {
 
-    int sampleNo();
+    UUID anchor();
 
     record SetOutputDensity (
-            int reactionNo,
-            int rowNo,
-            int sampleNo,
+            @NotNull UUID anchor,
             @Nullable Double density,
             @Nullable DensityUnit unit
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputMolarity (
-            int reactionNo,
-            int rowNo,
-            int sampleNo,
+            @NotNull UUID anchor,
             @Nullable Double molarity,
             @Nullable MolarityUnit unit
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputVolume (
-            int reactionNo,
-            int rowNo,
-            int sampleNo,
+            @NotNull UUID anchor,
             @Nullable Double volume,
             @Nullable VolumeUnit unit
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputPurity (
-            int reactionNo,
-            int rowNo,
-            int sampleNo,
+            @NotNull UUID anchor,
             @Nullable Double purity
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputActualMol (
-            int reactionNo,
-            int rowNo,
-            int sampleNo,
+            @NotNull UUID anchor,
             @Nullable Double actualMol,
             @Nullable MolUnit unit
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputActualWeight (
-            int reactionNo,
-            int rowNo,
-            int sampleNo,
+            @NotNull UUID anchor,
             @Nullable Double actualWeight,
             @Nullable WeightUnit unit
     ) implements ReactionOutputSampleMutation {

@@ -14,7 +14,9 @@ import jakarta.validation.Valid;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Transactional
@@ -52,8 +54,9 @@ public class ExperimentModelService {
 
     @Valid
     public ExperimentModel createNewModel() {
-        ExperimentModel model = new ExperimentModel(List.of(new Reaction()));
-        model.getReactions().getFirst().setModel(model);
+        ExperimentModel model = new ExperimentModel();
+        Reaction reaction = new Reaction(model, UUID.randomUUID());
+        model.setReactions(List.of(reaction));
         return model;
     }
 

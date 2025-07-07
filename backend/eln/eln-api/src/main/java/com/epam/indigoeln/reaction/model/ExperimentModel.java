@@ -1,9 +1,6 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
-import com.epam.indigoeln.reaction.model.mutation.ReactionInputSampleMutation;
-import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
-import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
+import com.epam.indigoeln.reaction.model.mutation.*;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -11,9 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
-@AllArgsConstructor
 public class ExperimentModel implements ExperimentModelNode, ToStringTree {
 
     @Valid
@@ -21,20 +18,81 @@ public class ExperimentModel implements ExperimentModelNode, ToStringTree {
     @JsonManagedReference
     private List<Reaction> reactions;
 
+    public Reaction locate(ReactionMutation mutation) {
+        return locateReaction(mutation.anchor());
+    }
+
+    public Reaction locateReaction(UUID anchor) {
+        for (Reaction reaction : reactions) {
+            if (reaction.getAnchor().equals(anchor)) {
+                return reaction;
+            }
+        }
+        throw new IllegalArgumentException("Experiment doesn't contain reaction with id: " + anchor);
+    }
+
     public ReactionInput locate(ReactionInputMutation mutation) {
-        return reactions.get(mutation.reactionNo()).getInputs().get(mutation.rowNo());
+        return locateReactionInput(mutation.anchor());
+    }
+
+    public ReactionInput locateReactionInput(UUID anchor) {
+        for (Reaction reaction : reactions) {
+            for (ReactionInput row : reaction.getInputs()) {
+                if (row.getAnchor().equals(anchor)) {
+                    return row;
+                }
+            }
+        }
+        throw new IllegalArgumentException("Reaction doesn't contain input with id: " + anchor);
     }
 
     public ReactionInputSample locate(ReactionInputSampleMutation mutation) {
-        return reactions.get(mutation.reactionNo()).getInputs().get(mutation.rowNo()).getSamples().get(mutation.sampleNo());
+        return locateReactionInputSample(mutation.anchor());
+    }
+
+    public ReactionInputSample locateReactionInputSample(UUID anchor) {
+        for (Reaction reaction : reactions) {
+            for (ReactionInput row : reaction.getInputs()) {
+                for (ReactionInputSample sample : row.getSamples()) {
+                    if (sample.getAnchor().equals(anchor)) {
+                        return sample;
+                    }
+                }
+            }
+        }
+        throw new IllegalArgumentException("Reaction doesn't contain input sample with id: " + anchor);
     }
 
     public ReactionOutput locate(ReactionOutputMutation mutation) {
-        return reactions.get(mutation.reactionNo()).getOutputs().get(mutation.rowNo());
+        return locateReactionOutput(mutation.anchor());
+    }
+
+    public ReactionOutput locateReactionOutput(UUID anchor) {
+        for (Reaction reaction : reactions) {
+            for (ReactionOutput row : reaction.getOutputs()) {
+                if (row.getAnchor().equals(anchor)) {
+                    return row;
+                }
+            }
+        }
+        throw new IllegalArgumentException("Reaction doesn't contain output with id: " + anchor);
     }
 
     public ReactionOutputSample locate(ReactionOutputSampleMutation mutation) {
-        return reactions.get(mutation.reactionNo()).getOutputs().get(mutation.rowNo()).getSamples().get(mutation.sampleNo());
+        return locateReactionOutputSample(mutation.anchor());
+    }
+
+    public ReactionOutputSample locateReactionOutputSample(UUID anchor) {
+        for (Reaction reaction : reactions) {
+            for (ReactionOutput row : reaction.getOutputs()) {
+                for (ReactionOutputSample sample : row.getSamples()) {
+                    if (sample.getAnchor().equals(anchor)) {
+                        return sample;
+                    }
+                }
+            }
+        }
+        throw new IllegalArgumentException("Reaction doesn't contain output sample with id: " + anchor);
     }
 
     @Override
