@@ -1,9 +1,7 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.indigowrapper.IndigoMolecule;
-import com.epam.indigoeln.indigowrapper.IndigoReaction;
-import com.epam.indigoeln.indigowrapper.IndigoWrapper;
+import com.epam.indigoeln.indigowrapper.*;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -21,7 +19,9 @@ import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 public class SetSchemeHandler extends AbstractMutationHandler {
 
     @Inject
-    IndigoWrapper indigo;
+    IndigoAPI indigo;
+    @Inject
+    IndigoRendererAPI indigoRenderer;
 
     public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionMutation.SetScheme mutation) {
         Reaction reaction = model.locate(mutation);
@@ -30,25 +30,22 @@ public class SetSchemeHandler extends AbstractMutationHandler {
         reaction.setInputs(new ArrayList<>());
         reaction.setOutputs(new ArrayList<>());
 
-        indigo.withSession(indigoSession -> {
-            IndigoReaction indigoReaction = indigoSession.loadReaction(mutation.molFile());
-            for (IndigoMolecule reactant : indigoReaction.reactants()) {
-                reaction.getInputs().add(createInputLine(reaction, reactant, ReactionInputRole.REACTANT));
-            }
-            for (IndigoMolecule catalyst : indigoReaction.catalysts()) {
-                reaction.getInputs().add(createInputLine(reaction, catalyst, ReactionInputRole.CATALYST));
-            }
-            for (IndigoMolecule product : indigoReaction.products()) {
-                reaction.getOutputs().add(createOutputLine(reaction, product));
-            }
-            if (!reaction.getInputs().isEmpty() && reaction.getLimitingInput() == null) {
-                reaction.getInputs().getFirst().setLimiting(true);
-            }
-            indigoSession.setOption("render-output-format", "svg");
-            indigoSession.setOption("render-image-size", 500, 200);
-            byte[] buf = indigoSession.renderToBuffer(indigoReaction);
-            experiment.setPicture(buf);
-        });
+        IndigoReaction indigoReaction = indigo.loadReaction(mutation.molFile());
+        for (IndigoMolecule reactant : indigoReaction.reactants()) {
+            reaction.getInputs().add(createInputLine(reaction, reactant, ReactionInputRole.REACTANT));
+        }
+        for (IndigoMolecule catalyst : indigoReaction.catalysts()) {
+            reaction.getInputs().add(createInputLine(reaction, catalyst, ReactionInputRole.CATALYST));
+        }
+        for (IndigoMolecule product : indigoReaction.products()) {
+            reaction.getOutputs().add(createOutputLine(reaction, product));
+        }
+        if (!reaction.getInputs().isEmpty() && reaction.getLimitingInput() == null) {
+            reaction.getInputs().getFirst().setLimiting(true);
+        }
+        indigoRenderer.setRenderOptions("svg", 500, 200);
+        byte[] buf = indigoRenderer.renderToBuffer(indigoReaction);
+        experiment.setPicture(buf);
     }
 
     private ReactionInput createInputLine(Reaction reaction, IndigoMolecule molecule, ReactionInputRole role) {

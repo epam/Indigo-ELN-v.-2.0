@@ -64,7 +64,7 @@ class PermissionsTest extends BaseTest {
         testHelper.cleanupDatabase();
         testHelper.createTestUsers();
 
-        rows = new BufferedReader(new InputStreamReader(loadResourceAsStream(getClass(), "permissions.csv")))
+        rows = new BufferedReader(new InputStreamReader(loadResourceAsStream(getClass(), "/com/epam/indigoeln/eln/service/permissions.csv")))
                 .lines()
                 .skip(1)
                 .map(line -> line.split(","))

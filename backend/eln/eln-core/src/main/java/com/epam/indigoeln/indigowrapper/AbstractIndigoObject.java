@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractIndigoObject {
 
-    protected final IndigoSession session;
+    protected final IndigoAPI session;
     protected final IndigoObject obj;
 
     public boolean hasProperty(String prop) {

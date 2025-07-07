@@ -4,7 +4,7 @@ import com.epam.indigo.IndigoObject;
 
 public class IndigoMolecule extends AbstractIndigoObject {
 
-    IndigoMolecule(IndigoSession indigo, IndigoObject obj) {
+    IndigoMolecule(IndigoAPI indigo, IndigoObject obj) {
         super(indigo, obj);
     }
 

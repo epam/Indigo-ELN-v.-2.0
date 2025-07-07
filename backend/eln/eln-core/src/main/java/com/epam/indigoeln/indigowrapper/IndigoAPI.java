@@ -5,11 +5,10 @@ import com.epam.indigo.IndigoRenderer;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public class IndigoSession {
+@RequiredArgsConstructor
+public class IndigoAPI {
 
     private final Indigo indigo;
-    private final IndigoRenderer renderer;
 
     public void setOption(String option, String value) {
         indigo.setOption(option, value);
@@ -69,9 +68,5 @@ public class IndigoSession {
 
     public IndigoReaction loadReactionFromFile(String path) {
         return new IndigoReaction(this, indigo.loadReactionFromFile(path));
-    }
-
-    public byte[] renderToBuffer(AbstractIndigoObject obj) {
-        return renderer.renderToBuffer(obj.obj);
     }
 }

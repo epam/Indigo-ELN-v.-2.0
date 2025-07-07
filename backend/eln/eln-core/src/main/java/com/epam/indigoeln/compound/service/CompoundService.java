@@ -9,8 +9,8 @@ import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.repository.CompoundRepository;
 import com.epam.indigoeln.compound.repository.SampleRepository;
+import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
-import com.epam.indigoeln.indigowrapper.IndigoWrapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -42,7 +42,7 @@ public class CompoundService {
     @Inject
     SampleMapper sampleMapper;
     @Inject
-    IndigoWrapper indigo;
+    IndigoAPI indigo;
 
     public Pair<CompoundEntity, SampleEntity> findOrCreateByCanonicalSmiles(String canonicalSmiles, IndigoMolecule indigoObject) {
         CompoundEntity compound = compoundRepository.findByCanonicalSmiles(canonicalSmiles);
@@ -64,14 +64,12 @@ public class CompoundService {
 
     public LoadStatistics loadCompoundsFromFile(InputStream is) throws IOException {
         LoadStatistics stats = new LoadStatistics();
-        indigo.withSession(indigoSession -> {
-            StreamEx.of(readSDFFile(is))
-                    .map(indigoSession::loadMolecule)
-                    .forEach(molecule -> {
-                        findOrCreateByCanonicalSmiles(molecule.canonicalSmiles(), molecule);
-                        stats.processed++;
-                    });
-        });
+        StreamEx.of(readSDFFile(is))
+                .map(indigo::loadMolecule)
+                .forEach(molecule -> {
+                    findOrCreateByCanonicalSmiles(molecule.canonicalSmiles(), molecule);
+                    stats.processed++;
+                });
         log.info("Loaded compounds from file: {}", stats);
         return stats;
     }

@@ -5,7 +5,7 @@ import one.util.streamex.StreamEx;
 
 public class IndigoReaction extends AbstractIndigoObject {
 
-    IndigoReaction(IndigoSession indigo, IndigoObject obj) {
+    IndigoReaction(IndigoAPI indigo, IndigoObject obj) {
         super(indigo, obj);
     }
 

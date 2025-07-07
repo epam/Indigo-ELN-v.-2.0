@@ -2,9 +2,7 @@ package com.epam.indigoeln.reaction.service;
 
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.indigowrapper.IndigoMolecule;
-import com.epam.indigoeln.indigowrapper.IndigoReaction;
-import com.epam.indigoeln.indigowrapper.IndigoWrapper;
+import com.epam.indigoeln.indigowrapper.*;
 import com.epam.indigoeln.reaction.model.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -25,42 +23,42 @@ public class ExperimentModelHelperService {
     @Inject
     CompoundService compoundService;
     @Inject
-    IndigoWrapper indigoWrapper;
+    IndigoAPI indigo;
+    @Inject
+    IndigoRendererAPI indigoRenderer;
 
     public void rebuildReactionScheme(ExperimentEntity experiment, Reaction reaction, Set<ReactionInputRole> affectedRoles) {
         if (affectedRoles.isEmpty()) {
             return;
         }
-        indigoWrapper.withSession(indigo -> {
-            IndigoReaction reactionScheme = indigo.loadReaction(reaction.getRxnfile());
+        IndigoReaction reactionScheme = indigo.loadReaction(reaction.getRxnfile());
 
-            for (ReactionInputRole role : COMPONENT_ORDER) {
-                if (!affectedRoles.contains(role)) {
-                    continue;
-                }
-
-                List<IndigoMolecule> molecules = new ArrayList<>();
-                // noinspection rawtypes,unchecked
-                Iterable<ReactionRow> rows = role != null ? (Iterable) reaction.getInputsOfType(role) : (Iterable) reaction.getOutputs();
-                for (ReactionRow input : rows) {
-                    String molfile = switch (input.getCompound()) {
-                        case CompoundRef.Stored stored -> compoundService.getCompound(stored.getCompoundID()).getMolFile();
-                        case CompoundRef.Virtual virtual -> virtual.getMolFile();
-                        case CompoundRef.Unknown unknown -> null;
-                    };
-                    if (molfile != null) {
-                        molecules.add(indigo.loadMolecule(molfile));
-                    }
-                }
-
-                reactionIterable(reactionScheme, role).forEach(IndigoMolecule::remove);
-                // TODO sometimes it adds in reverse order, sometimes not
-                molecules.reversed().forEach(molecule -> addToReaction(reactionScheme, role, molecule));
+        for (ReactionInputRole role : COMPONENT_ORDER) {
+            if (!affectedRoles.contains(role)) {
+                continue;
             }
 
-            byte[] picture = indigo.renderToBuffer(reactionScheme);
-            reaction.setRxnfile(reactionScheme.rxnfile());
-            experiment.setPicture(picture);
-        });
+            List<IndigoMolecule> molecules = new ArrayList<>();
+            // noinspection rawtypes,unchecked
+            Iterable<ReactionRow> rows = role != null ? (Iterable) reaction.getInputsOfType(role) : (Iterable) reaction.getOutputs();
+            for (ReactionRow input : rows) {
+                String molfile = switch (input.getCompound()) {
+                    case CompoundRef.Stored stored -> compoundService.getCompound(stored.getCompoundID()).getMolFile();
+                    case CompoundRef.Virtual virtual -> virtual.getMolFile();
+                    case CompoundRef.Unknown unknown -> null;
+                };
+                if (molfile != null) {
+                    molecules.add(indigo.loadMolecule(molfile));
+                }
+            }
+
+            reactionIterable(reactionScheme, role).forEach(IndigoMolecule::remove);
+            // TODO sometimes it adds in reverse order, sometimes not
+            molecules.reversed().forEach(molecule -> addToReaction(reactionScheme, role, molecule));
+        }
+
+        byte[] picture = indigoRenderer.renderToBuffer(reactionScheme);
+        reaction.setRxnfile(reactionScheme.rxnfile());
+        experiment.setPicture(picture);
     }
 }
