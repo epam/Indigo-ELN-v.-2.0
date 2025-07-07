@@ -46,7 +46,7 @@ public class CompoundService {
     @Inject
     DictionaryService dictionaryService;
     @Inject
-    IndigoAPI indigo;
+    IndigoWrapper indigo;
 
     // TODO switch to CompoundKey
     public Pair<CompoundEntity, SampleEntity> findOrCreateByCanonicalSmiles(String canSmiles, IndigoMolecule indigoObject) {

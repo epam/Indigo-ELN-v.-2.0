@@ -1,9 +1,9 @@
 package com.epam.indigoeln.reaction.service.calculator;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
-import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoAtom;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
+import com.epam.indigoeln.indigowrapper.IndigoWrapper;
 import com.epam.indigoeln.reaction.model.SaltCodeRef;
 import com.google.common.math.DoubleMath;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -19,7 +19,7 @@ public class MolWeightCalculator {
     private static final double HYDROGEN_MASS = 1.00784;
 
     @Inject
-    IndigoAPI indigo;
+    IndigoWrapper indigoRunner;
 
     public double calculateMolWeightWithoutSalt(String molFile) {
         IndigoMolecule molecule = indigo.loadMolecule(molFile);
