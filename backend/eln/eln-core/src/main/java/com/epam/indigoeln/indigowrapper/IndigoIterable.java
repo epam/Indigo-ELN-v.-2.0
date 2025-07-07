@@ -28,6 +28,11 @@ class IndigoIterable<O extends AbstractIndigoObject> implements Iterable<O> {
                 IndigoObject next = iter.next();
                 return objectCreator.apply(next);
             }
+
+            @Override
+            public void remove() {
+                iter.remove();
+            }
         };
     }
 }

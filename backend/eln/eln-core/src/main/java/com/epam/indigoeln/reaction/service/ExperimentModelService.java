@@ -63,7 +63,7 @@ public class ExperimentModelService {
         // don't rewrite to dynamic lookup to have compile-time guarantee that all mutations are handled
         switch (mutation) {
             case ReactionMutation.SetScheme m -> setSchemeHandler.handle(experiment, model, m);
-            case ReactionMutation.ResolveInputs m -> resolveInputsHandler.handle(model, m);
+            case ReactionMutation.ResolveInputs m -> resolveInputsHandler.handle(experiment, model, m);
             case ReactionInputMutation.SetInputRole m -> inputMutationHandler.handle(model, m);
             case ReactionInputMutation.SetLimiting m -> inputMutationHandler.handle(model, m);
             case ReactionInputMutation.SetInputSaltCode m -> saltCodeEQHandler.handle(model, m);

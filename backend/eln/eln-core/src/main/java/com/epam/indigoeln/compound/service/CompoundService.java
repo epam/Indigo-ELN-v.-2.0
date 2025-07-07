@@ -127,6 +127,10 @@ public class CompoundService {
         return sampleRepository.get(id);
     }
 
+    public CompoundEntity getCompound(UUID id) {
+        return compoundRepository.get(id);
+    }
+
     @Data
     public static class LoadStatistics {
 

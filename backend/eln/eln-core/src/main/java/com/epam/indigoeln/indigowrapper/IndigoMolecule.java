@@ -27,4 +27,13 @@ public class IndigoMolecule extends AbstractIndigoObject {
     public double molecularWeight() {
         return obj.molecularWeight();
     }
+
+    public void remove() {
+        obj.remove();
+    }
+
+    @Override
+    public String toString() {
+        return obj.grossFormula();
+    }
 }

@@ -6,6 +6,7 @@ import com.epam.indigoeln.compound.model.StructureSearchType;
 import com.epam.indigoeln.eln.BaseTest;
 import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.util.ResponseWithHeaders;
 import com.epam.indigoeln.eln.util.TestHelper;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ReactionInput;
@@ -15,7 +16,9 @@ import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.epam.indigoeln.reaction.util.CalculationReportBuilder;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
+import jakarta.ws.rs.core.HttpHeaders;
 import lombok.SneakyThrows;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
@@ -24,6 +27,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -34,6 +38,9 @@ public class ExperimentModelServiceTest extends BaseTest {
     ExperimentDetailsDTO experiment;
     ExperimentModel model;
     CalculationReportBuilder reportBuilder;
+
+    @Nullable
+    byte[] picture = null;
 
     @BeforeAll
     void setUp(@TempDir Path tempDir) throws Exception {
@@ -134,6 +141,12 @@ public class ExperimentModelServiceTest extends BaseTest {
         System.out.println("Applying mutation: " + mutation);
         reportBuilder.addMutation(mutation);
         model = experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(model, mutation));
+        ResponseWithHeaders pictureResponse = experimentClient.getExperimentPictureClient(experiment.getId());
+        byte[] newPicture = pictureResponse.getContent().readAllBytes();
+        if (picture == null || newPicture != null && !Arrays.equals(picture, newPicture)) {
+            picture = newPicture;
+            reportBuilder.addPicture(picture, pictureResponse.getHeaders().get(HttpHeaders.CONTENT_TYPE).iterator().next());
+        }
         reportBuilder.addModel(model);
         System.out.println(model);
     }

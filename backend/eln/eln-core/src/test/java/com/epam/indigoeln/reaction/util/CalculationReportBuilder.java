@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 public class CalculationReportBuilder implements AutoCloseable {
@@ -97,5 +98,9 @@ public class CalculationReportBuilder implements AutoCloseable {
                 </div>
                 """);
         previousModel = currentModel;
+    }
+
+    public void addPicture(byte[] content, String contentType) {
+        pr.printf("<img src='data:%s;base64,%s'/>", contentType, Base64.getEncoder().encodeToString(content));
     }
 }
