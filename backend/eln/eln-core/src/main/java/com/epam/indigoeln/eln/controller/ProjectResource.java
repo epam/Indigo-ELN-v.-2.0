@@ -65,9 +65,4 @@ public class ProjectResource implements ProjectAPI {
     public List<ACLEntryDTO> updateProjectAccess(@NotNull UUID projectId, @NotNull @Valid List<AccessForm> form) {
         return projectService.updateProjectAccess(projectId, form);
     }
-
-    @Override
-    public List<String> suggestProjectKeywords(@Nullable String search) {
-        return projectService.suggestProjectKeywords(search);
-    }
 }

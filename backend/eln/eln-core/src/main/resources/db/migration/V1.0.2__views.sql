@@ -84,8 +84,8 @@ $$ LANGUAGE plpgsql;
 CREATE FUNCTION insert_Project_View()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO Project (id, created_by_id, created_at, modified_by_id, modified_at, name, keywords, literature, description)
-    VALUES (new.id, new.created_by_id, new.created_at, new.modified_by_id, new.modified_at, new.name, new.keywords, new.literature, new.description);
+    INSERT INTO Project (id, created_by_id, created_at, modified_by_id, modified_at, name, literature, description)
+    VALUES (new.id, new.created_by_id, new.created_at, new.modified_by_id, new.modified_at, new.name, new.literature, new.description);
 
     UPDATE Project SET search_vector = get_project_search_vector(new.id) WHERE id = new.id;
 
@@ -105,7 +105,6 @@ BEGIN
     SET modified_by_id = new.modified_by_id,
         modified_at = new.modified_at,
         name = new.name,
-        keywords = new.keywords,
         literature = new.literature,
         description = new.description
     WHERE id = new.id;

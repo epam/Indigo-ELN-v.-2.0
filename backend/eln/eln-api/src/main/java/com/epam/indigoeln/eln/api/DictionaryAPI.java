@@ -24,6 +24,10 @@ public interface DictionaryAPI extends BaseAPI {
     @Path("/dictionaries/{dictionary}/full")
     List<DictionaryItemDTO> getDictionaryFull(@PathParam("dictionary") Dictionary dictionary);
 
+    @GET
+    @Path("/dictionaries/{dictionary}/suggest")
+    List<DictionaryItemRef> suggestDictionaryItems(@PathParam("dictionary") Dictionary dictionary, @QueryParam("search") String search);
+
     @POST
     @Path("/dictionaries/{dictionary}")
     List<DictionaryItemDTO> addDictionaryItem(@PathParam("dictionary") Dictionary dictionary, DictionaryItemRequest item);

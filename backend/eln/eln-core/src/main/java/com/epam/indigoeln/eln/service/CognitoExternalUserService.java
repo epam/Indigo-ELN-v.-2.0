@@ -26,8 +26,10 @@ class CognitoExternalUserService implements ExternalUserService{
                     .userPoolId(userPoolId)
                     .username(request.getUsername())
                     .userAttributes(
-                            AttributeType.builder().name("email").value(request.getUsername()).build()
-//                        AttributeType.builder().name("email_verified").value("true").build()
+                            AttributeType.builder().name("email").value(request.getUsername()).build(),
+                            AttributeType.builder().name("email_verified").value("true").build(),
+                            AttributeType.builder().name("given_name").value(request.getFirstName()).build(),
+                            AttributeType.builder().name("family_name").value(request.getLastName()).build()
                     )
                     .build());
         } catch (UsernameExistsException ignore) {

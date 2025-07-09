@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.mapper;
 
+import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
 import com.epam.indigoeln.eln.entity.TotalCountsEntity;
 import com.epam.indigoeln.eln.model.ProjectDTO;
@@ -7,6 +8,7 @@ import com.epam.indigoeln.eln.model.ProjectDetailsDTO;
 import com.epam.indigoeln.eln.model.ProjectRequest;
 import com.epam.indigoeln.eln.model.TotalCounts;
 import one.util.streamex.StreamEx;
+import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
@@ -19,7 +21,7 @@ import java.util.List;
 public abstract class ProjectMapper extends AbstractMapper {
 
     @IgnoreBaseFields
-    @Mapping(target = "keywords", defaultExpression = "java(new String[0])")
+    @Mapping(target = "keywords", ignore = true)
     @Mapping(target = "searchVector", ignore = true)
     @Mapping(target = "currentAccess", ignore = true)
     @Mapping(target = "notebookCount", constant = "0")
@@ -44,5 +46,10 @@ public abstract class ProjectMapper extends AbstractMapper {
 
     protected Integer convertTotalCountsSum(TotalCountsEntity struct) {
         return struct.getExperimentsByStatus().values().stream().mapToInt(Integer::intValue).sum();
+    }
+
+    @Nullable
+    protected String dictionaryToString(@Nullable DictionaryItemEntity entity) {
+        return entity != null ? entity.getName() : null;
     }
 }

@@ -134,7 +134,6 @@ CREATE TABLE Project (
     modified_by_id UUID NOT NULL,
     modified_at TIMESTAMPTZ NOT NULL,
     name VARCHAR(256) NOT NULL,
-    keywords VARCHAR(256)[] NOT NULL,
     literature TEXT,
     description TEXT,
     search_vector TSVECTOR,
@@ -143,6 +142,16 @@ CREATE TABLE Project (
     CONSTRAINT project_name_uq UNIQUE (name)
 );
 CREATE INDEX ix_project_search_vector ON Project USING GIN(search_vector);
+
+CREATE TABLE Project_Keyword (
+    project_id UUID NOT NULL,
+    keyword_id UUID NOT NULL,
+    ordinal INT NOT NULL,
+    CONSTRAINT project_keyword_pk PRIMARY KEY (project_id, keyword_id),
+    CONSTRAINT project_keyword_project_id_fk FOREIGN KEY (project_id) REFERENCES Project (id) ON DELETE CASCADE,
+    CONSTRAINT project_keyword_keyword_id_fk FOREIGN KEY (keyword_id) REFERENCES Dictionary_Item (id),
+    CONSTRAINT project_keyword_ordinal_uq UNIQUE (project_id, ordinal) DEFERRABLE INITIALLY DEFERRED
+);
 
 CREATE TABLE Project_Attachment (
     project_id UUID NOT NULL,

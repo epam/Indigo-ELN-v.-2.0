@@ -50,9 +50,6 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
     @NotEmpty
     private String name;
 
-    @NotNull
-    private String[] keywords = new String[0];
-
     @Nullable
     @Basic(fetch = FetchType.LAZY)
     private String literature;
@@ -101,6 +98,12 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
     private Integer aclCount;
 
     @NotNull
+    @ManyToMany
+    @OrderColumn(name = "ordinal")
+    @JoinTable(name = "project_keyword", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "keyword_id"))
+    private List<DictionaryItemEntity> keywords = new ArrayList<>(0);
+
+    @NotNull
     @OneToMany(mappedBy = "project")
     private Set<NotebookEntity> notebooks = new HashSet<>(0);
 
@@ -109,7 +112,7 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
     private Set<ExperimentEntity> experiments = new HashSet<>(0);
 
     @NotNull
-    @ManyToMany()
+    @ManyToMany
     @JoinTable(name = "project_attachment", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);

@@ -17,5 +17,5 @@ public enum EntityType {
     COMPOUND,
     SAMPLE,
 
-    PROJECT_KEYWORD,
+    DICTIONARY_ITEM,
 }

@@ -48,18 +48,4 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
         TotalCountsEntity entity = em.createQuery("from TotalCounts", TotalCountsEntity.class).getSingleResult();
         return projectMapper.convertTotalCounts(entity);
     }
-
-    public List<String> suggestProjectKeywords(@Nullable String search) {
-        Query query = em.createNativeQuery(
-                "SELECT unnest\n" +
-                "FROM (SELECT DISTINCT UNNEST(keywords) FROM Project) t\n" +
-                "WHERE " + (search != null ? "LOWER(unnest) LIKE ?" : "1=1") + "\n" +
-                "ORDER BY unnest", String.class)
-                .setMaxResults(10);
-        if (search != null) {
-            query.setParameter(1, search.toLowerCase() + '%');
-        }
-        //noinspection unchecked
-        return (List<String>) query.getResultList();
-    }
 }

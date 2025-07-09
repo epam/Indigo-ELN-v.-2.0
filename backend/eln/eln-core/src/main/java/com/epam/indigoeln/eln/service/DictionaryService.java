@@ -1,14 +1,18 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
+import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.SaltCodeEntity;
 import com.epam.indigoeln.eln.mapper.DictionaryMapper;
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.Dictionary;
 import com.epam.indigoeln.eln.repository.DictionaryRepository;
 import com.epam.indigoeln.eln.repository.SaltCodeRepository;
 import com.epam.indigoeln.reaction.model.SaltCodeRef;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -16,8 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
@@ -65,6 +68,10 @@ public class DictionaryService {
         return entity;
     }
 
+    public List<DictionaryItemRef> suggestDictionaryItems(Dictionary dictionary, String search) {
+        return dictionaryRepository.suggest(dictionary, search);
+    }
+
     public DictionaryItemEntity get(UUID id) {
         return dictionaryRepository.findById(id);
     }
@@ -81,15 +88,21 @@ public class DictionaryService {
         return dictionaryMapper.saltCodeToRef(getSalt(id));
     }
 
-    public List<DictionaryItemDTO> addDictionaryItem(Dictionary dictionary, DictionaryItemRequest item) {
-        aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
+    public List<DictionaryItemEntity> addDictionaryItems(Dictionary dictionary, List<DictionaryItemRequest> items) {
+        if (!dictionary.isUsersCanAddNewItems()) {
+            aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
+        }
         List<DictionaryItemEntity> list = dictionaryRepository.list(dictionary, true);
-        DictionaryItemEntity entity = dictionaryMapper.dictionaryToEntity(item, dictionary);
-        updateDates(entity, userService.getCurrentUser());
-        list.add(entity);
+        List<DictionaryItemEntity> inserted = new ArrayList<>(items.size());
+        for (DictionaryItemRequest item : items) {
+            DictionaryItemEntity entity = dictionaryMapper.dictionaryToEntity(item, dictionary);
+            updateDates(entity, userService.getCurrentUser());
+            inserted.add(entity);
+        }
+        list.addAll(inserted);
         renumberItems(list);
-        dictionaryRepository.persist(entity);
-        return dictionaryMapper.dictionaryToDTOList(list);
+        dictionaryRepository.persist(inserted);
+        return list;
     }
 
     public List<DictionaryItemDTO> updateDictionaryItem(Dictionary dictionary, UUID itemID, DictionaryItemEditRequest request) {
@@ -118,6 +131,21 @@ public class DictionaryService {
         dictionaryRepository.delete(entity);
         renumberItems(list);
         return dictionaryMapper.dictionaryToDTOList(list);
+    }
+
+    public List<DictionaryItemEntity> findOrCreateByNames(Dictionary dictionary, Collection<String> names) {
+        if (!dictionary.isUsersCanAddNewItems()) {
+            throw new IllegalArgumentException("findOrCreateByNames cannot be used with dictionary " + dictionary);
+        }
+        List<DictionaryItemEntity> result = new ArrayList<>(names.size());
+        Map<String, DictionaryItemEntity> found = dictionaryRepository.findByNames(dictionary, names);
+        if (found.size() < names.size()) {
+            Set<String> remainingNames = new HashSet<>(names);
+            remainingNames.removeAll(found.keySet());
+            List<DictionaryItemEntity> newAllItems = addDictionaryItems(dictionary, remainingNames.stream().map(x -> new DictionaryItemRequest(x, null)).toList());
+            found = StreamEx.of(newAllItems).toMap(DictionaryItemEntity::getName, x -> x);
+        }
+        return StreamEx.of(names).map(found::get).toList();
     }
 
     private void renumberItems(List<DictionaryItemEntity> items) {

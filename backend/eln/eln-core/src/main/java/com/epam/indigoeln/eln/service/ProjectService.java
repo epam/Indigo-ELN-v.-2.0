@@ -35,10 +35,15 @@ public class ProjectService {
     ProjectRepository projectRepository;
     @Inject
     ACLService aclService;
+    @Inject
+    DictionaryService dictionaryService;
 
     public ProjectDetailsDTO createProject(ProjectRequest request) {
         aclService.ensureTopLevelAccess(ApplicationPermission.CREATE_PROJECTS);
         ProjectEntity project = projectMapper.requestToProject(request);
+        if (request.getKeywords() != null && !request.getKeywords().isEmpty()) {
+            project.setKeywords(dictionaryService.findOrCreateByNames(Dictionary.PROJECT_KEYWORD, request.getKeywords()));
+        }
         updateDates(project, userService.getCurrentUser());
         aclService.initProjectACL(project);
         try {
@@ -66,7 +71,9 @@ public class ProjectService {
         ProjectEntity project = projectRepository.get(projectId);
         aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
         editProperty(request.getName(), project::setName);
-        editProperty(request.getKeywords(), v -> project.setKeywords(v.toArray(new String[0])));
+        editProperty(request.getKeywords(), v -> {
+            project.setKeywords(dictionaryService.findOrCreateByNames(Dictionary.PROJECT_KEYWORD, v));
+        });
         editProperty(request.getLiterature(), project::setLiterature);
         editProperty(request.getDescription(), project::setDescription);
         updateDates(project, userService.getCurrentUser());
@@ -88,9 +95,5 @@ public class ProjectService {
             aclService.updateProjectACL(project, user, item.getLevel());
         }
         return projectMapper.convertACLMap(project.getAclEntities());
-    }
-
-    public List<String> suggestProjectKeywords(@Nullable String search) {
-        return projectRepository.suggestProjectKeywords(search);
     }
 }

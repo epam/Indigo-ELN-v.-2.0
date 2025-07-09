@@ -48,8 +48,4 @@ public interface ProjectAPI extends BaseAPI {
     @POST
     @Path("/projects/{projectId}/access")
     List<ACLEntryDTO> updateProjectAccess(@PathParam("projectId") UUID projectId, List<AccessForm> form);
-
-    @GET
-    @Path("/projects/keywords/suggest")
-    List<String> suggestProjectKeywords(@Nullable @QueryParam("search") String search);
 }

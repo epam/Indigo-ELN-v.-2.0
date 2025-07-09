@@ -16,9 +16,10 @@ import java.util.List;
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR, nullValueCheckStrategy =  NullValueCheckStrategy.ALWAYS)
 public abstract class DictionaryMapper extends AbstractMapper {
 
-    public abstract List<DictionaryItemDTO> dictionaryToDTOList(Collection<? extends DictionaryItemEntity> entities);
+    public abstract List<DictionaryItemDTO> dictionaryToDTOList(Collection<DictionaryItemEntity> entities);
 
-    public abstract List<DictionaryItemRef> dictionaryToRefList(Collection<? extends DictionaryItemEntity> entities);
+    public abstract DictionaryItemRef dictionaryToRef(DictionaryItemEntity entities);
+    public abstract List<DictionaryItemRef> dictionaryToRefList(Collection<DictionaryItemEntity> entities);
 
     @IgnoreBaseFields
     @Mapping(target = "active", constant = "true")

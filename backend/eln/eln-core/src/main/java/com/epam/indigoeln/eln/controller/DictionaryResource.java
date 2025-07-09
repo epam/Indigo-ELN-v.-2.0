@@ -3,6 +3,7 @@ package com.epam.indigoeln.eln.controller;
 
 import com.epam.indigoeln.eln.api.BaseAPI;
 import com.epam.indigoeln.eln.api.DictionaryAPI;
+import com.epam.indigoeln.eln.mapper.DictionaryMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import jakarta.inject.Inject;
@@ -16,6 +17,8 @@ public class DictionaryResource implements DictionaryAPI {
 
     @Inject
     DictionaryService dictionaryService;
+    @Inject
+    DictionaryMapper dictionaryMapper;
 
     @Override
     public List<Dictionary> getDictionaries() {
@@ -33,8 +36,13 @@ public class DictionaryResource implements DictionaryAPI {
     }
 
     @Override
+    public List<DictionaryItemRef> suggestDictionaryItems(Dictionary dictionary, String search) {
+        return dictionaryService.suggestDictionaryItems(dictionary, search);
+    }
+
+    @Override
     public List<DictionaryItemDTO> addDictionaryItem(Dictionary dictionary, DictionaryItemRequest item) {
-        return dictionaryService.addDictionaryItem(dictionary, item);
+        return dictionaryMapper.dictionaryToDTOList(dictionaryService.addDictionaryItems(dictionary, List.of(item)));
     }
 
     @Override

@@ -191,10 +191,10 @@ class ProjectServiceTest extends BaseTest {
     @Test
     void testSuggestKeywords() {
         projectClient.createProject(new ProjectRequest("testSuggestKeywords", List.of("k1", "K2", "k3", "keyword1", "Keyword2"), null, null));
-        List<String> all = projectClient.suggestProjectKeywords(null);
-        assertThat(all).contains("k1", "k2", "k3");
-        List<String> filtered = projectClient.suggestProjectKeywords("ke");
-        assertThat(filtered).containsExactly("keyword1", "keyword2", "Keyword2");
+        List<DictionaryItemRef> all = dictionaryClient.suggestDictionaryItems(Dictionary.PROJECT_KEYWORD, "");
+        assertThat(all).map(DictionaryItemRef::getName).contains("k1", "k2", "k3");
+        List<DictionaryItemRef> filtered = dictionaryClient.suggestDictionaryItems(Dictionary.PROJECT_KEYWORD, "ke");
+        assertThat(filtered).map(DictionaryItemRef::getName).containsExactly("keyword1", "keyword2", "Keyword2");
     }
 
     @Test
