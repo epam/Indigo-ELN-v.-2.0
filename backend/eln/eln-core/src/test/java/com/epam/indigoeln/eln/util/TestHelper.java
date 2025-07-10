@@ -1,6 +1,6 @@
 package com.epam.indigoeln.eln.util;
 
-import com.epam.indigoeln.eln.client.MiscClient;
+import com.epam.indigoeln.eln.client.TestSupportClient;
 import com.epam.indigoeln.eln.client.UserClient;
 import com.epam.indigoeln.eln.model.*;
 import lombok.Getter;
@@ -9,6 +9,7 @@ import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguratio
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 @RequiredArgsConstructor
 public class TestHelper {
@@ -49,7 +50,8 @@ public class TestHelper {
     public static final List<RoleRef> LISA_ROLES = List.of(ROLE_TEMPLATE_EDITOR);
 
     private final UserClient userClient;
-    private final MiscClient miscClient;
+    private final TestSupportClient testSupportClient;
+    private final AtomicReference<String> currentUsername;
 
     @Getter
     private UUID johnUserID;
@@ -61,7 +63,7 @@ public class TestHelper {
     private UUID lisaUserID;
 
     public void cleanupDatabase() {
-        miscClient.cleanupDatabase();
+        testSupportClient.cleanupDatabase();
     }
 
     public void createTestUsers() {
@@ -72,10 +74,16 @@ public class TestHelper {
     }
 
     private UserDTO getOrCreateUser(UserRequest request) {
-        Page<UserDTO> found = userClient.getUsers(null, request.getUsername(), Paging.DEFAULT);
-        if (!found.getItems().isEmpty()) {
-            return found.getItems().getFirst();
+        String oldUsername = currentUsername.get();
+        try {
+            currentUsername.set(ADMIN_USERNAME);
+            Page<UserDTO> found = userClient.getUsers(null, request.getUsername(), Paging.DEFAULT);
+            if (!found.getItems().isEmpty()) {
+                return found.getItems().getFirst();
+            }
+            return userClient.createUser(request);
+        } finally {
+            currentUsername.set(oldUsername);
         }
-        return userClient.createUser(request);
     }
 }

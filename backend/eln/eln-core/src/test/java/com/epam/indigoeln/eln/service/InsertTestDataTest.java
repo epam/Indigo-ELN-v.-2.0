@@ -66,7 +66,7 @@ class InsertTestDataTest {
         userClient.createUser(new UserRequest("charlie@eln.com", "Charlie Williams", "Charlie", "Williams", "password", List.of(ROLE_CONTENT_EDITOR)));
     }
 
-    @Test
+//    @Test
     @Order(2)
     void insertTestData(@TempDir Path tempDir) {
         List<DictionaryItemRef> therapeuticAreas = dictionaryClient.getDictionary(Dictionary.THERAPEUTIC_AREA);

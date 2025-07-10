@@ -2,23 +2,21 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.eln.model.UserRequest;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Alternative;
 import jakarta.inject.Inject;
+import lombok.RequiredArgsConstructor;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.*;
 
 import java.util.Optional;
 
-@Alternative
-@ApplicationScoped
-class CognitoExternalUserService implements ExternalUserService{
+@RequiredArgsConstructor
+class CognitoExternalUserService implements ExternalUserService {
 
-    @Inject
-    CognitoIdentityProviderClient cognitoClient;
-
-    @ConfigProperty(name = "eln.cognito.user-pool-id")
-    String userPoolId;
+    private final CognitoIdentityProviderClient cognitoClient;
+    private final String userPoolId;
 
     public void createUser(UserRequest request) {
         try {
