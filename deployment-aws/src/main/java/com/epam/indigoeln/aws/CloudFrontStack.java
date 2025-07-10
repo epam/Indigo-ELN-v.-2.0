@@ -24,6 +24,8 @@ import software.amazon.awscdk.services.s3.Bucket;
 import software.amazon.awscdk.services.s3.assets.AssetOptions;
 import software.amazon.awscdk.services.s3.deployment.BucketDeployment;
 import software.amazon.awscdk.services.s3.deployment.Source;
+import software.amazon.awscdk.services.ssm.IStringParameter;
+import software.amazon.awscdk.services.ssm.StringParameter;
 import software.amazon.awscdk.services.wafv2.CfnWebACL;
 import software.amazon.awsconstructs.services.wafwebaclcloudfront.WafwebaclToCloudFront;
 import software.amazon.awsconstructs.services.wafwebaclcloudfront.WafwebaclToCloudFrontProps;
@@ -53,6 +55,7 @@ public class CloudFrontStack extends NestedStack {
         BehaviorOptions apiBehavior = BehaviorOptions.builder()
                 .origin(HttpOrigin.Builder.create(Fn.parseDomainName(props.getHttpApi().getApiEndpoint()))
                         .protocolPolicy(OriginProtocolPolicy.HTTPS_ONLY)
+                        .customHeaders(mapOf("X-API-Secret", props.getApiGatewaySecret().getStringValue()))
                         .build()
                 )
                 .allowedMethods(AllowedMethods.ALLOW_ALL)
@@ -168,5 +171,6 @@ public class CloudFrontStack extends NestedStack {
         IHostedZone hostedZone;
         IHttpApi httpApi;
         String domainName;
+        IStringParameter apiGatewaySecret;
     }
 }

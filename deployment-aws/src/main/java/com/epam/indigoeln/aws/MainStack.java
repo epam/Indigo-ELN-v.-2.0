@@ -46,7 +46,8 @@ public class MainStack extends Stack {
                 cognitoStack.getUserPool(),
                 cognitoStack.getUserPoolClient(),
                 buildStack.getElnLambdaRepo(),
-                parameters.getElnLambdaImageTag()
+                parameters.getElnLambdaImageTag(),
+                parameters.getApiGatewaySecret()
         ));
         elnLambdaStack.addDependency(buildStack);
         elnLambdaStack.addDependency(infraStack);
@@ -55,7 +56,8 @@ public class MainStack extends Stack {
         CloudFrontStack cloudFrontStack = new CloudFrontStack(this, "cloud-formation-stack", new CloudFrontStack.Props(
                 infraStack.getHostedZone(),
                 elnLambdaStack.getHttpApi(),
-                parameters.getDomainName()
+                parameters.getDomainName(),
+                elnLambdaStack.getApiGatewaySecret()
         ));
         cloudFrontStack.addDependency(infraStack);
         cloudFrontStack.addDependency(elnLambdaStack);

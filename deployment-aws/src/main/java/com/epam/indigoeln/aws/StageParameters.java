@@ -24,6 +24,7 @@ public class StageParameters {
     private String hostedZoneName;
     private String elnLambdaImageTag;
     private String postgresImageTag;
+    private String apiGatewaySecret;
 
     @SneakyThrows
     public static StageParameters load(String env) {

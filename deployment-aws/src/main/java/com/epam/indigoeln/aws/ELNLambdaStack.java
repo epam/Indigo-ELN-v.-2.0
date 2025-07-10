@@ -22,8 +22,12 @@ import software.amazon.awscdk.services.lambda.eventsources.SqsEventSource;
 import software.amazon.awscdk.services.logs.LogGroup;
 import software.amazon.awscdk.services.logs.RetentionDays;
 import software.amazon.awscdk.services.rds.Credentials;
+import software.amazon.awscdk.services.secretsmanager.ISecret;
+import software.amazon.awscdk.services.secretsmanager.Secret;
 import software.amazon.awscdk.services.sqs.DeadLetterQueue;
 import software.amazon.awscdk.services.sqs.Queue;
+import software.amazon.awscdk.services.ssm.IStringParameter;
+import software.amazon.awscdk.services.ssm.StringParameter;
 import software.constructs.Construct;
 
 import java.io.File;
@@ -40,9 +44,16 @@ public class ELNLambdaStack extends NestedStack {
     private final HttpApi httpApi;
     @Getter
     private final IHttpRouteAuthorizer httpAuthorizer;
+    @Getter
+    private final IStringParameter apiGatewaySecret;
 
     public ELNLambdaStack(final Construct scope, final String id, final Props props) {
         super(scope, id, props);
+
+        apiGatewaySecret = StringParameter.Builder.create(this, "api-gateway-secret")
+                .parameterName("api-gateway-secret")
+                .stringValue(props.getApiGatewaySecret())
+                .build();
 
         httpApi = HttpApi.Builder.create(this, "http-api")
                 .build();
@@ -55,6 +66,7 @@ public class ELNLambdaStack extends NestedStack {
                 , "QUARKUS_DATASOURCE_USERNAME", props.getDbCredentials().getUsername()
                 , "QUARKUS_DATASOURCE_PASSWORD", props.getDbCredentials().getPassword().unsafeUnwrap() // TODO retrieve credentials in lambda code
                 , "ELN_COGNITO_USER_POOL_ID", props.getUserPool().getUserPoolId()
+                , "ELN_API_SECRET", apiGatewaySecret.getStringValue()
 //                , "QUARKUS_LOG_LEVEL", "DEBUG"
         );
         File elnBuild = new File("../backend/eln/eln-lambda/build");
@@ -125,5 +137,6 @@ public class ELNLambdaStack extends NestedStack {
         IUserPoolClient userPoolClient;
         Repository elnRepository;
         String elnImageTag;
+        String apiGatewaySecret;
     }
 }
