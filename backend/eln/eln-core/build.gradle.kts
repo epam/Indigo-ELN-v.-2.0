@@ -90,3 +90,8 @@ tasks.named("processResources") {
 tasks.withType<Test> {
     environment("NATIVE_LIB_PATH", "${projectDir}/build/nativelibs")
 }
+
+tasks.withType<io.quarkus.gradle.tasks.QuarkusDev> {
+    dependsOn(copyNativeLibs)
+    environmentVariables.set(mapOf("NATIVE_LIB_PATH" to "${projectDir}/build/nativelibs"))
+}
