@@ -26,6 +26,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -331,7 +332,7 @@ class PermissionsTest extends BaseTest {
     @Test
     void testExperimentAttachments(@TempDir Path tempDir) {
         for (TestRow row : rows) {
-            assertThatClientCall(() -> experimentClient.createExperimentAttachment(row.experimentId, "a", tempDir, new byte[0]))
+            assertThatClientCall(() -> experimentClient.createExperimentAttachment(row.experimentId, "a", tempDir, "content".getBytes(StandardCharsets.UTF_8)))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
             assertThatClientCall(() -> experimentClient.downloadExperimentAttachmentClient(row.experimentId, row.experimentDetails.getAttachments().getFirst().getId()))

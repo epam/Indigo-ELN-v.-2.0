@@ -28,19 +28,4 @@ public class SupportService {
                 "migrationsExecuted", Integer.toString(result.migrationsExecuted)
         );
     }
-
-    @Transactional
-    public void cleanupDatabase() {
-        // experiments, notebooks, projects
-        em.createNativeQuery("delete from Attachment").executeUpdate();
-        em.createNativeQuery("delete from Experiment").executeUpdate();
-        em.createNativeQuery("delete from Notebook").executeUpdate();
-        em.createNativeQuery("delete from Project").executeUpdate();
-        em.createNativeQuery("delete from Template").executeUpdate();
-        // samples, compounds
-        em.createNativeQuery("delete from Sample").executeUpdate();
-        em.createNativeQuery("delete from Compound").executeUpdate();
-        // users
-        em.createNativeQuery("delete from User_Account where username not in ('admin', 'john', 'willow', 'bart', 'lisa')").executeUpdate();
-    }
 }

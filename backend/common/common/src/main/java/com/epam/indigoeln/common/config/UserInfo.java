@@ -1,7 +1,9 @@
 package com.epam.indigoeln.common.config;
 
+import io.quarkus.runtime.configuration.ConfigUtils;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.annotation.Nullable;
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +17,6 @@ import java.security.Principal;
 @RequestScoped
 public class UserInfo {
 
-    // TODO only in test/integration-test profile
     public static final String X_TEST_AUTHORIZATION = "X-Test-Authorization";
 
     private final @Nullable JsonWebToken jwt;
@@ -26,7 +27,7 @@ public class UserInfo {
         Principal principal = identity.getPrincipal();
         jwt = principal instanceof JsonWebToken ? (JsonWebToken) principal : null;
         String user = null;
-        if (CurrentRequestManager.get() != null) {
+        if (CurrentRequestManager.get() != null && ConfigUtils.isProfileActive("devtest")) {
             user = CurrentRequestManager.get().getHttpHeaders().getRequestHeaders().getFirst(X_TEST_AUTHORIZATION);
         }
         if (jwt != null) {

@@ -62,6 +62,7 @@ CREATE TABLE User_Account_Application_Role (
 
 INSERT INTO Application_Role (id, name, permissions) VALUES
     ('00000000-0000-0000-0000-000000000002', 'Administrators', ARRAY[
+        'SYSTEM_OPERATIONS',
         'MANAGE_USERS',
         'MANAGE_ROLES',
         'MANAGE_DICTIONARIES',

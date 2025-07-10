@@ -35,6 +35,7 @@ public abstract class BaseTest {
     protected TemplateClient templateClient;
     protected CompoundClient compoundClient;
     protected MiscClient miscClient;
+    protected TestSupportClient testSupportClient;
     protected UserClient userClient;
     protected DictionaryClient dictionaryClient;
     protected RoleClient roleClient;
@@ -66,8 +67,9 @@ public abstract class BaseTest {
         userClient = FeignUtil.buildFeignClient(baseURL, UserClient.class, username, authorization);
         dictionaryClient = FeignUtil.buildFeignClient(baseURL, DictionaryClient.class, username, authorization);
         roleClient = FeignUtil.buildFeignClient(baseURL, RoleClient.class, username, authorization);
+        testSupportClient = FeignUtil.buildFeignClient(baseURL, TestSupportClient.class, username, authorization);
         miscClient.migrate();
-        testHelper = new TestHelper(userClient, miscClient);
+        testHelper = new TestHelper(userClient, testSupportClient, username);
         testHelper.cleanupDatabase();
         testHelper.createTestUsers();
         emptyTemplateID = templateClient.createTemplate(new TemplateRequest("Empty template", List.of(new TemplateComponent.Attachments()))).getId();
@@ -79,7 +81,6 @@ public abstract class BaseTest {
         TestSecurity testSecurity = AnnotationSupport.findAnnotation(testInfo.getTestMethod().get(), TestSecurity.class)
                 .or(() -> AnnotationSupport.findAnnotation(testInfo.getTestClass().get(), TestSecurity.class))
                 .orElse(null);
-        System.out.println("!!! testSecurity: " + testSecurity);
         if (testSecurity != null) {
             username.set(testSecurity.user());
         }

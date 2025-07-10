@@ -7,7 +7,9 @@ import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.api.BaseAPI;
 import com.epam.indigoeln.eln.api.MiscAPI;
 import com.epam.indigoeln.eln.api.UploadForm;
+import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.TotalCounts;
+import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.ProjectService;
 import com.epam.indigoeln.eln.service.SupportService;
@@ -30,6 +32,8 @@ public class MiscResource implements MiscAPI {
     ProjectService projectService;
     @Inject
     SupportService supportService;
+    @Inject
+    ACLService aclService;
 
     @Override
     public @NotNull @Valid TotalCounts getTotalCounts() {
@@ -38,11 +42,7 @@ public class MiscResource implements MiscAPI {
 
     @Override
     public Map<String, String> migrate() {
+        aclService.ensureTopLevelAccess(ApplicationPermission.SYSTEM_OPERATIONS);
         return supportService.migrate();
-    }
-
-    @Override
-    public void cleanupDatabase() {
-        supportService.cleanupDatabase();
     }
 }

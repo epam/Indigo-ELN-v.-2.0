@@ -22,8 +22,4 @@ public interface MiscAPI extends BaseAPI {
     @POST
     @Path("/admin/flyway")
     Map<String, String> migrate();
-
-    @POST
-    @Path("/admin/cleanupDatabase")
-    void cleanupDatabase();
 }
