@@ -80,6 +80,11 @@ public class ELNLambdaStack extends NestedStack {
                 props.getLambdaSecurityGroup(),
                 elnFunctionEnvironment
         );
+        props.getUserPool().grant(elnFunction.getRole(),
+                "cognito-idp:AdminCreateUser",
+                "cognito-idp:AdminSetUserPassword",
+                "cognito-idp:AdminUpdateUserAttributes"
+        );
 
         httpApi.addRoutes(AddRoutesOptions.builder()
                 .path("/api/eln/{proxy+}")
@@ -136,6 +141,7 @@ public class ELNLambdaStack extends NestedStack {
         IUserPool userPool;
         IUserPoolClient userPoolClient;
         Repository elnRepository;
+        List<String> lambdaSubnets;
         String elnImageTag;
         String apiGatewaySecret;
     }

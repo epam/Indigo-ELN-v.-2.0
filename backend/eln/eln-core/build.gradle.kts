@@ -29,6 +29,7 @@ dependencies {
 
     implementation("io.quarkiverse.amazonservices:quarkus-amazon-cognito-user-pools")
     implementation("software.amazon.awssdk:url-connection-client")
+//    implementation("software.amazon.awssdk:aws-crt-client")
     testImplementation(project(":common:common-test"))
 
     // for integration tests

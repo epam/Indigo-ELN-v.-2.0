@@ -9,6 +9,7 @@ dependencies {
 
     implementation(project(":common:common-lambda"))
     implementation(project(":eln:eln-core"))
+    implementation(project(":eln-quarkus-extension:runtime"))
     testImplementation(project(":common:common-test"))
     testImplementation(project(path = ":eln:eln-core", configuration = "testArtifacts"))
 }

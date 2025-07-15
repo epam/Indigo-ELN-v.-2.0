@@ -4,3 +4,4 @@
 build
 !build/nativelibs
 !build/*runner*
+!build/*.so

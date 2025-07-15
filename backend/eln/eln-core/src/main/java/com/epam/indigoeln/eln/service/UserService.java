@@ -9,8 +9,10 @@ import com.epam.indigoeln.eln.mapper.UserMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.RoleRepository;
 import com.epam.indigoeln.eln.repository.UserRepository;
+import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 import jakarta.transaction.Transactional;
@@ -20,10 +22,9 @@ import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.util.*;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 
@@ -47,6 +48,20 @@ public class UserService {
     ExternalUserService externalUserService;
     @Inject
     RoleRepository roleRepository;
+
+    public void onStart(@Observes StartupEvent event) throws Exception {
+        System.err.println("!!! loopback = " + InetAddress.getLoopbackAddress());
+        System.err.println("!!! java.net.preferIPv6Addresses=" + System.getProperty("java.net.preferIPv6Addresses"));
+        System.err.println("!!! java.net.preferIPv4Stack=" + System.getProperty("java.net.preferIPv4Stack"));
+        System.err.println("!!! " + InetAddress.getByName("cognito-idp.us-east-1.amazonaws.com"));
+        System.err.println("!!! " + Arrays.toString(InetAddress.getAllByName("cognito-idp.us-east-1.amazonaws.com")));
+        System.err.println("!!! " + System.getProperties());
+        try {
+            HttpURLConnection conn = (HttpURLConnection) new java.net.URL("https://cognito-idp.us-east-1.amazonaws.com").openConnection();
+            System.err.println("!!! " + conn.getResponseCode());
+        } catch (Exception ignore) {
+        }
+    }
 
     public UserEntity getCurrentUser() {
         UserEntity user = userContext.get().getCurrentUser();
