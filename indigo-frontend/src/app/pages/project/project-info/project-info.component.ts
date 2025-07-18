@@ -3,8 +3,11 @@ import { ButtonComponent } from '@/core/components/common/button/button.componen
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ChipComponent } from '@/core/components/common/chip/chip.component';
 import { TeamComponent } from '@/core/components/project/team/team.component';
+import { ApiService } from '@/core/services/api.service';
+import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'eln-project-info',
@@ -19,51 +22,25 @@ import { Component, Input } from '@angular/core';
   ],
   templateUrl: './project-info.component.html',
 })
-export class ProjectInfoComponent {
-  @Input() project = {
-    name: 'Test Project',
-    keywords: ['Chips Text', 'Chips Text', 'Chips Text', 'Chips Text'],
-    description:
-      'The aim of this project is to investigate the best way of aspirin synthesis strategies.',
-    details:
-      'The synthesis of aspirin may be achieved in one simple step, O-acetylation of salicylic acid, which is incorporated into many synthetic chemistry laboratory courses. An additional step may be added to the synthesis of aspirin: conversion of oil of wintergreen (methylsalicylate) to salicylic acid.',
-    attachments: [
-      {
-        name: 'Test File Name.docx',
-        type: 'docx',
-        size: '16KB',
-        date: 'Jan 22, 2025 18:51:00 CET',
-        author: 'Cameron W.',
-      },
-      {
-        name: 'Test File Name.xlsx',
-        type: 'xlsx',
-        size: '16KB',
-        date: 'Jan 22, 2025 18:51:00 CET',
-        author: 'Cameron W.',
-      },
-      {
-        name: 'Test File Name.png',
-        type: 'png',
-        size: '16KB',
-        date: 'Jan 22, 2025 18:51:00 CET',
-        author: 'Cameron W.',
-      },
-    ] as any,
-    team: [
-      {
-        name: 'Kristin Watson',
-        email: 'oliver.tresk@indigo.com',
-        role: 'Admin',
-        avatar: 'assets/avatar2.png',
-      },
-      {
-        name: 'Floyd Miles',
-        email: 'oliver.tresk@indigo.com',
-        role: 'Member',
-        avatar: 'assets/avatar3.png',
-      },
-      // ... other team members
-    ],
-  };
+export class ProjectInfoComponent implements OnInit {
+  activedRoute = inject(ActivatedRoute);
+
+  constructor(protected service: ApiService<Project>) { }
+
+  project: Project | null = null;
+
+  ngOnInit() {
+    this.activedRoute.params.subscribe(({ id }) => {
+      if (id) this.loadProject(id);
+    });
+  }
+
+  private loadProject(id: string): void {
+    console.log(`Loading project: ${id}`);
+    this.service.request<Project>('get', `projects/${id}`)
+      .subscribe({
+        next: (project) => this.project = project,
+        error: (err) => console.error('Failed to load project:', err),
+      });
+  }
 }
