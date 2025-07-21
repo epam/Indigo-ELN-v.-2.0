@@ -18,7 +18,6 @@ export interface TeamMember {
   inherited?: boolean;
 }
 
-// QQ is ok to extend legacy Project interface with fields comming from the backend on /api/eln/projects/:projectId ?
 export interface Project extends BaseEntity {
   name: string;
   notebookCount: number;

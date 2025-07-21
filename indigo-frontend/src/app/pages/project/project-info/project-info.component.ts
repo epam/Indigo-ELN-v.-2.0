@@ -6,8 +6,11 @@ import { TeamComponent } from '@/core/components/project/team/team.component';
 import { ApiService } from '@/core/services/api.service';
 import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil, catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 @Component({
   selector: 'eln-project-info',
@@ -22,25 +25,48 @@ import { ActivatedRoute } from '@angular/router';
   ],
   templateUrl: './project-info.component.html',
 })
-export class ProjectInfoComponent implements OnInit {
-  activedRoute = inject(ActivatedRoute);
+export class ProjectInfoComponent implements OnInit, OnDestroy {
+  activatedRoute = inject(ActivatedRoute);
+  private destroy$ = new Subject<void>();
 
   constructor(protected service: ApiService<Project>) { }
 
   project: Project | null = null;
+  isLoading = false;
+  hasError = false;
 
   ngOnInit() {
-    this.activedRoute.params.subscribe(({ id }) => {
-      if (id) this.loadProject(id);
-    });
+    this.activatedRoute.params
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(({ id }) => {
+        if (id) this.loadProject(id);
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private loadProject(id: string): void {
+    this.isLoading = true;
+    this.hasError = false;
     console.log(`Loading project: ${id}`);
     this.service.request<Project>('get', `projects/${id}`)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError((err) => {
+          console.error('Failed to load project:', err);
+          this.hasError = true;
+          this.isLoading = false;
+          return of(null);
+        })
+      )
       .subscribe({
-        next: (project) => this.project = project,
-        error: (err) => console.error('Failed to load project:', err),
+        next: (project) => {
+          this.isLoading = false;
+          if (project) this.project = project;
+        },
       });
   }
 }

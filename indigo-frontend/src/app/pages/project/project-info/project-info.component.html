@@ -1,4 +1,14 @@
-@if (project) {
+@if (isLoading) {
+  <div class="flex items-center justify-center py-8">
+    <span>Loading project...</span>
+  </div>
+} @else if (hasError) {
+  <div class="flex items-center justify-center py-8">
+    <div class="text-center">
+      <span>There was an error loading the project, please try again later</span>
+    </div>
+  </div>
+} @else if (project) {
   <div class="grid grid-cols-[1fr_auto] gap-4 pt-4">
     <eln-card>
       <div class="flex items-center justify-between pb-3 border-b border-b-neutral-200">
@@ -47,9 +57,5 @@
     </eln-card>
 
     <eln-team [team]="project.team" />
-  </div>
-} @else {
-  <div class="flex items-center justify-center py-8">
-    <span>Loading project...</span>
   </div>
 }
