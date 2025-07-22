@@ -41,6 +41,7 @@ public class MainStack extends Stack {
         ELNLambdaStack elnLambdaStack = new ELNLambdaStack(this, "eln-lambda-stack", new ELNLambdaStack.Props(
                 infraStack.getVpc(),
                 infraStack.getEc2SecurityGroup(),
+                parameters.getEc2Ip(),
                 Credentials.fromSecret(postgresStack.getDbSecret()),
                 infraStack.getLambdaSecurityGroup(),
                 cognitoStack.getUserPool(),
