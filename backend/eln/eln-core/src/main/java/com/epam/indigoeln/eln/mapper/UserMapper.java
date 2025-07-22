@@ -12,6 +12,7 @@ public abstract class UserMapper extends AbstractMapper {
 
     @IgnoreBaseFields
     @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "displayName", expression = "java(com.epam.indigoeln.common.util.ModelUtil.formatUser(user.getFirstName(), user.getLastName(), user.getUsername()))")
     public abstract UserEntity requestToUser(UserRequest user);
 
     public abstract UserDTO entityToDTO(UserEntity entity);

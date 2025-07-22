@@ -61,9 +61,9 @@ class InsertTestDataTest {
 //    @Test
     @Order(2)
     void insertUsers() {
-        userClient.createUser(new UserRequest("alice@eln.com", "Alice Smith", "Alice", "Smith", "password", List.of(ROLE_CONTENT_EDITOR, ROLE_TEMPLATE_EDITOR)));
-        userClient.createUser(new UserRequest("bob@eln.com", "Bob Johnson", "Bob", "Johnson", "password", List.of(ROLE_ADMINISTRATOR)));
-        userClient.createUser(new UserRequest("charlie@eln.com", "Charlie Williams", "Charlie", "Williams", "password", List.of(ROLE_CONTENT_EDITOR)));
+        userClient.createUser(new UserRequest("alice@eln.com", "Alice", "Smith", "password", List.of(ROLE_CONTENT_EDITOR, ROLE_TEMPLATE_EDITOR)));
+        userClient.createUser(new UserRequest("bob@eln.com", "Bob", "Johnson", "password", List.of(ROLE_ADMINISTRATOR)));
+        userClient.createUser(new UserRequest("charlie@eln.com", "Charlie", "Williams", "password", List.of(ROLE_CONTENT_EDITOR)));
     }
 
 //    @Test
