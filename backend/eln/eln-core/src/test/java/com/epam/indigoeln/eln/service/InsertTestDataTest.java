@@ -8,6 +8,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
+import org.wildfly.common.Assert;
 
 import java.net.URI;
 import java.nio.file.Path;
@@ -39,9 +40,9 @@ class InsertTestDataTest {
     void setup() {
         URI baseURI = URI.create("https://indigo-eln-dev.test.lifescience.opensource.epam.com/");
         AtomicReference<String> testUsername = new AtomicReference<>();
-        AtomicReference<String> authorization = new AtomicReference<>(
-                "Bearer eyJraWQiOiJUbTFZSmg5UUJjZkQrVnBKVlc1WEQ3UEV5NEh1d2gxeUlvVlZwcmYxb0UwPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI3NDA4ODQ0OC1hMDgxLTcwZWUtMjNiNS05MTQ0N2U1MGUwNDciLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV82RGlyZ3RRMXAiLCJjbGllbnRfaWQiOiJhNGtraDAwb2IyM2w3dXBtODhoaDNtbWo1Iiwib3JpZ2luX2p0aSI6ImQzMWQ0ZGJkLWUxNzAtNDQxNi1hMTAwLWVhYWZlZGZiM2MzMiIsImV2ZW50X2lkIjoiYWFjYTFiOTMtZTA1Ny00ZTE3LWJkNzEtZTVlNDdhNGJlYjFkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTc1MjAwODkwMCwiZXhwIjoxNzUyMDEyNTAwLCJpYXQiOjE3NTIwMDg5MDAsImp0aSI6ImM3OGIxMWQ1LThlZjktNGVkOC04MWY3LWZmZDczMDg5NzMzNiIsInVzZXJuYW1lIjoiYWxpY2VAZWxuLmNvbSJ9.Qxmt3QqxspaqF8TXUccsF8TBAtHP_s-QN2gGji8aCetMqv6-TOy6ECmk8buwSsqmSLYEqd4ueYxiJzrzeLZDssQPgFWSJFvBcX4dUIc5zsNzba49MBCaK0Hbyk4YnTcXOVbCa-5ITuI_5HTMP6iBmsewVNjH93vfxcxFzdPna8msXgPQfdGTLyhYpsENfX7e2tlHwAfSYQdRYREarQsb4tnJlCT9TUfnQLk3xeDsloOjwAU2a9sxpDbaGZeYBl17ErJ4NHJmNZZ1hLpzrwyJ3ZCvaBvWSoDs_VJ33LhlF7ZZwn6bIS6Y-EL8Hsshjp7UqXV4krfJDhoYQhRAn0_0fw"
-        );
+        String token = System.getenv("TOKEN");
+        Assert.assertNotNull(token);
+        AtomicReference<String> authorization = new AtomicReference<>(token);
         projectClient = FeignUtil.buildFeignClient(baseURI, ProjectClient.class, testUsername, authorization);
         notebookClient = FeignUtil.buildFeignClient(baseURI, NotebookClient.class, testUsername, authorization);
         experimentClient = FeignUtil.buildFeignClient(baseURI, ExperimentClient.class, testUsername, authorization);
