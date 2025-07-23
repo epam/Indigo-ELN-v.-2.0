@@ -2,7 +2,7 @@ import { AttachmentComponent } from '@/core/components/common/attachment/attachm
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ChipComponent } from '@/core/components/common/chip/chip.component';
-import { TeamComponent } from '@/core/components/project/team/team.component';
+// import { TeamComponent } from '@/core/components/project/team/team.component';
 import { ApiService } from '@/core/services/api.service';
 import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
@@ -20,7 +20,7 @@ import { of } from 'rxjs';
     ButtonComponent,
     ChipComponent,
     AttachmentComponent,
-    TeamComponent,
+    // TeamComponent TODO Show team members (available in project.team response? or where?),
     CardComponent,
   ],
   templateUrl: './project-info.component.html',
@@ -48,10 +48,18 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  onAttachmentDeleted(attachmentId: string): void {
+    if (this.project) {
+      // Remove the deleted attachment from the local array
+      this.project.attachments = this.project.attachments.filter(
+        attachment => attachment.id !== attachmentId
+      );
+    }
+  }
+
   private loadProject(id: string): void {
     this.isLoading = true;
     this.hasError = false;
-    console.log(`Loading project: ${id}`);
     this.service.request<Project>('get', `projects/${id}`)
       .pipe(
         takeUntil(this.destroy$),
