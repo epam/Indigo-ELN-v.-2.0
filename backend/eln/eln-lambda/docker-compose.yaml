@@ -12,7 +12,6 @@ services:
       start_period: 60s
       start_interval: 1s
   eln:
-#    image: "user/eln-lambda:3.0.0-SNAPSHOT"
     build:
       context: .
     depends_on:

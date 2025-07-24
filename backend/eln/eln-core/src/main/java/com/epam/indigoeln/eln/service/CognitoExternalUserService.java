@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Optional;
 
 @Slf4j
-//@RequiredArgsConstructor
 class CognitoExternalUserService implements ExternalUserService {
 
     private final CognitoIdentityProviderClient cognitoClient;

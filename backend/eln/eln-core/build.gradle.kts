@@ -18,18 +18,15 @@ dependencies {
     api("io.quarkus:quarkus-hibernate-orm")
     api("io.quarkus:quarkus-hibernate-orm-panache")
     api("io.hypersistence:hypersistence-utils-hibernate-63:3.9.9")
-    api("com.github.starnowski.posjsonhelper.text:hibernate6-text:0.4.2") // TODO remove
-//    api("io.quarkiverse.hibernatetypes:quarkus-hibernate-types:2.2.0")
 
     api(project(":eln:eln-api"))
-    implementation("com.epam.indigo:indigo:1.30.1")
-    implementation("com.epam.indigo:indigo-renderer:1.30.1")
+    implementation("com.epam.indigo:indigo:1.33.0-rc.3")
+    implementation("com.epam.indigo:indigo-renderer:1.33.0-rc.3")
 //    implementation("com.epam.indigo:indigo-inchi:1.30.0")
 //    implementation("com.epam.indigo:bingo-nosql:1.30.1")
 
     implementation("io.quarkiverse.amazonservices:quarkus-amazon-cognito-user-pools")
     implementation("software.amazon.awssdk:url-connection-client")
-//    implementation("software.amazon.awssdk:aws-crt-client")
     testImplementation(project(":common:common-test"))
 
     // for integration tests
