@@ -6,6 +6,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { CardComponent } from '../card/card.component';
 import { ApiService } from '@/core/services/api.service';
 import { catchError, of, Subject, takeUntil } from 'rxjs';
+import { downloadBlob } from '@/core/utils/download.util';
 
 @Component({
   standalone: true,
@@ -65,19 +66,7 @@ export class AttachmentComponent implements OnDestroy {
         })
       )
       .subscribe({
-        next: (blob: Blob | null) => {
-          if (blob) {
-            // Create a link and trigger download
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = this.attachment.name || 'download';
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            a.remove();
-          }
-        },
+        next: (blob: Blob | null) => downloadBlob(blob, this.attachment.name),
       });
   }
 
