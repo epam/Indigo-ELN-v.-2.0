@@ -41,12 +41,15 @@ public class MainStack extends Stack {
         ELNLambdaStack elnLambdaStack = new ELNLambdaStack(this, "eln-lambda-stack", new ELNLambdaStack.Props(
                 infraStack.getVpc(),
                 infraStack.getEc2SecurityGroup(),
+                parameters.getEc2Ip(),
                 Credentials.fromSecret(postgresStack.getDbSecret()),
                 infraStack.getLambdaSecurityGroup(),
                 cognitoStack.getUserPool(),
                 cognitoStack.getUserPoolClient(),
                 buildStack.getElnLambdaRepo(),
-                parameters.getElnLambdaImageTag()
+                parameters.getLambdaSubnets(),
+                parameters.getElnLambdaImageTag(),
+                parameters.getApiGatewaySecret()
         ));
         elnLambdaStack.addDependency(buildStack);
         elnLambdaStack.addDependency(infraStack);
@@ -55,7 +58,8 @@ public class MainStack extends Stack {
         CloudFrontStack cloudFrontStack = new CloudFrontStack(this, "cloud-formation-stack", new CloudFrontStack.Props(
                 infraStack.getHostedZone(),
                 elnLambdaStack.getHttpApi(),
-                parameters.getDomainName()
+                parameters.getDomainName(),
+                elnLambdaStack.getApiGatewaySecret()
         ));
         cloudFrontStack.addDependency(infraStack);
         cloudFrontStack.addDependency(elnLambdaStack);

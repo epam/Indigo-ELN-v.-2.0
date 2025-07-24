@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
+import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 
 @Slf4j
 @Transactional
@@ -94,7 +95,7 @@ public class UserService {
                 .map(ref -> roleRepository.get(ref.getId()))
                 .toSet();
         entity.setRoles(roles);
-        com.epam.indigoeln.eln.util.ModelUtil.updateDates(entity, getCurrentUser());
+        updateDates(entity, getCurrentUser());
         userRepository.persist(entity);
         externalUserService.createUser(request);
         return userMapper.entityToDetailsDTO(entity);

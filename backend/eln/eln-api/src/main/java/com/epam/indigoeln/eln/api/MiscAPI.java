@@ -1,12 +1,9 @@
 package com.epam.indigoeln.eln.api;
 
-import com.epam.indigoeln.compound.model.FindSamplesRequest;
-import com.epam.indigoeln.compound.model.SampleDTO;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.TotalCounts;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
-import java.util.List;
 import java.util.Map;
 
 @Path(BaseAPI.BASE_PATH)

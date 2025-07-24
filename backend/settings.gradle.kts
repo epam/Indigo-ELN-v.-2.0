@@ -10,6 +10,7 @@ pluginManagement {
     }
     plugins {
         id(quarkusPluginId) version quarkusPluginVersion
+        id("io.quarkus.extension") version quarkusPluginVersion
     }
 }
 
@@ -17,6 +18,8 @@ include("common:common")
 include("common:common-service")
 include("common:common-lambda")
 include("common:common-test")
+
+include("eln-quarkus-extension:deployment", "eln-quarkus-extension:runtime")
 
 //include("signature:signature-api")
 //include("signature:signature-core")

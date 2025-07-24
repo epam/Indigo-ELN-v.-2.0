@@ -35,7 +35,6 @@ public class UserService {
     }
 
     public UserEntity getOrCreateUser(String username, String firstName, String lastName) {
-        log.info("!!! getOrCreateUser: username={}, firstName={}, lastName={}", username, firstName, lastName);
         UserEntity user = findUser(username);
         if (user == null) {
             user = new UserEntity();

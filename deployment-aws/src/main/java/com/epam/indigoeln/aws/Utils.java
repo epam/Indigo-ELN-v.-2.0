@@ -2,9 +2,7 @@ package com.epam.indigoeln.aws;
 
 import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.RemovalPolicy;
-import software.amazon.awscdk.services.ec2.ISecurityGroup;
-import software.amazon.awscdk.services.ec2.SubnetSelection;
-import software.amazon.awscdk.services.ec2.SubnetType;
+import software.amazon.awscdk.services.ec2.*;
 import software.amazon.awscdk.services.ecr.Repository;
 import software.amazon.awscdk.services.iam.ManagedPolicy;
 import software.amazon.awscdk.services.iam.Role;
@@ -58,6 +56,11 @@ public class Utils {
                 .build();
         return Function.Builder.create(parent, id)
                 .vpc(props.getVpc())
+                .vpcSubnets(SubnetSelection.builder()
+                        .subnetFilters(List.of(SubnetFilter.byIds(props.getLambdaSubnets())))
+                        .build()
+                )
+                .ipv6AllowedForDualStack(true)
                 .securityGroups(List.of(securityGroup))
                 .runtime(Runtime.FROM_IMAGE)
                 .handler(Handler.FROM_IMAGE)

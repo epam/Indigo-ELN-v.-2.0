@@ -22,8 +22,12 @@ import software.amazon.awscdk.services.lambda.eventsources.SqsEventSource;
 import software.amazon.awscdk.services.logs.LogGroup;
 import software.amazon.awscdk.services.logs.RetentionDays;
 import software.amazon.awscdk.services.rds.Credentials;
+import software.amazon.awscdk.services.secretsmanager.ISecret;
+import software.amazon.awscdk.services.secretsmanager.Secret;
 import software.amazon.awscdk.services.sqs.DeadLetterQueue;
 import software.amazon.awscdk.services.sqs.Queue;
+import software.amazon.awscdk.services.ssm.IStringParameter;
+import software.amazon.awscdk.services.ssm.StringParameter;
 import software.constructs.Construct;
 
 import java.io.File;
@@ -40,9 +44,16 @@ public class ELNLambdaStack extends NestedStack {
     private final HttpApi httpApi;
     @Getter
     private final IHttpRouteAuthorizer httpAuthorizer;
+    @Getter
+    private final IStringParameter apiGatewaySecret;
 
     public ELNLambdaStack(final Construct scope, final String id, final Props props) {
         super(scope, id, props);
+
+        apiGatewaySecret = StringParameter.Builder.create(this, "api-gateway-secret")
+                .parameterName("api-gateway-secret")
+                .stringValue(props.getApiGatewaySecret())
+                .build();
 
         httpApi = HttpApi.Builder.create(this, "http-api")
                 .build();
@@ -51,10 +62,11 @@ public class ELNLambdaStack extends NestedStack {
                 .build();
 
         Map<String, String> elnFunctionEnvironment = mapOf(
-                "QUARKUS_DATASOURCE_JDBC_URL", String.format("jdbc:postgresql://%s/%s", "172.31.52.120", props.getDbCredentials().getUsername()) // TODO
+                "QUARKUS_DATASOURCE_JDBC_URL", String.format("jdbc:postgresql://%s/%s", props.getDbHostname(), props.getDbCredentials().getUsername())
                 , "QUARKUS_DATASOURCE_USERNAME", props.getDbCredentials().getUsername()
                 , "QUARKUS_DATASOURCE_PASSWORD", props.getDbCredentials().getPassword().unsafeUnwrap() // TODO retrieve credentials in lambda code
                 , "ELN_COGNITO_USER_POOL_ID", props.getUserPool().getUserPoolId()
+                , "ELN_API_SECRET", apiGatewaySecret.getStringValue()
 //                , "QUARKUS_LOG_LEVEL", "DEBUG"
         );
         File elnBuild = new File("../backend/eln/eln-lambda/build");
@@ -67,6 +79,11 @@ public class ELNLambdaStack extends NestedStack {
                 props.getElnImageTag(),
                 props.getLambdaSecurityGroup(),
                 elnFunctionEnvironment
+        );
+        props.getUserPool().grant(elnFunction.getRole(),
+                "cognito-idp:AdminCreateUser",
+                "cognito-idp:AdminSetUserPassword",
+                "cognito-idp:AdminUpdateUserAttributes"
         );
 
         httpApi.addRoutes(AddRoutesOptions.builder()
@@ -119,11 +136,14 @@ public class ELNLambdaStack extends NestedStack {
 
         IVpc vpc;
         ISecurityGroup ec2SecurityGroup;
+        String dbHostname;
         Credentials dbCredentials;
         ISecurityGroup lambdaSecurityGroup;
         IUserPool userPool;
         IUserPoolClient userPoolClient;
         Repository elnRepository;
+        List<String> lambdaSubnets;
         String elnImageTag;
+        String apiGatewaySecret;
     }
 }

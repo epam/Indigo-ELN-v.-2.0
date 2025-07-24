@@ -23,7 +23,10 @@ public class StageParameters {
     private String hostedZone;
     private String hostedZoneName;
     private String elnLambdaImageTag;
+    private List<String> lambdaSubnets;
     private String postgresImageTag;
+    private String apiGatewaySecret;
+    private String ec2Ip;
 
     @SneakyThrows
     public static StageParameters load(String env) {
