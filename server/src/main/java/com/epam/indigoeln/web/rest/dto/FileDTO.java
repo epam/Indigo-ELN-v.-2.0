@@ -20,11 +20,11 @@ package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.file.GridFSFileUtil;
+import com.epam.indigoeln.core.util.BsonUtil;
 import lombok.SneakyThrows;
 import org.bson.Document;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
 
-import java.io.IOException;
 import java.util.Date;
 
 public class FileDTO {
@@ -42,7 +42,7 @@ public class FileDTO {
 
     @SneakyThrows
     public FileDTO(GridFsResource file) {
-        this.id = file.getId().toString();
+        this.id = BsonUtil.bsonValue(file.getId());
         this.filename = file.getFilename();
         this.contentType = file.getContentType();
         this.uploadDate = file.getGridFSFile().getUploadDate();

@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2015-2018 EPAM Systems
- *  
+ *
  *  This file is part of Indigo ELN.
  *
  *  Indigo ELN is free software: you can redistribute it and/or modify
@@ -22,18 +22,21 @@ import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.service.file.FileService;
 import com.epam.indigoeln.core.service.user.UserService;
+import com.epam.indigoeln.core.util.BsonUtil;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.FileDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import org.bson.BsonValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
+import org.springframework.data.mongodb.util.BsonUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -139,7 +142,7 @@ public class ExperimentFileResource {
         User user = userService.getUserWithAuthorities();
         GridFsResource gridFSFile = fileService.saveFileForExperiment(experimentId, inputStream,
                 file.getOriginalFilename(), file.getContentType(), user);
-        return ResponseEntity.created(new URI(URL_MAPPING + "/" + gridFSFile.getId()))
+        return ResponseEntity.created(new URI(URL_MAPPING + "/" + BsonUtil.bsonValue(gridFSFile.getId())))
                 .body(new FileDTO(gridFSFile));
     }
 

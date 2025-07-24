@@ -19,6 +19,7 @@
 package com.epam.indigoeln.sheduler;
 
 import com.epam.indigoeln.core.repository.file.FileRepository;
+import com.epam.indigoeln.core.util.BsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +54,7 @@ public class TemporaryFileCleaningJob {
                 final LocalDateTime uploadDate = tf.getGridFSFile().getUploadDate().toInstant()
                         .atZone(ZoneId.systemDefault()).toLocalDateTime();
                 return uploadDate.isBefore(threshold);
-            }).map(tf -> (String) tf.getId().toString()).collect(Collectors.toSet());
+            }).map(tf -> BsonUtil.bsonValue(tf.getId())).collect(Collectors.toSet());
             if (!fileIdsToDelete.isEmpty()) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Deleting temporary files: {}", fileIdsToDelete);

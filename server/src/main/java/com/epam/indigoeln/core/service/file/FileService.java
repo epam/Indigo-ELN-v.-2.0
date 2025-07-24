@@ -26,6 +26,7 @@ import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.FileNotFoundException;
+import com.epam.indigoeln.core.util.BsonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -126,7 +127,7 @@ public class FileService {
 
         GridFsResource gridFSFile = fileRepository.store(content, filename, contentType, user, project == null);
         if (project != null) {
-            project.getFileIds().add(gridFSFile.getId().toString());
+            project.getFileIds().add(BsonUtil.bsonValue(gridFSFile.getId()));
             projectRepository.save(project);
         }
         return gridFSFile;
@@ -148,7 +149,7 @@ public class FileService {
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentId));
 
         GridFsResource gridFSFile = fileRepository.store(content, filename, contentType, user, false);
-        experiment.getFileIds().add(gridFSFile.getId().toString());
+        experiment.getFileIds().add(BsonUtil.bsonValue(gridFSFile.getId()));
         experimentRepository.save(experiment);
 
         return gridFSFile;

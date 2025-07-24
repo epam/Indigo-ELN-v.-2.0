@@ -22,6 +22,7 @@ import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.service.file.FileService;
 import com.epam.indigoeln.core.service.user.UserService;
+import com.epam.indigoeln.core.util.BsonUtil;
 import com.epam.indigoeln.web.rest.dto.FileDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
@@ -122,7 +123,7 @@ public class ProjectFileResource {
         User user = userService.getUserWithAuthorities();
         GridFsResource gridFSFile = fileService.saveFileForProject(projectId, inputStream,
                 file.getOriginalFilename(), file.getContentType(), user);
-        return ResponseEntity.created(new URI(URL_MAPPING + "/" + gridFSFile.getId()))
+        return ResponseEntity.created(new URI(URL_MAPPING + "/" + BsonUtil.bsonValue(gridFSFile.getId())))
                 .body(new FileDTO(gridFSFile));
     }
 
