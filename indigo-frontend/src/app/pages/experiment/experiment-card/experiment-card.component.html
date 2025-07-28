@@ -1,0 +1,194 @@
+<eln-card [classList]="'cursor-pointer'" >
+
+    <ng-container *ngIf="variant === 'list'; else defaultCardBody">
+        <div class="experiment-list-row-flex">
+
+            <div class="experiment-list-img-container" *ngIf="experiment.reactionSchemaUrl">
+                <img [src]="experiment.reactionSchemaUrl" alt="Chemical reaction image"
+                    class="experiment-list-img-figma" />
+            </div>
+
+            <div class="flex flex-col w-full px-4">
+                <div class="flex justify-between items-center mb-3 w-full" style="margin-bottom: 0px;">
+
+                    <div class="flex items-center gap-2">
+                        <em class="text-primary-400 text-2xl indicon-file"></em>
+                        <span class="font-medium text-neutral-1000 text-lg">{{ experiment.name }}</span>
+                        <span *ngIf="experiment.status" class="status-badge-v2 ml-2"
+                            [ngClass]="getStatusClass(experiment.status)">
+
+                            <span class="status-dot mr-1"></span>
+                            {{ experiment.status }}
+                        </span>
+                    </div>
+
+                    <div class="relative -right-1 flex items-center gap-2">
+
+                        <button class="hover:bg-neutral-200 rounded-full p-1" (click)="toggleFavorite($event)"
+                            aria-label="Toggle favorite" style="padding-bottom: 0px;">
+                            <mat-icon class="text-yellow-500" [ngStyle]="{color: isFavorite ? '#3F50B5' : '#4A4A4A'}">
+                                {{ isFavorite ? 'star' : 'star_border' }}
+                            </mat-icon>
+                        </button>
+
+                        <button class="flex items-center hover:bg-neutral-200 rounded-full cursor-pointer"
+                            (click)="$event.stopPropagation()" [matMenuTriggerFor]="menu"
+                            aria-label="Project options menu">
+                            <mat-icon>more_horiz</mat-icon>
+                        </button>
+                        <mat-menu #menu="matMenu">
+                            <button mat-menu-item>
+                                <mat-icon>visibility</mat-icon>
+                                <span>Action</span>
+                            </button>
+                        </mat-menu>
+                    </div>
+                </div>
+
+                <div class="w-full" [ngClass]="{
+          'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6':
+            variant === 'list'
+        }">
+
+                    <div class="flex flex-col" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
+                        *ngIf="variant === 'list'">
+                        <div class="text-neutral-1000 text-sm">Members</div>
+                        <div class="flex items-center">
+                            <div class="flex -space-x-2">
+                                @for (user of mock_users.slice(0, 3); track user) {
+                                <eln-avatar classList="w-6 h-6" [img]="user" />
+                                }
+                                @if (mock_users.length > 3) {
+                                <span
+                                    class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs">
+                                    +{{ mock_users.length - 3 }}
+                                </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col text-sm" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
+                        <div class="text-neutral-1000 text-sm">Last Edited</div>
+                        {{ experiment.modifiedAt | date: 'dd MMM yyyy' }} by
+                        {{ experiment.modifiedBy.displayName }}
+                    </div>
+
+                    <div class="flex flex-col text-sm" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
+                        <div class="text-neutral-1000">Created</div>
+                        {{ experiment.createdAt | date: 'dd MMM yyyy' }} by
+                        {{ experiment.createdBy.displayName }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+
+    <ng-template #defaultCardBody>
+        <div class="flex flex-col w-full px-4">
+
+            <div class="flex justify-between items-center mb-3 w-full" style="margin-bottom: 0px;">
+
+                <div class="flex items-center gap-2">
+                    <em class="text-primary-400 text-2xl indicon-file"></em>
+                    <span class="font-medium text-neutral-1000 text-lg">{{ experiment.name }}</span>
+                    <span *ngIf="experiment.status" class="status-badge-v2 ml-2"
+                        [ngClass]="getStatusClass(experiment.status)">
+
+                        <span class="status-dot mr-1"></span>
+                        {{ experiment.status }}
+                    </span>
+                </div>
+
+                <div class="relative -right-1 flex items-center gap-2">
+
+                    <button class="hover:bg-neutral-200 rounded-full p-1" (click)="toggleFavorite($event)"
+                        aria-label="Toggle favorite" style="padding-bottom: 0px;">
+                        <mat-icon class="text-yellow-500" [ngStyle]="{color: isFavorite ? '#3F50B5' : '#4A4A4A'}">
+                            {{ isFavorite ? 'star' : 'star_border' }}
+                        </mat-icon>
+                    </button>
+
+                    <button class="flex items-center hover:bg-neutral-200 rounded-full cursor-pointer"
+                        (click)="$event.stopPropagation()" [matMenuTriggerFor]="menu" aria-label="Project options menu">
+                        <mat-icon>more_horiz</mat-icon>
+                    </button>
+                    <mat-menu #menu="matMenu">
+                        <button mat-menu-item>
+                            <mat-icon>visibility</mat-icon>
+                            <span>Action</span>
+                        </button>
+                    </mat-menu>
+                </div>
+            </div>
+
+            @if (variant === 'grid' && experiment.reactionSchemaUrl) {
+            <div class="w-full my-2">
+                <img [src]="experiment.reactionSchemaUrl" alt="Chemical reaction image"
+                    class="w-full h-auto object-contain rounded-md border border-neutral-300" />
+            </div>
+            }
+
+            <div [ngClass]="variant === 'grid' ? 'space-y-2' : 'w-full'">
+                <div class="w-full" [ngClass]="{
+          'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6':
+            variant === 'list',
+          'space-y-2': variant === 'grid',
+        }">
+
+                    <div class="flex flex-col" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
+                        *ngIf="variant === 'list'">
+                        <div class="text-neutral-1000 text-sm">Members</div>
+                        <div class="flex items-center">
+                            <div class="flex -space-x-2">
+                                @for (user of mock_users.slice(0, 3); track user) {
+                                <eln-avatar classList="w-6 h-6" [img]="user" />
+                                }
+                                @if (mock_users.length > 3) {
+                                <span
+                                    class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs">
+                                    +{{ mock_users.length - 3 }}
+                                </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col text-sm" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
+                        <div class="text-neutral-1000 text-sm">Last Edited</div>
+                        <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
+                            {{ experiment.modifiedAt | date: 'dd MMM yyyy' }} by
+                            {{ experiment.modifiedBy.displayName }}
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col text-sm" [ngClass]="{ 'flex-col space-y-2': variant == 'list' }">
+                        <div class="text-neutral-1000">Created</div>
+                        <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
+                            {{ experiment.createdAt | date: 'dd MMM yyyy' }} by
+                            {{ experiment.createdBy.displayName }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (variant === 'grid') {
+            <div class="flex items-center mt-2 pt-3 border-t border-t-neutral-300 w-full">
+                <div class="flex -space-x-2">
+                    @for (user of mock_users.slice(0, 3); track user) {
+                    <eln-avatar classList="w-6 h-6" [img]="user" />
+                    }
+                    @if (mock_users.length > 3) {
+                    <span
+                        class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs">
+                        +{{ mock_users.length - 3 }}
+                    </span>
+                    }
+                </div>
+                <span class="ml-2 text-b2 text-neutral-1000">{{ mock_users.length }} Members</span>
+            </div>
+            }
+        </div>
+    </ng-template>
+
+</eln-card>
