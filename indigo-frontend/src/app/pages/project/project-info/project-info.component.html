@@ -61,6 +61,7 @@
             </div>
           </div>
         }
+        <eln-file-upload (filesSelected)="onUpload($event)" [uploadingFile]="isUploadingAttachment" [withPreview]="false"/>
       </div>
     </eln-card>
 

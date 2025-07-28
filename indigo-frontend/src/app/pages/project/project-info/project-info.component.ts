@@ -11,6 +11,8 @@ import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { FileUploadComponent } from "@/core/components/common/file-upload/file-upload.component";
+import { Attachment } from '@/core/types/entities/attachment.i';
 
 @Component({
   selector: 'eln-project-info',
@@ -22,6 +24,7 @@ import { of } from 'rxjs';
     AttachmentComponent,
     // TeamComponent TODO Show team members (available in project.team response? or where?),
     CardComponent,
+    FileUploadComponent
   ],
   templateUrl: './project-info.component.html',
 })
@@ -34,6 +37,7 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
   project: Project | null = null;
   isLoading = false;
   hasError = false;
+  isUploadingAttachment = false;
 
   ngOnInit() {
     this.activatedRoute.params
@@ -55,6 +59,45 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
         attachment => attachment.id !== attachmentId
       );
     }
+  }
+
+  onUpload(files: File[]): void {
+    this.isUploadingAttachment = true;
+
+    // Validate file existence
+    const file = files[0];
+    if (!file || !this.project) {
+      console.error('No project or file selected for upload');
+      this.isUploadingAttachment = false;
+      return;
+    }
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    // Use the ApiService request method for file upload
+    this.service.request<Attachment[]>(
+      'post',
+      `projects/${this.project.id}/attachments`,
+      formData,
+    )
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError((err) => {
+          console.error('Failed to upload attachment:', err);
+          this.isUploadingAttachment = false;
+          return of(null);
+        })
+      )
+      .subscribe({
+        next: (attachments) => {
+          if (this.project && attachments) this.project.attachments = attachments;
+        },
+        error: (err) => {
+          console.error('Upload error:', err);
+        }, complete: () => {
+          this.isUploadingAttachment = false;
+        }
+      });
   }
 
   private loadProject(id: string): void {
