@@ -2,3 +2,5 @@
 .idea
 .quarkus
 build
+*.http
+*.json

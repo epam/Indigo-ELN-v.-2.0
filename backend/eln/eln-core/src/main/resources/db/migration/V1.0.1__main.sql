@@ -101,6 +101,9 @@ INSERT INTO Application_Role (id, name, permissions) VALUES
     ]),
     ('00000000-0000-0000-0000-000000000004', 'Template Editor', ARRAY[
         'MANAGE_TEMPLATES'
+    ]),
+    ('00000000-0000-0000-0000-000000000005', 'Project Creator', ARRAY[
+         'CREATE_PROJECTS'
     ])
 ;
 

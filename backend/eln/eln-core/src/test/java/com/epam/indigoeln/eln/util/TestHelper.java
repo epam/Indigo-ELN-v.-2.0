@@ -21,6 +21,7 @@ public class TestHelper {
     public static final RoleRef ROLE_ADMINISTRATOR = new RoleRef(UUID.fromString("00000000-0000-0000-0000-000000000002"), "Administrator");
     public static final RoleRef ROLE_CONTENT_EDITOR = new RoleRef(UUID.fromString("00000000-0000-0000-0000-000000000003"), "Content Editor");
     public static final RoleRef ROLE_TEMPLATE_EDITOR = new RoleRef(UUID.fromString("00000000-0000-0000-0000-000000000004"), "Template Editor");
+    public static final RoleRef ROLE_PROJECT_CREATOR = new RoleRef(UUID.fromString("00000000-0000-0000-0000-000000000005"), "Project Creator");
 
     public static final String ADMIN_USERNAME = "admin";
     public static final String ADMIN_DISPLAY_NAME = "Administrator";
@@ -49,6 +50,12 @@ public class TestHelper {
     public static final String LISA_DISPLAY_NAME = "Lisa Green";
     public static final List<RoleRef> LISA_ROLES = List.of(ROLE_TEMPLATE_EDITOR);
 
+    public static final String MAGGIE_USERNAME = "maggie";
+    public static final String MAGGIE_FIRST_NAME = "Maggie";
+    public static final String MAGGIE_LAST_NAME = "Green";
+    public static final String MAGGIE_DISPLAY_NAME = "Maggie Green";
+    public static final List<RoleRef> MAGGIE_ROLES = List.of(ROLE_PROJECT_CREATOR);
+
     private final UserClient userClient;
     private final TestSupportClient testSupportClient;
     private final AtomicReference<String> currentUsername;
@@ -61,6 +68,8 @@ public class TestHelper {
     private UUID bartUserID;
     @Getter
     private UUID lisaUserID;
+    @Getter
+    private UUID maggieUserID;
 
     public void cleanupDatabase() {
         testSupportClient.cleanupDatabase();
@@ -71,6 +80,7 @@ public class TestHelper {
         willowUserID = getOrCreateUser(new UserRequest(TestHelper.WILLOW_USERNAME, TestHelper.WILLOW_FIRST_NAME, TestHelper.WILLOW_LAST_NAME, "password", TestHelper.WILLOW_ROLES)).getId();
         bartUserID = getOrCreateUser(new UserRequest(TestHelper.BART_USERNAME, TestHelper.BART_FIRST_NAME, TestHelper.BART_LAST_NAME, "password", TestHelper.BART_ROLES)).getId();
         lisaUserID = getOrCreateUser(new UserRequest(TestHelper.LISA_USERNAME, TestHelper.LISA_FIRST_NAME, TestHelper.LISA_LAST_NAME, "password", TestHelper.LISA_ROLES)).getId();
+        maggieUserID = getOrCreateUser(new UserRequest(TestHelper.MAGGIE_USERNAME, TestHelper.MAGGIE_FIRST_NAME, TestHelper.MAGGIE_LAST_NAME, "password", TestHelper.MAGGIE_ROLES)).getId();
     }
 
     private UserDTO getOrCreateUser(UserRequest request) {
