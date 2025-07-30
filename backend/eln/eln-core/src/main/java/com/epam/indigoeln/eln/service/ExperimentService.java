@@ -100,7 +100,7 @@ public class ExperimentService {
         return isMarked;
     }
 
-    public List<ACLEntryDTO> updateExperimentAccess(UUID experimentId, List<AccessForm> form) {
+    public List<ACLDetailsEntryDTO> updateExperimentAccess(UUID experimentId, List<AccessForm> form) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.MANAGE_EXPERIMENT_ACCESS);
         for (AccessForm item : form) {

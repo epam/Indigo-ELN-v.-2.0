@@ -74,7 +74,7 @@ class InsertTestDataTest {
         List<DictionaryItemRef> projectCodes = dictionaryClient.getDictionary(Dictionary.PROJECT_CODE);
         int lastUsedNotebookNumber = 0;
         UUID templateID = templateClient.createTemplate(new TemplateRequest("Empty template", List.of(new TemplateComponent.Attachments()))).getId();
-        for (int projectNo = 1; projectNo <= random.nextInt(4, 16); projectNo++) {
+        for (int projectNo = 1; projectNo <= random.nextInt(4, 6); projectNo++) {
             System.out.println("project " + projectNo);
             List<String> keywords = IntStream.range(0, random.nextInt(4)).mapToObj(i -> "keyword" + i).toList();
             ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("Test Project " + projectNo, keywords, "literature", "description"));

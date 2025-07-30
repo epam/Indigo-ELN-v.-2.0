@@ -78,7 +78,7 @@ public class NotebookService {
         return getNotebook(notebookId);
     }
 
-    public List<ACLEntryDTO> updateNotebookAccess(UUID notebookId, List<AccessForm> form) {
+    public List<ACLDetailsEntryDTO> updateNotebookAccess(UUID notebookId, List<AccessForm> form) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
 //        notebookRepository.getEntityManager().lock(notebook.getProject(), LockModeType.PESSIMISTIC_WRITE);
         aclService.ensureAccess(notebook, ApplicationPermission.MANAGE_NOTEBOOK_ACCESS);

@@ -41,6 +41,7 @@ public class GlobalSearchService {
         }
         Conditions conditions = new Conditions(SLOT_EXPERIMENTS + 1);
         boolean hasProjects = true, hasNotebooks = true, hasExperiments = true;
+        List<String> experimentJoins = new ArrayList<>();
         if (request.getTherapeuticArea() != null) {
             hasProjects = hasNotebooks = false;
             conditions.add(SLOT_EXPERIMENTS, "therapeutic_area_id = ?", request.getTherapeuticArea().getId());
@@ -60,17 +61,19 @@ public class GlobalSearchService {
             }
         }
         if (request.getStructure() != null) {
+            hasProjects = hasNotebooks = false;
             InvalidRequestException.validate(request.getStructureSearchType() != null, "structureSearchType is required when structure is provided");
+            experimentJoins.add("join compound_experiment ce on ce.experiment_id = e.id");
+            experimentJoins.add("join compound c on c.id = ce.compound_id");
             switch (request.getStructureSearchType()) {
                 case EXACT -> {
-//                    SAVE COMPOUNDS FROM EXPERIMENT
-//                    ADD TABLE COMPOUND < - > EXPERIMENT
-//                    QUERY HERE USING BINGO SQL OPERATOR @
-//                    conditions.add("...")
+                    conditions.add(SLOT_EXPERIMENTS, "c.mol_file @ (?, '')::bingo.exact", request.getStructure());
                 }
                 case SUBSTRUCTURE -> {
+                    conditions.add(SLOT_EXPERIMENTS, "c.mol_file @ (?, '')::bingo.sub", request.getStructure());
                 }
                 case SIMILARITY -> {
+                    conditions.add(SLOT_EXPERIMENTS, "c.mol_file @ (0.8, null, ?, 'Tanimoto')::bingo.sim", request.getStructure());
                 }
             }
         }
@@ -84,7 +87,7 @@ public class GlobalSearchService {
         sql.append("with t as (\n");
         boolean addedAnySQL = false;
         if (hasProjects) {
-            String projectsSQL = "SELECT 'PROJECT' AS type, name, id, created_by_id, created_at, modified_by_id, modified_at "
+            String projectsSQL = "SELECT 'PROJECT' AS type, p.name, p.id, p.created_by_id, p.created_at, p.modified_by_id, p.modified_at "
                                  + "FROM project_view p "
                                  + "WHERE " + conditions.getQuery(SLOT_PROJECTS);
             sql.append(projectsSQL);
@@ -95,7 +98,7 @@ public class GlobalSearchService {
                 sql.append("\nUNION ALL\n");
             }
             addedAnySQL = true;
-            String notebooksSQL = "SELECT 'NOTEBOOK' AS type, name, id, created_by_id, created_at, modified_by_id, modified_at "
+            String notebooksSQL = "SELECT 'NOTEBOOK' AS type, n.name, n.id, n.created_by_id, n.created_at, n.modified_by_id, n.modified_at "
                                   + "FROM notebook_view n "
                                   + "WHERE " + conditions.getQuery(SLOT_NOTEBOOKS);
             sql.append(notebooksSQL);
@@ -105,8 +108,9 @@ public class GlobalSearchService {
                 sql.append("\nUNION ALL\n");
             }
             addedAnySQL = true;
-            String experimentsSQL = "SELECT 'EXPERIMENT' AS type, name, id, created_by_id, created_at, modified_by_id, modified_at "
+            String experimentsSQL = "SELECT 'EXPERIMENT' AS type, e.name, e.id, e.created_by_id, e.created_at, e.modified_by_id, e.modified_at "
                                     + "FROM experiment_view e "
+                                    + String.join(" ", experimentJoins) + " "
                                     + "WHERE " + conditions.getQuery(SLOT_EXPERIMENTS);
             sql.append(experimentsSQL);
         }

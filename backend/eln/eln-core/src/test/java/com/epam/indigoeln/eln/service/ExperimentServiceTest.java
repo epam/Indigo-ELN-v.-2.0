@@ -135,7 +135,7 @@ class ExperimentServiceTest extends BaseTest {
         assertThat(experiments.getItems()).singleElement().satisfies(e -> {
             assertThat(e.getMarked()).isTrue();
         });
-        ExperimentDTO loadedExperiment = experimentClient.getExperiment(experiment.getId());
+        ExperimentDetailsDTO loadedExperiment = experimentClient.getExperiment(experiment.getId());
         assertThat(loadedExperiment.getMarked()).isTrue();
         assertThat(experimentClient.getMarkedExperiments()).singleElement().satisfies(e -> {
             assertThat(e.getId()).isEqualTo(experiment.getId());

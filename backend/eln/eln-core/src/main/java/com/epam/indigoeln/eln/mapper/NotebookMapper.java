@@ -28,6 +28,5 @@ public abstract class NotebookMapper extends AbstractMapper {
     public abstract NotebookDTO entityToDTO(NotebookEntity entity);
 
     @Mapping(target = "acl", source = "aclEntities")
-    @Mapping(target = "aclCount", expression = "java(entity.getAclEntities().size())")
     public abstract NotebookDetailsDTO entityToDetailsDTO(NotebookEntity entity);
 }

@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ProjectDetailsDTO extends ProjectDTO {
+public class ProjectDetailsDTO extends BaseProjectDTO {
 
     @NotNull
     List<String> keywords;
@@ -22,6 +22,9 @@ public class ProjectDetailsDTO extends ProjectDTO {
 
     @NotNull
     List<AttachmentDTO> attachments;
+
+    @NotNull
+    List<ACLDetailsEntryDTO> acl;
 
     @Override
     public String toString() {

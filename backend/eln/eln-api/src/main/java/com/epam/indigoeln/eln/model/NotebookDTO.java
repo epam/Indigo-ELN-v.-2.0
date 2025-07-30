@@ -10,13 +10,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class NotebookDTO extends BaseDTO {
-
-    @NotEmpty
-    String name;
-
-    @NotNull
-    Map<ExperimentStatus, Integer> experimentCount;
+public class NotebookDTO extends BaseNotebookDTO {
 
     @NotNull
     List<ACLEntryDTO> acl;

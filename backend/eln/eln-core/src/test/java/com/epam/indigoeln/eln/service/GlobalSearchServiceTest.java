@@ -137,11 +137,12 @@ class GlobalSearchServiceTest extends BaseTest {
 
     @Test
     void testFindByMoleculeSubstructure() {
-        // TODO
-//        String molFile = new String(loadResource(getClass(), "/ring-substructure.mol"));
-//        Page<GlobalSearchResultDTO> results = globalSearchClient.search(GlobalSearchRequest.builder().structureSearchType(StructureSearchType.SUBSTRUCTURE).structure(molFile).build(), Paging.DEFAULT);
-//        assertResults(results, tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
+        String molFile = new String(loadResource(getClass(), "/ring-substructure.mol"));
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(GlobalSearchRequest.builder().structureSearchType(StructureSearchType.SUBSTRUCTURE).structure(molFile).build(), Paging.DEFAULT);
+        assertResults(results, tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
     }
+
+    // TODO test for EXACT and SIMILARITY structure search types
 
     private void assertResults(Page<GlobalSearchResultDTO> results, Tuple... expected) {
         assertThat(results.getItems()).map(GlobalSearchResultDTO::getType, GlobalSearchResultDTO::getName, GlobalSearchResultDTO::getId).containsOnly(expected);
