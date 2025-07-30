@@ -1,8 +1,8 @@
 package com.epam.indigoeln.compound.service;
 
-import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.entity.SampleEntity;
-import com.epam.indigoeln.compound.model.STRCode;
+import com.epam.indigoeln.compound.model.STRCodeCompound;
+import com.epam.indigoeln.compound.model.STRCodeSample;
 import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
 import com.epam.indigoeln.eln.BaseTest;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
@@ -17,7 +17,6 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.inject.Inject;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
@@ -44,11 +43,11 @@ public class CompoundServiceTest extends BaseTest {
     SaltCodeRef saltCode;
     CompoundRef.Virtual compound1;
     CompoundRef.Virtual compound2;
-    STRCode str1;
-    STRCode str2;
-    STRCode strOtherCompound;
-    STRCode strOtherSaltCode;
-    STRCode strOtherSaltEQ;
+    STRCodeSample str1;
+    STRCodeSample str2;
+    STRCodeSample strOtherCompound;
+    STRCodeSample strOtherSaltCode;
+    STRCodeSample strOtherSaltEQ;
 
     @Test
     @Order(-1000)
@@ -58,9 +57,9 @@ public class CompoundServiceTest extends BaseTest {
         IndigoReaction reaction = indigo.loadReaction(loadResource(getClass(), "/reaction.rxn"));
         Iterator<IndigoMolecule> it = reaction.products().iterator();
         IndigoMolecule molecule = it.next();
-        compound1 = new CompoundRef.Virtual(molecule.molfile(), molecule.grossFormula(), molecule.molecularWeight());
+        compound1 = compoundService.virtualCompoundRef(molecule, null, null, null);
         molecule = it.next();
-        compound2 = new CompoundRef.Virtual(molecule.molfile(), molecule.grossFormula(), molecule.molecularWeight());
+        compound2 = compoundService.virtualCompoundRef(molecule, null, null, null);
     }
 
 //    @Test
@@ -75,7 +74,7 @@ public class CompoundServiceTest extends BaseTest {
     @Order(100)
     void testRegisterSample() {
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1));
-        str1 = STRCode.parse(sample.getStrCode());
+        str1 = STRCodeSample.parse(sample.getStrCode());
         assertThat(str1.getSaltCode()).as(str1.toString()).isZero();
         assertThat(str1.getSampleCode()).as(str1.toString()).isPositive();
     }
@@ -84,7 +83,7 @@ public class CompoundServiceTest extends BaseTest {
     @Order(200)
     void testRegisterSample2() {
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1));
-        str2 = STRCode.parse(sample.getStrCode());
+        str2 = STRCodeSample.parse(sample.getStrCode());
         assertThat(str2.getCompoundCode()).as(str2.toString()).isEqualTo(str1.getCompoundCode());
         assertThat(str2.getSaltCode()).as(str2.toString()).isZero();
         assertThat(str2.getSampleCode()).as(str2.toString()).isEqualTo(str1.getSampleCode() + 1);
@@ -94,7 +93,7 @@ public class CompoundServiceTest extends BaseTest {
     @Order(300)
     void testRegisterSampleForOtherCompound() {
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound2));
-        strOtherCompound = STRCode.parse(sample.getStrCode());
+        strOtherCompound = STRCodeSample.parse(sample.getStrCode());
         assertThat(strOtherCompound.getCompoundCode()).as(strOtherCompound.toString()).isNotEqualTo(str1.getCompoundCode());
         assertThat(strOtherCompound.getSaltCode()).as(strOtherCompound.toString()).isZero();
         assertThat(strOtherCompound.getSampleCode()).as(strOtherCompound.toString()).isPositive();
@@ -103,9 +102,10 @@ public class CompoundServiceTest extends BaseTest {
     @Test
     @Order(400)
     void testRegisterSampleForOtherSaltCode() {
-        compound1.setSaltCode(saltCode);
+        IndigoMolecule molecule = indigo.loadMolecule(compound1.getMolFile());
+        compound1 = compoundService.virtualCompoundRef(molecule, null, saltCode, 1.0);
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1));
-        strOtherSaltCode = STRCode.parse(sample.getStrCode());
+        strOtherSaltCode = STRCodeSample.parse(sample.getStrCode());
         assertThat(strOtherSaltCode.getCompoundCode()).as(strOtherSaltCode.toString()).isEqualTo(str1.getCompoundCode());
         assertThat(strOtherSaltCode.getSaltCode()).as(strOtherSaltCode.toString()).isEqualTo(Integer.parseInt(saltCode.getCode()));
         assertThat(strOtherSaltCode.getSampleCode()).as(strOtherSaltCode.toString()).isPositive();
@@ -114,12 +114,12 @@ public class CompoundServiceTest extends BaseTest {
     @Test
     @Order(500)
     void testRegisterSampleForOtherSaltEQ() {
-        compound1.setSaltCode(null);
-        compound1.setSaltEQ(2.0);
+        IndigoMolecule molecule = indigo.loadMolecule(compound1.getMolFile());
+        compound1 = compoundService.virtualCompoundRef(molecule, null, saltCode, 2.0);
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1));
-        strOtherSaltEQ = STRCode.parse(sample.getStrCode());
-        assertThat(strOtherSaltEQ.getCompoundCode()).as(strOtherSaltEQ.toString()).isNotEqualTo(str1.getCompoundCode());
-        assertThat(strOtherSaltEQ.getSaltCode()).as(strOtherSaltEQ.toString()).isZero();
-        assertThat(strOtherSaltEQ.getSampleCode()).as(strOtherSaltEQ.toString()).isPositive();
+        strOtherSaltEQ = STRCodeSample.parse(sample.getStrCode());
+        assertThat(strOtherSaltEQ.getCompoundCode()).as(strOtherSaltEQ.toString()).isEqualTo(str1.getCompoundCode());
+        assertThat(strOtherSaltEQ.getSaltCode()).as(strOtherSaltEQ.toString()).isEqualTo(strOtherSaltCode.getSaltCode());
+        assertThat(strOtherSaltEQ.getSampleCode()).as(strOtherSaltEQ.toString()).isGreaterThan(strOtherSaltCode.getSampleCode());
     }
 }

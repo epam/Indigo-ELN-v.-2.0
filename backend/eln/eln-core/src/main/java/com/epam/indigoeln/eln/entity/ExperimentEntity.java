@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.entity;
 
+import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
@@ -16,9 +17,7 @@ import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 import org.hibernate.type.SqlTypes;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 @Setter
@@ -133,10 +132,15 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     private Map<UserEntity, ExperimentACLEntity> aclEntities;
 
     @NotNull
-    @ManyToMany()
+    @ManyToMany
     @JoinTable(name = "experiment_attachment", joinColumns = @JoinColumn(name = "experiment_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
+
+    @NotNull
+    @ManyToMany
+    @JoinTable(name = "compound_experiment", joinColumns = @JoinColumn(name = "experiment_id"), inverseJoinColumns = @JoinColumn(name = "compound_id"))
+    private Set<CompoundEntity> compounds = new HashSet<>(0);
 
     @Override
     public void insertACL(UserEntity user, AccessLevel access, Boolean inherited) {

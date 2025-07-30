@@ -39,6 +39,7 @@ public abstract class BaseTest {
     protected UserClient userClient;
     protected DictionaryClient dictionaryClient;
     protected RoleClient roleClient;
+    protected GlobalSearchClient globalSearchClient;
 
     protected TestHelper testHelper;
 
@@ -68,6 +69,7 @@ public abstract class BaseTest {
         dictionaryClient = FeignUtil.buildFeignClient(baseURL, DictionaryClient.class, username, authorization);
         roleClient = FeignUtil.buildFeignClient(baseURL, RoleClient.class, username, authorization);
         testSupportClient = FeignUtil.buildFeignClient(baseURL, TestSupportClient.class, username, authorization);
+        globalSearchClient = FeignUtil.buildFeignClient(baseURL, GlobalSearchClient.class, username, authorization);
         miscClient.migrate();
         testHelper = new TestHelper(userClient, testSupportClient, username);
         testHelper.cleanupDatabase();
@@ -88,5 +90,15 @@ public abstract class BaseTest {
 
     protected String nextNotebookName() {
         return "%08d".formatted(++lastUsedNotebookNumber);
+    }
+
+    protected void withUser(String username, Runnable runnable) {
+        String oldUsername = this.username.get();
+        try {
+            this.username.set(username);
+            runnable.run();
+        } finally {
+            this.username.set(oldUsername);
+        }
     }
 }

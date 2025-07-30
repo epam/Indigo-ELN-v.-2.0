@@ -27,7 +27,7 @@ public class ResolveInputsHandler extends AbstractMutationHandler {
         mutation.inputSamples().forEach((inputAnchor, sampleId) -> {
             ReactionInput row = model.locateReactionInput(inputAnchor);
             SampleEntity sample = compoundService.getSample(sampleId);
-            row.setCompound(realCompoundRef(sample.getCompound()));
+            row.setCompound(compoundService.realCompoundRef(sample.getCompound()));
 
             ReactionInputSample reactionInputSample = new ReactionInputSample(row, UUID.randomUUID());
             reactionInputSample.setSampleId(sampleId);

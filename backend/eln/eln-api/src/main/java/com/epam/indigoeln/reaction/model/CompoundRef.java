@@ -77,38 +77,47 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     @EqualsAndHashCode(of = {"molFile", "stereoisomerCode", "saltCode", "saltEQ"})
     final class Virtual implements CompoundRef {
 
+        @NotNull
+        private final UUID compoundID;
+
+        @NotNull
         private final String molFile;
 
         @NotNull
         private final String formula;
 
         @Nullable
-        private DictionaryItemRef stereoisomerCode;
+        private final DictionaryItemRef stereoisomerCode;
 
         @Nullable
-        private SaltCodeRef saltCode;
+        private final SaltCodeRef saltCode;
 
         @Nullable
-        private Double saltEQ;
+        private final Double saltEQ;
 
         @NotNull
         @Positive
         private EnteredValue<MolWeightUnit> molWeight;
 
-        public Virtual(String molFile, String formula, Double molWeight) {
-            this(molFile, formula, EnteredValue.fixed(molWeight, MolWeightUnit.G_PER_MOL));
+        public Virtual(UUID compoundID, String molFile, String formula, Double molWeight) {
+            this(compoundID, molFile, formula, EnteredValue.fixed(molWeight, MolWeightUnit.G_PER_MOL), null, null, null);
         }
 
         @JsonCreator
-        Virtual(String molFile, String formula, EnteredValue<MolWeightUnit> molWeight) {
+        Virtual(UUID compoundID, String molFile, String formula, EnteredValue<MolWeightUnit> molWeight, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
+            this.compoundID = compoundID;
             this.molFile = molFile;
             this.formula = formula;
             this.molWeight = molWeight;
+            this.stereoisomerCode = stereoisomerCode;
+            this.saltCode = saltCode;
+            this.saltEQ = saltEQ;
         }
 
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(this).omitNullValues()
+                    .add("compoundID", compoundID)
                     .add("formula", formula)
                     .add("saltCode", saltCode)
                     .add("saltEQ", saltEQ)

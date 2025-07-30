@@ -30,7 +30,7 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
     protected final EntityType entityType;
 
     @PersistenceContext
-    EntityManager em;
+    protected EntityManager em;
     @Inject
     UserService userService;
 

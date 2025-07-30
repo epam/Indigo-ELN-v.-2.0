@@ -1,9 +1,7 @@
 package com.epam.indigoeln.compound.entity;
 
 import com.epam.indigoeln.compound.model.CompoundSource;
-import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
-import com.epam.indigoeln.eln.entity.IdentifiableEntity;
-import com.epam.indigoeln.eln.entity.SaltCodeEntity;
+import com.epam.indigoeln.eln.entity.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -28,6 +26,7 @@ public class CompoundEntity extends IdentifiableEntity {
     @JdbcType(PostgreSQLEnumJdbcType.class)
     private CompoundSource source;
 
+    @Nullable
     @Column(name = "str_code")
     private String strCode; // STR code for compounds registered from Indigo ELN
 
@@ -66,4 +65,7 @@ public class CompoundEntity extends IdentifiableEntity {
 
     @OneToMany(mappedBy = "compound") // TODO make many-to-many and store percentage in link entity
     private Set<SampleEntity> samples = new HashSet<>(0);
+
+    @ManyToMany(mappedBy = "compounds")
+    private Set<ExperimentEntity> experiments = new HashSet<>(0);
 }

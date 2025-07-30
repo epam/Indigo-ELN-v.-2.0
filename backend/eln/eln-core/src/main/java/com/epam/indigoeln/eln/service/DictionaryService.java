@@ -88,6 +88,10 @@ public class DictionaryService {
         return dictionaryMapper.saltCodeToRef(getSalt(id));
     }
 
+    public SaltCodeRef getSaltRef(SaltCodeEntity entity) {
+        return dictionaryMapper.saltCodeToRef(entity);
+    }
+
     public List<DictionaryItemEntity> addDictionaryItems(Dictionary dictionary, List<DictionaryItemRequest> items) {
         if (!dictionary.isUsersCanAddNewItems()) {
             aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);

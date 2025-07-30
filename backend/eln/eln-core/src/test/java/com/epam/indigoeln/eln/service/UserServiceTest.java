@@ -60,7 +60,7 @@ class UserServiceTest extends BaseTest {
     @TestSecurity(user = TestHelper.JOHN_USERNAME)
     void testSuggestUsers() {
         List<UserRef> all = userClient.suggestUsers(null);
-        assertThat(all).map(UserRef::getDisplayName).containsExactly(TestHelper.ADMIN_DISPLAY_NAME, TestHelper.BART_DISPLAY_NAME, TestHelper.JOHN_DISPLAY_NAME, TestHelper.LISA_DISPLAY_NAME, TestHelper.WILLOW_DISPLAY_NAME);
+        assertThat(all).map(UserRef::getDisplayName).containsExactly(TestHelper.ADMIN_DISPLAY_NAME, TestHelper.BART_DISPLAY_NAME, TestHelper.JOHN_DISPLAY_NAME, TestHelper.LISA_DISPLAY_NAME, TestHelper.MAGGIE_DISPLAY_NAME, TestHelper.WILLOW_DISPLAY_NAME);
         List<UserRef> filtered = userClient.suggestUsers("l");
         assertThat(filtered).map(UserRef::getDisplayName).containsExactly(TestHelper.LISA_DISPLAY_NAME);
     }
