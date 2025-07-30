@@ -28,6 +28,7 @@ public class TestSupportService {
         // samples, compounds
         em.createNativeQuery("delete from Sample").executeUpdate();
         em.createNativeQuery("delete from Compound").executeUpdate();
+        em.createNativeQuery("alter sequence compound_str_code_compound_seq restart").executeUpdate();
         // users
         em.createNativeQuery("delete from User_Account where username not in ('admin', 'john@eln.com', 'willow@eln.com', 'bart@eln.com', 'lisa@eln.com')").executeUpdate();
     }

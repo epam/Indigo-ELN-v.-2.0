@@ -13,15 +13,17 @@ import java.util.List;
 
 public class PostgresToTSQueryFunction extends AbstractSqmFunctionDescriptor {
 
+    public static final String NAME = "to_tsquery";
+
     PostgresToTSQueryFunction() {
-        super("to_tsquery");
+        super(NAME);
     }
 
     @Override
     protected <T> SelfRenderingSqmFunction<T> generateSqmFunctionExpression(List<? extends SqmTypedNode<?>> arguments, ReturnableType<T> impliedResultType, QueryEngine queryEngine) {
         SqmFunctionRegistry registry = queryEngine.getSqmFunctionRegistry();
         TypeConfiguration types = queryEngine.getTypeConfiguration();
-        return registry.patternDescriptorBuilder("to_tsquery", "to_tsquery(?1, ?2)")
+        return registry.patternDescriptorBuilder(NAME, "to_tsquery(?1, ?2)")
                 .setExactArgumentCount(2)
                 .setParameterTypes(FunctionParameterType.STRING, FunctionParameterType.STRING)
                 .setInvariantType(types.standardBasicTypeForJavaType(String.class))

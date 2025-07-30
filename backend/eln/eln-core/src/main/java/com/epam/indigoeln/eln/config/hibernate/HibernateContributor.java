@@ -7,8 +7,10 @@ public class HibernateContributor implements FunctionContributor {
 
     @Override
     public void contributeFunctions(FunctionContributions functionContributions) {
-        functionContributions.getFunctionRegistry().register("full_text_search", new PostgresFullTextSearchFunction());
-        functionContributions.getFunctionRegistry().register("to_tsquery", new PostgresToTSQueryFunction());
-        functionContributions.getFunctionRegistry().register("bingo_substructure_match", new BingoSubstructureMatchFunction());
+        functionContributions.getFunctionRegistry().register(PostgresFullTextSearchFunction.NAME, new PostgresFullTextSearchFunction());
+        functionContributions.getFunctionRegistry().register(PostgresToTSQueryFunction.NAME, new PostgresToTSQueryFunction());
+        functionContributions.getFunctionRegistry().register(BingoFunctions.Substructure.NAME, new BingoFunctions.Substructure());
+        functionContributions.getFunctionRegistry().register(BingoFunctions.Exact.NAME, new BingoFunctions.Exact());
+        functionContributions.getFunctionRegistry().register(BingoFunctions.Similarity.NAME, new BingoFunctions.Similarity());
     }
 }

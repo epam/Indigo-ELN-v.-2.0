@@ -1,12 +1,13 @@
 package com.epam.indigoeln.eln.model;
 
+import com.epam.indigoeln.compound.model.StructureSearchType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Value;
+import org.jspecify.annotations.Nullable;
 
 @Value
 @Builder
@@ -32,14 +33,20 @@ public class GlobalSearchRequest {
 
     // Batch Purity %
 
-    // chemical search
+    @Nullable
+    StructureSearchType structureSearchType;
+
+    @Nullable
+    String structure;
 
     @JsonIgnore
     public boolean isEmpty() {
         return query == null
-               && therapeuticArea == null
-               && projectCode == null
-               && experimentStatus == null
-               && author == null;
+                && therapeuticArea == null
+                && projectCode == null
+                && experimentStatus == null
+                && author == null
+                && structureSearchType == null
+                && structure == null;
     }
 }

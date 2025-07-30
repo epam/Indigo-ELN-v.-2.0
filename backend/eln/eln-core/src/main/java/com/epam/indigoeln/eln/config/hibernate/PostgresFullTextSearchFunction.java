@@ -13,15 +13,17 @@ import java.util.List;
 
 public class PostgresFullTextSearchFunction extends AbstractSqmFunctionDescriptor {
 
+    public static final String NAME = "full_text_search";
+
     PostgresFullTextSearchFunction() {
-        super("full_text_search");
+        super(NAME);
     }
 
     @Override
     protected <T> SelfRenderingSqmFunction<T> generateSqmFunctionExpression(List<? extends SqmTypedNode<?>> arguments, ReturnableType<T> impliedResultType, QueryEngine queryEngine) {
         SqmFunctionRegistry registry = queryEngine.getSqmFunctionRegistry();
         TypeConfiguration types = queryEngine.getTypeConfiguration();
-        return registry.patternDescriptorBuilder("full_text_search", "?1 @@ ?2")
+        return registry.patternDescriptorBuilder(NAME, "?1 @@ ?2")
                 .setExactArgumentCount(2)
                 .setParameterTypes(FunctionParameterType.ANY, FunctionParameterType.ANY)
                 .setInvariantType(types.standardBasicTypeForJavaType(Boolean.class))

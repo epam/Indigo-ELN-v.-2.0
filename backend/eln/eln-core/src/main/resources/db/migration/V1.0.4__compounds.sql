@@ -15,10 +15,18 @@ CREATE TABLE Compound (
     CONSTRAINT compound_stereoisomer_code_fk FOREIGN KEY (stereoisomer_code_id) REFERENCES dictionary_item (id),
     CONSTRAINT compound_salt_code_fk FOREIGN KEY (salt_code_id) REFERENCES salt_code (id),
     CONSTRAINT compound_uq UNIQUE (can_smiles, stereoisomer_code_id, salt_code_id, salt_eq_100),
-    CONSTRAINT compound_str_code_uq UNIQUE (str_code)
+    CONSTRAINT compound_str_code_salt_eq_uq UNIQUE (str_code, salt_eq_100) -- str_code is shared across saltEQ
 );
 
 CREATE INDEX ix_compound_mol_file ON Compound USING bingo_idx (mol_file bingo.molecule) ;
+
+CREATE TABLE Compound_Experiment (
+    compound_id UUID NOT NULL,
+    experiment_id UUID NOT NULL,
+    CONSTRAINT compound_experiment_pk PRIMARY KEY (compound_id, experiment_id),
+    CONSTRAINT compound_experiment_compound_id_fk FOREIGN KEY (compound_id) REFERENCES Compound(id) ON DELETE CASCADE,
+    CONSTRAINT compound_experiment_experiment_id_fk FOREIGN KEY (experiment_id) REFERENCES Experiment(id) ON DELETE CASCADE
+);
 
 CREATE TABLE Sample (
     id UUID PRIMARY KEY,

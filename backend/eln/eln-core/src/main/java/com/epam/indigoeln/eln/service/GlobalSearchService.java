@@ -12,6 +12,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import one.util.streamex.StreamEx;
+import org.hibernate.annotations.processing.SQL;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -56,6 +57,21 @@ public class GlobalSearchService {
             String condition = "created_by_id = ?";
             for (int slotNo = SLOT_PROJECTS; slotNo <= SLOT_EXPERIMENTS; slotNo++) {
                 conditions.add(slotNo, condition, request.getAuthor().getId());
+            }
+        }
+        if (request.getStructure() != null) {
+            InvalidRequestException.validate(request.getStructureSearchType() != null, "structureSearchType is required when structure is provided");
+            switch (request.getStructureSearchType()) {
+                case EXACT -> {
+//                    SAVE COMPOUNDS FROM EXPERIMENT
+//                    ADD TABLE COMPOUND < - > EXPERIMENT
+//                    QUERY HERE USING BINGO SQL OPERATOR @
+//                    conditions.add("...")
+                }
+                case SUBSTRUCTURE -> {
+                }
+                case SIMILARITY -> {
+                }
             }
         }
         if (request.getQuery() != null) {

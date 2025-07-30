@@ -6,6 +6,7 @@ import com.epam.indigoeln.indigowrapper.IndigoAtom;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.reaction.model.SaltCodeRef;
 import com.google.common.math.DoubleMath;
+import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,14 @@ public class MolWeightCalculator {
     public double calculateMolWeightWithoutSalt(String molFile) {
         IndigoMolecule molecule = indigo.loadMolecule(molFile);
         return molecule.molecularWeight();
+    }
+
+    public double calculateMolWeight(String molFile, @Nullable SaltCodeRef salt, @Nullable Double saltEQ) {
+        if (salt != null && saltEQ != null) {
+            return calculateMolWeightWithSalt(molFile, salt, saltEQ);
+        } else {
+            return calculateMolWeightWithoutSalt(molFile);
+        }
     }
 
     public double calculateMolWeightWithSalt(String molFile, SaltCodeRef salt, double saltEQ) {

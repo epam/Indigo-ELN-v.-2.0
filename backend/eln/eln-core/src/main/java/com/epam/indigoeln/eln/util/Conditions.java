@@ -35,25 +35,16 @@ public class Conditions {
         return this;
     }
 
-    public Conditions add(String field, Object value) {
+    public Conditions add(String field, @Nullable Object value) {
         return add(slotNo, field, value);
     }
 
-    public Conditions add(int slotNo, String field, Object value) {
+    public Conditions add(int slotNo, String field, @Nullable Object value) {
         int p = field.indexOf('?');
         Preconditions.checkArgument(p != -1, "condition must contain ? character: %s", field);
         field = field.substring(0, p + 1) + (++paramNo) + field.substring(p + 1);
         fields.get(slotNo).add(field);
         values.add(value);
-        return this;
-    }
-
-    public Conditions addNullable(String fieldIfNotNull, String fieldIfNull, @Nullable Object value) {
-        if (value != null) {
-            add(fieldIfNotNull, value);
-        } else {
-            add(fieldIfNull);
-        }
         return this;
     }
 
