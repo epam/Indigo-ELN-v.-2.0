@@ -5,6 +5,7 @@ import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.indigowrapper.*;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
+import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,8 @@ public class SetSchemeHandler extends AbstractMutationHandler {
     IndigoAPI indigo;
     @Inject
     IndigoRendererAPI indigoRenderer;
+    @Inject
+    ExperimentModelHelperService experimentModelHelperService;
 
     public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionMutation.SetScheme mutation) {
         Reaction reaction = model.locate(mutation);
@@ -46,9 +49,7 @@ public class SetSchemeHandler extends AbstractMutationHandler {
         if (!reaction.getInputs().isEmpty() && reaction.getLimitingInput() == null) {
             reaction.getInputs().getFirst().setLimiting(true);
         }
-        indigoRenderer.setRenderOptions("svg", 500, 200);
-        byte[] buf = indigoRenderer.renderToBuffer(indigoReaction);
-        experiment.setPicture(buf);
+        experimentModelHelperService.setReactionScheme(experiment, reaction, indigoReaction);
     }
 
     private ReactionInput createInputLine(Reaction reaction, IndigoMolecule molecule, ReactionInputRole role) {
