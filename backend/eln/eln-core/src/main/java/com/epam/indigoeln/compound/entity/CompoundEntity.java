@@ -10,9 +10,7 @@ import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -69,5 +67,5 @@ public class CompoundEntity extends IdentifiableEntity {
     private Set<SampleEntity> samples = new HashSet<>(0);
 
     @ManyToMany(mappedBy = "compounds")
-    private Set<ExperimentEntity> compounds = new HashSet<>(0);
+    private Set<ExperimentEntity> experiments = new HashSet<>(0);
 }

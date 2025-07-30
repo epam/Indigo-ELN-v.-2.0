@@ -140,7 +140,7 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @NotNull
     @ManyToMany
     @JoinTable(name = "compound_experiment", joinColumns = @JoinColumn(name = "experiment_id"), inverseJoinColumns = @JoinColumn(name = "compound_id"))
-    private Set<CompoundEntity> compoundEntities = new HashSet<>(0);
+    private Set<CompoundEntity> compounds = new HashSet<>(0);
 
     @Override
     public void insertACL(UserEntity user, AccessLevel access, Boolean inherited) {
