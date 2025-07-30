@@ -477,7 +477,7 @@ class PermissionsTest extends BaseTest {
         @Test
         @Order(200)
         void testAddUser() {
-            List<ACLEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(testHelper.getWillowUserID(), VIEW));
+            List<ACLDetailsEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(testHelper.getWillowUserID(), VIEW));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, VIEW, false);
             acl = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(testHelper.getWillowUserID(), VIEW));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, VIEW, false);
@@ -488,7 +488,7 @@ class PermissionsTest extends BaseTest {
         @Test
         @Order(201)
         void testRemoveUser() {
-            List<ACLEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(testHelper.getWillowUserID(), NONE));
+            List<ACLDetailsEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(testHelper.getWillowUserID(), NONE));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
             acl = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(testHelper.getWillowUserID(), NONE));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
@@ -535,7 +535,7 @@ class PermissionsTest extends BaseTest {
         void testACLInListLimitedTo3() {
             projectClient.updateProjectAccess(project.getId(), AccessForm.of(testHelper.getWillowUserID(), EDIT));
             projectClient.updateProjectAccess(project.getId(), AccessForm.of(testHelper.getBartUserID(), EDIT));
-            List<ACLEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(testHelper.getLisaUserID(), EDIT));
+            List<ACLDetailsEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(testHelper.getLisaUserID(), EDIT));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false, WILLOW_DISPLAY_NAME, EDIT, false);
             Paging paging = new Paging(0, 1);
             ProjectDTO projectDTO = projectClient.getProjects(null, paging).getItems().getFirst();

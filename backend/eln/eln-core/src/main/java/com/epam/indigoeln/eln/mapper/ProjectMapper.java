@@ -38,7 +38,6 @@ public abstract class ProjectMapper extends AbstractMapper {
     public abstract ProjectDTO entityToDTO(ProjectEntity entity);
 
     @Mapping(target = "acl", source = "aclEntities")
-    @Mapping(target = "aclCount", expression = "java(entity.getAclEntities().size())")
     public abstract ProjectDetailsDTO entityToDetailsDTO(ProjectEntity entity);
 
     @Mapping(target = "experiments", expression = "java(convertTotalCountsSum(struct))")

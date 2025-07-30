@@ -3,19 +3,28 @@ package com.epam.indigoeln.eln.model;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
 @Getter
 @Setter
-public class ExperimentDetailsDTO extends ExperimentDTO {
+public class ExperimentDetailsDTO extends BaseExperimentDTO {
 
+    @Nullable
     DictionaryItemRef therapeuticArea;
 
+    @Nullable
     DictionaryItemRef projectCode;
+
+    @Nullable
+    String description;
 
     @NotNull
     List<AttachmentDTO> attachments;
+
+    @NotNull
+    List<ACLDetailsEntryDTO> acl;
 
     @Override
     public String toString() {

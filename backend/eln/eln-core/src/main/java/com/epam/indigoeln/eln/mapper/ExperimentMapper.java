@@ -35,6 +35,5 @@ public abstract class ExperimentMapper extends AbstractMapper {
     public abstract ExperimentDTO entityToDTO(ExperimentEntity entity);
 
     @Mapping(target = "acl", source = "aclEntities")
-    @Mapping(target = "aclCount", expression = "java(entity.getAclEntities().size())")
     public abstract ExperimentDetailsDTO entityToDetailsDTO(ExperimentEntity entity);
 }

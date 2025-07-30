@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.fail;
 
 public class CustomAssertions {
 
-    public static ACLListAssert assertThatACL(List<ACLEntryDTO> actual) {
+    public static <T extends ACLEntryDTO> ACLListAssert assertThatACL(List<T> actual) {
         return new ACLListAssert(actual);
     }
 
@@ -34,9 +34,9 @@ public class CustomAssertions {
         return new ClientCallAssert<>(call);
     }
 
-    public static class ACLListAssert extends AbstractAssert<ACLListAssert, List<ACLEntryDTO>> {
+    public static class ACLListAssert<T extends ACLEntryDTO> extends AbstractAssert<ACLListAssert<T>, List<T>> {
 
-        protected ACLListAssert(List<ACLEntryDTO> actual) {
+        protected ACLListAssert(List<T> actual) {
             super(actual, ACLListAssert.class);
         }
 

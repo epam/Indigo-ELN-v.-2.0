@@ -85,7 +85,7 @@ public class ProjectService {
         return projectRepository.getTotalCounts();
     }
 
-    public List<ACLEntryDTO> updateProjectAccess(UUID projectId, List<AccessForm> form) {
+    public List<ACLDetailsEntryDTO> updateProjectAccess(UUID projectId, List<AccessForm> form) {
         ProjectEntity project = projectRepository.get(projectId);
         // TODO issue separate select for update
 //        projectRepository.getEntityManager().lock(project, LockModeType.PESSIMISTIC_WRITE);
