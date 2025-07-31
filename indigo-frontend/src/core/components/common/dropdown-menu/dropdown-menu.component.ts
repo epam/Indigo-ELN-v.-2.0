@@ -28,6 +28,8 @@ export class DropdownMenuComponent
   @Output() itemSelected = new EventEmitter<string>();
   @Output() dropdownToggled = new EventEmitter<boolean>();
 
+  @Input() controlled = false;
+
   readonly containerSelector = '.dd-container';
 
   ngAfterViewInit() {
@@ -47,7 +49,7 @@ export class DropdownMenuComponent
 
     event.stopPropagation();
     if (this.selected !== item.label) {
-      this.selected = item.label;
+      if (!this.controlled) this.selected = item.label;
       this.itemSelected.emit(item.value);
     }
     this.isOpen = false;

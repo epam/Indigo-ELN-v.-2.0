@@ -1,12 +1,11 @@
 <eln-card classList="h-full">
-  <div
-    class="flex items-center justify-between border-b border-b-neutral-200 pb-3"
-  >
+  <div class="flex items-center justify-between border-b border-b-neutral-200 pb-3">
     <div class="flex items-center gap-2">
       <h2 class="font-semibold text-base">Team</h2>
       <eln-counter [count]="team.length" variant="grey" size="large" />
     </div>
-    <eln-button variant="blue-outline" classList="text-primary-400">
+    <!-- TODO enable when sharing feature is implemented -->
+    <eln-button variant="blue-outline" classList="text-primary-400" [disabled]="true">
       <em class="indicon-share"></em>
       Share
     </eln-button>
@@ -14,28 +13,21 @@
 
   <div class="space-y-2 py-3">
     @for (member of team; track member) {
-      <div
-        class="grid grid-cols-[auto_1fr_auto_auto] gap-4 items-center p-2 hover:bg-neutral-100 rounded-lg text-neutral-1000"
-      >
-        <eln-avatar [img]="member.avatar" classList="w-8 h-8" />
-        <p class="text-neutral-1000">{{ member.name }}</p>
-        <p
-          class="text-neutral-800 overflow-hidden text-ellipsis whitespace-nowrap max-w-[148px] text-ellipsis"
-        >
-          {{ member.email }}
-        </p>
-        <div class="flex items-center gap-2">
-          <eln-copy [text]="member.email" />
-          <eln-dropdown-menu
-            class="[&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-[110px]"
-            [selected]="member.role"
-            [items]="[
-              { label: 'Admin', value: 'Admin' },
-              { label: 'Member', value: 'Member' },
-            ]"
-          />
-        </div>
+    <div
+      class="grid grid-cols-[auto_1fr_auto_auto] gap-4 items-center p-2 hover:bg-neutral-100 rounded-lg text-neutral-1000">
+      <!-- TODO add avatar to ACL in project response -->
+      <!-- <eln-avatar [img]="member.avatar" classList="w-8 h-8" /> -->
+      <p class="text-neutral-1000">{{ member.displayName }}</p>
+      <p class="text-neutral-800 overflow-hidden text-ellipsis whitespace-nowrap max-w-[148px] text-ellipsis">
+        {{ member.username }}
+      </p>
+      <div class="flex items-center gap-2">
+        <eln-copy [text]="member.username" />
+        <eln-dropdown-menu class="[&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-[110px]" [controlled]="true"
+          [selected]="normalizeLabel(member.level)" [items]="aclLevelOptions"
+          (itemSelected)="updateAclLevel(member, $event)" />
       </div>
+    </div>
     }
   </div>
 </eln-card>
