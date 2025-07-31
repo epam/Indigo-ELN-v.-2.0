@@ -1,13 +1,14 @@
 import { FormDialogComponent } from '@/core/components/common/form-dialog/form-dialog.component';
 import { ApiService } from '@/core/services/api.service';
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
 import { catchError, of, tap } from 'rxjs';
+import { Project } from '@core/types/entities/project.i';
 
 @Component({
   standalone: true,
@@ -21,12 +22,12 @@ import { catchError, of, tap } from 'rxjs';
   ],
   templateUrl: './project-add.component.html',
 })
-export class ProjectAddComponent {
-  project!: any;
+export class ProjectAddComponent implements OnInit {
+  project!: Project;
   dialogRef = inject(MatDialogRef);
   data = inject(MAT_DIALOG_DATA);
   title = 'Add Project';
-  submitAction: (data: any) => void = this.createProject.bind(this);
+  submitAction: (data: Project) => void = this.createProject.bind(this);
   fields: FormlyFieldConfig[] = [
     {
       type: 'input',
@@ -68,6 +69,9 @@ export class ProjectAddComponent {
   ];
 
   constructor(protected service: ApiService<any>) {
+  }
+
+  ngOnInit(): void {
     this.project = this.data?.project || null;
 
     if (this.project) {
@@ -80,7 +84,7 @@ export class ProjectAddComponent {
     }
   }
 
-  createProject(data: any) {
+  createProject(data: Project) {
     this.service
       .create('projects', {
         ...data,
@@ -101,7 +105,7 @@ export class ProjectAddComponent {
       .subscribe();
   }
 
-  updateProject(data: any) {
+  updateProject(data: Project) {
     this.service
       .update(`projects/${this.project.id}`, {
         ...data,
