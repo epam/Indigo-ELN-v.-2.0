@@ -21,6 +21,9 @@ import { fileTypeConfig } from './file-upload.config';
 export class FileUploadComponent implements OnInit {
   @Input() maxSizeMB = 5; // Default max file size (5MB)
   @Input() allowedTypes = ['doc', 'image', 'pdf', 'xls', 'ppt', 'csv'];
+  @Input() uploadingFile = false;
+  @Input() withPreview = true;
+  @Input() loadingText = 'Uploading...';
   mimeTypes: string[] = [];
   acceptedExtensions = '';
   userService = inject(UserService);
