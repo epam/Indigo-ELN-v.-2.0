@@ -1,7 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.exception.AccessDeniedException;
-import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.BaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
@@ -148,7 +147,7 @@ class PermissionsTest extends BaseTest {
 
     @Test
     void testListProjects() {
-        Page<ProjectDTO> projects = projectClient.getProjects(null, PAGING);
+        Page<ProjectDTO> projects = projectClient.getProjects(null, null, null, PAGING);
         Set<String> expected = StreamEx.of(rows)
                 .filter(r -> r.effectiveProject != NONE)
                 .map(r -> r.projectDetails.getName())
@@ -246,7 +245,7 @@ class PermissionsTest extends BaseTest {
                     .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
         }
     }
-    
+
     @Test
     void testGetNotebook() {
         for (TestRow row : rows) {
@@ -365,7 +364,7 @@ class PermissionsTest extends BaseTest {
     @Test
     @TestSecurity(user = BART_USERNAME)
     void testContentEditorCanSeeEverything() {
-        assertThat(projectClient.getProjects(null, PAGING).getTotalItems()).isEqualTo(rows.size());
+        assertThat(projectClient.getProjects(null, null, null, PAGING).getTotalItems()).isEqualTo(rows.size());
         for (TestRow row : rows) {
             assertThatClientCall(() -> projectClient.getProject(row.projectId))
                     .isSuccessful();
@@ -538,7 +537,7 @@ class PermissionsTest extends BaseTest {
             List<ACLDetailsEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(testHelper.getLisaUserID(), EDIT));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false, WILLOW_DISPLAY_NAME, EDIT, false);
             Paging paging = new Paging(0, 1);
-            ProjectDTO projectDTO = projectClient.getProjects(null, paging).getItems().getFirst();
+            ProjectDTO projectDTO = projectClient.getProjects(null, null, null, paging).getItems().getFirst();
             assertThat(projectDTO.getId()).isEqualTo(project.getId());
             assertThatACL(projectDTO.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false);
             assertThat(projectDTO.getAclCount()).isEqualTo(4);
@@ -551,7 +550,7 @@ class PermissionsTest extends BaseTest {
             assertThat(notebookDTO.getId()).isEqualTo(notebook2.getId());
             assertThatACL(notebookDTO.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false);
             assertThat(notebookDTO.getAclCount()).isEqualTo(4);
-            
+
             experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(testHelper.getWillowUserID(), EDIT));
             experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(testHelper.getBartUserID(), EDIT));
             acl = experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(testHelper.getLisaUserID(), EDIT));

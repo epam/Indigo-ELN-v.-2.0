@@ -2,17 +2,15 @@ package com.epam.indigoeln.eln.repository;
 
 import com.epam.indigoeln.eln.entity.ProjectEntity;
 import com.epam.indigoeln.eln.entity.TotalCountsEntity;
+import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.Conditions;
 import com.epam.indigoeln.eln.util.ListWithTotal;
+import io.quarkus.panache.common.Sort;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.Query;
-import jakarta.persistence.TypedQuery;
-
-import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -25,12 +23,23 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
         super(EntityType.PROJECT);
     }
 
-    public ListWithTotal<ProjectDTO> findAll(@Nullable String search, Paging paging) {
+    public ListWithTotal<ProjectDTO> findAll(@Nullable String search, @Nullable String sort, @Nullable UserEntity createdByUser, Paging paging) {
+        Sort sortOrder = DEFAULT_SORT;
+
+        if ("Earliest".equalsIgnoreCase(sort)) {
+            sortOrder = Sort.ascending("createdAt");
+        } else if ("Latest".equalsIgnoreCase(sort)) {
+            sortOrder = Sort.descending("createdAt");
+        }
+
+        Conditions conditions = new Conditions()
+                .addIfNotNull("full_text_search(searchVector, to_tsquery('english', ?))", search)
+                .addIfNotNull("createdBy = ?", createdByUser);
+
         return doFindWithTotals(
-                new Conditions()
-                        .addIfNotNull("full_text_search(searchVector, to_tsquery('english', ?))", search),
+                conditions,
                 paging,
-                DEFAULT_SORT,
+                sortOrder,
                 em.getEntityGraph("Project.list"),
                 projectMapper::entityToDTO
         );

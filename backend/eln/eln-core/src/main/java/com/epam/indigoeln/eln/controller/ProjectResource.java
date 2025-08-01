@@ -32,8 +32,8 @@ public class ProjectResource implements ProjectAPI {
     }
 
     @Override
-    public @NotNull @Valid Page<ProjectDTO> getProjects(@Nullable String search, @Valid Paging paging) {
-        return projectService.getProjects(search, paging);
+    public @NotNull @Valid Page<ProjectDTO> getProjects(@Nullable String search, @Nullable String sort, @Nullable Boolean createdByMe, @Valid Paging paging) {
+        return projectService.getProjects(search, sort, createdByMe, paging);
     }
 
     @Override
