@@ -5,10 +5,10 @@
       <eln-counter [count]="team.length" variant="grey" size="large" />
     </div>
     <!-- TODO enable when sharing feature is implemented -->
-    <eln-button variant="blue-outline" classList="text-primary-400" [disabled]="true">
+    <!-- <eln-button variant="blue-outline" classList="text-primary-400" [disabled]="true">
       <em class="indicon-share"></em>
       Share
-    </eln-button>
+    </eln-button> -->
   </div>
 
   <div class="space-y-2 py-3">
@@ -23,9 +23,9 @@
       </p>
       <div class="flex items-center gap-2">
         <eln-copy [text]="member.username" />
-        <eln-dropdown-menu class="[&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-[110px]" [controlled]="true"
+        <eln-dropdown-menu class="[&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-34" [controlled]="true"
           [selected]="normalizeLabel(member.level)" [items]="aclLevelOptions"
-          (itemSelected)="updateAclLevel(member, $event)" />
+          (itemSelected)="updateAclLevel(member, $event)" [disabled]="isInmutableLevel(member.level) || isAclMemberLoading(member)" />
       </div>
     </div>
     }

@@ -1,4 +1,4 @@
-export enum AclLevels {
+export enum AclLevel {
   NONE = 'NONE',
   IMPLICIT_VIEW = 'IMPLICIT_VIEW',
   VIEW = 'VIEW',
