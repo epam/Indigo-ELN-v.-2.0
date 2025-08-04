@@ -24,7 +24,7 @@
       <div class="flex items-center gap-2">
         <eln-copy [text]="member.username" />
         <eln-dropdown-menu class="[&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-34" [controlled]="true"
-          [selected]="normalizeLabel(member.level)" [items]="aclLevelOptions"
+          [selected]="member.level | normalizeLabel" [items]="aclLevelOptions"
           (itemSelected)="updateAclLevel(member, $event)" [disabled]="isInmutableLevel(member.level) || isAclMemberLoading(member)" />
       </div>
     </div>

@@ -6,12 +6,13 @@ import { CounterComponent } from '../../common/counter/counter.component';
 import { DropdownMenuComponent } from '../../common/dropdown-menu/dropdown-menu.component';
 import { ProjectAcl } from '@/core/types/entities/acl.i';
 import { AclLevel } from '@/core/enums/acl-levels.enum';
-import { capitalize } from 'lodash';
 import { Project } from '@/core/types/entities/project.i';
 import { ApiService } from '@/core/services/api.service';
 import { catchError, of, Subject, takeUntil } from 'rxjs';
+import { NormalizeLabelPipe } from '@/core/pipes/normalizeLabe.pipe';
+import { normalizeLabel } from '@/core/utils/string.util';
 
-const INMUTABLE_ACL_LEVELS = [ AclLevel.AUTHOR ]
+const INMUTABLE_ACL_LEVELS = [AclLevel.AUTHOR]
 
 @Component({
   selector: 'eln-team',
@@ -23,6 +24,7 @@ const INMUTABLE_ACL_LEVELS = [ AclLevel.AUTHOR ]
     CopyComponent,
     DropdownMenuComponent,
     CardComponent,
+    NormalizeLabelPipe,
   ],
 })
 export class TeamComponent implements OnDestroy {
@@ -31,10 +33,6 @@ export class TeamComponent implements OnDestroy {
   private destroy$ = new Subject<void>();
   service = inject(ApiService);
   aclMembersLoading = new Set<string>(); // Tracks which members are loading
-
-  normalizeLabel(key: string): string {
-    return capitalize(key.toLowerCase().replaceAll("_", " "))
-  }
 
   isInmutableLevel(level: AclLevel): boolean {
     return INMUTABLE_ACL_LEVELS.includes(level);
@@ -47,7 +45,7 @@ export class TeamComponent implements OnDestroy {
   aclLevelOptions = Object.values(AclLevel)
     .filter((value) => !this.isInmutableLevel(value))
     .map((value) => ({
-      label: this.normalizeLabel(value),
+      label: normalizeLabel(value),
       value
     }));
 
