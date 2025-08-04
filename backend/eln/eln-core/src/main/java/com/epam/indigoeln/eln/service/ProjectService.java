@@ -3,6 +3,7 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
+import com.epam.indigoeln.eln.util.SortOrder;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
@@ -63,7 +64,9 @@ public class ProjectService {
             currentUser = userService.getCurrentUser();
         }
 
-        ListWithTotal<ProjectDTO> list = projectRepository.findAll(search, sort, currentUser, paging);
+        SortOrder sortOrder = SortOrder.fromString(sort);
+
+        ListWithTotal<ProjectDTO> list = projectRepository.findAll(search, sortOrder, currentUser, paging);
         return Page.of(paging, list.total(), list.list());
     }
 
