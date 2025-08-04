@@ -64,8 +64,6 @@
         <eln-file-upload (filesSelected)="onUpload($event)" [uploadingFile]="isUploadingAttachment" [withPreview]="false"/>
       </div>
     </eln-card>
-
-    <!-- TODO Show team members (available in project.team response? or where?) -->
-    <!-- <eln-team [team]="project.team" /> -->
+    <eln-team [team]="project.acl" [project]="project" />
   </div>
 }

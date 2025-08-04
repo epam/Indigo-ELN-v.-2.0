@@ -2,7 +2,7 @@ import { AttachmentComponent } from '@/core/components/common/attachment/attachm
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ChipComponent } from '@/core/components/common/chip/chip.component';
-// import { TeamComponent } from '@/core/components/project/team/team.component';
+import { TeamComponent } from '@/core/components/project/team/team.component';
 import { ApiService } from '@/core/services/api.service';
 import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
@@ -23,7 +23,7 @@ import { ProjectAddComponent } from '../project-add/project-add.component';
     ButtonComponent,
     ChipComponent,
     AttachmentComponent,
-    // TeamComponent TODO Show team members (available in project.team response? or where?),
+    TeamComponent,
     CardComponent,
     FileUploadComponent
   ],
