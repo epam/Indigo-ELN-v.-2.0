@@ -11,7 +11,7 @@
   @for (notebook of data; track notebook.id) {
     <eln-notebook-item [notebook]="notebook" [variant]="selectedView" />
   }
-  <eln-experiment-card [experiment]="gg" [variant]="selectedView"></eln-experiment-card>
+  <eln-experiment-card [experiment]="dummyExperiment" [variant]="selectedView"></eln-experiment-card>
   <eln-infinite-loader
     [classNames]="
       {

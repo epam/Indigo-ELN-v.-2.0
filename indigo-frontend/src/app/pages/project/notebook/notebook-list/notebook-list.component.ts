@@ -51,7 +51,7 @@ export class NotebookListComponent
   selectedView: 'grid' | 'list' = 'grid';
   private refreshSub!: Subscription;
   projectId: string;
-  gg: Experiment = {
+  dummyExperiment: Experiment = {
     status: 'Rejected',
     id: '',
     name: 'Experiment 1',
