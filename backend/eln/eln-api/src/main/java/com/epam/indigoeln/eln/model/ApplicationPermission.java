@@ -31,7 +31,7 @@ public enum ApplicationPermission {
     EDIT_EXPERIMENTS,
     MANAGE_EXPERIMENT_ACCESS,
     DELETE_EXPERIMENTS,
-
+    SUBMIT_EXPERIMENTS,
     ;
 
     public boolean isAllowedBy(@Nullable AccessLevel accessLevel) {

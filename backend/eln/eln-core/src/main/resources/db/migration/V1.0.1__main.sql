@@ -1,6 +1,22 @@
-CREATE TYPE Experiment_Status AS ENUM ('OPEN', 'WAITING_FOR_SIGNATURE', 'COMPLETED', 'REJECTED');
+CREATE TYPE Experiment_Status AS ENUM (
+    'OPEN',
+    'REOPEN',
+    'COMPLETED',
+    'SUBMITTED',
+    'SIGNING',
+    'REJECTED',
+    'SIGNED',
+    'ARCHIVED',
+    'CANCELLED'
+);
 
-CREATE TYPE Access_Level AS ENUM ('IMPLICIT_VIEW', 'VIEW', 'EDIT', 'ADMIN', 'AUTHOR');
+CREATE TYPE Access_Level AS ENUM (
+    'IMPLICIT_VIEW',
+    'VIEW',
+    'EDIT',
+    'ADMIN',
+    'AUTHOR'
+);
 
 CREATE TYPE ACL_Entry AS (user_id UUID, display_name TEXT, level Access_Level, inherited BOOLEAN);
 
@@ -25,7 +41,18 @@ CREATE TYPE Application_Permission AS ENUM (
     'VIEW_EXPERIMENTS',
     'CREATE_EXPERIMENTS',
     'EDIT_EXPERIMENTS',
-    'DELETE_EXPERIMENTS'
+    'DELETE_EXPERIMENTS',
+    'SUBMIT_EXPERIMENTS'
+);
+
+CREATE TYPE Signature_Reason AS ENUM (
+    'AUTHOR',
+    'WITNESS'
+);
+
+CREATE TYPE Signature_Status AS ENUM (
+    'APPROVED',
+    'REJECTED'
 );
 
 CREATE TABLE Application_Role (
@@ -221,6 +248,27 @@ CREATE TABLE Template (
     CONSTRAINT template_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id)
 );
 
+CREATE TABLE Signature_Template (
+    id UUID PRIMARY KEY,
+    created_by_id UUID NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL,
+    modified_by_id UUID NOT NULL,
+    modified_at TIMESTAMPTZ NOT NULL,
+    name VARCHAR(256) NOT NULL,
+    CONSTRAINT template_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
+    CONSTRAINT template_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id)
+);
+
+CREATE TABLE Signature_Template_Block (
+    signature_template_id UUID NOT NULL,
+    ordinal INT NOT NULL,
+    user_id UUID,
+    reason Signature_Reason NOT NULL,
+    CONSTRAINT signature_template_block_pk PRIMARY KEY (signature_template_id, ordinal),
+    CONSTRAINT signature_template_block_signature_template_id_fk FOREIGN KEY (signature_template_id) REFERENCES Signature_Template (id) ON DELETE CASCADE,
+    CONSTRAINT signature_template_block_user_id_fk FOREIGN KEY (user_id) REFERENCES User_Account (id)
+);
+
 CREATE TABLE Experiment (
     id UUID PRIMARY KEY,
     created_by_id UUID NOT NULL,
@@ -271,4 +319,13 @@ CREATE TABLE Experiment_ACL (
     CONSTRAINT experiment_acl_pk PRIMARY KEY (experiment_id, user_id),
     CONSTRAINT experiment_acl_experiment_id_fk FOREIGN KEY (experiment_id) REFERENCES Experiment (id) ON DELETE CASCADE,
     CONSTRAINT experiment_acl_user_id_fk FOREIGN KEY (user_id) REFERENCES User_Account (id) ON DELETE CASCADE
+);
+
+CREATE TABLE Experiment_Signature (
+    experiment_id UUID NOT NULL,
+    ordinal INT NOT NULL,
+    user_id UUID NOT NULL,
+    reason Signature_Reason NOT NULL,
+    status Signature_Status,
+    CONSTRAINT experiment_signature_pk PRIMARY KEY (experiment_id, ordinal)
 );

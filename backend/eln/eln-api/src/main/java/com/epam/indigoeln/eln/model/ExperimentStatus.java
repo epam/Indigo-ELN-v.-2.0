@@ -7,7 +7,7 @@ public enum ExperimentStatus {
     SUBMITTED, // waiting signature
     SIGNING, // waiting signature
     REJECTED, // rejected
-    SIGNED, // don't show
-    ARCHIVED, // don't show
-    CANCELLED, // cancelled
+    SIGNED, // waiting signature (?)
+    ARCHIVED, // completed (?)
+    CANCELLED, // don't show or rejected (?)
 }

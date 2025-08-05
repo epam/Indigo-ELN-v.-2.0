@@ -46,6 +46,7 @@ import java.util.*;
                 @NamedAttributeNode("projectCode"),
                 @NamedAttributeNode("marked"),
                 @NamedAttributeNode("aclEntities"),
+                @NamedAttributeNode("signatures")
         }
 )
 @NamedEntityGraph(
@@ -136,6 +137,12 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @JoinTable(name = "experiment_attachment", joinColumns = @JoinColumn(name = "experiment_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
+
+    @NotNull
+    @ElementCollection
+    @CollectionTable(name = "experiment_signature", joinColumns = @JoinColumn(name = "experiment_id"))
+    @OrderColumn(name = "ordinal")
+    private List<ExperimentSignatureEmbedded> signatures = new ArrayList<>();
 
     @NotNull
     @ManyToMany

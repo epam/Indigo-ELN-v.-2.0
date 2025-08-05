@@ -33,6 +33,7 @@ public abstract class BaseTest {
     protected NotebookClient notebookClient;
     protected ExperimentClient experimentClient;
     protected TemplateClient templateClient;
+    protected SignatureTemplateClient signatureTemplateClient;
     protected CompoundClient compoundClient;
     protected MiscClient miscClient;
     protected TestSupportClient testSupportClient;
@@ -63,6 +64,7 @@ public abstract class BaseTest {
         notebookClient = FeignUtil.buildFeignClient(baseURL, NotebookClient.class, username, authorization);
         experimentClient = FeignUtil.buildFeignClient(baseURL, ExperimentClient.class, username, authorization);
         templateClient = FeignUtil.buildFeignClient(baseURL, TemplateClient.class, username, authorization);
+        signatureTemplateClient = FeignUtil.buildFeignClient(baseURL, SignatureTemplateClient.class, username, authorization);
         compoundClient = FeignUtil.buildFeignClient(baseURL, CompoundClient.class, username, authorization);
         miscClient = FeignUtil.buildFeignClient(baseURL, MiscClient.class, username, authorization);
         userClient = FeignUtil.buildFeignClient(baseURL, UserClient.class, username, authorization);

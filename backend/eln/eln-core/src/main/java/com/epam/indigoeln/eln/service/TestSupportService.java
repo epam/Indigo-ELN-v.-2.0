@@ -25,6 +25,7 @@ public class TestSupportService {
         em.createNativeQuery("delete from Notebook").executeUpdate();
         em.createNativeQuery("delete from Project").executeUpdate();
         em.createNativeQuery("delete from Template").executeUpdate();
+        em.createNativeQuery("delete from Signature_Template").executeUpdate();
         // samples, compounds
         em.createNativeQuery("delete from Sample").executeUpdate();
         em.createNativeQuery("delete from Compound").executeUpdate();

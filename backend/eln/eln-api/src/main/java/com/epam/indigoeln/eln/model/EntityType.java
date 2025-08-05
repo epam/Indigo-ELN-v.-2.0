@@ -8,6 +8,7 @@ public enum EntityType {
     NOTEBOOK,
     EXPERIMENT,
     TEMPLATE,
+    SIGNATURE_TEMPLATE,
 
     ATTACHMENT,
 

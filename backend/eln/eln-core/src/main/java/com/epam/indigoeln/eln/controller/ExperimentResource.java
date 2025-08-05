@@ -5,6 +5,7 @@ import com.epam.indigoeln.eln.api.*;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ExperimentService;
+import com.epam.indigoeln.eln.service.ExperimentWorkflowService;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import jakarta.inject.Inject;
@@ -27,6 +28,8 @@ public class ExperimentResource implements ExperimentAPI {
     AttachmentService attachmentService;
     @Inject
     ExperimentModelService experimentModelService;
+    @Inject
+    ExperimentWorkflowService experimentWorkflowService;
 
     @Override
     public @NotNull @Valid ExperimentDetailsDTO createExperiment(@NotNull UUID notebookId, @NotNull @Valid ExperimentRequest request) {
@@ -101,5 +104,45 @@ public class ExperimentResource implements ExperimentAPI {
     @Override
     public ExperimentModel mutateExperimentModel(UUID experimentId, MutateModelForm modelAndMutation) {
         return experimentService.mutateModel(experimentId, modelAndMutation.getModel(), modelAndMutation.getMutation());
+    }
+
+    @Override
+    public ExperimentDetailsDTO cancelExperiment(UUID experimentId) {
+        return experimentWorkflowService.cancelExperiment(experimentId);
+    }
+
+    @Override
+    public ExperimentDetailsDTO reopenExperiment(UUID experimentId) {
+        return experimentWorkflowService.reopenExperiment(experimentId);
+    }
+
+    @Override
+    public ExperimentDetailsDTO completeExperiment(UUID experimentId) {
+        return experimentWorkflowService.completeExperiment(experimentId);
+    }
+
+    @Override
+    public ExperimentDetailsDTO submitExperiment(UUID experimentId, UUID signatureTemplateId) {
+        return experimentWorkflowService.submitExperiment(experimentId, signatureTemplateId);
+    }
+
+    @Override
+    public ExperimentDetailsDTO completeAndSubmitExperiment(UUID experimentId, UUID signatureTemplateId) {
+        return experimentWorkflowService.completeAndSubmitExperiment(experimentId, signatureTemplateId);
+    }
+
+    @Override
+    public ExperimentDetailsDTO approveExperiment(UUID experimentId) {
+        return experimentWorkflowService.approveOrRejectExperiment(experimentId, SignatureStatus.APPROVED);
+    }
+
+    @Override
+    public ExperimentDetailsDTO rejectExperiment(UUID experimentId) {
+        return experimentWorkflowService.approveOrRejectExperiment(experimentId, SignatureStatus.REJECTED);
+    }
+
+    @Override
+    public ExperimentDetailsDTO resubmitExperiment(UUID experimentId) {
+        return experimentWorkflowService.resubmitExperiment(experimentId);
     }
 }

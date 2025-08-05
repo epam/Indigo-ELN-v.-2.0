@@ -77,4 +77,36 @@ public interface ExperimentAPI extends BaseAPI {
     @POST
     @Path("/experiments/{experimentId}/datamodel")
     ExperimentModel mutateExperimentModel(@PathParam("experimentId") UUID experimentId, MutateModelForm modelAndMutation);
+
+    @POST
+    @Path("/experiments/{experimentId}/workflow/cancel")
+    ExperimentDetailsDTO cancelExperiment(@PathParam("experimentId") UUID experimentId);
+
+    @POST
+    @Path("/experiments/{experimentId}/workflow/reopen")
+    ExperimentDetailsDTO reopenExperiment(@PathParam("experimentId") UUID experimentId);
+
+    @POST
+    @Path("/experiments/{experimentId}/workflow/complete")
+    ExperimentDetailsDTO completeExperiment(@PathParam("experimentId") UUID experimentId);
+
+    @POST
+    @Path("/experiments/{experimentId}/workflow/sign")
+    ExperimentDetailsDTO submitExperiment(@PathParam("experimentId") UUID experimentId, @QueryParam("signatureTemplateId") UUID signatureTemplateId);
+
+    @POST
+    @Path("/experiments/{experimentId}/workflow/completeAndSubmit")
+    ExperimentDetailsDTO completeAndSubmitExperiment(@PathParam("experimentId") UUID experimentId, @QueryParam("signatureTemplateId") UUID signatureTemplateId);
+
+    @POST
+    @Path("/experiments/{experimentId}/workflow/approve")
+    ExperimentDetailsDTO approveExperiment(@PathParam("experimentId") UUID experimentId);
+
+    @POST
+    @Path("/experiments/{experimentId}/workflow/reject")
+    ExperimentDetailsDTO rejectExperiment(@PathParam("experimentId") UUID experimentId);
+
+    @POST
+    @Path("/experiments/{experimentId}/workflow/resubmit")
+    ExperimentDetailsDTO resubmitExperiment(@PathParam("experimentId") UUID experimentId);
 }
