@@ -5,7 +5,6 @@ import { PaginatedBase } from './paginated.base';
 export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
   dataBh = new BehaviorSubject<T[]>([]);
   data$: Observable<T[]>;
-  search = '';
   appendToTop = false;
 
   protected override initialize(): void {
@@ -38,9 +37,28 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
     }
   }
 
+  override search(value: string) {
+    this.pager.pageNo = 0;
+    this.dataBh.next([]);
+    super.search(value);
+  }
+
+  override sort(sortBy: string, sortOrder?: 'asc' | 'desc') {
+    this.pager.pageNo = 0;
+    this.dataBh.next([]);
+    super.sort(sortBy, sortOrder);
+  }
+
+  override clearSort() {
+    this.pager.pageNo = 0;
+    this.dataBh.next([]);
+    super.clearSort();
+  }
+
   reload() {
     this.firstLoad = true;
     this.appendToTop = true;
+    this.dataBh.next([]); // Clear data on reload
     this.dataSubject$.next(null);
   }
 }

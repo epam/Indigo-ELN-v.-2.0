@@ -1,12 +1,19 @@
-<div #dropdownContainer class="dd-container relative text-sm" [class.opacity-50]="disabled"
-  [class.pointer-events-none]="disabled">
+<div
+  #dropdownContainer
+  class="dd-container relative text-sm"
+  [class.opacity-50]="disabled"
+  [class.pointer-events-none]="disabled"
+>
   <div
     class="dd-trigger relative inline-flex items-center gap-2 rounded-lg px-3 py-2 transition-colors duration-200 cursor-pointer select-none hover:bg-neutral-100 active:bg-neutral-200"
     [class.bg-neutral-100]="isOpen"
+    [class.border-red-300]="hasError"
+    [class.border-green-300]="hasSuccess"
+    [class.border]="hasError || hasSuccess"
     (click)="toggleDropdown($event)"
   >
-    <em *ngIf="selected" class="indicon-check text-primary-400"></em>
-    <span>{{ selected || 'Select Item' }}</span>
+    <em *ngIf="selectedItem?.icon" [class]="selectedItem.icon"></em>
+    <span>{{ selected || placeholder }}</span>
     <em
       *ngIf="!disabled"
       class="indicon-chevron_down ml-auto transition-transform duration-200"
