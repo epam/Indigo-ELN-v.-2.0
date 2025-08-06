@@ -1,5 +1,5 @@
 import { ApiService } from '@/core/services/api.service';
-import { PagedRequest } from '@/core/types/request/paged-request.i';
+import { PagedRequest, SortOption } from '@/core/types/request/paged-request.i';
 import { PaginatedResponse } from '@/core/types/response/paginated-response.i';
 import { inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -33,8 +33,13 @@ export abstract class PaginatedBase<T> {
     pageNo: 0,
   };
 
+  protected currentSort: { sortBy: string; sortOrder: 'asc' | 'desc' } | null =
+    null;
+  protected sortOptions: SortOption[] = [];
+
   protected dataList$: Observable<PaginatedResponse<T>>;
   protected dataSubject$ = new BehaviorSubject<PaginatedResponse<T>>(null);
+
   constructor() {
     this.activatedRoute = inject(ActivatedRoute);
     this.service = inject(ApiService);
@@ -43,6 +48,17 @@ export abstract class PaginatedBase<T> {
 
   protected setup(config: PaginatedConfig) {
     this.config = { ...this.config, ...config };
+
+    if (config.sortOptions) {
+      this.sortOptions = config.sortOptions;
+    }
+
+    if (config.defaultSort) {
+      this.currentSort = config.defaultSort;
+      this.pager.sortBy = config.defaultSort.sortBy;
+      this.pager.sortOrder = config.defaultSort.sortOrder;
+    }
+
     this.initialize();
   }
 
@@ -62,6 +78,8 @@ export abstract class PaginatedBase<T> {
                       pageNo: 0,
                       // + 1 since pageNo 0 = Page 1
                       pageSize: (this.pager.pageNo + 1) * this.pager.pageSize,
+                      sortBy: this.pager.sortBy,
+                      sortOrder: this.pager.sortOrder,
                     }
                   : // For subsequent loads or restoration disabled, use standard pager
                     this.pager;
@@ -109,10 +127,25 @@ export abstract class PaginatedBase<T> {
 
             Object.keys(queryFilters).forEach((key) => {
               if (key in this.pager) {
-                this.pager[key] = Number(queryFilters[key]);
+                // Handle special cases for pager properties
+                if (key === 'sortBy') {
+                  this.pager[key] = queryFilters[key] as string;
+                } else if (key === 'sortOrder') {
+                  this.pager[key] = queryFilters[key] as 'asc' | 'desc';
+                } else {
+                  this.pager[key] = Number(queryFilters[key]);
+                }
                 delete queryFilters[key];
               }
             });
+
+            // Handle sorting from query params
+            if (params['sortBy']) {
+              this.currentSort = {
+                sortBy: params['sortBy'] as string,
+                sortOrder: (params['sortOrder'] as 'asc' | 'desc') || 'asc',
+              };
+            }
 
             Object.assign(this.filters, queryFilters);
 
@@ -162,5 +195,56 @@ export abstract class PaginatedBase<T> {
     }
 
     this.dataSubject$.next(null);
+  }
+
+  protected search(value: string) {
+    this.filters['search'] = value;
+    this.fetchDataAndUpdateQueryParams();
+  }
+
+  public sort(sortBy: string, sortOrder?: 'asc' | 'desc') {
+    // If no sortOrder provided, determine it based on current sort
+    if (!sortOrder) {
+      if (this.currentSort?.sortBy === sortBy) {
+        // Toggle sort order if same field
+        sortOrder = this.currentSort.sortOrder === 'asc' ? 'desc' : 'asc';
+      } else {
+        // Use default order for new field or 'asc' as fallback
+        const option = this.sortOptions.find((opt) => opt.value === sortBy);
+        sortOrder = option?.defaultOrder || 'asc';
+      }
+    }
+
+    this.currentSort = { sortBy, sortOrder };
+    this.pager.sortBy = sortBy;
+    this.pager.sortOrder = sortOrder;
+    this.pager.pageNo = 0; // Reset to first page when sorting
+
+    this.fetchDataAndUpdateQueryParams();
+  }
+
+  public clearSort() {
+    this.currentSort = null;
+    delete this.pager.sortBy;
+    delete this.pager.sortOrder;
+    this.pager.pageNo = 0;
+
+    this.fetchDataAndUpdateQueryParams();
+  }
+
+  public getCurrentSort() {
+    return this.currentSort;
+  }
+
+  public getSortOptions() {
+    return this.sortOptions;
+  }
+
+  public isSortedBy(sortBy: string): boolean {
+    return this.currentSort?.sortBy === sortBy;
+  }
+
+  public getSortOrder(sortBy: string): 'asc' | 'desc' | null {
+    return this.isSortedBy(sortBy) ? this.currentSort!.sortOrder : null;
   }
 }
