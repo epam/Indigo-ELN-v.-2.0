@@ -24,8 +24,6 @@ import java.util.UUID;
 public class ExperimentModelService {
 
     @Inject
-    ObjectMapper objectMapper;
-    @Inject
     ReactionCalculator reactionCalculator;
     @Inject
     SetSchemeHandler setSchemeHandler;
@@ -43,16 +41,6 @@ public class ExperimentModelService {
     OutputSampleMutationHandler outputSampleMutationHandler;
     @Inject
     RegisterSampleHandler registerSampleHandler;
-
-    @SneakyThrows
-    public String serializeModel(ExperimentModel model) {
-        return objectMapper.writeValueAsString(model);
-    }
-
-    @SneakyThrows
-    public ExperimentModel deserializeModel(String json) {
-        return objectMapper.readValue(json, ExperimentModel.class);
-    }
 
     @Valid
     public ExperimentModel createNewModel() {

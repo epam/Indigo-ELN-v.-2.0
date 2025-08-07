@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.entity;
 
+import com.epam.indigoeln.eln.model.TemplateComponent;
 import jakarta.persistence.Entity;
 import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.NamedEntityGraph;
@@ -11,6 +12,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -38,6 +41,5 @@ public class TemplateEntity extends BaseEntity {
 
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
-//    @Column(columnDefinition = "jsonb")
-    private String components;
+    private List<TemplateComponent> components;
 }
