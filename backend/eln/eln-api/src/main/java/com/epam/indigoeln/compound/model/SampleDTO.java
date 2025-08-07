@@ -1,5 +1,6 @@
 package com.epam.indigoeln.compound.model;
 
+import com.epam.indigoeln.eln.model.STRCodeSample;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
@@ -14,5 +15,5 @@ public class SampleDTO {
     @Nullable
     private String batchNumber;
     @Nullable
-    private String strCode;
+    private STRCodeSample strCode;
 }

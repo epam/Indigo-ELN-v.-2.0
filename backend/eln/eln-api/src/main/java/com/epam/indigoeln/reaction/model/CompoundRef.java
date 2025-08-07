@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.STRCodeCompound;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -36,7 +37,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     Double getSaltEQ();
 
     @Nullable
-    String getStrCode();
+    STRCodeCompound getStrCode();
 
     @Nullable
     EnteredValue<MolWeightUnit> getMolWeight();
@@ -71,7 +72,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         private final String formula;
 
         @Nullable
-        private final String strCode;
+        private final STRCodeCompound strCode;
 
         @Override
         public String toString() {
@@ -129,7 +130,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Override
         @Nullable
         @JsonIgnore
-        public String getStrCode() {
+        public STRCodeCompound getStrCode() {
             return null;
         }
 
@@ -180,7 +181,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Override
         @Nullable
         @JsonIgnore
-        public String getStrCode() {
+        public STRCodeCompound getStrCode() {
             return null;
         }
     }

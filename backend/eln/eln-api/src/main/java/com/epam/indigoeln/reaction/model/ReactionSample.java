@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.reaction.model.units.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -32,7 +33,7 @@ public abstract class ReactionSample implements ExperimentModelNode, ToStringTre
     protected EnteredValue<NoUnit> purity;
 
     @Nullable
-    private String strCode;
+    private STRCodeSample strCode;
 
     @NotNull
     private List<DictionaryItemRef> healthHazard = List.of();

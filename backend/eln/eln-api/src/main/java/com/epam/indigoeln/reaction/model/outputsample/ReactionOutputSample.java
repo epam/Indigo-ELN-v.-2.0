@@ -1,6 +1,8 @@
 package com.epam.indigoeln.reaction.model.outputsample;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.STRCodeCompound;
+import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
@@ -9,7 +11,10 @@ import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
@@ -44,7 +49,7 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     private UUID sampleId;
 
     @Nullable
-    private String strCode;
+    private STRCodeSample strCode;
 
     @NotNull
     private List<DictionaryItemRef> handlingPrecautions = List.of();
@@ -121,7 +126,7 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
 
     @NotNull
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public List<String> getPrecursorReactantIds() {
+    public List<STRCodeCompound> getPrecursorReactantIds() {
         return StreamEx.of(row.getReaction().getInputs())
                 .filter(r -> r.getRole() == ReactionInputRole.REACTANT)
                 .map(r -> r.getCompound().getStrCode())

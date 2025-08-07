@@ -6,11 +6,13 @@ import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.mapper.SampleMapper;
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.eln.repository.BaseRepository;
 import com.epam.indigoeln.eln.util.Conditions;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.hibernate.query.NativeQuery;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -54,12 +56,15 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
     }
 
     @Nullable
-    public String getLastSampleStrCode(String compoundStrCode) {
-        return em.createQuery("select strCode from Sample where strCode like ?1 order by strCode desc", String.class)
+    public STRCodeSample getLastSampleStrCode(String compoundStrCode) {
+        //noinspection unchecked
+        NativeQuery<String> query = (NativeQuery<String>) em.createNativeQuery("select str_code from Sample where str_code like ?1 order by str_code desc", String.class);
+        return query
                 .setParameter(1, compoundStrCode + '%')
                 .setMaxResults(1)
                 .getResultStream()
                 .findFirst()
+                .map(STRCodeSample::parse)
                 .orElse(null);
     }
 }
