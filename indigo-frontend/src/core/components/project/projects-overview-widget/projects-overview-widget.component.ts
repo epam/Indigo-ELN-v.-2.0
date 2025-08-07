@@ -1,17 +1,29 @@
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { AsyncPipe, NgIf, NgTemplateOutlet } from '@angular/common';
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Signal } from '@angular/core';
 import { CardComponent } from '../../common/card/card.component';
 import { ProjectsOverviewWidgetService } from './services/projects-overview-widget.service';
+import { ApiService } from '@core/services/api.service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
-interface ProjectsOverviewWidgetData {
-  openExperiments: number;
-  waitingSignature: number;
-  completed: number;
-  rejected: number;
+interface ExperimentStatus {
+  OPEN: number;
+  REOPEN: number;
+  COMPLETED: number;
+  SUBMITTED: number;
+  REJECTED: number;
+  WAITING: number;
+  SIGNING: number;
+  SIGNED: number;
+  ARCHIVED: number;
+  CANCELLED: number;
+}
+
+interface TotalCounts {
   projects: number;
   notebooks: number;
   experiments: number;
+  experimentsByStatus: ExperimentStatus;
 }
 
 @Component({
@@ -23,13 +35,7 @@ interface ProjectsOverviewWidgetData {
 export class ProjectsOverviewWidgetComponent {
   public projectsOverviewWidgetService = inject(ProjectsOverviewWidgetService);
 
-  @Input() data: ProjectsOverviewWidgetData = {
-    openExperiments: 0,
-    waitingSignature: 0,
-    completed: 0,
-    rejected: 0,
-    projects: 0,
-    notebooks: 0,
-    experiments: 0,
-  };
+  apiService = inject(ApiService);
+
+  totalCounts: Signal<TotalCounts> = toSignal(this.apiService.request('get', 'total-counts'));
 }

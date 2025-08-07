@@ -2,15 +2,18 @@ import { AttachmentComponent } from '@/core/components/common/attachment/attachm
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ChipComponent } from '@/core/components/common/chip/chip.component';
-// import { TeamComponent } from '@/core/components/project/team/team.component';
+import { TeamComponent } from '@/core/components/project/team/team.component';
 import { ApiService } from '@/core/services/api.service';
 import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subject } from 'rxjs';
+import { of, Subject, take } from 'rxjs';
 import { takeUntil, catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { FileUploadComponent } from "@/core/components/common/file-upload/file-upload.component";
+import { Attachment } from '@/core/types/entities/attachment.i';
+import { MatDialog } from '@angular/material/dialog';
+import { ProjectAddComponent } from '../project-add/project-add.component';
 
 @Component({
   selector: 'eln-project-info',
@@ -20,20 +23,28 @@ import { of } from 'rxjs';
     ButtonComponent,
     ChipComponent,
     AttachmentComponent,
-    // TeamComponent TODO Show team members (available in project.team response? or where?),
+    TeamComponent,
     CardComponent,
+    FileUploadComponent
   ],
   templateUrl: './project-info.component.html',
 })
 export class ProjectInfoComponent implements OnInit, OnDestroy {
   activatedRoute = inject(ActivatedRoute);
-  private destroy$ = new Subject<void>();
 
-  constructor(protected service: ApiService<Project>) { }
+  dialog = inject(MatDialog);
+
+  service = inject(ApiService);
 
   project: Project | null = null;
+
   isLoading = false;
+
   hasError = false;
+
+  isUploadingAttachment = false;
+
+  private destroy$ = new Subject<void>();
 
   ngOnInit() {
     this.activatedRoute.params
@@ -57,6 +68,45 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
     }
   }
 
+  onUpload(files: File[]): void {
+    this.isUploadingAttachment = true;
+
+    // Validate file existence
+    const file = files[0];
+    if (!file || !this.project) {
+      console.error('No project or file selected for upload');
+      this.isUploadingAttachment = false;
+      return;
+    }
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    // Use the ApiService request method for file upload
+    this.service.request<Attachment[]>(
+      'post',
+      `projects/${this.project.id}/attachments`,
+      formData,
+    )
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError((err) => {
+          console.error('Failed to upload attachment:', err);
+          this.isUploadingAttachment = false;
+          return of(null);
+        })
+      )
+      .subscribe({
+        next: (attachments) => {
+          if (this.project && attachments) this.project.attachments = attachments;
+        },
+        error: (err) => {
+          console.error('Upload error:', err);
+        }, complete: () => {
+          this.isUploadingAttachment = false;
+        }
+      });
+  }
+
   private loadProject(id: string): void {
     this.isLoading = true;
     this.hasError = false;
@@ -77,4 +127,29 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
         },
       });
   }
+
+    async openEditDialog() {
+      const ref = this.dialog.open(ProjectAddComponent, {
+        data: {
+          project: this.project,
+        },
+      });
+      ref
+        .afterClosed()
+        .pipe(
+          take(1)
+        )
+        .subscribe((result) => {
+            if (result === 'refresh') {
+              this.service
+                .request('get', `projects/${this.project.id}`)
+                .pipe(take(1))
+                .subscribe((project) => {
+                    this.project = project as typeof this.project;
+                  }
+                );
+            }
+          }
+        );
+    }
 }

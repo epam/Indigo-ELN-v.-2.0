@@ -1,13 +1,7 @@
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
 import { BaseEntity } from './base-entity.i';
 import { Attachment } from './attachment.i';
-
-export interface ProjectAcl {
-  userId: string;
-  displayName: string;
-  level: string;
-  inherited: boolean;
-}
+import { ProjectAcl } from './acl.i';
 
 export interface TeamMember {
   name: string;

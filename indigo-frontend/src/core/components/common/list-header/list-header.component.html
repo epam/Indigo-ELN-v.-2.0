@@ -1,9 +1,29 @@
 <div class="flex justify-between items-center my-4">
-  <eln-toggle label="My Entities" />
-  <eln-button-toggle
-    [(ngModel)]="selectedView"
-    [options]="viewOptions"
-    variant="alpha"
-    (ngModelChange)="viewChange.emit($event)"
-  />
+  <div class="flex gap-2">
+    <eln-input
+      *ngIf="enableSearch"
+      [(ngModel)]="searchModel"
+      (ngModelChange)="onSearch(searchModel)"
+      placeholder="Search"
+      icon="indicon-search"
+      inputClassname="rounded-full bg-primary-alpha-5 border-primary-alpha-10"
+    />
+  </div>
+  <div class="flex gap-3 items-center">
+    <eln-toggle label="My Entities" />
+    <eln-dropdown-menu
+      *ngIf="enableSort && sortOptions.length > 0"
+      class="[&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-34 [&_.dd-container]:border [&_.dd-container]:border-neutral-300 [&_.dd-container]:rounded-lg [&_.dd-container]:bg-neutral-200 [&_em]:text-lg"
+      [formControl]="sortControl"
+      [items]="sortOptions"
+      placeholder="Sort by"
+    />
+    <eln-button-toggle
+      *ngIf="enableViewToggle"
+      [(ngModel)]="selectedView"
+      [options]="viewOptions"
+      variant="alpha"
+      (ngModelChange)="onViewChange($event)"
+    />
+  </div>
 </div>
