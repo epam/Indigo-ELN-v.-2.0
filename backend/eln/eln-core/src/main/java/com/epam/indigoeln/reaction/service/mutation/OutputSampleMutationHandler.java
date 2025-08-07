@@ -1,7 +1,7 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
 import com.epam.indigoeln.reaction.model.ExperimentModel;
-import com.epam.indigoeln.reaction.model.ReactionOutputSample;
+import com.epam.indigoeln.reaction.model.outputsample.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import jakarta.enterprise.context.ApplicationScoped;

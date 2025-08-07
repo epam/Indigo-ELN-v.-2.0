@@ -12,6 +12,7 @@ public class SaltCodeRef {
     private final UUID id;
     private final String code;
     private final String name;
+    private final String formula;
     private final int charge;
     private final double molWeight;
 
@@ -19,7 +20,9 @@ public class SaltCodeRef {
     public String toString() {
         return "SaltCodeRef{" +
                 "id=" + id +
+                ", code='" + code + '\'' +
                 ", name='" + name + '\'' +
+                ", formula='" + formula + '\'' +
                 ", charge=" + charge +
                 ", molWeight=" + molWeight +
                 '}';

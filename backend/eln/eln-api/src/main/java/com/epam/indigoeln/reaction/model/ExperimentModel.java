@@ -1,10 +1,10 @@
 package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.reaction.model.mutation.*;
+import com.epam.indigoeln.reaction.model.outputsample.ReactionOutputSample;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;

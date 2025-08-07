@@ -13,7 +13,6 @@ import jakarta.validation.constraints.Positive;
 import lombok.*;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.UUID;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
@@ -27,7 +26,17 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     @Nullable
     String getMolFile();
 
+    @Nullable
     String getFormula();
+
+    @Nullable
+    SaltCodeRef getSaltCode();
+
+    @Nullable
+    Double getSaltEQ();
+
+    @Nullable
+    String getStrCode();
 
     @Nullable
     EnteredValue<MolWeightUnit> getMolWeight();
@@ -60,6 +69,9 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
 
         @NotNull
         private final String formula;
+
+        @Nullable
+        private final String strCode;
 
         @Override
         public String toString() {
@@ -115,6 +127,13 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         }
 
         @Override
+        @Nullable
+        @JsonIgnore
+        public String getStrCode() {
+            return null;
+        }
+
+        @Override
         public String toString() {
             return MoreObjects.toStringHelper(this).omitNullValues()
                     .add("compoundID", compoundID)
@@ -128,10 +147,10 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
 
     @Getter
     @Setter
-    @RequiredArgsConstructor
     // no equals and hashCode - each unknown compound is unique
     final class Unknown implements CompoundRef {
 
+        @Nullable
         private String formula;
 
         @Nullable
@@ -141,6 +160,27 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Nullable
         @JsonIgnore
         public String getMolFile() {
+            return null;
+        }
+
+        @Override
+        @Nullable
+        @JsonIgnore
+        public SaltCodeRef getSaltCode() {
+            return null;
+        }
+
+        @Override
+        @Nullable
+        @JsonIgnore
+        public Double getSaltEQ() {
+            return null;
+        }
+
+        @Override
+        @Nullable
+        @JsonIgnore
+        public String getStrCode() {
             return null;
         }
     }

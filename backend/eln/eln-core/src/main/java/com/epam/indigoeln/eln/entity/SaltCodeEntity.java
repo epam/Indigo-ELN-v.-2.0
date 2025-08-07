@@ -26,6 +26,9 @@ public class SaltCodeEntity extends IdentifiableEntity {
     private Integer charge;
 
     @NotNull
+    private String formula;
+
+    @NotNull
     @Column(name = "mol_weight")
     private Double molWeight;
 }

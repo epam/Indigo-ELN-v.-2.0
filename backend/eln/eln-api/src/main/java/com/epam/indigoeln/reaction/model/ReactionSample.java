@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.model;
 
+import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.units.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -7,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -28,6 +30,12 @@ public abstract class ReactionSample implements ExperimentModelNode, ToStringTre
 
     @NotNull
     protected EnteredValue<NoUnit> purity;
+
+    @Nullable
+    private String strCode;
+
+    @NotNull
+    private List<DictionaryItemRef> healthHazard = List.of();
 
     @Override
     public void prepareToRecalculate() {

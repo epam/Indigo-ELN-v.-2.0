@@ -96,7 +96,7 @@ public class CompoundService {
     }
 
     public CompoundRef.Stored realCompoundRef(CompoundEntity compound) {
-        return new CompoundRef.Stored(compound.getId(), compound.getName(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getMolFile(), compound.getFormula());
+        return new CompoundRef.Stored(compound.getId(), compound.getName(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getMolFile(), compound.getFormula(), compound.getStrCode());
     }
 
     public CompoundRef.Virtual virtualCompoundRef(IndigoMolecule molecule, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {

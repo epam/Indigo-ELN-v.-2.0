@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.service.calculator;
 
 import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.outputsample.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.EnteredValueOpt;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;

@@ -14,41 +14,41 @@ public interface ToStringTree {
         return builder.toString();
     }
 
-    class Builder {
+    public class Builder {
 
         private final StringBuilder str = new StringBuilder();
         private int level = 0;
         private String prefix = "";
 
-        Builder open(String headerLine) {
+        public Builder open(String headerLine) {
             str.append(prefix).append(headerLine).append(" {").append('\n');
             level++;
             prefix = "    ".repeat(level);
             return this;
         }
 
-        Builder close() {
+        public Builder close() {
             level--;
             prefix = "    ".repeat(level);
             str.append(prefix).append('}').append('\n');
             return this;
         }
 
-        Builder nest(Collection<? extends ToStringTree> elements) {
+        public Builder nest(Collection<? extends ToStringTree> elements) {
             for (ToStringTree element : elements) {
                 element.toStringTree(this);
             }
             return this;
         }
 
-        Builder property(String name, @Nullable Object value) {
+        public Builder property(String name, @Nullable Object value) {
             if (value != null) {
                 str.append(prefix).append(name).append(" = ").append(value).append('\n');
             }
             return this;
         }
 
-        Builder text(Object text) {
+        public Builder text(Object text) {
             str.append(prefix).append(text).append('\n');
             return this;
         }
