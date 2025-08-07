@@ -20,7 +20,7 @@ public interface ProjectAPI extends BaseAPI {
 
     @GET
     @Path("/projects")
-    Page<ProjectDTO> getProjects(@QueryParam("search") @Nullable String search, @QueryParam("sort") @Nullable String sort,
+    Page<ProjectDTO> getProjects(@QueryParam("search") @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort,
                                  @QueryParam("createdByMe") @Nullable Boolean createdByMe,
                                  @BeanParam Paging paging);
 

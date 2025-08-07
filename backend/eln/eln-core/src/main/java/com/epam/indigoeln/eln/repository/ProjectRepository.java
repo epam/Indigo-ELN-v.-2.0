@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.repository;
 
-import com.epam.indigoeln.eln.util.SortOrder;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
 import com.epam.indigoeln.eln.entity.TotalCountsEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
@@ -25,7 +24,7 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
     }
 
     public ListWithTotal<ProjectDTO> findAll(@Nullable String search, @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging) {
-        Sort sortOrder = switch (sort) {
+        Sort panacheSort = switch (sort) {
             case EARLIEST -> Sort.ascending("createdAt");
             case LATEST -> Sort.descending("createdAt");
             default -> Sort.descending("modifiedAt");
@@ -38,7 +37,7 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
         return doFindWithTotals(
                 conditions,
                 paging,
-                sortOrder,
+                panacheSort,
                 em.getEntityGraph("Project.list"),
                 projectMapper::entityToDTO
         );

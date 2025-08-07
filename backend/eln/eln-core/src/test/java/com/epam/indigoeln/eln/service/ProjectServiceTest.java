@@ -113,7 +113,7 @@ class ProjectServiceTest extends BaseTest {
         projectClient.createProject(new ProjectRequest("Project2"));
         projectClient.createProject(new ProjectRequest("Project3"));
 
-        Page<ProjectDTO> projects = projectClient.getProjects(null, "Earliest", null, Paging.DEFAULT);
+        Page<ProjectDTO> projects = projectClient.getProjects(null, SortOrder.EARLIEST, null, Paging.DEFAULT);
 
         assertThat(projects.getItems())
                 .extracting(ProjectDTO::getName)
@@ -129,7 +129,7 @@ class ProjectServiceTest extends BaseTest {
         projectClient.createProject(new ProjectRequest("Project2"));
         projectClient.createProject(new ProjectRequest("Project3"));
 
-        Page<ProjectDTO> projects = projectClient.getProjects(null, "Latest" , null, Paging.DEFAULT);
+        Page<ProjectDTO> projects = projectClient.getProjects(null, SortOrder.LATEST, null, Paging.DEFAULT);
 
         assertThat(projects.getItems())
                 .extracting(ProjectDTO::getName)
