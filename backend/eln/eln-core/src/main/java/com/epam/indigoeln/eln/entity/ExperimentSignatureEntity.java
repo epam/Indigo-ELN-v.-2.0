@@ -12,12 +12,20 @@ import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 import org.jspecify.annotations.Nullable;
 
+import java.time.ZonedDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Embeddable
-public class ExperimentSignatureEmbedded {
+@Entity(name = "ExperimentSignature")
+@Table(name = "Experiment_Signature")
+public class ExperimentSignatureEntity extends IdentifiableEntity {
+
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "experiment_id")
+    private ExperimentEntity experiment;
 
     @NotNull
     @ManyToOne
@@ -33,4 +41,8 @@ public class ExperimentSignatureEmbedded {
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
     private SignatureStatus status;
+
+    @Nullable
+    @Column(name = "signed_at")
+    protected ZonedDateTime signedAt;
 }

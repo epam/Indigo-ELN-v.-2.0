@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Value;
 import org.jspecify.annotations.Nullable;
 
+import java.time.ZonedDateTime;
+
 @Value
 public class ExperimentSignature {
 
@@ -15,4 +17,7 @@ public class ExperimentSignature {
 
     @Nullable
     SignatureStatus status;
+
+    @Nullable
+    ZonedDateTime signedAt;
 }

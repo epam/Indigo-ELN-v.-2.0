@@ -5,14 +5,10 @@ import com.epam.indigoeln.eln.entity.TotalCountsEntity;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.Conditions;
-import com.epam.indigoeln.eln.util.ListWithTotal;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.Query;
-import jakarta.persistence.TypedQuery;
 
-import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -25,7 +21,7 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
         super(EntityType.PROJECT);
     }
 
-    public ListWithTotal<ProjectDTO> findAll(@Nullable String search, Paging paging) {
+    public Page<ProjectDTO> findAll(@Nullable String search, Paging paging) {
         return doFindWithTotals(
                 new Conditions()
                         .addIfNotNull("full_text_search(searchVector, to_tsquery('english', ?))", search),

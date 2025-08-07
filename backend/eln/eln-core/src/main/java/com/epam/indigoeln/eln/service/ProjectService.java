@@ -8,15 +8,12 @@ import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
-import com.epam.indigoeln.eln.util.ListWithTotal;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import one.util.streamex.StreamEx;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
@@ -59,8 +56,7 @@ public class ProjectService {
     }
 
     public Page<ProjectDTO> getProjects(@Nullable String search, Paging paging) {
-        ListWithTotal<ProjectDTO> list = projectRepository.findAll(search, paging);
-        return Page.of(paging, list.total(), list.list());
+        return projectRepository.findAll(search, paging);
     }
 
     public ProjectDetailsDTO getProject(UUID projectId) {

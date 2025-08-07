@@ -9,21 +9,25 @@ import java.util.UUID;
 @Path(BaseAPI.BASE_PATH)
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public interface SignatureTemplateAPI extends BaseAPI {
+public interface SignatureAPI extends BaseAPI {
 
     @POST
-    @Path("/signatureTemplates")
+    @Path("/signature/templates")
     SignatureTemplateDetailsDTO createSignatureTemplate(SignatureTemplateRequest request);
 
     @GET
-    @Path("/signatureTemplates")
+    @Path("/signature/templates")
     Page<SignatureTemplateDTO> getSignatureTemplates(@BeanParam Paging paging);
 
     @GET
-    @Path("/signatureTemplates/{signatureTemplateId}")
+    @Path("/signature/templates/{signatureTemplateId}")
     SignatureTemplateDetailsDTO getSignatureTemplate(@PathParam("signatureTemplateId") UUID signatureTemplateId);
 
     @PATCH
-    @Path("/signatureTemplates/{signatureTemplateId}")
+    @Path("/signature/templates/{signatureTemplateId}")
     SignatureTemplateDetailsDTO editSignatureTemplate(@PathParam("signatureTemplateId") UUID signatureTemplateId, SignatureTemplateEditRequest request);
+
+    @GET
+    @Path("/signature/experiments/pending")
+    Page<ExperimentForSignatureDTO> getExperimentsForSignature(Paging paging);
 }

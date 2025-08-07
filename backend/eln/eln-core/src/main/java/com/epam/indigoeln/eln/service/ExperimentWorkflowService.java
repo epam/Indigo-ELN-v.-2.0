@@ -50,7 +50,7 @@ public class ExperimentWorkflowService {
     public ExperimentDetailsDTO reopenExperiment(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         transition(experiment, REOPEN, SUBMIT_EXPERIMENTS, CANCELLED, ARCHIVED, COMPLETED, SUBMITTED, REJECTED);
-        experiment.setSignatures(List.of());
+        experiment.getSignatures().clear();
         return experimentMapper.entityToDetailsDTO(experiment);
     }
 
@@ -78,7 +78,7 @@ public class ExperimentWorkflowService {
     public ExperimentDetailsDTO approveOrRejectExperiment(UUID experimentId, SignatureStatus status) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         boolean found = false;
-        for (ExperimentSignatureEmbedded signature : experiment.getSignatures()) {
+        for (ExperimentSignatureEntity signature : experiment.getSignatures()) {
             if (signature.getUser().equals(userService.getCurrentUser())) {
                 validate(signature.getStatus() == null, "Experiment was already approved or rejected by " + userService.getCurrentUser());
                 signature.setStatus(status);
@@ -93,7 +93,7 @@ public class ExperimentWorkflowService {
     public ExperimentDetailsDTO resubmitExperiment(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         transition(experiment, SUBMITTED, SUBMIT_EXPERIMENTS, REJECTED);
-        for (ExperimentSignatureEmbedded signature : experiment.getSignatures()) {
+        for (ExperimentSignatureEntity signature : experiment.getSignatures()) {
             signature.setStatus(null);
         }
         return experimentMapper.entityToDetailsDTO(experiment);
@@ -105,13 +105,14 @@ public class ExperimentWorkflowService {
 
     private void doSubmitExperiment(ExperimentEntity experiment, SignatureTemplateEntity signatureTemplate) {
         transition(experiment, SUBMITTED, SUBMIT_EXPERIMENTS, COMPLETED);
-        experiment.setSignatures(signatureTemplate.getBlocks().stream()
+        experiment.getSignatures().clear();
+        experiment.getSignatures().addAll(signatureTemplate.getBlocks().stream()
                 .map(block -> {
                     UserEntity user = switch (block.getReason()) {
                         case WITNESS -> block.getUser();
                         case AUTHOR -> experiment.getCreatedBy();
                     };
-                    return new ExperimentSignatureEmbedded(user, block.getReason(), null);
+                    return new ExperimentSignatureEntity(experiment, user, block.getReason(), null, null);
                 })
                 .toList()
         );
@@ -120,7 +121,7 @@ public class ExperimentWorkflowService {
 
     private void doCheckSignatures(ExperimentEntity experiment) {
         boolean hasPending = false, hasApproved = false, hasRejected = false;
-        for (ExperimentSignatureEmbedded signature : experiment.getSignatures()) {
+        for (ExperimentSignatureEntity signature : experiment.getSignatures()) {
             switch (signature.getStatus()) {
                 case null -> hasPending = true;
                 case APPROVED -> hasApproved = true;

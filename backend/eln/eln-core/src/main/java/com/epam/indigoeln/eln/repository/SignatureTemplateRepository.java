@@ -1,11 +1,9 @@
 package com.epam.indigoeln.eln.repository;
 
 import com.epam.indigoeln.eln.entity.SignatureTemplateEntity;
-import com.epam.indigoeln.eln.entity.TemplateEntity;
 import com.epam.indigoeln.eln.mapper.SignatureTemplateMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.Conditions;
-import com.epam.indigoeln.eln.util.ListWithTotal;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -21,7 +19,7 @@ public class SignatureTemplateRepository extends BaseRepository<SignatureTemplat
         super(EntityType.SIGNATURE_TEMPLATE);
     }
 
-    public ListWithTotal<SignatureTemplateDTO> findAll(Paging paging) {
+    public Page<SignatureTemplateDTO> findAll(Paging paging) {
         return doFindWithTotals(
                 Conditions.EMPTY,
                 paging,

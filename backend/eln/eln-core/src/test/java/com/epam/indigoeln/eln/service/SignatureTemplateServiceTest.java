@@ -30,13 +30,13 @@ class SignatureTemplateServiceTest extends BaseTest {
 
     @Test
     void testCreateSignatureTemplateValidation() {
-        assertThatClientCall(() -> signatureTemplateClient.createSignatureTemplate(new SignatureTemplateRequest(null, List.of())))
+        assertThatClientCall(() -> signatureClient.createSignatureTemplate(new SignatureTemplateRequest(null, List.of())))
                 .isBadRequest("must not be empty");
     }
 
     @Test
     void testCreateSignatureTemplate() {
-        SignatureTemplateDetailsDTO signatureTemplate = signatureTemplateClient.createSignatureTemplate(new SignatureTemplateRequest("testCreateSignatureTemplate", blocks));
+        SignatureTemplateDetailsDTO signatureTemplate = signatureClient.createSignatureTemplate(new SignatureTemplateRequest("testCreateSignatureTemplate", blocks));
         assertThat(signatureTemplate.getId()).isNotNull();
         assertThat(signatureTemplate.getName()).isEqualTo("testCreateSignatureTemplate");
         assertThat(signatureTemplate.getCreatedBy().getDisplayName()).isEqualTo(TestHelper.LISA_DISPLAY_NAME);
@@ -48,15 +48,15 @@ class SignatureTemplateServiceTest extends BaseTest {
 
     @Test
     void testGetSignatureTemplate() {
-        SignatureTemplateDetailsDTO createdSignatureTemplate = signatureTemplateClient.createSignatureTemplate(new SignatureTemplateRequest("testGetSignatureTemplate", blocks));
-        SignatureTemplateDetailsDTO loadedSignatureTemplate = signatureTemplateClient.getSignatureTemplate(createdSignatureTemplate.getId());
+        SignatureTemplateDetailsDTO createdSignatureTemplate = signatureClient.createSignatureTemplate(new SignatureTemplateRequest("testGetSignatureTemplate", blocks));
+        SignatureTemplateDetailsDTO loadedSignatureTemplate = signatureClient.getSignatureTemplate(createdSignatureTemplate.getId());
         assertThat(loadedSignatureTemplate).usingRecursiveComparison().isEqualTo(createdSignatureTemplate);
     }
 
     @Test
     void testGetSignatureTemplates() {
-        signatureTemplateClient.createSignatureTemplate(new SignatureTemplateRequest("testGetSignatureTemplates", blocks));
-        Page<SignatureTemplateDTO> signatureTemplates = signatureTemplateClient.getSignatureTemplates(Paging.DEFAULT);
+        signatureClient.createSignatureTemplate(new SignatureTemplateRequest("testGetSignatureTemplates", blocks));
+        Page<SignatureTemplateDTO> signatureTemplates = signatureClient.getSignatureTemplates(Paging.DEFAULT);
         assertThat(signatureTemplates.getItems()).first().satisfies(signatureTemplate -> {
             assertThat(signatureTemplate.getId()).isNotNull();
             assertThat(signatureTemplate.getName()).isEqualTo("testGetSignatureTemplates");
@@ -69,14 +69,14 @@ class SignatureTemplateServiceTest extends BaseTest {
     
     @Test
     void testEditSignatureTemplate() {
-        SignatureTemplateDetailsDTO signatureTemplate = signatureTemplateClient.createSignatureTemplate(new SignatureTemplateRequest("testEditSignatureTemplate", blocks));
-        SignatureTemplateDetailsDTO notModified = signatureTemplateClient.editSignatureTemplate(signatureTemplate.getId(), new SignatureTemplateEditRequest(null, null));
+        SignatureTemplateDetailsDTO signatureTemplate = signatureClient.createSignatureTemplate(new SignatureTemplateRequest("testEditSignatureTemplate", blocks));
+        SignatureTemplateDetailsDTO notModified = signatureClient.editSignatureTemplate(signatureTemplate.getId(), new SignatureTemplateEditRequest(null, null));
         assertThat(notModified).usingRecursiveComparison(TestHelper.COMPARE_WITHOUT_MODIFIED_AT).isEqualTo(signatureTemplate);
         List<SignatureBlock> newBlocks = blocks.reversed();
-        SignatureTemplateDetailsDTO modified = signatureTemplateClient.editSignatureTemplate(signatureTemplate.getId(), new SignatureTemplateEditRequest(Optional.of("testEditSignatureTemplate_new"), Optional.of(newBlocks)));
+        SignatureTemplateDetailsDTO modified = signatureClient.editSignatureTemplate(signatureTemplate.getId(), new SignatureTemplateEditRequest(Optional.of("testEditSignatureTemplate_new"), Optional.of(newBlocks)));
         assertThat(modified.getName()).isEqualTo("testEditSignatureTemplate_new");
         assertThat(modified.getBlocks()).isEqualTo(newBlocks);
-        SignatureTemplateDetailsDTO saved = signatureTemplateClient.getSignatureTemplate(signatureTemplate.getId());
+        SignatureTemplateDetailsDTO saved = signatureClient.getSignatureTemplate(signatureTemplate.getId());
         assertThat(saved).usingRecursiveComparison().isEqualTo(modified);
     }
 }

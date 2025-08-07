@@ -38,8 +38,7 @@ public class TemplateService {
     }
 
     public Page<TemplateDTO> getTemplates(Paging paging) {
-        var list = templateRepository.findAll(paging);
-        return Page.of(paging, list.total(), list.list());
+        return templateRepository.findAll(paging);
     }
 
     public TemplateDetailsDTO getTemplate(UUID templateId) {

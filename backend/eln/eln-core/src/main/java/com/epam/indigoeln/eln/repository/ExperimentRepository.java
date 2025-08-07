@@ -5,12 +5,8 @@ import com.epam.indigoeln.eln.entity.NotebookEntity;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
-import com.epam.indigoeln.eln.model.EntityType;
-import com.epam.indigoeln.eln.model.ExperimentDTO;
-import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
-import com.epam.indigoeln.eln.model.Paging;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.Conditions;
-import com.epam.indigoeln.eln.util.ListWithTotal;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jspecify.annotations.Nullable;
@@ -28,7 +24,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     @Inject
     ExperimentMapper experimentMapper;
 
-    public ListWithTotal<ExperimentDTO> findAll(@Nullable UUID projectId, @Nullable UUID notebookId, Paging paging) {
+    public Page<ExperimentDTO> findAll(@Nullable UUID projectId, @Nullable UUID notebookId, Paging paging) {
         return doFindWithTotals(
                 new Conditions()
                         .addIfNotNull("project.id=?", projectId)

@@ -10,7 +10,6 @@ import com.epam.indigoeln.eln.mapper.NotebookMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
-import com.epam.indigoeln.eln.util.ListWithTotal;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -59,8 +58,7 @@ public class NotebookService {
     }
 
     public Page<NotebookDTO> getNotebooks(UUID projectId, @Nullable String search, Paging paging) {
-        ListWithTotal<NotebookDTO> list = notebookRepository.findAll(projectId, search, paging);
-        return Page.of(paging, list.total(), list.list());
+        return notebookRepository.findAll(projectId, search, paging);
     }
 
     public NotebookDetailsDTO getNotebook(UUID notebookId) {

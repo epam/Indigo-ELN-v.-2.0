@@ -50,6 +50,14 @@ import java.util.*;
         }
 )
 @NamedEntityGraph(
+        name = "Experiment.forSignature",
+        attributeNodes = {
+                @NamedAttributeNode("createdBy"),
+                @NamedAttributeNode("modifiedBy"),
+                @NamedAttributeNode("signatures")
+        }
+)
+@NamedEntityGraph(
         name = "Experiment.withACL",
         attributeNodes = {
                 @NamedAttributeNode("aclEntities")
@@ -139,10 +147,9 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
 
     @NotNull
-    @ElementCollection
-    @CollectionTable(name = "experiment_signature", joinColumns = @JoinColumn(name = "experiment_id"))
     @OrderColumn(name = "ordinal")
-    private List<ExperimentSignatureEmbedded> signatures = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "experiment")
+    private List<ExperimentSignatureEntity> signatures = new ArrayList<>();
 
     @NotNull
     @ManyToMany

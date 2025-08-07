@@ -68,8 +68,7 @@ public class ExperimentService {
     }
 
     public Page<ExperimentDTO> getExperiments(@Nullable UUID projectId, @Nullable UUID notebookId, Paging paging) {
-        var list = experimentRepository.findAll(projectId, notebookId, paging);
-        return Page.of(paging, list.total(), list.list());
+        return experimentRepository.findAll(projectId, notebookId, paging);
     }
 
     public List<ExperimentDTO> getMarkedExperiments() {

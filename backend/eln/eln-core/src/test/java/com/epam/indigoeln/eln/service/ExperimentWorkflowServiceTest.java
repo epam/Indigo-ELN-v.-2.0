@@ -40,11 +40,11 @@ class ExperimentWorkflowServiceTest extends BaseTest {
         notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
         john = new UserRef(testHelper.getJohnUserID(), TestHelper.JOHN_DISPLAY_NAME);
         bart = new UserRef(testHelper.getBartUserID(), TestHelper.BART_DISPLAY_NAME);
-        noSignersTemplate = signatureTemplateClient.createSignatureTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-noSigners"
+        noSignersTemplate = signatureClient.createSignatureTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-noSigners"
                 , List.of()));
-        oneSignerTemplate = signatureTemplateClient.createSignatureTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-oneSigner"
+        oneSignerTemplate = signatureClient.createSignatureTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-oneSigner"
                 , List.of(new SignatureBlock(bart, SignatureReason.WITNESS))));
-        twoSignersTemplate = signatureTemplateClient.createSignatureTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-twoSigners"
+        twoSignersTemplate = signatureClient.createSignatureTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-twoSigners"
                 , List.of(new SignatureBlock(bart, SignatureReason.WITNESS), new SignatureBlock(null, SignatureReason.AUTHOR))));
     }
 
@@ -202,6 +202,11 @@ class ExperimentWorkflowServiceTest extends BaseTest {
         experiment = experimentClient.rejectExperiment(experiment.getId());
         experiment = experimentClient.resubmitExperiment(experiment.getId());
         assertThat(experiment.getStatus()).isEqualTo(SUBMITTED);
+    }
+
+    @Test
+    void testGetExperimentsForSignature() {
+        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), twoSignersTemplate.getId());
     }
 
     private void assertSignatures(List<ExperimentSignature> signatures, Tuple... expected) {

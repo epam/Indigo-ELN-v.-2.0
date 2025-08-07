@@ -45,8 +45,7 @@ public class SignatureTemplateService {
     }
 
     public Page<SignatureTemplateDTO> getSignatureTemplates(Paging paging) {
-        var list = signatureTemplateRepository.findAll(paging);
-        return Page.of(paging, list.total(), list.list());
+        return signatureTemplateRepository.findAll(paging);
     }
 
     public SignatureTemplateDetailsDTO getSignatureTemplate(UUID templateId) {

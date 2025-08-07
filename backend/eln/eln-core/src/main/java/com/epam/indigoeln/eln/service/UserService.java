@@ -102,8 +102,7 @@ public class UserService {
     }
 
     public Page<UserDTO> getUsers(String search, String username, Paging paging) {
-        var list = userRepository.findAll(search, username, paging);
-        return Page.of(paging, list.total(), list.list());
+        return userRepository.findAll(search, username, paging);
     }
 
     @Getter

@@ -4,10 +4,10 @@ import com.epam.indigoeln.common.exception.AccessDeniedException;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.model.Page;
 import com.epam.indigoeln.eln.model.Paging;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.eln.util.Conditions;
-import com.epam.indigoeln.eln.util.ListWithTotal;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import io.quarkus.panache.common.Sort;
@@ -34,11 +34,12 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
     @Inject
     UserService userService;
 
-    protected <DTO> ListWithTotal<DTO> doFindWithTotals(Conditions conditions, @Nullable Paging paging, Sort sort, @Nullable EntityGraph<?> entityGraph, Function<E, DTO> mapper) {
+    protected <DTO> Page<DTO> doFindWithTotals(Conditions conditions, @Nullable Paging paging, Sort sort, @Nullable EntityGraph<?> entityGraph, Function<E, DTO> mapper) {
+        paging = ModelUtil.firstNotNull(paging, Paging.DEFAULT);
         PanacheQuery<E> query = doCreateQuery(conditions, paging, sort, entityGraph);
         List<DTO> list = query.stream().map(mapper).toList();
-        Long count = query.count();
-        return new ListWithTotal<>(list, count);
+        long count = query.count();
+        return Page.of(paging, count, list);
     }
 
     @Nullable
@@ -48,7 +49,7 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
         return entity == null ? null : mapper.apply(entity);
     }
 
-    protected <DTO> List<DTO> doFind(Conditions conditions, @Nullable Paging paging, Sort sort, @Nullable EntityGraph<?> entityGraph, Function<E, DTO> mapper) {
+    protected <DTO> List<DTO> doFind(Conditions conditions, Paging paging, Sort sort, @Nullable EntityGraph<?> entityGraph, Function<E, DTO> mapper) {
         PanacheQuery<E> query = doCreateQuery(conditions, paging, sort, entityGraph);
         return query.stream().map(mapper).toList();
     }
@@ -76,8 +77,7 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
         em.clear();
     }
 
-    private PanacheQuery<E> doCreateQuery(Conditions conditions, @Nullable Paging paging, Sort sort, @Nullable EntityGraph<?> entityGraph) {
-        paging = ModelUtil.firstNotNull(paging, Paging.DEFAULT);
+    private PanacheQuery<E> doCreateQuery(Conditions conditions, Paging paging, Sort sort, @Nullable EntityGraph<?> entityGraph) {
         PanacheQuery<E> query = conditions.isEmpty() ? findAll(sort) : find(conditions.getQuery(), sort, conditions.getValues());
         query = query.page(paging.getPageNoOrDefault(), paging.getPageSizeOrDefault());
         if (entityGraph != null) {

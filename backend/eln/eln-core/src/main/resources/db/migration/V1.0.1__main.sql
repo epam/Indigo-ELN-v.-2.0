@@ -322,10 +322,13 @@ CREATE TABLE Experiment_ACL (
 );
 
 CREATE TABLE Experiment_Signature (
+    id UUID PRIMARY KEY,
     experiment_id UUID NOT NULL,
-    ordinal INT NOT NULL,
+    ordinal INT, -- should be NOT NULL, but Hibernate initially inserts NULL
     user_id UUID NOT NULL,
     reason Signature_Reason NOT NULL,
     status Signature_Status,
-    CONSTRAINT experiment_signature_pk PRIMARY KEY (experiment_id, ordinal)
+    signed_at TIMESTAMPTZ,
+    CONSTRAINT experiment_signature_experiment_id FOREIGN KEY (experiment_id) REFERENCES Experiment (id) ON DELETE CASCADE,
+    CONSTRAINT experiment_signature_user_id FOREIGN KEY (user_id) REFERENCES User_Account (id)
 );
