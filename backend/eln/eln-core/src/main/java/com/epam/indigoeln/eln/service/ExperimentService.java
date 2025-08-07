@@ -59,7 +59,7 @@ public class ExperimentService {
         notebook.getExperiments().add(experiment);
         experiment.setProject(notebook.getProject());
         experiment.setNotebook(notebook);
-        experiment.setModel(experimentModelService.serializeModel(experimentModelService.createNewModel()));
+        experiment.setModel(experimentModelService.createNewModel());
         ModelUtil.updateDates(experiment, userService.getCurrentUser());
         aclService.initExperimentACL(experiment);
         experimentRepository.persist(experiment);
@@ -112,7 +112,7 @@ public class ExperimentService {
     public ExperimentModel getModel(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
-        return experimentModelService.deserializeModel(experiment.getModel());
+        return experiment.getModel();
     }
 
     public ExperimentModel mutateModel(UUID experimentId, ExperimentModel model, Mutation mutation) {
@@ -120,8 +120,7 @@ public class ExperimentService {
             log.debug("Mutating model for experiment {} with mutation {}", experimentId, mutation);
             ExperimentEntity experiment = experimentRepository.get(experimentId);
             model = experimentModelService.applyMutation(experiment, model, mutation);
-            String modelStr = experimentModelService.serializeModel(model);
-            experiment.setModel(modelStr);
+            experiment.setModel(model);
             return model;
         } catch (Throwable e) {
             log.error("Failed to mutate model for experiment {}: {}", experimentId, e.getMessage(), e);

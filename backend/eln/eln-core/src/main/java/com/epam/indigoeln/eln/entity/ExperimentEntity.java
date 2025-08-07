@@ -2,8 +2,10 @@ package com.epam.indigoeln.eln.entity;
 
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
+import com.epam.indigoeln.eln.config.hibernate.ExperimentModelConverter;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
+import com.epam.indigoeln.reaction.model.ExperimentModel;
 import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
@@ -117,9 +119,8 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
 
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
-//    @Column(columnDefinition = "jsonb")
-//    private ExperimentModel model;
-    private String model;
+    @Convert(converter = ExperimentModelConverter.class)
+    private ExperimentModel model;
 
     @Basic(fetch = FetchType.LAZY)
     private byte @Nullable[] picture;
