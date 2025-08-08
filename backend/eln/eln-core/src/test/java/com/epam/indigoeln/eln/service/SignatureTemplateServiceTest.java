@@ -25,7 +25,7 @@ class SignatureTemplateServiceTest extends BaseTest {
 
     @BeforeAll
     void setUpAll() {
-        blocks = List.of(new SignatureBlock(new UserRef(testHelper.getBartUserID(), TestHelper.BART_DISPLAY_NAME), SignatureReason.WITNESS), new SignatureBlock(null, SignatureReason.AUTHOR));
+        blocks = List.of(new SignatureBlock(testHelper.getBartUserRef(), SignatureReason.WITNESS), new SignatureBlock(null, SignatureReason.AUTHOR));
     }
 
     @Test

@@ -20,9 +20,9 @@ public class JSONSerializationTest {
 
     @Test
     void testSerializeUserRef() throws Exception {
-        UserRef userRef = new UserRef(UUID.randomUUID(), "Test User");
+        UserRef userRef = new UserRef(UUID.randomUUID(), "username", "Test User");
         String serialized = objectMapper.writeValueAsString(userRef);
-        assertThat(serialized).isEqualTo("{\"id\":\"" + userRef.getId() + "\",\"displayName\":\"Test User\"}");
+        assertThat(serialized).isEqualTo("{\"id\":\"" + userRef.getId() + "\",\"username\":\"username\",\"displayName\":\"Test User\"}");
         UserRef deserialized = objectMapper.readValue(serialized, UserRef.class);
         assertThat(deserialized.getId()).isEqualTo(userRef.getId());
         assertThat(deserialized.getDisplayName()).isEqualTo(userRef.getDisplayName());

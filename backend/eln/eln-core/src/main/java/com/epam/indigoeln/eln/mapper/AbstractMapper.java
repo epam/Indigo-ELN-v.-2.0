@@ -15,7 +15,7 @@ import java.util.Map;
 public abstract class AbstractMapper {
 
     public UserRef userRef(UserEntity user) {
-        return new UserRef(user.getId(), user.getDisplayName());
+        return new UserRef(user.getId(), user.getUsername(), user.getDisplayName());
     }
 
     protected abstract ACLEntryDTO convertACL(ACLEntry entry);
