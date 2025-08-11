@@ -32,4 +32,9 @@ public interface ExperimentClient extends ExperimentAPI {
     @jakarta.ws.rs.Path("/experiments/{experimentId}/picture")
     @Produces("image/svg+xml")
     ResponseWithHeaders getExperimentPictureClient(@PathParam("experimentId") UUID experimentId);
+
+    @POST
+    @jakarta.ws.rs.Path("/experiments/{experimentId}/print")
+    @Produces("application/pdf")
+    ResponseWithHeaders printReportClient(@PathParam("experimentId") UUID experimentId);
 }

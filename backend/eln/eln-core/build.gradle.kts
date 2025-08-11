@@ -27,6 +27,8 @@ dependencies {
 
     implementation("io.quarkiverse.amazonservices:quarkus-amazon-cognito-user-pools")
     implementation("software.amazon.awssdk:url-connection-client")
+    implementation("io.quarkiverse.jasperreports:quarkus-jasperreports:1.0.7")
+
     testImplementation(project(":common:common-test"))
 
     // for integration tests

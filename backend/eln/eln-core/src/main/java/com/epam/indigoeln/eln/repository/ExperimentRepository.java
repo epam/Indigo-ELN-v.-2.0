@@ -13,6 +13,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 
 @ApplicationScoped
 public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
@@ -41,6 +42,15 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
                 id,
                 em.getEntityGraph("Experiment.details"),
                 experimentMapper::entityToDetailsDTO
+        );
+    }
+
+    // TODO move mapper to service and make load return entity
+    public ExperimentEntity loadForReport(UUID id) {
+        return doLoadDetails(
+                id,
+                em.getEntityGraph("Experiment.forReport"),
+                Function.identity()
         );
     }
 
