@@ -25,9 +25,8 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
 
     public ListWithTotal<ProjectDTO> findAll(@Nullable String search, @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging) {
         Sort panacheSort = switch (sort) {
-            case EARLIEST -> Sort.ascending("createdAt");
-            case LATEST -> Sort.descending("createdAt");
-            default -> Sort.descending("modifiedAt");
+            case EARLIEST -> Sort.ascending("modifiedAt");
+            case LATEST -> Sort.descending("modifiedAt");
         };
 
         Conditions conditions = new Conditions()

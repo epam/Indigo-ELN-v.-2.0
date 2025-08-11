@@ -4,6 +4,5 @@ import lombok.Getter;
 
 public enum SortOrder {
     EARLIEST,
-    LATEST,
-    DEFAULT;
+    LATEST
 }

@@ -63,7 +63,7 @@ public class ProjectService {
             currentUser = userService.getCurrentUser();
         }
 
-        SortOrder sortOrder = (sort != null) ? sort : SortOrder.DEFAULT;
+        SortOrder sortOrder = (sort != null) ? sort : SortOrder.LATEST;
 
         ListWithTotal<ProjectDTO> list = projectRepository.findAll(search, sortOrder, currentUser, paging);
         return Page.of(paging, list.total(), list.list());
