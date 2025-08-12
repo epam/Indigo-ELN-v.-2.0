@@ -3,6 +3,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "jsx": "react",
     "outDir": "./dist/out-tsc",
     "strict": false,
     "noImplicitOverride": true,
