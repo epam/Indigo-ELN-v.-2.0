@@ -5,6 +5,8 @@
 @use 'typography';
 @use 'icons';
 
+@import '@ng-select/ng-select/themes/default.theme.css';
+
 @theme {
   --color-primary-50: var(--primary-50);
   --color-primary-100: var(--primary-100);
