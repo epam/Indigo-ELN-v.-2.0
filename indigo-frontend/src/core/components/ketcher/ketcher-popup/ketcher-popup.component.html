@@ -1,0 +1,8 @@
+<h4 mat-dialog-title class="text-m font-bold">Draw Structure</h4>
+<mat-dialog-content >
+  <eln-ketcher [(value)]="value"></eln-ketcher>
+</mat-dialog-content>
+<mat-dialog-actions [align]="'end'">
+  <eln-button variant="grey" class="mr-5" (click)="onCancel()">Cancel</eln-button>
+  <eln-button variant="blue" (click)="onSave()">Save</eln-button>
+</mat-dialog-actions>
