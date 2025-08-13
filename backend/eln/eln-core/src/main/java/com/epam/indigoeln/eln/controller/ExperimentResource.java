@@ -7,6 +7,7 @@ import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
+import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -39,13 +40,13 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public @NotNull @Valid Page<ExperimentDTO> getProjectExperiments(@NotNull UUID projectId, @Valid Paging paging) {
-        return experimentService.getExperiments(projectId, null, paging);
+    public @NotNull @Valid Page<ExperimentDTO> getProjectExperiments(@NotNull UUID projectId, @Nullable SortOrder sort, @Nullable Boolean createdByMe, @Valid Paging paging) {
+        return experimentService.getExperiments(projectId, null, sort, createdByMe, paging);
     }
 
     @Override
-    public @NotNull @Valid Page<ExperimentDTO> getNotebookExperiments(@NotNull UUID notebookId, @Valid Paging paging) {
-        return experimentService.getExperiments(null, notebookId, paging);
+    public @NotNull @Valid Page<ExperimentDTO> getNotebookExperiments(@NotNull UUID notebookId, @Nullable SortOrder sort, @Nullable Boolean createdByMe, @Valid Paging paging) {
+        return experimentService.getExperiments(null, notebookId, sort, createdByMe, paging);
     }
 
     @Override

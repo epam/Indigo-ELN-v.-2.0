@@ -202,7 +202,7 @@ class ProjectServiceTest extends BaseTest {
         assertThat(project.getNotebookCount()).isEqualTo(2);
         assertThat(project.getExperimentCount()).contains(entry(ExperimentStatus.OPEN, 3));
 
-        Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(projectId, null, Paging.DEFAULT);
+        Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(projectId, null, null, null, Paging.DEFAULT);
         assertThat(notebooks.getItems()).filteredOn(n -> n.getId().equals(notebook1Id)).singleElement().satisfies(n -> {
             assertThat(n.getExperimentCount()).contains(entry(ExperimentStatus.OPEN, 2));
         });
@@ -280,7 +280,7 @@ class ProjectServiceTest extends BaseTest {
         assertThat(result5.getItems()).map(ProjectDTO::getName).containsOnly(p3);
 
         projectClient.editProject(project.getId(), new ProjectEditRequest(null, null, null, Optional.of("QS1 QS2 QSNew")));
-        Page<ProjectDTO> result6 = projectClient.getProjects("QSOld", null,null, Paging.DEFAULT);
+        Page<ProjectDTO> result6 = projectClient.getProjects("QSOld", null, null, Paging.DEFAULT);
         assertThat(result6.getItems()).isEmpty();
 
         Page<ProjectDTO> result7 = projectClient.getProjects("QSNew", null, null, Paging.DEFAULT);
