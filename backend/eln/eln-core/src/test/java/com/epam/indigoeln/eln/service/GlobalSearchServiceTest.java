@@ -13,14 +13,13 @@ import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
-import static com.epam.indigoeln.eln.util.CustomAssertions.assertThatClientCall;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 
 @QuarkusTest
@@ -127,7 +126,7 @@ class GlobalSearchServiceTest extends BaseTest {
 
     @Test
     void testFindAllByAuthor() {
-        Page<GlobalSearchResultDTO> results = globalSearchClient.search(GlobalSearchRequest.builder().author(new UserRef(testHelper.getBartUserID(), TestHelper.BART_DISPLAY_NAME)).build(), Paging.DEFAULT);
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(GlobalSearchRequest.builder().author(testHelper.getBartUserRef()).build(), Paging.DEFAULT);
         assertResults(results
                 , tuple(EntityType.PROJECT, project3.getName(), project3.getId())
                 , tuple(EntityType.NOTEBOOK, notebook3.getName(), notebook3.getId())

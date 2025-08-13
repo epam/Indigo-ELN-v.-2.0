@@ -83,6 +83,26 @@ public class TestHelper {
         maggieUserID = getOrCreateUser(new UserRequest(TestHelper.MAGGIE_USERNAME, TestHelper.MAGGIE_FIRST_NAME, TestHelper.MAGGIE_LAST_NAME, "password", TestHelper.MAGGIE_ROLES)).getId();
     }
 
+    public UserRef getJohnUserRef() {
+        return new UserRef(johnUserID, JOHN_USERNAME, JOHN_DISPLAY_NAME);
+    }
+
+    public UserRef getWillowUserRef() {
+        return new UserRef(willowUserID, WILLOW_USERNAME, WILLOW_DISPLAY_NAME);
+    }
+
+    public UserRef getBartUserRef() {
+        return new UserRef(bartUserID, BART_USERNAME, BART_DISPLAY_NAME);
+    }
+
+    public UserRef getLisaUserRef() {
+        return new UserRef(lisaUserID, LISA_USERNAME, LISA_DISPLAY_NAME);
+    }
+
+    public UserRef getMaggieUserRef() {
+        return new UserRef(maggieUserID, MAGGIE_USERNAME, MAGGIE_DISPLAY_NAME);
+    }
+
     private UserDTO getOrCreateUser(UserRequest request) {
         String oldUsername = currentUsername.get();
         try {

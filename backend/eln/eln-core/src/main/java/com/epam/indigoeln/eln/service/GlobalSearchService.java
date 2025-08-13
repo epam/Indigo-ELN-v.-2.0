@@ -117,8 +117,8 @@ public class GlobalSearchService {
         sql.append(")\n");
         sql.append("""
             select t.type, t.name, t.id
-                    , t.created_by_id, c.display_name created_by_name, t.created_at
-                    , t.modified_by_id, m.display_name modified_by_name, t.modified_at
+                    , t.created_by_id, c.username, c.display_name, t.created_at
+                    , t.modified_by_id, m.username, m.display_name, t.modified_at
                     , count(*) over (partition by 1)
             from t
             join user_account c on c.id = t.created_by_id
@@ -140,11 +140,11 @@ public class GlobalSearchService {
                     item.setType(EntityType.valueOf(row[0].toString()));
                     item.setName((String) row[1]);
                     item.setId((UUID) row[2]);
-                    item.setCreatedBy(new UserRef((UUID) row[3], (String) row[4]));
-                    item.setCreatedAt(((Instant) row[5]).atZone(ZoneId.systemDefault()));
-                    item.setModifiedBy(new UserRef((UUID) row[6], (String) row[7]));
-                    item.setModifiedAt(((Instant) row[8]).atZone(ZoneId.systemDefault()));
-                    totalCount[0] = (Long) row[9];
+                    item.setCreatedBy(new UserRef((UUID) row[3], (String) row[4], (String) row[5]));
+                    item.setCreatedAt(((Instant) row[6]).atZone(ZoneId.systemDefault()));
+                    item.setModifiedBy(new UserRef((UUID) row[7], (String) row[8], (String) row[9]));
+                    item.setModifiedAt(((Instant) row[10]).atZone(ZoneId.systemDefault()));
+                    totalCount[0] = (Long) row[11];
                     return item;
                 })
                 .toList();
