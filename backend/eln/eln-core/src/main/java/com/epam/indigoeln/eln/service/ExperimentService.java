@@ -67,8 +67,16 @@ public class ExperimentService {
         return getExperiment(experiment.getId());
     }
 
-    public Page<ExperimentDTO> getExperiments(@Nullable UUID projectId, @Nullable UUID notebookId, Paging paging) {
-        var list = experimentRepository.findAll(projectId, notebookId, paging);
+    public Page<ExperimentDTO> getExperiments(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable SortOrder sort, @Nullable Boolean createdByMe, Paging paging) {
+        UserEntity currentUser = null;
+
+        if (Boolean.TRUE.equals(createdByMe)) {
+            currentUser = userService.getCurrentUser();
+        }
+
+        SortOrder sortOrder = (sort != null) ? sort : SortOrder.LATEST;
+
+        var list = experimentRepository.findAll(projectId, notebookId, sortOrder, currentUser, paging);
         return Page.of(paging, list.total(), list.list());
     }
 

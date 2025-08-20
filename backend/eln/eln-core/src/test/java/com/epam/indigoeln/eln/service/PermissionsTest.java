@@ -227,7 +227,7 @@ class PermissionsTest extends BaseTest {
     @Test
     void testListNotebooks() {
         for (TestRow row : rows) {
-            Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(row.projectId, null, PAGING);
+            Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(row.projectId, null, null, null, PAGING);
             if (row.effectiveNotebook != NONE) {
                 assertThat(notebooks.getItems()).extracting(NotebookDTO::getName).containsExactly(row.notebookDetails.getName());
             } else {
@@ -301,7 +301,7 @@ class PermissionsTest extends BaseTest {
     @Test
     void testListExperiments() {
         for (TestRow row : rows) {
-            Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(row.notebookId, PAGING);
+            Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(row.notebookId, null, null, PAGING);
             if (row.effectiveExperiment != NONE) {
                 assertThat(experiments.getItems()).extracting(ExperimentDTO::getName).containsExactly(row.experimentDetails.getName());
             } else {
@@ -368,11 +368,11 @@ class PermissionsTest extends BaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> projectClient.getProject(row.projectId))
                     .isSuccessful();
-            assertThatClientCall(() -> notebookClient.getProjectNotebooks(row.projectId, null, PAGING))
+            assertThatClientCall(() -> notebookClient.getProjectNotebooks(row.projectId, null, null, null, PAGING))
                     .isSuccessfulWithResult(p -> assertThat(p.getItems()).hasSize(1));
             assertThatClientCall(() -> notebookClient.getNotebook(row.notebookId))
                     .isSuccessful();
-            assertThatClientCall(() -> experimentClient.getNotebookExperiments(row.notebookId, PAGING))
+            assertThatClientCall(() -> experimentClient.getNotebookExperiments(row.notebookId, null, null, PAGING))
                     .isSuccessfulWithResult(p -> assertThat(p.getItems()).hasSize(1));
             assertThatClientCall(() -> experimentClient.getExperiment(row.experimentId))
                     .isSuccessful();
@@ -523,9 +523,9 @@ class PermissionsTest extends BaseTest {
         @JwtSecurity
         @TestSecurity(user = WILLOW_USERNAME)
         void testImplicitViewDoesntListSiblingEntities() {
-            Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), null, PAGING);
+            Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), null, null, null, PAGING);
             assertThat(notebooks.getItems()).extracting(NotebookDTO::getName).containsOnly(secondNotebookName);
-            Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook2.getId(), PAGING);
+            Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook2.getId(), null, null, PAGING);
             assertThat(experiments.getItems()).extracting(ExperimentDTO::getName).containsOnly(experiment2.getName());
         }
 
@@ -546,7 +546,7 @@ class PermissionsTest extends BaseTest {
             notebookClient.updateNotebookAccess(notebook2.getId(), AccessForm.of(testHelper.getBartUserID(), EDIT));
             acl = notebookClient.updateNotebookAccess(notebook2.getId(), AccessForm.of(testHelper.getLisaUserID(), EDIT));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false, WILLOW_DISPLAY_NAME, EDIT, false);
-            NotebookDTO notebookDTO = notebookClient.getProjectNotebooks(project.getId(), null, PAGING).getItems().getFirst();
+            NotebookDTO notebookDTO = notebookClient.getProjectNotebooks(project.getId(), null, null, null, PAGING).getItems().getFirst();
             assertThat(notebookDTO.getId()).isEqualTo(notebook2.getId());
             assertThatACL(notebookDTO.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false);
             assertThat(notebookDTO.getAclCount()).isEqualTo(4);
@@ -555,7 +555,7 @@ class PermissionsTest extends BaseTest {
             experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(testHelper.getBartUserID(), EDIT));
             acl = experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(testHelper.getLisaUserID(), EDIT));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false, WILLOW_DISPLAY_NAME, EDIT, false);
-            ExperimentDTO experimentDTO = experimentClient.getNotebookExperiments(notebook2.getId(), PAGING).getItems().getFirst();
+            ExperimentDTO experimentDTO = experimentClient.getNotebookExperiments(notebook2.getId(), null, null, PAGING).getItems().getFirst();
             assertThat(experimentDTO.getId()).isEqualTo(experiment2.getId());
             assertThatACL(experimentDTO.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false);
             assertThat(experimentDTO.getAclCount()).isEqualTo(4);

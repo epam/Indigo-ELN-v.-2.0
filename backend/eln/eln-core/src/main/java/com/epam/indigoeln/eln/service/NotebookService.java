@@ -14,6 +14,7 @@ import com.epam.indigoeln.eln.util.ListWithTotal;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.QueryParam;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -58,8 +59,17 @@ public class NotebookService {
         return getNotebook(notebook.getId());
     }
 
-    public Page<NotebookDTO> getNotebooks(UUID projectId, @Nullable String search, Paging paging) {
-        ListWithTotal<NotebookDTO> list = notebookRepository.findAll(projectId, search, paging);
+    public Page<NotebookDTO> getNotebooks(UUID projectId, @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort,
+                                          @QueryParam("createdByMe") @Nullable Boolean createdByMe, Paging paging) {
+        UserEntity currentUser = null;
+
+        if (Boolean.TRUE.equals(createdByMe)) {
+            currentUser = userService.getCurrentUser();
+        }
+
+        SortOrder sortOrder = (sort != null) ? sort : SortOrder.LATEST;
+
+        ListWithTotal<NotebookDTO> list = notebookRepository.findAll(projectId, search, sortOrder, currentUser, paging);
         return Page.of(paging, list.total(), list.list());
     }
 

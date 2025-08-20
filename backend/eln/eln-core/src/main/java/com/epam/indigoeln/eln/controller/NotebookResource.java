@@ -12,6 +12,7 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 import org.jspecify.annotations.Nullable;
 
@@ -37,8 +38,9 @@ public class NotebookResource implements NotebookAPI {
     }
 
     @Override
-    public @NotNull @Valid Page<NotebookDTO> getProjectNotebooks(@NotNull UUID projectId, @Nullable String search, @Valid Paging paging) {
-        return notebookService.getNotebooks(projectId, search, paging);
+    public @NotNull @Valid Page<NotebookDTO> getProjectNotebooks(@NotNull UUID projectId, @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort,
+                                                                 @QueryParam("createdByMe") @Nullable Boolean createdByMe, @Valid Paging paging) {
+        return notebookService.getNotebooks(projectId, search, sort, createdByMe, paging);
     }
 
     @Override

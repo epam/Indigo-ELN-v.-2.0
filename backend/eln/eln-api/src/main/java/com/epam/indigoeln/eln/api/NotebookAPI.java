@@ -24,7 +24,8 @@ public interface NotebookAPI extends BaseAPI {
 
     @GET
     @Path("/projects/{projectId}/notebooks")
-    Page<NotebookDTO> getProjectNotebooks(@PathParam("projectId") UUID projectId, @QueryParam("search") @Nullable String search, @BeanParam Paging paging);
+    Page<NotebookDTO> getProjectNotebooks(@PathParam("projectId") UUID projectId, @QueryParam("search") @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort,
+                                          @QueryParam("createdByMe") @Nullable Boolean createdByMe, @BeanParam Paging paging);
 
     @PATCH
     @Path("/notebooks/{notebookId}")
@@ -44,7 +45,7 @@ public interface NotebookAPI extends BaseAPI {
     @Path("/notebooks/{notebookId}/attachments/{attachmentId}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     void deleteNotebookAttachment(@PathParam("notebookId") UUID notebookId, @PathParam("attachmentId") UUID attachmentId);
-    
+
     @POST
     @Path("/notebooks/{notebookId}/access")
     List<ACLDetailsEntryDTO> updateNotebookAccess(@PathParam("notebookId") UUID notebookId, List<AccessForm> form);
