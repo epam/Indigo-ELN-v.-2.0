@@ -32,7 +32,7 @@
     <div>
       <eln-button variant="blue" (click)="addSelectedUsers()" [disabled]="selectedUserIds.length === 0 || addUserLoading">
         <em class="indicon-plus"></em>
-        Add member{{ selectedUserIds.length > 1 ? 's' : '' }}
+        {{ selectedUserIds.length | i18nPlural: addMemberLabelMap }}
       </eln-button>
     </div>
   </div>

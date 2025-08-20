@@ -1,4 +1,5 @@
 import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 // import { AvatarComponent } from '../../common/avatar/avatar.component';
 import { CardComponent } from '../../common/card/card.component';
 import { CopyComponent } from '../../common/copy/copy.component';
@@ -21,6 +22,7 @@ type UserSuggestionWithState = UserSuggestion & { added?: boolean };
   templateUrl: './team.component.html',
   standalone: true,
   imports: [
+    CommonModule,
     CounterComponent,
     // AvatarComponent,
     CopyComponent,
@@ -35,6 +37,12 @@ type UserSuggestionWithState = UserSuggestion & { added?: boolean };
 export class TeamComponent implements OnDestroy, OnInit {
   aclLevelOptions = ELIGIBLE_ACL_LEVELS;
   isInmutableLevel = isInmutableLevel;
+  // i18n plural map for the add members button
+  addMemberLabelMap: Record<string, string> = {
+    '=0': 'Add member',
+    '=1': 'Add member',
+    other: 'Add # members'
+  };
 
   @Input({ required: true }) project: Project;
   @Input({ required: true }) team: ProjectAcl[] = [];
@@ -56,7 +64,11 @@ export class TeamComponent implements OnDestroy, OnInit {
   // Rebuild added flag on suggestions based on current team
   // Those users already in the team should be marked as added
   private rebuildSuggestionsState(): void {
-    this.userSuggestions.forEach(s => { s.added = this.isUserInTeam(s.id); });
+    const teamIds = new Set(this.team.map(m => m.userId));
+    this.userSuggestions = this.userSuggestions.map(s => ({
+      ...s,
+      added: teamIds.has(s.id)
+    }));
   }
 
   isAclMemberLoading(member: ProjectAcl): boolean {
@@ -127,7 +139,6 @@ export class TeamComponent implements OnDestroy, OnInit {
 
     this.service.request<ProjectAclUpdate>('post', `projects/${this.project.id}/access`, [{ userID: member.userId, level: newLevel }])
       .pipe(
-        takeUntil(this.destroy$),
         catchError((err) => {
           console.error('Failed to update ACL level:', err);
           // Remove from loading set on error
