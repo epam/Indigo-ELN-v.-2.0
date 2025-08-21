@@ -9,7 +9,7 @@ dependencies {
 
     implementation(project(":common:common-lambda"))
     implementation(project(":eln:eln-core"))
-    implementation(project(":eln-quarkus-extension:runtime"))
+//    implementation(project(":eln-quarkus-extension:runtime"))
     testImplementation(project(":common:common-test"))
     testImplementation(project(path = ":eln:eln-core", configuration = "testArtifacts"))
 }
@@ -30,6 +30,8 @@ tasks.named("processResources") {
 
 tasks.withType<Test> {
     environment("NATIVE_LIB_PATH", "${projectDir}/build/nativelibs")
+    systemProperty("java.net.preferIPv4Stack", "false")
+    systemProperty("java.net.preferIPv6Addresses", "true")
 }
 
 tasks.named("compileIntegrationTestJava") {

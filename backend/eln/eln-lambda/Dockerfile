@@ -14,4 +14,4 @@ EXPOSE 8080
 USER 1001
 
 ENV NATIVE_LIB_PATH=/work/nativelibs
-ENTRYPOINT ["./application", "-Dquarkus.http.host=0.0.0.0", "-Djava.net.preferIPv6Addresses=true"]
+ENTRYPOINT ["./application", "-Dquarkus.http.host=0.0.0.0", "-Djava.net.preferIPv4Stack=false", "-Djava.net.preferIPv6Addresses=true"]

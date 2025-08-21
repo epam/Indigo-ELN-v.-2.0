@@ -87,6 +87,8 @@ tasks.named("processResources") {
 
 tasks.withType<Test> {
     environment("NATIVE_LIB_PATH", "${projectDir}/build/nativelibs")
+    systemProperty("java.net.preferIPv4Stack", "false")
+    systemProperty("java.net.preferIPv6Addresses", "true")
 }
 
 tasks.withType<io.quarkus.gradle.tasks.QuarkusDev> {

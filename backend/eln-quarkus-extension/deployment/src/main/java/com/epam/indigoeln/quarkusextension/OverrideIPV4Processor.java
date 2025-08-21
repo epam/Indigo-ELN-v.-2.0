@@ -5,6 +5,7 @@ import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.SystemPropertyBuildItem;
 import io.quarkus.deployment.pkg.steps.NativeBuild;
+import io.quarkus.deployment.pkg.steps.NativeOrNativeSourcesBuild;
 import jakarta.annotation.Priority;
 
 // The point of this extension is to override the default IPv4-only set by io.quarkus:quarkus-amazon-lambda-common.
@@ -20,14 +21,16 @@ public class OverrideIPV4Processor {
     }
 
     @Priority(Integer.MIN_VALUE)
-    @BuildStep(onlyIf = NativeBuild.class)
+    @BuildStep(onlyIf = NativeOrNativeSourcesBuild.class)
     void overrideIpv4Only(BuildProducer<SystemPropertyBuildItem> systemProperty) {
         systemProperty.produce(new SystemPropertyBuildItem("java.net.preferIPv4Stack", "false"));
+        systemProperty.produce(new SystemPropertyBuildItem("java.net.preferIPv6Addresses", "true"));
     }
 
     @Priority(Integer.MAX_VALUE)
-    @BuildStep(onlyIf = NativeBuild.class)
+    @BuildStep(onlyIf = NativeOrNativeSourcesBuild.class)
     void override2Ipv4Only(BuildProducer<SystemPropertyBuildItem> systemProperty) {
         systemProperty.produce(new SystemPropertyBuildItem("java.net.preferIPv4Stack", "false"));
+        systemProperty.produce(new SystemPropertyBuildItem("java.net.preferIPv6Addresses", "true"));
     }
 }
