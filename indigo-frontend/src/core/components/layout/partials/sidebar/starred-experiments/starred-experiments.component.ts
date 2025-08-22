@@ -12,21 +12,6 @@ import { Experiment } from '@/core/types/entities/experiment.i';
 type BadgeVariant = 'blue' | 'green' | 'yellow' | 'red' | 'grey' | 'violet';
 interface StatusDecorarion { variant: BadgeVariant; dotClass: string; }
 
-// TEMP MOCK: Enable to preview all statuses visually without backend
-const USE_STARRED_EXPERIMENTS_MOCK = true; // set to false when integrating
-const STARRED_EXPERIMENTS_MOCK: Experiment[] = [
-  { id: 'EXP-0001', name: '00000001-0001', status: ExperimentStatus.OPEN, marked: true },
-  { id: 'EXP-0002', name: '00000001-0002', status: ExperimentStatus.REOPEN, marked: true },
-  { id: 'EXP-0003', name: '00000001-0003', status: ExperimentStatus.COMPLETED, marked: true },
-  { id: 'EXP-0004', name: '00000001-0004', status: ExperimentStatus.SUBMITTED, marked: true },
-  { id: 'EXP-0005', name: '00000001-0005', status: ExperimentStatus.SIGNING, marked: true },
-  { id: 'EXP-0006', name: '00000001-0006', status: ExperimentStatus.REJECTED, marked: true },
-  { id: 'EXP-0007', name: '00000001-0007', status: ExperimentStatus.SIGNED, marked: true },
-  { id: 'EXP-0008', name: '00000001-0008', status: ExperimentStatus.ARCHIVED, marked: true },
-  { id: 'EXP-0009', name: '00000001-0009', status: ExperimentStatus.CANCELLED, marked: true },
-  { id: 'EXP-0010', name: '00000001-0010', status: ExperimentStatus.WAITING_FOR_SIGNATURE, marked: true },
-];
-
 @Component({
   selector: 'eln-starred-experiments',
   templateUrl: './starred-experiments.component.html',
@@ -60,13 +45,8 @@ export class StarredExperimentsComponent implements OnInit, OnDestroy {
 
   private fetchMarkedExperiments(): void {
     this.loading = true;
-    if (USE_STARRED_EXPERIMENTS_MOCK) {
-      this.experiments = STARRED_EXPERIMENTS_MOCK;
-      this.loading = false;
-      return;
-    }
     this.service
-  .request<Experiment[]>('get', 'experiments/marked')
+      .request<Experiment[]>('get', 'experiments/marked')
       .pipe(
         catchError((err) => {
           console.error('Failed to load marked experiments:', err);
