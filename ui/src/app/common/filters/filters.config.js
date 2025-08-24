@@ -23,7 +23,17 @@ var moment = require('moment-timezone');
 /* @ngInject */
 function filtersConfig($provide) {
     $provide.decorator('dateFilter', function($delegate) {
-        var userTimeZone = moment.tz.guess();
+        var userTimeZone = null;
+        try {
+            userTimeZone = moment.tz.guess();
+        } catch (e) {
+            try {
+                userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            } catch (e2) {
+                console.warn('Cannot determine user time zone');
+            }
+        }
+        console.log('Using timezone: ' + userTimeZone);
 
         return function(date, dateFormat) {
             var format = 'MMM DD, YYYY HH:mm:ss z';
