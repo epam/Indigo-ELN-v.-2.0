@@ -15,7 +15,6 @@ export class NotebookInfoComponent {
     private store = inject(NotebookStore);
 
     get notebook(): NotebookDetail | null {
-        // return { ...this.store.notebook(), description: "Lorem ipsum dolor sit amet consectetur adipiscing elit." };
         return this.store.notebook();
     }
 
