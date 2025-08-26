@@ -1,5 +1,9 @@
 import { ButtonComponent } from '@/core/components/common/button/button.component';
-import { ListHeaderComponent } from '@/core/components/common/list-header/list-header.component';
+import { DropdownMenuItem } from '@/core/components/common/dropdown-menu/dropdown-menu.i';
+import {
+  ListHeaderComponent,
+  SortChangeEvent,
+} from '@/core/components/common/list-header/list-header.component';
 import { ProjectItemComponent } from '@/core/components/project/project-item/project-item.component';
 import { ProjectOverviewWidgetDirective } from '@/core/components/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { InfiniteLoaderComponent } from '@/core/components/util/infinite-loader/infinite-loader.component';
@@ -48,10 +52,28 @@ export class ProjectListComponent
   selectedView: 'grid' | 'list' = 'grid';
   private refreshSub!: Subscription;
 
+  headerSortOptions: DropdownMenuItem[] = [];
+
   constructor() {
     super();
-    this.config.loadUrl = 'projects';
-    this.initialize();
+    this.setup({
+      loadUrl: 'projects',
+      sortOptions: [
+        { label: 'Sort by: Earliest', value: 'createdAt', defaultOrder: 'asc' },
+        { label: 'Sort by: Latest', value: 'createdAt', defaultOrder: 'desc' },
+      ],
+      defaultSort: {
+        sortBy: 'createdAt',
+        sortOrder: 'asc',
+      },
+    });
+
+    // Convert sort options to dropdown menu items
+    this.headerSortOptions = this.getSortOptions().map((option) => ({
+      label: `${option.label}`,
+      value: `${option.value}:${option.defaultOrder}`,
+      icon: 'indicon-sort',
+    }));
   }
 
   refreshList(): void {
@@ -84,5 +106,17 @@ export class ProjectListComponent
           // do something after experiment is added
         }
       });
+  }
+
+  onSearch(value: string) {
+    this.search(value);
+  }
+
+  onSortChange(event: SortChangeEvent) {
+    this.sort(event.sortBy, event.sortOrder);
+  }
+
+  onViewChange(view: string) {
+    this.selectedView = view as 'grid' | 'list';
   }
 }

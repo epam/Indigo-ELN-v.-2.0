@@ -7,6 +7,8 @@ import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.Conditions;
+import com.epam.indigoeln.eln.util.ListWithTotal;
+import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jspecify.annotations.Nullable;
@@ -24,13 +26,21 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     @Inject
     ExperimentMapper experimentMapper;
 
-    public Page<ExperimentDTO> findAll(@Nullable UUID projectId, @Nullable UUID notebookId, Paging paging) {
+    public ListWithTotal<ExperimentDTO> findAll(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging) {
+        Sort panacheSort = switch (sort) {
+            case EARLIEST -> Sort.ascending("modifiedAt");
+            case LATEST -> Sort.descending("modifiedAt");
+        };
+
+        Conditions conditions = new Conditions()
+                .addIfNotNull("project.id=?", projectId)
+                .addIfNotNull("notebook.id=?", notebookId)
+                .addIfNotNull("createdBy = ?", createdByUser);
+
         return doFindWithTotals(
-                new Conditions()
-                        .addIfNotNull("project.id=?", projectId)
-                        .addIfNotNull("notebook.id=?", notebookId),
+                conditions,
                 paging,
-                DEFAULT_SORT,
+                panacheSort,
                 em.getEntityGraph("Experiment.list"),
                 experimentMapper::entityToDTO
         );

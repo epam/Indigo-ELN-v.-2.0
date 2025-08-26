@@ -55,8 +55,17 @@ public class ProjectService {
         return getProject(project.getId());
     }
 
-    public Page<ProjectDTO> getProjects(@Nullable String search, Paging paging) {
-        return projectRepository.findAll(search, paging);
+    public Page<ProjectDTO> getProjects(@Nullable String search, @Nullable SortOrder sort, @Nullable Boolean createdByMe, Paging paging) {
+        UserEntity currentUser = null;
+
+        if (Boolean.TRUE.equals(createdByMe)) {
+            currentUser = userService.getCurrentUser();
+        }
+
+        SortOrder sortOrder = (sort != null) ? sort : SortOrder.LATEST;
+
+        ListWithTotal<ProjectDTO> list = projectRepository.findAll(search, sortOrder, currentUser, paging);
+        return Page.of(paging, list.total(), list.list());
     }
 
     public ProjectDetailsDTO getProject(UUID projectId) {

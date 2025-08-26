@@ -19,6 +19,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -88,7 +89,7 @@ class ExperimentServiceTest extends BaseTest {
     @Test
     void testGetExperiments() {
         ExperimentDetailsDTO createdExperiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
-        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), Paging.DEFAULT);
+        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).hasSize(1).first().satisfies(experiment -> {
             assertThat(experiment.getId()).isNotNull();
             assertThat(experiment.getName()).isEqualTo(createdExperiment.getName());
@@ -96,6 +97,52 @@ class ExperimentServiceTest extends BaseTest {
             assertThat(experiment.getCreatedAt()).isNotNull();
             assertThat(experiment.getModifiedBy().getDisplayName()).isEqualTo(TestHelper.JOHN_DISPLAY_NAME);
             assertThat(experiment.getModifiedAt()).isNotNull();
+        });
+    }
+
+    @Test
+    void testGetExperimentsSortedByEarliest() {
+        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+
+        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), SortOrder.EARLIEST, null, Paging.DEFAULT);
+
+        assertThat(experiments.getItems())
+                .isSortedAccordingTo(Comparator.comparing(ExperimentDTO::getModifiedAt));
+    }
+
+    @Test
+    void testGetExperimentsSortedByLatest() {
+        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+
+        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), SortOrder.LATEST, null, Paging.DEFAULT);
+
+        assertThat(experiments.getItems())
+                .isSortedAccordingTo(Comparator.comparing(ExperimentDTO::getModifiedAt).reversed());
+    }
+
+    @Test
+    void testGetExperimentsCreatedByMe() {
+        withUser(TestHelper.JOHN_USERNAME, () -> {
+            experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+            experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        });
+
+        withUser(TestHelper.BART_USERNAME, () -> {
+            experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        });
+
+        withUser(TestHelper.JOHN_USERNAME, () -> {
+            Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, true, Paging.DEFAULT);
+
+            assertThat(experiments.getItems())
+                    .allSatisfy(experiment -> assertThat(experiment.getCreatedBy().getDisplayName()).isEqualTo(TestHelper.JOHN_DISPLAY_NAME));
+
+            assertThat(experiments.getItems())
+                    .noneSatisfy(experiment -> assertThat(experiment.getCreatedBy().getDisplayName()).isEqualTo(TestHelper.BART_DISPLAY_NAME));
         });
     }
 
@@ -111,7 +158,7 @@ class ExperimentServiceTest extends BaseTest {
         ExperimentDetailsDTO modified = experimentClient.editExperiment(experiment.getId(), new ExperimentEditRequest(
                 Optional.of(therapeuticAreas.get(1)),
                 Optional.of(projectCodes.get(1)
-        )));
+                )));
         assertThat(modified.getName()).isEqualTo(experiment.getName());
         assertThat(modified.getTherapeuticArea()).isEqualTo(therapeuticAreas.get(1));
         assertThat(modified.getProjectCode()).isEqualTo(projectCodes.get(1));
@@ -126,11 +173,11 @@ class ExperimentServiceTest extends BaseTest {
         assertThat(experimentClient.getMarkedExperiments()).isEmpty();
 
         assertThat(experimentClient.markExperiment(experiment.getId())).isTrue();
-        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), Paging.DEFAULT);
+        Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).singleElement().satisfies(e -> {
             assertThat(e.getMarked()).isTrue();
         });
-        experiments = experimentClient.getNotebookExperiments(notebook.getId(), Paging.DEFAULT);
+        experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).singleElement().satisfies(e -> {
             assertThat(e.getMarked()).isTrue();
         });
@@ -142,11 +189,11 @@ class ExperimentServiceTest extends BaseTest {
         });
 
         assertThat(experimentClient.unmarkExperiment(experiment.getId())).isFalse();
-        experiments = experimentClient.getProjectExperiments(project.getId(), Paging.DEFAULT);
+        experiments = experimentClient.getProjectExperiments(project.getId(), null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).singleElement().satisfies(e -> {
             assertThat(e.getMarked()).isFalse();
         });
-        experiments = experimentClient.getNotebookExperiments(notebook.getId(), Paging.DEFAULT);
+        experiments = experimentClient.getNotebookExperiments(notebook.getId(), null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).singleElement().satisfies(e -> {
             assertThat(e.getMarked()).isFalse();
         });

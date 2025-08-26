@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -64,7 +65,7 @@ class NotebookServiceTest extends BaseTest {
         assertThat(notebook.getModifiedBy().getDisplayName()).isEqualTo(TestHelper.JOHN_DISPLAY_NAME);
         assertThat(notebook.getModifiedAt()).isNotNull();
     }
-    
+
     @Test
     void testGetNotebook() {
         NotebookDetailsDTO createdNotebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
@@ -76,7 +77,7 @@ class NotebookServiceTest extends BaseTest {
     void testGetNotebooks() {
         String name = nextNotebookName();
         NotebookDetailsDTO createdNotebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(name));
-        Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), null, Paging.DEFAULT);
+        Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), null, null, null, Paging.DEFAULT);
         assertThat(notebooks.getItems()).hasSize(1).first().satisfies(notebook -> {
             assertThat(notebook.getId()).isNotNull();
             assertThat(notebook.getName()).isEqualTo(name);
@@ -87,7 +88,53 @@ class NotebookServiceTest extends BaseTest {
             assertThat(notebook.getExperimentCount()).isEmpty();
         });
     }
-    
+
+    @Test
+    void testGetNotebooksSortedByEarliest() {
+        notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+
+        Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), null, SortOrder.EARLIEST, null, Paging.DEFAULT);
+
+        assertThat(notebooks.getItems())
+                .isSortedAccordingTo(Comparator.comparing(NotebookDTO::getModifiedAt));
+    }
+
+    @Test
+    void testGetNotebooksSortedByLatest() {
+        notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+
+        Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), null, SortOrder.LATEST, null, Paging.DEFAULT);
+
+        assertThat(notebooks.getItems())
+                .isSortedAccordingTo(Comparator.comparing(NotebookDTO::getModifiedAt).reversed());
+    }
+
+    @Test
+    void testGetNotebooksCreatedByMe() {
+        withUser(TestHelper.JOHN_USERNAME, () -> {
+            notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+            notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        });
+
+        withUser(TestHelper.BART_USERNAME, () -> {
+            notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        });
+
+        withUser(TestHelper.JOHN_USERNAME, () -> {
+            Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), null, null, true, Paging.DEFAULT);
+
+            assertThat(notebooks.getItems())
+                    .allSatisfy(experiment -> assertThat(experiment.getCreatedBy().getDisplayName()).isEqualTo(TestHelper.JOHN_DISPLAY_NAME));
+
+            assertThat(notebooks.getItems())
+                    .noneSatisfy(experiment -> assertThat(experiment.getCreatedBy().getDisplayName()).isEqualTo(TestHelper.BART_DISPLAY_NAME));
+        });
+    }
+
     @Test
     void testEditNotebook() {
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName(), "d"));
@@ -140,17 +187,17 @@ class NotebookServiceTest extends BaseTest {
         String p1 = notebook.getName();
         String p2 = notebookClient.createNotebook(project.getId(), new NotebookRequest(name2, "QS1 QS2 quickSearchCommon")).getName();
 
-        Page<NotebookDTO> result1 = notebookClient.getProjectNotebooks(project.getId(), name1, Paging.DEFAULT);
+        Page<NotebookDTO> result1 = notebookClient.getProjectNotebooks(project.getId(), name1, null, null, Paging.DEFAULT);
         assertThat(result1.getItems()).map(NotebookDTO::getName).containsOnly(p1);
 
-        Page<NotebookDTO> result2 = notebookClient.getProjectNotebooks(project.getId(), "qs1", Paging.DEFAULT);
+        Page<NotebookDTO> result2 = notebookClient.getProjectNotebooks(project.getId(), "qs1", null, null, Paging.DEFAULT);
         assertThat(result2.getItems()).map(NotebookDTO::getName).containsExactlyInAnyOrder(p1, p2);
 
         notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(null, Optional.of("QS1 QSNew")));
-        Page<NotebookDTO> result3 = notebookClient.getProjectNotebooks(project.getId(), "QSOld", Paging.DEFAULT);
+        Page<NotebookDTO> result3 = notebookClient.getProjectNotebooks(project.getId(), "QSOld", null, null, Paging.DEFAULT);
         assertThat(result3.getItems()).isEmpty();
 
-        Page<NotebookDTO> result4 = notebookClient.getProjectNotebooks(project.getId(), "QSNew", Paging.DEFAULT);
+        Page<NotebookDTO> result4 = notebookClient.getProjectNotebooks(project.getId(), "QSNew", null, null, Paging.DEFAULT);
         assertThat(result4.getItems()).map(NotebookDTO::getName).containsExactly(p1);
     }
 }

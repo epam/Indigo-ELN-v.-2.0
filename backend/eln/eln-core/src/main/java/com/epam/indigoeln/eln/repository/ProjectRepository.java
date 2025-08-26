@@ -2,9 +2,12 @@ package com.epam.indigoeln.eln.repository;
 
 import com.epam.indigoeln.eln.entity.ProjectEntity;
 import com.epam.indigoeln.eln.entity.TotalCountsEntity;
+import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.Conditions;
+import com.epam.indigoeln.eln.util.ListWithTotal;
+import io.quarkus.panache.common.Sort;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -21,12 +24,20 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
         super(EntityType.PROJECT);
     }
 
-    public Page<ProjectDTO> findAll(@Nullable String search, Paging paging) {
+    public ListWithTotal<ProjectDTO> findAll(@Nullable String search, @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging) {
+        Sort panacheSort = switch (sort) {
+            case EARLIEST -> Sort.ascending("modifiedAt");
+            case LATEST -> Sort.descending("modifiedAt");
+        };
+
+        Conditions conditions = new Conditions()
+                .addIfNotNull("full_text_search(searchVector, to_tsquery('english', ?))", search)
+                .addIfNotNull("createdBy = ?", createdByUser);
+
         return doFindWithTotals(
-                new Conditions()
-                        .addIfNotNull("full_text_search(searchVector, to_tsquery('english', ?))", search),
+                conditions,
                 paging,
-                DEFAULT_SORT,
+                panacheSort,
                 em.getEntityGraph("Project.list"),
                 projectMapper::entityToDTO
         );

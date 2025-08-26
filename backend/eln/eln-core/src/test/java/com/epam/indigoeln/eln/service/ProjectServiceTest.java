@@ -67,7 +67,7 @@ class ProjectServiceTest extends BaseTest {
     @Test
     void testGetProjects() {
         projectClient.createProject(new ProjectRequest("testGetProjects", List.of("keyword1", "keyword2"), "literature", "description"));
-        Page<ProjectDTO> projects = projectClient.getProjects(null, Paging.DEFAULT);
+        Page<ProjectDTO> projects = projectClient.getProjects(null, null, null, Paging.DEFAULT);
         assertThat(projects.getItems()).first().satisfies(project -> {
             assertThat(project.getId()).isNotNull();
             assertThat(project.getName()).isEqualTo("testGetProjects");
@@ -90,18 +90,77 @@ class ProjectServiceTest extends BaseTest {
         }
 
         Paging paging1 = new Paging(0, 2);
-        Page<ProjectDTO> page0 = projectClient.getProjects(null, paging1);
+        Page<ProjectDTO> page0 = projectClient.getProjects(null, null, null, paging1);
         assertThat(page0.getTotalItems()).isEqualTo(3);
         assertThat(page0.getTotalPages()).isEqualTo(2);
         assertThat(page0.getItems()).hasSize(2);
         assertThat(page0.getItems()).extracting(ProjectDTO::getName).containsExactly("testGetProjectsPagination3", "testGetProjectsPagination2");
 
         Paging paging = new Paging(1, 2);
-        Page<ProjectDTO> page1 = projectClient.getProjects(null, paging);
+        Page<ProjectDTO> page1 = projectClient.getProjects(null, null, null, paging);
         assertThat(page1.getTotalItems()).isEqualTo(3);
         assertThat(page1.getTotalPages()).isEqualTo(2);
         assertThat(page1.getItems().size()).isEqualTo(1);
         assertThat(page1.getItems()).extracting(ProjectDTO::getName).containsExactly("testGetProjectsPagination1");
+    }
+
+    @Test
+    void testGetProjectsSortByEarliest() {
+        testHelper.cleanupDatabase();
+        testHelper.createTestUsers();
+
+        projectClient.createProject(new ProjectRequest("Project1"));
+        projectClient.createProject(new ProjectRequest("Project2"));
+        projectClient.createProject(new ProjectRequest("Project3"));
+
+        Page<ProjectDTO> projects = projectClient.getProjects(null, SortOrder.EARLIEST, null, Paging.DEFAULT);
+
+        assertThat(projects.getItems())
+                .extracting(ProjectDTO::getName)
+                .containsExactly("Project1", "Project2", "Project3");
+    }
+
+    @Test
+    void testGetProjectsSortByLatest() {
+        testHelper.cleanupDatabase();
+        testHelper.createTestUsers();
+
+        projectClient.createProject(new ProjectRequest("Project1"));
+        projectClient.createProject(new ProjectRequest("Project2"));
+        projectClient.createProject(new ProjectRequest("Project3"));
+
+        Page<ProjectDTO> projects = projectClient.getProjects(null, SortOrder.LATEST, null, Paging.DEFAULT);
+
+        assertThat(projects.getItems())
+                .extracting(ProjectDTO::getName)
+                .containsExactly("Project3", "Project2", "Project1");
+    }
+
+    @Test
+    void testGetProjectsCreatedByMe() {
+        testHelper.cleanupDatabase();
+        testHelper.createTestUsers();
+
+        withUser(TestHelper.JOHN_USERNAME, () -> {
+            projectClient.createProject(new ProjectRequest("MyProject1"));
+            projectClient.createProject(new ProjectRequest("MyProject2"));
+        });
+
+        withUser(TestHelper.BART_USERNAME, () -> {
+            projectClient.createProject(new ProjectRequest("OtherUserProject"));
+        });
+
+        withUser(TestHelper.JOHN_USERNAME, () -> {
+            Page<ProjectDTO> projects = projectClient.getProjects(null, null, true, Paging.DEFAULT);
+
+            assertThat(projects.getItems())
+                    .extracting(ProjectDTO::getName)
+                    .containsExactlyInAnyOrder("MyProject1", "MyProject2");
+
+            assertThat(projects.getItems())
+                    .extracting(ProjectDTO::getName)
+                    .doesNotContain("OtherUserProject");
+        });
     }
 
     @Test
@@ -134,7 +193,7 @@ class ProjectServiceTest extends BaseTest {
         assertThat(totalCounts.getExperimentsByStatus().get(ExperimentStatus.OPEN)).isGreaterThanOrEqualTo(3);
 
         Paging paging = new Paging(0, 1);
-        Page<ProjectDTO> projects = projectClient.getProjects(null, paging);
+        Page<ProjectDTO> projects = projectClient.getProjects(null, null, null, paging);
         assertThat(projects.getItems()).filteredOn(p -> p.getId().equals(projectId)).singleElement().satisfies(p -> {
             assertThat(p.getNotebookCount()).isEqualTo(2);
             assertThat(p.getExperimentCount()).contains(entry(ExperimentStatus.OPEN, 3));
@@ -143,7 +202,7 @@ class ProjectServiceTest extends BaseTest {
         assertThat(project.getNotebookCount()).isEqualTo(2);
         assertThat(project.getExperimentCount()).contains(entry(ExperimentStatus.OPEN, 3));
 
-        Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(projectId, null, Paging.DEFAULT);
+        Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(projectId, null, null, null, Paging.DEFAULT);
         assertThat(notebooks.getItems()).filteredOn(n -> n.getId().equals(notebook1Id)).singleElement().satisfies(n -> {
             assertThat(n.getExperimentCount()).contains(entry(ExperimentStatus.OPEN, 2));
         });
@@ -204,27 +263,27 @@ class ProjectServiceTest extends BaseTest {
         String p2 = projectClient.createProject(new ProjectRequest("quickSearchB", List.of(), null, "QS1 QS3 quickSearchCommon")).getName();
         String p3 = projectClient.createProject(new ProjectRequest("quickSearchC quickSearchCommon", List.of("QSKeyword"), "QSLiterature", "QS2 QS3")).getName();
 
-        Page<ProjectDTO> result1 = projectClient.getProjects("quickSearchA", Paging.DEFAULT);
+        Page<ProjectDTO> result1 = projectClient.getProjects("quickSearchA", null, null, Paging.DEFAULT);
         assertThat(result1.getItems()).map(ProjectDTO::getName).containsOnly(p1);
 
-        Page<ProjectDTO> result2 = projectClient.getProjects("qs1", Paging.DEFAULT);
+        Page<ProjectDTO> result2 = projectClient.getProjects("qs1", null, null, Paging.DEFAULT);
         assertThat(result2.getItems()).map(ProjectDTO::getName).containsExactlyInAnyOrder(p1, p2);
 
-        Page<ProjectDTO> result3 = projectClient.getProjects("quickSearchCommon", Paging.DEFAULT);
+        Page<ProjectDTO> result3 = projectClient.getProjects("quickSearchCommon", null, null, Paging.DEFAULT);
         assertThat(result3.getItems()).map(ProjectDTO::getName).containsExactlyInAnyOrder(p2, p3);
 
         // TODO keywords doesn't get reflected in the index because keywords are in a separate table and update is not triggered
 //        Page<ProjectDTO> result4 = projectsClient.getProjects("QSKeyword", Paging.DEFAULT);
 //        assertThat(result4.getItems()).map(ProjectDTO::getName).containsOnly(p3);
 
-        Page<ProjectDTO> result5 = projectClient.getProjects("QSLiterature", Paging.DEFAULT);
+        Page<ProjectDTO> result5 = projectClient.getProjects("QSLiterature", null, null, Paging.DEFAULT);
         assertThat(result5.getItems()).map(ProjectDTO::getName).containsOnly(p3);
 
         projectClient.editProject(project.getId(), new ProjectEditRequest(null, null, null, Optional.of("QS1 QS2 QSNew")));
-        Page<ProjectDTO> result6 = projectClient.getProjects("QSOld", Paging.DEFAULT);
+        Page<ProjectDTO> result6 = projectClient.getProjects("QSOld", null, null, Paging.DEFAULT);
         assertThat(result6.getItems()).isEmpty();
 
-        Page<ProjectDTO> result7 = projectClient.getProjects("QSNew", Paging.DEFAULT);
+        Page<ProjectDTO> result7 = projectClient.getProjects("QSNew", null, null, Paging.DEFAULT);
         assertThat(result7.getItems()).map(ProjectDTO::getName).containsExactly(p1);
     }
 }

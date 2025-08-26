@@ -1,7 +1,7 @@
 <eln-form-dialog
-  [title]="'Add Project'"
+  [title]="title"
   [fields]="fields"
   size="auto"
   containerClass="w-[800px]"
-  (formSubmit)="createProject($event)"
+  (formSubmit)="submitAction($event)"
 ></eln-form-dialog>

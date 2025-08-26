@@ -13,7 +13,7 @@
     <eln-card>
       <div class="flex items-center justify-between pb-3 border-b border-b-neutral-200">
         <h2 class="font-semibold text-base">Project Description</h2>
-        <eln-button variant="blue-outline" classList="text-primary-400">
+        <eln-button variant="blue-outline" classList="text-primary-400" (click)="openEditDialog()">
           <em class="indicon-edit"></em>
           Edit
         </eln-button>
@@ -61,10 +61,9 @@
             </div>
           </div>
         }
+        <eln-file-upload (filesSelected)="onUpload($event)" [uploadingFile]="isUploadingAttachment" [withPreview]="false"/>
       </div>
     </eln-card>
-
-    <!-- TODO Show team members (available in project.team response? or where?) -->
-    <!-- <eln-team [team]="project.team" /> -->
+    <eln-team [team]="project.acl" [project]="project" />
   </div>
 }
