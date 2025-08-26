@@ -64,8 +64,7 @@ public class ProjectService {
 
         SortOrder sortOrder = (sort != null) ? sort : SortOrder.LATEST;
 
-        ListWithTotal<ProjectDTO> list = projectRepository.findAll(search, sortOrder, currentUser, paging);
-        return Page.of(paging, list.total(), list.list());
+        return projectRepository.findAll(search, sortOrder, currentUser, paging);
     }
 
     public ProjectDetailsDTO getProject(UUID projectId) {

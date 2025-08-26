@@ -76,8 +76,7 @@ public class ExperimentService {
 
         SortOrder sortOrder = (sort != null) ? sort : SortOrder.LATEST;
 
-        var list = experimentRepository.findAll(projectId, notebookId, sortOrder, currentUser, paging);
-        return Page.of(paging, list.total(), list.list());
+        return experimentRepository.findAll(projectId, notebookId, sortOrder, currentUser, paging);
     }
 
     public List<ExperimentDTO> getMarkedExperiments() {

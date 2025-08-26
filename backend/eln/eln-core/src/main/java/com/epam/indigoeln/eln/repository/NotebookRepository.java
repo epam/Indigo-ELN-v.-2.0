@@ -6,7 +6,6 @@ import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.NotebookMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.Conditions;
-import com.epam.indigoeln.eln.util.ListWithTotal;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -26,7 +25,7 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
         super(EntityType.NOTEBOOK);
     }
 
-    public ListWithTotal<NotebookDTO> findAll(UUID projectId, @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort,
+    public Page<NotebookDTO> findAll(UUID projectId, @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort,
                                               @Nullable UserEntity createdByUser, Paging paging) {
         Sort panacheSort = switch (sort) {
             case EARLIEST -> Sort.ascending("modifiedAt");

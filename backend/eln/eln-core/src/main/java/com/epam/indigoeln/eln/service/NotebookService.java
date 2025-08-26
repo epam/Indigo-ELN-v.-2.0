@@ -68,8 +68,7 @@ public class NotebookService {
 
         SortOrder sortOrder = (sort != null) ? sort : SortOrder.LATEST;
 
-        ListWithTotal<NotebookDTO> list = notebookRepository.findAll(projectId, search, sortOrder, currentUser, paging);
-        return Page.of(paging, list.total(), list.list());
+        return notebookRepository.findAll(projectId, search, sortOrder, currentUser, paging);
     }
 
     public NotebookDetailsDTO getNotebook(UUID notebookId) {
