@@ -1,10 +1,12 @@
 package com.epam.indigoeln.eln.api;
 
 import com.epam.indigoeln.eln.model.TotalCounts;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Path(BaseAPI.BASE_PATH)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -19,4 +21,8 @@ public interface MiscAPI extends BaseAPI {
     @POST
     @Path("/admin/flyway")
     Map<String, String> migrate();
+
+    @POST
+    @Path("/admin/insertTestData")
+    Map<String, String> insertTestData(@QueryParam("templateID") @NotNull UUID templateID);
 }

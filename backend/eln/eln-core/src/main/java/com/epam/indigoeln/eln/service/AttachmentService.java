@@ -46,40 +46,54 @@ public class AttachmentService {
     AttachmentMapper attachmentMapper;
 
     public List<AttachmentDTO> createProjectAttachment(UUID projectId, FileUpload file) {
+        return createProjectAttachment(projectId, file.fileName(), readFile(file));
+    }
+
+    public List<AttachmentDTO> createProjectAttachment(UUID projectId, String filename, byte[] content) {
         ProjectEntity project = projectRepository.get(projectId);
         aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
-        AttachmentEntity attachment = doCreateAttachment(file);
+        AttachmentEntity attachment = doCreateAttachment(filename, content);
         project.getAttachments().add(attachment);
         attachment.getProjects().add(project);
         return attachmentMapper.attachmentToDTOList(project.getAttachments());
     }
-    
+
     public List<AttachmentDTO> createNotebookAttachment(UUID notebookId, FileUpload file) {
+        return createNotebookAttachment(notebookId, file.fileName(), readFile(file));
+    }
+
+    public List<AttachmentDTO> createNotebookAttachment(UUID notebookId, String filename, byte[] content) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
         aclService.ensureAccess(notebook, ApplicationPermission.EDIT_NOTEBOOKS);
-        AttachmentEntity attachment = doCreateAttachment(file);
+        AttachmentEntity attachment = doCreateAttachment(filename, content);
         notebook.getAttachments().add(attachment);
         attachment.getNotebooks().add(notebook);
         return attachmentMapper.attachmentToDTOList(notebook.getAttachments());
     }
 
     public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, FileUpload file) {
+        return createExperimentAttachment(experimentId, file.fileName(), readFile(file));
+    }
+
+    public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, String filename, byte[] content) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
-        AttachmentEntity attachment = doCreateAttachment(file);
+        AttachmentEntity attachment = doCreateAttachment(filename, content);
         experiment.getAttachments().add(attachment);
         attachment.getExperiments().add(experiment);
         return attachmentMapper.attachmentToDTOList(experiment.getAttachments());
     }
 
-    private AttachmentEntity doCreateAttachment(FileUpload file) {
-        byte[] content;
+    private byte[] readFile(FileUpload file) {
         try {
-            content = Files.readAllBytes(file.filePath());
+            return Files.readAllBytes(file.filePath());
         } catch (Exception e) {
             throw new RuntimeException("Failed to read attachment content", e);
         }
-        AttachmentEntity attachment = attachmentMapper.requestToAttachment(file.fileName(), content);
+    }
+
+    private AttachmentEntity doCreateAttachment(String filename, byte[] content) {
+        AttachmentEntity attachment = attachmentMapper.requestToAttachment(filename, content);
         ModelUtil.updateDates(attachment, userService.getCurrentUser());
         attachmentRepository.persist(attachment);
         return attachment;

@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestSecurity(user = TestHelper.LISA_USERNAME)
 class TemplateServiceTest extends BaseTest {
 
-    List<TemplateComponent> components = List.of(new TemplateComponent.Attachments(), new TemplateComponent.StoichiometryTable());
+    List<TemplateComponent> components = List.of(new TemplateComponent.Attachments(), new TemplateComponent.StoichiometryTable(true, true));
 
     @Test
     void testCreateTemplateValidation() {

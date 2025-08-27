@@ -8,6 +8,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -18,13 +19,21 @@ import java.util.UUID;
 
 import static com.epam.indigoeln.eln.util.CustomAssertions.assertThatACL;
 import static com.epam.indigoeln.eln.util.CustomAssertions.assertThatClientCall;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 
 @QuarkusTest
 @JwtSecurity
 @TestSecurity(user = TestHelper.JOHN_USERNAME)
 class ProjectServiceTest extends BaseTest {
+
+    @BeforeAll
+    void tearDownAll() {
+        dictionaryClient.getDictionary(Dictionary.PROJECT_KEYWORD).forEach(item -> {
+            dictionaryClient.removeDictionaryItem(Dictionary.PROJECT_KEYWORD, item.getId());
+        });
+    }
 
     @Test
     void testCreateProjectValidation() {

@@ -1,10 +1,13 @@
 package com.epam.indigoeln.eln.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.quarkus.runtime.annotations.RegisterForReflection;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+import lombok.Value;
 
 @RegisterForReflection
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
@@ -30,10 +33,11 @@ public sealed interface TemplateComponent permits
     final class ReactionScheme implements TemplateComponent {
     }
 
-    @Data
-    final class StoichiometryTable implements TemplateComponent {
-        private boolean reactantsReagentsSolvents;
-        private boolean reactionProduct;
+    @Value
+    @AllArgsConstructor(onConstructor_ = @JsonCreator)
+    class StoichiometryTable implements TemplateComponent {
+        boolean reactantsReagentsSolvents;
+        boolean reactionProduct;
     }
 
     // preferred compound details - for later
