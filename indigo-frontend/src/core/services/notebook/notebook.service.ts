@@ -3,7 +3,7 @@ import { NotebookDetail } from '@/core/types/entities/notebook-detail.i';
 import { ApiService } from '@/core/services/api.service';
 
 @Injectable()
-export class NotebookStore {
+export class NotebookService {
   constructor(private api: ApiService<unknown>) {}
 
   // Signals to hold the current notebook state

@@ -3,18 +3,18 @@ import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { ProjectTabButtonComponent } from '@/core/components/project/project-tab-button/project-tab-button.component';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { CardComponent } from "@/core/components/common/card/card.component";
-import { NotebookStore } from '../notebook.store';
+import { NotebookService } from '../../../../core/services/notebook/notebook.service';
 
 @Component({
     selector: 'eln-notebook-detail',
     templateUrl: './notebook-detail.component.html',
     standalone: true,
     imports: [RouterOutlet, ProjectTabButtonComponent, ButtonComponent, CardComponent],
-    providers: [NotebookStore],
+    providers: [NotebookService],
 })
 export class NotebookDetailComponent implements OnInit {
-    activedRoute = inject(ActivatedRoute);
-    store = inject(NotebookStore);
+    activatedRoute = inject(ActivatedRoute);
+    store = inject(NotebookService);
 
     get notebook() {
         return this.store.notebook();
@@ -32,12 +32,12 @@ export class NotebookDetailComponent implements OnInit {
     public experimentsUrl = '';
 
     ngOnInit() {
-        this.activedRoute.params.subscribe((params) => {
-            const notebookId = params['notebookId'];
+        const notebookId = this.activatedRoute.snapshot.paramMap.get('notebookId');
+        if (notebookId) {
             const base = `/notebooks/${notebookId}`;
             this.infoUrl = base;
             this.experimentsUrl = `${base}/experiments`;
-            if (notebookId) this.store.load(notebookId);
-        });
+            this.store.load(notebookId);
+        }
     }
 }

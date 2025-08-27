@@ -3,7 +3,7 @@ import { CardComponent } from '@/core/components/common/card/card.component';
 import { NotebookDetail } from '@/core/types/entities/notebook-detail.i';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { NotebookStore } from '../notebook.store';
+import { NotebookService } from '../../../../core/services/notebook/notebook.service';
 
 @Component({
     selector: 'eln-notebook-info',
@@ -12,7 +12,7 @@ import { NotebookStore } from '../notebook.store';
     templateUrl: './notebook-info.component.html',
 })
 export class NotebookInfoComponent {
-    private store = inject(NotebookStore);
+    private store = inject(NotebookService);
 
     get notebook(): NotebookDetail | null {
         return this.store.notebook();
