@@ -7,3 +7,14 @@ export interface ProjectAcl {
   level: AclLevel;
   inherited: boolean;
 }
+
+export interface UserSuggestion {
+  id: string;
+  username: string;
+  displayName: string;
+}
+
+export interface ProjectAclUpdate {
+  userID: string;
+  level: AclLevel;
+}

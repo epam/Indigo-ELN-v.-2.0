@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { StarredExperimentsComponent } from './starred-experiments/starred-experiments.component';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, StarredExperimentsComponent],
   selector: 'eln-sidebar',
   templateUrl: './sidebar.component.html',
 })
