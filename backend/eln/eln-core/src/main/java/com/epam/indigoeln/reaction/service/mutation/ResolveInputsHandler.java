@@ -32,6 +32,7 @@ public class ResolveInputsHandler extends AbstractMutationHandler {
             ReactionInputSample reactionInputSample = new ReactionInputSample(row, UUID.randomUUID());
             reactionInputSample.setSampleId(sampleId);
             reactionInputSample.setPurity(DEFAULT_ONE);
+            reactionInputSample.setStrCode(sample.getStrCode());
             row.setSamples(List.of(reactionInputSample));
 
             affectedRoles.add(row.getRole());

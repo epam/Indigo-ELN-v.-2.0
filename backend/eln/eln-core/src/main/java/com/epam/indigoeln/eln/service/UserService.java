@@ -13,6 +13,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.Setter;
@@ -48,6 +50,8 @@ public class UserService {
     ExternalUserService externalUserService;
     @Inject
     RoleRepository roleRepository;
+    @PersistenceContext
+    EntityManager em;
 
     public UserEntity getCurrentUser() {
         UserEntity user = userContext.get().getCurrentUser();
@@ -59,6 +63,9 @@ public class UserService {
             if (user == null) {
                 throw new AccessDeniedException(username);
             }
+            userContext.get().setCurrentUser(user);
+        } else if (!em.contains(user)) {
+            user = em.find(UserEntity.class, user.getId());
             userContext.get().setCurrentUser(user);
         }
         return user;
@@ -102,8 +109,7 @@ public class UserService {
     }
 
     public Page<UserDTO> getUsers(String search, String username, Paging paging) {
-        var list = userRepository.findAll(search, username, paging);
-        return Page.of(paging, list.total(), list.list());
+        return userRepository.findAll(search, username, paging);
     }
 
     @Getter

@@ -4,6 +4,7 @@ import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.mapper.CompoundMapper;
 import com.epam.indigoeln.compound.model.CompoundKey;
 import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.model.STRCodeCompound;
 import com.epam.indigoeln.eln.repository.BaseRepository;
 import com.epam.indigoeln.eln.util.Conditions;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -40,11 +41,11 @@ public class CompoundRepository extends BaseRepository<CompoundEntity> {
     }
 
     @Nullable
-    public String findSameSTRCodeByCompoundKeyWithoutSaltCode(CompoundKey compoundKey) {
+    public STRCodeCompound findSameSTRCodeByCompoundKeyWithoutSaltCode(CompoundKey compoundKey) {
         return em.createQuery("select strCode from Compound "
                         + "where canSmiles = ?1 "
                         + "and stereoisomerCode is not distinct from ?2 "
-                        + "and strCode is not null", String.class)
+                        + "and strCode is not null", STRCodeCompound.class)
                 .setParameter(1, compoundKey.getCanSmiles())
                 .setParameter(2, compoundKey.getStereoisomerCode())
                 .setMaxResults(1)

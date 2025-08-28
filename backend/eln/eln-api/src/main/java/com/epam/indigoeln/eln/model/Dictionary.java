@@ -12,6 +12,17 @@ public enum Dictionary {
     PROJECT_CODE(false),
     PROJECT_KEYWORD(true),
     STEREOISOMER_CODE(false),
+
+    HEALTH_HAZARD(true),
+    HANDLING_PRECAUTIONS(true),
+    STORAGE_INSTRUCTIONS(true),
+    COMPOUND_PROTECTION(true),
+    SOLVENT(true),
+    EXTERNAL_SUPPLIER(true),
+    SAMPLE_SOURCE(true),
+    SAMPLE_SOURCE_DETAILS(true),
+    COMPONENT_STATE(false),
+
     TEST(false), // only for tests, not used in the application
     ;
 

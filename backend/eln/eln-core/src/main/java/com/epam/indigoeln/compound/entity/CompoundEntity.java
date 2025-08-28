@@ -1,6 +1,8 @@
 package com.epam.indigoeln.compound.entity;
 
 import com.epam.indigoeln.compound.model.CompoundSource;
+import com.epam.indigoeln.eln.model.STRCodeCompound;
+import com.epam.indigoeln.eln.config.hibernate.STRCodeCompoundConverter;
 import com.epam.indigoeln.eln.entity.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
@@ -28,7 +30,8 @@ public class CompoundEntity extends IdentifiableEntity {
 
     @Nullable
     @Column(name = "str_code")
-    private String strCode; // STR code for compounds registered from Indigo ELN
+    @Convert(converter = STRCodeCompoundConverter.class)
+    private STRCodeCompound strCode; // STR code for compounds registered from Indigo ELN
 
     @NotEmpty
     @Column(name = "can_smiles")

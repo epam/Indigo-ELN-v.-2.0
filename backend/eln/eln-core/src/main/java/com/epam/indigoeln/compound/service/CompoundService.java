@@ -7,6 +7,8 @@ import com.epam.indigoeln.compound.model.*;
 import com.epam.indigoeln.compound.repository.CompoundRepository;
 import com.epam.indigoeln.compound.repository.SampleRepository;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.STRCodeCompound;
+import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
@@ -28,7 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -96,7 +97,7 @@ public class CompoundService {
     }
 
     public CompoundRef.Stored realCompoundRef(CompoundEntity compound) {
-        return new CompoundRef.Stored(compound.getId(), compound.getName(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getMolFile(), compound.getFormula());
+        return new CompoundRef.Stored(compound.getId(), compound.getName(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getMolFile(), compound.getFormula(), compound.getStrCode());
     }
 
     public CompoundRef.Virtual virtualCompoundRef(IndigoMolecule molecule, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
@@ -170,25 +171,25 @@ public class CompoundService {
         };
         STRCodeCompound compoundStrCode;
         if (compound.getStrCode() != null) {
-            compoundStrCode = STRCodeCompound.parse(compound.getStrCode());
+            compoundStrCode = compound.getStrCode();
         } else {
             log.debug("registerSample: compound has no source code: {}", compound);
             CompoundKey key = new CompoundKey(compound.getCanSmiles(), compound.getStereoisomerCode() != null ? compound.getStereoisomerCode().getId() : null, compound.getSaltCode() != null ? compound.getSaltCode().getId() : null, compound.getSaltEQ100());
-            String strCodeWithoutSaltCode = compoundRepository.findSameSTRCodeByCompoundKeyWithoutSaltCode(key);
+            STRCodeCompound strCodeWithoutSaltCode = compoundRepository.findSameSTRCodeByCompoundKeyWithoutSaltCode(key);
             log.debug("registerSample: strCodeWithoutSaltCode={}", strCodeWithoutSaltCode);
             int compoundCode = strCodeWithoutSaltCode != null
-                    ? STRCodeCompound.parse(strCodeWithoutSaltCode).getCompoundCode()
+                    ? strCodeWithoutSaltCode.getCompoundCode()
                     : compoundRepository.getNextSTRCodeCompoundCode();
             compoundStrCode = new STRCodeCompound(compoundCode, compound.getSaltCode() != null ? Integer.parseInt(compound.getSaltCode().getCode()) : 0);
-            compound.setStrCode(compoundStrCode.toString());
+            compound.setStrCode(compoundStrCode);
         }
         log.debug("registerSample: compoundStrCode={}", compoundStrCode);
         SampleEntity sample = new SampleEntity();
-        String lastSampleStrCode = sampleRepository.getLastSampleStrCode(compoundStrCode.toString());
+        STRCodeSample lastSampleStrCode = sampleRepository.getLastSampleStrCode(compoundStrCode.toString());
         int sampleStrCode = lastSampleStrCode != null
-                ? STRCodeSample.parse(lastSampleStrCode).getSampleCode() + 1
+                ? lastSampleStrCode.getSampleCode() + 1
                 : 1;
-        sample.setStrCode(new STRCodeSample(compoundStrCode.getCompoundCode(), compoundStrCode.getSaltCode(), sampleStrCode).toString());
+        sample.setStrCode(new STRCodeSample(compoundStrCode.getCompoundCode(), compoundStrCode.getSaltCode(), sampleStrCode));
         sample.setCompound(compound);
         compound.getSamples().add(sample);
         sampleRepository.persist(sample);

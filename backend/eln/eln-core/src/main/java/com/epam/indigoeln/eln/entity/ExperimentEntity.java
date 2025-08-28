@@ -2,8 +2,10 @@ package com.epam.indigoeln.eln.entity;
 
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
+import com.epam.indigoeln.eln.config.hibernate.ExperimentModelConverter;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
+import com.epam.indigoeln.reaction.model.ExperimentModel;
 import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
@@ -46,6 +48,15 @@ import java.util.*;
                 @NamedAttributeNode("projectCode"),
                 @NamedAttributeNode("marked"),
                 @NamedAttributeNode("aclEntities"),
+                @NamedAttributeNode("signatures")
+        }
+)
+@NamedEntityGraph(
+        name = "Experiment.forSignature",
+        attributeNodes = {
+                @NamedAttributeNode("createdBy"),
+                @NamedAttributeNode("modifiedBy"),
+                @NamedAttributeNode("signatures")
         }
 )
 @NamedEntityGraph(
@@ -108,9 +119,8 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
 
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
-//    @Column(columnDefinition = "jsonb")
-//    private ExperimentModel model;
-    private String model;
+    @Convert(converter = ExperimentModelConverter.class)
+    private ExperimentModel model;
 
     @Basic(fetch = FetchType.LAZY)
     private byte @Nullable[] picture;
@@ -136,6 +146,11 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @JoinTable(name = "experiment_attachment", joinColumns = @JoinColumn(name = "experiment_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
+
+    @NotNull
+    @OrderColumn(name = "ordinal")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "experiment")
+    private List<ExperimentSignatureEntity> signatures = new ArrayList<>();
 
     @NotNull
     @ManyToMany

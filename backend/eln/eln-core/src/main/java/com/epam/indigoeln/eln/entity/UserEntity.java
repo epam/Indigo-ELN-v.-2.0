@@ -18,7 +18,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity(name = "User")
 @Table(name = "User_Account")
-@ToString(of = {"id", "username"}, includeFieldNames = false)
+@EqualsAndHashCode(of = {"username"})
 public class UserEntity extends BaseEntity {
 
     @NotEmpty
@@ -50,5 +50,10 @@ public class UserEntity extends BaseEntity {
             Collections.addAll(set, role.getPermissions());
         }
         return set;
+    }
+
+    @Override
+    public String toString() {
+        return username;
     }
 }

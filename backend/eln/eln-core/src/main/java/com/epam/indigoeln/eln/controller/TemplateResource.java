@@ -16,21 +16,7 @@ import java.util.UUID;
 public class TemplateResource implements TemplateAPI {
 
     @Inject
-    ProjectService projectService;
-    @Inject
-    NotebookService notebookService;
-    @Inject
-    ExperimentService experimentService;
-    @Inject
     TemplateService templateService;
-    @Inject
-    AttachmentService attachmentService;
-    @Inject
-    UserService userService;
-    @Inject
-    SupportService supportService;
-    @Inject
-    DictionaryService dictionaryService;
 
     @Override
     public @NotNull @Valid TemplateDetailsDTO createTemplate(@NotNull @Valid TemplateRequest request) {

@@ -1,8 +1,7 @@
 package com.epam.indigoeln.compound.service;
 
 import com.epam.indigoeln.compound.entity.SampleEntity;
-import com.epam.indigoeln.compound.model.STRCodeCompound;
-import com.epam.indigoeln.compound.model.STRCodeSample;
+import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
 import com.epam.indigoeln.eln.BaseTest;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
@@ -74,7 +73,7 @@ public class CompoundServiceTest extends BaseTest {
     @Order(100)
     void testRegisterSample() {
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1));
-        str1 = STRCodeSample.parse(sample.getStrCode());
+        str1 = sample.getStrCode();
         assertThat(str1.getSaltCode()).as(str1.toString()).isZero();
         assertThat(str1.getSampleCode()).as(str1.toString()).isPositive();
     }
@@ -83,7 +82,7 @@ public class CompoundServiceTest extends BaseTest {
     @Order(200)
     void testRegisterSample2() {
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1));
-        str2 = STRCodeSample.parse(sample.getStrCode());
+        str2 = sample.getStrCode();
         assertThat(str2.getCompoundCode()).as(str2.toString()).isEqualTo(str1.getCompoundCode());
         assertThat(str2.getSaltCode()).as(str2.toString()).isZero();
         assertThat(str2.getSampleCode()).as(str2.toString()).isEqualTo(str1.getSampleCode() + 1);
@@ -93,7 +92,7 @@ public class CompoundServiceTest extends BaseTest {
     @Order(300)
     void testRegisterSampleForOtherCompound() {
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound2));
-        strOtherCompound = STRCodeSample.parse(sample.getStrCode());
+        strOtherCompound = sample.getStrCode();
         assertThat(strOtherCompound.getCompoundCode()).as(strOtherCompound.toString()).isNotEqualTo(str1.getCompoundCode());
         assertThat(strOtherCompound.getSaltCode()).as(strOtherCompound.toString()).isZero();
         assertThat(strOtherCompound.getSampleCode()).as(strOtherCompound.toString()).isPositive();
@@ -105,7 +104,7 @@ public class CompoundServiceTest extends BaseTest {
         IndigoMolecule molecule = indigo.loadMolecule(compound1.getMolFile());
         compound1 = compoundService.virtualCompoundRef(molecule, null, saltCode, 1.0);
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1));
-        strOtherSaltCode = STRCodeSample.parse(sample.getStrCode());
+        strOtherSaltCode = sample.getStrCode();
         assertThat(strOtherSaltCode.getCompoundCode()).as(strOtherSaltCode.toString()).isEqualTo(str1.getCompoundCode());
         assertThat(strOtherSaltCode.getSaltCode()).as(strOtherSaltCode.toString()).isEqualTo(Integer.parseInt(saltCode.getCode()));
         assertThat(strOtherSaltCode.getSampleCode()).as(strOtherSaltCode.toString()).isPositive();
@@ -117,7 +116,7 @@ public class CompoundServiceTest extends BaseTest {
         IndigoMolecule molecule = indigo.loadMolecule(compound1.getMolFile());
         compound1 = compoundService.virtualCompoundRef(molecule, null, saltCode, 2.0);
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1));
-        strOtherSaltEQ = STRCodeSample.parse(sample.getStrCode());
+        strOtherSaltEQ = sample.getStrCode();
         assertThat(strOtherSaltEQ.getCompoundCode()).as(strOtherSaltEQ.toString()).isEqualTo(str1.getCompoundCode());
         assertThat(strOtherSaltEQ.getSaltCode()).as(strOtherSaltEQ.toString()).isEqualTo(strOtherSaltCode.getSaltCode());
         assertThat(strOtherSaltEQ.getSampleCode()).as(strOtherSaltEQ.toString()).isGreaterThan(strOtherSaltCode.getSampleCode());

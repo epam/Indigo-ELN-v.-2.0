@@ -4,7 +4,6 @@ import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.UserMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.Conditions;
-import com.epam.indigoeln.eln.util.ListWithTotal;
 import io.quarkus.panache.common.Sort;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -48,7 +47,7 @@ public class UserRepository extends BaseRepository<UserEntity> {
         );
     }
 
-    public ListWithTotal<UserDTO> findAll(@Nullable String search, String username, Paging paging) {
+    public Page<UserDTO> findAll(@Nullable String search, String username, Paging paging) {
         return doFindWithTotals(
                 new Conditions()
                         .addIfNotNull("full_text_search(searchVector, to_tsquery('english', ?))", search)

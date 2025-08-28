@@ -26,6 +26,9 @@ public class ExperimentDetailsDTO extends BaseExperimentDTO {
     @NotNull
     List<ACLDetailsEntryDTO> acl;
 
+    @NotNull
+    List<ExperimentSignature> signatures;
+
     @Override
     public String toString() {
         return "ExperimentDetailsDTO{" +

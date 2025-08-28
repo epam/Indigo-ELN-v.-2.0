@@ -1,5 +1,7 @@
-package com.epam.indigoeln.compound.model;
+package com.epam.indigoeln.eln.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Value;
 
 import java.util.regex.Matcher;
@@ -14,12 +16,18 @@ public class STRCodeSample {
     int saltCode;
     int sampleCode;
 
+    @JsonCreator
     public static STRCodeSample parse(String str) {
         Matcher matcher = PATTERN.matcher(str);
         if (!matcher.matches()) {
             throw new IllegalArgumentException("Invalid STR code format: " + str);
         }
         return new STRCodeSample(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)), Integer.parseInt(matcher.group(3)));
+    }
+
+    @JsonValue
+    String getStringForm() {
+        return toString();
     }
 
     @Override

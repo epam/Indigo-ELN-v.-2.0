@@ -6,11 +6,11 @@ import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.Conditions;
-import com.epam.indigoeln.eln.util.ListWithTotal;
 import io.quarkus.panache.common.Sort;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import java.util.UUID;
 
 @ApplicationScoped
@@ -23,7 +23,7 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
         super(EntityType.PROJECT);
     }
 
-    public ListWithTotal<ProjectDTO> findAll(@Nullable String search, @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging) {
+    public Page<ProjectDTO> findAll(@Nullable String search, @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging) {
         Sort panacheSort = switch (sort) {
             case EARLIEST -> Sort.ascending("modifiedAt");
             case LATEST -> Sort.descending("modifiedAt");

@@ -17,6 +17,7 @@ public class Paging {
     public static final int DEFAULT_PAGE_NO = 0;
     public static final int DEFAULT_PAGE_SIZE = 10;
     public static final Paging DEFAULT = new Paging(DEFAULT_PAGE_NO, DEFAULT_PAGE_SIZE);
+    public static final Paging ALL = new Paging(0, Integer.MAX_VALUE);
 
     @QueryParam("pageNo")
     @Nullable
