@@ -18,3 +18,8 @@ export interface DictionaryFullItem {
 }
 
 export type DictionaryFull = DictionaryFullItem[];
+
+export interface DictionaryItemRef {
+  id: string;
+  name: string;
+}
