@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -19,6 +20,9 @@ public class ExperimentDetailsDTO extends BaseExperimentDTO {
 
     @Nullable
     String description;
+
+    @NotNull
+    UUID templateId;
 
     @NotNull
     List<AttachmentDTO> attachments;

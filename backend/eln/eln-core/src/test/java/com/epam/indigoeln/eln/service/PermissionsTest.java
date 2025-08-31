@@ -62,7 +62,6 @@ class PermissionsTest extends BaseTest {
     @Transactional
     void setupAll() {
         testHelper.cleanupDatabase();
-        testHelper.createTestUsers();
 
         rows = new BufferedReader(new InputStreamReader(loadResourceAsStream(getClass(), "/com/epam/indigoeln/eln/service/permissions.csv")))
                 .lines()
@@ -98,7 +97,7 @@ class PermissionsTest extends BaseTest {
                 notebookClient.updateNotebookAccess(row.notebookId, AccessForm.of(testHelper.getWillowUserID(), row.notebook));
             }
             row.notebookDetails = notebookClient.getNotebook(row.notebookId);
-            row.experimentId = experimentClient.createExperiment(row.notebookId, new ExperimentRequest(getEmptyTemplateID())).getId();
+            row.experimentId = experimentClient.createExperiment(row.notebookId, new ExperimentRequest(testHelper.getEmptyTemplateID())).getId();
             experimentClient.createExperimentAttachment(row.experimentId, "attachment.txt", tempDir, new byte[0]);
             if (row.experiment != NONE) {
                 experimentClient.updateExperimentAccess(row.experimentId, AccessForm.of(testHelper.getWillowUserID(), row.experiment));
@@ -292,7 +291,7 @@ class PermissionsTest extends BaseTest {
     @Test
     void testCreateExperiment() {
         for (TestRow row : rows) {
-            assertThatClientCall(() -> experimentClient.createExperiment(row.notebookId, new ExperimentRequest(getEmptyTemplateID())))
+            assertThatClientCall(() -> experimentClient.createExperiment(row.notebookId, new ExperimentRequest(testHelper.getEmptyTemplateID())))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
         }
@@ -448,7 +447,7 @@ class PermissionsTest extends BaseTest {
         void testCreate() {
             project = projectClient.createProject(new ProjectRequest("testExperimentAccess"));
             notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-            experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+            experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
         }
 
         @Test
@@ -514,7 +513,7 @@ class PermissionsTest extends BaseTest {
             notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(testHelper.getWillowUserID(), NONE));
             secondNotebookName = nextNotebookName();
             notebook2 = notebookClient.createNotebook(project.getId(), new NotebookRequest(secondNotebookName));
-            experiment2 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(getEmptyTemplateID()));
+            experiment2 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
             experimentClient.updateExperimentAccess(experiment2.getId(), AccessForm.of(testHelper.getWillowUserID(), EDIT));
         }
 

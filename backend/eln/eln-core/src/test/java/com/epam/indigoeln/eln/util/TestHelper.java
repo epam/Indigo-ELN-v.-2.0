@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.util;
 
+import com.epam.indigoeln.eln.client.TemplateClient;
 import com.epam.indigoeln.eln.client.TestSupportClient;
 import com.epam.indigoeln.eln.client.UserClient;
 import com.epam.indigoeln.eln.model.*;
@@ -57,6 +58,7 @@ public class TestHelper {
     public static final List<RoleRef> MAGGIE_ROLES = List.of(ROLE_PROJECT_CREATOR);
 
     private final UserClient userClient;
+    private final TemplateClient templateClient;
     private final TestSupportClient testSupportClient;
     private final AtomicReference<String> currentUsername;
 
@@ -70,17 +72,21 @@ public class TestHelper {
     private UUID lisaUserID;
     @Getter
     private UUID maggieUserID;
+    @Getter
+    private UUID emptyTemplateID;
 
     public void cleanupDatabase() {
         testSupportClient.cleanupDatabase();
+        createBasicTestData();
     }
 
-    public void createTestUsers() {
+    private void createBasicTestData() {
         johnUserID = getOrCreateUser(new UserRequest(TestHelper.JOHN_USERNAME, TestHelper.JOHN_FIRST_NAME, TestHelper.JOHN_LAST_NAME, "password", TestHelper.JOHN_ROLES)).getId();
         willowUserID = getOrCreateUser(new UserRequest(TestHelper.WILLOW_USERNAME, TestHelper.WILLOW_FIRST_NAME, TestHelper.WILLOW_LAST_NAME, "password", TestHelper.WILLOW_ROLES)).getId();
         bartUserID = getOrCreateUser(new UserRequest(TestHelper.BART_USERNAME, TestHelper.BART_FIRST_NAME, TestHelper.BART_LAST_NAME, "password", TestHelper.BART_ROLES)).getId();
         lisaUserID = getOrCreateUser(new UserRequest(TestHelper.LISA_USERNAME, TestHelper.LISA_FIRST_NAME, TestHelper.LISA_LAST_NAME, "password", TestHelper.LISA_ROLES)).getId();
         maggieUserID = getOrCreateUser(new UserRequest(TestHelper.MAGGIE_USERNAME, TestHelper.MAGGIE_FIRST_NAME, TestHelper.MAGGIE_LAST_NAME, "password", TestHelper.MAGGIE_ROLES)).getId();
+        emptyTemplateID = templateClient.createTemplate(new TemplateRequest("Empty template", List.of(new TemplateComponent.Attachments()))).getId();
     }
 
     public UserRef getJohnUserRef() {

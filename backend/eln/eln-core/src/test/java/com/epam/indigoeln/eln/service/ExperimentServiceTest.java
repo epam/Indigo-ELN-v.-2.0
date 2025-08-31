@@ -55,13 +55,13 @@ class ExperimentServiceTest extends BaseTest {
 
     @Test
     void testCreateExperimentBadDictionary() {
-        assertThatClientCall(() -> experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID(), null, new DictionaryItemRef(UUID.randomUUID(), "Invalid"), null)))
+        assertThatClientCall(() -> experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID(), null, new DictionaryItemRef(UUID.randomUUID(), "Invalid"), null)))
                 .isNotFound("THERAPEUTIC_AREA .+ not found");
     }
 
     @Test
     void testCreateExperiment() {
-        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()
                 , "description"
                 , therapeuticAreas.getFirst()
                 , projectCodes.getFirst()
@@ -77,18 +77,19 @@ class ExperimentServiceTest extends BaseTest {
         assertThat(experiment.getTherapeuticArea()).isEqualTo(therapeuticAreas.getFirst());
         assertThat(experiment.getProjectCode()).isEqualTo(projectCodes.getFirst());
         assertThat(experiment.getMarked()).isFalse();
+        assertThat(experiment.getTemplateId()).isEqualTo(testHelper.getEmptyTemplateID());
     }
 
     @Test
     void testGetExperiment() {
-        ExperimentDetailsDTO createdExperiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        ExperimentDetailsDTO createdExperiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
         ExperimentDetailsDTO loadedExperiment = experimentClient.getExperiment(createdExperiment.getId());
         assertThat(loadedExperiment).usingRecursiveComparison().isEqualTo(createdExperiment);
     }
 
     @Test
     void testGetExperiments() {
-        ExperimentDetailsDTO createdExperiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        ExperimentDetailsDTO createdExperiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
         Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), null, null, Paging.DEFAULT);
         assertThat(experiments.getItems()).hasSize(1).first().satisfies(experiment -> {
             assertThat(experiment.getId()).isNotNull();
@@ -102,9 +103,9 @@ class ExperimentServiceTest extends BaseTest {
 
     @Test
     void testGetExperimentsSortedByEarliest() {
-        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
-        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
-        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
+        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
+        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
 
         Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), SortOrder.EARLIEST, null, Paging.DEFAULT);
 
@@ -114,9 +115,9 @@ class ExperimentServiceTest extends BaseTest {
 
     @Test
     void testGetExperimentsSortedByLatest() {
-        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
-        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
-        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
+        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
+        experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
 
         Page<ExperimentDTO> experiments = experimentClient.getProjectExperiments(project.getId(), SortOrder.LATEST, null, Paging.DEFAULT);
 
@@ -127,12 +128,12 @@ class ExperimentServiceTest extends BaseTest {
     @Test
     void testGetExperimentsCreatedByMe() {
         withUser(TestHelper.JOHN_USERNAME, () -> {
-            experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
-            experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+            experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
+            experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
         });
 
         withUser(TestHelper.BART_USERNAME, () -> {
-            experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+            experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
         });
 
         withUser(TestHelper.JOHN_USERNAME, () -> {
@@ -148,7 +149,7 @@ class ExperimentServiceTest extends BaseTest {
 
     @Test
     void testEditExperiment() {
-        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()
                 , "d"
                 , therapeuticAreas.getFirst()
                 , projectCodes.getFirst()
@@ -168,7 +169,7 @@ class ExperimentServiceTest extends BaseTest {
 
     @Test
     void testMarkExperiment() {
-        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
         assertThat(experiment.getMarked()).isFalse();
         assertThat(experimentClient.getMarkedExperiments()).isEmpty();
 
@@ -204,7 +205,7 @@ class ExperimentServiceTest extends BaseTest {
 
     @Test
     void testCreateAttachment(@TempDir Path tempDir) {
-        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
         List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "content".getBytes());
         assertThat(attachments).singleElement().satisfies(a -> {
             assertThat(a.getId()).isNotNull();
@@ -218,7 +219,7 @@ class ExperimentServiceTest extends BaseTest {
 
     @Test
     void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
-        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
         List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "content".getBytes());
         ResponseWithHeaders response = experimentClient.downloadExperimentAttachmentClient(experiment.getId(), attachments.getFirst().getId());
         assertThat(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).containsExactly("attachment; filename=attachment.txt");
@@ -227,7 +228,7 @@ class ExperimentServiceTest extends BaseTest {
 
     @Test
     void testDeleteAttachment(@TempDir Path tempDir) {
-        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
         List<AttachmentDTO> attachments = experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "content".getBytes());
         experimentClient.deleteExperimentAttachment(experiment.getId(), attachments.getFirst().getId());
         experiment = experimentClient.getExperiment(experiment.getId());
@@ -237,7 +238,7 @@ class ExperimentServiceTest extends BaseTest {
     @Test
     @SneakyThrows
     void testGetPicture() {
-        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
         ResponseWithHeaders response = experimentClient.getExperimentPictureClient(experiment.getId());
         assertThat(response.getContent()).hasBinaryContent(ExperimentService.EMPTY_PICTURE);
         ExperimentModel model = experimentClient.getExperimentModel(experiment.getId());

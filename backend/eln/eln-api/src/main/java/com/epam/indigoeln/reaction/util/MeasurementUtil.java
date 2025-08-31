@@ -75,7 +75,7 @@ public class MeasurementUtil {
         if (target == null && right instanceof NoUnit) {
             target = left;
         }
-        if (target == null && left == right) {
+        if (target == null && left.getClass().equals(right.getClass())) {
             target = NoUnit.NO_UNIT;
         }
         if (target == null) {

@@ -4,11 +4,13 @@ import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
+import com.epam.indigoeln.eln.entity.TemplateEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
+import com.epam.indigoeln.eln.repository.TemplateRepository;
 import com.epam.indigoeln.eln.util.ModelUtil;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
@@ -47,18 +49,23 @@ public class ExperimentService {
     DictionaryService dictionaryService;
     @Inject
     ExperimentModelService experimentModelService;
+    @Inject
+    TemplateRepository templateRepository;
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
         aclService.ensureAccess(notebook, ApplicationPermission.CREATE_EXPERIMENTS);
         ExperimentEntity experiment = experimentMapper.requestToExperiment(request, ExperimentStatus.OPEN);
+        TemplateEntity template = templateRepository.get(request.getTemplateID());
         experiment.setName(generateExperimentName(notebook));
         experiment.setTherapeuticArea(dictionaryService.lookup(Dictionary.THERAPEUTIC_AREA, request.getTherapeuticArea()));
         experiment.setProjectCode(dictionaryService.lookup(Dictionary.PROJECT_CODE, request.getProjectCode()));
         notebook.getProject().getExperiments().add(experiment);
         notebook.getExperiments().add(experiment);
+        template.getExperiments().add(experiment);
         experiment.setProject(notebook.getProject());
         experiment.setNotebook(notebook);
+        experiment.setTemplate(template);
         experiment.setModel(experimentModelService.createNewModel());
         ModelUtil.updateDates(experiment, userService.getCurrentUser());
         aclService.initExperimentACL(experiment);
@@ -132,7 +139,7 @@ public class ExperimentService {
             return model;
         } catch (Throwable e) {
             log.error("Failed to mutate model for experiment {}: {}", experimentId, e.getMessage(), e);
-            throw new RuntimeException("Failed to mutate model", e);
+            throw new RuntimeException("Failed to mutate model: " + e.getMessage(), e);
         }
     }
 

@@ -4,6 +4,7 @@ import com.epam.indigoeln.eln.model.TemplateComponent;
 import jakarta.persistence.Entity;
 import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -13,7 +14,9 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -42,4 +45,8 @@ public class TemplateEntity extends BaseEntity {
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
     private List<TemplateComponent> components;
+
+    @NotNull
+    @OneToMany(mappedBy = "template")
+    private Set<ExperimentEntity> experiments = new HashSet<>(0);
 }

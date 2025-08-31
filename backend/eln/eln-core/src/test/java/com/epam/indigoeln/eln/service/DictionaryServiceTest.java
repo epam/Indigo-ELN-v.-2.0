@@ -34,7 +34,6 @@ public class DictionaryServiceTest extends BaseTest {
     @SneakyThrows
     void setUpClass() {
         testHelper.cleanupDatabase();
-        testHelper.createTestUsers();
         dictionaryClient.getDictionaryFull(Dictionary.TEST).reversed().forEach(item -> {
             dictionaryClient.removeDictionaryItem(Dictionary.TEST, item.getId());
         });

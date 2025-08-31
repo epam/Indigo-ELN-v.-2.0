@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import jakarta.inject.Inject;
 import lombok.SneakyThrows;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.ReportingPolicy;
 
@@ -30,6 +31,7 @@ public abstract class TemplateMapper extends AbstractMapper {
     }
 
     @IgnoreBaseFields
+    @Mapping(target = "experiments", expression = "java(java.util.Set.of())")
     public abstract TemplateEntity requestToTemplate(TemplateRequest template);
 
     public abstract TemplateDTO entityToDTO(TemplateEntity entity);

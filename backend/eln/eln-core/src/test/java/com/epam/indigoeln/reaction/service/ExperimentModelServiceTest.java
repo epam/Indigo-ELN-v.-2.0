@@ -72,7 +72,7 @@ public class ExperimentModelServiceTest extends BaseTest {
     void testCreateExperiment() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("ExperimentModelServiceTest"));
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-        experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
         model = experimentClient.getExperimentModel(experiment.getId());
         reactionAnchor = model.getReactions().getFirst().getAnchor();
     }
@@ -143,6 +143,12 @@ public class ExperimentModelServiceTest extends BaseTest {
     @Order(500)
     void testSetInputWeight() {
         applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1Anchor, 100.0, WeightUnit.G));
+    }
+
+    @Test
+    @Order(501)
+    void testSetInputWeightInKG() {
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1Anchor, 0.1, WeightUnit.KG));
     }
 
     @Test

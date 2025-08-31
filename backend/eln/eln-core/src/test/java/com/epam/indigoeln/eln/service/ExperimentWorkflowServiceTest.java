@@ -46,7 +46,7 @@ class ExperimentWorkflowServiceTest extends BaseTest {
 
     @BeforeEach
     void setUp() {
-        experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(getEmptyTemplateID()));
+        experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
     }
 
     @Test
