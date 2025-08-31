@@ -1,0 +1,27 @@
+<span #parent class="parent">
+  <!-- don't put under @if, it should exist for @ViewChild to work -->
+  <input #editNumber [hidden]="!editing" class="edit-number" [class.edit-narrow]="showUnits" [class.edit-number-wide]="!showUnits" type="number" [value]="value?.value | number:'1.0-3'"
+         (blur)="inputBlur($event)"
+         (keydown.enter)="stopEditing('_notmodified')"
+         (keydown.escape)="cancelEditing()"
+  />
+  @if (showUnits) {
+    <mat-select #editUnits [hidden]="!editing" class="edit-units" [value]="value?.unit" (selectionChange)="stopEditing($event.value)">
+      @for (unit of units; track unit.value) {
+        <mat-option [value]="unit.value">{{unit.displayName}}</mat-option>
+      }
+    </mat-select>
+  }
+  @if (!editing) {
+    <span class="viewing" [class.readOnly]="readOnly" [class.readWrite]="!readOnly" #span [class.recalculated]="recalculated" [class.conflict]="value?.conflict" (click)="startEditing()">
+      @if (value == null) {
+        &ndash;
+      } @else {
+        {{value.value | number:'1.0-3'}}
+        @if (showUnits) {
+          {{' ' + getUnitDisplayName()}}
+        }
+      }
+    </span>
+  }
+</span>

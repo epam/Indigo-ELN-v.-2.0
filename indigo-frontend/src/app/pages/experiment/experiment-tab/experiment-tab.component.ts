@@ -16,11 +16,24 @@ import { ComponentReactionSchemeComponent } from '@pages/experiment/components/c
 import {
   ComponentExperimentDetailsComponent
 } from '@pages/experiment/components/component-experiment-details/component-experiment-details.component';
+import {
+  ComponentStoichiometryTableComponent
+} from '@pages/experiment/components/component-stoichiometry-table/component-stoichiometry-table.component';
+import {ExperimentModel} from '@core/types/entities/experiment-model.i';
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'eln-experiment-tab',
   templateUrl: './experiment-tab.component.html',
-  imports: [],
+  imports: [MatProgressSpinner],
+  styles: `
+    .mutating-spinnner {
+      position: fixed;
+      top: 120px;
+      right: 60px;
+      z-index: 1000;
+    }
+  `
 })
 export class ExperimentTabComponent implements AfterViewInit {
   activatedRoute = inject(ActivatedRoute);
@@ -28,43 +41,42 @@ export class ExperimentTabComponent implements AfterViewInit {
   experimentService = inject(ExperimentService);
 
   tabNo: number | null = null;
-
-  experiment: Experiment | null = null;
-  template: Template | null = null;
+  mutating = false;
 
   @ViewChild('children', { read: ViewContainerRef, static: true })
   childrenContainer!: ViewContainerRef;
 
   private destroy$ = new Subject<void>();
 
+  private componentTypes = {
+    reactionScheme: ComponentReactionSchemeComponent,
+    experimentDescription: ComponentExperimentDescriptionComponent,
+    experimentDetails: ComponentExperimentDetailsComponent,
+    stoichiometryTable: ComponentStoichiometryTableComponent,
+  };
+
+  loading = false;
+  error = false;
+
   ngAfterViewInit() {
-    this.experimentService.data$
+    this.experimentService.templateLoad$
       .pipe(takeUntil(this.destroy$))
       .subscribe((x) => {
-        this.experiment = this.template = null;
-        if (x.state == 'ready') {
-          this.experiment = x.value.experiment;
-          this.template = x.value.template;
-          for (const component of this.template.components) {
-            switch (component.type) {
-              case 'reactionScheme': {
-                const ref = this.childrenContainer.createComponent(ComponentReactionSchemeComponent);
-                ref.instance.experiment = this.experiment;
-                break;
+        this.loading = x.state === 'loading';
+        this.error = x.state === 'error';
+        this.childrenContainer.clear();
+        if (x.state === 'ready') {
+          const template = x.value;
+          for (const component of template.components) {
+            const componentType = this.componentTypes[component.type];
+            if (componentType) {
+              const ref = this.childrenContainer.createComponent(componentType);
+              if (component.type === 'stoichiometryTable') {
+                (ref.instance as ComponentStoichiometryTableComponent).showReactantsReagentsSolvents = component.reactantsReagentsSolvents;
+                (ref.instance as ComponentStoichiometryTableComponent).showReactionProducts = component.reactionProducts;
               }
-              case 'experimentDescription': {
-                const ref = this.childrenContainer.createComponent(ComponentExperimentDescriptionComponent);
-                ref.instance.experiment = this.experiment;
-                break;
-              }
-              case 'experimentDetails': {
-                const ref = this.childrenContainer.createComponent(ComponentExperimentDetailsComponent);
-                ref.instance.experiment = this.experiment;
-                break;
-              }
-              default:
-                console.error('Unknown template component type', component);
-                continue;
+            } else {
+              console.error('Unknown template component type', component);
             }
           }
         }
@@ -74,6 +86,9 @@ export class ExperimentTabComponent implements AfterViewInit {
       .subscribe(({ tabNo }) => {
         this.tabNo = tabNo;
       });
+    this.experimentService.mutating$
+    //   .pipe(takeUntil(this.destroy$))
+      .subscribe((x) => this.mutating = x);
   }
 
   ngOnDestroy() {

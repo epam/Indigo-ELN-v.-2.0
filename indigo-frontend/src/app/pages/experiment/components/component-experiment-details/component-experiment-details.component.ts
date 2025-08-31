@@ -20,7 +20,7 @@ export class ComponentExperimentDetailsComponent implements OnInit {
 
   service = inject(ApiService)
 
-  @Input() experiment: Experiment;
+  experiment: Experiment | null;
 
   fields: FormlyFieldConfig[] = [];
   form = new FormGroup({});
@@ -28,38 +28,42 @@ export class ComponentExperimentDetailsComponent implements OnInit {
   private destroy$ = new Subject<void>();
 
   ngOnInit() {
-    const nameField = {
-      type: 'input',
-      key: 'name',
-      defaultValue: this.experiment.name,
-      props: {
-        label: 'Experiment Number',
-        placeholder: 'Experiment Number',
-      },
-    };
-    const therapeuticAreaField = {
-      type: 'select',
-      key: 'therapeuticArea',
-      defaultValue: this.experiment.therapeuticArea?.id,
-      props: {
-        label: 'Therapeutic Area',
-        placeholder: 'Therapeutic Area',
-        options: [],
-      },
-    };
-    const projectCodeField = {
-      type: 'select',
-      key: 'projectCode',
-      defaultValue: this.experiment.projectCode?.id,
-      props: {
-        label: 'Project Code',
-        placeholder: 'Project Code',
-        options: [],
-      },
-    };
-    this.fields = [nameField, therapeuticAreaField, projectCodeField];
-    this.loadOptionsFromDictionary(therapeuticAreaField, 'THERAPEUTIC_AREA');
-    this.loadOptionsFromDictionary(projectCodeField, 'PROJECT_CODE');
+    this.experimentService.experiment$
+      .subscribe((experiment) => {
+        this.experiment = experiment;
+        const nameField = {
+          type: 'input',
+          key: 'name',
+          defaultValue: this.experiment.name,
+          props: {
+            label: 'Experiment Number',
+            placeholder: 'Experiment Number',
+          },
+        };
+        const therapeuticAreaField = {
+          type: 'select',
+          key: 'therapeuticArea',
+          defaultValue: this.experiment.therapeuticArea?.id,
+          props: {
+            label: 'Therapeutic Area',
+            placeholder: 'Therapeutic Area',
+            options: [],
+          },
+        };
+        const projectCodeField = {
+          type: 'select',
+          key: 'projectCode',
+          defaultValue: this.experiment.projectCode?.id,
+          props: {
+            label: 'Project Code',
+            placeholder: 'Project Code',
+            options: [],
+          },
+        };
+        this.fields = [nameField, therapeuticAreaField, projectCodeField];
+        this.loadOptionsFromDictionary(therapeuticAreaField, 'THERAPEUTIC_AREA');
+        this.loadOptionsFromDictionary(projectCodeField, 'PROJECT_CODE');
+      });
   }
 
   ngOnDestroy() {

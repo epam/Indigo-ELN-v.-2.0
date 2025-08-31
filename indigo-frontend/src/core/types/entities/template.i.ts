@@ -8,7 +8,7 @@ export interface TemplateTab {
 // TODO actualize the list when it is updated on the backend
 type TemplateComponent =
   | { type: 'reactionScheme' }
-  | { type: 'stoichiometryTable', reactantsReagentsSolvents: boolean, reactionProduct: boolean }
+  | { type: 'stoichiometryTable', reactantsReagentsSolvents: boolean, reactionProducts: boolean }
   | { type: 'batches' }
   | { type: 'attachments' }
   | { type: 'experimentDescription' }
