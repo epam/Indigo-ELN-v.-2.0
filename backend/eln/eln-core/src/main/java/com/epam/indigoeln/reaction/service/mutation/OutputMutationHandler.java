@@ -24,7 +24,7 @@ public class OutputMutationHandler extends AbstractMutationHandler {
 
     public void handle(ExperimentModel model, ReactionOutputMutation.SetOutputType mutation) {
         ReactionOutput row = model.locate(mutation);
-        row.setType(mutation.type());
+        row.setType(mutation.outputType());
         // TODO add or remove to the next reaction, if changing to or from INTERMEDIATE type
     }
 

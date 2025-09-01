@@ -48,9 +48,6 @@ public abstract class BaseTest {
 
     private int lastUsedNotebookNumber = 0;
 
-    @Getter
-    private UUID emptyTemplateID;
-
     @BeforeAll
     void setupAllBase() throws Exception {
         System.out.println("BaseTest.setupAllBase: " + serverURL);
@@ -73,10 +70,8 @@ public abstract class BaseTest {
         testSupportClient = FeignUtil.buildFeignClient(baseURL, TestSupportClient.class, username, authorization);
         globalSearchClient = FeignUtil.buildFeignClient(baseURL, GlobalSearchClient.class, username, authorization);
         miscClient.migrate();
-        testHelper = new TestHelper(userClient, testSupportClient, username);
+        testHelper = new TestHelper(userClient, templateClient, testSupportClient, username);
         testHelper.cleanupDatabase();
-        testHelper.createTestUsers();
-        emptyTemplateID = templateClient.createTemplate(new TemplateRequest("Empty template", List.of(new TemplateComponent.Attachments()))).getId();
     }
 
     @BeforeEach

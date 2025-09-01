@@ -277,6 +277,7 @@ CREATE TABLE Experiment (
     modified_at TIMESTAMPTZ NOT NULL,
     project_id UUID NOT NULL,
     notebook_id UUID NOT NULL,
+    template_id UUID NOT NULL,
     name VARCHAR(256) NOT NULL,
     status Experiment_Status NOT NULL,
     therapeutic_area_id UUID,
@@ -289,6 +290,7 @@ CREATE TABLE Experiment (
     CONSTRAINT experiment_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT experiment_project_id_fk FOREIGN KEY (project_id) REFERENCES Project (id),
     CONSTRAINT experiment_notebook_id_fk FOREIGN KEY (notebook_id) REFERENCES Notebook (id),
+    CONSTRAINT experiment_template_id_fk FOREIGN KEY (template_id) REFERENCES Template (id),
     CONSTRAINT experiment_therapeutic_area_id_fk FOREIGN KEY (therapeutic_area_id) REFERENCES Dictionary_Item (id),
     CONSTRAINT experiment_project_code_id FOREIGN KEY (project_code_id) REFERENCES Dictionary_Item (id),
     CONSTRAINT experiment_name_uq UNIQUE (name)

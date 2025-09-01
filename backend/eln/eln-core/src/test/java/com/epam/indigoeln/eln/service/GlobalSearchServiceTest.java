@@ -55,8 +55,8 @@ class GlobalSearchServiceTest extends BaseTest {
             project2 = projectClient.createProject(new ProjectRequest("p2", List.of("k2", "k3"), "l2 xx", "pd2"));
             notebook1 = notebookClient.createNotebook(project1.getId(), new NotebookRequest("00000001", "nd1 xx"));
             notebook2 = notebookClient.createNotebook(project2.getId(), new NotebookRequest("00000002", "nd2 xx"));
-            experiment1 = experimentClient.createExperiment(notebook1.getId(), new ExperimentRequest(getEmptyTemplateID(), "ed1 xx", therapeuticArea1, projectCode1));
-            experiment2 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(getEmptyTemplateID(), "ed2 xx", therapeuticArea2, projectCode2));
+            experiment1 = experimentClient.createExperiment(notebook1.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID(), "ed1 xx", therapeuticArea1, projectCode1));
+            experiment2 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID(), "ed2 xx", therapeuticArea2, projectCode2));
             String rxnFile = new String(loadResource(getClass(), "/reaction.rxn"));
             ExperimentModel experimentModel = experimentClient.getExperimentModel(experiment2.getId());
             experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionMutation.SetScheme(experimentModel.getReactions().getFirst().getAnchor(), rxnFile)));
@@ -65,7 +65,7 @@ class GlobalSearchServiceTest extends BaseTest {
             project3 = projectClient.createProject(new ProjectRequest("p3"));
             projectClient.updateProjectAccess(project3.getId(), AccessForm.of(testHelper.getMaggieUserID(), AccessLevel.VIEW));
             notebook3 = notebookClient.createNotebook(project3.getId(), new NotebookRequest("00000003", null));
-            experiment3 = experimentClient.createExperiment(notebook3.getId(), new ExperimentRequest(getEmptyTemplateID(), null, null, null));
+            experiment3 = experimentClient.createExperiment(notebook3.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID(), null, null, null));
         });
     }
 

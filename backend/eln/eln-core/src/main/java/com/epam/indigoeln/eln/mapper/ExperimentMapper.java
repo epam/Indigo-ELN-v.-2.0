@@ -18,6 +18,7 @@ public abstract class ExperimentMapper extends AbstractMapper {
     @Mapping(target = "currentAccess", ignore = true)
     @Mapping(target = "project", ignore = true)
     @Mapping(target = "notebook", ignore = true)
+    @Mapping(target = "template", ignore = true)
     @Mapping(target = "therapeuticArea", ignore = true)
     @Mapping(target = "projectCode", ignore = true)
     @Mapping(target = "searchVector", ignore = true)
@@ -36,5 +37,6 @@ public abstract class ExperimentMapper extends AbstractMapper {
     public abstract ExperimentDTO entityToDTO(ExperimentEntity entity);
 
     @Mapping(target = "acl", source = "aclEntities")
+    @Mapping(target = "templateId", source = "template.id")
     public abstract ExperimentDetailsDTO entityToDetailsDTO(ExperimentEntity entity);
 }

@@ -92,7 +92,6 @@ class ProjectServiceTest extends BaseTest {
     @Test
     void testGetProjectsPagination() {
         testHelper.cleanupDatabase();
-        testHelper.createTestUsers();
 
         for (int i = 1; i <= 3; i++) {
             projectClient.createProject(new ProjectRequest("testGetProjectsPagination" + i));
@@ -116,7 +115,6 @@ class ProjectServiceTest extends BaseTest {
     @Test
     void testGetProjectsSortByEarliest() {
         testHelper.cleanupDatabase();
-        testHelper.createTestUsers();
 
         projectClient.createProject(new ProjectRequest("Project1"));
         projectClient.createProject(new ProjectRequest("Project2"));
@@ -132,7 +130,6 @@ class ProjectServiceTest extends BaseTest {
     @Test
     void testGetProjectsSortByLatest() {
         testHelper.cleanupDatabase();
-        testHelper.createTestUsers();
 
         projectClient.createProject(new ProjectRequest("Project1"));
         projectClient.createProject(new ProjectRequest("Project2"));
@@ -148,7 +145,6 @@ class ProjectServiceTest extends BaseTest {
     @Test
     void testGetProjectsCreatedByMe() {
         testHelper.cleanupDatabase();
-        testHelper.createTestUsers();
 
         withUser(TestHelper.JOHN_USERNAME, () -> {
             projectClient.createProject(new ProjectRequest("MyProject1"));
@@ -191,9 +187,9 @@ class ProjectServiceTest extends BaseTest {
         UUID projectId = projectClient.createProject(new ProjectRequest("testCounts")).getId();
         UUID notebook1Id = notebookClient.createNotebook(projectId, new NotebookRequest(nextNotebookName())).getId();
         UUID notebook2Id = notebookClient.createNotebook(projectId, new NotebookRequest(nextNotebookName())).getId();
-        experimentClient.createExperiment(notebook1Id, new ExperimentRequest(getEmptyTemplateID()));
-        experimentClient.createExperiment(notebook1Id, new ExperimentRequest(getEmptyTemplateID()));
-        experimentClient.createExperiment(notebook2Id, new ExperimentRequest(getEmptyTemplateID()));
+        experimentClient.createExperiment(notebook1Id, new ExperimentRequest(testHelper.getEmptyTemplateID()));
+        experimentClient.createExperiment(notebook1Id, new ExperimentRequest(testHelper.getEmptyTemplateID()));
+        experimentClient.createExperiment(notebook2Id, new ExperimentRequest(testHelper.getEmptyTemplateID()));
 
         TotalCounts totalCounts = miscClient.getTotalCounts();
         assertThat(totalCounts.getProjects()).isGreaterThanOrEqualTo(1);

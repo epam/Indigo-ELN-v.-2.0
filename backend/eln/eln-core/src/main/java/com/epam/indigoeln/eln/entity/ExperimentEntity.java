@@ -78,6 +78,11 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @JoinColumn(name = "notebook_id", updatable = false)
     private NotebookEntity notebook;
 
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "template_id", updatable = false)
+    private TemplateEntity template;
+
     @NotEmpty
     @Pattern(regexp = "^\\d{8}-\\d{4}$")
     private String name;

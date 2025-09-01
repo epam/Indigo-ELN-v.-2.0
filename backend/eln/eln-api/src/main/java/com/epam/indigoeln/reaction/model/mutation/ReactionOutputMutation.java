@@ -24,15 +24,13 @@ public sealed interface ReactionOutputMutation extends Mutation permits
 
     record SetOutputType(
             @NotNull UUID anchor,
-            @NotNull
-            ReactionOutputType type
+            @NotNull ReactionOutputType outputType
     ) implements ReactionOutputMutation {
     }
 
     record SetOutputSaltCode (
             @NotNull UUID anchor,
-            @Nullable
-            DictionaryItemRef saltCode
+            @Nullable DictionaryItemRef saltCode
     ) implements ReactionOutputMutation {
     }
 
