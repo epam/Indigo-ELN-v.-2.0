@@ -55,10 +55,7 @@ export class ExperimentService {
       .pipe(
         switchMap((experiment) =>
           this.service
-            .request<Template>(
-              'get',
-              `templates/e1a11ab0-43c2-4729-9438-f16dcf742621`,
-            )
+            .request<Template>('get', `templates/${experiment.templateId}`)
             .pipe(map((template) => ({ experiment, template }))),
         ),
         switchMap(({ experiment, template }) =>

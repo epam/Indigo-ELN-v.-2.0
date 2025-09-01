@@ -15,4 +15,5 @@ export interface Experiment extends BaseEntity {
   description: string | null;
   therapeuticArea: DictionaryItemRef | null;
   projectCode: DictionaryItemRef | null;
+  templateId?: string;
 }

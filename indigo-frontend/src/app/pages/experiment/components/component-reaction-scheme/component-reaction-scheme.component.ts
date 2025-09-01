@@ -26,7 +26,7 @@ export class ComponentReactionSchemeComponent implements OnInit {
       this.picture = x.state === 'ready' ? URL.createObjectURL(x.value) : null;
     });
     this.experimentService.experiment$.subscribe((experiment) => {
-      // this.experimentService.loadPicture(experiment.id); // !!! enable back
+      this.experimentService.loadPicture(experiment.id);
     });
   }
 }
