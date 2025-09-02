@@ -1,0 +1,372 @@
+<!-- Created with Jaspersoft Studio version 7.0.3.final using JasperReports Library version 7.0.3-41034ca841d452f3305ba55b9042260aaa1ab5dd  -->
+<jasperReport name="ExperimentReport" language="java" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="07947741-6091-4ca2-9ad7-2cc4102b8ad9">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Experiment Data"/>
+	<style name="Default Style" default="true" fontName="Arimo" fontSize="10.0"/>
+	<style name="Section Header" style="Default Style"/>
+	<parameter name="reportDate" class="java.lang.String">
+		<defaultValueExpression><![CDATA[java.time.ZonedDateTime.now().format(java.time.format.DateTimeFormatter.ofLocalizedDateTime(java.time.format.FormatStyle.FULL))]]></defaultValueExpression>
+	</parameter>
+	<query language="JSON"><![CDATA[]]></query>
+	<field name="marked" class="java.lang.Boolean">
+		<description><![CDATA[marked]]></description>
+	</field>
+	<field name="attachments" class="java.util.List">
+		<description><![CDATA[attachments]]></description>
+	</field>
+	<field name="modifiedAt" class="java.time.ZonedDateTime">
+		<description><![CDATA[modifiedAt]]></description>
+	</field>
+	<field name="description" class="java.lang.String">
+		<description><![CDATA[description]]></description>
+	</field>
+	<field name="project" class="com.epam.indigoeln.eln.entity.ProjectEntity">
+		<description><![CDATA[project]]></description>
+	</field>
+	<field name="therapeuticArea" class="com.epam.indigoeln.eln.entity.DictionaryItemEntity">
+		<description><![CDATA[therapeuticArea]]></description>
+	</field>
+	<field name="picture" class="byte[]">
+		<description><![CDATA[picture]]></description>
+	</field>
+	<field name="signatures" class="java.util.List">
+		<description><![CDATA[signatures]]></description>
+	</field>
+	<field name="aclCount" class="java.lang.Integer">
+		<description><![CDATA[aclCount]]></description>
+	</field>
+	<field name="aclEntities" class="java.util.Map">
+		<description><![CDATA[aclEntities]]></description>
+	</field>
+	<field name="createdAt" class="java.time.ZonedDateTime">
+		<description><![CDATA[createdAt]]></description>
+	</field>
+	<field name="createdBy" class="com.epam.indigoeln.eln.entity.UserEntity">
+		<description><![CDATA[createdBy]]></description>
+	</field>
+	<field name="currentAccess" class="com.epam.indigoeln.eln.model.AccessLevel">
+		<description><![CDATA[currentAccess]]></description>
+	</field>
+	<field name="projectCode" class="com.epam.indigoeln.eln.entity.DictionaryItemEntity">
+		<description><![CDATA[projectCode]]></description>
+	</field>
+	<field name="name" class="java.lang.String">
+		<description><![CDATA[name]]></description>
+	</field>
+	<field name="aclShort" class="com.epam.indigoeln.eln.entity.ACLEntry[]">
+		<description><![CDATA[aclShort]]></description>
+	</field>
+	<field name="compounds" class="java.util.Set">
+		<description><![CDATA[compounds]]></description>
+	</field>
+	<field name="model" class="com.epam.indigoeln.reaction.model.ExperimentModel">
+		<description><![CDATA[model]]></description>
+	</field>
+	<field name="modifiedBy" class="com.epam.indigoeln.eln.entity.UserEntity">
+		<description><![CDATA[modifiedBy]]></description>
+	</field>
+	<field name="id" class="java.util.UUID">
+		<description><![CDATA[id]]></description>
+	</field>
+	<field name="searchVector" class="java.lang.String">
+		<description><![CDATA[searchVector]]></description>
+	</field>
+	<field name="notebook" class="com.epam.indigoeln.eln.entity.NotebookEntity">
+		<description><![CDATA[notebook]]></description>
+	</field>
+	<field name="status" class="com.epam.indigoeln.eln.model.ExperimentStatus">
+		<description><![CDATA[status]]></description>
+	</field>
+	<background splitType="Stretch"/>
+	<title height="79" splitType="Stretch"/>
+	<pageHeader height="165" splitType="Stretch">
+		<element kind="image" uuid="ad5b8907-7ef2-4627-8418-ebdd169ce277" x="0" y="0" width="279" height="68">
+			<expression><![CDATA["/reports/logo_new_blue.png"]]></expression>
+		</element>
+		<element kind="staticText" uuid="46d06f1c-4861-4c47-b704-66f1e81e6c7f" x="279" y="0" width="276" height="68" forecolor="#140808" fontSize="24.0" bold="true" italic="true" hTextAlign="Right" vTextAlign="Middle">
+			<text><![CDATA[CONFIDENTIAL]]></text>
+			<property name="com.jaspersoft.studio.unit.width" value="px"/>
+		</element>
+		<element kind="staticText" uuid="b4a43660-6b9c-4b2d-b6a9-5c52eb9d1a36" stretchType="ContainerHeight" x="0" y="79" width="141" height="20" bold="true">
+			<text><![CDATA[Project Name]]></text>
+			<property name="com.jaspersoft.studio.unit.x" value="px"/>
+			<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.width" value="px"/>
+			<box padding="4">
+				<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+			</box>
+		</element>
+		<element kind="textField" uuid="18ea6917-a97b-4fd9-9229-0b4e8820976c" stretchType="ContainerHeight" x="141" y="79" width="138" height="20" textAdjust="StretchHeight">
+			<expression><![CDATA[$F{project}.getName()]]></expression>
+			<box padding="4">
+				<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+			</box>
+		</element>
+		<element kind="textField" uuid="16348142-11d7-49c7-b042-1c9c839d2484" stretchType="ContainerHeight" x="419" y="79" width="137" height="20" textAdjust="StretchHeight">
+			<expression><![CDATA[$F{name}]]></expression>
+			<box padding="4">
+				<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+			</box>
+		</element>
+		<element kind="staticText" uuid="2cd6e3b2-0905-44ef-b28e-e49cbcf67bfe" stretchType="ContainerHeight" x="279" y="79" width="140" height="20" bold="true">
+			<text><![CDATA[Notebook Experiment]]></text>
+			<box padding="4">
+				<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+			</box>
+		</element>
+		<element kind="staticText" uuid="74899326-0381-4d61-adcc-2746bfb88888" positionType="Float" stretchType="ContainerHeight" x="0" y="99" width="141" height="20" bold="true">
+			<text><![CDATA[Author]]></text>
+			<property name="com.jaspersoft.studio.unit.x" value="px"/>
+			<property name="com.jaspersoft.studio.unit.width" value="px"/>
+			<box padding="4">
+				<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+			</box>
+		</element>
+		<element kind="textField" uuid="65846d18-692d-414a-be92-40e83454f611" positionType="Float" stretchType="ContainerHeight" x="141" y="99" width="138" height="20" textAdjust="StretchHeight">
+			<expression><![CDATA[$F{createdBy}.getDisplayName()]]></expression>
+			<box padding="4">
+				<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+			</box>
+		</element>
+		<element kind="textField" uuid="6bb53e2b-ec0e-4bb3-8495-7177269a7cc4" positionType="Float" stretchType="ContainerHeight" x="419" y="99" width="137" height="20" textAdjust="StretchHeight">
+			<expression><![CDATA[$F{status}]]></expression>
+			<box padding="4">
+				<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+			</box>
+		</element>
+		<element kind="staticText" uuid="7f9349f6-b57b-4c9a-b5aa-cf1f5106f236" positionType="Float" stretchType="ContainerHeight" x="279" y="99" width="140" height="20" bold="true">
+			<text><![CDATA[Status]]></text>
+			<box padding="4">
+				<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+			</box>
+		</element>
+		<element kind="staticText" uuid="11008d25-b2c3-460a-997f-80d75f9c6e3e" positionType="Float" stretchType="ContainerHeight" x="0" y="119" width="141" height="20" bold="true">
+			<text><![CDATA[Printed Page]]></text>
+			<property name="com.jaspersoft.studio.unit.x" value="px"/>
+			<property name="com.jaspersoft.studio.unit.width" value="px"/>
+			<box padding="4">
+				<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+			</box>
+		</element>
+		<element kind="textField" uuid="94dbde48-3e42-4c2c-ade8-4963b30076e3" positionType="Float" stretchType="ContainerHeight" x="141" y="119" width="138" height="20" textAdjust="StretchHeight">
+			<expression><![CDATA[$V{PAGE_NUMBER} + " of " + $V{PAGE_COUNT}]]></expression>
+			<box padding="4">
+				<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+			</box>
+		</element>
+		<element kind="textField" uuid="3386babf-0d26-43af-b235-eb861b74f214" positionType="Float" stretchType="ContainerHeight" x="419" y="119" width="137" height="20" textAdjust="StretchHeight">
+			<expression><![CDATA[$P{reportDate}]]></expression>
+			<box padding="4">
+				<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+			</box>
+		</element>
+		<element kind="staticText" uuid="ce6c06d4-eed6-4297-82bd-ce8eaa48083e" positionType="Float" stretchType="ContainerHeight" x="279" y="119" width="140" height="20" bold="true">
+			<text><![CDATA[Printed Date]]></text>
+			<box padding="4">
+				<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+			</box>
+		</element>
+		<element kind="staticText" uuid="099600da-9f1f-4d27-b738-6c5865f8ea07" positionType="Float" stretchType="ContainerHeight" x="0" y="139" width="141" height="20" bold="true">
+			<text><![CDATA[Subject/Title]]></text>
+			<property name="com.jaspersoft.studio.unit.x" value="px"/>
+			<property name="com.jaspersoft.studio.unit.width" value="px"/>
+			<box padding="4">
+				<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+			</box>
+		</element>
+		<element kind="textField" uuid="3fd9861e-d5e3-45be-bb95-b6e41749c078" positionType="Float" stretchType="ContainerHeight" x="141" y="139" width="415" height="20" textAdjust="StretchHeight">
+			<expression><![CDATA["TODO"]]></expression>
+			<box padding="4">
+				<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+			</box>
+		</element>
+		<property name="com.jaspersoft.studio.unit.height" value="px"/>
+	</pageHeader>
+	<columnHeader height="61" splitType="Stretch"/>
+	<detail>
+		<band height="125" splitType="Stretch">
+			<element kind="staticText" uuid="8b251d47-5dd5-4344-8cbb-625640a72239" x="0" y="0" width="279" height="24" fontSize="14.0">
+				<text><![CDATA[REACTION DETAILS]]></text>
+			</element>
+			<element kind="staticText" uuid="2eba9eca-c1c6-4f57-8a7a-7c5ea729b4ab" stretchType="ContainerHeight" x="0" y="24" width="141" height="20" bold="true">
+				<text><![CDATA[Project Name]]></text>
+				<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="textField" uuid="3926cfa2-01c8-4d04-be7e-d6cc4519ff2c" stretchType="ContainerHeight" x="141" y="24" width="138" height="20" textAdjust="StretchHeight">
+				<expression><![CDATA[$F{project}.getName()]]></expression>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="textField" uuid="d8b97058-a530-4c00-9789-5306f4d3ce36" stretchType="ContainerHeight" x="419" y="24" width="137" height="20" textAdjust="StretchHeight">
+				<expression><![CDATA[$F{name}]]></expression>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="staticText" uuid="422edcf8-1669-4ce1-9efc-6889e569f320" stretchType="ContainerHeight" x="279" y="24" width="140" height="20" bold="true">
+				<text><![CDATA[Notebook Experiment]]></text>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="staticText" uuid="dfff1974-3689-4b03-8bd7-e771e1731218" positionType="Float" stretchType="ContainerHeight" x="0" y="44" width="141" height="20" bold="true">
+				<text><![CDATA[Author]]></text>
+				<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="textField" uuid="4f8d17bb-031b-43ca-94e1-500ca3621f6a" positionType="Float" stretchType="ContainerHeight" x="141" y="44" width="138" height="20" textAdjust="StretchHeight">
+				<expression><![CDATA[$F{createdBy}.getDisplayName()]]></expression>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="textField" uuid="f3101eeb-9804-4698-b910-a77d1ca6caaf" positionType="Float" stretchType="ContainerHeight" x="419" y="44" width="137" height="20" textAdjust="StretchHeight">
+				<expression><![CDATA[$F{status}]]></expression>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="staticText" uuid="5614079e-34ec-4d4c-b6dc-9b80f892d7f7" positionType="Float" stretchType="ContainerHeight" x="279" y="44" width="140" height="20" bold="true">
+				<text><![CDATA[Status]]></text>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="staticText" uuid="cd832b8c-40d3-4058-8b5c-b03ba58ee99f" positionType="Float" stretchType="ContainerHeight" x="0" y="64" width="141" height="20" bold="true">
+				<text><![CDATA[Printed Page]]></text>
+				<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="textField" uuid="ab13b6a5-70c4-46f3-a8df-f8873c5856b8" positionType="Float" stretchType="ContainerHeight" x="141" y="64" width="138" height="20" textAdjust="StretchHeight">
+				<expression><![CDATA[$V{PAGE_NUMBER} + " of " + $V{PAGE_COUNT}]]></expression>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="textField" uuid="a0295a0c-05df-4077-854d-57643eb6536f" positionType="Float" stretchType="ContainerHeight" x="419" y="64" width="137" height="20" textAdjust="StretchHeight">
+				<expression><![CDATA[$P{reportDate}]]></expression>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="staticText" uuid="7e87e60f-4b22-44c3-b076-a5a777e7745a" positionType="Float" stretchType="ContainerHeight" x="279" y="64" width="140" height="20" bold="true">
+				<text><![CDATA[Printed Date]]></text>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="staticText" uuid="a6f28709-e3ca-477e-a126-e2bdfeb5a97d" positionType="Float" stretchType="ContainerHeight" x="0" y="84" width="141" height="20" bold="true">
+				<text><![CDATA[Subject/Title]]></text>
+				<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+			<element kind="textField" uuid="58334e93-5972-4692-872f-8973679b0dfe" positionType="Float" stretchType="ContainerHeight" x="141" y="84" width="415" height="20" textAdjust="StretchHeight">
+				<expression><![CDATA["TODO"]]></expression>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+			</element>
+		</band>
+	</detail>
+	<columnFooter height="45" splitType="Stretch"/>
+	<pageFooter height="54" splitType="Stretch"/>
+	<summary height="42" splitType="Stretch"/>
+</jasperReport>

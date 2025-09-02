@@ -48,21 +48,25 @@ import java.util.*;
                 @NamedAttributeNode("projectCode"),
                 @NamedAttributeNode("marked"),
                 @NamedAttributeNode("aclEntities"),
-                @NamedAttributeNode("signatures")
+                @NamedAttributeNode("signatures"),
         }
+)
+@NamedEntityGraph(
+        name = "Experiment.forReport",
+        includeAllAttributes = true
 )
 @NamedEntityGraph(
         name = "Experiment.forSignature",
         attributeNodes = {
                 @NamedAttributeNode("createdBy"),
                 @NamedAttributeNode("modifiedBy"),
-                @NamedAttributeNode("signatures")
+                @NamedAttributeNode("signatures"),
         }
 )
 @NamedEntityGraph(
         name = "Experiment.withACL",
         attributeNodes = {
-                @NamedAttributeNode("aclEntities")
+                @NamedAttributeNode("aclEntities"),
         }
 )
 //@DynamicUpdate // TODO cannot use until update is done via trigger

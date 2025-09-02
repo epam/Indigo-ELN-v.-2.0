@@ -6,6 +6,7 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.eln.service.ExperimentWorkflowService;
+import com.epam.indigoeln.eln.service.ReportingService;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import jakarta.annotation.Nullable;
@@ -28,9 +29,9 @@ public class ExperimentResource implements ExperimentAPI {
     @Inject
     AttachmentService attachmentService;
     @Inject
-    ExperimentModelService experimentModelService;
-    @Inject
     ExperimentWorkflowService experimentWorkflowService;
+    @Inject
+    ReportingService reportingService;
 
     @Override
     public @NotNull @Valid ExperimentDetailsDTO createExperiment(@NotNull UUID notebookId, @NotNull @Valid ExperimentRequest request) {
@@ -145,5 +146,10 @@ public class ExperimentResource implements ExperimentAPI {
     @Override
     public ExperimentDetailsDTO resubmitExperiment(UUID experimentId) {
         return experimentWorkflowService.resubmitExperiment(experimentId);
+    }
+
+    @Override
+    public Response printReport(UUID experimentId) {
+        return reportingService.printReport(experimentId);
     }
 }
