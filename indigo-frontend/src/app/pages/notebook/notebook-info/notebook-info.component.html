@@ -9,7 +9,7 @@
     </div>
 </div>
 } @else if (notebook) {
-<div class="grid grid-cols-1 gap-4 pt-4">
+<div class="grid grid-cols-[1fr_auto] gap-4 pt-4">
     <eln-card>
         <div class="px-3">
             <div class="flex items-center justify-between pb-3 border-b border-b-neutral-200">
@@ -37,5 +37,6 @@
             </div>
         </div>
     </eln-card>
+    <eln-team [team]="notebook.acl" [entityId]="notebook.id" [config]="notebookTeamConfig" />
 </div>
 }
