@@ -1,11 +1,12 @@
 <eln-card classList="h-full">
   <div class="flex items-center justify-between border-b border-b-neutral-200 pb-3">
     <div class="flex items-center gap-2">
-      <h2 class="font-semibold text-base">{{ title }}</h2>
-      <eln-counter [count]="team.length" variant="grey" size="large" />
+      <h2 class="font-semibold text-base">{{ config.title }}</h2>
+  <eln-counter [count]="teamVm().length" variant="grey" size="large" />
     </div>
   </div>
 
+  <!-- Suggestions field -->
   <div class="flex items-center justify-between py-3 gap-2">
     <div class="flex-1">
       <ng-select [items]="userSuggestions" bindLabel="displayName" bindValue="id" [multiple]="true"
@@ -32,8 +33,9 @@
     </div>
   </div>
 
+  <!-- Team members list -->
   <div class="space-y-2 py-3">
-    @for (member of team; track member) {
+  @for (member of teamVm(); track member.userId) {
       <div class="grid grid-cols-[auto_1fr_auto_auto] gap-4 items-center p-2 hover:bg-neutral-100 rounded-lg text-neutral-1000">
         <p class="text-neutral-1000">{{ member.displayName }}</p>
         <p class="text-neutral-800 overflow-hidden text-ellipsis whitespace-nowrap max-w-[148px] text-ellipsis">
@@ -44,7 +46,7 @@
           <eln-dropdown-menu class="[&_.dd-trigger]:text-primary-400 [&_.dd-container]:min-w-34" [controlled]="true"
             [selected]="member.level | normalizeLabel" [items]="aclLevelOptions"
             (itemSelected)="updateAclLevel(member, $event)"
-            [disabled]="isInmutableLevel(member.level) || isAclMemberLoading(member) || config.disableLevelChange?.(member)" />
+            [disabled]="member.disabled" />
         </div>
       </div>
     }

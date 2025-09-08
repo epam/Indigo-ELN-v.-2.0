@@ -4,7 +4,8 @@ import { NotebookDetail } from '@/core/types/entities/notebook-detail.i';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { NotebookService } from '../../../../core/services/notebook/notebook.service';
-import { TeamComponent, TeamComponentConfig } from '@/core/components/common/team/team.component';
+import { TeamComponent } from '@/core/components/common/team/team.component';
+import { TeamComponentConfig } from '@/core/components/common/team/team.config';
 
 @Component({
     selector: 'eln-notebook-info',

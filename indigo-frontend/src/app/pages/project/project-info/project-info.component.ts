@@ -2,7 +2,7 @@ import { AttachmentComponent } from '@/core/components/common/attachment/attachm
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ChipComponent } from '@/core/components/common/chip/chip.component';
-import { TeamComponent, TeamComponentConfig } from '@/core/components/common/team/team.component';
+import { TeamComponent } from '@/core/components/common/team/team.component';
 import { ApiService } from '@/core/services/api.service';
 import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
@@ -14,6 +14,7 @@ import { FileUploadComponent } from "@/core/components/common/file-upload/file-u
 import { Attachment } from '@/core/types/entities/attachment.i';
 import { MatDialog } from '@angular/material/dialog';
 import { ProjectAddComponent } from '../project-add/project-add.component';
+import { TeamComponentConfig } from '@/core/components/common/team/team.config';
 
 @Component({
   selector: 'eln-project-info',
