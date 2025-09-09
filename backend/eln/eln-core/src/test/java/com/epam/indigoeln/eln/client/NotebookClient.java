@@ -2,7 +2,7 @@ package com.epam.indigoeln.eln.client;
 
 import com.epam.indigoeln.eln.api.NotebookAPI;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
-import com.epam.indigoeln.eln.util.ResponseWithHeaders;
+import com.epam.indigoeln.test.ResponseWithHeaders;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import lombok.SneakyThrows;

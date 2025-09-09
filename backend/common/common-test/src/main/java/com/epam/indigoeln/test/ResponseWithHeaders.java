@@ -1,6 +1,5 @@
-package com.epam.indigoeln.eln.util;
+package com.epam.indigoeln.test;
 
-import feign.Response;
 import lombok.Value;
 
 import java.io.InputStream;

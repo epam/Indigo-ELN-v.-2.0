@@ -1,8 +1,7 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.eln.BaseTest;
+import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.util.TestHelper;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
@@ -25,15 +24,15 @@ import static org.assertj.core.api.Assertions.tuple;
 
 @QuarkusTest
 @JwtSecurity
-@TestSecurity(user = TestHelper.JOHN_USERNAME)
-public class DictionaryServiceTest extends BaseTest {
+@TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
+public class DictionaryServiceTest extends ELNBaseTest {
 
     List<DictionaryItemDTO> items;
 
     @BeforeAll
     @SneakyThrows
     void setUpClass() {
-        testHelper.cleanupDatabase();
+        cleanupDatabase();
         dictionaryClient.getDictionaryFull(Dictionary.TEST).reversed().forEach(item -> {
             dictionaryClient.removeDictionaryItem(Dictionary.TEST, item.getId());
         });

@@ -1,17 +1,12 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.eln.BaseTest;
+import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.util.TestHelper;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.Claim;
-import io.quarkus.test.security.jwt.JwtSecurity;
-import jakarta.inject.Inject;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -19,8 +14,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @QuarkusTest
-@TestSecurity(user = TestHelper.JOHN_USERNAME)
-class RoleServiceTest extends BaseTest {
+@TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
+class RoleServiceTest extends ELNBaseTest {
 
     RoleDTO role;
 

@@ -1,8 +1,7 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.eln.BaseTest;
+import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.util.TestHelper;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
@@ -11,14 +10,14 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Optional;
 
-import static com.epam.indigoeln.eln.util.CustomAssertions.assertThatClientCall;
+import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
 @QuarkusTest
 @JwtSecurity
-@TestSecurity(user = TestHelper.LISA_USERNAME)
-class TemplateServiceTest extends BaseTest {
+@TestSecurity(user = ELNBaseTest.LISA_USERNAME)
+class TemplateServiceTest extends ELNBaseTest {
 
     List<TemplateComponent> components = List.of(new TemplateComponent.Attachments(), new TemplateComponent.StoichiometryTable(true, true));
 
@@ -33,9 +32,9 @@ class TemplateServiceTest extends BaseTest {
         TemplateDetailsDTO template = templateClient.createTemplate(new TemplateRequest("testCreateTemplate", components));
         assertThat(template.getId()).isNotNull();
         assertThat(template.getName()).isEqualTo("testCreateTemplate");
-        assertThat(template.getCreatedBy().getDisplayName()).isEqualTo(TestHelper.LISA_DISPLAY_NAME);
+        assertThat(template.getCreatedBy().getDisplayName()).isEqualTo(LISA_DISPLAY_NAME);
         assertThat(template.getCreatedAt()).isNotNull();
-        assertThat(template.getModifiedBy().getDisplayName()).isEqualTo(TestHelper.LISA_DISPLAY_NAME);
+        assertThat(template.getModifiedBy().getDisplayName()).isEqualTo(LISA_DISPLAY_NAME);
         assertThat(template.getModifiedAt()).isNotNull();
     }
 
@@ -53,9 +52,9 @@ class TemplateServiceTest extends BaseTest {
         assertThat(templates.getItems()).first().satisfies(template -> {
             assertThat(template.getId()).isNotNull();
             assertThat(template.getName()).isEqualTo("testGetTemplates");
-            assertThat(template.getCreatedBy().getDisplayName()).isEqualTo(TestHelper.LISA_DISPLAY_NAME);
+            assertThat(template.getCreatedBy().getDisplayName()).isEqualTo(LISA_DISPLAY_NAME);
             assertThat(template.getCreatedAt()).isNotNull();
-            assertThat(template.getModifiedBy().getDisplayName()).isEqualTo(TestHelper.LISA_DISPLAY_NAME);
+            assertThat(template.getModifiedBy().getDisplayName()).isEqualTo(LISA_DISPLAY_NAME);
             assertThat(template.getModifiedAt()).isNotNull();
         });
     }
@@ -64,7 +63,7 @@ class TemplateServiceTest extends BaseTest {
     void testEditTemplate() {
         TemplateDetailsDTO template = templateClient.createTemplate(new TemplateRequest("testEditTemplate", components));
         TemplateDetailsDTO notModified = templateClient.editTemplate(template.getId(), new TemplateEditRequest(null));
-        assertThat(notModified).usingRecursiveComparison(TestHelper.COMPARE_WITHOUT_MODIFIED_AT).isEqualTo(template);
+        assertThat(notModified).usingRecursiveComparison(COMPARE_WITHOUT_MODIFIED_AT).isEqualTo(template);
         TemplateDetailsDTO modified = templateClient.editTemplate(template.getId(), new TemplateEditRequest(Optional.of("testEditTemplate_new")));
         assertThat(modified.getName()).isEqualTo("testEditTemplate_new");
         TemplateDetailsDTO saved = templateClient.getTemplate(template.getId());

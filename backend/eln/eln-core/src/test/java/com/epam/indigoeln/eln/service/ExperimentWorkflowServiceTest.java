@@ -1,8 +1,7 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.eln.BaseTest;
+import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.util.TestHelper;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
@@ -15,15 +14,15 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.epam.indigoeln.eln.model.ExperimentStatus.*;
-import static com.epam.indigoeln.eln.util.CustomAssertions.assertThatClientCall;
+import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
 
 @QuarkusTest
 @JwtSecurity
-@TestSecurity(user = TestHelper.JOHN_USERNAME)
-class ExperimentWorkflowServiceTest extends BaseTest {
+@TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
+class ExperimentWorkflowServiceTest extends ELNBaseTest {
 
     ProjectDetailsDTO project;
     NotebookDetailsDTO notebook;
@@ -39,14 +38,14 @@ class ExperimentWorkflowServiceTest extends BaseTest {
         noSignersTemplate = signatureClient.createSignatureTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-noSigners"
                 , List.of()));
         oneSignerTemplate = signatureClient.createSignatureTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-oneSigner"
-                , List.of(new SignatureBlock(testHelper.getBartUserRef(), SignatureReason.WITNESS))));
+                , List.of(new SignatureBlock(getBartUserRef(), SignatureReason.WITNESS))));
         twoSignersTemplate = signatureClient.createSignatureTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-twoSigners"
-                , List.of(new SignatureBlock(testHelper.getBartUserRef(), SignatureReason.WITNESS), new SignatureBlock(null, SignatureReason.AUTHOR))));
+                , List.of(new SignatureBlock(getBartUserRef(), SignatureReason.WITNESS), new SignatureBlock(null, SignatureReason.AUTHOR))));
     }
 
     @BeforeEach
     void setUp() {
-        experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
+        experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
     }
 
     @Test
@@ -134,61 +133,61 @@ class ExperimentWorkflowServiceTest extends BaseTest {
     void testSubmitOneSigner() {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplate.getId());
         assertSignatures(experiment.getSignatures()
-                , tuple(testHelper.getBartUserRef(), SignatureReason.WITNESS, null));
+                , tuple(getBartUserRef(), SignatureReason.WITNESS, null));
         assertThat(experiment.getStatus()).isEqualTo(SUBMITTED);
     }
 
     @Test
     void testApproveOneSigner() {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplate.getId());
-        withUser(TestHelper.BART_USERNAME, () -> {
+        withUser(BART_USERNAME, () -> {
             experiment = experimentClient.approveExperiment(experiment.getId());
         });
         assertSignatures(experiment.getSignatures()
-                , tuple(testHelper.getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED));
+                , tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED));
         assertThat(experiment.getStatus()).isEqualTo(ARCHIVED);
     }
 
     @Test
     void testRejectOneSigner() {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplate.getId());
-        withUser(TestHelper.BART_USERNAME, () -> {
+        withUser(BART_USERNAME, () -> {
             experiment = experimentClient.rejectExperiment(experiment.getId());
         });
         assertSignatures(experiment.getSignatures()
-                , tuple(testHelper.getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.REJECTED));
+                , tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.REJECTED));
         assertThat(experiment.getStatus()).isEqualTo(REJECTED);
     }
 
     @Test
     void testApproveTwoSigners() {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), twoSignersTemplate.getId());
-        withUser(TestHelper.BART_USERNAME, () -> {
+        withUser(BART_USERNAME, () -> {
             experiment = experimentClient.approveExperiment(experiment.getId());
         });
         assertSignatures(experiment.getSignatures()
-                , tuple(testHelper.getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED)
-                , tuple(testHelper.getJohnUserRef(), SignatureReason.AUTHOR, null));
+                , tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED)
+                , tuple(getJohnUserRef(), SignatureReason.AUTHOR, null));
         assertThat(experiment.getStatus()).isEqualTo(SIGNING);
 
         experiment = experimentClient.approveExperiment(experiment.getId());
         assertSignatures(experiment.getSignatures()
-                , tuple(testHelper.getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED)
-                , tuple(testHelper.getJohnUserRef(), SignatureReason.AUTHOR, SignatureStatus.APPROVED));
+                , tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED)
+                , tuple(getJohnUserRef(), SignatureReason.AUTHOR, SignatureStatus.APPROVED));
         assertThat(experiment.getStatus()).isEqualTo(ARCHIVED);
     }
 
     @Test
     void testRejectTwoSigners() {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), twoSignersTemplate.getId());
-        withUser(TestHelper.BART_USERNAME, () -> {
+        withUser(BART_USERNAME, () -> {
             experiment = experimentClient.approveExperiment(experiment.getId());
         });
 
         experiment = experimentClient.rejectExperiment(experiment.getId());
         assertSignatures(experiment.getSignatures()
-                , tuple(testHelper.getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED)
-                , tuple(testHelper.getJohnUserRef(), SignatureReason.AUTHOR, SignatureStatus.REJECTED));
+                , tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED)
+                , tuple(getJohnUserRef(), SignatureReason.AUTHOR, SignatureStatus.REJECTED));
         assertThat(experiment.getStatus()).isEqualTo(REJECTED);
     }
 

@@ -1,19 +1,19 @@
-package com.epam.indigoeln.eln.util;
+package com.epam.indigoeln.eln;
 
-import com.epam.indigoeln.eln.client.TemplateClient;
-import com.epam.indigoeln.eln.client.TestSupportClient;
-import com.epam.indigoeln.eln.client.UserClient;
+import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import com.epam.indigoeln.eln.service.GlobalSearchService;
+import com.epam.indigoeln.test.BaseTest;
+import com.epam.indigoeln.test.FeignUtil;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
+import org.junit.jupiter.api.*;
 
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-@RequiredArgsConstructor
-public class TestHelper {
+public abstract class ELNBaseTest extends BaseTest {
 
     public static final RecursiveComparisonConfiguration COMPARE_WITHOUT_MODIFIED_AT = RecursiveComparisonConfiguration.builder()
             .withIgnoredFields("modifiedAt")
@@ -23,9 +23,6 @@ public class TestHelper {
     public static final RoleRef ROLE_CONTENT_EDITOR = new RoleRef(UUID.fromString("00000000-0000-0000-0000-000000000003"), "Content Editor");
     public static final RoleRef ROLE_TEMPLATE_EDITOR = new RoleRef(UUID.fromString("00000000-0000-0000-0000-000000000004"), "Template Editor");
     public static final RoleRef ROLE_PROJECT_CREATOR = new RoleRef(UUID.fromString("00000000-0000-0000-0000-000000000005"), "Project Creator");
-
-    public static final String ADMIN_USERNAME = "admin";
-    public static final String ADMIN_DISPLAY_NAME = "Administrator";
 
     public static final String JOHN_USERNAME = "john";
     public static final String JOHN_FIRST_NAME = "John";
@@ -57,40 +54,66 @@ public class TestHelper {
     public static final String MAGGIE_DISPLAY_NAME = "Maggie Green";
     public static final List<RoleRef> MAGGIE_ROLES = List.of(ROLE_PROJECT_CREATOR);
 
-    private final UserClient userClient;
-    private final TemplateClient templateClient;
-    private final TestSupportClient testSupportClient;
-    private final AtomicReference<String> currentUsername;
+    protected ProjectClient projectClient;
+    protected NotebookClient notebookClient;
+    protected ExperimentClient experimentClient;
+    protected TemplateClient templateClient;
+    protected SignatureClient signatureClient;
+    protected CompoundClient compoundClient;
+    protected MiscClient miscClient;
+    protected TestSupportClient testSupportClient;
+    protected UserClient userClient;
+    protected DictionaryClient dictionaryClient;
+    protected RoleClient roleClient;
+    protected GlobalSearchClient globalSearchClient;
 
-    @Getter
-    private UUID johnUserID;
-    @Getter
-    private UUID willowUserID;
-    @Getter
-    private UUID bartUserID;
-    @Getter
-    private UUID lisaUserID;
-    @Getter
-    private UUID maggieUserID;
-    @Getter
-    private UUID emptyTemplateID;
+    private int lastUsedNotebookNumber = 0;
 
-    public void cleanupDatabase() {
+    protected UUID johnUserID;
+    protected UUID willowUserID;
+    protected UUID bartUserID;
+    protected UUID lisaUserID;
+    protected UUID maggieUserID;
+    protected UUID emptyTemplateID;
+
+    @BeforeAll
+    void setupAllBase() throws Exception {
+        projectClient = buildClient(ProjectClient.class);
+        notebookClient = buildClient(NotebookClient.class);
+        experimentClient = buildClient(ExperimentClient.class);
+        templateClient = buildClient(TemplateClient.class);
+        signatureClient = buildClient(SignatureClient.class);
+        compoundClient = buildClient(CompoundClient.class);
+        miscClient = buildClient(MiscClient.class);
+        userClient = buildClient(UserClient.class);
+        dictionaryClient = buildClient(DictionaryClient.class);
+        roleClient = buildClient(RoleClient.class);
+        testSupportClient = buildClient(TestSupportClient.class);
+        globalSearchClient = buildClient(GlobalSearchClient.class);
+        miscClient.migrate();
+        cleanupDatabase();
+    }
+
+    protected String nextNotebookName() {
+        return "%08d".formatted(++lastUsedNotebookNumber);
+    }
+
+    protected void cleanupDatabase() {
         testSupportClient.cleanupDatabase();
         createBasicTestData();
     }
 
     private void createBasicTestData() {
-        johnUserID = getOrCreateUser(new UserRequest(TestHelper.JOHN_USERNAME, TestHelper.JOHN_FIRST_NAME, TestHelper.JOHN_LAST_NAME, "password", TestHelper.JOHN_ROLES)).getId();
-        willowUserID = getOrCreateUser(new UserRequest(TestHelper.WILLOW_USERNAME, TestHelper.WILLOW_FIRST_NAME, TestHelper.WILLOW_LAST_NAME, "password", TestHelper.WILLOW_ROLES)).getId();
-        bartUserID = getOrCreateUser(new UserRequest(TestHelper.BART_USERNAME, TestHelper.BART_FIRST_NAME, TestHelper.BART_LAST_NAME, "password", TestHelper.BART_ROLES)).getId();
-        lisaUserID = getOrCreateUser(new UserRequest(TestHelper.LISA_USERNAME, TestHelper.LISA_FIRST_NAME, TestHelper.LISA_LAST_NAME, "password", TestHelper.LISA_ROLES)).getId();
-        maggieUserID = getOrCreateUser(new UserRequest(TestHelper.MAGGIE_USERNAME, TestHelper.MAGGIE_FIRST_NAME, TestHelper.MAGGIE_LAST_NAME, "password", TestHelper.MAGGIE_ROLES)).getId();
+        johnUserID = getOrCreateUser(new UserRequest(ELNBaseTest.JOHN_USERNAME, JOHN_FIRST_NAME, JOHN_LAST_NAME, "password", JOHN_ROLES)).getId();
+        willowUserID = getOrCreateUser(new UserRequest(WILLOW_USERNAME, WILLOW_FIRST_NAME, WILLOW_LAST_NAME, "password", WILLOW_ROLES)).getId();
+        bartUserID = getOrCreateUser(new UserRequest(BART_USERNAME, BART_FIRST_NAME, BART_LAST_NAME, "password", BART_ROLES)).getId();
+        lisaUserID = getOrCreateUser(new UserRequest(LISA_USERNAME, LISA_FIRST_NAME, LISA_LAST_NAME, "password", LISA_ROLES)).getId();
+        maggieUserID = getOrCreateUser(new UserRequest(MAGGIE_USERNAME, MAGGIE_FIRST_NAME, MAGGIE_LAST_NAME, "password", MAGGIE_ROLES)).getId();
         emptyTemplateID = templateClient.createTemplate(new TemplateRequest("Empty template", List.of(new TemplateComponent.Attachments()))).getId();
     }
 
     public UserRef getJohnUserRef() {
-        return new UserRef(johnUserID, JOHN_USERNAME, JOHN_DISPLAY_NAME);
+        return new UserRef(johnUserID, ELNBaseTest.JOHN_USERNAME, JOHN_DISPLAY_NAME);
     }
 
     public UserRef getWillowUserRef() {
@@ -110,16 +133,16 @@ public class TestHelper {
     }
 
     private UserDTO getOrCreateUser(UserRequest request) {
-        String oldUsername = currentUsername.get();
+        String oldUsername = username.get();
         try {
-            currentUsername.set(ADMIN_USERNAME);
+            username.set(ADMIN_USERNAME);
             Page<UserDTO> found = userClient.getUsers(null, request.getUsername(), Paging.DEFAULT);
             if (!found.getItems().isEmpty()) {
                 return found.getItems().getFirst();
             }
             return userClient.createUser(request);
         } finally {
-            currentUsername.set(oldUsername);
+            username.set(oldUsername);
         }
     }
 }

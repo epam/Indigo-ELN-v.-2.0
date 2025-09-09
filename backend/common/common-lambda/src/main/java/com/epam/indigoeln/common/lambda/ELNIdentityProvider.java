@@ -1,4 +1,4 @@
-package com.epam.indigoeln.eln.lambda;
+package com.epam.indigoeln.common.lambda;
 
 import io.quarkus.amazon.lambda.http.LambdaAuthenticationRequest;
 import io.quarkus.security.identity.AuthenticationRequestContext;

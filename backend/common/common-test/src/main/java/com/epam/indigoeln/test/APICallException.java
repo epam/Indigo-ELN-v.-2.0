@@ -1,4 +1,4 @@
-package com.epam.indigoeln.eln.util;
+package com.epam.indigoeln.test;
 
 import com.epam.indigoeln.common.config.ErrorDTO;
 import lombok.Getter;

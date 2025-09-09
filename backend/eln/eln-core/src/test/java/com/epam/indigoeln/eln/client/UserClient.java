@@ -1,7 +1,7 @@
 package com.epam.indigoeln.eln.client;
 
 import com.epam.indigoeln.eln.api.UserAPI;
-import com.epam.indigoeln.eln.util.ResponseWithHeaders;
+import com.epam.indigoeln.test.ResponseWithHeaders;
 import jakarta.annotation.Nullable;
 import jakarta.ws.rs.*;
 

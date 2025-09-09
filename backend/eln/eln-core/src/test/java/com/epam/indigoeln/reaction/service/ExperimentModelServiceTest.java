@@ -4,11 +4,10 @@ import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.StructureSearchType;
-import com.epam.indigoeln.eln.BaseTest;
+import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.util.ResponseWithHeaders;
-import com.epam.indigoeln.eln.util.TestHelper;
+import com.epam.indigoeln.test.ResponseWithHeaders;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.ReactionInputRole;
@@ -37,9 +36,9 @@ import java.util.UUID;
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 
 @QuarkusTest
-@TestSecurity(user = TestHelper.JOHN_USERNAME)
+@TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 @SuppressWarnings("SequencedCollectionMethodCanBeUsed")
-public class ExperimentModelServiceTest extends BaseTest {
+public class ExperimentModelServiceTest extends ELNBaseTest {
 
     ExperimentDetailsDTO experiment;
     ExperimentModel model;
@@ -72,7 +71,7 @@ public class ExperimentModelServiceTest extends BaseTest {
     void testCreateExperiment() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("ExperimentModelServiceTest"));
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-        experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
+        experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         model = experimentClient.getExperimentModel(experiment.getId());
         reactionAnchor = model.getReactions().getFirst().getAnchor();
     }

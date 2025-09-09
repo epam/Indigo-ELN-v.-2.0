@@ -1,9 +1,8 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.eln.BaseTest;
+import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.util.ResponseWithHeaders;
-import com.epam.indigoeln.eln.util.TestHelper;
+import com.epam.indigoeln.test.ResponseWithHeaders;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
@@ -18,14 +17,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.epam.indigoeln.eln.util.CustomAssertions.assertThatClientCall;
+import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
 @QuarkusTest
 @JwtSecurity
-@TestSecurity(user = TestHelper.JOHN_USERNAME)
-class NotebookServiceTest extends BaseTest {
+@TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
+class NotebookServiceTest extends ELNBaseTest {
 
     ProjectDetailsDTO project;
 
@@ -60,9 +59,9 @@ class NotebookServiceTest extends BaseTest {
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(name));
         assertThat(notebook.getId()).isNotNull();
         assertThat(notebook.getName()).isEqualTo(name);
-        assertThat(notebook.getCreatedBy().getDisplayName()).isEqualTo(TestHelper.JOHN_DISPLAY_NAME);
+        assertThat(notebook.getCreatedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
         assertThat(notebook.getCreatedAt()).isNotNull();
-        assertThat(notebook.getModifiedBy().getDisplayName()).isEqualTo(TestHelper.JOHN_DISPLAY_NAME);
+        assertThat(notebook.getModifiedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
         assertThat(notebook.getModifiedAt()).isNotNull();
     }
 
@@ -81,9 +80,9 @@ class NotebookServiceTest extends BaseTest {
         assertThat(notebooks.getItems()).hasSize(1).first().satisfies(notebook -> {
             assertThat(notebook.getId()).isNotNull();
             assertThat(notebook.getName()).isEqualTo(name);
-            assertThat(notebook.getCreatedBy().getDisplayName()).isEqualTo(TestHelper.JOHN_DISPLAY_NAME);
+            assertThat(notebook.getCreatedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
             assertThat(notebook.getCreatedAt()).isNotNull();
-            assertThat(notebook.getModifiedBy().getDisplayName()).isEqualTo(TestHelper.JOHN_DISPLAY_NAME);
+            assertThat(notebook.getModifiedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
             assertThat(notebook.getModifiedAt()).isNotNull();
             assertThat(notebook.getExperimentCount()).isEmpty();
         });
@@ -115,23 +114,23 @@ class NotebookServiceTest extends BaseTest {
 
     @Test
     void testGetNotebooksCreatedByMe() {
-        withUser(TestHelper.JOHN_USERNAME, () -> {
+        withUser(ELNBaseTest.JOHN_USERNAME, () -> {
             notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
             notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
         });
 
-        withUser(TestHelper.BART_USERNAME, () -> {
+        withUser(BART_USERNAME, () -> {
             notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
         });
 
-        withUser(TestHelper.JOHN_USERNAME, () -> {
+        withUser(ELNBaseTest.JOHN_USERNAME, () -> {
             Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), null, null, true, Paging.DEFAULT);
 
             assertThat(notebooks.getItems())
-                    .allSatisfy(experiment -> assertThat(experiment.getCreatedBy().getDisplayName()).isEqualTo(TestHelper.JOHN_DISPLAY_NAME));
+                    .allSatisfy(experiment -> assertThat(experiment.getCreatedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME));
 
             assertThat(notebooks.getItems())
-                    .noneSatisfy(experiment -> assertThat(experiment.getCreatedBy().getDisplayName()).isEqualTo(TestHelper.BART_DISPLAY_NAME));
+                    .noneSatisfy(experiment -> assertThat(experiment.getCreatedBy().getDisplayName()).isEqualTo(BART_DISPLAY_NAME));
         });
     }
 
@@ -139,7 +138,7 @@ class NotebookServiceTest extends BaseTest {
     void testEditNotebook() {
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName(), "d"));
         NotebookDetailsDTO notModified = notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(null, null));
-        assertThat(notModified).usingRecursiveComparison(TestHelper.COMPARE_WITHOUT_MODIFIED_AT).isEqualTo(notebook);
+        assertThat(notModified).usingRecursiveComparison(COMPARE_WITHOUT_MODIFIED_AT).isEqualTo(notebook);
         String newName = nextNotebookName();
         NotebookDetailsDTO modified = notebookClient.editNotebook(notebook.getId(), new NotebookEditRequest(Optional.of(newName), Optional.of("d2")));
         assertThat(modified.getName()).isEqualTo(newName);
@@ -155,9 +154,9 @@ class NotebookServiceTest extends BaseTest {
         assertThat(attachments).singleElement().satisfies(a -> {
             assertThat(a.getId()).isNotNull();
             assertThat(a.getName()).isEqualTo("attachment.txt");
-            assertThat(a.getCreatedBy().getDisplayName()).isEqualTo(TestHelper.JOHN_DISPLAY_NAME);
+            assertThat(a.getCreatedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
             assertThat(a.getCreatedAt()).isNotNull();
-            assertThat(a.getModifiedBy().getDisplayName()).isEqualTo(TestHelper.JOHN_DISPLAY_NAME);
+            assertThat(a.getModifiedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
             assertThat(a.getModifiedAt()).isNotNull();
         });
     }

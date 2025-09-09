@@ -7,7 +7,7 @@ import com.epam.indigoeln.compound.model.StructureSearchType;
 import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.util.FeignUtil;
+import com.epam.indigoeln.test.FeignUtil;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.mutation.*;
@@ -28,7 +28,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
-import static com.epam.indigoeln.eln.util.TestHelper.*;
+import static com.epam.indigoeln.eln.ELNBaseTest.*;
 
 
 // no @QuarkusTest - only works with remote backend

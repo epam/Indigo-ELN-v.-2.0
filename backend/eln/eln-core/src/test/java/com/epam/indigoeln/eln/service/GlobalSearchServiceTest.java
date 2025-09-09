@@ -1,11 +1,10 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.compound.model.StructureSearchType;
-import com.epam.indigoeln.eln.BaseTest;
+import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.util.TestHelper;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import io.quarkus.test.junit.QuarkusTest;
@@ -24,8 +23,8 @@ import static org.assertj.core.api.Assertions.tuple;
 
 @QuarkusTest
 @JwtSecurity
-@TestSecurity(user = TestHelper.MAGGIE_USERNAME)
-class GlobalSearchServiceTest extends BaseTest {
+@TestSecurity(user = ELNBaseTest.MAGGIE_USERNAME)
+class GlobalSearchServiceTest extends ELNBaseTest {
 
     DictionaryItemRef therapeuticArea1;
     DictionaryItemRef therapeuticArea2;
@@ -44,7 +43,7 @@ class GlobalSearchServiceTest extends BaseTest {
 
     @BeforeAll
     void setUp() {
-        withUser(TestHelper.MAGGIE_USERNAME, () -> {
+        withUser(MAGGIE_USERNAME, () -> {
             List<DictionaryItemRef> therapeuticAreas = dictionaryClient.getDictionary(Dictionary.THERAPEUTIC_AREA);
             therapeuticArea1 = therapeuticAreas.get(0);
             therapeuticArea2 = therapeuticAreas.get(1);
@@ -55,17 +54,17 @@ class GlobalSearchServiceTest extends BaseTest {
             project2 = projectClient.createProject(new ProjectRequest("p2", List.of("k2", "k3"), "l2 xx", "pd2"));
             notebook1 = notebookClient.createNotebook(project1.getId(), new NotebookRequest("00000001", "nd1 xx"));
             notebook2 = notebookClient.createNotebook(project2.getId(), new NotebookRequest("00000002", "nd2 xx"));
-            experiment1 = experimentClient.createExperiment(notebook1.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID(), "ed1 xx", therapeuticArea1, projectCode1));
-            experiment2 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID(), "ed2 xx", therapeuticArea2, projectCode2));
+            experiment1 = experimentClient.createExperiment(notebook1.getId(), new ExperimentRequest(emptyTemplateID, "ed1 xx", therapeuticArea1, projectCode1));
+            experiment2 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(emptyTemplateID, "ed2 xx", therapeuticArea2, projectCode2));
             String rxnFile = new String(loadResource(getClass(), "/reaction.rxn"));
             ExperimentModel experimentModel = experimentClient.getExperimentModel(experiment2.getId());
             experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionMutation.SetScheme(experimentModel.getReactions().getFirst().getAnchor(), rxnFile)));
         });
-        withUser(TestHelper.BART_USERNAME, () -> {
+        withUser(BART_USERNAME, () -> {
             project3 = projectClient.createProject(new ProjectRequest("p3"));
-            projectClient.updateProjectAccess(project3.getId(), AccessForm.of(testHelper.getMaggieUserID(), AccessLevel.VIEW));
+            projectClient.updateProjectAccess(project3.getId(), AccessForm.of(maggieUserID, AccessLevel.VIEW));
             notebook3 = notebookClient.createNotebook(project3.getId(), new NotebookRequest("00000003", null));
-            experiment3 = experimentClient.createExperiment(notebook3.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID(), null, null, null));
+            experiment3 = experimentClient.createExperiment(notebook3.getId(), new ExperimentRequest(emptyTemplateID, null, null, null));
         });
     }
 
@@ -126,7 +125,7 @@ class GlobalSearchServiceTest extends BaseTest {
 
     @Test
     void testFindAllByAuthor() {
-        Page<GlobalSearchResultDTO> results = globalSearchClient.search(GlobalSearchRequest.builder().author(testHelper.getBartUserRef()).build(), Paging.DEFAULT);
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(GlobalSearchRequest.builder().author(getBartUserRef()).build(), Paging.DEFAULT);
         assertResults(results
                 , tuple(EntityType.PROJECT, project3.getName(), project3.getId())
                 , tuple(EntityType.NOTEBOOK, notebook3.getName(), notebook3.getId())
