@@ -21,6 +21,8 @@ include("common:common-test")
 
 include("eln-quarkus-extension:deployment", "eln-quarkus-extension:runtime")
 
+include("database:flyway")
+
 //include("signature:signature-api")
 //include("signature:signature-core")
 //include("signature:signature-service")
