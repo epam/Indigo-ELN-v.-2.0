@@ -1,17 +1,7 @@
-import org.flywaydb.gradle.task.AbstractFlywayTask
-
-buildscript {
-    dependencies {
-        classpath("org.postgresql:postgresql:42.7.5")
-        classpath("org.flywaydb:flyway-database-postgresql:11.3.2")
-    }
-}
-
 plugins {
     `java-library`
     `eln-conventions`
     id("io.quarkus")
-    id("org.flywaydb.flyway") version "11.3.2"
 }
 
 dependencies {
@@ -45,20 +35,6 @@ dependencies {
 
 group = "com.epam.indigoeln"
 version = "3.0.0-SNAPSHOT"
-
-flyway {
-    url= "jdbc:postgresql://localhost:15433/quarkus"
-    driver = "org.postgresql.Driver"
-    user = "quarkus"
-    password = "quarkus"
-    locations = arrayOf("classpath:db/migration")
-}
-
-tasks {
-    withType<AbstractFlywayTask> {
-        notCompatibleWithConfigurationCache("because https://github.com/flyway/flyway/issues/3550")
-    }
-}
 
 val testArtifacts by configurations.creating {
     extendsFrom(configurations.testRuntimeClasspath.get())
