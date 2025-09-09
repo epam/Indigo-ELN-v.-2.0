@@ -14,5 +14,5 @@ public class TemplateRequest {
     String name;
 
     @NotEmpty
-    List<TemplateComponent> components;
+    List<TemplateTab> templateTabs;
 }

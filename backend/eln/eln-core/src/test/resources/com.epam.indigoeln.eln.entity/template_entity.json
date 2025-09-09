@@ -1,0 +1,67 @@
+{
+  "id" : null,
+  "createdBy" : {
+    "id" : "00000000-0000-0000-0000-000000000001",
+    "createdBy" : null,
+    "createdAt" : null,
+    "modifiedBy" : null,
+    "modifiedAt" : null,
+    "username" : null,
+    "firstName" : null,
+    "lastName" : null,
+    "displayName" : null,
+    "roles" : [ ]
+  },
+  "createdAt" : "2025-09-09T13:24:24.81115709+03:00",
+  "modifiedBy" : {
+    "id" : "00000000-0000-0000-0000-000000000001",
+    "createdBy" : null,
+    "createdAt" : null,
+    "modifiedBy" : null,
+    "modifiedAt" : null,
+    "username" : null,
+    "firstName" : null,
+    "lastName" : null,
+    "displayName" : null,
+    "roles" : [ ]
+  },
+  "modifiedAt" : "2025-09-09T13:24:24.811212086+03:00",
+  "name" : "Sample Template",
+  "templateTabs" : [ {
+    "name" : "Tab 1",
+    "components" : [ {
+      "type" : "attachments"
+    }, {
+      "type" : "batches"
+    }, {
+      "type" : "conceptDetails"
+    }, {
+      "type" : "experimentDetails"
+    }, {
+      "type" : "experimentDescription"
+    } ]
+  }, {
+    "name" : "Tab 2",
+    "components" : [ {
+      "type" : "preferredCompoundsDetails"
+    }, {
+      "type" : "preferredCompoundsSummary"
+    }, {
+      "type" : "reactionsDetails"
+    }, {
+      "type" : "stoichiometryTable",
+      "reactantsReagentsSolvents" : true,
+      "reactionProduct" : false
+    }, {
+      "type" : "reactionScheme"
+    } ]
+  }, {
+    "name" : "Tab 3",
+    "components" : [ {
+      "type" : "reactants"
+    }, {
+      "type" : "intendedProducts"
+    } ]
+  } ],
+  "experiments" : [ ]
+}

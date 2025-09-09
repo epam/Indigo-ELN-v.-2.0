@@ -1,6 +1,6 @@
 package com.epam.indigoeln.eln.entity;
 
-import com.epam.indigoeln.eln.model.TemplateComponent;
+import com.epam.indigoeln.eln.model.TemplateTab;
 import jakarta.persistence.Entity;
 import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.NamedEntityGraph;
@@ -44,7 +44,7 @@ public class TemplateEntity extends BaseEntity {
 
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
-    private List<TemplateComponent> components;
+    private List<TemplateTab> templateTabs;
 
     @NotNull
     @OneToMany(mappedBy = "template")

@@ -86,7 +86,7 @@ public class TestHelper {
         bartUserID = getOrCreateUser(new UserRequest(TestHelper.BART_USERNAME, TestHelper.BART_FIRST_NAME, TestHelper.BART_LAST_NAME, "password", TestHelper.BART_ROLES)).getId();
         lisaUserID = getOrCreateUser(new UserRequest(TestHelper.LISA_USERNAME, TestHelper.LISA_FIRST_NAME, TestHelper.LISA_LAST_NAME, "password", TestHelper.LISA_ROLES)).getId();
         maggieUserID = getOrCreateUser(new UserRequest(TestHelper.MAGGIE_USERNAME, TestHelper.MAGGIE_FIRST_NAME, TestHelper.MAGGIE_LAST_NAME, "password", TestHelper.MAGGIE_ROLES)).getId();
-        emptyTemplateID = templateClient.createTemplate(new TemplateRequest("Empty template", List.of(new TemplateComponent.Attachments()))).getId();
+        emptyTemplateID = templateClient.createTemplate(new TemplateRequest("Empty template", List.of(new TemplateTab("tabName", List.of(new TemplateComponent.Attachments()))))).getId();
     }
 
     public UserRef getJohnUserRef() {

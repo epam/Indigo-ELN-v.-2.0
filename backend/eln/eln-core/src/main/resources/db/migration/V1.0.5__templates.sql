@@ -1,0 +1,5 @@
+ALTER TABLE Template
+ADD COLUMN templateTabs JSONB NOT NULL;
+
+ALTER TABLE Template
+DROP COLUMN components;

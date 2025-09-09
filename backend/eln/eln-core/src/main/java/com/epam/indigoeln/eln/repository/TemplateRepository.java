@@ -36,4 +36,14 @@ public class TemplateRepository extends BaseRepository<TemplateEntity> {
                 templateMapper::entityToDetailsDTO
         );
     }
+
+    /**
+     * Checks if a template with the given name exists.
+     *
+     * @param name the name of the template.
+     * @return true if a template with the given name exists, false otherwise.
+     */
+    public boolean existsByName(String name) {
+        return find("name", name).firstResultOptional().isPresent();
+    }
 }

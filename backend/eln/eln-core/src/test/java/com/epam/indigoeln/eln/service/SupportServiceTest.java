@@ -37,7 +37,7 @@ class SupportServiceTest extends BaseTest {
     void testInsertTestData() {
         TemplateDetailsDTO template = templateClient.createTemplate(new TemplateRequest(
                 "Test Template",
-                List.of(new TemplateComponent.ExperimentDetails())
+                List.of(new TemplateTab("Test Tab", List.of(new TemplateComponent.ExperimentDetails())))
         ));
         miscClient.insertTestData(template.getId());
     }
