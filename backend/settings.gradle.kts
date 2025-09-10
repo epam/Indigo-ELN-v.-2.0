@@ -28,7 +28,14 @@ include("database:flyway")
 //include("signature:signature-service")
 //include("signature:signature-lambda")
 
+include("database:flyway")
+
 include("eln:eln-api")
 include("eln:eln-core")
 //include("eln:eln-service")
 include("eln:eln-lambda")
+
+include("reports:reports-api")
+include("reports:reports-core")
+//include("reports:reports-service")
+include("reports:reports-lambda")

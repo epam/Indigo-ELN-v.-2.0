@@ -1,0 +1,6 @@
+.idea
+.git
+.gradle
+build
+!build/lib
+!build/*runner*
