@@ -11,7 +11,6 @@ import com.epam.indigoeln.eln.repository.AttachmentRepository;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
-import com.epam.indigoeln.eln.util.ModelUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -23,6 +22,8 @@ import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+
+import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 
 @Slf4j
 @DataAccess
@@ -94,7 +95,7 @@ public class AttachmentService {
 
     private AttachmentEntity doCreateAttachment(String filename, byte[] content) {
         AttachmentEntity attachment = attachmentMapper.requestToAttachment(filename, content);
-        ModelUtil.updateDates(attachment, userService.getCurrentUser());
+        updateDates(attachment, userService.getCurrentUser());
         attachmentRepository.persist(attachment);
         return attachment;
     }

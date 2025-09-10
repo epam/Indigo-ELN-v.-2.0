@@ -1,4 +1,4 @@
-package com.epam.indigoeln.compound.model;
+package com.epam.indigoeln.eln.model;
 
 public enum CompoundSource {
 

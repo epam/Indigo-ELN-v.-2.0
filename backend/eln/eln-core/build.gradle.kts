@@ -6,8 +6,10 @@ plugins {
 
 dependencies {
     api(project(":eln:eln-api"))
+    api(project(":reports:reports-api"))
     implementation(project(":database:flyway")) // TODO move flyway to a separate lambda and move dependency to testImplementation
 
+    api("io.quarkus:quarkus-jdbc-postgresql")
     api("io.quarkus:quarkus-hibernate-orm")
     api("io.quarkus:quarkus-hibernate-orm-panache")
     api("io.hypersistence:hypersistence-utils-hibernate-63:3.9.9")

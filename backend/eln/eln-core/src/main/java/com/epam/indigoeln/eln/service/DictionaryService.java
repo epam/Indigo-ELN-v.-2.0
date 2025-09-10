@@ -1,7 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
-import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.SaltCodeEntity;
@@ -11,8 +10,6 @@ import com.epam.indigoeln.eln.model.Dictionary;
 import com.epam.indigoeln.eln.repository.DictionaryRepository;
 import com.epam.indigoeln.eln.repository.SaltCodeRepository;
 import com.epam.indigoeln.reaction.model.SaltCodeRef;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;

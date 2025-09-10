@@ -60,6 +60,10 @@ import java.util.*;
         }
 )
 @NamedEntityGraph(
+        name = "Experiment.forReport",
+        includeAllAttributes = true
+)
+@NamedEntityGraph(
         name = "Experiment.withACL",
         attributeNodes = {
                 @NamedAttributeNode("aclEntities")

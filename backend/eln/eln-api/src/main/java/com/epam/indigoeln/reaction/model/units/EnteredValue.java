@@ -31,7 +31,6 @@ public final class EnteredValue<U extends MeasurementUnit> {
         this.source = source;
     }
 
-    @PostConstruct
     @Nullable
     public static <U extends MeasurementUnit> EnteredValue<U> fixed(@Nullable Double value, U unit) {
         return value != null ? new EnteredValue<>(value, unit, FIXED) : null;

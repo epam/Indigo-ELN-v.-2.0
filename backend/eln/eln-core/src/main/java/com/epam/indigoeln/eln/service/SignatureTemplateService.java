@@ -8,7 +8,6 @@ import com.epam.indigoeln.eln.mapper.SignatureTemplateMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.SignatureTemplateRepository;
 import com.epam.indigoeln.eln.repository.UserRepository;
-import com.epam.indigoeln.eln.util.ModelUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -17,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
+import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 
 @DataAccess
 @Transactional
@@ -38,7 +38,7 @@ public class SignatureTemplateService {
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_TEMPLATES);
         SignatureTemplateEntity template = signatureTemplateMapper.requestToTemplate(request);
         updateBlocks(template, request.getBlocks());
-        ModelUtil.updateDates(template, userService.getCurrentUser());
+        updateDates(template, userService.getCurrentUser());
         signatureTemplateRepository.persist(template);
         signatureTemplateRepository.flushAndClear();
         return getSignatureTemplate(template.getId());
@@ -57,7 +57,7 @@ public class SignatureTemplateService {
         SignatureTemplateEntity template = signatureTemplateRepository.get(templateId);
         editProperty(request.getName(), template::setName);
         editProperty(request.getBlocks(), blocks -> updateBlocks(template, blocks));
-        ModelUtil.updateDates(template, userService.getCurrentUser());
+        updateDates(template, userService.getCurrentUser());
         signatureTemplateRepository.flushAndClear();
         return getSignatureTemplate(templateId);
     }
