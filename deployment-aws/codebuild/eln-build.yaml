@@ -6,20 +6,23 @@ phases:
   pre_build:
     commands:
       - env
-#      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REGISTRY_URI
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
   build:
     commands:
       - cd backend
-      - ./gradlew test build :eln:eln-lambda:quarkusIntTest
+      - ./gradlew test build :eln:eln-lambda:quarkusIntTest :reports:reports-lambda:quarkusIntTest
       - cd eln/eln-lambda
-      - docker build -t $REPO_URI:latest .
-      - docker tag $REPO_URI:latest $REPO_URI:$IMAGE_TAG
+      - docker build -t $ELN_REPO_URI:latest .
+      - docker tag $ELN_REPO_URI:latest $ELN_REPO_URI:$IMAGE_TAG
+      - docker tag indigoeln/reports-lambda:built $REPORTS_REPO_URI:latest
+      - docker tag indigoeln/reports-lambda:built $REPORTS_REPO_URI:$IMAGE_TAG
   post_build:
     commands:
-      - docker push $REPO_URI:latest
-      - docker push $REPO_URI:$IMAGE_TAG
+      - docker push $ELN_REPO_URI:latest
+      - docker push $ELN_REPO_URI:$IMAGE_TAG
+      - docker push $REPORTS_REPO_URI:latest
+      - docker push $REPORTS_REPO_URI:$IMAGE_TAG
 reports:
   unit_tests:
     files:

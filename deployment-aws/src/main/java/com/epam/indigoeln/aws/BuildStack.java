@@ -1,9 +1,8 @@
 package com.epam.indigoeln.aws;
 
-import com.google.common.base.MoreObjects;
 import lombok.Getter;
 import lombok.Value;
-import org.jspecify.annotations.Nullable;
+import one.util.streamex.EntryStream;
 import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.NestedStack;
 import software.amazon.awscdk.NestedStackProps;
@@ -18,12 +17,16 @@ import software.amazon.awscdk.services.s3.Bucket;
 import software.constructs.Construct;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BuildStack extends NestedStack {
 
     @Getter
     Repository elnLambdaRepo;
+    @Getter
+    Repository reportsLambdaRepo;
     @Getter
     Repository postgresRepo;
 
@@ -31,6 +34,7 @@ public class BuildStack extends NestedStack {
         super(scope, id, props);
 
         elnLambdaRepo = createECRRepo("ecr-indigo-eln", "indigoeln/indigo-eln-lambda");
+        reportsLambdaRepo = createECRRepo("ecr-indigo-eln-reports", "indigoeln/indigo-eln-reports-lambda");
         postgresRepo = createECRRepo("ecr-indigo-eln-postgres", "indigoeln/indigo-eln-postgres");
 
         Bucket buildLogsBucket = Bucket.Builder.create(this, "build-logs-bucket")
@@ -53,26 +57,37 @@ public class BuildStack extends NestedStack {
                 .resources(List.of("*")) // ECR Public GetAuthorizationToken requires resource "*"
                 .build();
 
-        createBuild("eln-postgres-build"
+        Project postgresBuild = createBuild("eln-postgres-build"
                 , "indigo-eln-postgres-build"
                 , postgresRepo
-                , "public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres"
                 , "deployment-aws/codebuild/eln-build-postgres.yaml"
                 , buildLogsBucket
                 , ecrPublicPermissions
+                , Utils.mapOf(
+                        "REGISTRY_URI", postgresRepo.getRegistryUri(),
+                        "REPO_URI", postgresRepo.getRepositoryUri(),
+                        "REPO_URI_PUBLIC", "public.ecr.aws/m5k0g6n7/indigoeln/indigo-eln-postgres"
+                )
         );
+        postgresRepo.grantPullPush(postgresBuild);
 
-        createBuild("eln-build"
+        Project elnBuild = createBuild("eln-build"
                 , "indigo-eln-build"
                 , elnLambdaRepo
-                , null
                 , "deployment-aws/codebuild/eln-build.yaml"
                 , buildLogsBucket
                 , ecrPublicPermissions
+                , Utils.mapOf(
+                        "REGISTRY_URI", elnLambdaRepo.getRegistryUri(),
+                        "ELN_REPO_URI", elnLambdaRepo.getRepositoryUri(),
+                        "REPORTS_REPO_URI", reportsLambdaRepo.getRepositoryUri()
+                )
         );
+        elnLambdaRepo.grantPullPush(elnBuild);
+        reportsLambdaRepo.grantPullPush(elnBuild);
     }
 
-    private Project createBuild(String id, String projectName, Repository repository, @Nullable String publicRepo, String buildSpecFile, Bucket buildLogsBucket, PolicyStatement policy) {
+    private Project createBuild(String id, String projectName, Repository repository, String buildSpecFile, Bucket buildLogsBucket, PolicyStatement policy, Map<String, Object> environment) {
         Project project = Project.Builder.create(this, id)
                 .projectName(projectName)
                 .source(Source.gitHub(GitHubSourceProps.builder()
@@ -86,11 +101,10 @@ public class BuildStack extends NestedStack {
                         .computeType(ComputeType.LARGE)
                         .privileged(true) // The 'privileged' flag is required for the CodeBuild project to build Docker images.
                         .build())
-                .environmentVariables(Utils.mapOf(
-                        "REGISTRY_URI", BuildEnvironmentVariable.builder().value(repository.getRegistryUri()).build(),
-                        "REPO_URI", BuildEnvironmentVariable.builder().value(repository.getRepositoryUri()).build(),
-                        "REPO_URI_PUBLIC", BuildEnvironmentVariable.builder().value(MoreObjects.firstNonNull(publicRepo, "")).build()
-                ))
+                .environmentVariables(EntryStream.of(environment)
+                                .mapValues(v -> BuildEnvironmentVariable.builder().value(v.toString()).build())
+                                .toCustomMap(LinkedHashMap::new)
+                )
                 // The BuildSpec defines the commands to run during the build.
                 .buildSpec(BuildSpec.fromSourceFilename(buildSpecFile))
                 .timeout(Duration.minutes(30))
@@ -100,7 +114,6 @@ public class BuildStack extends NestedStack {
                         .build())
                 .build();
         project.addToRolePolicy(policy);
-        repository.grantPullPush(project);
         return project;
     }
 
