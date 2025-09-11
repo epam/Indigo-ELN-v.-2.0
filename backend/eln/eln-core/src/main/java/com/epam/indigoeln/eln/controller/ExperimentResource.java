@@ -143,4 +143,9 @@ public class ExperimentResource implements ExperimentAPI {
     public ExperimentDetailsDTO resubmitExperiment(UUID experimentId) {
         return experimentWorkflowService.resubmitExperiment(experimentId);
     }
+
+    @Override
+    public Response printReport(UUID experimentId) {
+        return experimentService.printReport(experimentId);
+    }
 }

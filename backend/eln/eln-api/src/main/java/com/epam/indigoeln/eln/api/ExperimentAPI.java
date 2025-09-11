@@ -112,4 +112,8 @@ public interface ExperimentAPI extends BaseAPI {
     @POST
     @Path("/experiments/{experimentId}/workflow/resubmit")
     ExperimentDetailsDTO resubmitExperiment(@PathParam("experimentId") UUID experimentId);
+
+    @POST
+    @Path("/experiments/{experimentId}/print")
+    Response printReport(@PathParam("experimentId") UUID experimentId);
 }

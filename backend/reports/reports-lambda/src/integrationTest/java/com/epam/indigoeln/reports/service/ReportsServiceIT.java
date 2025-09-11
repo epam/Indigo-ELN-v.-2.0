@@ -4,5 +4,5 @@ import io.quarkus.test.junit.QuarkusIntegrationTest;
 
 // TODO
 //@QuarkusIntegrationTest
-public class ReportsServiceIT extends ReportsServiceTest {
-}
+//public class ReportsServiceIT extends ReportsServiceTest {
+//}

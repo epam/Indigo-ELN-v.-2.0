@@ -174,6 +174,7 @@ public class ExperimentService {
         try (Response response = reportsClient.generateExperimentReport(data)) {
             return Response.ok(response.getEntity())
                     .header(HttpHeaders.CONTENT_DISPOSITION, response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION))
+                    .header(HttpHeaders.CONTENT_TYPE, response.getHeaderString(HttpHeaders.CONTENT_TYPE))
                     .build();
         }
     }

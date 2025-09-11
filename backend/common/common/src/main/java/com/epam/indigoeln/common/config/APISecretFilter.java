@@ -1,4 +1,4 @@
-package com.epam.indigoeln.eln.controller;
+package com.epam.indigoeln.common.config;
 
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Response;

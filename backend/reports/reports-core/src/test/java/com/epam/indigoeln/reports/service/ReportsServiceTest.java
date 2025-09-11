@@ -37,11 +37,6 @@ public class ReportsServiceTest extends BaseTest {
         reportsClient = buildClient(ReportsClient.class);
     }
 
-    @Override
-    protected String getIntegrationTestURL() {
-        return "http://localhost:8081";
-    }
-
     @SneakyThrows
     @SuppressWarnings("unused")
     public static List<ReportsAPI.ExperimentReportDataDTO> fillExperimentDataForJasperReportsStudio() {
