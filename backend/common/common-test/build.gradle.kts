@@ -21,7 +21,7 @@ dependencies {
     api("io.github.openfeign:feign-form:13.6")
     api("io.github.openfeign:feign-httpclient:13.5")
     api("com.fasterxml.jackson.module:jackson-module-parameter-names:2.18.2")
-    api("io.smallrye:smallrye-jwt-common") //:4.6.1")
+    api("io.smallrye:smallrye-jwt-common")
     api("io.smallrye:smallrye-jwt-build")
 }
 

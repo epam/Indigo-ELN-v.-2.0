@@ -26,11 +26,10 @@ public abstract class BaseTest {
     URI serverBaseURL;
 
     protected URI getServerURL() {
-        System.out.println("!!! serverBaseURL: " + serverBaseURL);
         if (integrationTest) {
              return URI.create("http://localhost:8081");
         }
-        return serverBaseURL; // resolve("/") ???
+        return serverBaseURL;
     }
 
     @BeforeEach

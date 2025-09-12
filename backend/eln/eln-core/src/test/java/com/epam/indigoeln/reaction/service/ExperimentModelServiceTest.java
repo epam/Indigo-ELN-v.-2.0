@@ -7,7 +7,6 @@ import com.epam.indigoeln.compound.model.StructureSearchType;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.test.ResponseWithHeaders;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.ReactionInputRole;
@@ -18,6 +17,7 @@ import com.epam.indigoeln.reaction.util.CalculationReportBuilder;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
@@ -205,11 +205,11 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
         System.out.println("Applying mutation: " + mutation);
         reportBuilder.addMutation(mutation);
         model = experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(model, mutation));
-        ResponseWithHeaders pictureResponse = experimentClient.getExperimentPictureClient(experiment.getId());
-        byte[] newPicture = pictureResponse.getContent().readAllBytes();
+        Response pictureResponse = experimentClient.getExperimentPictureClient(experiment.getId());
+        byte[] newPicture = (byte[]) pictureResponse.getEntity();
         if (picture == null || newPicture != null && !Arrays.equals(picture, newPicture)) {
             picture = newPicture;
-            reportBuilder.addPicture(picture, pictureResponse.getHeaders().get(HttpHeaders.CONTENT_TYPE).iterator().next());
+            reportBuilder.addPicture(picture, pictureResponse.getHeaderString(HttpHeaders.CONTENT_TYPE));
         }
         reportBuilder.addModel(model);
         System.out.println(model);

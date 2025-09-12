@@ -2,12 +2,12 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.UserRef;
-import com.epam.indigoeln.test.ResponseWithHeaders;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.Claim;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
@@ -68,7 +68,7 @@ class UserServiceTest extends ELNBaseTest {
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     void testGetUserPicture() {
         List<UserRef> all = userClient.suggestUsers(null);
-        ResponseWithHeaders response = userClient.getUserPictureClient(all.getFirst().getId(), null);
-        Files.write(Paths.get("user.png"), response.getContent().readAllBytes());
+        Response response = userClient.getUserPictureClient(all.getFirst().getId(), null);
+        Files.write(Paths.get("user.png"), (byte[]) response.getEntity());
     }
 }

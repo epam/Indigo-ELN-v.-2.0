@@ -2,11 +2,11 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.test.ResponseWithHeaders;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -237,9 +237,9 @@ class ProjectServiceTest extends ELNBaseTest {
     void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testDownloadAttachment"));
         List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), "attachment.txt", tempDir, "content".getBytes());
-        ResponseWithHeaders response = projectClient.downloadProjectAttachmentClient(project.getId(), attachments.getFirst().getId());
+        Response response = projectClient.downloadProjectAttachmentClient(project.getId(), attachments.getFirst().getId());
         assertThat(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).containsExactly("attachment; filename=attachment.txt");
-        assertThat(response.getContent()).hasContent("content");
+        assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
     }
 
     @Test

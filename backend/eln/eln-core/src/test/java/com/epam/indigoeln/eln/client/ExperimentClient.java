@@ -2,9 +2,9 @@ package com.epam.indigoeln.eln.client;
 
 import com.epam.indigoeln.eln.api.ExperimentAPI;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
-import com.epam.indigoeln.test.ResponseWithHeaders;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 
 import java.nio.file.Path;
@@ -26,10 +26,10 @@ public interface ExperimentClient extends ExperimentAPI {
     @GET
     @jakarta.ws.rs.Path("/experiment/{experimentId}/attachments/{attachmentId}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    ResponseWithHeaders downloadExperimentAttachmentClient(@PathParam("experimentId") UUID experimentId, @PathParam("attachmentId") UUID attachmentId);
+    Response downloadExperimentAttachmentClient(@PathParam("experimentId") UUID experimentId, @PathParam("attachmentId") UUID attachmentId);
 
     @GET
     @jakarta.ws.rs.Path("/experiments/{experimentId}/picture")
     @Produces("image/svg+xml")
-    ResponseWithHeaders getExperimentPictureClient(@PathParam("experimentId") UUID experimentId);
+    Response getExperimentPictureClient(@PathParam("experimentId") UUID experimentId);
 }
