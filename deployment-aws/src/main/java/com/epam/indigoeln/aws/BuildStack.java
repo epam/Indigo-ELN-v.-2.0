@@ -26,15 +26,12 @@ public class BuildStack extends NestedStack {
     @Getter
     Repository elnLambdaRepo;
     @Getter
-    Repository reportsLambdaRepo;
-    @Getter
     Repository postgresRepo;
 
     public BuildStack(final Construct scope, final String id, final Props props) {
         super(scope, id, props);
 
         elnLambdaRepo = createECRRepo("ecr-indigo-eln", "indigoeln/indigo-eln-lambda");
-        reportsLambdaRepo = createECRRepo("ecr-indigo-eln-reports", "indigoeln/indigo-eln-reports-lambda");
         postgresRepo = createECRRepo("ecr-indigo-eln-postgres", "indigoeln/indigo-eln-postgres");
 
         Bucket buildLogsBucket = Bucket.Builder.create(this, "build-logs-bucket")
@@ -79,12 +76,10 @@ public class BuildStack extends NestedStack {
                 , ecrPublicPermissions
                 , Utils.mapOf(
                         "REGISTRY_URI", elnLambdaRepo.getRegistryUri(),
-                        "ELN_REPO_URI", elnLambdaRepo.getRepositoryUri(),
-                        "REPORTS_REPO_URI", reportsLambdaRepo.getRepositoryUri()
+                        "ELN_REPO_URI", elnLambdaRepo.getRepositoryUri()
                 )
         );
         elnLambdaRepo.grantPullPush(elnBuild);
-        reportsLambdaRepo.grantPullPush(elnBuild);
     }
 
     private Project createBuild(String id, String projectName, Repository repository, String buildSpecFile, Bucket buildLogsBucket, PolicyStatement policy, Map<String, Object> environment) {

@@ -49,7 +49,8 @@ public class MainStack extends Stack {
                 buildStack.getElnLambdaRepo(),
                 parameters.getLambdaSubnets(),
                 parameters.getElnLambdaImageTag(),
-                parameters.getApiGatewaySecret()
+                parameters.getApiGatewaySecret(),
+                parameters.getInternalApiGatewaySecret()
         ));
         elnLambdaStack.addDependency(buildStack);
         elnLambdaStack.addDependency(infraStack);

@@ -135,7 +135,6 @@ public class CloudFrontStack extends NestedStack {
                 )
                 .build();
 
-
         ARecord.Builder.create(this, "domain-record")
                 .zone(props.getHostedZone())
                 .recordName("indigo-eln-dev.test.lifescience.opensource.epam.com.")
