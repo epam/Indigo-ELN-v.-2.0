@@ -23,10 +23,6 @@ public interface ReportsAPI {
     @Produces("application/pdf")
     Response generateExperimentReport(ExperimentReportDataDTO data);
 
-    @POST
-    @Path("/test")
-    ProjectDTO test();
-
     @Value
     class ExperimentReportDataDTO {
 

@@ -5,8 +5,6 @@ plugins {
 }
 
 dependencies {
-    implementation("io.quarkus:quarkus-container-image-docker")
-
     implementation(project(":common:common-lambda"))
     implementation(project(":reports:reports-core"))
     implementation(project(":eln-quarkus-extension:runtime"))
@@ -27,6 +25,7 @@ tasks.named("compileIntegrationTestJava") {
     dependsOn(":reports:reports-core:testJar")
 }
 
-tasks.named("quarkusIntTest") {
+tasks.named("quarkusIntTest", Test::class) {
+    systemProperty("quarkus.profile", "test,integration-test")
     outputs.upToDateWhen { false }
 }

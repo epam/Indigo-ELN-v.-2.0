@@ -61,12 +61,6 @@ public class ReportsServiceTest extends BaseTest {
     }
 
     @Test
-    void testTest() throws Exception {
-        var response = reportsClient.test();
-        System.out.println(response);
-    }
-
-//    @Test
     void testReport() throws Exception {
         ReportsAPI.ExperimentReportDataDTO data = new ReportsAPI.ExperimentReportDataDTO(null, null, null, null);
         try (Response response = reportsClient.generateExperimentReport(fillExperimentDataForJasperReportsStudio().getFirst())) {

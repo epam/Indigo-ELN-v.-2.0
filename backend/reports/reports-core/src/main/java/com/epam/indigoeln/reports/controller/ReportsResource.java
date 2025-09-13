@@ -20,13 +20,4 @@ public class ReportsResource implements ReportsAPI {
     public Response generateExperimentReport(ExperimentReportDataDTO data) {
         return reportsService.generateExperimentReport(data);
     }
-
-    @Override
-    public ProjectDTO test() {
-        log.warn("!!! ReportsResource.test() 1");
-        ProjectDTO response = new ProjectDTO();
-        response.setName("!!!!");
-        log.warn("!!! ReportsResource.test() 2");
-        return response;
-    }
 }
