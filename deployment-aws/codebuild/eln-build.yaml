@@ -12,11 +12,11 @@ phases:
     commands:
       - cd backend
       - ./gradlew test build :eln:eln-lambda:quarkusIntTest :reports:reports-lambda:quarkusIntTest
-      - cd eln/eln-lambda
-      - docker build -t $ELN_REPO_URI:latest .
-      - docker tag $ELN_REPO_URI:latest $ELN_REPO_URI:$IMAGE_TAG
+      - docker image ls  # !!!
   post_build:
     commands:
+      - docker tag indigoeln/eln-lambda:built $ELN_REPO_URI:latest
+      - docker tag indigoeln/eln-lambda:built $ELN_REPO_URI:$IMAGE_TAG
       - docker push $ELN_REPO_URI:latest
       - docker push $ELN_REPO_URI:$IMAGE_TAG
 reports:
