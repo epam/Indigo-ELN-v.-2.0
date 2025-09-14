@@ -7,11 +7,13 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.vertx.core.json.jackson.VertxModule;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.output.MigrateResult;
@@ -24,6 +26,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
+@Slf4j
 @ApplicationScoped
 public class DatabaseInitializationService {
 
@@ -40,6 +43,7 @@ public class DatabaseInitializationService {
         Map<String, String> statistics = new LinkedHashMap<>();
         statistics.put("migrationsExecuted", "" + flywayResult.migrationsExecuted);
         initDictionaries(statistics);
+        log.info("Database migration completed: {}", statistics);
         return statistics;
     }
 
@@ -69,6 +73,7 @@ public class DatabaseInitializationService {
         int dictionariesInserted, itemsInserted, saltCodeInserted;
         try (Connection conn = dataSource.getConnection()) {
             if (count(conn, "Dictionary") > 0) {
+                log.info("Dictionaries already exist, skipping");
                 return;
             }
             statistics.put("dictionariesInserted", "" + insertDictionaries(conn, dictionaries));
@@ -144,6 +149,7 @@ public class DatabaseInitializationService {
         }
     }
 
+    @RegisterForReflection
     public record DictionarySpec (
         UUID id,
         String code,
@@ -152,20 +158,22 @@ public class DatabaseInitializationService {
         String description
     ) {}
 
+    @RegisterForReflection
     public record DictionaryItemSpec (
-            UUID id,
-            String dictionary,
-            int ordinal,
-            String name,
-            String description,
-            boolean active
+        UUID id,
+        String dictionary,
+        int ordinal,
+        String name,
+        String description,
+        boolean active
     ) {}
 
+    @RegisterForReflection
     public record SaltCodeSpec (
         String code,
-            String name,
-            String formula,
-            int charge,
-            double molWeight
+        String name,
+        String formula,
+        int charge,
+        double molWeight
     ) {}
 }

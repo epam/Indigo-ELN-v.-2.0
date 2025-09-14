@@ -44,10 +44,10 @@ class GlobalSearchServiceTest extends ELNBaseTest {
     @BeforeAll
     void setUp() {
         withUser(MAGGIE_USERNAME, () -> {
-            List<DictionaryItemRef> therapeuticAreas = dictionaryClient.getDictionary(Dictionary.THERAPEUTIC_AREA);
+            List<DictionaryItemRef> therapeuticAreas = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA);
             therapeuticArea1 = therapeuticAreas.get(0);
             therapeuticArea2 = therapeuticAreas.get(1);
-            List<DictionaryItemRef> projectCodes = dictionaryClient.getDictionary(Dictionary.PROJECT_CODE);
+            List<DictionaryItemRef> projectCodes = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE);
             projectCode1 = projectCodes.get(0);
             projectCode2 = projectCodes.get(1);
             project1 = projectClient.createProject(new ProjectRequest("p1", List.of("k1", "k2"), "l1 xx", "pd1"));

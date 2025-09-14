@@ -92,7 +92,8 @@ public class Utils {
             builder
                 .runtime(Runtime.JAVA_21)
                 .handler("io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest")
-                .code(Code.fromAsset(functionCode.getPath(), AssetOptions.builder().assetHash(Utils.calculateHashCode(functionCode)).build()))
+//                .code(Code.fromAsset(functionCode.getPath(), AssetOptions.builder().assetHash(Utils.calculateHashCode(functionCode)).build()))
+                .code(Code.fromAsset(functionCode.getPath(), AssetOptions.builder().assetHash("0").build())) // !!! to avoid redeploy on every change
                 .snapStart(SnapStartConf.ON_PUBLISHED_VERSIONS);
         } else if (repository != null && imageTag != null) {
             builder

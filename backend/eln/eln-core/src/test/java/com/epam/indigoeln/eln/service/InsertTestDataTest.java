@@ -17,7 +17,6 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.api.io.TempDir;
-import org.wildfly.common.Assert;
 
 import java.net.URI;
 import java.nio.file.Path;
@@ -29,6 +28,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 import static com.epam.indigoeln.eln.ELNBaseTest.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 // no @QuarkusTest - only works with remote backend
@@ -51,7 +51,7 @@ class InsertTestDataTest {
         URI baseURI = URI.create("https://indigo-eln-dev.test.lifescience.opensource.epam.com/");
         AtomicReference<String> testUsername = new AtomicReference<>();
         String token = System.getenv("TOKEN");
-        Assert.assertNotNull(token);
+        assertThat(token).describedAs("TOKEN environment variable").isNotNull();
         AtomicReference<String> authorization = new AtomicReference<>(token);
         projectClient = FeignUtil.buildFeignClient(baseURI, ProjectClient.class, testUsername, authorization);
         notebookClient = FeignUtil.buildFeignClient(baseURI, NotebookClient.class, testUsername, authorization);
@@ -105,9 +105,13 @@ class InsertTestDataTest {
 
 //    @Test
     @Order(4)
-    void fillExperiment(@TempDir Path tempDir) {
+    void loadCompounds(@TempDir Path tempDir) {
         miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
+    }
 
+//    @Test
+    @Order(5)
+    void fillExperiment(@TempDir Path tempDir) {
         // create experiment
         Page<ProjectDTO> existingProjects = projectClient.getProjects("ProjectWithData", SortOrder.EARLIEST, null, Paging.DEFAULT);
         ProjectDetailsDTO project = existingProjects.getItems().isEmpty()
@@ -115,11 +119,11 @@ class InsertTestDataTest {
                 : projectClient.getProject(existingProjects.getItems().getFirst().getId());
         Page<NotebookDTO> existingNotebooks = notebookClient.getProjectNotebooks(project.getId(), "88888888", SortOrder.EARLIEST, null, Paging.DEFAULT);
         NotebookDetailsDTO notebook = existingNotebooks.getItems().isEmpty()
-                ? notebookClient.createNotebook(project.getId(), new NotebookRequest("88888884"))
+                ? notebookClient.createNotebook(project.getId(), new NotebookRequest("88888888"))
                 : notebookClient.getNotebook(existingNotebooks.getItems().getFirst().getId());
         TemplateDTO template = findDefaultTemplate();
-        DictionaryItemRef therapeuticArea = dictionaryClient.getDictionary(Dictionary.THERAPEUTIC_AREA).getFirst();
-        DictionaryItemRef projectCode = dictionaryClient.getDictionary(Dictionary.PROJECT_CODE).getFirst();
+        DictionaryItemRef therapeuticArea = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA).getFirst();
+        DictionaryItemRef projectCode = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE).getFirst();
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(
                 template.getId(),
                 "Experiment with data",

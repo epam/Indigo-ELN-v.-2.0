@@ -29,8 +29,8 @@ class ProjectServiceTest extends ELNBaseTest {
 
     @BeforeAll
     void tearDownAll() {
-        dictionaryClient.getDictionary(Dictionary.PROJECT_KEYWORD).forEach(item -> {
-            dictionaryClient.removeDictionaryItem(Dictionary.PROJECT_KEYWORD, item.getId());
+        dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_KEYWORD).forEach(item -> {
+            dictionaryClient.removeDictionaryItem(BuiltInDictionary.PROJECT_KEYWORD, item.getId());
         });
     }
 
@@ -254,9 +254,9 @@ class ProjectServiceTest extends ELNBaseTest {
     @Test
     void testSuggestKeywords() {
         projectClient.createProject(new ProjectRequest("testSuggestKeywords", List.of("k1", "K2", "k3", "keyword1", "Keyword2"), null, null));
-        List<DictionaryItemRef> all = dictionaryClient.suggestDictionaryItems(Dictionary.PROJECT_KEYWORD, "");
+        List<DictionaryItemRef> all = dictionaryClient.suggestDictionaryItems(BuiltInDictionary.PROJECT_KEYWORD, "");
         assertThat(all).map(DictionaryItemRef::getName).contains("k1", "k2", "k3");
-        List<DictionaryItemRef> filtered = dictionaryClient.suggestDictionaryItems(Dictionary.PROJECT_KEYWORD, "ke");
+        List<DictionaryItemRef> filtered = dictionaryClient.suggestDictionaryItems(BuiltInDictionary.PROJECT_KEYWORD, "ke");
         assertThat(filtered).map(DictionaryItemRef::getName).containsExactly("keyword1", "keyword2", "Keyword2");
     }
 

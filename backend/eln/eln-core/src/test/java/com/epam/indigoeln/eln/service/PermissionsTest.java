@@ -8,7 +8,6 @@ import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.model.Dictionary;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
@@ -403,14 +402,14 @@ class PermissionsTest extends ELNBaseTest {
     @Transactional
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     void testAdminCanManageDictionaries() {
-        List<DictionaryItemDTO> items = dictionaryClient.addDictionaryItem(Dictionary.TEST, new DictionaryItemRequest("A", "Adescription"));
-        dictionaryClient.updateDictionaryItem(Dictionary.TEST, items.getFirst().getId(), new DictionaryItemEditRequest(
+        List<DictionaryItemDTO> items = dictionaryClient.addDictionaryItem(BuiltInDictionary.TEST, new DictionaryItemRequest("A", "Adescription"));
+        dictionaryClient.updateDictionaryItem(BuiltInDictionary.TEST, items.getFirst().getId(), new DictionaryItemEditRequest(
                 Optional.of("Anew"),
                 Optional.of("AdescriptionNew"),
                 Optional.of(1),
                 Optional.of(false)
         ));
-        dictionaryClient.removeDictionaryItem(Dictionary.TEST, items.getFirst().getId());
+        dictionaryClient.removeDictionaryItem(BuiltInDictionary.TEST, items.getFirst().getId());
     }
 
     @Test
@@ -418,11 +417,11 @@ class PermissionsTest extends ELNBaseTest {
     @Transactional
     @TestSecurity(user = BART_USERNAME)
     void testNotAdminCannotManageDictionaries() {
-        assertThatClientCall(() -> dictionaryClient.addDictionaryItem(Dictionary.TEST, new DictionaryItemRequest("A", "Adescription")))
+        assertThatClientCall(() -> dictionaryClient.addDictionaryItem(BuiltInDictionary.TEST, new DictionaryItemRequest("A", "Adescription")))
                 .isForbidden("Operation not permitted");
-        assertThatClientCall(() -> dictionaryClient.updateDictionaryItem(Dictionary.TEST, UUID.randomUUID(), new DictionaryItemEditRequest(null, null, null, null)))
+        assertThatClientCall(() -> dictionaryClient.updateDictionaryItem(BuiltInDictionary.TEST, UUID.randomUUID(), new DictionaryItemEditRequest(null, null, null, null)))
                 .isForbidden("Operation not permitted");
-        assertThatClientCall(() -> dictionaryClient.removeDictionaryItem(Dictionary.TEST, UUID.randomUUID()))
+        assertThatClientCall(() -> dictionaryClient.removeDictionaryItem(BuiltInDictionary.TEST, UUID.randomUUID()))
                 .isForbidden("Operation not permitted");
     }
 

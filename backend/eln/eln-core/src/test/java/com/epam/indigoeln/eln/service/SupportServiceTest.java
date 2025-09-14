@@ -20,12 +20,6 @@ import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 class SupportServiceTest extends ELNBaseTest {
 
     @Test
-    void testFlyway() {
-        assertThatClientCall(() -> miscClient.migrate())
-                .isSuccessful();
-    }
-
-    @Test
     void testInsertTestData() {
         TemplateDetailsDTO template = templateClient.createTemplate(new TemplateRequest(
                 "Test Template",

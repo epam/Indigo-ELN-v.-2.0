@@ -5,6 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
 // no @Transactional
 @ApplicationScoped
@@ -30,7 +31,11 @@ public class TestSupportService {
         em.createNativeQuery("delete from Sample").executeUpdate();
         em.createNativeQuery("delete from Compound").executeUpdate();
         em.createNativeQuery("alter sequence compound_str_code_compound_seq restart").executeUpdate();
+        // dictionaries
+        em.createNativeQuery("delete from Dictionary_Item").executeUpdate();
+        em.createNativeQuery("delete from Dictionary").executeUpdate();
+        em.createNativeQuery("delete from Salt_Code").executeUpdate();
         // users
-        em.createNativeQuery("delete from User_Account where username not in ('admin', 'john@eln.com', 'willow@eln.com', 'bart@eln.com', 'lisa@eln.com')").executeUpdate();
+        em.createNativeQuery("delete from User_Account where username not in ('admin')").executeUpdate();
     }
 }

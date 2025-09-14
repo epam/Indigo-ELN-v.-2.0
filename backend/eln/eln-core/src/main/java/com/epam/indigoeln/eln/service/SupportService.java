@@ -1,13 +1,10 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.eln.model.*;
-import com.epan.indigoeln.flyway.service.DatabaseInitializationService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import lombok.SneakyThrows;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.output.MigrateResult;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -42,8 +39,8 @@ public class SupportService {
 
     @Transactional
     public Map<String, String> insertTestData(UUID templateID) {
-        List<DictionaryItemRef> therapeuticAreas = dictionaryService.getDictionary(Dictionary.THERAPEUTIC_AREA);
-        List<DictionaryItemRef> projectCodes = dictionaryService.getDictionary(Dictionary.PROJECT_CODE);
+        List<DictionaryItemRef> therapeuticAreas = dictionaryService.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA.name());
+        List<DictionaryItemRef> projectCodes = dictionaryService.getDictionary(BuiltInDictionary.PROJECT_CODE.name());
         int lastUsedNotebookNumber = 0;
         int projectCount = 0, notebookCount = 0, experimentCount = 0, attachmentCount = 0;
         for (int projectNo = 1; projectNo <= random.nextInt(4, 6); projectNo++) {

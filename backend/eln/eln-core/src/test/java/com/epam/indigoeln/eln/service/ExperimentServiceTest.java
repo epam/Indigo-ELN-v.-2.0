@@ -40,8 +40,8 @@ class ExperimentServiceTest extends ELNBaseTest {
 
     @BeforeEach
     void setUp() {
-        therapeuticAreas = dictionaryClient.getDictionary(Dictionary.THERAPEUTIC_AREA);
-        projectCodes = dictionaryClient.getDictionary(Dictionary.PROJECT_CODE);
+        therapeuticAreas = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA);
+        projectCodes = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE);
         project = projectClient.createProject(new ProjectRequest("ExperimentServiceTest" + UUID.randomUUID()));
         notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
     }
@@ -55,7 +55,7 @@ class ExperimentServiceTest extends ELNBaseTest {
     @Test
     void testCreateExperimentBadDictionary() {
         assertThatClientCall(() -> experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, null, new DictionaryItemRef(UUID.randomUUID(), "Invalid"), null)))
-                .isNotFound("THERAPEUTIC_AREA .+ not found");
+                .isNotFound(".+ in dictionary THERAPEUTIC_AREA not found");
     }
 
     @Test

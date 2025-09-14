@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public enum Dictionary {
+public enum BuiltInDictionary {
 
     THERAPEUTIC_AREA(UUID.fromString("84f97b23-7125-4847-bca2-399f351df9d7"), false),
     PROJECT_CODE(UUID.fromString("886d9a69-ae2f-4e19-ae0b-0d8f28f27e01"), false),

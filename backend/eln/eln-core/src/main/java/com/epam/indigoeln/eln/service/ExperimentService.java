@@ -72,8 +72,8 @@ public class ExperimentService {
         ExperimentEntity experiment = experimentMapper.requestToExperiment(request, ExperimentStatus.OPEN);
         TemplateEntity template = templateRepository.get(request.getTemplateID());
         experiment.setName(generateExperimentName(notebook));
-        experiment.setTherapeuticArea(dictionaryService.lookup(Dictionary.THERAPEUTIC_AREA, request.getTherapeuticArea()));
-        experiment.setProjectCode(dictionaryService.lookup(Dictionary.PROJECT_CODE, request.getProjectCode()));
+        experiment.setTherapeuticArea(dictionaryService.lookup(BuiltInDictionary.THERAPEUTIC_AREA.name(), request.getTherapeuticArea()));
+        experiment.setProjectCode(dictionaryService.lookup(BuiltInDictionary.PROJECT_CODE.name(), request.getProjectCode()));
         notebook.getProject().getExperiments().add(experiment);
         notebook.getExperiments().add(experiment);
         template.getExperiments().add(experiment);
@@ -112,10 +112,10 @@ public class ExperimentService {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
         editProperty(request.getTherapeuticArea(), v -> {
-            experiment.setTherapeuticArea(dictionaryService.lookup(Dictionary.THERAPEUTIC_AREA, v));
+            experiment.setTherapeuticArea(dictionaryService.lookup(BuiltInDictionary.THERAPEUTIC_AREA.name(), v));
         });
         editProperty(request.getProjectCode(), v -> {
-            experiment.setProjectCode(dictionaryService.lookup(Dictionary.PROJECT_CODE, v));
+            experiment.setProjectCode(dictionaryService.lookup(BuiltInDictionary.PROJECT_CODE.name(), v));
         });
         updateDates(experiment, userService.getCurrentUser());
         experimentRepository.flushAndClear();

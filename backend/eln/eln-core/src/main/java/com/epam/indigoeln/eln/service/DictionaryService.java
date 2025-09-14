@@ -2,11 +2,12 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.eln.config.DataAccess;
+import com.epam.indigoeln.eln.entity.DictionaryEntity;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.SaltCodeEntity;
 import com.epam.indigoeln.eln.mapper.DictionaryMapper;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.model.Dictionary;
+import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
 import com.epam.indigoeln.eln.repository.DictionaryRepository;
 import com.epam.indigoeln.eln.repository.SaltCodeRepository;
 import com.epam.indigoeln.reaction.model.SaltCodeRef;
@@ -32,6 +33,9 @@ public class DictionaryService {
     DictionaryRepository dictionaryRepository;
 
     @Inject
+    DictionaryItemRepository dictionaryItemRepository;
+
+    @Inject
     SaltCodeRepository saltCodeRepository;
 
     @Inject
@@ -42,35 +46,36 @@ public class DictionaryService {
     @Inject
     UserService userService;
 
-    public List<Dictionary> getDictionaries() {
-        return StreamEx.of(Dictionary.values()).remove(x -> x == Dictionary.TEST).toList();
+    public List<DictionaryDTO> getDictionaries() {
+        return dictionaryRepository.list();
     }
 
-    public List<DictionaryItemRef> getDictionary(Dictionary dictionary) {
-        return dictionaryMapper.dictionaryToRefList(dictionaryRepository.list(dictionary, false));
+    public List<DictionaryItemRef> getDictionary(String dictionaryRef) {
+        return dictionaryMapper.itemToRefList(dictionaryItemRepository.list(refToID(dictionaryRef), false));
     }
 
-    public List<DictionaryItemDTO> getDictionaryFull(Dictionary dictionary) {
-        return dictionaryMapper.dictionaryToDTOList(dictionaryRepository.list(dictionary, true));
+    public List<DictionaryItemDTO> getDictionaryFull(String dictionaryRef) {
+        return dictionaryMapper.itemToDTOList(dictionaryItemRepository.list(refToID(dictionaryRef), true));
     }
 
-    public @Nullable DictionaryItemEntity lookup(Dictionary dictionary, @Nullable DictionaryItemRef ref) {
+    @Nullable
+    public DictionaryItemEntity lookup(String dictionaryRef, @Nullable DictionaryItemRef ref) {
         if (ref == null) {
             return null;
         }
-        DictionaryItemEntity entity = dictionaryRepository.findById(ref.getId());
-        if (entity == null || entity.getDictionary() != dictionary) {
-            throw new EntityNotFoundException(dictionary, ref.getId());
+        DictionaryItemEntity entity = dictionaryItemRepository.findById(ref.getId());
+        if (entity == null || !entity.getDictionary().getId().equals(refToID(dictionaryRef))) {
+            throw new EntityNotFoundException(EntityType.DICTIONARY_ITEM, ref.getId() + " in dictionary " + dictionaryRef);
         }
         return entity;
     }
 
-    public List<DictionaryItemRef> suggestDictionaryItems(Dictionary dictionary, String search) {
-        return dictionaryRepository.suggest(dictionary, search);
+    public List<DictionaryItemRef> suggestDictionaryItems(String dictionaryRef, String search) {
+        return dictionaryItemRepository.suggest(refToID(dictionaryRef), search);
     }
 
     public DictionaryItemEntity get(UUID id) {
-        return dictionaryRepository.findById(id);
+        return dictionaryItemRepository.findById(id);
     }
 
     public List<DictionaryItemRef> getSaltCodes() {
@@ -89,28 +94,30 @@ public class DictionaryService {
         return dictionaryMapper.saltCodeToRef(entity);
     }
 
-    public List<DictionaryItemEntity> addDictionaryItems(Dictionary dictionary, List<DictionaryItemRequest> items) {
-        if (!dictionary.isUsersCanAddNewItems()) {
+    public List<DictionaryItemEntity> addDictionaryItems(String dictionaryRef, List<DictionaryItemRequest> items) {
+        DictionaryEntity dictionary = dictionaryRepository.findById(refToID(dictionaryRef));
+        if (!dictionary.getUserEditable()) {
             aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
         }
-        List<DictionaryItemEntity> list = dictionaryRepository.list(dictionary, true);
+        List<DictionaryItemEntity> list = dictionaryItemRepository.list(refToID(dictionaryRef), true);
         List<DictionaryItemEntity> inserted = new ArrayList<>(items.size());
         for (DictionaryItemRequest item : items) {
-            DictionaryItemEntity entity = dictionaryMapper.dictionaryToEntity(item, dictionary);
+            DictionaryItemEntity entity = dictionaryMapper.itemToEntity(item);
+            entity.setDictionary(dictionary);
             updateDates(entity, userService.getCurrentUser());
             inserted.add(entity);
         }
         list.addAll(inserted);
         renumberItems(list);
-        dictionaryRepository.persist(inserted);
+        dictionaryItemRepository.persist(inserted);
         return list;
     }
 
-    public List<DictionaryItemDTO> updateDictionaryItem(Dictionary dictionary, UUID itemID, DictionaryItemEditRequest request) {
+    public List<DictionaryItemDTO> updateDictionaryItem(String dictionaryRef, UUID itemID, DictionaryItemEditRequest request) {
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
-        List<DictionaryItemEntity> list = dictionaryRepository.list(dictionary, true);
+        List<DictionaryItemEntity> list = dictionaryItemRepository.list(refToID(dictionaryRef), true);
         DictionaryItemEntity entity = StreamEx.of(list).filterBy(DictionaryItemEntity::getId, itemID).findFirst()
-                .orElseThrow(() -> new EntityNotFoundException(dictionary, itemID));
+                .orElseThrow(() -> new EntityNotFoundException(EntityType.DICTIONARY, itemID + " of dictionary " + dictionaryRef));
         editProperty(request.getName(), entity::setName);
         editProperty(request.getDescription(), entity::setDescription);
         editProperty(request.getActive(), entity::setActive);
@@ -120,30 +127,31 @@ public class DictionaryService {
             list.add(order - 1, entity);
             renumberItems(list);
         });
-        return dictionaryMapper.dictionaryToDTOList(list);
+        return dictionaryMapper.itemToDTOList(list);
     }
 
-    public List<DictionaryItemDTO> removeDictionaryItem(Dictionary dictionary, UUID itemID) {
+    public List<DictionaryItemDTO> removeDictionaryItem(String dictionaryRef, UUID itemID) {
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
-        List<DictionaryItemEntity> list = dictionaryRepository.list(dictionary, true);
+        List<DictionaryItemEntity> list = dictionaryItemRepository.list(refToID(dictionaryRef), true);
         DictionaryItemEntity entity = StreamEx.of(list).filterBy(DictionaryItemEntity::getId, itemID).findFirst()
-                .orElseThrow(() -> new EntityNotFoundException(dictionary, itemID));
+                .orElseThrow(() -> new EntityNotFoundException(EntityType.DICTIONARY_ITEM, itemID + " of dictionary " + dictionaryRef));
         list.remove(entity);
-        dictionaryRepository.delete(entity);
+        dictionaryItemRepository.delete(entity);
         renumberItems(list);
-        return dictionaryMapper.dictionaryToDTOList(list);
+        return dictionaryMapper.itemToDTOList(list);
     }
 
-    public List<DictionaryItemEntity> findOrCreateByNames(Dictionary dictionary, Collection<String> names) {
-        if (!dictionary.isUsersCanAddNewItems()) {
+    public List<DictionaryItemEntity> findOrCreateByNames(String dictionaryRef, Collection<String> names) {
+        DictionaryEntity dictionary = dictionaryRepository.findById(refToID(dictionaryRef));
+        if (!dictionary.getUserEditable()) {
             throw new IllegalArgumentException("findOrCreateByNames cannot be used with dictionary " + dictionary);
         }
         List<DictionaryItemEntity> result = new ArrayList<>(names.size());
-        Map<String, DictionaryItemEntity> found = dictionaryRepository.findByNames(dictionary, names);
+        Map<String, DictionaryItemEntity> found = dictionaryItemRepository.findByNames(dictionary.getId(), names);
         if (found.size() < names.size()) {
             Set<String> remainingNames = new HashSet<>(names);
             remainingNames.removeAll(found.keySet());
-            List<DictionaryItemEntity> newAllItems = addDictionaryItems(dictionary, remainingNames.stream().map(x -> new DictionaryItemRequest(x, null)).toList());
+            List<DictionaryItemEntity> newAllItems = addDictionaryItems(dictionaryRef, remainingNames.stream().map(x -> new DictionaryItemRequest(x, null)).toList());
             found = StreamEx.of(newAllItems).toMap(DictionaryItemEntity::getName, x -> x);
         }
         return StreamEx.of(names).map(found::get).toList();
@@ -152,6 +160,18 @@ public class DictionaryService {
     private void renumberItems(List<DictionaryItemEntity> items) {
         for (int i = 0; i < items.size(); i++) {
             items.get(i).setOrdinal(i + 1);
+        }
+    }
+
+    private UUID refToID(String dictionaryRef) {
+        try {
+            return UUID.fromString(dictionaryRef);
+        } catch (IllegalArgumentException e) {
+            try {
+                return BuiltInDictionary.valueOf(dictionaryRef).getId();
+            } catch (IllegalArgumentException ex) {
+                throw new EntityNotFoundException(EntityType.DICTIONARY, dictionaryRef);
+            }
         }
     }
 }

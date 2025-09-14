@@ -90,7 +90,6 @@ public abstract class ELNBaseTest extends BaseTest {
         roleClient = buildClient(RoleClient.class);
         testSupportClient = buildClient(TestSupportClient.class);
         globalSearchClient = buildClient(GlobalSearchClient.class);
-        miscClient.migrate();
         cleanupDatabase();
     }
 
@@ -100,6 +99,7 @@ public abstract class ELNBaseTest extends BaseTest {
 
     protected void cleanupDatabase() {
         testSupportClient.cleanupDatabase();
+        miscClient.migrate();
         createBasicTestData();
     }
 
