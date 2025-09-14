@@ -1,9 +1,7 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {Experiment} from '@core/types/entities/experiment.i';
-import {ExperimentService} from '@core/services/experiment.service';
-import {filter} from "rxjs";
-import {FormlyModule} from "@ngx-formly/core";
+import { Component, inject, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { ExperimentService } from '@core/services/experiment.service';
+import { FormlyModule } from '@ngx-formly/core';
 
 @Component({
   selector: 'eln-component-reaction-scheme',

@@ -1,20 +1,25 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Experiment } from '@core/types/entities/experiment.i';
 import { ExperimentService } from '@core/services/experiment.service';
-import {ExperimentModel, ReactionInput, ReactionInputRole} from '@core/types/entities/experiment-model.i';
+import {
+  ExperimentModel,
+  ReactionInput,
+  ReactionInputRole,
+} from '@core/types/entities/experiment-model.i';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { EnteredValueComponent } from '@core/components/experiment/entered-value/entered-value.component';
 import {
-  DENSITY_UNITS, EnteredValue, REACTION_INPUT_ROLES,
+  DENSITY_UNITS,
+  EnteredValue,
   MOL_UNITS,
   MOL_WEIGHT_UNITS,
   MOLARITY_UNITS,
   NO_UNITS,
+  REACTION_INPUT_ROLES,
   VOLUME_UNITS,
   WEIGHT_UNITS,
 } from '@core/types/entities/values.i';
-import {DropdownValueComponent} from '@core/components/experiment/dropdown-value/dropdown-value.component';
+import { DropdownValueComponent } from '@core/components/experiment/dropdown-value/dropdown-value.component';
 
 @Component({
   selector: 'eln-component-stoichiometry-table',
@@ -28,11 +33,13 @@ import {DropdownValueComponent} from '@core/components/experiment/dropdown-value
       overflow-y: visible;
       border: 1px solid #ddd; /* Optional: visual boundary */
     }
+
     table {
       width: auto;
       min-width: 100%;
       table-layout: fixed;
     }
+
     table td,
     table th {
       width: 200px;
@@ -63,7 +70,7 @@ export class ComponentStoichiometryTableComponent implements OnInit {
       type: 'SetInputRole',
       anchor: row.anchor,
       role: value,
-    })
+    });
   }
 
   setWeight(row: ReactionInput, value: EnteredValue) {

@@ -29,9 +29,9 @@
       <tbody>
         @for (row of model.reactions[0].inputs; track row.anchor) {
           <tr>
-            <td>{{row.compound.strCode}}</td>
+            <td>{{ row.compound.strCode }}</td>
             <td>?</td>
-            <td>{{row.compound.name}}</td>
+            <td>{{ row.compound.name }}</td>
             <td>TODO</td>
             <td>
               <eln-entered-value
@@ -71,7 +71,7 @@
               />
             </td>
             <td>
-              <mat-checkbox [checked]="row.limiting"/>
+              <mat-checkbox [checked]="row.limiting" />
             </td>
             <td>
               <eln-dropdown-value
@@ -98,13 +98,14 @@
             <td>
               <eln-entered-value
                 [value]="row.samples[0]?.purity"
-                [showUnits]="false" [units]="NO_UNITS"
+                [showUnits]="false"
+                [units]="NO_UNITS"
                 [onChange]="setPurity.bind(this, row)"
               />
             </td>
-            <td>{{row.compound.formula}}</td>
-            <td>{{row.compound.saltCode?.code}}</td>
-            <td>{{row.compound.saltEQ}}</td>
+            <td>{{ row.compound.formula }}</td>
+            <td>{{ row.compound.saltCode?.code }}</td>
+            <td>{{ row.compound.saltEQ }}</td>
             <td>TODO</td>
             <td>TODO</td>
           </tr>
@@ -114,6 +115,4 @@
   </div>
 }
 
-@if (showReactionProducts) {
-
-}
+@if (showReactionProducts) {}

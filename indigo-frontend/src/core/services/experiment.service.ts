@@ -102,7 +102,10 @@ export class ExperimentService {
   }
 
   mutateModel(mutation: Mutation) {
-    if (this.experiment.value.state !== 'ready' || this.model.value.state !== 'ready') {
+    if (
+      this.experiment.value.state !== 'ready' ||
+      this.model.value.state !== 'ready'
+    ) {
       console.warn('Experiment not loaded');
       return;
     }

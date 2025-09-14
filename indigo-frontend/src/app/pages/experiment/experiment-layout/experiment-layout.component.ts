@@ -1,9 +1,7 @@
 import { RouteAnimationType } from '@/core/animations/route-animations';
 import { Component } from '@angular/core';
-import {
-  AnimatedRouteContainerComponent
-} from '@core/components/common/animated-route-container/animated-route-container.component';
-import {RouterOutlet} from '@angular/router';
+import { AnimatedRouteContainerComponent } from '@core/components/common/animated-route-container/animated-route-container.component';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'eln-experiment-layout',

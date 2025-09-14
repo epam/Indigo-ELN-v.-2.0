@@ -1,6 +1,10 @@
 import { Component, Input } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import {MatOption, MatSelect, MatSelectChange} from '@angular/material/select';
+import {
+  MatOption,
+  MatSelect,
+  MatSelectChange,
+} from '@angular/material/select';
 
 @Component({
   selector: 'eln-dropdown-value',

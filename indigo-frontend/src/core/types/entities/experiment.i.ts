@@ -1,9 +1,7 @@
 import { BaseEntity } from './base-entity.i';
 import { ProjectAcl } from './acl.i';
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
-import { Template } from '@core/types/entities/template.i';
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
-import {ExperimentModel} from '@core/types/entities/experiment-model.i';
 
 export interface Experiment extends BaseEntity {
   name: string;

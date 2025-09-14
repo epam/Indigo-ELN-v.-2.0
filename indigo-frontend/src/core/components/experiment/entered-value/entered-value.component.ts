@@ -1,15 +1,11 @@
-import {
-  Component, ElementRef, inject,
-  Input,
-  ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, inject, Input, ViewChild } from '@angular/core';
 import {
   EnteredValue,
   EnteredValueSource,
   MeasurementUnit,
 } from '@core/types/entities/values.i';
 import { DecimalPipe } from '@angular/common';
-import {MatOption, MatSelect, MatSelectChange} from '@angular/material/select';
+import { MatOption, MatSelect } from '@angular/material/select';
 
 @Component({
   selector: 'eln-entered-value',
@@ -79,7 +75,10 @@ export class EnteredValueComponent {
   set value(newValue: EnteredValue | null) {
     this._value = newValue;
     this.recalculated = false;
-    if (this._value !== undefined && newValue?.source === EnteredValueSource.CALCULATED_FROM_LAST_ENTERED) {
+    if (
+      this._value !== undefined &&
+      newValue?.source === EnteredValueSource.CALCULATED_FROM_LAST_ENTERED
+    ) {
       requestAnimationFrame(() => {
         this.recalculated = true;
       });
@@ -115,7 +114,10 @@ export class EnteredValueComponent {
 
   inputBlur(event: Event) {
     if (event instanceof FocusEvent && event.relatedTarget != null) {
-      if ((event.relatedTarget as HTMLElement).closest('.parent') == this.parentRef.nativeElement) {
+      if (
+        (event.relatedTarget as HTMLElement).closest('.parent') ==
+        this.parentRef.nativeElement
+      ) {
         return; // focus is still within our component, continue editing
       }
     }
@@ -131,21 +133,34 @@ export class EnteredValueComponent {
     const oldUnits = this._value?.unit;
     let newValue = this.editNumberRef.nativeElement.valueAsNumber;
     newValue = isNaN(newValue) ? null : newValue;
-    if (newValue != null && oldValue != null && Math.abs(newValue - oldValue) <= 0.0005) {
+    if (
+      newValue != null &&
+      oldValue != null &&
+      Math.abs(newValue - oldValue) <= 0.0005
+    ) {
       newValue = oldValue; // avoid minor changes due to rounding
     }
     const newUnits = selectedUnits == '_notmodified' ? oldUnits : selectedUnits;
     const valueChanged = newValue != oldValue;
     const unitsChanged = newValue != null && newUnits != oldUnits;
-    console.log(`oldValue=${oldValue}, newValue=${newValue}, oldUnits=${oldUnits}, newUnits=${newUnits}, valueChanged=${valueChanged}, unitsChanged=${unitsChanged}, go=${valueChanged || unitsChanged}`);
+    console.log(
+      `oldValue=${oldValue}, newValue=${newValue}, oldUnits=${oldUnits}, newUnits=${newUnits}, valueChanged=${valueChanged}, unitsChanged=${unitsChanged}, go=${valueChanged || unitsChanged}`,
+    );
     if (valueChanged || unitsChanged) {
-      this.onChange(newValue != null ? ({ ...this._value, value: newValue, unit: newUnits }) : null);
+      this.onChange(
+        newValue != null
+          ? { ...this._value, value: newValue, unit: newUnits }
+          : null,
+      );
     }
   }
 
   cancelEditing() {
     this.editing = false;
     // reset value in the input
-    this.editNumberRef.nativeElement.value = this.decimalPipe.transform(this._value?.value, '1.0-3');
+    this.editNumberRef.nativeElement.value = this.decimalPipe.transform(
+      this._value?.value,
+      '1.0-3',
+    );
   }
 }

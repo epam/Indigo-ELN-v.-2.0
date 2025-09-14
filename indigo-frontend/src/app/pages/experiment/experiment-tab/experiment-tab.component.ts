@@ -8,19 +8,12 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
-import { Experiment } from '@core/types/entities/experiment.i';
-import { Template } from '@core/types/entities/template.i';
 import { ExperimentService } from '@core/services/experiment.service';
 import { ComponentExperimentDescriptionComponent } from '@pages/experiment/components/component-experiment-description/component-experiment-description.component';
 import { ComponentReactionSchemeComponent } from '@pages/experiment/components/component-reaction-scheme/component-reaction-scheme.component';
-import {
-  ComponentExperimentDetailsComponent
-} from '@pages/experiment/components/component-experiment-details/component-experiment-details.component';
-import {
-  ComponentStoichiometryTableComponent
-} from '@pages/experiment/components/component-stoichiometry-table/component-stoichiometry-table.component';
-import {ExperimentModel} from '@core/types/entities/experiment-model.i';
-import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import { ComponentExperimentDetailsComponent } from '@pages/experiment/components/component-experiment-details/component-experiment-details.component';
+import { ComponentStoichiometryTableComponent } from '@pages/experiment/components/component-stoichiometry-table/component-stoichiometry-table.component';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'eln-experiment-tab',
@@ -33,7 +26,7 @@ import {MatProgressSpinner} from '@angular/material/progress-spinner';
       right: 60px;
       z-index: 1000;
     }
-  `
+  `,
 })
 export class ExperimentTabComponent implements AfterViewInit {
   activatedRoute = inject(ActivatedRoute);
@@ -72,8 +65,13 @@ export class ExperimentTabComponent implements AfterViewInit {
             if (componentType) {
               const ref = this.childrenContainer.createComponent(componentType);
               if (component.type === 'stoichiometryTable') {
-                (ref.instance as ComponentStoichiometryTableComponent).showReactantsReagentsSolvents = component.reactantsReagentsSolvents;
-                (ref.instance as ComponentStoichiometryTableComponent).showReactionProducts = component.reactionProducts;
+                (
+                  ref.instance as ComponentStoichiometryTableComponent
+                ).showReactantsReagentsSolvents =
+                  component.reactantsReagentsSolvents;
+                (
+                  ref.instance as ComponentStoichiometryTableComponent
+                ).showReactionProducts = component.reactionProducts;
               }
             } else {
               console.error('Unknown template component type', component);
@@ -87,8 +85,8 @@ export class ExperimentTabComponent implements AfterViewInit {
         this.tabNo = tabNo;
       });
     this.experimentService.mutating$
-    //   .pipe(takeUntil(this.destroy$))
-      .subscribe((x) => this.mutating = x);
+      //   .pipe(takeUntil(this.destroy$))
+      .subscribe((x) => (this.mutating = x));
   }
 
   ngOnDestroy() {

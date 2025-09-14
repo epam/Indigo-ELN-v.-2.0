@@ -1,5 +1,5 @@
-import {SaltCodeRef} from '@core/types/entities/dictionary.i';
-import {EnteredValue} from '@core/types/entities/values.i';
+import { SaltCodeRef } from '@core/types/entities/dictionary.i';
+import { EnteredValue } from '@core/types/entities/values.i';
 
 export interface CompoundRef {
   type: 'stored' | 'virtual' | 'unknown';
