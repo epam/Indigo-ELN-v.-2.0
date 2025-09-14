@@ -56,7 +56,7 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
 
     public List<NotebookEntity> findByProjectWithACLEntities(ProjectEntity project) {
         return find("project", project)
-                .withHint("jakarta.persistence.fetchgraph", em.getEntityGraph("Notebook.withACL"))
+                .withHint("jakarta.persistence.loadgraph", em.getEntityGraph("Notebook.withACL"))
                 .list();
     }
 

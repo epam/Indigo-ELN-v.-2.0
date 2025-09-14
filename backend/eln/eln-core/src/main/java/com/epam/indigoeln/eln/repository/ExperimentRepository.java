@@ -79,13 +79,13 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
 
     public List<ExperimentEntity> findByProjectWithACLEntities(ProjectEntity project) {
         return find("project", project)
-                .withHint("jakarta.persistence.fetchgraph", em.getEntityGraph("Experiment.withACL"))
+                .withHint("jakarta.persistence.loadgraph", em.getEntityGraph("Experiment.withACL"))
                 .list();
     }
 
     public List<ExperimentEntity> findByNotebookWithACLEntities(NotebookEntity notebook) {
         return find("notebook", notebook)
-                .withHint("jakarta.persistence.fetchgraph", em.getEntityGraph("Experiment.withACL"))
+                .withHint("jakarta.persistence.loadgraph", em.getEntityGraph("Experiment.withACL"))
                 .list();
     }
 

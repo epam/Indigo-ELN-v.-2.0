@@ -5,7 +5,6 @@ import com.epam.indigoeln.eln.model.*;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
-import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,9 +13,9 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.epam.indigoeln.eln.model.ExperimentStatus.*;
+import static com.epam.indigoeln.eln.test.SignaturesAssert.assertThatSignatures;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.groups.Tuple.tuple;
 
 
 @QuarkusTest
@@ -132,8 +131,9 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     @Test
     void testSubmitOneSigner() {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplate.getId());
-        assertSignatures(experiment.getSignatures()
-                , tuple(getBartUserRef(), SignatureReason.WITNESS, null));
+        assertThatSignatures(experiment.getSignatures()).containsOnly(
+                getBartUserRef(), SignatureReason.WITNESS, null
+        );
         assertThat(experiment.getStatus()).isEqualTo(SUBMITTED);
     }
 
@@ -143,8 +143,9 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         withUser(BART_USERNAME, () -> {
             experiment = experimentClient.approveExperiment(experiment.getId());
         });
-        assertSignatures(experiment.getSignatures()
-                , tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED));
+        assertThatSignatures(experiment.getSignatures()).containsOnly(
+                getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED
+        );
         assertThat(experiment.getStatus()).isEqualTo(ARCHIVED);
     }
 
@@ -154,8 +155,9 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         withUser(BART_USERNAME, () -> {
             experiment = experimentClient.rejectExperiment(experiment.getId());
         });
-        assertSignatures(experiment.getSignatures()
-                , tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.REJECTED));
+        assertThatSignatures(experiment.getSignatures()).containsOnly(
+                getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.REJECTED
+        );
         assertThat(experiment.getStatus()).isEqualTo(REJECTED);
     }
 
@@ -165,15 +167,17 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         withUser(BART_USERNAME, () -> {
             experiment = experimentClient.approveExperiment(experiment.getId());
         });
-        assertSignatures(experiment.getSignatures()
-                , tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED)
-                , tuple(getJohnUserRef(), SignatureReason.AUTHOR, null));
+        assertThatSignatures(experiment.getSignatures()).containsOnly(
+            getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED,
+            getJohnUserRef(), SignatureReason.AUTHOR, null
+        );
         assertThat(experiment.getStatus()).isEqualTo(SIGNING);
 
         experiment = experimentClient.approveExperiment(experiment.getId());
-        assertSignatures(experiment.getSignatures()
-                , tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED)
-                , tuple(getJohnUserRef(), SignatureReason.AUTHOR, SignatureStatus.APPROVED));
+        assertThatSignatures(experiment.getSignatures()).containsOnly(
+                getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED,
+                getJohnUserRef(), SignatureReason.AUTHOR, SignatureStatus.APPROVED
+        );
         assertThat(experiment.getStatus()).isEqualTo(ARCHIVED);
     }
 
@@ -185,9 +189,10 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         });
 
         experiment = experimentClient.rejectExperiment(experiment.getId());
-        assertSignatures(experiment.getSignatures()
-                , tuple(getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED)
-                , tuple(getJohnUserRef(), SignatureReason.AUTHOR, SignatureStatus.REJECTED));
+        assertThatSignatures(experiment.getSignatures()).containsOnly(
+                getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED,
+                getJohnUserRef(), SignatureReason.AUTHOR, SignatureStatus.REJECTED
+        );
         assertThat(experiment.getStatus()).isEqualTo(REJECTED);
     }
 
@@ -197,14 +202,5 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
         experiment = experimentClient.rejectExperiment(experiment.getId());
         experiment = experimentClient.resubmitExperiment(experiment.getId());
         assertThat(experiment.getStatus()).isEqualTo(SUBMITTED);
-    }
-
-    @Test
-    void testGetExperimentsForSignature() {
-        experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), twoSignersTemplate.getId());
-    }
-
-    private void assertSignatures(List<ExperimentSignature> signatures, Tuple... expected) {
-        assertThat(signatures).map(ExperimentSignature::getUser, ExperimentSignature::getReason, ExperimentSignature::getStatus).containsExactly(expected);
     }
 }

@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
@@ -16,6 +17,11 @@ public class Page<T> {
     long totalItems;
     int totalPages;
     List<T> items;
+
+    @JsonIgnore
+    public Paging getPaging() {
+        return new Paging(pageNo, pageSize);
+    }
 
     public static <T> Page<T> of(Paging paging, long totalItems, List<T> items) {
         int totalPages = (int) Math.ceil((double) totalItems / paging.getPageSizeOrDefault());

@@ -57,7 +57,7 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
     protected <DTO> DTO doLoadDetails(UUID id, EntityGraph<?> entityGraph, Function<E, DTO> mapper) {
         PanacheQuery<E> query = find("id", id);
         E entity = query
-                .withHint("jakarta.persistence.fetchgraph", entityGraph)
+                .withHint("jakarta.persistence.loadgraph", entityGraph)
                 .singleResultOptional()
                 .orElseThrow(() -> new AccessDeniedException(entityType, id, userService.getCurrentUser().getUsername()));
         return mapper.apply(entity);
@@ -81,7 +81,7 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
         PanacheQuery<E> query = conditions.isEmpty() ? findAll(sort) : find(conditions.getQuery(), sort, conditions.getValues());
         query = query.page(paging.getPageNoOrDefault(), paging.getPageSizeOrDefault());
         if (entityGraph != null) {
-            query.withHint("jakarta.persistence.fetchgraph", entityGraph);
+            query.withHint("jakarta.persistence.loadgraph", entityGraph);
         }
         return query;
     }
@@ -89,7 +89,7 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
     private PanacheQuery<E> doCreateQuery(Conditions conditions, @Nullable EntityGraph<?> entityGraph) {
         PanacheQuery<E> query = find(conditions.getQuery(), conditions.getValues());
         if (entityGraph != null) {
-            query.withHint("jakarta.persistence.fetchgraph", entityGraph);
+            query.withHint("jakarta.persistence.loadgraph", entityGraph);
         }
         return query;
     }
