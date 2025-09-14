@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.eln.model.*;
+import com.epan.indigoeln.flyway.service.DatabaseInitializationService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -38,19 +39,6 @@ public class SupportService {
     AttachmentService attachmentService;
 
     private final Random random = new Random();
-
-    @SneakyThrows
-    public Map<String, String> migrate() {
-        // don't check permissions if flyway was never applied, as there are no user/role tables yet
-        boolean flywayExists = flyway.info().current() != null;
-        if (flywayExists) {
-            aclService.ensureTopLevelAccess(ApplicationPermission.SYSTEM_OPERATIONS);
-        }
-        MigrateResult result = flyway.migrate();
-        return Map.of(
-                "migrationsExecuted", Integer.toString(result.migrationsExecuted)
-        );
-    }
 
     @Transactional
     public Map<String, String> insertTestData(UUID templateID) {
