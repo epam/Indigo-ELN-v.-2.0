@@ -6,6 +6,8 @@ import { Component, inject } from '@angular/core';
 import { NotebookService } from '../../../../core/services/notebook/notebook.service';
 import { TeamComponent } from '@/core/components/common/team/team.component';
 import { TeamComponentConfig } from '@/core/components/common/team/team.config';
+import { NotebookEditComponent } from '../../project/notebook/notebook-edit/notebook-edit.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
     selector: 'eln-notebook-info',
@@ -15,6 +17,20 @@ import { TeamComponentConfig } from '@/core/components/common/team/team.config';
 })
 export class NotebookInfoComponent {
     private store = inject(NotebookService);
+    private dialog = inject(MatDialog);
+
+    openEditDialog() {
+        if (!this.notebook) return;
+
+        const dialogRef = this.dialog.open(NotebookEditComponent, {
+            data: { notebook: this.notebook },
+            disableClose: true,
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result === 'refresh') this.store.refresh();
+        });
+    }
 
     notebookTeamConfig: TeamComponentConfig = {
       title: 'Notebook Team',
