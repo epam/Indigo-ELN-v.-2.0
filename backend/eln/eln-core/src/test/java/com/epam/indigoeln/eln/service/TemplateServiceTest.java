@@ -26,9 +26,62 @@ class TemplateServiceTest extends BaseTest {
     List<TemplateTab> templateTabs = List.of(new TemplateTab("tabName", components_1), new TemplateTab("tabName2", components_2));
 
     @Test
-    void testCreateTemplateValidation() {
+    void testCreateTemplateWithNullRequestValidation() {
         assertThatClientCall(() -> templateClient.createTemplate(new TemplateRequest(null, List.of())))
                 .isBadRequest("must not be empty");
+    }
+
+    @Test
+    void testCreateTemplateWithEmptyNameValidation() {
+        List<TemplateTab> validTabs = List.of(new TemplateTab("ValidTab", components_1));
+        TemplateRequest invalidRequest = new TemplateRequest("", validTabs);
+
+        assertThatClientCall(() -> templateClient.createTemplate(invalidRequest))
+                .isBadRequest("must not be empty");
+    }
+
+    @Test
+    void testCreateTemplateWithEmptyTabListValidation() {
+        TemplateRequest invalidRequest = new TemplateRequest("EmptyTabsTemplate", List.of());
+
+        assertThatClientCall(() -> templateClient.createTemplate(invalidRequest))
+                .isBadRequest("must not be empty");
+    }
+
+    @Test
+    void testCreateTemplateWithNoComponentsInTabValidation() {
+        List<TemplateTab> invalidTabs = List.of(new TemplateTab("EmptyTab", List.of()));
+        TemplateRequest invalidRequest = new TemplateRequest("NoComponentsTemplate", invalidTabs);
+
+        assertThatClientCall(() -> templateClient.createTemplate(invalidRequest))
+                .isBadRequest("must not be empty");
+    }
+
+    @Test
+    void testCreateTemplateWithEmptyTabNameValidation() {
+        List<TemplateTab> invalidTabs = List.of(new TemplateTab("", components_1));
+        TemplateRequest invalidRequest = new TemplateRequest("InvalidTabNameTemplate", invalidTabs);
+
+        assertThatClientCall(() -> templateClient.createTemplate(invalidRequest))
+                .isBadRequest("must not be empty");
+    }
+
+    @Test
+    void testCreateTemplateWithDuplicateNameValidation() {
+        templateClient.createTemplate(new TemplateRequest("DuplicateTemplateName", templateTabs));
+
+        assertThatClientCall(() -> templateClient.createTemplate(new TemplateRequest("DuplicateTemplateName", templateTabs)))
+                .isBadRequest("A template with this name already exists. Please choose a different name.");
+    }
+
+    @Test
+    void testCreateTemplateWithDuplicateComponentsInTabValidation() {
+        TemplateComponent duplicateComponent = new TemplateComponent.Attachments();
+        List<TemplateTab> invalidTabs = List.of(new TemplateTab("TabWithDuplicates", List.of(duplicateComponent, duplicateComponent)));
+        TemplateRequest invalidRequest = new TemplateRequest("DuplicateComponentsTemplate", invalidTabs);
+
+        assertThatClientCall(() -> templateClient.createTemplate(invalidRequest))
+                .isBadRequest("This component has already been added to the tab.");
     }
 
     @Test
@@ -74,11 +127,5 @@ class TemplateServiceTest extends BaseTest {
         assertThat(saved).usingRecursiveComparison().isEqualTo(modified);
     }
 
-    @Test
-    void testCreateTemplateWithDuplicateName() {
-        templateClient.createTemplate(new TemplateRequest("DuplicateTemplateName", templateTabs));
 
-        assertThatClientCall(() -> templateClient.createTemplate(new TemplateRequest("DuplicateTemplateName", templateTabs)))
-                .isBadRequest("A template with this name already exists. Please choose a different name.");
-    }
 }

@@ -77,7 +77,7 @@ public class TemplateEntityJsonTest {
         ObjectMapper testObjectMapper = objectMapper.copy();
         testObjectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-        java.nio.file.Path outputPath = java.nio.file.Paths.get("src", "test", "resources", "com.epam.indigoeln.eln.entity", "template_entity.json");
+        java.nio.file.Path outputPath = java.nio.file.Paths.get("build", "test-results", "test", "template_entity.json");
         testObjectMapper.writeValue(outputPath.toFile(), template);
 
     }

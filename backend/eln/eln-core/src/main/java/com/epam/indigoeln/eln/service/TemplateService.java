@@ -57,14 +57,7 @@ public class TemplateService {
 
         TemplateEntity template = templateRepository.get(templateId);
 
-        // Edit the template name if provided
-        editProperty(request.getName(), name -> {
-            // Validate the new name for uniqueness
-            if (templateRepository.existsByName(name)) {
-                throw new InvalidRequestException("A template with this name: " + name + "  already exists. Please choose a different name.");
-            }
-            template.setName(name);
-        });
+        editProperty(request.getName(), template::setName);
 
         ModelUtil.updateDates(template, userService.getCurrentUser());
 
