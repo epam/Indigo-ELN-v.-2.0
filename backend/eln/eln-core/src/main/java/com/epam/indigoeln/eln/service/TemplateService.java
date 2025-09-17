@@ -38,8 +38,15 @@ public class TemplateService {
         TemplateEntity template = templateMapper.requestToTemplate(request);
         ModelUtil.updateDates(template, userService.getCurrentUser());
 
-        templateRepository.persist(template);
-        templateRepository.flushAndClear();
+        try {
+            templateRepository.persist(template);
+            templateRepository.flushAndClear();
+        } catch (org.hibernate.exception.ConstraintViolationException e) {
+            if ("template_name_unique".equals(e.getConstraintName())) {
+                throw new InvalidRequestException("Template with name '" + request.getName() + "' already exists.");
+            }
+            throw e;
+        }
 
         return getTemplate(template.getId());
     }

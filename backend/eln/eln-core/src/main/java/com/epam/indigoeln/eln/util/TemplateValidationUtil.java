@@ -22,10 +22,6 @@ public class TemplateValidationUtil {
      * @param templateRepository the template repository.
      */
     public static void validateTemplateRequest(TemplateRequest templateRequest, TemplateRepository templateRepository) {
-        if (templateRepository.existsByName(templateRequest.getName())) {
-            throw new InvalidRequestException("A template with this name already exists. Please choose a different name.");
-        }
-
         List<TemplateTab> tabs = templateRequest.getTemplateTabs();
 
         for (TemplateTab tab : tabs) {

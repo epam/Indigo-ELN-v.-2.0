@@ -71,7 +71,7 @@ class TemplateServiceTest extends BaseTest {
         templateClient.createTemplate(new TemplateRequest("DuplicateTemplateName", templateTabs));
 
         assertThatClientCall(() -> templateClient.createTemplate(new TemplateRequest("DuplicateTemplateName", templateTabs)))
-                .isBadRequest("A template with this name already exists. Please choose a different name.");
+                .isBadRequest("Template with name 'DuplicateTemplateName' already exists.");
     }
 
     @Test
