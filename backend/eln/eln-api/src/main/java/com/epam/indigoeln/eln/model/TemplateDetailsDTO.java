@@ -9,7 +9,7 @@ import java.util.List;
 @Setter
 public class TemplateDetailsDTO extends TemplateDTO {
 
-    private List<TemplateComponent> components;
+    private List<TemplateTab> templateTabs;
 
     @Override
     public String toString() {
