@@ -1,0 +1,50 @@
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import {
+  DictionaryList,
+  DictionaryListItem,
+} from '@/core/types/entities/dictionary.i';
+import { DictionaryService } from '@/core/services/dictionary/dictionary.service';
+import { CardComponent } from '@/core/components/common/card/card.component';
+import { DatePipe } from '@angular/common';
+
+@Component({
+  selector: 'eln-dictionary-list',
+  templateUrl: './dictionary-list.component.html',
+  imports: [CardComponent, DatePipe],
+  standalone: true,
+})
+export class DictionaryListComponent implements OnInit {
+  dictionaries: DictionaryList = [];
+  selectedDictionary: DictionaryListItem | null = null;
+  isLoading = true;
+  hasError = false;
+
+  @Output() selectDictionaryEvent = new EventEmitter<DictionaryListItem>();
+
+  constructor(private dictionaryService: DictionaryService) {}
+
+  ngOnInit(): void {
+    this.fetchDictionaries();
+  }
+
+  fetchDictionaries(): void {
+    this.isLoading = true;
+    this.hasError = false;
+
+    this.dictionaryService.getDictionaries().subscribe({
+      next: (dictionaries) => {
+        this.dictionaries = dictionaries;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.hasError = true;
+        this.isLoading = false;
+      },
+    });
+  }
+
+  selectDictionary(dictionary: DictionaryListItem): void {
+    this.selectedDictionary = dictionary;
+    this.selectDictionaryEvent.emit(dictionary);
+  }
+}

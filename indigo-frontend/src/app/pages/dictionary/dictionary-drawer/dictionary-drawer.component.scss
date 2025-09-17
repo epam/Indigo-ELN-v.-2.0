@@ -1,0 +1,34 @@
+mat-header-row {
+  font-weight: 600;
+}
+
+.mat-mdc-cell {
+  border-bottom: none !important;
+}
+
+.mat-mdc-header-cell {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.mat-elevation-z8 {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+  background-color: #fff;
+}
+
+.mat-column-name, .mat-column-description {
+    flex: 0 0 25%;
+}
+.mat-column-createdAt {
+    flex: 0 0 20%;
+}
+.mat-column-rank, .mat-column-active, .mat-column-delete {
+    flex: 0 0 10%;
+}
+
+.delete-cell {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 6px;
+}

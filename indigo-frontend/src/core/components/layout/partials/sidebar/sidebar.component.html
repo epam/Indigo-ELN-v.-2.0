@@ -17,7 +17,7 @@
       </a>
     </li>
     <li
-      *ngFor="let item of menu"
+      *ngFor="let item of menu$ | async"
       routerLinkActive="active"
       class="my-3 [&.active]:bg-primary-alpha-10 [&.active_a_em]:text-primary-400 rounded-lg"
     >

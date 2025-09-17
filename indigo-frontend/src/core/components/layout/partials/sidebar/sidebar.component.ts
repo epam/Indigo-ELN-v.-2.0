@@ -2,6 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { StarredExperimentsComponent } from './starred-experiments/starred-experiments.component';
+import { map, Observable } from 'rxjs';
+import { UserService } from '@/core/services/user.service';
+import { Role } from '@/core/types/entities/user.i';
 
 @Component({
   standalone: true,
@@ -10,7 +13,7 @@ import { StarredExperimentsComponent } from './starred-experiments/starred-exper
   templateUrl: './sidebar.component.html',
 })
 export class SidebarComponent {
-  menu = [
+  private fullMenu = [
     {
       name: 'Projects',
       icon: 'indicon-briefcase',
@@ -23,12 +26,30 @@ export class SidebarComponent {
     },
     {
       name: 'Dictionary',
-      icon: 'indicon-terminal',
+      icon: 'indicon-book',
       path: '/dictionary',
+      requiredRole: 'Dictionary editor',
     },
   ];
+
+  menu$: Observable<
+    { name: string; icon: string; path: string; requiredRole?: string }[]
+  >;
+
   isSidebarOpen = true;
   isHovered = false;
+
+  constructor(private userService: UserService) {
+    this.menu$ = this.userService.userRoles$.pipe(
+      map((roles: Role[]) => {
+        const roleNames = roles.map((role) => role.name);
+        return this.fullMenu.filter(
+          (menuItem) =>
+            !menuItem.requiredRole || roleNames.includes(menuItem.requiredRole)
+        );
+      })
+    );
+  }
 
   toggleSidebar() {
     this.isSidebarOpen = !this.isSidebarOpen;

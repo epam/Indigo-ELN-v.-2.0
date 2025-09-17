@@ -1,0 +1,26 @@
+<mat-drawer-container hasBackdrop="false">
+  <mat-drawer
+    mode="over"
+    position="end"
+    [style.width.%]="60"
+    [style.min-width.px]="400"
+    [style.boxShadow]="'0 8px 16px rgba(0, 0, 0, 0.2)'"
+    [style.background]="'white'"
+    [opened]="isDrawerOpen"
+    (closed)="closeDrawer()"
+  >
+    @if (selectedDictionary) {
+      <eln-dictionary-drawer
+        [dictionary]="selectedDictionary"
+        (close)="closeDrawer()"
+      />
+    }
+  </mat-drawer>
+
+  <mat-drawer-content>
+    <div class="font-semibold text-lg">Dictionary</div>
+    <eln-dictionary-list
+      (selectDictionaryEvent)="onDictionarySelected($event)"
+    />
+  </mat-drawer-content>
+</mat-drawer-container>
