@@ -1,7 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ExperimentService } from '@core/services/experiment.service';
 import { FormlyModule } from '@ngx-formly/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'eln-component-reaction-scheme',
@@ -13,18 +14,25 @@ export class ComponentReactionSchemeComponent implements OnInit {
 
   experimentService = inject(ExperimentService);
 
+  destroyRef = inject(DestroyRef);
+
   picture: string | null = null;
   loading = false;
   error = false;
 
   ngOnInit() {
-    this.experimentService.picture$.subscribe((x) => {
-      this.loading = x.state === 'loading';
-      this.error = x.state === 'error';
-      this.picture = x.state === 'ready' ? URL.createObjectURL(x.value) : null;
-    });
-    this.experimentService.experiment$.subscribe((experiment) => {
-      this.experimentService.loadPicture(experiment.id);
-    });
+    this.experimentService.picture$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((x) => {
+        this.loading = x.state === 'loading';
+        this.error = x.state === 'error';
+        this.picture =
+          x.state === 'ready' ? URL.createObjectURL(x.value) : null;
+      });
+    this.experimentService.experiment$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((experiment) => {
+        this.experimentService.loadPicture(experiment.id);
+      });
   }
 }

@@ -1,5 +1,4 @@
 import { Component, Input } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
 import {
   MatOption,
   MatSelect,
@@ -9,7 +8,7 @@ import {
 @Component({
   selector: 'eln-dropdown-value',
   templateUrl: './dropdown-value.component.html',
-  imports: [DecimalPipe, MatSelect, MatOption],
+  imports: [MatSelect, MatOption],
   styles: `
     :host {
       display: contents;

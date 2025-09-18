@@ -1,37 +1,63 @@
 import { BaseEntity } from './base-entity.i';
 
+export interface TemplateComponentAttachments {
+  type: 'attachments';
+}
+export interface TemplateComponentBatches {
+  type: 'batches';
+}
+export interface TemplateComponentConceptDetails {
+  type: 'conceptDetails';
+}
+export interface TemplateComponentExperimentDetails {
+  type: 'experimentDetails';
+}
+export interface TemplateComponentExperimentDescription {
+  type: 'experimentDescription';
+}
+export interface TemplateComponentPreferredCompoundsDetails {
+  type: 'preferredCompoundsDetails';
+}
+export interface TemplateComponentPreferredCompoundsSummary {
+  type: 'preferredCompoundsSummary';
+}
+export interface TemplateComponentReactionDetails {
+  type: 'reactionsDetails';
+}
+export interface TemplateComponentStoichiometryTable {
+  type: 'stoichiometryTable';
+  reactantsReagentsSolvents: boolean;
+  reactionProducts: boolean;
+}
+export interface TemplateComponentReactionScheme {
+  type: 'reactionScheme';
+}
+export interface TemplateComponentReactants {
+  type: 'reactants';
+}
+export interface TemplateComponentIntendedProducts {
+  type: 'intendedProducts';
+}
+export type TemplateComponent =
+  | TemplateComponentAttachments
+  | TemplateComponentBatches
+  | TemplateComponentConceptDetails
+  | TemplateComponentExperimentDetails
+  | TemplateComponentExperimentDescription
+  | TemplateComponentPreferredCompoundsDetails
+  | TemplateComponentPreferredCompoundsSummary
+  | TemplateComponentReactionDetails
+  | TemplateComponentStoichiometryTable
+  | TemplateComponentReactionScheme
+  | TemplateComponentReactants
+  | TemplateComponentIntendedProducts;
+
 export interface TemplateTab {
   name: string;
-  link: string;
+  components: TemplateComponent[];
 }
-
-// TODO actualize the list when it is updated on the backend
-type TemplateComponent =
-  | {
-      type: 'reactionScheme';
-    }
-  | {
-      type: 'stoichiometryTable';
-      reactantsReagentsSolvents: boolean;
-      reactionProducts: boolean;
-    }
-  | {
-      type: 'batches';
-    }
-  | {
-      type: 'attachments';
-    }
-  | {
-      type: 'experimentDescription';
-    }
-  | {
-      type: 'experimentDetails';
-    }
-  | {
-      type: 'conceptDetails';
-    };
 
 export interface Template extends BaseEntity {
   name: string;
-  components: TemplateComponent[];
+  templateTabs: TemplateTab[];
 }

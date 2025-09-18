@@ -27,7 +27,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (row of model.reactions[0].inputs; track row.anchor) {
+        @for (row of model?.reactions?.[0]?.inputs; track row.anchor) {
           <tr>
             <td>{{ row.compound.strCode }}</td>
             <td>?</td>
@@ -115,4 +115,6 @@
   </div>
 }
 
-@if (showReactionProducts) {}
+@if (showReactionProducts) {
+  <!-- TODO implement Reaction Products table -->
+}

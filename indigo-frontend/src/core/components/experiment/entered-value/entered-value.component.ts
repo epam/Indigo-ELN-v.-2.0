@@ -60,21 +60,33 @@ import { MatOption, MatSelect } from '@angular/material/select';
 })
 export class EnteredValueComponent {
   private _value: EnteredValue | null;
+  private _units: MeasurementUnit[] | null;
+
   @Input() showUnits = true;
-  @Input() units: MeasurementUnit[];
+
   @Input() onChange: ((newValue: EnteredValue) => void) | null = null;
+
   @Input() readOnly = false;
-  @ViewChild('editNumber') editNumberRef!: ElementRef<HTMLInputElement>;
-  @ViewChild('editUnits') editUnitsRef!: MatSelect;
-  @ViewChild('parent') parentRef!: ElementRef<HTMLElement>;
+
   decimalPipe = inject(DecimalPipe);
+
+  @ViewChild('editNumber') editNumberRef!: ElementRef<HTMLInputElement>;
+
+  @ViewChild('editUnits') editUnitsRef!: MatSelect;
+
+  @ViewChild('parent') parentRef!: ElementRef<HTMLElement>;
+
+  unitDisplayName: string | null = null;
+
   editing = false;
+
   recalculated = false;
 
   @Input()
   set value(newValue: EnteredValue | null) {
     this._value = newValue;
     this.recalculated = false;
+    this.updateUnitDisplayName();
     if (
       this._value !== undefined &&
       newValue?.source === EnteredValueSource.CALCULATED_FROM_LAST_ENTERED
@@ -89,15 +101,14 @@ export class EnteredValueComponent {
     return this._value;
   }
 
-  getUnitDisplayName(): string | null {
-    if (this._value != null) {
-      for (const unit of this.units) {
-        if (this._value.unit === unit.value) {
-          return unit.displayName;
-        }
-      }
-    }
-    return null;
+  @Input()
+  set units(units: MeasurementUnit[]) {
+    this._units = units;
+    this.updateUnitDisplayName();
+  }
+
+  get units(): MeasurementUnit[] | null {
+    return this._units;
   }
 
   startEditing() {
@@ -143,9 +154,6 @@ export class EnteredValueComponent {
     const newUnits = selectedUnits == '_notmodified' ? oldUnits : selectedUnits;
     const valueChanged = newValue != oldValue;
     const unitsChanged = newValue != null && newUnits != oldUnits;
-    console.log(
-      `oldValue=${oldValue}, newValue=${newValue}, oldUnits=${oldUnits}, newUnits=${newUnits}, valueChanged=${valueChanged}, unitsChanged=${unitsChanged}, go=${valueChanged || unitsChanged}`,
-    );
     if (valueChanged || unitsChanged) {
       this.onChange(
         newValue != null
@@ -162,5 +170,13 @@ export class EnteredValueComponent {
       this._value?.value,
       '1.0-3',
     );
+  }
+
+  private updateUnitDisplayName(): void {
+    this.unitDisplayName = null;
+    if (this._value != null && this.units != null) {
+      const foundUnit = this.units.find((x) => this._value.unit === x.value);
+      this.unitDisplayName = foundUnit?.displayName;
+    }
   }
 }

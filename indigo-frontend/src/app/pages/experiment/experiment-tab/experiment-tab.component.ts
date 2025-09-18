@@ -1,24 +1,25 @@
-import {
-  AfterViewInit,
-  Component,
-  inject,
-  ViewChild,
-  ViewContainerRef,
-} from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { combineLatest } from 'rxjs';
 import { ExperimentService } from '@core/services/experiment.service';
 import { ComponentExperimentDescriptionComponent } from '@pages/experiment/components/component-experiment-description/component-experiment-description.component';
 import { ComponentReactionSchemeComponent } from '@pages/experiment/components/component-reaction-scheme/component-reaction-scheme.component';
 import { ComponentExperimentDetailsComponent } from '@pages/experiment/components/component-experiment-details/component-experiment-details.component';
 import { ComponentStoichiometryTableComponent } from '@pages/experiment/components/component-stoichiometry-table/component-stoichiometry-table.component';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { TemplateComponent } from '@core/types/entities/template.i';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'eln-experiment-tab',
   templateUrl: './experiment-tab.component.html',
-  imports: [MatProgressSpinner],
+  imports: [
+    ComponentReactionSchemeComponent,
+    ComponentExperimentDetailsComponent,
+    ComponentExperimentDescriptionComponent,
+    ComponentStoichiometryTableComponent,
+    MatProgressSpinner,
+  ],
   styles: `
     .mutating-spinnner {
       position: fixed;
@@ -28,69 +29,43 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     }
   `,
 })
-export class ExperimentTabComponent implements AfterViewInit {
+export class ExperimentTabComponent implements OnInit {
+  protected readonly ComponentStoichiometryTableComponent =
+    ComponentStoichiometryTableComponent;
+
   activatedRoute = inject(ActivatedRoute);
 
   experimentService = inject(ExperimentService);
 
-  tabNo: number | null = null;
+  destroyRef = inject(DestroyRef);
+
   mutating = false;
 
-  @ViewChild('children', { read: ViewContainerRef, static: true })
-  childrenContainer!: ViewContainerRef;
-
-  private destroy$ = new Subject<void>();
-
-  private componentTypes = {
-    reactionScheme: ComponentReactionSchemeComponent,
-    experimentDescription: ComponentExperimentDescriptionComponent,
-    experimentDetails: ComponentExperimentDetailsComponent,
-    stoichiometryTable: ComponentStoichiometryTableComponent,
-  };
+  components: TemplateComponent[] | null = null;
 
   loading = false;
   error = false;
 
-  ngAfterViewInit() {
-    this.experimentService.templateLoad$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((x) => {
-        this.loading = x.state === 'loading';
-        this.error = x.state === 'error';
-        this.childrenContainer.clear();
-        if (x.state === 'ready') {
-          const template = x.value;
-          for (const component of template.components) {
-            const componentType = this.componentTypes[component.type];
-            if (componentType) {
-              const ref = this.childrenContainer.createComponent(componentType);
-              if (component.type === 'stoichiometryTable') {
-                (
-                  ref.instance as ComponentStoichiometryTableComponent
-                ).showReactantsReagentsSolvents =
-                  component.reactantsReagentsSolvents;
-                (
-                  ref.instance as ComponentStoichiometryTableComponent
-                ).showReactionProducts = component.reactionProducts;
-              }
-            } else {
-              console.error('Unknown template component type', component);
-            }
-          }
+  ngOnInit() {
+    combineLatest({
+      template: this.experimentService.templateLoad$,
+      routing: this.activatedRoute.params,
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ template, routing }) => {
+        let tabNo = Number.parseInt(routing['tabNo']) - 1;
+        this.loading = template.state === 'loading';
+        this.error = template.state === 'error';
+        if (template.state === 'ready') {
+          tabNo = Math.min(tabNo, template.value.templateTabs.length - 1);
+          tabNo = Math.max(tabNo, 0);
+          this.components = template.value.templateTabs[tabNo].components;
         }
       });
-    this.activatedRoute.params
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(({ tabNo }) => {
-        this.tabNo = tabNo;
-      });
     this.experimentService.mutating$
-      //   .pipe(takeUntil(this.destroy$))
-      .subscribe((x) => (this.mutating = x));
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((x) => {
+        this.mutating = x;
+      });
   }
 }

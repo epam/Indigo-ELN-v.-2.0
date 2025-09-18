@@ -2,4 +2,22 @@
   <mat-spinner />
 </div>
 
-<ng-template #children></ng-template>
+@for (component of components; track $index) {
+  @switch (component.type) {
+    @case ('experimentDetails') {
+      <eln-component-experiment-details />
+    }
+    @case ('experimentDescription') {
+      <eln-component-experiment-description />
+    }
+    @case ('stoichiometryTable') {
+      <eln-component-stoichiometry-table
+        [showReactantsReagentsSolvents]="component.reactantsReagentsSolvents"
+        [showReactionProducts]="component.reactionProducts"
+      />
+    }
+    @case ('reactionScheme') {
+      <eln-component-reaction-scheme />
+    }
+  }
+}

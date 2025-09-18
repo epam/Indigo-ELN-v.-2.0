@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ExperimentService } from '@core/services/experiment.service';
 import {
@@ -20,6 +20,7 @@ import {
   WEIGHT_UNITS,
 } from '@core/types/entities/values.i';
 import { DropdownValueComponent } from '@core/components/experiment/dropdown-value/dropdown-value.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'eln-component-stoichiometry-table',
@@ -51,18 +52,31 @@ import { DropdownValueComponent } from '@core/components/experiment/dropdown-val
   `,
 })
 export class ComponentStoichiometryTableComponent implements OnInit {
+  protected readonly MOL_WEIGHT_UNITS = MOL_WEIGHT_UNITS;
+  protected readonly WEIGHT_UNITS = WEIGHT_UNITS;
+  protected readonly VOLUME_UNITS = VOLUME_UNITS;
+  protected readonly MOL_UNITS = MOL_UNITS;
+  protected readonly NO_UNITS = NO_UNITS;
+  protected readonly DENSITY_UNITS = DENSITY_UNITS;
+  protected readonly MOLARITY_UNITS = MOLARITY_UNITS;
+  protected readonly REACTION_INPUT_ROLES = REACTION_INPUT_ROLES;
+
   activatedRoute = inject(ActivatedRoute);
 
   experimentService = inject(ExperimentService);
 
+  destroyRef = inject(DestroyRef);
+
   model: ExperimentModel | null;
-  showReactantsReagentsSolvents: boolean;
-  showReactionProducts: boolean;
+  @Input() showReactantsReagentsSolvents: boolean;
+  @Input() showReactionProducts: boolean;
 
   ngOnInit() {
-    this.experimentService.model$.subscribe((model) => {
-      this.model = model;
-    });
+    this.experimentService.model$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((model) => {
+        this.model = model;
+      });
   }
 
   setRole(row: ReactionInput, value: ReactionInputRole) {
@@ -133,13 +147,4 @@ export class ComponentStoichiometryTableComponent implements OnInit {
       purity: value?.value,
     });
   }
-
-  protected readonly MOL_WEIGHT_UNITS = MOL_WEIGHT_UNITS;
-  protected readonly WEIGHT_UNITS = WEIGHT_UNITS;
-  protected readonly VOLUME_UNITS = VOLUME_UNITS;
-  protected readonly MOL_UNITS = MOL_UNITS;
-  protected readonly NO_UNITS = NO_UNITS;
-  protected readonly DENSITY_UNITS = DENSITY_UNITS;
-  protected readonly MOLARITY_UNITS = MOLARITY_UNITS;
-  protected readonly REACTION_INPUT_ROLES = REACTION_INPUT_ROLES;
 }

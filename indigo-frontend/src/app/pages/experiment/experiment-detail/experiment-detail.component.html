@@ -5,15 +5,18 @@
 } @else if (error) {
   <div class="flex items-center justify-center py-8">
     <div class="text-center">
-      <span
-        >There was an error loading the experiment, please try again later</span
-      >
+      <span>
+        There was an error loading the experiment, please try again later
+      </span>
     </div>
   </div>
-} @else {
+} @else if (template) {
   <div class="flex items-center mt-6 overflow-x-auto">
-    @for (tab of tabs; track tab.link) {
-      <eln-project-tab-button [label]="tab.name" [routerLink]="tab.link" />
+    @for (tab of template.templateTabs; track $index) {
+      <eln-project-tab-button
+        [label]="tab.name"
+        [routerLink]="'tabs/' + $index"
+      />
     }
   </div>
 }
