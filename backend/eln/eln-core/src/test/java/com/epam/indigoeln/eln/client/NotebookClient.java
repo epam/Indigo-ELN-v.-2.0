@@ -2,9 +2,9 @@ package com.epam.indigoeln.eln.client;
 
 import com.epam.indigoeln.eln.api.NotebookAPI;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
-import com.epam.indigoeln.eln.util.ResponseWithHeaders;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 
 import java.nio.file.Path;
@@ -26,5 +26,5 @@ public interface NotebookClient extends NotebookAPI {
     @GET
     @jakarta.ws.rs.Path("/notebook/{notebookId}/attachments/{attachmentId}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    ResponseWithHeaders downloadNotebookAttachmentClient(@PathParam("notebookId") UUID notebookId, @PathParam("attachmentId") UUID attachmentId);
+    Response downloadNotebookAttachmentClient(@PathParam("notebookId") UUID notebookId, @PathParam("attachmentId") UUID attachmentId);
 }

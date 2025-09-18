@@ -21,38 +21,38 @@ public class DictionaryResource implements DictionaryAPI {
     DictionaryMapper dictionaryMapper;
 
     @Override
-    public List<Dictionary> getDictionaries() {
+    public List<DictionaryDTO> getDictionaries() {
         return dictionaryService.getDictionaries();
     }
 
     @Override
-    public List<DictionaryItemRef> getDictionary(Dictionary dictionary) {
-        return dictionaryService.getDictionary(dictionary);
+    public List<DictionaryItemRef> getDictionary(String dictionaryRef) {
+        return dictionaryService.getDictionary(dictionaryRef);
     }
 
     @Override
-    public List<DictionaryItemDTO> getDictionaryFull(Dictionary dictionary) {
-        return dictionaryService.getDictionaryFull(dictionary);
+    public List<DictionaryItemDTO> getDictionaryFull(String dictionaryRef) {
+        return dictionaryService.getDictionaryFull(dictionaryRef);
     }
 
     @Override
-    public List<DictionaryItemRef> suggestDictionaryItems(Dictionary dictionary, String search) {
-        return dictionaryService.suggestDictionaryItems(dictionary, search);
+    public List<DictionaryItemRef> suggestDictionaryItems(String dictionaryRef, String search) {
+        return dictionaryService.suggestDictionaryItems(dictionaryRef, search);
     }
 
     @Override
-    public List<DictionaryItemDTO> addDictionaryItem(Dictionary dictionary, DictionaryItemRequest item) {
-        return dictionaryMapper.dictionaryToDTOList(dictionaryService.addDictionaryItems(dictionary, List.of(item)));
+    public List<DictionaryItemDTO> addDictionaryItem(String dictionaryRef, DictionaryItemRequest item) {
+        return dictionaryMapper.itemToDTOList(dictionaryService.addDictionaryItems(dictionaryRef, List.of(item)));
     }
 
     @Override
-    public List<DictionaryItemDTO> updateDictionaryItem(Dictionary dictionary, UUID itemID, DictionaryItemEditRequest request) {
-        return dictionaryService.updateDictionaryItem(dictionary, itemID, request);
+    public List<DictionaryItemDTO> updateDictionaryItem(String dictionaryRef, UUID itemID, DictionaryItemEditRequest request) {
+        return dictionaryService.updateDictionaryItem(dictionaryRef, itemID, request);
     }
 
     @Override
-    public List<DictionaryItemDTO> removeDictionaryItem(Dictionary dictionary, UUID itemID) {
-        return dictionaryService.removeDictionaryItem(dictionary, itemID);
+    public List<DictionaryItemDTO> removeDictionaryItem(String dictionaryRef, UUID itemID) {
+        return dictionaryService.removeDictionaryItem(dictionaryRef, itemID);
     }
 
     @Override

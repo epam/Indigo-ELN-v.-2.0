@@ -1,15 +1,13 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.eln.BaseTest;
-import com.epam.indigoeln.eln.model.Paging;
+import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.UserRef;
-import com.epam.indigoeln.eln.util.ResponseWithHeaders;
-import com.epam.indigoeln.eln.util.TestHelper;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.Claim;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
@@ -21,21 +19,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @QuarkusTest
-class UserServiceTest extends BaseTest {
+class UserServiceTest extends ELNBaseTest {
 
     @Inject
     UserService userService;
 
     @Test
-    @TestSecurity(user = TestHelper.JOHN_USERNAME)
-    @JwtSecurity(claims = {@Claim(key = "given_name", value = TestHelper.JOHN_FIRST_NAME), @Claim(key = "family_name", value = TestHelper.JOHN_LAST_NAME)})
+    @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
+    @JwtSecurity(claims = {@Claim(key = "given_name", value = JOHN_FIRST_NAME), @Claim(key = "family_name", value = JOHN_LAST_NAME)})
     void testGetCurrentUser() {
         userService.getCurrentUser();
     }
 
     @Test
-    @TestSecurity(user = TestHelper.JOHN_USERNAME)
-    @JwtSecurity(claims = {@Claim(key = "given_name", value = TestHelper.JOHN_FIRST_NAME), @Claim(key = "family_name", value = TestHelper.JOHN_LAST_NAME)})
+    @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
+    @JwtSecurity(claims = {@Claim(key = "given_name", value = JOHN_FIRST_NAME), @Claim(key = "family_name", value = JOHN_LAST_NAME)})
     void testGetCurrentUserLambdaJWT() throws Exception {
         userService.getCurrentUser();
 //        Map<String, String> claims = new LinkedHashMap<>();
@@ -57,20 +55,20 @@ class UserServiceTest extends BaseTest {
     }
 
     @Test
-    @TestSecurity(user = TestHelper.JOHN_USERNAME)
+    @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     void testSuggestUsers() {
         List<UserRef> all = userClient.suggestUsers(null);
-        assertThat(all).map(UserRef::getDisplayName).containsExactly(TestHelper.ADMIN_DISPLAY_NAME, TestHelper.BART_DISPLAY_NAME, TestHelper.JOHN_DISPLAY_NAME, TestHelper.LISA_DISPLAY_NAME, TestHelper.MAGGIE_DISPLAY_NAME, TestHelper.WILLOW_DISPLAY_NAME);
+        assertThat(all).map(UserRef::getDisplayName).containsExactly(ADMIN_DISPLAY_NAME, BART_DISPLAY_NAME, JOHN_DISPLAY_NAME, LISA_DISPLAY_NAME, MAGGIE_DISPLAY_NAME, WILLOW_DISPLAY_NAME);
         List<UserRef> filtered = userClient.suggestUsers("l");
-        assertThat(filtered).map(UserRef::getDisplayName).containsExactly(TestHelper.LISA_DISPLAY_NAME);
+        assertThat(filtered).map(UserRef::getDisplayName).containsExactly(LISA_DISPLAY_NAME);
     }
 
     @Test
     @SneakyThrows
-    @TestSecurity(user = TestHelper.JOHN_USERNAME)
+    @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     void testGetUserPicture() {
         List<UserRef> all = userClient.suggestUsers(null);
-        ResponseWithHeaders response = userClient.getUserPictureClient(all.getFirst().getId(), null);
-        Files.write(Paths.get("user.png"), response.getContent().readAllBytes());
+        Response response = userClient.getUserPictureClient(all.getFirst().getId(), null);
+        Files.write(Paths.get("user.png"), (byte[]) response.getEntity());
     }
 }

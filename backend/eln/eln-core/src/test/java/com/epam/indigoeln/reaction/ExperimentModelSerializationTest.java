@@ -1,7 +1,7 @@
 package com.epam.indigoeln.reaction;
 
 import com.epam.indigoeln.eln.model.STRCodeCompound;
-import com.epam.indigoeln.eln.util.FeignUtil;
+import com.epam.indigoeln.test.FeignUtil;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.outputsample.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;

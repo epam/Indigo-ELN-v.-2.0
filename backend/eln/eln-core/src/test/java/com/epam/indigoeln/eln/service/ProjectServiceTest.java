@@ -1,13 +1,12 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.eln.BaseTest;
+import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.util.ResponseWithHeaders;
-import com.epam.indigoeln.eln.util.TestHelper;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -17,21 +16,21 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.epam.indigoeln.eln.util.CustomAssertions.assertThatACL;
-import static com.epam.indigoeln.eln.util.CustomAssertions.assertThatClientCall;
+import static com.epam.indigoeln.eln.test.ACLListAssert.assertThatACL;
+import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
 
 @QuarkusTest
 @JwtSecurity
-@TestSecurity(user = TestHelper.JOHN_USERNAME)
-class ProjectServiceTest extends BaseTest {
+@TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
+class ProjectServiceTest extends ELNBaseTest {
 
     @BeforeAll
     void tearDownAll() {
-        dictionaryClient.getDictionary(Dictionary.PROJECT_KEYWORD).forEach(item -> {
-            dictionaryClient.removeDictionaryItem(Dictionary.PROJECT_KEYWORD, item.getId());
+        dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_KEYWORD).forEach(item -> {
+            dictionaryClient.removeDictionaryItem(BuiltInDictionary.PROJECT_KEYWORD, item.getId());
         });
     }
 
@@ -46,9 +45,9 @@ class ProjectServiceTest extends BaseTest {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testCreateProject", List.of("keyword1", "keyword2"), "literature", "description"));
         assertThat(project.getId()).isNotNull();
         assertThat(project.getName()).isEqualTo("testCreateProject");
-        assertThat(project.getCreatedBy().getDisplayName()).isEqualTo(TestHelper.JOHN_DISPLAY_NAME);
+        assertThat(project.getCreatedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
         assertThat(project.getCreatedAt()).isNotNull();
-        assertThat(project.getModifiedBy().getDisplayName()).isEqualTo(TestHelper.JOHN_DISPLAY_NAME);
+        assertThat(project.getModifiedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
         assertThat(project.getModifiedAt()).isNotNull();
         assertThat(project.getKeywords()).containsExactly("keyword1", "keyword2");
         assertThat(project.getLiterature()).isEqualTo("literature");
@@ -56,7 +55,7 @@ class ProjectServiceTest extends BaseTest {
         assertThat(project.getNotebookCount()).isEqualTo(0);
         assertThat(project.getExperimentCount()).isEmpty();
         assertThat(project.getAttachments()).isEmpty();
-        assertThatACL(project.getAcl()).containsOnly(TestHelper.JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false);
+        assertThatACL(project.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false);
     }
 
     @Test
@@ -80,9 +79,9 @@ class ProjectServiceTest extends BaseTest {
         assertThat(projects.getItems()).first().satisfies(project -> {
             assertThat(project.getId()).isNotNull();
             assertThat(project.getName()).isEqualTo("testGetProjects");
-            assertThat(project.getCreatedBy().getDisplayName()).isEqualTo(TestHelper.JOHN_DISPLAY_NAME);
+            assertThat(project.getCreatedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
             assertThat(project.getCreatedAt()).isNotNull();
-            assertThat(project.getModifiedBy().getDisplayName()).isEqualTo(TestHelper.JOHN_DISPLAY_NAME);
+            assertThat(project.getModifiedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
             assertThat(project.getModifiedAt()).isNotNull();
             assertThat(project.getNotebookCount()).isEqualTo(0);
             assertThat(project.getExperimentCount()).isEmpty();
@@ -91,7 +90,7 @@ class ProjectServiceTest extends BaseTest {
 
     @Test
     void testGetProjectsPagination() {
-        testHelper.cleanupDatabase();
+        cleanupDatabase();
 
         for (int i = 1; i <= 3; i++) {
             projectClient.createProject(new ProjectRequest("testGetProjectsPagination" + i));
@@ -114,7 +113,7 @@ class ProjectServiceTest extends BaseTest {
 
     @Test
     void testGetProjectsSortByEarliest() {
-        testHelper.cleanupDatabase();
+        cleanupDatabase();
 
         projectClient.createProject(new ProjectRequest("Project1"));
         projectClient.createProject(new ProjectRequest("Project2"));
@@ -129,7 +128,7 @@ class ProjectServiceTest extends BaseTest {
 
     @Test
     void testGetProjectsSortByLatest() {
-        testHelper.cleanupDatabase();
+        cleanupDatabase();
 
         projectClient.createProject(new ProjectRequest("Project1"));
         projectClient.createProject(new ProjectRequest("Project2"));
@@ -144,18 +143,18 @@ class ProjectServiceTest extends BaseTest {
 
     @Test
     void testGetProjectsCreatedByMe() {
-        testHelper.cleanupDatabase();
+        cleanupDatabase();
 
-        withUser(TestHelper.JOHN_USERNAME, () -> {
+        withUser(ELNBaseTest.JOHN_USERNAME, () -> {
             projectClient.createProject(new ProjectRequest("MyProject1"));
             projectClient.createProject(new ProjectRequest("MyProject2"));
         });
 
-        withUser(TestHelper.BART_USERNAME, () -> {
+        withUser(BART_USERNAME, () -> {
             projectClient.createProject(new ProjectRequest("OtherUserProject"));
         });
 
-        withUser(TestHelper.JOHN_USERNAME, () -> {
+        withUser(ELNBaseTest.JOHN_USERNAME, () -> {
             Page<ProjectDTO> projects = projectClient.getProjects(null, null, true, Paging.DEFAULT);
 
             assertThat(projects.getItems())
@@ -172,7 +171,7 @@ class ProjectServiceTest extends BaseTest {
     void testEditProject() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testEditProject", List.of("k1", "k2"), "l", "d"));
         ProjectDetailsDTO notModified = projectClient.editProject(project.getId(), new ProjectEditRequest(null, null, null, null));
-        assertThat(notModified).usingRecursiveComparison(TestHelper.COMPARE_WITHOUT_MODIFIED_AT).isEqualTo(project);
+        assertThat(notModified).usingRecursiveComparison(COMPARE_WITHOUT_MODIFIED_AT).isEqualTo(project);
         ProjectDetailsDTO modified = projectClient.editProject(project.getId(), new ProjectEditRequest(Optional.of("testEditProject_new"), Optional.of(List.of("k2", "k3")), Optional.of("l2"), Optional.of("d2")));
         assertThat(modified.getName()).isEqualTo("testEditProject_new");
         assertThat(modified.getKeywords()).containsExactly("k2", "k3");
@@ -187,9 +186,9 @@ class ProjectServiceTest extends BaseTest {
         UUID projectId = projectClient.createProject(new ProjectRequest("testCounts")).getId();
         UUID notebook1Id = notebookClient.createNotebook(projectId, new NotebookRequest(nextNotebookName())).getId();
         UUID notebook2Id = notebookClient.createNotebook(projectId, new NotebookRequest(nextNotebookName())).getId();
-        experimentClient.createExperiment(notebook1Id, new ExperimentRequest(testHelper.getEmptyTemplateID()));
-        experimentClient.createExperiment(notebook1Id, new ExperimentRequest(testHelper.getEmptyTemplateID()));
-        experimentClient.createExperiment(notebook2Id, new ExperimentRequest(testHelper.getEmptyTemplateID()));
+        experimentClient.createExperiment(notebook1Id, new ExperimentRequest(emptyTemplateID));
+        experimentClient.createExperiment(notebook1Id, new ExperimentRequest(emptyTemplateID));
+        experimentClient.createExperiment(notebook2Id, new ExperimentRequest(emptyTemplateID));
 
         TotalCounts totalCounts = miscClient.getTotalCounts();
         assertThat(totalCounts.getProjects()).isGreaterThanOrEqualTo(1);
@@ -227,9 +226,9 @@ class ProjectServiceTest extends BaseTest {
         assertThat(attachments).singleElement().satisfies(a -> {
             assertThat(a.getId()).isNotNull();
             assertThat(a.getName()).isEqualTo("attachment.txt");
-            assertThat(a.getCreatedBy().getDisplayName()).isEqualTo(TestHelper.JOHN_DISPLAY_NAME);
+            assertThat(a.getCreatedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
             assertThat(a.getCreatedAt()).isNotNull();
-            assertThat(a.getModifiedBy().getDisplayName()).isEqualTo(TestHelper.JOHN_DISPLAY_NAME);
+            assertThat(a.getModifiedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
             assertThat(a.getModifiedAt()).isNotNull();
         });
     }
@@ -238,9 +237,9 @@ class ProjectServiceTest extends BaseTest {
     void testDownloadAttachment(@TempDir Path tempDir) throws Exception {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testDownloadAttachment"));
         List<AttachmentDTO> attachments = projectClient.createProjectAttachment(project.getId(), "attachment.txt", tempDir, "content".getBytes());
-        ResponseWithHeaders response = projectClient.downloadProjectAttachmentClient(project.getId(), attachments.getFirst().getId());
+        Response response = projectClient.downloadProjectAttachmentClient(project.getId(), attachments.getFirst().getId());
         assertThat(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION)).containsExactly("attachment; filename=attachment.txt");
-        assertThat(response.getContent()).hasContent("content");
+        assertThat((byte[]) response.getEntity()).asString().isEqualTo("content");
     }
 
     @Test
@@ -255,9 +254,9 @@ class ProjectServiceTest extends BaseTest {
     @Test
     void testSuggestKeywords() {
         projectClient.createProject(new ProjectRequest("testSuggestKeywords", List.of("k1", "K2", "k3", "keyword1", "Keyword2"), null, null));
-        List<DictionaryItemRef> all = dictionaryClient.suggestDictionaryItems(Dictionary.PROJECT_KEYWORD, "");
+        List<DictionaryItemRef> all = dictionaryClient.suggestDictionaryItems(BuiltInDictionary.PROJECT_KEYWORD, "");
         assertThat(all).map(DictionaryItemRef::getName).contains("k1", "k2", "k3");
-        List<DictionaryItemRef> filtered = dictionaryClient.suggestDictionaryItems(Dictionary.PROJECT_KEYWORD, "ke");
+        List<DictionaryItemRef> filtered = dictionaryClient.suggestDictionaryItems(BuiltInDictionary.PROJECT_KEYWORD, "ke");
         assertThat(filtered).map(DictionaryItemRef::getName).containsExactly("keyword1", "keyword2", "Keyword2");
     }
 

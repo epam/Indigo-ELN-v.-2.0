@@ -1,10 +1,7 @@
 package com.epam.indigoeln.eln.entity;
 
 import com.epam.indigoeln.eln.model.TemplateTab;
-import jakarta.persistence.Entity;
-import jakarta.persistence.NamedAttributeNode;
-import jakarta.persistence.NamedEntityGraph;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -44,6 +41,7 @@ public class TemplateEntity extends BaseEntity {
 
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "template_tabs")
     private List<TemplateTab> templateTabs;
 
     @NotNull

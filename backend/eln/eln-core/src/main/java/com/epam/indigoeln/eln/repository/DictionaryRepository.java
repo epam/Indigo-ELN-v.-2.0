@@ -1,65 +1,30 @@
 package com.epam.indigoeln.eln.repository;
 
-import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
+import com.epam.indigoeln.eln.entity.DictionaryEntity;
 import com.epam.indigoeln.eln.mapper.DictionaryMapper;
-import com.epam.indigoeln.eln.model.Dictionary;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.DictionaryDTO;
 import com.epam.indigoeln.eln.model.EntityType;
 import com.epam.indigoeln.eln.model.Paging;
 import com.epam.indigoeln.eln.util.Conditions;
-import com.google.common.base.Strings;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import one.util.streamex.StreamEx;
-import org.jspecify.annotations.Nullable;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 @ApplicationScoped
-public class DictionaryRepository extends BaseRepository<DictionaryItemEntity> {
+public class DictionaryRepository extends BaseRepository<DictionaryEntity> {
 
-    private static final Sort SORT = Sort.by("ordinal");
-    private static final Sort SORT_SUGGEST = Sort.by("name");
+    private static final Sort SORT_NAME = Sort.by("name");
 
     @Inject
     DictionaryMapper dictionaryMapper;
 
     public DictionaryRepository() {
-        super(EntityType.DICTIONARY_ITEM);
+        super(EntityType.DICTIONARY);
     }
 
-    public List<DictionaryItemEntity> list(Dictionary dictionary, boolean includeInactive) {
-        Conditions conditions = new Conditions()
-                .add("dictionary=?", dictionary);
-        if (!includeInactive) {
-            conditions.add("active");
-        }
-        return find(conditions.getQuery(), SORT, conditions.getValues()).list();
-    }
-
-    public Map<String, DictionaryItemEntity> findByNames(Dictionary dictionary, Collection<String> names) {
-        Conditions conditions = new Conditions()
-                .add("dictionary=?", dictionary)
-                .add("name IN ?", names);
-        return StreamEx.of(find(conditions.getQuery(), conditions.getValues()).stream())
-                .toMap(DictionaryItemEntity::getName, item -> item);
-    }
-
-    public List<DictionaryItemRef> suggest(Dictionary dictionary, @Nullable String search) {
-        Conditions conditions = new Conditions()
-                .add("dictionary=?", dictionary)
-                .add("active");
-        if (!Strings.isNullOrEmpty(search)) {
-            conditions.add("LOWER(name) LIKE ?", search.toLowerCase() + "%");
-        }
-        return doFind(conditions,
-                Paging.DEFAULT,
-                SORT_SUGGEST,
-                null,
-                dictionaryMapper::dictionaryToRef
-        );
+    public List<DictionaryDTO> list() {
+        return doFind(new Conditions(), Paging.ALL, SORT_NAME, null, dictionaryMapper::dictionaryToDTO);
     }
 }

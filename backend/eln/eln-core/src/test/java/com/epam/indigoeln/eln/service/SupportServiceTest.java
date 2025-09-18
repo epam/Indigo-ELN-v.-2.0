@@ -1,37 +1,22 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.eln.BaseTest;
-import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.util.ResponseWithHeaders;
-import com.epam.indigoeln.eln.util.TestHelper;
+import com.epam.indigoeln.eln.ELNBaseTest;
+import com.epam.indigoeln.eln.model.TemplateComponent;
+import com.epam.indigoeln.eln.model.TemplateDetailsDTO;
+import com.epam.indigoeln.eln.model.TemplateRequest;
+import com.epam.indigoeln.eln.model.TemplateTab;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
-import jakarta.ws.rs.core.HttpHeaders;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
-import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static com.epam.indigoeln.eln.util.CustomAssertions.assertThatACL;
-import static com.epam.indigoeln.eln.util.CustomAssertions.assertThatClientCall;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 
 
 @QuarkusTest
 @JwtSecurity
-@TestSecurity(user = TestHelper.ADMIN_USERNAME)
-class SupportServiceTest extends BaseTest {
-
-    @Test
-    void testFlyway() {
-        assertThatClientCall(() -> miscClient.migrate())
-                .isSuccessful();
-    }
+@TestSecurity(user = ELNBaseTest.ADMIN_USERNAME)
+class SupportServiceTest extends ELNBaseTest {
 
     @Test
     void testInsertTestData() {

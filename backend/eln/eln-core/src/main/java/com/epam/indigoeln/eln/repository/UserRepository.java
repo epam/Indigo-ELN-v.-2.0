@@ -54,7 +54,7 @@ public class UserRepository extends BaseRepository<UserEntity> {
                         .addIfNotNull("username = ?", username),
                 paging,
                 DEFAULT_SORT,
-                em.getEntityGraph("Project.list"),
+                null,
                 userMapper::entityToDTO
         );
     }

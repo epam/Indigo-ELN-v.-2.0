@@ -1,6 +1,9 @@
 package com.epam.indigoeln.eln.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +16,7 @@ import java.time.ZonedDateTime;
 public abstract class BaseEntity extends IdentifiableEntity {
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "created_by_id", updatable = false)
     protected UserEntity createdBy;
 
@@ -22,7 +25,7 @@ public abstract class BaseEntity extends IdentifiableEntity {
     protected ZonedDateTime createdAt;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "modified_by_id")
     protected UserEntity modifiedBy;
 

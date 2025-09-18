@@ -14,9 +14,6 @@ dependencies {
     api("io.quarkus:quarkus-logging-json")
     api("org.eclipse.microprofile.jwt:microprofile-jwt-auth-api")
     api("io.quarkus:quarkus-smallrye-openapi")
-    api("io.quarkus:quarkus-jdbc-postgresql")
-    api("io.quarkus:quarkus-flyway")
-    api("org.flywaydb:flyway-database-postgresql")
 
     api("org.jspecify:jspecify:1.0.0")
     api("com.google.guava:guava:33.4.8-jre")

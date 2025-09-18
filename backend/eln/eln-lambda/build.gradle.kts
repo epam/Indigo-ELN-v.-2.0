@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    implementation("io.quarkus:quarkus-container-image-jib")
+    implementation("io.quarkus:quarkus-container-image-docker")
 
     implementation(project(":common:common-lambda"))
     implementation(project(":eln:eln-core"))
@@ -37,6 +37,7 @@ tasks.named("compileIntegrationTestJava") {
     dependsOn(":eln:eln-core:testJar")
 }
 
-tasks.named("quarkusIntTest") {
+tasks.named("quarkusIntTest", Test::class) {
+//    systemProperty("quarkus.http.test-port", "8083")
     outputs.upToDateWhen { false }
 }

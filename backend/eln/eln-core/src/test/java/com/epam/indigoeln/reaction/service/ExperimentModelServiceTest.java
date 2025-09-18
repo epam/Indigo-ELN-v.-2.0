@@ -4,11 +4,9 @@ import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.StructureSearchType;
-import com.epam.indigoeln.eln.BaseTest;
+import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.util.ResponseWithHeaders;
-import com.epam.indigoeln.eln.util.TestHelper;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.ReactionInputRole;
@@ -19,6 +17,7 @@ import com.epam.indigoeln.reaction.util.CalculationReportBuilder;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
@@ -37,9 +36,9 @@ import java.util.UUID;
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 
 @QuarkusTest
-@TestSecurity(user = TestHelper.JOHN_USERNAME)
+@TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 @SuppressWarnings("SequencedCollectionMethodCanBeUsed")
-public class ExperimentModelServiceTest extends BaseTest {
+public class ExperimentModelServiceTest extends ELNBaseTest {
 
     ExperimentDetailsDTO experiment;
     ExperimentModel model;
@@ -72,7 +71,7 @@ public class ExperimentModelServiceTest extends BaseTest {
     void testCreateExperiment() {
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("ExperimentModelServiceTest"));
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-        experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(testHelper.getEmptyTemplateID()));
+        experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         model = experimentClient.getExperimentModel(experiment.getId());
         reactionAnchor = model.getReactions().getFirst().getAnchor();
     }
@@ -206,11 +205,11 @@ public class ExperimentModelServiceTest extends BaseTest {
         System.out.println("Applying mutation: " + mutation);
         reportBuilder.addMutation(mutation);
         model = experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(model, mutation));
-        ResponseWithHeaders pictureResponse = experimentClient.getExperimentPictureClient(experiment.getId());
-        byte[] newPicture = pictureResponse.getContent().readAllBytes();
+        Response pictureResponse = experimentClient.getExperimentPictureClient(experiment.getId());
+        byte[] newPicture = (byte[]) pictureResponse.getEntity();
         if (picture == null || newPicture != null && !Arrays.equals(picture, newPicture)) {
             picture = newPicture;
-            reportBuilder.addPicture(picture, pictureResponse.getHeaders().get(HttpHeaders.CONTENT_TYPE).iterator().next());
+            reportBuilder.addPicture(picture, pictureResponse.getHeaderString(HttpHeaders.CONTENT_TYPE));
         }
         reportBuilder.addModel(model);
         System.out.println(model);

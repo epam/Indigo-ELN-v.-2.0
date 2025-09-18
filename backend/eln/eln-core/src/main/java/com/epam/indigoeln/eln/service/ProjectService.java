@@ -39,7 +39,7 @@ public class ProjectService {
         aclService.ensureTopLevelAccess(ApplicationPermission.CREATE_PROJECTS);
         ProjectEntity project = projectMapper.requestToProject(request);
         if (request.getKeywords() != null && !request.getKeywords().isEmpty()) {
-            project.setKeywords(dictionaryService.findOrCreateByNames(Dictionary.PROJECT_KEYWORD, request.getKeywords()));
+            project.setKeywords(dictionaryService.findOrCreateByNames(BuiltInDictionary.PROJECT_KEYWORD.name(), request.getKeywords()));
         }
         updateDates(project, userService.getCurrentUser());
         aclService.initProjectACL(project);
@@ -76,7 +76,7 @@ public class ProjectService {
         aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
         editProperty(request.getName(), project::setName);
         editProperty(request.getKeywords(), v -> {
-            project.setKeywords(dictionaryService.findOrCreateByNames(Dictionary.PROJECT_KEYWORD, v));
+            project.setKeywords(dictionaryService.findOrCreateByNames(BuiltInDictionary.PROJECT_KEYWORD.name(), v));
         });
         editProperty(request.getLiterature(), project::setLiterature);
         editProperty(request.getDescription(), project::setDescription);

@@ -15,6 +15,7 @@ import jakarta.transaction.Transactional;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
+import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 
 @DataAccess
 @Transactional
@@ -36,13 +37,13 @@ public class TemplateService {
         TemplateValidationUtil.validateTemplateRequest(request, templateRepository);
 
         TemplateEntity template = templateMapper.requestToTemplate(request);
-        ModelUtil.updateDates(template, userService.getCurrentUser());
+        updateDates(template, userService.getCurrentUser());
 
         try {
             templateRepository.persist(template);
             templateRepository.flushAndClear();
         } catch (org.hibernate.exception.ConstraintViolationException e) {
-            if ("template_name_unique".equals(e.getConstraintName())) {
+            if ("template_name_uq".equals(e.getConstraintName())) {
                 throw new InvalidRequestException("Template with name '" + request.getName() + "' already exists.");
             }
             throw e;
@@ -66,7 +67,7 @@ public class TemplateService {
 
         editProperty(request.getName(), template::setName);
 
-        ModelUtil.updateDates(template, userService.getCurrentUser());
+        updateDates(template, userService.getCurrentUser());
 
         templateRepository.flushAndClear();
 

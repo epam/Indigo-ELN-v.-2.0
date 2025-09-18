@@ -2,9 +2,9 @@ package com.epam.indigoeln.eln.client;
 
 import com.epam.indigoeln.eln.api.ProjectAPI;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
-import com.epam.indigoeln.eln.util.ResponseWithHeaders;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 
 import java.nio.file.Path;
@@ -26,5 +26,5 @@ public interface ProjectClient extends ProjectAPI {
     @GET
     @jakarta.ws.rs.Path("/project/{projectId}/attachments/{attachmentId}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    ResponseWithHeaders downloadProjectAttachmentClient(@PathParam("projectId") UUID projectId, @PathParam("attachmentId") UUID attachmentId);
+    Response downloadProjectAttachmentClient(@PathParam("projectId") UUID projectId, @PathParam("attachmentId") UUID attachmentId);
 }

@@ -7,18 +7,24 @@ import com.epam.indigoeln.eln.entity.NotebookEntity;
 import com.epam.indigoeln.eln.entity.TemplateEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
+import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
+import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
-import com.epam.indigoeln.eln.util.ModelUtil;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
+import com.epam.indigoeln.reports.api.ReportsAPI;
+import com.epam.indigoeln.reports.api.ReportsClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
@@ -26,6 +32,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
+import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 
 @Slf4j
 @DataAccess
@@ -35,6 +42,8 @@ public class ExperimentService {
 
     static final byte[] EMPTY_PICTURE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"/>".getBytes(StandardCharsets.UTF_8);
 
+    @Inject
+    ProjectRepository projectRepository;
     @Inject
     NotebookRepository notebookRepository;
     @Inject
@@ -51,6 +60,11 @@ public class ExperimentService {
     ExperimentModelService experimentModelService;
     @Inject
     TemplateRepository templateRepository;
+    @Inject
+    @RestClient
+    ReportsClient reportsClient;
+    @Inject
+    ProjectMapper projectMapper;
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
@@ -58,8 +72,8 @@ public class ExperimentService {
         ExperimentEntity experiment = experimentMapper.requestToExperiment(request, ExperimentStatus.OPEN);
         TemplateEntity template = templateRepository.get(request.getTemplateID());
         experiment.setName(generateExperimentName(notebook));
-        experiment.setTherapeuticArea(dictionaryService.lookup(Dictionary.THERAPEUTIC_AREA, request.getTherapeuticArea()));
-        experiment.setProjectCode(dictionaryService.lookup(Dictionary.PROJECT_CODE, request.getProjectCode()));
+        experiment.setTherapeuticArea(dictionaryService.lookup(BuiltInDictionary.THERAPEUTIC_AREA.name(), request.getTherapeuticArea()));
+        experiment.setProjectCode(dictionaryService.lookup(BuiltInDictionary.PROJECT_CODE.name(), request.getProjectCode()));
         notebook.getProject().getExperiments().add(experiment);
         notebook.getExperiments().add(experiment);
         template.getExperiments().add(experiment);
@@ -67,7 +81,7 @@ public class ExperimentService {
         experiment.setNotebook(notebook);
         experiment.setTemplate(template);
         experiment.setModel(experimentModelService.createNewModel());
-        ModelUtil.updateDates(experiment, userService.getCurrentUser());
+        updateDates(experiment, userService.getCurrentUser());
         aclService.initExperimentACL(experiment);
         experimentRepository.persist(experiment);
         experimentRepository.flushAndClear();
@@ -98,12 +112,12 @@ public class ExperimentService {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
         editProperty(request.getTherapeuticArea(), v -> {
-            experiment.setTherapeuticArea(dictionaryService.lookup(Dictionary.THERAPEUTIC_AREA, v));
+            experiment.setTherapeuticArea(dictionaryService.lookup(BuiltInDictionary.THERAPEUTIC_AREA.name(), v));
         });
         editProperty(request.getProjectCode(), v -> {
-            experiment.setProjectCode(dictionaryService.lookup(Dictionary.PROJECT_CODE, v));
+            experiment.setProjectCode(dictionaryService.lookup(BuiltInDictionary.PROJECT_CODE.name(), v));
         });
-        ModelUtil.updateDates(experiment, userService.getCurrentUser());
+        updateDates(experiment, userService.getCurrentUser());
         experimentRepository.flushAndClear();
         return getExperiment(experimentId);
     }
@@ -147,6 +161,22 @@ public class ExperimentService {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
         return experiment.getPicture() != null ? experiment.getPicture() : EMPTY_PICTURE;
+    }
+
+    public Response printReport(UUID experimentId) {
+        ExperimentEntity experiment = experimentRepository.loadForReport(experimentId);
+        ReportsAPI.ExperimentReportDataDTO data = new ReportsAPI.ExperimentReportDataDTO(
+                projectMapper.entityToDTO(experiment.getProject()),
+                experimentMapper.entityToDetailsDTO(experiment),
+                experiment.getPicture() != null ? new String(experiment.getPicture(), StandardCharsets.UTF_8) : null,
+                experiment.getModel()
+        );
+        try (Response response = reportsClient.generateExperimentReport(data)) {
+            return Response.ok(response.getEntity())
+                    .header(HttpHeaders.CONTENT_DISPOSITION, response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION))
+                    .header(HttpHeaders.CONTENT_TYPE, response.getHeaderString(HttpHeaders.CONTENT_TYPE))
+                    .build();
+        }
     }
 
     private String generateExperimentName(NotebookEntity notebook) {

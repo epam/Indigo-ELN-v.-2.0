@@ -18,5 +18,6 @@ public enum EntityType {
     COMPOUND,
     SAMPLE,
 
+    DICTIONARY,
     DICTIONARY_ITEM,
 }

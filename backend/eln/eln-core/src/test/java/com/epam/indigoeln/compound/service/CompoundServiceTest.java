@@ -3,10 +3,9 @@ package com.epam.indigoeln.compound.service;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
-import com.epam.indigoeln.eln.BaseTest;
+import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.service.DictionaryService;
-import com.epam.indigoeln.eln.util.TestHelper;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
@@ -29,8 +28,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 @JwtSecurity
-@TestSecurity(user = TestHelper.JOHN_USERNAME)
-public class CompoundServiceTest extends BaseTest {
+@TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
+public class CompoundServiceTest extends ELNBaseTest {
 
     @Inject
     IndigoAPI indigo;

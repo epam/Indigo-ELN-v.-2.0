@@ -12,3 +12,4 @@ target
 cdk.out
 
 *.json
+*.sh

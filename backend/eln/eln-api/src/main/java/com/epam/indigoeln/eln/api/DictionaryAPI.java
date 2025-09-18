@@ -4,6 +4,7 @@ import com.epam.indigoeln.eln.model.*;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
+import java.util.Dictionary;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,31 +15,31 @@ public interface DictionaryAPI extends BaseAPI {
 
     @GET
     @Path("/dictionaries")
-    List<Dictionary> getDictionaries();
+    List<DictionaryDTO> getDictionaries();
 
     @GET
     @Path("/dictionaries/{dictionary}")
-    List<DictionaryItemRef> getDictionary(@PathParam("dictionary") Dictionary dictionary);
+    List<DictionaryItemRef> getDictionary(@PathParam("dictionary") String dictionaryRef);
 
     @GET
     @Path("/dictionaries/{dictionary}/full")
-    List<DictionaryItemDTO> getDictionaryFull(@PathParam("dictionary") Dictionary dictionary);
+    List<DictionaryItemDTO> getDictionaryFull(@PathParam("dictionary") String dictionaryRef);
 
     @GET
     @Path("/dictionaries/{dictionary}/suggest")
-    List<DictionaryItemRef> suggestDictionaryItems(@PathParam("dictionary") Dictionary dictionary, @QueryParam("search") String search);
+    List<DictionaryItemRef> suggestDictionaryItems(@PathParam("dictionary") String dictionaryRef, @QueryParam("search") String search);
 
     @POST
     @Path("/dictionaries/{dictionary}")
-    List<DictionaryItemDTO> addDictionaryItem(@PathParam("dictionary") Dictionary dictionary, DictionaryItemRequest item);
+    List<DictionaryItemDTO> addDictionaryItem(@PathParam("dictionary") String dictionaryRef, DictionaryItemRequest item);
 
     @PATCH
     @Path("/dictionaries/{dictionary}/{itemID}")
-    List<DictionaryItemDTO> updateDictionaryItem(@PathParam("dictionary") Dictionary dictionary, @PathParam("itemID") UUID itemID, DictionaryItemEditRequest request);
+    List<DictionaryItemDTO> updateDictionaryItem(@PathParam("dictionary") String dictionaryRef, @PathParam("itemID") UUID itemID, DictionaryItemEditRequest request);
 
     @DELETE
     @Path("/dictionaries/{dictionary}/{itemID}")
-    List<DictionaryItemDTO> removeDictionaryItem(@PathParam("dictionary") Dictionary dictionary, @PathParam("itemID") UUID itemID);
+    List<DictionaryItemDTO> removeDictionaryItem(@PathParam("dictionary") String dictionaryRef, @PathParam("itemID") UUID itemID);
 
     @GET
     @Path("/saltCodes")

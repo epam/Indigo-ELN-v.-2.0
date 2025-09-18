@@ -1,6 +1,6 @@
 package com.epam.indigoeln.compound.entity;
 
-import com.epam.indigoeln.compound.model.CompoundSource;
+import com.epam.indigoeln.eln.model.CompoundSource;
 import com.epam.indigoeln.eln.model.STRCodeCompound;
 import com.epam.indigoeln.eln.config.hibernate.STRCodeCompoundConverter;
 import com.epam.indigoeln.eln.entity.*;

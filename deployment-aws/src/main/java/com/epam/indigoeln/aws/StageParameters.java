@@ -26,6 +26,7 @@ public class StageParameters {
     private List<String> lambdaSubnets;
     private String postgresImageTag;
     private String apiGatewaySecret;
+    private String internalApiGatewaySecret;
     private String ec2Ip;
 
     @SneakyThrows

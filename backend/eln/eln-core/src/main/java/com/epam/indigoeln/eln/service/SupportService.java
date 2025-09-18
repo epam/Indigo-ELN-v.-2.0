@@ -4,9 +4,7 @@ import com.epam.indigoeln.eln.model.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import lombok.SneakyThrows;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.output.MigrateResult;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -39,23 +37,10 @@ public class SupportService {
 
     private final Random random = new Random();
 
-    @SneakyThrows
-    public Map<String, String> migrate() {
-        // don't check permissions if flyway was never applied, as there are no user/role tables yet
-        boolean flywayExists = flyway.info().current() != null;
-        if (flywayExists) {
-            aclService.ensureTopLevelAccess(ApplicationPermission.SYSTEM_OPERATIONS);
-        }
-        MigrateResult result = flyway.migrate();
-        return Map.of(
-                "migrationsExecuted", Integer.toString(result.migrationsExecuted)
-        );
-    }
-
     @Transactional
     public Map<String, String> insertTestData(UUID templateID) {
-        List<DictionaryItemRef> therapeuticAreas = dictionaryService.getDictionary(Dictionary.THERAPEUTIC_AREA);
-        List<DictionaryItemRef> projectCodes = dictionaryService.getDictionary(Dictionary.PROJECT_CODE);
+        List<DictionaryItemRef> therapeuticAreas = dictionaryService.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA.name());
+        List<DictionaryItemRef> projectCodes = dictionaryService.getDictionary(BuiltInDictionary.PROJECT_CODE.name());
         int lastUsedNotebookNumber = 0;
         int projectCount = 0, notebookCount = 0, experimentCount = 0, attachmentCount = 0;
         for (int projectNo = 1; projectNo <= random.nextInt(4, 6); projectNo++) {
