@@ -18,14 +18,29 @@
     </li>
     <li
       *ngFor="let item of menu$ | async"
-      routerLinkActive="active"
+      [ngClass]="{ active: isMenuItemActive(item.path) }"
       class="my-3 [&.active]:bg-primary-alpha-10 [&.active_a_em]:text-primary-400 rounded-lg"
     >
       <a
         [routerLink]="item.path"
         class="flex items-center gap-2 rounded-lg p-3 text-neutral-1000 hover:bg-primary-alpha-10 hover:text-primary-400"
       >
-        <em [class]="item.icon" class="text-xl flex-shrink-0"></em>
+        <em
+          *ngIf="item.icon"
+          [class]="item.icon"
+          class="text-xl flex-shrink-0"
+        ></em>
+        <mat-icon
+          *ngIf="item.materialIcon"
+          class="text-xl flex-shrink-0"
+          [ngStyle]="{
+            color: isMenuItemActive(item.path)
+              ? 'var(--color-primary-400)'
+              : 'var(--neutral-color-600)',
+          }"
+        >
+          {{ item.materialIcon }}
+        </mat-icon>
         <span
           class="font-semibold text-h4 whitespace-nowrap"
           *ngIf="isSidebarOpen"
@@ -34,5 +49,8 @@
       </a>
     </li>
   </ul>
-  <eln-starred-experiments *ngIf="isSidebarOpen" class="block mt-2"></eln-starred-experiments>
+  <eln-starred-experiments
+    *ngIf="isSidebarOpen"
+    class="block mt-2"
+  ></eln-starred-experiments>
 </nav>

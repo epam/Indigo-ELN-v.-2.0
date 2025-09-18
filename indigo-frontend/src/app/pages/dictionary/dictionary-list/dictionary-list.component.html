@@ -1,11 +1,11 @@
 @if (isLoading) {
- <div class="flex items-center justify-center h-screen">
-  Loading dictionaries...
-</div>
+  <div class="flex items-center justify-center h-screen">
+    Loading dictionaries...
+  </div>
 }
 
 @if (hasError) {
-  <div class="text-center p-4">
+  <div class="flex items-center justify-center h-screen">
     <p>Error loading dictionaries.</p>
   </div>
 }
@@ -18,12 +18,11 @@
       >
         <eln-card (click)="selectDictionary(dictionary)" classList="p-4">
           <div class="flex gap-2 items-center">
-            <em class="indicon-book" [style.color]="'var(--color-primary-400)'"></em>
+            <mat-icon class="material-icons-outlined" [style.color]="'var(--color-primary-400)'">import_contacts</mat-icon>
             <h2 class="font-semibold text-base">{{ dictionary.name }}</h2>
           </div>
 
           <div class="flex justify-between gap-8 pt-4 text-sm">
-
             <div class="flex-1">
               <h3 class="text-neutral-800 mb-2">Description</h3>
               <p class="text-neutral-1000">{{ dictionary.description }}</p>
@@ -38,7 +37,6 @@
               </p>
             </div>
 
-
             <div class="flex-1">
               <h3 class="text-neutral-800 mb-2 whitespace-nowrap">
                 Last Edited by
@@ -47,13 +45,12 @@
                 {{ dictionary.modifiedBy.displayName }}
               </p>
             </div>
-
           </div>
         </eln-card>
       </div>
     }
   </div>
-} @else if (!isLoading) {
+} @else if (!isLoading && !hasError) {
   <div class="text-center p-4">
     <p>No dictionaries available.</p>
   </div>

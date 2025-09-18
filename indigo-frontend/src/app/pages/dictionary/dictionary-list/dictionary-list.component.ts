@@ -6,11 +6,12 @@ import {
 import { DictionaryService } from '@/core/services/dictionary/dictionary.service';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { DatePipe } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'eln-dictionary-list',
   templateUrl: './dictionary-list.component.html',
-  imports: [CardComponent, DatePipe],
+  imports: [CardComponent, DatePipe, MatIconModule],
   standalone: true,
 })
 export class DictionaryListComponent implements OnInit {
