@@ -26,30 +26,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   selector: 'eln-component-stoichiometry-table',
   templateUrl: './component-stoichiometry-table.component.html',
   imports: [MatCheckbox, EnteredValueComponent, DropdownValueComponent],
-  styles: `
-    .inputs-container {
-      width: 100%; /* Container stays within parent */
-      max-width: 100%; /* Prevents container from expanding */
-      overflow-x: auto;
-      overflow-y: visible;
-      border: 1px solid #ddd; /* Optional: visual boundary */
-    }
-
-    table {
-      width: auto;
-      min-width: 100%;
-      table-layout: fixed;
-    }
-
-    table td,
-    table th {
-      width: 200px;
-      min-width: 200px;
-      max-width: 200px;
-      white-space: nowrap;
-      text-align: center;
-    }
-  `,
 })
 export class ComponentStoichiometryTableComponent implements OnInit {
   protected readonly MOL_WEIGHT_UNITS = MOL_WEIGHT_UNITS;

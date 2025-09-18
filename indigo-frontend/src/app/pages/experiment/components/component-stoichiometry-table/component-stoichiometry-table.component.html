@@ -1,39 +1,39 @@
 <h1>=== STOICHIOMETRY TABLE COMPONENT ===</h1>
 @if (showReactantsReagentsSolvents) {
   <h1>Reactants, Reagents, Solvents</h1>
-  <div class="grid grid-cols-[1fr_auto] gap-4 pt-4 inputs-container">
-    <table>
+  <div class="overflow-x-auto">
+    <table class="table-fixed">
       <thead>
         <tr>
-          <th>Compound ID</th>
-          <th>CAS Number</th>
-          <th>Chemical Name</th>
-          <th>Nbk Batch #</th>
-          <th>Mol Weight</th>
-          <th>Weight</th>
-          <th>Volume</th>
-          <th>Mol</th>
-          <th>EQ</th>
-          <th>Limiting</th>
-          <th>Rxn Role</th>
-          <th>Density</th>
-          <th>Molarity</th>
-          <th>Purity</th>
-          <th>Mol Formula</th>
-          <th>Salt Code</th>
-          <th>Salt EQ</th>
-          <th>Hazard Comments</th>
-          <th>Comments</th>
+          <th class="w-48">Compound ID</th>
+          <th class="w-48">CAS Number</th>
+          <th class="w-48">Chemical Name</th>
+          <th class="w-48">Nbk Batch #</th>
+          <th class="w-48">Mol Weight</th>
+          <th class="w-48">Weight</th>
+          <th class="w-48">Volume</th>
+          <th class="w-48">Mol</th>
+          <th class="w-48">EQ</th>
+          <th class="w-48">Limiting</th>
+          <th class="w-48">Rxn Role</th>
+          <th class="w-48">Density</th>
+          <th class="w-48">Molarity</th>
+          <th class="w-48">Purity</th>
+          <th class="w-48">Mol Formula</th>
+          <th class="w-48">Salt Code</th>
+          <th class="w-48">Salt EQ</th>
+          <th class="w-48">Hazard Comments</th>
+          <th class="w-48">Comments</th>
         </tr>
       </thead>
       <tbody>
         @for (row of model?.reactions?.[0]?.inputs; track row.anchor) {
           <tr>
-            <td>{{ row.compound.strCode }}</td>
-            <td>?</td>
-            <td>{{ row.compound.name }}</td>
-            <td>TODO</td>
-            <td>
+            <td class="text-center">{{ row.compound.strCode }}</td>
+            <td class="text-center">?</td>
+            <td class="text-center">{{ row.compound.name }}</td>
+            <td class="text-center">TODO</td>
+            <td class="text-center">
               <eln-entered-value
                 [value]="row.compound.molWeight"
                 [showUnits]="false"
@@ -41,28 +41,28 @@
                 [readOnly]="true"
               />
             </td>
-            <td>
+            <td class="text-center">
               <eln-entered-value
                 [value]="row.samples[0]?.weight"
                 [units]="WEIGHT_UNITS"
                 [onChange]="setWeight.bind(this, row)"
               />
             </td>
-            <td>
+            <td class="text-center">
               <eln-entered-value
                 [value]="row.samples[0]?.volume"
                 [units]="VOLUME_UNITS"
                 [onChange]="setVolume.bind(this, row)"
               />
             </td>
-            <td>
+            <td class="text-center">
               <eln-entered-value
                 [value]="row.samples[0]?.mol"
                 [units]="MOL_UNITS"
                 [onChange]="setMol.bind(this, row)"
               />
             </td>
-            <td>
+            <td class="text-center">
               <eln-entered-value
                 [value]="row.eq"
                 [showUnits]="false"
@@ -70,10 +70,10 @@
                 [onChange]="setEQ.bind(this, row)"
               />
             </td>
-            <td>
+            <td class="text-center">
               <mat-checkbox [checked]="row.limiting" />
             </td>
-            <td>
+            <td class="text-center">
               <eln-dropdown-value
                 [value]="row.role"
                 [options]="REACTION_INPUT_ROLES"
@@ -81,21 +81,21 @@
                 [onChange]="setRole.bind(this, row)"
               />
             </td>
-            <td>
+            <td class="text-center">
               <eln-entered-value
                 [value]="row.samples[0]?.density"
                 [units]="DENSITY_UNITS"
                 [onChange]="setDensity.bind(this, row)"
               />
             </td>
-            <td>
+            <td class="text-center">
               <eln-entered-value
                 [value]="row.samples[0]?.molarity"
                 [units]="MOLARITY_UNITS"
                 [onChange]="setMolarity.bind(this, row)"
               />
             </td>
-            <td>
+            <td class="text-center">
               <eln-entered-value
                 [value]="row.samples[0]?.purity"
                 [showUnits]="false"
@@ -103,11 +103,11 @@
                 [onChange]="setPurity.bind(this, row)"
               />
             </td>
-            <td>{{ row.compound.formula }}</td>
-            <td>{{ row.compound.saltCode?.code }}</td>
-            <td>{{ row.compound.saltEQ }}</td>
-            <td>TODO</td>
-            <td>TODO</td>
+            <td class="text-center">{{ row.compound.formula }}</td>
+            <td class="text-center">{{ row.compound.saltCode?.code }}</td>
+            <td class="text-center">{{ row.compound.saltEQ }}</td>
+            <td class="text-center">TODO</td>
+            <td class="text-center">TODO</td>
           </tr>
         }
       </tbody>

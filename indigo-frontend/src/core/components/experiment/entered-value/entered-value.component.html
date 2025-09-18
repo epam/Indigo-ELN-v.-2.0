@@ -1,11 +1,9 @@
-<span #parent class="parent">
+<div #parent class="x-parent flex">
   <!-- don't put under @if, it should exist for @ViewChild to work -->
   <input
     #editNumber
     [hidden]="!editing"
-    class="edit-number"
-    [class.edit-narrow]="showUnits"
-    [class.edit-number-wide]="!showUnits"
+    class="flex-7"
     type="number"
     [value]="value?.value | number: '1.0-3'"
     (blur)="inputBlur($event)"
@@ -16,6 +14,7 @@
     <mat-select
       #editUnits
       [hidden]="!editing"
+      class="flex-3"
       class="edit-units"
       [value]="value?.unit"
       (selectionChange)="stopEditing($event.value)"
@@ -27,11 +26,14 @@
   }
   @if (!editing) {
     <span
-      class="viewing"
-      [class.readOnly]="readOnly"
-      [class.readWrite]="!readOnly"
       #span
-      [class.recalculated]="recalculated"
+      [ngClass]="{
+        'animate-[flash-green_1s_ease-in-out]': recalculated,
+        'animate-[flash-red_1s_ease-in-out]': value?.conflict,
+        'bg-rose-400': value?.conflict,
+      }"
+      [class.cursor-pointer]="!readOnly"
+      [class.text-blue-500]="!readOnly"
       [class.conflict]="value?.conflict"
       (click)="startEditing()"
     >
@@ -45,4 +47,4 @@
       }
     </span>
   }
-</span>
+</div>

@@ -4,59 +4,15 @@ import {
   EnteredValueSource,
   MeasurementUnit,
 } from '@core/types/entities/values.i';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, NgClass } from '@angular/common';
 import { MatOption, MatSelect } from '@angular/material/select';
 
 @Component({
   selector: 'eln-entered-value',
   templateUrl: './entered-value.component.html',
   providers: [DecimalPipe],
-  imports: [DecimalPipe, MatSelect, MatOption],
-  styles: `
-    :host {
-      display: contents;
-      text-align: right;
-    }
-    .viewing.readWrite {
-      cursor: pointer;
-      color: cornflowerblue;
-    }
-    .edit-number-narrow {
-      width: 70%;
-    }
-    .edit-units {
-      width: 30%;
-    }
-    .edit-number-wide {
-      width: 100%;
-    }
-    .conflict {
-      background-color: #f44336; /* Red background */
-      transition: background-color 1s ease-out;
-      animation: highlight-error 1s ease-out;
-    }
-    @keyframes highlight-error {
-      0% {
-        background-color: #f44336;
-      }
-      100% {
-        background-color: lightpink;
-      }
-    }
-    .recalculated {
-      //background-color: #4caf50; /* Green background */
-      transition: background-color 1s ease-out;
-      animation: highlight-recalculated 1s ease-out;
-    }
-    @keyframes highlight-recalculated {
-      0% {
-        background-color: #4caf50; /* Start green */
-      }
-      100% {
-        background-color: transparent; /* Fade to normal */
-      }
-    }
-  `,
+  imports: [DecimalPipe, MatSelect, MatOption, NgClass],
+  styles: ``,
 })
 export class EnteredValueComponent {
   private _value: EnteredValue | null;
@@ -84,11 +40,12 @@ export class EnteredValueComponent {
 
   @Input()
   set value(newValue: EnteredValue | null) {
+    const oldValue = this._value;
     this._value = newValue;
     this.recalculated = false;
     this.updateUnitDisplayName();
     if (
-      this._value !== undefined &&
+      oldValue !== undefined &&
       newValue?.source === EnteredValueSource.CALCULATED_FROM_LAST_ENTERED
     ) {
       requestAnimationFrame(() => {
@@ -126,7 +83,7 @@ export class EnteredValueComponent {
   inputBlur(event: Event) {
     if (event instanceof FocusEvent && event.relatedTarget != null) {
       if (
-        (event.relatedTarget as HTMLElement).closest('.parent') ==
+        (event.relatedTarget as HTMLElement).closest('.x-parent') ==
         this.parentRef.nativeElement
       ) {
         return; // focus is still within our component, continue editing
