@@ -55,6 +55,7 @@ class PermissionsTest extends ELNBaseTest {
     List<TestRow> rows;
 
     List<TemplateComponent> components = List.of(new TemplateComponent.Attachments());
+    List<TemplateTab> templateTabs = List.of(new TemplateTab("tabName", components));
 
     @BeforeAll
     @Transactional
@@ -81,7 +82,7 @@ class PermissionsTest extends ELNBaseTest {
     @Order(-100)
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     void insertTestData(@TempDir Path tempDir) {
-        template = templateClient.createTemplate(new TemplateRequest("template", components));
+        template = templateClient.createTemplate(new TemplateRequest("template", templateTabs));
         for (TestRow row : rows) {
             row.projectId = projectClient.createProject(new ProjectRequest("project" + row.testId)).getId();
             projectClient.createProjectAttachment(row.projectId, "attachment.txt", tempDir, new byte[0]);
@@ -160,7 +161,7 @@ class PermissionsTest extends ELNBaseTest {
 
     @Test
     void testCreateTemplateRejected() {
-        assertThatClientCall(() -> templateClient.createTemplate(new TemplateRequest("testCreateTemplateRejected", components)))
+        assertThatClientCall(() -> templateClient.createTemplate(new TemplateRequest("testCreateTemplateRejected", templateTabs)))
                 .isForbidden("Operation not permitted");
     }
 

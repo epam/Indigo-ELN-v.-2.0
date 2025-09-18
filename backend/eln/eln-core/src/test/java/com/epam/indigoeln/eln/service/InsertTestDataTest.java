@@ -63,14 +63,14 @@ class InsertTestDataTest {
         compoundClient = FeignUtil.buildFeignClient(baseURI, CompoundClient.class, testUsername, authorization);
     }
 
-//    @Test
+    //    @Test
     @Order(1)
     void flyway() {
         Map<String, String> result = miscClient.migrate();
         System.out.println(result);
     }
 
-//    @Test
+    //    @Test
     @Order(2)
     void insertUsers() {
         userClient.createUser(new UserRequest("alice@eln.com", "Alice", "Smith", "password", List.of(ROLE_CONTENT_EDITOR, ROLE_TEMPLATE_EDITOR)));
@@ -78,24 +78,24 @@ class InsertTestDataTest {
         userClient.createUser(new UserRequest("charlie@eln.com", "Charlie", "Williams", "password", List.of(ROLE_CONTENT_EDITOR)));
     }
 
-//    @Test
+    //    @Test
     @Order(2)
     void insertTemplate() {
         TemplateDetailsDTO template = templateClient.createTemplate(new TemplateRequest(
                 "Default Template",
-                List.of(
-                        new TemplateComponent.ExperimentDetails(),
-                        new TemplateComponent.ExperimentDescription(),
-                        new TemplateComponent.Attachments(),
-                        new TemplateComponent.ReactionScheme(),
-                        new TemplateComponent.StoichiometryTable(true, true),
-                        new TemplateComponent.Batches()
-                )
-        ));
+                List.of(new TemplateTab("Test Tab", List.of(
+                                new TemplateComponent.ExperimentDetails(),
+                                new TemplateComponent.ExperimentDescription(),
+                                new TemplateComponent.Attachments(),
+                                new TemplateComponent.ReactionScheme(),
+                                new TemplateComponent.StoichiometryTable(true, true),
+                                new TemplateComponent.Batches())
+                        )
+                )));
         System.out.println(template);
     }
 
-//    @Test
+    //    @Test
     @Order(3)
     void insertTestData() {
         TemplateDTO template = findDefaultTemplate();
@@ -103,7 +103,7 @@ class InsertTestDataTest {
         System.out.println(result);
     }
 
-//    @Test
+    //    @Test
     @Order(4)
     void loadCompounds(@TempDir Path tempDir) {
         miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));

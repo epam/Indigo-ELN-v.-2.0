@@ -109,7 +109,7 @@ public abstract class ELNBaseTest extends BaseTest {
         bartUserID = getOrCreateUser(new UserRequest(BART_USERNAME, BART_FIRST_NAME, BART_LAST_NAME, "password", BART_ROLES)).getId();
         lisaUserID = getOrCreateUser(new UserRequest(LISA_USERNAME, LISA_FIRST_NAME, LISA_LAST_NAME, "password", LISA_ROLES)).getId();
         maggieUserID = getOrCreateUser(new UserRequest(MAGGIE_USERNAME, MAGGIE_FIRST_NAME, MAGGIE_LAST_NAME, "password", MAGGIE_ROLES)).getId();
-        emptyTemplateID = templateClient.createTemplate(new TemplateRequest("Empty template", List.of(new TemplateComponent.Attachments()))).getId();
+        emptyTemplateID = templateClient.createTemplate(new TemplateRequest("Empty template", List.of(new TemplateTab("tabName", List.of(new TemplateComponent.Attachments()))))).getId();
     }
 
     public UserRef getJohnUserRef() {
