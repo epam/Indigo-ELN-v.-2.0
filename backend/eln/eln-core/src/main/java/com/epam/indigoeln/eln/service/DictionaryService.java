@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
+import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.DictionaryEntity;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
@@ -16,6 +17,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
+import org.hibernate.exception.ConstraintViolationException;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
@@ -136,7 +138,13 @@ public class DictionaryService {
         DictionaryItemEntity entity = StreamEx.of(list).filterBy(DictionaryItemEntity::getId, itemID).findFirst()
                 .orElseThrow(() -> new EntityNotFoundException(EntityType.DICTIONARY_ITEM, itemID + " of dictionary " + dictionaryRef));
         list.remove(entity);
-        dictionaryItemRepository.delete(entity);
+        try {
+            dictionaryItemRepository.delete(entity);
+            dictionaryItemRepository.flush();
+        } catch (ConstraintViolationException e) {
+            log.error("Failed to delete dictionary item {}", itemID, e);
+            throw new InvalidRequestException("This word is selected in other inputs. Please deactivate the word to remove it from available options of the inputs");
+        }
         renumberItems(list);
         return dictionaryMapper.itemToDTOList(list);
     }

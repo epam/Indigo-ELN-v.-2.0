@@ -10,13 +10,14 @@ import one.util.streamex.StreamEx;
 import org.assertj.core.api.AbstractListAssert;
 import org.assertj.core.api.ObjectAssert;
 import org.assertj.core.groups.Tuple;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
+import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -26,11 +27,19 @@ import static org.assertj.core.api.Assertions.tuple;
 public class DictionaryServiceTest extends ELNBaseTest {
 
     List<DictionaryItemDTO> items;
+    DictionaryItemRef therapeuticArea;
+    ExperimentDetailsDTO experiment;
 
     @BeforeAll
     @SneakyThrows
     void setUpClass() {
         cleanupDatabase();
+        withUser(JOHN_USERNAME, () -> {
+            therapeuticArea = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA).getFirst();
+            ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("DictionaryServiceTest"));
+            NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+            experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID, null, therapeuticArea, null));
+        });
     }
 
     @Test
@@ -136,6 +145,14 @@ public class DictionaryServiceTest extends ELNBaseTest {
                 tuple("C", "Cdescription", 1, true),
                 tuple("B", "Bdescription", 2, true)
         );
+    }
+
+    @Test
+    @Order(9)
+    void testDeleteItemInUse() {
+        assertThatClientCall(() -> {
+            dictionaryClient.removeDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, therapeuticArea.getId());
+        }).isBadRequest("This word is selected in other inputs. Please deactivate the word to remove it from available options of the inputs");
     }
 
     private AbstractListAssert<?, List<? extends Tuple>, Tuple, ObjectAssert<Tuple>> verify(List<DictionaryItemDTO> items) {
