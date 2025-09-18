@@ -16,7 +16,6 @@ public class ResponseDecoder implements Decoder {
 
     private final Decoder delegate;
 
-    // TODO replace all ResponseWithHeaders with JAX-RS Response
     @Override
     public @Nullable Object decode(Response response, Type type) throws IOException, DecodeException, FeignException {
         if (type.getTypeName().equals(jakarta.ws.rs.core.Response.class.getName())) {
