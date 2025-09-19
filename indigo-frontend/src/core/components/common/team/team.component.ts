@@ -16,6 +16,12 @@ import { TeamComponentConfig } from './team.config';
 
 type UserSuggestionWithState = UserSuggestion & { added?: boolean };
 
+interface TeamLoadingState {
+    suggestions: boolean;
+    addingUsers: boolean;
+    updatingMembers: Set<string>;
+}
+
 @Component({
     selector: 'eln-team',
     templateUrl: './team.component.html',
@@ -34,12 +40,12 @@ type UserSuggestionWithState = UserSuggestion & { added?: boolean };
 })
 export class TeamComponent implements OnInit {
     @Input() entityId?: string;
-    @Input() set teamInput(value: ProjectAcl[]) {
-        this.team.set(value);
+    @Input() set team(value: ProjectAcl[]) {
+        this._team.set(value);
         this.rebuildSuggestionsState();
     }
     // Internal mutable state (optimistic / UI state)
-    private team: WritableSignal<ProjectAcl[]> = signal<ProjectAcl[]>([]);
+    private _team: WritableSignal<ProjectAcl[]> = signal<ProjectAcl[]>([]);
     @Input({ required: true }) config: TeamComponentConfig;
 
     userSuggestions: UserSuggestionWithState[] = [];
@@ -49,14 +55,14 @@ export class TeamComponent implements OnInit {
     // suggestions: loading user suggestions
     // addingUsers: loading user addition
     // updatingMembers: set of userIds whose ACL levels are being updated
-    loading = signal<{ suggestions: boolean; addingUsers: boolean; updatingMembers: Set<string>; }>(
+    loading = signal<TeamLoadingState>(
         { suggestions: false, addingUsers: false, updatingMembers: new Set() }
     );
 
     // View model with derived UI-only flags (disabled)
     teamVm = computed(() => {
         const updating = this.loading().updatingMembers;
-        const base = this.team();
+        const base = this._team();
         return base.map(member => ({
             ...member,
             disabled: isInmutableLevel(member.level) || updating.has(member.userId)
@@ -75,21 +81,20 @@ export class TeamComponent implements OnInit {
         };
     }
 
-    private endpoint(): string {
-        const id = this.entityId;
-        if (!id) return '';
-        return this.config.buildAccessEndpoint(id);
+    ngOnInit(): void {
+        if (!this.entityId) console.warn('TeamComponent initialized without entityId');
+        // Effect handles initial sync and subsequent changes from parent
+        this.loading.update(l => ({ ...l, suggestions: true }));
+        this.api.request<UserSuggestion[]>('get', 'users/suggest')
+            .pipe(finalize(() => this.loading.update(l => ({ ...l, suggestions: false }))))
+            .subscribe({
+                next: list => { this.userSuggestions = list; this.rebuildSuggestionsState(); },
+                error: err => console.error('Failed to load suggestions', err)
+            });
     }
 
     onUsersSelectedIds(ids: string[]): void {
         this.selectedUserIds = ids.filter(id => !this.isUserInTeam(id));
-    }
-
-    private isUserInTeam(userId: string): boolean { return this.team().some(m => m.userId === userId); }
-
-    private rebuildSuggestionsState(): void {
-        const teamIds = new Set(this.team().map(m => m.userId));
-        this.userSuggestions = this.userSuggestions.map(s => ({ ...s, added: teamIds.has(s.id) }));
     }
 
     addSelectedUsers(): void {
@@ -99,7 +104,7 @@ export class TeamComponent implements OnInit {
             return;
         }
         this.loading.update(l => ({ ...l, addingUsers: true }));
-        const existingPayload: ProjectAclUpdate[] = this.team().map(m => ({ userID: m.userId, level: m.level }));
+        const existingPayload: ProjectAclUpdate[] = this._team().map(m => ({ userID: m.userId, level: m.level }));
         const newPayload: ProjectAclUpdate[] = this.selectedUserIds.map(id => ({ userID: id, level: AclLevel.VIEW }));
         const fullPayload: ProjectAclUpdate[] = [...existingPayload, ...newPayload];
 
@@ -110,24 +115,7 @@ export class TeamComponent implements OnInit {
                 })
             )
             .subscribe({
-                next: () => {
-                    const current = this.team();
-                    const toAdd: ProjectAcl[] = [];
-                    this.selectedUserIds.forEach(id => {
-                        const suggestion = this.userSuggestions.find(u => u.id === id);
-                        if (!suggestion) return;
-                        toAdd.push({
-                            userId: suggestion.id,
-                            username: suggestion.username,
-                            displayName: suggestion.displayName,
-                            level: AclLevel.VIEW,
-                            inherited: false
-                        });
-                    });
-                    this.team.set([...current, ...toAdd]);
-                    this.rebuildSuggestionsState();
-                    this.selectedUserIds = [];
-                },
+                next: () => this.handleSuccessfulUserAddition(),
                 error: err => {
                     console.error('Failed to update ACL with new users:', err);
                 }
@@ -154,8 +142,8 @@ export class TeamComponent implements OnInit {
             .subscribe({
                 next: projectAcl => {
                     if (projectAcl) {
-                        const updated = this.team().map(m => m.userId === member.userId ? { ...m, level: newLevel } : m);
-                        this.team.set(updated);
+                        const updated = this._team().map(m => m.userId === member.userId ? { ...m, level: newLevel } : m);
+                        this._team.set(updated);
                     }
                 },
                 error: err => {
@@ -164,15 +152,35 @@ export class TeamComponent implements OnInit {
             });
     }
 
-    ngOnInit(): void {
-        if (!this.entityId) console.warn('TeamComponent initialized without entityId');
-        // Effect handles initial sync and subsequent changes from parent
-        this.loading.update(l => ({ ...l, suggestions: true }));
-        this.api.request<UserSuggestion[]>('get', 'users/suggest')
-            .pipe(finalize(() => this.loading.update(l => ({ ...l, suggestions: false }))))
-            .subscribe({
-                next: list => { this.userSuggestions = list; this.rebuildSuggestionsState(); },
-                error: err => console.error('Failed to load suggestions', err)
+    private endpoint(): string {
+        const id = this.entityId;
+        if (!id) return '';
+        return this.config.buildAccessEndpoint(id);
+    }
+
+    private isUserInTeam(userId: string): boolean { return this._team().some(m => m.userId === userId); }
+
+    private rebuildSuggestionsState(): void {
+        const teamIds = new Set(this._team().map(m => m.userId));
+        this.userSuggestions = this.userSuggestions.map(s => ({ ...s, added: teamIds.has(s.id) }));
+    }
+
+    private handleSuccessfulUserAddition(): void {
+        const current = this._team();
+        const toAdd: ProjectAcl[] = [];
+        this.selectedUserIds.forEach(id => {
+            const suggestion = this.userSuggestions.find(u => u.id === id);
+            if (!suggestion) return;
+            toAdd.push({
+                userId: suggestion.id,
+                username: suggestion.username,
+                displayName: suggestion.displayName,
+                level: AclLevel.VIEW,
+                inherited: false
             });
+        });
+        this._team.set([...current, ...toAdd]);
+        this.rebuildSuggestionsState();
+        this.selectedUserIds = [];
     }
 }
