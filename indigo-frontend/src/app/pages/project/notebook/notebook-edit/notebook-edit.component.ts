@@ -9,7 +9,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { catchError, of } from 'rxjs';
-import { NOTEBOOK_NAME_MIN_LENGTH, NOTEBOOK_NAME_MAX_LENGTH } from '../notebook.constants';
+import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
 
 @Component({
   standalone: true,
@@ -34,14 +34,14 @@ export class NotebookEditComponent {
         label: 'Notebook Name',
         placeholder: 'Notebook Name',
         required: true,
-        minLength: NOTEBOOK_NAME_MIN_LENGTH,
-        maxLength: NOTEBOOK_NAME_MAX_LENGTH,
-        description: `Must be ${NOTEBOOK_NAME_MAX_LENGTH} characters`,
+        minLength: NOTEBOOK_NAME_LENGTH,
+        maxLength: NOTEBOOK_NAME_LENGTH,
+        description: `Must be exactly ${NOTEBOOK_NAME_LENGTH} characters`,
       },
       validation: {
         messages: {
-          minlength: `Must be ${NOTEBOOK_NAME_MIN_LENGTH} characters`,
-          maxlength: `Must be ${NOTEBOOK_NAME_MAX_LENGTH} characters`,
+          minlength: `Must be exactly ${NOTEBOOK_NAME_LENGTH} characters`,
+          maxlength: `Must be exactly ${NOTEBOOK_NAME_LENGTH} characters`,
           required: 'Name is required',
         },
       },
