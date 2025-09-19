@@ -20,14 +20,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     ComponentStoichiometryTableComponent,
     MatProgressSpinner,
   ],
-  styles: `
-    .mutating-spinnner {
-      position: fixed;
-      top: 120px;
-      right: 60px;
-      z-index: 1000;
-    }
-  `,
 })
 export class ExperimentTabComponent implements OnInit {
   protected readonly ComponentStoichiometryTableComponent =

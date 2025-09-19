@@ -1,40 +1,42 @@
-<div #parent class="x-parent flex">
+<div #parent class="x-parent flex gap-2">
   <!-- don't put under @if, it should exist for @ViewChild to work -->
   <input
     #editNumber
-    [hidden]="!editing"
-    class="flex-7"
     type="number"
+    [ngClass]="{
+      'w-full': !showUnits,
+      'w-6/10': showUnits,
+    }"
+    [hidden]="!editing"
     [value]="value?.value | number: '1.0-3'"
     (blur)="inputBlur($event)"
     (keydown.enter)="stopEditing('_notmodified')"
     (keydown.escape)="cancelEditing()"
   />
   @if (showUnits) {
-    <mat-select
-      #editUnits
-      [hidden]="!editing"
-      class="flex-3"
-      class="edit-units"
-      [value]="value?.unit"
-      (selectionChange)="stopEditing($event.value)"
-    >
-      @for (unit of units; track unit.value) {
-        <mat-option [value]="unit.value">{{ unit.displayName }}</mat-option>
-      }
-    </mat-select>
+    <div class="w-4/10" [hidden]="!editing">
+      <mat-select
+        #editUnits
+        [value]="value?.unit"
+        (selectionChange)="stopEditing($event.value)"
+      >
+        @for (unit of units; track unit.value) {
+          <mat-option [value]="unit.value">{{ unit.displayName }}</mat-option>
+        }
+      </mat-select>
+    </div>
   }
   @if (!editing) {
     <span
       #span
+      class="w-full text-center"
       [ngClass]="{
+        'cursor-pointer': !readOnly,
+        'text-blue-500': !readOnly,
+        'bg-rose-400': value?.conflict,
         'animate-[flash-green_1s_ease-in-out]': recalculated,
         'animate-[flash-red_1s_ease-in-out]': value?.conflict,
-        'bg-rose-400': value?.conflict,
       }"
-      [class.cursor-pointer]="!readOnly"
-      [class.text-blue-500]="!readOnly"
-      [class.conflict]="value?.conflict"
       (click)="startEditing()"
     >
       @if (value == null) {

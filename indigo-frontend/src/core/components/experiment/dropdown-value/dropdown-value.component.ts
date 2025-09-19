@@ -27,14 +27,9 @@ export class DropdownValueComponent {
   @Input() readOnly = false;
 
   getDisplayName(): string | null {
-    if (this.value != null) {
-      for (const option of this.options) {
-        if (this.value === option.id) {
-          return option.name;
-        }
-      }
-    }
-    return null;
+    return (
+      this.options.find((option) => option.id === this.value)?.name ?? null
+    );
   }
 
   changeValue(event: MatSelectChange) {

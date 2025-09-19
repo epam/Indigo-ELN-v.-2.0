@@ -1,120 +1,120 @@
 <h1>=== STOICHIOMETRY TABLE COMPONENT ===</h1>
 @if (showReactantsReagentsSolvents) {
   <h1>Reactants, Reagents, Solvents</h1>
-  <div class="overflow-x-auto">
-    <table class="table-fixed">
-      <thead>
-        <tr>
-          <th class="w-48">Compound ID</th>
-          <th class="w-48">CAS Number</th>
-          <th class="w-48">Chemical Name</th>
-          <th class="w-48">Nbk Batch #</th>
-          <th class="w-48">Mol Weight</th>
-          <th class="w-48">Weight</th>
-          <th class="w-48">Volume</th>
-          <th class="w-48">Mol</th>
-          <th class="w-48">EQ</th>
-          <th class="w-48">Limiting</th>
-          <th class="w-48">Rxn Role</th>
-          <th class="w-48">Density</th>
-          <th class="w-48">Molarity</th>
-          <th class="w-48">Purity</th>
-          <th class="w-48">Mol Formula</th>
-          <th class="w-48">Salt Code</th>
-          <th class="w-48">Salt EQ</th>
-          <th class="w-48">Hazard Comments</th>
-          <th class="w-48">Comments</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (row of model?.reactions?.[0]?.inputs; track row.anchor) {
-          <tr>
-            <td class="text-center">{{ row.compound.strCode }}</td>
-            <td class="text-center">?</td>
-            <td class="text-center">{{ row.compound.name }}</td>
-            <td class="text-center">TODO</td>
-            <td class="text-center">
-              <eln-entered-value
-                [value]="row.compound.molWeight"
-                [showUnits]="false"
-                [units]="MOL_WEIGHT_UNITS"
-                [readOnly]="true"
-              />
-            </td>
-            <td class="text-center">
-              <eln-entered-value
-                [value]="row.samples[0]?.weight"
-                [units]="WEIGHT_UNITS"
-                [onChange]="setWeight.bind(this, row)"
-              />
-            </td>
-            <td class="text-center">
-              <eln-entered-value
-                [value]="row.samples[0]?.volume"
-                [units]="VOLUME_UNITS"
-                [onChange]="setVolume.bind(this, row)"
-              />
-            </td>
-            <td class="text-center">
-              <eln-entered-value
-                [value]="row.samples[0]?.mol"
-                [units]="MOL_UNITS"
-                [onChange]="setMol.bind(this, row)"
-              />
-            </td>
-            <td class="text-center">
-              <eln-entered-value
-                [value]="row.eq"
-                [showUnits]="false"
-                [units]="NO_UNITS"
-                [onChange]="setEQ.bind(this, row)"
-              />
-            </td>
-            <td class="text-center">
-              <mat-checkbox [checked]="row.limiting" />
-            </td>
-            <td class="text-center">
-              <eln-dropdown-value
-                [value]="row.role"
-                [options]="REACTION_INPUT_ROLES"
-                [allowNull]="false"
-                [onChange]="setRole.bind(this, row)"
-              />
-            </td>
-            <td class="text-center">
-              <eln-entered-value
-                [value]="row.samples[0]?.density"
-                [units]="DENSITY_UNITS"
-                [onChange]="setDensity.bind(this, row)"
-              />
-            </td>
-            <td class="text-center">
-              <eln-entered-value
-                [value]="row.samples[0]?.molarity"
-                [units]="MOLARITY_UNITS"
-                [onChange]="setMolarity.bind(this, row)"
-              />
-            </td>
-            <td class="text-center">
-              <eln-entered-value
-                [value]="row.samples[0]?.purity"
-                [showUnits]="false"
-                [units]="NO_UNITS"
-                [onChange]="setPurity.bind(this, row)"
-              />
-            </td>
-            <td class="text-center">{{ row.compound.formula }}</td>
-            <td class="text-center">{{ row.compound.saltCode?.code }}</td>
-            <td class="text-center">{{ row.compound.saltEQ }}</td>
-            <td class="text-center">TODO</td>
-            <td class="text-center">TODO</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  </div>
-}
+  <div class="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-400">
+      <table class="table-fixed min-w-full border-collapse">
+          <thead class="w-full">
+            <tr>
+              <th class="min-w-48 w-48 max-w-48 px-4 py-3 text-center text-xs font-medium border-r border-b border-gray-400 last:border-r-0">Compound ID</th>
+              <th class="min-w-48 w-48 max-w-48 px-4 py-3 text-center text-xs font-medium border-r border-b border-gray-400 last:border-r-0">CAS Number</th>
+              <th class="min-w-48 w-48 max-w-48 px-4 py-3 text-center text-xs font-medium border-r border-b border-gray-400 last:border-r-0">Chemical Name</th>
+              <th class="min-w-48 w-48 max-w-48 px-4 py-3 text-center text-xs font-medium border-r border-b border-gray-400 last:border-r-0">Nbk Batch #</th>
+              <th class="min-w-48 w-48 max-w-48 px-4 py-3 text-center text-xs font-medium border-r border-b border-gray-400 last:border-r-0">Mol Weight</th>
+              <th class="min-w-48 w-48 max-w-48 px-4 py-3 text-center text-xs font-medium border-r border-b border-gray-400 last:border-r-0">Weight</th>
+              <th class="min-w-48 w-48 max-w-48 px-4 py-3 text-center text-xs font-medium border-r border-b border-gray-400 last:border-r-0">Volume</th>
+              <th class="min-w-48 w-48 max-w-48 px-4 py-3 text-center text-xs font-medium border-r border-b border-gray-400 last:border-r-0">Mol</th>
+              <th class="min-w-48 w-48 max-w-48 px-4 py-3 text-center text-xs font-medium border-r border-b border-gray-400 last:border-r-0">EQ</th>
+              <th class="min-w-48 w-48 max-w-48 px-4 py-3 text-center text-xs font-medium border-r border-b border-gray-400 last:border-r-0">Limiting</th>
+              <th class="min-w-48 w-48 max-w-48 px-4 py-3 text-center text-xs font-medium border-r border-b border-gray-400 last:border-r-0">Rxn Role</th>
+              <th class="min-w-48 w-48 max-w-48 px-4 py-3 text-center text-xs font-medium border-r border-b border-gray-400 last:border-r-0">Density</th>
+              <th class="min-w-48 w-48 max-w-48 px-4 py-3 text-center text-xs font-medium border-r border-b border-gray-400 last:border-r-0">Molarity</th>
+              <th class="min-w-48 w-48 max-w-48 px-4 py-3 text-center text-xs font-medium border-r border-b border-gray-400 last:border-r-0">Purity</th>
+              <th class="min-w-48 w-48 max-w-48 px-4 py-3 text-center text-xs font-medium border-r border-b border-gray-400 last:border-r-0">Mol Formula</th>
+              <th class="min-w-48 w-48 max-w-48 px-4 py-3 text-center text-xs font-medium border-r border-b border-gray-400 last:border-r-0">Salt Code</th>
+              <th class="min-w-48 w-48 max-w-48 px-4 py-3 text-center text-xs font-medium border-r border-b border-gray-400 last:border-r-0">Salt EQ</th>
+              <th class="min-w-48 w-48 max-w-48 px-4 py-3 text-center text-xs font-medium border-r border-b border-gray-400 last:border-r-0">Hazard Comments</th>
+              <th class="min-w-48 w-48 max-w-48 px-4 py-3 text-center text-xs font-medium border-r border-b border-gray-400 last:border-r-0">Comments</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of model?.reactions?.[0]?.inputs; track row.anchor) {
+              <tr>
+                <td class="min-w-48 w-48 max-w-48 px-2 py-2 text-center text-sm border-r border-b border-gray-400 last:border-r-0 truncate">{{ row.compound.strCode }}</td>
+                <td class="min-w-48 w-48 max-w-48 px-2 py-2 text-center text-sm border-r border-b border-gray-400 last:border-r-0 truncate">?</td>
+                <td class="min-w-48 w-48 max-w-48 px-2 py-2 text-center text-sm border-r border-b border-gray-400 last:border-r-0 truncate">{{ row.compound.name }}</td>
+                <td class="min-w-48 w-48 max-w-48 px-2 py-2 text-center text-sm border-r border-b border-gray-400 last:border-r-0 truncate">TODO</td>
+                <td class="min-w-48 w-48 max-w-48 px-2 py-2 text-center text-sm border-r border-b border-gray-400 last:border-r-0 truncate">
+                  <eln-entered-value
+                    [value]="row.compound.molWeight"
+                    [showUnits]="false"
+                    [units]="MOL_WEIGHT_UNITS"
+                    [readOnly]="true"
+                  />
+                </td>
+                <td class="min-w-48 w-48 max-w-48 px-2 py-2 text-center text-sm border-r border-b border-gray-400 last:border-r-0 truncate">
+                  <eln-entered-value
+                    [value]="row.samples[0]?.weight"
+                    [units]="WEIGHT_UNITS"
+                    [onChange]="setWeight.bind(this, row)"
+                  />
+                </td>
+                <td class="min-w-48 w-48 max-w-48 px-2 py-2 text-center text-sm border-r border-b border-gray-400 last:border-r-0 truncate">
+                  <eln-entered-value
+                    [value]="row.samples[0]?.volume"
+                    [units]="VOLUME_UNITS"
+                    [onChange]="setVolume.bind(this, row)"
+                  />
+                </td>
+                <td class="min-w-48 w-48 max-w-48 px-2 py-2 text-center text-sm border-r border-b border-gray-400 last:border-r-0 truncate">
+                  <eln-entered-value
+                    [value]="row.samples[0]?.mol"
+                    [units]="MOL_UNITS"
+                    [onChange]="setMol.bind(this, row)"
+                  />
+                </td>
+                <td class="min-w-48 w-48 max-w-48 px-2 py-2 text-center text-sm border-r border-b border-gray-400 last:border-r-0 truncate">
+                  <eln-entered-value
+                    [value]="row.eq"
+                    [showUnits]="false"
+                    [units]="NO_UNITS"
+                    [onChange]="setEQ.bind(this, row)"
+                  />
+                </td>
+                <td class="min-w-48 w-48 max-w-48 px-2 py-2 text-center text-sm border-r border-b border-gray-400 last:border-r-0 truncate">
+                  <mat-checkbox [checked]="row.limiting" />
+                </td>
+                <td class="min-w-48 w-48 max-w-48 px-2 py-2 text-center text-sm border-r border-b border-gray-400 last:border-r-0 truncate">
+                  <eln-dropdown-value
+                    [value]="row.role"
+                    [options]="REACTION_INPUT_ROLES"
+                    [allowNull]="false"
+                    [onChange]="setRole.bind(this, row)"
+                  />
+                </td>
+                <td class="min-w-48 w-48 max-w-48 px-2 py-2 text-center text-sm border-r border-b border-gray-400 last:border-r-0 truncate">
+                  <eln-entered-value
+                    [value]="row.samples[0]?.density"
+                    [units]="DENSITY_UNITS"
+                    [onChange]="setDensity.bind(this, row)"
+                  />
+                </td>
+                <td class="min-w-48 w-48 max-w-48 px-2 py-2 text-center text-sm border-r border-b border-gray-400 last:border-r-0 truncate">
+                  <eln-entered-value
+                    [value]="row.samples[0]?.molarity"
+                    [units]="MOLARITY_UNITS"
+                    [onChange]="setMolarity.bind(this, row)"
+                  />
+                </td>
+                <td class="min-w-48 w-48 max-w-48 px-2 py-2 text-center text-sm border-r border-b border-gray-400 last:border-r-0 truncate">
+                  <eln-entered-value
+                    [value]="row.samples[0]?.purity"
+                    [showUnits]="false"
+                    [units]="NO_UNITS"
+                    [onChange]="setPurity.bind(this, row)"
+                  />
+                </td>
+                <td class="min-w-48 w-48 max-w-48 px-2 py-2 text-center text-sm border-r border-b border-gray-400 last:border-r-0 truncate">{{ row.compound.formula }}</td>
+                <td class="min-w-48 w-48 max-w-48 px-2 py-2 text-center text-sm border-r border-b border-gray-400 last:border-r-0 truncate">{{ row.compound.saltCode?.code }}</td>
+                <td class="min-w-48 w-48 max-w-48 px-2 py-2 text-center text-sm border-r border-b border-gray-400 last:border-r-0 truncate">{{ row.compound.saltEQ }}</td>
+                <td class="min-w-48 w-48 max-w-48 px-2 py-2 text-center text-sm border-r border-b border-gray-400 last:border-r-0 truncate">TODO</td>
+                <td class="min-w-48 w-48 max-w-48 px-2 py-2 text-center text-sm border-r border-b border-gray-400 last:border-r-0 truncate">TODO</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
 
-@if (showReactionProducts) {
-  <!-- TODO implement Reaction Products table -->
+    @if (showReactionProducts) {
+      <!-- TODO implement Reaction Products table -->
 }
