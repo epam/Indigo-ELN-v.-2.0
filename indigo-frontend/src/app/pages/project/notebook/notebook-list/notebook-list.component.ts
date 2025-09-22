@@ -15,8 +15,6 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription, take } from 'rxjs';
 import { NotebookAddComponent } from '../notebook-add/notebook-add.component';
-import { ExperimentCardComponent } from '@/app/pages/experiment/experiment-card/experiment-card.component';
-import { Experiment } from '@/core/types/entities/experiment.i';
 
 @Component({
   selector: 'eln-notebook-list',
@@ -39,8 +37,7 @@ import { Experiment } from '@/core/types/entities/experiment.i';
     InfiniteLoaderComponent,
     ProjectOverviewWidgetDirective,
     ButtonComponent,
-    ListHeaderComponent,
-    ExperimentCardComponent
+    ListHeaderComponent
   ],
 })
 export class NotebookListComponent
@@ -51,24 +48,6 @@ export class NotebookListComponent
   selectedView: 'grid' | 'list' = 'grid';
   private refreshSub!: Subscription;
   projectId: string;
-  dummyExperiment: Experiment = {
-    status: 'Rejected',
-    id: '',
-    name: 'Experiment 1',
-    reactionSchemaUrl: 'assets/reaction-schema-placeholder.png',
-    modifiedAt: new Date(2025,6,23),
-    modifiedBy: {
-      id: 'gg',
-      username: 'Jhon',
-      displayName: 'Jhon'
-    },
-    createdAt: new Date(2020,1,1),
-    createdBy: {
-      id: 'aspdof',
-      username: 'Wick',
-      displayName: 'Wick'
-    }
-  }
 
   constructor(activatedRoute: ActivatedRoute) {
     super();

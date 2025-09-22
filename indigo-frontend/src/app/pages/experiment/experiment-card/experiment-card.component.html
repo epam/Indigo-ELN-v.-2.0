@@ -1,76 +1,90 @@
 <ng-container *ngIf="variant === 'list'; else defaultCardBody">
-    <div class="experiment-list-row-flex">
-        
-        <!-- PART 1: Image Block -->
-        <div class="experiment-list-img-block">
-            <ng-container *ngIf="experiment.reactionSchemaUrl">
-                <img [src]="experiment.reactionSchemaUrl" alt="Chemical reaction image"
-                    class="experiment-list-img-inner" />
-            </ng-container>
-        </div>
+  <div class="flex flex-row w-full min-h-[110px] bg-white rounded-xl border border-neutral-300 overflow-hidden">
 
-        <!-- PART 2: Divider -->
-        <div class="experiment-list-divider"></div>
-
-        <!-- PART 3: Content  -->
-        <div class="experiment-list-content">
-            <div class="flex justify-between items-center mb-3 w-full" style="margin-bottom: 0;">
-                <div class="flex items-center gap-2">
-                    <em class="text-primary-400 text-2xl indicon-file"></em>
-                    <span class="font-medium text-neutral-1000 text-lg">{{ experiment.name }}</span>
-                    <span *ngIf="experiment.status" class="status-badge-v2 ml-2"
-                        [ngClass]="getStatusClass(experiment.status)">
-                        <span class="status-dot mr-1"></span>
-                        {{ experiment.status }}
-                    </span>
-                </div>
-                <div class="relative -right-1 flex items-center gap-2">
-                    <button class="hover:bg-neutral-200 rounded-full p-1" (click)="toggleFavorite($event)"
-                        aria-label="Toggle favorite"><mat-icon
-                            [ngStyle]="{color: isFavorite ? '#3F50B5' : '#4A4A4A'}">{{ isFavorite ? 'star' :
-                            'star_border' }}</mat-icon>
-                    </button>
-                    <button class="flex items-center hover:bg-neutral-200 rounded-full cursor-pointer"
-                        (click)="$event.stopPropagation()" [matMenuTriggerFor]="menu" aria-label="Project options menu">
-                        <mat-icon>more_horiz</mat-icon>
-                    </button>
-                    <mat-menu #menu="matMenu">
-                        <button mat-menu-item>
-                            <mat-icon>visibility</mat-icon>
-                            <span>Action</span>
-                        </button>
-                    </mat-menu>
-                </div>
-            </div>
-            <div class="experiment-list-details-row">
-                <div>
-                    <div class="text-neutral-1000 text-sm">Members</div>
-                    <div class="flex items-center">
-                        <div class="flex -space-x-2">
-                            <ng-container *ngFor="let user of mock_users.slice(0, 3); track: user">
-                                <eln-avatar classList="w-6 h-6" [img]="user" style="border-width: 0px;"/>
-                                
-                            </ng-container>
-                            <span *ngIf="mock_users.length > 3"
-                                class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs">
-                                +{{ mock_users.length - 3 }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-neutral-1000 text-sm">
-                    <div>Last Edited</div>
-                    <div>{{ experiment.modifiedAt | date: 'dd MMM yyyy' }} by {{ experiment.modifiedBy.displayName }}
-                    </div>
-                </div>
-                <div class="text-neutral-1000 text-sm">
-                    <div>Created</div>
-                    <div>{{ experiment.createdAt | date: 'dd MMM yyyy' }} by {{ experiment.createdBy.displayName }}
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- PART 1: Image Block -->
+    <div class="flex items-center justify-center shrink-0 grow-0 w-[320px] min-h-[110px] p-[12px_16px]">
+      <ng-container *ngIf="experiment.reactionSchemaUrl">
+        <img
+          [src]="experiment.reactionSchemaUrl"
+          alt="Chemical reaction image"
+          class="block w-[288px] h-[86px] object-contain opacity-100 rotate-180"
+        />
+      </ng-container>
     </div>
+
+    <!-- PART 2: Divider (hidden on mobile)-->
+    <div class="w-px min-w-px min-h-[110px] bg-neutral-300 shrink-0 grow-0 md:block hidden"></div>
+
+    <!-- PART 3: Content -->
+    <div class="flex flex-col justify-between flex-1 min-w-0 min-h-[110px] p-[12px_16px_16px_16px] gap-1">
+      <!-- Header row -->
+      <div class="flex justify-between items-center mb-3 w-full">
+        <div class="flex items-center gap-2">
+          <em class="text-primary-400 text-2xl indicon-file"></em>
+          <span class="font-medium text-neutral-1000 text-lg">{{ experiment.name }}</span>
+          <span
+            *ngIf="experiment.status"
+            class="status-badge-v2 ml-2"
+            [ngClass]="getStatusClass(experiment.status)">
+            <span class="status-dot mr-1"></span>
+            {{ experiment.status }}
+          </span>
+        </div>
+        <div class="relative -right-1 flex items-center gap-2">
+          <button
+            class="hover:bg-neutral-200 rounded-full p-1"
+            (click)="toggleFavorite($event)"
+            aria-label="Toggle favorite"
+          >
+            <mat-icon [ngStyle]="{ color: isFavorite ? '#3F50B5' : '#4A4A4A' }">
+              {{ isFavorite ? 'star' : 'star_border' }}
+            </mat-icon>
+          </button>
+          <button
+            class="flex items-center hover:bg-neutral-200 rounded-full cursor-pointer"
+            (click)="$event.stopPropagation()"
+            [matMenuTriggerFor]="menu"
+            aria-label="Project options menu"
+          >
+            <mat-icon>more_horiz</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item>
+              <mat-icon>visibility</mat-icon>
+              <span>Action</span>
+            </button>
+          </mat-menu>
+        </div>
+      </div>
+      <!-- Details row -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full experiment-list-details-row">
+        <div>
+          <div class="text-neutral-1000 text-sm">Members</div>
+          <div class="flex items-center">
+            <div class="flex -space-x-2">
+              <ng-container *ngFor="let user of mock_users.slice(0, 3); track: user">
+                <eln-avatar classList="w-6 h-6" [img]="user" style="border-width: 0px;" />
+              </ng-container>
+              <span
+                *ngIf="mock_users.length > 3"
+                class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs"
+              >
+                +{{ mock_users.length - 3 }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="text-neutral-1000 text-sm">
+          <div>Last Edited</div>
+          <div>{{ experiment.modifiedAt | date: 'dd MMM yyyy' }} by {{ experiment.modifiedBy.displayName }}</div>
+        </div>
+        <div class="text-neutral-1000 text-sm">
+          <div>Created</div>
+          <div>{{ experiment.createdAt | date: 'dd MMM yyyy' }} by {{ experiment.createdBy.displayName }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </ng-container>
 
 <ng-template #defaultCardBody>

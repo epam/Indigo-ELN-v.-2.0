@@ -6,6 +6,7 @@ import { Component, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
 
 @Component({
   selector: 'eln-experiment-card',
@@ -45,22 +46,16 @@ export class ExperimentCardComponent {
   toggleFavorite(event: MouseEvent): void {
     event.stopPropagation(); // Prevent card click
     this.isFavorite = !this.isFavorite;
-    // Optionally persist the favorite state to backend or service
   }
 
-  getStatusClass(status: string): string {
-    switch (status?.toLowerCase()) {
-      case 'open':
-        return 'status-open';
-      case 'waiting for signature':
-        return 'status-waiting-for-signature';
-      case 'completed':
-        return 'status-completed';
-      case 'rejected':
-        return 'status-rejected';
-      default:
-        return 'status-open'; // fallback
-    }
+  getStatusClass(status: ExperimentStatus): string {
+    const statusMap: { [key: string]: string } = {
+      [ExperimentStatus.OPEN]: 'status-open',
+      [ExperimentStatus.WAITING_FOR_SIGNATURE]: 'status-waiting-for-signature',
+      [ExperimentStatus.COMPLETED]: 'status-completed',
+      [ExperimentStatus.REJECTED]: 'status-rejected'
+    };
+    return statusMap[status];
   }
 
 }
