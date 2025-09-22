@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, inject } from '@angular/core';
 import {
   DictionaryList,
   DictionaryListItem,
@@ -15,14 +15,13 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
 })
 export class DictionaryListComponent implements OnInit {
+  private dictionaryService = inject(DictionaryService);
   dictionaries: DictionaryList = [];
   selectedDictionary: DictionaryListItem | null = null;
   isLoading = true;
   hasError = false;
 
   @Output() selectDictionaryEvent = new EventEmitter<DictionaryListItem>();
-
-  constructor(private dictionaryService: DictionaryService) {}
 
   ngOnInit(): void {
     this.fetchDictionaries();

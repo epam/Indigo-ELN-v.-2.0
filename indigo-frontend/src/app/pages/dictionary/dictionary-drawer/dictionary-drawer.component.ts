@@ -4,6 +4,7 @@ import {
   Output,
   EventEmitter,
   OnChanges,
+  inject,
 } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import {
@@ -44,6 +45,8 @@ export class DictionaryDrawerComponent implements OnChanges {
   @Input() dictionary: DictionaryListItem | null = null;
   @Output() close = new EventEmitter<void>();
 
+  private dictionaryService = inject(DictionaryService);
+
   dataSource$ = new BehaviorSubject<DictionaryFull>([]);
 
   displayedColumns: string[] = [
@@ -59,8 +62,6 @@ export class DictionaryDrawerComponent implements OnChanges {
 
   /* Cache the original data to support filtering */
   private originalData: DictionaryFull = [];
-
-  constructor(private dictionaryService: DictionaryService) {}
 
   ngOnChanges(): void {
     if (this.dictionary) {

@@ -1,7 +1,9 @@
 @let dataSource = dataSource$ | async;
 
 <div class="m-4">
-  <div class="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
+  <div
+    class="flex justify-between items-center border-b border-gray-200 pb-4 mb-4"
+  >
     <div class="font-semibold text-lg">Dictionary</div>
     <mat-icon
       (click)="close.emit()"
@@ -29,7 +31,9 @@
         <h3 class="font-semibold text-neutral-800 mb-2">
           Dictionary description
         </h3>
-        <p class="text-neutral-1000">{{ dictionary.description || '\u2014' }}</p>
+        <p class="text-neutral-1000">
+          {{ dictionary.description || '\u2014' }}
+        </p>
       </div>
     </div>
   </eln-card>
@@ -39,11 +43,12 @@
   <div class="flex items-center justify-center py-8">
     <span class="m-2">Loading dictionary details...</span>
   </div>
-} @else if (dataSource && dataSource.length > 0) {
+} @else if (dataSource) {
   <div class="m-4">
     <div class="max-w-1/2 my-6">
       <eln-input
         [icon]="'indicon-search text-xl'"
+        [showClearButton]="false"
         inputClassname="rounded-full bg-primary-alpha-5 border-primary-alpha-10"
         [placeholder]="'Search'"
         (input)="applyFilter($event)"
@@ -85,9 +90,7 @@
       <ng-container matColumnDef="createdAt">
         <mat-header-cell *matHeaderCellDef>Created on</mat-header-cell>
         <mat-cell *matCellDef="let element" style="white-space: nowrap">
-
-            {{ element.createdAt | date: 'dd MMM yyyy' }}
-
+          {{ element.createdAt | date: 'dd MMM yyyy' }}
         </mat-cell>
       </ng-container>
 
@@ -109,11 +112,13 @@
 
       <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
 
-      <mat-row *matNoDataRow>
-        <td colspan="6" class="text-center text-gray-500">
-          No dictionary details available.
-        </td>
-      </mat-row>
+      <ng-template matNoDataRow>
+        <tr>
+          <td class="tex-sm text-center text-gray-500 p-4">
+            No dictionary words found.
+          </td>
+        </tr>
+      </ng-template>
     </mat-table>
   </div>
 }

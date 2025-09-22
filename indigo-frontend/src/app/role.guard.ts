@@ -1,7 +1,7 @@
 import { UserService } from '@/core/services/user.service';
 import { Role } from '@/core/types/entities/user.i';
 import { Injectable } from '@angular/core';
-import { CanActivate, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -11,7 +11,7 @@ import { map } from 'rxjs/operators';
 export class RoleGuard implements CanActivate {
   constructor(private userService: UserService, private router: Router) {}
 
-  canActivate(route: import('@angular/router').ActivatedRouteSnapshot): Observable<boolean> {
+  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
     const requiredRole = route.data['requiredRole'];
     return this.userService.userRoles$.pipe(
       map((roles: Role[]) => {
