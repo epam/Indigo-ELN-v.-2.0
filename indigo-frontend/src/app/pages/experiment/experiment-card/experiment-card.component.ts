@@ -58,4 +58,15 @@ export class ExperimentCardComponent {
     return statusMap[status];
   }
 
+  displayExperimentStatus(status: ExperimentStatus): string {
+    const statusMap: { [key: string]: string } = {
+      [ExperimentStatus.OPEN]: 'Open',
+      [ExperimentStatus.WAITING_FOR_SIGNATURE]: 'Waiting Signature',
+      [ExperimentStatus.COMPLETED]: 'Completed',
+      [ExperimentStatus.REJECTED]: 'Rejected'
+    };
+    console.log(statusMap[status])
+    return statusMap[status];
+  }
+
 }

@@ -1,6 +1,12 @@
 export enum ExperimentStatus {
-  OPEN = 'Open',
-  WAITING_FOR_SIGNATURE = 'Waiting Signature',
-  COMPLETED = 'Completed',
-  REJECTED = 'Rejected'
+  OPEN = 'OPEN',
+  REOPEN = 'REOPEN',
+  COMPLETED = 'COMPLETED',
+  SUBMITTED = 'SUBMITTED',
+  SIGNING = 'SIGNING',
+  REJECTED = 'REJECTED',
+  SIGNED = 'SIGNED',
+  ARCHIVED = 'ARCHIVED',
+  CANCELLED = 'CANCELLED',
+  WAITING_FOR_SIGNATURE = 'WAITING_FOR_SIGNATURE'
 }

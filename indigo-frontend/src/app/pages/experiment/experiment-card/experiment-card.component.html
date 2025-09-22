@@ -27,7 +27,7 @@
             class="status-badge-v2 ml-2"
             [ngClass]="getStatusClass(experiment.status)">
             <span class="status-dot mr-1"></span>
-            {{ experiment.status }}
+            {{ displayExperimentStatus(experiment.status) }}
           </span>
         </div>
         <div class="relative -right-1 flex items-center gap-2">
@@ -100,7 +100,7 @@
                         [ngClass]="getStatusClass(experiment.status)">
 
                         <span class="status-dot mr-1"></span>
-                        {{ experiment.status }}
+                        {{ displayExperimentStatus(experiment.status) }}
                     </span>
                 </div>
 
