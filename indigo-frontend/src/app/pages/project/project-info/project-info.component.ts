@@ -2,18 +2,19 @@ import { AttachmentComponent } from '@/core/components/common/attachment/attachm
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ChipComponent } from '@/core/components/common/chip/chip.component';
-import { TeamComponent } from '@/core/components/project/team/team.component';
+import { TeamComponent } from '@/core/components/common/team/team.component';
 import { ApiService } from '@/core/services/api.service';
 import { Project } from '@/core/types/entities/project.i';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { of, Subject, take } from 'rxjs';
-import { takeUntil, catchError } from 'rxjs/operators';
+import { catchError, takeUntil } from 'rxjs/operators';
 import { FileUploadComponent } from "@/core/components/common/file-upload/file-upload.component";
 import { Attachment } from '@/core/types/entities/attachment.i';
 import { MatDialog } from '@angular/material/dialog';
 import { ProjectAddComponent } from '../project-add/project-add.component';
+import { TeamComponentConfig } from '@/core/components/common/team/team.config';
 
 @Component({
   selector: 'eln-project-info',
@@ -23,7 +24,7 @@ import { ProjectAddComponent } from '../project-add/project-add.component';
     ButtonComponent,
     ChipComponent,
     AttachmentComponent,
-    TeamComponent,
+  TeamComponent,
     CardComponent,
     FileUploadComponent
   ],
@@ -45,6 +46,11 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
   isUploadingAttachment = false;
 
   private destroy$ = new Subject<void>();
+
+  projectTeamConfig: TeamComponentConfig = {
+    title: 'Project Team',
+    buildAccessEndpoint: (id: string) => `projects/${id}/access`,
+  };
 
   ngOnInit() {
     this.activatedRoute.params

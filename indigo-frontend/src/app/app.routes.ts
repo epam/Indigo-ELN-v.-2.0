@@ -53,6 +53,29 @@ export const routes: Routes = [
           },
         ],
       },
+      {
+        path: 'notebooks/:notebookId',
+        loadComponent: () =>
+          import(
+            '@/app/pages/notebook/notebook-detail/notebook-detail.component'
+          ).then((c) => c.NotebookDetailComponent),
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import(
+                '@/app/pages/notebook/notebook-info/notebook-info.component'
+              ).then((c) => c.NotebookInfoComponent),
+          },
+          {
+            path: 'experiments',
+            loadComponent: () =>
+              import(
+                '@/app/pages/notebook/experiments-tab/experiments-tab.component'
+              ).then((c) => c.ExperimentsTabComponent),
+          },
+        ],
+      },
     ],
   },
 ];
