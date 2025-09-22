@@ -9,5 +9,4 @@ import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
   standalone: true,
 })
 export class AppComponent {
-  title = 'indigo-frontend';
 }
