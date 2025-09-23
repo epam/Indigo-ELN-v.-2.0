@@ -42,7 +42,7 @@ export class SidebarComponent {
       path: '/templates',
     },
     {
-      name: 'Dictionary',
+      name: 'Dictionaries',
       materialIcon: 'import_contacts',
       path: '/dictionary',
       requiredRole: 'Dictionary editor',
