@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { RoleGuard } from './role.guard';
 
 export const routes: Routes = [
   {
@@ -75,6 +76,15 @@ export const routes: Routes = [
               ).then((c) => c.ExperimentsTabComponent),
           },
         ],
+      },
+      {
+        path: 'dictionary',
+        loadComponent: () =>
+          import(
+            '@/app/pages/dictionary/dictionary-layout/dictionary-layout.component'
+          ).then((c) => c.DictionaryLayoutComponent),
+        canActivate: [RoleGuard],
+        data: { requiredRole: 'Dictionary editor' },
       },
     ],
   },
