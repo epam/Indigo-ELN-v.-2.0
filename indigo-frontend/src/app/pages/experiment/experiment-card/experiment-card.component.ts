@@ -65,7 +65,6 @@ export class ExperimentCardComponent {
       [ExperimentStatus.COMPLETED]: 'Completed',
       [ExperimentStatus.REJECTED]: 'Rejected'
     };
-    console.log(statusMap[status])
     return statusMap[status];
   }
 
