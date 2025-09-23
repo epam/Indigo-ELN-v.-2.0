@@ -25,8 +25,13 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Slf4j
@@ -49,6 +54,12 @@ public class ReportsService {
     byte[] doGenerateExperimentReport(List<ReportsAPI.ExperimentReportDataDTO> experiments) {
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(experiments);
         Map<String, Object> params = new HashMap<>();
+
+//        Add current date to the report params
+        Instant curentInstant = Instant.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MMM d, u HH:mm:ss", Locale.ENGLISH);
+        String reportDate = LocalDateTime.ofInstant(curentInstant, ZoneId.of("UTC")).format(dateTimeFormatter);
+        params.put("reportDate", reportDate + " UTC");
 
 //        JasperReport jasperReport = (JasperReport) readOnlyStreamingService.getResource("/reports/ExperimentReport.jasper", JasperPrint.class);
         InputStream xa = ReportsService.class.getResourceAsStream("/reports/ExperimentReport.jasper");
