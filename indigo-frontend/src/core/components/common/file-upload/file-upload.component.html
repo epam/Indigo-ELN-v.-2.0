@@ -1,13 +1,16 @@
-<label class="block text-gray-700 text-sm font-bold mb-2 cursor-pointer text-primary-400">
-  <div class="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:bg-gray-100">
+<label class="block text-gray-700 text-sm font-bold mb-2 cursor-pointer text-primary-400"
+  [class.opacity-50]="uploadingFile" [class.cursor-not-allowed]="uploadingFile">
+  <div class="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:bg-gray-100"
+    [class.hover:bg-gray-100]="!uploadingFile" [class.cursor-not-allowed]="uploadingFile">
     <em class="indicon-paperclip"></em>
-    Attach file
-    <input type="file" class="hidden" (change)="onFileSelect($event)" [accept]="acceptedExtensions" multiple>
+    {{ uploadingFile ? loadingText : 'Attach file' }}
+    <input type="file" class="hidden" (change)="onFileSelect($event)" [accept]="acceptedExtensions"
+      [disabled]="uploadingFile" multiple>
   </div>
 </label>
 
 <!-- Preview Selected Files -->
-@if(files.length) {
+@if(files.length && withPreview) {
 <div class="mt-4">
   @for(file of files; track file; let i = $index) {
   <div class="flex items-center justify-between p-2 bg-gray-100 rounded-lg mt-2">

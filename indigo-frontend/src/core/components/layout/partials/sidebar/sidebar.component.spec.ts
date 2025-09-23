@@ -23,7 +23,9 @@ describe('SidebarComponent', () => {
   it('should initialize with default values', () => {
     expect(component.isSidebarOpen).toBe(true);
     expect(component.isHovered).toBe(false);
-    expect(component.menu.length).toBe(2);
+    component.menu$.subscribe(menu => {
+      expect(menu.length).toBe(2);
+    });
   });
 
   it('should have correct menu items', () => {
@@ -39,7 +41,9 @@ describe('SidebarComponent', () => {
         path: '/dashboard',
       },
     ];
-    expect(component.menu).toEqual(expectedMenu);
+    component.menu$.subscribe(menu => {
+      expect(menu).toEqual(expectedMenu);
+    });
   });
 
   describe('toggleSidebar', () => {
@@ -59,10 +63,13 @@ describe('SidebarComponent', () => {
   });
 
   describe('template rendering', () => {
-    it('should render correct number of menu items', () => {
+    it('should render correct number of menu items', (done) => {
       const menuItems = fixture.nativeElement.querySelectorAll('li');
       // Add 1 to account for the toggle button li
-      expect(menuItems.length).toBe(component.menu.length + 1);
+      component.menu$.subscribe(menu => {
+        expect(menuItems.length).toBe(menu.length + 1);
+        done();
+      });
     });
 
     it('should toggle sidebar collapsed class', () => {

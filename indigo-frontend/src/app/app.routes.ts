@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { RoleGuard } from './role.guard';
 
 export const routes: Routes = [
   {
@@ -52,6 +53,38 @@ export const routes: Routes = [
             ],
           },
         ],
+      },
+      {
+        path: 'notebooks/:notebookId',
+        loadComponent: () =>
+          import(
+            '@/app/pages/notebook/notebook-detail/notebook-detail.component'
+          ).then((c) => c.NotebookDetailComponent),
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import(
+                '@/app/pages/notebook/notebook-info/notebook-info.component'
+              ).then((c) => c.NotebookInfoComponent),
+          },
+          {
+            path: 'experiments',
+            loadComponent: () =>
+              import(
+                '@/app/pages/notebook/experiments-tab/experiments-tab.component'
+              ).then((c) => c.ExperimentsTabComponent),
+          },
+        ],
+      },
+      {
+        path: 'dictionary',
+        loadComponent: () =>
+          import(
+            '@/app/pages/dictionary/dictionary-layout/dictionary-layout.component'
+          ).then((c) => c.DictionaryLayoutComponent),
+        canActivate: [RoleGuard],
+        data: { requiredRole: 'Dictionary editor' },
       },
     ],
   },

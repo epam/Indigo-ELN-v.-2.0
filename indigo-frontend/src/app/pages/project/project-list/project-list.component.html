@@ -1,4 +1,10 @@
-<eln-list-header (viewChange)="selectedView = $any($event)" />
+<eln-list-header
+  [sortOptions]="headerSortOptions"
+  [currentSort]="getCurrentSort()"
+  (viewChange)="onViewChange($event)"
+  (searchChange)="onSearch($event)"
+  (sortChange)="onSortChange($event)"
+/>
 <div
   *ngIf="data$ | async as data"
   [@viewChange]="selectedView"

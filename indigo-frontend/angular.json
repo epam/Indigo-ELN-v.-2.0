@@ -27,6 +27,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "public/assets/ketcher",
+                "output": "/assets/ketcher"
               }
             ],
             "styles": [

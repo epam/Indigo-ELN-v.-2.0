@@ -1,5 +1,13 @@
+import { TwsxPipe } from '@/core/pipes/twsx.pipe';
 import { CommonModule } from '@angular/common';
-import { Component, forwardRef, input, output, signal } from '@angular/core';
+import {
+  Component,
+  forwardRef,
+  Input,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ClassPickerPipe } from '../../../pipes/classPicker.pipe';
 
@@ -14,9 +22,16 @@ import { ClassPickerPipe } from '../../../pipes/classPicker.pipe';
       multi: true,
     },
   ],
-  imports: [ClassPickerPipe, CommonModule],
+  imports: [ClassPickerPipe, CommonModule, TwsxPipe],
 })
 export class InputComponent implements ControlValueAccessor {
+  @Input() icon;
+  @Input() wrapperClassname: string;
+  @Input() labelClassname: string;
+  @Input() inputWrapperClassname: string;
+  @Input() inputClassname: string;
+  @Input() iconClassname: string;
+  @Input() showClearButton = true;
   label = input<string>();
   placeholder = input<string>();
   required = input<boolean>(false);
@@ -30,7 +45,9 @@ export class InputComponent implements ControlValueAccessor {
     this.value.set(value);
   };
 
-  onTouched = () => {};
+  onTouched = () => {
+    /* noop */
+  };
 
   writeValue(value: string): void {
     this.value.set(value);

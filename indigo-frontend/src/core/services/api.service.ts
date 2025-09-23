@@ -38,6 +38,10 @@ export class ApiService<T> {
   public create(url: string, body: unknown): Observable<T> {
     return this.httpClient.post<T>(this.buildUrl(url), body);
   }
+  
+  public update(url: string, body: unknown): Observable<T> {
+    return this.httpClient.patch<T>(this.buildUrl(url), body);
+  }
 
   public getDictionary<T = { id: string; name: string }[]>(dictionary: string): Observable<T> {
     return this.httpClient.get<T>(this.buildUrl(dictionary));
