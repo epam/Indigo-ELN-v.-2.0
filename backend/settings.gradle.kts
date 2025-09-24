@@ -37,5 +37,7 @@ include("eln:eln-lambda")
 
 include("reports:reports-api")
 include("reports:reports-core")
-//include("reports:reports-service")
 include("reports:reports-lambda")
+include("reports:reports-service")
+
+include("integrationTests")

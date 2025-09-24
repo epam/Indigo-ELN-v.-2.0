@@ -13,5 +13,6 @@ import java.util.UUID;
 public interface GlobalSearchAPI extends BaseAPI {
 
     @POST
+    @Path("/search")
     Page<GlobalSearchResultDTO> search(GlobalSearchRequest request, @BeanParam Paging paging);
 }

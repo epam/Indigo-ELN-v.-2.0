@@ -1,0 +1,19 @@
+FROM public.ecr.aws/lambda/provided:al2-x86_64
+
+ENV LANGUAGE='en_US:en'
+
+# Install Java
+RUN yum install -y java-21-amazon-corretto
+
+#COPY target/quarkus-app/ ${LAMBDA_RUNTIME_DIR}/
+COPY --chown=185 build/lib/* ${LAMBDA_RUNTIME_DIR}/lib/
+COPY --chown=185 build/*-runner.jar ${LAMBDA_RUNTIME_DIR}/quarkus-run.jar
+
+RUN echo "#!/bin/bash" >> ${LAMBDA_RUNTIME_DIR}/bootstrap
+RUN echo "cd ${LAMBDA_RUNTIME_DIR}" >> ${LAMBDA_RUNTIME_DIR}/bootstrap
+RUN echo "exec java -jar quarkus-run.jar" >> ${LAMBDA_RUNTIME_DIR}/bootstrap
+
+RUN chmod +x ${LAMBDA_RUNTIME_DIR}/bootstrap
+
+ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dquarkus.log.level=TRACE --add-opens java.base/jdk.internal.misc=ALL-UNNAMED -Djava.net.preferIPv6Addresses=true"
+ENV JAVA_APP_JAR="/app/quarkus-run.jar"

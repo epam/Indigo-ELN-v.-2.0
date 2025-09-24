@@ -27,7 +27,7 @@ public abstract class BaseTest {
 
     protected URI getServerURL() {
         if (integrationTest) {
-             return URI.create("http://localhost:8081");
+             return URI.create("http://localhost:28080");
         }
         return serverBaseURL;
     }

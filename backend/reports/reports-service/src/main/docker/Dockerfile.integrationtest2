@@ -1,0 +1,10 @@
+FROM public.ecr.aws/lambda/java:21
+
+ADD build/lib/ /var/task/lib/
+ADD build/*-runner.jar /var/task/lib/runner.jar
+
+RUN echo "#!/bin/bash" >> /var/task/bootstrap
+RUN echo "cd /var/task" >> /var/task/bootstrap
+RUN echo "exec java -jar runner.jar" >> /var/task/bootstrap
+
+CMD ["io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"]

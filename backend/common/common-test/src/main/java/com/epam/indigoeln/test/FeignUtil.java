@@ -38,7 +38,7 @@ public class FeignUtil {
     public static <T> T buildFeignClient(URI baseURL, Class<T> klass, AtomicReference<String> testUsername, AtomicReference<String> authorization) {
         return Feign.builder()
                 .client(new ApacheHttpClient())
-                .options(new Request.Options(Duration.ofSeconds(10), Duration.ofSeconds(60), false))
+                .options(new Request.Options(Duration.ofSeconds(1), Duration.ofSeconds(29), false))
                 .contract(new JAXRS3Contract())
                 .encoder(new FormEncoder(new JacksonEncoder(OBJECT_MAPPER)))
                 .decoder(new ResponseDecoder(new JacksonDecoder(OBJECT_MAPPER)))
