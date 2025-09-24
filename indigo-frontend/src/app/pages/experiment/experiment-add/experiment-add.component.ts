@@ -53,16 +53,6 @@ export class ExperimentAddComponent<T> implements OnInit {
         },
       },
       {
-        type: 'input',
-        key: 'Experiment Name',
-        className: 'w-full',
-        props: {
-          label: 'Experiment Name',
-          placeholder: 'Experiment Name',
-          required: true,
-        },
-      },
-      {
       fieldGroupClassName: 'flex flex-row gap-4',
       fieldGroup: [
       {
