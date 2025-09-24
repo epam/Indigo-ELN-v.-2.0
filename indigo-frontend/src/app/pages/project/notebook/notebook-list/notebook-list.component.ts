@@ -37,7 +37,7 @@ import { NotebookAddComponent } from '../notebook-add/notebook-add.component';
     InfiniteLoaderComponent,
     ProjectOverviewWidgetDirective,
     ButtonComponent,
-    ListHeaderComponent,
+    ListHeaderComponent
   ],
 })
 export class NotebookListComponent
