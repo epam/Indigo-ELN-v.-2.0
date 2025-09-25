@@ -1,0 +1,45 @@
+#FROM registry.access.redhat.com/ubi8/openjdk-21
+FROM registry.access.redhat.com/ubi9/openjdk-21
+#FROM registry.access.redhat.com/ubi9/openjdk-21-runtime
+#FROM ghcr.io/graalvm/graalvm-community:24
+#FROM public.ecr.aws/lambda/provided:al2-x86_64
+#FROM public.ecr.aws/lambda/java:21
+#FROM public.ecr.aws/lambda/provided:al2-x86_64
+#RUN yum install -y java-21-amazon-corretto
+#FROM public.ecr.aws/amazoncorretto/amazoncorretto:24-headless
+
+USER root
+
+ENV LANGUAGE='en_US:en'
+
+#RUN mkdir -p /app/lambda-ric
+#RUN curl https://repo1.maven.org/maven2/com/amazonaws/aws-lambda-java-runtime-interface-client/2.6.0/aws-lambda-java-runtime-interface-client-2.6.0.jar -o /app/lambda-ric/aws-lambda-java-runtime-interface-client-2.6.0.jar
+#RUN curl https://repo1.maven.org/maven2/com/amazonaws/aws-lambda-java-serialization/1.1.2/aws-lambda-java-serialization-1.1.2.jar -o /app/lambda-ric/aws-lambda-java-serialization-1.1.2.jar
+
+#RUN yum install -y unzip
+COPY build/function.zip /var/task/function.zip
+RUN cd /var/task && jar -xf function.zip && rm function.zip
+#COPY src/main/docker/libaws-lambda-jni.linux_musl-x86_64.so /var/task/jni/libaws-lambda-jni.linux_musl-x86_64.so
+
+#ADD target/my-service-0.0.1-SNAPSHOT-runner.jar /var/task/lib/my-service.jar
+#ADD target/lib/  /var/task/lib/
+
+#RUN chown -R 185 /app
+
+#ENV JAVA_OPTS_APPEND="-agentlib:jdwp=transport=dt_socket,server=n,address=172.17.0.1:5005,suspend=y -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dquarkus.log.level=TRACE --add-opens java.base/jdk.internal.misc=ALL-UNNAMED -Djava.net.preferIPv6Addresses=false"
+
+#ENTRYPOINT [ "curl http://172.17.0.1:5005" ]
+#ENTRYPOINT [ "/opt/jboss/container/java/run/run-java.sh" ]
+
+# Set runtime interface client as default command for the container runtime
+
+#RUN echo "#!/bin/bash" > /app/entrypoint.sh
+#RUN echo "/usr/bin/java -Xshare:off -cp /app:/app/lib/*:/app/lambda-ric/* com.amazonaws.services.lambda.runtime.api.client.AWSLambda io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest" >> /app/entrypoint.sh
+#RUN echo "bash -c 'cat /app/hs*log'" >> /app/entrypoint.sh
+#RUN echo "bash -c 'cat /home/default/hs*log'" >> /app/entrypoint.sh
+#RUN chmod +x /app/entrypoint.sh
+
+COPY src/main/docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT [ "bash", "/entrypoint.sh" ]

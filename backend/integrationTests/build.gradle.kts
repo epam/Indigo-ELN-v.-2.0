@@ -12,6 +12,8 @@ dependencies {
     testImplementation(project(path = ":eln:eln-core", configuration = "testArtifacts"))
     testImplementation(project(path = ":reports:reports-core", configuration = "testArtifacts"))
 
+    testImplementation("io.quarkus:quarkus-apache-httpclient")
+
     testImplementation("org.testcontainers:testcontainers")
     testImplementation("org.testcontainers:postgresql")
 }
@@ -23,7 +25,7 @@ tasks.named("compileIntegrationTestJava") {
 //    dependsOn(":eln:eln-lambda:assemble")
 //    dependsOn(":eln:eln-core:testJar")
 //    dependsOn(":reports:reports-lambda:assemble")
-    dependsOn(":reports:reports-service:assemble")
+    dependsOn(":reports:reports-lambda:assemble")
     dependsOn(":reports:reports-core:testJar")
     dependsOn(":integrationTests:testClasses")
 }

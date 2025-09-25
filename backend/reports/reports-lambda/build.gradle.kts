@@ -7,7 +7,9 @@ plugins {
 dependencies {
     implementation(project(":common:common-lambda"))
     implementation(project(":reports:reports-core"))
-    implementation(project(":eln-quarkus-extension:runtime"))
+//    implementation(project(":eln-quarkus-extension:runtime"))
+
+//    implementation("com.amazonaws:aws-lambda-java-runtime-interface-client:2.8.6")
     testImplementation(project(":common:common-test"))
     testImplementation(project(path = ":reports:reports-core", configuration = "testArtifacts"))
 }

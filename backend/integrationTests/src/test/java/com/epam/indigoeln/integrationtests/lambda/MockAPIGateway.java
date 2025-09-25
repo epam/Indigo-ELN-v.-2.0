@@ -17,8 +17,8 @@ import static com.epam.indigoeln.integrationtests.lambda.LambdaUtil.sendResponse
 public class MockAPIGateway implements HttpHandler {
 
     private final int port;
-    private final LambdaMultiplexer elnLambdaMultiplexer;
-//    private final LambdaMultiplexer reportsLambdaMultiplexer;
+//    private final LambdaInvoker eLnLambdaInvoker;
+    private final LambdaInvoker reportsLambdaInvoker;
 
     private HttpServer httpServer;
 
@@ -32,9 +32,9 @@ public class MockAPIGateway implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
         try {
             if (exchange.getRequestURI().getPath().startsWith("/api/eln/")) {
-                elnLambdaMultiplexer.process(exchange);
-//            } else if (exchange.getRequestURI().getPath().startsWith("/internalapi/reports/")) {
-//                reportsLambdaMultiplexer.process(exchange);
+//                eLnLambdaInvoker.process(exchange);
+            } else if (exchange.getRequestURI().getPath().startsWith("/internalapi/reports/")) {
+                reportsLambdaInvoker.process(exchange);
             } else {
                 sendResponse(exchange, Response.Status.NOT_FOUND, "[MockAPIGateway] Not found: " + exchange.getRequestURI().getPath());
             }

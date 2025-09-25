@@ -12,7 +12,7 @@ import java.util.*;
 
 public class LambdaUtil {
 
-    static APIGatewayV2HTTPEvent convertRequest(HttpExchange exchange) throws IOException {
+    static APIGatewayV2HTTPEvent convertRequest(HttpExchange exchange, String apiSecret) throws IOException {
         APIGatewayV2HTTPEvent.APIGatewayV2HTTPEventBuilder event = APIGatewayV2HTTPEvent.builder()
                         .withRequestContext(APIGatewayV2HTTPEvent.RequestContext.builder()
                                 .withHttp(APIGatewayV2HTTPEvent.RequestContext.Http.builder()
@@ -26,6 +26,7 @@ public class LambdaUtil {
         Map<String, String> headers = EntryStream.of(exchange.getRequestHeaders().entrySet().stream())
                 .mapValues(List::getLast)
                 .toCustomMap(LinkedHashMap::new);
+        headers.put("X-API-Secret", apiSecret);
         event = event.withHeaders(headers);
         if (exchange.getRequestBody() != null) {
             byte[] bytes = exchange.getRequestBody().readAllBytes();

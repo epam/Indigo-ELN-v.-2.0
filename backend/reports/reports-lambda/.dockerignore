@@ -4,3 +4,4 @@
 build
 !build/lib
 !build/*runner*
+!build/function.zip

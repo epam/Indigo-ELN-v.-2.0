@@ -22,32 +22,32 @@ services:
       - "QUARKUS_DATASOURCE_PASSWORD=eln"
       - "QUARKUS_LOG_CONSOLE_JSON_ENABLED=false"
       - "ELN_COGNITO_USER_POOL_ID=xxx"
-      - "ELN_API_SECRET=xxx"
-      - "ELN_INTERNAL_API_SECRET=xxx"
-#      - "QUARKUS_REST_CLIENT_REPORTS_API_URL=http://17.17.0.1:28080"
-      - "QUARKUS_REST_CLIENT_REPORTS_API_URL=http://reports-service:28081"
+      - "ELN_API_SECRET=apiSecret"
+      - "ELN_INTERNAL_API_SECRET=internalApiSecret"
+      - "QUARKUS_REST_CLIENT_REPORTS_API_URL=http://17.17.0.1:28080"
+#      - "QUARKUS_REST_CLIENT_REPORTS_API_URL=http://reports-service:28081"
       - "QUARKUS_REST_CLIENT_LOGGING_SCOPE=request-response"
       - "QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT=9999"
       - "QUARKUS_REST_CLIENT_EXTENSIONS_API_SCOPE=all"
       - "QUARKUS_LOG_LEVEL=info"
-#  reports-lambda:
-#    build:
-#      context: ../reports/reports-lambda
-#      dockerfile: src/main/docker/Dockerfile.legacy-jar
-#    environment:
-#      - "AWS_LAMBDA_RUNTIME_API=172.17.0.1:20002"
-#      - "QUARKUS_PROFILE=integration-test"
-#      - "QUARKUS_LOG_CONSOLE_JSON_ENABLED=false"
-#      - "ELN_API_SECRET=xxx"
-#      - "QUARKUS_LOG_LEVEL=debug"
-#    ports:
-#      - 5005:5005
-  reports-service:
-    image: indigoeln/reports-service:built
+  reports-lambda:
+    build:
+      context: ../reports/reports-lambda
+      dockerfile: src/main/docker/Dockerfile.fromzip
     environment:
+      - "AWS_LAMBDA_RUNTIME_API=172.17.0.1:20002"
       - "QUARKUS_PROFILE=integration-test"
       - "QUARKUS_LOG_CONSOLE_JSON_ENABLED=false"
-      - "ELN_API_SECRET=xxx"
+      - "ELN_API_SECRET=internalApiSecret"
       - "QUARKUS_LOG_LEVEL=info"
     ports:
-      - 28081:8080
+      - 5005:5005
+#  reports-service:
+#    image: indigoeln/reports-service:built
+#    environment:
+#      - "QUARKUS_PROFILE=integration-test"
+#      - "QUARKUS_LOG_CONSOLE_JSON_ENABLED=false"
+#      - "ELN_API_SECRET=internalApiSecret"
+#      - "QUARKUS_LOG_LEVEL=info"
+#    ports:
+#      - 28081:8080

@@ -26,12 +26,13 @@ import static com.epam.indigoeln.integrationtests.lambda.LambdaUtil.sendResponse
 
 @Slf4j
 @RequiredArgsConstructor
-public class LambdaMultiplexer implements HttpHandler {
+public class LambdaInvoker implements HttpHandler {
 
     private static final Pattern RESPONSE_URL = Pattern.compile("/2018-06-01/runtime/invocation/(.+?)/(response|error)");
     private static final Job SHUTDOWN = new Job(-1, new APIGatewayV2HTTPEvent(), new CompletableFuture<>());
 
     private final int port;
+    private final String apiSecret;
 
     private HttpServer httpServer;
 
@@ -98,7 +99,7 @@ public class LambdaMultiplexer implements HttpHandler {
 
     public void process(HttpExchange exchange) throws Exception {
         long requestID = lastUsedRequestID.incrementAndGet();
-        Job job = new Job(requestID, convertRequest(exchange), new CompletableFuture<>());
+        Job job = new Job(requestID, convertRequest(exchange, apiSecret), new CompletableFuture<>());
         jobs.put(requestID, job);
         log.info("!!! process: before queue.add");
         queue.add(job);

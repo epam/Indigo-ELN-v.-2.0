@@ -25,6 +25,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+
 
 @QuarkusTest
 @JwtSecurity
@@ -36,11 +39,6 @@ public class ReportsServiceTest extends BaseTest {
     @BeforeAll
     void setUpAll() {
         reportsClient = buildClient(ReportsClient.class);
-    }
-
-    @Override
-    protected URI getServerURL() {
-        return URI.create("http://localhost:28081");
     }
 
     @SneakyThrows
@@ -64,6 +62,11 @@ public class ReportsServiceTest extends BaseTest {
         // Reaction Details, Therapeutic Area = Diabetes
         // other Reaction Details fields?
 //        experiment.setPicture(ModelUtil.loadResource(ReportingServiceTest.class, "/experiment-image.svg"));
+    }
+
+    @Test
+    void testVersion() {
+        assertThat(reportsClient.getVersion()).contains(entry("service", "reports"));
     }
 
     @Test
