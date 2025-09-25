@@ -44,7 +44,7 @@ public class ELNLambdaStack extends NestedStack {
     private final IStringParameter internalApiGatewaySecret;
 
     public ELNLambdaStack(final Construct scope, final String id, final Props props) {
-        super(scope, id, props);
+        super(scope, id, props)c.;
 
         apiGatewaySecret = StringParameter.Builder.create(this, "api-gateway-secret")
                 .parameterName("api-gateway-secret")
