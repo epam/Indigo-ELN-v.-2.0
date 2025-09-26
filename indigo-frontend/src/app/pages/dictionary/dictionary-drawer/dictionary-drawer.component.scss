@@ -27,8 +27,7 @@ mat-header-row {
     flex: 0 0 10%;
 }
 
-.delete-cell {
-  display: flex;
-  justify-content: flex-end;
-  padding-right: 6px;
+::ng-deep .mat-mdc-form-field-error-wrapper {
+  padding: 0 !important;
 }
+

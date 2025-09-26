@@ -45,15 +45,28 @@
   </div>
 } @else if (dataSource) {
   <div class="m-4">
-    <div class="max-w-1/2 my-6">
-      <eln-input
-        [icon]="'indicon-search text-xl'"
-        [showClearButton]="false"
-        inputClassname="rounded-full bg-primary-alpha-5 border-primary-alpha-10"
-        [placeholder]="'Search'"
-        (input)="applyFilter($event)"
+    <div
+      class="flex justify-between items-center border-b border-gray-200 pb-4 mb-4"
+    >
+      <div class="max-w-1/2 my-6">
+        <eln-input
+          [icon]="'indicon-search text-xl'"
+          [showClearButton]="false"
+          inputClassname="rounded-full bg-primary-alpha-5 border-primary-alpha-10"
+          [placeholder]="'Search'"
+          (input)="applyFilter($event)"
+        >
+        </eln-input>
+      </div>
+
+      <eln-button
+        variant="grey"
+        classList="flex items-center gap-2"
+        (click)="addNewWordRowToTable()"
       >
-      </eln-input>
+        <em class="text-xl indicon-plus"></em>
+        <span class="whitespace-nowrap">Add word</span>
+      </eln-button>
     </div>
 
     <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
@@ -64,11 +77,27 @@
 
       <ng-container matColumnDef="name">
         <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
-        <mat-cell
-          *matCellDef="let element"
-          style="color: var(--color-primary-400)"
-          >{{ element.name }}</mat-cell
-        >
+        <mat-cell *matCellDef="let word; let i = index">
+          @if (word.id) {
+            <span>{{ word.name }}</span>
+          } @else {
+            <mat-form-field class="w-full">
+              <input
+                matInput
+                required
+                [formControl]="getFormControl(formRows[i], 'name')"
+                (blur)="handleInputChange(formRows[i], word)"
+                (keydown.enter)="handleInputChange(formRows[i], word, $event)"
+              />
+              <mat-error *ngIf="formRows[i].get('name')?.hasError('required')">
+                Name is required.
+              </mat-error>
+              <mat-error *ngIf="formRows[i].get('name')?.hasError('notUnique')">
+                Name must be unique. Please choose a different name.
+              </mat-error>
+            </mat-form-field>
+          }
+        </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="description">
@@ -95,15 +124,10 @@
       </ng-container>
 
       <ng-container matColumnDef="delete">
-        <mat-header-cell *matHeaderCellDef></mat-header-cell>
-        <mat-cell *matCellDef="let element" class="delete-cell">
-          <button
-            class="text-red-500 bg-primary-alpha-5 hover:text-red-700 cursor-pointer hover:bg-red-50 rounded p-2"
-            (click)="deleteItem(element.id)"
-            [disabled]="true"
-          >
-            <!-- remove disabled true when implement Delete dictionary item -->
-            <em class="indicon-delete"></em>
+        <mat-header-cell *matHeaderCellDef>Delete</mat-header-cell>
+        <mat-cell *matCellDef="let element; let i = index">
+          <button mat-icon-button (click)="deleteItemFromTable(element.id, i)">
+            <mat-icon>delete</mat-icon>
           </button>
         </mat-cell>
       </ng-container>
