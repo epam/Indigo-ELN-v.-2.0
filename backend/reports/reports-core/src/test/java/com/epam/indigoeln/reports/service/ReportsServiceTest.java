@@ -1,10 +1,7 @@
 package com.epam.indigoeln.reports.service;
 
 import com.epam.indigoeln.common.util.ModelUtil;
-import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
-import com.epam.indigoeln.eln.model.ExperimentStatus;
-import com.epam.indigoeln.eln.model.ProjectDTO;
-import com.epam.indigoeln.eln.model.UserRef;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reports.api.ReportsAPI;
 import com.epam.indigoeln.reports.api.ReportsClient;
@@ -21,6 +18,8 @@ import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,6 +45,10 @@ public class ReportsServiceTest extends BaseTest {
         experiment.setName("00000001-0001");
         experiment.setCreatedBy(new UserRef(UUID.randomUUID(), "test", "Test User"));
         experiment.setStatus(ExperimentStatus.OPEN);
+        experiment.setCreatedAt(ZonedDateTime.of(2025, 2, 19, 8, 41, 48, 0, ZoneId.of("UTC")));
+        experiment.setTherapeuticArea(new DictionaryItemRef(UUID.randomUUID(), "Diabet"));
+        experiment.setProjectCode(new DictionaryItemRef(UUID.randomUUID(), "Code 1"));
+        experiment.setDescription("To a suspension of salicylic acid (2 g) in acetic anhydride (4.5 mL) in a conical flask add anhydrous sodium acetate\n(0.4 g) with stirring.");
         return List.of(new ReportsAPI.ExperimentReportDataDTO(
                 project,
                 experiment,
