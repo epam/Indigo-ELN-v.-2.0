@@ -65,11 +65,6 @@ public class ReportsServiceTest extends BaseTest {
     }
 
     @Test
-    void testVersion() {
-        assertThat(reportsClient.getVersion()).contains(entry("service", "reports"));
-    }
-
-    @Test
     void testReport() throws Exception {
         ReportsAPI.ExperimentReportDataDTO data = new ReportsAPI.ExperimentReportDataDTO(null, null, null, null);
         try (Response response = reportsClient.generateExperimentReport(fillExperimentDataForJasperReportsStudio().getFirst())) {

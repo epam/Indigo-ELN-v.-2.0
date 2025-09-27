@@ -38,10 +38,6 @@ public class ServiceInvoker {
     private final String downstream;
     private final String apiSecret;
 
-    private final BlockingQueue<Job> queue = new LinkedBlockingQueue<>();
-    private final Map<Long, Job> jobs = new ConcurrentHashMap<>();
-    private final AtomicLong lastUsedRequestID = new AtomicLong();
-
     public void process(HttpExchange exchange) throws Exception {
         try {
             HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(exchange.getRequestMethod(), exchange.getRequestURI().toString());

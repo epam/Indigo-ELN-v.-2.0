@@ -10,8 +10,6 @@ dependencies {
     implementation(project(":common:common-lambda"))
     implementation(project(":eln:eln-core"))
     implementation(project(":eln-quarkus-extension:runtime"))
-    testImplementation(project(":common:common-test"))
-    testImplementation(project(path = ":eln:eln-core", configuration = "testArtifacts"))
 }
 
 group = "com.epam.indigoeln"
@@ -26,18 +24,4 @@ val copyNativeLibs by tasks.registering(Copy::class) {
 
 tasks.named("processResources") {
     dependsOn(copyNativeLibs)
-}
-
-tasks.withType<Test> {
-    environment("NATIVE_LIB_PATH", "${projectDir}/build/nativelibs")
-}
-
-tasks.named("compileIntegrationTestJava") {
-    dependsOn(":eln:eln-lambda:assemble")
-    dependsOn(":eln:eln-core:testJar")
-}
-
-tasks.named("quarkusIntTest", Test::class) {
-//    systemProperty("quarkus.http.test-port", "8083")
-    outputs.upToDateWhen { false }
 }

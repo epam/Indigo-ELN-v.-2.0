@@ -22,14 +22,13 @@ public class LambdaClient {
     private static final HttpClient httpClient = HttpClient.newHttpClient();
 
     public static void main(String[] args) throws Exception {
-//        Thread.sleep(30_000);
         String lambdaHost = System.getenv("AWS_LAMBDA_RUNTIME_API");
         Preconditions.checkState(lambdaHost != null, "AWS_LAMBDA_RUNTIME_API environment variable is not set");
         RequestStreamHandler handler = new QuarkusStreamHandler();
         String lambdaBaseURL = "http://" + lambdaHost + "/2018-06-01/runtime";
 
         try {
-            for (; ; ) {
+            for (;;) {
                 Pair<String, byte[]> request = nextEvent(lambdaBaseURL);
                 try (ByteArrayInputStream input = new ByteArrayInputStream(request.b()); ByteArrayOutputStream output = new ByteArrayOutputStream()) {
                     Context context = new ContextImpl(request.a(), "", "", "", "", "", null, null, 29_000, 512, new LambdaLoggerImpl());
@@ -64,7 +63,6 @@ public class LambdaClient {
                         .GET()
                         .build(),
                 HttpResponse.BodyHandlers.ofByteArray());
-        System.out.println("!!! nextEvent: headers = " + response.headers().map());
         String requestID = response.headers().firstValue("Lambda-Runtime-Aws-Request-Id").orElseThrow();
         return Pair.of(requestID, response.body());
     }

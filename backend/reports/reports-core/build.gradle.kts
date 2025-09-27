@@ -62,28 +62,9 @@ artifacts {
     add(testArtifacts.name, testJar)
 }
 
-val copyNativeLibs by tasks.registering(Copy::class) {
-    from(configurations.runtimeClasspath.get().filter { it.name.contains("indigo") }.map { zipTree(it)})
-    include("**/linux-x86_64/*.so")
-    includeEmptyDirs = false
-    destinationDir = File("${projectDir}/build/nativelibs")
-}
-
-tasks.named("processResources") { dependsOn(copyNativeLibs) }
-
 //tasks.named("jar") { dependsOn("compileAllReports") }
 //tasks.named("quarkusDependenciesBuild") { dependsOn("compileAllReports") }
 //tasks.named("compileTestJava") { dependsOn("compileAllReports") }
-
-tasks.withType<Test> {
-    environment("NATIVE_LIB_PATH", "${projectDir}/build/nativelibs")
-//    jvmArgs("-agentlib:native-image-agent=config-output-dir=${projectDir}/build/native-config")
-}
-
-tasks.withType<io.quarkus.gradle.tasks.QuarkusDev> {
-    dependsOn(copyNativeLibs)
-    environmentVariables.set(mapOf("NATIVE_LIB_PATH" to "${projectDir}/build/nativelibs"))
-}
 
 //jasperreports {
 //    classpath.from(configurations.compileClasspath)

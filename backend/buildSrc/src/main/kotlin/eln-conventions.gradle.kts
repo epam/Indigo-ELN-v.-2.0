@@ -37,4 +37,5 @@ tasks.withType<org.gradle.api.tasks.compile.JavaCompile> {
 
 tasks.withType<Test> {
     systemProperty("java.util.logging.manager", "org.jboss.logmanager.LogManager")
+    jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED")
 }

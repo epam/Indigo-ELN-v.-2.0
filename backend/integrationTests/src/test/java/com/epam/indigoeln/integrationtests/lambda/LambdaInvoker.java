@@ -48,13 +48,9 @@ public class LambdaInvoker implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        log.info("!!! handle: started");
         try {
             if (exchange.getRequestMethod().equals(HttpMethod.GET) && exchange.getRequestURI().getPath().equals("/2018-06-01/runtime/invocation/next")) {
-                // wait for the next event
-                log.info("!!! handle: before queue.take");
                 Job job = queue.take();
-                log.info("!!! handle: after queue.take");
                 if (job == SHUTDOWN) {
                     queue.put(job);
                     return; // shutting down
@@ -62,7 +58,7 @@ public class LambdaInvoker implements HttpHandler {
                 exchange.getResponseHeaders().add("Lambda-Runtime-Aws-Request-Id", Long.toString(job.requestID));
                 exchange.getResponseHeaders().add("Lambda-Runtime-Deadline-Ms", Long.toString(System.currentTimeMillis() + 29_000));
                 String body = FeignUtil.OBJECT_MAPPER.writeValueAsString(job.event);
-                log.debug("Sent to lambda:\n{}", body);
+                log.debug("Sent to lambda function:\n{}", body);
                 sendResponse(exchange, Response.Status.OK, body);
                 return;
             }
@@ -77,7 +73,7 @@ public class LambdaInvoker implements HttpHandler {
                 if (matcher.matches()) {
                     byte[] bytes = exchange.getRequestBody().readAllBytes();
                     if (log.isDebugEnabled()) {
-                        log.debug("Received from lambda:\n{}", new String(bytes));
+                        log.debug("Received from lambda function:\n{}", new String(bytes));
                     }
                     Long requestID = Long.parseLong(matcher.group(1));
                     boolean hasError = matcher.group(2).equals("error");
@@ -101,13 +97,9 @@ public class LambdaInvoker implements HttpHandler {
         long requestID = lastUsedRequestID.incrementAndGet();
         Job job = new Job(requestID, convertRequest(exchange, apiSecret), new CompletableFuture<>());
         jobs.put(requestID, job);
-        log.info("!!! process: before queue.add");
         queue.add(job);
-        log.info("!!! process: after queue.add");
         try {
-            log.info("!!! process: before job.done.get");
             APIGatewayV2HTTPResponse response = job.done.get();
-            log.info("!!! process: after job.done.get");
             if (response.getMultiValueHeaders() != null) {
                 response.getMultiValueHeaders().forEach(exchange.getResponseHeaders()::put);
             } else if (response.getHeaders() != null) {
