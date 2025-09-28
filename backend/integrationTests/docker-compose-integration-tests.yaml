@@ -15,7 +15,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      - "AWS_LAMBDA_RUNTIME_API=172.17.0.1:20001"
+      - "AWS_LAMBDA_RUNTIME_API=192.168.100.1:20001"
       - "QUARKUS_PROFILE=integration-test"
       - "QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://postgres:5432/eln"
       - "QUARKUS_DATASOURCE_USERNAME=eln"
@@ -23,7 +23,7 @@ services:
       - "ELN_COGNITO_USER_POOL_ID=xxx"
       - "ELN_API_SECRET=apiSecret"
       - "ELN_INTERNAL_API_SECRET=internalApiSecret"
-      - "QUARKUS_REST_CLIENT_REPORTS_API_URL=http://17.17.0.1:28080"
+      - "QUARKUS_REST_CLIENT_REPORTS_API_URL=http://192.168.100.1:28080"
       - "QUARKUS_REST_CLIENT_LOGGING_SCOPE=request-response"
       - "QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT=9999"
       - "QUARKUS_REST_CLIENT_EXTENSIONS_API_SCOPE=all"
@@ -32,8 +32,15 @@ services:
       context: ../reports/reports-lambda
       dockerfile: src/main/docker/Dockerfile.jvm-integrationTests
     environment:
-      - "AWS_LAMBDA_RUNTIME_API=172.17.0.1:20002"
+      - "AWS_LAMBDA_RUNTIME_API=192.168.100.1:20002"
       - "QUARKUS_PROFILE=integration-test"
       - "ELN_API_SECRET=internalApiSecret"
     ports:
       - 5005:5005
+
+networks:
+  bridge0:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.100.0/24

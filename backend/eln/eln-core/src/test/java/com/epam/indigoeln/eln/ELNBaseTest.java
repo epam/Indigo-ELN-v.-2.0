@@ -2,16 +2,16 @@ package com.epam.indigoeln.eln;
 
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.service.GlobalSearchService;
 import com.epam.indigoeln.test.BaseTest;
-import com.epam.indigoeln.test.FeignUtil;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Timeout;
 
-import java.net.URI;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 public abstract class ELNBaseTest extends BaseTest {
 
@@ -77,6 +77,7 @@ public abstract class ELNBaseTest extends BaseTest {
     protected UUID emptyTemplateID;
 
     @BeforeAll
+    @Timeout(10)
     void setupAllBase() throws Exception {
         projectClient = buildClient(ProjectClient.class);
         notebookClient = buildClient(NotebookClient.class);
@@ -90,6 +91,7 @@ public abstract class ELNBaseTest extends BaseTest {
         roleClient = buildClient(RoleClient.class);
         testSupportClient = buildClient(TestSupportClient.class);
         globalSearchClient = buildClient(GlobalSearchClient.class);
+        assertThat(miscClient.getInfo()).contains(entry("application", "Indigo ELN"));
         cleanupDatabase();
     }
 

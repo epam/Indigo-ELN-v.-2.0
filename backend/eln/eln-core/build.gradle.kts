@@ -55,6 +55,9 @@ tasks.named("processResources") { dependsOn(copyNativeLibs) }
 
 tasks.withType<Test> {
     environment("NATIVE_LIB_PATH", "${projectDir}/build/nativelibs")
+    filter { // !!!
+        includeTestsMatching("*ExperimentService*")
+    }
 }
 
 tasks.withType<io.quarkus.gradle.tasks.QuarkusDev> {

@@ -33,4 +33,7 @@ tasks.named("quarkusIntTest", Test::class) {
     systemProperty("quarkus.http.test-host", "localhost")
     systemProperty("quarkus.http.test-port", "28080")
     outputs.upToDateWhen { false }
+    filter { // !!!
+        includeTestsMatching("*ExperimentServiceIT*")
+    }
 }

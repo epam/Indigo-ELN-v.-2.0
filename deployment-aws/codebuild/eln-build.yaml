@@ -11,6 +11,12 @@ phases:
   build:
     commands:
       - cd backend
+      - echo XXX1
+      - "bash -c 'ip addr' | true"
+      - echo XXX2
+      - "bash -c 'ping host-gateway' | true"
+      - echo XXX3
+      - "bash -c 'ping host.docker.internal' | true"
       - ./gradlew build :integrationTests:quarkusIntTest --info
   post_build:
     commands:
