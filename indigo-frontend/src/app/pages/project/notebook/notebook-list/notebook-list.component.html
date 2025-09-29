@@ -9,7 +9,7 @@
   }"
 >
   @for (notebook of data; track notebook.id) {
-    <eln-notebook-item [notebook]="notebook" [variant]="selectedView" />
+    <eln-notebook-item [notebook]="notebook" [variant]="selectedView" [projectId]="projectId" />
   }
   <eln-infinite-loader
     [classNames]="

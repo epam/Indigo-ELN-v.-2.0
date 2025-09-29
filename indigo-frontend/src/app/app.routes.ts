@@ -55,7 +55,7 @@ export const routes: Routes = [
         ],
       },
       {
-        path: 'notebooks/:notebookId',
+        path: 'projects/:projectId/notebooks/:notebookId',
         loadComponent: () =>
           import(
             '@/app/pages/notebook/notebook-detail/notebook-detail.component'
@@ -85,6 +85,48 @@ export const routes: Routes = [
           ).then((c) => c.DictionaryLayoutComponent),
         canActivate: [RoleGuard],
         data: { requiredRole: 'Dictionary editor' },
+      },
+      {
+        path: 'projects/:projectId/notebooks/:notebookId/experiments/:experimentId',
+        loadComponent: () =>
+          import(
+            '@/app/pages/experiment/experiment-detail/experiment-detail.component'
+          ).then((c) => c.ExperimentDetailComponent),
+        children: [
+          {
+            path: '',
+            redirectTo: 'info',
+            pathMatch: 'full',
+          },
+          {
+            path: 'info',
+            loadComponent: () =>
+              import(
+                '@/app/pages/experiment/experiment-info/experiment-info.component'
+              ).then((c) => c.ExperimentInfoComponent),
+          },
+          {
+            path: 'attachments',
+            loadComponent: () =>
+              import(
+                '@/app/pages/experiment/experiment-attachments/experiment-attachments.component'
+              ).then((c) => c.ExperimentAttachmentsComponent),
+          },
+          {
+            path: 'summary',
+            loadComponent: () =>
+              import(
+                '@/app/pages/experiment/experiment-summary/experiment-summary.component'
+              ).then((c) => c.ExperimentSummaryComponent),
+          },
+          {
+            path: 'versions',
+            loadComponent: () =>
+              import(
+                '@/app/pages/experiment/experiment-versions/experiment-versions.component'
+              ).then((c) => c.ExperimentVersionsComponent),
+          },
+        ],
       },
     ],
   },
