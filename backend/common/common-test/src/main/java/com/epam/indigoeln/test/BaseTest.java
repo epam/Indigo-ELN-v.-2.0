@@ -9,8 +9,10 @@ import org.junit.jupiter.api.*;
 import org.junit.platform.commons.support.AnnotationSupport;
 
 import java.net.URI;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+@Timeout(value = 30, unit = TimeUnit.SECONDS)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public abstract class BaseTest {

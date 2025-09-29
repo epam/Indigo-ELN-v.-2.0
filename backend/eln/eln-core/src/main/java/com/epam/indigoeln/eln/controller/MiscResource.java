@@ -26,6 +26,11 @@ public class MiscResource implements MiscAPI {
     SupportService supportService;
 
     @Override
+    public Map<String, String> getInfo() {
+        return Map.of("application", "Indigo ELN");
+    }
+
+    @Override
     public @NotNull @Valid TotalCounts getTotalCounts() {
         return projectService.getTotalCounts();
     }

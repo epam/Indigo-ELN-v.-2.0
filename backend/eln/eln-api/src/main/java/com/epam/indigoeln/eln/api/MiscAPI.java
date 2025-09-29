@@ -14,6 +14,10 @@ import java.util.UUID;
 public interface MiscAPI extends BaseAPI {
 
     @GET
+    @Path("/info")
+    Map<String, String> getInfo();
+
+    @GET
     @Path("/total-counts")
     TotalCounts getTotalCounts();
 

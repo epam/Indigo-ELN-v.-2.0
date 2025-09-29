@@ -3,8 +3,9 @@ package com.epam.indigoeln.reaction.service;
 import com.epam.indigoeln.integrationtests.lambda.IntegrationEnvironmentResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 @QuarkusIntegrationTest
-@QuarkusTestResource(IntegrationEnvironmentResource.class)
+@ExtendWith(IntegrationEnvironmentResource.class)
 public class ExperimentModelServiceIT extends ExperimentModelServiceTest {
 }
