@@ -37,10 +37,3 @@ services:
       - "ELN_API_SECRET=internalApiSecret"
     ports:
       - 5005:5005
-
-networks:
-  bridge0:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 192.168.100.0/24

@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,13 +36,16 @@ public class LambdaInvoker implements HttpHandler {
     private final String apiSecret;
 
     private HttpServer httpServer;
+    private final ExecutorService executor = Executors.newCachedThreadPool();
 
     private final BlockingQueue<Job> queue = new LinkedBlockingQueue<>();
     private final Map<Long, Job> jobs = new ConcurrentHashMap<>();
     private final AtomicLong lastUsedRequestID = new AtomicLong();
+    private final AtomicInteger listeners = new AtomicInteger();
 
     public void start() throws IOException {
         httpServer = HttpServer.create(new InetSocketAddress("0.0.0.0", port), 0);
+        httpServer.setExecutor(executor);
         httpServer.createContext("/2018-06-01/runtime", this);
         httpServer.start();
     }
@@ -50,7 +54,10 @@ public class LambdaInvoker implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
         try {
             if (exchange.getRequestMethod().equals(HttpMethod.GET) && exchange.getRequestURI().getPath().equals("/2018-06-01/runtime/invocation/next")) {
+                log.debug("Lambda instance is listening for requests");
+                listeners.incrementAndGet();
                 Job job = queue.take();
+                listeners.decrementAndGet();
                 if (job == SHUTDOWN) {
                     queue.put(job);
                     return; // shutting down
@@ -96,10 +103,16 @@ public class LambdaInvoker implements HttpHandler {
     public void process(HttpExchange exchange) throws Exception {
         long requestID = lastUsedRequestID.incrementAndGet();
         Job job = new Job(requestID, convertRequest(exchange, apiSecret), new CompletableFuture<>());
+        if (listeners.get() <= 0) {
+            log.error("No lambda instance is listening, path: {}", exchange.getRequestURI());
+            sendResponse(exchange, Response.Status.SERVICE_UNAVAILABLE, "[MockAPIGateway] No lambda instance is listening");
+        }
         jobs.put(requestID, job);
         queue.add(job);
+        log.debug("Queued request: {}", exchange.getRequestURI());
         try {
             APIGatewayV2HTTPResponse response = job.done.get();
+            log.debug("Received response: {}", exchange.getRequestURI());
             if (response.getMultiValueHeaders() != null) {
                 response.getMultiValueHeaders().forEach(exchange.getResponseHeaders()::put);
             } else if (response.getHeaders() != null) {
@@ -111,7 +124,9 @@ public class LambdaInvoker implements HttpHandler {
                 bytes = response.getIsBase64Encoded() ? Base64.getDecoder().decode(body) : body.getBytes(StandardCharsets.UTF_8);
             }
             sendResponse(exchange, Response.Status.fromStatusCode(response.getStatusCode()), bytes);
-        } catch (ExecutionException e) {
+        } catch (InterruptedException e) {
+            sendResponse(exchange, Response.Status.SERVICE_UNAVAILABLE, "[MockAPIGateway] Shutting down");
+        } catch (Exception e) {
             log.error("Failed processing request", e);
             sendResponse(exchange, Response.Status.INTERNAL_SERVER_ERROR, "[MockAPIGateway] Internal Error");
         }
@@ -119,6 +134,7 @@ public class LambdaInvoker implements HttpHandler {
 
     public void stop() {
         queue.add(SHUTDOWN);
+        executor.shutdownNow();
         httpServer.stop(1);
     }
 

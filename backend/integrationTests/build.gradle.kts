@@ -22,9 +22,9 @@ group = "com.epam.indigoeln"
 version = "3.0.0-SNAPSHOT"
 
 tasks.named("compileIntegrationTestJava") {
-    dependsOn(":eln:eln-lambda:assemble")
+//    dependsOn(":eln:eln-lambda:assemble")
     dependsOn(":eln:eln-core:testJar")
-    dependsOn(":reports:reports-lambda:assemble")
+//    dependsOn(":reports:reports-lambda:assemble")
     dependsOn(":reports:reports-core:testJar")
     dependsOn(":integrationTests:testClasses")
 }

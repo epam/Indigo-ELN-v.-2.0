@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.epam.indigoeln.integrationtests.lambda.LambdaUtil.sendResponse;
 
@@ -21,9 +23,11 @@ public class MockAPIGateway implements HttpHandler {
     private final LambdaInvoker reportsInvoker;
 
     private HttpServer httpServer;
+    private final ExecutorService executor = Executors.newCachedThreadPool();
 
     public void start() throws IOException {
         httpServer = HttpServer.create(new InetSocketAddress("0.0.0.0", port), 0);
+        httpServer.setExecutor(executor);
         httpServer.createContext("/", this);
         httpServer.start();
     }
@@ -31,6 +35,7 @@ public class MockAPIGateway implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         try {
+            log.debug("Received request: {}", exchange.getRequestURI());
             if (exchange.getRequestURI().getPath().startsWith("/api/eln/")) {
                 elnInvoker.process(exchange);
             } else if (exchange.getRequestURI().getPath().startsWith("/internalapi/reports/")) {
@@ -44,6 +49,7 @@ public class MockAPIGateway implements HttpHandler {
     }
 
     public void stop() {
+        executor.shutdownNow();
         httpServer.stop(1);
     }
 }

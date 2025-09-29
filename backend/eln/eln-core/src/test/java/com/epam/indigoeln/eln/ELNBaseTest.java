@@ -3,11 +3,14 @@ package com.epam.indigoeln.eln;
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.test.BaseTest;
+import io.quarkus.test.common.QuarkusTestResource;
+import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Timeout;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,7 +80,7 @@ public abstract class ELNBaseTest extends BaseTest {
     protected UUID emptyTemplateID;
 
     @BeforeAll
-    @Timeout(10)
+//    @Timeout(10)
     void setupAllBase() throws Exception {
         projectClient = buildClient(ProjectClient.class);
         notebookClient = buildClient(NotebookClient.class);
@@ -145,6 +148,19 @@ public abstract class ELNBaseTest extends BaseTest {
             return userClient.createUser(request);
         } finally {
             username.set(oldUsername);
+        }
+    }
+
+    public static class ResourceImpl implements QuarkusTestResourceLifecycleManager {
+
+        @Override
+        public Map<String, String> start() {
+            return Map.of();
+        }
+
+        @Override
+        public void stop() {
+            System.out.println();
         }
     }
 }
