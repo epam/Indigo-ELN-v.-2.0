@@ -8,19 +8,13 @@ import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.Testcontainers;
-import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.containers.wait.strategy.DockerHealthcheckWaitStrategy;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
-import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.utility.DockerImageName;
 
 import java.io.File;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
@@ -52,14 +46,6 @@ class ResourceImpl implements ExtensionContext.Store.CloseableResource {
     private final PostgreSQLContainer<?> postgresContainer;
     private final GenericContainer<?> elnContainer;
     private final GenericContainer<?> reportsContainer;
-    private final ComposeContainer compose = new ComposeContainer(new File("docker-compose-integration-tests.yaml"))
-            .withLocalCompose(true)
-            .withLogConsumer("postgres", new Slf4jLogConsumer(LoggerFactory.getLogger("POSTGRES")))
-            .withLogConsumer("eln-lambda", new Slf4jLogConsumer(LoggerFactory.getLogger("ELN_LAMBDA")))
-            .withLogConsumer("reports-lambda", new Slf4jLogConsumer(LoggerFactory.getLogger("REPORTS_LAMBDA")))
-            .waitingFor("postgres", new DockerHealthcheckWaitStrategy())
-            .waitingFor("eln-lambda", new LogMessageWaitStrategy().withRegEx(".+Installed features: \\[.+"))
-            .waitingFor("reports-lambda", new LogMessageWaitStrategy().withRegEx(".+Installed features: \\[.+"));
 
     ResourceImpl() throws Exception {
         log.info("Starting integration environment");
@@ -129,13 +115,7 @@ class ResourceImpl implements ExtensionContext.Store.CloseableResource {
                 .withEnv("ELN_API_SECRET", "internalApiSecret");
         reportsContainer.start();
         log.info("Reports container started");
-
-//            compose.start();
-//            log.info("Docker compose started");
     }
-
-//    @Override
-//    public void stop() {
 
     @Override
     public void close() throws Throwable {
@@ -146,7 +126,6 @@ class ResourceImpl implements ExtensionContext.Store.CloseableResource {
         log.info("ELN container stopped");
         postgresContainer.stop();
         log.info("Postgres container stopped");
-//        compose.stop();
         mockAPIGateway.stop();
         elnInvoker.stop();
         reportsInvoker.stop();

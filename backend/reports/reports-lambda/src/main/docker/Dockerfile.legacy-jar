@@ -1,5 +1,4 @@
 FROM registry.access.redhat.com/ubi9/openjdk-21
-#FROM registry.access.redhat.com/ubi9/openjdk-21-runtime
 
 ENV LANGUAGE='en_US:en'
 
@@ -9,9 +8,7 @@ COPY --chown=185 build/*-runner.jar /app/quarkus-run.jar
 EXPOSE 8080
 EXPOSE 5005
 USER 185
-#ENV JAVA_OPTS_APPEND="-agentlib:jdwp=transport=dt_socket,server=n,address=172.17.0.1:5005,suspend=y -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dquarkus.log.level=TRACE --add-opens java.base/jdk.internal.misc=ALL-UNNAMED -Djava.net.preferIPv6Addresses=false"
-ENV JAVA_OPTS_APPEND="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dquarkus.log.level=TRACE --add-opens java.base/jdk.internal.misc=ALL-UNNAMED -Djava.net.preferIPv6Addresses=false"
+ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager --add-opens java.base/jdk.internal.misc=ALL-UNNAMED -Djava.net.preferIPv6Addresses=false"
 ENV JAVA_APP_JAR="/app/quarkus-run.jar"
 
-#ENTRYPOINT [ "curl http://172.17.0.1:5005" ]
 ENTRYPOINT [ "/opt/jboss/container/java/run/run-java.sh" ]
