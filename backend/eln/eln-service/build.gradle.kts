@@ -28,12 +28,3 @@ tasks.named("processResources") {
 tasks.withType<Test> {
     environment("NATIVE_LIB_PATH", "${projectDir}/build/nativelibs")
 }
-
-tasks.named("compileIntegrationTestJava") {
-    dependsOn(":eln:eln-service:assemble")
-    dependsOn(":eln:eln-core:testJar")
-}
-
-tasks.named("quarkusIntTest") {
-    outputs.upToDateWhen { false }
-}

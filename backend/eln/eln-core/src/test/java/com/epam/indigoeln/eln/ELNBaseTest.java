@@ -11,7 +11,10 @@ import org.junit.jupiter.api.*;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 public abstract class ELNBaseTest extends BaseTest {
 
@@ -77,6 +80,7 @@ public abstract class ELNBaseTest extends BaseTest {
     protected UUID emptyTemplateID;
 
     @BeforeAll
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void setupAllBase() throws Exception {
         projectClient = buildClient(ProjectClient.class);
         notebookClient = buildClient(NotebookClient.class);
@@ -90,6 +94,7 @@ public abstract class ELNBaseTest extends BaseTest {
         roleClient = buildClient(RoleClient.class);
         testSupportClient = buildClient(TestSupportClient.class);
         globalSearchClient = buildClient(GlobalSearchClient.class);
+        assertThat(miscClient.getInfo()).contains(entry("application", "Indigo ELN"));
         cleanupDatabase();
     }
 
