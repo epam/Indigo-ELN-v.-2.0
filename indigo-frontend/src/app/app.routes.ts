@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { RoleGuard } from './role.guard';
+import { TemplateLayoutComponent } from '@pages/template/template-layout/template-layout.component';
 
 export const routes: Routes = [
   {
@@ -86,6 +87,13 @@ export const routes: Routes = [
         canActivate: [RoleGuard],
         data: { requiredRole: 'Dictionary editor' },
       },
+      {
+        path: 'templates',
+        loadComponent: () =>
+          import('@pages/template/template-layout/template-layout.component').then(
+            (c) => c.TemplateLayoutComponent,
+          )
+      }
     ],
   },
 ];
