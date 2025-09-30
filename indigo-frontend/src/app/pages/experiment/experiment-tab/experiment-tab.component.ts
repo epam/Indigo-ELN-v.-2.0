@@ -1,11 +1,11 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { combineLatest } from 'rxjs';
-import { ExperimentService } from '@core/services/experiment.service';
-import { ComponentExperimentDescriptionComponent } from '@pages/experiment/components/component-experiment-description/component-experiment-description.component';
-import { ComponentReactionSchemeComponent } from '@pages/experiment/components/component-reaction-scheme/component-reaction-scheme.component';
-import { ComponentExperimentDetailsComponent } from '@pages/experiment/components/component-experiment-details/component-experiment-details.component';
-import { ComponentStoichiometryTableComponent } from '@pages/experiment/components/component-stoichiometry-table/component-stoichiometry-table.component';
+import { ExperimentService } from '@core/services/experiment/experiment.service';
+import { ExperimentDescriptionComponent } from '@pages/experiment/components/experiment-description/experiment-description.component';
+import { ReactionSchemeComponent } from '@pages/experiment/components/reaction-scheme/reaction-scheme.component';
+import { ExperimentDetailsComponent } from '@pages/experiment/components/experiment-details/experiment-details.component';
+import { StoichiometryTableComponent } from '@pages/experiment/components/stoichiometry-table/stoichiometry-table.component';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { TemplateComponent } from '@core/types/entities/template.i';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -14,16 +14,16 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   selector: 'eln-experiment-tab',
   templateUrl: './experiment-tab.component.html',
   imports: [
-    ComponentReactionSchemeComponent,
-    ComponentExperimentDetailsComponent,
-    ComponentExperimentDescriptionComponent,
-    ComponentStoichiometryTableComponent,
+    ReactionSchemeComponent,
+    ExperimentDetailsComponent,
+    ExperimentDescriptionComponent,
+    StoichiometryTableComponent,
     MatProgressSpinner,
   ],
 })
 export class ExperimentTabComponent implements OnInit {
   protected readonly ComponentStoichiometryTableComponent =
-    ComponentStoichiometryTableComponent;
+    StoichiometryTableComponent;
 
   activatedRoute = inject(ActivatedRoute);
 

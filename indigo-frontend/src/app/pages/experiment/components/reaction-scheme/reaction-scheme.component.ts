@@ -1,15 +1,15 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ExperimentService } from '@core/services/experiment.service';
+import { ExperimentService } from '@core/services/experiment/experiment.service';
 import { FormlyModule } from '@ngx-formly/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'eln-component-reaction-scheme',
-  templateUrl: './component-reaction-scheme.component.html',
+  selector: 'eln-reaction-scheme',
+  templateUrl: './reaction-scheme.component.html',
   imports: [FormlyModule],
 })
-export class ComponentReactionSchemeComponent implements OnInit {
+export class ReactionSchemeComponent implements OnInit {
   activatedRoute = inject(ActivatedRoute);
 
   experimentService = inject(ExperimentService);

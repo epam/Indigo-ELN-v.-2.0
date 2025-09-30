@@ -1,6 +1,6 @@
 import { Component, DestroyRef, inject, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ExperimentService } from '@core/services/experiment.service';
+import { ExperimentService } from '@core/services/experiment/experiment.service';
 import {
   ExperimentModel,
   ReactionInput,
@@ -23,11 +23,11 @@ import { DropdownValueComponent } from '@core/components/experiment/dropdown-val
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'eln-component-stoichiometry-table',
-  templateUrl: './component-stoichiometry-table.component.html',
+  selector: 'eln-stoichiometry-table',
+  templateUrl: './stoichiometry-table.component.html',
   imports: [MatCheckbox, EnteredValueComponent, DropdownValueComponent],
 })
-export class ComponentStoichiometryTableComponent implements OnInit {
+export class StoichiometryTableComponent implements OnInit {
   protected readonly MOL_WEIGHT_UNITS = MOL_WEIGHT_UNITS;
   protected readonly WEIGHT_UNITS = WEIGHT_UNITS;
   protected readonly VOLUME_UNITS = VOLUME_UNITS;

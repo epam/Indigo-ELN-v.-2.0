@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Experiment } from '@core/types/entities/experiment.i';
-import { ExperimentService } from '@core/services/experiment.service';
+import { ExperimentService } from '@core/services/experiment/experiment.service';
 import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
 import { FormGroup } from '@angular/forms';
 import { ApiService } from '@core/services/api.service';
@@ -9,11 +9,11 @@ import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'eln-component-experiment-details',
-  templateUrl: './component-experiment-details.component.html',
+  selector: 'eln-experiment-details',
+  templateUrl: './experiment-details.component.html',
   imports: [FormlyModule],
 })
-export class ComponentExperimentDetailsComponent implements OnInit {
+export class ExperimentDetailsComponent implements OnInit {
   activatedRoute = inject(ActivatedRoute);
 
   experimentService = inject(ExperimentService);
