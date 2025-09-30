@@ -1,0 +1,18 @@
+@keyframes flash-green {
+  0%,
+  100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: oklch(87.1% 0.15 154.449);
+  }
+}
+
+@keyframes flash-red {
+  0% {
+    background-color: transparent;
+  }
+  100% {
+    background-color: oklch(71.2% 0.194 13.428);
+  }
+}

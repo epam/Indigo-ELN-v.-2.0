@@ -18,3 +18,17 @@ export interface DictionaryFullItem {
 }
 
 export type DictionaryFull = DictionaryFullItem[];
+
+export interface DictionaryItemRef {
+  id: string;
+  name: string;
+}
+
+export interface SaltCodeRef {
+  id: string;
+  code: string;
+  name: string;
+  formula: string;
+  charge: number;
+  molWeight: number;
+}

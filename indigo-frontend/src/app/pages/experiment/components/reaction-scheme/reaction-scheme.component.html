@@ -1,0 +1,11 @@
+<h1>=== REACTION SCHEME COMPONENT ===</h1>
+<h1>Reaction Scheme</h1>
+<div class="grid grid-cols-[1fr_auto] gap-4 pt-4">
+  @if (loading) {
+    <span>Loading scheme...</span>
+  } @else if (error) {
+    <span>Schema loading failed</span>
+  } @else if (picture) {
+    <img [src]="picture" />
+  }
+</div>

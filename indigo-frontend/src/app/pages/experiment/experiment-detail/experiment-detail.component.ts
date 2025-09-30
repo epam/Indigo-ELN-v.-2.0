@@ -6,13 +6,18 @@ import { ProjectTabButtonComponent } from '@/core/components/project/project-tab
 import { ExperimentService } from '@/core/services/experiment/experiment.service';
 import { ExperimentDetail } from '@/core/types/entities/experiment-detail.i';
 import { computed } from '@angular/core';
-import { CardComponent } from "@/core/components/common/card/card.component";
+import { CardComponent } from '@/core/components/common/card/card.component';
 
 @Component({
   selector: 'eln-experiment-detail',
   templateUrl: './experiment-detail.component.html',
   standalone: true,
-  imports: [RouterOutlet, ProjectTabButtonComponent, CommonModule, CardComponent],
+  imports: [
+    RouterOutlet,
+    ProjectTabButtonComponent,
+    CommonModule,
+    CardComponent,
+  ],
   providers: [ExperimentService],
 })
 export class ExperimentDetailComponent implements OnInit, OnDestroy {
@@ -24,7 +29,9 @@ export class ExperimentDetailComponent implements OnInit, OnDestroy {
   experimentId = '';
 
   // Computed signals from the service
-  experiment = computed<ExperimentDetail | null>(() => this.experimentService.experiment());
+  experiment = computed<ExperimentDetail | null>(() =>
+    this.experimentService.experiment(),
+  );
   isLoading = computed<boolean>(() => this.experimentService.isLoading());
   hasError = computed<boolean>(() => this.experimentService.hasError());
 
