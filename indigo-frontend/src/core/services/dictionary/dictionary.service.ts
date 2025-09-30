@@ -29,4 +29,23 @@ export class DictionaryService {
       `dictionaries/${dictionaryId}/${itemId}`,
     );
   }
+
+addDictionaryItem(
+  dictionaryId: string,
+  name: string,
+  description = '',
+): Observable<DictionaryFull> {
+
+  const body: { name: string; description?: string } = { name };
+
+  if (description) {
+    body.description = description;
+  }
+
+  return this.api.request<DictionaryFull>(
+    'post',
+    `dictionaries/${dictionaryId}`,
+    body,
+  );
+}
 }
