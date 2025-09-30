@@ -1,4 +1,4 @@
-import { BaseEntity } from '../base-entity.i';
+import { BaseEntity, EdBy } from '../base-entity.i';
 import { Attachment } from '../attachment.i';
 import { ACLEntry } from '../acl.i';
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
@@ -58,4 +58,16 @@ export interface ExperimentDetail extends BaseEntity {
   model: ExperimentModel;
   projectName: string;
   notebookName: string;
+}
+
+export interface ExperimentForSignature extends BaseEntity {
+  name: string;
+  signatures: ExperimentSignature[];
+}
+
+export interface ExperimentSignature {
+  user: EdBy;
+  reason: 'AUTHOR' | 'WITNESS';
+  status: 'APPROVED' | 'REJECTED' | null;
+  signedAt: Date;
 }
