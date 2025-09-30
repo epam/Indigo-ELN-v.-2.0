@@ -28,6 +28,18 @@ cd Indigo-ELN-v.-2.0
 ```bash
 sudo mkdir -p /var/local/indigoeln/{mongo-db,postgres-signature,postgres-crs,bingodb}
 ```
+- If you want to open the application on hostname other than localhost, e.g. if you run the application on remote machine, update CORS_ORIGIN in docker-compose-local.yml with IP address or hostname of that machine:
+```yaml
+  server:
+    ...
+    environment:
+      ...
+      # allow cors for UI
+      - CORS_ORIGIN=http://172.27.138.170:9000
+      # or
+      - CORS_ORIGIN=http://remote-machine:9000
+```
+
 - From the root of the repository, run:
 ```bash
 docker compose -f docker-compose-local.yml up
