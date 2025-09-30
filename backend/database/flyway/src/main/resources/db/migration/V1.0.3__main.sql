@@ -140,6 +140,7 @@ CREATE TABLE Experiment (
     model JSONB NOT NULL,
     picture BYTEA,
     search_vector TSVECTOR,
+    report_for_signature_id UUID,
     CONSTRAINT experiment_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT experiment_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT experiment_project_id_fk FOREIGN KEY (project_id) REFERENCES Project (id),
@@ -147,7 +148,8 @@ CREATE TABLE Experiment (
     CONSTRAINT experiment_template_id_fk FOREIGN KEY (template_id) REFERENCES Template (id),
     CONSTRAINT experiment_therapeutic_area_id_fk FOREIGN KEY (therapeutic_area_id) REFERENCES Dictionary_Item (id),
     CONSTRAINT experiment_project_code_id FOREIGN KEY (project_code_id) REFERENCES Dictionary_Item (id),
-    CONSTRAINT experiment_name_uq UNIQUE (name)
+    CONSTRAINT experiment_name_uq UNIQUE (name),
+    CONSTRAINT experiment_report_for_signature_id_fk FOREIGN KEY (report_for_signature_id) REFERENCES Attachment (id) ON DELETE SET NULL
 );
 CREATE INDEX ix_experiment_search_vector ON Experiment USING GIN(search_vector);
 

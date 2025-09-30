@@ -5,16 +5,19 @@ import com.epam.indigoeln.eln.model.*;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.UUID;
 
 import static com.epam.indigoeln.eln.test.SignaturesAssert.assertThatSignatures;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
 
 @QuarkusTest
@@ -36,6 +39,10 @@ class SignatureExperimentServiceTest extends ELNBaseTest {
         withUser(JOHN_USERNAME, () -> {
             experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         });
+        if (mockReportsClient != null) {
+            Mockito.when(mockReportsClient.generateExperimentReport(any()))
+                    .thenAnswer(inv -> Response.ok(new byte[0]).header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"report.pdf\"").build());
+        }
     }
 
     @Test
@@ -78,7 +85,7 @@ class SignatureExperimentServiceTest extends ELNBaseTest {
     @Test
     @Order(3)
     void testOneSigned() {
-        experiment = experimentClient.approveExperiment(experiment.getId());
+        experimentClient.approveExperiment(experiment.getId());
         Page<ExperimentForSignatureDTO> page = signatureClient.getExperimentsForSignature(Paging.DEFAULT);
         assertThat(page.getItems()).isEmpty();
         withUser(BART_USERNAME, () -> {
@@ -97,7 +104,7 @@ class SignatureExperimentServiceTest extends ELNBaseTest {
     @Order(4)
     void testBothSigned() {
         withUser(BART_USERNAME, () -> {
-            experiment = experimentClient.approveExperiment(experiment.getId());
+            experimentClient.approveExperiment(experiment.getId());
             Page<ExperimentForSignatureDTO> pageForBart = signatureClient.getExperimentsForSignature(Paging.DEFAULT);
             assertThat(pageForBart.getItems()).isEmpty();
         });

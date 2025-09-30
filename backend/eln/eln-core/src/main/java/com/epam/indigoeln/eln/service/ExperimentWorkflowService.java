@@ -14,6 +14,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
@@ -43,6 +44,7 @@ public class ExperimentWorkflowService {
     @Inject
     UserService userService;
     @Inject
+    @RestClient
     ReportsClient reportsClient;
     @Inject
     ExperimentService experimentService;
