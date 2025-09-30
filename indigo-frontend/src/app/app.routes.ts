@@ -118,6 +118,20 @@ export const routes: Routes = [
         loadComponent: () =>
           import('@pages/template/template-layout/template-layout.component').then((c) => c.TemplateLayoutComponent),
       },
+      {
+        path: 'signatures',
+        loadComponent: () =>
+          import('@pages/signature/signature-layout/signature-layout.component').then(
+            (c) => c.SignatureLayoutComponent,
+          ),
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('@pages/signature/signature-list/signature-list.component').then((c) => c.SignatureListComponent),
+          },
+        ],
+      },
     ],
   },
 ];
