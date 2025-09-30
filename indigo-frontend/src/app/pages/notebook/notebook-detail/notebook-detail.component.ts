@@ -6,7 +6,7 @@ import { ButtonComponent } from '@/core/components/common/button/button.componen
 import { CardComponent } from "@/core/components/common/card/card.component";
 import { NotebookService } from '@core/services/notebook/notebook.service';
 import { ExperimentAddComponent } from '@pages/experiment/experiment-add/experiment-add.component';
-import {MatDialog} from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
     selector: 'eln-notebook-detail',
@@ -37,23 +37,25 @@ export class NotebookDetailComponent implements OnInit {
 
     ngOnInit() {
         const notebookId = this.activatedRoute.snapshot.paramMap.get('notebookId');
-        if (notebookId) {
-            const base = `/notebooks/${notebookId}`;
+        const projectId = this.activatedRoute.snapshot.paramMap.get('projectId');
+
+        if (notebookId && projectId) {
+            const base = `/projects/${projectId}/notebooks/${notebookId}`;
             this.infoUrl = base;
             this.experimentsUrl = `${base}/experiments`;
             this.store.load(notebookId);
         }
     }
 
-  async openExperimentModal() {
-    const ref = this.dialog.open(ExperimentAddComponent);
-    ref
-      .afterClosed()
-      .pipe(take(1))
-      .subscribe((result) => {
-        if (result === 'refresh') {
-          // do something after experiment is added
-        }
-      });
-  }
+    async openExperimentModal() {
+        const ref = this.dialog.open(ExperimentAddComponent);
+        ref
+            .afterClosed()
+            .pipe(take(1))
+            .subscribe((result) => {
+                if (result === 'refresh') {
+                    // do something after experiment is added
+                }
+            });
+    }
 }
