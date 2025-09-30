@@ -128,6 +128,22 @@ export const routes: Routes = [
           },
         ],
       },
+      {
+        path: 'signatures',
+        loadComponent: () =>
+          import(
+            '@pages/signature/signature-layout/signature-layout.component'
+          ).then((c) => c.SignatureLayoutComponent),
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import(
+                '@pages/signature/signature-list/signature-list.component'
+              ).then((c) => c.SignatureListComponent),
+          },
+        ],
+      },
     ],
   },
 ];

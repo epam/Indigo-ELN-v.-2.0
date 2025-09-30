@@ -47,6 +47,11 @@ export class SidebarComponent {
       path: '/dictionary',
       requiredRole: 'Dictionary editor',
     },
+    {
+      name: 'Signatures',
+      icon: 'indicon-layers', // TODO icon
+      path: '/signatures',
+    },
   ];
 
   menu$: Observable<MenuItem[]> = this.userService.userRoles$.pipe(
