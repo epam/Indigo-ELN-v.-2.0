@@ -5,7 +5,7 @@ import { ProjectOverviewWidgetDirective } from '@/core/components/project/projec
 import { InfiniteLoaderComponent } from '@/core/components/util/infinite-loader/infinite-loader.component';
 import { InfiniteScrollBase } from '@/core/components/util/infinite-scroll.base';
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
-import { Experiment } from '@/core/types/entities/experiment.i';
+import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
@@ -39,7 +39,7 @@ import { ActivatedRoute } from '@angular/router';
   ],
 })
 export class ExperimentsTabComponent
-  extends InfiniteScrollBase<Experiment> {
+  extends InfiniteScrollBase<ExperimentDetail> {
   dialog = inject(MatDialog);
   activedRoute = inject(ActivatedRoute);
   selectedView: 'grid' | 'list' = 'grid';

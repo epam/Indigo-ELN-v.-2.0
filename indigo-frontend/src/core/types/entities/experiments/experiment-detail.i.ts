@@ -1,6 +1,6 @@
-import { BaseEntity } from './base-entity.i';
-import { Attachment } from './attachment.i';
-import { ProjectAcl } from './acl.i';
+import { BaseEntity } from '../base-entity.i';
+import { Attachment } from '../attachment.i';
+import { ProjectAcl } from '../acl.i';
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
 
 export enum SignatureReason {

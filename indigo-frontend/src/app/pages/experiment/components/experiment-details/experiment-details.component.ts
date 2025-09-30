@@ -1,6 +1,6 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Experiment } from '@core/types/entities/experiment.i';
+import { ExperimentDetail } from '@core/types/entities/experiments/experiment-detail.i';
 import { ExperimentService } from '@core/services/experiment/experiment.service';
 import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
 import { FormGroup } from '@angular/forms';
@@ -22,7 +22,7 @@ export class ExperimentDetailsComponent implements OnInit {
 
   destroyRef = inject(DestroyRef);
 
-  experiment: Experiment | null;
+  experiment: ExperimentDetail | null;
 
   fields: FormlyFieldConfig[] = [];
   form = new FormGroup({});

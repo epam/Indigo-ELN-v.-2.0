@@ -1,12 +1,12 @@
 import { AvatarComponent } from '@/core/components/common/avatar/avatar.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
-import { Experiment } from '@/core/types/entities/experiment.i';
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
+import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
 
 @Component({
   selector: 'eln-experiment-card',
@@ -40,7 +40,7 @@ export class ExperimentCardComponent {
     '-',
     '-',
   ];
-  @Input() experiment: Experiment;
+  @Input() experiment: ExperimentDetail;
   @Input() variant: 'grid' | 'list' = 'grid';
   isFavorite: boolean = false;
   toggleFavorite(event: MouseEvent): void {

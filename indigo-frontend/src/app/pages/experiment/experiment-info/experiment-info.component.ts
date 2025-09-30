@@ -1,18 +1,18 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ExperimentService } from '@/core/services/experiment/experiment.service';
-import { computed } from '@angular/core';
+import { ReactionSchemeViewComponent } from '@/core/components/experiment/reaction-scheme-view/reaction-scheme-view.component';
 
 @Component({
   selector: 'eln-experiment-info',
   standalone: true,
-  imports: [CommonModule, CardComponent],
+  imports: [CommonModule, CardComponent, ReactionSchemeViewComponent],
   templateUrl: './experiment-info.component.html',
 })
 export class ExperimentInfoComponent {
   experimentService = inject(ExperimentService);
-  
+
   // Computed signals from the service
   experiment = computed(() => this.experimentService.experiment());
   isLoading = computed(() => this.experimentService.isLoading());

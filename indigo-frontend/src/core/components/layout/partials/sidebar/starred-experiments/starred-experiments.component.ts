@@ -6,7 +6,7 @@ import { ApiService } from '@/core/services/api.service';
 import { NormalizeLabelPipe } from '@/core/pipes/normalizeLabe.pipe';
 import { catchError, of, Subject } from 'rxjs';
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
-import { Experiment } from '@/core/types/entities/experiment.i';
+import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
 import { EXPERIMENT_STATUS_DECORATION_MAP, ExperimentStatusDecoration } from '@/core/utils/experiment-status.util';
 
 @Component({
@@ -21,7 +21,7 @@ export class StarredExperimentsComponent implements OnInit, OnDestroy {
 
   loading = false;
   error: string | null = null;
-  experiments: Experiment[] = [];
+  experiments: ExperimentDetail[] = [];
 
   readonly statusDecorMap: Record<ExperimentStatus, ExperimentStatusDecoration> = EXPERIMENT_STATUS_DECORATION_MAP;
 
@@ -32,7 +32,7 @@ export class StarredExperimentsComponent implements OnInit, OnDestroy {
   private fetchMarkedExperiments(): void {
     this.loading = true;
     this.service
-      .request<Experiment[]>('get', 'experiments/marked')
+      .request<ExperimentDetail[]>('get', 'experiments/marked')
       .pipe(
         catchError((err) => {
           console.error('Failed to load marked experiments:', err);

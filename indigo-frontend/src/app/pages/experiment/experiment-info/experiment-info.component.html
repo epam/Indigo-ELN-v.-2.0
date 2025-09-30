@@ -9,6 +9,7 @@
     </eln-card>
 
     <eln-card classList="p-4">
-        <h2 class="font-semibold text-md mb-2">Stoichiometric Calculation </h2>
+        <h2 class="font-semibold text-md mb-2">Stoichiometric Calculation</h2>
+        <eln-reaction-scheme-view [experimentId]="experiment()?.id || null" />
     </eln-card>
 </div>

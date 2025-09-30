@@ -1,13 +1,12 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { ExperimentDetail } from '@/core/types/entities/experiment-detail.i';
 import { ApiService } from '@/core/services/api.service';
 import { BehaviorSubject, filter, map, of, switchMap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { LoadingState } from '@core/types/entities/loading-state.i';
-import { Experiment } from '@core/types/entities/experiment.i';
 import { Template } from '@core/types/entities/template.i';
-import { ExperimentModel } from '@core/types/entities/experiment-model.i';
-import { Mutation } from '@core/types/entities/mutation.i';
+import { ExperimentModel } from '@core/types/entities/experiments/experiment.i';
+import { Mutation } from '@core/types/entities/experiments/mutation.i';
+import { ExperimentDetail } from '@core/types/entities/experiments/experiment-detail.i';
 
 @Injectable()
 export class ExperimentService {
@@ -21,7 +20,7 @@ export class ExperimentService {
 
   // TODO using some hand-made LoadingState instead of separate data/loading/error to avoid inconsistent states;
   // if it's more readable to use separate flags or there is a better alternative, i'll rewrite it
-  private experimentSubject = new BehaviorSubject<LoadingState<Experiment>>({
+  private experimentSubject = new BehaviorSubject<LoadingState<ExperimentDetail>>({
     state: 'empty',
   });
   public experimentLoad$ = this.experimentSubject.asObservable();
@@ -98,7 +97,7 @@ export class ExperimentService {
     this.model.next({ state: 'loading' });
     this.picture.next({ state: 'empty' });
     this.service
-      .request<Experiment>('get', `experiments/${id}`)
+      .request<ExperimentDetail>('get', `experiments/${id}`)
       .pipe(
         switchMap((experiment) =>
           this.service
