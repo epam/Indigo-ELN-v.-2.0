@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Response;
 
 import java.util.UUID;
 
@@ -44,5 +45,10 @@ public class SignatureResource implements SignatureAPI {
     @Override
     public Page<ExperimentForSignatureDTO> getExperimentsForSignature(@NotNull @Valid Paging paging) {
         return signatureExperimentService.getExperimentsForSignature(paging);
+    }
+
+    @Override
+    public Response downloadReportForSignature(UUID experimentId) {
+        return signatureExperimentService.downloadReportForSignature(experimentId);
     }
 }

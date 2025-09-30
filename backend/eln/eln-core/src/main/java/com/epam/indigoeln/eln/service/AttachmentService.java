@@ -78,11 +78,16 @@ public class AttachmentService {
 
     public List<AttachmentDTO> createExperimentAttachment(UUID experimentId, String filename, byte[] content) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
+        createExperimentAttachment(experiment, filename, content);
+        return attachmentMapper.attachmentToDTOList(experiment.getAttachments());
+    }
+
+    public AttachmentEntity createExperimentAttachment(ExperimentEntity experiment, String filename, byte[] content) {
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
         AttachmentEntity attachment = doCreateAttachment(filename, content);
         experiment.getAttachments().add(attachment);
         attachment.getExperiments().add(experiment);
-        return attachmentMapper.attachmentToDTOList(experiment.getAttachments());
+        return attachment;
     }
 
     private byte[] readFile(FileUpload file) {
@@ -124,7 +129,7 @@ public class AttachmentService {
         return doDownloadAttachment(attachment);
     }
 
-    public Response doDownloadAttachment(AttachmentEntity attachment) {
+    private Response doDownloadAttachment(AttachmentEntity attachment) {
         return Response.ok(attachment.getContent())
                 .header("Content-Disposition", "attachment; filename=" + attachment.getName()).build();
     }

@@ -103,11 +103,11 @@ public interface ExperimentAPI extends BaseAPI {
 
     @POST
     @Path("/experiments/{experimentId}/workflow/approve")
-    ExperimentDetailsDTO approveExperiment(@PathParam("experimentId") UUID experimentId);
+    ExperimentForSignatureDTO approveExperiment(@PathParam("experimentId") UUID experimentId);
 
     @POST
     @Path("/experiments/{experimentId}/workflow/reject")
-    ExperimentDetailsDTO rejectExperiment(@PathParam("experimentId") UUID experimentId);
+    ExperimentForSignatureDTO rejectExperiment(@PathParam("experimentId") UUID experimentId);
 
     @POST
     @Path("/experiments/{experimentId}/workflow/resubmit")

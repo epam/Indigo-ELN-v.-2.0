@@ -5,6 +5,7 @@ import com.epam.indigoeln.eln.model.*;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -68,6 +69,14 @@ class SignatureExperimentServiceTest extends ELNBaseTest {
 
     @Test
     @Order(2)
+    void testDownloadReportForSignature() {
+        try (Response response = signatureClient.downloadReportForSignature(experiment.getId())) {
+            assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        }
+    }
+
+    @Test
+    @Order(3)
     void testOneSigned() {
         experiment = experimentClient.approveExperiment(experiment.getId());
         Page<ExperimentForSignatureDTO> page = signatureClient.getExperimentsForSignature(Paging.DEFAULT);
@@ -85,7 +94,7 @@ class SignatureExperimentServiceTest extends ELNBaseTest {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     void testBothSigned() {
         withUser(BART_USERNAME, () -> {
             experiment = experimentClient.approveExperiment(experiment.getId());

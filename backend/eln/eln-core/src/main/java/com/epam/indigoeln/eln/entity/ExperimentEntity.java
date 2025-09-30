@@ -116,6 +116,11 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @Column(name = "search_vector", insertable = false, updatable = false)
     private String searchVector;
 
+    @Nullable
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "report_for_signature_id")
+    private AttachmentEntity reportForSignature;
+
     @Basic
     @Nullable
     @Column(name = "current_access", insertable = false, updatable = false)
