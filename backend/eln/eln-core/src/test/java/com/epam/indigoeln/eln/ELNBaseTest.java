@@ -3,10 +3,15 @@ package com.epam.indigoeln.eln;
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.GlobalSearchService;
+import com.epam.indigoeln.reports.api.ReportsClient;
 import com.epam.indigoeln.test.BaseTest;
 import com.epam.indigoeln.test.FeignUtil;
+import io.quarkus.test.junit.QuarkusMock;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.*;
+import org.mockito.Mockito;
 
 import java.net.URI;
 import java.util.List;
@@ -69,6 +74,8 @@ public abstract class ELNBaseTest extends BaseTest {
     protected DictionaryClient dictionaryClient;
     protected RoleClient roleClient;
     protected GlobalSearchClient globalSearchClient;
+    @Nullable
+    protected ReportsClient mockReportsClient;
 
     private int lastUsedNotebookNumber = 0;
 
@@ -95,6 +102,10 @@ public abstract class ELNBaseTest extends BaseTest {
         testSupportClient = buildClient(TestSupportClient.class);
         globalSearchClient = buildClient(GlobalSearchClient.class);
         assertThat(miscClient.getInfo()).contains(entry("application", "Indigo ELN"));
+        if (!integrationTest) {
+            mockReportsClient = Mockito.mock(ReportsClient.class);
+            QuarkusMock.installMockForType(mockReportsClient, ReportsClient.class, RestClient.LITERAL);
+        }
         cleanupDatabase();
     }
 

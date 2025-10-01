@@ -4,11 +4,13 @@ import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.inject.Inject;
+import lombok.SneakyThrows;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.*;
 import org.junit.platform.commons.support.AnnotationSupport;
 
 import java.net.URI;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -51,10 +53,18 @@ public abstract class BaseTest {
     }
 
     protected void withUser(String username, Runnable runnable) {
+        withUser(username, () -> {
+            runnable.run();
+            return null;
+        });
+    }
+
+    @SneakyThrows
+    protected <T> T withUser(String username, Callable<T> callable) {
         String oldUsername = this.username.get();
         try {
             this.username.set(username);
-            runnable.run();
+            return callable.call();
         } finally {
             this.username.set(oldUsername);
         }

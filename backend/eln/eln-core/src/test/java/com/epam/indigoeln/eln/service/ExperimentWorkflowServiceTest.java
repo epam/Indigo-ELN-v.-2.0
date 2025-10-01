@@ -5,9 +5,12 @@ import com.epam.indigoeln.eln.model.*;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +19,7 @@ import static com.epam.indigoeln.eln.model.ExperimentStatus.*;
 import static com.epam.indigoeln.eln.test.SignaturesAssert.assertThatSignatures;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
 
 @QuarkusTest
@@ -40,6 +44,10 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
                 , List.of(new SignatureBlock(getBartUserRef(), SignatureReason.WITNESS))));
         twoSignersTemplate = signatureClient.createSignatureTemplate(new SignatureTemplateRequest("ExperimentWorkflowServiceTest-twoSigners"
                 , List.of(new SignatureBlock(getBartUserRef(), SignatureReason.WITNESS), new SignatureBlock(null, SignatureReason.AUTHOR))));
+        if (mockReportsClient != null) {
+            Mockito.when(mockReportsClient.generateExperimentReport(any()))
+                    .thenAnswer(inv -> Response.ok(new byte[0]).header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"report.pdf\"").build());
+        }
     }
 
     @BeforeEach
@@ -95,7 +103,7 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     void testReopenRejected() {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), twoSignersTemplate.getId());
         assertThat(experiment.getStatus()).isEqualTo(SUBMITTED);
-        experiment = experimentClient.rejectExperiment(experiment.getId());
+        experimentClient.rejectExperiment(experiment.getId());
         experiment = experimentClient.reopenExperiment(experiment.getId());
         assertThat(experiment.getStatus()).isEqualTo(REOPEN);
         assertThat(experiment.getSignatures()).isEmpty();
@@ -140,67 +148,63 @@ class ExperimentWorkflowServiceTest extends ELNBaseTest {
     @Test
     void testApproveOneSigner() {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplate.getId());
-        withUser(BART_USERNAME, () -> {
-            experiment = experimentClient.approveExperiment(experiment.getId());
-        });
-        assertThatSignatures(experiment.getSignatures()).containsOnly(
+        ExperimentForSignatureDTO experimentForSignature = withUser(BART_USERNAME
+                , () -> experimentClient.approveExperiment(experiment.getId()));
+        assertThatSignatures(experimentForSignature.getSignatures()).containsOnly(
                 getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED
         );
-        assertThat(experiment.getStatus()).isEqualTo(ARCHIVED);
+        assertThat(experimentForSignature.getStatus()).isEqualTo(ARCHIVED);
     }
 
     @Test
     void testRejectOneSigner() {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), oneSignerTemplate.getId());
-        withUser(BART_USERNAME, () -> {
-            experiment = experimentClient.rejectExperiment(experiment.getId());
-        });
-        assertThatSignatures(experiment.getSignatures()).containsOnly(
+        ExperimentForSignatureDTO experimentForSignature = withUser(BART_USERNAME
+                , () -> experimentClient.rejectExperiment(experiment.getId()));
+        assertThatSignatures(experimentForSignature.getSignatures()).containsOnly(
                 getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.REJECTED
         );
-        assertThat(experiment.getStatus()).isEqualTo(REJECTED);
+        assertThat(experimentForSignature.getStatus()).isEqualTo(REJECTED);
     }
 
     @Test
     void testApproveTwoSigners() {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), twoSignersTemplate.getId());
-        withUser(BART_USERNAME, () -> {
-            experiment = experimentClient.approveExperiment(experiment.getId());
-        });
-        assertThatSignatures(experiment.getSignatures()).containsOnly(
+        ExperimentForSignatureDTO experimentForSignature = withUser(BART_USERNAME
+                , () -> experimentClient.approveExperiment(experiment.getId()));
+        assertThatSignatures(experimentForSignature.getSignatures()).containsOnly(
             getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED,
             getJohnUserRef(), SignatureReason.AUTHOR, null
         );
-        assertThat(experiment.getStatus()).isEqualTo(SIGNING);
+        assertThat(experimentForSignature.getStatus()).isEqualTo(SIGNING);
 
-        experiment = experimentClient.approveExperiment(experiment.getId());
-        assertThatSignatures(experiment.getSignatures()).containsOnly(
+        experimentForSignature = experimentClient.approveExperiment(experiment.getId());
+        assertThatSignatures(experimentForSignature.getSignatures()).containsOnly(
                 getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED,
                 getJohnUserRef(), SignatureReason.AUTHOR, SignatureStatus.APPROVED
         );
-        assertThat(experiment.getStatus()).isEqualTo(ARCHIVED);
+        assertThat(experimentForSignature.getStatus()).isEqualTo(ARCHIVED);
     }
 
     @Test
     void testRejectTwoSigners() {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), twoSignersTemplate.getId());
-        withUser(BART_USERNAME, () -> {
-            experiment = experimentClient.approveExperiment(experiment.getId());
-        });
+        ExperimentForSignatureDTO experimentForSignature = withUser(BART_USERNAME
+                , () -> experimentClient.approveExperiment(experiment.getId()));
 
-        experiment = experimentClient.rejectExperiment(experiment.getId());
-        assertThatSignatures(experiment.getSignatures()).containsOnly(
+        experimentForSignature = experimentClient.rejectExperiment(experimentForSignature.getId());
+        assertThatSignatures(experimentForSignature.getSignatures()).containsOnly(
                 getBartUserRef(), SignatureReason.WITNESS, SignatureStatus.APPROVED,
                 getJohnUserRef(), SignatureReason.AUTHOR, SignatureStatus.REJECTED
         );
-        assertThat(experiment.getStatus()).isEqualTo(REJECTED);
+        assertThat(experimentForSignature.getStatus()).isEqualTo(REJECTED);
     }
 
     @Test
     void testResubmitRejected() {
         experiment = experimentClient.completeAndSubmitExperiment(experiment.getId(), twoSignersTemplate.getId());
-        experiment = experimentClient.rejectExperiment(experiment.getId());
-        experiment = experimentClient.resubmitExperiment(experiment.getId());
+        ExperimentForSignatureDTO experimentForSignature = experimentClient.rejectExperiment(experiment.getId());
+        experiment = experimentClient.resubmitExperiment(experimentForSignature.getId());
         assertThat(experiment.getStatus()).isEqualTo(SUBMITTED);
     }
 }

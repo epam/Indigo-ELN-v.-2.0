@@ -15,5 +15,8 @@ public class ExperimentForSignatureDTO extends BaseDTO {
     String name;
 
     @NotNull
+    ExperimentStatus status;
+
+    @NotNull
     List<ExperimentSignature> signatures;
 }

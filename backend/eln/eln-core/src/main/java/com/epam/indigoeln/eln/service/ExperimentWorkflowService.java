@@ -4,14 +4,17 @@ import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
+import com.epam.indigoeln.eln.mapper.SignatureExperimentMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.SignatureTemplateRepository;
+import com.epam.indigoeln.reports.api.ReportsClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
@@ -35,11 +38,18 @@ public class ExperimentWorkflowService {
     @Inject
     ExperimentMapper experimentMapper;
     @Inject
-    SignatureTemplateService signatureTemplateService;
-    @Inject
     SignatureTemplateRepository signatureTemplateRepository;
     @Inject
+    SignatureExperimentMapper signatureExperimentMapper;
+    @Inject
     UserService userService;
+    @Inject
+    @RestClient
+    ReportsClient reportsClient;
+    @Inject
+    ExperimentService experimentService;
+    @Inject
+    AttachmentService attachmentService;
 
     public ExperimentDetailsDTO cancelExperiment(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
@@ -75,7 +85,7 @@ public class ExperimentWorkflowService {
         return experimentMapper.entityToDetailsDTO(experiment);
     }
 
-    public ExperimentDetailsDTO approveOrRejectExperiment(UUID experimentId, SignatureStatus status) {
+    public ExperimentForSignatureDTO approveOrRejectExperiment(UUID experimentId, SignatureStatus status) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         boolean found = false;
         for (ExperimentSignatureEntity signature : experiment.getSignatures()) {
@@ -87,7 +97,7 @@ public class ExperimentWorkflowService {
         }
         validate(found, userService.getCurrentUser() + " is not listed as a signer of experiment " + experiment.getName());
         doCheckSignatures(experiment);
-        return experimentMapper.entityToDetailsDTO(experiment);
+        return signatureExperimentMapper.entityToDTO(experiment);
     }
 
     public ExperimentDetailsDTO resubmitExperiment(UUID experimentId) {
@@ -105,6 +115,9 @@ public class ExperimentWorkflowService {
 
     private void doSubmitExperiment(ExperimentEntity experiment, SignatureTemplateEntity signatureTemplate) {
         transition(experiment, SUBMITTED, SUBMIT_EXPERIMENTS, COMPLETED);
+        ExperimentService.ExperimentReportContent report = experimentService.printReport(experiment);
+        AttachmentEntity attachment = attachmentService.createExperimentAttachment(experiment, report.filename(), report.content());
+        experiment.setReportForSignature(attachment);
         experiment.getSignatures().clear();
         experiment.getSignatures().addAll(signatureTemplate.getBlocks().stream()
                 .map(block -> {

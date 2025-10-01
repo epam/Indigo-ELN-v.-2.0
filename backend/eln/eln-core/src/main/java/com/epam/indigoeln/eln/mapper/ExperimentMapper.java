@@ -22,6 +22,7 @@ public abstract class ExperimentMapper extends AbstractMapper {
     @Mapping(target = "therapeuticArea", ignore = true)
     @Mapping(target = "projectCode", ignore = true)
     @Mapping(target = "searchVector", ignore = true)
+    @Mapping(target = "reportForSignature", ignore = true)
     @Mapping(target = "marked", constant = "false")
     @Mapping(target = "aclShort", expression = "java(new ACLEntry[0])")
     @Mapping(target = "aclCount", constant = "0")

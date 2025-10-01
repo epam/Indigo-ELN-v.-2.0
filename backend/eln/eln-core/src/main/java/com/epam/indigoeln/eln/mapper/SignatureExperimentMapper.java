@@ -11,5 +11,6 @@ import java.util.List;
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR, nullValueCheckStrategy =  NullValueCheckStrategy.ALWAYS)
 public abstract class SignatureExperimentMapper extends AbstractMapper {
 
+    public abstract ExperimentForSignatureDTO entityToDTO(ExperimentEntity experiment);
     public abstract List<ExperimentForSignatureDTO> entityToDTOList(List<ExperimentEntity> experiments);
 }

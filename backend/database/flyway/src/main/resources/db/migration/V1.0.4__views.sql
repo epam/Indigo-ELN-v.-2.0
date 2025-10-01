@@ -238,8 +238,8 @@ $$ LANGUAGE plpgsql;
 CREATE FUNCTION insert_Experiment_View()
     RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO Experiment (id, created_by_id, created_at, modified_by_id, modified_at, project_id, notebook_id, template_id, name, status, description, therapeutic_area_id, project_code_id, model, picture)
-    VALUES (new.id, new.created_by_id, new.created_at, new.modified_by_id, new.modified_at, new.project_id, new.notebook_id, new.template_id, new.name, new.status, new.description, new.therapeutic_area_id, new.project_code_id, new.model, new.picture);
+    INSERT INTO Experiment (id, created_by_id, created_at, modified_by_id, modified_at, project_id, notebook_id, template_id, name, status, description, therapeutic_area_id, project_code_id, model, picture, report_for_signature_id)
+    VALUES (new.id, new.created_by_id, new.created_at, new.modified_by_id, new.modified_at, new.project_id, new.notebook_id, new.template_id, new.name, new.status, new.description, new.therapeutic_area_id, new.project_code_id, new.model, new.picture, new.report_for_signature_id);
 
     UPDATE Experiment SET search_vector = get_experiment_search_vector(new.id) WHERE id = new.id;
 
@@ -264,7 +264,8 @@ BEGIN
         therapeutic_area_id = new.therapeutic_area_id,
         project_code_id = new.project_code_id,
         model = new.model,
-        picture = new.picture
+        picture = new.picture,
+        report_for_signature_id = new.report_for_signature_id
     WHERE id = new.id;
 
     UPDATE Experiment SET search_vector = get_experiment_search_vector(new.id) WHERE id = new.id;

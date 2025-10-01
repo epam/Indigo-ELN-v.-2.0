@@ -3,6 +3,7 @@ package com.epam.indigoeln.eln.api;
 import com.epam.indigoeln.eln.model.*;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import java.util.UUID;
 
@@ -30,4 +31,8 @@ public interface SignatureAPI extends BaseAPI {
     @GET
     @Path("/signature/experiments/pending")
     Page<ExperimentForSignatureDTO> getExperimentsForSignature(Paging paging);
+
+    @GET
+    @Path("/signature/experiments/{experimentId}/download")
+    Response downloadReportForSignature(@PathParam("experimentId") UUID experimentId);
 }

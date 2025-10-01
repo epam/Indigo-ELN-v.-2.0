@@ -23,13 +23,18 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
@@ -41,6 +46,7 @@ import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 public class ExperimentService {
 
     static final byte[] EMPTY_PICTURE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"/>".getBytes(StandardCharsets.UTF_8);
+    public static final Pattern FILENAME_REGEX = Pattern.compile("filename\\s*=\\s*\"?([^\";]+)\"?", Pattern.CASE_INSENSITIVE);
 
     @Inject
     ProjectRepository projectRepository;
@@ -164,7 +170,16 @@ public class ExperimentService {
     }
 
     public Response printReport(UUID experimentId) {
-        ExperimentEntity experiment = experimentRepository.loadForReport(experimentId);
+        ExperimentReportContent content = printReport(experimentRepository.loadForReport(experimentId));
+        return Response.ok(content.content)
+                .header(HttpHeaders.CONTENT_DISPOSITION, content.contentDisposition)
+                .header(HttpHeaders.CONTENT_TYPE, content.contentType)
+                .build();
+    }
+
+    @SneakyThrows
+    public ExperimentReportContent printReport(ExperimentEntity experiment) {
+        experimentRepository.loadForReport(experiment.getId());
         ReportsAPI.ExperimentReportDataDTO data = new ReportsAPI.ExperimentReportDataDTO(
                 projectMapper.entityToDTO(experiment.getProject()),
                 experimentMapper.entityToDetailsDTO(experiment),
@@ -172,10 +187,19 @@ public class ExperimentService {
                 experiment.getModel()
         );
         try (Response response = reportsClient.generateExperimentReport(data)) {
-            return Response.ok(response.getEntity())
-                    .header(HttpHeaders.CONTENT_DISPOSITION, response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION))
-                    .header(HttpHeaders.CONTENT_TYPE, response.getHeaderString(HttpHeaders.CONTENT_TYPE))
-                    .build();
+            String contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
+            String contentDisposition = response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION);
+            String filename = "report.pdf";
+            Matcher matcher = FILENAME_REGEX.matcher(contentDisposition);
+            if (matcher.find()) {
+                filename = matcher.group(1);
+            }
+            byte[] body = switch (response.getEntity()) {
+                case byte[] bytes -> bytes;
+                case InputStream is -> is.readAllBytes();
+                default -> throw new IllegalStateException("Unexpected response entity type: " + response.getEntity().getClass());
+            };
+            return new ExperimentReportContent(body, contentDisposition, contentType, filename);
         }
     }
 
@@ -184,4 +208,11 @@ public class ExperimentService {
         int lastNumber = last == null ? 0 : Integer.parseInt(last.substring(last.lastIndexOf('-') + 1));
         return "%s-%04d".formatted(notebook.getName(), lastNumber + 1);
     }
+
+    public record ExperimentReportContent (
+            byte[] content,
+            String contentDisposition,
+            String contentType,
+            String filename
+    ) {}
 }
