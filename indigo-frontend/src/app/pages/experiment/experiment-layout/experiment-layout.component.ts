@@ -3,7 +3,7 @@ import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ProjectTabButtonComponent } from '@/core/components/project/project-tab-button/project-tab-button.component';
 
-import { ExperimentService } from '@/core/services/experiment/experiment.service';
+import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
 import { computed } from '@angular/core';
 import { CardComponent } from '@/core/components/common/card/card.component';
@@ -18,11 +18,11 @@ import { CardComponent } from '@/core/components/common/card/card.component';
     CommonModule,
     CardComponent,
   ],
-  providers: [ExperimentService],
+  providers: [ExperimentDetailService],
 })
 export class ExperimentLayoutComponent implements OnInit, OnDestroy {
   private activatedRoute = inject(ActivatedRoute);
-  experimentService = inject(ExperimentService);
+  experimentDetailService = inject(ExperimentDetailService);
 
   projectId = '';
   notebookId = '';
@@ -30,10 +30,10 @@ export class ExperimentLayoutComponent implements OnInit, OnDestroy {
 
   // Computed signals from the service
   experiment = computed<ExperimentDetail | null>(() =>
-    this.experimentService.experiment(),
+    this.experimentDetailService.experimentDetail(),
   );
-  isLoading = computed<boolean>(() => this.experimentService.isLoading());
-  hasError = computed<boolean>(() => this.experimentService.hasError());
+  isLoading = computed<boolean>(() => this.experimentDetailService.isLoading());
+  hasError = computed<boolean>(() => this.experimentDetailService.hasError());
 
   // Tab URLs
   public infoUrl = '';
@@ -48,7 +48,7 @@ export class ExperimentLayoutComponent implements OnInit, OnDestroy {
     this.projectId = this.activatedRoute.snapshot.params['projectId'];
 
     if (this.experimentId) {
-      this.experimentService.load(this.experimentId);
+      this.experimentDetailService.load(this.experimentId);
 
       // Set tab URLs using relative paths
       this.infoUrl = 'info';
@@ -59,10 +59,10 @@ export class ExperimentLayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.experimentService.reset();
+    this.experimentDetailService.reset();
   }
 
   refreshData(): void {
-    this.experimentService.refresh();
+    this.experimentDetailService.refresh();
   }
 }

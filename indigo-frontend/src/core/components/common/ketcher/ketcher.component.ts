@@ -1,17 +1,26 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
 import { Ketcher } from 'ketcher-core';
 
 @Component({
   selector: 'eln-ketcher',
   imports: [],
   templateUrl: './ketcher.component.html',
-  styleUrl: './ketcher.component.scss'
+  styleUrl: './ketcher.component.scss',
+  styles: [`
+    :host {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    iframe {
+      width: 100% !important;
+      height: 100% !important;
+      border: none;
+      display: block;
+    }
+  `]
 })
 export class KetcherComponent implements AfterViewInit {
-  @Input() width = 784;
-
-  @Input() height = 624;
-
   @Output() ketcherLoad = new EventEmitter<Ketcher>();
 
   @ViewChild('ketcher') private iframe!: ElementRef;

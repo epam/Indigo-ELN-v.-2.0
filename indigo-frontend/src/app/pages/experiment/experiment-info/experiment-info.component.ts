@@ -1,7 +1,7 @@
 import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardComponent } from '@/core/components/common/card/card.component';
-import { ExperimentService } from '@/core/services/experiment/experiment.service';
+import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
 import { ReactionSchemeViewComponent } from '@/core/components/experiment/reaction-scheme-view/reaction-scheme-view.component';
 
 @Component({
@@ -11,10 +11,10 @@ import { ReactionSchemeViewComponent } from '@/core/components/experiment/reacti
   templateUrl: './experiment-info.component.html',
 })
 export class ExperimentInfoComponent {
-  experimentService = inject(ExperimentService);
+  experimentDetailService = inject(ExperimentDetailService);
 
   // Computed signals from the service
-  experiment = computed(() => this.experimentService.experiment());
-  isLoading = computed(() => this.experimentService.isLoading());
-  hasError = computed(() => this.experimentService.hasError());
+  experiment = computed(() => this.experimentDetailService.experimentDetail());
+  isLoading = computed(() => this.experimentDetailService.isLoading());
+  hasError = computed(() => this.experimentDetailService.hasError());
 }

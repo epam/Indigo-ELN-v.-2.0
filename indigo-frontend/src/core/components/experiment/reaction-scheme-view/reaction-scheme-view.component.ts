@@ -1,38 +1,46 @@
-import { Component, inject, signal, computed, Input } from '@angular/core';
+import { Component, inject, computed, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StructureEditorModalComponent } from '../structure-editor-modal/structure-editor-modal.component';
-import { ApiService } from '@/core/services/api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
-import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
+import { ExperimentModelService } from '@/core/services/experiment/experiment-model.service';
+import { MutateModelForm } from '@/core/types/entities/experiments/experiment.i';
+import { Mutation } from '@/core/types/entities/experiments/mutation.i';
 
 @Component({
   selector: 'eln-reaction-scheme-view',
   standalone: true,
   imports: [CommonModule, ButtonComponent],
+  providers: [ExperimentModelService],
   templateUrl: './reaction-scheme-view.component.html',
 })
-export class ReactionSchemeViewComponent {
+export class ReactionSchemeViewComponent implements OnInit {
   @Input() experimentId: string | null = null;
 
-  apiService = inject(ApiService);
   dialog = inject(MatDialog);
+  experimentModelService = inject(ExperimentModelService);
 
-  // Simple state for loaded data
-  loadedDataModel = signal<ExperimentDetail | null>(null);
-  showDebugView = signal(false);
+  // TODO - handle multiple reactions so far only supports first reaction
+  currentReaction = computed(() => {
+    const reactions = this.experimentModelService.experimentModel()?.reactions || [];
+    return reactions.length > 0 ? reactions[0] : null;
+  });
 
-  // Computed property for UI
-  hasDataModel = computed(() => this.loadedDataModel() !== null);
+  ngOnInit(): void {
+    if (this.experimentId) this.experimentModelService.load(this.experimentId);
+  }
 
-  async openChemicalEditor(): Promise<void> {
+  openChemicalEditor(): void {
     if (!this.experimentId) {
       console.warn('No experiment ID available');
       return;
     }
 
-    // Load existing data before opening the modal
-    await this.loadExistingDataModel(this.experimentId);
+    this.openModal();
+  }
+
+  private openModal(): void {
+    const reaction = this.currentReaction();
 
     const dialogRef = this.dialog.open(StructureEditorModalComponent, {
       width: '90vw',
@@ -41,42 +49,48 @@ export class ReactionSchemeViewComponent {
       maxHeight: '800px',
       disableClose: false,
       data: {
-        height: '500px',
-        width: '100%'
+        height: '600px',
+        width: '100%',
+        reaction
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        console.log('Modal closed with result:', result);
-        // TODO: Handle result when iframe communication is implemented
+      if (result?.success && result?.mutations) {
+        this.updateExperimentWithMutations(result.mutations);
+      } else if (result && !result.success) {
+        console.error('Error in structure editor:', result.error);
       }
     });
   }
 
-  private async loadExistingDataModel(experimentId: string): Promise<void> {
-    try {
-      console.log('Loading existing data model for experiment:', experimentId);
-
-      this.apiService.request<ExperimentDetail>('get', `experiments/${experimentId}/datamodel`)
-        .subscribe({
-          next: (response: ExperimentDetail) => {
-            console.log('Existing data model loaded:', response);
-            this.loadedDataModel.set(response);
-          },
-          error: (error) => {
-            console.warn('No existing data model found or error loading:', error);
-            this.loadedDataModel.set(null);
-          }
-        });
-
-    } catch (error) {
-      console.error('Error loading existing data model:', error);
-      this.loadedDataModel.set(null);
+  private async updateExperimentWithMutations(mutations: Mutation[]): Promise<void> {
+    // Update mutations with current reaction anchor
+    const reaction = this.currentReaction();
+    if (!reaction) {
+      console.error('No current reaction available');
+      return;
     }
-  }
 
-  toggleDebugView(): void {
-    this.showDebugView.update(current => !current);
+    const updatedMutations = mutations.map(mutation => ({
+      ...mutation,
+      anchor: reaction.anchor
+    }));
+
+    // Apply mutations in parallel
+    const updatePromises = updatedMutations.map(mutation => {
+      const payload: MutateModelForm = {
+        model: this.experimentModelService.experimentModel(),
+        mutation
+      };
+      return this.experimentModelService.updateDataModel(this.experimentId!, payload);
+    });
+
+    try {
+      await Promise.all(updatePromises);
+      console.log('All mutations applied successfully');
+    } catch (error) {
+      console.error('Error applying mutations:', error);
+    }
   }
 }

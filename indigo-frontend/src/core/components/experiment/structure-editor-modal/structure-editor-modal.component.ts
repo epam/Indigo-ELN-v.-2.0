@@ -1,21 +1,30 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { ButtonComponent } from "../../common/button/button.component";
+import { ButtonComponent } from '../../common/button/button.component';
+import { KetcherComponent } from '../../common/ketcher/ketcher.component';
+import { Ketcher } from 'ketcher-core';
+import { MutationBuilderService } from '@/core/services/experiment/mutation-builder.service';
+import { Reaction } from '@/core/types/entities/experiments/experiment.i';
 
 interface ModalData {
   height?: string; // Editor height
   width?: string; // Editor width
+  reaction?: Reaction; // Reaction data containing rxnfile
 }
 
 @Component({
   selector: 'eln-structure-editor-modal',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule, ButtonComponent],
+  imports: [CommonModule, MatDialogModule, MatButtonModule, ButtonComponent, KetcherComponent],
   templateUrl: './structure-editor-modal.component.html',
 })
 export class StructureEditorModalComponent {
+  @ViewChild('ketcherComponent') ketcherComponent!: KetcherComponent;
+
+  private ketcherInstance: Ketcher | null = null;
+
   // Chemical editor configuration
   get editorHeight(): string {
     return this.data?.height || '500px';
@@ -27,16 +36,54 @@ export class StructureEditorModalComponent {
 
   constructor(
     private dialogRef: MatDialogRef<StructureEditorModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ModalData
-  ) {}
+    @Inject(MAT_DIALOG_DATA) public data: ModalData,
+    private mutationBuilder: MutationBuilderService
+  ) { }
 
-  closeModal(): void {
-    this.dialogRef.close();
+  async onKetcherLoad(ketcher: Ketcher): Promise<void> {
+    console.log('Ketcher loaded successfully');
+    this.ketcherInstance = ketcher;
+
+    // Load initial structure from reaction if available
+    const initialStructure = this.data?.reaction?.rxnfile;
+    if (initialStructure) {
+      try {
+        await this.ketcherInstance.setMolecule(initialStructure);
+      } catch (error) {
+        console.error('Error loading initial structure:', error);
+      }
+    }
   }
 
-  saveAndClose(): void {
-    // TODO: Implement save functionality when iframe communication is ready
-    console.log('Save functionality will be implemented later');
+  async saveAndClose(): Promise<void> {
+    if (!this.ketcherInstance) {
+      console.warn('Ketcher not loaded yet');
+      this.dialogRef.close({ success: false, error: 'Ketcher not loaded' });
+      return;
+    }
+
+    try {
+      // Get reaction anchor from experiment model
+      const reactionAnchor = this.data?.reaction?.anchor;
+      const mutations = await this.mutationBuilder.buildMutationsFromKetcher(
+        this.ketcherInstance,
+        reactionAnchor
+      );
+
+      this.dialogRef.close({
+        success: true,
+        mutations
+      });
+    } catch (error) {
+      console.error('Error processing Ketcher data:', error);
+      this.dialogRef.close({
+        success: false,
+        error: 'Failed to process chemical structure data'
+      });
+    }
+  }
+
+  closeModal(): void {
     this.dialogRef.close();
   }
 }

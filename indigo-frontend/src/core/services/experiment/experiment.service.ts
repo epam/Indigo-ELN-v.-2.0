@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { ApiService } from '@/core/services/api.service';
 import { BehaviorSubject, filter, map, of, switchMap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -11,12 +11,6 @@ import { ExperimentDetail } from '@core/types/entities/experiments/experiment-de
 @Injectable()
 export class ExperimentService {
   private service = inject(ApiService);
-
-  // Signals to hold the current experiment state
-  readonly experiment = signal<ExperimentDetail | null>(null);
-  readonly isLoading = signal<boolean>(false);
-  readonly hasError = signal<boolean>(false);
-  private readonly currentId = signal<string | null>(null);
 
   // TODO using some hand-made LoadingState instead of separate data/loading/error to avoid inconsistent states;
   // if it's more readable to use separate flags or there is a better alternative, i'll rewrite it
@@ -48,48 +42,6 @@ export class ExperimentService {
   public mutating$ = this.mutating.asObservable();
   private picture = new BehaviorSubject<LoadingState<Blob>>({ state: 'empty' });
   public picture$ = this.picture.asObservable();
-
-  // Public API
-  setExperiment(experimentDetail: ExperimentDetail | null) {
-    this.experiment.set(experimentDetail);
-  }
-  setLoading(value: boolean) {
-    this.isLoading.set(value);
-  }
-  setError(value: boolean) {
-    this.hasError.set(value);
-  }
-
-  load(id: string) {
-    this.currentId.set(id);
-    this.isLoading.set(true);
-    this.hasError.set(false);
-
-    this.service
-      .request<ExperimentDetail>('get', `experiments/${id}`)
-      .subscribe({
-        next: (exp) => {
-          this.experiment.set(exp);
-          this.isLoading.set(false);
-        },
-        error: () => {
-          this.hasError.set(true);
-          this.isLoading.set(false);
-        },
-      });
-  }
-
-  refresh() {
-    const id = this.currentId();
-    if (id) this.load(id);
-  }
-
-  reset() {
-    this.currentId.set(null);
-    this.experiment.set(null);
-    this.isLoading.set(false);
-    this.hasError.set(false);
-  }
 
   loadExperiment(id: string) {
     this.experimentSubject.next({ state: 'loading' });
