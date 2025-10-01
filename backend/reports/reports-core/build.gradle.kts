@@ -2,7 +2,7 @@ plugins {
     `java-library`
     `eln-conventions`
     id("io.quarkus")
-//    id("io.github.f-cramer.jasperreports") version "0.0.4"
+    id("io.github.f-cramer.jasperreports") version "0.0.4"
 }
 
 dependencies {
@@ -25,27 +25,14 @@ dependencies {
 //    jasperreportsClasspath("net.sf.jasperreports:jasperreports-json:7.0.3")
 
     testImplementation(project(":common:common-test"))
-
-    // for calculation reports
-    testImplementation("io.github.java-diff-utils:java-diff-utils:4.12")
 }
 
 group = "com.epam.indigoeln"
 version = "3.0.0-SNAPSHOT"
 
-//tasks.named("compileAllReports") {
-//    dependsOn("compileJava")
-//}
-
-//tasks.named("jar") {
-//    dependsOn("compileAllReports")
-//}
-//tasks.named("quarkusDependenciesBuild") {
-//    dependsOn("compileAllReports")
-//}
-//tasks.named("compileTestJava") {
-//    dependsOn("compileAllReports")
-//}
+tasks.named("processResources") {
+    dependsOn("compileAllReports")
+}
 
 sourceSets {
     main {
@@ -69,13 +56,8 @@ artifacts {
     add(testArtifacts.name, testJar)
 }
 
-//tasks.named("jar") { dependsOn("compileAllReports") }
-//tasks.named("quarkusDependenciesBuild") { dependsOn("compileAllReports") }
-//tasks.named("compileTestJava") { dependsOn("compileAllReports") }
-
-//jasperreports {
-//    classpath.from(configurations.compileClasspath)
-//    classpath.from(project.sourceSets.main.get().output)
-//    srcDir = file("src/main/reports")
-//    outDir = file("build/resources/main/reports")
-//}
+jasperreports {
+    classpath.from(configurations.compileClasspath)
+    srcDir = file("src/main/jasperreports")
+    outDir = file("build/resources/jasper/reports")
+}
