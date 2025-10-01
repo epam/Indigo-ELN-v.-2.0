@@ -47,6 +47,13 @@ version = "3.0.0-SNAPSHOT"
 //    dependsOn("compileAllReports")
 //}
 
+sourceSets {
+    main {
+        resources {
+            srcDir(layout.buildDirectory.dir("resources/jasper"))
+        }
+    }
+}
 
 val testArtifacts by configurations.creating {
     extendsFrom(configurations.testRuntimeClasspath.get())
