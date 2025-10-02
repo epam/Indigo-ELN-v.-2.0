@@ -12,10 +12,10 @@ dependencies {
     api("io.quarkus:quarkus-jdbc-postgresql")
     api("io.quarkus:quarkus-hibernate-orm")
     api("io.quarkus:quarkus-hibernate-orm-panache")
-    api("io.hypersistence:hypersistence-utils-hibernate-63:3.9.9")
+    api("io.hypersistence:hypersistence-utils-hibernate-71:3.11.0")
 
-    implementation("com.epam.indigo:indigo:1.33.0-rc.3")
-    implementation("com.epam.indigo:indigo-renderer:1.33.0-rc.3")
+    implementation("com.epam.indigo:indigo:1.35.0-rc.2")
+    implementation("com.epam.indigo:indigo-renderer:1.35.0-rc.2")
 //    implementation("com.epam.indigo:indigo-inchi:1.30.0")
 //    implementation("com.epam.indigo:bingo-nosql:1.30.1")
 
@@ -24,7 +24,7 @@ dependencies {
     testImplementation(project(":common:common-test"))
 
     // for calculation reports
-    testImplementation("io.github.java-diff-utils:java-diff-utils:4.12")
+    testImplementation("io.github.java-diff-utils:java-diff-utils:4.16")
 }
 
 group = "com.epam.indigoeln"
