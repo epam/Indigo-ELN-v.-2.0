@@ -44,7 +44,7 @@ export class StructureEditorModalComponent {
     this.ketcherInstance = ketcher;
 
     // Load initial structure from reaction if available
-    const initialStructure = this.data?.reaction?.rxnfile;
+    const initialStructure = this.data.reaction.rxnfile;
     if (initialStructure) {
       try {
         await this.ketcherInstance.setMolecule(initialStructure);

@@ -22,11 +22,11 @@ import {
   ReactionOutputType,
   SampleRegistrationStatus
 } from './experiment-shared.i';
+import { Mutation } from './mutation.i';
 
 // ================================
 // 1. MUTATION INTERFACES
 // ================================
-export type Mutation = Record<string, unknown>;
 
 export interface MutateModelForm {
   model?: ExperimentModel;

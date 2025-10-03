@@ -64,7 +64,7 @@ export class ReactionSchemeViewComponent implements OnInit {
     });
   }
 
-  private async updateExperimentWithMutations(mutations: Mutation[]): Promise<void> {
+  private updateExperimentWithMutations(mutations: Mutation[]): void {
     // Update mutations with current reaction anchor
     const reaction = this.currentReaction();
     if (!reaction) {
@@ -72,25 +72,23 @@ export class ReactionSchemeViewComponent implements OnInit {
       return;
     }
 
-    const updatedMutations = mutations.map(mutation => ({
-      ...mutation,
-      anchor: reaction.anchor
-    }));
-
-    // Apply mutations in parallel
-    const updatePromises = updatedMutations.map(mutation => {
-      const payload: MutateModelForm = {
-        model: this.experimentModelService.experimentModel(),
-        mutation
-      };
-      return this.experimentModelService.updateDataModel(this.experimentId!, payload);
-    });
-
-    try {
-      await Promise.all(updatePromises);
-      console.log('All mutations applied successfully');
-    } catch (error) {
-      console.error('Error applying mutations:', error);
+    // Apply only the first mutation by the moment
+    // TODO support multiple mutations
+    if (mutations.length === 0) {
+      console.warn('No mutations to apply');
+      return;
     }
+
+    const firstMutation = {
+      ...mutations[0],
+      anchor: reaction.anchor
+    };
+
+    const payload: MutateModelForm = {
+      model: this.experimentModelService.experimentModel(),
+      mutation: firstMutation
+    };
+
+    this.experimentModelService.updateDataModel(this.experimentId!, payload);
   }
 }

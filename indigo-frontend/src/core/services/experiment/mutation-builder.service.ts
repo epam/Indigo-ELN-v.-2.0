@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Ketcher } from 'ketcher-core';
 import { Mutation } from '@/core/types/entities/experiments/mutation.i';
-// import { ReactionInputRole } from '@/core/types/entities/experiments/experiment-shared.i';
 
 export interface KetcherAnalysis {
   rxnData: string;
