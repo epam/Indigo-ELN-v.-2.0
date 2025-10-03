@@ -41,7 +41,6 @@ export class StructureEditorModalComponent {
   ) { }
 
   async onKetcherLoad(ketcher: Ketcher): Promise<void> {
-    console.log('Ketcher loaded successfully');
     this.ketcherInstance = ketcher;
 
     // Load initial structure from reaction if available
