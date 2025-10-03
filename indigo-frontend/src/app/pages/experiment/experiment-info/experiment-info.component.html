@@ -58,7 +58,8 @@
 
                 @if (accordionItem2.expanded) {
                 <div class="mt-4">
-                    <eln-reaction-scheme-view [experimentId]="experiment()?.id || null" />
+                    <eln-reaction-scheme-view [experimentId]="experiment()?.id || null"
+                        (modelUpdated)="onModelUpdated()" />
                 </div>
                 }
             </eln-card>

@@ -1,10 +1,10 @@
-import { Component, inject, computed, Input, OnInit } from '@angular/core';
+import { Component, inject, computed, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StructureEditorModalComponent } from '../structure-editor-modal/structure-editor-modal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { ExperimentModelService } from '@/core/services/experiment/experiment-model.service';
-import { MutateModelForm } from '@/core/types/entities/experiments/experiment.i';
+import { MutateModelForm } from '@/core/types/entities/experiments/experiment-mutate-form.i';
 import { Mutation } from '@/core/types/entities/experiments/mutation.i';
 
 @Component({
@@ -16,6 +16,7 @@ import { Mutation } from '@/core/types/entities/experiments/mutation.i';
 })
 export class ReactionSchemeViewComponent implements OnInit {
   @Input() experimentId: string | null = null;
+  @Output() modelUpdated = new EventEmitter<void>();
 
   dialog = inject(MatDialog);
   experimentModelService = inject(ExperimentModelService);
@@ -89,6 +90,10 @@ export class ReactionSchemeViewComponent implements OnInit {
       mutation: firstMutation
     };
 
-    this.experimentModelService.updateDataModel(this.experimentId!, payload);
+    this.experimentModelService.updateDataModel(this.experimentId!, payload)
+      .subscribe({
+        next: () => this.modelUpdated.emit(),
+        error: (error) => console.error('Failed to update experiment model:', error),
+      });
   }
 }

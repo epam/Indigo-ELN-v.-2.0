@@ -40,4 +40,8 @@ export class ExperimentInfoComponent implements OnInit {
       this.experimentImageService.load(experimentId);
     }
   }
+
+  onModelUpdated(): void {
+    this.experimentImageService.refresh();
+  }
 }

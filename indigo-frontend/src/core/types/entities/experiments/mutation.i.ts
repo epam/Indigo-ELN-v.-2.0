@@ -1,5 +1,4 @@
-import { ReactionInputRole } from './experiment-shared.i';
-import { DictionaryItemRef } from '../dictionary.i';
+import { ReactionInputRole, DictionaryItemRef } from './experiment-shared.i';
 
 // Base mutation interface
 interface BaseMutation {

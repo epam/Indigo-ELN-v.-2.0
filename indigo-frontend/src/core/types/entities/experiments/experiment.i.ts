@@ -1,4 +1,4 @@
-// Consolidated experiment model types and mutation interfaces
+// Experiment model types and nested structures
 // Auto-generated from OpenAPI schemas for ExperimentModel and nested types
 // Source: /mnt/data/swagger spec
 
@@ -23,18 +23,9 @@ import {
   ReactionOutputType,
   SampleRegistrationStatus
 } from './experiment-shared.i';
-import { Mutation } from './mutation.i';
 
 // ================================
-// 1. MUTATION INTERFACES
-// ================================
-export interface MutateModelForm {
-  model?: ExperimentModel;
-  mutation?: Mutation;
-}
-
-// ================================
-// 2. SAMPLE INTERFACES
+// 1. SAMPLE INTERFACES
 // ================================
 export interface ReactionInputSample {
   anchor: UUID;
@@ -84,7 +75,7 @@ export interface ReactionOutputSample {
 }
 
 // ================================
-// 3. REACTION INTERFACES
+// 2. REACTION INTERFACES
 // ================================
 export interface ReactionInput {
   reaction?: Reaction;
@@ -117,7 +108,7 @@ export interface Reaction {
 }
 
 // ================================
-// 4. MAIN MODEL INTERFACE
+// 3. MAIN MODEL INTERFACE
 // ================================
 export interface ExperimentModel {
   reactions: Reaction[];

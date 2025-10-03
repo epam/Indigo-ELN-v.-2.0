@@ -1,6 +1,8 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 import { ApiService } from '@/core/services/api.service';
-import { ExperimentModel, MutateModelForm } from '@/core/types/entities/experiments/experiment.i';
+import { ExperimentModel } from '@/core/types/entities/experiments/experiment.i';
+import { MutateModelForm } from '@/core/types/entities/experiments/experiment-mutate-form.i';
 
 @Injectable()
 export class ExperimentModelService {
@@ -34,23 +36,25 @@ export class ExperimentModelService {
       });
   }
 
-  updateDataModel(experimentId: string, payload: MutateModelForm): void {
+  updateDataModel(experimentId: string, payload: MutateModelForm): Observable<ExperimentModel> {
     this.isLoading.set(true);
     this.hasError.set(false);
     
-    this.service
+    return this.service
       .request<ExperimentModel>('post', `experiments/${experimentId}/datamodel`, payload)
-      .subscribe({
-        next: (updatedModel) => {
-          this.experimentModel.set(updatedModel);
-          this.isLoading.set(false);
-        },
-        error: (error) => {
-          console.error('Error updating experiment model:', error);
-          this.hasError.set(true);
-          this.isLoading.set(false);
-        }
-      });
+      .pipe(
+        tap({
+          next: (updatedModel) => {
+            this.experimentModel.set(updatedModel);
+            this.isLoading.set(false);
+          },
+          error: (error) => {
+            console.error('Error updating experiment model:', error);
+            this.hasError.set(true);
+            this.isLoading.set(false);
+          }
+        })
+      );
   }
 
   // Setter methods
