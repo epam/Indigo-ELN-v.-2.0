@@ -16,7 +16,7 @@ import { Mutation } from '@/core/types/entities/experiments/mutation.i';
 })
 export class ReactionSchemeViewComponent implements OnInit {
   @Input() experimentId: string | null = null;
-  @Output() modelUpdated = new EventEmitter<void>();
+  @Output() modelUpdating = new EventEmitter<boolean>();
 
   dialog = inject(MatDialog);
   experimentModelService = inject(ExperimentModelService);
@@ -90,10 +90,20 @@ export class ReactionSchemeViewComponent implements OnInit {
       mutation: firstMutation
     };
 
+    // Notify parent that update is starting
+    this.modelUpdating.emit(true);
+
     this.experimentModelService.updateDataModel(this.experimentId!, payload)
       .subscribe({
-        next: () => this.modelUpdated.emit(),
-        error: (error) => console.error('Failed to update experiment model:', error),
+        next: () => {
+          // Notify parent that update completed
+          this.modelUpdating.emit(false);
+        },
+        error: (error) => {
+          console.error('Failed to update experiment model:', error);
+          // Notify parent that update completed (with error)
+          this.modelUpdating.emit(false);
+        },
       });
   }
 }

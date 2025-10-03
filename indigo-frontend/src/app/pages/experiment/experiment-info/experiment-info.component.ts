@@ -1,4 +1,4 @@
-import { Component, inject, computed, OnInit } from '@angular/core';
+import { Component, inject, computed, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
@@ -24,6 +24,9 @@ export class ExperimentInfoComponent implements OnInit {
   experimentDetailService = inject(ExperimentDetailService);
   experimentImageService = inject(ExperimentImageService);
 
+  // Signal to track if model is being updated
+  isUpdating = signal<boolean>(false);
+
   // Computed signals from the service
   experiment = computed(() => this.experimentDetailService.experimentDetail());
   isLoading = computed(() => this.experimentDetailService.isLoading());
@@ -31,7 +34,7 @@ export class ExperimentInfoComponent implements OnInit {
 
   // Computed signals from image service
   experimentImageUrl = computed(() => this.experimentImageService.imageUrl());
-  imageLoading = computed(() => this.experimentImageService.isLoading());
+  imageLoading = computed(() => this.experimentImageService.isLoading() || this.isUpdating());
   imageError = computed(() => this.experimentImageService.hasError());
 
   ngOnInit(): void {
@@ -41,7 +44,10 @@ export class ExperimentInfoComponent implements OnInit {
     }
   }
 
-  onModelUpdated(): void {
-    this.experimentImageService.refresh();
+  onModelUpdating(isUpdating: boolean): void {
+    this.isUpdating.set(isUpdating);
+    
+    // When update completes, refresh the image
+    if (!isUpdating) this.experimentImageService.refresh();
   }
 }
