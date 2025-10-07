@@ -18,9 +18,6 @@ export class NotebookService {
   setError(value: boolean) { this.hasError.set(value); }
 
   load(id: string) {
-    // Avoid refetching the same id if already loaded
-    if (this.currentId() === id && this.notebook()) return;
-
     this.currentId.set(id);
     this.isLoading.set(true);
     this.hasError.set(false);

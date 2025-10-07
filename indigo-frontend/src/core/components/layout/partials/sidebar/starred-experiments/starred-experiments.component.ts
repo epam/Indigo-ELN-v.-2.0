@@ -6,11 +6,8 @@ import { ApiService } from '@/core/services/api.service';
 import { NormalizeLabelPipe } from '@/core/pipes/normalizeLabe.pipe';
 import { catchError, of, Subject } from 'rxjs';
 import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
-import { Experiment } from '@/core/types/entities/experiment.i';
-
-// Shared types for decoration palette
-type BadgeVariant = 'blue' | 'green' | 'yellow' | 'red' | 'grey' | 'violet';
-interface StatusDecorarion { variant: BadgeVariant; dotClass: string; }
+import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
+import { EXPERIMENT_STATUS_DECORATION_MAP, ExperimentStatusDecoration } from '@/core/utils/experiment-status.util';
 
 @Component({
   selector: 'eln-starred-experiments',
@@ -24,20 +21,9 @@ export class StarredExperimentsComponent implements OnInit, OnDestroy {
 
   loading = false;
   error: string | null = null;
-  experiments: Experiment[] = [];
+  experiments: ExperimentDetail[] = [];
 
-  readonly statusDecorMap: Record<ExperimentStatus, StatusDecorarion> = {
-    [ExperimentStatus.OPEN]: { variant: 'blue', dotClass: 'bg-primary-400' },
-    [ExperimentStatus.REOPEN]: { variant: 'blue', dotClass: 'bg-primary-400' },
-    [ExperimentStatus.COMPLETED]: { variant: 'green', dotClass: 'bg-green-200' },
-    [ExperimentStatus.SUBMITTED]: { variant: 'yellow', dotClass: 'bg-yellow-200' },
-    [ExperimentStatus.SIGNING]: { variant: 'yellow', dotClass: 'bg-yellow-200' },
-    [ExperimentStatus.REJECTED]: { variant: 'red', dotClass: 'bg-red-200' },
-    [ExperimentStatus.SIGNED]: { variant: 'green', dotClass: 'bg-green-200' },
-    [ExperimentStatus.ARCHIVED]: { variant: 'grey', dotClass: 'bg-neutral-500' },
-    [ExperimentStatus.CANCELLED]: { variant: 'red', dotClass: 'bg-red-200' },
-    [ExperimentStatus.WAITING_FOR_SIGNATURE]: { variant: 'violet', dotClass: 'bg-violet-200' },
-  };
+  readonly statusDecorMap: Record<ExperimentStatus, ExperimentStatusDecoration> = EXPERIMENT_STATUS_DECORATION_MAP;
 
   ngOnInit(): void {
     this.fetchMarkedExperiments();
@@ -46,7 +32,7 @@ export class StarredExperimentsComponent implements OnInit, OnDestroy {
   private fetchMarkedExperiments(): void {
     this.loading = true;
     this.service
-      .request<Experiment[]>('get', 'experiments/marked')
+      .request<ExperimentDetail[]>('get', 'experiments/marked')
       .pipe(
         catchError((err) => {
           console.error('Failed to load marked experiments:', err);

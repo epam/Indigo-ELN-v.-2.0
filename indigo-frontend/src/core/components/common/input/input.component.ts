@@ -31,6 +31,7 @@ export class InputComponent implements ControlValueAccessor {
   @Input() inputWrapperClassname: string;
   @Input() inputClassname: string;
   @Input() iconClassname: string;
+  @Input() showClearButton = true;
   label = input<string>();
   placeholder = input<string>();
   required = input<boolean>(false);

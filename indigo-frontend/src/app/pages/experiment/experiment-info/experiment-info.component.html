@@ -1,0 +1,68 @@
+<div class="flex flex-col gap-4">
+    <cdk-accordion>
+        <cdk-accordion-item #accordionItem="cdkAccordionItem" [expanded]="false">
+            <eln-card classList="p-4">
+                <button class="flex items-center gap-2 w-full bg-none border-none p-0 text-left hover:cursor-pointer"
+                    (click)="accordionItem.toggle()" type="button">
+                    <span class="text-lg flex items-center">
+                        <em [class.indicon-chevron_up]="accordionItem.expanded"
+                            [class.indicon-chevron_down]="!accordionItem.expanded">
+                        </em>
+                    </span>
+                    <h2 class="font-semibold text-md">Experiment Details</h2>
+                </button>
+
+                @if (accordionItem.expanded) {
+                <div>
+                    <div class="flex gap-4 mt-2 text-sm">
+                        <h3>Name: {{ experiment().name }}</h3>
+                    </div>
+
+                    <div class="mt-6">
+                        <div class="border-t border-gray-200 mb-4"></div>
+                        <h3 class="text-sm mb-3">Experiment Picture:</h3>
+                        @if (imageLoading()) {
+                        <div class="flex justify-center p-4">
+                            <mat-spinner diameter="40" />
+                        </div>
+                        }
+                        @else if (imageError()) {
+                        <div class="flex justify-center p-4 text-red-500">
+                            <span>Error loading image</span>
+                        </div>
+                        }
+                        @else if (experimentImageUrl()) {
+                        <div class="flex justify-center">
+                            <img [src]="experimentImageUrl()" alt="Experiment picture" class="max-w-full h-auto" />
+                        </div>
+                        }
+                    </div>
+                </div>
+                }
+            </eln-card>
+        </cdk-accordion-item>
+    </cdk-accordion>
+
+    <cdk-accordion>
+        <cdk-accordion-item #accordionItem2="cdkAccordionItem" [expanded]="true">
+            <eln-card classList="p-4">
+                <button class="flex items-center gap-2 w-full bg-none border-none p-0 text-left hover:cursor-pointer"
+                    (click)="accordionItem2.toggle()" type="button">
+                    <span class="text-lg flex items-center">
+                        <em [class.indicon-chevron_up]="accordionItem2.expanded"
+                            [class.indicon-chevron_down]="!accordionItem2.expanded">
+                        </em>
+                    </span>
+                    <h2 class="font-semibold text-md">Stoichiometric Calculation</h2>
+                </button>
+
+                @if (accordionItem2.expanded) {
+                <div class="mt-4">
+                    <eln-reaction-scheme-view [experimentId]="experiment()?.id || null"
+                        (modelUpdating)="onModelUpdating($event)" />
+                </div>
+                }
+            </eln-card>
+        </cdk-accordion-item>
+    </cdk-accordion>
+</div>

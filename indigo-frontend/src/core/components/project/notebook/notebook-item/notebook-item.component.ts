@@ -42,10 +42,11 @@ export class NotebookItemComponent {
   ];
   @Input() notebook: Notebook;
   @Input() variant: 'grid' | 'list' = 'grid';
+  @Input() projectId: string;
 
   openDetails(): void {
-    if (!this.notebook) return;
-    const url = `/notebooks/${this.notebook.id}`;
+    if (!this.notebook || !this.projectId) return;
+    const url = `/projects/${this.projectId}/notebooks/${this.notebook.id}`;
     this.router.navigateByUrl(url);
   }
 }

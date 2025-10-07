@@ -1,0 +1,34 @@
+import { BaseEntity } from './base-entity.i';
+
+export interface DictionaryListItem extends BaseEntity {
+  name: string;
+  description: string;
+  code: string;
+}
+
+export type DictionaryList = DictionaryListItem[];
+
+export interface DictionaryFullItem {
+    id: string;
+    createdAt: Date;
+    name: string;
+    description: string;
+    ordinal: number;
+    active: boolean;
+}
+
+export type DictionaryFull = DictionaryFullItem[];
+
+export interface DictionaryItemRef {
+  id: string;
+  name: string;
+}
+
+export interface SaltCodeRef {
+  id: string;
+  code: string;
+  name: string;
+  formula: string;
+  charge: number;
+  molWeight: number;
+}

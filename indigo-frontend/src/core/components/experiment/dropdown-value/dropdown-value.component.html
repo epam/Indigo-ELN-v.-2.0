@@ -1,0 +1,22 @@
+@if (readOnly) {
+  <span class="readOnly">
+    @if (value == null) {
+      &ndash;
+    } @else {
+      {{ getDisplayName() }}
+    }
+  </span>
+} @else {
+  <mat-select
+    class="select"
+    [value]="value"
+    (selectionChange)="changeValue($event)"
+  >
+    @if (allowNull) {
+      <mat-option />
+    }
+    @for (option of options; track option.id) {
+      <mat-option [value]="option.id">{{ option.name }}</mat-option>
+    }
+  </mat-select>
+}

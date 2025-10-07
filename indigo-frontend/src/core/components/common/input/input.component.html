@@ -44,7 +44,7 @@
       [disabled]="disabled()"
     />
 
-    @if (value() && !disabled()) {
+    @if (value() && !disabled() && showClearButton) {
       <em
         class="chip-icon indicon-close text-lg cursor-pointer absolute z-50 right-2"
         (click)="clearValue()"

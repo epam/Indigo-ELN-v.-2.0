@@ -1,9 +1,12 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
+import { take } from 'rxjs';
 import { ProjectTabButtonComponent } from '@/core/components/project/project-tab-button/project-tab-button.component';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { CardComponent } from "@/core/components/common/card/card.component";
-import { NotebookService } from '../../../../core/services/notebook/notebook.service';
+import { NotebookService } from '@core/services/notebook/notebook.service';
+import { ExperimentAddComponent } from '@pages/experiment/experiment-add/experiment-add.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
     selector: 'eln-notebook-detail',
@@ -15,6 +18,7 @@ import { NotebookService } from '../../../../core/services/notebook/notebook.ser
 export class NotebookDetailComponent implements OnInit {
     activatedRoute = inject(ActivatedRoute);
     store = inject(NotebookService);
+    dialog = inject(MatDialog);
 
     get notebook() {
         return this.store.notebook();
@@ -33,11 +37,25 @@ export class NotebookDetailComponent implements OnInit {
 
     ngOnInit() {
         const notebookId = this.activatedRoute.snapshot.paramMap.get('notebookId');
-        if (notebookId) {
-            const base = `/notebooks/${notebookId}`;
+        const projectId = this.activatedRoute.snapshot.paramMap.get('projectId');
+
+        if (notebookId && projectId) {
+            const base = `/projects/${projectId}/notebooks/${notebookId}`;
             this.infoUrl = base;
             this.experimentsUrl = `${base}/experiments`;
             this.store.load(notebookId);
         }
+    }
+
+    async openExperimentModal() {
+        const ref = this.dialog.open(ExperimentAddComponent);
+        ref
+            .afterClosed()
+            .pipe(take(1))
+            .subscribe((result) => {
+                if (result === 'refresh') {
+                    // do something after experiment is added
+                }
+            });
     }
 }
