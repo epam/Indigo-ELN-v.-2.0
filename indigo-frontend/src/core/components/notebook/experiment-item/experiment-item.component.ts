@@ -1,7 +1,7 @@
 import { AvatarComponent } from '@/core/components/common/avatar/avatar.component';
 import { BadgeComponent } from '@/core/components/common/badge/badge.component';
 import { CardComponent } from '@/core/components/common/card/card.component';
-import { Experiment } from '@/core/types/entities/experiment.i';
+import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
 import { CommonModule } from '@angular/common';
 import { Component, Input, inject } from '@angular/core';
 import { Router } from '@angular/router';
@@ -47,7 +47,7 @@ export class ExperimentItemComponent {
     '-',
   ];
 
-  @Input() experiment!: Experiment;
+  @Input() experiment!: ExperimentDetail;
   @Input() variant: 'grid' | 'list' = 'grid';
   @Input() projectId!: string;
   @Input() notebookId!: string;

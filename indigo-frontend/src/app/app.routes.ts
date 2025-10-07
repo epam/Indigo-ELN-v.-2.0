@@ -90,8 +90,8 @@ export const routes: Routes = [
         path: 'projects/:projectId/notebooks/:notebookId/experiments/:experimentId',
         loadComponent: () =>
           import(
-            '@/app/pages/experiment/experiment-detail/experiment-detail.component'
-          ).then((c) => c.ExperimentDetailComponent),
+            '@/app/pages/experiment/experiment-layout/experiment-layout.component'
+          ).then((c) => c.ExperimentLayoutComponent),
         children: [
           {
             path: '',

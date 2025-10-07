@@ -1,0 +1,34 @@
+<div class="flex flex-col h-full">
+  <!-- Header -->
+  <div class="modal-header p-4 border-b border-neutral-200 flex justify-between items-center">
+    <h2 class="text-lg font-semibold text-neutral-900">Draw Structure</h2>
+    <button mat-dialog-close class="text-neutral-500 hover:text-neutral-700 focus:outline-none cursor-pointer">
+      <em class="indicon-close text-lg"></em>
+    </button>
+  </div>
+
+  <!-- Editor Content -->
+  <div class="flex-1 p-4 overflow-hidden">
+    <!-- Integrated Chemical Editor -->
+    <div class="chemical-editor-container w-full h-full">
+      <div class="ketcher-placeholder w-full h-full border border-gray-300 rounded overflow-hidden">
+        <eln-ketcher
+          #ketcherComponent
+          (ketcherLoad)="onKetcherLoad($event)"
+        ></eln-ketcher>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer with buttons -->
+  <div class="modal-footer p-4 border-t border-neutral-200">
+    <div class="flex justify-end space-x-2 mt-3">
+      <eln-button [type]="'button'" [variant]="'grey'" (click)="closeModal()">
+        Cancel
+      </eln-button>
+      <eln-button [type]="'button'" [variant]="'blue'" (click)="saveAndClose()">
+        Save
+      </eln-button>
+    </div>
+  </div>
+</div>

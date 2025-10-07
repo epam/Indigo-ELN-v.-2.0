@@ -4,8 +4,8 @@ import { ExperimentService } from '@core/services/experiment/experiment.service'
 import {
   ExperimentModel,
   ReactionInput,
-  ReactionInputRole,
-} from '@core/types/entities/experiment-model.i';
+} from '@core/types/entities/experiments/experiment.i';
+import { ReactionInputRole } from '@core/types/entities/experiments/experiment-shared.i';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { EnteredValueComponent } from '@core/components/experiment/entered-value/entered-value.component';
 import {
