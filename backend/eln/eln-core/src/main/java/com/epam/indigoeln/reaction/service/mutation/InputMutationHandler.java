@@ -8,6 +8,7 @@ import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
+import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
@@ -21,9 +22,7 @@ public class InputMutationHandler extends AbstractMutationHandler {
     @Inject
     ExperimentModelHelperService modelHelperService;
 
-    public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionInputMutation.SetInputRole mutation) {
-        ReactionInput row = model.locate(mutation);
-
+    public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionInput row, ReactionInputMutation.SetInputRole mutation) {
         StreamEx.of(row.getReaction().getInputs())
                 .filter(x -> x != row && x.getRole() == row.getRole() && x.getCompound().equals(row.getCompound()))
                 .findAny()
@@ -39,16 +38,22 @@ public class InputMutationHandler extends AbstractMutationHandler {
         modelHelperService.rebuildReactionScheme(experiment, row.getReaction(), affectedRoles);
     }
 
-    public void handle(ExperimentModel model, ReactionInputMutation.SetLimiting mutation) {
-        ReactionInput row = model.locate(mutation);
+    public void handle(ExperimentModel model, ReactionInput row, ReactionInputMutation.SetInputMol mutation) {
+        row.setMol(EnteredValue.userLastEntered(mutation.mol(), mutation.molUnit()));
         for (ReactionInput otherRow : row.getReaction().getInputs()) {
             otherRow.setLimiting(false);
         }
         row.setLimiting(true);
     }
 
-    public void handle(ExperimentModel model, ReactionInputMutation.SetInputEQ mutation) {
-        ReactionInput row = model.locate(mutation);
-        row.setEq(mutation.eq() != null ? EnteredValue.userLastEntered(mutation.eq(), NoUnit.NO_UNIT) : EnteredValue.DEFAULT_ONE);
+    public void handle(ExperimentModel model, ReactionInput row, ReactionInputMutation.SetLimiting mutation) {
+        for (ReactionInput otherRow : row.getReaction().getInputs()) {
+            otherRow.setLimiting(false);
+        }
+        row.setLimiting(true);
+    }
+
+    public void handle(ExperimentModel model, ReactionInput row, ReactionInputMutation.SetInputEQ mutation) {
+        row.setEq(EnteredValue.userLastEntered(MoreObjects.firstNonNull(mutation.eq(), 1.0), NoUnit.NO_UNIT));
     }
 }

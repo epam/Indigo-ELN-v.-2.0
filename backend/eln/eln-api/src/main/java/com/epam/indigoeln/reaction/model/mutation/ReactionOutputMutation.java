@@ -6,8 +6,6 @@ import com.epam.indigoeln.reaction.model.ReactionOutputType;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.UUID;
-
 public sealed interface ReactionOutputMutation extends Mutation permits
         ReactionOutputMutation.AddProductSample,
         ReactionOutputMutation.SetOutputType,

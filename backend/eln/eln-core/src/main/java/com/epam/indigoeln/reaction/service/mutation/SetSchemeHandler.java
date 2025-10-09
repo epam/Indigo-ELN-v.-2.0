@@ -29,12 +29,9 @@ public class SetSchemeHandler extends AbstractMutationHandler {
     @Inject
     IndigoAPI indigo;
     @Inject
-    IndigoRendererAPI indigoRenderer;
-    @Inject
     ExperimentModelHelperService experimentModelHelperService;
 
-    public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionMutation.SetScheme mutation) {
-        Reaction reaction = model.locate(mutation);
+    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.SetScheme mutation) {
         reaction.setRxnfile(mutation.molFile());
         // TODO match into existing inputs/outputs
         reaction.setInputs(new ArrayList<>());
@@ -56,13 +53,11 @@ public class SetSchemeHandler extends AbstractMutationHandler {
         experimentModelHelperService.setReactionScheme(experiment, reaction, indigoReaction);
     }
 
-    public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionMutation.AddEmptyInput mutation) {
-        Reaction reaction = model.locate(mutation);
+    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddEmptyInput mutation) {
         reaction.getInputs().add(createInputLine(reaction, null, ReactionRole.REACTANT));
     }
 
-    public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionMutation.RemoveInput mutation) {
-        Reaction reaction = model.locate(mutation);
+    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.RemoveInput mutation) {
         ReactionInput input = model.locate(mutation.input());
         reaction.getInputs().remove(input);
         experimentModelHelperService.rebuildReactionScheme(experiment, reaction, Set.of(input.getRole()));

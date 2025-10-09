@@ -4,7 +4,9 @@ import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
 import com.epam.indigoeln.compound.service.CompoundService;
-import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.CompoundRef;
+import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.SampleRegistrationStatus;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.model.outputsample.ReactionOutputSample;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -16,8 +18,7 @@ public class RegisterSampleHandler extends AbstractMutationHandler {
     @Inject
     CompoundService compoundService;
 
-    public void handle(ExperimentModel model, ReactionOutputSampleMutation.RegisterSample mutation) {
-        ReactionOutputSample sampleRow = model.locate(mutation);
+    public void handle(ExperimentModel model, ReactionOutputSample sampleRow, ReactionOutputSampleMutation.RegisterSample mutation) {
         if (sampleRow.getRegistrationStatus() != null) {
             throw new InvalidRequestException("Sample already sent for registration");
         }

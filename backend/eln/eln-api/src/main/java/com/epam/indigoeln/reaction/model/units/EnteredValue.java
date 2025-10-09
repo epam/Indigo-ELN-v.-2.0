@@ -2,8 +2,10 @@ package com.epam.indigoeln.reaction.model.units;
 
 import com.epam.indigoeln.reaction.util.MeasurementUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import jakarta.annotation.PostConstruct;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
@@ -11,6 +13,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.Consumer;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValueSource.*;
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 @Getter
 public final class EnteredValue<U extends MeasurementUnit> {
@@ -37,8 +40,16 @@ public final class EnteredValue<U extends MeasurementUnit> {
     }
 
     @Nullable
-    public static <U extends MeasurementUnit> EnteredValue<U> userLastEntered(@Nullable Double value, U unit) {
-        return value != null ? new EnteredValue<>(value, unit, USER_LAST_ENTERED) : null;
+    public static <U extends MeasurementUnit> EnteredValue<U> userLastEntered(@Nullable Double value, @Nullable U unit) {
+        return value != null && unit != null ? new EnteredValue<>(value, unit, USER_LAST_ENTERED) : null;
+    }
+
+    public static <U extends MeasurementUnit> EnteredValue<U> userLastEntered(@Nullable Double value, U unit, double defaultValue) {
+        return new EnteredValue<>(firstNonNull(value, defaultValue), unit, USER_LAST_ENTERED);
+    }
+
+    public static <U extends MeasurementUnit> EnteredValue<U> userLastEntered(@Nullable Double value, @Nullable U unit, double defaultValue, U defaultUnit) {
+        return new EnteredValue<>(firstNonNull(value, defaultValue), firstNonNull(unit, defaultUnit), USER_LAST_ENTERED);
     }
 
     @Nullable

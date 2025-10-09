@@ -21,8 +21,7 @@ public class ResolveInputsHandler extends AbstractMutationHandler {
     @Inject
     ExperimentModelHelperService modelHelperService;
 
-    public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionMutation.ResolveInputs mutation) {
-        Reaction reaction = model.locate(mutation);
+    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.ResolveInputs mutation) {
         Set<ReactionRole> affectedRoles = EnumSet.noneOf(ReactionRole.class);
         mutation.inputSamples().forEach((inputAnchor, sampleId) -> {
             ReactionInput row = model.locate(inputAnchor);

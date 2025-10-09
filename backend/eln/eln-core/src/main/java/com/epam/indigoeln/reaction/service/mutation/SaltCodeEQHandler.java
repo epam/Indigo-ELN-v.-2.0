@@ -1,9 +1,7 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
-import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
-import com.epam.indigoeln.eln.entity.SaltCodeEntity;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.repository.SaltCodeRepository;
 import com.epam.indigoeln.eln.service.DictionaryService;
@@ -12,13 +10,10 @@ import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
-import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.epam.indigoeln.reaction.service.calculator.MolWeightCalculator;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jspecify.annotations.Nullable;
-
-import static com.epam.indigoeln.reaction.model.units.EnteredValue.fixed;
 
 @ApplicationScoped
 public class SaltCodeEQHandler extends AbstractMutationHandler{
@@ -34,25 +29,21 @@ public class SaltCodeEQHandler extends AbstractMutationHandler{
     @Inject
     IndigoAPI indigoAPI;
 
-    public void handle(ExperimentModel model, ReactionInputMutation.SetInputSaltCode mutation) {
-        ReactionInput row = model.locate(mutation);
+    public void handle(ExperimentModel model, ReactionInput row, ReactionInputMutation.SetInputSaltCode mutation) {
         SaltCodeRef saltCode = mutation.saltCode() != null ? saltCodeRef(mutation.saltCode()) : null;
         row.setCompound(doApplySetSaltCodeEQ(row, saltCode, getCurrentSaltEQ(row.getCompound())));
     }
 
-    public void handle(ExperimentModel model, ReactionInputMutation.SetInputSaltEQ mutation) {
-        ReactionInput row = model.locate(mutation);
+    public void handle(ExperimentModel model, ReactionInput row, ReactionInputMutation.SetInputSaltEQ mutation) {
         row.setCompound(doApplySetSaltCodeEQ(row, getCurrentSaltCode(row.getCompound()), mutation.saltEQ()));
     }
 
-    public void handle(ExperimentModel model, ReactionOutputMutation.SetOutputSaltCode mutation) {
-        ReactionOutput row = model.locate(mutation);
+    public void handle(ExperimentModel model, ReactionOutput row, ReactionOutputMutation.SetOutputSaltCode mutation) {
         SaltCodeRef saltCode = mutation.saltCode() != null ? saltCodeRef(mutation.saltCode()) : null;
         row.setCompound(doApplySetSaltCodeEQ(row, saltCode, getCurrentSaltEQ(row.getCompound())));
     }
 
-    public void handle(ExperimentModel model, ReactionOutputMutation.SetOutputSaltEQ mutation) {
-        ReactionOutput row = model.locate(mutation);
+    public void handle(ExperimentModel model, ReactionOutput row, ReactionOutputMutation.SetOutputSaltEQ mutation) {
         row.setCompound(doApplySetSaltCodeEQ(row, getCurrentSaltCode(row.getCompound()), mutation.saltEQ()));
     }
 

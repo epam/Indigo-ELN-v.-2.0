@@ -1,6 +1,8 @@
 package com.epam.indigoeln.reaction;
 
 import com.epam.indigoeln.eln.model.STRCodeCompound;
+import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.test.FeignUtil;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.outputsample.ReactionOutputSample;
@@ -8,6 +10,7 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import lombok.SneakyThrows;
+import org.gradle.internal.impldep.org.apache.commons.lang3.mutable.Mutable;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -18,8 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ExperimentModelSerializationTest {
 
     @Test
-    @SneakyThrows
-    void testSerialize() {
+    void testSerialize() throws Exception {
         ExperimentModel model = new ExperimentModel();
         Reaction reaction = Reaction.create(model);
         model.setReactions(List.of(reaction));
@@ -47,5 +49,14 @@ public class ExperimentModelSerializationTest {
 
         String json2 = FeignUtil.OBJECT_MAPPER.writeValueAsString(model2);
         assertThat(json2).isEqualTo(json);
+    }
+
+    @Test
+    void testSerializeMutation() throws Exception {
+        Mutation mutation = new ReactionInputMutation.SetInputEQ(new Anchor.Input(3), 2.5);
+        String json = FeignUtil.OBJECT_MAPPER.writeValueAsString(mutation);
+        System.out.println(json);
+        Mutation mutation2 = FeignUtil.OBJECT_MAPPER.readValue(json, Mutation.class);
+        assertThat(mutation2).isEqualTo(mutation);
     }
 }

@@ -10,33 +10,31 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class InputSampleMutationHandler extends AbstractMutationHandler {
 
-    public void handle(ExperimentModel model, ReactionInputSampleMutation.SetInputDensity mutation) {
-        ReactionInputSample sample = model.locate(mutation);
+    public void handle(ExperimentModel model, ReactionInputSample sample, ReactionInputSampleMutation.SetInputDensity mutation) {
         sample.setDensity(EnteredValue.userLastEntered(mutation.density(), mutation.unit()));
     }
 
-    public void handle(ExperimentModel model, ReactionInputSampleMutation.SetInputMolarity mutation) {
-        ReactionInputSample sample = model.locate(mutation);
+    public void handle(ExperimentModel model, ReactionInputSample sample, ReactionInputSampleMutation.SetInputMolarity mutation) {
         sample.setMolarity(EnteredValue.userLastEntered(mutation.molarity(), mutation.unit()));
     }
 
-    public void handle(ExperimentModel model, ReactionInputSampleMutation.SetInputVolume mutation) {
-        ReactionInputSample sample = model.locate(mutation);
+    public void handle(ExperimentModel model, ReactionInputSample sample, ReactionInputSampleMutation.SetInputVolume mutation) {
         sample.setVolume(EnteredValue.userLastEntered(mutation.volume(), mutation.unit()));
     }
 
-    public void handle(ExperimentModel model, ReactionInputSampleMutation.SetInputPurity mutation) {
-        ReactionInputSample sample = model.locate(mutation);
-        sample.setPurity(mutation.purity() != null ? EnteredValue.userLastEntered(mutation.purity(), NoUnit.NO_UNIT) : EnteredValue.DEFAULT_ONE);
+    public void handle(ExperimentModel model, ReactionInputSample sample, ReactionInputSampleMutation.SetInputPurity mutation) {
+        sample.setPurity(EnteredValue.userLastEntered(mutation.purity(), NoUnit.NO_UNIT, 1.0));
     }
 
-    public void handle(ExperimentModel model, ReactionInputSampleMutation.SetInputMol mutation) {
-        ReactionInputSample sample = model.locate(mutation);
+    public void handle(ExperimentModel model, ReactionInputSample sample, ReactionInputSampleMutation.SetInputMol mutation) {
         sample.setMol(EnteredValue.userLastEntered(mutation.mol(), mutation.unit()));
     }
 
-    public void handle(ExperimentModel model, ReactionInputSampleMutation.SetInputWeight mutation) {
-        ReactionInputSample sample = model.locate(mutation);
+    public void handle(ExperimentModel model, ReactionInputSample sample, ReactionInputSampleMutation.SetInputWeight mutation) {
         sample.setWeight(EnteredValue.userLastEntered(mutation.weight(), mutation.unit()));
+    }
+
+    public void handle(ExperimentModel model, ReactionInputSample sample, ReactionInputSampleMutation.SetInputHealthHazards mutation) {
+        sample.setHealthHazards(mutation.healthHazards());
     }
 }

@@ -33,7 +33,7 @@ public abstract class ReactionSample implements ExperimentModelNode, ToStringTre
     private STRCodeSample strCode;
 
     @NotNull
-    private List<DictionaryItemRef> healthHazard = List.of();
+    private List<DictionaryItemRef> healthHazards = List.of();
 
     @Override
     public void prepareToRecalculate() {
