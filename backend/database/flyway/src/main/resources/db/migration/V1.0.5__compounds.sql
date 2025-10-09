@@ -33,6 +33,7 @@ CREATE TABLE Sample (
     compound_id UUID NOT NULL,
     str_code VARCHAR(1000),
     batch_number VARCHAR(1000),
+    search_vector TSVECTOR,
     CONSTRAINT sample_compound_id_fk FOREIGN KEY (compound_id) REFERENCES Compound(id),
     CONSTRAINT sample_str_code_uq UNIQUE (str_code)
 );

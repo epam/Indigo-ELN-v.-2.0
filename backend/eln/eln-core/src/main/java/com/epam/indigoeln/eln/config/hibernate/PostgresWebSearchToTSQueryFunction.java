@@ -11,11 +11,11 @@ import org.hibernate.type.spi.TypeConfiguration;
 
 import java.util.List;
 
-public class PostgresToTSQueryFunction extends AbstractSqmFunctionDescriptor {
+public class PostgresWebSearchToTSQueryFunction extends AbstractSqmFunctionDescriptor {
 
-    public static final String NAME = "to_tsquery";
+    public static final String NAME = "websearch_to_tsquery";
 
-    PostgresToTSQueryFunction() {
+    PostgresWebSearchToTSQueryFunction() {
         super(NAME);
     }
 
@@ -23,7 +23,7 @@ public class PostgresToTSQueryFunction extends AbstractSqmFunctionDescriptor {
     protected <T> SelfRenderingSqmFunction<T> generateSqmFunctionExpression(List<? extends SqmTypedNode<?>> arguments, ReturnableType<T> impliedResultType, QueryEngine queryEngine) {
         SqmFunctionRegistry registry = queryEngine.getSqmFunctionRegistry();
         TypeConfiguration types = queryEngine.getTypeConfiguration();
-        return registry.patternDescriptorBuilder(NAME, "to_tsquery(?1, ?2)")
+        return registry.patternDescriptorBuilder(NAME, "websearch_to_tsquery(?1, ?2)")
                 .setExactArgumentCount(2)
                 .setParameterTypes(FunctionParameterType.STRING, FunctionParameterType.STRING)
                 .setInvariantType(types.standardBasicTypeForJavaType(String.class))

@@ -66,9 +66,7 @@ public class NotebookService {
             currentUser = userService.getCurrentUser();
         }
 
-        SortOrder sortOrder = (sort != null) ? sort : SortOrder.LATEST;
-
-        return notebookRepository.findAll(projectId, search, sortOrder, currentUser, paging);
+        return notebookRepository.findAll(projectId, search, sort, currentUser, paging);
     }
 
     public NotebookDetailsDTO getNotebook(UUID notebookId) {

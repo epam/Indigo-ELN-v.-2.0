@@ -92,10 +92,10 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
     void testResolveInputs() {
         ReactionMutation.ResolveInputs mutation = new ReactionMutation.ResolveInputs(reactionAnchor, new HashMap<>());
         for (ReactionInput input : model.getReactions().getFirst().getInputs()) {
-            List<SampleDTO> samples = compoundClient.findSamples(new FindSamplesRequest(
-                    StructureSearchType.SUBSTRUCTURE,
-                    input.getCompound().getMolFile()
-            ));
+            List<SampleDTO> samples = compoundClient.findSamples(new FindSamplesRequest()
+                    .withStructureSearchType(StructureSearchType.SUBSTRUCTURE)
+                    .withStructure(input.getCompound().getMolFile())
+            );
             System.out.println("Found samples: " + samples);
             if (!samples.isEmpty()) {
                 mutation.inputSamples().put(input.getAnchor(), samples.getFirst().getId());

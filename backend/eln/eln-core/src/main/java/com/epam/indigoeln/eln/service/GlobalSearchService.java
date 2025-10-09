@@ -78,7 +78,7 @@ public class GlobalSearchService {
             }
         }
         if (request.getQuery() != null) {
-            String condition = "search_vector @@ to_tsquery('english', ?)";
+            String condition = "search_vector @@ websearch_to_tsquery('english', ?)";
             for (int slotNo = SLOT_PROJECTS; slotNo <= SLOT_EXPERIMENTS; slotNo++) {
                 conditions.add(slotNo, condition, request.getQuery());
             }

@@ -101,9 +101,7 @@ public class ExperimentService {
             currentUser = userService.getCurrentUser();
         }
 
-        SortOrder sortOrder = (sort != null) ? sort : SortOrder.LATEST;
-
-        return experimentRepository.findAll(projectId, notebookId, sortOrder, currentUser, paging);
+        return experimentRepository.findAll(projectId, notebookId, sort, currentUser, paging);
     }
 
     public List<ExperimentDTO> getMarkedExperiments() {

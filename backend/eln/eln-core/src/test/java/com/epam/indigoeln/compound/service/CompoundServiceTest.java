@@ -1,6 +1,8 @@
 package com.epam.indigoeln.compound.service;
 
 import com.epam.indigoeln.compound.entity.SampleEntity;
+import com.epam.indigoeln.compound.model.FindSamplesRequest;
+import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
 import com.epam.indigoeln.eln.ELNBaseTest;
@@ -119,5 +121,12 @@ public class CompoundServiceTest extends ELNBaseTest {
         assertThat(strOtherSaltEQ.getCompoundCode()).as(strOtherSaltEQ.toString()).isEqualTo(str1.getCompoundCode());
         assertThat(strOtherSaltEQ.getSaltCode()).as(strOtherSaltEQ.toString()).isEqualTo(strOtherSaltCode.getSaltCode());
         assertThat(strOtherSaltEQ.getSampleCode()).as(strOtherSaltEQ.toString()).isGreaterThan(strOtherSaltCode.getSampleCode());
+    }
+
+    @Test
+    @Order(600)
+    void testFindSamples() {
+        List<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest().withQuickSearch("\"C2 H4 O2\""));
+        assertThat(found).singleElement().returns(strOtherCompound, SampleDTO::getStrCode);
     }
 }

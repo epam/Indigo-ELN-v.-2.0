@@ -37,20 +37,23 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
     }
 
     public List<SampleEntity> find(FindSamplesRequest request) {
-        Conditions conditions = new Conditions();
-        if (request.getStructure() != null) {
-            InvalidRequestException.validate(request.getStructureSearchType() != null, "structureSearchType is required when structure is provided");
-        }
-        switch (request.getStructureSearchType()) {
-            case EXACT -> {
-                conditions.add("bingo_exact_match(compound.molFile, ?, '')", request.getStructure());
+        Conditions conditions = new Conditions()
+                .addIfNotNull("full_text_search(searchVector, websearch_to_tsquery('english', ?))", request.getQuickSearch());
+        if (request.getStructureSearchType() != null) {
+            InvalidRequestException.validate(request.getStructure() != null, "structureSearchType is required when structure is provided");
+            switch (request.getStructureSearchType()) {
+                case EXACT -> {
+                    conditions.add("bingo_exact_match(compound.molFile, ?, '')", request.getStructure());
+                }
+                case SUBSTRUCTURE -> {
+                    conditions.add("bingo_substructure_match(compound.molFile, ?, '')", request.getStructure());
+                }
+                case SIMILARITY -> {
+                    conditions.add("bingo_similarity_search(compound.molFile, 0.8, null, ?, 'Tanimoto')", request.getStructure());
+                }
             }
-            case SUBSTRUCTURE -> {
-                conditions.add("bingo_substructure_match(compound.molFile, ?, '')", request.getStructure());
-            }
-            case SIMILARITY -> {
-                conditions.add("bingo_similarity_search(compound.molFile, 0.8, null, ?, 'Tanimoto')", request.getStructure());
-            }
+        } else {
+            InvalidRequestException.validate(request.getStructure() == null, "structure cannot be used without structureSearchType");
         }
         return find(conditions.getQuery(), conditions.getValues()).list();
     }
