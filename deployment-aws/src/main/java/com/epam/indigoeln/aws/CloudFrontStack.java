@@ -93,6 +93,7 @@ public class CloudFrontStack extends NestedStack {
                 .domainNames(List.of(props.getDomainName()))
                 .certificate(certificate)
                 .defaultRootObject("index.html")
+                .priceClass(PriceClass.PRICE_CLASS_200)
                 .build();
         CfnWebACL.RuleProperty ipReputationsRuleSet = createWAFRuleSet("AWS", "AWSManagedRulesAmazonIpReputationList", 0, "AWS-AWSManagedRulesAmazonIpReputationList", List.of());
         CfnWebACL.RuleProperty commonRuleSet = createWAFRuleSet("AWS", "AWSManagedRulesCommonRuleSet", 1, "AWS-AWSManagedRulesCommonRuleSet", List.of(
