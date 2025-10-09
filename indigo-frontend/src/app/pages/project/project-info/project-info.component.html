@@ -13,7 +13,7 @@
   <eln-card>
     <div class="flex items-center justify-between pb-3 border-b border-b-neutral-200">
       <h2 class="font-semibold text-base">Project Description</h2>
-      <eln-button variant="blue-outline" classList="text-primary-400" (click)="openEditDialog()">
+      <eln-button variant="blue-outline" classList="text-primary-400" (click)="openModal(projectInfoModalEnum.EDIT)">
         <em class="indicon-edit"></em>
         Edit
       </eln-button>
@@ -32,6 +32,11 @@
           <eln-chip>{{ keyword }}</eln-chip>
           }
         </div>
+      </div>
+
+      <div>
+        <h3 class="text-neutral-800 mb-2 font-semibold">Literature</h3>
+        <p class="text-neutral-1000">{{ project.literature || '-' }}</p>
       </div>
 
       @if (project.description || project.details) {
@@ -59,3 +64,13 @@
   <eln-team [team]="project.acl" [entityId]="project.id" [config]="projectTeamConfig" />
 </div>
 }
+
+<eln-button 
+  variant="blue" 
+  classList="flex items-center gap-2"
+  *projectOverviewWidget="'button'"
+  (click)="openModal(projectInfoModalEnum.NOTEBOOK)"
+>
+  <em class="text-xl indicon-plus"></em>
+  <span class="whitespace-nowrap">Add Notebook</span>
+</eln-button>

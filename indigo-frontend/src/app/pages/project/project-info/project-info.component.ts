@@ -12,10 +12,16 @@ import { of, Subject, take } from 'rxjs';
 import { catchError, takeUntil } from 'rxjs/operators';
 import { FileUploadComponent } from "@/core/components/common/file-upload/file-upload.component";
 import { Attachment } from '@/core/types/entities/attachment.i';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ProjectAddComponent } from '../project-add/project-add.component';
 import { TeamComponentConfig } from '@/core/components/common/team/team.config';
+import { NotebookAddComponent } from '../notebook/notebook-add/notebook-add.component';
+import { ProjectOverviewWidgetDirective } from '../../../../core/components/project/projects-overview-widget/directives/project-overview-widget.directive';
 
+enum projectInfoModalEnum {
+  EDIT = 'edit',
+  NOTEBOOK = 'notebook'
+}
 @Component({
   selector: 'eln-project-info',
   standalone: true,
@@ -24,25 +30,24 @@ import { TeamComponentConfig } from '@/core/components/common/team/team.config';
     ButtonComponent,
     ChipComponent,
     AttachmentComponent,
-  TeamComponent,
+    TeamComponent,
     CardComponent,
-    FileUploadComponent
+    FileUploadComponent,
+    ProjectOverviewWidgetDirective
   ],
   templateUrl: './project-info.component.html',
 })
 export class ProjectInfoComponent implements OnInit, OnDestroy {
+  projectInfoModalEnum = projectInfoModalEnum;
+
   activatedRoute = inject(ActivatedRoute);
-
   dialog = inject(MatDialog);
-
   service = inject(ApiService);
 
   project: Project | null = null;
 
   isLoading = false;
-
   hasError = false;
-
   isUploadingAttachment = false;
 
   private destroy$ = new Subject<void>();
@@ -134,28 +139,28 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
       });
   }
 
-    async openEditDialog() {
-      const ref = this.dialog.open(ProjectAddComponent, {
+  async openModal(mode: projectInfoModalEnum) {
+    let ref: MatDialogRef<ProjectAddComponent | NotebookAddComponent>;
+    
+    if (mode === projectInfoModalEnum.EDIT) {
+      ref = this.dialog.open(ProjectAddComponent, {
         data: {
           project: this.project,
         },
       });
-      ref
-        .afterClosed()
-        .pipe(
-          take(1)
-        )
-        .subscribe((result) => {
-            if (result === 'refresh') {
-              this.service
-                .request('get', `projects/${this.project.id}`)
-                .pipe(take(1))
-                .subscribe((project) => {
-                    this.project = project as typeof this.project;
-                  }
-                );
-            }
-          }
-        );
     }
+
+    if (mode === projectInfoModalEnum.NOTEBOOK) {
+      ref = this.dialog.open(NotebookAddComponent);
+      (ref.componentInstance as NotebookAddComponent).projectId = this.project.id;
+    }
+    
+    ref?.afterClosed()
+      .pipe(take(1))
+      .subscribe((result) => {
+        if (result === 'refresh') {
+          this.loadProject(this.project.id);
+        }
+      });
+  }
 }

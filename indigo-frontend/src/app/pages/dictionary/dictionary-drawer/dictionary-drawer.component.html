@@ -1,0 +1,148 @@
+@let dataSource = dataSource$ | async;
+
+<div class="m-4">
+  <div
+    class="flex justify-between items-center border-b border-gray-200 pb-4 mb-4"
+  >
+    <div class="font-semibold text-lg">Dictionary</div>
+    <mat-icon
+      (click)="close.emit()"
+      aria-hidden="false"
+      aria-label="Close drawer"
+      fontIcon="close"
+      class="text-gray-500 hover:text-gray-700 cursor-pointer"
+    />
+  </div>
+
+  <eln-card classList="bg-gray-50 p-4">
+    <div
+      class="flex items-center justify-between pb-3 border-b border-gray-200"
+    >
+      <h3 class="text-lg font-bold text-gray-900">About dictionary</h3>
+    </div>
+
+    <div class="space-y-6 mt-3 text-sm">
+      <div>
+        <h3 class="font-semibold text-neutral-800 mb-2">Dictionary name</h3>
+        <p class="text-neutral-1000">{{ dictionary.name }}</p>
+      </div>
+
+      <div>
+        <h3 class="font-semibold text-neutral-800 mb-2">
+          Dictionary description
+        </h3>
+        <p class="text-neutral-1000">
+          {{ dictionary.description || '\u2014' }}
+        </p>
+      </div>
+    </div>
+  </eln-card>
+</div>
+
+@if (isLoadingDictionaryDetails) {
+  <div class="flex items-center justify-center py-8">
+    <span class="m-2">Loading dictionary details...</span>
+  </div>
+} @else if (dataSource) {
+  <div class="m-4">
+    <div
+      class="flex justify-between items-center border-b border-gray-200 pb-4 mb-4"
+    >
+      <div class="max-w-1/2 my-6">
+        <eln-input
+          [icon]="'indicon-search text-xl'"
+          [showClearButton]="false"
+          inputClassname="rounded-full bg-primary-alpha-5 border-primary-alpha-10"
+          [placeholder]="'Search'"
+          (input)="applyFilter($event)"
+        >
+        </eln-input>
+      </div>
+
+      <eln-button
+        variant="grey"
+        classList="flex items-center gap-2"
+        (click)="addNewWordRowToTable()"
+      >
+        <em class="text-xl indicon-plus"></em>
+        <span class="whitespace-nowrap">Add word</span>
+      </eln-button>
+    </div>
+
+    <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+      <ng-container matColumnDef="rank">
+        <mat-header-cell *matHeaderCellDef>Rank</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{ element.ordinal }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="name">
+        <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
+        <mat-cell *matCellDef="let word; let i = index">
+          @if (word.id) {
+            <span>{{ word.name }}</span>
+          } @else {
+            <mat-form-field class="w-full">
+              <input
+                matInput
+                required
+                [formControl]="getFormControl(formRows[i], 'name')"
+                (blur)="handleInputChange(formRows[i], word)"
+                (keydown.enter)="handleInputChange(formRows[i], word, $event)"
+              />
+              <mat-error *ngIf="formRows[i].get('name')?.hasError('required')">
+                Name is required.
+              </mat-error>
+              <mat-error *ngIf="formRows[i].get('name')?.hasError('notUnique')">
+                Name must be unique. Please choose a different name.
+              </mat-error>
+            </mat-form-field>
+          }
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="description">
+        <mat-header-cell *matHeaderCellDef>Description</mat-header-cell>
+        <mat-cell
+          *matCellDef="let element"
+          style="color: var(--color-primary-400)"
+          >{{ element.description || '\u2014' }}</mat-cell
+        >
+      </ng-container>
+
+      <ng-container matColumnDef="active">
+        <mat-header-cell *matHeaderCellDef>Active</mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <mat-checkbox [checked]="element.active" disabled></mat-checkbox>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="createdAt">
+        <mat-header-cell *matHeaderCellDef>Created on</mat-header-cell>
+        <mat-cell *matCellDef="let element" style="white-space: nowrap">
+          {{ element.createdAt | date: 'dd MMM yyyy' }}
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="delete">
+        <mat-header-cell *matHeaderCellDef>Delete</mat-header-cell>
+        <mat-cell *matCellDef="let element; let i = index">
+          <button mat-icon-button (click)="deleteItemFromTable(element.id, i)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+
+      <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+
+      <ng-template matNoDataRow>
+        <tr>
+          <td class="tex-sm text-center text-gray-500 p-4">
+            No dictionary words found.
+          </td>
+        </tr>
+      </ng-template>
+    </mat-table>
+  </div>
+}
