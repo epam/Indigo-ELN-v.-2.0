@@ -26,7 +26,7 @@ public class Reaction implements ExperimentModelNode, ToStringTree {
     private ExperimentModel model;
 
     @NotNull
-    private UUID anchor;
+    private Anchor.Reaction anchor;
 
     @NotNull
     private String rxnfile = "";
@@ -41,9 +41,11 @@ public class Reaction implements ExperimentModelNode, ToStringTree {
     @JsonManagedReference
     private List<ReactionOutput> outputs = new ArrayList<>(0);
 
-    public Reaction(ExperimentModel model, UUID anchor) {
-        this.model = model;
-        this.anchor = anchor;
+    public static Reaction create(ExperimentModel model) {
+        Reaction reaction = new Reaction();
+        reaction.model = model;
+        reaction.anchor = new Anchor.Reaction(model.generateNextAnchor());
+        return reaction;
     }
 
     @Override

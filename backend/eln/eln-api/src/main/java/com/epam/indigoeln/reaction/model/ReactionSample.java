@@ -17,9 +17,6 @@ import java.util.UUID;
 @NoArgsConstructor
 public abstract class ReactionSample implements ExperimentModelNode, ToStringTree {
 
-    @NotNull
-    protected UUID anchor;
-
     @Nullable
     protected EnteredValue<DensityUnit> density;
 

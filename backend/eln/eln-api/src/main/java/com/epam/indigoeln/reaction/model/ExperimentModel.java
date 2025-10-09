@@ -8,7 +8,6 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 import java.util.List;
-import java.util.UUID;
 
 @Data
 public class ExperimentModel implements ExperimentModelNode, ToStringTree {
@@ -18,11 +17,17 @@ public class ExperimentModel implements ExperimentModelNode, ToStringTree {
     @JsonManagedReference
     private List<Reaction> reactions;
 
-    public Reaction locate(ReactionMutation mutation) {
-        return locateReaction(mutation.anchor());
+    private int lastUsedAnchor = 0;
+
+    public int generateNextAnchor() {
+        return ++lastUsedAnchor;
     }
 
-    public Reaction locateReaction(UUID anchor) {
+    public Reaction locate(ReactionMutation mutation) {
+        return locate(mutation.anchor());
+    }
+
+    public Reaction locate(Anchor.Reaction anchor) {
         for (Reaction reaction : reactions) {
             if (reaction.getAnchor().equals(anchor)) {
                 return reaction;
@@ -32,10 +37,10 @@ public class ExperimentModel implements ExperimentModelNode, ToStringTree {
     }
 
     public ReactionInput locate(ReactionInputMutation mutation) {
-        return locateReactionInput(mutation.anchor());
+        return locate(mutation.anchor());
     }
 
-    public ReactionInput locateReactionInput(UUID anchor) {
+    public ReactionInput locate(Anchor.Input anchor) {
         for (Reaction reaction : reactions) {
             for (ReactionInput row : reaction.getInputs()) {
                 if (row.getAnchor().equals(anchor)) {
@@ -47,10 +52,10 @@ public class ExperimentModel implements ExperimentModelNode, ToStringTree {
     }
 
     public ReactionInputSample locate(ReactionInputSampleMutation mutation) {
-        return locateReactionInputSample(mutation.anchor());
+        return locate(mutation.anchor());
     }
 
-    public ReactionInputSample locateReactionInputSample(UUID anchor) {
+    public ReactionInputSample locate(Anchor.InputSample anchor) {
         for (Reaction reaction : reactions) {
             for (ReactionInput row : reaction.getInputs()) {
                 for (ReactionInputSample sample : row.getSamples()) {
@@ -64,10 +69,10 @@ public class ExperimentModel implements ExperimentModelNode, ToStringTree {
     }
 
     public ReactionOutput locate(ReactionOutputMutation mutation) {
-        return locateReactionOutput(mutation.anchor());
+        return locate(mutation.anchor());
     }
 
-    public ReactionOutput locateReactionOutput(UUID anchor) {
+    public ReactionOutput locate(Anchor.Output anchor) {
         for (Reaction reaction : reactions) {
             for (ReactionOutput row : reaction.getOutputs()) {
                 if (row.getAnchor().equals(anchor)) {
@@ -79,10 +84,10 @@ public class ExperimentModel implements ExperimentModelNode, ToStringTree {
     }
 
     public ReactionOutputSample locate(ReactionOutputSampleMutation mutation) {
-        return locateReactionOutputSample(mutation.anchor());
+        return locate(mutation.anchor());
     }
 
-    public ReactionOutputSample locateReactionOutputSample(UUID anchor) {
+    public ReactionOutputSample locate(Anchor.OutputSample anchor) {
         for (Reaction reaction : reactions) {
             for (ReactionOutput row : reaction.getOutputs()) {
                 for (ReactionOutputSample sample : row.getSamples()) {

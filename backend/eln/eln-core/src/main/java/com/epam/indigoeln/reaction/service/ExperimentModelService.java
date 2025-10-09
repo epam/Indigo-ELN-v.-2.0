@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.service;
 
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.mutation.*;
@@ -45,7 +46,7 @@ public class ExperimentModelService {
     @Valid
     public ExperimentModel createNewModel() {
         ExperimentModel model = new ExperimentModel();
-        Reaction reaction = new Reaction(model, UUID.randomUUID());
+        Reaction reaction = Reaction.create(model);
         model.setReactions(List.of(reaction));
         return model;
     }

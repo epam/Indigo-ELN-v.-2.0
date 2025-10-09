@@ -21,24 +21,24 @@ public class ExperimentModelSerializationTest {
     @SneakyThrows
     void testSerialize() {
         ExperimentModel model = new ExperimentModel();
-        Reaction reaction = new Reaction(model, UUID.randomUUID());
+        Reaction reaction = Reaction.create(model);
         model.setReactions(List.of(reaction));
         reaction.setRxnfile("molFile");
 
-        ReactionInput input1 = new ReactionInput(reaction, UUID.randomUUID(), ReactionRole.REACTANT);
+        ReactionInput input1 = ReactionInput.create(reaction, ReactionRole.REACTANT);
         input1.setCompound(new CompoundRef.Stored(UUID.randomUUID(), "realCompound", EnteredValue.fixed(1.0, MolWeightUnit.G_PER_MOL), "molFile", "C", new STRCodeCompound(1, 0)));
         input1.setEq(EnteredValue.userLastEntered(10.0, NoUnit.NO_UNIT));
-        ReactionInput input2 = new ReactionInput(reaction, UUID.randomUUID(), ReactionRole.REACTANT);
+        ReactionInput input2 = ReactionInput.create(reaction, ReactionRole.REACTANT);
         input2.setCompound(new CompoundRef.Virtual(UUID.randomUUID(), "molFile", "C", 1.0));
-        ReactionInput input3 = new ReactionInput(reaction, UUID.randomUUID(), ReactionRole.REACTANT);
+        ReactionInput input3 = ReactionInput.create(reaction, ReactionRole.REACTANT);
         input3.setCompound(new CompoundRef.Unknown());
-        ReactionInputSample inputSample1 = new ReactionInputSample(input1, UUID.randomUUID());
+        ReactionInputSample inputSample1 = ReactionInputSample.create(input1);
         input1.setSamples(List.of(inputSample1));
         reaction.setInputs(List.of(input1, input2, input3));
 
-        ReactionOutput output = new ReactionOutput(reaction, UUID.randomUUID(), ReactionOutputType.FINAL);
+        ReactionOutput output = ReactionOutput.create(reaction, ReactionOutputType.FINAL);
         output.setCompound(new CompoundRef.Virtual(UUID.randomUUID(), "molFile", "C", 2.0));
-        ReactionOutputSample outputSample = new ReactionOutputSample(output, UUID.randomUUID());
+        ReactionOutputSample outputSample = ReactionOutputSample.create(output);
         output.setSamples(List.of(outputSample));
         reaction.setOutputs(List.of(output));
 

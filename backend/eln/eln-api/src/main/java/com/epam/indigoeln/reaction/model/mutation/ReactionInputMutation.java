@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ReactionRole;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
@@ -15,33 +16,33 @@ public sealed interface ReactionInputMutation extends Mutation permits
         ReactionInputMutation.SetInputEQ
 {
 
-    UUID anchor();
+    Anchor.Input anchor();
 
     record SetInputRole (
-            @NotNull UUID anchor,
+            @NotNull Anchor.Input anchor,
             @NotNull ReactionRole role
     ) implements ReactionInputMutation {
     }
 
     record SetLimiting (
-            @NotNull UUID anchor
+            @NotNull Anchor.Input anchor
     ) implements ReactionInputMutation {
     }
 
     record SetInputSaltCode (
-            @NotNull UUID anchor,
+            @NotNull Anchor.Input anchor,
             @Nullable DictionaryItemRef saltCode
     ) implements ReactionInputMutation {
     }
 
     record SetInputSaltEQ (
-            @NotNull UUID anchor,
+            @NotNull Anchor.Input anchor,
             @Nullable Double saltEQ
     ) implements ReactionInputMutation {
     }
 
     record SetInputEQ (
-            @NotNull UUID anchor,
+            @NotNull Anchor.Input anchor,
             @Nullable Double eq
     ) implements ReactionInputMutation {
     }

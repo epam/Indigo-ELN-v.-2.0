@@ -5,6 +5,7 @@ import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,9 @@ public final class ReactionInputSample extends ReactionSample implements Experim
     @JsonBackReference
     private ReactionInput row;
 
+    @NotNull
+    private Anchor.InputSample anchor;
+
     @Nullable
     private UUID sampleId;
 
@@ -30,9 +34,11 @@ public final class ReactionInputSample extends ReactionSample implements Experim
     @Nullable
     private EnteredValue<WeightUnit> weight;
 
-    public ReactionInputSample(ReactionInput row, UUID anchor) {
-        this.row = row;
-        this.anchor = anchor;
+    public static ReactionInputSample create(ReactionInput row) {
+        ReactionInputSample sample = new ReactionInputSample();
+        sample.row = row;
+        sample.anchor = new Anchor.InputSample(row.getReaction().getModel().generateNextAnchor());
+        return sample;
     }
 
     @Override

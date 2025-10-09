@@ -14,12 +14,14 @@ import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ReactionOutput extends ReactionRow implements ExperimentModelNode, ToStringTree {
+
+    @NotNull
+    private Anchor.Output anchor;
 
     @NotNull
     private ReactionOutputType type;
@@ -35,10 +37,12 @@ public final class ReactionOutput extends ReactionRow implements ExperimentModel
     @JsonManagedReference
     private List<ReactionOutputSample> samples;
 
-    public ReactionOutput(Reaction reaction, UUID anchor, ReactionOutputType type) {
-        this.reaction = reaction;
-        this.anchor = anchor;
-        this.type = type;
+    public static ReactionOutput create(Reaction reaction, ReactionOutputType type) {
+        ReactionOutput output = new ReactionOutput();
+        output.reaction = reaction;
+        output.anchor = new Anchor.Output(reaction.getModel().generateNextAnchor());
+        output.type = type;
+        return output;
     }
 
     @Override

@@ -13,12 +13,14 @@ import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ReactionInput extends ReactionRow implements ExperimentModelNode, ToStringTree {
+
+    @NotNull
+    private Anchor.Input anchor;
 
     @NotNull
     private ReactionRole role;
@@ -33,10 +35,12 @@ public final class ReactionInput extends ReactionRow implements ExperimentModelN
 
     private boolean limiting;
 
-    public ReactionInput(Reaction reaction, UUID anchor, ReactionRole role) {
-        this.reaction = reaction;
-        this.anchor = anchor;
-        this.role = role;
+    public static ReactionInput create(Reaction reaction, ReactionRole role) {
+        ReactionInput input = new ReactionInput();
+        input.reaction = reaction;
+        input.anchor = new Anchor.Input(reaction.getModel().generateNextAnchor());
+        input.role = role;
+        return input;
     }
 
     @Override

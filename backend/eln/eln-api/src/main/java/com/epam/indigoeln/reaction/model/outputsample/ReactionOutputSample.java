@@ -30,6 +30,9 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     @JsonBackReference
     private ReactionOutput row;
 
+    @NotNull
+    private Anchor.OutputSample anchor;
+
     @Nullable
     private EnteredValue<MolUnit> actualMol;
 
@@ -90,9 +93,11 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     @Nullable
     private String structureComment;
 
-    public ReactionOutputSample(ReactionOutput row, UUID anchor) {
-        this.row = row;
-        this.anchor = anchor;
+    public static ReactionOutputSample create(ReactionOutput row) {
+        ReactionOutputSample sample = new ReactionOutputSample();
+        sample.row = row;
+        sample.anchor = new Anchor.OutputSample(row.getReaction().getModel().generateNextAnchor());
+        return sample;
     }
 
     @Override

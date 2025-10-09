@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
+import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ReactionOutput;
 import com.epam.indigoeln.reaction.model.outputsample.ReactionOutputSample;
@@ -8,16 +9,14 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import jakarta.enterprise.context.ApplicationScoped;
 
-import java.util.UUID;
-
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 
 @ApplicationScoped
 public class OutputMutationHandler extends AbstractMutationHandler {
 
     public void handle(ExperimentModel model, ReactionOutputMutation.AddProductSample mutation) {
-        ReactionOutput row = (ReactionOutput) model.locate(mutation);
-        ReactionOutputSample sample = new ReactionOutputSample(row, UUID.randomUUID());
+        ReactionOutput row = model.locate(mutation);
+        ReactionOutputSample sample = ReactionOutputSample.create(row);
         sample.setPurity(DEFAULT_ONE);
         row.getSamples().add(sample);
     }

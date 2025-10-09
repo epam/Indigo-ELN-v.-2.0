@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
+import com.epam.indigoeln.reaction.model.Anchor;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.Map;
@@ -12,10 +13,10 @@ public sealed interface ReactionMutation extends Mutation permits
         ReactionMutation.RemoveInput
 {
 
-    UUID anchor();
+    Anchor.Reaction anchor();
 
     record SetScheme (
-        @NotNull UUID anchor,
+        @NotNull Anchor.Reaction anchor,
         @NotNull String molFile
     ) implements ReactionMutation {
 
@@ -28,19 +29,19 @@ public sealed interface ReactionMutation extends Mutation permits
     }
 
     record ResolveInputs (
-        @NotNull UUID anchor,
-        @NotNull Map<UUID, UUID> inputSamples // anchor -> sampleID
+        @NotNull Anchor.Reaction anchor,
+        @NotNull Map<Anchor.Input, UUID> inputSamples // anchor -> sampleID
     ) implements ReactionMutation {
     }
 
     record AddEmptyInput (
-        @NotNull UUID anchor
+        @NotNull Anchor.Reaction anchor
     ) implements ReactionMutation {
     }
 
     record RemoveInput (
-        @NotNull UUID anchor,
-        @NotNull UUID inputRow
+        @NotNull Anchor.Reaction anchor,
+        @NotNull Anchor.Input input
     ) implements ReactionMutation {
     }
 }

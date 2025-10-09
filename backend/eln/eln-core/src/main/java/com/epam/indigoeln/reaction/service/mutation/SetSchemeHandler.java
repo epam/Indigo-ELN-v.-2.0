@@ -2,7 +2,10 @@ package com.epam.indigoeln.reaction.service.mutation;
 
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.indigowrapper.*;
+import com.epam.indigoeln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.indigowrapper.IndigoMolecule;
+import com.epam.indigoeln.indigowrapper.IndigoReaction;
+import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
@@ -14,7 +17,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 
@@ -61,25 +63,25 @@ public class SetSchemeHandler extends AbstractMutationHandler {
 
     public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionMutation.RemoveInput mutation) {
         Reaction reaction = model.locate(mutation);
-        ReactionInput input = model.locateReactionInput(mutation.inputRow());
+        ReactionInput input = model.locate(mutation.input());
         reaction.getInputs().remove(input);
         experimentModelHelperService.rebuildReactionScheme(experiment, reaction, Set.of(input.getRole()));
     }
 
     private ReactionInput createInputLine(Reaction reaction, @Nullable IndigoMolecule molecule, ReactionRole role) {
-        ReactionInput row = new ReactionInput(reaction, UUID.randomUUID(), role);
+        ReactionInput row = ReactionInput.create(reaction, role);
         row.setCompound(molecule != null
                 ? compoundService.virtualCompoundRef(molecule, null, null, null)
                 : compoundService.unknownCompoundRef());
         row.setEq(DEFAULT_ONE);
-        ReactionInputSample reactionInputSample = new ReactionInputSample(row, UUID.randomUUID());
+        ReactionInputSample reactionInputSample = ReactionInputSample.create(row);
         reactionInputSample.setPurity(DEFAULT_ONE);
         row.setSamples(List.of(reactionInputSample));
         return row;
     }
 
     private ReactionOutput createOutputLine(Reaction reaction, IndigoMolecule molecule) {
-        ReactionOutput row = new ReactionOutput(reaction, UUID.randomUUID(), reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL);
+        ReactionOutput row = ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL);
         row.setCompound(compoundService.virtualCompoundRef(molecule, null, null, null));
         row.setEq(DEFAULT_ONE);
         row.setSamples(List.of());

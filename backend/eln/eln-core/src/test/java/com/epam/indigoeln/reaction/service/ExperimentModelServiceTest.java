@@ -7,6 +7,7 @@ import com.epam.indigoeln.compound.model.StructureSearchType;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.ReactionRole;
@@ -31,7 +32,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 
@@ -43,19 +43,19 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
     ExperimentDetailsDTO experiment;
     ExperimentModel model;
     CalculationReportBuilder reportBuilder;
-    UUID reactionAnchor;
-    UUID input1Anchor;
-    UUID input1Sample1Anchor;
-    UUID input2Anchor;
-    UUID output1Anchor;
-    UUID output2Anchor;
-    UUID output2Sample1Anchor;
-    UUID output2Sample2Anchor;
+    Anchor.Reaction reactionAnchor;
+    Anchor.Input input1Anchor;
+    Anchor.InputSample input1Sample1Anchor;
+    Anchor.Input input2Anchor;
+    Anchor.Output output1Anchor;
+    Anchor.Output output2Anchor;
+    Anchor.OutputSample output2Sample1Anchor;
+    Anchor.OutputSample output2Sample2Anchor;
 
     byte @Nullable[] picture = null;
 
     @BeforeAll
-    void setUp(@TempDir Path tempDir) throws Exception {
+    void setUp(@TempDir Path tempDir) {
         reportBuilder = new CalculationReportBuilder(new File("calculations.html"));
         miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
         System.out.println(model);
@@ -78,7 +78,7 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
 
     @Test
     @Order(100)
-    void testLoadReaction() throws Exception {
+    void testLoadReaction() {
         String molFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
         applyMutation(new ReactionMutation.SetScheme(reactionAnchor, molFile));
         input1Anchor = model.getReactions().getFirst().getInputs().get(0).getAnchor();
