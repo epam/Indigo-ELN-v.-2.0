@@ -66,7 +66,7 @@ public class BackendExceptionMapper {
 
     @ServerExceptionMapper
     public RestResponse<List<ErrorDTO>> toResponse(EntityNotFoundException exception) {
-        log.error(exception.getMessage(), exception);
+        log.error(exception.getMessage());
         return buildResponse(Response.Status.NOT_FOUND, new ErrorDTO(exception.getMessage()));
     }
 

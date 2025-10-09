@@ -29,6 +29,10 @@ tasks.named("compileIntegrationTestJava") {
     dependsOn(":integrationTests:testClasses")
 }
 
+tasks.named("test", Test::class) {
+    failOnNoDiscoveredTests = false
+}
+
 tasks.named("quarkusIntTest", Test::class) {
     systemProperty("quarkus.http.test-host", "localhost")
     systemProperty("quarkus.http.test-port", "28080")
