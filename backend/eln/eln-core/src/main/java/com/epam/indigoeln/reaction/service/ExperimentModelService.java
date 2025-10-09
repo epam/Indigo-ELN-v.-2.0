@@ -57,22 +57,28 @@ public class ExperimentModelService {
         switch (mutation) {
             case ReactionMutation.SetScheme m -> setSchemeHandler.handle(experiment, model, m);
             case ReactionMutation.ResolveInputs m -> resolveInputsHandler.handle(experiment, model, m);
+            case ReactionMutation.AddEmptyInput m -> setSchemeHandler.handle(experiment, model, m);
+            case ReactionMutation.RemoveInput m -> setSchemeHandler.handle(experiment, model, m);
+
             case ReactionInputMutation.SetInputRole m -> inputMutationHandler.handle(experiment, model, m);
             case ReactionInputMutation.SetLimiting m -> inputMutationHandler.handle(model, m);
             case ReactionInputMutation.SetInputSaltCode m -> saltCodeEQHandler.handle(model, m);
             case ReactionInputMutation.SetInputSaltEQ m -> saltCodeEQHandler.handle(model, m);
             case ReactionInputMutation.SetInputEQ m -> inputMutationHandler.handle(model, m);
+
             case ReactionInputSampleMutation.SetInputDensity m -> inputSampleMutationHandler.handle(model, m);
             case ReactionInputSampleMutation.SetInputMolarity m -> inputSampleMutationHandler.handle(model, m);
             case ReactionInputSampleMutation.SetInputVolume m -> inputSampleMutationHandler.handle(model, m);
             case ReactionInputSampleMutation.SetInputPurity m -> inputSampleMutationHandler.handle(model, m);
             case ReactionInputSampleMutation.SetInputMol m -> inputSampleMutationHandler.handle(model, m);
             case ReactionInputSampleMutation.SetInputWeight m -> inputSampleMutationHandler.handle(model, m);
+
             case ReactionOutputMutation.AddProductSample m -> outputMutationHandler.handle(model, m);
             case ReactionOutputMutation.SetOutputType m -> outputMutationHandler.handle(model, m);
             case ReactionOutputMutation.SetOutputSaltCode m -> saltCodeEQHandler.handle(model, m);
             case ReactionOutputMutation.SetOutputSaltEQ m -> saltCodeEQHandler.handle(model, m);
             case ReactionOutputMutation.SetOutputEQ m -> outputMutationHandler.handle(model, m);
+
             case ReactionOutputSampleMutation.SetOutputDensity m -> outputSampleMutationHandler.handle(model, m);
             case ReactionOutputSampleMutation.SetOutputMolarity m -> outputSampleMutationHandler.handle(model, m);
             case ReactionOutputSampleMutation.SetOutputVolume m -> outputSampleMutationHandler.handle(model, m);

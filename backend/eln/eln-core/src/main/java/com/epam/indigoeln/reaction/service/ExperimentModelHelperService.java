@@ -22,7 +22,7 @@ import static com.epam.indigoeln.eln.util.IndigoUtil.reactionIterable;
 @ApplicationScoped
 public class ExperimentModelHelperService {
 
-    private static final @Nullable ReactionInputRole COMPONENT_ORDER[] = {null, ReactionInputRole.CATALYST, ReactionInputRole.REACTANT};
+    private static final @Nullable ReactionRole COMPONENT_ORDER[] = {ReactionRole.OUTPUT, ReactionRole.CATALYST, ReactionRole.REACTANT};
 
     @Inject
     CompoundService compoundService;
@@ -47,20 +47,20 @@ public class ExperimentModelHelperService {
         experiment.setCompounds(usedCompounds);
     }
 
-    public void rebuildReactionScheme(ExperimentEntity experiment, Reaction reaction, Set<ReactionInputRole> affectedRoles) {
+    public void rebuildReactionScheme(ExperimentEntity experiment, Reaction reaction, Set<ReactionRole> affectedRoles) {
         if (affectedRoles.isEmpty()) {
             return;
         }
         IndigoReaction reactionScheme = indigo.loadReaction(reaction.getRxnfile());
 
-        for (ReactionInputRole role : COMPONENT_ORDER) {
+        for (ReactionRole role : COMPONENT_ORDER) {
             if (!affectedRoles.contains(role)) {
                 continue;
             }
 
             List<IndigoMolecule> molecules = new ArrayList<>();
             // noinspection rawtypes,unchecked
-            Iterable<ReactionRow> rows = role != null ? (Iterable) reaction.getInputsOfType(role) : (Iterable) reaction.getOutputs();
+            Iterable<ReactionRow> rows = role == ReactionRole.OUTPUT ? (Iterable) reaction.getOutputs() : (Iterable) reaction.getInputsOfType(role);
             for (ReactionRow input : rows) {
                 String molfile = switch (input.getCompound()) {
                     case CompoundRef.Stored stored -> compoundService.getCompound(stored.getCompoundID()).getMolFile();

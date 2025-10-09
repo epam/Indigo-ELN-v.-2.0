@@ -9,7 +9,7 @@ import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ReactionInput;
-import com.epam.indigoeln.reaction.model.ReactionInputRole;
+import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
@@ -108,21 +108,21 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
     @Test
     @Order(250)
     void testSetInputRoleToCatalyst() {
-        ReactionInputMutation.SetInputRole mutation = new ReactionInputMutation.SetInputRole(input2Anchor, ReactionInputRole.CATALYST);
+        ReactionInputMutation.SetInputRole mutation = new ReactionInputMutation.SetInputRole(input2Anchor, ReactionRole.CATALYST);
         applyMutation(mutation);
     }
 
     @Test
     @Order(251)
     void testSetInputRoleToSolvent() {
-        ReactionInputMutation.SetInputRole mutation = new ReactionInputMutation.SetInputRole(input2Anchor, ReactionInputRole.SOLVENT);
+        ReactionInputMutation.SetInputRole mutation = new ReactionInputMutation.SetInputRole(input2Anchor, ReactionRole.SOLVENT);
         applyMutation(mutation);
     }
 
     @Test
     @Order(252)
     void testSetInputRoleBack() {
-        ReactionInputMutation.SetInputRole mutation = new ReactionInputMutation.SetInputRole(input2Anchor, ReactionInputRole.REACTANT);
+        ReactionInputMutation.SetInputRole mutation = new ReactionInputMutation.SetInputRole(input2Anchor, ReactionRole.REACTANT);
         applyMutation(mutation);
     }
 
@@ -154,6 +154,19 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
     @Order(600)
     void testSetInputEQ() {
         applyMutation(new ReactionInputMutation.SetInputEQ(input2Anchor, 2.0));
+    }
+
+    @Test
+    @Order(620)
+    void testAddEmptyInput() {
+        applyMutation(new ReactionMutation.AddEmptyInput(reactionAnchor));
+    }
+
+    @Test
+    @Order(621)
+    void testRemoveEmptyInput() {
+        List<ReactionInput> inputs = model.getReactions().getFirst().getInputs();
+        applyMutation(new ReactionMutation.RemoveInput(reactionAnchor, inputs.getLast().getAnchor()));
     }
 
     @Test

@@ -107,6 +107,10 @@ public class CompoundService {
         return new CompoundRef.Virtual(compound.getId(), molecule.molfile(), molecule.grossFormula(), molWeight);
     }
 
+    public CompoundRef.Unknown unknownCompoundRef() {
+        return new CompoundRef.Unknown();
+    }
+
     @SneakyThrows
     private List<String> readSDFFile(InputStream is) {
         List<String> result = new ArrayList<>();

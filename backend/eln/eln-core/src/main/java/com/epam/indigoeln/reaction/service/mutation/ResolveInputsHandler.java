@@ -23,7 +23,7 @@ public class ResolveInputsHandler extends AbstractMutationHandler {
 
     public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionMutation.ResolveInputs mutation) {
         Reaction reaction = model.locate(mutation);
-        Set<ReactionInputRole> affectedRoles = EnumSet.noneOf(ReactionInputRole.class);
+        Set<ReactionRole> affectedRoles = EnumSet.noneOf(ReactionRole.class);
         mutation.inputSamples().forEach((inputAnchor, sampleId) -> {
             ReactionInput row = model.locateReactionInput(inputAnchor);
             SampleEntity sample = compoundService.getSample(sampleId);

@@ -1,7 +1,7 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.reaction.model.ReactionInputRole;
+import com.epam.indigoeln.reaction.model.ReactionRole;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
@@ -19,7 +19,7 @@ public sealed interface ReactionInputMutation extends Mutation permits
 
     record SetInputRole (
             @NotNull UUID anchor,
-            @NotNull ReactionInputRole role
+            @NotNull ReactionRole role
     ) implements ReactionInputMutation {
     }
 

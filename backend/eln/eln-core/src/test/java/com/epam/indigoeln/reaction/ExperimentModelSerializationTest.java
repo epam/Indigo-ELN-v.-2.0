@@ -25,12 +25,12 @@ public class ExperimentModelSerializationTest {
         model.setReactions(List.of(reaction));
         reaction.setRxnfile("molFile");
 
-        ReactionInput input1 = new ReactionInput(reaction, UUID.randomUUID(), ReactionInputRole.REACTANT);
+        ReactionInput input1 = new ReactionInput(reaction, UUID.randomUUID(), ReactionRole.REACTANT);
         input1.setCompound(new CompoundRef.Stored(UUID.randomUUID(), "realCompound", EnteredValue.fixed(1.0, MolWeightUnit.G_PER_MOL), "molFile", "C", new STRCodeCompound(1, 0)));
         input1.setEq(EnteredValue.userLastEntered(10.0, NoUnit.NO_UNIT));
-        ReactionInput input2 = new ReactionInput(reaction, UUID.randomUUID(), ReactionInputRole.REACTANT);
+        ReactionInput input2 = new ReactionInput(reaction, UUID.randomUUID(), ReactionRole.REACTANT);
         input2.setCompound(new CompoundRef.Virtual(UUID.randomUUID(), "molFile", "C", 1.0));
-        ReactionInput input3 = new ReactionInput(reaction, UUID.randomUUID(), ReactionInputRole.REACTANT);
+        ReactionInput input3 = new ReactionInput(reaction, UUID.randomUUID(), ReactionRole.REACTANT);
         input3.setCompound(new CompoundRef.Unknown());
         ReactionInputSample inputSample1 = new ReactionInputSample(input1, UUID.randomUUID());
         input1.setSamples(List.of(inputSample1));

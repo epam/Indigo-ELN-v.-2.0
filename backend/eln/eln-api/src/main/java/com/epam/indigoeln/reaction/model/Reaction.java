@@ -102,7 +102,7 @@ public class Reaction implements ExperimentModelNode, ToStringTree {
         }
     }
 
-    public Iterable<ReactionInput> getInputsOfType(ReactionInputRole role) {
+    public Iterable<ReactionInput> getInputsOfType(ReactionRole role) {
         return Iterables.filter(inputs, input -> input.getRole() == role);
     }
 

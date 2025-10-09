@@ -128,7 +128,7 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public List<STRCodeCompound> getPrecursorReactantIds() {
         return StreamEx.of(row.getReaction().getInputs())
-                .filter(r -> r.getRole() == ReactionInputRole.REACTANT)
+                .filter(r -> r.getRole() == ReactionRole.REACTANT)
                 .map(r -> r.getCompound().getStrCode())
                 .filter(Objects::nonNull)
                 .toList();

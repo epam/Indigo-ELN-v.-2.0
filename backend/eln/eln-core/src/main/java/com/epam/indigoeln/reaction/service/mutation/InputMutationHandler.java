@@ -3,7 +3,7 @@ package com.epam.indigoeln.reaction.service.mutation;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ReactionInput;
-import com.epam.indigoeln.reaction.model.ReactionInputRole;
+import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
@@ -31,7 +31,7 @@ public class InputMutationHandler extends AbstractMutationHandler {
                     throw new IllegalStateException("Input with the same role and compound already exists");
                 });
 
-        Set<ReactionInputRole> affectedRoles = EnumSet.noneOf(ReactionInputRole.class);
+        Set<ReactionRole> affectedRoles = EnumSet.noneOf(ReactionRole.class);
         affectedRoles.add(row.getRole());
         affectedRoles.add(mutation.role());
         row.setRole(mutation.role());

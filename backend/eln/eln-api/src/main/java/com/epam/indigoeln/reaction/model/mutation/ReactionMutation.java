@@ -7,7 +7,9 @@ import java.util.UUID;
 
 public sealed interface ReactionMutation extends Mutation permits
         ReactionMutation.SetScheme,
-        ReactionMutation.ResolveInputs
+        ReactionMutation.ResolveInputs,
+        ReactionMutation.AddEmptyInput,
+        ReactionMutation.RemoveInput
 {
 
     UUID anchor();
@@ -25,9 +27,20 @@ public sealed interface ReactionMutation extends Mutation permits
         }
     }
 
-    record ResolveInputs(
+    record ResolveInputs (
         @NotNull UUID anchor,
         @NotNull Map<UUID, UUID> inputSamples // anchor -> sampleID
+    ) implements ReactionMutation {
+    }
+
+    record AddEmptyInput (
+        @NotNull UUID anchor
+    ) implements ReactionMutation {
+    }
+
+    record RemoveInput (
+        @NotNull UUID anchor,
+        @NotNull UUID inputRow
     ) implements ReactionMutation {
     }
 }

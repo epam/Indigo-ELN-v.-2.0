@@ -1,8 +1,9 @@
 package com.epam.indigoeln.reaction.model;
 
-public enum ReactionInputRole {
+public enum ReactionRole {
 
     REACTANT,
     CATALYST,
     SOLVENT,
+    OUTPUT,
 }

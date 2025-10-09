@@ -9,9 +9,11 @@ import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
@@ -38,10 +40,10 @@ public class SetSchemeHandler extends AbstractMutationHandler {
 
         IndigoReaction indigoReaction = indigo.loadReaction(mutation.molFile());
         for (IndigoMolecule reactant : indigoReaction.reactants()) {
-            reaction.getInputs().add(createInputLine(reaction, reactant, ReactionInputRole.REACTANT));
+            reaction.getInputs().add(createInputLine(reaction, reactant, ReactionRole.REACTANT));
         }
         for (IndigoMolecule catalyst : indigoReaction.catalysts()) {
-            reaction.getInputs().add(createInputLine(reaction, catalyst, ReactionInputRole.CATALYST));
+            reaction.getInputs().add(createInputLine(reaction, catalyst, ReactionRole.CATALYST));
         }
         for (IndigoMolecule product : indigoReaction.products()) {
             reaction.getOutputs().add(createOutputLine(reaction, product));
@@ -52,9 +54,23 @@ public class SetSchemeHandler extends AbstractMutationHandler {
         experimentModelHelperService.setReactionScheme(experiment, reaction, indigoReaction);
     }
 
-    private ReactionInput createInputLine(Reaction reaction, IndigoMolecule molecule, ReactionInputRole role) {
+    public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionMutation.AddEmptyInput mutation) {
+        Reaction reaction = model.locate(mutation);
+        reaction.getInputs().add(createInputLine(reaction, null, ReactionRole.REACTANT));
+    }
+
+    public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionMutation.RemoveInput mutation) {
+        Reaction reaction = model.locate(mutation);
+        ReactionInput input = model.locateReactionInput(mutation.inputRow());
+        reaction.getInputs().remove(input);
+        experimentModelHelperService.rebuildReactionScheme(experiment, reaction, Set.of(input.getRole()));
+    }
+
+    private ReactionInput createInputLine(Reaction reaction, @Nullable IndigoMolecule molecule, ReactionRole role) {
         ReactionInput row = new ReactionInput(reaction, UUID.randomUUID(), role);
-        row.setCompound(compoundService.virtualCompoundRef(molecule, null, null, null));
+        row.setCompound(molecule != null
+                ? compoundService.virtualCompoundRef(molecule, null, null, null)
+                : compoundService.unknownCompoundRef());
         row.setEq(DEFAULT_ONE);
         ReactionInputSample reactionInputSample = new ReactionInputSample(row, UUID.randomUUID());
         reactionInputSample.setPurity(DEFAULT_ONE);
