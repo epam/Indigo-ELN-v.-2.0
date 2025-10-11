@@ -1,5 +1,6 @@
 package com.epam.indigoeln.compound.model;
 
+import com.epam.indigoeln.eln.model.NotebookBatchNumber;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -13,7 +14,7 @@ public class SampleDTO {
     @NotNull
     private UUID id;
     @Nullable
-    private String batchNumber;
+    private NotebookBatchNumber notebookBatchNumber;
     @Nullable
     private STRCodeSample strCode;
 }

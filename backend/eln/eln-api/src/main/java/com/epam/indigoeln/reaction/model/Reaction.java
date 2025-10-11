@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.google.common.collect.Iterables;
+import com.google.common.primitives.Ints;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
@@ -13,9 +14,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(exclude = "model")
@@ -106,6 +106,15 @@ public class Reaction implements ExperimentModelNode, ToStringTree {
 
     public Iterable<ReactionInput> getInputsOfType(ReactionRole role) {
         return Iterables.filter(inputs, input -> input.getRole() == role);
+    }
+
+    public String generateNextOutputName() {
+        int maxUsedNumber = outputs.stream()
+                .map(row -> row.getName().startsWith("P") ? Ints.tryParse(row.getName().substring(1)) : null)
+                .filter(Objects::nonNull)
+                .mapToInt(Integer::valueOf)
+                .max().orElse(-1);
+        return "P" + (maxUsedNumber + 1);
     }
 
     @Override

@@ -30,10 +30,10 @@ public abstract class ReactionSample implements ExperimentModelNode, ToStringTre
     protected EnteredValue<NoUnit> purity;
 
     @Nullable
-    private STRCodeSample strCode;
+    protected STRCodeSample strCode;
 
     @NotNull
-    private List<DictionaryItemRef> healthHazards = List.of();
+    protected List<DictionaryItemRef> healthHazards = List.of();
 
     @Override
     public void prepareToRecalculate() {

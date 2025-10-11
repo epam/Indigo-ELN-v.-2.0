@@ -10,12 +10,12 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionMutation.AddEmptyInput.class),
         @JsonSubTypes.Type(ReactionMutation.RemoveInput.class),
 
-        @JsonSubTypes.Type(ReactionInputMutation.SetInputRole.class),
-        @JsonSubTypes.Type(ReactionInputMutation.SetInputMol.class),
-        @JsonSubTypes.Type(ReactionInputMutation.SetLimiting.class),
-        @JsonSubTypes.Type(ReactionInputMutation.SetInputSaltCode.class),
-        @JsonSubTypes.Type(ReactionInputMutation.SetInputSaltEQ.class),
-        @JsonSubTypes.Type(ReactionInputMutation.SetInputEQ.class),
+        @JsonSubTypes.Type(ReactionInputMutation.SetInputRowRole.class),
+        @JsonSubTypes.Type(ReactionInputMutation.SetInputRowMol.class),
+        @JsonSubTypes.Type(ReactionInputMutation.SetInputRowLimiting.class),
+        @JsonSubTypes.Type(ReactionInputMutation.SetInputRowSaltCode.class),
+        @JsonSubTypes.Type(ReactionInputMutation.SetInputRowSaltEQ.class),
+        @JsonSubTypes.Type(ReactionInputMutation.SetInputRowEQ.class),
 
         @JsonSubTypes.Type(ReactionInputSampleMutation.SetInputDensity.class),
         @JsonSubTypes.Type(ReactionInputSampleMutation.SetInputMolarity.class),
@@ -26,10 +26,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionInputSampleMutation.SetInputWeight.class),
 
         @JsonSubTypes.Type(ReactionOutputMutation.AddProductSample.class),
-        @JsonSubTypes.Type(ReactionOutputMutation.SetOutputType.class),
-        @JsonSubTypes.Type(ReactionOutputMutation.SetOutputSaltCode.class),
-        @JsonSubTypes.Type(ReactionOutputMutation.SetOutputSaltEQ.class),
-        @JsonSubTypes.Type(ReactionOutputMutation.SetOutputEQ.class),
+        @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowType.class),
+        @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowSaltCode.class),
+        @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowSaltEQ.class),
+        @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowEQ.class),
 
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputDensity.class),
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputMolarity.class),

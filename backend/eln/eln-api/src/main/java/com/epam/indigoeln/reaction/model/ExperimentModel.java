@@ -23,6 +23,15 @@ public class ExperimentModel implements ExperimentModelNode, ToStringTree {
         return ++lastUsedAnchor;
     }
 
+    public int generateNextNotebookBatchNumber() {
+        int lastUsedNumber = reactions.stream()
+                .flatMap(r -> r.getOutputs().stream())
+                .flatMap(or -> or.getSamples().stream())
+                .mapToInt(s -> s.getNotebookBatchNumber().getOrdinal())
+                .max().orElse(0);
+        return lastUsedNumber + 1;
+    }
+
     public Reaction locate(ReactionMutation mutation) {
         return locate(mutation.anchor());
     }

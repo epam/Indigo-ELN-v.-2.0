@@ -1,7 +1,6 @@
 package com.epam.indigoeln.compound.repository;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
-import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.mapper.SampleMapper;
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
@@ -9,7 +8,6 @@ import com.epam.indigoeln.eln.model.EntityType;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.eln.repository.BaseRepository;
 import com.epam.indigoeln.eln.util.Conditions;
-import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hibernate.query.NativeQuery;
@@ -21,9 +19,6 @@ import java.util.UUID;
 @ApplicationScoped
 public class SampleRepository extends BaseRepository<SampleEntity> {
 
-    @Inject
-    SampleMapper sampleMapper;
-
     public SampleRepository() {
         super(EntityType.SAMPLE);
     }
@@ -32,7 +27,7 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
     public SampleEntity findDefaultSample(UUID compoundId) {
         Conditions conditions = new Conditions()
                 .add("compound.id=?", compoundId)
-                .add("batchNumber is null");
+                .add("notebookBatchNumber is null");
         return find(conditions.getQuery(), conditions.getValues()).firstResult();
     }
 

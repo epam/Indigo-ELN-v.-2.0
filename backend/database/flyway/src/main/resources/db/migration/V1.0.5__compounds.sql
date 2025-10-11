@@ -31,8 +31,8 @@ CREATE TABLE Compound_Experiment (
 CREATE TABLE Sample (
     id UUID PRIMARY KEY,
     compound_id UUID NOT NULL,
-    str_code VARCHAR(1000),
-    batch_number VARCHAR(1000),
+    str_code VARCHAR(64),
+    notebook_batch_number VARCHAR(64),
     search_vector TSVECTOR,
     CONSTRAINT sample_compound_id_fk FOREIGN KEY (compound_id) REFERENCES Compound(id),
     CONSTRAINT sample_str_code_uq UNIQUE (str_code)

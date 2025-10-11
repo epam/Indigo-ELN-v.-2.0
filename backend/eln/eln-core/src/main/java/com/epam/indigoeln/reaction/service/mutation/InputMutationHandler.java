@@ -22,7 +22,7 @@ public class InputMutationHandler extends AbstractMutationHandler {
     @Inject
     ExperimentModelHelperService modelHelperService;
 
-    public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionInput row, ReactionInputMutation.SetInputRole mutation) {
+    public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionInput row, ReactionInputMutation.SetInputRowRole mutation) {
         StreamEx.of(row.getReaction().getInputs())
                 .filter(x -> x != row && x.getRole() == row.getRole() && x.getCompound().equals(row.getCompound()))
                 .findAny()
@@ -38,7 +38,7 @@ public class InputMutationHandler extends AbstractMutationHandler {
         modelHelperService.rebuildReactionScheme(experiment, row.getReaction(), affectedRoles);
     }
 
-    public void handle(ExperimentModel model, ReactionInput row, ReactionInputMutation.SetInputMol mutation) {
+    public void handle(ExperimentModel model, ReactionInput row, ReactionInputMutation.SetInputRowMol mutation) {
         row.setMol(EnteredValue.userLastEntered(mutation.mol(), mutation.molUnit()));
         for (ReactionInput otherRow : row.getReaction().getInputs()) {
             otherRow.setLimiting(false);
@@ -46,14 +46,14 @@ public class InputMutationHandler extends AbstractMutationHandler {
         row.setLimiting(true);
     }
 
-    public void handle(ExperimentModel model, ReactionInput row, ReactionInputMutation.SetLimiting mutation) {
+    public void handle(ExperimentModel model, ReactionInput row, ReactionInputMutation.SetInputRowLimiting mutation) {
         for (ReactionInput otherRow : row.getReaction().getInputs()) {
             otherRow.setLimiting(false);
         }
         row.setLimiting(true);
     }
 
-    public void handle(ExperimentModel model, ReactionInput row, ReactionInputMutation.SetInputEQ mutation) {
+    public void handle(ExperimentModel model, ReactionInput row, ReactionInputMutation.SetInputRowEQ mutation) {
         row.setEq(EnteredValue.userLastEntered(MoreObjects.firstNonNull(mutation.eq(), 1.0), NoUnit.NO_UNIT));
     }
 }

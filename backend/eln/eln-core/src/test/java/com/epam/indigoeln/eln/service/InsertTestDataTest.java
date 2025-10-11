@@ -162,16 +162,16 @@ class InsertTestDataTest {
         Anchor.InputSample input1Sample1Anchor = model.getReactions().getFirst().getInputs().get(0).getSamples().get(0).getAnchor();
 
         // select salt code
-        model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputSaltCode(output1Anchor, dictionaryClient.getSaltCodes().getFirst()));
+        model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltCode(output1Anchor, dictionaryClient.getSaltCodes().getFirst()));
 
         // select salt eq
-        model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputSaltEQ(output1Anchor, 0.5));
+        model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltEQ(output1Anchor, 0.5));
 
         // set input weight
         model = applyMutation(experiment, model, new ReactionInputSampleMutation.SetInputWeight(input1Sample1Anchor, 100.0, WeightUnit.G));
 
         // set input eq
-        model = applyMutation(experiment, model, new ReactionInputMutation.SetInputEQ(input2Anchor, 2.0));
+        model = applyMutation(experiment, model, new ReactionInputMutation.SetInputRowEQ(input2Anchor, 2.0));
 
         // add product sample
         model = applyMutation(experiment, model, new ReactionOutputMutation.AddProductSample(output2Anchor));

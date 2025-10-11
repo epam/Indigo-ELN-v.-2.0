@@ -11,7 +11,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.MoreObjects;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
@@ -29,6 +32,9 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
 
     @Nullable
     String getFormula();
+
+    @Nullable
+    DictionaryItemRef getStereoisomerCode();
 
     @Nullable
     SaltCodeRef getSaltCode();
@@ -161,6 +167,13 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Nullable
         @JsonIgnore
         public String getMolFile() {
+            return null;
+        }
+
+        @Override
+        @Nullable
+        @JsonIgnore
+        public DictionaryItemRef getStereoisomerCode() {
             return null;
         }
 

@@ -3,14 +3,13 @@ package com.epam.indigoeln.reaction;
 import com.epam.indigoeln.eln.model.STRCodeCompound;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
+import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.test.FeignUtil;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.outputsample.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
-import lombok.SneakyThrows;
-import org.gradle.internal.impldep.org.apache.commons.lang3.mutable.Mutable;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -40,7 +39,7 @@ public class ExperimentModelSerializationTest {
 
         ReactionOutput output = ReactionOutput.create(reaction, ReactionOutputType.FINAL);
         output.setCompound(new CompoundRef.Virtual(UUID.randomUUID(), "molFile", "C", 2.0));
-        ReactionOutputSample outputSample = ReactionOutputSample.create(output);
+        ReactionOutputSample outputSample = ReactionOutputSample.create("00000000-0000", output);
         output.setSamples(List.of(outputSample));
         reaction.setOutputs(List.of(output));
 
@@ -53,7 +52,7 @@ public class ExperimentModelSerializationTest {
 
     @Test
     void testSerializeMutation() throws Exception {
-        Mutation mutation = new ReactionInputMutation.SetInputEQ(new Anchor.Input(3), 2.5);
+        Mutation mutation = new ReactionInputMutation.SetInputRowMol(new Anchor.Input(3), 2.5, MolUnit.MMOL);
         String json = FeignUtil.OBJECT_MAPPER.writeValueAsString(mutation);
         System.out.println(json);
         Mutation mutation2 = FeignUtil.OBJECT_MAPPER.readValue(json, Mutation.class);

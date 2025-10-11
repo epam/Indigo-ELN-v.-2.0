@@ -24,6 +24,9 @@ public final class ReactionOutput extends ReactionRow implements ExperimentModel
     private Anchor.Output anchor;
 
     @NotNull
+    private String name;
+
+    @NotNull
     private ReactionOutputType type;
 
     @Nullable
@@ -42,6 +45,7 @@ public final class ReactionOutput extends ReactionRow implements ExperimentModel
         output.reaction = reaction;
         output.anchor = new Anchor.Output(reaction.getModel().generateNextAnchor());
         output.type = type;
+        output.name = reaction.generateNextOutputName();
         return output;
     }
 
@@ -59,6 +63,7 @@ public final class ReactionOutput extends ReactionRow implements ExperimentModel
     public void toStringTree(Builder builder) {
         builder.open("ReactionOutput")
                 .property("anchor", anchor)
+                .property("name", name)
                 .property("compound", compound)
                 .property("eq", eq)
                 .property("type", type)

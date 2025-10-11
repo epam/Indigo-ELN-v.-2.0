@@ -5,7 +5,7 @@ BEGIN
     RETURN (
         SELECT
             setweight(to_tsvector('english', coalesce(s.str_code, '')), 'A') ||
-            setweight(to_tsvector('english', coalesce(s.batch_number, '')), 'A') ||
+            setweight(to_tsvector('english', coalesce(s.notebook_batch_number, '')), 'A') ||
             setweight(to_tsvector('english', coalesce(c.formula, '')), 'A') ||
             setweight(to_tsvector('english', coalesce(c.name, '')), 'A')
         FROM Sample s

@@ -108,34 +108,34 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
     @Test
     @Order(250)
     void testSetInputRoleToCatalyst() {
-        ReactionInputMutation.SetInputRole mutation = new ReactionInputMutation.SetInputRole(input2Anchor, ReactionRole.CATALYST);
+        ReactionInputMutation.SetInputRowRole mutation = new ReactionInputMutation.SetInputRowRole(input2Anchor, ReactionRole.CATALYST);
         applyMutation(mutation);
     }
 
     @Test
     @Order(251)
     void testSetInputRoleToSolvent() {
-        ReactionInputMutation.SetInputRole mutation = new ReactionInputMutation.SetInputRole(input2Anchor, ReactionRole.SOLVENT);
+        ReactionInputMutation.SetInputRowRole mutation = new ReactionInputMutation.SetInputRowRole(input2Anchor, ReactionRole.SOLVENT);
         applyMutation(mutation);
     }
 
     @Test
     @Order(252)
     void testSetInputRoleBack() {
-        ReactionInputMutation.SetInputRole mutation = new ReactionInputMutation.SetInputRole(input2Anchor, ReactionRole.REACTANT);
+        ReactionInputMutation.SetInputRowRole mutation = new ReactionInputMutation.SetInputRowRole(input2Anchor, ReactionRole.REACTANT);
         applyMutation(mutation);
     }
 
     @Test
     @Order(300)
     void testSelectSaltCode() {
-        applyMutation(new ReactionOutputMutation.SetOutputSaltCode(output1Anchor, dictionaryClient.getSaltCodes().getFirst()));
+        applyMutation(new ReactionOutputMutation.SetOutputRowSaltCode(output1Anchor, dictionaryClient.getSaltCodes().getFirst()));
     }
 
     @Test
     @Order(400)
     void testSelectSaltEQ() {
-        applyMutation(new ReactionOutputMutation.SetOutputSaltEQ(output1Anchor, 0.5));
+        applyMutation(new ReactionOutputMutation.SetOutputRowSaltEQ(output1Anchor, 0.5));
     }
 
     @Test
@@ -153,7 +153,7 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
     @Test
     @Order(600)
     void testSetInputEQ() {
-        applyMutation(new ReactionInputMutation.SetInputEQ(input2Anchor, 2.0));
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2Anchor, 2.0));
     }
 
     @Test

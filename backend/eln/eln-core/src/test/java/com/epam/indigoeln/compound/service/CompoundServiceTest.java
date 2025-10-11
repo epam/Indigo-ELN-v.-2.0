@@ -3,6 +3,7 @@ package com.epam.indigoeln.compound.service;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
+import com.epam.indigoeln.eln.model.NotebookBatchNumber;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
 import com.epam.indigoeln.eln.ELNBaseTest;
@@ -48,6 +49,8 @@ public class CompoundServiceTest extends ELNBaseTest {
     STRCodeSample strOtherCompound;
     STRCodeSample strOtherSaltCode;
     STRCodeSample strOtherSaltEQ;
+    String experimentName = "11111111-1111";
+    String experimentName2 = "11111111-2222";
 
     @Test
     @Order(-1000)
@@ -73,16 +76,20 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Test
     @Order(100)
     void testRegisterSample() {
-        SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1));
+        SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1, new NotebookBatchNumber("00000000-0000", 1)));
         str1 = sample.getStrCode();
         assertThat(str1.getSaltCode()).as(str1.toString()).isZero();
         assertThat(str1.getSampleCode()).as(str1.toString()).isPositive();
+        NotebookBatchNumber batchNumber = sample.getNotebookBatchNumber();
+        assertThat(batchNumber.getExperimentName()).isEqualTo("00000000-0000");
+        assertThat(batchNumber.getOrdinal()).isEqualTo(1);
+        assertThat(batchNumber.toString()).isEqualTo("00000000-0000-001");
     }
 
     @Test
     @Order(200)
     void testRegisterSample2() {
-        SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1));
+        SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1, null));
         str2 = sample.getStrCode();
         assertThat(str2.getCompoundCode()).as(str2.toString()).isEqualTo(str1.getCompoundCode());
         assertThat(str2.getSaltCode()).as(str2.toString()).isZero();
@@ -92,7 +99,7 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Test
     @Order(300)
     void testRegisterSampleForOtherCompound() {
-        SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound2));
+        SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound2, null));
         strOtherCompound = sample.getStrCode();
         assertThat(strOtherCompound.getCompoundCode()).as(strOtherCompound.toString()).isNotEqualTo(str1.getCompoundCode());
         assertThat(strOtherCompound.getSaltCode()).as(strOtherCompound.toString()).isZero();
@@ -104,7 +111,7 @@ public class CompoundServiceTest extends ELNBaseTest {
     void testRegisterSampleForOtherSaltCode() {
         IndigoMolecule molecule = indigo.loadMolecule(compound1.getMolFile());
         compound1 = compoundService.virtualCompoundRef(molecule, null, saltCode, 1.0);
-        SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1));
+        SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1, null));
         strOtherSaltCode = sample.getStrCode();
         assertThat(strOtherSaltCode.getCompoundCode()).as(strOtherSaltCode.toString()).isEqualTo(str1.getCompoundCode());
         assertThat(strOtherSaltCode.getSaltCode()).as(strOtherSaltCode.toString()).isEqualTo(Integer.parseInt(saltCode.getCode()));
@@ -116,7 +123,7 @@ public class CompoundServiceTest extends ELNBaseTest {
     void testRegisterSampleForOtherSaltEQ() {
         IndigoMolecule molecule = indigo.loadMolecule(compound1.getMolFile());
         compound1 = compoundService.virtualCompoundRef(molecule, null, saltCode, 2.0);
-        SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1));
+        SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1, null));
         strOtherSaltEQ = sample.getStrCode();
         assertThat(strOtherSaltEQ.getCompoundCode()).as(strOtherSaltEQ.toString()).isEqualTo(str1.getCompoundCode());
         assertThat(strOtherSaltEQ.getSaltCode()).as(strOtherSaltEQ.toString()).isEqualTo(strOtherSaltCode.getSaltCode());

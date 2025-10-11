@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.model.outputsample;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.NotebookBatchNumber;
 import com.epam.indigoeln.eln.model.STRCodeCompound;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.reaction.model.*;
@@ -33,6 +34,9 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     @NotNull
     private Anchor.OutputSample anchor;
 
+    @NotNull
+    private NotebookBatchNumber notebookBatchNumber;
+
     @Nullable
     private EnteredValue<MolUnit> actualMol;
 
@@ -50,9 +54,6 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
 
     @Nullable
     private UUID sampleId;
-
-    @Nullable
-    private STRCodeSample strCode;
 
     @NotNull
     private List<DictionaryItemRef> handlingPrecautions = List.of();
@@ -93,10 +94,11 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     @Nullable
     private String structureComment;
 
-    public static ReactionOutputSample create(ReactionOutput row) {
+    public static ReactionOutputSample create(String experimentName, ReactionOutput row) {
         ReactionOutputSample sample = new ReactionOutputSample();
         sample.row = row;
         sample.anchor = new Anchor.OutputSample(row.getReaction().getModel().generateNextAnchor());
+        sample.notebookBatchNumber = new NotebookBatchNumber(experimentName, row.getReaction().getModel().generateNextNotebookBatchNumber());
         return sample;
     }
 
@@ -154,6 +156,7 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
                 .property("registrationStatusMessage", registrationStatusMessage)
                 .property("sampleId", sampleId)
                 .property("strCode", strCode)
+                .property("notebookBatchNumber", notebookBatchNumber)
                 .close();
     }
 }

@@ -6,10 +6,7 @@ import com.epam.indigoeln.compound.mapper.SampleMapper;
 import com.epam.indigoeln.compound.model.*;
 import com.epam.indigoeln.compound.repository.CompoundRepository;
 import com.epam.indigoeln.compound.repository.SampleRepository;
-import com.epam.indigoeln.eln.model.CompoundSource;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.STRCodeCompound;
-import com.epam.indigoeln.eln.model.STRCodeSample;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
@@ -174,6 +171,16 @@ public class CompoundService {
                 throw new IllegalArgumentException("Cannot register a sample of an unknown compound");
             }
         };
+        SampleEntity sample = new SampleEntity();
+        sample.setCompound(compound);
+        sample.setStrCode(generateStrCode(compound));
+        sample.setNotebookBatchNumber(request.getNotebookBatchNumber());
+        compound.getSamples().add(sample);
+        sampleRepository.persist(sample);
+        return sample;
+    }
+
+    private STRCodeSample generateStrCode(CompoundEntity compound) {
         STRCodeCompound compoundStrCode;
         if (compound.getStrCode() != null) {
             compoundStrCode = compound.getStrCode();
@@ -189,16 +196,11 @@ public class CompoundService {
             compound.setStrCode(compoundStrCode);
         }
         log.debug("registerSample: compoundStrCode={}", compoundStrCode);
-        SampleEntity sample = new SampleEntity();
         STRCodeSample lastSampleStrCode = sampleRepository.getLastSampleStrCode(compoundStrCode.toString());
         int sampleStrCode = lastSampleStrCode != null
                 ? lastSampleStrCode.getSampleCode() + 1
                 : 1;
-        sample.setStrCode(new STRCodeSample(compoundStrCode.getCompoundCode(), compoundStrCode.getSaltCode(), sampleStrCode));
-        sample.setCompound(compound);
-        compound.getSamples().add(sample);
-        sampleRepository.persist(sample);
-        return sample;
+        return new STRCodeSample(compoundStrCode.getCompoundCode(), compoundStrCode.getSaltCode(), sampleStrCode);
     }
 
     @Data

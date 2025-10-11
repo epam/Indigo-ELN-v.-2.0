@@ -1,5 +1,8 @@
 package com.epam.indigoeln.compound.entity;
 
+import com.epam.indigoeln.eln.config.hibernate.NotebookBatchNumberConverter;
+import com.epam.indigoeln.eln.config.hibernate.STRCodeCompoundConverter;
+import com.epam.indigoeln.eln.model.NotebookBatchNumber;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.eln.config.hibernate.STRCodeSampleConverter;
 import com.epam.indigoeln.eln.entity.IdentifiableEntity;
@@ -24,8 +27,9 @@ public class SampleEntity extends IdentifiableEntity {
     private CompoundEntity compound;
 
     @Nullable
-    @Column(name = "batch_number")
-    private String batchNumber;
+    @Column(name = "notebook_batch_number")
+    @Convert(converter = NotebookBatchNumberConverter.class)
+    private NotebookBatchNumber notebookBatchNumber;
 
     @Nullable
     @Column(name = "str_code")

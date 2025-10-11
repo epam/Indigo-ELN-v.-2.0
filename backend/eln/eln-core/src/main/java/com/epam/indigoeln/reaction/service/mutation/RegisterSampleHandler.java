@@ -4,6 +4,7 @@ import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
 import com.epam.indigoeln.compound.service.CompoundService;
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.reaction.model.CompoundRef;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.SampleRegistrationStatus;
@@ -18,7 +19,7 @@ public class RegisterSampleHandler extends AbstractMutationHandler {
     @Inject
     CompoundService compoundService;
 
-    public void handle(ExperimentModel model, ReactionOutputSample sampleRow, ReactionOutputSampleMutation.RegisterSample mutation) {
+    public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionOutputSample sampleRow, ReactionOutputSampleMutation.RegisterSample mutation) {
         if (sampleRow.getRegistrationStatus() != null) {
             throw new InvalidRequestException("Sample already sent for registration");
         }
@@ -26,10 +27,11 @@ public class RegisterSampleHandler extends AbstractMutationHandler {
             throw new InvalidRequestException("Cannot register sample for unknown compound");
         }
         sampleRow.setRegistrationStatus(SampleRegistrationStatus.IN_PROGRESS);
-        SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(sampleRow.getRow().getCompound()));
+        SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(sampleRow.getRow().getCompound(), sampleRow.getNotebookBatchNumber()));
         sampleRow.setRegistrationStatus(SampleRegistrationStatus.REGISTERED);
         sampleRow.setStrCode(sample.getStrCode());
         sampleRow.setSampleId(sample.getId());
+//        ... propagate compound state and other fields
         if (sampleRow.getRow().getCompound() instanceof CompoundRef.Virtual) {
             sampleRow.getRow().setCompound(compoundService.realCompoundRef(sample.getCompound()));
         }

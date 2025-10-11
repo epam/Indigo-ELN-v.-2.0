@@ -6,17 +6,13 @@ import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.outputsample.ReactionOutputSample;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Transactional
@@ -32,7 +28,7 @@ public class ExperimentModelService {
     @Inject
     InputMutationHandler inputMutationHandler;
     @Inject
-    SaltCodeEQHandler saltCodeEQHandler;
+    CompoundHandler compoundHandler;
     @Inject
     InputSampleMutationHandler inputSampleMutationHandler;
     @Inject
@@ -67,12 +63,15 @@ public class ExperimentModelService {
             case ReactionInputMutation im -> {
                 ReactionInput input = model.locate(im);
                 switch (im) {
-                    case ReactionInputMutation.SetInputRole m -> inputMutationHandler.handle(experiment, model, input, m);
-                    case ReactionInputMutation.SetInputMol m -> inputMutationHandler.handle(model, input, m);
-                    case ReactionInputMutation.SetLimiting m -> inputMutationHandler.handle(model, input, m);
-                    case ReactionInputMutation.SetInputSaltCode m -> saltCodeEQHandler.handle(model, input, m);
-                    case ReactionInputMutation.SetInputSaltEQ m -> saltCodeEQHandler.handle(model, input, m);
-                    case ReactionInputMutation.SetInputEQ m -> inputMutationHandler.handle(model, input, m);
+                    case ReactionInputMutation.SetInputRowRole m -> inputMutationHandler.handle(experiment, model, input, m);
+                    case ReactionInputMutation.SetInputRowMol m -> inputMutationHandler.handle(model, input, m);
+                    case ReactionInputMutation.SetInputRowLimiting m -> inputMutationHandler.handle(model, input, m);
+                    case ReactionInputMutation.SetInputRowSaltCode m -> compoundHandler.handle(model, input, m);
+                    case ReactionInputMutation.SetInputRowSaltEQ m -> compoundHandler.handle(model, input, m);
+                    case ReactionInputMutation.SetInputRowEQ m -> inputMutationHandler.handle(model, input, m);
+                    case ReactionInputMutation.SetInputCompoundFormula m -> compoundHandler.handle(model, input, m);
+                    case ReactionInputMutation.SetInputCompoundMolWeight m -> compoundHandler.handle(model, input, m);
+                    case ReactionInputMutation.SetInputCompoundStereoisomerCode m -> compoundHandler.handle(model, input, m);
                 }
             }
             case ReactionInputSampleMutation ism -> {
@@ -90,11 +89,15 @@ public class ExperimentModelService {
             case ReactionOutputMutation om -> {
                 ReactionOutput output = model.locate(om);
                 switch (om) {
-                    case ReactionOutputMutation.AddProductSample m -> outputMutationHandler.handle(model, output, m);
-                    case ReactionOutputMutation.SetOutputType m -> outputMutationHandler.handle(model, output, m);
-                    case ReactionOutputMutation.SetOutputSaltCode m -> saltCodeEQHandler.handle(model, output, m);
-                    case ReactionOutputMutation.SetOutputSaltEQ m -> saltCodeEQHandler.handle(model, output, m);
-                    case ReactionOutputMutation.SetOutputEQ m -> outputMutationHandler.handle(model, output, m);
+                    case ReactionOutputMutation.AddProductSample m -> outputMutationHandler.handle(experiment, model, output, m);
+                    case ReactionOutputMutation.SetOutputRowType m -> outputMutationHandler.handle(model, output, m);
+                    case ReactionOutputMutation.SetOutputRowSaltCode m -> compoundHandler.handle(model, output, m);
+                    case ReactionOutputMutation.SetOutputRowSaltEQ m -> compoundHandler.handle(model, output, m);
+                    case ReactionOutputMutation.SetOutputRowEQ m -> outputMutationHandler.handle(model, output, m);
+                    case ReactionOutputMutation.SetOutputRowName m -> outputMutationHandler.handle(model, output, m);
+                    case ReactionOutputMutation.SetOutputCompoundFormula m -> compoundHandler.handle(model, output, m);
+                    case ReactionOutputMutation.SetOutputCompoundMolWeight m -> compoundHandler.handle(model, output, m);
+                    case ReactionOutputMutation.SetOutputCompoundStereoisomerCode m -> compoundHandler.handle(model, output, m);
                 }
             }
             case ReactionOutputSampleMutation osm -> {
@@ -107,7 +110,7 @@ public class ExperimentModelService {
                     case ReactionOutputSampleMutation.SetOutputHealthHazards m -> outputSampleMutationHandler.handle(model, sample, m);
                     case ReactionOutputSampleMutation.SetOutputActualMol m -> outputSampleMutationHandler.handle(model, sample, m);
                     case ReactionOutputSampleMutation.SetOutputActualWeight m -> outputSampleMutationHandler.handle(model, sample, m);
-                    case ReactionOutputSampleMutation.RegisterSample m -> registerSampleHandler.handle(model, sample, m);
+                    case ReactionOutputSampleMutation.RegisterSample m -> registerSampleHandler.handle(experiment, model, sample, m);
 
                     case ReactionOutputSampleMutation.SetOutputHandlingPrecautions m -> outputSampleMutationHandler.handle(model, sample, m);
                     case ReactionOutputSampleMutation.SetOutputStorageInstructions m -> outputSampleMutationHandler.handle(model, sample, m);
