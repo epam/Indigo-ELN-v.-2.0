@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.compound.model.StructureSearchType;
+import com.epam.indigoeln.compound.model.FindSamplesRequest;
+import com.epam.indigoeln.compound.model.StructuralSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.api.MutateModelForm;
@@ -70,25 +71,25 @@ class GlobalSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testFindProjects() {
-        Page<GlobalSearchResultDTO> results = globalSearchClient.search(GlobalSearchRequest.builder().query("p1").build(), Paging.DEFAULT);
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("p1"), Paging.DEFAULT);
         assertResults(results, tuple(EntityType.PROJECT, "p1", project1.getId()));
     }
 
     @Test
     void testFindNotebooks() {
-        Page<GlobalSearchResultDTO> results = globalSearchClient.search(GlobalSearchRequest.builder().query("nd2").build(), Paging.DEFAULT);
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("nd2"), Paging.DEFAULT);
         assertResults(results, tuple(EntityType.NOTEBOOK, "00000002", notebook2.getId()));
     }
 
     @Test
     void testFindExperiments() {
-        Page<GlobalSearchResultDTO> results = globalSearchClient.search(GlobalSearchRequest.builder().query("ed1").build(), Paging.DEFAULT);
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("ed1"), Paging.DEFAULT);
         assertResults(results, tuple(EntityType.EXPERIMENT, experiment1.getName(), experiment1.getId()));
     }
 
     @Test
     void testFindAll() {
-        Page<GlobalSearchResultDTO> results = globalSearchClient.search(GlobalSearchRequest.builder().query("xx").build(), Paging.DEFAULT);
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("xx"), Paging.DEFAULT);
         assertResults(results
                 , tuple(EntityType.PROJECT, project1.getName(), project1.getId())
                 , tuple(EntityType.PROJECT, project2.getName(), project2.getId())
@@ -101,20 +102,20 @@ class GlobalSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testFindExperimentsByTherapeuticArea() {
-        Page<GlobalSearchResultDTO> results = globalSearchClient.search(GlobalSearchRequest.builder().therapeuticArea(therapeuticArea1).build(), Paging.DEFAULT);
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withTherapeuticArea(therapeuticArea1), Paging.DEFAULT);
         assertResults(results, tuple(EntityType.EXPERIMENT, experiment1.getName(), experiment1.getId()));
     }
 
     @Test
     void testFindExperimentsByProjectCode() {
-        Page<GlobalSearchResultDTO> results = globalSearchClient.search(GlobalSearchRequest.builder().projectCode(projectCode2).build(), Paging.DEFAULT);
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withProjectCode(projectCode2), Paging.DEFAULT);
         assertResults(results, tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
     }
 
     @Test
     void testFindExperimentsByStatus() {
         // TODO move one experiment to another status
-        Page<GlobalSearchResultDTO> results = globalSearchClient.search(GlobalSearchRequest.builder().experimentStatus(ExperimentStatus.OPEN).build(), Paging.DEFAULT);
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withExperimentStatus(ExperimentStatus.OPEN), Paging.DEFAULT);
         System.out.println(results);
         assertResults(results
                 , tuple(EntityType.EXPERIMENT, experiment1.getName(), experiment1.getId())
@@ -125,7 +126,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
 
     @Test
     void testFindAllByAuthor() {
-        Page<GlobalSearchResultDTO> results = globalSearchClient.search(GlobalSearchRequest.builder().author(getBartUserRef()).build(), Paging.DEFAULT);
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withAuthor(getBartUserRef()), Paging.DEFAULT);
         assertResults(results
                 , tuple(EntityType.PROJECT, project3.getName(), project3.getId())
                 , tuple(EntityType.NOTEBOOK, notebook3.getName(), notebook3.getId())
@@ -136,7 +137,10 @@ class GlobalSearchServiceTest extends ELNBaseTest {
     @Test
     void testFindByMoleculeSubstructure() {
         String molFile = new String(loadResource(getClass(), "/ring-substructure.mol"));
-        Page<GlobalSearchResultDTO> results = globalSearchClient.search(GlobalSearchRequest.builder().structureSearchType(StructureSearchType.SUBSTRUCTURE).structure(molFile).build(), Paging.DEFAULT);
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(
+                new GlobalSearchRequest().withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile)),
+                Paging.DEFAULT
+        );
         assertResults(results, tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
     }
 

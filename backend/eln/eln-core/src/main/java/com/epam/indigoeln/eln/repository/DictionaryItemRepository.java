@@ -62,4 +62,8 @@ public class DictionaryItemRepository extends BaseRepository<DictionaryItemEntit
                 dictionaryMapper::itemToRef
         );
     }
+
+    public List<DictionaryItemEntity> findByIds(UUID dictionaryID, List<UUID> itemIDs) {
+        return find("dictionary.id=?1 AND id IN (?2)", dictionaryID, itemIDs).list();
+    }
 }

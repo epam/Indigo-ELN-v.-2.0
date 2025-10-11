@@ -1,5 +1,6 @@
 package com.epam.indigoeln.compound.model;
 
+import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,8 +17,23 @@ public class FindSamplesRequest {
     String quickSearch;
 
     @Nullable
-    StructureSearchType structureSearchType;
+    StructuralSearch structure;
 
     @Nullable
-    String structure;
+    TextSearch notebookBatchNumber;
+
+    @Nullable
+    TextSearch molecularFormula;
+
+    @Nullable
+    NumericSearch molWeight;
+
+    @Nullable
+    TextSearch chemicalName;
+
+    @Nullable
+    DictionaryItemRef compoundState;
+
+    @Nullable
+    TextSearch batchComment;
 }

@@ -27,7 +27,7 @@ public class RegisterSampleHandler extends AbstractMutationHandler {
             throw new InvalidRequestException("Cannot register sample for unknown compound");
         }
         sampleRow.setRegistrationStatus(SampleRegistrationStatus.IN_PROGRESS);
-        SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(sampleRow.getRow().getCompound(), sampleRow.getNotebookBatchNumber()));
+        SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(sampleRow.getRow().getCompound()).withNotebookBatchNumber(sampleRow.getNotebookBatchNumber()));
         sampleRow.setRegistrationStatus(SampleRegistrationStatus.REGISTERED);
         sampleRow.setStrCode(sample.getStrCode());
         sampleRow.setSampleId(sample.getId());

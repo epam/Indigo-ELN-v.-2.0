@@ -175,6 +175,15 @@ public class CompoundService {
         sample.setCompound(compound);
         sample.setStrCode(generateStrCode(compound));
         sample.setNotebookBatchNumber(request.getNotebookBatchNumber());
+        sample.setDensity(request.getDensity() != null ? request.getDensity().getValue() : null);
+        sample.setMolarity(request.getMolarity() != null ? request.getMolarity().getValue() : null);
+        sample.setMolarityUnit(request.getMolarity() != null ? request.getMolarity().getUnit() : null);
+        sample.setPurity(request.getPurity());
+        if (request.getHealthHazards() != null) {
+            sample.getHealthHazards().addAll(dictionaryService.lookup(BuiltInDictionary.HEALTH_HAZARD.name(), request.getHealthHazards()));
+        }
+        sample.setCompoundState(dictionaryService.lookup(BuiltInDictionary.COMPONENT_STATE.name(), request.getCompoundState()));
+        sample.setBatchComment(request.getBatchComment());
         compound.getSamples().add(sample);
         sampleRepository.persist(sample);
         return sample;

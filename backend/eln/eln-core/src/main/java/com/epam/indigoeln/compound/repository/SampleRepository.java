@@ -4,6 +4,8 @@ import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.mapper.SampleMapper;
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
+import com.epam.indigoeln.compound.model.NumericSearch;
+import com.epam.indigoeln.compound.model.TextSearch;
 import com.epam.indigoeln.eln.model.EntityType;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.eln.repository.BaseRepository;
@@ -34,23 +36,57 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
     public List<SampleEntity> find(FindSamplesRequest request) {
         Conditions conditions = new Conditions()
                 .addIfNotNull("full_text_search(searchVector, websearch_to_tsquery('english', ?))", request.getQuickSearch());
-        if (request.getStructureSearchType() != null) {
-            InvalidRequestException.validate(request.getStructure() != null, "structureSearchType is required when structure is provided");
-            switch (request.getStructureSearchType()) {
+        if (request.getStructure() != null) {
+            switch (request.getStructure().type()) {
                 case EXACT -> {
-                    conditions.add("bingo_exact_match(compound.molFile, ?, '')", request.getStructure());
+                    conditions.add("bingo_exact_match(compound.molFile, ?, '')", request.getStructure().query());
                 }
                 case SUBSTRUCTURE -> {
-                    conditions.add("bingo_substructure_match(compound.molFile, ?, '')", request.getStructure());
+                    conditions.add("bingo_substructure_match(compound.molFile, ?, '')", request.getStructure().query());
                 }
                 case SIMILARITY -> {
-                    conditions.add("bingo_similarity_search(compound.molFile, 0.8, null, ?, 'Tanimoto')", request.getStructure());
+                    conditions.add("bingo_similarity_search(compound.molFile, 0.8, null, ?, 'Tanimoto')", request.getStructure().query());
                 }
             }
-        } else {
-            InvalidRequestException.validate(request.getStructure() == null, "structure cannot be used without structureSearchType");
         }
+        addTextSearch(conditions, request.getNotebookBatchNumber(), "notebookBatchNumber");;
+        addTextSearch(conditions, request.getMolecularFormula(), "compound.formula");
+        addNumericSearch(conditions, request.getMolWeight(), "compound.molWeight");
+        addTextSearch(conditions, request.getChemicalName(), "compound.name");
+        if (request.getCompoundState() != null) {
+            conditions.add("compoundState.id = ?", request.getCompoundState().getId());
+        }
+        addTextSearch(conditions, request.getBatchComment(), "batchComment");
         return find(conditions.getQuery(), conditions.getValues()).list();
+    }
+
+    private void addTextSearch(Conditions conditions, @Nullable TextSearch search, String field) {
+        switch (search) {
+            case TextSearch.BetweenSearch b -> conditions
+                    .add("lower(" + field + ") >= ?", b.from().toLowerCase())
+                    .add("lower(" + field + ") <= ?", b.to().toLowerCase());
+            case TextSearch.ContainsSearch c -> conditions
+                    .add("ilike(" + field + ", ?)", '%' + c.value() + '%');
+            case TextSearch.EndsWithSearch e -> conditions
+                    .add("ilike(" + field + ", ?)", '%' + e.value());
+            case TextSearch.ExactSearch e -> conditions
+                    .add("lower(" + field + ") = ?", e.value().toLowerCase());
+            case TextSearch.StartsWithSearch s -> conditions
+                    .add("ilike(" + field + ", ?)", s.value() + '%');
+            case null -> {}
+        }
+    }
+
+    private void addNumericSearch(Conditions conditions, @Nullable NumericSearch search, String field) {
+        switch (search) {
+            case NumericSearch.Equals e -> conditions
+                    .add("round(" + field + ") = ?", Math.round(e.value()));
+            case NumericSearch.GreaterThenOrEqual ge -> conditions
+                    .add(field + " >= ?", ge.value());
+            case NumericSearch.LessThenOrEqual le -> conditions
+                    .add(field + " <= ?", le.value());
+            case null -> {}
+        }
     }
 
     @Nullable

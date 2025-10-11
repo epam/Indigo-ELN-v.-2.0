@@ -62,18 +62,17 @@ public class GlobalSearchService {
         }
         if (request.getStructure() != null) {
             hasProjects = hasNotebooks = false;
-            InvalidRequestException.validate(request.getStructureSearchType() != null, "structureSearchType is required when structure is provided");
             experimentJoins.add("join compound_experiment ce on ce.experiment_id = e.id");
             experimentJoins.add("join compound c on c.id = ce.compound_id");
-            switch (request.getStructureSearchType()) {
+            switch (request.getStructure().type()) {
                 case EXACT -> {
-                    conditions.add(SLOT_EXPERIMENTS, "c.mol_file @ (?, '')::bingo.exact", request.getStructure());
+                    conditions.add(SLOT_EXPERIMENTS, "c.mol_file @ (?, '')::bingo.exact", request.getStructure().query());
                 }
                 case SUBSTRUCTURE -> {
-                    conditions.add(SLOT_EXPERIMENTS, "c.mol_file @ (?, '')::bingo.sub", request.getStructure());
+                    conditions.add(SLOT_EXPERIMENTS, "c.mol_file @ (?, '')::bingo.sub", request.getStructure().query());
                 }
                 case SIMILARITY -> {
-                    conditions.add(SLOT_EXPERIMENTS, "c.mol_file @ (0.8, null, ?, 'Tanimoto')::bingo.sim", request.getStructure());
+                    conditions.add(SLOT_EXPERIMENTS, "c.mol_file @ (0.8, null, ?, 'Tanimoto')::bingo.sim", request.getStructure().query());
                 }
             }
         }

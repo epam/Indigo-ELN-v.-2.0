@@ -3,7 +3,7 @@ package com.epam.indigoeln.reaction.service;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
-import com.epam.indigoeln.compound.model.StructureSearchType;
+import com.epam.indigoeln.compound.model.StructuralSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
@@ -93,8 +93,7 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
         ReactionMutation.ResolveInputs mutation = new ReactionMutation.ResolveInputs(reactionAnchor, new HashMap<>());
         for (ReactionInput input : model.getReactions().getFirst().getInputs()) {
             List<SampleDTO> samples = compoundClient.findSamples(new FindSamplesRequest()
-                    .withStructureSearchType(StructureSearchType.SUBSTRUCTURE)
-                    .withStructure(input.getCompound().getMolFile())
+                    .withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, input.getCompound().getMolFile()))
             );
             System.out.println("Found samples: " + samples);
             if (!samples.isEmpty()) {

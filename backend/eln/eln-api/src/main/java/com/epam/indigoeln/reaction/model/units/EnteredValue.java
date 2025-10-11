@@ -6,6 +6,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 import lombok.Getter;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
@@ -60,8 +61,8 @@ public final class EnteredValue<U extends MeasurementUnit> {
     }
 
     @Nullable
-    public static <U extends MeasurementUnit> EnteredValue<U> defaultValue(@Nullable Double value, U unit) {
-        return value != null ? new EnteredValue<>(value, unit, DEFAULT) : null;
+    public static <U extends MeasurementUnit> EnteredValue<U> defaultValue(@Nullable Double value, @Nullable U unit) {
+        return value != null && unit != null ? new EnteredValue<>(value, unit, DEFAULT) : null;
     }
 
     public static <U extends MeasurementUnit> void prepareToRecalculate(@Nullable EnteredValue<U> value, Consumer<@Nullable EnteredValue<U>> setter) {

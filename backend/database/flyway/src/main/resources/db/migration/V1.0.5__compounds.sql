@@ -33,9 +33,24 @@ CREATE TABLE Sample (
     compound_id UUID NOT NULL,
     str_code VARCHAR(64),
     notebook_batch_number VARCHAR(64),
+    density DOUBLE PRECISION,
+    molarity DOUBLE PRECISION,
+    molarity_unit Molarity_Unit,
+    purity DOUBLE PRECISION,
+    compound_state_id UUID,
+    batch_comment TEXT,
     search_vector TSVECTOR,
     CONSTRAINT sample_compound_id_fk FOREIGN KEY (compound_id) REFERENCES Compound(id),
+    CONSTRAINT sample_compound_state_id_fk FOREIGN KEY (compound_state_id) REFERENCES dictionary_item(id),
     CONSTRAINT sample_str_code_uq UNIQUE (str_code)
+);
+
+CREATE TABLE Sample_Health_Hazard (
+    sample_id UUID NOT NULL,
+    health_hazard_id UUID NOT NULL,
+    CONSTRAINT sample_health_hazard_pk PRIMARY KEY (sample_id, health_hazard_id),
+    CONSTRAINT sample_health_hazard_sample_id_fk FOREIGN KEY (sample_id) REFERENCES Sample(id) ON DELETE CASCADE,
+    CONSTRAINT sample_health_hazard_health_hazard_id_fk FOREIGN KEY (health_hazard_id) REFERENCES dictionary_item(id)
 );
 
 -- CREATE TABLE Sample_Compound (
