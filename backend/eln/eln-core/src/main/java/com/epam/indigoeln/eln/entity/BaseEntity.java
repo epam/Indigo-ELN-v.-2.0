@@ -17,19 +17,17 @@ public abstract class BaseEntity extends IdentifiableEntity {
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "created_by_id", updatable = false)
+    @JoinColumn(updatable = false)
     protected UserEntity createdBy;
 
     @NotNull
-    @Column(name = "created_at", updatable = false)
+    @Column(updatable = false)
     protected ZonedDateTime createdAt;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "modified_by_id")
     protected UserEntity modifiedBy;
 
     @NotNull
-    @Column(name = "modified_at")
     protected ZonedDateTime modifiedAt;
 }

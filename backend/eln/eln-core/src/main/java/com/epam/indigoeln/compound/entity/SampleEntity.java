@@ -29,16 +29,13 @@ public class SampleEntity extends IdentifiableEntity {
 
     @NotNull
     @ManyToOne(optional = false)
-    @JoinColumn(name = "compound_id")
     private CompoundEntity compound;
 
     @Nullable
-    @Column(name = "notebook_batch_number")
     @Convert(converter = NotebookBatchNumberConverter.class)
     private NotebookBatchNumber notebookBatchNumber;
 
     @Nullable
-    @Column(name = "str_code")
     @Convert(converter = STRCodeSampleConverter.class)
     private STRCodeSample strCode;
 
@@ -49,7 +46,6 @@ public class SampleEntity extends IdentifiableEntity {
     private Double molarity;
 
     @Nullable
-    @Column(name = "molarity_unit")
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
     private MolarityUnit molarityUnit;
@@ -59,17 +55,15 @@ public class SampleEntity extends IdentifiableEntity {
 
     @Nullable
     @ManyToOne
-    @JoinColumn(name = "compound_state_id")
     private DictionaryItemEntity compoundState;
 
     @Nullable
-    @Column(name = "batch_comment")
     private String batchComment;
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)
     @Type(PostgreSQLTSVectorType.class)
-    @Column(name = "search_vector", insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     private String searchVector;
 
     @ManyToMany

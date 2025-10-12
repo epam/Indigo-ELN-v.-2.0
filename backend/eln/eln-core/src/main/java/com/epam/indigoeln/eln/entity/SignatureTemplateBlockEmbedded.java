@@ -20,7 +20,6 @@ public class SignatureTemplateBlockEmbedded {
 
     @Nullable
     @ManyToOne
-    @JoinColumn(name = "user_id")
     private UserEntity user;
 
     @NotNull

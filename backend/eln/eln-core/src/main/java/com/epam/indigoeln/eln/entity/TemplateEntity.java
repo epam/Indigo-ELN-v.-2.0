@@ -41,7 +41,6 @@ public class TemplateEntity extends BaseEntity {
 
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "template_tabs")
     private List<TemplateTab> templateTabs;
 
     @NotNull

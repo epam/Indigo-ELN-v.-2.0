@@ -53,7 +53,7 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "project_id", updatable = false)
+    @JoinColumn(updatable = false)
     private ProjectEntity project;
 
     @NotEmpty
@@ -67,18 +67,18 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
     @Nullable
     @Basic(fetch = FetchType.LAZY)
     @Type(PostgreSQLTSVectorType.class)
-    @Column(name = "search_vector", insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     private String searchVector;
 
     @Basic
     @Nullable
-    @Column(name = "current_access", insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     @JdbcType(PostgreSQLEnumJdbcType.class)
     private AccessLevel currentAccess;
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
-    @Column(name = "experiment_count", insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     @Type(ExperimentCountArrayType.class)
     private Map<ExperimentStatus, Integer> experimentCount;
 
@@ -88,13 +88,13 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
-    @Column(name = "acl_short", insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     @Type(ACLEntryArrayType.class)
     private ACLEntry[] aclShort;
 
     @NotNull
     @Basic(fetch =  FetchType.LAZY)
-    @Column(name = "acl_count", insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     private Integer aclCount;
 
     @NotNull

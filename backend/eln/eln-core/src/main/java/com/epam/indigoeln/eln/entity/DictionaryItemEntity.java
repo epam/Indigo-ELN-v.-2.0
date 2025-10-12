@@ -18,13 +18,12 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity(name = "DictionaryItem")
-@Table(name = "Dictionary_Item")
 @ToString(of = {"id", "dictionary", "ordinal", "name", "active"})
 public class DictionaryItemEntity extends BaseEntity {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dictionary_id", updatable = false)
+    @JoinColumn(updatable = false)
     private DictionaryEntity dictionary;
 
     @NotNull
