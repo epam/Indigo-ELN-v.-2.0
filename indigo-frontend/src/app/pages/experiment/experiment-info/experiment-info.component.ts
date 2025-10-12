@@ -34,7 +34,9 @@ export class ExperimentInfoComponent implements OnInit {
 
   // Computed signals from image service
   experimentImageUrl = computed(() => this.experimentImageService.imageUrl());
-  imageLoading = computed(() => this.experimentImageService.isLoading() || this.isUpdating());
+  imageLoading = computed(
+    () => this.experimentImageService.isLoading() || this.isUpdating(),
+  );
   imageError = computed(() => this.experimentImageService.hasError());
 
   ngOnInit(): void {
@@ -46,7 +48,7 @@ export class ExperimentInfoComponent implements OnInit {
 
   onModelUpdating(isUpdating: boolean): void {
     this.isUpdating.set(isUpdating);
-    
+
     // When update completes, refresh the image
     if (!isUpdating) this.experimentImageService.refresh();
   }

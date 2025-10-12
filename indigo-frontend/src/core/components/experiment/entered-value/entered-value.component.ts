@@ -72,10 +72,8 @@ export class EnteredValueComponent {
     if (!this.readOnly) {
       this.editing = true;
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          this.editNumberRef.nativeElement.focus();
-          this.editNumberRef.nativeElement.select();
-        });
+        this.editNumberRef.nativeElement.focus();
+        this.editNumberRef.nativeElement.select();
       });
     }
   }
