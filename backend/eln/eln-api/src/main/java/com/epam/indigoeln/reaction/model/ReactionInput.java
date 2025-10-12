@@ -47,9 +47,6 @@ public final class ReactionInput extends ReactionRow implements ExperimentModelN
     public void prepareToRecalculate() {
         super.prepareToRecalculate();
         EnteredValue.prepareToRecalculate(mol, this::setMol);
-        for (ReactionInputSample sample : samples) {
-            sample.prepareToRecalculate();
-        }
     }
 
     @Override

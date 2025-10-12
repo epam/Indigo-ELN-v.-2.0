@@ -1,24 +1,27 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
 import com.epam.indigoeln.compound.entity.SampleEntity;
-import com.epam.indigoeln.compound.mapper.SampleMapper;
 import com.epam.indigoeln.compound.service.CompoundService;
-import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.mapper.DictionaryMapper;
-import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.Reaction;
+import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.ReactionInputSample;
+import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.units.DensityUnit;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 
-@ApplicationScoped
+@Dependent
 public class ResolveInputsHandler extends AbstractMutationHandler {
 
     @Inject
@@ -28,7 +31,7 @@ public class ResolveInputsHandler extends AbstractMutationHandler {
     @Inject
     ExperimentModelHelperService modelHelperService;
 
-    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.ResolveInputs mutation) {
+    public void handle(Reaction reaction, ReactionMutation.ResolveInputs mutation) {
         Set<ReactionRole> affectedRoles = EnumSet.noneOf(ReactionRole.class);
         mutation.inputSamples().forEach((inputAnchor, sampleId) -> {
             ReactionInput row = model.locate(inputAnchor);

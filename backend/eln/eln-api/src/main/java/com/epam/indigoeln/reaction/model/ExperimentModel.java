@@ -1,7 +1,6 @@
 package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.reaction.model.mutation.*;
-import com.epam.indigoeln.reaction.model.outputsample.ReactionOutputSample;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -10,7 +9,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ExperimentModel implements ExperimentModelNode, ToStringTree {
+public final class ExperimentModel implements ExperimentModelNode, ToStringTree {
 
     @Valid
     @NotEmpty
@@ -107,13 +106,6 @@ public class ExperimentModel implements ExperimentModelNode, ToStringTree {
             }
         }
         throw new IllegalArgumentException("Reaction doesn't contain output sample with id: " + anchor);
-    }
-
-    @Override
-    public void prepareToRecalculate() {
-        for (Reaction reaction : reactions) {
-            reaction.prepareToRecalculate();
-        }
     }
 
     @Override

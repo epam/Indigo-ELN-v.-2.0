@@ -14,13 +14,14 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Data
 @EqualsAndHashCode(exclude = "model")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public class Reaction implements ExperimentModelNode, ToStringTree {
+public final class Reaction implements ExperimentModelNode, ToStringTree {
 
     @JsonBackReference
     private ExperimentModel model;
@@ -92,16 +93,6 @@ public class Reaction implements ExperimentModelNode, ToStringTree {
             }
         }
         return null;
-    }
-
-    @Override
-    public void prepareToRecalculate() {
-        for (ReactionInput input : inputs) {
-            input.prepareToRecalculate();
-        }
-        for (ReactionOutput output : outputs) {
-            output.prepareToRecalculate();
-        }
     }
 
     public Iterable<ReactionInput> getInputsOfType(ReactionRole role) {

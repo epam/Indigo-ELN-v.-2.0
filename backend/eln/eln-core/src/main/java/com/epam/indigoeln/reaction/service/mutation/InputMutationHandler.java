@@ -1,7 +1,5 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
-import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
@@ -9,20 +7,20 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
 import com.google.common.base.MoreObjects;
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
 
 import java.util.EnumSet;
 import java.util.Set;
 
-@ApplicationScoped
+@Dependent
 public class InputMutationHandler extends AbstractMutationHandler {
 
     @Inject
     ExperimentModelHelperService modelHelperService;
 
-    public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionInput row, ReactionInputMutation.SetInputRowRole mutation) {
+    public void handle(ReactionInput row, ReactionInputMutation.SetInputRowRole mutation) {
         StreamEx.of(row.getReaction().getInputs())
                 .filter(x -> x != row && x.getRole() == row.getRole() && x.getCompound().equals(row.getCompound()))
                 .findAny()
@@ -38,7 +36,7 @@ public class InputMutationHandler extends AbstractMutationHandler {
         modelHelperService.rebuildReactionScheme(experiment, row.getReaction(), affectedRoles);
     }
 
-    public void handle(ExperimentModel model, ReactionInput row, ReactionInputMutation.SetInputRowMol mutation) {
+    public void handle(ReactionInput row, ReactionInputMutation.SetInputRowMol mutation) {
         row.setMol(EnteredValue.userLastEntered(mutation.mol(), mutation.molUnit()));
         for (ReactionInput otherRow : row.getReaction().getInputs()) {
             otherRow.setLimiting(false);
@@ -46,14 +44,14 @@ public class InputMutationHandler extends AbstractMutationHandler {
         row.setLimiting(true);
     }
 
-    public void handle(ExperimentModel model, ReactionInput row, ReactionInputMutation.SetInputRowLimiting mutation) {
+    public void handle(ReactionInput row, ReactionInputMutation.SetInputRowLimiting mutation) {
         for (ReactionInput otherRow : row.getReaction().getInputs()) {
             otherRow.setLimiting(false);
         }
         row.setLimiting(true);
     }
 
-    public void handle(ExperimentModel model, ReactionInput row, ReactionInputMutation.SetInputRowEQ mutation) {
+    public void handle(ReactionInput row, ReactionInputMutation.SetInputRowEQ mutation) {
         row.setEq(EnteredValue.userLastEntered(MoreObjects.firstNonNull(mutation.eq(), 1.0), NoUnit.NO_UNIT));
     }
 }

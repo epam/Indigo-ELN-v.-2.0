@@ -1,15 +1,13 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
 import com.epam.indigoeln.compound.service.CompoundService;
-import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
-import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -21,7 +19,7 @@ import java.util.Set;
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 
 @Slf4j
-@ApplicationScoped
+@Dependent
 public class SetSchemeHandler extends AbstractMutationHandler {
 
     @Inject
@@ -31,7 +29,7 @@ public class SetSchemeHandler extends AbstractMutationHandler {
     @Inject
     ExperimentModelHelperService experimentModelHelperService;
 
-    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.SetScheme mutation) {
+    public void handle(Reaction reaction, ReactionMutation.SetScheme mutation) {
         reaction.setRxnfile(mutation.molFile());
         // TODO match into existing inputs/outputs
         reaction.setInputs(new ArrayList<>());
@@ -53,11 +51,11 @@ public class SetSchemeHandler extends AbstractMutationHandler {
         experimentModelHelperService.setReactionScheme(experiment, reaction, indigoReaction);
     }
 
-    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddEmptyInput mutation) {
+    public void handle(Reaction reaction, ReactionMutation.AddEmptyInput mutation) {
         reaction.getInputs().add(createInputLine(reaction, null, ReactionRole.REACTANT));
     }
 
-    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.RemoveInput mutation) {
+    public void handle(Reaction reaction, ReactionMutation.RemoveInput mutation) {
         ReactionInput input = model.locate(mutation.input());
         reaction.getInputs().remove(input);
         experimentModelHelperService.rebuildReactionScheme(experiment, reaction, Set.of(input.getRole()));

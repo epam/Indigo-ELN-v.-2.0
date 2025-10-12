@@ -63,7 +63,11 @@ public class DictionaryItemRepository extends BaseRepository<DictionaryItemEntit
         );
     }
 
-    public List<DictionaryItemEntity> findByIds(UUID dictionaryID, List<UUID> itemIDs) {
-        return find("dictionary.id=?1 AND id IN (?2)", dictionaryID, itemIDs).list();
+    public List<DictionaryItemEntity> findByIds(Collection<UUID> itemIDs) {
+        return find("id IN (?1)", itemIDs).list();
+    }
+
+    public List<DictionaryItemEntity> findByIds(UUID dictionaryID, Collection<UUID> itemIDs) {
+        return find("dictionary.id=?1 AND id IN (?2)", Sort.by("ordinal"), dictionaryID, itemIDs).list();
     }
 }

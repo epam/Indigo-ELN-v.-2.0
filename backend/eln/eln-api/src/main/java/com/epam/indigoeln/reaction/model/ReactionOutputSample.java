@@ -1,10 +1,9 @@
-package com.epam.indigoeln.reaction.model.outputsample;
+package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.NotebookBatchNumber;
 import com.epam.indigoeln.eln.model.STRCodeCompound;
-import com.epam.indigoeln.eln.model.STRCodeSample;
-import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
@@ -22,6 +21,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 @Getter
 @Setter
@@ -139,6 +139,20 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
                 .map(r -> r.getCompound().getStrCode())
                 .filter(Objects::nonNull)
                 .toList();
+    }
+
+    @Override
+    public void collectDictionaries(Consumer<@Nullable DictionaryItemRef> consumer) {
+        super.collectDictionaries(consumer);
+        handlingPrecautions.forEach(consumer);
+        storageInstructions.forEach(consumer);
+        compoundProtection.forEach(consumer);
+        solubilityInSolvents.stream().map(SolubidityInSolvent::getSolvent).forEach(consumer);
+        residualSolvents.stream().map(ResidualSolvent::getSolvent).forEach(consumer);
+        consumer.accept(externalSupplier != null ? externalSupplier.getSupplier() : null);
+        consumer.accept(source);
+        consumer.accept(sourceDetails);
+        consumer.accept(componentState);
     }
 
     @Override

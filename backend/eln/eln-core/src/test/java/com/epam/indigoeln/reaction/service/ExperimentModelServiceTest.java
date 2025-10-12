@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
+import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 
 @QuarkusTest
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
@@ -51,6 +52,7 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
     Anchor.Output output2Anchor;
     Anchor.OutputSample output2Sample1Anchor;
     Anchor.OutputSample output2Sample2Anchor;
+    DictionaryItemRef healthHazard;
 
     byte @Nullable[] picture = null;
 
@@ -59,6 +61,7 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
         reportBuilder = new CalculationReportBuilder(new File("calculations.html"));
         miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
         System.out.println(model);
+        healthHazard = dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getFirst();
     }
 
     @AfterAll
@@ -210,6 +213,14 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
     @Order(1102)
     void testRegisterAnotherSample() {
         applyMutation(new ReactionOutputSampleMutation.RegisterSample(output2Sample2Anchor));
+    }
+
+    @Test
+    @Order(1200)
+    void testProtectDictionaryItemsFromDeletion() {
+        applyMutation(new ReactionOutputSampleMutation.SetOutputHealthHazards(output2Sample1Anchor, List.of(healthHazard)));
+        assertThatClientCall(() -> dictionaryClient.removeDictionaryItem(BuiltInDictionary.HEALTH_HAZARD, healthHazard.getId()))
+                .isBadRequest("This word is selected in other inputs. Please deactivate the word to remove it from available options of the inputs");
     }
 
     @SneakyThrows

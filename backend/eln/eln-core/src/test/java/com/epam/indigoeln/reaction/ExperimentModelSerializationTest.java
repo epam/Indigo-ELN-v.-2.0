@@ -1,15 +1,14 @@
 package com.epam.indigoeln.reaction;
 
 import com.epam.indigoeln.eln.model.STRCodeCompound;
+import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
-import com.epam.indigoeln.reaction.model.units.MolUnit;
-import com.epam.indigoeln.test.FeignUtil;
-import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.outputsample.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
+import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
+import com.epam.indigoeln.test.FeignUtil;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

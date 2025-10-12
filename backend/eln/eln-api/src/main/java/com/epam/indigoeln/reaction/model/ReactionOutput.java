@@ -1,6 +1,5 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.reaction.model.outputsample.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
@@ -54,9 +53,6 @@ public final class ReactionOutput extends ReactionRow implements ExperimentModel
         super.prepareToRecalculate();
         EnteredValue.prepareToRecalculate(theoMol, this::setTheoMol);
         EnteredValue.prepareToRecalculate(theoWeight, this::setTheoWeight);
-        for (ReactionOutputSample sample : samples) {
-            sample.prepareToRecalculate();
-        }
     }
 
     @Override
