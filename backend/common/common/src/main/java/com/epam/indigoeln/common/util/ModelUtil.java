@@ -32,7 +32,7 @@ public class ModelUtil {
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public <T> void editProperty(@Nullable Optional<T> property, Consumer<@Nullable T> consumer) {
+    public <T> void editProperty(@Nullable Optional<T> property, Consumer<T> consumer) {
         //noinspection OptionalAssignedToNull
         if (property != null) {
             consumer.accept(property.orElse(null));

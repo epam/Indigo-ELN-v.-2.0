@@ -11,7 +11,6 @@ import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
-import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
@@ -28,7 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -48,8 +46,6 @@ public class ExperimentService {
     static final byte[] EMPTY_PICTURE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\"/>".getBytes(StandardCharsets.UTF_8);
     public static final Pattern FILENAME_REGEX = Pattern.compile("filename\\s*=\\s*\"?([^\";]+)\"?", Pattern.CASE_INSENSITIVE);
 
-    @Inject
-    ProjectRepository projectRepository;
     @Inject
     NotebookRepository notebookRepository;
     @Inject
@@ -128,6 +124,7 @@ public class ExperimentService {
 
     public Boolean markExperiment(UUID experimentId, boolean isMarked) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
+        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
         experimentRepository.markExperiment(experimentId, userService.getCurrentUser(), isMarked);
         return isMarked;
     }

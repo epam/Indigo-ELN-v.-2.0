@@ -73,7 +73,6 @@ public class NotebookService {
         return notebookRepository.loadDetails(notebookId);
     }
 
-    @SuppressWarnings("OptionalAssignedToNull")
     public NotebookDetailsDTO editNotebook(UUID notebookId, NotebookEditRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
         aclService.ensureAccess(notebook, ApplicationPermission.EDIT_NOTEBOOKS);
