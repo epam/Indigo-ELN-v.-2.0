@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionMutation.SetScheme.class),
         @JsonSubTypes.Type(ReactionMutation.ResolveInputs.class),
         @JsonSubTypes.Type(ReactionMutation.AddEmptyInput.class),
+        @JsonSubTypes.Type(ReactionMutation.AddInput.class),
         @JsonSubTypes.Type(ReactionMutation.RemoveInput.class),
 
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowRole.class),

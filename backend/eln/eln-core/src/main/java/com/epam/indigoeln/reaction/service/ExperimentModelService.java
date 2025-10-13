@@ -34,9 +34,7 @@ public class ExperimentModelService {
     @Inject
     DictionaryItemRepository dictionaryItemRepository;
     @Inject
-    Provider<SetSchemeHandler> setSchemeHandler;
-    @Inject
-    Provider<ResolveInputsHandler> resolveInputsHandler;
+    Provider<SchemaHandler> schemeHandler;
     @Inject
     Provider<InputMutationHandler> inputMutationHandler;
     @Inject
@@ -66,10 +64,11 @@ public class ExperimentModelService {
             case ReactionMutation rm -> {
                 Reaction reaction = model.locate(rm);
                 yield switch (rm) {
-                    case ReactionMutation.SetScheme m -> resolve(setSchemeHandler, h -> h.handle(reaction, m));
-                    case ReactionMutation.ResolveInputs m -> resolve(resolveInputsHandler, h -> h.handle(reaction, m));
-                    case ReactionMutation.AddEmptyInput m -> resolve(setSchemeHandler, h -> h.handle(reaction, m));
-                    case ReactionMutation.RemoveInput m -> resolve(setSchemeHandler, h -> h.handle(reaction, m));
+                    case ReactionMutation.SetScheme m -> resolve(schemeHandler, h -> h.handle(reaction, m));
+                    case ReactionMutation.ResolveInputs m -> resolve(schemeHandler, h -> h.handle(reaction, m));
+                    case ReactionMutation.AddEmptyInput m -> resolve(schemeHandler, h -> h.handle(reaction, m));
+                    case ReactionMutation.AddInput m -> resolve(schemeHandler, h -> h.handle(reaction, m));
+                    case ReactionMutation.RemoveInput m -> resolve(schemeHandler, h -> h.handle(reaction, m));
                 };
             }
             case ReactionInputMutation im -> {

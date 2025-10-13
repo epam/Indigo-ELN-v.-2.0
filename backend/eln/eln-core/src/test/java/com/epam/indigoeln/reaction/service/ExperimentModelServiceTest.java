@@ -4,6 +4,7 @@ import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.StructuralSearch;
+import com.epam.indigoeln.compound.model.TextSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
@@ -221,6 +222,13 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
         applyMutation(new ReactionOutputSampleMutation.SetOutputHealthHazards(output2Sample1Anchor, List.of(healthHazard)));
         assertThatClientCall(() -> dictionaryClient.removeDictionaryItem(BuiltInDictionary.HEALTH_HAZARD, healthHazard.getId()))
                 .isBadRequest("This word is selected in other inputs. Please deactivate the word to remove it from available options of the inputs");
+    }
+
+    @Test
+    @Order(1300)
+    void testAddInput() {
+        List<SampleDTO> foundSamples = compoundClient.findSamples(new FindSamplesRequest().withChemicalName(new TextSearch.ExactSearch("1,2-dichloroethane")));
+        applyMutation(new ReactionMutation.AddInput(reactionAnchor, foundSamples.getFirst().getId()));
     }
 
     @SneakyThrows

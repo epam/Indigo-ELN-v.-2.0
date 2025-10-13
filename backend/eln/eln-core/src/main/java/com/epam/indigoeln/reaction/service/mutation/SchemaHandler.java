@@ -1,11 +1,16 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
+import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
+import com.epam.indigoeln.eln.mapper.DictionaryMapper;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
+import com.epam.indigoeln.reaction.model.units.DensityUnit;
+import com.epam.indigoeln.reaction.model.units.EnteredValue;
+import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -13,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -20,7 +26,7 @@ import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 
 @Slf4j
 @Dependent
-public class SetSchemeHandler extends AbstractMutationHandler {
+public class SchemaHandler extends AbstractMutationHandler {
 
     @Inject
     CompoundService compoundService;
@@ -28,6 +34,8 @@ public class SetSchemeHandler extends AbstractMutationHandler {
     IndigoAPI indigo;
     @Inject
     ExperimentModelHelperService experimentModelHelperService;
+    @Inject
+    DictionaryMapper dictionaryMapper;
 
     public void handle(Reaction reaction, ReactionMutation.SetScheme mutation) {
         reaction.setRxnfile(mutation.molFile());
@@ -55,10 +63,44 @@ public class SetSchemeHandler extends AbstractMutationHandler {
         reaction.getInputs().add(createInputLine(reaction, null, ReactionRole.REACTANT));
     }
 
+    public void handle(Reaction reaction, ReactionMutation.AddInput mutation) {
+        ReactionInput row = createInputLine(reaction, null, ReactionRole.REACTANT);
+        reaction.getInputs().add(row);
+        SampleEntity sample = compoundService.getSample(mutation.sampleId());
+        Set<ReactionRole> affectedRoles = EnumSet.noneOf(ReactionRole.class);
+        setInputLineSample(row, sample, affectedRoles);
+        experimentModelHelperService.rebuildReactionScheme(experiment, reaction, affectedRoles);
+    }
+
     public void handle(Reaction reaction, ReactionMutation.RemoveInput mutation) {
         ReactionInput input = model.locate(mutation.input());
         reaction.getInputs().remove(input);
         experimentModelHelperService.rebuildReactionScheme(experiment, reaction, Set.of(input.getRole()));
+    }
+
+    public void handle(Reaction reaction, ReactionMutation.ResolveInputs mutation) {
+        Set<ReactionRole> affectedRoles = EnumSet.noneOf(ReactionRole.class);
+        mutation.inputSamples().forEach((inputAnchor, sampleId) -> {
+            ReactionInput row = model.locate(inputAnchor);
+            SampleEntity sample = compoundService.getSample(sampleId);
+            setInputLineSample(row, sample, affectedRoles);
+        });
+        experimentModelHelperService.rebuildReactionScheme(experiment, reaction, affectedRoles);
+    }
+
+    private void setInputLineSample(ReactionInput row, SampleEntity sample, Set<ReactionRole> affectedRoles) {
+        row.setCompound(compoundService.realCompoundRef(sample.getCompound()));
+
+        ReactionInputSample reactionInputSample = ReactionInputSample.create(row);
+        reactionInputSample.setSampleId(sample.getId());
+        reactionInputSample.setStrCode(sample.getStrCode());
+        reactionInputSample.setDensity(EnteredValue.defaultValue(sample.getDensity(), DensityUnit.G_ML));
+        reactionInputSample.setMolarity(EnteredValue.defaultValue(sample.getMolarity(), sample.getMolarityUnit()));
+        reactionInputSample.setPurity(sample.getPurity() != null ? EnteredValue.defaultValue(sample.getPurity(), NoUnit.NO_UNIT) : DEFAULT_ONE);
+        reactionInputSample.setHealthHazards(dictionaryMapper.itemToRefList(sample.getHealthHazards()));
+        row.setSamples(List.of(reactionInputSample));
+
+        affectedRoles.add(row.getRole());
     }
 
     private ReactionInput createInputLine(Reaction reaction, @Nullable IndigoMolecule molecule, ReactionRole role) {

@@ -10,6 +10,7 @@ public sealed interface ReactionMutation extends Mutation permits
         ReactionMutation.SetScheme,
         ReactionMutation.ResolveInputs,
         ReactionMutation.AddEmptyInput,
+        ReactionMutation.AddInput,
         ReactionMutation.RemoveInput
 {
 
@@ -36,6 +37,12 @@ public sealed interface ReactionMutation extends Mutation permits
 
     record AddEmptyInput (
         @NotNull Anchor.Reaction anchor
+    ) implements ReactionMutation {
+    }
+
+    record AddInput (
+        @NotNull Anchor.Reaction anchor,
+        @NotNull UUID sampleId
     ) implements ReactionMutation {
     }
 
