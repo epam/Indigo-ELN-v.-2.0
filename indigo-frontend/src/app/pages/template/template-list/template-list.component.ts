@@ -52,7 +52,7 @@ export class TemplateListComponent
 {
   @Input() animationType!: RouteAnimationType;
   dialog = inject(MatDialog);
-  selectedView: 'list' | 'grid' = 'list';
+  selectedView: 'list';
   private refreshSub!: Subscription;
 
   data: [ItemTemplate] = [
@@ -124,9 +124,5 @@ export class TemplateListComponent
 
   onSortChange(event: SortChangeEvent) {
     this.sort(event.sortBy, event.sortOrder);
-  }
-
-  onViewChange(view: string) {
-    this.selectedView = view as 'grid' | 'list';
   }
 }

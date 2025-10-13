@@ -20,12 +20,14 @@ import { ItemTemplate, RootTemplate } from '@core/types/entities/template.i';
   ],
   templateUrl: './template-item.component.html',
 })
-export class TemplateItemComponent {
+export class TemplateItemComponent implements OnInit {
 
+  ngOnInit(){
+  }
   mock_users = {
     link: 'assets/avatar1.png'
   }
 
   @Input() template: ItemTemplate;
-  @Input() variant: 'list';
+  @Input() variant: 'grid' | 'list' = 'grid';
 }
