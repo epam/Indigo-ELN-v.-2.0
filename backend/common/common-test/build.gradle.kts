@@ -24,6 +24,8 @@ dependencies {
     api("com.fasterxml.jackson.module:jackson-module-parameter-names:2.20.0")
     api("io.smallrye:smallrye-jwt-common")
     api("io.smallrye:smallrye-jwt-build")
+
+    api("tools.profiler:async-profiler:4.1")
 }
 
 group = "com.epam.indigoeln"

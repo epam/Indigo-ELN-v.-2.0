@@ -3,10 +3,9 @@ package com.epam.indigoeln.test;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.quarkus.test.security.TestSecurity;
-import jakarta.inject.Inject;
 import lombok.SneakyThrows;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.commons.support.AnnotationSupport;
 
 import java.net.URI;
@@ -17,6 +16,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @Timeout(value = 30, unit = TimeUnit.SECONDS)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@ExtendWith(ProfilerResource.class)
 public abstract class BaseTest {
 
     public static final String ADMIN_USERNAME = "admin";
@@ -31,7 +31,7 @@ public abstract class BaseTest {
 
     protected URI getServerURL() {
         if (integrationTest) {
-             return URI.create("http://localhost:28080");
+            return URI.create("http://localhost:28080");
         }
         return serverBaseURL;
     }

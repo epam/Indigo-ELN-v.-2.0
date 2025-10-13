@@ -55,6 +55,7 @@ tasks.named("processResources") { dependsOn(copyNativeLibs) }
 
 tasks.withType<Test> {
     environment("NATIVE_LIB_PATH", "${projectDir}/build/nativelibs")
+//    environment("ENABLE_PROFILER", "true")
 }
 
 tasks.withType<io.quarkus.gradle.tasks.QuarkusDev> {
