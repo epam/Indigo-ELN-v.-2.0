@@ -28,7 +28,7 @@
   }"
 >
   @for (template of data; track template.id) {
-    <eln-template-item [template]="template" [variant]="'list'" />
+    <eln-template-item [template]="template" />
   }
   <eln-infinite-loader
     [classNames]="
