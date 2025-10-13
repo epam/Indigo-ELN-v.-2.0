@@ -13,56 +13,57 @@ export type UUID = string;
 export enum MolUnit {
   UMOL = 'UMOL',
   MMOL = 'MMOL',
-  MOL = 'MOL'
+  MOL = 'MOL',
 }
 
 export enum WeightUnit {
   MG = 'MG',
   G = 'G',
-  KG = 'KG'
+  KG = 'KG',
 }
 
 export enum VolumeUnit {
   ML = 'ML',
-  L = 'L'
+  L = 'L',
 }
 
 export enum DensityUnit {
-  G_ML = 'G_ML'
+  G_ML = 'G_ML',
 }
 
 export enum MolarityUnit {
   MM = 'MM',
-  M = 'M'
+  M = 'M',
 }
 
 export enum MolWeightUnit {
-  G_PER_MOL = 'G_PER_MOL'
+  G_PER_MOL = 'G_PER_MOL',
 }
 
 export enum NoUnit {
-  NO_UNIT = 'NO_UNIT'
+  NO_UNIT = 'NO_UNIT',
 }
 
 // ================================
 // 3. ENUMS - DOMAIN SPECIFIC
 // ================================
-export enum ReactionInputRole {
+export enum ReactionRole {
   REACTANT = 'REACTANT',
   CATALYST = 'CATALYST',
-  SOLVENT = 'SOLVENT'
+  SOLVENT = 'SOLVENT',
+  OUTPUT = 'OUTPUT',
 }
 
 export enum ReactionOutputType {
   FINAL = 'FINAL',
   BY_PRODUCT = 'BY_PRODUCT',
-  INTERMEDIATE = 'INTERMEDIATE'
+  INTERMEDIATE = 'INTERMEDIATE',
 }
 
 export enum SampleRegistrationStatus {
   IN_PROGRESS = 'IN_PROGRESS',
   FAILED = 'FAILED',
-  REGISTERED = 'REGISTERED'
+  REGISTERED = 'REGISTERED',
 }
 
 export enum EnteredValueSource {
@@ -71,7 +72,7 @@ export enum EnteredValueSource {
   USER_ENTERED = 'USER_ENTERED',
   CALCULATED_FROM_LAST_ENTERED = 'CALCULATED_FROM_LAST_ENTERED',
   CALCULATED = 'CALCULATED',
-  DEFAULT = 'DEFAULT'
+  DEFAULT = 'DEFAULT',
 }
 
 // ================================
@@ -81,7 +82,7 @@ export enum ComparisonOperator {
   GREATER_THAN = 'GREATER_THAN',
   LESS_THAN = 'LESS_THAN',
   EQUALS = 'EQUALS',
-  APPROXIMATELY = 'APPROXIMATELY'
+  APPROXIMATELY = 'APPROXIMATELY',
 }
 
 export enum PurityCalculationType {
@@ -89,18 +90,18 @@ export enum PurityCalculationType {
   HPLC = 'HPLC',
   LCMS = 'LCMS',
   CHN = 'CHN',
-  MS = 'MS'
+  MS = 'MS',
 }
 
 export enum SolubidityType {
   QUANTITATIVE = 'QUANTITATIVE',
-  QUALITATIVE = 'QUALITATIVE'
+  QUALITATIVE = 'QUALITATIVE',
 }
 
 export enum SolubidityQualitativeType {
   SOLUBLE = 'SOLUBLE',
   UNSOLUBLE = 'UNSOLUBLE',
-  PRECIPITATE = 'PRECIPITATE'
+  PRECIPITATE = 'PRECIPITATE',
 }
 
 // ================================
@@ -220,16 +221,4 @@ export interface ResidualSolvent {
   solvent: DictionaryItemRef;
   eq: number;
   comment?: string;
-}
-
-// ================================
-// 8. COMPOUND INTERFACES
-// ================================
-export interface CompoundRef {
-  molFile?: string;
-  formula?: string;
-  saltCode?: SaltCodeRef;
-  saltEQ?: number;
-  strCode?: STRCodeCompound;
-  molWeight?: EnteredValueMolWeightUnit;
 }

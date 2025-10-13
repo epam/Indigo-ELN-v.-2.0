@@ -18,17 +18,18 @@ import {
   PurityCalculation,
   SolubidityInSolvent,
   ResidualSolvent,
-  CompoundRef,
-  ReactionInputRole,
   ReactionOutputType,
-  SampleRegistrationStatus
+  SampleRegistrationStatus,
+  ReactionRole,
 } from './experiment-shared.i';
+import { CompoundRef } from '@core/types/entities/compound.i';
 
 // ================================
 // 1. SAMPLE INTERFACES
 // ================================
 export interface ReactionInputSample {
   anchor: UUID;
+  chemicalName?: string;
   density?: EnteredValueDensityUnit;
   molarity?: EnteredValueMolarityUnit;
   volume?: EnteredValueVolumeUnit;
@@ -39,10 +40,12 @@ export interface ReactionInputSample {
   sampleId?: UUID;
   mol?: EnteredValueMolUnit;
   weight?: EnteredValueWeightUnit;
+  comment?: string;
 }
 
 export interface ReactionOutputSample {
   anchor: UUID;
+  nbkBatchNumber: string;
   density?: EnteredValueDensityUnit;
   molarity?: EnteredValueMolarityUnit;
   volume?: EnteredValueVolumeUnit;
@@ -82,7 +85,7 @@ export interface ReactionInput {
   anchor: UUID;
   compound: CompoundRef;
   eq: EnteredValueNoUnit;
-  role: ReactionInputRole;
+  role: ReactionRole;
   mol?: EnteredValueMolUnit;
   samples: ReactionInputSample[];
   limiting?: boolean;
@@ -91,6 +94,7 @@ export interface ReactionInput {
 export interface ReactionOutput {
   reaction?: Reaction;
   anchor: UUID;
+  chemicalName?: string;
   compound: CompoundRef;
   eq: EnteredValueNoUnit;
   type: ReactionOutputType;
@@ -103,6 +107,7 @@ export interface Reaction {
   model?: ExperimentModel;
   anchor: UUID;
   rxnfile: string;
+  rxnVersion: number;
   inputs: ReactionInput[];
   outputs: ReactionOutput[];
 }
