@@ -20,6 +20,7 @@ import net.sf.jasperreports.engine.util.JRClassLoader;
 import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.engine.util.JRResourcesUtil;
 import net.sf.jasperreports.repo.ReportResource;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -37,6 +38,8 @@ import java.util.Map;
 @Slf4j
 @ApplicationScoped
 public class ReportsService {
+    @ConfigProperty(name = "report.timezone", defaultValue="UTC")
+    String timezone;
 
     @Inject
     ReadOnlyStreamingService readOnlyStreamingService;
@@ -56,10 +59,12 @@ public class ReportsService {
         Map<String, Object> params = new HashMap<>();
 
 //        Add current date to the report params
+        log.info("!!! timezone = " + timezone);
         Instant curentInstant = Instant.now();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MMM d, u HH:mm:ss", Locale.ENGLISH);
-        String reportDate = LocalDateTime.ofInstant(curentInstant, ZoneId.of("UTC")).format(dateTimeFormatter);
-        params.put("reportDate", reportDate + " UTC");
+        String reportDate = LocalDateTime.ofInstant(curentInstant, ZoneId.of(timezone)).format(dateTimeFormatter);
+        params.put("reportDate", reportDate + " " + timezone);
+        params.put("timeZone", new String(timezone));
 
 //        JasperReport jasperReport = (JasperReport) readOnlyStreamingService.getResource("/reports/ExperimentReport.jasper", JasperPrint.class);
         InputStream xa = ReportsService.class.getResourceAsStream("/reports/ExperimentReport.jasper");
