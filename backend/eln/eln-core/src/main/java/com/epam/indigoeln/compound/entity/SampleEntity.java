@@ -2,8 +2,9 @@ package com.epam.indigoeln.compound.entity;
 
 import com.epam.indigoeln.eln.config.hibernate.NotebookBatchNumberConverter;
 import com.epam.indigoeln.eln.config.hibernate.STRCodeSampleConverter;
+import com.epam.indigoeln.eln.entity.BaseEntity;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
-import com.epam.indigoeln.eln.entity.IdentifiableEntity;
+import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.model.NotebookBatchNumber;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.reaction.model.units.MolarityUnit;
@@ -18,14 +19,14 @@ import org.hibernate.annotations.Type;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.jspecify.annotations.Nullable;
 
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
 @Setter
 @Entity(name = "Sample")
 @ToString(of = {"id", "compound"})
-public class SampleEntity extends IdentifiableEntity {
+public class SampleEntity extends BaseEntity {
 
     @NotNull
     @ManyToOne(optional = false)
@@ -68,5 +69,9 @@ public class SampleEntity extends IdentifiableEntity {
 
     @ManyToMany
     @JoinTable(name = "Sample_Health_Hazard", joinColumns = @JoinColumn(name = "sample_id"), inverseJoinColumns = @JoinColumn(name = "health_hazard_id"))
-    private Set<DictionaryItemEntity> healthHazards = new LinkedHashSet<>(0);
+    private Set<DictionaryItemEntity> healthHazards = new HashSet<>(0);
+
+    @ManyToMany
+    @JoinTable(name = "Sample_Mark", joinColumns = @JoinColumn(name = "sample_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<UserEntity> markedBy = new HashSet<>(0);
 }

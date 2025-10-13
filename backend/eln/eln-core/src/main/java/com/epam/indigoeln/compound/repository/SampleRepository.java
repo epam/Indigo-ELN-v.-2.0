@@ -1,15 +1,19 @@
 package com.epam.indigoeln.compound.repository;
 
-import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.mapper.SampleMapper;
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.NumericSearch;
+import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.TextSearch;
+import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.model.Page;
+import com.epam.indigoeln.eln.model.Paging;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.eln.repository.BaseRepository;
 import com.epam.indigoeln.eln.util.Conditions;
+import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hibernate.query.NativeQuery;
@@ -20,6 +24,9 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class SampleRepository extends BaseRepository<SampleEntity> {
+
+    @Inject
+    SampleMapper sampleMapper;
 
     public SampleRepository() {
         super(EntityType.SAMPLE);
@@ -100,5 +107,12 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
                 .findFirst()
                 .map(STRCodeSample::parse)
                 .orElse(null);
+    }
+
+    public Page<SampleDTO> findMarked(UserEntity currentUser, @Nullable String search, Paging paging) {
+        Conditions conditions = new Conditions()
+                .add("? member of markedBy", currentUser)
+                .addIfNotNull("full_text_search(searchVector, websearch_to_tsquery('english', ?))", search);
+        return doFindWithTotals(conditions, paging, Sort.by("createdBy"), null, sampleMapper::sampleToDTO);
     }
 }

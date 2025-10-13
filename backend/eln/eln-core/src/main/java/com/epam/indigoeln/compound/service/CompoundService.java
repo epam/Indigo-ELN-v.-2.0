@@ -3,11 +3,15 @@ package com.epam.indigoeln.compound.service;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.mapper.SampleMapper;
-import com.epam.indigoeln.compound.model.*;
+import com.epam.indigoeln.compound.model.CompoundKey;
+import com.epam.indigoeln.compound.model.FindSamplesRequest;
+import com.epam.indigoeln.compound.model.SampleDTO;
+import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
 import com.epam.indigoeln.compound.repository.CompoundRepository;
 import com.epam.indigoeln.compound.repository.SampleRepository;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
+import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.reaction.model.CompoundRef;
@@ -31,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.fixed;
 
 @Slf4j
@@ -53,6 +58,8 @@ public class CompoundService {
     IndigoAPI indigo;
     @Inject
     MolWeightCalculator molWeightCalculator;
+    @Inject
+    UserService userService;
 
     public CompoundEntity findOrCreate(IndigoMolecule molecule, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
         String canSmiles = molecule.canonicalSmiles();
@@ -85,6 +92,7 @@ public class CompoundService {
                         SampleEntity sample = new SampleEntity();
                         compound.getSamples().add(sample);
                         sample.setCompound(compound);
+                        updateDates(sample, userService.getCurrentUser());
                         fillCompoundFromIndigo(molecule, compound);
                         sampleRepository.persist(sample);
                     }
@@ -185,6 +193,7 @@ public class CompoundService {
         sample.setCompoundState(dictionaryService.lookup(BuiltInDictionary.COMPONENT_STATE.name(), request.getCompoundState()));
         sample.setBatchComment(request.getBatchComment());
         compound.getSamples().add(sample);
+        updateDates(sample, userService.getCurrentUser());
         sampleRepository.persist(sample);
         return sample;
     }
@@ -210,6 +219,19 @@ public class CompoundService {
                 ? lastSampleStrCode.getSampleCode() + 1
                 : 1;
         return new STRCodeSample(compoundStrCode.getCompoundCode(), compoundStrCode.getSaltCode(), sampleStrCode);
+    }
+
+    public void markSample(UUID sampleID, boolean mark) {
+        SampleEntity sample = sampleRepository.get(sampleID);
+        if (mark) {
+            sample.getMarkedBy().add(userService.getCurrentUser());
+        } else {
+            sample.getMarkedBy().remove(userService.getCurrentUser());
+        }
+    }
+
+    public Page<SampleDTO> listMarkedSamples(@Nullable String search, Paging paging) {
+        return sampleRepository.findMarked(userService.getCurrentUser(), search, paging);
     }
 
     @Data

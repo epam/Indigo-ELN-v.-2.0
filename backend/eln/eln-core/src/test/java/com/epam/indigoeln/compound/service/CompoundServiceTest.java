@@ -2,13 +2,9 @@ package com.epam.indigoeln.compound.service;
 
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.model.*;
-import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
-import com.epam.indigoeln.eln.entity.IdentifiableEntity;
-import com.epam.indigoeln.eln.model.BuiltInDictionary;
-import com.epam.indigoeln.eln.model.NotebookBatchNumber;
-import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.eln.ELNBaseTest;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.entity.IdentifiableEntity;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
@@ -29,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsStream;
@@ -54,6 +51,7 @@ public class CompoundServiceTest extends ELNBaseTest {
     CompoundRef.Virtual compound1;
     CompoundRef.Virtual compound2;
     STRCodeSample str1;
+    UUID sampleID1;
     STRCodeSample str2;
     STRCodeSample strOtherCompound;
     STRCodeSample strOtherSaltCode;
@@ -97,6 +95,7 @@ public class CompoundServiceTest extends ELNBaseTest {
                 .withBatchComment("batch comment")
         );
         str1 = sample.getStrCode();
+        sampleID1 = sample.getId();
         assertThat(str1.getSaltCode()).as(str1.toString()).isZero();
         assertThat(str1.getSampleCode()).as(str1.toString()).isPositive();
         NotebookBatchNumber batchNumber = sample.getNotebookBatchNumber();
@@ -230,5 +229,47 @@ public class CompoundServiceTest extends ELNBaseTest {
                         .withMolWeight(new NumericSearch.LessThenOrEqual(200.0))
         );
         assertThat(found).isNotEmpty();
+    }
+
+    @Test
+    @Order(700)
+    void testListMarkedSamplesBefore() {
+        Page<SampleDTO> page = compoundService.listMarkedSamples(null, Paging.DEFAULT);
+        assertThat(page.getItems()).isEmpty();
+    }
+
+    @Test
+    @Order(701)
+    void testMarkSample() {
+        compoundService.markSample(sampleID1, true);
+    }
+
+    @Test
+    @Order(702)
+    void testListMarkedSamples() {
+        Page<SampleDTO> page = compoundService.listMarkedSamples(null, Paging.DEFAULT);
+        assertThat(page.getItems()).singleElement().returns(sampleID1, SampleDTO::getId);
+    }
+
+    @Test
+    @Order(703)
+    void testListMarkedSamplesQuickSearch() {
+        Page<SampleDTO> page = compoundService.listMarkedSamples(str1.toString(), Paging.DEFAULT);
+        assertThat(page.getItems()).singleElement().returns(sampleID1, SampleDTO::getId);
+    }
+
+    @Test
+    @Order(704)
+    void testListMarkedSamplesQuickSearchNotFound() {
+        Page<SampleDTO> page = compoundService.listMarkedSamples("nosuchcompound", Paging.DEFAULT);
+        assertThat(page.getItems()).isEmpty();
+    }
+
+    @Test
+    @Order(705)
+    void testUnmarkSample() {
+        compoundService.markSample(sampleID1, false);
+        Page<SampleDTO> page = compoundService.listMarkedSamples(null, Paging.DEFAULT);
+        assertThat(page.getItems()).isEmpty();
     }
 }
