@@ -1,29 +1,106 @@
-import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
 import { BaseEntity } from './base-entity.i';
-import { Attachment } from './attachment.i';
-import { ProjectAcl } from './acl.i';
 
-export interface TeamMember {
+export interface TemplateComponentAttachments {
+  type: 'attachments';
+}
+
+export interface TemplateComponentBatches {
+  type: 'batches';
+}
+
+export interface TemplateComponentConceptDetails {
+  type: 'conceptDetails';
+}
+
+export interface TemplateComponentExperimentDetails {
+  type: 'experimentDetails';
+}
+
+export interface TemplateComponentExperimentDescription {
+  type: 'experimentDescription';
+}
+
+export interface TemplateComponentPreferredCompoundsDetails {
+  type: 'preferredCompoundsDetails';
+}
+
+export interface TemplateComponentPreferredCompoundsSummary {
+  type: 'preferredCompoundsSummary';
+}
+
+export interface TemplateComponentReactionDetails {
+  type: 'reactionsDetails';
+}
+
+export interface TemplateComponentStoichiometryTable {
+  type: 'stoichiometryTable';
+  reactantsReagentsSolvents: boolean;
+  reactionProducts: boolean;
+}
+
+export interface TemplateComponentReactionScheme {
+  type: 'reactionScheme';
+}
+
+export interface TemplateComponentReactants {
+  type: 'reactants';
+}
+
+export interface TemplateComponentIntendedProducts {
+  type: 'intendedProducts';
+}
+
+export type TemplateComponent =
+  | TemplateComponentAttachments
+  | TemplateComponentBatches
+  | TemplateComponentConceptDetails
+  | TemplateComponentExperimentDetails
+  | TemplateComponentExperimentDescription
+  | TemplateComponentPreferredCompoundsDetails
+  | TemplateComponentPreferredCompoundsSummary
+  | TemplateComponentReactionDetails
+  | TemplateComponentStoichiometryTable
+  | TemplateComponentReactionScheme
+  | TemplateComponentReactants
+  | TemplateComponentIntendedProducts;
+
+export interface TemplateTab {
   name: string;
-  email: string;
-  role: string;
-  avatar: string;
-  userId?: string;
-  inherited?: boolean;
+  components: TemplateComponent[];
 }
 
 export interface Template extends BaseEntity {
   name: string;
-  notebookCount: number;
-  experimentCount: ExperimentCount;
-  acl?: ProjectAcl[];
-  aclCount?: number;
-  keywords?: string[];
-  literature?: string;
-  description?: string;
-  attachments?: Attachment[];
-  team?: TeamMember[];
-  details?: string;
-  references?: string;
+  templateTabs: TemplateTab[];
 }
-export type ExperimentCount = Record<keyof typeof ExperimentStatus, number>;
+
+//---------------
+export interface RootTemplate {
+  pageNo: number
+  pageSize: number
+  totalItems: number
+  totalPages: number
+  items: ItemTemplate[]
+}
+
+export interface ItemTemplate {
+  id: string
+  createdBy: CreatedBy
+  createdAt: string
+  modifiedBy: ModifiedBy
+  modifiedAt: string
+  name: string
+}
+
+export interface CreatedBy {
+  id: string
+  username: string
+  displayName: string
+}
+
+export interface ModifiedBy {
+  id: string
+  username: string
+  displayName: string
+}
+

@@ -20,7 +20,7 @@
 />
 
 <div
-  *ngIf="data$ | async as data"
+  *ngIf="data"
   [@viewChange]="selectedView"
   [ngClass]="{
     'grid gap-x-4 mt-5 gap-y-4': true,
@@ -28,8 +28,8 @@
     'md:grid-cols-2 2xl:grid-cols-3': selectedView === 'grid',
   }"
 >
-  @for (project of data; track project.id) {
-    <eln-template-item [template]="project" [variant]="selectedView" />
+  @for (template of data; track template.id) {
+    <eln-template-item [template]="template" [variant]="selectedView" />
   }
   <eln-infinite-loader
     [classNames]="

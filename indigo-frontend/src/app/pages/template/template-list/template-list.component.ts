@@ -1,5 +1,8 @@
 import { Component, inject, Input, OnDestroy } from '@angular/core';
-import { ListHeaderComponent, SortChangeEvent } from '@core/components/common/list-header/list-header.component';
+import {
+  ListHeaderComponent,
+  SortChangeEvent,
+} from '@core/components/common/list-header/list-header.component';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -16,6 +19,7 @@ import { DropdownMenuItem } from '@core/components/common/dropdown-menu/dropdown
 import { ProjectAddComponent } from '@pages/project/project-add/project-add.component';
 import { RouteAnimationType } from '@core/animations/route-animations';
 import { TemplateItemComponent } from '@core/components/template/template-item/template-item.component';
+import { ItemTemplate } from '@core/types/entities/template.i';
 
 @Component({
   selector: 'eln-template-list',
@@ -50,6 +54,25 @@ export class TemplateListComponent
   dialog = inject(MatDialog);
   selectedView: 'list' | 'grid' = 'list';
   private refreshSub!: Subscription;
+
+  data: [ItemTemplate] = [
+    {
+      id: '5c74E902-d33b-AC49-C70E-eF0f2A8b0d25',
+      createdBy: {
+        id: 'B04bA3af-bCdA-2B74-4Ecf-469416f2FfA3',
+        username: 'string',
+        displayName: 'string',
+      },
+      createdAt: '2022-03-10T12:15:50-04:00',
+      modifiedBy: {
+        id: '50fbf7Ff-3a27-FA23-7e5a-B7cA5E86F0Ad',
+        username: 'string',
+        displayName: 'string',
+      },
+      modifiedAt: '2022-03-10T12:15:50-04:00',
+      name: 'string',
+    },
+  ];
 
   headerSortOptions: DropdownMenuItem[] = [];
 

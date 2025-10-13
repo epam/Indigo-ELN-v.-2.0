@@ -35,13 +35,11 @@
       </div>
     </div>
 
-    <div [ngClass]="variant === 'grid' ? 'space-y-2' : 'w-full'">
+    <div [ngClass]="'w-full'">
       <div
         class="w-full"
         [ngClass]="{
-          'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6':
-            variant === 'list',
-          'space-y-2': variant === 'grid',
+          'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6': 'list',
         }"
       >
 
@@ -54,10 +52,8 @@
           <div class="text-neutral-1000 text-sm">Created by</div>
           <div class="flex items-center">
             <div class="flex -space-x-2">
-              @for (user of mock_users.slice(0, 1); track user) {
-                <eln-avatar classList="w-6 h-6" [img]="user" />
-              }
-              {{template.acl[0].displayName}}
+              <eln-avatar classList="w-6 h-6" [img]="mock_users.link" />
+              {{template.createdBy.username}}
             </div>
           </div>
         </div>
@@ -67,7 +63,7 @@
           [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
         >
           <div class="text-neutral-1000">Created</div>
-          <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
+          <div>
             {{ template.createdAt | date: 'dd MMM yyyy' }} by
             {{ template.createdBy.displayName }}
           </div>
@@ -79,7 +75,7 @@
           [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
         >
           <div class="text-neutral-1000 text-sm">Last Edited</div>
-          <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
+          <div>
             {{ template.modifiedAt | date: 'dd MMM yyyy' }} by
             {{ template.modifiedBy.displayName }}
           </div>
@@ -87,26 +83,6 @@
       </div>
     </div>
 
-    @if (variant === 'grid') {
-      <div
-        class="flex items-center mt-2 pt-3 border-t border-t-neutral-300 w-full"
-      >
-        <div class="flex -space-x-2">
-          @for (user of mock_users.slice(0, 3); track user) {
-            <eln-avatar classList="w-6 h-6" [img]="user" />
-          }
-          @if (mock_users.length > 3) {
-            <span
-              class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs"
-            >
-              +{{ mock_users.length - 3 }}
-            </span>
-          }
-        </div>
-        <span class="ml-2 text-b2 text-neutral-1000"
-        >{{ mock_users.length }} Members</span
-        >
-      </div>
-    }
+
   </div>
 </eln-card>

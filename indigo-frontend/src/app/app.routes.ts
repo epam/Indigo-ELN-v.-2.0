@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { RoleGuard } from './role.guard';
-import { TemplateLayoutComponent } from '@pages/template/template-layout/template-layout.component';
+
 
 export const routes: Routes = [
   {
@@ -35,55 +35,97 @@ export const routes: Routes = [
             loadComponent: () =>
               import(
                 '@pages/project/project-detail/project-detail.component'
-              ).then((c) => c.ProjectDetailComponent),
+                ).then((c) => c.ProjectDetailComponent),
             children: [
               {
                 path: '',
                 loadComponent: () =>
                   import(
                     '@pages/project/project-info/project-info.component'
-                  ).then((c) => c.ProjectInfoComponent),
+                    ).then((c) => c.ProjectInfoComponent),
               },
               {
                 path: 'notebooks',
                 loadComponent: () =>
                   import(
                     '@/app/pages/project/notebook/notebook-list/notebook-list.component'
-                  ).then((c) => c.NotebookListComponent),
+                    ).then((c) => c.NotebookListComponent),
               },
             ],
           },
         ],
       },
       {
-        path: 'notebooks/:notebookId',
+        path: 'projects/:projectId/notebooks/:notebookId',
         loadComponent: () =>
           import(
             '@/app/pages/notebook/notebook-detail/notebook-detail.component'
-          ).then((c) => c.NotebookDetailComponent),
+            ).then((c) => c.NotebookDetailComponent),
         children: [
           {
             path: '',
             loadComponent: () =>
               import(
                 '@/app/pages/notebook/notebook-info/notebook-info.component'
-              ).then((c) => c.NotebookInfoComponent),
+                ).then((c) => c.NotebookInfoComponent),
           },
           {
             path: 'experiments',
             loadComponent: () =>
               import(
                 '@/app/pages/notebook/experiments-tab/experiments-tab.component'
-              ).then((c) => c.ExperimentsTabComponent),
+                ).then((c) => c.ExperimentsTabComponent),
           },
         ],
       },
+      // {
+      //   path: 'projects/:projectId/notebooks/:notebookId/experiments/:experimentId',
+      //   loadComponent: () =>
+      //     import(
+      //       '@/app/pages/experiment/experiment-detail/experiment-detail.component'
+      //       ).then((c) => c.ExperimentDetailComponent),
+      //   children: [
+      //     {
+      //       path: '',
+      //       redirectTo: 'info',
+      //       pathMatch: 'full',
+      //     },
+      //     {
+      //       path: 'info',
+      //       loadComponent: () =>
+      //         import(
+      //           '@/app/pages/experiment/experiment-info/experiment-info.component'
+      //           ).then((c) => c.ExperimentInfoComponent),
+      //     },
+      //     {
+      //       path: 'attachments',
+      //       loadComponent: () =>
+      //         import(
+      //           '@/app/pages/experiment/experiment-attachments/experiment-attachments.component'
+      //           ).then((c) => c.ExperimentAttachmentsComponent),
+      //     },
+      //     {
+      //       path: 'summary',
+      //       loadComponent: () =>
+      //         import(
+      //           '@/app/pages/experiment/experiment-summary/experiment-summary.component'
+      //           ).then((c) => c.ExperimentSummaryComponent),
+      //     },
+      //     {
+      //       path: 'versions',
+      //       loadComponent: () =>
+      //         import(
+      //           '@/app/pages/experiment/experiment-versions/experiment-versions.component'
+      //           ).then((c) => c.ExperimentVersionsComponent),
+      //     },
+      //   ],
+      // },
       {
         path: 'dictionary',
         loadComponent: () =>
           import(
             '@/app/pages/dictionary/dictionary-layout/dictionary-layout.component'
-          ).then((c) => c.DictionaryLayoutComponent),
+            ).then((c) => c.DictionaryLayoutComponent),
         canActivate: [RoleGuard],
         data: { requiredRole: 'Dictionary editor' },
       },
@@ -92,8 +134,8 @@ export const routes: Routes = [
         loadComponent: () =>
           import('@pages/template/template-layout/template-layout.component').then(
             (c) => c.TemplateLayoutComponent,
-          )
-      }
+          ),
+      },
     ],
   },
 ];

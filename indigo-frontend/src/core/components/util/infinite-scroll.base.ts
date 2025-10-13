@@ -12,6 +12,7 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
     this.config.enableScrollRestoration = true;
     this.data$ = this.dataList$.pipe(
       switchMap((data) => {
+        console.log(data, "000000000000000000000");
         const currValue = this.dataBh.value;
         const result = this.appendToTop
           ? [...data.items, ...currValue]
@@ -22,6 +23,7 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
         return this.dataBh.asObservable();
       }),
     );
+
   }
 
   infiniteLoad() {
