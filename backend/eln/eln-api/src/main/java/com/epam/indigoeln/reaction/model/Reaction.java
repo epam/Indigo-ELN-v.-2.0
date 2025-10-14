@@ -32,6 +32,9 @@ public final class Reaction implements ExperimentModelNode, ToStringTree {
     @NotNull
     private String rxnfile = "";
 
+    @NotNull
+    private Integer rxnVersion = 0;
+
     @Valid
     @NotNull
     @JsonManagedReference

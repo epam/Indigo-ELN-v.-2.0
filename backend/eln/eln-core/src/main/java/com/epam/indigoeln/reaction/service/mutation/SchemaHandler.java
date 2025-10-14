@@ -11,7 +11,6 @@ import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.units.DensityUnit;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
-import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -33,12 +32,9 @@ public class SchemaHandler extends AbstractMutationHandler {
     @Inject
     IndigoAPI indigo;
     @Inject
-    ExperimentModelHelperService experimentModelHelperService;
-    @Inject
     DictionaryMapper dictionaryMapper;
 
     public void handle(Reaction reaction, ReactionMutation.SetScheme mutation) {
-        reaction.setRxnfile(mutation.molFile());
         // TODO match into existing inputs/outputs
         reaction.setInputs(new ArrayList<>());
         reaction.setOutputs(new ArrayList<>());
@@ -56,7 +52,8 @@ public class SchemaHandler extends AbstractMutationHandler {
         if (!reaction.getInputs().isEmpty() && reaction.getLimitingInput() == null) {
             reaction.getInputs().getFirst().setLimiting(true);
         }
-        experimentModelHelperService.setReactionScheme(experiment, reaction, indigoReaction);
+        reaction.setRxnfile(mutation.molFile());
+        rxnFileAffected = true;
     }
 
     public void handle(Reaction reaction, ReactionMutation.AddEmptyInput mutation) {
@@ -67,15 +64,14 @@ public class SchemaHandler extends AbstractMutationHandler {
         ReactionInput row = createInputLine(reaction, null, ReactionRole.REACTANT);
         reaction.getInputs().add(row);
         SampleEntity sample = compoundService.getSample(mutation.sampleId());
-        Set<ReactionRole> affectedRoles = EnumSet.noneOf(ReactionRole.class);
-        setInputLineSample(row, sample, affectedRoles);
-        experimentModelHelperService.rebuildReactionScheme(experiment, reaction, affectedRoles);
+        setInputLineSample(row, sample);
+        affectedRoles.add(row.getRole());
     }
 
     public void handle(Reaction reaction, ReactionMutation.RemoveInput mutation) {
         ReactionInput input = model.locate(mutation.input());
         reaction.getInputs().remove(input);
-        experimentModelHelperService.rebuildReactionScheme(experiment, reaction, Set.of(input.getRole()));
+        affectedRoles.add(input.getRole());
     }
 
     public void handle(Reaction reaction, ReactionMutation.ResolveInputs mutation) {
@@ -83,13 +79,13 @@ public class SchemaHandler extends AbstractMutationHandler {
         mutation.inputSamples().forEach((inputAnchor, sampleId) -> {
             ReactionInput row = model.locate(inputAnchor);
             SampleEntity sample = compoundService.getSample(sampleId);
-            setInputLineSample(row, sample, affectedRoles);
+            setInputLineSample(row, sample);
         });
-        experimentModelHelperService.rebuildReactionScheme(experiment, reaction, affectedRoles);
     }
 
-    private void setInputLineSample(ReactionInput row, SampleEntity sample, Set<ReactionRole> affectedRoles) {
+    private void setInputLineSample(ReactionInput row, SampleEntity sample) {
         row.setCompound(compoundService.realCompoundRef(sample.getCompound()));
+        compoundsAffected = true;
 
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row);
         reactionInputSample.setSampleId(sample.getId());
@@ -100,6 +96,7 @@ public class SchemaHandler extends AbstractMutationHandler {
         reactionInputSample.setHealthHazards(dictionaryMapper.itemToRefList(sample.getHealthHazards()));
         row.setSamples(List.of(reactionInputSample));
 
+        dictionariesAffected = true;
         affectedRoles.add(row.getRole());
     }
 
@@ -108,6 +105,7 @@ public class SchemaHandler extends AbstractMutationHandler {
         row.setCompound(molecule != null
                 ? compoundService.virtualCompoundRef(molecule, null, null, null)
                 : compoundService.unknownCompoundRef());
+        compoundsAffected = true;
         row.setEq(DEFAULT_ONE);
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row);
         reactionInputSample.setPurity(DEFAULT_ONE);
@@ -118,6 +116,7 @@ public class SchemaHandler extends AbstractMutationHandler {
     private ReactionOutput createOutputLine(Reaction reaction, IndigoMolecule molecule) {
         ReactionOutput row = ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL);
         row.setCompound(compoundService.virtualCompoundRef(molecule, null, null, null));
+        compoundsAffected = true;
         row.setEq(DEFAULT_ONE);
         row.setSamples(List.of());
         return row;

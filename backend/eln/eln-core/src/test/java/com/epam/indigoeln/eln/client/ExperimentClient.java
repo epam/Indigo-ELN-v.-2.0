@@ -2,6 +2,8 @@ package com.epam.indigoeln.eln.client;
 
 import com.epam.indigoeln.eln.api.ExperimentAPI;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
+import com.epam.indigoeln.reaction.model.Anchor;
+import jakarta.annotation.Nullable;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -32,4 +34,8 @@ public interface ExperimentClient extends ExperimentAPI {
     @jakarta.ws.rs.Path("/experiments/{experimentId}/picture")
     @Produces("image/svg+xml")
     Response getExperimentPictureClient(@PathParam("experimentId") UUID experimentId);
+
+    @GET
+    @jakarta.ws.rs.Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/picture")
+    Response getReactionPictureClient(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") Anchor.Reaction reactionAnchor, @Nullable @QueryParam("version") Integer version);
 }

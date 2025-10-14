@@ -1,7 +1,6 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
 import com.epam.indigoeln.reaction.model.ReactionInput;
-import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
@@ -10,9 +9,6 @@ import com.google.common.base.MoreObjects;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
-
-import java.util.EnumSet;
-import java.util.Set;
 
 @Dependent
 public class InputMutationHandler extends AbstractMutationHandler {
@@ -28,12 +24,9 @@ public class InputMutationHandler extends AbstractMutationHandler {
                     throw new IllegalStateException("Input with the same role and compound already exists");
                 });
 
-        Set<ReactionRole> affectedRoles = EnumSet.noneOf(ReactionRole.class);
         affectedRoles.add(row.getRole());
         affectedRoles.add(mutation.role());
         row.setRole(mutation.role());
-
-        modelHelperService.rebuildReactionScheme(experiment, row.getReaction(), affectedRoles);
     }
 
     public void handle(ReactionInput row, ReactionInputMutation.SetInputRowMol mutation) {

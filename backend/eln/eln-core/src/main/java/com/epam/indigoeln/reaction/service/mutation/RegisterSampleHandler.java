@@ -39,6 +39,7 @@ public class RegisterSampleHandler extends AbstractMutationHandler {
         sampleRow.setSampleId(sample.getId());
         if (sampleRow.getRow().getCompound() instanceof CompoundRef.Virtual) {
             sampleRow.getRow().setCompound(compoundService.realCompoundRef(sample.getCompound()));
+            compoundsAffected = true;
         }
     }
 }

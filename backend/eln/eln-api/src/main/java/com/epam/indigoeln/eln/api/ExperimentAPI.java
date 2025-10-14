@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.api;
 
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import jakarta.annotation.Nullable;
 import jakarta.ws.rs.*;
@@ -80,6 +81,10 @@ public interface ExperimentAPI extends BaseAPI {
     @POST
     @Path("/experiments/{experimentId}/datamodel")
     ExperimentModel mutateExperimentModel(@PathParam("experimentId") UUID experimentId, MutateModelForm modelAndMutation);
+
+    @GET
+    @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/picture")
+    Response getReactionPicture(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") Anchor.Reaction reactionAnchor, @Nullable @QueryParam("version") Integer version);
 
     @POST
     @Path("/experiments/{experimentId}/workflow/cancel")

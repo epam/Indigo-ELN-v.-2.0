@@ -4,10 +4,12 @@ import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
+import jakarta.ws.rs.core.CacheControl;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
@@ -238,13 +240,29 @@ class ExperimentServiceTest extends ELNBaseTest {
     @SneakyThrows
     void testGetPicture() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        ExperimentModel model = experimentClient.getExperimentModel(experiment.getId());
+        Reaction reaction = model.getReactions().getFirst();
+        assertThat(reaction.getRxnVersion()).isZero();
         Response response = experimentClient.getExperimentPictureClient(experiment.getId());
         assertThat((byte[]) response.getEntity()).containsExactly(ExperimentService.EMPTY_PICTURE);
-        ExperimentModel model = experimentClient.getExperimentModel(experiment.getId());
+        response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), reaction.getRxnVersion());
+        assertThat((byte[]) response.getEntity()).containsExactly(ExperimentService.EMPTY_PICTURE);
+
         String molFile = new String(loadResource(getClass(), "/reaction.rxn"));
         experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(model, new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), molFile)));
+
+        model = experimentClient.getExperimentModel(experiment.getId());
+        reaction = model.getReactions().getFirst();
+        assertThat(reaction.getRxnVersion()).isEqualTo(1);
+
         response = experimentClient.getExperimentPictureClient(experiment.getId());
-//        assertThat(response).isNotEqualTo(ExperimentService.EMPTY_PICTURE);
+        assertThat(response).isNotEqualTo(ExperimentService.EMPTY_PICTURE);
         Files.write(Paths.get("picture.svg"), (byte[]) response.getEntity());
+        response = experimentClient.getReactionPicture(experiment.getId(), reaction.getAnchor(), reaction.getRxnVersion());
+        assertThat(response).isNotEqualTo(ExperimentService.EMPTY_PICTURE);
+        assertThat(response.getHeaders().getFirst(HttpHeaders.CONTENT_TYPE)).isEqualTo("image/svg+xml");
+        //noinspection deprecation
+        CacheControl cacheControl = CacheControl.valueOf((String) response.getHeaders().getFirst(HttpHeaders.CACHE_CONTROL));
+        assertThat(cacheControl.getMaxAge()).isPositive();
     }
 }

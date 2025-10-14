@@ -2,27 +2,23 @@ package com.epam.indigoeln.reaction.service;
 
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.eln.entity.IdentifiableEntity;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
+import com.epam.indigoeln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.*;
-import com.google.common.collect.Sets;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import one.util.streamex.StreamEx;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 import java.util.function.Consumer;
+
+import static com.epam.indigoeln.reaction.service.ExperimentModelHelperService.visitModel;
 
 @Slf4j
 @Transactional
@@ -31,8 +27,6 @@ public class ExperimentModelService {
 
     @Inject
     ReactionCalculator reactionCalculator;
-    @Inject
-    DictionaryItemRepository dictionaryItemRepository;
     @Inject
     Provider<SchemaHandler> schemeHandler;
     @Inject
@@ -47,6 +41,10 @@ public class ExperimentModelService {
     Provider<OutputSampleMutationHandler> outputSampleMutationHandler;
     @Inject
     Provider<RegisterSampleHandler> registerSampleHandler;
+    @Inject
+    ExperimentModelHelperService experimentModelHelperService;
+    @Inject
+    IndigoAPI indigoAPI;
 
     @Valid
     public ExperimentModel createNewModel() {
@@ -138,47 +136,34 @@ public class ExperimentModelService {
                 };
             }
         };
-        pair.a().setExperiment(experiment);
-        pair.a().setModel(model);
-        pair.b().run();
+
+        AbstractMutationHandler handler = pair.a();
+        handler.setExperiment(experiment);
+        handler.setModel(model);
+        Runnable handlerRun = pair.b();
+        handlerRun.run();
         reactionCalculator.recalculate(model);
-        // TODO only check when handler.dictionariesUpdated is true
-        Set<DictionaryItemRef> usedDictionaryRefs = new HashSet<>();
-        visitModel(model, n -> n.collectDictionaries(usedDictionaryRefs::add));
-        usedDictionaryRefs.remove(null);
-        Set<UUID> currentItemIDs = StreamEx.of(usedDictionaryRefs).map(DictionaryItemRef::getId).toSet();
-        Set<UUID> previousItemIDs = StreamEx.of(experiment.getUsedDictionaryItems()).map(IdentifiableEntity::getId).toSet();
-        if (!currentItemIDs.equals(previousItemIDs)) {
-            experiment.getUsedDictionaryItems().removeIf(e -> !currentItemIDs.contains(e.getId()));
-            Set<UUID> newItemIDs = Sets.difference(currentItemIDs, previousItemIDs);
-            if (!newItemIDs.isEmpty()) {
-                experiment.getUsedDictionaryItems().addAll(dictionaryItemRepository.findByIds(newItemIDs));
+
+        for (Reaction reaction : model.getReactions()) {
+            if (handler.isRxnFileAffected() || !handler.getAffectedRoles().isEmpty()) {
+                IndigoReaction indigoReaction = indigoAPI.loadReaction(reaction.getRxnfile());
+                if (!handler.getAffectedRoles().isEmpty()) {
+                    experimentModelHelperService.rebuildReactionRxnFile(experiment, reaction, handler.getAffectedRoles(), indigoReaction);
+                }
+                experimentModelHelperService.rebuildReactionPicture(experiment, reaction, indigoReaction);
+                reaction.setRxnVersion(reaction.getRxnVersion() + 1);
             }
         }
+        if (handler.isCompoundsAffected()) {
+            experimentModelHelperService.rebuildUsedCompounds(experiment, model);
+        }
+        // TODO only check when handler.dictionariesUpdated is true
+        experimentModelHelperService.rebuildUsedDictionaries(experiment, model);
         return model;
     }
 
     private <H extends AbstractMutationHandler> Pair<AbstractMutationHandler, Runnable> resolve(Provider<H> provider, Consumer<H> operation) {
         H handler = provider.get();
         return Pair.of(handler, () -> operation.accept((H) handler));
-    }
-
-    private void visitModel(ExperimentModel model, Consumer<ExperimentModelNode> visitor) {
-        visitor.accept(model);
-        for (Reaction reaction : model.getReactions()) {
-            visitor.accept(reaction);
-            for (ReactionInput input : reaction.getInputs()) {
-                visitor.accept(input);
-                for (ReactionInputSample sample : input.getSamples()) {
-                    visitor.accept(sample);
-                }
-            }
-            for (ReactionOutput output : reaction.getOutputs()) {
-                visitor.accept(output);
-                for (ReactionOutputSample sample : output.getSamples()) {
-                    visitor.accept(sample);
-                }
-            }
-        }
     }
 }

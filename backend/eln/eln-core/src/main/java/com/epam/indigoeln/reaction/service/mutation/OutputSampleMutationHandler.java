@@ -28,6 +28,7 @@ public class OutputSampleMutationHandler extends AbstractMutationHandler {
 
     public void handle(ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputHealthHazards mutation) {
         sample.setHealthHazards(mutation.healthHazards());
+        dictionariesAffected = true;
     }
 
     public void handle(ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputActualMol mutation) {
@@ -40,22 +41,27 @@ public class OutputSampleMutationHandler extends AbstractMutationHandler {
 
     public void handle(ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputHandlingPrecautions mutation) {
         sample.setHandlingPrecautions(mutation.handlingPrecautions());
+        dictionariesAffected = true;
     }
 
     public void handle(ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputStorageInstructions mutation) {
         sample.setStorageInstructions(mutation.storageInstructions());
+        dictionariesAffected = true;
     }
 
     public void handle(ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputCompoundProtection mutation) {
         sample.setCompoundProtection(mutation.compoundProtection());
+        dictionariesAffected = true;
     }
 
     public void handle(ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputSolubilityInSolvents mutation) {
         sample.setSolubilityInSolvents(mutation.solubilityInSolvents());
+        dictionariesAffected = true;
     }
 
     public void handle(ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputResidualSolvents mutation) {
         sample.setResidualSolvents(mutation.residualSolvents());
+        dictionariesAffected = true;
     }
 
     public void handle(ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputMeltingPoint mutation) {
@@ -68,18 +74,22 @@ public class OutputSampleMutationHandler extends AbstractMutationHandler {
 
     public void handle(ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputExternalSupplier mutation) {
         sample.setExternalSupplier(mutation.externalSupplier());
+        dictionariesAffected = true;
     }
 
     public void handle(ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputSource mutation) {
         sample.setSource(mutation.source());
+        dictionariesAffected = true;
     }
 
     public void handle(ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputSourceDetails mutation) {
         sample.setSourceDetails(mutation.sourceDetails());
+        dictionariesAffected = true;
     }
 
     public void handle(ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputComponentState mutation) {
         sample.setComponentState(mutation.componentState());
+        dictionariesAffected = true;
     }
 
     public void handle(ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputBatchComment mutation) {
