@@ -54,11 +54,13 @@ export class ListHeaderComponent implements OnInit, OnChanges, OnDestroy {
   @Input() enableViewToggle = true;
   @Input() enableSearch = true;
   @Input() enableSort = true;
+  @Input() myEntitiesOnly = false;
 
   sortControl = new FormControl('');
   @Output() sortChange = new EventEmitter<SortChangeEvent>();
   @Output() viewChange = new EventEmitter<string>();
   @Output() searchChange = new EventEmitter<string>();
+  @Output() myEntitiesOnlyChange = new EventEmitter<boolean>();
 
   selectedView: 'grid' | 'list' = 'grid';
   searchModel = '';
@@ -135,5 +137,10 @@ export class ListHeaderComponent implements OnInit, OnChanges, OnDestroy {
   onViewChange(view: string) {
     this.selectedView = view as 'grid' | 'list';
     this.viewChange.emit(view);
+  }
+
+  onMyEntitiesOnlyChanged(newValue: boolean) {
+    this.myEntitiesOnly = newValue
+    this.myEntitiesOnlyChange.emit(this.myEntitiesOnly);
   }
 }

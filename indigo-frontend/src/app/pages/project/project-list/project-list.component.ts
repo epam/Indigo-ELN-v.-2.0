@@ -106,4 +106,8 @@ export class ProjectListComponent
   onViewChange(view: string) {
     this.selectedView = view as 'grid' | 'list';
   }
+
+  onMyEntitiesOnlyChange(value: boolean) {
+    this.myEntities(value);
+  }
 }

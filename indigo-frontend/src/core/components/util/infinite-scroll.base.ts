@@ -55,6 +55,12 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
     super.clearSort();
   }
 
+  override myEntities(value: boolean) {
+    this.pager.pageNo = 0;
+    this.dataBh.next([]);
+    super.myEntities(value);
+  }
+
   reload() {
     this.firstLoad = true;
     this.appendToTop = true;
