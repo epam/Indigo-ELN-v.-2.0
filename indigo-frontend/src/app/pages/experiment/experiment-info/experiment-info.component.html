@@ -70,7 +70,7 @@
 
         @if (accordionItem2.expanded) {
           <div class="mt-4">
-            <eln-reaction-scheme-view
+            <eln-reaction-view
               [experimentId]="experiment()?.id || null"
               (modelUpdating)="onModelUpdating($event)"
             />

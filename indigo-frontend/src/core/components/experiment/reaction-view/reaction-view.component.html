@@ -1,0 +1,17 @@
+<div class="flex flex-col gap-4">
+  <div>
+    <eln-reaction-scheme-view
+      [reaction]="reaction()"
+      [experimentId]="experimentId()"
+      (modelUpdating)="onModelUpdating($event)"
+    />
+  </div>
+  
+  <div>
+    <eln-reaction-inputs-table [reaction]="reaction()" />
+  </div>
+
+  <div>
+    <eln-reaction-products-table [reaction]="reaction()" />
+  </div>
+</div>

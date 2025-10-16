@@ -1,4 +1,4 @@
-import { Component, inject, computed, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StructureEditorModalComponent } from '../structure-editor-modal/structure-editor-modal.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -6,30 +6,21 @@ import { ButtonComponent } from '@/core/components/common/button/button.componen
 import { ExperimentModelService } from '@/core/services/experiment/experiment-model.service';
 import { MutateModelForm } from '@/core/types/entities/experiments/experiment-mutate-form.i';
 import { Mutation } from '@/core/types/entities/experiments/mutation.i';
+import { Reaction } from '@/core/types/entities/experiments/experiment.i';
 
 @Component({
   selector: 'eln-reaction-scheme-view',
   standalone: true,
   imports: [CommonModule, ButtonComponent],
-  providers: [ExperimentModelService],
   templateUrl: './reaction-scheme-view.component.html',
 })
-export class ReactionSchemeViewComponent implements OnInit {
+export class ReactionSchemeViewComponent {
+  @Input() reaction: Reaction | null = null;
   @Input() experimentId: string | null = null;
   @Output() modelUpdating = new EventEmitter<boolean>();
 
   dialog = inject(MatDialog);
   experimentModelService = inject(ExperimentModelService);
-
-  // TODO - handle multiple reactions so far only supports first reaction
-  currentReaction = computed(() => {
-    const reactions = this.experimentModelService.experimentModel()?.reactions || [];
-    return reactions.length > 0 ? reactions[0] : null;
-  });
-
-  ngOnInit(): void {
-    if (this.experimentId) this.experimentModelService.load(this.experimentId);
-  }
 
   openChemicalEditor(): void {
     if (!this.experimentId) {
@@ -41,7 +32,10 @@ export class ReactionSchemeViewComponent implements OnInit {
   }
 
   private openModal(): void {
-    const reaction = this.currentReaction();
+    if (!this.reaction) {
+      console.warn('No reaction available');
+      return;
+    }
 
     const dialogRef = this.dialog.open(StructureEditorModalComponent, {
       width: '90vw',
@@ -52,7 +46,7 @@ export class ReactionSchemeViewComponent implements OnInit {
       data: {
         height: '600px',
         width: '100%',
-        reaction
+        reaction: this.reaction
       }
     });
 
@@ -66,10 +60,8 @@ export class ReactionSchemeViewComponent implements OnInit {
   }
 
   private updateExperimentWithMutations(mutations: Mutation[]): void {
-    // Update mutations with current reaction anchor
-    const reaction = this.currentReaction();
-    if (!reaction) {
-      console.error('No current reaction available');
+    if (!this.reaction) {
+      console.error('No reaction available');
       return;
     }
 
@@ -82,7 +74,7 @@ export class ReactionSchemeViewComponent implements OnInit {
 
     const firstMutation = {
       ...mutations[0],
-      anchor: reaction.anchor
+      anchor: this.reaction.anchor
     };
 
     const payload: MutateModelForm = {
