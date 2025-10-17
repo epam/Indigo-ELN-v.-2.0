@@ -43,7 +43,7 @@ import static com.epam.indigoeln.reaction.model.units.EnteredValue.fixed;
 @ApplicationScoped
 public class CompoundService {
 
-    private static final String[] NAME_PROPERTIES = {"PUBCHEM_IUPAC_TRADITIONAL_NAME", "PUBCHEM_IUPAC_SYSTEMATIC_NAME", "PUBCHEM_IUPAC_OPENEYE_NAME"};
+//    private static final String[] NAME_PROPERTIES = {"PUBCHEM_IUPAC_TRADITIONAL_NAME", "PUBCHEM_IUPAC_SYSTEMATIC_NAME", "PUBCHEM_IUPAC_OPENEYE_NAME"};
     private static final String[] COMPOUND_ID_PROPERTIES = {"PUBCHEM_COMPOUND_CID"};
 
     @Inject
@@ -103,7 +103,7 @@ public class CompoundService {
     }
 
     public CompoundRef.Stored realCompoundRef(CompoundEntity compound) {
-        return new CompoundRef.Stored(compound.getId(), compound.getName(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getMolFile(), compound.getFormula(), compound.getStrCode());
+        return new CompoundRef.Stored(compound.getId(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getMolFile(), compound.getFormula(), compound.getStrCode());
     }
 
     public CompoundRef.Virtual virtualCompoundRef(IndigoMolecule molecule, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
@@ -144,12 +144,12 @@ public class CompoundService {
         compound.setFormula(molecule.grossFormula());
         compound.setMolFile(molecule.molfile());
         compound.setMolWeight(molecule.molecularWeight());
-        for (String property : NAME_PROPERTIES) {
-            if (molecule.hasProperty(property)) {
-                compound.setName(molecule.getProperty(property));
-                break;
-            }
-        }
+//        for (String property : NAME_PROPERTIES) {
+//            if (molecule.hasProperty(property)) {
+//                compound.setName(molecule.getProperty(property));
+//                break;
+//            }
+//        }
         // TODO if PubChem compoundID found, search in PubChem?
 //        for (String property : COMPOUND_ID_PROPERTIES) {
 //            if (molecule.hasProperty(property)) {
@@ -182,7 +182,7 @@ public class CompoundService {
         SampleEntity sample = new SampleEntity();
         sample.setCompound(compound);
         sample.setStrCode(generateStrCode(compound));
-        sample.setNotebookBatchNumber(request.getNotebookBatchNumber());
+        sample.setNbkBatchNumber(request.getNbkBatchNumber());
         sample.setDensity(request.getDensity() != null ? request.getDensity().getValue() : null);
         sample.setMolarity(request.getMolarity() != null ? request.getMolarity().getValue() : null);
         sample.setMolarityUnit(request.getMolarity() != null ? request.getMolarity().getUnit() : null);
@@ -191,6 +191,7 @@ public class CompoundService {
             sample.getHealthHazards().addAll(dictionaryService.lookup(BuiltInDictionary.HEALTH_HAZARD.name(), request.getHealthHazards()));
         }
         sample.setCompoundState(dictionaryService.lookup(BuiltInDictionary.COMPONENT_STATE.name(), request.getCompoundState()));
+        sample.setChemicalName(request.getChemicalName());
         sample.setBatchComment(request.getBatchComment());
         compound.getSamples().add(sample);
         updateDates(sample, userService.getCurrentUser());

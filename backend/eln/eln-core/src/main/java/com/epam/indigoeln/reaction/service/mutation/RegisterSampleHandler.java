@@ -26,12 +26,13 @@ public class RegisterSampleHandler extends AbstractMutationHandler {
         }
         sampleRow.setRegistrationStatus(SampleRegistrationStatus.IN_PROGRESS);
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(sampleRow.getRow().getCompound())
-                .withNotebookBatchNumber(sampleRow.getNotebookBatchNumber())
+                .withNbkBatchNumber(sampleRow.getNbkBatchNumber())
                 .withDensity(sampleRow.getDensity())
                 .withMolarity(sampleRow.getMolarity())
                 .withPurity(sampleRow.getPurity().getValue())
                 .withHealthHazards(sampleRow.getHealthHazards())
                 .withCompoundState(sampleRow.getComponentState())
+                .withChemicalName(sampleRow.getRow().getChemicalName())
                 .withBatchComment(sampleRow.getBatchComment())
         );
         sampleRow.setRegistrationStatus(SampleRegistrationStatus.REGISTERED);

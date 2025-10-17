@@ -5,9 +5,9 @@ BEGIN
     RETURN (
         SELECT
             setweight(to_tsvector('english', coalesce(s.str_code, '')), 'A') ||
-            setweight(to_tsvector('english', coalesce(s.notebook_batch_number, '')), 'A') ||
-            setweight(to_tsvector('english', coalesce(c.formula, '')), 'A') ||
-            setweight(to_tsvector('english', coalesce(c.name, '')), 'A')
+            setweight(to_tsvector('english', coalesce(s.nbk_batch_number, '')), 'A') ||
+            setweight(to_tsvector('english', coalesce(c.cas_number, '')), 'A') ||
+            setweight(to_tsvector('english', coalesce(chemical_name, '')), 'B')
         FROM Sample s
         JOIN Compound c ON c.id = s.compound_id
         WHERE s.id = current_sample_id

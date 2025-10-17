@@ -4,7 +4,6 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -29,10 +28,16 @@ public final class ReactionInputSample extends ReactionSample implements Experim
     private UUID sampleId;
 
     @Nullable
+    private String chemicalName;
+
+    @Nullable
     private EnteredValue<MolUnit> mol;
 
     @Nullable
     private EnteredValue<WeightUnit> weight;
+
+    @Nullable
+    private String comment;
 
     public static ReactionInputSample create(ReactionInput row) {
         ReactionInputSample sample = new ReactionInputSample();
@@ -52,12 +57,14 @@ public final class ReactionInputSample extends ReactionSample implements Experim
     public void toStringTree(Builder builder) {
         builder.open("ReactionInputSample")
                 .property("anchor", anchor)
+                .property("chemicalName", chemicalName)
                 .property("sampleId", sampleId)
                 .property("mol", mol)
                 .property("weight", weight)
                 .property("density", density)
                 .property("molarity", molarity)
                 .property("purity", purity)
+                .property("comment", comment)
                 .close();
     }
 }

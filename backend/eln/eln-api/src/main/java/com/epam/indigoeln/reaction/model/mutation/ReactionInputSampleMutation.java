@@ -15,7 +15,9 @@ public sealed interface ReactionInputSampleMutation extends Mutation permits
         ReactionInputSampleMutation.SetInputPurity,
         ReactionInputSampleMutation.SetInputHealthHazards,
         ReactionInputSampleMutation.SetInputMol,
-        ReactionInputSampleMutation.SetInputWeight {
+        ReactionInputSampleMutation.SetInputWeight,
+        ReactionInputSampleMutation.SetInputComment
+{
 
     Anchor.InputSample anchor();
 
@@ -63,6 +65,12 @@ public sealed interface ReactionInputSampleMutation extends Mutation permits
             @NotNull Anchor.InputSample anchor,
             @Nullable Double weight,
             @Nullable WeightUnit unit
+    ) implements ReactionInputSampleMutation {
+    }
+
+    record SetInputComment (
+            @NotNull Anchor.InputSample anchor,
+            @Nullable String comment
     ) implements ReactionInputSampleMutation {
     }
 }

@@ -86,22 +86,23 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Order(100)
     void testRegisterSample() {
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1)
-                .withNotebookBatchNumber(new NotebookBatchNumber("00000000-0000", 1))
+                .withNbkBatchNumber(new NbkBatchNumber("00000000-0000", 1))
                 .withDensity(EnteredValue.userLastEntered(10.0, DensityUnit.G_ML))
                 .withMolarity(EnteredValue.userLastEntered(20.0, MolarityUnit.MM))
                 .withPurity(0.50)
                 .withHealthHazards(List.of(healthHazard))
                 .withCompoundState(compoundState)
+                .withChemicalName("ChemicalName1")
                 .withBatchComment("batch comment")
         );
         str1 = sample.getStrCode();
         sampleID1 = sample.getId();
         assertThat(str1.getSaltCode()).as(str1.toString()).isZero();
         assertThat(str1.getSampleCode()).as(str1.toString()).isPositive();
-        NotebookBatchNumber batchNumber = sample.getNotebookBatchNumber();
-        assertThat(batchNumber.getExperimentName()).isEqualTo("00000000-0000");
-        assertThat(batchNumber.getOrdinal()).isEqualTo(1);
-        assertThat(batchNumber.toString()).isEqualTo("00000000-0000-001");
+        NbkBatchNumber nbkBatchNumber = sample.getNbkBatchNumber();
+        assertThat(nbkBatchNumber.getExperimentName()).isEqualTo("00000000-0000");
+        assertThat(nbkBatchNumber.getOrdinal()).isEqualTo(1);
+        assertThat(nbkBatchNumber.toString()).isEqualTo("00000000-0000-001");
         assertThat(sample.getDensity()).isEqualTo(10.0, EPS);
         assertThat(sample.getMolarity()).isEqualTo(20.0, EPS);
         assertThat(sample.getMolarityUnit()).isEqualTo(MolarityUnit.MM);
@@ -158,7 +159,7 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Test
     @Order(600)
     void testQuickSearch() {
-        List<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest().withQuickSearch("\"C2 H4 O2\""));
+        List<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest().withQuickSearch("\"" + strOtherCompound + "\""));
         assertThat(found).singleElement().returns(strOtherCompound, SampleDTO::getStrCode);
     }
 
@@ -166,13 +167,14 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Order(610)
     void testAdvancedSearch() {
         List<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest()
-                .withNotebookBatchNumber(new TextSearch.ExactSearch("00000000-0000-001"))
+                .withNbkBatchNumber(new TextSearch.ExactSearch("00000000-0000-001"))
+                .withStrCode(new TextSearch.ExactSearch(str1.toString()))
                 .withMolecularFormula(new TextSearch.ExactSearch("C9 H8 O4"))
                 .withMolWeight(new NumericSearch.Equals(180.0))
-//                .withChemicalName(new TextSearch.ExactSearch("???"))
                 .withCompoundState(compoundState)
+                .withChemicalName(new TextSearch.ExactSearch("ChemicalName1"))
                 .withBatchComment(new TextSearch.ExactSearch("batch comment"))
-                // health hazards
+                .withHealthHazards(healthHazard)
         );
         assertThat(found).singleElement().returns(str1, SampleDTO::getStrCode);
     }
@@ -181,7 +183,7 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Order(610)
     void testAdvancedSearchStartsWith() {
         List<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest()
-                        .withNotebookBatchNumber(new TextSearch.StartsWithSearch("00000000-0000-"))
+                        .withNbkBatchNumber(new TextSearch.StartsWithSearch("00000000-0000-"))
         );
         assertThat(found).singleElement().returns(str1, SampleDTO::getStrCode);
     }
@@ -190,7 +192,7 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Order(610)
     void testAdvancedSearchContains() {
         List<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest()
-                .withNotebookBatchNumber(new TextSearch.ContainsSearch("-0000-"))
+                .withNbkBatchNumber(new TextSearch.ContainsSearch("-0000-"))
         );
         assertThat(found).singleElement().returns(str1, SampleDTO::getStrCode);
     }
@@ -199,7 +201,7 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Order(610)
     void testAdvancedSearchEndsWith() {
         List<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest()
-                .withNotebookBatchNumber(new TextSearch.ContainsSearch("-001"))
+                .withNbkBatchNumber(new TextSearch.ContainsSearch("-001"))
         );
         assertThat(found).singleElement().returns(str1, SampleDTO::getStrCode);
     }
@@ -208,7 +210,7 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Order(610)
     void testAdvancedSearchBetween() {
         List<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest()
-                .withNotebookBatchNumber(new TextSearch.BetweenSearch("00000000-0000-000", "00000000-0000-999"))
+                .withNbkBatchNumber(new TextSearch.BetweenSearch("00000000-0000-000", "00000000-0000-999"))
         );
         assertThat(found).singleElement().returns(str1, SampleDTO::getStrCode);
     }

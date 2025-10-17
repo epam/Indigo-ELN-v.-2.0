@@ -17,9 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 
@@ -75,7 +73,6 @@ public class SchemaHandler extends AbstractMutationHandler {
     }
 
     public void handle(Reaction reaction, ReactionMutation.ResolveInputs mutation) {
-        Set<ReactionRole> affectedRoles = EnumSet.noneOf(ReactionRole.class);
         mutation.inputSamples().forEach((inputAnchor, sampleId) -> {
             ReactionInput row = model.locate(inputAnchor);
             SampleEntity sample = compoundService.getSample(sampleId);
@@ -94,6 +91,8 @@ public class SchemaHandler extends AbstractMutationHandler {
         reactionInputSample.setMolarity(EnteredValue.defaultValue(sample.getMolarity(), sample.getMolarityUnit()));
         reactionInputSample.setPurity(sample.getPurity() != null ? EnteredValue.defaultValue(sample.getPurity(), NoUnit.NO_UNIT) : DEFAULT_ONE);
         reactionInputSample.setHealthHazards(dictionaryMapper.itemToRefList(sample.getHealthHazards()));
+        reactionInputSample.setComment(sample.getBatchComment());
+        reactionInputSample.setChemicalName(sample.getChemicalName());
         row.setSamples(List.of(reactionInputSample));
 
         dictionariesAffected = true;

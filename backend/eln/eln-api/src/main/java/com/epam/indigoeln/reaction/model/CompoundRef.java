@@ -65,9 +65,6 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Nullable
         private Double saltEQ;
 
-        @Nullable
-        private final String name;
-
         @NotNull
         private final EnteredValue<MolWeightUnit> molWeight;
 
@@ -84,7 +81,6 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         public String toString() {
             return MoreObjects.toStringHelper(this).omitNullValues()
                     .add("compoundID", compoundID)
-                    .add("name", name)
                     .add("molWeight", molWeight)
                     .add("formula", formula)
                     .toString();

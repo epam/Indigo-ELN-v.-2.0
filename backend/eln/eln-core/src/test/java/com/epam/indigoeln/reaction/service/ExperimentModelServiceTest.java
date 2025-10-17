@@ -227,7 +227,7 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
     @Test
     @Order(1300)
     void testAddInput() {
-        List<SampleDTO> foundSamples = compoundClient.findSamples(new FindSamplesRequest().withChemicalName(new TextSearch.ExactSearch("1,2-dichloroethane")));
+        List<SampleDTO> foundSamples = compoundClient.findSamples(new FindSamplesRequest().withMolecularFormula(new TextSearch.ExactSearch("C12 H22 N2 O2")));
         applyMutation(new ReactionMutation.AddInput(reactionAnchor, foundSamples.getFirst().getId()));
     }
 

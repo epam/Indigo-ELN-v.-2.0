@@ -22,11 +22,11 @@ public final class ExperimentModel implements ExperimentModelNode, ToStringTree 
         return ++lastUsedAnchor;
     }
 
-    public int generateNextNotebookBatchNumber() {
+    public int generateNextNbkBatchNumber() {
         int lastUsedNumber = reactions.stream()
                 .flatMap(r -> r.getOutputs().stream())
                 .flatMap(or -> or.getSamples().stream())
-                .mapToInt(s -> s.getNotebookBatchNumber().getOrdinal())
+                .mapToInt(s -> s.getNbkBatchNumber().getOrdinal())
                 .max().orElse(0);
         return lastUsedNumber + 1;
     }

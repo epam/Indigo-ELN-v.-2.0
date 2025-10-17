@@ -1,9 +1,12 @@
 package com.epam.indigoeln.compound.entity;
 
+import com.epam.indigoeln.eln.config.hibernate.STRCodeCompoundConverter;
+import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.entity.IdentifiableEntity;
+import com.epam.indigoeln.eln.entity.SaltCodeEntity;
 import com.epam.indigoeln.eln.model.CompoundSource;
 import com.epam.indigoeln.eln.model.STRCodeCompound;
-import com.epam.indigoeln.eln.config.hibernate.STRCodeCompoundConverter;
-import com.epam.indigoeln.eln.entity.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -32,6 +35,9 @@ public class CompoundEntity extends IdentifiableEntity {
     @Convert(converter = STRCodeCompoundConverter.class)
     private STRCodeCompound strCode; // STR code for compounds registered from Indigo ELN
 
+    @Nullable
+    private String casNumber;
+
     @NotEmpty
     private String canSmiles;
 
@@ -49,9 +55,6 @@ public class CompoundEntity extends IdentifiableEntity {
 
     @NotEmpty
     private String formula;
-
-    @Nullable
-    private String name;
 
     @NotNull
     private Double molWeight;

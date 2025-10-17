@@ -93,6 +93,7 @@ public class ExperimentModelService {
                     case ReactionInputSampleMutation.SetInputMol m -> resolve(inputSampleMutationHandler, h -> h.handle(sample, m));
                     case ReactionInputSampleMutation.SetInputWeight m -> resolve(inputSampleMutationHandler, h -> h.handle(sample, m));
                     case ReactionInputSampleMutation.SetInputHealthHazards m -> resolve(inputSampleMutationHandler, h -> h.handle(sample, m));
+                    case ReactionInputSampleMutation.SetInputComment m -> resolve(inputSampleMutationHandler, h -> h.handle(sample, m));
                 };
             }
             case ReactionOutputMutation om -> {

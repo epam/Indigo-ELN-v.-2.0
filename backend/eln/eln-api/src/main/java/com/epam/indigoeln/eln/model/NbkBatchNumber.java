@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Value
-public class NotebookBatchNumber {
+public class NbkBatchNumber {
 
     private static final Pattern PATTERN = Pattern.compile("(\\d{8}-\\d{4})-(\\d{3})");
 
@@ -16,12 +16,12 @@ public class NotebookBatchNumber {
     int ordinal;
 
     @JsonCreator
-    public static NotebookBatchNumber parse(String str) {
+    public static NbkBatchNumber parse(String str) {
         Matcher matcher = PATTERN.matcher(str);
         if (!matcher.matches()) {
-            throw new IllegalArgumentException("Invalid notebook batch number format: " + str);
+            throw new IllegalArgumentException("Invalid nbk batch number format: " + str);
         }
-        return new NotebookBatchNumber(matcher.group(1), Integer.parseInt(matcher.group(2)));
+        return new NbkBatchNumber(matcher.group(1), Integer.parseInt(matcher.group(2)));
     }
 
     @JsonValue

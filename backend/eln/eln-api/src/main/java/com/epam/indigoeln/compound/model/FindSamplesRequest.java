@@ -20,7 +20,16 @@ public class FindSamplesRequest {
     StructuralSearch structure;
 
     @Nullable
-    TextSearch notebookBatchNumber;
+    TextSearch strCode;
+
+    @Nullable
+    TextSearch nbkBatchNumber;
+
+    @Nullable
+    TextSearch casNumber;
+
+    @Nullable
+    TextSearch externalNumber;
 
     @Nullable
     TextSearch molecularFormula;
@@ -36,4 +45,7 @@ public class FindSamplesRequest {
 
     @Nullable
     TextSearch batchComment;
+
+    @Nullable
+    DictionaryItemRef healthHazards;
 }

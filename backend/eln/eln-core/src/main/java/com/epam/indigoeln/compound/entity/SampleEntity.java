@@ -1,11 +1,11 @@
 package com.epam.indigoeln.compound.entity;
 
-import com.epam.indigoeln.eln.config.hibernate.NotebookBatchNumberConverter;
+import com.epam.indigoeln.eln.config.hibernate.NbkBatchNumberConverter;
 import com.epam.indigoeln.eln.config.hibernate.STRCodeSampleConverter;
 import com.epam.indigoeln.eln.entity.BaseEntity;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
-import com.epam.indigoeln.eln.model.NotebookBatchNumber;
+import com.epam.indigoeln.eln.model.NbkBatchNumber;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.reaction.model.units.MolarityUnit;
 import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
@@ -33,12 +33,15 @@ public class SampleEntity extends BaseEntity {
     private CompoundEntity compound;
 
     @Nullable
-    @Convert(converter = NotebookBatchNumberConverter.class)
-    private NotebookBatchNumber notebookBatchNumber;
+    @Convert(converter = NbkBatchNumberConverter.class)
+    private NbkBatchNumber nbkBatchNumber;
 
     @Nullable
     @Convert(converter = STRCodeSampleConverter.class)
     private STRCodeSample strCode;
+
+    @Nullable
+    private String externalNumber;
 
     @Nullable
     private Double density;
@@ -57,6 +60,9 @@ public class SampleEntity extends BaseEntity {
     @Nullable
     @ManyToOne
     private DictionaryItemEntity compoundState;
+
+    @Nullable
+    private String chemicalName;
 
     @Nullable
     private String batchComment;

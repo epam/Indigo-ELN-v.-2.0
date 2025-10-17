@@ -6,12 +6,12 @@ import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.NumericSearch;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.TextSearch;
+import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
-import com.epam.indigoeln.eln.model.EntityType;
-import com.epam.indigoeln.eln.model.Page;
-import com.epam.indigoeln.eln.model.Paging;
-import com.epam.indigoeln.eln.model.STRCodeSample;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.BaseRepository;
+import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
+import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.util.Conditions;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -27,6 +27,10 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
 
     @Inject
     SampleMapper sampleMapper;
+    @Inject
+    DictionaryItemRepository dictionaryItemRepository;
+    @Inject
+    DictionaryService dictionaryService;
 
     public SampleRepository() {
         super(EntityType.SAMPLE);
@@ -36,7 +40,7 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
     public SampleEntity findDefaultSample(UUID compoundId) {
         Conditions conditions = new Conditions()
                 .add("compound.id=?", compoundId)
-                .add("notebookBatchNumber is null");
+                .add("nbkBatchNumber is null");
         return find(conditions.getQuery(), conditions.getValues()).firstResult();
     }
 
@@ -56,14 +60,22 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
                 }
             }
         }
-        addTextSearch(conditions, request.getNotebookBatchNumber(), "notebookBatchNumber");;
+        addTextSearch(conditions, request.getNbkBatchNumber(), "nbkBatchNumber");;
+        addTextSearch(conditions, request.getStrCode(), "strCode");
         addTextSearch(conditions, request.getMolecularFormula(), "compound.formula");
         addNumericSearch(conditions, request.getMolWeight(), "compound.molWeight");
-        addTextSearch(conditions, request.getChemicalName(), "compound.name");
-        if (request.getCompoundState() != null) {
-            conditions.add("compoundState.id = ?", request.getCompoundState().getId());
-        }
+        addTextSearch(conditions, request.getChemicalName(), "chemicalName");
+        addTextSearch(conditions, request.getCasNumber(), "compound.casNumber");
+        addTextSearch(conditions, request.getExternalNumber(), "externalNumber");
         addTextSearch(conditions, request.getBatchComment(), "batchComment");
+        if (request.getCompoundState() != null) {
+            DictionaryItemEntity compoundState = dictionaryService.lookup(BuiltInDictionary.COMPONENT_STATE.name(), request.getCompoundState());
+            conditions.add("compoundState = ?", compoundState);
+        }
+        if (request.getHealthHazards() != null) {
+            DictionaryItemEntity healthHazard = dictionaryService.lookup(BuiltInDictionary.HEALTH_HAZARD.name(), request.getHealthHazards());
+            conditions.add("? member of healthHazards", healthHazard);
+        }
         return find(conditions.getQuery(), conditions.getValues()).list();
     }
 
@@ -87,7 +99,7 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
     private void addNumericSearch(Conditions conditions, @Nullable NumericSearch search, String field) {
         switch (search) {
             case NumericSearch.Equals e -> conditions
-                    .add("round(" + field + ") = ?", Math.round(e.value()));
+                    .add("floor(" + field + ") = ?", Math.floor(e.value()));
             case NumericSearch.GreaterThenOrEqual ge -> conditions
                     .add(field + " >= ?", ge.value());
             case NumericSearch.LessThenOrEqual le -> conditions

@@ -30,8 +30,8 @@ public class OutputMutationHandler extends AbstractMutationHandler {
 
     public void handle(ReactionOutput row, ReactionOutputMutation.SetOutputRowName mutation) {
         for (ReactionOutput otherRow : row.getReaction().getOutputs()) {
-            InvalidRequestException.validate(otherRow == row || !otherRow.getName().equals(mutation.name()),"Output name " + mutation.name() + " is already used in this reaction");
+            InvalidRequestException.validate(otherRow == row || !otherRow.getChemicalName().equals(mutation.name()),"Output name " + mutation.name() + " is already used in this reaction");
         }
-        row.setName(mutation.name());
+        row.setChemicalName(mutation.name());
     }
 }

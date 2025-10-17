@@ -1,7 +1,7 @@
 package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.NotebookBatchNumber;
+import com.epam.indigoeln.eln.model.NbkBatchNumber;
 import com.epam.indigoeln.eln.model.STRCodeCompound;
 import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
@@ -35,7 +35,7 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     private Anchor.OutputSample anchor;
 
     @NotNull
-    private NotebookBatchNumber notebookBatchNumber;
+    private NbkBatchNumber nbkBatchNumber;
 
     @Nullable
     private EnteredValue<MolUnit> actualMol;
@@ -98,7 +98,7 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
         ReactionOutputSample sample = new ReactionOutputSample();
         sample.row = row;
         sample.anchor = new Anchor.OutputSample(row.getReaction().getModel().generateNextAnchor());
-        sample.notebookBatchNumber = new NotebookBatchNumber(experimentName, row.getReaction().getModel().generateNextNotebookBatchNumber());
+        sample.nbkBatchNumber = new NbkBatchNumber(experimentName, row.getReaction().getModel().generateNextNbkBatchNumber());
         return sample;
     }
 
@@ -170,7 +170,7 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
                 .property("registrationStatusMessage", registrationStatusMessage)
                 .property("sampleId", sampleId)
                 .property("strCode", strCode)
-                .property("notebookBatchNumber", notebookBatchNumber)
+                .property("nbkBatchNumber", nbkBatchNumber)
                 .close();
     }
 }

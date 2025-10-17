@@ -102,9 +102,9 @@ public final class Reaction implements ExperimentModelNode, ToStringTree {
         return Iterables.filter(inputs, input -> input.getRole() == role);
     }
 
-    public String generateNextOutputName() {
+    public String generateNextProductName() {
         int maxUsedNumber = outputs.stream()
-                .map(row -> row.getName().startsWith("P") ? Ints.tryParse(row.getName().substring(1)) : null)
+                .map(row -> row.getChemicalName().startsWith("P") ? Ints.tryParse(row.getChemicalName().substring(1)) : null)
                 .filter(Objects::nonNull)
                 .mapToInt(Integer::valueOf)
                 .max().orElse(-1);

@@ -1,7 +1,7 @@
 package com.epam.indigoeln.compound.model;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.NotebookBatchNumber;
+import com.epam.indigoeln.eln.model.NbkBatchNumber;
 import com.epam.indigoeln.reaction.model.CompoundRef;
 import com.epam.indigoeln.reaction.model.units.DensityUnit;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
@@ -24,7 +24,7 @@ public class SampleRegistrationRequest {
     private CompoundRef compound;
 
     @Nullable
-    private NotebookBatchNumber notebookBatchNumber;
+    private NbkBatchNumber nbkBatchNumber;
 
     @Nullable
     private EnteredValue<DensityUnit> density;
@@ -40,6 +40,9 @@ public class SampleRegistrationRequest {
 
     @Nullable
     private DictionaryItemRef compoundState;
+
+    @Nullable
+    private String chemicalName;
 
     @Nullable
     private String batchComment;
