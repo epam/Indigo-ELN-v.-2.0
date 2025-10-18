@@ -8,7 +8,7 @@
 	<query language="JSON"><![CDATA[]]></query>
 	<field name="project" class="com.epam.indigoeln.eln.model.ProjectDTO"/>
 	<field name="experiment" class="com.epam.indigoeln.eln.model.ExperimentDetailsDTO"/>
-	<field name="picture" class="byte[]"/>
+	<field name="picture" class="java.lang.String"/>
 	<field name="model" class="com.epam.indigoeln.reaction.model.ExperimentModel"/>
 	<background splitType="Stretch"/>
 	<title height="79" splitType="Stretch"/>
@@ -339,9 +339,21 @@
 		</band>
 	</detail>
 	<detail>
-		<band height="125" splitType="Stretch">
+		<band height="300" splitType="Stretch">
 			<element kind="staticText" uuid="f299ddd5-3198-4a45-948f-35f3bd587152" x="0" y="0" width="279" height="24" fontSize="14.0">
 				<text><![CDATA[REACTION SCHEME]]></text>
+			</element>
+			<element kind="image" uuid="49c771f8-25a6-423d-9d59-6c18c204f89f" x="0" y="25" width="556" height="250">
+				<expression><![CDATA[$F{picture}.getBytes()]]></expression>
+				<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				<box padding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
 			</element>
 		</band>
 	</detail>
