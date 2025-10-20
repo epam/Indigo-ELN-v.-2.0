@@ -13,7 +13,6 @@ public sealed interface ReactionOutputMutation extends Mutation permits
         ReactionOutputMutation.SetOutputRowSaltEQ,
         ReactionOutputMutation.SetOutputRowEQ,
         ReactionOutputMutation.SetOutputRowName,
-        ReactionOutputMutation.SetOutputCompoundFormula,
         ReactionOutputMutation.SetOutputCompoundStereoisomerCode,
         ReactionOutputMutation.SetOutputCompoundMolWeight
 {
@@ -52,12 +51,6 @@ public sealed interface ReactionOutputMutation extends Mutation permits
     record SetOutputRowName(
             @NotNull Anchor.Output anchor,
             @NotNull String name
-    ) implements ReactionOutputMutation {
-    }
-
-    record SetOutputCompoundFormula(
-            @NotNull Anchor.Output anchor,
-            @Nullable String formula
     ) implements ReactionOutputMutation {
     }
 

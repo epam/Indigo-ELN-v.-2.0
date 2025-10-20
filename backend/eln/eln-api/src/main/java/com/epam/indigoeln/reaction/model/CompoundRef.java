@@ -94,7 +94,6 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     }
 
     @Getter
-    @Setter
     @EqualsAndHashCode(of = {"molFile", "stereoisomerCode", "saltCode", "saltEQ"})
     final class Virtual implements CompoundRef {
 
@@ -158,7 +157,6 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     }
 
     @Getter
-    @Setter
     // no equals and hashCode - each unknown compound is unique
     final class Unknown implements CompoundRef {
 
@@ -166,6 +164,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         private String formula;
 
         @Nullable
+        @Setter
         private EnteredValue<MolWeightUnit> molWeight;
 
         @Override

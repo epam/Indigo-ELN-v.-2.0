@@ -14,7 +14,6 @@ public sealed interface ReactionInputMutation extends Mutation permits
         ReactionInputMutation.SetInputRowSaltCode,
         ReactionInputMutation.SetInputRowSaltEQ,
         ReactionInputMutation.SetInputRowEQ,
-        ReactionInputMutation.SetInputCompoundFormula,
         ReactionInputMutation.SetInputCompoundStereoisomerCode,
         ReactionInputMutation.SetInputCompoundMolWeight
 {
@@ -54,12 +53,6 @@ public sealed interface ReactionInputMutation extends Mutation permits
     record SetInputRowEQ(
             @NotNull Anchor.Input anchor,
             @Nullable Double eq
-    ) implements ReactionInputMutation {
-    }
-
-    record SetInputCompoundFormula(
-            @NotNull Anchor.Input anchor,
-            @Nullable String formula
     ) implements ReactionInputMutation {
     }
 

@@ -78,7 +78,6 @@ public class ExperimentModelService {
                     case ReactionInputMutation.SetInputRowSaltCode m -> resolve(compoundHandler, h -> h.handle(input, m));
                     case ReactionInputMutation.SetInputRowSaltEQ m -> resolve(compoundHandler, h -> h.handle(input, m));
                     case ReactionInputMutation.SetInputRowEQ m -> resolve(inputMutationHandler, h -> h.handle(input, m));
-                    case ReactionInputMutation.SetInputCompoundFormula m -> resolve(compoundHandler, h -> h.handle(input, m));
                     case ReactionInputMutation.SetInputCompoundMolWeight m -> resolve(compoundHandler, h -> h.handle(input, m));
                     case ReactionInputMutation.SetInputCompoundStereoisomerCode m -> resolve(compoundHandler, h -> h.handle(input, m));
                 };
@@ -105,7 +104,6 @@ public class ExperimentModelService {
                     case ReactionOutputMutation.SetOutputRowSaltEQ m -> resolve(compoundHandler, h -> h.handle(output, m));
                     case ReactionOutputMutation.SetOutputRowEQ m -> resolve(outputMutationHandler, h -> h.handle(output, m));
                     case ReactionOutputMutation.SetOutputRowName m -> resolve(outputMutationHandler, h -> h.handle(output, m));
-                    case ReactionOutputMutation.SetOutputCompoundFormula m -> resolve(compoundHandler, h -> h.handle(output, m));
                     case ReactionOutputMutation.SetOutputCompoundMolWeight m -> resolve(compoundHandler, h -> h.handle(output, m));
                     case ReactionOutputMutation.SetOutputCompoundStereoisomerCode m -> resolve(compoundHandler, h -> h.handle(output, m));
                 };

@@ -61,22 +61,6 @@ public class CompoundHandler extends AbstractMutationHandler {
         dictionariesAffected = true;
     }
 
-    public void handle(ReactionInput input, ReactionInputMutation.SetInputCompoundFormula mutation) {
-        if (input.getCompound() instanceof CompoundRef.Unknown c) {
-            c.setFormula(mutation.formula());
-        } else {
-            throw new InvalidRequestException("Cannot set formula for stored or virtual compound");
-        }
-    }
-
-    public void handle(ReactionOutput row, ReactionOutputMutation.SetOutputCompoundFormula mutation) {
-        if (row.getCompound() instanceof CompoundRef.Unknown c) {
-            c.setFormula(mutation.formula());
-        } else {
-            throw new InvalidRequestException("Cannot set formula for stored or virtual compound");
-        }
-    }
-
     public void handle(ReactionInput row, ReactionInputMutation.SetInputCompoundMolWeight mutation) {
         if (row.getCompound() instanceof CompoundRef.Unknown c) {
             c.setMolWeight(EnteredValue.userLastEntered(mutation.molWeight(), MolWeightUnit.G_PER_MOL));
