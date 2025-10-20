@@ -27,8 +27,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -58,13 +58,16 @@ public class ReportsService {
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(experiments);
         Map<String, Object> params = new HashMap<>();
 
-//        Add current date to the report params
+//        Add date formater to report params
         log.info("!!! timezone = " + timezone);
-        Instant curentInstant = Instant.now();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MMM d, u HH:mm:ss", Locale.ENGLISH);
-        String reportDate = LocalDateTime.ofInstant(curentInstant, ZoneId.of(timezone)).format(dateTimeFormatter);
-        params.put("reportDate", reportDate + " " + timezone);
-        params.put("timeZone", new String(timezone));
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter
+                .ofPattern("MMM d, u HH:mm:ss VV", Locale.ENGLISH)
+                .withZone(ZoneId.of(timezone));
+        params.put("dateFormat", dateTimeFormatter);
+
+//        Add current date to the report params
+        ZonedDateTime reportDate = ZonedDateTime.ofInstant(Instant.now(), ZoneId.of(timezone));
+        params.put("reportDate", reportDate);
 
 //        JasperReport jasperReport = (JasperReport) readOnlyStreamingService.getResource("/reports/ExperimentReport.jasper", JasperPrint.class);
         InputStream xa = ReportsService.class.getResourceAsStream("/reports/ExperimentReport.jasper");
