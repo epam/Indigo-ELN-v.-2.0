@@ -48,6 +48,9 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     @Nullable
     EnteredValue<MolWeightUnit> getMolWeight();
 
+    @Nullable
+    Double getExactMass();
+
     @Getter
     @RequiredArgsConstructor
     @EqualsAndHashCode(of = {"compoundID", "stereoisomerCode", "saltCode", "saltEQ"})
@@ -67,6 +70,9 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
 
         @NotNull
         private final EnteredValue<MolWeightUnit> molWeight;
+
+        @NotNull
+        private final Double exactMass;
 
         @NotNull
         private final String molFile;
@@ -114,7 +120,10 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Positive
         private EnteredValue<MolWeightUnit> molWeight;
 
-        public Virtual(UUID compoundID, String molFile, String formula, Double molWeight) {
+        @NotNull
+        private Double exactMass;
+
+        public Virtual(UUID compoundID, String molFile, String formula, Double molWeight, Double exactMass) {
             this(compoundID, molFile, formula, EnteredValue.fixed(molWeight, MolWeightUnit.G_PER_MOL), null, null, null);
         }
 
@@ -191,6 +200,13 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Nullable
         @JsonIgnore
         public STRCodeCompound getStrCode() {
+            return null;
+        }
+
+        @Override
+        @Nullable
+        @JsonIgnore
+        public Double getExactMass() {
             return null;
         }
     }

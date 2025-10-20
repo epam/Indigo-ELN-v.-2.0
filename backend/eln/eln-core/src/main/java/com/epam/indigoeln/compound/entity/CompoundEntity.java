@@ -59,6 +59,9 @@ public class CompoundEntity extends IdentifiableEntity {
     @NotNull
     private Double molWeight;
 
+    @NotNull
+    private Double exactMass;
+
     @NotEmpty
     @Basic(fetch = FetchType.LAZY)
     private String molFile;
