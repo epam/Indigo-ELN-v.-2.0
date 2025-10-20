@@ -8,7 +8,9 @@ import { ExperimentModel } from '@core/types/entities/experiments/experiment.i';
 import { Mutation } from '@core/types/entities/experiments/mutation.i';
 import { ExperimentDetail } from '@core/types/entities/experiments/experiment-detail.i';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class ExperimentService {
   private service = inject(ApiService);
 

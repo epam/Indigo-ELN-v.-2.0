@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
 import { ExperimentImageService } from '@/core/services/experiment/experiment-image.service';
-import { ReactionSchemeViewComponent } from '@/core/components/experiment/reaction-scheme-view/reaction-scheme-view.component';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { CdkAccordionModule } from '@angular/cdk/accordion';
+import { ReactionViewComponent } from '@core/components/experiment/reaction-view/reaction-view.component';
 
 @Component({
   selector: 'eln-experiment-info',
@@ -13,10 +13,10 @@ import { CdkAccordionModule } from '@angular/cdk/accordion';
   imports: [
     CommonModule,
     CardComponent,
-    ReactionSchemeViewComponent,
     MatProgressSpinner,
     CdkAccordionModule,
-  ],
+    ReactionViewComponent
+],
   providers: [ExperimentImageService],
   templateUrl: './experiment-info.component.html',
 })
