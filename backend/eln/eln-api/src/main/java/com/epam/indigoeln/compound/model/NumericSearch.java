@@ -6,22 +6,22 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = NumericSearch.Equals.class, name = "eq"),
-        @JsonSubTypes.Type(value = NumericSearch.LessThenOrEqual.class, name = "le"),
-        @JsonSubTypes.Type(value = NumericSearch.GreaterThenOrEqual.class, name = "ge")
+        @JsonSubTypes.Type(value = NumericSearch.LessThanOrEqual.class, name = "le"),
+        @JsonSubTypes.Type(value = NumericSearch.GreaterThanOrEqual.class, name = "ge")
 })
-public sealed interface NumericSearch permits NumericSearch.Equals, NumericSearch.LessThenOrEqual, NumericSearch.GreaterThenOrEqual {
+public sealed interface NumericSearch permits NumericSearch.Equals, NumericSearch.LessThanOrEqual, NumericSearch.GreaterThanOrEqual {
 
     record Equals(
             double value
     ) implements NumericSearch {
     }
 
-    record LessThenOrEqual(
+    record LessThanOrEqual(
             double value
     ) implements NumericSearch {
     }
 
-    record GreaterThenOrEqual(
+    record GreaterThanOrEqual(
             double value
     ) implements NumericSearch {
     }

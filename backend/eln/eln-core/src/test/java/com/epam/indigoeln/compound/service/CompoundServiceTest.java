@@ -219,7 +219,7 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Order(610)
     void testAdvancedSearchGreaterThenOrEqual() {
         List<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest()
-                .withMolWeight(new NumericSearch.GreaterThenOrEqual(100.0))
+                .withMolWeight(new NumericSearch.GreaterThanOrEqual(100.0))
         );
         assertThat(found).isNotEmpty();
     }
@@ -228,7 +228,7 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Order(610)
     void testAdvancedSearchLessThenOrEqual() {
         List<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest()
-                        .withMolWeight(new NumericSearch.LessThenOrEqual(200.0))
+                        .withMolWeight(new NumericSearch.LessThanOrEqual(200.0))
         );
         assertThat(found).isNotEmpty();
     }

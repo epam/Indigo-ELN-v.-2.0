@@ -100,9 +100,9 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
         switch (search) {
             case NumericSearch.Equals e -> conditions
                     .add("floor(" + field + ") = ?", Math.floor(e.value()));
-            case NumericSearch.GreaterThenOrEqual ge -> conditions
+            case NumericSearch.GreaterThanOrEqual ge -> conditions
                     .add(field + " >= ?", ge.value());
-            case NumericSearch.LessThenOrEqual le -> conditions
+            case NumericSearch.LessThanOrEqual le -> conditions
                     .add(field + " <= ?", le.value());
             case null -> {}
         }
