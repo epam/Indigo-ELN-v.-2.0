@@ -232,11 +232,6 @@ export abstract class PaginatedBase<T> {
     this.fetchDataAndUpdateQueryParams();
   }
 
-  protected myEntities(value: boolean) {
-    this.filters['createdByMe'] = value;
-    this.fetchDataAndUpdateQueryParams();
-  }
-
   public getCurrentSort() {
     return this.currentSort;
   }

@@ -108,6 +108,8 @@ export class ProjectListComponent
   }
 
   onMyEntitiesOnlyChange(value: boolean) {
-    this.myEntities(value);
+    this.filters['createdByMe'] = value;
+    this.dataBh.next([]);
+    this.fetchDataAndUpdateQueryParams();
   }
 }
