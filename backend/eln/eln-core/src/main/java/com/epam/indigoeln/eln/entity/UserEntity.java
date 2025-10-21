@@ -27,16 +27,13 @@ public class UserEntity extends BaseEntity {
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)
-    @Column(name = "first_name")
     private String firstName;
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)
-    @Column(name = "last_name")
     private String lastName;
 
     @NotNull
-    @Column(name = "display_name")
     private String displayName;
 
     @NotNull

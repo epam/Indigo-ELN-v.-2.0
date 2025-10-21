@@ -11,7 +11,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.Type;
-import org.hibernate.dialect.PostgreSQLEnumJdbcType;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
@@ -61,29 +61,29 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
     @Nullable
     @Basic(fetch = FetchType.LAZY)
     @Type(PostgreSQLTSVectorType.class)
-    @Column(name = "search_vector", insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     private String searchVector;
 
     @Basic
     @Nullable
-    @Column(name = "current_access", insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     @JdbcType(PostgreSQLEnumJdbcType.class)
     private AccessLevel currentAccess;
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
-    @Column(name = "notebook_count", insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     private Integer notebookCount;
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
-    @Column(name = "experiment_count", insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     @Type(ExperimentCountArrayType.class)
     private Map<ExperimentStatus, Integer> experimentCount;
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
-    @Column(name = "acl_short", insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     @Type(ACLEntryArrayType.class)
     private ACLEntry[] aclShort;
 
@@ -94,7 +94,7 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
 
     @NotNull
     @Basic(fetch =  FetchType.LAZY)
-    @Column(name = "acl_count", insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     private Integer aclCount;
 
     @NotNull

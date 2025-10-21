@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.google.common.collect.Iterables;
+import com.google.common.primitives.Ints;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
@@ -15,21 +16,24 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Objects;
 
 @Data
 @EqualsAndHashCode(exclude = "model")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public class Reaction implements ExperimentModelNode, ToStringTree {
+public final class Reaction implements ExperimentModelNode, ToStringTree {
 
     @JsonBackReference
     private ExperimentModel model;
 
     @NotNull
-    private UUID anchor;
+    private Anchor.Reaction anchor;
 
     @NotNull
     private String rxnfile = "";
+
+    @NotNull
+    private Integer rxnVersion = 0;
 
     @Valid
     @NotNull
@@ -41,9 +45,11 @@ public class Reaction implements ExperimentModelNode, ToStringTree {
     @JsonManagedReference
     private List<ReactionOutput> outputs = new ArrayList<>(0);
 
-    public Reaction(ExperimentModel model, UUID anchor) {
-        this.model = model;
-        this.anchor = anchor;
+    public static Reaction create(ExperimentModel model) {
+        Reaction reaction = new Reaction();
+        reaction.model = model;
+        reaction.anchor = new Anchor.Reaction(model.generateNextAnchor());
+        return reaction;
     }
 
     @Override
@@ -92,18 +98,17 @@ public class Reaction implements ExperimentModelNode, ToStringTree {
         return null;
     }
 
-    @Override
-    public void prepareToRecalculate() {
-        for (ReactionInput input : inputs) {
-            input.prepareToRecalculate();
-        }
-        for (ReactionOutput output : outputs) {
-            output.prepareToRecalculate();
-        }
+    public Iterable<ReactionInput> getInputsOfType(ReactionRole role) {
+        return Iterables.filter(inputs, input -> input.getRole() == role);
     }
 
-    public Iterable<ReactionInput> getInputsOfType(ReactionInputRole role) {
-        return Iterables.filter(inputs, input -> input.getRole() == role);
+    public String generateNextProductName() {
+        int maxUsedNumber = outputs.stream()
+                .map(row -> row.getChemicalName().startsWith("P") ? Ints.tryParse(row.getChemicalName().substring(1)) : null)
+                .filter(Objects::nonNull)
+                .mapToInt(Integer::valueOf)
+                .max().orElse(-1);
+        return "P" + (maxUsedNumber + 1);
     }
 
     @Override

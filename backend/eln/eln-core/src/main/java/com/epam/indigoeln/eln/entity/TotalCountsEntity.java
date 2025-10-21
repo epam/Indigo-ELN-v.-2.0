@@ -27,7 +27,7 @@ public class TotalCountsEntity implements Serializable {
     private Integer notebooks;
 
     @NotNull
-    @Column(name = "experiments_by_status", insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     @Type(ExperimentCountArrayType.class)
     private Map<ExperimentStatus, Integer> experimentsByStatus;
 }

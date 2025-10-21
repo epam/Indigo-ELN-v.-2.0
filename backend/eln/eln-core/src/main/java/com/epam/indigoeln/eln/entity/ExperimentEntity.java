@@ -15,7 +15,7 @@ import lombok.*;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
-import org.hibernate.dialect.PostgreSQLEnumJdbcType;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.hibernate.type.SqlTypes;
 import org.jspecify.annotations.Nullable;
 
@@ -74,17 +74,17 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id", updatable = false)
+    @JoinColumn(updatable = false)
     private ProjectEntity project;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "notebook_id", updatable = false)
+    @JoinColumn(updatable = false)
     private NotebookEntity notebook;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "template_id", updatable = false)
+    @JoinColumn(updatable = false)
     private TemplateEntity template;
 
     @NotEmpty
@@ -98,12 +98,10 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
 
     @Nullable
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "therapeutic_area_id")
     private DictionaryItemEntity therapeuticArea;
 
     @Nullable
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_code_id")
     private DictionaryItemEntity projectCode;
 
     @Nullable
@@ -113,17 +111,16 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @Nullable
     @Basic(fetch = FetchType.LAZY)
     @Type(PostgreSQLTSVectorType.class)
-    @Column(name = "search_vector", insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     private String searchVector;
 
     @Nullable
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "report_for_signature_id")
     private AttachmentEntity reportForSignature;
 
     @Basic
     @Nullable
-    @Column(name = "current_access", insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     @JdbcType(PostgreSQLEnumJdbcType.class)
     private AccessLevel currentAccess;
 
@@ -141,13 +138,13 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
-    @Column(name = "acl_short", insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     @Type(ACLEntryArrayType.class)
     private ACLEntry[] aclShort;
 
     @NotNull
     @Basic(fetch =  FetchType.LAZY)
-    @Column(name = "acl_count", insertable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     private Integer aclCount;
 
     @NotNull
@@ -170,6 +167,11 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @ManyToMany
     @JoinTable(name = "compound_experiment", joinColumns = @JoinColumn(name = "experiment_id"), inverseJoinColumns = @JoinColumn(name = "compound_id"))
     private Set<CompoundEntity> compounds = new HashSet<>(0);
+
+    @NotNull
+    @ManyToMany
+    @JoinTable(name = "Experiment_Dictionary_item", joinColumns = @JoinColumn(name = "experiment_id"), inverseJoinColumns = @JoinColumn(name = "dictionary_item_id"))
+    private Set<DictionaryItemEntity> usedDictionaryItems = new HashSet<>(0);
 
     @Override
     public void insertACL(UserEntity user, AccessLevel access, Boolean inherited) {

@@ -72,6 +72,17 @@ public class DictionaryService {
         return entity;
     }
 
+    public List<DictionaryItemEntity> lookup(String dictionaryRef, Collection<DictionaryItemRef> refs) {
+        List<DictionaryItemEntity> found = dictionaryItemRepository.findByIds(refToID(dictionaryRef), StreamEx.of(refs).map(DictionaryItemRef::getId).toList());
+        if (found.size() != refs.size()) {
+            Set<UUID> requestedIDs = StreamEx.of(refs).map(DictionaryItemRef::getId).toSet();
+            Set<UUID> foundIDs = StreamEx.of(found).map(DictionaryItemEntity::getId).toSet();
+            requestedIDs.removeAll(foundIDs);
+            throw new EntityNotFoundException(EntityType.DICTIONARY_ITEM, requestedIDs + " in dictionary " + dictionaryRef);
+        }
+        return found;
+    }
+
     public List<DictionaryItemRef> suggestDictionaryItems(String dictionaryRef, String search) {
         return dictionaryItemRepository.suggest(refToID(dictionaryRef), search);
     }

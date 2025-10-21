@@ -54,3 +54,28 @@ CREATE TYPE Signature_Status AS ENUM (
     'APPROVED',
     'REJECTED'
 );
+
+CREATE TYPE Mol_Unit AS ENUM (
+    'UMOL',
+    'MMOL',
+    'MOL'
+);
+CREATE TYPE Mol_Weight_Unit AS ENUM (
+    'G_PER_MOL'
+);
+CREATE TYPE Volume_Unit AS ENUM (
+    'ML',
+    'L'
+);
+CREATE TYPE Weight_Unit AS ENUM (
+    'MG',
+    'G',
+    'KG'
+);
+CREATE TYPE Molarity_Unit AS ENUM (
+    'MM',
+    'M'
+);
+CREATE TYPE Density_Unit AS ENUM (
+    'G_ML'
+);

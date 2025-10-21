@@ -3,14 +3,15 @@ package com.epam.indigoeln.compound.service;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.mapper.SampleMapper;
-import com.epam.indigoeln.compound.model.*;
+import com.epam.indigoeln.compound.model.CompoundKey;
+import com.epam.indigoeln.compound.model.FindSamplesRequest;
+import com.epam.indigoeln.compound.model.SampleDTO;
+import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
 import com.epam.indigoeln.compound.repository.CompoundRepository;
 import com.epam.indigoeln.compound.repository.SampleRepository;
-import com.epam.indigoeln.eln.model.CompoundSource;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.STRCodeCompound;
-import com.epam.indigoeln.eln.model.STRCodeSample;
+import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
+import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.reaction.model.CompoundRef;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.fixed;
 
 @Slf4j
@@ -41,7 +43,7 @@ import static com.epam.indigoeln.reaction.model.units.EnteredValue.fixed;
 @ApplicationScoped
 public class CompoundService {
 
-    private static final String[] NAME_PROPERTIES = {"PUBCHEM_IUPAC_TRADITIONAL_NAME", "PUBCHEM_IUPAC_SYSTEMATIC_NAME", "PUBCHEM_IUPAC_OPENEYE_NAME"};
+//    private static final String[] NAME_PROPERTIES = {"PUBCHEM_IUPAC_TRADITIONAL_NAME", "PUBCHEM_IUPAC_SYSTEMATIC_NAME", "PUBCHEM_IUPAC_OPENEYE_NAME"};
     private static final String[] COMPOUND_ID_PROPERTIES = {"PUBCHEM_COMPOUND_CID"};
 
     @Inject
@@ -56,6 +58,8 @@ public class CompoundService {
     IndigoAPI indigo;
     @Inject
     MolWeightCalculator molWeightCalculator;
+    @Inject
+    UserService userService;
 
     public CompoundEntity findOrCreate(IndigoMolecule molecule, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
         String canSmiles = molecule.canonicalSmiles();
@@ -71,6 +75,7 @@ public class CompoundService {
             compound.setSource(CompoundSource.ELN);
             compound.setMolFile(molecule.molfile());
             compound.setMolWeight(molWeightCalculator.calculateMolWeight(molecule.molfile(), saltCode, saltEQ));
+            compound.setExactMass(molWeightCalculator.calculateExactMass(molecule.molfile()));
             compound.setFormula(molecule.grossFormula());
             compoundRepository.persist(compound);
             log.debug("new compound created: {}", compound);
@@ -88,6 +93,7 @@ public class CompoundService {
                         SampleEntity sample = new SampleEntity();
                         compound.getSamples().add(sample);
                         sample.setCompound(compound);
+                        updateDates(sample, userService.getCurrentUser());
                         fillCompoundFromIndigo(molecule, compound);
                         sampleRepository.persist(sample);
                     }
@@ -98,13 +104,18 @@ public class CompoundService {
     }
 
     public CompoundRef.Stored realCompoundRef(CompoundEntity compound) {
-        return new CompoundRef.Stored(compound.getId(), compound.getName(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getMolFile(), compound.getFormula(), compound.getStrCode());
+        return new CompoundRef.Stored(compound.getId(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getMolFile(), compound.getFormula(), compound.getStrCode());
     }
 
     public CompoundRef.Virtual virtualCompoundRef(IndigoMolecule molecule, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
         CompoundEntity compound = findOrCreate(molecule, stereoisomerCode, saltCode, saltEQ);
         double molWeight = molWeightCalculator.calculateMolWeight(molecule.molfile(), saltCode, saltEQ);
-        return new CompoundRef.Virtual(compound.getId(), molecule.molfile(), molecule.grossFormula(), molWeight);
+        double exactMass = molWeightCalculator.calculateExactMass(molecule.molfile());
+        return new CompoundRef.Virtual(compound.getId(), molecule.molfile(), molecule.grossFormula(), molWeight, exactMass);
+    }
+
+    public CompoundRef.Unknown unknownCompoundRef() {
+        return new CompoundRef.Unknown();
     }
 
     @SneakyThrows
@@ -135,12 +146,12 @@ public class CompoundService {
         compound.setFormula(molecule.grossFormula());
         compound.setMolFile(molecule.molfile());
         compound.setMolWeight(molecule.molecularWeight());
-        for (String property : NAME_PROPERTIES) {
-            if (molecule.hasProperty(property)) {
-                compound.setName(molecule.getProperty(property));
-                break;
-            }
-        }
+//        for (String property : NAME_PROPERTIES) {
+//            if (molecule.hasProperty(property)) {
+//                compound.setName(molecule.getProperty(property));
+//                break;
+//            }
+//        }
         // TODO if PubChem compoundID found, search in PubChem?
 //        for (String property : COMPOUND_ID_PROPERTIES) {
 //            if (molecule.hasProperty(property)) {
@@ -170,6 +181,27 @@ public class CompoundService {
                 throw new IllegalArgumentException("Cannot register a sample of an unknown compound");
             }
         };
+        SampleEntity sample = new SampleEntity();
+        sample.setCompound(compound);
+        sample.setStrCode(generateStrCode(compound));
+        sample.setNbkBatchNumber(request.getNbkBatchNumber());
+        sample.setDensity(request.getDensity() != null ? request.getDensity().getValue() : null);
+        sample.setMolarity(request.getMolarity() != null ? request.getMolarity().getValue() : null);
+        sample.setMolarityUnit(request.getMolarity() != null ? request.getMolarity().getUnit() : null);
+        sample.setPurity(request.getPurity());
+        if (request.getHealthHazards() != null) {
+            sample.getHealthHazards().addAll(dictionaryService.lookup(BuiltInDictionary.HEALTH_HAZARD.name(), request.getHealthHazards()));
+        }
+        sample.setCompoundState(dictionaryService.lookup(BuiltInDictionary.COMPONENT_STATE.name(), request.getCompoundState()));
+        sample.setChemicalName(request.getChemicalName());
+        sample.setBatchComment(request.getBatchComment());
+        compound.getSamples().add(sample);
+        updateDates(sample, userService.getCurrentUser());
+        sampleRepository.persist(sample);
+        return sample;
+    }
+
+    private STRCodeSample generateStrCode(CompoundEntity compound) {
         STRCodeCompound compoundStrCode;
         if (compound.getStrCode() != null) {
             compoundStrCode = compound.getStrCode();
@@ -185,16 +217,24 @@ public class CompoundService {
             compound.setStrCode(compoundStrCode);
         }
         log.debug("registerSample: compoundStrCode={}", compoundStrCode);
-        SampleEntity sample = new SampleEntity();
         STRCodeSample lastSampleStrCode = sampleRepository.getLastSampleStrCode(compoundStrCode.toString());
         int sampleStrCode = lastSampleStrCode != null
                 ? lastSampleStrCode.getSampleCode() + 1
                 : 1;
-        sample.setStrCode(new STRCodeSample(compoundStrCode.getCompoundCode(), compoundStrCode.getSaltCode(), sampleStrCode));
-        sample.setCompound(compound);
-        compound.getSamples().add(sample);
-        sampleRepository.persist(sample);
-        return sample;
+        return new STRCodeSample(compoundStrCode.getCompoundCode(), compoundStrCode.getSaltCode(), sampleStrCode);
+    }
+
+    public void markSample(UUID sampleID, boolean mark) {
+        SampleEntity sample = sampleRepository.get(sampleID);
+        if (mark) {
+            sample.getMarkedBy().add(userService.getCurrentUser());
+        } else {
+            sample.getMarkedBy().remove(userService.getCurrentUser());
+        }
+    }
+
+    public Page<SampleDTO> listMarkedSamples(@Nullable String search, Paging paging) {
+        return sampleRepository.findMarked(userService.getCurrentUser(), search, paging);
     }
 
     @Data

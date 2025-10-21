@@ -19,9 +19,6 @@ public sealed abstract class ReactionRow implements ExperimentModelNode, ToStrin
     protected Reaction reaction;
 
     @NotNull
-    protected UUID anchor;
-
-    @NotNull
     protected CompoundRef compound;
 
     @NotNull

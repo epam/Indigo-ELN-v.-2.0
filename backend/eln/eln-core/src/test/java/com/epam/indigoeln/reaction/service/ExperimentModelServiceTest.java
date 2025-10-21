@@ -3,13 +3,15 @@ package com.epam.indigoeln.reaction.service;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
-import com.epam.indigoeln.compound.model.StructureSearchType;
+import com.epam.indigoeln.compound.model.StructuralSearch;
+import com.epam.indigoeln.compound.model.TextSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ReactionInput;
-import com.epam.indigoeln.reaction.model.ReactionInputRole;
+import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
@@ -31,9 +33,9 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
+import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 
 @QuarkusTest
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
@@ -43,22 +45,24 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
     ExperimentDetailsDTO experiment;
     ExperimentModel model;
     CalculationReportBuilder reportBuilder;
-    UUID reactionAnchor;
-    UUID input1Anchor;
-    UUID input1Sample1Anchor;
-    UUID input2Anchor;
-    UUID output1Anchor;
-    UUID output2Anchor;
-    UUID output2Sample1Anchor;
-    UUID output2Sample2Anchor;
+    Anchor.Reaction reactionAnchor;
+    Anchor.Input input1Anchor;
+    Anchor.InputSample input1Sample1Anchor;
+    Anchor.Input input2Anchor;
+    Anchor.Output output1Anchor;
+    Anchor.Output output2Anchor;
+    Anchor.OutputSample output2Sample1Anchor;
+    Anchor.OutputSample output2Sample2Anchor;
+    DictionaryItemRef healthHazard;
 
     byte @Nullable[] picture = null;
 
     @BeforeAll
-    void setUp(@TempDir Path tempDir) throws Exception {
+    void setUp(@TempDir Path tempDir) {
         reportBuilder = new CalculationReportBuilder(new File("calculations.html"));
         miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
         System.out.println(model);
+        healthHazard = dictionaryClient.getDictionary(BuiltInDictionary.HEALTH_HAZARD).getFirst();
     }
 
     @AfterAll
@@ -78,7 +82,7 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
 
     @Test
     @Order(100)
-    void testLoadReaction() throws Exception {
+    void testLoadReaction() {
         String molFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
         applyMutation(new ReactionMutation.SetScheme(reactionAnchor, molFile));
         input1Anchor = model.getReactions().getFirst().getInputs().get(0).getAnchor();
@@ -92,10 +96,9 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
     void testResolveInputs() {
         ReactionMutation.ResolveInputs mutation = new ReactionMutation.ResolveInputs(reactionAnchor, new HashMap<>());
         for (ReactionInput input : model.getReactions().getFirst().getInputs()) {
-            List<SampleDTO> samples = compoundClient.findSamples(new FindSamplesRequest(
-                    StructureSearchType.SUBSTRUCTURE,
-                    input.getCompound().getMolFile()
-            ));
+            List<SampleDTO> samples = compoundClient.findSamples(new FindSamplesRequest()
+                    .withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, input.getCompound().getMolFile()))
+            );
             System.out.println("Found samples: " + samples);
             if (!samples.isEmpty()) {
                 mutation.inputSamples().put(input.getAnchor(), samples.getFirst().getId());
@@ -108,34 +111,34 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
     @Test
     @Order(250)
     void testSetInputRoleToCatalyst() {
-        ReactionInputMutation.SetInputRole mutation = new ReactionInputMutation.SetInputRole(input2Anchor, ReactionInputRole.CATALYST);
+        ReactionInputMutation.SetInputRowRole mutation = new ReactionInputMutation.SetInputRowRole(input2Anchor, ReactionRole.CATALYST);
         applyMutation(mutation);
     }
 
     @Test
     @Order(251)
     void testSetInputRoleToSolvent() {
-        ReactionInputMutation.SetInputRole mutation = new ReactionInputMutation.SetInputRole(input2Anchor, ReactionInputRole.SOLVENT);
+        ReactionInputMutation.SetInputRowRole mutation = new ReactionInputMutation.SetInputRowRole(input2Anchor, ReactionRole.SOLVENT);
         applyMutation(mutation);
     }
 
     @Test
     @Order(252)
     void testSetInputRoleBack() {
-        ReactionInputMutation.SetInputRole mutation = new ReactionInputMutation.SetInputRole(input2Anchor, ReactionInputRole.REACTANT);
+        ReactionInputMutation.SetInputRowRole mutation = new ReactionInputMutation.SetInputRowRole(input2Anchor, ReactionRole.REACTANT);
         applyMutation(mutation);
     }
 
     @Test
     @Order(300)
     void testSelectSaltCode() {
-        applyMutation(new ReactionOutputMutation.SetOutputSaltCode(output1Anchor, dictionaryClient.getSaltCodes().getFirst()));
+        applyMutation(new ReactionOutputMutation.SetOutputRowSaltCode(output1Anchor, dictionaryClient.getSaltCodes().getFirst()));
     }
 
     @Test
     @Order(400)
     void testSelectSaltEQ() {
-        applyMutation(new ReactionOutputMutation.SetOutputSaltEQ(output1Anchor, 0.5));
+        applyMutation(new ReactionOutputMutation.SetOutputRowSaltEQ(output1Anchor, 0.5));
     }
 
     @Test
@@ -153,7 +156,20 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
     @Test
     @Order(600)
     void testSetInputEQ() {
-        applyMutation(new ReactionInputMutation.SetInputEQ(input2Anchor, 2.0));
+        applyMutation(new ReactionInputMutation.SetInputRowEQ(input2Anchor, 2.0));
+    }
+
+    @Test
+    @Order(620)
+    void testAddEmptyInput() {
+        applyMutation(new ReactionMutation.AddEmptyInput(reactionAnchor));
+    }
+
+    @Test
+    @Order(621)
+    void testRemoveEmptyInput() {
+        List<ReactionInput> inputs = model.getReactions().getFirst().getInputs();
+        applyMutation(new ReactionMutation.RemoveInput(reactionAnchor, inputs.getLast().getAnchor()));
     }
 
     @Test
@@ -198,6 +214,21 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
     @Order(1102)
     void testRegisterAnotherSample() {
         applyMutation(new ReactionOutputSampleMutation.RegisterSample(output2Sample2Anchor));
+    }
+
+    @Test
+    @Order(1200)
+    void testProtectDictionaryItemsFromDeletion() {
+        applyMutation(new ReactionOutputSampleMutation.SetOutputHealthHazards(output2Sample1Anchor, List.of(healthHazard)));
+        assertThatClientCall(() -> dictionaryClient.removeDictionaryItem(BuiltInDictionary.HEALTH_HAZARD, healthHazard.getId()))
+                .isBadRequest("This word is selected in other inputs. Please deactivate the word to remove it from available options of the inputs");
+    }
+
+    @Test
+    @Order(1300)
+    void testAddInput() {
+        List<SampleDTO> foundSamples = compoundClient.findSamples(new FindSamplesRequest().withMolecularFormula(new TextSearch.ExactSearch("C12 H22 N2 O2")));
+        applyMutation(new ReactionMutation.AddInput(reactionAnchor, foundSamples.getFirst().getId()));
     }
 
     @SneakyThrows

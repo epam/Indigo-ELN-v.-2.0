@@ -1,6 +1,5 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.reaction.model.outputsample.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
@@ -14,12 +13,17 @@ import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ReactionOutput extends ReactionRow implements ExperimentModelNode, ToStringTree {
+
+    @NotNull
+    private Anchor.Output anchor;
+
+    @NotNull
+    private String chemicalName;
 
     @NotNull
     private ReactionOutputType type;
@@ -35,10 +39,13 @@ public final class ReactionOutput extends ReactionRow implements ExperimentModel
     @JsonManagedReference
     private List<ReactionOutputSample> samples;
 
-    public ReactionOutput(Reaction reaction, UUID anchor, ReactionOutputType type) {
-        this.reaction = reaction;
-        this.anchor = anchor;
-        this.type = type;
+    public static ReactionOutput create(Reaction reaction, ReactionOutputType type) {
+        ReactionOutput output = new ReactionOutput();
+        output.reaction = reaction;
+        output.anchor = new Anchor.Output(reaction.getModel().generateNextAnchor());
+        output.type = type;
+        output.chemicalName = reaction.generateNextProductName();
+        return output;
     }
 
     @Override
@@ -46,15 +53,13 @@ public final class ReactionOutput extends ReactionRow implements ExperimentModel
         super.prepareToRecalculate();
         EnteredValue.prepareToRecalculate(theoMol, this::setTheoMol);
         EnteredValue.prepareToRecalculate(theoWeight, this::setTheoWeight);
-        for (ReactionOutputSample sample : samples) {
-            sample.prepareToRecalculate();
-        }
     }
 
     @Override
     public void toStringTree(Builder builder) {
         builder.open("ReactionOutput")
                 .property("anchor", anchor)
+                .property("chemicalName", chemicalName)
                 .property("compound", compound)
                 .property("eq", eq)
                 .property("type", type)

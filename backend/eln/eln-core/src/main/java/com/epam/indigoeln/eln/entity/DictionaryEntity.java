@@ -28,7 +28,6 @@ public class DictionaryEntity extends BaseEntity {
     private String description;
 
     @NotNull
-    @Column(name = "user_editable")
     private Boolean userEditable;
 
     @NotNull

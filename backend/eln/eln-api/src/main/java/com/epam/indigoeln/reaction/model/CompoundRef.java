@@ -11,7 +11,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.MoreObjects;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
@@ -31,6 +34,9 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     String getFormula();
 
     @Nullable
+    DictionaryItemRef getStereoisomerCode();
+
+    @Nullable
     SaltCodeRef getSaltCode();
 
     @Nullable
@@ -41,6 +47,9 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
 
     @Nullable
     EnteredValue<MolWeightUnit> getMolWeight();
+
+    @Nullable
+    Double getExactMass();
 
     @Getter
     @RequiredArgsConstructor
@@ -59,11 +68,11 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Nullable
         private Double saltEQ;
 
-        @Nullable
-        private final String name;
-
         @NotNull
         private final EnteredValue<MolWeightUnit> molWeight;
+
+        @NotNull
+        private final Double exactMass;
 
         @NotNull
         private final String molFile;
@@ -78,7 +87,6 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         public String toString() {
             return MoreObjects.toStringHelper(this).omitNullValues()
                     .add("compoundID", compoundID)
-                    .add("name", name)
                     .add("molWeight", molWeight)
                     .add("formula", formula)
                     .toString();
@@ -86,7 +94,6 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     }
 
     @Getter
-    @Setter
     @EqualsAndHashCode(of = {"molFile", "stereoisomerCode", "saltCode", "saltEQ"})
     final class Virtual implements CompoundRef {
 
@@ -112,7 +119,10 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Positive
         private EnteredValue<MolWeightUnit> molWeight;
 
-        public Virtual(UUID compoundID, String molFile, String formula, Double molWeight) {
+        @NotNull
+        private Double exactMass;
+
+        public Virtual(UUID compoundID, String molFile, String formula, Double molWeight, Double exactMass) {
             this(compoundID, molFile, formula, EnteredValue.fixed(molWeight, MolWeightUnit.G_PER_MOL), null, null, null);
         }
 
@@ -147,7 +157,6 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     }
 
     @Getter
-    @Setter
     // no equals and hashCode - each unknown compound is unique
     final class Unknown implements CompoundRef {
 
@@ -155,12 +164,20 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         private String formula;
 
         @Nullable
+        @Setter
         private EnteredValue<MolWeightUnit> molWeight;
 
         @Override
         @Nullable
         @JsonIgnore
         public String getMolFile() {
+            return null;
+        }
+
+        @Override
+        @Nullable
+        @JsonIgnore
+        public DictionaryItemRef getStereoisomerCode() {
             return null;
         }
 
@@ -182,6 +199,13 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Nullable
         @JsonIgnore
         public STRCodeCompound getStrCode() {
+            return null;
+        }
+
+        @Override
+        @Nullable
+        @JsonIgnore
+        public Double getExactMass() {
             return null;
         }
     }

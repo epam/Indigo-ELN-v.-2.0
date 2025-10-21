@@ -12,7 +12,6 @@ import lombok.ToString;
 @Getter
 @Setter
 @Entity(name = "SaltCode")
-@Table(name = "Salt_Code")
 @ToString(of = {"id", "code", "ordinal", "name"})
 public class SaltCodeEntity extends IdentifiableEntity {
 
@@ -29,6 +28,5 @@ public class SaltCodeEntity extends IdentifiableEntity {
     private String formula;
 
     @NotNull
-    @Column(name = "mol_weight")
     private Double molWeight;
 }

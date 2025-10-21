@@ -50,7 +50,7 @@ public class UserRepository extends BaseRepository<UserEntity> {
     public Page<UserDTO> findAll(@Nullable String search, String username, Paging paging) {
         return doFindWithTotals(
                 new Conditions()
-                        .addIfNotNull("full_text_search(searchVector, to_tsquery('english', ?))", search)
+                        .addIfNotNull("full_text_search(searchVector, websearch_to_tsquery('english', ?))", search)
                         .addIfNotNull("username = ?", username),
                 paging,
                 DEFAULT_SORT,

@@ -15,7 +15,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "Signature_Template")
 @Entity(name = "SignatureTemplate")
 @NamedEntityGraph(
         name = "SignatureTemplate.list",

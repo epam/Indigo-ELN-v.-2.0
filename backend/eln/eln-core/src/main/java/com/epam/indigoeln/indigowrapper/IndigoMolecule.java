@@ -28,6 +28,10 @@ public class IndigoMolecule extends AbstractIndigoObject {
         return obj.molecularWeight();
     }
 
+    public double monoisotopicMass() {
+        return obj.monoisotopicMass();
+    }
+
     public void remove() {
         obj.remove();
     }

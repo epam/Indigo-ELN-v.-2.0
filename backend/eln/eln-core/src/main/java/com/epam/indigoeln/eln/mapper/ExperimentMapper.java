@@ -30,6 +30,7 @@ public abstract class ExperimentMapper extends AbstractMapper {
     @Mapping(target = "attachments", expression = "java(java.util.List.of())")
     @Mapping(target = "signatures", expression = "java(java.util.List.of())")
     @Mapping(target = "compounds", expression = "java(java.util.Set.of())")
+    @Mapping(target = "usedDictionaryItems", expression = "java(java.util.Set.of())")
     @Mapping(target = "model", ignore = true)
     @Mapping(target = "picture", ignore = true)
     public abstract ExperimentEntity requestToExperiment(ExperimentRequest experiment, ExperimentStatus status);

@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcType;
-import org.hibernate.dialect.PostgreSQLEnumJdbcType;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 
 import java.io.Serializable;
 
@@ -17,20 +17,19 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "ExperimentACL")
-@Table(name = "Experiment_ACL")
 @IdClass(ExperimentACLEntity.CompositeID.class)
 public class ExperimentACLEntity implements BaseACLEntity {
 
     @Id
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "experiment_id", updatable = false)
+    @JoinColumn(updatable = false)
     private ExperimentEntity experiment;
 
     @Id
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "user_id", updatable = false)
+    @JoinColumn(updatable = false)
     private UserEntity user;
 
     @NotNull

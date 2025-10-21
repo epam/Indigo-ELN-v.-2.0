@@ -1,20 +1,20 @@
 package com.epam.indigoeln.aws;
 
-import com.google.common.base.Preconditions;
 import org.jspecify.annotations.Nullable;
 import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.RemovalPolicy;
-import software.amazon.awscdk.services.ec2.*;
+import software.amazon.awscdk.services.ec2.ISecurityGroup;
+import software.amazon.awscdk.services.ec2.SubnetFilter;
+import software.amazon.awscdk.services.ec2.SubnetSelection;
 import software.amazon.awscdk.services.ecr.Repository;
 import software.amazon.awscdk.services.iam.ManagedPolicy;
 import software.amazon.awscdk.services.iam.Role;
 import software.amazon.awscdk.services.iam.ServicePrincipal;
-import software.amazon.awscdk.services.lambda.Runtime;
 import software.amazon.awscdk.services.lambda.*;
+import software.amazon.awscdk.services.lambda.Runtime;
 import software.amazon.awscdk.services.logs.LogGroup;
 import software.amazon.awscdk.services.logs.RetentionDays;
 import software.amazon.awscdk.services.s3.assets.AssetOptions;
-import software.amazon.awscdk.services.s3.deployment.Source;
 import software.constructs.Construct;
 
 import java.io.*;
@@ -93,7 +93,7 @@ public class Utils {
                 .runtime(Runtime.JAVA_21)
                 .handler("io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest")
 //                .code(Code.fromAsset(functionCode.getPath(), AssetOptions.builder().assetHash(Utils.calculateHashCode(functionCode)).build()))
-                .code(Code.fromAsset(functionCode.getPath(), AssetOptions.builder().assetHash("0").build())) // !!! to avoid redeploy on every change
+                .code(Code.fromAsset(functionCode.getPath(), AssetOptions.builder().assetHash("1").build())) // !!! to avoid redeploy on every change
                 .snapStart(SnapStartConf.ON_PUBLISHED_VERSIONS);
         } else if (repository != null && imageTag != null) {
             builder

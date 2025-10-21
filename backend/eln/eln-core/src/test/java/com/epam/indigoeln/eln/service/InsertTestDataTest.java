@@ -3,16 +3,17 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
-import com.epam.indigoeln.compound.model.StructureSearchType;
+import com.epam.indigoeln.compound.model.StructuralSearch;
 import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.test.FeignUtil;
+import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
+import com.epam.indigoeln.test.FeignUtil;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -23,7 +24,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
@@ -45,6 +45,7 @@ class InsertTestDataTest {
     TemplateClient templateClient;
     DictionaryClient dictionaryClient;
     CompoundClient compoundClient;
+    SignatureClient signatureClient;
 
     @BeforeEach
     void setup() {
@@ -61,6 +62,7 @@ class InsertTestDataTest {
         dictionaryClient = FeignUtil.buildFeignClient(baseURI, DictionaryClient.class, testUsername, authorization);
         userClient = FeignUtil.buildFeignClient(baseURI, UserClient.class, testUsername, authorization);
         compoundClient = FeignUtil.buildFeignClient(baseURI, CompoundClient.class, testUsername, authorization);
+        signatureClient = FeignUtil.buildFeignClient(baseURI, SignatureClient.class, testUsername, authorization);
     }
 
     //    @Test
@@ -112,70 +114,52 @@ class InsertTestDataTest {
 //    @Test
     @Order(5)
     void fillExperiment(@TempDir Path tempDir) {
-        // create experiment
-        Page<ProjectDTO> existingProjects = projectClient.getProjects("ProjectWithData", SortOrder.EARLIEST, null, Paging.DEFAULT);
-        ProjectDetailsDTO project = existingProjects.getItems().isEmpty()
-                ? projectClient.createProject(new ProjectRequest("ProjectWithData"))
-                : projectClient.getProject(existingProjects.getItems().getFirst().getId());
-        Page<NotebookDTO> existingNotebooks = notebookClient.getProjectNotebooks(project.getId(), "88888888", SortOrder.EARLIEST, null, Paging.DEFAULT);
-        NotebookDetailsDTO notebook = existingNotebooks.getItems().isEmpty()
-                ? notebookClient.createNotebook(project.getId(), new NotebookRequest("88888888"))
-                : notebookClient.getNotebook(existingNotebooks.getItems().getFirst().getId());
-        TemplateDTO template = findDefaultTemplate();
-        DictionaryItemRef therapeuticArea = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA).getFirst();
-        DictionaryItemRef projectCode = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE).getFirst();
-        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(
-                template.getId(),
-                "Experiment with data",
-                therapeuticArea,
-                projectCode
-        ));
+        ExperimentDetailsDTO experiment = createExperiment("ProjectWithData", "88888888", findDefaultTemplate(), "Experiment with data");
 
         // add attachment
         experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "This is attachment".getBytes());
 
         // load initial model
         ExperimentModel model = experimentClient.getExperimentModel(experiment.getId());
-        UUID reactionAnchor = model.getReactions().getFirst().getAnchor();
+        Anchor.Reaction reactionAnchor = model.getReactions().getFirst().getAnchor();
 
         // load reaction
         String molFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
         model = applyMutation(experiment, model, new ReactionMutation.SetScheme(reactionAnchor, molFile));
-        UUID input1Anchor = model.getReactions().getFirst().getInputs().get(0).getAnchor();
-        UUID input2Anchor = model.getReactions().getFirst().getInputs().get(1).getAnchor();
-        UUID output1Anchor = model.getReactions().getFirst().getOutputs().get(0).getAnchor();
-        UUID output2Anchor = model.getReactions().getFirst().getOutputs().get(1).getAnchor();
+        Anchor.Input input1Anchor = model.getReactions().getFirst().getInputs().get(0).getAnchor();
+        Anchor.Input input2Anchor = model.getReactions().getFirst().getInputs().get(1).getAnchor();
+        Anchor.Output output1Anchor = model.getReactions().getFirst().getOutputs().get(0).getAnchor();
+        Anchor.Output output2Anchor = model.getReactions().getFirst().getOutputs().get(1).getAnchor();
 
         // resolve inputs
         ReactionMutation.ResolveInputs mutation = new ReactionMutation.ResolveInputs(reactionAnchor, new HashMap<>());
         for (ReactionInput input : model.getReactions().getFirst().getInputs()) {
-            List<SampleDTO> samples = compoundClient.findSamples(new FindSamplesRequest(
-                    StructureSearchType.SUBSTRUCTURE,
-                    input.getCompound().getMolFile()
-            ));
+            List<SampleDTO> samples = compoundClient.findSamples(new FindSamplesRequest()
+                    .withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, input.getCompound().getMolFile()))
+            );
             System.out.println("Found samples: " + samples);
             if (!samples.isEmpty()) {
                 mutation.inputSamples().put(input.getAnchor(), samples.getFirst().getId());
             }
         }
         model = applyMutation(experiment, model, mutation);
-        UUID input1Sample1Anchor = model.getReactions().getFirst().getInputs().get(0).getSamples().get(0).getAnchor();
+        Anchor.InputSample input1Sample1Anchor = model.getReactions().getFirst().getInputs().get(0).getSamples().get(0).getAnchor();
 
         // select salt code
-        model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputSaltCode(output1Anchor, dictionaryClient.getSaltCodes().getFirst()));
+        model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltCode(output1Anchor, dictionaryClient.getSaltCodes().getFirst()));
 
         // select salt eq
-        model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputSaltEQ(output1Anchor, 0.5));
+        model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltEQ(output1Anchor, 0.5));
 
         // set input weight
         model = applyMutation(experiment, model, new ReactionInputSampleMutation.SetInputWeight(input1Sample1Anchor, 100.0, WeightUnit.G));
 
         // set input eq
-        model = applyMutation(experiment, model, new ReactionInputMutation.SetInputEQ(input2Anchor, 2.0));
+        model = applyMutation(experiment, model, new ReactionInputMutation.SetInputRowEQ(input2Anchor, 2.0));
 
         // add product sample
         model = applyMutation(experiment, model, new ReactionOutputMutation.AddProductSample(output2Anchor));
-        UUID output2Sample1Anchor = model.getReactions().getFirst().getOutputs().get(1).getSamples().get(0).getAnchor();
+        Anchor.OutputSample output2Sample1Anchor = model.getReactions().getFirst().getOutputs().get(1).getSamples().get(0).getAnchor();
 
         // set output actual mol
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualMol(output2Sample1Anchor, 200.0, MolUnit.MMOL));
@@ -191,10 +175,50 @@ class InsertTestDataTest {
 
         // add another output sample
         model = applyMutation(experiment, model, new ReactionOutputMutation.AddProductSample(output2Anchor));
-        UUID output2Sample2Anchor = model.getReactions().getFirst().getOutputs().get(1).getSamples().get(1).getAnchor();
+        Anchor.OutputSample output2Sample2Anchor = model.getReactions().getFirst().getOutputs().get(1).getSamples().get(1).getAnchor();
 
         // register another sample
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.RegisterSample(output2Sample2Anchor));
+    }
+
+//    @Test
+    @Order(6)
+    void insertSignatureTemplate() {
+        UserRef bob = userClient.suggestUsers("Bob").getFirst();
+        signatureClient.createSignatureTemplate(new SignatureTemplateRequest("Author and Bob", List.of(
+                new SignatureBlock(null, SignatureReason.AUTHOR),
+                new SignatureBlock(bob, SignatureReason.WITNESS)
+        )));
+    }
+
+//    @Test
+    @Order(7)
+    void submitExperiment() {
+        ExperimentDetailsDTO experiment = createExperiment("ProjectWithData", "88888888", findDefaultTemplate(), "Experiment to submit");
+        SignatureTemplateDTO signatureTemplate = signatureClient.getSignatureTemplates(Paging.ALL).getItems().stream()
+                .filter(t -> t.getName().equals("Author and Bob"))
+                .findFirst().orElseThrow();
+        experimentClient.completeAndSubmitExperiment(experiment.getId(), signatureTemplate.getId());
+    }
+
+    private ExperimentDetailsDTO createExperiment(String projectName, String notebookName, TemplateDTO template, String experimentDescription) {
+        // create experiment
+        Page<ProjectDTO> existingProjects = projectClient.getProjects(projectName, SortOrder.EARLIEST, null, Paging.DEFAULT);
+        ProjectDetailsDTO project = existingProjects.getItems().isEmpty()
+                ? projectClient.createProject(new ProjectRequest(projectName))
+                : projectClient.getProject(existingProjects.getItems().getFirst().getId());
+        Page<NotebookDTO> existingNotebooks = notebookClient.getProjectNotebooks(project.getId(), notebookName, SortOrder.EARLIEST, null, Paging.DEFAULT);
+        NotebookDetailsDTO notebook = existingNotebooks.getItems().isEmpty()
+                ? notebookClient.createNotebook(project.getId(), new NotebookRequest(notebookName))
+                : notebookClient.getNotebook(existingNotebooks.getItems().getFirst().getId());
+        DictionaryItemRef therapeuticArea = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA).getFirst();
+        DictionaryItemRef projectCode = dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_CODE).getFirst();
+        return experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(
+                template.getId(),
+                experimentDescription,
+                therapeuticArea,
+                projectCode
+        ));
     }
 
     private TemplateDTO findDefaultTemplate() {

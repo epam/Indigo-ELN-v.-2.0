@@ -2,7 +2,6 @@ package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -14,7 +13,6 @@ import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -22,7 +20,10 @@ import java.util.UUID;
 public final class ReactionInput extends ReactionRow implements ExperimentModelNode, ToStringTree {
 
     @NotNull
-    private ReactionInputRole role;
+    private Anchor.Input anchor;
+
+    @NotNull
+    private ReactionRole role;
 
     @Nullable
     private EnteredValue<MolUnit> mol;
@@ -34,19 +35,18 @@ public final class ReactionInput extends ReactionRow implements ExperimentModelN
 
     private boolean limiting;
 
-    public ReactionInput(Reaction reaction, UUID anchor, ReactionInputRole role) {
-        this.reaction = reaction;
-        this.anchor = anchor;
-        this.role = role;
+    public static ReactionInput create(Reaction reaction, ReactionRole role) {
+        ReactionInput input = new ReactionInput();
+        input.reaction = reaction;
+        input.anchor = new Anchor.Input(reaction.getModel().generateNextAnchor());
+        input.role = role;
+        return input;
     }
 
     @Override
     public void prepareToRecalculate() {
         super.prepareToRecalculate();
         EnteredValue.prepareToRecalculate(mol, this::setMol);
-        for (ReactionInputSample sample : samples) {
-            sample.prepareToRecalculate();
-        }
     }
 
     @Override

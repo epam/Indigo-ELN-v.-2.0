@@ -1,29 +1,22 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
-import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ReactionInput;
-import com.epam.indigoeln.reaction.model.ReactionInputRole;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.service.ExperimentModelHelperService;
-import jakarta.enterprise.context.ApplicationScoped;
+import com.google.common.base.MoreObjects;
+import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
 
-import java.util.EnumSet;
-import java.util.Set;
-
-@ApplicationScoped
+@Dependent
 public class InputMutationHandler extends AbstractMutationHandler {
 
     @Inject
     ExperimentModelHelperService modelHelperService;
 
-    public void handle(ExperimentEntity experiment, ExperimentModel model, ReactionInputMutation.SetInputRole mutation) {
-        ReactionInput row = model.locate(mutation);
-
+    public void handle(ReactionInput row, ReactionInputMutation.SetInputRowRole mutation) {
         StreamEx.of(row.getReaction().getInputs())
                 .filter(x -> x != row && x.getRole() == row.getRole() && x.getCompound().equals(row.getCompound()))
                 .findAny()
@@ -31,24 +24,27 @@ public class InputMutationHandler extends AbstractMutationHandler {
                     throw new IllegalStateException("Input with the same role and compound already exists");
                 });
 
-        Set<ReactionInputRole> affectedRoles = EnumSet.noneOf(ReactionInputRole.class);
         affectedRoles.add(row.getRole());
         affectedRoles.add(mutation.role());
         row.setRole(mutation.role());
-
-        modelHelperService.rebuildReactionScheme(experiment, row.getReaction(), affectedRoles);
     }
 
-    public void handle(ExperimentModel model, ReactionInputMutation.SetLimiting mutation) {
-        ReactionInput row = model.locate(mutation);
+    public void handle(ReactionInput row, ReactionInputMutation.SetInputRowMol mutation) {
+        row.setMol(EnteredValue.userLastEntered(mutation.mol(), mutation.molUnit()));
         for (ReactionInput otherRow : row.getReaction().getInputs()) {
             otherRow.setLimiting(false);
         }
         row.setLimiting(true);
     }
 
-    public void handle(ExperimentModel model, ReactionInputMutation.SetInputEQ mutation) {
-        ReactionInput row = model.locate(mutation);
-        row.setEq(mutation.eq() != null ? EnteredValue.userLastEntered(mutation.eq(), NoUnit.NO_UNIT) : EnteredValue.DEFAULT_ONE);
+    public void handle(ReactionInput row, ReactionInputMutation.SetInputRowLimiting mutation) {
+        for (ReactionInput otherRow : row.getReaction().getInputs()) {
+            otherRow.setLimiting(false);
+        }
+        row.setLimiting(true);
+    }
+
+    public void handle(ReactionInput row, ReactionInputMutation.SetInputRowEQ mutation) {
+        row.setEq(EnteredValue.userLastEntered(MoreObjects.firstNonNull(mutation.eq(), 1.0), NoUnit.NO_UNIT));
     }
 }

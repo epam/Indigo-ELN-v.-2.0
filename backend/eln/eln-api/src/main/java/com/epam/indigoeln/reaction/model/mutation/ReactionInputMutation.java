@@ -1,48 +1,70 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.reaction.model.ReactionInputRole;
+import com.epam.indigoeln.reaction.model.Anchor;
+import com.epam.indigoeln.reaction.model.ReactionRole;
+import com.epam.indigoeln.reaction.model.units.MolUnit;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.UUID;
-
 public sealed interface ReactionInputMutation extends Mutation permits
-        ReactionInputMutation.SetInputRole,
-        ReactionInputMutation.SetLimiting,
-        ReactionInputMutation.SetInputSaltCode,
-        ReactionInputMutation.SetInputSaltEQ,
-        ReactionInputMutation.SetInputEQ
+        ReactionInputMutation.SetInputRowRole,
+        ReactionInputMutation.SetInputRowMol,
+        ReactionInputMutation.SetInputRowLimiting,
+        ReactionInputMutation.SetInputRowSaltCode,
+        ReactionInputMutation.SetInputRowSaltEQ,
+        ReactionInputMutation.SetInputRowEQ,
+        ReactionInputMutation.SetInputCompoundStereoisomerCode,
+        ReactionInputMutation.SetInputCompoundMolWeight
 {
 
-    UUID anchor();
+    Anchor.Input anchor();
 
-    record SetInputRole (
-            @NotNull UUID anchor,
-            @NotNull ReactionInputRole role
+    record SetInputRowRole(
+            @NotNull Anchor.Input anchor,
+            @NotNull ReactionRole role
     ) implements ReactionInputMutation {
     }
 
-    record SetLimiting (
-            @NotNull UUID anchor
+    record SetInputRowMol(
+            @NotNull Anchor.Input anchor,
+            @Nullable Double mol,
+            @Nullable MolUnit molUnit
     ) implements ReactionInputMutation {
     }
 
-    record SetInputSaltCode (
-            @NotNull UUID anchor,
+    record SetInputRowLimiting(
+            @NotNull Anchor.Input anchor
+    ) implements ReactionInputMutation {
+    }
+
+    record SetInputRowSaltCode(
+            @NotNull Anchor.Input anchor,
             @Nullable DictionaryItemRef saltCode
     ) implements ReactionInputMutation {
     }
 
-    record SetInputSaltEQ (
-            @NotNull UUID anchor,
+    record SetInputRowSaltEQ(
+            @NotNull Anchor.Input anchor,
             @Nullable Double saltEQ
     ) implements ReactionInputMutation {
     }
 
-    record SetInputEQ (
-            @NotNull UUID anchor,
+    record SetInputRowEQ(
+            @NotNull Anchor.Input anchor,
             @Nullable Double eq
+    ) implements ReactionInputMutation {
+    }
+
+    record SetInputCompoundStereoisomerCode(
+            @NotNull Anchor.Input anchor,
+            @Nullable DictionaryItemRef stereoisomerCode
+    ) implements ReactionInputMutation {
+    }
+
+    record SetInputCompoundMolWeight(
+            @NotNull Anchor.Input anchor,
+            @Nullable Double molWeight
     ) implements ReactionInputMutation {
     }
 }

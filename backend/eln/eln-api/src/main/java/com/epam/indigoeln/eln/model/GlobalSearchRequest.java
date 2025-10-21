@@ -1,16 +1,14 @@
 package com.epam.indigoeln.eln.model;
 
-import com.epam.indigoeln.compound.model.StructureSearchType;
+import com.epam.indigoeln.compound.model.StructuralSearch;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Value;
+import lombok.*;
 import org.jspecify.annotations.Nullable;
 
-@Value
-@Builder
+@Data
+@With
+@NoArgsConstructor
 @AllArgsConstructor(onConstructor_ = @JsonCreator)
 public class GlobalSearchRequest {
 
@@ -34,10 +32,7 @@ public class GlobalSearchRequest {
     // Batch Purity %
 
     @Nullable
-    StructureSearchType structureSearchType;
-
-    @Nullable
-    String structure;
+    StructuralSearch structure;
 
     @JsonIgnore
     public boolean isEmpty() {
@@ -46,7 +41,6 @@ public class GlobalSearchRequest {
                 && projectCode == null
                 && experimentStatus == null
                 && author == null
-                && structureSearchType == null
                 && structure == null;
     }
 }

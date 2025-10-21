@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcType;
-import org.hibernate.dialect.PostgreSQLEnumJdbcType;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.jspecify.annotations.Nullable;
 
 import java.time.ZonedDateTime;
@@ -19,17 +19,14 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "ExperimentSignature")
-@Table(name = "Experiment_Signature")
 public class ExperimentSignatureEntity extends IdentifiableEntity {
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "experiment_id")
     private ExperimentEntity experiment;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "user_id")
     private UserEntity user;
 
     @NotNull
@@ -43,6 +40,5 @@ public class ExperimentSignatureEntity extends IdentifiableEntity {
     private SignatureStatus status;
 
     @Nullable
-    @Column(name = "signed_at")
     protected ZonedDateTime signedAt;
 }

@@ -22,11 +22,6 @@ public class MolWeightCalculator {
     @Inject
     IndigoAPI indigo;
 
-    public double calculateMolWeightWithoutSalt(String molFile) {
-        IndigoMolecule molecule = indigo.loadMolecule(molFile);
-        return molecule.molecularWeight();
-    }
-
     public double calculateMolWeight(String molFile, @Nullable SaltCodeRef salt, @Nullable Double saltEQ) {
         if (salt != null && saltEQ != null) {
             return calculateMolWeightWithSalt(molFile, salt, saltEQ);
@@ -35,7 +30,17 @@ public class MolWeightCalculator {
         }
     }
 
-    public double calculateMolWeightWithSalt(String molFile, SaltCodeRef salt, double saltEQ) {
+    public double calculateExactMass(String molFile) {
+        IndigoMolecule molecule = indigo.loadMolecule(molFile);
+        return molecule.monoisotopicMass();
+    }
+
+    private double calculateMolWeightWithoutSalt(String molFile) {
+        IndigoMolecule molecule = indigo.loadMolecule(molFile);
+        return molecule.molecularWeight();
+    }
+
+    private double calculateMolWeightWithSalt(String molFile, SaltCodeRef salt, double saltEQ) {
         // Input data:
         // molWeight - mol weight of user drawn (or selected by "Analyze RXN") main compound
         // moleculeCharge - electric charge of main compound

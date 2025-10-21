@@ -7,6 +7,7 @@ import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.Conditions;
+import com.google.common.base.MoreObjects;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -27,7 +28,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     ExperimentMapper experimentMapper;
 
     public Page<ExperimentDTO> findAll(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging) {
-        Sort panacheSort = switch (sort) {
+        Sort panacheSort = switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
             case EARLIEST -> Sort.ascending("modifiedAt");
             case LATEST -> Sort.descending("modifiedAt");
         };

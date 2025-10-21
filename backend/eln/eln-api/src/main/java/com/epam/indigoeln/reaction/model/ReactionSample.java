@@ -10,15 +10,12 @@ import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.function.Consumer;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public abstract class ReactionSample implements ExperimentModelNode, ToStringTree {
-
-    @NotNull
-    protected UUID anchor;
+public sealed abstract class ReactionSample implements ExperimentModelNode, ToStringTree permits ReactionInputSample, ReactionOutputSample {
 
     @Nullable
     protected EnteredValue<DensityUnit> density;
@@ -33,10 +30,10 @@ public abstract class ReactionSample implements ExperimentModelNode, ToStringTre
     protected EnteredValue<NoUnit> purity;
 
     @Nullable
-    private STRCodeSample strCode;
+    protected STRCodeSample strCode;
 
     @NotNull
-    private List<DictionaryItemRef> healthHazard = List.of();
+    protected List<DictionaryItemRef> healthHazards = List.of();
 
     @Override
     public void prepareToRecalculate() {
@@ -44,6 +41,11 @@ public abstract class ReactionSample implements ExperimentModelNode, ToStringTre
         EnteredValue.prepareToRecalculate(molarity, this::setMolarity);
         EnteredValue.prepareToRecalculate(volume, this::setVolume);
         EnteredValue.prepareToRecalculate(purity, this::setPurity, EnteredValue.DEFAULT_ONE);
+    }
+
+    @Override
+    public void collectDictionaries(Consumer<@Nullable DictionaryItemRef> consumer) {
+        healthHazards.forEach(consumer);
     }
 
     @Override

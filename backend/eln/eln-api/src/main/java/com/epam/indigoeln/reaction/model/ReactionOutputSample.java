@@ -1,9 +1,9 @@
-package com.epam.indigoeln.reaction.model.outputsample;
+package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.eln.model.NbkBatchNumber;
 import com.epam.indigoeln.eln.model.STRCodeCompound;
-import com.epam.indigoeln.eln.model.STRCodeSample;
-import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
@@ -21,6 +21,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 @Getter
 @Setter
@@ -29,6 +30,12 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
 
     @JsonBackReference
     private ReactionOutput row;
+
+    @NotNull
+    private Anchor.OutputSample anchor;
+
+    @NotNull
+    private NbkBatchNumber nbkBatchNumber;
 
     @Nullable
     private EnteredValue<MolUnit> actualMol;
@@ -47,9 +54,6 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
 
     @Nullable
     private UUID sampleId;
-
-    @Nullable
-    private STRCodeSample strCode;
 
     @NotNull
     private List<DictionaryItemRef> handlingPrecautions = List.of();
@@ -90,9 +94,12 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     @Nullable
     private String structureComment;
 
-    public ReactionOutputSample(ReactionOutput row, UUID anchor) {
-        this.row = row;
-        this.anchor = anchor;
+    public static ReactionOutputSample create(String experimentName, ReactionOutput row) {
+        ReactionOutputSample sample = new ReactionOutputSample();
+        sample.row = row;
+        sample.anchor = new Anchor.OutputSample(row.getReaction().getModel().generateNextAnchor());
+        sample.nbkBatchNumber = new NbkBatchNumber(experimentName, row.getReaction().getModel().generateNextNbkBatchNumber());
+        return sample;
     }
 
     @Override
@@ -128,10 +135,24 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public List<STRCodeCompound> getPrecursorReactantIds() {
         return StreamEx.of(row.getReaction().getInputs())
-                .filter(r -> r.getRole() == ReactionInputRole.REACTANT)
+                .filter(r -> r.getRole() == ReactionRole.REACTANT)
                 .map(r -> r.getCompound().getStrCode())
                 .filter(Objects::nonNull)
                 .toList();
+    }
+
+    @Override
+    public void collectDictionaries(Consumer<@Nullable DictionaryItemRef> consumer) {
+        super.collectDictionaries(consumer);
+        handlingPrecautions.forEach(consumer);
+        storageInstructions.forEach(consumer);
+        compoundProtection.forEach(consumer);
+        solubilityInSolvents.stream().map(SolubidityInSolvent::getSolvent).forEach(consumer);
+        residualSolvents.stream().map(ResidualSolvent::getSolvent).forEach(consumer);
+        consumer.accept(externalSupplier != null ? externalSupplier.getSupplier() : null);
+        consumer.accept(source);
+        consumer.accept(sourceDetails);
+        consumer.accept(componentState);
     }
 
     @Override
@@ -149,6 +170,7 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
                 .property("registrationStatusMessage", registrationStatusMessage)
                 .property("sampleId", sampleId)
                 .property("strCode", strCode)
+                .property("nbkBatchNumber", nbkBatchNumber)
                 .close();
     }
 }
