@@ -20,18 +20,26 @@ import net.sf.jasperreports.engine.util.JRClassLoader;
 import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.engine.util.JRResourcesUtil;
 import net.sf.jasperreports.repo.ReportResource;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Slf4j
 @ApplicationScoped
 public class ReportsService {
+    @ConfigProperty(name = "report.timezone", defaultValue="UTC")
+    String timezone;
 
     @Inject
     ReadOnlyStreamingService readOnlyStreamingService;
@@ -49,6 +57,17 @@ public class ReportsService {
     byte[] doGenerateExperimentReport(List<ReportsAPI.ExperimentReportDataDTO> experiments) {
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(experiments);
         Map<String, Object> params = new HashMap<>();
+
+//        Add date formater to report params
+        log.info("!!! timezone = " + timezone);
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter
+                .ofPattern("MMM d, u HH:mm:ss VV", Locale.ENGLISH)
+                .withZone(ZoneId.of(timezone));
+        params.put("dateFormat", dateTimeFormatter);
+
+//        Add current date to the report params
+        ZonedDateTime reportDate = ZonedDateTime.ofInstant(Instant.now(), ZoneId.of(timezone));
+        params.put("reportDate", reportDate);
 
 //        JasperReport jasperReport = (JasperReport) readOnlyStreamingService.getResource("/reports/ExperimentReport.jasper", JasperPrint.class);
         InputStream xa = ReportsService.class.getResourceAsStream("/reports/ExperimentReport.jasper");
