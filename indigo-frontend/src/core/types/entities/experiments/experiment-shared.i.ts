@@ -5,6 +5,8 @@
 // ================================
 // 1. BASE TYPES
 // ================================
+import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
+
 export type UUID = string;
 
 // ================================
@@ -159,20 +161,6 @@ export interface EnteredValueNoUnit {
 // ================================
 // 6. REFERENCE INTERFACES
 // ================================
-export interface DictionaryItemRef {
-  id: UUID;
-  name: string;
-}
-
-export interface SaltCodeRef {
-  id?: UUID;
-  code?: string;
-  name?: string;
-  formula?: string;
-  charge?: number;
-  molWeight?: number;
-}
-
 export interface STRCodeCompound {
   compoundCode?: number;
   saltCode?: number;

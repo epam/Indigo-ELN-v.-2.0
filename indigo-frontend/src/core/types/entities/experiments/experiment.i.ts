@@ -10,7 +10,6 @@ import {
   EnteredValueDensityUnit,
   EnteredValueMolarityUnit,
   EnteredValueNoUnit,
-  DictionaryItemRef,
   STRCodeCompound,
   STRCodeSample,
   MeltingPoint,
@@ -23,6 +22,7 @@ import {
   ReactionRole,
 } from './experiment-shared.i';
 import { CompoundRef } from '@core/types/entities/compound.i';
+import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 
 // ================================
 // 1. SAMPLE INTERFACES

@@ -1,5 +1,4 @@
 import {
-  DictionaryItemRef,
   ReactionRole,
   MolUnit,
   DensityUnit,
@@ -14,6 +13,7 @@ import {
   PurityCalculation,
   ExternalSupplier,
 } from './experiment-shared.i';
+import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 
 // Base mutation interface
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
