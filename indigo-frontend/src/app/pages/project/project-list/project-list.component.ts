@@ -106,4 +106,10 @@ export class ProjectListComponent
   onViewChange(view: string) {
     this.selectedView = view as 'grid' | 'list';
   }
+
+  onMyEntitiesOnlyChange(value: boolean) {
+    this.filters['createdByMe'] = value;
+    this.dataBh.next([]);
+    this.fetchDataAndUpdateQueryParams();
+  }
 }

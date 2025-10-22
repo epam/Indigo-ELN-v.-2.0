@@ -69,91 +69,91 @@ export abstract class PaginatedBase<T> {
         return res
           ? of(res)
           : defer(() => {
-              this.isLoading = true;
+            this.isLoading = true;
 
-              const computedPager =
-                this.config.enableScrollRestoration && this.firstLoad
-                  ? // On first load with restoration enabled, fetch all data up to current page
-                    {
-                      pageNo: 0,
-                      // + 1 since pageNo 0 = Page 1
-                      pageSize: (this.pager.pageNo + 1) * this.pager.pageSize,
-                      sortBy: this.pager.sortBy,
-                      sortOrder: this.pager.sortOrder,
+            const computedPager =
+              this.config.enableScrollRestoration && this.firstLoad
+                ? // On first load with restoration enabled, fetch all data up to current page
+                {
+                  pageNo: 0,
+                  // + 1 since pageNo 0 = Page 1
+                  pageSize: (this.pager.pageNo + 1) * this.pager.pageSize,
+                  sortBy: this.pager.sortBy,
+                  sortOrder: this.pager.sortOrder,
+                }
+                : // For subsequent loads or restoration disabled, use standard pager
+                this.pager;
+
+            return this.service
+              .getPaged(this.config.loadUrl, computedPager, this.filters)
+              .pipe(
+                tap({
+                  next: (res) => {
+                    this.firstLoad = false;
+                    this.total = res.totalItems;
+                    if (
+                      res &&
+                      res.items.length == 0 &&
+                      this.pager.pageNo > 0
+                    ) {
+                      this.pager.pageNo = res.totalPages;
+                      this.fetchDataAndUpdateQueryParams(false);
+
+                      this.dataSubject$.next(null);
+                    } else {
+                      this.dataSubject$.next(res);
                     }
-                  : // For subsequent loads or restoration disabled, use standard pager
-                    this.pager;
+                  },
+                }),
 
-              return this.service
-                .getPaged(this.config.loadUrl, computedPager, this.filters)
-                .pipe(
-                  tap({
-                    next: (res) => {
-                      this.firstLoad = false;
-                      this.total = res.totalItems;
-                      if (
-                        res &&
-                        res.items.length == 0 &&
-                        this.pager.pageNo > 0
-                      ) {
-                        this.pager.pageNo = res.totalPages;
-                        this.fetchDataAndUpdateQueryParams(false);
-
-                        this.dataSubject$.next(null);
-                      } else {
-                        this.dataSubject$.next(res);
-                      }
-                    },
-                  }),
-
-                  finalize(() => {
-                    this.isLoading = false;
-                  }),
-                );
-            });
+                finalize(() => {
+                  this.isLoading = false;
+                }),
+              );
+          });
       }),
     );
 
     this.dataList$ = this.config.enableQueryParams
       ? this.activatedRoute.queryParams.pipe(
-          take(1),
-          switchMap((params) => {
-            const queryFilters = Object.keys(
-              params as Record<string, unknown>,
-            ).reduce((acc: Record<string, unknown>, curr) => {
-              acc[curr] = params[curr];
-              return acc;
-            }, {});
+        take(1),
+        switchMap((params) => {
+          const queryFilters = Object.keys(
+            params as Record<string, unknown>,
+          ).reduce((acc: Record<string, unknown>, curr) => {
+            acc[curr] = params[curr];
+            return acc;
+          }, {});
 
-            Object.keys(queryFilters).forEach((key) => {
-              if (key in this.pager) {
-                // Handle special cases for pager properties
-                if (key === 'sortBy') {
-                  this.pager[key] = queryFilters[key] as string;
-                } else if (key === 'sortOrder') {
-                  this.pager[key] = queryFilters[key] as 'asc' | 'desc';
-                } else {
-                  this.pager[key] = Number(queryFilters[key]);
-                }
-                delete queryFilters[key];
+          Object.keys(queryFilters).forEach((key) => {
+            if (key in this.pager) {
+              // Handle special cases for pager properties
+              if (key === 'sortBy') {
+                this.pager[key] = queryFilters[key] as string;
+              } else if (key === 'sortOrder') {
+                this.pager[key] = queryFilters[key] as 'asc' | 'desc';
+              } else {
+                this.pager[key] = Number(queryFilters[key]);
               }
-            });
-
-            // Handle sorting from query params
-            if (params['sortBy']) {
-              this.currentSort = {
-                sortBy: params['sortBy'] as string,
-                sortOrder: (params['sortOrder'] as 'asc' | 'desc') || 'asc',
-              };
+              delete queryFilters[key];
             }
+          });
 
-            Object.assign(this.filters, queryFilters);
+          // Handle sorting from query params
+          if (params['sortBy']) {
+            this.currentSort = {
+              sortBy: params['sortBy'] as string,
+              sortOrder: (params['sortOrder'] as 'asc' | 'desc') || 'asc',
+            };
+          }
 
-            this.fetchDataAndUpdateQueryParams(false);
+          Object.assign(this.filters, queryFilters);
 
-            return dataLogic$;
-          }),
-        )
+          this.fetchDataAndUpdateQueryParams(false);
+
+          return dataLogic$;
+        }),
+      )
       : dataLogic$;
   }
 
