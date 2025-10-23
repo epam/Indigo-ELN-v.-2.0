@@ -3,6 +3,7 @@
   <div class="flex items-center gap-2 ml-auto">
     <eln-button
       classList="flex items-center gap-2 bg-[#3f50b5] text-white hover:bg-[#334296]"
+      (click)="openModal()"
     >
       <em class="text-xl indicon-plus"></em>
       <span class="whitespace-nowrap">Add Template</span>
@@ -19,7 +20,7 @@
 />
 
 <div
-  *ngIf="data"
+  *ngIf="data$ | async as data"
   [@viewChange]="selectedView"
   [ngClass]="{
     'grid gap-x-4 mt-5 gap-y-4': true,
@@ -27,7 +28,7 @@
     'md:grid-cols-2 2xl:grid-cols-3': selectedView === 'list',
   }"
 >
-  @for (template of data; track template.id) {
+  @for (template of data['items']; track template.id) {
     <eln-template-item [template]="template" />
   }
   <eln-infinite-loader
@@ -40,13 +41,3 @@
     (infiniteLoad)="infiniteLoad()"
   />
 </div>
-
-<eln-button
-  *projectOverviewWidget="'button'"
-  variant="blue"
-  classList="flex items-center gap-2"
-  (click)="openModal()"
->
-  <em class="text-xl indicon-plus"></em>
-  <span class="whitespace-nowrap">Add Project</span>
-</eln-button>

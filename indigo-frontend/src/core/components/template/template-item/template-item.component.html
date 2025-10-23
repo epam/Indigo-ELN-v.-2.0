@@ -27,7 +27,7 @@
             <mat-icon>edit</mat-icon>
             <span>Rename</span>
           </button>
-          <button mat-menu-item>
+          <button mat-menu-item (click)="deleteTemplate(template.id)">
             <mat-icon>delete</mat-icon>
             <span>Delete</span>
           </button>

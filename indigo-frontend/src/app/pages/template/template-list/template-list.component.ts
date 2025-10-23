@@ -9,17 +9,15 @@ import { FormsModule } from '@angular/forms';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ClassPickerPipe } from '@core/pipes/classPicker.pipe';
 import { InfiniteLoaderComponent } from '@core/components/util/infinite-loader/infinite-loader.component';
-import { ProjectOverviewWidgetDirective } from '@core/components/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { ButtonComponent } from '@core/components/common/button/button.component';
 import { InfiniteScrollBase } from '@core/components/util/infinite-scroll.base';
-import { Project } from '@core/types/entities/project.i';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription, take } from 'rxjs';
 import { DropdownMenuItem } from '@core/components/common/dropdown-menu/dropdown-menu.i';
-import { ProjectAddComponent } from '@pages/project/project-add/project-add.component';
 import { RouteAnimationType } from '@core/animations/route-animations';
 import { TemplateItemComponent } from '@core/components/template/template-item/template-item.component';
-import { ItemTemplate } from '@core/types/entities/template.i';
+import { RootTemplate } from '@core/types/entities/template.i';
+import { TemplateAddComponent } from '@pages/template/template-add/template-add.component';
 
 @Component({
   selector: 'eln-template-list',
@@ -40,14 +38,13 @@ import { ItemTemplate } from '@core/types/entities/template.i';
     MatSlideToggleModule,
     ClassPickerPipe,
     InfiniteLoaderComponent,
-    ProjectOverviewWidgetDirective,
     ButtonComponent,
     ListHeaderComponent,
     TemplateItemComponent,
   ],
 })
 export class TemplateListComponent
-  extends InfiniteScrollBase<Project>
+  extends InfiniteScrollBase<RootTemplate>
   implements OnDestroy
 {
   @Input() animationType!: RouteAnimationType;
@@ -55,31 +52,12 @@ export class TemplateListComponent
   selectedView: 'list';
   private refreshSub!: Subscription;
 
-  data: [ItemTemplate] = [
-    {
-      id: '5c74E902-d33b-AC49-C70E-eF0f2A8b0d25',
-      createdBy: {
-        id: 'B04bA3af-bCdA-2B74-4Ecf-469416f2FfA3',
-        username: 'string',
-        displayName: 'string',
-      },
-      createdAt: '2022-03-10T12:15:50-04:00',
-      modifiedBy: {
-        id: '50fbf7Ff-3a27-FA23-7e5a-B7cA5E86F0Ad',
-        username: 'string',
-        displayName: 'string',
-      },
-      modifiedAt: '2022-03-10T12:15:50-04:00',
-      name: 'string',
-    },
-  ];
-
   headerSortOptions: DropdownMenuItem[] = [];
 
   constructor() {
     super();
     this.setup({
-      loadUrl: 'projects',
+      loadUrl: 'templates',
       sortOptions: [
         { label: 'Sort by: Earliest', value: 'createdAt', defaultOrder: 'asc' },
         { label: 'Sort by: Latest', value: 'createdAt', defaultOrder: 'desc' },
@@ -98,6 +76,7 @@ export class TemplateListComponent
     }));
   }
 
+
   refreshList(): void {
     this.reload();
   }
@@ -107,7 +86,7 @@ export class TemplateListComponent
   }
 
   async openModal() {
-    const ref = this.dialog.open(ProjectAddComponent);
+    const ref = this.dialog.open(TemplateAddComponent);
     ref
       .afterClosed()
       .pipe(take(1))
