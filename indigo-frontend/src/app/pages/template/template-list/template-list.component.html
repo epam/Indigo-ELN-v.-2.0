@@ -28,7 +28,7 @@
     'md:grid-cols-2 2xl:grid-cols-3': selectedView === 'list',
   }"
 >
-  @for (template of data['items']; track template.id) {
+  @for (template of data; track template.id) {
     <eln-template-item [template]="template" />
   }
   <eln-infinite-loader

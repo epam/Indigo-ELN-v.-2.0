@@ -33,7 +33,6 @@ export class TemplateItemComponent {
 
   deleteTemplate(templateId: string) {
     this.templateService.deleteTemplate(templateId).subscribe(() => {
-
     });
   }
 }

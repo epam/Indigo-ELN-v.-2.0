@@ -16,7 +16,7 @@ import { Subscription, take } from 'rxjs';
 import { DropdownMenuItem } from '@core/components/common/dropdown-menu/dropdown-menu.i';
 import { RouteAnimationType } from '@core/animations/route-animations';
 import { TemplateItemComponent } from '@core/components/template/template-item/template-item.component';
-import { RootTemplate } from '@core/types/entities/template.i';
+import { ItemTemplate, RootTemplate } from '@core/types/entities/template.i';
 import { TemplateAddComponent } from '@pages/template/template-add/template-add.component';
 
 @Component({
@@ -44,7 +44,7 @@ import { TemplateAddComponent } from '@pages/template/template-add/template-add.
   ],
 })
 export class TemplateListComponent
-  extends InfiniteScrollBase<RootTemplate>
+  extends InfiniteScrollBase<ItemTemplate>
   implements OnDestroy
 {
   @Input() animationType!: RouteAnimationType;
