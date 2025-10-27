@@ -87,7 +87,7 @@ export interface ItemTemplate {
   id: string
   createdBy: CreatedBy
   createdAt: string
-  modifiedBy: ModifiedBy
+  modifiedBy: CreatedBy
   modifiedAt: string
   name: string
 }
@@ -98,9 +98,16 @@ export interface CreatedBy {
   displayName: string
 }
 
-export interface ModifiedBy {
-  id: string
-  username: string
-  displayName: string
+//--------------- Create Template
+export interface CreateTemplate {
+  name: string
+  templateTabs?: CreateTemplateTab[]
 }
+
+export interface CreateTemplateTab {
+  name: string
+  components: CreateComponent[]
+}
+
+export type CreateComponent = TemplateComponent;
 

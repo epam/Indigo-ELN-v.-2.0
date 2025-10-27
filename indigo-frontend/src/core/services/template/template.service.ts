@@ -1,5 +1,9 @@
 import { Injectable } from '@angular/core';
-import { ItemTemplate, RootTemplate } from '@core/types/entities/template.i';
+import {
+  CreateTemplate,
+  ItemTemplate,
+  RootTemplate,
+} from '@core/types/entities/template.i';
 import { ApiService } from '@core/services/api.service';
 import { PagedRequest } from '@core/types/request/paged-request.i';
 
@@ -14,7 +18,7 @@ export class TemplateService {
     return this.api.getPaged('templates', pager, { search });
   }
 
-  createTemplate(body: any) {
+  createTemplate(body: CreateTemplate) {
     return this.api.create('templates', body);
   }
 
@@ -27,6 +31,6 @@ export class TemplateService {
   }
 
   deleteTemplate(templateId: string) {
-    return this.api.delete(`templates/`, templateId,);
+    return this.api.delete(`templates/`, templateId);
   }
 }

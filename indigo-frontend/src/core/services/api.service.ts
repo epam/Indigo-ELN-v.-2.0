@@ -47,8 +47,8 @@ export class ApiService<T> {
     return this.httpClient.get<T>(this.buildUrl(dictionary));
   }
 
-  public delete(url: string, id: string ): Observable<void> {
-    return this.httpClient.delete<void>(this.buildUrl(`${url}/${id}`));
+  public delete(url: string, id: string ): Observable<T> {
+    return this.httpClient.delete<T>(this.buildUrl(`${url}/${id}`));
   }
 
 

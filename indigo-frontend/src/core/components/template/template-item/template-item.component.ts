@@ -32,7 +32,6 @@ export class TemplateItemComponent {
   variant = 'list';
 
   deleteTemplate(templateId: string) {
-    this.templateService.deleteTemplate(templateId).subscribe(() => {
-    });
+    this.templateService.deleteTemplate(templateId).subscribe();
   }
 }
