@@ -26,6 +26,14 @@ import java.util.Set;
 @Setter
 @Entity(name = "Sample")
 @ToString(of = {"id", "compound"})
+@NamedEntityGraph(
+        name = "Sample.find",
+        attributeNodes = {
+                @NamedAttributeNode("createdBy"),
+                @NamedAttributeNode("modifiedBy"),
+                @NamedAttributeNode("compound"),
+        }
+)
 public class SampleEntity extends BaseEntity {
 
     @NotNull

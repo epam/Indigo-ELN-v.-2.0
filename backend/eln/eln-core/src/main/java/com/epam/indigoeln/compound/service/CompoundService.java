@@ -14,6 +14,7 @@ import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
+import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.CompoundRef;
 import com.epam.indigoeln.reaction.model.SaltCodeRef;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
@@ -57,6 +58,8 @@ public class CompoundService {
     @Inject
     IndigoAPI indigo;
     @Inject
+    IndigoRendererAPI indigoRenderer;
+    @Inject
     MolWeightCalculator molWeightCalculator;
     @Inject
     UserService userService;
@@ -77,6 +80,9 @@ public class CompoundService {
             compound.setMolWeight(molWeightCalculator.calculateMolWeight(molecule.molfile(), saltCode, saltEQ));
             compound.setExactMass(molWeightCalculator.calculateExactMass(molecule.molfile()));
             compound.setFormula(molecule.grossFormula());
+            indigoRenderer.setRenderOptions("svg", 500, 200);
+            byte[] buf = indigoRenderer.renderToBuffer(molecule);
+            compound.setPicture(buf);
             compoundRepository.persist(compound);
             log.debug("new compound created: {}", compound);
         }
@@ -161,8 +167,12 @@ public class CompoundService {
 //        }
     }
 
-    public List<SampleDTO> findSamples(FindSamplesRequest request) {
-        return sampleMapper.sampleToDTOList(sampleRepository.find(request));
+    public byte[] getCompoundPicture(UUID compoundID) {
+        return compoundRepository.get(compoundID).getPicture();
+    }
+
+    public Page<SampleDTO> findSamples(FindSamplesRequest request, Paging paging) {
+        return sampleRepository.find(request, paging);
     }
 
     public SampleEntity getSample(UUID id) {

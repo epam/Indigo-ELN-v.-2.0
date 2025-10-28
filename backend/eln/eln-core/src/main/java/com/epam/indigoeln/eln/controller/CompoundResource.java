@@ -17,7 +17,6 @@ import org.jspecify.annotations.Nullable;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.List;
 import java.util.UUID;
 
 @Path(BaseAPI.BASE_PATH)
@@ -35,8 +34,13 @@ public class CompoundResource implements CompoundAPI {
     }
 
     @Override
-    public List<SampleDTO> findSamples(FindSamplesRequest request) {
-        return compoundService.findSamples(request);
+    public byte[] getCompoundPicture(UUID compoundID) {
+        return compoundService.getCompoundPicture(compoundID);
+    }
+
+    @Override
+    public Page<SampleDTO> findSamples(FindSamplesRequest request, Paging paging) {
+        return compoundService.findSamples(request, paging);
     }
 
     @Override

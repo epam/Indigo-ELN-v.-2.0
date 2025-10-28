@@ -8,7 +8,6 @@ import jakarta.annotation.Nullable;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
-import java.util.List;
 import java.util.UUID;
 
 @Path(BaseAPI.BASE_PATH)
@@ -21,9 +20,14 @@ public interface CompoundAPI extends BaseAPI {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     void loadCompoundsFromFile(UploadForm form);
 
+    @GET
+    @Path("/compounds/{compoundID}/picture")
+    @Produces("image/svg+xml")
+    byte[] getCompoundPicture(@PathParam("compoundID") UUID compoundID);
+
     @POST
     @Path("/samples/search")
-    List<SampleDTO> findSamples(FindSamplesRequest request);
+    Page<SampleDTO> findSamples(FindSamplesRequest request, @BeanParam Paging paging);
 
     @POST
     @Path("/samples/{sampleID}/mark")

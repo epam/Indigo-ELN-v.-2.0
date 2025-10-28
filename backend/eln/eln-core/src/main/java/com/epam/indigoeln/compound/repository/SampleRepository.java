@@ -19,7 +19,6 @@ import jakarta.inject.Inject;
 import org.hibernate.query.NativeQuery;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -44,7 +43,7 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
         return find(conditions.getQuery(), conditions.getValues()).firstResult();
     }
 
-    public List<SampleEntity> find(FindSamplesRequest request) {
+    public Page<SampleDTO> find(FindSamplesRequest request, Paging paging) {
         Conditions conditions = new Conditions()
                 .addIfNotNull("full_text_search(searchVector, websearch_to_tsquery('english', ?))", request.getQuickSearch());
         if (request.getStructure() != null) {
@@ -76,7 +75,13 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
             DictionaryItemEntity healthHazard = dictionaryService.lookup(BuiltInDictionary.HEALTH_HAZARD.name(), request.getHealthHazards());
             conditions.add("? member of healthHazards", healthHazard);
         }
-        return find(conditions.getQuery(), conditions.getValues()).list();
+        return doFindWithTotals(
+                conditions,
+                paging,
+                Sort.by("createdAt"),
+                em.getEntityGraph("Sample.find"),
+                sampleMapper::sampleToDTO
+        );
     }
 
     private void addTextSearch(Conditions conditions, @Nullable TextSearch search, String field) {
