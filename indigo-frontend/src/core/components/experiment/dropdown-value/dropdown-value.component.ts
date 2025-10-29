@@ -33,8 +33,8 @@ export class DropdownValueComponent implements ControlValueAccessor {
   @Input() onChange: ((newValue: string | null) => void) | null = null;
   @Input() allowNull = true;
   @Input() readOnly = false;
-  onChangeForm: (newValue: string | null) => void = () => {};
-  onTouchForm: () => void = () => {};
+  onChangeForm: ((newValue: unknown) => void) | null = null;
+  onTouchForm: (() => void) | null = null;
 
   getDisplayName(): string | null {
     return (
@@ -45,7 +45,16 @@ export class DropdownValueComponent implements ControlValueAccessor {
   changeValue(event: MatSelectChange) {
     const newValue = event.value;
     if (this.value != newValue) {
-      this.onChange(newValue);
+      if (this.onChange) {
+        this.onChange(newValue);
+      }
+      if (this.onChangeForm) {
+        const option =
+          event.value != null
+            ? this.options.find((option) => option.id === newValue)
+            : null;
+        this.onChangeForm(option);
+      }
     }
   }
 

@@ -9,7 +9,7 @@ export class InfiniteSearchLoader<R, T> {
   ) => Observable<PaginatedResponse<T>>;
   private searchParams: R | null = null;
   private pageNo = -1;
-  private dataSubject$ = new BehaviorSubject(null);
+  private dataSubject$ = new BehaviorSubject<T[] | null>(null);
   data$ = this.dataSubject$ as Observable<T[] | null>;
   loading = false;
   started = false;
@@ -63,5 +63,19 @@ export class InfiniteSearchLoader<R, T> {
         this.loading = false;
       },
     });
+  }
+
+  replace(predicate: (item: T) => boolean, newItem: T): boolean {
+    let list = this.dataSubject$.value;
+    if (list) {
+      const index = list.findIndex(predicate);
+      if (index !== -1) {
+        list = [...list];
+        list[index] = newItem;
+        this.dataSubject$.next(list);
+        return true;
+      }
+    }
+    return false;
   }
 }

@@ -4,6 +4,7 @@
   containerClass="w-[800px]"
   submitButtonText="Search"
   (formSubmit)="performSearch()"
+  (keydown.enter)="performSearch()"
 >
   <ng-template #modalContent>
     <form [formGroup]="form">
@@ -23,15 +24,24 @@
           >
         </mat-radio-group>
       </div>
-      <div>
-        or draw structure
+      <div class="flex">
+        <div>or draw structure</div>
         <mat-radio-group formControlName="structureSearchType">
           <mat-radio-button value="EXACT">Exact</mat-radio-button>
           <mat-radio-button value="SUBSTRUCTURE">Substructure</mat-radio-button>
           <mat-radio-button value="SIMILARITY">Similarity</mat-radio-button>
         </mat-radio-group>
+        <div>
+          <em class="indicon-close ml-auto" (click)="clearStructure()" matTooltip="Clear structure search"></em>
+        </div>
+      </div>
+      <div class="w-full h-48" (click)="editStructure()">
+        @if (structureImage) {
+          <img class="w-full h-48" [src]="structureImage" alt="structure editor"/>
+        }
       </div>
       <mat-expansion-panel
+        #advancedSearchPanel
         (afterExpand)="updateAdvancedSearchSummary(false)"
         (afterCollapse)="updateAdvancedSearchSummary(true)"
       >
@@ -75,76 +85,91 @@
           <eln-text-search formControlName="casNumber" />
         </div>
       </mat-expansion-panel>
-    </form>
 
-    @if (loader.started) {
-      @if (loader.totalItems !== null) {
-        <div>Search Results ({{ loader.totalItems }})</div>
-      }
-      <eln-expandable-table [dataSource]="loader.data$ | async">
-        <ng-template
-          elnColumnDef="strCode"
-          displayName="Compound ID"
-          let-element
-        >
-          <span class="font-medium text-gray-900">{{ element.strCode }}</span>
-        </ng-template>
-        <ng-template
-          elnColumnDef="name"
-          displayName="Chemical Name"
-          let-element
-        >
-          {{ element.name }}
-        </ng-template>
-        <ng-template
-          elnColumnDef="molWeight"
-          displayName="Mol. Weight"
-          let-element
-        >
-          {{ element.molWeight | number: '1.2-2' }}
-        </ng-template>
-        <ng-template
-          elnColumnDef="molFormula"
-          displayName="Mol. Formula"
-          let-element
-        >
-          {{ element.molecularFormula }}
-        </ng-template>
-
-        <ng-template #details let-element>
-          <div class="p-6 flex flex-row">
-            <div class="flex-3">
-              <div class="flex flex-col">
-                <div><b>Compound ID: </b>{{ element.strCode }}</div>
-                <div><b>Nbk Batch Number: </b>{{ element.nbkBatchNumber }}</div>
-                <div>
-                  <b>Molecular Formula: </b>{{ element.molecularFormula }}
-                </div>
-                <div>
-                  <b>Molecular Weight: </b
-                  >{{ element.molWeight | number: '1.2-2' }}
-                </div>
-                <div><b>Chemical Name: </b>{{ element.name }}</div>
-                <div><b>Salt Code: </b>{{ element.saltCode?.name }}</div>
-                <div><b>Salt EQ: </b>{{ element.saltEQ }}</div>
-              </div>
-            </div>
-            <div class="flex-1">
-              <eln-image
-                [url]="'/compounds/' + element.compoundID + '/picture'"
-                altText="molecule image"
-              />
+      @if (loader.started) {
+        @if (loader.totalItems !== null) {
+          <div class="flex justify-between">
+            <div class="flex-1 self-start">Search Results ({{ loader.totalItems }})</div>
+            <div class="flex-1 self-end">
+              <eln-toggle label="My Materials" formControlName="marked"/>
             </div>
           </div>
-        </ng-template>
-      </eln-expandable-table>
-      <eln-infinite-loader (infiniteLoad)="loader.fetchNextPage()"/>
-      @if (loader.loading) {
-        <mat-spinner />
+        }
+        <eln-expandable-table [dataSource]="loader.data$ | async">
+          <ng-template
+            elnColumnDef="strCode"
+            displayName="Compound ID"
+            let-element
+          >
+            <span class="font-medium text-gray-900">{{ element.strCode }}</span>
+          </ng-template>
+          <ng-template
+            elnColumnDef="name"
+            displayName="Chemical Name"
+            let-element
+          >
+            {{ element.name }}
+          </ng-template>
+          <ng-template
+            elnColumnDef="molWeight"
+            displayName="Mol. Weight"
+            let-element
+          >
+            {{ element.molWeight | number: '1.2-2' }}
+          </ng-template>
+          <ng-template
+            elnColumnDef="molFormula"
+            displayName="Mol. Formula"
+            let-element
+          >
+            {{ element.molecularFormula }}
+          </ng-template>
+          <ng-template elnColumnDef="marked" displayName="" let-element>
+            @if (!element.marked) {
+              <em class="indicon-file-plus ml-auto" (click)="markSample(element, true)" matTooltip="Add to My Material List"></em>
+            } @else {
+              <em class="indicon-file-minus ml-auto" (click)="markSample(element, false)" matTooltip="Remove from My Material List"></em>
+            }
+          </ng-template>
+          <ng-template elnColumnDef="add" displayName="" let-element>
+            <em class="indicon-plus ml-auto" (click)="addSample(element)" matTooltip="Add to current experiment"></em>
+          </ng-template>
+
+          <ng-template #details let-element>
+            <div class="p-6 flex flex-row">
+              <div class="flex-3">
+                <div class="flex flex-col">
+                  <div><b>Compound ID: </b>{{ element.strCode }}</div>
+                  <div><b>Nbk Batch Number: </b>{{ element.nbkBatchNumber }}</div>
+                  <div>
+                    <b>Molecular Formula: </b>{{ element.molecularFormula }}
+                  </div>
+                  <div>
+                    <b>Molecular Weight: </b
+                    >{{ element.molWeight | number: '1.2-2' }}
+                  </div>
+                  <div><b>Chemical Name: </b>{{ element.name }}</div>
+                  <div><b>Salt Code: </b>{{ element.saltCode?.name }}</div>
+                  <div><b>Salt EQ: </b>{{ element.saltEQ }}</div>
+                </div>
+              </div>
+              <div class="flex-1">
+                <eln-image
+                  [url]="'/compounds/' + element.compoundID + '/picture'"
+                  altText="molecule image"
+                />
+              </div>
+            </div>
+          </ng-template>
+        </eln-expandable-table>
+        <eln-infinite-loader (infiniteLoad)="loader.fetchNextPage()"/>
+        @if (loader.loading) {
+          <mat-spinner />
+        }
+        @if (loader.error) {
+          <div>Error loading results</div>
+        }
       }
-      @if (loader.error) {
-        <div>Error loading results</div>
-      }
-    }
+    </form>
   </ng-template>
 </eln-form-dialog>

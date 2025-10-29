@@ -1,6 +1,10 @@
 import { Component, Inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { ButtonComponent } from '../../common/button/button.component';
 import { KetcherComponent } from '../../common/ketcher/ketcher.component';
@@ -11,13 +15,21 @@ import { Reaction } from '@/core/types/entities/experiments/experiment.i';
 interface ModalData {
   height?: string; // Editor height
   width?: string; // Editor width
+  isReaction: boolean; // Edit reaction if true, else edit molecule
   reaction?: Reaction; // Reaction data containing rxnfile
+  molFile?: string; // Initial molecule file if editing molecule
 }
 
 @Component({
   selector: 'eln-structure-editor-modal',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule, ButtonComponent, KetcherComponent],
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    ButtonComponent,
+    KetcherComponent,
+  ],
   templateUrl: './structure-editor-modal.component.html',
 })
 export class StructureEditorModalComponent {
@@ -37,14 +49,16 @@ export class StructureEditorModalComponent {
   constructor(
     private dialogRef: MatDialogRef<StructureEditorModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ModalData,
-    private mutationBuilder: MutationBuilderService
-  ) { }
+    private mutationBuilder: MutationBuilderService,
+  ) {}
 
   async onKetcherLoad(ketcher: Ketcher): Promise<void> {
     this.ketcherInstance = ketcher;
 
     // Load initial structure from reaction if available
-    const initialStructure = this.data.reaction.rxnfile;
+    const initialStructure = this.data.isReaction
+      ? this.data.reaction.rxnfile
+      : this.data.molFile;
     if (initialStructure) {
       try {
         await this.ketcherInstance.setMolecule(initialStructure);
@@ -62,22 +76,34 @@ export class StructureEditorModalComponent {
     }
 
     try {
-      // Get reaction anchor from experiment model
-      const reactionAnchor = this.data?.reaction?.anchor;
-      const mutations = await this.mutationBuilder.buildMutationsFromKetcher(
-        this.ketcherInstance,
-        reactionAnchor
-      );
+      if (this.data.isReaction) {
+        // Get reaction anchor from experiment model
+        const reactionAnchor = this.data?.reaction?.anchor;
+        const mutations = await this.mutationBuilder.buildMutationsFromKetcher(
+          this.ketcherInstance,
+          reactionAnchor,
+        );
 
-      this.dialogRef.close({
-        success: true,
-        mutations
-      });
+        this.dialogRef.close({
+          success: true,
+          mutations,
+        });
+      } else {
+        const molFile = await this.ketcherInstance.getMolfile();
+        const image = await this.ketcherInstance.generateImage(molFile, {
+          outputFormat: 'svg',
+        });
+        this.dialogRef.close({
+          success: true,
+          molFile: molFile,
+          molFileImage: image,
+        });
+      }
     } catch (error) {
       console.error('Error processing Ketcher data:', error);
       this.dialogRef.close({
         success: false,
-        error: 'Failed to process chemical structure data'
+        error: 'Failed to process chemical structure data',
       });
     }
   }

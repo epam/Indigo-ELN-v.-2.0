@@ -78,6 +78,7 @@ export interface FindSamplesRequest {
   compoundState?: DictionaryItemRef;
   batchComment?: TextSearch;
   healthHazards?: DictionaryItemRef;
+  marked?: boolean;
 }
 
 export const TextSearchTypeNames = {
@@ -94,7 +95,7 @@ export const NumericSearchTypeNames = {
   ge: '≥',
 };
 
-export interface FindSamplesResult {
+export interface Sample {
   id: UUID;
   strCode?: string;
   nbkBatchNumber?: string;

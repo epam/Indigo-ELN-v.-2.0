@@ -68,9 +68,8 @@
     <tr
       mat-row
       *matRowDef="let row; columns: columnNames"
-      class="cursor-pointer transition-colors duration-200 hover:bg-gray-50 !border-none"
+      class="hover:bg-gray-50 !border-none"
       [class.bg-blue-50]="expandedElements.has(row)"
-      (click)="toggleRow(row)"
     ></tr>
 
     <tr
