@@ -2,6 +2,7 @@
   [title]="title"
   size="auto"
   containerClass="w-[800px]"
+  submitButtonText="Search"
   (formSubmit)="performSearch()"
 >
   <ng-template #modalContent>
@@ -76,12 +77,11 @@
       </mat-expansion-panel>
     </form>
 
-    @if (searchStarted || true) {
-      @if (loading) {
-        <mat-spinner />
+    @if (loader.started) {
+      @if (loader.totalItems !== null) {
+        <div>Search Results ({{ loader.totalItems }})</div>
       }
-
-      <eln-expandable-table [dataSource]="results">
+      <eln-expandable-table [dataSource]="loader.data$ | async">
         <ng-template
           elnColumnDef="strCode"
           displayName="Compound ID"
@@ -138,6 +138,13 @@
           </div>
         </ng-template>
       </eln-expandable-table>
+      <eln-infinite-loader (infiniteLoad)="loader.fetchNextPage()"/>
+      @if (loader.loading) {
+        <mat-spinner />
+      }
+      @if (loader.error) {
+        <div>Error loading results</div>
+      }
     }
   </ng-template>
 </eln-form-dialog>

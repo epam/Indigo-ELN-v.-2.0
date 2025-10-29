@@ -1,5 +1,4 @@
 import { FormDialogComponent } from '@/core/components/common/form-dialog/form-dialog.component';
-import { ApiService } from '@/core/services/api.service';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import {
@@ -8,11 +7,12 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { InputComponent } from '@core/components/common/input/input.component';
 import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
 import {
+  FindSamplesRequest,
   FindSamplesResult,
   NumericSearch,
   NumericSearchTypeNames,
@@ -35,13 +35,14 @@ import { NumericSearchComponent } from '@core/components/common/numeric-search/n
 import { DropdownValueComponent } from '@core/components/experiment/dropdown-value/dropdown-value.component';
 import { MatChip } from '@angular/material/chips';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { MatTableDataSource } from '@angular/material/table';
 import {
   ColumnDefDirective,
   ExpandableTableComponent,
 } from '@core/components/common/expandable-table/expandable-table.component';
-import { PaginatedResponse } from '@core/types/response/paginated-response.i';
 import { ImageComponent } from '@core/components/common/image/image.component';
+import { ApiService } from '@core/services/api.service';
+import { InfiniteLoaderComponent } from '@core/components/util/infinite-loader/infinite-loader.component';
+import { InfiniteSearchLoader } from '@core/components/util/infinite-scroll-search';
 
 @Component({
   standalone: true,
@@ -67,12 +68,15 @@ import { ImageComponent } from '@core/components/common/image/image.component';
     ExpandableTableComponent,
     ColumnDefDirective,
     ImageComponent,
+    InfiniteLoaderComponent,
   ],
   templateUrl: './sample-search.component.html',
 })
 export class SampleSearchComponent implements OnInit {
-  dialogRef = inject(MatDialogRef);
+  service = inject(ApiService);
   data = inject(MAT_DIALOG_DATA);
+  loader: InfiniteSearchLoader<FindSamplesRequest, FindSamplesResult>;
+
   title = 'Add material';
 
   form = new FormGroup({
@@ -95,13 +99,17 @@ export class SampleSearchComponent implements OnInit {
   compoundStateOptions: DictionaryItemRef[];
   healthHazardsOptions: DictionaryItemRef[];
 
-  searchStarted = false;
-  loading = false;
-  results = new MatTableDataSource<FindSamplesResult>();
-
-  constructor(protected service: ApiService<any>) {}
-
   ngOnInit(): void {
+    this.loader = new InfiniteSearchLoader<
+      FindSamplesRequest,
+      FindSamplesResult
+    >((searchParams, pageNo) =>
+      this.service.request(
+        'post',
+        `samples/search?pageNo=${pageNo}&pageSize=20`,
+        searchParams,
+      ),
+    );
     this.service
       .request<
         DictionaryItemRef[]
@@ -147,24 +155,7 @@ export class SampleSearchComponent implements OnInit {
 
   performSearch() {
     const body = this.form.value;
-    this.searchStarted = true;
-    this.loading = true;
-    this.service
-      .request<
-        PaginatedResponse<FindSamplesResult>
-      >('post', 'samples/search', body)
-      .subscribe({
-        next: (results) => {
-          console.log(results);
-          this.results.data = results.items;
-        },
-        error: (err) => {
-          console.error('Failed to perform search:', err);
-        },
-        complete: () => {
-          this.loading = false;
-        },
-      });
+    this.loader.search(body);
   }
 
   private textSearchSummary(
