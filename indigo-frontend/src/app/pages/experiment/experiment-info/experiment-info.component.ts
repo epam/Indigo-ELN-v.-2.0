@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
@@ -6,6 +6,8 @@ import { ExperimentImageService } from '@/core/services/experiment/experiment-im
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { CdkAccordionModule } from '@angular/cdk/accordion';
 import { ReactionViewComponent } from '@core/components/experiment/reaction-view/reaction-view.component';
+import { SampleSearchComponent } from '@pages/experiment/sample-search/sample-search.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'eln-experiment-info',
@@ -24,6 +26,8 @@ export class ExperimentInfoComponent implements OnInit {
   experimentDetailService = inject(ExperimentDetailService);
   experimentImageService = inject(ExperimentImageService);
 
+  dialog = inject(MatDialog); // !!!
+
   // Signal to track if model is being updated
   isUpdating = signal<boolean>(false);
 
@@ -40,6 +44,9 @@ export class ExperimentInfoComponent implements OnInit {
   imageError = computed(() => this.experimentImageService.hasError());
 
   ngOnInit(): void {
+    // !!!
+    this.dialog.open(SampleSearchComponent);
+    // this.dialog.open(ExpandableTableUsageComponent)
     const experimentId = this.experiment()?.id;
     if (experimentId) {
       this.experimentImageService.load(experimentId);

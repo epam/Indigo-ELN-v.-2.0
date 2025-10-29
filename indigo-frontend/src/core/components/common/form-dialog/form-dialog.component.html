@@ -39,14 +39,20 @@
       </button>
     </div>
 
-    <div class="modal-content p-4 overflow-y-auto flex-grow">
-      <formly-form
-        [model]="model"
-        [fields]="fields"
-        [form]="form"
-      ></formly-form>
-      <ng-content></ng-content>
-    </div>
+    @if (modalContent) {
+      <div class="modal-content p-4 overflow-y-auto flex-grow">
+        <ng-container *ngTemplateOutlet="modalContent"></ng-container>
+      </div>
+    } @else {
+      <div class="modal-content p-4 overflow-y-auto flex-grow">
+        <formly-form
+          [model]="model"
+          [fields]="fields"
+          [form]="form"
+        ></formly-form>
+        <ng-content></ng-content>
+      </div>
+    }
 
     @if (modalFooter) {
       <div class="modal-footer p-4 border-t border-neutral-200">

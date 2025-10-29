@@ -1,4 +1,5 @@
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
+import { UUID } from '@core/types/entities/experiments/experiment-shared.i';
 
 export enum StructuralSearchType {
   EXACT = 'EXACT',
@@ -77,4 +78,30 @@ export interface FindSamplesRequest {
   compoundState?: DictionaryItemRef;
   batchComment?: TextSearch;
   healthHazards?: DictionaryItemRef;
+}
+
+export const TextSearchTypeNames = {
+  exact: 'exact',
+  startsWith: 'starts with',
+  contains: 'contains',
+  endsWith: 'ends with',
+  between: 'between',
+};
+
+export const NumericSearchTypeNames = {
+  eq: '=',
+  le: '≤',
+  ge: '≥',
+};
+
+export interface FindSamplesResult {
+  id: UUID;
+  strCode?: string;
+  nbkBatchNumber?: string;
+  molecularFormula?: string;
+  molWeight: number;
+  name?: string;
+  saltCode?: DictionaryItemRef;
+  saltEQ?: number;
+  compoundID: UUID;
 }
