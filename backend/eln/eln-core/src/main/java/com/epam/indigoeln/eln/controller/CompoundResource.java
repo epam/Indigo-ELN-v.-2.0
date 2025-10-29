@@ -11,8 +11,8 @@ import com.epam.indigoeln.eln.model.Page;
 import com.epam.indigoeln.eln.model.Paging;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
-import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -34,7 +34,7 @@ public class CompoundResource implements CompoundAPI {
     }
 
     @Override
-    public byte[] getCompoundPicture(UUID compoundID) {
+    public Response getCompoundPicture(UUID compoundID) {
         return compoundService.getCompoundPicture(compoundID);
     }
 
@@ -44,17 +44,12 @@ public class CompoundResource implements CompoundAPI {
     }
 
     @Override
-    public void markSample(UUID sampleID) {
-        compoundService.markSample(sampleID, true);
+    public SampleDTO markSample(UUID sampleID) {
+        return compoundService.markSample(sampleID, true);
     }
 
     @Override
-    public void unmarkSample(UUID sampleID) {
-        compoundService.markSample(sampleID, false);
-    }
-
-    @Override
-    public Page<SampleDTO> getMarkedSamples(@Nullable String search, Paging paging) {
-        return compoundService.listMarkedSamples(search, paging);
+    public SampleDTO unmarkSample(UUID sampleID) {
+        return compoundService.markSample(sampleID, false);
     }
 }

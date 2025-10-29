@@ -16,5 +16,6 @@ public abstract class SampleMapper {
     @Mapping(target = "molecularFormula", source = "compound.formula")
     @Mapping(target = "saltCode", source = "compound.saltCode")
     @Mapping(target = "saltEQ", expression = "java(entity.getCompound().getSaltEQ100() != null ? entity.getCompound().getSaltEQ100() / 100.0 : null)")
+    @Mapping(target = "marked", expression = "java(entity.getMarked() == Boolean.TRUE)")
     public abstract SampleDTO sampleToDTO(SampleEntity entity);
 }

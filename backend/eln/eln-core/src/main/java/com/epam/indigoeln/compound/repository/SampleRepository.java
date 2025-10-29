@@ -7,7 +7,6 @@ import com.epam.indigoeln.compound.model.NumericSearch;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.TextSearch;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
-import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.BaseRepository;
 import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
@@ -75,10 +74,15 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
             DictionaryItemEntity healthHazard = dictionaryService.lookup(BuiltInDictionary.HEALTH_HAZARD.name(), request.getHealthHazards());
             conditions.add("? member of healthHazards", healthHazard);
         }
+        if (request.getMarked() == Boolean.TRUE) {
+            conditions.add("marked");
+        } else if (request.getMarked() == Boolean.FALSE) {
+            conditions.add("marked is null");
+        }
         return doFindWithTotals(
                 conditions,
                 paging,
-                Sort.by("createdAt"),
+                Sort.by("compound.formula", "compound.saltCode.id", "compound.saltEQ100", "createdBy"),
                 em.getEntityGraph("Sample.find"),
                 sampleMapper::sampleToDTO
         );
@@ -124,12 +128,5 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
                 .findFirst()
                 .map(STRCodeSample::parse)
                 .orElse(null);
-    }
-
-    public Page<SampleDTO> findMarked(UserEntity currentUser, @Nullable String search, Paging paging) {
-        Conditions conditions = new Conditions()
-                .add("? member of markedBy", currentUser)
-                .addIfNotNull("full_text_search(searchVector, websearch_to_tsquery('english', ?))", search);
-        return doFindWithTotals(conditions, paging, Sort.by("createdBy"), null, sampleMapper::sampleToDTO);
     }
 }

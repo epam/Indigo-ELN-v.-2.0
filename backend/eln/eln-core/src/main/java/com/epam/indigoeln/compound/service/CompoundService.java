@@ -9,6 +9,7 @@ import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
 import com.epam.indigoeln.compound.repository.CompoundRepository;
 import com.epam.indigoeln.compound.repository.SampleRepository;
+import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.UserService;
@@ -23,6 +24,8 @@ import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.CacheControl;
+import jakarta.ws.rs.core.Response;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +43,7 @@ import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.fixed;
 
 @Slf4j
+@DataAccess
 @Transactional
 @ApplicationScoped
 public class CompoundService {
@@ -167,8 +171,14 @@ public class CompoundService {
 //        }
     }
 
-    public byte[] getCompoundPicture(UUID compoundID) {
-        return compoundRepository.get(compoundID).getPicture();
+    public Response getCompoundPicture(UUID compoundID) {
+        CompoundEntity compound = compoundRepository.get(compoundID);
+        CacheControl cacheControl = new CacheControl();
+        cacheControl.setMaxAge(3_600 * 24 * 30);
+        return Response.ok(compound.getPicture())
+                .type("image/svg+xml")
+                .cacheControl(cacheControl)
+                .build();
     }
 
     public Page<SampleDTO> findSamples(FindSamplesRequest request, Paging paging) {
@@ -234,17 +244,15 @@ public class CompoundService {
         return new STRCodeSample(compoundStrCode.getCompoundCode(), compoundStrCode.getSaltCode(), sampleStrCode);
     }
 
-    public void markSample(UUID sampleID, boolean mark) {
+    public SampleDTO markSample(UUID sampleID, boolean mark) {
         SampleEntity sample = sampleRepository.get(sampleID);
         if (mark) {
             sample.getMarkedBy().add(userService.getCurrentUser());
         } else {
             sample.getMarkedBy().remove(userService.getCurrentUser());
         }
-    }
-
-    public Page<SampleDTO> listMarkedSamples(@Nullable String search, Paging paging) {
-        return sampleRepository.findMarked(userService.getCurrentUser(), search, paging);
+        sample.setMarked(mark);
+        return sampleMapper.sampleToDTO(sample);
     }
 
     @Data

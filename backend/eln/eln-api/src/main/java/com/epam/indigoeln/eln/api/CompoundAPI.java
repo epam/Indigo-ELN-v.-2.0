@@ -4,9 +4,9 @@ import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.eln.model.Page;
 import com.epam.indigoeln.eln.model.Paging;
-import jakarta.annotation.Nullable;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import java.util.UUID;
 
@@ -22,8 +22,7 @@ public interface CompoundAPI extends BaseAPI {
 
     @GET
     @Path("/compounds/{compoundID}/picture")
-    @Produces("image/svg+xml")
-    byte[] getCompoundPicture(@PathParam("compoundID") UUID compoundID);
+    Response getCompoundPicture(@PathParam("compoundID") UUID compoundID);
 
     @POST
     @Path("/samples/search")
@@ -31,13 +30,9 @@ public interface CompoundAPI extends BaseAPI {
 
     @POST
     @Path("/samples/{sampleID}/mark")
-    void markSample(@PathParam("sampleID") UUID sampleID);
+    SampleDTO markSample(@PathParam("sampleID") UUID sampleID);
 
     @POST
     @Path("/samples/{sampleID}/unmark")
-    void unmarkSample(@PathParam("sampleID") UUID sampleID);
-
-    @GET
-    @Path("/samples/marked")
-    Page<SampleDTO> getMarkedSamples(@Nullable @QueryParam("search") String search, @BeanParam Paging paging);
+    SampleDTO unmarkSample(@PathParam("sampleID") UUID sampleID);
 }

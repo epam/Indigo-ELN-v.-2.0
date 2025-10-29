@@ -14,6 +14,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.Type;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
@@ -26,12 +28,16 @@ import java.util.Set;
 @Setter
 @Entity(name = "Sample")
 @ToString(of = {"id", "compound"})
+@SecondaryTable(name = "Sample_Is_Marked",
+        pkJoinColumns = @PrimaryKeyJoinColumn(name = "sample_id", referencedColumnName = "id")
+)
 @NamedEntityGraph(
         name = "Sample.find",
         attributeNodes = {
                 @NamedAttributeNode("createdBy"),
                 @NamedAttributeNode("modifiedBy"),
                 @NamedAttributeNode("compound"),
+                @NamedAttributeNode("marked")
         }
 )
 public class SampleEntity extends BaseEntity {
@@ -88,4 +94,9 @@ public class SampleEntity extends BaseEntity {
     @ManyToMany
     @JoinTable(name = "Sample_Mark", joinColumns = @JoinColumn(name = "sample_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<UserEntity> markedBy = new HashSet<>(0);
+
+    @Basic(fetch = FetchType.LAZY)
+    @Column(table = "Sample_Is_Marked", updatable = false)
+    @Fetch(FetchMode.SELECT)
+    private Boolean marked;
 }

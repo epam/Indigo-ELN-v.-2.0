@@ -30,4 +30,6 @@ public class SampleDTO {
     private Double saltEQ;
     @NotNull
     private UUID compoundID;
+    @NotNull
+    private Boolean marked;
 }

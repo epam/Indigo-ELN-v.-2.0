@@ -177,7 +177,9 @@ public class CompoundServiceTest extends ELNBaseTest {
                 .withHealthHazards(healthHazard)
                 , Paging.DEFAULT
         );
-        assertThat(found.getItems()).singleElement().returns(str1, SampleDTO::getStrCode);
+        assertThat(found.getItems()).singleElement()
+                .returns(str1, SampleDTO::getStrCode)
+                .returns(false, SampleDTO::getMarked);
     }
 
     @Test
@@ -243,7 +245,7 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Test
     @Order(700)
     void testListMarkedSamplesBefore() {
-        Page<SampleDTO> page = compoundService.listMarkedSamples(null, Paging.DEFAULT);
+        Page<SampleDTO> page = compoundService.findSamples(new FindSamplesRequest().withMarked(true), Paging.DEFAULT);
         assertThat(page.getItems()).isEmpty();
     }
 
@@ -256,21 +258,23 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Test
     @Order(702)
     void testListMarkedSamples() {
-        Page<SampleDTO> page = compoundService.listMarkedSamples(null, Paging.DEFAULT);
-        assertThat(page.getItems()).singleElement().returns(sampleID1, SampleDTO::getId);
+        Page<SampleDTO> page = compoundService.findSamples(new FindSamplesRequest().withMarked(true), Paging.DEFAULT);
+        assertThat(page.getItems()).singleElement()
+                .returns(sampleID1, SampleDTO::getId)
+                .returns(true, SampleDTO::getMarked);
     }
 
     @Test
     @Order(703)
     void testListMarkedSamplesQuickSearch() {
-        Page<SampleDTO> page = compoundService.listMarkedSamples(str1.toString(), Paging.DEFAULT);
+        Page<SampleDTO> page = compoundService.findSamples(new FindSamplesRequest().withQuickSearch(str1.toString()).withMarked(true), Paging.DEFAULT);
         assertThat(page.getItems()).singleElement().returns(sampleID1, SampleDTO::getId);
     }
 
     @Test
     @Order(704)
     void testListMarkedSamplesQuickSearchNotFound() {
-        Page<SampleDTO> page = compoundService.listMarkedSamples("nosuchcompound", Paging.DEFAULT);
+        Page<SampleDTO> page = compoundService.findSamples(new FindSamplesRequest().withQuickSearch("nosuchcompound").withMarked(true), Paging.DEFAULT);
         assertThat(page.getItems()).isEmpty();
     }
 
@@ -278,7 +282,7 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Order(705)
     void testUnmarkSample() {
         compoundService.markSample(sampleID1, false);
-        Page<SampleDTO> page = compoundService.listMarkedSamples(null, Paging.DEFAULT);
+        Page<SampleDTO> page = compoundService.findSamples(new FindSamplesRequest().withMarked(true), Paging.DEFAULT);
         assertThat(page.getItems()).isEmpty();
     }
 }
