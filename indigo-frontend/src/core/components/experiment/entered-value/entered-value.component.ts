@@ -14,13 +14,13 @@ import { MatOption, MatSelect } from '@angular/material/select';
   imports: [DecimalPipe, MatSelect, MatOption, NgClass],
   styles: ``,
 })
-export class EnteredValueComponent {
-  private _value: EnteredValue | null;
+export class EnteredValueComponent<U> {
+  private _value: EnteredValue<U> | null;
   private _units: MeasurementUnit[] | null;
 
   @Input() showUnits = true;
 
-  @Input() onChange: ((newValue: EnteredValue) => void) | null = null;
+  @Input() onChange: ((newValue: EnteredValue<U>) => void) | null = null;
 
   @Input() readOnly = false;
 
@@ -39,7 +39,7 @@ export class EnteredValueComponent {
   recalculated = false;
 
   @Input()
-  set value(newValue: EnteredValue | null) {
+  set value(newValue: EnteredValue<U> | null) {
     const oldValue = this._value;
     this._value = newValue;
     this.recalculated = false;
@@ -54,7 +54,7 @@ export class EnteredValueComponent {
     }
   }
 
-  get value(): EnteredValue | null {
+  get value(): EnteredValue<U> | null {
     return this._value;
   }
 
@@ -90,7 +90,7 @@ export class EnteredValueComponent {
     this.stopEditing('_notmodified');
   }
 
-  stopEditing(selectedUnits: string | null | '_notmodified') {
+  stopEditing(selectedUnits: U | null | '_notmodified') {
     if (!this.editing) {
       return;
     }

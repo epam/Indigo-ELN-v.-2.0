@@ -7,6 +7,7 @@ import {
   DensityUnit,
   MolarityUnit,
   MolUnit,
+  NoUnit,
   ReactionRole,
   VolumeUnit,
   WeightUnit,
@@ -192,34 +193,34 @@ export class ReactionInputsTableComponent {
     });
   }
 
-  setWeight(row: ReactionInput, value: EnteredValue) {
+  setWeight(row: ReactionInput, value: EnteredValue<WeightUnit>) {
     this.experimentService.mutateModel({
       type: 'SetInputWeight',
       anchor: row.samples[0].anchor,
       weight: value?.value,
-      unit: value?.unit as WeightUnit,
+      unit: value?.unit,
     });
   }
 
-  setVolume(row: ReactionInput, value: EnteredValue) {
+  setVolume(row: ReactionInput, value: EnteredValue<VolumeUnit>) {
     this.experimentService.mutateModel({
       type: 'SetInputVolume',
       anchor: row.samples[0].anchor,
       volume: value?.value,
-      unit: value?.unit as VolumeUnit,
+      unit: value?.unit,
     });
   }
 
-  setMol(row: ReactionInput, value: EnteredValue) {
+  setMol(row: ReactionInput, value: EnteredValue<MolUnit>) {
     this.experimentService.mutateModel({
       type: 'SetInputMol',
       anchor: row.anchor,
       mol: value?.value,
-      unit: value?.unit as MolUnit,
+      unit: value?.unit,
     });
   }
 
-  setEQ(row: ReactionInput, value: EnteredValue) {
+  setEQ(row: ReactionInput, value: EnteredValue<NoUnit>) {
     this.experimentService.mutateModel({
       type: 'SetInputRowEQ',
       anchor: row.anchor,
@@ -227,25 +228,25 @@ export class ReactionInputsTableComponent {
     });
   }
 
-  setDensity(row: ReactionInput, value: EnteredValue) {
+  setDensity(row: ReactionInput, value: EnteredValue<DensityUnit>) {
     this.experimentService.mutateModel({
       type: 'SetInputDensity',
       anchor: row.samples[0].anchor,
       density: value?.value,
-      unit: value?.unit as DensityUnit,
+      unit: value?.unit,
     });
   }
 
-  setMolarity(row: ReactionInput, value: EnteredValue) {
+  setMolarity(row: ReactionInput, value: EnteredValue<MolarityUnit>) {
     this.experimentService.mutateModel({
       type: 'SetInputMolarity',
       anchor: row.samples[0].anchor,
       molarity: value?.value,
-      unit: value?.unit as MolarityUnit,
+      unit: value?.unit,
     });
   }
 
-  setPurity(row: ReactionInput, value: EnteredValue) {
+  setPurity(row: ReactionInput, value: EnteredValue<NoUnit>) {
     this.experimentService.mutateModel({
       type: 'SetInputPurity',
       anchor: row.samples[0].anchor,
