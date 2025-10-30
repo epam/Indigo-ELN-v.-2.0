@@ -96,12 +96,13 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
     void testResolveInputs() {
         ReactionMutation.ResolveInputs mutation = new ReactionMutation.ResolveInputs(reactionAnchor, new HashMap<>());
         for (ReactionInput input : model.getReactions().getFirst().getInputs()) {
-            List<SampleDTO> samples = compoundClient.findSamples(new FindSamplesRequest()
+            Page<SampleDTO> samples = compoundClient.findSamples(new FindSamplesRequest()
                     .withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, input.getCompound().getMolFile()))
+                    , Paging.DEFAULT
             );
             System.out.println("Found samples: " + samples);
-            if (!samples.isEmpty()) {
-                mutation.inputSamples().put(input.getAnchor(), samples.getFirst().getId());
+            if (samples.getTotalItems() != 0) {
+                mutation.inputSamples().put(input.getAnchor(), samples.getItems().getFirst().getId());
             }
         }
         applyMutation(mutation);
@@ -227,8 +228,11 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
     @Test
     @Order(1300)
     void testAddInput() {
-        List<SampleDTO> foundSamples = compoundClient.findSamples(new FindSamplesRequest().withMolecularFormula(new TextSearch.ExactSearch("C12 H22 N2 O2")));
-        applyMutation(new ReactionMutation.AddInput(reactionAnchor, foundSamples.getFirst().getId()));
+        Page<SampleDTO> foundSamples = compoundClient.findSamples(new FindSamplesRequest()
+                .withMolecularFormula(new TextSearch.ExactSearch("C12 H22 N2 O2"))
+                , Paging.DEFAULT
+        );
+        applyMutation(new ReactionMutation.AddInput(reactionAnchor, foundSamples.getItems().getFirst().getId()));
     }
 
     @SneakyThrows

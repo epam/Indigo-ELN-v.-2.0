@@ -48,4 +48,7 @@ public class FindSamplesRequest {
 
     @Nullable
     DictionaryItemRef healthHazards;
+
+    @Nullable
+    Boolean marked;
 }

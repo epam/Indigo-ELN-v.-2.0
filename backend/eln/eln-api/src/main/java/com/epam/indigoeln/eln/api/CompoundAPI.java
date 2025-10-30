@@ -4,11 +4,10 @@ import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.eln.model.Page;
 import com.epam.indigoeln.eln.model.Paging;
-import jakarta.annotation.Nullable;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
-import java.util.List;
 import java.util.UUID;
 
 @Path(BaseAPI.BASE_PATH)
@@ -21,19 +20,19 @@ public interface CompoundAPI extends BaseAPI {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     void loadCompoundsFromFile(UploadForm form);
 
+    @GET
+    @Path("/compounds/{compoundID}/picture")
+    Response getCompoundPicture(@PathParam("compoundID") UUID compoundID);
+
     @POST
     @Path("/samples/search")
-    List<SampleDTO> findSamples(FindSamplesRequest request);
+    Page<SampleDTO> findSamples(FindSamplesRequest request, @BeanParam Paging paging);
 
     @POST
     @Path("/samples/{sampleID}/mark")
-    void markSample(@PathParam("sampleID") UUID sampleID);
+    SampleDTO markSample(@PathParam("sampleID") UUID sampleID);
 
     @POST
     @Path("/samples/{sampleID}/unmark")
-    void unmarkSample(@PathParam("sampleID") UUID sampleID);
-
-    @GET
-    @Path("/samples/marked")
-    Page<SampleDTO> getMarkedSamples(@Nullable @QueryParam("search") String search, @BeanParam Paging paging);
+    SampleDTO unmarkSample(@PathParam("sampleID") UUID sampleID);
 }

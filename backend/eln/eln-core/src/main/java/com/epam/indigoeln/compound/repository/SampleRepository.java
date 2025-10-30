@@ -7,7 +7,6 @@ import com.epam.indigoeln.compound.model.NumericSearch;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.TextSearch;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
-import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.BaseRepository;
 import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
@@ -19,7 +18,6 @@ import jakarta.inject.Inject;
 import org.hibernate.query.NativeQuery;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -44,7 +42,7 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
         return find(conditions.getQuery(), conditions.getValues()).firstResult();
     }
 
-    public List<SampleEntity> find(FindSamplesRequest request) {
+    public Page<SampleDTO> find(FindSamplesRequest request, Paging paging) {
         Conditions conditions = new Conditions()
                 .addIfNotNull("full_text_search(searchVector, websearch_to_tsquery('english', ?))", request.getQuickSearch());
         if (request.getStructure() != null) {
@@ -76,7 +74,18 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
             DictionaryItemEntity healthHazard = dictionaryService.lookup(BuiltInDictionary.HEALTH_HAZARD.name(), request.getHealthHazards());
             conditions.add("? member of healthHazards", healthHazard);
         }
-        return find(conditions.getQuery(), conditions.getValues()).list();
+        if (request.getMarked() == Boolean.TRUE) {
+            conditions.add("marked");
+        } else if (request.getMarked() == Boolean.FALSE) {
+            conditions.add("marked is null");
+        }
+        return doFindWithTotals(
+                conditions,
+                paging,
+                Sort.by("compound.formula", "compound.saltCode.id", "compound.saltEQ100", "createdBy"),
+                em.getEntityGraph("Sample.find"),
+                sampleMapper::sampleToDTO
+        );
     }
 
     private void addTextSearch(Conditions conditions, @Nullable TextSearch search, String field) {
@@ -119,12 +128,5 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
                 .findFirst()
                 .map(STRCodeSample::parse)
                 .orElse(null);
-    }
-
-    public Page<SampleDTO> findMarked(UserEntity currentUser, @Nullable String search, Paging paging) {
-        Conditions conditions = new Conditions()
-                .add("? member of markedBy", currentUser)
-                .addIfNotNull("full_text_search(searchVector, websearch_to_tsquery('english', ?))", search);
-        return doFindWithTotals(conditions, paging, Sort.by("createdBy"), null, sampleMapper::sampleToDTO);
     }
 }

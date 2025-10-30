@@ -66,6 +66,10 @@ public class CompoundEntity extends IdentifiableEntity {
     @Basic(fetch = FetchType.LAZY)
     private String molFile;
 
+    @NotNull
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] picture;
+
     @OneToMany(mappedBy = "compound") // TODO make many-to-many and store percentage in link entity
     private Set<SampleEntity> samples = new HashSet<>(0);
 

@@ -9,11 +9,13 @@ import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
 import com.epam.indigoeln.compound.repository.CompoundRepository;
 import com.epam.indigoeln.compound.repository.SampleRepository;
+import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
+import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.CompoundRef;
 import com.epam.indigoeln.reaction.model.SaltCodeRef;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
@@ -22,6 +24,8 @@ import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.CacheControl;
+import jakarta.ws.rs.core.Response;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +43,7 @@ import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.fixed;
 
 @Slf4j
+@DataAccess
 @Transactional
 @ApplicationScoped
 public class CompoundService {
@@ -56,6 +61,8 @@ public class CompoundService {
     DictionaryService dictionaryService;
     @Inject
     IndigoAPI indigo;
+    @Inject
+    IndigoRendererAPI indigoRenderer;
     @Inject
     MolWeightCalculator molWeightCalculator;
     @Inject
@@ -77,6 +84,9 @@ public class CompoundService {
             compound.setMolWeight(molWeightCalculator.calculateMolWeight(molecule.molfile(), saltCode, saltEQ));
             compound.setExactMass(molWeightCalculator.calculateExactMass(molecule.molfile()));
             compound.setFormula(molecule.grossFormula());
+            indigoRenderer.setRenderOptions("svg", 500, 200);
+            byte[] buf = indigoRenderer.renderToBuffer(molecule);
+            compound.setPicture(buf);
             compoundRepository.persist(compound);
             log.debug("new compound created: {}", compound);
         }
@@ -161,8 +171,18 @@ public class CompoundService {
 //        }
     }
 
-    public List<SampleDTO> findSamples(FindSamplesRequest request) {
-        return sampleMapper.sampleToDTOList(sampleRepository.find(request));
+    public Response getCompoundPicture(UUID compoundID) {
+        CompoundEntity compound = compoundRepository.get(compoundID);
+        CacheControl cacheControl = new CacheControl();
+        cacheControl.setMaxAge(3_600 * 24 * 30);
+        return Response.ok(compound.getPicture())
+                .type("image/svg+xml")
+                .cacheControl(cacheControl)
+                .build();
+    }
+
+    public Page<SampleDTO> findSamples(FindSamplesRequest request, Paging paging) {
+        return sampleRepository.find(request, paging);
     }
 
     public SampleEntity getSample(UUID id) {
@@ -224,17 +244,15 @@ public class CompoundService {
         return new STRCodeSample(compoundStrCode.getCompoundCode(), compoundStrCode.getSaltCode(), sampleStrCode);
     }
 
-    public void markSample(UUID sampleID, boolean mark) {
+    public SampleDTO markSample(UUID sampleID, boolean mark) {
         SampleEntity sample = sampleRepository.get(sampleID);
         if (mark) {
             sample.getMarkedBy().add(userService.getCurrentUser());
         } else {
             sample.getMarkedBy().remove(userService.getCurrentUser());
         }
-    }
-
-    public Page<SampleDTO> listMarkedSamples(@Nullable String search, Paging paging) {
-        return sampleRepository.findMarked(userService.getCurrentUser(), search, paging);
+        sample.setMarked(mark);
+        return sampleMapper.sampleToDTO(sample);
     }
 
     @Data
