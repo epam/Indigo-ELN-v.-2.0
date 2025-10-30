@@ -80,7 +80,8 @@ export class NotebookAddComponent {
           this.dialogRef.close('refresh');
         }),
         catchError((createError) => {
-          this.snackBar.open(createError.error[0]?.message || createError.message || 'There was an error creating the notebook, please try again later.', 'Close', { duration: 5000 });
+          const errorMsg = createError.error[0]?.message || 'There was an error creating the notebook, please try again later.';
+          this.snackBar.open(errorMsg, 'Close', { duration: 5000 });
           return of(null);
         }),
       )
