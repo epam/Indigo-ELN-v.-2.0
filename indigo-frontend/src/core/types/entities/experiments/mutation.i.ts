@@ -1,176 +1,354 @@
-import { ReactionInputRole, DictionaryItemRef } from './experiment-shared.i';
+import {
+  ReactionRole,
+  MolUnit,
+  DensityUnit,
+  MolarityUnit,
+  VolumeUnit,
+  WeightUnit,
+  ReactionOutputType,
+  UUID,
+  SolubidityInSolvent,
+  ResidualSolvent,
+  MeltingPoint,
+  PurityCalculation,
+  ExternalSupplier,
+} from './experiment-shared.i';
+import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 
 // Base mutation interface
-interface BaseMutation {
-    anchor: string;
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface BaseMutation {}
+
+type ReactionAnchor = string;
+type ReactionInputAnchor = string;
+type ReactionInputSampleAnchor = string;
+type ReactionOutputAnchor = string;
+type ReactionOutputSampleAnchor = string;
+
+interface ReactionMutation extends BaseMutation {
+  anchor: ReactionAnchor;
 }
 
-// Reaction mutations
-interface SetSchemeMutation extends BaseMutation {
-    type: 'SetScheme';
-    molFile: string;
+interface SetSchemeMutation extends ReactionMutation {
+  type: 'SetScheme';
+  molFile: string;
 }
 
-interface ResolveInputsMutation extends BaseMutation {
-    type: 'ResolveInputs';
-    inputSamples: Record<string, string>;
+interface ResolveInputsMutation extends ReactionMutation {
+  type: 'ResolveInputs';
+  inputSamples: Record<ReactionInputAnchor, UUID>;
 }
 
-// Input mutations
-interface SetInputRoleMutation extends BaseMutation {
-    type: 'SetInputRole';
-    role: ReactionInputRole;
+interface AddEmptyInputMutation extends ReactionMutation {
+  type: 'AddEmptyInput';
 }
 
-interface SetLimitingMutation extends BaseMutation {
-    type: 'SetLimiting';
+interface AddInput extends ReactionMutation {
+  type: 'AddInput';
+  sampleId: UUID;
 }
 
-interface SetInputSaltCodeMutation extends BaseMutation {
-    type: 'SetInputSaltCode';
-    saltCode: DictionaryItemRef | null;
+interface RemoveInputMutation extends ReactionMutation {
+  type: 'RemoveInput';
+  input: ReactionInputAnchor;
 }
 
-interface SetInputSaltEQMutation extends BaseMutation {
-    type: 'SetInputSaltEQ';
-    saltEQ: number | null;
+interface ReactionInputMutation extends BaseMutation {
+  anchor: ReactionInputAnchor;
 }
 
-interface SetInputEQMutation extends BaseMutation {
-    type: 'SetInputEQ';
-    eq: number | null;
+interface SetInputRowRole extends ReactionInputMutation {
+  type: 'SetInputRowRole';
+  role: ReactionRole;
 }
 
-// Input sample mutations
-interface SetInputDensityMutation extends BaseMutation {
-    type: 'SetInputDensity';
-    density: number | null;
-    unit: string /*DensityUnit*/ | null;
+interface SetInputRowMol extends ReactionInputMutation {
+  type: 'SetInputRowMol';
+  mol: number | null;
+  molUnit: MolUnit | null;
 }
 
-interface SetInputMolarityMutation extends BaseMutation {
-    type: 'SetInputMolarity';
-    molarity: number | null;
-    unit: string /*MolarityUnit*/ | null;
+interface SetInputRowLimiting extends ReactionInputMutation {
+  type: 'SetInputRowLimiting';
 }
 
-interface SetInputVolumeMutation extends BaseMutation {
-    type: 'SetInputVolume';
-    volume: number | null;
-    unit: string /*VolumeUnit*/ | null;
+interface SetInputRowSaltCode extends ReactionInputMutation {
+  type: 'SetInputRowSaltCode';
+  saltCode: DictionaryItemRef | null;
 }
 
-interface SetInputPurityMutation extends BaseMutation {
-    type: 'SetInputPurity';
-    purity: number | null;
+interface SetInputRowSaltEQ extends ReactionInputMutation {
+  type: 'SetInputRowSaltEQ';
+  saltEQ: number | null;
 }
 
-interface SetInputMolMutation extends BaseMutation {
-    type: 'SetInputMol';
-    mol: number | null;
-    unit: string /*MolUnit*/ | null;
+interface SetInputRowEQ extends ReactionInputMutation {
+  type: 'SetInputRowEQ';
+  eq: number | null;
 }
 
-interface SetInputWeightMutation extends BaseMutation {
-    type: 'SetInputWeight';
-    weight: number | null;
-    unit: string /*WeightUnit*/ | null;
+interface SetInputCompoundStereoisomerCode extends ReactionInputMutation {
+  type: 'SetInputCompoundStereoisomerCode';
+  stereoisomerCode: DictionaryItemRef | null;
 }
 
-// Output mutations
-interface AddProductSampleMutation extends BaseMutation {
-    type: 'AddProductSample';
+interface SetInputCompoundMolWeight extends ReactionInputMutation {
+  type: 'SetInputCompoundMolWeight';
+  molWeight: number | null;
 }
 
-interface SetOutputSaltCodeMutation extends BaseMutation {
-    type: 'SetOutputSaltCode';
-    saltCode: DictionaryItemRef | null;
+interface ReactionInputSampleMutation extends BaseMutation {
+  anchor: ReactionInputSampleAnchor;
 }
 
-interface SetOutputSaltEQMutation extends BaseMutation {
-    type: 'SetOutputSaltEQ';
-    saltEQ: number | null;
+interface SetInputDensity extends ReactionInputSampleMutation {
+  type: 'SetInputDensity';
+  density: number | null;
+  unit: DensityUnit | null;
 }
 
-interface SetOutputEQMutation extends BaseMutation {
-    type: 'SetOutputEQ';
-    eq: number | null;
+interface SetInputMolarity extends ReactionInputSampleMutation {
+  type: 'SetInputMolarity';
+  molarity: number | null;
+  unit: MolarityUnit | null;
 }
 
-// Output sample mutations
-interface SetOutputDensityMutation extends BaseMutation {
-    type: 'SetOutputDensity';
-    density: number | null;
-    unit: string /*DensityUnit*/ | null;
+interface SetInputVolume extends ReactionInputSampleMutation {
+  type: 'SetInputVolume';
+  volume: number | null;
+  unit: VolumeUnit | null;
 }
 
-interface SetOutputMolarityMutation extends BaseMutation {
-    type: 'SetOutputMolarity';
-    molarity: number | null;
-    unit: string /*MolarityUnit*/ | null;
+interface SetInputPurity extends ReactionInputSampleMutation {
+  type: 'SetInputPurity';
+  purity: number | null;
 }
 
-interface SetOutputVolumeMutation extends BaseMutation {
-    type: 'SetOutputVolume';
-    volume: number | null;
-    unit: string /*VolumeUnit*/ | null;
+interface SetInputHealthHazards extends ReactionInputSampleMutation {
+  type: 'SetInputHealthHazards';
+  healthHazards: DictionaryItemRef[];
 }
 
-interface SetOutputPurityMutation extends BaseMutation {
-    type: 'SetOutputPurity';
-    purity: number | null;
+interface SetInputMol extends ReactionInputSampleMutation {
+  type: 'SetInputMol';
+  mol: number | null;
+  unit: MolUnit | null;
 }
 
-interface SetOutputActualMolMutation extends BaseMutation {
-    type: 'SetOutputActualMol';
-    actualMol: number | null;
-    unit: string /*MolUnit*/ | null;
+interface SetInputWeight extends ReactionInputSampleMutation {
+  type: 'SetInputWeight';
+  weight: number | null;
+  unit: WeightUnit | null;
 }
 
-interface SetOutputActualWeightMutation extends BaseMutation {
-    type: 'SetOutputActualWeight';
-    actualWeight: number | null;
-    unit: string /*WeightUnit*/ | null;
+interface ReactionOutputMutation extends BaseMutation {
+  anchor: ReactionOutputAnchor;
 }
 
-// Sample mutations
-interface RegisterSampleMutation extends BaseMutation {
-    type: 'RegisterSample';
+interface AddProductSample extends ReactionOutputMutation {
+  type: 'AddProductSample';
+}
+
+interface SetOutputRowType extends ReactionOutputMutation {
+  type: 'SetOutputRowType';
+  outputType: ReactionOutputType;
+}
+
+interface SetOutputRowSaltCode extends ReactionOutputMutation {
+  type: 'SetOutputRowSaltCode';
+  saltCode: DictionaryItemRef | null;
+}
+
+interface SetOutputRowSaltEQ extends ReactionOutputMutation {
+  type: 'SetOutputRowSaltEQ';
+  saltEQ: number | null;
+}
+
+interface SetOutputRowEQ extends ReactionOutputMutation {
+  type: 'SetOutputRowEQ';
+  eq: number | null;
+}
+
+interface SetOutputRowName extends ReactionOutputMutation {
+  type: 'SetOutputRowName';
+  name: string;
+}
+
+interface SetOutputCompoundStereoisomerCode extends ReactionOutputMutation {
+  type: 'SetOutputCompoundStereoisomerCode';
+  stereoisomerCode: DictionaryItemRef | null;
+}
+
+interface SetOutputCompoundMolWeight extends ReactionOutputMutation {
+  type: 'SetOutputCompoundMolWeight';
+  molWeight: number | null;
+}
+
+interface ReactionOutputSampleMutation extends BaseMutation {
+  anchor: ReactionOutputSampleAnchor;
+}
+
+interface SetOutputDensity extends ReactionOutputSampleMutation {
+  type: 'SetOutputDensity';
+  density: number | null;
+  unit: DensityUnit | null;
+}
+
+interface SetOutputMolarity extends ReactionOutputSampleMutation {
+  type: 'SetOutputMolarity';
+  molarity: number | null;
+  unit: MolarityUnit | null;
+}
+
+interface SetOutputVolume extends ReactionOutputSampleMutation {
+  type: 'SetOutputVolume';
+  volume: number | null;
+  unit: VolumeUnit | null;
+}
+
+interface SetOutputPurity extends ReactionOutputSampleMutation {
+  type: 'SetOutputPurity';
+  purity: number | null;
+}
+
+interface SetOutputHealthHazards extends ReactionOutputSampleMutation {
+  type: 'SetOutputHealthHazards';
+  healthHazards: DictionaryItemRef[];
+}
+
+interface SetOutputActualMol extends ReactionOutputSampleMutation {
+  type: 'SetOutputActualMol';
+  actualMol: number | null;
+  unit: MolUnit | null;
+}
+
+interface SetOutputActualWeight extends ReactionOutputSampleMutation {
+  type: 'SetOutputActualWeight';
+  actualWeight: number | null;
+  unit: WeightUnit | null;
+}
+
+interface RegisterSample extends ReactionOutputSampleMutation {
+  type: 'RegisterSample';
+}
+
+interface SetOutputHandlingPrecautions extends ReactionOutputSampleMutation {
+  type: 'SetOutputHandlingPrecautions';
+  handlingPrecautions: DictionaryItemRef[];
+}
+
+interface SetOutputStorageInstructions extends ReactionOutputSampleMutation {
+  type: 'SetOutputStorageInstructions';
+  storageInstructions: DictionaryItemRef[];
+}
+
+interface SetOutputCompoundProtection extends ReactionOutputSampleMutation {
+  type: 'SetOutputCompoundProtection';
+  compoundProtection: DictionaryItemRef[];
+}
+
+interface SetOutputSolubilityInSolvents extends ReactionOutputSampleMutation {
+  type: 'SetOutputSolubilityInSolvents';
+  solubilityInSolvents: SolubidityInSolvent[];
+}
+
+interface SetOutputResidualSolvents extends ReactionOutputSampleMutation {
+  type: 'SetOutputResidualSolvents';
+  residualSolvents: ResidualSolvent[];
+}
+
+interface SetOutputMeltingPoint extends ReactionOutputSampleMutation {
+  type: 'SetOutputMeltingPoint';
+  meltingPoint: MeltingPoint | null;
+}
+
+interface SetOutputPurityCalculations extends ReactionOutputSampleMutation {
+  type: 'SetOutputPurityCalculations';
+  purityCalculations: PurityCalculation[];
+}
+
+interface SetOutputExternalSupplier extends ReactionOutputSampleMutation {
+  type: 'SetOutputExternalSupplier';
+  externalSupplier: ExternalSupplier;
+}
+
+interface SetOutputSource extends ReactionOutputSampleMutation {
+  type: 'SetOutputSource';
+  source: DictionaryItemRef | null;
+}
+
+interface SetOutputSourceDetails extends ReactionOutputSampleMutation {
+  type: 'SetOutputSourceDetails';
+  sourceDetails: DictionaryItemRef | null;
+}
+
+interface SetOutputComponentState extends ReactionOutputSampleMutation {
+  type: 'SetOutputComponentState';
+  componentState: DictionaryItemRef | null;
+}
+
+interface SetOutputBatchComment extends ReactionOutputSampleMutation {
+  type: 'SetOutputBatchComment';
+  batchComment: string | null;
+}
+
+interface SetOutputStructureComment extends ReactionOutputSampleMutation {
+  type: 'SetOutputStructureComment';
+  structureComment: string | null;
 }
 
 export type Mutation =
-    // Reaction mutations
-    | SetSchemeMutation
-    | ResolveInputsMutation
-    // Input mutations
-    | SetInputRoleMutation
-    | SetLimitingMutation
-    | SetInputSaltCodeMutation
-    | SetInputSaltEQMutation
-    | SetInputEQMutation
-    // Input sample mutations
-    | SetInputDensityMutation
-    | SetInputMolarityMutation
-    | SetInputVolumeMutation
-    | SetInputPurityMutation
-    | SetInputMolMutation
-    | SetInputWeightMutation
-    // Output mutations
-    | AddProductSampleMutation
-    | SetOutputSaltCodeMutation
-    | SetOutputSaltEQMutation
-    | SetOutputEQMutation
-    // Output sample mutations
-    | SetOutputDensityMutation
-    | SetOutputMolarityMutation
-    | SetOutputVolumeMutation
-    | SetOutputPurityMutation
-    | SetOutputActualMolMutation
-    | SetOutputActualWeightMutation
-    // Sample mutations
-    | RegisterSampleMutation;
-
-// Uncommented future mutations for reference
-// | { type: 'AddInput' }
-// | { type: 'RemoveInput', anchor: string }
-// | { type: 'SetOutputType', anchor: string, type: ReactionOutputType }
+  // Reaction mutations
+  | SetSchemeMutation
+  | ResolveInputsMutation
+  | AddEmptyInputMutation
+  | AddInput
+  | RemoveInputMutation
+  // Input mutations
+  | SetInputRowRole
+  | SetInputRowMol
+  | SetInputRowLimiting
+  | SetInputRowSaltCode
+  | SetInputRowSaltEQ
+  | SetInputRowEQ
+  | SetInputCompoundStereoisomerCode
+  | SetInputCompoundMolWeight
+  // Input sample mutations
+  | SetInputDensity
+  | SetInputMolarity
+  | SetInputVolume
+  | SetInputPurity
+  | SetInputHealthHazards
+  | SetInputMol
+  | SetInputWeight
+  // Output mutations
+  | AddProductSample
+  | SetOutputRowType
+  | SetOutputRowSaltCode
+  | SetOutputRowSaltEQ
+  | SetOutputRowEQ
+  | SetOutputRowName
+  | SetOutputCompoundStereoisomerCode
+  | SetOutputCompoundMolWeight
+  // Output sample mutations
+  | SetOutputDensity
+  | SetOutputMolarity
+  | SetOutputVolume
+  | SetOutputPurity
+  | SetOutputHealthHazards
+  | SetOutputActualMol
+  | SetOutputActualWeight
+  | RegisterSample
+  | SetOutputHandlingPrecautions
+  | SetOutputStorageInstructions
+  | SetOutputCompoundProtection
+  | SetOutputSolubilityInSolvents
+  | SetOutputResidualSolvents
+  | SetOutputMeltingPoint
+  | SetOutputPurityCalculations
+  | SetOutputExternalSupplier
+  | SetOutputSource
+  | SetOutputSourceDetails
+  | SetOutputComponentState
+  | SetOutputBatchComment
+  | SetOutputStructureComment;

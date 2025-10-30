@@ -9,6 +9,7 @@ export interface CompoundRef {
   saltEQ: number | null;
   strCode: string | null;
   molWeight: EnteredValue /*MolWeightUnit*/ | null;
+  exactMass: number | null;
 }
 
 export interface StoredCompoundRef extends CompoundRef {
