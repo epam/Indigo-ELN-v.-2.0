@@ -5,19 +5,19 @@ import { IsInViewportDirective } from '@core/directives/is-in-viewport.directive
 import { ApiService } from '@core/services/api.service';
 
 @Component({
-  selector: 'eln-image',
-  templateUrl: './image.component.html',
+  selector: 'eln-api-image',
+  templateUrl: './api-image.component.html',
   standalone: true,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => ImageComponent),
+      useExisting: forwardRef(() => ApiImageComponent),
       multi: true,
     },
   ],
   imports: [CommonModule, IsInViewportDirective],
 })
-export class ImageComponent {
+export class ApiImageComponent {
   @Input({ required: true }) url: string;
   @Input() altText = '';
   api = inject(ApiService);

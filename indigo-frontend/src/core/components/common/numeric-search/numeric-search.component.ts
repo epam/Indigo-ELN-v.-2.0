@@ -5,7 +5,11 @@ import {
 } from '@core/types/entities/experiments/search.i';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatInput } from '@angular/material/input';
-import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+  ControlValueAccessor,
+  FormsModule,
+  NG_VALUE_ACCESSOR,
+} from '@angular/forms';
 import { KeyValuePipe } from '@angular/common';
 
 @Component({
@@ -20,12 +24,12 @@ import { KeyValuePipe } from '@angular/common';
     },
   ],
 })
-export class NumericSearchComponent {
+export class NumericSearchComponent implements ControlValueAccessor {
   @Input() value: NumericSearch;
   disabled = false;
   defaultValue = { type: 'eq', value: NaN } as NumericSearch;
-  onChange: (arg0: NumericSearch | null) => void = () => {};
-  onTouched: () => void = () => {};
+  onChange: ((arg0: NumericSearch | null) => void) | null = null;
+  onTouched: (() => void) | null = null;
 
   writeValue(obj: NumericSearch | null): void {
     this.value = obj || this.defaultValue;
@@ -60,7 +64,7 @@ export class NumericSearchComponent {
     const value = !isNaN(this.value.value)
       ? { type: this.value.type, value: this.value.value }
       : null;
-    this.onChange(value);
+    this.onChange?.(value);
   }
 
   protected readonly NumericSearchTypeNames = NumericSearchTypeNames;

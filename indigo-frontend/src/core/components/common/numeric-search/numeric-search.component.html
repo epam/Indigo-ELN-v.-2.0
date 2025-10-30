@@ -3,7 +3,7 @@
     [value]="value.type"
     (valueChange)="setType($event)"
     class="basis-64"
-    (blur)="onTouched()"
+    (blur)="onTouched?.()"
     [disabled]="disabled"
   >
     @for (type of NumericSearchTypeNames | keyvalue: null; track type) {
@@ -14,7 +14,7 @@
     matInput
     [value]="value.value"
     (input)="setInputValue($event)"
-    (blur)="onTouched()"
+    (blur)="onTouched?.()"
     [disabled]="disabled"
     type="number"
     class="basis-128"

@@ -8,6 +8,7 @@ import { CdkAccordionModule } from '@angular/cdk/accordion';
 import { ReactionViewComponent } from '@core/components/experiment/reaction-view/reaction-view.component';
 import { SampleSearchComponent } from '@pages/experiment/sample-search/sample-search.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ExperimentModelService } from '@core/services/experiment/experiment-model.service';
 
 @Component({
   selector: 'eln-experiment-info',
@@ -24,9 +25,10 @@ import { MatDialog } from '@angular/material/dialog';
 })
 export class ExperimentInfoComponent implements OnInit {
   experimentDetailService = inject(ExperimentDetailService);
+  experimentModelService = inject(ExperimentModelService);
   experimentImageService = inject(ExperimentImageService);
 
-  dialog = inject(MatDialog); // !!!
+  dialog = inject(MatDialog);
 
   // Signal to track if model is being updated
   isUpdating = signal<boolean>(false);
@@ -36,6 +38,11 @@ export class ExperimentInfoComponent implements OnInit {
   isLoading = computed(() => this.experimentDetailService.isLoading());
   hasError = computed(() => this.experimentDetailService.hasError());
 
+  // Computed signals from the model service
+  model = computed(() => this.experimentModelService.experimentModel());
+  modelLoading = computed(() => this.experimentModelService.isLoading());
+  modelError = computed(() => this.experimentModelService.hasError());
+
   // Computed signals from image service
   experimentImageUrl = computed(() => this.experimentImageService.imageUrl());
   imageLoading = computed(
@@ -44,12 +51,10 @@ export class ExperimentInfoComponent implements OnInit {
   imageError = computed(() => this.experimentImageService.hasError());
 
   ngOnInit(): void {
-    // !!!
-    this.dialog.open(SampleSearchComponent);
-    // this.dialog.open(ExpandableTableUsageComponent)
     const experimentId = this.experiment()?.id;
     if (experimentId) {
       this.experimentImageService.load(experimentId);
+      this.experimentModelService.load(experimentId);
     }
   }
 
@@ -58,5 +63,19 @@ export class ExperimentInfoComponent implements OnInit {
 
     // When update completes, refresh the image
     if (!isUpdating) this.experimentImageService.refresh();
+  }
+
+  // TODO move to Stoichiometry table when it's available
+  showAddMaterialDialog() {
+    const [e, m] = [this.experiment(), this.model()];
+    console.log('showAddMaterialDialog', this.experimentModelService, m);
+    if (e && m) {
+      this.dialog.open(SampleSearchComponent, {
+        data: {
+          experimentId: e.id,
+          reactionAnchor: m.reactions[0].anchor,
+        },
+      });
+    }
   }
 }

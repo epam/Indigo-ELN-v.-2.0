@@ -45,7 +45,7 @@ import {
   ColumnDefDirective,
   ExpandableTableComponent,
 } from '@core/components/common/expandable-table/expandable-table.component';
-import { ImageComponent } from '@core/components/common/image/image.component';
+import { ApiImageComponent } from '@core/components/common/image/api-image.component';
 import { ApiService } from '@core/services/api.service';
 import { InfiniteLoaderComponent } from '@core/components/util/infinite-loader/infinite-loader.component';
 import { InfiniteSearchLoader } from '@core/components/util/infinite-scroll-search';
@@ -53,6 +53,15 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { ToggleComponent } from '@core/components/common/toggle/toggle.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { StructureEditorModalComponent } from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
+import { UUID } from '@core/types/entities/experiments/experiment-shared.i';
+import { MutateModelForm } from '@core/types/entities/experiments/experiment-mutate-form.i';
+import { ExperimentModelService } from '@core/services/experiment/experiment-model.service';
+import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
+
+export interface SampleSearchDialogData {
+  experimentId: UUID;
+  reactionAnchor: ReactionAnchor;
+}
 
 @Component({
   standalone: true,
@@ -77,7 +86,7 @@ import { StructureEditorModalComponent } from '@core/components/experiment/struc
     MatProgressSpinner,
     ExpandableTableComponent,
     ColumnDefDirective,
-    ImageComponent,
+    ApiImageComponent,
     InfiniteLoaderComponent,
     MatTooltip,
     ToggleComponent,
@@ -85,7 +94,7 @@ import { StructureEditorModalComponent } from '@core/components/experiment/struc
   templateUrl: './sample-search.component.html',
 })
 export class SampleSearchComponent implements OnInit {
-  data = inject(MAT_DIALOG_DATA);
+  data: SampleSearchDialogData = inject(MAT_DIALOG_DATA);
 
   loader: InfiniteSearchLoader<FindSamplesRequest, Sample>;
 
@@ -94,6 +103,7 @@ export class SampleSearchComponent implements OnInit {
   service = inject(ApiService);
   destroyRef = inject(DestroyRef);
   dialog = inject(MatDialog);
+  experimentModelService = inject(ExperimentModelService);
 
   title = 'Add Material';
 
@@ -221,8 +231,32 @@ export class SampleSearchComponent implements OnInit {
       });
   }
 
-  addSample(sample: Sample) {
-    alert(sample);
+  addToExperiment(sample: Sample) {
+    // TODO should probably be done via experiment screen to lock entire screen; currently the only mutation implemented is done at ReactionSchemaViewComponent
+    console.log(
+      'addToExperiment',
+      this.experimentModelService,
+      this.experimentModelService.experimentModel(),
+    );
+    const payload: MutateModelForm = {
+      model: this.experimentModelService.experimentModel(),
+      mutation: {
+        type: 'AddInput',
+        anchor: this.data.reactionAnchor,
+        sampleId: sample.id,
+      },
+    };
+
+    this.experimentModelService
+      .updateDataModel(this.data.experimentId, payload)
+      .subscribe({
+        next: () => {
+          console.log('Model updated with new sample');
+        },
+        error: (error) => {
+          console.error('Failed to update experiment model:', error);
+        },
+      });
   }
 
   editStructure() {

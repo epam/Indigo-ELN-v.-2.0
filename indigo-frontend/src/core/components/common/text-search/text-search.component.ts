@@ -28,8 +28,8 @@ export class TextSearchComponent implements ControlValueAccessor {
   @Input() value: TextSearch;
   disabled = false;
   defaultValue = { type: 'exact', value: '', from: '', to: '' } as TextSearch;
-  onChange: (arg0: TextSearch | null) => void = () => {};
-  onTouched: () => void = () => {};
+  onChange: ((arg0: TextSearch) => void) | null = null;
+  onTouched: (() => void) | null = null;
 
   writeValue(obj: TextSearch | null): void {
     this.value = obj || this.defaultValue;
@@ -88,7 +88,7 @@ export class TextSearchComponent implements ControlValueAccessor {
           ? { type: this.value.type, from: this.value.from, to: this.value.to }
           : null;
     }
-    this.onChange(value);
+    this.onChange?.(value);
   }
 
   protected readonly TextSearchTypeNames = TextSearchTypeNames;
