@@ -1,8 +1,6 @@
 package com.epam.indigoeln.indigowrapper;
 
 import com.epam.indigo.Indigo;
-import com.epam.indigo.IndigoRenderer;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -52,6 +50,10 @@ public class IndigoAPI {
 
     public IndigoMolecule loadMoleculeFromFile(String path) {
         return new IndigoMolecule(this, indigo.loadMoleculeFromFile(path));
+    }
+
+    public IndigoReaction createReaction() {
+        return new IndigoReaction(this, indigo.createReaction());
     }
 
     public IndigoMolecule loadMolecule(String str) {

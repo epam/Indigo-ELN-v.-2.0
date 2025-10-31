@@ -47,15 +47,14 @@ public class SchemaHandler extends AbstractMutationHandler {
         for (IndigoMolecule product : indigoReaction.products()) {
             reaction.getOutputs().add(createOutputLine(reaction, product));
         }
-        if (!reaction.getInputs().isEmpty() && reaction.getLimitingInput() == null) {
-            reaction.getInputs().getFirst().setLimiting(true);
-        }
+        adjustLimitingInput(reaction);
         reaction.setRxnfile(mutation.molFile());
         rxnFileAffected = true;
     }
 
     public void handle(Reaction reaction, ReactionMutation.AddEmptyInput mutation) {
         reaction.getInputs().add(createInputLine(reaction, null, ReactionRole.REACTANT));
+        adjustLimitingInput(reaction);
     }
 
     public void handle(Reaction reaction, ReactionMutation.AddInput mutation) {
@@ -64,12 +63,14 @@ public class SchemaHandler extends AbstractMutationHandler {
         SampleEntity sample = compoundService.getSample(mutation.sampleId());
         setInputLineSample(row, sample);
         affectedRoles.add(row.getRole());
+        adjustLimitingInput(reaction);
     }
 
     public void handle(Reaction reaction, ReactionMutation.RemoveInput mutation) {
         ReactionInput input = model.locate(mutation.input());
         reaction.getInputs().remove(input);
         affectedRoles.add(input.getRole());
+        adjustLimitingInput(reaction);
     }
 
     public void handle(Reaction reaction, ReactionMutation.ResolveInputs mutation) {
@@ -119,5 +120,11 @@ public class SchemaHandler extends AbstractMutationHandler {
         row.setEq(DEFAULT_ONE);
         row.setSamples(List.of());
         return row;
+    }
+
+    private void adjustLimitingInput(Reaction reaction) {
+        if (!reaction.getInputs().isEmpty() && reaction.getLimitingInput() == null) {
+            reaction.getInputs().getFirst().setLimiting(true);
+        }
     }
 }
