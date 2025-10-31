@@ -21,6 +21,7 @@ public class CalculationReportBuilder implements AutoCloseable {
     private final PrintWriter pr;
     @Nullable
     private List<String> previousModel;
+    private boolean closed;
 
     private final DiffRowGenerator generator = DiffRowGenerator.create()
             .showInlineDiffs(true)
@@ -55,8 +56,11 @@ public class CalculationReportBuilder implements AutoCloseable {
 
     @Override
     public void close() {
-        pr.println("</html>");
-        pr.close();
+        if (!closed) {
+            pr.println("</html>");
+            pr.close();
+            closed = true;
+        }
     }
 
     public void addMutation(Mutation mutation) {

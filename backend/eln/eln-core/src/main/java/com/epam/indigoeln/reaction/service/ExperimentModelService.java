@@ -145,7 +145,7 @@ public class ExperimentModelService {
 
         for (Reaction reaction : model.getReactions()) {
             if (handler.isRxnFileAffected() || !handler.getAffectedRoles().isEmpty()) {
-                IndigoReaction indigoReaction = indigoAPI.loadReaction(reaction.getRxnfile());
+                IndigoReaction indigoReaction = reaction.getRxnfile().isEmpty() ? indigoAPI.createReaction() : indigoAPI.loadReaction(reaction.getRxnfile());
                 if (!handler.getAffectedRoles().isEmpty()) {
                     experimentModelHelperService.rebuildReactionRxnFile(experiment, reaction, handler.getAffectedRoles(), indigoReaction);
                 }
