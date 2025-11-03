@@ -157,7 +157,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     }
 
     @Getter
-    // no equals and hashCode - each unknown compound is unique
+    @EqualsAndHashCode
     final class Unknown implements CompoundRef {
 
         @Nullable

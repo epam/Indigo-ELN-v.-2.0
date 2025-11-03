@@ -6,16 +6,15 @@ import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ReactionOutput extends ReactionRow implements ExperimentModelNode, ToStringTree {
 
@@ -37,14 +36,19 @@ public final class ReactionOutput extends ReactionRow implements ExperimentModel
     @Valid
     @NotNull
     @JsonManagedReference
-    private List<ReactionOutputSample> samples;
+    private List<ReactionOutputSample> samples = List.of();
 
     public static ReactionOutput create(Reaction reaction, ReactionOutputType type) {
-        ReactionOutput output = new ReactionOutput();
-        output.reaction = reaction;
-        output.anchor = new Anchor.Output(reaction.getModel().generateNextAnchor());
+        ReactionOutput output = createWithAnchor(reaction, new Anchor.Output(reaction.getModel().generateNextAnchor()));
         output.type = type;
         output.chemicalName = reaction.generateNextProductName();
+        return output;
+    }
+
+    public static ReactionOutput createWithAnchor(Reaction reaction, Anchor.Output anchor) {
+        ReactionOutput output = new ReactionOutput();
+        output.reaction = reaction;
+        output.anchor = anchor;
         return output;
     }
 

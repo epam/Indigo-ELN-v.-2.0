@@ -6,16 +6,15 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ReactionInput extends ReactionRow implements ExperimentModelNode, ToStringTree {
 
@@ -31,15 +30,20 @@ public final class ReactionInput extends ReactionRow implements ExperimentModelN
     @Valid
     @NotEmpty
     @JsonManagedReference
-    private List<ReactionInputSample> samples;
+    private List<ReactionInputSample> samples = List.of();
 
     private boolean limiting;
 
     public static ReactionInput create(Reaction reaction, ReactionRole role) {
+        ReactionInput input = createWithAnchor(reaction, new Anchor.Input(reaction.getModel().generateNextAnchor()));
+        input.role = role;
+        return input;
+    }
+
+    public static ReactionInput createWithAnchor(Reaction reaction, Anchor.Input anchor) {
         ReactionInput input = new ReactionInput();
         input.reaction = reaction;
-        input.anchor = new Anchor.Input(reaction.getModel().generateNextAnchor());
-        input.role = role;
+        input.anchor = anchor;
         return input;
     }
 

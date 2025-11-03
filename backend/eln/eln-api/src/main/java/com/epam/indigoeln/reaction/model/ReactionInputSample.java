@@ -5,16 +5,14 @@ import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true, exclude = "row")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ReactionInputSample extends ReactionSample implements ExperimentModelNode, ToStringTree {
 
@@ -40,9 +38,13 @@ public final class ReactionInputSample extends ReactionSample implements Experim
     private String comment;
 
     public static ReactionInputSample create(ReactionInput row) {
+        return createWithAnchor(row, new Anchor.InputSample(row.getReaction().getModel().generateNextAnchor()));
+    }
+
+    public static ReactionInputSample createWithAnchor(ReactionInput row, Anchor.InputSample anchor) {
         ReactionInputSample sample = new ReactionInputSample();
         sample.row = row;
-        sample.anchor = new Anchor.InputSample(row.getReaction().getModel().generateNextAnchor());
+        sample.anchor = anchor;
         return sample;
     }
 

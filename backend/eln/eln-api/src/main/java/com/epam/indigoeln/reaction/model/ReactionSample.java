@@ -4,6 +4,7 @@ import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.reaction.model.units.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import java.util.function.Consumer;
 @Getter
 @Setter
 @NoArgsConstructor
+@EqualsAndHashCode
 public sealed abstract class ReactionSample implements ExperimentModelNode, ToStringTree permits ReactionInputSample, ReactionOutputSample {
 
     @Nullable

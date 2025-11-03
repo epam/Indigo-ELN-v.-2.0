@@ -11,10 +11,7 @@ import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
@@ -25,6 +22,7 @@ import java.util.function.Consumer;
 
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true, exclude = "row")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ReactionOutputSample extends ReactionSample implements ExperimentModelNode, ToStringTree {
 
@@ -95,10 +93,15 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     private String structureComment;
 
     public static ReactionOutputSample create(String experimentName, ReactionOutput row) {
+        ReactionOutputSample sample = createWithAnchor(row, new Anchor.OutputSample(row.getReaction().getModel().generateNextAnchor()));
+        sample.nbkBatchNumber = new NbkBatchNumber(experimentName, row.getReaction().getModel().generateNextNbkBatchNumber());
+        return sample;
+    }
+
+    public static ReactionOutputSample createWithAnchor(ReactionOutput row, Anchor.OutputSample anchor) {
         ReactionOutputSample sample = new ReactionOutputSample();
         sample.row = row;
         sample.anchor = new Anchor.OutputSample(row.getReaction().getModel().generateNextAnchor());
-        sample.nbkBatchNumber = new NbkBatchNumber(experimentName, row.getReaction().getModel().generateNextNbkBatchNumber());
         return sample;
     }
 

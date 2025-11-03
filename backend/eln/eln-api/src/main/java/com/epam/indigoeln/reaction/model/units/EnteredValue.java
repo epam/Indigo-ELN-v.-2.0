@@ -7,6 +7,7 @@ import com.google.common.base.Preconditions;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
@@ -17,6 +18,7 @@ import static com.epam.indigoeln.reaction.model.units.EnteredValueSource.*;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
 @Getter
+@EqualsAndHashCode
 public final class EnteredValue<U extends MeasurementUnit> {
 
     public static final EnteredValue<NoUnit> DEFAULT_ONE = defaultValue(1.0, NoUnit.NO_UNIT);

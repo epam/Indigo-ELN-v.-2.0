@@ -3,6 +3,8 @@ package com.epam.indigoeln.eln.api;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.ReactionOutputSample;
+import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
 import jakarta.annotation.Nullable;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -82,6 +84,14 @@ public interface ExperimentAPI extends BaseAPI {
     @Path("/experiments/{experimentId}/datamodel")
     ExperimentModel mutateExperimentModel(@PathParam("experimentId") UUID experimentId, MutateModelForm modelAndMutation);
 
+    @POST
+    @Path("/experiments/{experimentId}/datamodel2")
+    ModelAndPatch mutateExperimentModel2(@PathParam("experimentId") UUID experimentId, MutateModelForm modelAndMutation);
+
+    @POST
+    @Path("/experiments/{experimentId}/datamodel/patch")
+    ExperimentModel applyModelPatch(@PathParam("experimentId") UUID experimentId, ModelAndPatch modelAndPatch);
+
     @GET
     @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/picture")
     Response getReactionPicture(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") Anchor.Reaction reactionAnchor, @Nullable @QueryParam("version") Integer version);
@@ -121,4 +131,9 @@ public interface ExperimentAPI extends BaseAPI {
     @POST
     @Path("/experiments/{experimentId}/print")
     Response printReport(@PathParam("experimentId") UUID experimentId);
+
+    record ModelAndPatch (
+        ExperimentModel model,
+        ExperimentModelPatch patch
+    ) {}
 }

@@ -6,6 +6,7 @@ import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.StructuralSearch;
 import com.epam.indigoeln.compound.model.TextSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
+import com.epam.indigoeln.eln.api.ExperimentAPI;
 import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.Anchor;
@@ -16,6 +17,8 @@ import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.epam.indigoeln.reaction.util.CalculationReportBuilder;
+import com.epam.indigoeln.test.FeignUtil;
+import com.google.common.math.Stats;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -27,12 +30,15 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @QuarkusTest
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
@@ -55,6 +61,9 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
 
     byte @Nullable[] picture = null;
 
+    List<Integer> modelSizes = new ArrayList<>();
+    List<Integer> patchSizes = new ArrayList<>();
+
     @BeforeAll
     void setUp(@TempDir Path tempDir) {
         miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
@@ -63,6 +72,15 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
             ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("ExperimentModelServiceTest"));
             notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
         });
+    }
+
+    @AfterAll
+    void tearDown() {
+        Stats modelSizeStats = Stats.of(modelSizes);
+        Stats patchSizeStats = Stats.of(patchSizes);
+        System.out.println("Model size stats: " + modelSizeStats);
+        System.out.println("Patch size stats: " + patchSizeStats);
+        System.out.println("Average ratio: " + patchSizeStats.mean() / modelSizeStats.mean());
     }
 
     @Nested
@@ -271,14 +289,21 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
     private void applyMutation(Mutation mutation) {
         System.out.println("Applying mutation: " + mutation);
         reportBuilder.addMutation(mutation);
-        model = experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(model, mutation));
+        ExperimentAPI.ModelAndPatch response = experimentClient.mutateExperimentModel2(experiment.getId(), new MutateModelForm(model, mutation));
+        ExperimentModel appliedPatch = experimentClient.applyModelPatch(experiment.getId(), new ExperimentAPI.ModelAndPatch(model, response.patch()));
+        reportBuilder.addPatch(FeignUtil.OBJECT_MAPPER.writeValueAsString(response.patch()));
+//        assertThat(response.model()).isEqualTo(appliedPatch);
+        model = appliedPatch;
         Response pictureResponse = experimentClient.getExperimentPictureClient(experiment.getId());
         byte[] newPicture = (byte[]) pictureResponse.getEntity();
         if (picture == null || newPicture != null && !Arrays.equals(picture, newPicture)) {
             picture = newPicture;
             reportBuilder.addPicture(picture, pictureResponse.getHeaderString(HttpHeaders.CONTENT_TYPE));
         }
-        reportBuilder.addModel(model);
+//        reportBuilder.addModel(model);
+        reportBuilder.addModel(appliedPatch);
         System.out.println(model);
+        modelSizes.add(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(model).length);
+        patchSizes.add(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(response.patch()).length);
     }
 }

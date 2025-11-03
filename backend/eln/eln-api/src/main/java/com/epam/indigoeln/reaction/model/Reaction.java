@@ -14,7 +14,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,17 +37,21 @@ public final class Reaction implements ExperimentModelNode, ToStringTree {
     @Valid
     @NotNull
     @JsonManagedReference
-    private List<ReactionInput> inputs = new ArrayList<>(0);
+    private List<ReactionInput> inputs = List.of();
 
     @Valid
     @NotNull
     @JsonManagedReference
-    private List<ReactionOutput> outputs = new ArrayList<>(0);
+    private List<ReactionOutput> outputs = List.of();
 
     public static Reaction create(ExperimentModel model) {
+        return createWithAnchor(model, new Anchor.Reaction(model.generateNextAnchor()));
+    }
+
+    public static Reaction createWithAnchor(ExperimentModel model, Anchor.Reaction anchor) {
         Reaction reaction = new Reaction();
         reaction.model = model;
-        reaction.anchor = new Anchor.Reaction(model.generateNextAnchor());
+        reaction.anchor = anchor;
         return reaction;
     }
 

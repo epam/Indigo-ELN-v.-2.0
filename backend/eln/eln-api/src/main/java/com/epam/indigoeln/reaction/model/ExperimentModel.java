@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -14,7 +15,7 @@ public final class ExperimentModel implements ExperimentModelNode, ToStringTree 
     @Valid
     @NotEmpty
     @JsonManagedReference
-    private List<Reaction> reactions;
+    private List<Reaction> reactions = List.of();
 
     private int lastUsedAnchor = 0;
 

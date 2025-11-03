@@ -106,6 +106,16 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
+    public ModelAndPatch mutateExperimentModel2(UUID experimentId, MutateModelForm modelAndMutation) {
+        return experimentService.mutateModel2(experimentId, modelAndMutation.getModel(), modelAndMutation.getMutation());
+    }
+
+    @Override
+    public ExperimentModel applyModelPatch(UUID experimentId, ModelAndPatch modelAndPatch) {
+        return experimentService.applyModelPatch(experimentId, modelAndPatch.model(), modelAndPatch.patch());
+    }
+
+    @Override
     public Response getReactionPicture(UUID experimentId, Anchor.Reaction reactionAnchor, @Nullable Integer version) {
         return experimentService.getReactionPicture(experimentId, reactionAnchor, version);
     }

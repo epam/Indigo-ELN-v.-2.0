@@ -2,6 +2,7 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.api.AccessForm;
+import com.epam.indigoeln.eln.api.ExperimentAPI;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
@@ -17,9 +18,12 @@ import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
+import com.epam.indigoeln.reaction.service.ExperimentModelPatchService;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reports.api.ReportsAPI;
 import com.epam.indigoeln.reports.api.ReportsClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -65,12 +69,16 @@ public class ExperimentService {
     @Inject
     ExperimentModelService experimentModelService;
     @Inject
+    ExperimentModelPatchService experimentModelPatchService;
+    @Inject
     TemplateRepository templateRepository;
     @Inject
     @RestClient
     ReportsClient reportsClient;
     @Inject
     ProjectMapper projectMapper;
+    @Inject
+    ObjectMapper objectMapper;
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
@@ -150,16 +158,30 @@ public class ExperimentService {
     }
 
     public ExperimentModel mutateModel(UUID experimentId, ExperimentModel model, Mutation mutation) {
+        return mutateModel2(experimentId, model, mutation).model();
+    }
+
+    public ExperimentAPI.ModelAndPatch mutateModel2(UUID experimentId, ExperimentModel model, Mutation mutation) {
         try {
+            // TODO use clone?
+            byte[] initialBytes = objectMapper.writeValueAsBytes(model);
+            ExperimentModel initial = objectMapper.readValue(initialBytes, ExperimentModel.class);
+
             log.debug("Mutating model for experiment {} with mutation {}", experimentId, mutation);
             ExperimentEntity experiment = experimentRepository.get(experimentId);
             model = experimentModelService.applyMutation(experiment, model, mutation);
             experiment.setModel(model);
-            return model;
+
+            ExperimentModelPatch patch = experimentModelPatchService.createPatch(initial, model);
+            return new ExperimentAPI.ModelAndPatch(model, patch);
         } catch (Throwable e) {
             log.error("Failed to mutate model for experiment {}: {}", experimentId, e.getMessage(), e);
             throw new RuntimeException("Failed to mutate model: " + e.getMessage(), e);
         }
+    }
+
+    public ExperimentModel applyModelPatch(UUID experimentId, ExperimentModel model, ExperimentModelPatch patch) {
+        return experimentModelPatchService.applyPatch(model, patch);
     }
 
     public byte[] getExperimentPicture(UUID experimentId) {
