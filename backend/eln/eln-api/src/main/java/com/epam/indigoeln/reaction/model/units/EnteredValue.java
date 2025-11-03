@@ -2,11 +2,8 @@ package com.epam.indigoeln.reaction.model.units;
 
 import com.epam.indigoeln.reaction.util.MeasurementUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.google.common.base.MoreObjects;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Preconditions;
-import jakarta.annotation.PostConstruct;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Null;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +25,7 @@ public final class EnteredValue<U extends MeasurementUnit> {
     private final U unit;
     private EnteredValueSource source;
     @Setter
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private boolean conflict = false;
 
     @JsonCreator

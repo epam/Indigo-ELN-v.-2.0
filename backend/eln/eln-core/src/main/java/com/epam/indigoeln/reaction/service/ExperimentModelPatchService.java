@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -56,13 +55,23 @@ public class ExperimentModelPatchService {
     }
 
     @Nullable
-    private static <T, R> Optional<R> diff(Flag updated, @Nullable T a, @Nullable T b, Function<T, @Nullable R> valueFn) {
+    private static <C, T> Optional<T> diff(Flag updated, @Nullable C a, @Nullable C b, Function<C, @Nullable T> valueFn) {
         return diff(updated, a, b, valueFn, defaultValueHandler());
     }
 
     @Nullable
+    private static <C, T> Optional<T> diff(Flag updated, @Nullable C a, @Nullable C b, @Nullable T defaultValue, Function<C, @Nullable T> valueFn) {
+        return diff(updated, a, b, defaultValue, valueFn, defaultValueHandler());
+    }
+
+    @Nullable
     private static <C, T, P> Optional<P> diff(Flag updated, @Nullable C a, @Nullable C b, Function<C, @Nullable T> valueFn, ValueHandler<?, T, P> handler) {
-        return handler.compare(updated, a != null ? valueFn.apply(a) : null, b != null ? valueFn.apply(b) : null, null);
+        return diff(updated, a, b, null, valueFn, handler);
+    }
+
+    @Nullable
+    private static <C, T, P> Optional<P> diff(Flag updated, @Nullable C a, @Nullable C b, @Nullable T defaultValue, Function<C, @Nullable T> valueFn, ValueHandler<?, T, P> handler) {
+        return handler.compare(updated, a != null ? valueFn.apply(a) : defaultValue, b != null ? valueFn.apply(b) : null, null);
     }
 
     private static <C, T> void restore(C target, @Nullable Optional<T> patch, BiConsumer<C, T> setterFn) {
@@ -416,7 +425,7 @@ public class ExperimentModelPatchService {
             patch.setValue(diff(updated, a, b, EnteredValue::getValue));
             patch.setUnit(diff(updated, a, b, EnteredValue::getUnit));
             patch.setSource(diff(updated, a, b, EnteredValue::getSource));
-            patch.setConflict(diff(updated, a, b, EnteredValue::isConflict));
+            patch.setConflict(diff(updated, a, b, false, EnteredValue::isConflict));
             return patch;
         }
 
