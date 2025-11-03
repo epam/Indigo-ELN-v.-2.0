@@ -22,7 +22,6 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
         return this.dataBh.asObservable();
       }),
     );
-
   }
 
   infiniteLoad() {

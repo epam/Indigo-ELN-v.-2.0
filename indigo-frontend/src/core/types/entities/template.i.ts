@@ -74,7 +74,6 @@ export interface Template extends BaseEntity {
   templateTabs: TemplateTab[];
 }
 
-//---------------
 export interface RootTemplate {
   pageNo: number
   pageSize: number
@@ -97,17 +96,4 @@ export interface CreatedBy {
   username: string
   displayName: string
 }
-
-//--------------- Create Template
-export interface CreateTemplate {
-  name: string
-  templateTabs?: CreateTemplateTab[]
-}
-
-export interface CreateTemplateTab {
-  name: string
-  components: CreateComponent[]
-}
-
-export type CreateComponent = TemplateComponent;
 

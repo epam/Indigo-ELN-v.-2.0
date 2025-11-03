@@ -1,16 +1,13 @@
 import { Injectable } from '@angular/core';
 import {
-  CreateTemplate,
   ItemTemplate,
   RootTemplate,
+  Template,
 } from '@core/types/entities/template.i';
 import { ApiService } from '@core/services/api.service';
 import { PagedRequest } from '@core/types/request/paged-request.i';
 
-
-
 @Injectable({ providedIn: 'root' })
-
 export class TemplateService {
   constructor(private api: ApiService<RootTemplate>) {}
 
@@ -18,7 +15,7 @@ export class TemplateService {
     return this.api.getPaged('templates', pager, { search });
   }
 
-  createTemplate(body: CreateTemplate) {
+  createTemplate(body: Template) {
     return this.api.create('templates', body);
   }
 
