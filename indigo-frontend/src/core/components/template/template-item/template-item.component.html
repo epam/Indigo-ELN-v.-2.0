@@ -1,0 +1,90 @@
+<eln-card
+  [classList]="'cursor-pointer'"
+>
+  <div class="flex flex-col w-full px-4">
+    <div class="flex justify-between items-center mb-3 w-full">
+      <h3
+        class="flex items-center gap-x-2 font-semibold text-neutral-1000 text-base"
+      >
+        <em class="text-primary-400 text-xl indicon-briefcase"></em>
+        {{ template.name }}
+      </h3>
+      <div class="relative -right-1">
+        <button
+          class="flex items-center hover:bg-neutral-200 rounded-full cursor-pointer"
+          (click)="$event.stopPropagation()"
+          [matMenuTriggerFor]="menu"
+          aria-label="Project options menu"
+        >
+          <mat-icon>more_horiz</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item>
+            <mat-icon>visibility</mat-icon>
+            <span>Action</span>
+          </button>
+          <button mat-menu-item>
+            <mat-icon>edit</mat-icon>
+            <span>Rename</span>
+          </button>
+          <button mat-menu-item (click)="deleteTemplate(template.id)">
+            <mat-icon>delete</mat-icon>
+            <span>Delete</span>
+          </button>
+        </mat-menu>
+      </div>
+    </div>
+
+    <div [ngClass]="variant === 'grid' ? 'space-y-2' : 'w-full'">
+      <div
+        class="w-full"
+        [ngClass]="{
+          'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6':
+            variant === 'list',
+          'space-y-2': variant === 'grid',
+        }"
+      >
+
+
+        <div
+          class="flex flex-col"
+          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
+          *ngIf="variant === 'list'"
+        >
+          <div class="text-neutral-1000 text-sm">Created by</div>
+          <div class="flex items-center">
+            <div class="flex -space-x-2">
+              <eln-avatar classList="w-6 h-6" [img]="mock_users.link" />
+              {{template.createdBy.username}}
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="flex flex-col text-sm"
+          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
+        >
+          <div class="text-neutral-1000">Created</div>
+          <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
+            {{ template.createdAt | date: 'dd MMM yyyy' }} by
+            {{ template.createdBy.displayName }}
+          </div>
+        </div>
+
+
+        <div
+          class="flex flex-col text-sm"
+          [ngClass]="{ 'flex-col space-y-2': variant == 'list' }"
+        >
+          <div class="text-neutral-1000 text-sm">Last Edited</div>
+          <div [ngClass]="{ 'ml-auto': variant === 'grid' }">
+            {{ template.modifiedAt | date: 'dd MMM yyyy' }} by
+            {{ template.modifiedBy.displayName }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</eln-card>

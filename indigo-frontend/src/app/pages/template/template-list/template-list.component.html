@@ -1,0 +1,43 @@
+<div class="flex items-center justify-between flex-wrap gap-4">
+  <div class="font-semibold text-lg pl-1">Templates</div>
+  <div class="flex items-center gap-2 ml-auto">
+    <eln-button
+      classList="flex items-center gap-2 bg-[#3f50b5] text-white hover:bg-[#334296]"
+      (click)="openModal()"
+    >
+      <em class="text-xl indicon-plus"></em>
+      <span class="whitespace-nowrap">Add Template</span>
+    </eln-button>
+  </div>
+</div>
+
+<eln-list-header
+  [enableViewToggle]="false"
+  [sortOptions]="headerSortOptions"
+  [currentSort]="getCurrentSort()"
+  (searchChange)="onSearch($event)"
+  (sortChange)="onSortChange($event)"
+/>
+
+<div
+  *ngIf="data$ | async as data"
+  [@viewChange]="selectedView"
+  [ngClass]="{
+    'grid gap-x-4 mt-5 gap-y-4': true,
+    'grid-cols-1': selectedView === 'list',
+    'md:grid-cols-2 2xl:grid-cols-3': selectedView === 'list',
+  }"
+>
+  @for (template of data; track template.id) {
+    <eln-template-item [template]="template" />
+  }
+  <eln-infinite-loader
+    [classNames]="
+      {
+        'col-span-1': selectedView == 'list',
+        '2xl:col-span-3 md:col-span-2': selectedView == 'list',
+      } | classPicker
+    "
+    (infiniteLoad)="infiniteLoad()"
+  />
+</div>

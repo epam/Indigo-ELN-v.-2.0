@@ -6,6 +6,7 @@
   (sortChange)="onSortChange($event)"
   (myEntitiesOnlyChange)="onMyEntitiesOnlyChange($event)"
 />
+
 <div
   *ngIf="data$ | async as data"
   [@viewChange]="selectedView"
