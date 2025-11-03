@@ -2,6 +2,7 @@ package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.STRCodeSample;
+import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
 import com.epam.indigoeln.reaction.model.units.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
@@ -17,7 +18,16 @@ import java.util.function.Consumer;
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode
-public sealed abstract class ReactionSample implements ExperimentModelNode, ToStringTree permits ReactionInputSample, ReactionOutputSample {
+public sealed abstract class ReactionSample implements ExperimentModelNode permits ReactionInputSample, ReactionOutputSample {
+
+    protected static <C extends ReactionSample> void addBaseProperties(Metamodel<C> metamodel) {
+        metamodel.enteredValueProperty("density", ReactionSample::getDensity, ReactionSample::setDensity);
+        metamodel.enteredValueProperty("molarity", ReactionSample::getMolarity, ReactionSample::setMolarity);
+        metamodel.enteredValueProperty("volume", ReactionSample::getVolume, ReactionSample::setVolume);
+        metamodel.enteredValueProperty("purity", ReactionSample::getPurity, ReactionSample::setPurity);
+        metamodel.simpleProperty("strCode", ReactionSample::getStrCode, ReactionSample::setStrCode);
+        metamodel.dictionaryListProperty("healthHazards", ReactionSample::getHealthHazards, ReactionSample::setHealthHazards);
+    }
 
     @Nullable
     protected EnteredValue<DensityUnit> density;
@@ -48,10 +58,5 @@ public sealed abstract class ReactionSample implements ExperimentModelNode, ToSt
     @Override
     public void collectDictionaries(Consumer<@Nullable DictionaryItemRef> consumer) {
         healthHazards.forEach(consumer);
-    }
-
-    @Override
-    public String toString() {
-        return toStringTree();
     }
 }

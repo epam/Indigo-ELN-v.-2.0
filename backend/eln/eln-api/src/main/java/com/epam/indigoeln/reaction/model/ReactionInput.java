@@ -1,7 +1,9 @@
 package com.epam.indigoeln.reaction.model;
 
+import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
+import com.epam.indigoeln.reaction.util.ToStringUtil;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -9,14 +11,21 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public final class ReactionInput extends ReactionRow implements ExperimentModelNode, ToStringTree {
+public final class ReactionInput extends ReactionRow implements ExperimentModelNode {
+
+    public static final Metamodel<ReactionInput> METAMODEL = new Metamodel<ReactionInput>("ReactionInput")
+            .accept(ReactionRow::addBaseProperties)
+            .anchorProperty("anchor", ReactionInput::getAnchor, ReactionInput::setAnchor)
+            .simpleProperty("role", ReactionInput::getRole, ReactionInput::setRole)
+            .enteredValueProperty("mol", ReactionInput::getMol, ReactionInput::setMol)
+            .listProperty("samples", ReactionInput::getSamples, ReactionInput::setSamples, ReactionInputSample.METAMODEL)
+            ;
 
     @NotNull
     private Anchor.Input anchor;
@@ -54,14 +63,7 @@ public final class ReactionInput extends ReactionRow implements ExperimentModelN
     }
 
     @Override
-    public void toStringTree(Builder builder) {
-        builder.open("ReactionInput")
-                .property("anchor", anchor)
-                .property("compound", compound)
-                .property("eq", eq)
-                .property("role", role)
-                .property("limiting", limiting)
-                .open("samples").nest(samples).close()
-                .close();
+    public String toString() {
+        return ToStringUtil.toStringBuild(METAMODEL, this);
     }
 }

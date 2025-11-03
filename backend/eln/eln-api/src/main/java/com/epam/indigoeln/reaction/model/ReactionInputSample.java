@@ -1,8 +1,10 @@
 package com.epam.indigoeln.reaction.model;
 
+import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
+import com.epam.indigoeln.reaction.util.ToStringUtil;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -14,7 +16,17 @@ import java.util.UUID;
 @Setter
 @EqualsAndHashCode(callSuper = true, exclude = "row")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public final class ReactionInputSample extends ReactionSample implements ExperimentModelNode, ToStringTree {
+public final class ReactionInputSample extends ReactionSample implements ExperimentModelNode {
+
+    public static final Metamodel<ReactionInputSample> METAMODEL = new Metamodel<ReactionInputSample>("ReactionInput")
+            .accept(ReactionSample::addBaseProperties)
+            .anchorProperty("anchor", ReactionInputSample::getAnchor, ReactionInputSample::setAnchor)
+            .simpleProperty("sampleId", ReactionInputSample::getSampleId, ReactionInputSample::setSampleId)
+            .simpleProperty("chemicalName", ReactionInputSample::getChemicalName, ReactionInputSample::setChemicalName)
+            .enteredValueProperty("mol", ReactionInputSample::getMol, ReactionInputSample::setMol)
+            .enteredValueProperty("weight", ReactionInputSample::getWeight, ReactionInputSample::setWeight)
+            .simpleProperty("comment", ReactionInputSample::getComment, ReactionInputSample::setComment)
+            ;
 
     @JsonBackReference
     private ReactionInput row;
@@ -56,17 +68,7 @@ public final class ReactionInputSample extends ReactionSample implements Experim
     }
 
     @Override
-    public void toStringTree(Builder builder) {
-        builder.open("ReactionInputSample")
-                .property("anchor", anchor)
-                .property("chemicalName", chemicalName)
-                .property("sampleId", sampleId)
-                .property("mol", mol)
-                .property("weight", weight)
-                .property("density", density)
-                .property("molarity", molarity)
-                .property("purity", purity)
-                .property("comment", comment)
-                .close();
+    public String toString() {
+        return ToStringUtil.toStringBuild(METAMODEL, this);
     }
 }

@@ -1,16 +1,22 @@
 package com.epam.indigoeln.reaction.model;
 
+import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
 import com.epam.indigoeln.reaction.model.mutation.*;
+import com.epam.indigoeln.reaction.util.ToStringUtil;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public final class ExperimentModel implements ExperimentModelNode, ToStringTree {
+public final class ExperimentModel implements ExperimentModelNode {
+
+    public static final Metamodel<ExperimentModel> METAMODEL = new Metamodel<ExperimentModel>("ExperimentModel")
+            .simpleProperty("lastUsedAnchor", ExperimentModel::getLastUsedAnchor, ExperimentModel::setLastUsedAnchor)
+            .listProperty("reactions", ExperimentModel::getReactions, ExperimentModel::setReactions, Reaction.METAMODEL)
+            ;
 
     @Valid
     @NotEmpty
@@ -110,16 +116,7 @@ public final class ExperimentModel implements ExperimentModelNode, ToStringTree 
     }
 
     @Override
-    public void toStringTree(Builder builder) {
-        builder.open("Model");
-        for (Reaction reaction : reactions) {
-            reaction.toStringTree(builder);
-        }
-        builder.close();
-    }
-
-    @Override
     public String toString() {
-        return toStringTree();
+        return ToStringUtil.toStringBuild(METAMODEL, this);
     }
 }

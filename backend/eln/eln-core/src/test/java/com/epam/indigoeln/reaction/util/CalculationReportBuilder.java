@@ -72,7 +72,7 @@ public class CalculationReportBuilder implements AutoCloseable {
     }
 
     public void addModel(ExperimentModel model) {
-        List<String> currentModel = model.toStringTree().lines().toList();
+        List<String> currentModel = model.toString().lines().toList();
         List<String> leftContent = new ArrayList<>(), rightContent = new ArrayList<>();
         if (previousModel == null) {
             rightContent = currentModel;

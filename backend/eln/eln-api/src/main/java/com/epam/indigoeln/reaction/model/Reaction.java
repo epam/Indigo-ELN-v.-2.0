@@ -1,5 +1,7 @@
 package com.epam.indigoeln.reaction.model;
 
+import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
+import com.epam.indigoeln.reaction.util.ToStringUtil;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -20,7 +22,15 @@ import java.util.Objects;
 @Data
 @EqualsAndHashCode(exclude = "model")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public final class Reaction implements ExperimentModelNode, ToStringTree {
+public final class Reaction implements ExperimentModelNode {
+
+    public static final Metamodel<Reaction> METAMODEL = new Metamodel<Reaction>("Reaction")
+            .anchorProperty("anchor", Reaction::getAnchor, Reaction::setAnchor)
+            .simpleProperty("rxnfile", Reaction::getRxnfile, Reaction::setRxnfile)
+            .simpleProperty("rxnVersion", Reaction::getRxnVersion, Reaction::setRxnVersion)
+            .listProperty("inputs", Reaction::getInputs, Reaction::setInputs, ReactionInput.METAMODEL)
+            .listProperty("outputs", Reaction::getOutputs, Reaction::setOutputs, ReactionOutput.METAMODEL)
+            ;
 
     @JsonBackReference
     private ExperimentModel model;
@@ -53,15 +63,6 @@ public final class Reaction implements ExperimentModelNode, ToStringTree {
         reaction.model = model;
         reaction.anchor = anchor;
         return reaction;
-    }
-
-    @Override
-    public void toStringTree(Builder builder) {
-        builder.open("Reaction")
-                .property("anchor", anchor)
-                .open("inputs").nest(inputs).close()
-                .open("outputs").nest(outputs).close()
-                .close();
     }
 
     @JsonIgnore
@@ -116,6 +117,6 @@ public final class Reaction implements ExperimentModelNode, ToStringTree {
 
     @Override
     public String toString() {
-        return toStringTree();
+        return ToStringUtil.toStringBuild(METAMODEL, this);
     }
 }

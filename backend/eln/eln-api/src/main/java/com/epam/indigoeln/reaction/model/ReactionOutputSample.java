@@ -3,11 +3,13 @@ package com.epam.indigoeln.reaction.model;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.NbkBatchNumber;
 import com.epam.indigoeln.eln.model.STRCodeCompound;
+import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
 import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
+import com.epam.indigoeln.reaction.util.ToStringUtil;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
@@ -24,7 +26,32 @@ import java.util.function.Consumer;
 @Setter
 @EqualsAndHashCode(callSuper = true, exclude = "row")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public final class ReactionOutputSample extends ReactionSample implements ExperimentModelNode, ToStringTree {
+public final class ReactionOutputSample extends ReactionSample implements ExperimentModelNode {
+
+    public static final Metamodel<ReactionOutputSample> METAMODEL = new Metamodel<ReactionOutputSample>("ReactionOutputSample")
+            .accept(ReactionSample::addBaseProperties)
+            .anchorProperty("anchor", ReactionOutputSample::getAnchor, ReactionOutputSample::setAnchor)
+            .simpleProperty("nbkBatchNumber", ReactionOutputSample::getNbkBatchNumber, ReactionOutputSample::setNbkBatchNumber)
+            .enteredValueProperty("actualMol", ReactionOutputSample::getActualMol, ReactionOutputSample::setActualMol)
+            .enteredValueProperty("actualWeight", ReactionOutputSample::getActualWeight, ReactionOutputSample::setActualWeight)
+            .enteredValueProperty("yield", ReactionOutputSample::getYield, ReactionOutputSample::setYield)
+            .simpleProperty("registrationStatus", ReactionOutputSample::getRegistrationStatus, ReactionOutputSample::setRegistrationStatus)
+            .simpleProperty("registrationStatusMessage", ReactionOutputSample::getRegistrationStatusMessage, ReactionOutputSample::setRegistrationStatusMessage)
+            .simpleProperty("sampleId", ReactionOutputSample::getSampleId, ReactionOutputSample::setSampleId)
+            .dictionaryListProperty("handlingPrecautions", ReactionOutputSample::getHandlingPrecautions, ReactionOutputSample::setHandlingPrecautions)
+            .dictionaryListProperty("storageInstructions", ReactionOutputSample::getStorageInstructions, ReactionOutputSample::setStorageInstructions)
+            .dictionaryListProperty("compoundProtection", ReactionOutputSample::getCompoundProtection, ReactionOutputSample::setCompoundProtection)
+            .simpleProperty("solubilityInSolvents", ReactionOutputSample::getSolubilityInSolvents, ReactionOutputSample::setSolubilityInSolvents)
+            .simpleProperty("residualSolvents", ReactionOutputSample::getResidualSolvents, ReactionOutputSample::setResidualSolvents)
+            .simpleProperty("meltingPoint", ReactionOutputSample::getMeltingPoint, ReactionOutputSample::setMeltingPoint)
+            .simpleProperty("purityCalculations", ReactionOutputSample::getPurityCalculations, ReactionOutputSample::setPurityCalculations)
+            .simpleProperty("externalSupplier", ReactionOutputSample::getSolubilityInSolvents, ReactionOutputSample::setSolubilityInSolvents)
+            .dictionaryProperty("source", ReactionOutputSample::getSource, ReactionOutputSample::setSource)
+            .dictionaryProperty("sourceDetails", ReactionOutputSample::getSourceDetails, ReactionOutputSample::setSourceDetails)
+            .dictionaryProperty("componentState", ReactionOutputSample::getComponentState, ReactionOutputSample::setComponentState)
+            .simpleProperty("batchComment", ReactionOutputSample::getBatchComment, ReactionOutputSample::setBatchComment)
+            .simpleProperty("structureComment", ReactionOutputSample::getStructureComment, ReactionOutputSample::setStructureComment)
+            ;
 
     @JsonBackReference
     private ReactionOutput row;
@@ -159,21 +186,7 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     }
 
     @Override
-    public void toStringTree(Builder builder) {
-        builder.open("ReactionOutputSample")
-                .property("anchor", anchor)
-                .property("actualMol", actualMol)
-                .property("actualWeight", actualWeight)
-                .property("density", density)
-                .property("molarity", molarity)
-                .property("volume", volume)
-                .property("purity", purity)
-                .property("yield", yield)
-                .property("registrationStatus", registrationStatus)
-                .property("registrationStatusMessage", registrationStatusMessage)
-                .property("sampleId", sampleId)
-                .property("strCode", strCode)
-                .property("nbkBatchNumber", nbkBatchNumber)
-                .close();
+    public String toString() {
+        return ToStringUtil.toStringBuild(METAMODEL, this);
     }
 }

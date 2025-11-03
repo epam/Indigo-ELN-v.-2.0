@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.model;
 
+import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -7,14 +8,16 @@ import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
-
-import java.util.UUID;
 
 @Getter
 @Setter
 @EqualsAndHashCode(exclude = "reaction")
-public sealed abstract class ReactionRow implements ExperimentModelNode, ToStringTree permits ReactionInput, ReactionOutput {
+public sealed abstract class ReactionRow implements ExperimentModelNode permits ReactionInput, ReactionOutput {
+
+    protected static <C extends ReactionRow> void addBaseProperties(Metamodel<C> metamodel) {
+        metamodel.simpleProperty("compound", ReactionRow::getCompound, ReactionRow::setCompound);
+        metamodel.enteredValueProperty("eq", ReactionRow::getEq, ReactionRow::setEq);
+    }
 
     @JsonBackReference
     protected Reaction reaction;
@@ -28,10 +31,5 @@ public sealed abstract class ReactionRow implements ExperimentModelNode, ToStrin
     @Override
     public void prepareToRecalculate() {
         EnteredValue.prepareToRecalculate(eq, this::setEq, EnteredValue.DEFAULT_ONE);
-    }
-
-    @Override
-    public String toString() {
-        return toStringTree();
     }
 }
