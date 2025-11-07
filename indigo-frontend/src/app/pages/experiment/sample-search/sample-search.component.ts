@@ -58,6 +58,7 @@ import { MutateModelForm } from '@core/types/entities/experiments/experiment-mut
 import { ExperimentModelService } from '@core/services/experiment/experiment-model.service';
 import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { distinctUntilChanged } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 export interface SampleSearchDialogData {
   experimentId: UUID;
@@ -154,12 +155,18 @@ export class SampleSearchComponent implements OnInit {
       .subscribe((list) => {
         this.healthHazardsOptions = list;
       });
+    // when user (de)selects "Only My Materials" when search was already triggered, reload search results
     this.form.valueChanges
-      .pipe(distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        map((form) => form.marked),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: (value) => {
-          console.log('Form changed: ', value);
-          this.performSearch();
+        next: () => {
+          if (this.loader.started) {
+            this.performSearch();
+          }
         },
       });
   }
@@ -273,8 +280,7 @@ export class SampleSearchComponent implements OnInit {
       },
     });
     dialogRef.afterClosed().subscribe((result) => {
-      console.log('after ketcher dialog closed', result);
-      if (result.success) {
+      if (result?.success) {
         this.structureMolFile = result.molFile;
         this.structureImage = URL.createObjectURL(result.molFileImage);
       }
