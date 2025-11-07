@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardComponent } from '@/core/components/common/card/card.component';
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
@@ -6,6 +6,10 @@ import { ExperimentImageService } from '@/core/services/experiment/experiment-im
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { CdkAccordionModule } from '@angular/cdk/accordion';
 import { ReactionViewComponent } from '@core/components/experiment/reaction-view/reaction-view.component';
+import { SampleSearchComponent } from '@pages/experiment/sample-search/sample-search.component';
+import { MatDialog } from '@angular/material/dialog';
+import { ExperimentModelService } from '@core/services/experiment/experiment-model.service';
+import { ButtonComponent } from '@core/components/common/button/button.component';
 
 @Component({
   selector: 'eln-experiment-info',
@@ -15,14 +19,18 @@ import { ReactionViewComponent } from '@core/components/experiment/reaction-view
     CardComponent,
     MatProgressSpinner,
     CdkAccordionModule,
-    ReactionViewComponent
-],
+    ReactionViewComponent,
+    ButtonComponent,
+  ],
   providers: [ExperimentImageService],
   templateUrl: './experiment-info.component.html',
 })
 export class ExperimentInfoComponent implements OnInit {
   experimentDetailService = inject(ExperimentDetailService);
+  experimentModelService = inject(ExperimentModelService);
   experimentImageService = inject(ExperimentImageService);
+
+  dialog = inject(MatDialog);
 
   // Signal to track if model is being updated
   isUpdating = signal<boolean>(false);
@@ -31,6 +39,11 @@ export class ExperimentInfoComponent implements OnInit {
   experiment = computed(() => this.experimentDetailService.experimentDetail());
   isLoading = computed(() => this.experimentDetailService.isLoading());
   hasError = computed(() => this.experimentDetailService.hasError());
+
+  // Computed signals from the model service
+  model = computed(() => this.experimentModelService.experimentModel());
+  modelLoading = computed(() => this.experimentModelService.isLoading());
+  modelError = computed(() => this.experimentModelService.hasError());
 
   // Computed signals from image service
   experimentImageUrl = computed(() => this.experimentImageService.imageUrl());
@@ -43,6 +56,7 @@ export class ExperimentInfoComponent implements OnInit {
     const experimentId = this.experiment()?.id;
     if (experimentId) {
       this.experimentImageService.load(experimentId);
+      this.experimentModelService.load(experimentId);
     }
   }
 
@@ -51,5 +65,18 @@ export class ExperimentInfoComponent implements OnInit {
 
     // When update completes, refresh the image
     if (!isUpdating) this.experimentImageService.refresh();
+  }
+
+  // TODO move to Stoichiometry table when it's available
+  showAddMaterialDialog() {
+    const [experiment, model] = [this.experiment(), this.model()];
+    if (experiment && model) {
+      this.dialog.open(SampleSearchComponent, {
+        data: {
+          experimentId: experiment.id,
+          reactionAnchor: model.reactions[0].anchor,
+        },
+      });
+    }
   }
 }

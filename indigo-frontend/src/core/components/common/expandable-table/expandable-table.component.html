@@ -1,0 +1,81 @@
+<div class="overflow-hidden">
+  <table
+    mat-table
+    [dataSource]="dataSource"
+    multiTemplateDataRows
+    class="w-full"
+  >
+    <ng-container matColumnDef="expand">
+      <th mat-header-cell *matHeaderCellDef class="w-16"></th>
+      <td mat-cell *matCellDef="let element" class="w-16 !border-none">
+        <button
+          mat-icon-button
+          (click)="toggleRow(element); $event.stopPropagation()"
+          class="transition-transform duration-200"
+        >
+          <mat-icon>{{
+            expandedElements.has(element) ? 'expand_less' : 'expand_more'
+          }}</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <ng-container *ngFor="let col of columnDefs" [matColumnDef]="col.name">
+      <th
+        mat-header-cell
+        *matHeaderCellDef
+        class="text-left text-sm font-semibold text-gray-700 px-6 py-3"
+      >
+        {{ col.displayName }}
+      </th>
+      <td
+        mat-cell
+        *matCellDef="let element"
+        class="px-6 py-4 text-sm text-gray-600 !border-none"
+      >
+        <ng-container
+          *ngTemplateOutlet="col.template; context: { $implicit: element }"
+        ></ng-container>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="expandedDetail">
+      <td
+        mat-cell
+        *matCellDef="let element"
+        [attr.colspan]="columnNames.length"
+        class="p-0 !border-none"
+      >
+        <div
+          class="overflow-hidden block"
+          [@detailExpand]="
+            expandedElements.has(element) ? 'expanded' : 'collapsed'
+          "
+        >
+          <ng-container
+            *ngTemplateOutlet="details; context: { $implicit: element }"
+          ></ng-container>
+        </div>
+      </td>
+    </ng-container>
+
+    <tr
+      mat-header-row
+      *matHeaderRowDef="columnNames"
+      class="bg-gray-50 !border-none"
+    ></tr>
+
+    <tr
+      mat-row
+      *matRowDef="let row; columns: columnNames"
+      class="hover:bg-gray-50 !border-none"
+      [class.bg-blue-50]="expandedElements.has(row)"
+    ></tr>
+
+    <tr
+      mat-row
+      *matRowDef="let row; columns: ['expandedDetail']"
+      class="!h-0 !border-none"
+    ></tr>
+  </table>
+</div>

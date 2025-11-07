@@ -42,9 +42,9 @@ export enum EnteredValueSource {
   DEFAULT = 'DEFAULT',
 }
 
-export interface EnteredValue {
+export interface EnteredValue<U> {
   value: number;
-  unit: string;
+  unit: U;
   source: EnteredValueSource;
   conflict: boolean;
 }

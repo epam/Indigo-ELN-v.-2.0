@@ -1,17 +1,17 @@
 import {
-  ReactionRole,
-  MolUnit,
   DensityUnit,
+  ExternalSupplier,
+  MeltingPoint,
   MolarityUnit,
+  MolUnit,
+  PurityCalculation,
+  ReactionOutputType,
+  ReactionRole,
+  ResidualSolvent,
+  SolubidityInSolvent,
+  UUID,
   VolumeUnit,
   WeightUnit,
-  ReactionOutputType,
-  UUID,
-  SolubidityInSolvent,
-  ResidualSolvent,
-  MeltingPoint,
-  PurityCalculation,
-  ExternalSupplier,
 } from './experiment-shared.i';
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 
@@ -19,11 +19,11 @@ import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface BaseMutation {}
 
-type ReactionAnchor = string;
-type ReactionInputAnchor = string;
-type ReactionInputSampleAnchor = string;
-type ReactionOutputAnchor = string;
-type ReactionOutputSampleAnchor = string;
+export type ReactionAnchor = string;
+export type ReactionInputAnchor = string;
+export type ReactionInputSampleAnchor = string;
+export type ReactionOutputAnchor = string;
+export type ReactionOutputSampleAnchor = string;
 
 interface ReactionMutation extends BaseMutation {
   anchor: ReactionAnchor;

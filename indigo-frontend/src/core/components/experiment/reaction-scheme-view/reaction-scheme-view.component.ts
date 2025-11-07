@@ -46,11 +46,12 @@ export class ReactionSchemeViewComponent {
       data: {
         height: '600px',
         width: '100%',
-        reaction: this.reaction
-      }
+        isReaction: true,
+        reaction: this.reaction,
+      },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result?.success && result?.mutations) {
         this.updateExperimentWithMutations(result.mutations);
       } else if (result && !result.success) {
@@ -79,13 +80,14 @@ export class ReactionSchemeViewComponent {
 
     const payload: MutateModelForm = {
       model: this.experimentModelService.experimentModel(),
-      mutation: firstMutation
+      mutation: firstMutation,
     };
 
     // Notify parent that update is starting
     this.modelUpdating.emit(true);
 
-    this.experimentModelService.updateDataModel(this.experimentId!, payload)
+    this.experimentModelService
+      .updateDataModel(this.experimentId!, payload)
       .subscribe({
         next: () => {
           // Notify parent that update completed

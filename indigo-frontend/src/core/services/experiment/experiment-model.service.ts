@@ -4,7 +4,9 @@ import { ApiService } from '@/core/services/api.service';
 import { ExperimentModel } from '@/core/types/entities/experiments/experiment.i';
 import { MutateModelForm } from '@/core/types/entities/experiments/experiment-mutate-form.i';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class ExperimentModelService {
   private service = inject(ApiService);
 
@@ -16,6 +18,7 @@ export class ExperimentModelService {
 
   // Query methods
   load(experimentId: string) {
+    console.log('ExperimentModelService.load', experimentId);
     this.currentId.set(experimentId);
     this.isLoading.set(true);
     this.hasError.set(false);
@@ -28,7 +31,10 @@ export class ExperimentModelService {
           this.isLoading.set(false);
         },
         error: (error) => {
-          console.warn('No existing experiment model found or error loading:', error);
+          console.warn(
+            'No existing experiment model found or error loading:',
+            error,
+          );
           this.experimentModel.set(null);
           this.hasError.set(true);
           this.isLoading.set(false);
@@ -36,12 +42,19 @@ export class ExperimentModelService {
       });
   }
 
-  updateDataModel(experimentId: string, payload: MutateModelForm): Observable<ExperimentModel> {
+  updateDataModel(
+    experimentId: string,
+    payload: MutateModelForm,
+  ): Observable<ExperimentModel> {
     this.isLoading.set(true);
     this.hasError.set(false);
-    
+
     return this.service
-      .request<ExperimentModel>('post', `experiments/${experimentId}/datamodel`, payload)
+      .request<ExperimentModel>(
+        'post',
+        `experiments/${experimentId}/datamodel`,
+        payload,
+      )
       .pipe(
         tap({
           next: (updatedModel) => {
@@ -52,8 +65,8 @@ export class ExperimentModelService {
             console.error('Error updating experiment model:', error);
             this.hasError.set(true);
             this.isLoading.set(false);
-          }
-        })
+          },
+        }),
       );
   }
 

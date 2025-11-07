@@ -1,0 +1,40 @@
+<div class="flex gap-4 items-center justify-between border rounded-sm">
+  <mat-select
+    [value]="value.type"
+    (valueChange)="setType($event)"
+    class="basis-64"
+    (blur)="onTouched?.()"
+    [disabled]="disabled"
+  >
+    @for (type of TextSearchTypeNames | keyvalue: null; track type) {
+      <mat-option [value]="type.key">{{ type.value }}</mat-option>
+    }
+  </mat-select>
+  @if (value.type !== 'between') {
+    <input
+      matInput
+      [value]="value.value"
+      (input)="setInputValue($event)"
+      (blur)="onTouched?.()"
+      [disabled]="disabled"
+      class="basis-128"
+    />
+  } @else {
+    <input
+      matInput
+      [value]="value.from"
+      (input)="setInputFrom($event)"
+      (blur)="onTouched?.()"
+      [disabled]="disabled"
+      class="basis-64"
+    />
+    <input
+      matInput
+      [value]="value.to"
+      (input)="setInputTo($event)"
+      (blur)="onTouched?.()"
+      [disabled]="disabled"
+      class="basis-64"
+    />
+  }
+</div>

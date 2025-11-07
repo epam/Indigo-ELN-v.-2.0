@@ -1,0 +1,9 @@
+@if (src) {
+  <img [src]="src" [alt]="altText" />
+} @else {
+  <div
+    [appIsInViewport]="true"
+    [triggerOnce]="true"
+    (enteredViewport)="load()"
+  ></div>
+}
