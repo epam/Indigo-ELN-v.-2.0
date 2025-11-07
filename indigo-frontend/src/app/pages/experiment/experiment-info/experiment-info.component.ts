@@ -9,6 +9,7 @@ import { ReactionViewComponent } from '@core/components/experiment/reaction-view
 import { SampleSearchComponent } from '@pages/experiment/sample-search/sample-search.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ExperimentModelService } from '@core/services/experiment/experiment-model.service';
+import { ButtonComponent } from '@core/components/common/button/button.component';
 
 @Component({
   selector: 'eln-experiment-info',
@@ -18,8 +19,9 @@ import { ExperimentModelService } from '@core/services/experiment/experiment-mod
     CardComponent,
     MatProgressSpinner,
     CdkAccordionModule,
-    ReactionViewComponent
-],
+    ReactionViewComponent,
+    ButtonComponent,
+  ],
   providers: [ExperimentImageService],
   templateUrl: './experiment-info.component.html',
 })
@@ -67,13 +69,12 @@ export class ExperimentInfoComponent implements OnInit {
 
   // TODO move to Stoichiometry table when it's available
   showAddMaterialDialog() {
-    const [e, m] = [this.experiment(), this.model()];
-    console.log('showAddMaterialDialog', this.experimentModelService, m);
-    if (e && m) {
+    const [experiment, model] = [this.experiment(), this.model()];
+    if (experiment && model) {
       this.dialog.open(SampleSearchComponent, {
         data: {
-          experimentId: e.id,
-          reactionAnchor: m.reactions[0].anchor,
+          experimentId: experiment.id,
+          reactionAnchor: model.reactions[0].anchor,
         },
       });
     }

@@ -57,6 +57,7 @@ import { UUID } from '@core/types/entities/experiments/experiment-shared.i';
 import { MutateModelForm } from '@core/types/entities/experiments/experiment-mutate-form.i';
 import { ExperimentModelService } from '@core/services/experiment/experiment-model.service';
 import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
+import { distinctUntilChanged } from 'rxjs';
 
 export interface SampleSearchDialogData {
   experimentId: UUID;
@@ -123,7 +124,6 @@ export class SampleSearchComponent implements OnInit {
     casNumber: new FormControl<TextSearch | null>(null),
     marked: new FormControl<boolean>(false),
   });
-  lastMarked = this.form.value.marked;
   structureMolFile: string | null = null;
   structureImage: string | null = null;
 
@@ -154,15 +154,14 @@ export class SampleSearchComponent implements OnInit {
       .subscribe((list) => {
         this.healthHazardsOptions = list;
       });
-    this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (value) => {
-        console.log('Form changed: ', value);
-        if (value.marked !== this.lastMarked) {
-          this.lastMarked = value.marked;
+    this.form.valueChanges
+      .pipe(distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (value) => {
+          console.log('Form changed: ', value);
           this.performSearch();
-        }
-      },
-    });
+        },
+      });
   }
 
   updateAdvancedSearchSummary(show: boolean) {

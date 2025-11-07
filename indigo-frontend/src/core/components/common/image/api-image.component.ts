@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, forwardRef, inject, Input } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, inject, Input } from '@angular/core';
 import { IsInViewportDirective } from '@core/directives/is-in-viewport.directive';
 import { ApiService } from '@core/services/api.service';
 
@@ -8,13 +7,6 @@ import { ApiService } from '@core/services/api.service';
   selector: 'eln-api-image',
   templateUrl: './api-image.component.html',
   standalone: true,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => ApiImageComponent),
-      multi: true,
-    },
-  ],
   imports: [CommonModule, IsInViewportDirective],
 })
 export class ApiImageComponent {

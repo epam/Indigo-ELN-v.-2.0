@@ -80,10 +80,11 @@
     </cdk-accordion-item>
   </cdk-accordion>
 
-  <a
-    href="#"
-    (click)="showAddMaterialDialog(); $event.preventDefault()"
-    class="underline"
-    >Add Material</a
+  <eln-button
+    type="button"
+    variant="blue"
+    (click)="showAddMaterialDialog()"
   >
+    Add Material
+  </eln-button>
 </div>

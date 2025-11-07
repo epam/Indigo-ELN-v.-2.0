@@ -64,7 +64,7 @@ export class NumericSearchComponent implements ControlValueAccessor {
     const value = !isNaN(this.value.value)
       ? { type: this.value.type, value: this.value.value }
       : null;
-    this.onChange?.(value);
+    this.onChange(value);
   }
 
   protected readonly NumericSearchTypeNames = NumericSearchTypeNames;
