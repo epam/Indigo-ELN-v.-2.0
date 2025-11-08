@@ -9,18 +9,18 @@ import java.util.List;
 
 public class ToStringUtil {
 
-    public static <C> String toStringBuild(Metamodel<C> metamodel, C container) {
+    public static <C, P> String toStringBuild(Metamodel<C, P> metamodel, C container) {
         Builder builder = new Builder();
         doBuild(metamodel, container, builder);
         return builder.toString();
     }
 
     @SuppressWarnings("unchecked")
-    private static <C> void doBuild(Metamodel<C> metamodel, C container, Builder builder) {
+    private static <C, P> void doBuild(Metamodel<C, P> metamodel, C container, Builder builder) {
         builder.open(metamodel.getName());
-        for (ModelProperty<C, ?> property : metamodel.getProperties()) {
-            if (property instanceof ListProperty<?, ?>) {
-                ListProperty<C, Object> listProperty = (ListProperty<C, Object>) property;
+        for (ModelProperty<C, ?, P, ?> property : metamodel.getProperties()) {
+            if (property instanceof ListProperty) {
+                ListProperty<C, Object, P, Object> listProperty = property.cast();
                 builder.open(listProperty.name());
                 List<Object> children = listProperty.get(container);
                 for (Object child : children) {

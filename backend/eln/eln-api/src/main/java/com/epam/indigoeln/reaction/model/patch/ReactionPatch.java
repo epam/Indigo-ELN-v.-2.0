@@ -14,7 +14,7 @@ import java.util.Optional;
 public class ReactionPatch extends AbstractListElementPatch<Anchor.Reaction> {
 
     @Nullable
-    private Optional<String> rxnFile;
+    private Optional<String> rxnfile;
 
     @Nullable
     private Optional<Integer> rxnVersion; // TODO not needed with patch approach, remove when frontend is switched

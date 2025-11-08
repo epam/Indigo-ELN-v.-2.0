@@ -3,6 +3,7 @@ package com.epam.indigoeln.compound.service;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.model.*;
 import com.epam.indigoeln.eln.ELNBaseTest;
+import com.epam.indigoeln.eln.api.CompoundAPI;
 import com.epam.indigoeln.eln.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
@@ -29,6 +30,7 @@ import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsStream;
+import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
@@ -42,6 +44,8 @@ public class CompoundServiceTest extends ELNBaseTest {
     IndigoAPI indigo;
     @Inject
     CompoundService compoundService;
+    @Inject
+    CompoundAPI compoundAPI;
     @Inject
     DictionaryService dictionaryService;
 
@@ -161,6 +165,17 @@ public class CompoundServiceTest extends ELNBaseTest {
     void testQuickSearch() {
         Page<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest().withQuickSearch("\"" + strOtherCompound + "\""), Paging.DEFAULT);
         assertThat(found.getItems()).singleElement().returns(strOtherCompound, SampleDTO::getStrCode);
+    }
+
+    @Test
+    @Order(650)
+    void testSearchRequestValidation() {
+        assertThatClientCall(() -> {
+            compoundAPI.findSamples(new FindSamplesRequest()
+                            .withStrCode(new TextSearch.ExactSearch(null))
+                    , Paging.DEFAULT
+            );
+        }).isBadRequest("findSamples.request.strCode.value: must not be null");
     }
 
     @Test

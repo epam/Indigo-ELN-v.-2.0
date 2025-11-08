@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
+import com.epam.indigoeln.reaction.model.patch.ReactionInputSamplePatch;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
@@ -18,14 +19,14 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ReactionInputSample extends ReactionSample implements ExperimentModelNode {
 
-    public static final Metamodel<ReactionInputSample> METAMODEL = new Metamodel<ReactionInputSample>("ReactionInput")
+    public static final Metamodel<ReactionInputSample, ReactionInputSamplePatch> METAMODEL = new Metamodel<ReactionInputSample, ReactionInputSamplePatch>("ReactionInputSample")
+            .anchorProperty("anchor", ReactionInputSample::getAnchor, ReactionInputSample::setAnchor, ReactionInputSamplePatch::getAnchor, ReactionInputSamplePatch::setAnchor)
             .accept(ReactionSample::addBaseProperties)
-            .anchorProperty("anchor", ReactionInputSample::getAnchor, ReactionInputSample::setAnchor)
-            .simpleProperty("sampleId", ReactionInputSample::getSampleId, ReactionInputSample::setSampleId)
-            .simpleProperty("chemicalName", ReactionInputSample::getChemicalName, ReactionInputSample::setChemicalName)
-            .enteredValueProperty("mol", ReactionInputSample::getMol, ReactionInputSample::setMol)
-            .enteredValueProperty("weight", ReactionInputSample::getWeight, ReactionInputSample::setWeight)
-            .simpleProperty("comment", ReactionInputSample::getComment, ReactionInputSample::setComment)
+            .simpleProperty("sampleId", ReactionInputSample::getSampleId, ReactionInputSample::setSampleId, ReactionInputSamplePatch::getSampleId, ReactionInputSamplePatch::setSampleId)
+            .simpleProperty("chemicalName", ReactionInputSample::getChemicalName, ReactionInputSample::setChemicalName, ReactionInputSamplePatch::getChemicalName, ReactionInputSamplePatch::setChemicalName)
+            .enteredValueProperty("mol", ReactionInputSample::getMol, ReactionInputSample::setMol, ReactionInputSamplePatch::getMol, ReactionInputSamplePatch::setMol)
+            .enteredValueProperty("weight", ReactionInputSample::getWeight, ReactionInputSample::setWeight, ReactionInputSamplePatch::getWeight, ReactionInputSamplePatch::setWeight)
+            .simpleProperty("comment", ReactionInputSample::getComment, ReactionInputSample::setComment, ReactionInputSamplePatch::getComment, ReactionInputSamplePatch::setComment)
             ;
 
     @JsonBackReference

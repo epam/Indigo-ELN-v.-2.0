@@ -1,7 +1,8 @@
 package com.epam.indigoeln.reaction.model.patch;
 
 import com.epam.indigoeln.reaction.model.Anchor;
-import com.epam.indigoeln.reaction.model.units.*;
+import com.epam.indigoeln.reaction.model.units.MolUnit;
+import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
@@ -25,4 +26,7 @@ public class ReactionInputSamplePatch extends AbstractReactionSamplePatch<Anchor
 
     @Nullable
     private Optional<EnteredValuePatch<WeightUnit>> weight;
+
+    @Nullable
+    private Optional<String> comment;
 }

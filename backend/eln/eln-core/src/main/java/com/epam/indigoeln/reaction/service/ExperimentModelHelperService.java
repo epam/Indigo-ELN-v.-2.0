@@ -66,7 +66,7 @@ public class ExperimentModelHelperService {
 
             List<IndigoMolecule> molecules = new ArrayList<>();
             // noinspection rawtypes,unchecked
-            Iterable<ReactionRow> rows = role == ReactionRole.OUTPUT ? (Iterable) reaction.getOutputs() : (Iterable) reaction.getInputsOfType(role);
+            Iterable<ReactionRow> rows = role == ReactionRole.OUTPUT ? (Iterable) reaction.getOutputs() : (Iterable) reaction.inputsOfType(role);
             for (ReactionRow input : rows) {
                 String molfile = switch (input.getCompound()) {
                     case CompoundRef.Stored stored -> compoundService.getCompound(stored.getCompoundID()).getMolFile();

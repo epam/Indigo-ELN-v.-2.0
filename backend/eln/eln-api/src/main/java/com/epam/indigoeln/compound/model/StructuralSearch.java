@@ -1,8 +1,10 @@
 package com.epam.indigoeln.compound.model;
 
+import jakarta.validation.constraints.NotNull;
+
 public record StructuralSearch(
-        Type type,
-        String query
+        @NotNull Type type,
+        @NotNull String query
 ) {
 
     public enum Type {

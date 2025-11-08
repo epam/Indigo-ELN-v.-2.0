@@ -1,6 +1,8 @@
 package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
+import com.epam.indigoeln.reaction.model.patch.ReactionOutputPatch;
+import com.epam.indigoeln.reaction.model.patch.handler.ReactionOutputSampleValueHandler;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
@@ -19,14 +21,14 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ReactionOutput extends ReactionRow implements ExperimentModelNode {
 
-    public static final Metamodel<ReactionOutput> METAMODEL = new Metamodel<ReactionOutput>("ReactionInput")
+    public static final Metamodel<ReactionOutput, ReactionOutputPatch> METAMODEL = new Metamodel<ReactionOutput, ReactionOutputPatch>("ReactionOutput")
+            .anchorProperty("anchor", ReactionOutput::getAnchor, ReactionOutput::setAnchor, ReactionOutputPatch::getAnchor, ReactionOutputPatch::setAnchor)
             .accept(ReactionRow::addBaseProperties)
-            .anchorProperty("anchor", ReactionOutput::getAnchor, ReactionOutput::setAnchor)
-            .simpleProperty("chemicalName", ReactionOutput::getChemicalName, ReactionOutput::setChemicalName)
-            .simpleProperty("type", ReactionOutput::getType, ReactionOutput::setType)
-            .enteredValueProperty("theoMol", ReactionOutput::getTheoMol, ReactionOutput::setTheoMol)
-            .enteredValueProperty("theoWeight", ReactionOutput::getTheoWeight, ReactionOutput::setTheoWeight)
-            .listProperty("samples", ReactionOutput::getSamples, ReactionOutput::setSamples, ReactionOutputSample.METAMODEL)
+            .simpleProperty("chemicalName", ReactionOutput::getChemicalName, ReactionOutput::setChemicalName, ReactionOutputPatch::getChemicalName, ReactionOutputPatch::setChemicalName)
+            .simpleProperty("type", ReactionOutput::getType, ReactionOutput::setType, ReactionOutputPatch::getType, ReactionOutputPatch::setType)
+            .enteredValueProperty("theoMol", ReactionOutput::getTheoMol, ReactionOutput::setTheoMol, ReactionOutputPatch::getTheoMol, ReactionOutputPatch::setTheoMol)
+            .enteredValueProperty("theoWeight", ReactionOutput::getTheoWeight, ReactionOutput::setTheoWeight, ReactionOutputPatch::getTheoWeight, ReactionOutputPatch::setTheoWeight)
+            .listProperty("samples", ReactionOutput::getSamples, ReactionOutput::setSamples, ReactionOutputPatch::getSamples, ReactionOutputPatch::setSamples, ReactionOutputSample.METAMODEL, ReactionOutputSampleValueHandler.LIST_INSTANCE)
             ;
 
     @NotNull

@@ -2,8 +2,10 @@ package com.epam.indigoeln.reaction.model.patch;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.NbkBatchNumber;
+import com.epam.indigoeln.eln.model.STRCodeCompound;
 import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.SampleRegistrationStatus;
+import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
@@ -36,6 +38,9 @@ public class ReactionOutputSamplePatch extends AbstractReactionSamplePatch<Ancho
     private Optional<SampleRegistrationStatus> registrationStatus;
 
     @Nullable
+    private Optional<String> registrationStatusMessage;
+
+    @Nullable
     private Optional<UUID> sampleId;
 
     @Nullable
@@ -47,7 +52,42 @@ public class ReactionOutputSamplePatch extends AbstractReactionSamplePatch<Ancho
     @Nullable
     private Optional<List<DictionaryItemRef>> compoundProtection;
 
-    // TODO all other properties
-//    @Nullable
-//    private Optional<List<SolubidityInSolvent>> solubidityInSolvents;
+    @Nullable
+    private Optional<List<SolubidityInSolvent>> solubilityInSolvents;
+
+    @Nullable
+    private Optional<List<ResidualSolvent>> residualSolvents;
+
+    @Nullable
+    private Optional<MeltingPoint> meltingPoint;
+
+    @Nullable
+    private Optional<List<PurityCalculation>> purityCalculations;
+
+    @Nullable
+    private Optional<ExternalSupplier> externalSupplier;
+
+    @Nullable
+    private Optional<DictionaryItemRef> source;
+
+    @Nullable
+    private Optional<DictionaryItemRef> sourceDetails;
+
+    @Nullable
+    private Optional<DictionaryItemRef> componentState;
+
+    @Nullable
+    private Optional<String> batchComment;
+
+    @Nullable
+    private Optional<String> structureComment;
+
+    @Nullable
+    private Optional<Double> calculatedMolWeight;
+
+    @Nullable
+    private Optional<String> calculatedBatchMF;
+
+    @Nullable
+    private Optional<List<STRCodeCompound>> precursorReactantIds;
 }

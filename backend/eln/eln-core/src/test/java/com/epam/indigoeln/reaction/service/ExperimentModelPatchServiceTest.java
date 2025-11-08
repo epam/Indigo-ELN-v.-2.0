@@ -7,8 +7,8 @@ import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
+import com.epam.indigoeln.reaction.util.PatchTestUtil;
 import com.epam.indigoeln.test.FeignUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,14 +21,14 @@ class ExperimentModelPatchServiceTest {
 
     ExperimentModelPatchService service = new ExperimentModelPatchService();
 
-    ExperimentModel base = new ExperimentModel();
-    Reaction baseReaction = Reaction.create(base);
+    ExperimentModel baseModel = new ExperimentModel();
+    Reaction baseReaction = Reaction.create(baseModel);
     ExperimentModel model = new ExperimentModel();
     Reaction reaction = Reaction.create(model);
 
     @BeforeEach
     void setUp() {
-        base.setReactions(List.of(baseReaction));
+        baseModel.setReactions(List.of(baseReaction));
         model.setReactions(List.of(reaction));
     }
 
@@ -52,7 +52,7 @@ class ExperimentModelPatchServiceTest {
         Reaction reaction2 = Reaction.createWithAnchor(model, new Anchor.Reaction(10));
         model.setReactions(List.of(reaction, reaction2));
         makeAndVerifyPatch("""
-                {"reactions": {"1": {"xfrom": null, "anchor": "R10", "rxnFile": "", "rxnVersion": 0}}}
+                {"reactions": {"1": {"xfrom": null, "anchor": "R10", "rxnfile": "", "rxnVersion": 0}}}
         """);
     }
 
@@ -60,7 +60,7 @@ class ExperimentModelPatchServiceTest {
     void testReactionUpdated() throws Exception {
         reaction.setRxnfile("new");
         makeAndVerifyPatch("""
-                {"reactions": {"0": {"rxnFile": "new"}}}
+                {"reactions": {"0": {"rxnfile": "new"}}}
         """);
     }
 
@@ -74,15 +74,15 @@ class ExperimentModelPatchServiceTest {
 
     @Test
     void testReactionMovedAndChanged() throws Exception {
-        Reaction baseReaction2 = Reaction.createWithAnchor(base, new Anchor.Reaction(2));
-        Reaction baseReaction3 = Reaction.createWithAnchor(base, new Anchor.Reaction(3));
+        Reaction baseReaction2 = Reaction.createWithAnchor(baseModel, new Anchor.Reaction(2));
+        Reaction baseReaction3 = Reaction.createWithAnchor(baseModel, new Anchor.Reaction(3));
         Reaction reaction2 = Reaction.createWithAnchor(model, new Anchor.Reaction(2));
         Reaction reaction3 = Reaction.createWithAnchor(model, new Anchor.Reaction(3));
         reaction.setRxnfile("new");
-        base.setReactions(List.of(baseReaction, baseReaction2, baseReaction3));
+        baseModel.setReactions(List.of(baseReaction, baseReaction2, baseReaction3));
         model.setReactions(List.of(reaction2, reaction, reaction3));
         makeAndVerifyPatch("""
-                {"reactions": {"0": {"xfrom": 1}, "1": {"xfrom": 0, "rxnFile": "new"}}}
+                {"reactions": {"0": {"xfrom": 1}, "1": {"xfrom": 0, "rxnfile": "new"}}}
         """);
     }
 
@@ -94,7 +94,7 @@ class ExperimentModelPatchServiceTest {
         reaction.setInputs(List.of(input));
         input.setMol(EnteredValue.userLastEntered(10.0, MolUnit.MMOL));
         makeAndVerifyPatch("""
-                {"reactions": {"0": {"inputs": {"0": {"mol": {"value": 10.0, "unit": "MMOL", "source": "USER_LAST_ENTERED", "conflict": false}}}}}}
+                {"reactions": {"0": {"inputs": {"0": {"mol": {"value": 10.0, "unit": "MMOL", "source": "USER_LAST_ENTERED"}}}}}}
         """);
     }
 
@@ -123,13 +123,12 @@ class ExperimentModelPatchServiceTest {
         """);
     }
 
-    private void makeAndVerifyPatch(@Language("JSON") String expectedPatchStr) throws JsonProcessingException {
-        ExperimentModelPatch patch = service.createPatch(base, model);
+    private void makeAndVerifyPatch(@Language("JSON") String expectedPatchStr) throws Exception {
+        ExperimentModelPatch patch = service.createPatch(baseModel, model);
         String patchStr = FeignUtil.OBJECT_MAPPER.writeValueAsString(patch);
         System.out.println(expectedPatchStr.trim());
         System.out.println(patchStr);
         assertThat(expectedPatchStr.trim()).isEqualToIgnoringWhitespace(patchStr);
-        ExperimentModel appliedPatch = service.applyPatch(base, patch);
-        assertThat(model).isEqualTo(appliedPatch);
+        PatchTestUtil.verifyModelPatch(baseModel, patch, model);
     }
 }

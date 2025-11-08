@@ -1,9 +1,12 @@
 package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
+import com.epam.indigoeln.reaction.model.patch.ReactionInputPatch;
+import com.epam.indigoeln.reaction.model.patch.handler.ReactionInputSampleValueHandler;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.util.ToStringUtil;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -19,12 +22,13 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ReactionInput extends ReactionRow implements ExperimentModelNode {
 
-    public static final Metamodel<ReactionInput> METAMODEL = new Metamodel<ReactionInput>("ReactionInput")
+    public static final Metamodel<ReactionInput, ReactionInputPatch> METAMODEL = new Metamodel<ReactionInput, ReactionInputPatch>("ReactionInput")
+            .anchorProperty("anchor", ReactionInput::getAnchor, ReactionInput::setAnchor, ReactionInputPatch::getAnchor, ReactionInputPatch::setAnchor)
             .accept(ReactionRow::addBaseProperties)
-            .anchorProperty("anchor", ReactionInput::getAnchor, ReactionInput::setAnchor)
-            .simpleProperty("role", ReactionInput::getRole, ReactionInput::setRole)
-            .enteredValueProperty("mol", ReactionInput::getMol, ReactionInput::setMol)
-            .listProperty("samples", ReactionInput::getSamples, ReactionInput::setSamples, ReactionInputSample.METAMODEL)
+            .simpleProperty("role", ReactionInput::getRole, ReactionInput::setRole, ReactionInputPatch::getRole, ReactionInputPatch::setRole)
+            .enteredValueProperty("mol", ReactionInput::getMol, ReactionInput::setMol, ReactionInputPatch::getMol, ReactionInputPatch::setMol)
+            .simpleProperty("limiting", ReactionInput::isLimiting, ReactionInput::setLimiting, ReactionInputPatch::getLimiting, ReactionInputPatch::setLimiting, false)
+            .listProperty("samples", ReactionInput::getSamples, ReactionInput::setSamples, ReactionInputPatch::getSamples, ReactionInputPatch::setSamples, ReactionInputSample.METAMODEL, ReactionInputSampleValueHandler.LIST_INSTANCE)
             ;
 
     @NotNull
@@ -41,6 +45,7 @@ public final class ReactionInput extends ReactionRow implements ExperimentModelN
     @JsonManagedReference
     private List<ReactionInputSample> samples = List.of();
 
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private boolean limiting;
 
     public static ReactionInput create(Reaction reaction, ReactionRole role) {

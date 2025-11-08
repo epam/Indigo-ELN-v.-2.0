@@ -1,0 +1,45 @@
+package com.epam.indigoeln.reaction.model.patch.handler;
+
+import com.epam.indigoeln.reaction.model.metamodel.ValueHandler;
+import com.epam.indigoeln.reaction.util.Flag;
+import org.jspecify.annotations.Nullable;
+
+import java.util.Objects;
+import java.util.Optional;
+
+@SuppressWarnings("OptionalAssignedToNull")
+public class DefaultValueHandler<C, T> implements ValueHandler<C, T, T> {
+
+    private static final DefaultValueHandler<Object, Object> INSTANCE = new DefaultValueHandler<>();
+
+    public static <C, T, P> ValueHandler<C, T, P> instance() {
+        //noinspection unchecked,rawtypes
+        return (ValueHandler) INSTANCE;
+    }
+
+    @Nullable
+    @Override
+    public Optional<T> compare(Flag updated, @Nullable T a, @Nullable T b, @Nullable Optional<Integer> from) {
+        if (Objects.equals(a, b)) {
+            return null;
+        }
+        if (b == null) {
+            return Optional.empty();
+        }
+        updated.set();
+        return Optional.of(b);
+    }
+
+    @Nullable
+    @Override
+    public T apply(C container, @Nullable T value, @Nullable Optional<T> patch) {
+        if (patch == null) {
+            return value;
+        }
+        //noinspection OptionalIsPresent
+        if (patch.isEmpty()) {
+            return null;
+        }
+        return patch.get();
+    }
+}

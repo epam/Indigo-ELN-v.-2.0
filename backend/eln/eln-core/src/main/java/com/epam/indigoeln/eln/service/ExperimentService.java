@@ -1,8 +1,10 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.compound.model.FindSamplesRequest;
+import com.epam.indigoeln.compound.model.StructuralSearch;
 import com.epam.indigoeln.eln.api.AccessForm;
-import com.epam.indigoeln.eln.api.ExperimentAPI;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
@@ -17,6 +19,7 @@ import com.epam.indigoeln.eln.repository.TemplateRepository;
 import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
+import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
 import com.epam.indigoeln.reaction.service.ExperimentModelPatchService;
@@ -32,12 +35,14 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.StreamEx;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jspecify.annotations.Nullable;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -158,10 +163,14 @@ public class ExperimentService {
     }
 
     public ExperimentModel mutateModel(UUID experimentId, ExperimentModel model, Mutation mutation) {
-        return mutateModel2(experimentId, model, mutation).model();
+        return doMutateModel(experimentId, model, mutation).a();
     }
 
-    public ExperimentAPI.ModelAndPatch mutateModel2(UUID experimentId, ExperimentModel model, Mutation mutation) {
+    public ExperimentModelPatch mutateModel2(UUID experimentId, ExperimentModel model, Mutation mutation) {
+        return doMutateModel(experimentId, model, mutation).b();
+    }
+
+    private Pair<ExperimentModel, ExperimentModelPatch> doMutateModel(UUID experimentId, ExperimentModel model, Mutation mutation) {
         try {
             // TODO use clone?
             byte[] initialBytes = objectMapper.writeValueAsBytes(model);
@@ -172,8 +181,7 @@ public class ExperimentService {
             model = experimentModelService.applyMutation(experiment, model, mutation);
             experiment.setModel(model);
 
-            ExperimentModelPatch patch = experimentModelPatchService.createPatch(initial, model);
-            return new ExperimentAPI.ModelAndPatch(model, patch);
+            return Pair.of(model, experimentModelPatchService.createPatch(initial, model));
         } catch (Throwable e) {
             log.error("Failed to mutate model for experiment {}: {}", experimentId, e.getMessage(), e);
             throw new RuntimeException("Failed to mutate model: " + e.getMessage(), e);
@@ -202,6 +210,19 @@ public class ExperimentService {
         return Response.ok(experiment.getPicture() != null ? experiment.getPicture() : EMPTY_PICTURE, "image/svg+xml")
                 .cacheControl(cacheControl)
                 .build();
+    }
+
+    public Map<Anchor.Input, @Nullable FindSamplesRequest> analyzeRXN(UUID experimentId, Anchor.Reaction reactionAnchor) {
+        ExperimentModel model = getModel(experimentId);
+        Reaction reaction = model.locate(reactionAnchor);
+        return StreamEx.of(reaction.getInputs())
+                .toMap(ReactionInput::getAnchor, input -> {
+                    if (input.getCompound().getMolFile() == null) {
+                        return null;
+                    }
+                    return new FindSamplesRequest()
+                            .withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, input.getCompound().getMolFile()));
+                });
     }
 
     public Response printReport(UUID experimentId) {

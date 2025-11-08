@@ -2,20 +2,25 @@ package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
 import com.epam.indigoeln.reaction.model.mutation.*;
+import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
+import com.epam.indigoeln.reaction.model.patch.handler.ReactionValueHandler;
 import com.epam.indigoeln.reaction.util.ToStringUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
 @Data
+@EqualsAndHashCode(exclude = {"lastUsedAnchor", "lastUsedAnchorCached"})
 public final class ExperimentModel implements ExperimentModelNode {
 
-    public static final Metamodel<ExperimentModel> METAMODEL = new Metamodel<ExperimentModel>("ExperimentModel")
-            .simpleProperty("lastUsedAnchor", ExperimentModel::getLastUsedAnchor, ExperimentModel::setLastUsedAnchor)
-            .listProperty("reactions", ExperimentModel::getReactions, ExperimentModel::setReactions, Reaction.METAMODEL)
+    public static final Metamodel<ExperimentModel, ExperimentModelPatch> METAMODEL = new Metamodel<ExperimentModel, ExperimentModelPatch>("ExperimentModel")
+            .listProperty("reactions", ExperimentModel::getReactions, ExperimentModel::setReactions, ExperimentModelPatch::getReactions, ExperimentModelPatch::setReactions, Reaction.METAMODEL, ReactionValueHandler.LIST_INSTANCE)
             ;
 
     @Valid
@@ -23,10 +28,35 @@ public final class ExperimentModel implements ExperimentModelNode {
     @JsonManagedReference
     private List<Reaction> reactions = List.of();
 
-    private int lastUsedAnchor = 0;
+    @Nullable
+    @Deprecated // TODO for compatibility with old JSON, remove when dropping DB
+    private Integer lastUsedAnchor;
+
+    @Nullable
+    @JsonIgnore
+    private Integer lastUsedAnchorCached;
 
     public int generateNextAnchor() {
-        return ++lastUsedAnchor;
+        if (lastUsedAnchorCached == null) {
+            int last = -1;
+            for (Reaction reaction : reactions) {
+                last = Math.max(last, reaction.getAnchor().getNumber());
+                for (ReactionInput input : reaction.getInputs()) {
+                    last = Math.max(last, input.getAnchor().getNumber());
+                    for (ReactionInputSample sample : input.getSamples()) {
+                        last = Math.max(last, sample.getAnchor().getNumber());
+                    }
+                }
+                for (ReactionOutput output : reaction.getOutputs()) {
+                    last = Math.max(last, output.getAnchor().getNumber());
+                    for (ReactionOutputSample sample : output.getSamples()) {
+                        last = Math.max(last, sample.getAnchor().getNumber());
+                    }
+                }
+            }
+            lastUsedAnchorCached = last;
+        }
+        return ++lastUsedAnchorCached;
     }
 
     public int generateNextNbkBatchNumber() {

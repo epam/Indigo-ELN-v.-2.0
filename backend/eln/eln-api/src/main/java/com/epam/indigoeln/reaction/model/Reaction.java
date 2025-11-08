@@ -1,6 +1,9 @@
 package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
+import com.epam.indigoeln.reaction.model.patch.ReactionPatch;
+import com.epam.indigoeln.reaction.model.patch.handler.ReactionInputValueHandler;
+import com.epam.indigoeln.reaction.model.patch.handler.ReactionOutputValueHandler;
 import com.epam.indigoeln.reaction.util.ToStringUtil;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -24,12 +27,12 @@ import java.util.Objects;
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class Reaction implements ExperimentModelNode {
 
-    public static final Metamodel<Reaction> METAMODEL = new Metamodel<Reaction>("Reaction")
-            .anchorProperty("anchor", Reaction::getAnchor, Reaction::setAnchor)
-            .simpleProperty("rxnfile", Reaction::getRxnfile, Reaction::setRxnfile)
-            .simpleProperty("rxnVersion", Reaction::getRxnVersion, Reaction::setRxnVersion)
-            .listProperty("inputs", Reaction::getInputs, Reaction::setInputs, ReactionInput.METAMODEL)
-            .listProperty("outputs", Reaction::getOutputs, Reaction::setOutputs, ReactionOutput.METAMODEL)
+    public static final Metamodel<Reaction, ReactionPatch> METAMODEL = new Metamodel<Reaction, ReactionPatch>("Reaction")
+            .anchorProperty("anchor", Reaction::getAnchor, Reaction::setAnchor, ReactionPatch::getAnchor, ReactionPatch::setAnchor)
+            .simpleProperty("rxnfile", Reaction::getRxnfile, Reaction::setRxnfile, ReactionPatch::getRxnfile, ReactionPatch::setRxnfile)
+            .simpleProperty("rxnVersion", Reaction::getRxnVersion, Reaction::setRxnVersion, ReactionPatch::getRxnVersion, ReactionPatch::setRxnVersion)
+            .listProperty("inputs", Reaction::getInputs, Reaction::setInputs, ReactionPatch::getInputs, ReactionPatch::setInputs, ReactionInput.METAMODEL, ReactionInputValueHandler.LIST_INSTANCE)
+            .listProperty("outputs", Reaction::getOutputs, Reaction::setOutputs, ReactionPatch::getOutputs, ReactionPatch::setOutputs, ReactionOutput.METAMODEL, ReactionOutputValueHandler.LIST_INSTANCE)
             ;
 
     @JsonBackReference
@@ -102,7 +105,7 @@ public final class Reaction implements ExperimentModelNode {
         return null;
     }
 
-    public Iterable<ReactionInput> getInputsOfType(ReactionRole role) {
+    public Iterable<ReactionInput> inputsOfType(ReactionRole role) {
         return Iterables.filter(inputs, input -> input.getRole() == role);
     }
 

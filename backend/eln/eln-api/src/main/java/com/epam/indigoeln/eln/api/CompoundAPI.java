@@ -4,6 +4,7 @@ import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.eln.model.Page;
 import com.epam.indigoeln.eln.model.Paging;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -26,7 +27,7 @@ public interface CompoundAPI extends BaseAPI {
 
     @POST
     @Path("/samples/search")
-    Page<SampleDTO> findSamples(FindSamplesRequest request, @BeanParam Paging paging);
+    Page<SampleDTO> findSamples(@Valid FindSamplesRequest request, @BeanParam Paging paging);
 
     @POST
     @Path("/samples/{sampleID}/mark")
