@@ -66,13 +66,6 @@ public final class ReactionOutput extends ReactionRow implements ExperimentModel
     }
 
     @Override
-    public void prepareToRecalculate() {
-        super.prepareToRecalculate();
-        EnteredValue.prepareToRecalculate(theoMol, this::setTheoMol);
-        EnteredValue.prepareToRecalculate(theoWeight, this::setTheoWeight);
-    }
-
-    @Override
     public String toString() {
         return ToStringUtil.toStringBuild(METAMODEL, this);
     }

@@ -39,7 +39,11 @@ public class Metamodel<C, P> {
     }
 
     public <U extends MeasurementUnit> Metamodel<C, P> enteredValueProperty(String name, Function<C, EnteredValue<U>> getter, BiConsumer<C, EnteredValue<U>> setter, Function<P, Optional<EnteredValuePatch<U>>> patchGetter, BiConsumer<P, Optional<EnteredValuePatch<U>>> patchSetter) {
-        properties.add(new EnteredValueProperty<>(name, getter, setter, patchGetter, patchSetter));
+        return enteredValueProperty(name, getter, setter, patchGetter, patchSetter, null);
+    }
+
+    public <U extends MeasurementUnit> Metamodel<C, P> enteredValueProperty(String name, Function<C, EnteredValue<U>> getter, BiConsumer<C, EnteredValue<U>> setter, Function<P, Optional<EnteredValuePatch<U>>> patchGetter, BiConsumer<P, Optional<EnteredValuePatch<U>>> patchSetter, @Nullable EnteredValue<U> defaultValue) {
+        properties.add(new EnteredValueProperty<>(name, getter, setter, patchGetter, patchSetter, defaultValue));
         return this;
     }
 

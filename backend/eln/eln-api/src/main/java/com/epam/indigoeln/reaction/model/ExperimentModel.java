@@ -1,9 +1,14 @@
 package com.epam.indigoeln.reaction.model;
 
+import com.epam.indigoeln.reaction.model.metamodel.EnteredValueProperty;
 import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
+import com.epam.indigoeln.reaction.model.metamodel.ModelProperty;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
 import com.epam.indigoeln.reaction.model.patch.handler.ReactionValueHandler;
+import com.epam.indigoeln.reaction.model.units.EnteredValue;
+import com.epam.indigoeln.reaction.model.units.NoUnit;
+import com.epam.indigoeln.reaction.util.ExperimentModelUtil;
 import com.epam.indigoeln.reaction.util.ToStringUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -15,9 +20,11 @@ import lombok.EqualsAndHashCode;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 @Data
-@EqualsAndHashCode(exclude = {"lastUsedAnchorCached"})
+@EqualsAndHashCode(exclude = "lastUsedAnchorCached")
 public final class ExperimentModel implements ExperimentModelNode {
 
     public static final Metamodel<ExperimentModel, ExperimentModelPatch> METAMODEL = new Metamodel<ExperimentModel, ExperimentModelPatch>("ExperimentModel")
@@ -39,34 +46,43 @@ public final class ExperimentModel implements ExperimentModelNode {
 
     public int generateNextAnchor() {
         if (lastUsedAnchorCached == null) {
-            int last = -1;
-            for (Reaction reaction : reactions) {
-                last = Math.max(last, reaction.getAnchor().getNumber());
-                for (ReactionInput input : reaction.getInputs()) {
-                    last = Math.max(last, input.getAnchor().getNumber());
-                    for (ReactionInputSample sample : input.getSamples()) {
-                        last = Math.max(last, sample.getAnchor().getNumber());
-                    }
+            int[] last = {0};
+            walk(node -> {
+                Anchor anchor = switch (node) {
+                    case Reaction reaction -> reaction.getAnchor();
+                    case ReactionInput input -> input.getAnchor();
+                    case ReactionInputSample sample -> sample.getAnchor();
+                    case ReactionOutput output -> output.getAnchor();
+                    case ReactionOutputSample sample -> sample.getAnchor();
+                    default -> null;
+                };
+                if (anchor != null) {
+                    last[0] = Math.max(last[0], anchor.getNumber());
                 }
-                for (ReactionOutput output : reaction.getOutputs()) {
-                    last = Math.max(last, output.getAnchor().getNumber());
-                    for (ReactionOutputSample sample : output.getSamples()) {
-                        last = Math.max(last, sample.getAnchor().getNumber());
-                    }
-                }
-            }
-            lastUsedAnchorCached = last;
+            });
+            lastUsedAnchorCached = last[0];
         }
         return ++lastUsedAnchorCached;
     }
 
     public int generateNextNbkBatchNumber() {
-        int lastUsedNumber = reactions.stream()
-                .flatMap(r -> r.getOutputs().stream())
-                .flatMap(or -> or.getSamples().stream())
-                .mapToInt(s -> s.getNbkBatchNumber().getOrdinal())
-                .max().orElse(0);
-        return lastUsedNumber + 1;
+        int[] last = {0};
+        walk(node -> {
+            if (node instanceof ReactionOutputSample sample) {
+                last[0] = Math.max(last[0], sample.getNbkBatchNumber().getOrdinal());
+            }
+        });
+        return last[0] + 1;
+    }
+
+    public void prepareToRecalculate() {
+        walkProperties((node, property) -> {
+            if (property instanceof EnteredValueProperty<?, ?, ?>) {
+                EnteredValueProperty<ExperimentModelNode, NoUnit, Object> enteredValueProperty = property.cast();
+                System.out.println("!!! " + node.getClass().getSimpleName() + " - " + enteredValueProperty.name());
+                EnteredValue.prepareToRecalculate(enteredValueProperty.get(node), v -> enteredValueProperty.set(node, v), enteredValueProperty.defaultValue());
+            }
+        });
     }
 
     public Reaction locate(ReactionMutation mutation) {
@@ -149,5 +165,15 @@ public final class ExperimentModel implements ExperimentModelNode {
     @Override
     public String toString() {
         return ToStringUtil.toStringBuild(METAMODEL, this);
+    }
+
+    private void walk(Consumer<ExperimentModelNode> visitor) {
+        //noinspection rawtypes,unchecked
+        ExperimentModelUtil.walk((Metamodel) METAMODEL, this, visitor);
+    }
+
+    private void walkProperties(BiConsumer<ExperimentModelNode, ModelProperty<ExperimentModelNode, ?, ?, ?>> visitor) {
+        //noinspection rawtypes,unchecked
+        ExperimentModelUtil.walkProperties((Metamodel) METAMODEL, this, (BiConsumer) visitor);
     }
 }

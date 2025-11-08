@@ -28,9 +28,4 @@ public sealed abstract class ReactionRow implements ExperimentModelNode permits 
 
     @NotNull
     protected EnteredValue<NoUnit> eq;
-
-    @Override
-    public void prepareToRecalculate() {
-        EnteredValue.prepareToRecalculate(eq, this::setEq, EnteredValue.DEFAULT_ONE);
-    }
 }

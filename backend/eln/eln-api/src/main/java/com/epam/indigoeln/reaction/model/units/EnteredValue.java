@@ -69,7 +69,7 @@ public final class EnteredValue<U extends MeasurementUnit> {
         doPrepareToRecalculate(value, setter, null);
     }
 
-    public static <U extends MeasurementUnit> void prepareToRecalculate(EnteredValue<U> value, Consumer<EnteredValue<U>> setter, EnteredValue<U> defaultValue) {
+    public static <U extends MeasurementUnit> void prepareToRecalculate(EnteredValue<U> value, Consumer<EnteredValue<U>> setter, @Nullable EnteredValue<U> defaultValue) {
         doPrepareToRecalculate(value, setter, defaultValue);
     }
 

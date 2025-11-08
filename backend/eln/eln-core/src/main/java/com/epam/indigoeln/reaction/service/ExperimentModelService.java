@@ -18,8 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static com.epam.indigoeln.reaction.service.ExperimentModelHelperService.visitModel;
-
 @Slf4j
 @Transactional
 @ApplicationScoped
@@ -57,7 +55,8 @@ public class ExperimentModelService {
 
     @Valid
     public ExperimentModel applyMutation(ExperimentEntity experiment, ExperimentModel model, Mutation mutation) {
-        visitModel(model, ExperimentModelNode::prepareToRecalculate);
+//        visitModel(model, ExperimentModelNode::prepareToRecalculate);
+        model.prepareToRecalculate();
         // don't rewrite to dynamic lookup to have compile-time guarantee that all mutations are handled
         Pair<AbstractMutationHandler, Runnable> pair = switch (mutation) {
             case ReactionMutation rm -> {

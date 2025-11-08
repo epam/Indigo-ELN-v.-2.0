@@ -62,12 +62,6 @@ public final class ReactionInput extends ReactionRow implements ExperimentModelN
     }
 
     @Override
-    public void prepareToRecalculate() {
-        super.prepareToRecalculate();
-        EnteredValue.prepareToRecalculate(mol, this::setMol);
-    }
-
-    @Override
     public String toString() {
         return ToStringUtil.toStringBuild(METAMODEL, this);
     }

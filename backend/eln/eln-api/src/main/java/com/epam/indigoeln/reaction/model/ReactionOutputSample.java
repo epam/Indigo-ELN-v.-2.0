@@ -136,14 +136,6 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
         return sample;
     }
 
-    @Override
-    public void prepareToRecalculate() {
-        super.prepareToRecalculate();
-        EnteredValue.prepareToRecalculate(actualMol, this::setActualMol);
-        EnteredValue.prepareToRecalculate(actualWeight, this::setActualWeight);
-        EnteredValue.prepareToRecalculate(yield, this::setYield);
-    }
-
     @Nullable
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public Double getCalculatedMolWeight() {

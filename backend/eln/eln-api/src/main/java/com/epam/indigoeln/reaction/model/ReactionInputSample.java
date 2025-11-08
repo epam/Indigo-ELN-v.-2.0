@@ -62,13 +62,6 @@ public final class ReactionInputSample extends ReactionSample implements Experim
     }
 
     @Override
-    public void prepareToRecalculate() {
-        super.prepareToRecalculate();
-        EnteredValue.prepareToRecalculate(mol, this::setMol);
-        EnteredValue.prepareToRecalculate(weight, this::setWeight);
-    }
-
-    @Override
     public String toString() {
         return ToStringUtil.toStringBuild(METAMODEL, this);
     }

@@ -6,9 +6,6 @@ import java.util.function.Consumer;
 
 public sealed interface ExperimentModelNode permits ExperimentModel, Reaction, ReactionRow, ReactionSample, ReactionInput, ReactionInputSample, ReactionOutput, ReactionOutputSample {
 
-    default void prepareToRecalculate() {
-    }
-
     default void collectDictionaries(Consumer<DictionaryItemRef> consumer) {
     }
 }

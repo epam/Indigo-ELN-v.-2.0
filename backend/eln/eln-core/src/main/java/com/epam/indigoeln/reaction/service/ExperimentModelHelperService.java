@@ -95,6 +95,7 @@ public class ExperimentModelHelperService {
         }
     }
 
+    // !!! replace with walk methods
     public static void visitModel(ExperimentModel model, Consumer<ExperimentModelNode> visitor) {
         visitor.accept(model);
         for (Reaction reaction : model.getReactions()) {

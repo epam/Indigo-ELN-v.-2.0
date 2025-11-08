@@ -49,14 +49,6 @@ public sealed abstract class ReactionSample implements ExperimentModelNode permi
     protected List<DictionaryItemRef> healthHazards = List.of();
 
     @Override
-    public void prepareToRecalculate() {
-        EnteredValue.prepareToRecalculate(density, this::setDensity);
-        EnteredValue.prepareToRecalculate(molarity, this::setMolarity);
-        EnteredValue.prepareToRecalculate(volume, this::setVolume);
-        EnteredValue.prepareToRecalculate(purity, this::setPurity, EnteredValue.DEFAULT_ONE);
-    }
-
-    @Override
     public void collectDictionaries(Consumer<@Nullable DictionaryItemRef> consumer) {
         healthHazards.forEach(consumer);
     }
