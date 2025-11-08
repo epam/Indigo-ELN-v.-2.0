@@ -41,9 +41,9 @@ class ExperimentModelPatchServiceTest {
 
     @Test
     void testAttributeChange() throws Exception {
-        model.setLastUsedAnchor(10);
+        model.setRevision(10);
         makeAndVerifyPatch("""
-                {"lastUsedAnchor": 10}
+                {"revision": 10}
         """);
     }
 

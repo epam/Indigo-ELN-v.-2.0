@@ -5,7 +5,6 @@ import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.TextSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
-import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
@@ -279,12 +278,23 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
         reportBuilder.close();
     }
 
+    @Test
+    @Order(10_100)
+    void testIncorrectRevision() {
+        experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        model = experimentClient.getExperimentModel(experiment.getId());
+        reactionAnchor = model.getReactions().getFirst().getAnchor();
+        assertThatClientCall(() -> {
+            experimentClient.mutateExperimentModel2(experiment.getId(), 100, new ReactionMutation.AddEmptyInput(reactionAnchor));
+        }).isConflict("incorrect revision 100 requested; current revision 0");
+    }
+
     @SneakyThrows
     private void applyMutation(Mutation mutation) {
         System.out.println("Applying mutation: " + mutation);
         reportBuilder.addMutation(mutation);
 
-        ExperimentModelPatch patch = experimentClient.mutateExperimentModel2(experiment.getId(), new MutateModelForm(model, mutation));
+        ExperimentModelPatch patch = experimentClient.mutateExperimentModel2(experiment.getId(), model.getRevision(), mutation);
         ExperimentModel updatedModel = experimentClient.getExperimentModel(experiment.getId());
 
         reportBuilder.addPatch(FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch));

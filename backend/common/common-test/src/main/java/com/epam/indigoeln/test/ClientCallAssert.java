@@ -80,6 +80,10 @@ public class ClientCallAssert<T> extends AbstractAssert<ClientCallAssert<T>, Sup
         return isFailedWithStatusCode(HttpStatus.SC_NOT_FOUND, messagePattern, messagePatterns);
     }
 
+    public ClientCallAssert<T> isConflict(String messagePattern, String... messagePatterns) {
+        return isFailedWithStatusCode(HttpStatus.SC_CONFLICT, messagePattern, messagePatterns);
+    }
+
     public ClientCallAssert<T> isAllowedIf(boolean condition, String messagePattern, String... messagePatterns) {
         if (condition) {
             return isSuccessful();

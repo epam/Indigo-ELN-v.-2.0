@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.exception.IncorrectRevisionException;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
@@ -166,7 +167,12 @@ public class ExperimentService {
         return doMutateModel(experimentId, model, mutation).a();
     }
 
-    public ExperimentModelPatch mutateModel2(UUID experimentId, ExperimentModel model, Mutation mutation) {
+    public ExperimentModelPatch mutateModel2(UUID experimentId, Integer revision, Mutation mutation) {
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        ExperimentModel model = experiment.getModel();
+        if (!model.getRevision().equals(revision)) {
+            throw new IncorrectRevisionException(EntityType.EXPERIMENT, experimentId, revision, model.getRevision());
+        }
         return doMutateModel(experimentId, model, mutation).b();
     }
 
@@ -186,10 +192,6 @@ public class ExperimentService {
             log.error("Failed to mutate model for experiment {}: {}", experimentId, e.getMessage(), e);
             throw new RuntimeException("Failed to mutate model: " + e.getMessage(), e);
         }
-    }
-
-    public ExperimentModel applyModelPatch(UUID experimentId, ExperimentModel model, ExperimentModelPatch patch) {
-        return experimentModelPatchService.applyPatch(model, patch);
     }
 
     public byte[] getExperimentPicture(UUID experimentId) {

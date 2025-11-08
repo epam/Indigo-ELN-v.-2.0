@@ -51,6 +51,7 @@ public class ExperimentModelService {
         ExperimentModel model = new ExperimentModel();
         Reaction reaction = Reaction.create(model);
         model.setReactions(List.of(reaction));
+        model.setRevision(0);
         return model;
     }
 
@@ -141,6 +142,7 @@ public class ExperimentModelService {
         handler.setModel(model);
         Runnable handlerRun = pair.b();
         handlerRun.run();
+        model.setRevision(model.getRevision() + 1);
         reactionCalculator.recalculate(model);
 
         for (Reaction reaction : model.getReactions()) {

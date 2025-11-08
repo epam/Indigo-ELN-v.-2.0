@@ -9,6 +9,7 @@ import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.eln.service.ExperimentWorkflowService;
 import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
@@ -109,13 +110,8 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public ExperimentModelPatch mutateExperimentModel2(UUID experimentId, MutateModelForm modelAndMutation) {
-        return experimentService.mutateModel2(experimentId, modelAndMutation.getModel(), modelAndMutation.getMutation());
-    }
-
-    @Override
-    public ExperimentModel applyModelPatch(UUID experimentId, ModelAndPatch modelAndPatch) {
-        return experimentService.applyModelPatch(experimentId, modelAndPatch.model(), modelAndPatch.patch());
+    public ExperimentModelPatch mutateExperimentModel2(UUID experimentId, Integer revision, Mutation mutation) {
+        return experimentService.mutateModel2(experimentId, revision, mutation);
     }
 
     @Override

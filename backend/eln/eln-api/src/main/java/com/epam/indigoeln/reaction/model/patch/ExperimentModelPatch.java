@@ -13,5 +13,8 @@ import java.util.Optional;
 public class ExperimentModelPatch {
 
     @Nullable
+    private Optional<Integer> revision;
+
+    @Nullable
     private Optional<Map<Integer, ReactionPatch>> reactions;
 }

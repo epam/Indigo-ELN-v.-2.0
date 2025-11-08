@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.jspecify.annotations.Nullable;
@@ -16,10 +17,11 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 @Data
-@EqualsAndHashCode(exclude = {"lastUsedAnchor", "lastUsedAnchorCached"})
+@EqualsAndHashCode(exclude = {"lastUsedAnchorCached"})
 public final class ExperimentModel implements ExperimentModelNode {
 
     public static final Metamodel<ExperimentModel, ExperimentModelPatch> METAMODEL = new Metamodel<ExperimentModel, ExperimentModelPatch>("ExperimentModel")
+            .simpleProperty("revision", ExperimentModel::getRevision, ExperimentModel::setRevision, ExperimentModelPatch::getRevision, ExperimentModelPatch::setRevision)
             .listProperty("reactions", ExperimentModel::getReactions, ExperimentModel::setReactions, ExperimentModelPatch::getReactions, ExperimentModelPatch::setReactions, Reaction.METAMODEL, ReactionValueHandler.LIST_INSTANCE)
             ;
 
@@ -29,12 +31,11 @@ public final class ExperimentModel implements ExperimentModelNode {
     private List<Reaction> reactions = List.of();
 
     @Nullable
-    @Deprecated // TODO for compatibility with old JSON, remove when dropping DB
-    private Integer lastUsedAnchor;
-
-    @Nullable
     @JsonIgnore
     private Integer lastUsedAnchorCached;
+
+    @NotNull
+    private Integer revision;
 
     public int generateNextAnchor() {
         if (lastUsedAnchorCached == null) {
