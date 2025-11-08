@@ -2,6 +2,7 @@ package com.epam.indigoeln.reaction.service;
 
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.*;
@@ -14,8 +15,11 @@ import jakarta.inject.Provider;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.StreamEx;
 
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -55,7 +59,7 @@ public class ExperimentModelService {
 
     @Valid
     public ExperimentModel applyMutation(ExperimentEntity experiment, ExperimentModel model, Mutation mutation) {
-//        visitModel(model, ExperimentModelNode::prepareToRecalculate);
+        Set<DictionaryItemRef> previousDictionaryRefs = model.collectDictionaryRefs();
         model.prepareToRecalculate();
         // don't rewrite to dynamic lookup to have compile-time guarantee that all mutations are handled
         Pair<AbstractMutationHandler, Runnable> pair = switch (mutation) {
@@ -157,8 +161,11 @@ public class ExperimentModelService {
         if (handler.isCompoundsAffected()) {
             experimentModelHelperService.rebuildUsedCompounds(experiment, model);
         }
-        // TODO only check when handler.dictionariesUpdated is true
-        experimentModelHelperService.rebuildUsedDictionaries(experiment, model);
+        Set<DictionaryItemRef> currentDictionaryRefs = model.collectDictionaryRefs();
+        if (!previousDictionaryRefs.equals(currentDictionaryRefs)) {
+            Set<UUID> ids = StreamEx.of(currentDictionaryRefs).map(DictionaryItemRef::getId).toSet();
+            experiment.setUsedDictionaryItemIDs(ids);
+        }
         return model;
     }
 

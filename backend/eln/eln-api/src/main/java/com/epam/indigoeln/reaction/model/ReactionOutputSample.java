@@ -21,7 +21,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 @Getter
 @Setter
@@ -42,11 +41,11 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
             .dictionaryListProperty("handlingPrecautions", ReactionOutputSample::getHandlingPrecautions, ReactionOutputSample::setHandlingPrecautions, ReactionOutputSamplePatch::getHandlingPrecautions, ReactionOutputSamplePatch::setHandlingPrecautions)
             .dictionaryListProperty("storageInstructions", ReactionOutputSample::getStorageInstructions, ReactionOutputSample::setStorageInstructions, ReactionOutputSamplePatch::getStorageInstructions, ReactionOutputSamplePatch::setStorageInstructions)
             .dictionaryListProperty("compoundProtection", ReactionOutputSample::getCompoundProtection, ReactionOutputSample::setCompoundProtection, ReactionOutputSamplePatch::getCompoundProtection, ReactionOutputSamplePatch::setCompoundProtection)
-            .simpleProperty("solubilityInSolvents", ReactionOutputSample::getSolubilityInSolvents, ReactionOutputSample::setSolubilityInSolvents, ReactionOutputSamplePatch::getSolubilityInSolvents, ReactionOutputSamplePatch::setSolubilityInSolvents)
-            .simpleProperty("residualSolvents", ReactionOutputSample::getResidualSolvents, ReactionOutputSample::setResidualSolvents, ReactionOutputSamplePatch::getResidualSolvents, ReactionOutputSamplePatch::setResidualSolvents)
+            .simpleListProperty("solubilityInSolvents", ReactionOutputSample::getSolubilityInSolvents, ReactionOutputSample::setSolubilityInSolvents, ReactionOutputSamplePatch::getSolubilityInSolvents, ReactionOutputSamplePatch::setSolubilityInSolvents)
+            .simpleListProperty("residualSolvents", ReactionOutputSample::getResidualSolvents, ReactionOutputSample::setResidualSolvents, ReactionOutputSamplePatch::getResidualSolvents, ReactionOutputSamplePatch::setResidualSolvents)
             .simpleProperty("meltingPoint", ReactionOutputSample::getMeltingPoint, ReactionOutputSample::setMeltingPoint, ReactionOutputSamplePatch::getMeltingPoint, ReactionOutputSamplePatch::setMeltingPoint)
-            .simpleProperty("purityCalculations", ReactionOutputSample::getPurityCalculations, ReactionOutputSample::setPurityCalculations, ReactionOutputSamplePatch::getPurityCalculations, ReactionOutputSamplePatch::setPurityCalculations)
-            .simpleProperty("externalSupplier", ReactionOutputSample::getSolubilityInSolvents, ReactionOutputSample::setSolubilityInSolvents, ReactionOutputSamplePatch::getSolubilityInSolvents, ReactionOutputSamplePatch::setSolubilityInSolvents)
+            .simpleListProperty("purityCalculations", ReactionOutputSample::getPurityCalculations, ReactionOutputSample::setPurityCalculations, ReactionOutputSamplePatch::getPurityCalculations, ReactionOutputSamplePatch::setPurityCalculations)
+            .simpleProperty("externalSupplier", ReactionOutputSample::getExternalSupplier, ReactionOutputSample::setExternalSupplier, ReactionOutputSamplePatch::getExternalSupplier, ReactionOutputSamplePatch::setExternalSupplier)
             .dictionaryProperty("source", ReactionOutputSample::getSource, ReactionOutputSample::setSource, ReactionOutputSamplePatch::getSource, ReactionOutputSamplePatch::setSource)
             .dictionaryProperty("sourceDetails", ReactionOutputSample::getSourceDetails, ReactionOutputSample::setSourceDetails, ReactionOutputSamplePatch::getSourceDetails, ReactionOutputSamplePatch::setSourceDetails)
             .dictionaryProperty("componentState", ReactionOutputSample::getComponentState, ReactionOutputSample::setComponentState, ReactionOutputSamplePatch::getComponentState, ReactionOutputSamplePatch::setComponentState)
@@ -54,7 +53,7 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
             .simpleProperty("structureComment", ReactionOutputSample::getStructureComment, ReactionOutputSample::setStructureComment, ReactionOutputSamplePatch::getStructureComment, ReactionOutputSamplePatch::setStructureComment)
             .simpleProperty("calculatedMolWeight", ReactionOutputSample::getCalculatedMolWeight, null, ReactionOutputSamplePatch::getCalculatedMolWeight, ReactionOutputSamplePatch::setCalculatedMolWeight)
             .simpleProperty("calculatedBatchMF", ReactionOutputSample::getCalculatedBatchMF, null, ReactionOutputSamplePatch::getCalculatedBatchMF, ReactionOutputSamplePatch::setCalculatedBatchMF)
-            .simpleProperty("precursorReactantIds", ReactionOutputSample::getPrecursorReactantIds, null, ReactionOutputSamplePatch::getPrecursorReactantIds, ReactionOutputSamplePatch::setPrecursorReactantIds)
+            .simpleListProperty("precursorReactantIds", ReactionOutputSample::getPrecursorReactantIds, null, ReactionOutputSamplePatch::getPrecursorReactantIds, ReactionOutputSamplePatch::setPrecursorReactantIds)
             ;
 
     @JsonBackReference
@@ -165,20 +164,6 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
                 .map(r -> r.getCompound().getStrCode())
                 .filter(Objects::nonNull)
                 .toList();
-    }
-
-    @Override
-    public void collectDictionaries(Consumer<@Nullable DictionaryItemRef> consumer) {
-        super.collectDictionaries(consumer);
-        handlingPrecautions.forEach(consumer);
-        storageInstructions.forEach(consumer);
-        compoundProtection.forEach(consumer);
-        solubilityInSolvents.stream().map(SolubidityInSolvent::getSolvent).forEach(consumer);
-        residualSolvents.stream().map(ResidualSolvent::getSolvent).forEach(consumer);
-        consumer.accept(externalSupplier != null ? externalSupplier.getSupplier() : null);
-        consumer.accept(source);
-        consumer.accept(sourceDetails);
-        consumer.accept(componentState);
     }
 
     @Override

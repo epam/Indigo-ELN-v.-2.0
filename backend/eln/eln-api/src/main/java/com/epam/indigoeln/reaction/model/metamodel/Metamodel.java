@@ -38,6 +38,15 @@ public class Metamodel<C, P> {
         return this;
     }
 
+    public <I> Metamodel<C, P> simpleListProperty(String name, Function<C, List<I>> getter, @Nullable BiConsumer<C, List<I>> setter, Function<P, Optional<List<I>>> patchGetter, BiConsumer<P, Optional<List<I>>> patchSetter) {
+        return simpleListProperty(name, getter, setter, patchGetter, patchSetter, null);
+    }
+
+    public <I> Metamodel<C, P> simpleListProperty(String name, Function<C, List<I>> getter, @Nullable BiConsumer<C, List<I>> setter, Function<P, Optional<List<I>>> patchGetter, BiConsumer<P, Optional<List<I>>> patchSetter, @Nullable List<I> defaultValue) {
+        properties.add(new SimpleListProperty<>(name, getter, setter, patchGetter, patchSetter, defaultValue));
+        return this;
+    }
+
     public <U extends MeasurementUnit> Metamodel<C, P> enteredValueProperty(String name, Function<C, EnteredValue<U>> getter, BiConsumer<C, EnteredValue<U>> setter, Function<P, Optional<EnteredValuePatch<U>>> patchGetter, BiConsumer<P, Optional<EnteredValuePatch<U>>> patchSetter) {
         return enteredValueProperty(name, getter, setter, patchGetter, patchSetter, null);
     }

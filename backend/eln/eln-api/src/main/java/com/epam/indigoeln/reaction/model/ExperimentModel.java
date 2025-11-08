@@ -1,8 +1,7 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.reaction.model.metamodel.EnteredValueProperty;
-import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
-import com.epam.indigoeln.reaction.model.metamodel.ModelProperty;
+import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.reaction.model.metamodel.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
 import com.epam.indigoeln.reaction.model.patch.handler.ReactionValueHandler;
@@ -19,7 +18,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.jspecify.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -83,6 +84,43 @@ public final class ExperimentModel implements ExperimentModelNode {
                 EnteredValue.prepareToRecalculate(enteredValueProperty.get(node), v -> enteredValueProperty.set(node, v), enteredValueProperty.defaultValue());
             }
         });
+    }
+
+    public Set<DictionaryItemRef> collectDictionaryRefs() {
+        Set<@Nullable DictionaryItemRef> refs = new HashSet<>();
+        walkProperties((node, property) -> {
+            switch (property) {
+                case DictionaryProperty<?, ?> dictionaryProperty -> {
+                    DictionaryProperty<ExperimentModelNode, Object> cast = dictionaryProperty.cast();
+                    refs.add(cast.get(node));
+                }
+                case DictionaryListProperty<?, ?> dictionaryListProperty -> {
+                    DictionaryListProperty<ExperimentModelNode, Object> cast = dictionaryListProperty.cast();
+                    refs.addAll(cast.get(node));
+                }
+                case SimpleListProperty<?, ?, ?> simpleListProperty -> {
+                    SimpleListProperty<ExperimentModelNode, Object, Object> cast = simpleListProperty.cast();
+                    for (Object item : cast.get(node)) {
+                        if (item instanceof HasDictionaryRefs hasDictionaryRefs) {
+                            hasDictionaryRefs.collectDictionaryRefs().forEach(refs::add);
+                        }
+                    }
+                }
+                case SimpleProperty<?, ?, ?> simpleProperty -> {
+                    SimpleProperty<ExperimentModelNode, Object, Object> cast = simpleProperty.cast();
+                    Object value = cast.get(node);
+                    if (value instanceof HasDictionaryRefs hasDictionaryRefs) {
+                        hasDictionaryRefs.collectDictionaryRefs().forEach(refs::add);
+                    }
+                }
+                case AnchorProperty<?, ?, ?> anchorProperty -> {}
+                case EnteredValueProperty<?, ?, ?> enteredValueProperty -> {}
+                case ListProperty<?, ?, ?, ?> listProperty -> {}
+            }
+        });
+        refs.remove(null);
+        //noinspection NullableProblems
+        return refs;
     }
 
     public Reaction locate(ReactionMutation mutation) {

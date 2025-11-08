@@ -13,7 +13,6 @@ import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 @Getter
 @Setter
@@ -47,9 +46,4 @@ public sealed abstract class ReactionSample implements ExperimentModelNode permi
 
     @NotNull
     protected List<DictionaryItemRef> healthHazards = List.of();
-
-    @Override
-    public void collectDictionaries(Consumer<@Nullable DictionaryItemRef> consumer) {
-        healthHazards.forEach(consumer);
-    }
 }

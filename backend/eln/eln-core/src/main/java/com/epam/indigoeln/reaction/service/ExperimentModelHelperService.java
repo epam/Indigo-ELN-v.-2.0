@@ -3,20 +3,20 @@ package com.epam.indigoeln.reaction.service;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.eln.entity.IdentifiableEntity;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.*;
-import com.google.common.collect.Sets;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -78,21 +78,6 @@ public class ExperimentModelHelperService {
             molecules.reversed().forEach(molecule -> addToReaction(indigoReaction, role, molecule));
         }
         reaction.setRxnfile(indigoReaction.rxnfile());
-    }
-
-    public void rebuildUsedDictionaries(ExperimentEntity experiment, ExperimentModel model) {
-        Set<DictionaryItemRef> usedDictionaryRefs = new HashSet<>();
-        visitModel(model, n -> n.collectDictionaries(usedDictionaryRefs::add));
-        usedDictionaryRefs.remove(null);
-        Set<UUID> currentItemIDs = StreamEx.of(usedDictionaryRefs).map(DictionaryItemRef::getId).toSet();
-        Set<UUID> previousItemIDs = StreamEx.of(experiment.getUsedDictionaryItems()).map(IdentifiableEntity::getId).toSet();
-        if (!currentItemIDs.equals(previousItemIDs)) {
-            experiment.getUsedDictionaryItems().removeIf(e -> !currentItemIDs.contains(e.getId()));
-            Set<UUID> newItemIDs = Sets.difference(currentItemIDs, previousItemIDs);
-            if (!newItemIDs.isEmpty()) {
-                experiment.getUsedDictionaryItems().addAll(dictionaryItemRepository.findByIds(newItemIDs));
-            }
-        }
     }
 
     // !!! replace with walk methods

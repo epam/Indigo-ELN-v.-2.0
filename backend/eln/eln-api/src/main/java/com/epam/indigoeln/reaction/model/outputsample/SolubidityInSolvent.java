@@ -2,6 +2,7 @@ package com.epam.indigoeln.reaction.model.outputsample;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.ComparisonOperator;
+import com.epam.indigoeln.reaction.model.HasDictionaryRefs;
 import com.epam.indigoeln.reaction.model.units.DensityUnit;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.AssertTrue;
@@ -9,8 +10,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
+import java.util.stream.Stream;
+
 @Data
-public class SolubidityInSolvent {
+public class SolubidityInSolvent implements HasDictionaryRefs {
 
     @NotNull
     private DictionaryItemRef solvent;
@@ -32,6 +35,11 @@ public class SolubidityInSolvent {
 
     @Nullable
     private SolubidityQualitativeType qualitativeType;
+
+    @Override
+    public Stream<@Nullable DictionaryItemRef> collectDictionaryRefs() {
+        return Stream.of(solvent);
+    }
 
     @JsonIgnore
     @AssertTrue(message = "operator, value and unit are only allowed for quantitative solubidity")

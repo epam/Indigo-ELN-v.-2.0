@@ -8,7 +8,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-public sealed interface ModelProperty<C, T, P, PT> permits AnchorProperty, SimpleProperty, EnteredValueProperty, ListProperty, DictionaryProperty, DictionaryListProperty {
+public sealed interface ModelProperty<C, T, P, PT> permits AnchorProperty, SimpleProperty, SimpleListProperty, EnteredValueProperty, ListProperty, DictionaryProperty, DictionaryListProperty {
 
     String name();
 

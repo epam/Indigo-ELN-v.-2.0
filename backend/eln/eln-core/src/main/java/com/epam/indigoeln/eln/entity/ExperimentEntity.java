@@ -169,9 +169,10 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     private Set<CompoundEntity> compounds = new HashSet<>(0);
 
     @NotNull
-    @ManyToMany
-    @JoinTable(name = "Experiment_Dictionary_item", joinColumns = @JoinColumn(name = "experiment_id"), inverseJoinColumns = @JoinColumn(name = "dictionary_item_id"))
-    private Set<DictionaryItemEntity> usedDictionaryItems = new HashSet<>(0);
+    @ElementCollection
+    @CollectionTable(name = "Experiment_Dictionary_item", joinColumns = @JoinColumn(name = "experiment_id"))
+    @Column(name = "dictionary_item_id")
+    private Set<UUID> usedDictionaryItemIDs = new HashSet<>(0);
 
     @Override
     public void insertACL(UserEntity user, AccessLevel access, Boolean inherited) {
