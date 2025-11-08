@@ -3,7 +3,6 @@ package com.epam.indigoeln.compound.service;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.model.*;
 import com.epam.indigoeln.eln.ELNBaseTest;
-import com.epam.indigoeln.eln.api.CompoundAPI;
 import com.epam.indigoeln.eln.entity.IdentifiableEntity;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
@@ -19,6 +18,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -44,8 +44,6 @@ public class CompoundServiceTest extends ELNBaseTest {
     IndigoAPI indigo;
     @Inject
     CompoundService compoundService;
-    @Inject
-    CompoundAPI compoundAPI;
     @Inject
     DictionaryService dictionaryService;
 
@@ -138,8 +136,9 @@ public class CompoundServiceTest extends ELNBaseTest {
 
     @Test
     @Order(400)
+    @Transactional
     void testRegisterSampleForOtherSaltCode() {
-        IndigoMolecule molecule = indigo.loadMolecule(compound1.getMolFile());
+        IndigoMolecule molecule = indigo.loadMolecule(compoundService.getCompound(compound1.getCompoundID()).getMolFile());
         compound1 = compoundService.virtualCompoundRef(molecule, null, saltCode, 1.0);
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1));
         strOtherSaltCode = sample.getStrCode();
@@ -150,8 +149,9 @@ public class CompoundServiceTest extends ELNBaseTest {
 
     @Test
     @Order(500)
+    @Transactional
     void testRegisterSampleForOtherSaltEQ() {
-        IndigoMolecule molecule = indigo.loadMolecule(compound1.getMolFile());
+        IndigoMolecule molecule = indigo.loadMolecule(compoundService.getCompound(compound1.getCompoundID()).getMolFile());
         compound1 = compoundService.virtualCompoundRef(molecule, null, saltCode, 2.0);
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1));
         strOtherSaltEQ = sample.getStrCode();
@@ -171,11 +171,11 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Order(650)
     void testSearchRequestValidation() {
         assertThatClientCall(() -> {
-            compoundAPI.findSamples(new FindSamplesRequest()
+            compoundClient.findSamples(new FindSamplesRequest()
                             .withStrCode(new TextSearch.ExactSearch(null))
                     , Paging.DEFAULT
             );
-        }).isBadRequest("findSamples.request.strCode.value: must not be null");
+        }).isBadRequest("must not be null");
     }
 
     @Test

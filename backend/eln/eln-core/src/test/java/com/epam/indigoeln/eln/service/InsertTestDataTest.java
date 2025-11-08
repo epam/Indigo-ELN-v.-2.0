@@ -1,15 +1,12 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.util.ModelUtil;
-import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
-import com.epam.indigoeln.compound.model.StructuralSearch;
 import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
-import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
@@ -133,16 +130,14 @@ class InsertTestDataTest {
 
         // resolve inputs
         ReactionMutation.ResolveInputs mutation = new ReactionMutation.ResolveInputs(reactionAnchor, new HashMap<>());
-        for (ReactionInput input : model.getReactions().getFirst().getInputs()) {
-            Page<SampleDTO> samples = compoundClient.findSamples(new FindSamplesRequest()
-                    .withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, input.getCompound().getMolFile()))
-                    , Paging.DEFAULT
-            );
-            System.out.println("Found samples: " + samples);
-            if (samples.getTotalItems() != 0) {
-                mutation.inputSamples().put(input.getAnchor(), samples.getItems().getFirst().getId());
+        experimentClient.analyzeRXN(experiment.getId(), model.getReactions().getFirst().getAnchor()).forEach((anchor, request) -> {
+            if (request != null) {
+                Page<SampleDTO> samples = compoundClient.findSamples(request, Paging.DEFAULT);
+                if (samples.getTotalItems() != 0) {
+                    mutation.inputSamples().put(anchor, samples.getItems().getFirst().getId());
+                }
             }
-        }
+        });
         model = applyMutation(experiment, model, mutation);
         Anchor.InputSample input1Sample1Anchor = model.getReactions().getFirst().getInputs().get(0).getSamples().get(0).getAnchor();
 

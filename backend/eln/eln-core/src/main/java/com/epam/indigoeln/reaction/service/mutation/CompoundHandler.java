@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.service.DictionaryService;
@@ -86,7 +87,8 @@ public class CompoundHandler extends AbstractMutationHandler {
                 } else if (v.getSaltCode() == null) {
                     saltEQ = null;
                 }
-                IndigoMolecule molecule = indigoAPI.loadMolecule(v.getMolFile());
+                CompoundEntity compound = compoundService.getCompound(v.getCompoundID());
+                IndigoMolecule molecule = indigoAPI.loadMolecule(compound.getMolFile());
                 return compoundService.virtualCompoundRef(molecule, stereoisomerCode, saltCode, saltEQ);
             }
             case CompoundRef.Stored s -> throw new InvalidRequestException("Cannot modify saltCode/saltEQ/stereoisomerCode for registered compound");

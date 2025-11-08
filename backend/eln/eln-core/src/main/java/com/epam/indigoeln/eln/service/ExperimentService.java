@@ -3,8 +3,10 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.common.exception.IncorrectRevisionException;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.StructuralSearch;
+import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
@@ -42,6 +44,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -85,6 +88,8 @@ public class ExperimentService {
     ProjectMapper projectMapper;
     @Inject
     ObjectMapper objectMapper;
+    @Inject
+    CompoundService compoundService;
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
@@ -218,13 +223,15 @@ public class ExperimentService {
         ExperimentModel model = getModel(experimentId);
         Reaction reaction = model.locate(reactionAnchor);
         return StreamEx.of(reaction.getInputs())
-                .toMap(ReactionInput::getAnchor, input -> {
-                    if (input.getCompound().getMolFile() == null) {
-                        return null;
+                .mapToEntry(ReactionInput::getAnchor, input -> {
+                    if (input.getCompound().getCompoundID() != null) {
+                        CompoundEntity compound = compoundService.getCompound(input.getCompound().getCompoundID());
+                        return new FindSamplesRequest()
+                                .withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, compound.getMolFile()));
                     }
-                    return new FindSamplesRequest()
-                            .withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, input.getCompound().getMolFile()));
-                });
+                    return null;
+                })
+                .toCustomMap(LinkedHashMap::new);
     }
 
     public Response printReport(UUID experimentId) {

@@ -31,9 +31,6 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     UUID getCompoundID();
 
     @Nullable
-    String getMolFile();
-
-    @Nullable
     String getFormula();
 
     @Nullable
@@ -80,9 +77,6 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         private final Double exactMass;
 
         @NotNull
-        private final String molFile;
-
-        @NotNull
         private final String formula;
 
         @Nullable
@@ -108,9 +102,6 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         private final UUID compoundID;
 
         @NotNull
-        private final String molFile;
-
-        @NotNull
         private final String formula;
 
         @Nullable
@@ -129,14 +120,13 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @NotNull
         private Double exactMass;
 
-        public Virtual(UUID compoundID, String molFile, String formula, Double molWeight, Double exactMass) {
-            this(compoundID, molFile, formula, EnteredValue.fixed(molWeight, MolWeightUnit.G_PER_MOL), null, null, null);
+        public Virtual(UUID compoundID, String formula, Double molWeight, Double exactMass) {
+            this(compoundID, formula, EnteredValue.fixed(molWeight, MolWeightUnit.G_PER_MOL), null, null, null);
         }
 
         @JsonCreator
-        Virtual(UUID compoundID, String molFile, String formula, EnteredValue<MolWeightUnit> molWeight, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
+        Virtual(UUID compoundID, String formula, EnteredValue<MolWeightUnit> molWeight, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
             this.compoundID = compoundID;
-            this.molFile = molFile;
             this.formula = formula;
             this.molWeight = molWeight;
             this.stereoisomerCode = stereoisomerCode;
@@ -180,13 +170,6 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Nullable
         @JsonIgnore
         public UUID getCompoundID() {
-            return null;
-        }
-
-        @Override
-        @Nullable
-        @JsonIgnore
-        public String getMolFile() {
             return null;
         }
 

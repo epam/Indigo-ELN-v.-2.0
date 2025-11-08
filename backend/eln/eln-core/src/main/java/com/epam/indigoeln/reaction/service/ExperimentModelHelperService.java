@@ -15,7 +15,6 @@ import com.google.common.collect.Sets;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
-import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -28,7 +27,7 @@ import static com.epam.indigoeln.eln.util.IndigoUtil.reactionIterable;
 @ApplicationScoped
 public class ExperimentModelHelperService {
 
-    private static final @Nullable ReactionRole COMPONENT_ORDER[] = {ReactionRole.OUTPUT, ReactionRole.CATALYST, ReactionRole.REACTANT};
+    private static final ReactionRole[] COMPONENT_ORDER = {ReactionRole.OUTPUT, ReactionRole.CATALYST, ReactionRole.REACTANT};
 
     @Inject
     CompoundService compoundService;
@@ -68,13 +67,9 @@ public class ExperimentModelHelperService {
             // noinspection rawtypes,unchecked
             Iterable<ReactionRow> rows = role == ReactionRole.OUTPUT ? (Iterable) reaction.getOutputs() : (Iterable) reaction.inputsOfType(role);
             for (ReactionRow input : rows) {
-                String molfile = switch (input.getCompound()) {
-                    case CompoundRef.Stored stored -> compoundService.getCompound(stored.getCompoundID()).getMolFile();
-                    case CompoundRef.Virtual virtual -> virtual.getMolFile();
-                    case CompoundRef.Unknown unknown -> null;
-                };
-                if (molfile != null) {
-                    molecules.add(indigo.loadMolecule(molfile));
+                if (input.getCompound().getCompoundID() != null) {
+                    CompoundEntity compound = compoundService.getCompound(input.getCompound().getCompoundID());
+                    molecules.add(indigo.loadMolecule(compound.getMolFile()));
                 }
             }
 

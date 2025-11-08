@@ -67,7 +67,6 @@ public class PatchTestUtil {
     // !!! implement spread operator to simplify code
     @Nullable
     private static JsonNode restoreWithJSON(List<String> path, @Nullable JsonNode baseJSON, JsonNode patchJSON) {
-        System.out.println("restoreWithJSON: " + path);
         if (baseJSON == null && DEFAULT_JSON.containsKey(path)) {
             baseJSON = DEFAULT_JSON.get(path).deepCopy();
         }

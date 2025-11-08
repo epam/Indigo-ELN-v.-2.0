@@ -114,14 +114,14 @@ public class CompoundService {
     }
 
     public CompoundRef.Stored realCompoundRef(CompoundEntity compound) {
-        return new CompoundRef.Stored(compound.getId(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getMolFile(), compound.getFormula(), compound.getStrCode());
+        return new CompoundRef.Stored(compound.getId(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getFormula(), compound.getStrCode());
     }
 
     public CompoundRef.Virtual virtualCompoundRef(IndigoMolecule molecule, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
         CompoundEntity compound = findOrCreate(molecule, stereoisomerCode, saltCode, saltEQ);
         double molWeight = molWeightCalculator.calculateMolWeight(molecule.molfile(), saltCode, saltEQ);
         double exactMass = molWeightCalculator.calculateExactMass(molecule.molfile());
-        return new CompoundRef.Virtual(compound.getId(), molecule.molfile(), molecule.grossFormula(), molWeight, exactMass);
+        return new CompoundRef.Virtual(compound.getId(), molecule.grossFormula(), molWeight, exactMass);
     }
 
     public CompoundRef.Unknown unknownCompoundRef() {
