@@ -35,7 +35,6 @@ public class InputSampleMutationHandler extends AbstractMutationHandler {
 
     public void handle(ReactionInputSample sample, ReactionInputSampleMutation.SetInputHealthHazards mutation) {
         sample.setHealthHazards(mutation.healthHazards());
-        dictionariesAffected = true;
     }
 
     public void handle(ReactionInputSample sample, ReactionInputSampleMutation.SetInputComment mutation) {

@@ -49,7 +49,6 @@ public class SchemaHandler extends AbstractMutationHandler {
         }
         adjustLimitingInput(reaction);
         reaction.setRxnfile(mutation.molFile());
-        rxnFileAffected = true;
     }
 
     public void handle(Reaction reaction, ReactionMutation.AddEmptyInput mutation) {
@@ -96,7 +95,6 @@ public class SchemaHandler extends AbstractMutationHandler {
         reactionInputSample.setChemicalName(sample.getChemicalName());
         row.setSamples(List.of(reactionInputSample));
 
-        dictionariesAffected = true;
         affectedRoles.add(row.getRole());
     }
 

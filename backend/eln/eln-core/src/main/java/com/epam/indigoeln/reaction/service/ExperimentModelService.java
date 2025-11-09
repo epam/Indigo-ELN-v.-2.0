@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -60,7 +61,9 @@ public class ExperimentModelService {
     @Valid
     public ExperimentModel applyMutation(ExperimentEntity experiment, ExperimentModel model, Mutation mutation) {
         Set<DictionaryItemRef> previousDictionaryRefs = model.collectDictionaryRefs();
+        Map<Anchor.Reaction, String> previousRxnFiles = StreamEx.of(model.getReactions()).toMap(Reaction::getAnchor, Reaction::getRxnfile);
         model.prepareToRecalculate();
+
         // don't rewrite to dynamic lookup to have compile-time guarantee that all mutations are handled
         Pair<AbstractMutationHandler, Runnable> pair = switch (mutation) {
             case ReactionMutation rm -> {
@@ -149,7 +152,7 @@ public class ExperimentModelService {
         reactionCalculator.recalculate(model);
 
         for (Reaction reaction : model.getReactions()) {
-            if (handler.isRxnFileAffected() || !handler.getAffectedRoles().isEmpty()) {
+            if (!reaction.getRxnfile().equals(previousRxnFiles.get(reaction.getAnchor())) || !handler.getAffectedRoles().isEmpty()) {
                 IndigoReaction indigoReaction = reaction.getRxnfile().isEmpty() ? indigoAPI.createReaction() : indigoAPI.loadReaction(reaction.getRxnfile());
                 if (!handler.getAffectedRoles().isEmpty()) {
                     experimentModelHelperService.rebuildReactionRxnFile(experiment, reaction, handler.getAffectedRoles(), indigoReaction);
