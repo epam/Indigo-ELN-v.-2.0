@@ -22,11 +22,11 @@ public final class ReactionInputSample extends ReactionSample implements Experim
     public static final Metamodel<ReactionInputSample, ReactionInputSamplePatch> METAMODEL = new Metamodel<ReactionInputSample, ReactionInputSamplePatch>("ReactionInputSample")
             .anchorProperty("anchor", ReactionInputSample::getAnchor, ReactionInputSample::setAnchor, ReactionInputSamplePatch::getAnchor, ReactionInputSamplePatch::setAnchor)
             .accept(ReactionSample::addBaseProperties)
-            .simpleProperty("sampleId", ReactionInputSample::getSampleId, ReactionInputSample::setSampleId, ReactionInputSamplePatch::getSampleId, ReactionInputSamplePatch::setSampleId)
-            .simpleProperty("chemicalName", ReactionInputSample::getChemicalName, ReactionInputSample::setChemicalName, ReactionInputSamplePatch::getChemicalName, ReactionInputSamplePatch::setChemicalName)
+            .<@Nullable UUID>simpleProperty("sampleId", ReactionInputSample::getSampleId, ReactionInputSample::setSampleId, ReactionInputSamplePatch::getSampleId, ReactionInputSamplePatch::setSampleId)
+            .<@Nullable String>simpleProperty("chemicalName", ReactionInputSample::getChemicalName, ReactionInputSample::setChemicalName, ReactionInputSamplePatch::getChemicalName, ReactionInputSamplePatch::setChemicalName)
             .enteredValueProperty("mol", ReactionInputSample::getMol, ReactionInputSample::setMol, ReactionInputSamplePatch::getMol, ReactionInputSamplePatch::setMol)
             .enteredValueProperty("weight", ReactionInputSample::getWeight, ReactionInputSample::setWeight, ReactionInputSamplePatch::getWeight, ReactionInputSamplePatch::setWeight)
-            .simpleProperty("comment", ReactionInputSample::getComment, ReactionInputSample::setComment, ReactionInputSamplePatch::getComment, ReactionInputSamplePatch::setComment)
+            .<@Nullable String>simpleProperty("comment", ReactionInputSample::getComment, ReactionInputSample::setComment, ReactionInputSamplePatch::getComment, ReactionInputSamplePatch::setComment)
             ;
 
     @JsonBackReference

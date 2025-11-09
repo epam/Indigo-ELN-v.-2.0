@@ -25,7 +25,7 @@ public sealed abstract class ReactionSample implements ExperimentModelNode permi
         metamodel.enteredValueProperty("molarity", ReactionSample::getMolarity, ReactionSample::setMolarity, AbstractReactionSamplePatch::getMolarity, AbstractReactionSamplePatch::setMolarity);
         metamodel.enteredValueProperty("volume", ReactionSample::getVolume, ReactionSample::setVolume, AbstractReactionSamplePatch::getVolume, AbstractReactionSamplePatch::setVolume);
         metamodel.enteredValueProperty("purity", ReactionSample::getPurity, ReactionSample::setPurity, AbstractReactionSamplePatch::getPurity, AbstractReactionSamplePatch::setPurity);
-        metamodel.simpleProperty("strCode", ReactionSample::getStrCode, ReactionSample::setStrCode, AbstractReactionSamplePatch::getStrCode, AbstractReactionSamplePatch::setStrCode);
+        metamodel.<@Nullable STRCodeSample>simpleProperty("strCode", ReactionSample::getStrCode, ReactionSample::setStrCode, AbstractReactionSamplePatch::getStrCode, AbstractReactionSamplePatch::setStrCode);
         metamodel.dictionaryListProperty("healthHazards", ReactionSample::getHealthHazards, ReactionSample::setHealthHazards, AbstractReactionSamplePatch::getHealthHazards, AbstractReactionSamplePatch::setHealthHazards);
     }
 
