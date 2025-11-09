@@ -29,33 +29,27 @@ public class CompoundHandler extends AbstractMutationHandler {
     public void handle(ReactionInput row, ReactionInputMutation.SetInputRowSaltCode mutation) {
         SaltCodeRef saltCode = mutation.saltCode() != null ? saltCodeRef(mutation.saltCode()) : null;
         row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, saltCode, row.getCompound().getSaltEQ(), row.getCompound().getStereoisomerCode()));
-        compoundsAffected = true;
     }
 
     public void handle(ReactionInput row, ReactionInputMutation.SetInputRowSaltEQ mutation) {
         row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, row.getCompound().getSaltCode(), mutation.saltEQ(), row.getCompound().getStereoisomerCode()));
-        compoundsAffected = true;
     }
 
     public void handle(ReactionOutput row, ReactionOutputMutation.SetOutputRowSaltCode mutation) {
         SaltCodeRef saltCode = mutation.saltCode() != null ? saltCodeRef(mutation.saltCode()) : null;
         row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, saltCode, row.getCompound().getSaltEQ(), row.getCompound().getStereoisomerCode()));
-        compoundsAffected = true;
     }
 
     public void handle(ReactionOutput row, ReactionOutputMutation.SetOutputRowSaltEQ mutation) {
         row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, row.getCompound().getSaltCode(), mutation.saltEQ(), row.getCompound().getStereoisomerCode()));
-        compoundsAffected = true;
     }
 
     public void handle(ReactionInput row, ReactionInputMutation.SetInputCompoundStereoisomerCode mutation) {
         row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, row.getCompound().getSaltCode(), row.getCompound().getSaltEQ(), mutation.stereoisomerCode()));
-        compoundsAffected = true;
     }
 
     public void handle(ReactionOutput row, ReactionOutputMutation.SetOutputCompoundStereoisomerCode mutation) {
         row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, row.getCompound().getSaltCode(), row.getCompound().getSaltEQ(), mutation.stereoisomerCode()));
-        compoundsAffected = true;
     }
 
     public void handle(ReactionInput row, ReactionInputMutation.SetInputCompoundMolWeight mutation) {

@@ -61,6 +61,7 @@ public class ExperimentModelService {
     @Valid
     public ExperimentModel applyMutation(ExperimentEntity experiment, ExperimentModel model, Mutation mutation) {
         Set<DictionaryItemRef> previousDictionaryRefs = model.collectDictionaryRefs();
+        Set<CompoundRef> previousCompoundRefs = model.collectCompoundRefs();
         Map<Anchor.Reaction, String> previousRxnFiles = StreamEx.of(model.getReactions()).toMap(Reaction::getAnchor, Reaction::getRxnfile);
         model.prepareToRecalculate();
 
@@ -161,13 +162,15 @@ public class ExperimentModelService {
                 reaction.setRxnVersion(reaction.getRxnVersion() + 1);
             }
         }
-        if (handler.isCompoundsAffected()) {
-            experimentModelHelperService.rebuildUsedCompounds(experiment, model);
+        Set<CompoundRef> currentCompoundRefs = model.collectCompoundRefs();
+        if (!previousCompoundRefs.equals(currentCompoundRefs)) {
+            Set<UUID> ids = StreamEx.of(currentCompoundRefs).map(CompoundRef::getCompoundID).nonNull().toSet();
+            experiment.setReferencedCompounds(ids);
         }
         Set<DictionaryItemRef> currentDictionaryRefs = model.collectDictionaryRefs();
         if (!previousDictionaryRefs.equals(currentDictionaryRefs)) {
             Set<UUID> ids = StreamEx.of(currentDictionaryRefs).map(DictionaryItemRef::getId).toSet();
-            experiment.setUsedDictionaryItemIDs(ids);
+            experiment.setReferencedDictionaryItemIDs(ids);
         }
         return model;
     }

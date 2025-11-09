@@ -11,15 +11,11 @@ import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import one.util.streamex.StreamEx;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.epam.indigoeln.eln.util.IndigoUtil.addToReaction;
 import static com.epam.indigoeln.eln.util.IndigoUtil.reactionIterable;
@@ -42,19 +38,6 @@ public class ExperimentModelHelperService {
         indigoRenderer.setRenderOptions("svg", 500, 200);
         byte[] buf = indigoRenderer.renderToBuffer(indigoReaction);
         experiment.setPicture(buf);
-    }
-
-    public void rebuildUsedCompounds(ExperimentEntity experiment, ExperimentModel model) {
-        Set<CompoundEntity> usedCompounds = StreamEx.of(model.getReactions())
-                .flatMap(r -> Stream.concat(r.getInputs().stream(), r.getOutputs().stream()))
-                .map(row -> switch (row.getCompound()) {
-                    case CompoundRef.Stored stored -> compoundService.getCompound(stored.getCompoundID());
-                    case CompoundRef.Virtual virtual -> compoundService.getCompound(virtual.getCompoundID());
-                    case CompoundRef.Unknown unknown -> null;
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-        experiment.setCompounds(usedCompounds);
     }
 
     public void rebuildReactionRxnFile(ExperimentEntity experiment, Reaction reaction, Set<ReactionRole> affectedRoles, IndigoReaction indigoReaction) {

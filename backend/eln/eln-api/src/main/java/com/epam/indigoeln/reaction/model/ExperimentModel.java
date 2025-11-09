@@ -123,6 +123,16 @@ public final class ExperimentModel implements ExperimentModelNode {
         return refs;
     }
 
+    public Set<CompoundRef> collectCompoundRefs() {
+        Set<CompoundRef> refs = new HashSet<>();
+        walk(node -> {
+            if (node instanceof ReactionRow row) {
+                refs.add(row.getCompound());
+            }
+        });
+        return refs;
+    }
+
     public Reaction locate(ReactionMutation mutation) {
         return locate(mutation.anchor());
     }

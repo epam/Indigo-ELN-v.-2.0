@@ -17,7 +17,5 @@ public abstract class AbstractMutationHandler {
     protected ExperimentModel model;
 
     @Getter
-    protected boolean compoundsAffected = false;
-    @Getter
     protected Set<ReactionRole> affectedRoles = EnumSet.noneOf(ReactionRole.class);
 }
