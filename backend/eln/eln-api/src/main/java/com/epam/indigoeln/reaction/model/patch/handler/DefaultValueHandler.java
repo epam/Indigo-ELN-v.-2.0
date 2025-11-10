@@ -10,13 +10,6 @@ import java.util.Optional;
 @SuppressWarnings("OptionalAssignedToNull")
 public class DefaultValueHandler<C, T> implements ValueHandler<C, T, T> {
 
-    private static final DefaultValueHandler<Object, Object> INSTANCE = new DefaultValueHandler<>();
-
-    public static <C, T, P> ValueHandler<C, T, P> instance() {
-        //noinspection unchecked,rawtypes
-        return (ValueHandler) INSTANCE;
-    }
-
     @Nullable
     @Override
     public Optional<T> compare(Flag updated, @Nullable T a, @Nullable T b, @Nullable Optional<Integer> from) {

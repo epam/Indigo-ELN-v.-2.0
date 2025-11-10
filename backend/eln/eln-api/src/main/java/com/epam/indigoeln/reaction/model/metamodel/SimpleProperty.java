@@ -1,6 +1,6 @@
 package com.epam.indigoeln.reaction.model.metamodel;
 
-import com.epam.indigoeln.reaction.model.patch.handler.DefaultValueHandler;
+import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
@@ -18,6 +18,6 @@ public record SimpleProperty<C, T, P>(
 
     @Override
     public ValueHandler<C, T, T> valueHandler() {
-        return DefaultValueHandler.instance();
+        return Handlers.defaultHandler();
     }
 }

@@ -1,11 +1,9 @@
 package com.epam.indigoeln.reaction.model.patch.handler;
 
-import com.epam.indigoeln.reaction.model.metamodel.ValueHandler;
 import com.epam.indigoeln.reaction.model.patch.EnteredValuePatch;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.EnteredValueSource;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
-import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.util.Flag;
 import com.epam.indigoeln.reaction.util.PatchUtil;
 import com.google.common.base.Preconditions;
@@ -15,13 +13,6 @@ import java.util.Optional;
 
 @SuppressWarnings("OptionalAssignedToNull")
 public class EnteredValueHandler<C, U extends MeasurementUnit> extends AbstractValueHandler<C, EnteredValue<U>, EnteredValuePatch<U>> {
-
-    private static final EnteredValueHandler<Object, NoUnit> INSTANCE = new EnteredValueHandler<>();
-
-    public static <C, U extends MeasurementUnit> ValueHandler<C, EnteredValue<U>, EnteredValuePatch<U>> instance() {
-        //noinspection unchecked,rawtypes
-        return (ValueHandler) INSTANCE;
-    }
 
     @Override
     public EnteredValuePatch<U> doCompare(Flag updated, @Nullable EnteredValue<U> a, EnteredValue<U> b, @Nullable Optional<Integer> from) {

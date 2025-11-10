@@ -7,7 +7,7 @@ import com.epam.indigoeln.reaction.model.patch.ListPatch;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -18,10 +18,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Getter
-@RequiredArgsConstructor
 public class Metamodel<C, P> {
 
-    private final String name;
+    @Setter
+    private String name;
     private final List<ModelProperty<C, ?, P, ?>> properties = new ArrayList<>();
 
     public <A extends Anchor> Metamodel<C, P> anchorProperty(String name, Function<C, A> getter, BiConsumer<C, A> setter, Function<P, Optional<A>> patchGetter, BiConsumer<P, Optional<A>> patchSetter) {

@@ -8,14 +8,15 @@ import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
-import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.Reaction;
+import com.epam.indigoeln.reaction.model.ReactionRole;
+import com.epam.indigoeln.reaction.model.ReactionRow;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import static com.epam.indigoeln.eln.util.IndigoUtil.addToReaction;
 import static com.epam.indigoeln.eln.util.IndigoUtil.reactionIterable;
@@ -61,25 +62,5 @@ public class ExperimentModelHelperService {
             molecules.reversed().forEach(molecule -> addToReaction(indigoReaction, role, molecule));
         }
         reaction.setRxnfile(indigoReaction.rxnfile());
-    }
-
-    // !!! replace with walk methods
-    public static void visitModel(ExperimentModel model, Consumer<ExperimentModelNode> visitor) {
-        visitor.accept(model);
-        for (Reaction reaction : model.getReactions()) {
-            visitor.accept(reaction);
-            for (ReactionInput input : reaction.getInputs()) {
-                visitor.accept(input);
-                for (ReactionInputSample sample : input.getSamples()) {
-                    visitor.accept(sample);
-                }
-            }
-            for (ReactionOutput output : reaction.getOutputs()) {
-                visitor.accept(output);
-                for (ReactionOutputSample sample : output.getSamples()) {
-                    visitor.accept(sample);
-                }
-            }
-        }
     }
 }

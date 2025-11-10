@@ -4,7 +4,7 @@ import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.metamodel.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
-import com.epam.indigoeln.reaction.model.patch.handler.ReactionValueHandler;
+import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.util.ExperimentModelUtil;
@@ -28,10 +28,11 @@ import java.util.function.Consumer;
 @EqualsAndHashCode(exclude = "lastUsedAnchorCached")
 public final class ExperimentModel implements ExperimentModelNode {
 
-    public static final Metamodel<ExperimentModel, ExperimentModelPatch> METAMODEL = new Metamodel<ExperimentModel, ExperimentModelPatch>("ExperimentModel")
-            .simpleProperty("revision", ExperimentModel::getRevision, ExperimentModel::setRevision, ExperimentModelPatch::getRevision, ExperimentModelPatch::setRevision)
-            .listProperty("reactions", ExperimentModel::getReactions, ExperimentModel::setReactions, ExperimentModelPatch::getReactions, ExperimentModelPatch::setReactions, Reaction.METAMODEL, ReactionValueHandler.LIST_INSTANCE)
-            ;
+    public static void buildMetamodel(Metamodel<ExperimentModel, ExperimentModelPatch> metamodel) {
+        metamodel.setName("ExperimentModel");
+        metamodel.simpleProperty("revision", ExperimentModel::getRevision, ExperimentModel::setRevision, ExperimentModelPatch::getRevision, ExperimentModelPatch::setRevision);
+        metamodel.listProperty("reactions", ExperimentModel::getReactions, ExperimentModel::setReactions, ExperimentModelPatch::getReactions, ExperimentModelPatch::setReactions, Handlers.REACTION_METAMODEL, Handlers.REACTION_LIST);
+    }
 
     @Valid
     @NotEmpty
@@ -80,7 +81,6 @@ public final class ExperimentModel implements ExperimentModelNode {
         walkProperties((node, property) -> {
             if (property instanceof EnteredValueProperty<?, ?, ?>) {
                 EnteredValueProperty<ExperimentModelNode, NoUnit, Object> enteredValueProperty = property.cast();
-                System.out.println("!!! " + node.getClass().getSimpleName() + " - " + enteredValueProperty.name());
                 EnteredValue.prepareToRecalculate(enteredValueProperty.get(node), v -> enteredValueProperty.set(node, v), enteredValueProperty.defaultValue());
             }
         });
@@ -108,8 +108,7 @@ public final class ExperimentModel implements ExperimentModelNode {
                 }
                 case SimpleProperty<?, ?, ?> simpleProperty -> {
                     SimpleProperty<ExperimentModelNode, Object, Object> cast = simpleProperty.cast();
-                    Object value = cast.get(node);
-                    if (value instanceof HasDictionaryRefs hasDictionaryRefs) {
+                    if (cast.get(node) instanceof HasDictionaryRefs hasDictionaryRefs) {
                         hasDictionaryRefs.collectDictionaryRefs().forEach(refs::add);
                     }
                 }
@@ -212,16 +211,16 @@ public final class ExperimentModel implements ExperimentModelNode {
 
     @Override
     public String toString() {
-        return ToStringUtil.toStringBuild(METAMODEL, this);
+        return ToStringUtil.toStringBuild(Handlers.EXPERIMENT_MODEL_METAMODEL, this);
     }
 
     private void walk(Consumer<ExperimentModelNode> visitor) {
         //noinspection rawtypes,unchecked
-        ExperimentModelUtil.walk((Metamodel) METAMODEL, this, visitor);
+        ExperimentModelUtil.walk((Metamodel) Handlers.EXPERIMENT_MODEL_METAMODEL, this, visitor);
     }
 
     private void walkProperties(BiConsumer<ExperimentModelNode, ModelProperty<ExperimentModelNode, ?, ?, ?>> visitor) {
         //noinspection rawtypes,unchecked
-        ExperimentModelUtil.walkProperties((Metamodel) METAMODEL, this, (BiConsumer) visitor);
+        ExperimentModelUtil.walkProperties((Metamodel) Handlers.EXPERIMENT_MODEL_METAMODEL, this, (BiConsumer) visitor);
     }
 }

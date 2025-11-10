@@ -1,34 +1,25 @@
 package com.epam.indigoeln.reaction.model.patch.handler;
 
 import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
 import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
 import com.epam.indigoeln.reaction.util.Flag;
-import com.google.common.base.Preconditions;
 import org.jspecify.annotations.Nullable;
-
-import java.util.Optional;
 
 public class ExperimentModelValueHandler extends AbstractMetamodelValueHandler<Void, ExperimentModel, ExperimentModelPatch> {
 
-    public static final ExperimentModelValueHandler INSTANCE = new ExperimentModelValueHandler();
-
-    private ExperimentModelValueHandler() {
-        super(ExperimentModel.METAMODEL);
+    public ExperimentModelValueHandler(Metamodel<ExperimentModel, ExperimentModelPatch> metamodel) {
+        super(metamodel, ExperimentModelPatch::new);
     }
 
     @Override
-    protected ExperimentModelPatch doCompare(Flag updated, @Nullable ExperimentModel a, ExperimentModel b, @Nullable Optional<Integer> from) {
-        Preconditions.checkState(a != null);
-        ExperimentModelPatch patch = new ExperimentModelPatch();
-        doCompareBase(updated, a, b, from, patch);
+    protected void doCompareBase(Flag updated, @Nullable ExperimentModel a, ExperimentModel b, ExperimentModelPatch patch) {
+        super.doCompareBase(updated, a, b, patch);
         updated.set();
-        return patch;
     }
 
     @Override
-    protected ExperimentModel doApply(Void container, @Nullable ExperimentModel value, ExperimentModelPatch patch) {
-        Preconditions.checkState(value != null);
-        doApplyBase(value, patch);
-        return value;
+    protected ExperimentModel createNewValue(Void container, ExperimentModelPatch patch) {
+        throw new UnsupportedOperationException();
     }
 }

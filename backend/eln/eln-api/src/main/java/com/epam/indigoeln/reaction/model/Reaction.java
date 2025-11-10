@@ -2,8 +2,7 @@ package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
 import com.epam.indigoeln.reaction.model.patch.ReactionPatch;
-import com.epam.indigoeln.reaction.model.patch.handler.ReactionInputValueHandler;
-import com.epam.indigoeln.reaction.model.patch.handler.ReactionOutputValueHandler;
+import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
 import com.epam.indigoeln.reaction.util.ToStringUtil;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -27,13 +26,14 @@ import java.util.Objects;
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class Reaction implements ExperimentModelNode {
 
-    public static final Metamodel<Reaction, ReactionPatch> METAMODEL = new Metamodel<Reaction, ReactionPatch>("Reaction")
-            .anchorProperty("anchor", Reaction::getAnchor, Reaction::setAnchor, ReactionPatch::getAnchor, ReactionPatch::setAnchor)
-            .simpleProperty("rxnfile", Reaction::getRxnfile, Reaction::setRxnfile, ReactionPatch::getRxnfile, ReactionPatch::setRxnfile)
-            .simpleProperty("rxnVersion", Reaction::getRxnVersion, Reaction::setRxnVersion, ReactionPatch::getRxnVersion, ReactionPatch::setRxnVersion)
-            .listProperty("inputs", Reaction::getInputs, Reaction::setInputs, ReactionPatch::getInputs, ReactionPatch::setInputs, ReactionInput.METAMODEL, ReactionInputValueHandler.LIST_INSTANCE)
-            .listProperty("outputs", Reaction::getOutputs, Reaction::setOutputs, ReactionPatch::getOutputs, ReactionPatch::setOutputs, ReactionOutput.METAMODEL, ReactionOutputValueHandler.LIST_INSTANCE)
-            ;
+    public static void buildMetamodel(Metamodel<Reaction, ReactionPatch> metamodel) {
+        metamodel.setName("Reaction");
+        metamodel.anchorProperty("anchor", Reaction::getAnchor, Reaction::setAnchor, ReactionPatch::getAnchor, ReactionPatch::setAnchor);
+        metamodel.simpleProperty("rxnfile", Reaction::getRxnfile, Reaction::setRxnfile, ReactionPatch::getRxnfile, ReactionPatch::setRxnfile);
+        metamodel.simpleProperty("rxnVersion", Reaction::getRxnVersion, Reaction::setRxnVersion, ReactionPatch::getRxnVersion, ReactionPatch::setRxnVersion);
+        metamodel.listProperty("inputs", Reaction::getInputs, Reaction::setInputs, ReactionPatch::getInputs, ReactionPatch::setInputs, Handlers.INPUT_METAMODEL, Handlers.REACTION_INPUT_LIST);
+        metamodel.listProperty("outputs", Reaction::getOutputs, Reaction::setOutputs, ReactionPatch::getOutputs, ReactionPatch::setOutputs, Handlers.OUTPUT_METAMODEL, Handlers.REACTION_OUTPUT_LIST);
+    }
 
     @JsonBackReference
     private ExperimentModel model;
@@ -120,6 +120,6 @@ public final class Reaction implements ExperimentModelNode {
 
     @Override
     public String toString() {
-        return ToStringUtil.toStringBuild(METAMODEL, this);
+        return ToStringUtil.toStringBuild(Handlers.REACTION_METAMODEL, this);
     }
 }

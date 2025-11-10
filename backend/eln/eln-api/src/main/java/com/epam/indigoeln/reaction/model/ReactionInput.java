@@ -2,7 +2,7 @@ package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
 import com.epam.indigoeln.reaction.model.patch.ReactionInputPatch;
-import com.epam.indigoeln.reaction.model.patch.handler.ReactionInputSampleValueHandler;
+import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.util.ToStringUtil;
@@ -22,14 +22,15 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ReactionInput extends ReactionRow implements ExperimentModelNode {
 
-    public static final Metamodel<ReactionInput, ReactionInputPatch> METAMODEL = new Metamodel<ReactionInput, ReactionInputPatch>("ReactionInput")
-            .anchorProperty("anchor", ReactionInput::getAnchor, ReactionInput::setAnchor, ReactionInputPatch::getAnchor, ReactionInputPatch::setAnchor)
-            .accept(ReactionRow::addBaseProperties)
-            .simpleProperty("role", ReactionInput::getRole, ReactionInput::setRole, ReactionInputPatch::getRole, ReactionInputPatch::setRole)
-            .enteredValueProperty("mol", ReactionInput::getMol, ReactionInput::setMol, ReactionInputPatch::getMol, ReactionInputPatch::setMol)
-            .simpleProperty("limiting", ReactionInput::isLimiting, ReactionInput::setLimiting, ReactionInputPatch::getLimiting, ReactionInputPatch::setLimiting, false)
-            .listProperty("samples", ReactionInput::getSamples, ReactionInput::setSamples, ReactionInputPatch::getSamples, ReactionInputPatch::setSamples, ReactionInputSample.METAMODEL, ReactionInputSampleValueHandler.LIST_INSTANCE)
-            ;
+    public static void buildMetamodel(Metamodel<ReactionInput, ReactionInputPatch> metamodel) {
+        metamodel.setName("ReactionInput");
+        metamodel.anchorProperty("anchor", ReactionInput::getAnchor, ReactionInput::setAnchor, ReactionInputPatch::getAnchor, ReactionInputPatch::setAnchor);
+        metamodel.accept(ReactionRow::buildMetamodelBase);
+        metamodel.simpleProperty("role", ReactionInput::getRole, ReactionInput::setRole, ReactionInputPatch::getRole, ReactionInputPatch::setRole);
+        metamodel.enteredValueProperty("mol", ReactionInput::getMol, ReactionInput::setMol, ReactionInputPatch::getMol, ReactionInputPatch::setMol);
+        metamodel.simpleProperty("limiting", ReactionInput::isLimiting, ReactionInput::setLimiting, ReactionInputPatch::getLimiting, ReactionInputPatch::setLimiting, false);
+        metamodel.listProperty("samples", ReactionInput::getSamples, ReactionInput::setSamples, ReactionInputPatch::getSamples, ReactionInputPatch::setSamples, Handlers.INPUT_SAMPLE_METAMODEL, Handlers.REACTION_INPUT_SAMPLE_LIST);
+    }
 
     @NotNull
     private Anchor.Input anchor;
@@ -63,6 +64,6 @@ public final class ReactionInput extends ReactionRow implements ExperimentModelN
 
     @Override
     public String toString() {
-        return ToStringUtil.toStringBuild(METAMODEL, this);
+        return ToStringUtil.toStringBuild(Handlers.INPUT_METAMODEL, this);
     }
 }

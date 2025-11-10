@@ -2,7 +2,7 @@ package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
 import com.epam.indigoeln.reaction.model.patch.ReactionOutputPatch;
-import com.epam.indigoeln.reaction.model.patch.handler.ReactionOutputSampleValueHandler;
+import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
@@ -21,15 +21,16 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ReactionOutput extends ReactionRow implements ExperimentModelNode {
 
-    public static final Metamodel<ReactionOutput, ReactionOutputPatch> METAMODEL = new Metamodel<ReactionOutput, ReactionOutputPatch>("ReactionOutput")
-            .anchorProperty("anchor", ReactionOutput::getAnchor, ReactionOutput::setAnchor, ReactionOutputPatch::getAnchor, ReactionOutputPatch::setAnchor)
-            .accept(ReactionRow::addBaseProperties)
-            .simpleProperty("chemicalName", ReactionOutput::getChemicalName, ReactionOutput::setChemicalName, ReactionOutputPatch::getChemicalName, ReactionOutputPatch::setChemicalName)
-            .simpleProperty("type", ReactionOutput::getType, ReactionOutput::setType, ReactionOutputPatch::getType, ReactionOutputPatch::setType)
-            .enteredValueProperty("theoMol", ReactionOutput::getTheoMol, ReactionOutput::setTheoMol, ReactionOutputPatch::getTheoMol, ReactionOutputPatch::setTheoMol)
-            .enteredValueProperty("theoWeight", ReactionOutput::getTheoWeight, ReactionOutput::setTheoWeight, ReactionOutputPatch::getTheoWeight, ReactionOutputPatch::setTheoWeight)
-            .listProperty("samples", ReactionOutput::getSamples, ReactionOutput::setSamples, ReactionOutputPatch::getSamples, ReactionOutputPatch::setSamples, ReactionOutputSample.METAMODEL, ReactionOutputSampleValueHandler.LIST_INSTANCE)
-            ;
+    public static void buildMetamodel(Metamodel<ReactionOutput, ReactionOutputPatch> metamodel) {
+        metamodel.setName("ReactionOutput");
+        metamodel.anchorProperty("anchor", ReactionOutput::getAnchor, ReactionOutput::setAnchor, ReactionOutputPatch::getAnchor, ReactionOutputPatch::setAnchor);
+        metamodel.accept(ReactionRow::buildMetamodelBase);
+        metamodel.simpleProperty("chemicalName", ReactionOutput::getChemicalName, ReactionOutput::setChemicalName, ReactionOutputPatch::getChemicalName, ReactionOutputPatch::setChemicalName);
+        metamodel.simpleProperty("type", ReactionOutput::getType, ReactionOutput::setType, ReactionOutputPatch::getType, ReactionOutputPatch::setType);
+        metamodel.enteredValueProperty("theoMol", ReactionOutput::getTheoMol, ReactionOutput::setTheoMol, ReactionOutputPatch::getTheoMol, ReactionOutputPatch::setTheoMol);
+        metamodel.enteredValueProperty("theoWeight", ReactionOutput::getTheoWeight, ReactionOutput::setTheoWeight, ReactionOutputPatch::getTheoWeight, ReactionOutputPatch::setTheoWeight);
+        metamodel.listProperty("samples", ReactionOutput::getSamples, ReactionOutput::setSamples, ReactionOutputPatch::getSamples, ReactionOutputPatch::setSamples, Handlers.OUTPUT_SAMPLE_METAMODEL, Handlers.REACTION_OUTPUT_SAMPLE_LIST);
+    }
 
     @NotNull
     private Anchor.Output anchor;
@@ -67,6 +68,6 @@ public final class ReactionOutput extends ReactionRow implements ExperimentModel
 
     @Override
     public String toString() {
-        return ToStringUtil.toStringBuild(METAMODEL, this);
+        return ToStringUtil.toStringBuild(Handlers.OUTPUT_METAMODEL, this);
     }
 }

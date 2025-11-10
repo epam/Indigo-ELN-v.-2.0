@@ -6,6 +6,7 @@ import com.epam.indigoeln.eln.model.STRCodeCompound;
 import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
 import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.patch.ReactionOutputSamplePatch;
+import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
@@ -28,33 +29,34 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ReactionOutputSample extends ReactionSample implements ExperimentModelNode {
 
-    public static final Metamodel<ReactionOutputSample, ReactionOutputSamplePatch> METAMODEL = new Metamodel<ReactionOutputSample, ReactionOutputSamplePatch>("ReactionOutputSample")
-            .anchorProperty("anchor", ReactionOutputSample::getAnchor, ReactionOutputSample::setAnchor, ReactionOutputSamplePatch::getAnchor, ReactionOutputSamplePatch::setAnchor)
-            .accept(ReactionSample::addBaseProperties)
-            .simpleProperty("nbkBatchNumber", ReactionOutputSample::getNbkBatchNumber, ReactionOutputSample::setNbkBatchNumber, ReactionOutputSamplePatch::getNbkBatchNumber, ReactionOutputSamplePatch::setNbkBatchNumber)
-            .enteredValueProperty("actualMol", ReactionOutputSample::getActualMol, ReactionOutputSample::setActualMol, ReactionOutputSamplePatch::getActualMol, ReactionOutputSamplePatch::setActualMol)
-            .enteredValueProperty("actualWeight", ReactionOutputSample::getActualWeight, ReactionOutputSample::setActualWeight, ReactionOutputSamplePatch::getActualWeight, ReactionOutputSamplePatch::setActualWeight)
-            .enteredValueProperty("yield", ReactionOutputSample::getYield, ReactionOutputSample::setYield, ReactionOutputSamplePatch::getYield, ReactionOutputSamplePatch::setYield)
-            .<@Nullable SampleRegistrationStatus>simpleProperty("registrationStatus", ReactionOutputSample::getRegistrationStatus, ReactionOutputSample::setRegistrationStatus, ReactionOutputSamplePatch::getRegistrationStatus, ReactionOutputSamplePatch::setRegistrationStatus)
-            .<@Nullable String>simpleProperty("registrationStatusMessage", ReactionOutputSample::getRegistrationStatusMessage, ReactionOutputSample::setRegistrationStatusMessage, ReactionOutputSamplePatch::getRegistrationStatusMessage, ReactionOutputSamplePatch::setRegistrationStatusMessage)
-            .<@Nullable UUID>simpleProperty("sampleId", ReactionOutputSample::getSampleId, ReactionOutputSample::setSampleId, ReactionOutputSamplePatch::getSampleId, ReactionOutputSamplePatch::setSampleId)
-            .dictionaryListProperty("handlingPrecautions", ReactionOutputSample::getHandlingPrecautions, ReactionOutputSample::setHandlingPrecautions, ReactionOutputSamplePatch::getHandlingPrecautions, ReactionOutputSamplePatch::setHandlingPrecautions)
-            .dictionaryListProperty("storageInstructions", ReactionOutputSample::getStorageInstructions, ReactionOutputSample::setStorageInstructions, ReactionOutputSamplePatch::getStorageInstructions, ReactionOutputSamplePatch::setStorageInstructions)
-            .dictionaryListProperty("compoundProtection", ReactionOutputSample::getCompoundProtection, ReactionOutputSample::setCompoundProtection, ReactionOutputSamplePatch::getCompoundProtection, ReactionOutputSamplePatch::setCompoundProtection)
-            .simpleListProperty("solubilityInSolvents", ReactionOutputSample::getSolubilityInSolvents, ReactionOutputSample::setSolubilityInSolvents, ReactionOutputSamplePatch::getSolubilityInSolvents, ReactionOutputSamplePatch::setSolubilityInSolvents)
-            .simpleListProperty("residualSolvents", ReactionOutputSample::getResidualSolvents, ReactionOutputSample::setResidualSolvents, ReactionOutputSamplePatch::getResidualSolvents, ReactionOutputSamplePatch::setResidualSolvents)
-            .<@Nullable MeltingPoint>simpleProperty("meltingPoint", ReactionOutputSample::getMeltingPoint, ReactionOutputSample::setMeltingPoint, ReactionOutputSamplePatch::getMeltingPoint, ReactionOutputSamplePatch::setMeltingPoint)
-            .simpleListProperty("purityCalculations", ReactionOutputSample::getPurityCalculations, ReactionOutputSample::setPurityCalculations, ReactionOutputSamplePatch::getPurityCalculations, ReactionOutputSamplePatch::setPurityCalculations)
-            .<@Nullable ExternalSupplier>simpleProperty("externalSupplier", ReactionOutputSample::getExternalSupplier, ReactionOutputSample::setExternalSupplier, ReactionOutputSamplePatch::getExternalSupplier, ReactionOutputSamplePatch::setExternalSupplier)
-            .dictionaryProperty("source", ReactionOutputSample::getSource, ReactionOutputSample::setSource, ReactionOutputSamplePatch::getSource, ReactionOutputSamplePatch::setSource)
-            .dictionaryProperty("sourceDetails", ReactionOutputSample::getSourceDetails, ReactionOutputSample::setSourceDetails, ReactionOutputSamplePatch::getSourceDetails, ReactionOutputSamplePatch::setSourceDetails)
-            .dictionaryProperty("componentState", ReactionOutputSample::getComponentState, ReactionOutputSample::setComponentState, ReactionOutputSamplePatch::getComponentState, ReactionOutputSamplePatch::setComponentState)
-            .<@Nullable String>simpleProperty("batchComment", ReactionOutputSample::getBatchComment, ReactionOutputSample::setBatchComment, ReactionOutputSamplePatch::getBatchComment, ReactionOutputSamplePatch::setBatchComment)
-            .<@Nullable String>simpleProperty("structureComment", ReactionOutputSample::getStructureComment, ReactionOutputSample::setStructureComment, ReactionOutputSamplePatch::getStructureComment, ReactionOutputSamplePatch::setStructureComment)
-            .<@Nullable Double>simpleProperty("calculatedMolWeight", ReactionOutputSample::getCalculatedMolWeight, null, ReactionOutputSamplePatch::getCalculatedMolWeight, ReactionOutputSamplePatch::setCalculatedMolWeight)
-            .<@Nullable String>simpleProperty("calculatedBatchMF", ReactionOutputSample::getCalculatedBatchMF, null, ReactionOutputSamplePatch::getCalculatedBatchMF, ReactionOutputSamplePatch::setCalculatedBatchMF)
-            .simpleListProperty("precursorReactantIds", ReactionOutputSample::getPrecursorReactantIds, null, ReactionOutputSamplePatch::getPrecursorReactantIds, ReactionOutputSamplePatch::setPrecursorReactantIds)
-            ;
+    public static void buildMetamodel(Metamodel<ReactionOutputSample, ReactionOutputSamplePatch> metamodel) {
+        metamodel.setName("ReactionOutputSample");
+        metamodel.anchorProperty("anchor", ReactionOutputSample::getAnchor, ReactionOutputSample::setAnchor, ReactionOutputSamplePatch::getAnchor, ReactionOutputSamplePatch::setAnchor);
+        metamodel.accept(ReactionSample::buildMetamodelBase);
+        metamodel.simpleProperty("nbkBatchNumber", ReactionOutputSample::getNbkBatchNumber, ReactionOutputSample::setNbkBatchNumber, ReactionOutputSamplePatch::getNbkBatchNumber, ReactionOutputSamplePatch::setNbkBatchNumber);
+        metamodel.enteredValueProperty("actualMol", ReactionOutputSample::getActualMol, ReactionOutputSample::setActualMol, ReactionOutputSamplePatch::getActualMol, ReactionOutputSamplePatch::setActualMol);
+        metamodel.enteredValueProperty("actualWeight", ReactionOutputSample::getActualWeight, ReactionOutputSample::setActualWeight, ReactionOutputSamplePatch::getActualWeight, ReactionOutputSamplePatch::setActualWeight);
+        metamodel.enteredValueProperty("yield", ReactionOutputSample::getYield, ReactionOutputSample::setYield, ReactionOutputSamplePatch::getYield, ReactionOutputSamplePatch::setYield);
+        metamodel.<@Nullable SampleRegistrationStatus>simpleProperty("registrationStatus", ReactionOutputSample::getRegistrationStatus, ReactionOutputSample::setRegistrationStatus, ReactionOutputSamplePatch::getRegistrationStatus, ReactionOutputSamplePatch::setRegistrationStatus);
+        metamodel.<@Nullable String>simpleProperty("registrationStatusMessage", ReactionOutputSample::getRegistrationStatusMessage, ReactionOutputSample::setRegistrationStatusMessage, ReactionOutputSamplePatch::getRegistrationStatusMessage, ReactionOutputSamplePatch::setRegistrationStatusMessage);
+        metamodel.<@Nullable UUID>simpleProperty("sampleId", ReactionOutputSample::getSampleId, ReactionOutputSample::setSampleId, ReactionOutputSamplePatch::getSampleId, ReactionOutputSamplePatch::setSampleId);
+        metamodel.dictionaryListProperty("handlingPrecautions", ReactionOutputSample::getHandlingPrecautions, ReactionOutputSample::setHandlingPrecautions, ReactionOutputSamplePatch::getHandlingPrecautions, ReactionOutputSamplePatch::setHandlingPrecautions);
+        metamodel.dictionaryListProperty("storageInstructions", ReactionOutputSample::getStorageInstructions, ReactionOutputSample::setStorageInstructions, ReactionOutputSamplePatch::getStorageInstructions, ReactionOutputSamplePatch::setStorageInstructions);
+        metamodel.dictionaryListProperty("compoundProtection", ReactionOutputSample::getCompoundProtection, ReactionOutputSample::setCompoundProtection, ReactionOutputSamplePatch::getCompoundProtection, ReactionOutputSamplePatch::setCompoundProtection);
+        metamodel.simpleListProperty("solubilityInSolvents", ReactionOutputSample::getSolubilityInSolvents, ReactionOutputSample::setSolubilityInSolvents, ReactionOutputSamplePatch::getSolubilityInSolvents, ReactionOutputSamplePatch::setSolubilityInSolvents);
+        metamodel.simpleListProperty("residualSolvents", ReactionOutputSample::getResidualSolvents, ReactionOutputSample::setResidualSolvents, ReactionOutputSamplePatch::getResidualSolvents, ReactionOutputSamplePatch::setResidualSolvents);
+        metamodel.<@Nullable MeltingPoint>simpleProperty("meltingPoint", ReactionOutputSample::getMeltingPoint, ReactionOutputSample::setMeltingPoint, ReactionOutputSamplePatch::getMeltingPoint, ReactionOutputSamplePatch::setMeltingPoint);
+        metamodel.simpleListProperty("purityCalculations", ReactionOutputSample::getPurityCalculations, ReactionOutputSample::setPurityCalculations, ReactionOutputSamplePatch::getPurityCalculations, ReactionOutputSamplePatch::setPurityCalculations);
+        metamodel.<@Nullable ExternalSupplier>simpleProperty("externalSupplier", ReactionOutputSample::getExternalSupplier, ReactionOutputSample::setExternalSupplier, ReactionOutputSamplePatch::getExternalSupplier, ReactionOutputSamplePatch::setExternalSupplier);
+        metamodel.dictionaryProperty("source", ReactionOutputSample::getSource, ReactionOutputSample::setSource, ReactionOutputSamplePatch::getSource, ReactionOutputSamplePatch::setSource);
+        metamodel.dictionaryProperty("sourceDetails", ReactionOutputSample::getSourceDetails, ReactionOutputSample::setSourceDetails, ReactionOutputSamplePatch::getSourceDetails, ReactionOutputSamplePatch::setSourceDetails);
+        metamodel.dictionaryProperty("componentState", ReactionOutputSample::getComponentState, ReactionOutputSample::setComponentState, ReactionOutputSamplePatch::getComponentState, ReactionOutputSamplePatch::setComponentState);
+        metamodel.<@Nullable String>simpleProperty("batchComment", ReactionOutputSample::getBatchComment, ReactionOutputSample::setBatchComment, ReactionOutputSamplePatch::getBatchComment, ReactionOutputSamplePatch::setBatchComment);
+        metamodel.<@Nullable String>simpleProperty("structureComment", ReactionOutputSample::getStructureComment, ReactionOutputSample::setStructureComment, ReactionOutputSamplePatch::getStructureComment, ReactionOutputSamplePatch::setStructureComment);
+        metamodel.<@Nullable Double>simpleProperty("calculatedMolWeight", ReactionOutputSample::getCalculatedMolWeight, null, ReactionOutputSamplePatch::getCalculatedMolWeight, ReactionOutputSamplePatch::setCalculatedMolWeight);
+        metamodel.<@Nullable String>simpleProperty("calculatedBatchMF", ReactionOutputSample::getCalculatedBatchMF, null, ReactionOutputSamplePatch::getCalculatedBatchMF, ReactionOutputSamplePatch::setCalculatedBatchMF);
+        metamodel.simpleListProperty("precursorReactantIds", ReactionOutputSample::getPrecursorReactantIds, null, ReactionOutputSamplePatch::getPrecursorReactantIds, ReactionOutputSamplePatch::setPrecursorReactantIds);
+    }
 
     @JsonBackReference
     private ReactionOutput row;
@@ -168,6 +170,6 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
 
     @Override
     public String toString() {
-        return ToStringUtil.toStringBuild(METAMODEL, this);
+        return ToStringUtil.toStringBuild(Handlers.OUTPUT_SAMPLE_METAMODEL, this);
     }
 }

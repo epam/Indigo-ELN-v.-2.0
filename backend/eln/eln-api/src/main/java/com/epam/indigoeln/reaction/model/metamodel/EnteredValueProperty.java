@@ -1,7 +1,7 @@
 package com.epam.indigoeln.reaction.model.metamodel;
 
 import com.epam.indigoeln.reaction.model.patch.EnteredValuePatch;
-import com.epam.indigoeln.reaction.model.patch.handler.EnteredValueHandler;
+import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import org.jspecify.annotations.Nullable;
@@ -21,6 +21,6 @@ public record EnteredValueProperty<C, U extends MeasurementUnit, P> (
 
     @Override
     public ValueHandler<C, EnteredValue<U>, EnteredValuePatch<U>> valueHandler() {
-        return EnteredValueHandler.instance();
+        return Handlers.enteredValueHandler();
     }
 }

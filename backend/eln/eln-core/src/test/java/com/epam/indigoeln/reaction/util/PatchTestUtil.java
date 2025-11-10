@@ -2,7 +2,7 @@ package com.epam.indigoeln.reaction.util;
 
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
-import com.epam.indigoeln.reaction.model.patch.handler.ExperimentModelValueHandler;
+import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
 import com.epam.indigoeln.test.FeignUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -29,7 +29,7 @@ public class PatchTestUtil {
         byte[] updatedBytes = FeignUtil.OBJECT_MAPPER.writeValueAsBytes(updated);
         JsonNode updatedJSON = FeignUtil.OBJECT_MAPPER.readTree(updatedBytes);
 
-        ExperimentModel reapplied = ExperimentModelValueHandler.INSTANCE.apply(null, initialCopy, Optional.of(patch));
+        ExperimentModel reapplied = Handlers.EXPERIMENT_MODEL.apply(null, initialCopy, Optional.of(patch));
         assertThat(reapplied).isNotNull().isEqualTo(updated);
 
         byte[] reappliedBytes = FeignUtil.OBJECT_MAPPER.writeValueAsBytes(reapplied);

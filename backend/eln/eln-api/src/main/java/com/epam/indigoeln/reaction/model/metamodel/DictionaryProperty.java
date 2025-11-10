@@ -1,7 +1,7 @@
 package com.epam.indigoeln.reaction.model.metamodel;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.reaction.model.patch.handler.DefaultValueHandler;
+import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
 
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -17,6 +17,6 @@ public record DictionaryProperty<C, P> (
 
     @Override
     public ValueHandler<C, DictionaryItemRef, DictionaryItemRef> valueHandler() {
-        return DefaultValueHandler.instance();
+        return Handlers.defaultHandler();
     }
 }
