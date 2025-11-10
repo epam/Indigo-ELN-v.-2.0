@@ -1,27 +1,20 @@
 package com.epam.indigoeln.eln.service;
 
-import com.arjuna.ats.internal.jdbc.drivers.modifiers.list;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.Conditions;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
-import one.util.streamex.StreamEx;
-import org.hibernate.annotations.processing.SQL;
 
 import java.time.Instant;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 @DataAccess
 @Transactional
@@ -62,8 +55,8 @@ public class GlobalSearchService {
         }
         if (request.getStructure() != null) {
             hasProjects = hasNotebooks = false;
-            experimentJoins.add("join compound_experiment ce on ce.experiment_id = e.id");
-            experimentJoins.add("join compound c on c.id = ce.compound_id");
+            experimentJoins.add("join Experiment_Referenced_Compound ce on ce.experiment_id = e.id");
+            experimentJoins.add("join Compound c on c.id = ce.compound_id");
             switch (request.getStructure().type()) {
                 case EXACT -> {
                     conditions.add(SLOT_EXPERIMENTS, "c.mol_file @ (?, '')::bingo.exact", request.getStructure().query());

@@ -49,7 +49,6 @@ public class SchemaHandler extends AbstractMutationHandler {
         }
         adjustLimitingInput(reaction);
         reaction.setRxnfile(mutation.molFile());
-        rxnFileAffected = true;
     }
 
     public void handle(Reaction reaction, ReactionMutation.AddEmptyInput mutation) {
@@ -83,7 +82,6 @@ public class SchemaHandler extends AbstractMutationHandler {
 
     private void setInputLineSample(ReactionInput row, SampleEntity sample) {
         row.setCompound(compoundService.realCompoundRef(sample.getCompound()));
-        compoundsAffected = true;
 
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row);
         reactionInputSample.setSampleId(sample.getId());
@@ -96,7 +94,6 @@ public class SchemaHandler extends AbstractMutationHandler {
         reactionInputSample.setChemicalName(sample.getChemicalName());
         row.setSamples(List.of(reactionInputSample));
 
-        dictionariesAffected = true;
         affectedRoles.add(row.getRole());
     }
 
@@ -105,7 +102,6 @@ public class SchemaHandler extends AbstractMutationHandler {
         row.setCompound(molecule != null
                 ? compoundService.virtualCompoundRef(molecule, null, null, null)
                 : compoundService.unknownCompoundRef());
-        compoundsAffected = true;
         row.setEq(DEFAULT_ONE);
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row);
         reactionInputSample.setPurity(DEFAULT_ONE);
@@ -116,7 +112,6 @@ public class SchemaHandler extends AbstractMutationHandler {
     private ReactionOutput createOutputLine(Reaction reaction, IndigoMolecule molecule) {
         ReactionOutput row = ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL);
         row.setCompound(compoundService.virtualCompoundRef(molecule, null, null, null));
-        compoundsAffected = true;
         row.setEq(DEFAULT_ONE);
         row.setSamples(List.of());
         return row;

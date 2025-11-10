@@ -3,19 +3,21 @@ package com.epam.indigoeln.reaction.service;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.SampleDTO;
-import com.epam.indigoeln.compound.model.StructuralSearch;
 import com.epam.indigoeln.compound.model.TextSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
-import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.epam.indigoeln.reaction.model.mutation.*;
+import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.epam.indigoeln.reaction.util.CalculationReportBuilder;
+import com.epam.indigoeln.reaction.util.PatchTestUtil;
+import com.epam.indigoeln.test.FeignUtil;
+import com.google.common.math.Stats;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -27,9 +29,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
@@ -55,6 +55,9 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
 
     byte @Nullable[] picture = null;
 
+    List<Integer> modelSizes = new ArrayList<>();
+    List<Integer> patchSizes = new ArrayList<>();
+
     @BeforeAll
     void setUp(@TempDir Path tempDir) {
         miscClient.loadCompoundsFromFileClient("compounds.sdf", tempDir, loadResource(getClass(), "/Compound_000000001_000500000.1.sdf"));
@@ -63,6 +66,15 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
             ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("ExperimentModelServiceTest"));
             notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
         });
+    }
+
+    @AfterAll
+    void tearDown() {
+        Stats modelSizeStats = Stats.of(modelSizes);
+        Stats patchSizeStats = Stats.of(patchSizes);
+        System.out.println("Model size stats: " + modelSizeStats);
+        System.out.println("Patch size stats: " + patchSizeStats);
+        System.out.println("Average ratio: " + patchSizeStats.mean() / modelSizeStats.mean());
     }
 
     @Nested
@@ -103,16 +115,15 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
         @Order(200)
         void testResolveInputs() {
             ReactionMutation.ResolveInputs mutation = new ReactionMutation.ResolveInputs(reactionAnchor, new HashMap<>());
-            for (ReactionInput input : model.getReactions().getFirst().getInputs()) {
-                Page<SampleDTO> samples = compoundClient.findSamples(new FindSamplesRequest()
-                        .withStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, input.getCompound().getMolFile()))
-                        , Paging.DEFAULT
-                );
-                System.out.println("Found samples: " + samples);
-                if (samples.getTotalItems() != 0) {
-                    mutation.inputSamples().put(input.getAnchor(), samples.getItems().getFirst().getId());
+            Map<Anchor.Input, @Nullable FindSamplesRequest> requests = experimentClient.analyzeRXN(experiment.getId(), model.getReactions().getFirst().getAnchor());
+            requests.forEach((anchor, request) -> {
+                if (request != null) {
+                    Page<SampleDTO> samples = compoundClient.findSamples(request, Paging.DEFAULT);
+                    if (!samples.getItems().isEmpty()) {
+                        mutation.inputSamples().put(anchor, samples.getItems().getFirst().getId());
+                    }
                 }
-            }
+            });
             applyMutation(mutation);
             input1Sample1Anchor = model.getReactions().getFirst().getInputs().get(0).getSamples().get(0).getAnchor();
         }
@@ -267,18 +278,37 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
         reportBuilder.close();
     }
 
+    @Test
+    @Order(10_100)
+    void testIncorrectRevision() {
+        experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        model = experimentClient.getExperimentModel(experiment.getId());
+        reactionAnchor = model.getReactions().getFirst().getAnchor();
+        assertThatClientCall(() -> {
+            experimentClient.mutateExperimentModel2(experiment.getId(), 100, new ReactionMutation.AddEmptyInput(reactionAnchor));
+        }).isConflict("incorrect revision 100 requested; current revision 0");
+    }
+
     @SneakyThrows
     private void applyMutation(Mutation mutation) {
         System.out.println("Applying mutation: " + mutation);
         reportBuilder.addMutation(mutation);
-        model = experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(model, mutation));
+
+        ExperimentModelPatch patch = experimentClient.mutateExperimentModel2(experiment.getId(), model.getRevision(), mutation);
+        ExperimentModel updatedModel = experimentClient.getExperimentModel(experiment.getId());
+
+        reportBuilder.addPatch(FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch));
         Response pictureResponse = experimentClient.getExperimentPictureClient(experiment.getId());
         byte[] newPicture = (byte[]) pictureResponse.getEntity();
         if (picture == null || newPicture != null && !Arrays.equals(picture, newPicture)) {
             picture = newPicture;
             reportBuilder.addPicture(picture, pictureResponse.getHeaderString(HttpHeaders.CONTENT_TYPE));
         }
-        reportBuilder.addModel(model);
-        System.out.println(model);
+        reportBuilder.addModel(updatedModel);
+
+        model = PatchTestUtil.verifyModelPatch(model, patch, updatedModel);
+
+        modelSizes.add(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(model).length);
+        patchSizes.add(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(patch).length);
     }
 }

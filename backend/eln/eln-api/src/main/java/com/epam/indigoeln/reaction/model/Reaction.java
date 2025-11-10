@@ -1,5 +1,9 @@
 package com.epam.indigoeln.reaction.model;
 
+import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
+import com.epam.indigoeln.reaction.model.patch.ReactionPatch;
+import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
+import com.epam.indigoeln.reaction.util.ToStringUtil;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -14,14 +18,22 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Data
 @EqualsAndHashCode(exclude = "model")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public final class Reaction implements ExperimentModelNode, ToStringTree {
+public final class Reaction implements ExperimentModelNode {
+
+    public static void buildMetamodel(Metamodel<Reaction, ReactionPatch> metamodel) {
+        metamodel.setName("Reaction");
+        metamodel.anchorProperty("anchor", Reaction::getAnchor, Reaction::setAnchor, ReactionPatch::getAnchor, ReactionPatch::setAnchor);
+        metamodel.simpleProperty("rxnfile", Reaction::getRxnfile, Reaction::setRxnfile, ReactionPatch::getRxnfile, ReactionPatch::setRxnfile);
+        metamodel.simpleProperty("rxnVersion", Reaction::getRxnVersion, Reaction::setRxnVersion, ReactionPatch::getRxnVersion, ReactionPatch::setRxnVersion);
+        metamodel.listProperty("inputs", Reaction::getInputs, Reaction::setInputs, ReactionPatch::getInputs, ReactionPatch::setInputs, Handlers.INPUT_METAMODEL, Handlers.REACTION_INPUT_LIST);
+        metamodel.listProperty("outputs", Reaction::getOutputs, Reaction::setOutputs, ReactionPatch::getOutputs, ReactionPatch::setOutputs, Handlers.OUTPUT_METAMODEL, Handlers.REACTION_OUTPUT_LIST);
+    }
 
     @JsonBackReference
     private ExperimentModel model;
@@ -38,27 +50,22 @@ public final class Reaction implements ExperimentModelNode, ToStringTree {
     @Valid
     @NotNull
     @JsonManagedReference
-    private List<ReactionInput> inputs = new ArrayList<>(0);
+    private List<ReactionInput> inputs = List.of();
 
     @Valid
     @NotNull
     @JsonManagedReference
-    private List<ReactionOutput> outputs = new ArrayList<>(0);
+    private List<ReactionOutput> outputs = List.of();
 
     public static Reaction create(ExperimentModel model) {
-        Reaction reaction = new Reaction();
-        reaction.model = model;
-        reaction.anchor = new Anchor.Reaction(model.generateNextAnchor());
-        return reaction;
+        return createWithAnchor(model, new Anchor.Reaction(model.generateNextAnchor()));
     }
 
-    @Override
-    public void toStringTree(Builder builder) {
-        builder.open("Reaction")
-                .property("anchor", anchor)
-                .open("inputs").nest(inputs).close()
-                .open("outputs").nest(outputs).close()
-                .close();
+    public static Reaction createWithAnchor(ExperimentModel model, Anchor.Reaction anchor) {
+        Reaction reaction = new Reaction();
+        reaction.model = model;
+        reaction.anchor = anchor;
+        return reaction;
     }
 
     @JsonIgnore
@@ -98,7 +105,7 @@ public final class Reaction implements ExperimentModelNode, ToStringTree {
         return null;
     }
 
-    public Iterable<ReactionInput> getInputsOfType(ReactionRole role) {
+    public Iterable<ReactionInput> inputsOfType(ReactionRole role) {
         return Iterables.filter(inputs, input -> input.getRole() == role);
     }
 
@@ -113,6 +120,6 @@ public final class Reaction implements ExperimentModelNode, ToStringTree {
 
     @Override
     public String toString() {
-        return toStringTree();
+        return ToStringUtil.toStringBuild(Handlers.REACTION_METAMODEL, this);
     }
 }

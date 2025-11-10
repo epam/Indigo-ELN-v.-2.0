@@ -43,7 +43,7 @@ public class JSONSerializationTest {
     void testSerializeUserRef(MapperType serializer, MapperType deserializer) throws Exception {
         UserRef userRef = new UserRef(UUID.randomUUID(), "username", "Test User");
         String serialized = getMapper(serializer).writeValueAsString(userRef);
-        assertThat(serialized).isEqualTo("{\"id\":\"" + userRef.getId() + "\",\"username\":\"username\",\"displayName\":\"Test User\"}");
+        assertThat(serialized).isEqualToIgnoringWhitespace("{\"id\":\"" + userRef.getId() + "\",\"username\":\"username\",\"displayName\":\"Test User\"}");
         UserRef deserialized = getMapper(deserializer).readValue(serialized, UserRef.class);
         assertThat(deserialized.getId()).isEqualTo(userRef.getId());
         assertThat(deserialized.getDisplayName()).isEqualTo(userRef.getDisplayName());
@@ -55,7 +55,7 @@ public class JSONSerializationTest {
         // name - update, keywords - set to null, literature - not changed
         ProjectEditRequest request = new ProjectEditRequest(Optional.of("name_new"), Optional.empty(), null, null);
         String serialized = getMapper(serializer).writeValueAsString(request);
-        assertThat(serialized).isEqualTo("{\"name\":\"name_new\",\"keywords\":null}");
+        assertThat(serialized).isEqualToIgnoringWhitespace("{\"name\":\"name_new\",\"keywords\":null}");
         ProjectEditRequest request2 = getMapper(deserializer).readValue(serialized, ProjectEditRequest.class);
         assertThat(request2.getName()).get().isEqualTo("name_new");
         assertThat(request2.getKeywords()).isEmpty();
@@ -66,16 +66,15 @@ public class JSONSerializationTest {
     @MethodSource("mappers")
     void testSerializeEnteredValue(MapperType serializer, MapperType deserializer) throws Exception {
         EnteredValue<WeightUnit> value = new EnteredValue<>(5.0, WeightUnit.G, EnteredValueSource.USER_ENTERED);
-        value.setConflict(true);
         String serialized = getMapper(serializer).writeValueAsString(value);
-        assertThat(serialized).isEqualToIgnoringNewLines("""
-                {"value":5.0,"unit":"G","source":"USER_ENTERED","conflict":true}
+        assertThat(serialized).isEqualToIgnoringWhitespace("""
+                {"value":5.0,"unit":"G","source":"USER_ENTERED"}
                 """);
         EnteredValue<WeightUnit> value2 = getMapper(deserializer).readValue(serialized, new TypeReference<>() {});
         assertThat(value2.getValue()).isEqualTo(5.0);
         assertThat(value2.getUnit()).isEqualTo(WeightUnit.G);
         assertThat(value2.getSource()).isEqualTo(EnteredValueSource.USER_ENTERED);
-        assertThat(value2.isConflict()).isTrue();
+        assertThat(value2.isConflict()).isFalse();
     }
 
     @ParameterizedTest

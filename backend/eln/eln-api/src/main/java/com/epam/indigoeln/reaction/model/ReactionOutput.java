@@ -1,23 +1,36 @@
 package com.epam.indigoeln.reaction.model;
 
+import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
+import com.epam.indigoeln.reaction.model.patch.ReactionOutputPatch;
+import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
+import com.epam.indigoeln.reaction.util.ToStringUtil;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public final class ReactionOutput extends ReactionRow implements ExperimentModelNode, ToStringTree {
+public final class ReactionOutput extends ReactionRow implements ExperimentModelNode {
+
+    public static void buildMetamodel(Metamodel<ReactionOutput, ReactionOutputPatch> metamodel) {
+        metamodel.setName("ReactionOutput");
+        metamodel.anchorProperty("anchor", ReactionOutput::getAnchor, ReactionOutput::setAnchor, ReactionOutputPatch::getAnchor, ReactionOutputPatch::setAnchor);
+        metamodel.accept(ReactionRow::buildMetamodelBase);
+        metamodel.simpleProperty("chemicalName", ReactionOutput::getChemicalName, ReactionOutput::setChemicalName, ReactionOutputPatch::getChemicalName, ReactionOutputPatch::setChemicalName);
+        metamodel.simpleProperty("type", ReactionOutput::getType, ReactionOutput::setType, ReactionOutputPatch::getType, ReactionOutputPatch::setType);
+        metamodel.enteredValueProperty("theoMol", ReactionOutput::getTheoMol, ReactionOutput::setTheoMol, ReactionOutputPatch::getTheoMol, ReactionOutputPatch::setTheoMol);
+        metamodel.enteredValueProperty("theoWeight", ReactionOutput::getTheoWeight, ReactionOutput::setTheoWeight, ReactionOutputPatch::getTheoWeight, ReactionOutputPatch::setTheoWeight);
+        metamodel.listProperty("samples", ReactionOutput::getSamples, ReactionOutput::setSamples, ReactionOutputPatch::getSamples, ReactionOutputPatch::setSamples, Handlers.OUTPUT_SAMPLE_METAMODEL, Handlers.REACTION_OUTPUT_SAMPLE_LIST);
+    }
 
     @NotNull
     private Anchor.Output anchor;
@@ -37,35 +50,24 @@ public final class ReactionOutput extends ReactionRow implements ExperimentModel
     @Valid
     @NotNull
     @JsonManagedReference
-    private List<ReactionOutputSample> samples;
+    private List<ReactionOutputSample> samples = List.of();
 
     public static ReactionOutput create(Reaction reaction, ReactionOutputType type) {
-        ReactionOutput output = new ReactionOutput();
-        output.reaction = reaction;
-        output.anchor = new Anchor.Output(reaction.getModel().generateNextAnchor());
+        ReactionOutput output = createWithAnchor(reaction, new Anchor.Output(reaction.getModel().generateNextAnchor()));
         output.type = type;
         output.chemicalName = reaction.generateNextProductName();
         return output;
     }
 
-    @Override
-    public void prepareToRecalculate() {
-        super.prepareToRecalculate();
-        EnteredValue.prepareToRecalculate(theoMol, this::setTheoMol);
-        EnteredValue.prepareToRecalculate(theoWeight, this::setTheoWeight);
+    public static ReactionOutput createWithAnchor(Reaction reaction, Anchor.Output anchor) {
+        ReactionOutput output = new ReactionOutput();
+        output.reaction = reaction;
+        output.anchor = anchor;
+        return output;
     }
 
     @Override
-    public void toStringTree(Builder builder) {
-        builder.open("ReactionOutput")
-                .property("anchor", anchor)
-                .property("chemicalName", chemicalName)
-                .property("compound", compound)
-                .property("eq", eq)
-                .property("type", type)
-                .property("theoMol", theoMol)
-                .property("theoWeight", theoWeight)
-                .open("samples").nest(samples).close()
-                .close();
+    public String toString() {
+        return ToStringUtil.toStringBuild(Handlers.OUTPUT_METAMODEL, this);
     }
 }

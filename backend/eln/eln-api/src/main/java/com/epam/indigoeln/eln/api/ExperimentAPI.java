@@ -1,14 +1,18 @@
 package com.epam.indigoeln.eln.api;
 
+import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
 import jakarta.annotation.Nullable;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Path(BaseAPI.BASE_PATH)
@@ -82,9 +86,17 @@ public interface ExperimentAPI extends BaseAPI {
     @Path("/experiments/{experimentId}/datamodel")
     ExperimentModel mutateExperimentModel(@PathParam("experimentId") UUID experimentId, MutateModelForm modelAndMutation);
 
+    @POST
+    @Path("/experiments/{experimentId}/datamodel2")
+    ExperimentModelPatch mutateExperimentModel2(@PathParam("experimentId") UUID experimentId, @QueryParam("revision") Integer revision, Mutation mutation);
+
     @GET
     @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/picture")
     Response getReactionPicture(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") Anchor.Reaction reactionAnchor, @Nullable @QueryParam("version") Integer version);
+
+    @POST
+    @Path("/experiments/{experimentId}/datamodel/reactions/{reactionAnchor}/analyzeRXN")
+    Map<Anchor.Input, @org.jspecify.annotations.Nullable FindSamplesRequest> analyzeRXN(@PathParam("experimentId") UUID experimentId, @PathParam("reactionAnchor") Anchor.Reaction reactionAnchor);
 
     @POST
     @Path("/experiments/{experimentId}/workflow/cancel")

@@ -2,6 +2,7 @@ package com.epam.indigoeln.compound.model;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import jakarta.validation.constraints.NotNull;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
@@ -14,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 public sealed interface TextSearch permits TextSearch.ExactSearch, TextSearch.StartsWithSearch, TextSearch.ContainsSearch, TextSearch.EndsWithSearch, TextSearch.BetweenSearch {
 
     record ExactSearch(
-            String value
+            @NotNull String value
     ) implements TextSearch {
     }
 

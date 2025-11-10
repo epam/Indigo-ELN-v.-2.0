@@ -1,34 +1,135 @@
 package com.epam.indigoeln.reaction.model;
 
+import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.reaction.model.metamodel.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
+import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
+import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
+import com.epam.indigoeln.reaction.model.units.EnteredValue;
+import com.epam.indigoeln.reaction.model.units.NoUnit;
+import com.epam.indigoeln.reaction.util.ExperimentModelUtil;
+import com.epam.indigoeln.reaction.util.ToStringUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.jspecify.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 @Data
-public final class ExperimentModel implements ExperimentModelNode, ToStringTree {
+@EqualsAndHashCode(exclude = "lastUsedAnchorCached")
+public final class ExperimentModel implements ExperimentModelNode {
+
+    public static void buildMetamodel(Metamodel<ExperimentModel, ExperimentModelPatch> metamodel) {
+        metamodel.setName("ExperimentModel");
+        metamodel.simpleProperty("revision", ExperimentModel::getRevision, ExperimentModel::setRevision, ExperimentModelPatch::getRevision, ExperimentModelPatch::setRevision);
+        metamodel.listProperty("reactions", ExperimentModel::getReactions, ExperimentModel::setReactions, ExperimentModelPatch::getReactions, ExperimentModelPatch::setReactions, Handlers.REACTION_METAMODEL, Handlers.REACTION_LIST);
+    }
 
     @Valid
     @NotEmpty
     @JsonManagedReference
-    private List<Reaction> reactions;
+    private List<Reaction> reactions = List.of();
 
-    private int lastUsedAnchor = 0;
+    @Nullable
+    @JsonIgnore
+    private Integer lastUsedAnchorCached;
+
+    @NotNull
+    private Integer revision;
 
     public int generateNextAnchor() {
-        return ++lastUsedAnchor;
+        if (lastUsedAnchorCached == null) {
+            int[] last = {0};
+            walk(node -> {
+                Anchor anchor = switch (node) {
+                    case Reaction reaction -> reaction.getAnchor();
+                    case ReactionInput input -> input.getAnchor();
+                    case ReactionInputSample sample -> sample.getAnchor();
+                    case ReactionOutput output -> output.getAnchor();
+                    case ReactionOutputSample sample -> sample.getAnchor();
+                    default -> null;
+                };
+                if (anchor != null) {
+                    last[0] = Math.max(last[0], anchor.getNumber());
+                }
+            });
+            lastUsedAnchorCached = last[0];
+        }
+        return ++lastUsedAnchorCached;
     }
 
     public int generateNextNbkBatchNumber() {
-        int lastUsedNumber = reactions.stream()
-                .flatMap(r -> r.getOutputs().stream())
-                .flatMap(or -> or.getSamples().stream())
-                .mapToInt(s -> s.getNbkBatchNumber().getOrdinal())
-                .max().orElse(0);
-        return lastUsedNumber + 1;
+        int[] last = {0};
+        walk(node -> {
+            if (node instanceof ReactionOutputSample sample) {
+                last[0] = Math.max(last[0], sample.getNbkBatchNumber().getOrdinal());
+            }
+        });
+        return last[0] + 1;
+    }
+
+    public void prepareToRecalculate() {
+        walkProperties((node, property) -> {
+            if (property instanceof EnteredValueProperty<?, ?, ?>) {
+                EnteredValueProperty<ExperimentModelNode, NoUnit, Object> enteredValueProperty = property.cast();
+                EnteredValue.prepareToRecalculate(enteredValueProperty.get(node), v -> enteredValueProperty.set(node, v), enteredValueProperty.defaultValue());
+            }
+        });
+    }
+
+    public Set<DictionaryItemRef> collectDictionaryRefs() {
+        Set<@Nullable DictionaryItemRef> refs = new HashSet<>();
+        walkProperties((node, property) -> {
+            switch (property) {
+                case DictionaryProperty<?, ?> dictionaryProperty -> {
+                    DictionaryProperty<ExperimentModelNode, Object> cast = dictionaryProperty.cast();
+                    refs.add(cast.get(node));
+                }
+                case DictionaryListProperty<?, ?> dictionaryListProperty -> {
+                    DictionaryListProperty<ExperimentModelNode, Object> cast = dictionaryListProperty.cast();
+                    refs.addAll(cast.get(node));
+                }
+                case SimpleListProperty<?, ?, ?> simpleListProperty -> {
+                    SimpleListProperty<ExperimentModelNode, Object, Object> cast = simpleListProperty.cast();
+                    for (Object item : cast.get(node)) {
+                        if (item instanceof HasDictionaryRefs hasDictionaryRefs) {
+                            hasDictionaryRefs.collectDictionaryRefs().forEach(refs::add);
+                        }
+                    }
+                }
+                case SimpleProperty<?, ?, ?> simpleProperty -> {
+                    SimpleProperty<ExperimentModelNode, Object, Object> cast = simpleProperty.cast();
+                    if (cast.get(node) instanceof HasDictionaryRefs hasDictionaryRefs) {
+                        hasDictionaryRefs.collectDictionaryRefs().forEach(refs::add);
+                    }
+                }
+                case AnchorProperty<?, ?, ?> anchorProperty -> {}
+                case EnteredValueProperty<?, ?, ?> enteredValueProperty -> {}
+                case ListProperty<?, ?, ?, ?> listProperty -> {}
+            }
+        });
+        refs.remove(null);
+        //noinspection NullableProblems
+        return refs;
+    }
+
+    public Set<CompoundRef> collectCompoundRefs() {
+        Set<CompoundRef> refs = new HashSet<>();
+        walk(node -> {
+            if (node instanceof ReactionRow row) {
+                refs.add(row.getCompound());
+            }
+        });
+        return refs;
     }
 
     public Reaction locate(ReactionMutation mutation) {
@@ -109,16 +210,17 @@ public final class ExperimentModel implements ExperimentModelNode, ToStringTree 
     }
 
     @Override
-    public void toStringTree(Builder builder) {
-        builder.open("Model");
-        for (Reaction reaction : reactions) {
-            reaction.toStringTree(builder);
-        }
-        builder.close();
+    public String toString() {
+        return ToStringUtil.toStringBuild(Handlers.EXPERIMENT_MODEL_METAMODEL, this);
     }
 
-    @Override
-    public String toString() {
-        return toStringTree();
+    private void walk(Consumer<ExperimentModelNode> visitor) {
+        //noinspection rawtypes,unchecked
+        ExperimentModelUtil.walk((Metamodel) Handlers.EXPERIMENT_MODEL_METAMODEL, this, visitor);
+    }
+
+    private void walkProperties(BiConsumer<ExperimentModelNode, ModelProperty<ExperimentModelNode, ?, ?, ?>> visitor) {
+        //noinspection rawtypes,unchecked
+        ExperimentModelUtil.walkProperties((Metamodel) Handlers.EXPERIMENT_MODEL_METAMODEL, this, (BiConsumer) visitor);
     }
 }

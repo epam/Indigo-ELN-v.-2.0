@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.controller;
 
 
+import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.eln.api.*;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.AttachmentService;
@@ -8,6 +9,8 @@ import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.eln.service.ExperimentWorkflowService;
 import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -17,6 +20,7 @@ import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -106,8 +110,18 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
+    public ExperimentModelPatch mutateExperimentModel2(UUID experimentId, Integer revision, Mutation mutation) {
+        return experimentService.mutateModel2(experimentId, revision, mutation);
+    }
+
+    @Override
     public Response getReactionPicture(UUID experimentId, Anchor.Reaction reactionAnchor, @Nullable Integer version) {
         return experimentService.getReactionPicture(experimentId, reactionAnchor, version);
+    }
+
+    @Override
+    public Map<Anchor.Input, @org.jspecify.annotations.Nullable FindSamplesRequest> analyzeRXN(UUID experimentId, Anchor.Reaction reactionAnchor) {
+        return experimentService.analyzeRXN(experimentId, reactionAnchor);
     }
 
     @Override

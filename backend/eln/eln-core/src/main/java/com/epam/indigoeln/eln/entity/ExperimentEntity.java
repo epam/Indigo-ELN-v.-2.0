@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.entity;
 
-import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
 import com.epam.indigoeln.eln.config.hibernate.ExperimentModelConverter;
 import com.epam.indigoeln.eln.model.AccessLevel;
@@ -164,14 +163,16 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     private List<ExperimentSignatureEntity> signatures = new ArrayList<>();
 
     @NotNull
-    @ManyToMany
-    @JoinTable(name = "compound_experiment", joinColumns = @JoinColumn(name = "experiment_id"), inverseJoinColumns = @JoinColumn(name = "compound_id"))
-    private Set<CompoundEntity> compounds = new HashSet<>(0);
+    @ElementCollection
+    @CollectionTable(name = "Experiment_Referenced_Compound", joinColumns = @JoinColumn(name = "experiment_id"))
+    @Column(name = "compound_id")
+    private Set<UUID> referencedCompounds = new HashSet<>(0);
 
     @NotNull
-    @ManyToMany
-    @JoinTable(name = "Experiment_Dictionary_item", joinColumns = @JoinColumn(name = "experiment_id"), inverseJoinColumns = @JoinColumn(name = "dictionary_item_id"))
-    private Set<DictionaryItemEntity> usedDictionaryItems = new HashSet<>(0);
+    @ElementCollection
+    @CollectionTable(name = "Experiment_Referenced_Dictionary_Item", joinColumns = @JoinColumn(name = "experiment_id"))
+    @Column(name = "dictionary_item_id")
+    private Set<UUID> referencedDictionaryItemIDs = new HashSet<>(0);
 
     @Override
     public void insertACL(UserEntity user, AccessLevel access, Boolean inherited) {

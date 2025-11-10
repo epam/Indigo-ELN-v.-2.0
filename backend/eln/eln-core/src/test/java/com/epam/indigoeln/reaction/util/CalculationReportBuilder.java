@@ -67,8 +67,12 @@ public class CalculationReportBuilder implements AutoCloseable {
         pr.printf("<h1>%s</h1>\n", mutation);
     }
 
+    public void addPatch(String patch) {
+        pr.printf("<pre>%s</pre>\n", patch);
+    }
+
     public void addModel(ExperimentModel model) {
-        List<String> currentModel = model.toStringTree().lines().toList();
+        List<String> currentModel = model.toString().lines().toList();
         List<String> leftContent = new ArrayList<>(), rightContent = new ArrayList<>();
         if (previousModel == null) {
             rightContent = currentModel;

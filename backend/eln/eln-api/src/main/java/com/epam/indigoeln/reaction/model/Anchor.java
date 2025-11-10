@@ -1,20 +1,29 @@
 package com.epam.indigoeln.reaction.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
-import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 
 @EqualsAndHashCode(of = "str")
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class Anchor {
 
     @JsonValue
     private final String str;
 
+    @Getter
+    @JsonIgnore
+    private final int number;
+
     protected Anchor(String prefix, int number) {
         str = prefix + number;
+        this.number = number;
+    }
+
+    protected Anchor(String prefix, String str) {
+        this.str = str;
+        this.number = Integer.parseInt(str.substring(prefix.length()));
     }
 
     @Override
@@ -30,7 +39,7 @@ public abstract class Anchor {
 
         @JsonCreator
         Reaction(String str) {
-            super(str);
+            super("R", str);
         }
     }
 
@@ -42,7 +51,7 @@ public abstract class Anchor {
 
         @JsonCreator
         Input(String str) {
-            super(str);
+            super("I", str);
         }
     }
 
@@ -54,7 +63,7 @@ public abstract class Anchor {
 
         @JsonCreator
         InputSample(String str) {
-            super(str);
+            super("IS", str);
         }
     }
 
@@ -66,7 +75,7 @@ public abstract class Anchor {
 
         @JsonCreator
         Output(String str) {
-            super(str);
+            super("O", str);
         }
     }
 
@@ -78,7 +87,7 @@ public abstract class Anchor {
 
         @JsonCreator
         OutputSample(String str) {
-            super(str);
+            super("OS", str);
         }
     }
 }

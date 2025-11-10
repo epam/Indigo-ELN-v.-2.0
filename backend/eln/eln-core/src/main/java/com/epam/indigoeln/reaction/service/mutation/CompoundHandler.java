@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.service.mutation;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.service.DictionaryService;
@@ -28,37 +29,27 @@ public class CompoundHandler extends AbstractMutationHandler {
     public void handle(ReactionInput row, ReactionInputMutation.SetInputRowSaltCode mutation) {
         SaltCodeRef saltCode = mutation.saltCode() != null ? saltCodeRef(mutation.saltCode()) : null;
         row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, saltCode, row.getCompound().getSaltEQ(), row.getCompound().getStereoisomerCode()));
-        compoundsAffected = true;
-        dictionariesAffected = true;
     }
 
     public void handle(ReactionInput row, ReactionInputMutation.SetInputRowSaltEQ mutation) {
         row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, row.getCompound().getSaltCode(), mutation.saltEQ(), row.getCompound().getStereoisomerCode()));
-        compoundsAffected = true;
     }
 
     public void handle(ReactionOutput row, ReactionOutputMutation.SetOutputRowSaltCode mutation) {
         SaltCodeRef saltCode = mutation.saltCode() != null ? saltCodeRef(mutation.saltCode()) : null;
         row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, saltCode, row.getCompound().getSaltEQ(), row.getCompound().getStereoisomerCode()));
-        compoundsAffected = true;
-        dictionariesAffected = true;
     }
 
     public void handle(ReactionOutput row, ReactionOutputMutation.SetOutputRowSaltEQ mutation) {
         row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, row.getCompound().getSaltCode(), mutation.saltEQ(), row.getCompound().getStereoisomerCode()));
-        compoundsAffected = true;
     }
 
     public void handle(ReactionInput row, ReactionInputMutation.SetInputCompoundStereoisomerCode mutation) {
         row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, row.getCompound().getSaltCode(), row.getCompound().getSaltEQ(), mutation.stereoisomerCode()));
-        compoundsAffected = true;
-        dictionariesAffected = true;
     }
 
     public void handle(ReactionOutput row, ReactionOutputMutation.SetOutputCompoundStereoisomerCode mutation) {
         row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, row.getCompound().getSaltCode(), row.getCompound().getSaltEQ(), mutation.stereoisomerCode()));
-        compoundsAffected = true;
-        dictionariesAffected = true;
     }
 
     public void handle(ReactionInput row, ReactionInputMutation.SetInputCompoundMolWeight mutation) {
@@ -86,7 +77,8 @@ public class CompoundHandler extends AbstractMutationHandler {
                 } else if (v.getSaltCode() == null) {
                     saltEQ = null;
                 }
-                IndigoMolecule molecule = indigoAPI.loadMolecule(v.getMolFile());
+                CompoundEntity compound = compoundService.getCompound(v.getCompoundID());
+                IndigoMolecule molecule = indigoAPI.loadMolecule(compound.getMolFile());
                 return compoundService.virtualCompoundRef(molecule, stereoisomerCode, saltCode, saltEQ);
             }
             case CompoundRef.Stored s -> throw new InvalidRequestException("Cannot modify saltCode/saltEQ/stereoisomerCode for registered compound");

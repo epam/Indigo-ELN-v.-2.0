@@ -18,6 +18,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,7 @@ import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsStream;
+import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
@@ -134,8 +136,9 @@ public class CompoundServiceTest extends ELNBaseTest {
 
     @Test
     @Order(400)
+    @Transactional
     void testRegisterSampleForOtherSaltCode() {
-        IndigoMolecule molecule = indigo.loadMolecule(compound1.getMolFile());
+        IndigoMolecule molecule = indigo.loadMolecule(compoundService.getCompound(compound1.getCompoundID()).getMolFile());
         compound1 = compoundService.virtualCompoundRef(molecule, null, saltCode, 1.0);
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1));
         strOtherSaltCode = sample.getStrCode();
@@ -146,8 +149,9 @@ public class CompoundServiceTest extends ELNBaseTest {
 
     @Test
     @Order(500)
+    @Transactional
     void testRegisterSampleForOtherSaltEQ() {
-        IndigoMolecule molecule = indigo.loadMolecule(compound1.getMolFile());
+        IndigoMolecule molecule = indigo.loadMolecule(compoundService.getCompound(compound1.getCompoundID()).getMolFile());
         compound1 = compoundService.virtualCompoundRef(molecule, null, saltCode, 2.0);
         SampleEntity sample = compoundService.registerSample(new SampleRegistrationRequest(compound1));
         strOtherSaltEQ = sample.getStrCode();
@@ -161,6 +165,17 @@ public class CompoundServiceTest extends ELNBaseTest {
     void testQuickSearch() {
         Page<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest().withQuickSearch("\"" + strOtherCompound + "\""), Paging.DEFAULT);
         assertThat(found.getItems()).singleElement().returns(strOtherCompound, SampleDTO::getStrCode);
+    }
+
+    @Test
+    @Order(650)
+    void testSearchRequestValidation() {
+        assertThatClientCall(() -> {
+            compoundClient.findSamples(new FindSamplesRequest()
+                            .withStrCode(new TextSearch.ExactSearch(null))
+                    , Paging.DEFAULT
+            );
+        }).isBadRequest("must not be null");
     }
 
     @Test

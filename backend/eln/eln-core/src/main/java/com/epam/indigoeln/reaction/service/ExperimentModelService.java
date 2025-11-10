@@ -2,6 +2,7 @@ package com.epam.indigoeln.reaction.service;
 
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.*;
@@ -14,11 +15,13 @@ import jakarta.inject.Provider;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.StreamEx;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
-
-import static com.epam.indigoeln.reaction.service.ExperimentModelHelperService.visitModel;
 
 @Slf4j
 @Transactional
@@ -51,12 +54,17 @@ public class ExperimentModelService {
         ExperimentModel model = new ExperimentModel();
         Reaction reaction = Reaction.create(model);
         model.setReactions(List.of(reaction));
+        model.setRevision(0);
         return model;
     }
 
     @Valid
     public ExperimentModel applyMutation(ExperimentEntity experiment, ExperimentModel model, Mutation mutation) {
-        visitModel(model, ExperimentModelNode::prepareToRecalculate);
+        Set<DictionaryItemRef> previousDictionaryRefs = model.collectDictionaryRefs();
+        Set<CompoundRef> previousCompoundRefs = model.collectCompoundRefs();
+        Map<Anchor.Reaction, String> previousRxnFiles = StreamEx.of(model.getReactions()).toMap(Reaction::getAnchor, Reaction::getRxnfile);
+        model.prepareToRecalculate();
+
         // don't rewrite to dynamic lookup to have compile-time guarantee that all mutations are handled
         Pair<AbstractMutationHandler, Runnable> pair = switch (mutation) {
             case ReactionMutation rm -> {
@@ -141,10 +149,11 @@ public class ExperimentModelService {
         handler.setModel(model);
         Runnable handlerRun = pair.b();
         handlerRun.run();
+        model.setRevision(model.getRevision() + 1);
         reactionCalculator.recalculate(model);
 
         for (Reaction reaction : model.getReactions()) {
-            if (handler.isRxnFileAffected() || !handler.getAffectedRoles().isEmpty()) {
+            if (!reaction.getRxnfile().equals(previousRxnFiles.get(reaction.getAnchor())) || !handler.getAffectedRoles().isEmpty()) {
                 IndigoReaction indigoReaction = reaction.getRxnfile().isEmpty() ? indigoAPI.createReaction() : indigoAPI.loadReaction(reaction.getRxnfile());
                 if (!handler.getAffectedRoles().isEmpty()) {
                     experimentModelHelperService.rebuildReactionRxnFile(experiment, reaction, handler.getAffectedRoles(), indigoReaction);
@@ -153,11 +162,16 @@ public class ExperimentModelService {
                 reaction.setRxnVersion(reaction.getRxnVersion() + 1);
             }
         }
-        if (handler.isCompoundsAffected()) {
-            experimentModelHelperService.rebuildUsedCompounds(experiment, model);
+        Set<CompoundRef> currentCompoundRefs = model.collectCompoundRefs();
+        if (!previousCompoundRefs.equals(currentCompoundRefs)) {
+            Set<UUID> ids = StreamEx.of(currentCompoundRefs).map(CompoundRef::getCompoundID).nonNull().toSet();
+            experiment.setReferencedCompounds(ids);
         }
-        // TODO only check when handler.dictionariesUpdated is true
-        experimentModelHelperService.rebuildUsedDictionaries(experiment, model);
+        Set<DictionaryItemRef> currentDictionaryRefs = model.collectDictionaryRefs();
+        if (!previousDictionaryRefs.equals(currentDictionaryRefs)) {
+            Set<UUID> ids = StreamEx.of(currentDictionaryRefs).map(DictionaryItemRef::getId).toSet();
+            experiment.setReferencedDictionaryItemIDs(ids);
+        }
         return model;
     }
 

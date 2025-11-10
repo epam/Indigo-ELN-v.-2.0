@@ -2,6 +2,7 @@ package com.epam.indigoeln.compound.model;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import jakarta.validation.constraints.NotNull;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
@@ -12,17 +13,17 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 public sealed interface NumericSearch permits NumericSearch.Equals, NumericSearch.LessThanOrEqual, NumericSearch.GreaterThanOrEqual {
 
     record Equals(
-            double value
+            @NotNull Double value
     ) implements NumericSearch {
     }
 
     record LessThanOrEqual(
-            double value
+            @NotNull Double value
     ) implements NumericSearch {
     }
 
     record GreaterThanOrEqual(
-            double value
+            @NotNull Double value
     ) implements NumericSearch {
     }
 }

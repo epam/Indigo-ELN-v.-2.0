@@ -21,14 +21,14 @@ import java.util.UUID;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = CompoundRef.Stored.class, name = "stored"),
-        @JsonSubTypes.Type(value = CompoundRef.Virtual.class, name = "virtual"),
-        @JsonSubTypes.Type(value = CompoundRef.Unknown.class, name = "unknown")
+        @JsonSubTypes.Type(value = CompoundRef.Stored.class, name = CompoundRef.Stored.TYPE),
+        @JsonSubTypes.Type(value = CompoundRef.Virtual.class, name = CompoundRef.Virtual.TYPE),
+        @JsonSubTypes.Type(value = CompoundRef.Unknown.class, name = CompoundRef.Unknown.TYPE)
 })
 public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virtual, CompoundRef.Unknown {
 
     @Nullable
-    String getMolFile();
+    UUID getCompoundID();
 
     @Nullable
     String getFormula();
@@ -53,8 +53,10 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
 
     @Getter
     @RequiredArgsConstructor
-    @EqualsAndHashCode(of = {"compoundID", "stereoisomerCode", "saltCode", "saltEQ"})
+    @EqualsAndHashCode(of = {"compoundID"})
     final class Stored implements CompoundRef {
+
+        public static final String TYPE = "stored";
 
         @NotNull
         private final UUID compoundID;
@@ -75,9 +77,6 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         private final Double exactMass;
 
         @NotNull
-        private final String molFile;
-
-        @NotNull
         private final String formula;
 
         @Nullable
@@ -94,14 +93,13 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     }
 
     @Getter
-    @EqualsAndHashCode(of = {"molFile", "stereoisomerCode", "saltCode", "saltEQ"})
+    @EqualsAndHashCode(of = {"compoundID"})
     final class Virtual implements CompoundRef {
+
+        public static final String TYPE = "virtual";
 
         @NotNull
         private final UUID compoundID;
-
-        @NotNull
-        private final String molFile;
 
         @NotNull
         private final String formula;
@@ -122,14 +120,13 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @NotNull
         private Double exactMass;
 
-        public Virtual(UUID compoundID, String molFile, String formula, Double molWeight, Double exactMass) {
-            this(compoundID, molFile, formula, EnteredValue.fixed(molWeight, MolWeightUnit.G_PER_MOL), null, null, null);
+        public Virtual(UUID compoundID, String formula, Double molWeight, Double exactMass) {
+            this(compoundID, formula, EnteredValue.fixed(molWeight, MolWeightUnit.G_PER_MOL), null, null, null);
         }
 
         @JsonCreator
-        Virtual(UUID compoundID, String molFile, String formula, EnteredValue<MolWeightUnit> molWeight, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
+        Virtual(UUID compoundID, String formula, EnteredValue<MolWeightUnit> molWeight, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
             this.compoundID = compoundID;
-            this.molFile = molFile;
             this.formula = formula;
             this.molWeight = molWeight;
             this.stereoisomerCode = stereoisomerCode;
@@ -157,8 +154,10 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     }
 
     @Getter
-    // no equals and hashCode - each unknown compound is unique
+    @EqualsAndHashCode
     final class Unknown implements CompoundRef {
+
+        public static final String TYPE = "unknown";
 
         @Nullable
         private String formula;
@@ -170,7 +169,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Override
         @Nullable
         @JsonIgnore
-        public String getMolFile() {
+        public UUID getCompoundID() {
             return null;
         }
 
