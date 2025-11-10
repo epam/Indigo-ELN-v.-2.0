@@ -1,12 +1,12 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { ProjectTabButtonComponent } from '@/core/components/project/project-tab-button/project-tab-button.component';
 
 import { ExperimentDetailService } from '@/core/services/experiment/experiment-detail.service';
 import { ExperimentDetail } from '@/core/types/entities/experiments/experiment-detail.i';
 import { computed } from '@angular/core';
 import { CardComponent } from '@/core/components/common/card/card.component';
+import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/project-tab-button.component';
 
 @Component({
   selector: 'eln-experiment-layout',

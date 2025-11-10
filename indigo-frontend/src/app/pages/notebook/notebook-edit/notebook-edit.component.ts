@@ -1,7 +1,7 @@
-import { FormDialogComponent } from '@/core/components/common/form-dialog/form-dialog.component';
-import { ApiService } from '@/core/services/api.service';
-import { Notebook } from '@/core/types/entities/notebook.i';
-import { NotebookDetail } from '@/core/types/entities/notebook-detail.i';
+import { FormDialogComponent } from '@core/components/common/form-dialog/form-dialog.component';
+import { ApiService } from '@core/services/api.service';
+import { Notebook } from '@core/types/entities/notebook.i';
+import { NotebookDetail } from '@core/types/entities/notebook-detail.i';
 import { CommonModule } from '@angular/common';
 import { Component, Inject, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';

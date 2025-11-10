@@ -1,10 +1,10 @@
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { AsyncPipe, NgIf, NgTemplateOutlet } from '@angular/common';
 import { Component, inject, Signal } from '@angular/core';
-import { CardComponent } from '../../common/card/card.component';
 import { ProjectsOverviewWidgetService } from './services/projects-overview-widget.service';
 import { ApiService } from '@core/services/api.service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { CardComponent } from '@core/components/common/card/card.component';
 
 interface ExperimentStatus {
   OPEN: number;

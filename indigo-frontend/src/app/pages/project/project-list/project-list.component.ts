@@ -4,8 +4,6 @@ import {
   ListHeaderComponent,
   SortChangeEvent,
 } from '@/core/components/common/list-header/list-header.component';
-import { ProjectItemComponent } from '@/core/components/project/project-item/project-item.component';
-import { ProjectOverviewWidgetDirective } from '@/core/components/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { InfiniteLoaderComponent } from '@/core/components/util/infinite-loader/infinite-loader.component';
 import { InfiniteScrollBase } from '@/core/components/util/infinite-scroll.base';
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
@@ -18,6 +16,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Subscription, take } from 'rxjs';
 import { ProjectAddComponent } from '../project-add/project-add.component';
+import { ProjectItemComponent } from '@pages/project/project-item/project-item.component';
+import {
+  ProjectOverviewWidgetDirective
+} from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 
 @Component({
   selector: 'eln-project-list',

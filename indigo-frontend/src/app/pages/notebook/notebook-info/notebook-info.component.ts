@@ -6,7 +6,7 @@ import { Component, inject } from '@angular/core';
 import { NotebookService } from '../../../../core/services/notebook/notebook.service';
 import { TeamComponent } from '@/core/components/common/team/team.component';
 import { TeamComponentConfig } from '@/core/components/common/team/team.config';
-import { NotebookEditComponent } from '../../project/notebook/notebook-edit/notebook-edit.component';
+import { NotebookEditComponent } from '@pages/notebook/notebook-edit/notebook-edit.component';
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({

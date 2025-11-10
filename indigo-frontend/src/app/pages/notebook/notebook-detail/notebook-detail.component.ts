@@ -1,12 +1,12 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { take } from 'rxjs';
-import { ProjectTabButtonComponent } from '@/core/components/project/project-tab-button/project-tab-button.component';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { CardComponent } from "@/core/components/common/card/card.component";
 import { NotebookService } from '@core/services/notebook/notebook.service';
 import { ExperimentAddComponent } from '@pages/experiment/experiment-add/experiment-add.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/project-tab-button.component';
 
 @Component({
     selector: 'eln-notebook-detail',
