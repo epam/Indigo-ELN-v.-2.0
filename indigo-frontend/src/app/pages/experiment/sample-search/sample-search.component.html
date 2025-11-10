@@ -24,19 +24,21 @@
           >
         </mat-radio-group>
       </div>
-      <div class="flex">
-        <div>or draw structure</div>
-        <mat-radio-group formControlName="structureSearchType">
+      <div class="flex items-stretch">
+        <div class="flex-1">or draw structure</div>
+        <mat-radio-group formControlName="structureSearchType" class="flex-3">
           <mat-radio-button value="EXACT">Exact</mat-radio-button>
           <mat-radio-button value="SUBSTRUCTURE">Substructure</mat-radio-button>
           <mat-radio-button value="SIMILARITY">Similarity</mat-radio-button>
         </mat-radio-group>
-        <div>
-          <em
-            class="indicon-close ml-auto"
-            (click)="clearStructure()"
-            matTooltip="Clear structure search"
-          ></em>
+        <div class="flex-1">
+          @if (structureMolFile) {
+            <em
+              class="indicon-close ml-auto"
+              (click)="clearStructure()"
+              matTooltip="Clear structure search"
+            ></em>
+          }
         </div>
       </div>
       <div class="w-full h-48" (click)="editStructure()">
