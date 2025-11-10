@@ -52,7 +52,7 @@ class ExperimentModelPatchServiceTest {
         Reaction reaction2 = Reaction.createWithAnchor(model, new Anchor.Reaction(10));
         model.setReactions(List.of(reaction, reaction2));
         makeAndVerifyPatch("""
-                {"reactions": {"1": {"xfrom": null, "anchor": "R10", "rxnfile": "", "rxnVersion": 0}}}
+                {"reactions": {"$": 2, "1": {"anchor": "R10", "rxnfile": "", "rxnVersion": 0, "$from": null}}}
         """);
     }
 
@@ -60,7 +60,7 @@ class ExperimentModelPatchServiceTest {
     void testReactionUpdated() throws Exception {
         reaction.setRxnfile("new");
         makeAndVerifyPatch("""
-                {"reactions": {"0": {"rxnfile": "new"}}}
+                {"reactions": {"$": 1, "0": {"rxnfile": "new"}}}
         """);
     }
 
@@ -68,7 +68,7 @@ class ExperimentModelPatchServiceTest {
     void testReactionDeleted() throws Exception {
         model.setReactions(List.of());
         makeAndVerifyPatch("""
-                {"reactions": {"0": null}}
+                {"reactions": {"$": 0}}
         """);
     }
 
@@ -82,7 +82,7 @@ class ExperimentModelPatchServiceTest {
         baseModel.setReactions(List.of(baseReaction, baseReaction2, baseReaction3));
         model.setReactions(List.of(reaction2, reaction, reaction3));
         makeAndVerifyPatch("""
-                {"reactions": {"0": {"xfrom": 1}, "1": {"xfrom": 0, "rxnfile": "new"}}}
+                {"reactions": {"$": 3, "0": {"$from": 1}, "1": {"rxnfile": "new", "$from": 0}}}
         """);
     }
 
@@ -94,7 +94,7 @@ class ExperimentModelPatchServiceTest {
         reaction.setInputs(List.of(input));
         input.setMol(EnteredValue.userLastEntered(10.0, MolUnit.MMOL));
         makeAndVerifyPatch("""
-                {"reactions": {"0": {"inputs": {"0": {"mol": {"value": 10.0, "unit": "MMOL", "source": "USER_LAST_ENTERED"}}}}}}
+                {"reactions": {"$": 1, "0": {"inputs": {"$": 1, "0": {"mol": {"value": 10.0, "unit": "MMOL", "source": "USER_LAST_ENTERED"}}}}}}
         """);
     }
 
@@ -107,7 +107,7 @@ class ExperimentModelPatchServiceTest {
         baseInput.setMol(EnteredValue.userLastEntered(15.0, MolUnit.MMOL));
         input.setMol(EnteredValue.userLastEntered(10.0, MolUnit.MMOL));
         makeAndVerifyPatch("""
-                {"reactions": {"0": {"inputs": {"0": {"mol": {"value": 10.0}}}}}}
+                {"reactions": {"$": 1, "0": {"inputs": {"$": 1, "0": {"mol": {"value": 10.0}}}}}}
         """);
     }
 
@@ -119,7 +119,7 @@ class ExperimentModelPatchServiceTest {
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userLastEntered(15.0, MolUnit.MMOL));
         makeAndVerifyPatch("""
-                {"reactions": {"0": {"inputs": {"0": {"mol": null}}}}}
+                {"reactions": {"$": 1, "0": {"inputs": {"$": 1, "0": {"mol": null}}}}}
         """);
     }
 

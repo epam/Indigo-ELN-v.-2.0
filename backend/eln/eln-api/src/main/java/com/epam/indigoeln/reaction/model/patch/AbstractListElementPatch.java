@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.model.patch;
 
 import com.epam.indigoeln.reaction.model.Anchor;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
@@ -16,6 +17,7 @@ public abstract class AbstractListElementPatch<A extends Anchor> {
     // empty: new item
     // index: repositioned from item with given index
     @Nullable
+    @JsonProperty("$from")
     private Optional<Integer> xfrom;
 
     @Nullable

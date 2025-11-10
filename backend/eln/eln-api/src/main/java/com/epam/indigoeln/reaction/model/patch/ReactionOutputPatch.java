@@ -8,8 +8,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Data
@@ -30,5 +28,5 @@ public class ReactionOutputPatch extends AbstractReactionRowPatch<Anchor.Output>
     private Optional<EnteredValuePatch<WeightUnit>> theoWeight;
 
     @Nullable
-    private Optional<Map<Integer, ReactionOutputSamplePatch>> samples;
+    private Optional<ListPatch<ReactionOutputSamplePatch>> samples;
 }

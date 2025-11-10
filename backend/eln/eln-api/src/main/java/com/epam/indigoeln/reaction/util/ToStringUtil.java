@@ -16,7 +16,11 @@ public class ToStringUtil {
     }
 
     @SuppressWarnings("unchecked")
-    private static <C, P> void doBuild(Metamodel<C, P> metamodel, C container, Builder builder) {
+    private static <C, P> void doBuild(Metamodel<C, P> metamodel, @Nullable C container, Builder builder) {
+        if (container == null) {
+            builder.text("null");
+            return;
+        }
         builder.open(metamodel.getName());
         for (ModelProperty<C, ?, P, ?> property : metamodel.getProperties()) {
             if (property instanceof ListProperty) {
@@ -59,6 +63,11 @@ public class ToStringUtil {
                 String valueStr = name.equals("rxnfile") ? "..." : value.toString();
                 str.append(prefix).append(name).append(" = ").append(valueStr).append('\n');
             }
+            return this;
+        }
+
+        public Builder text(String text) {
+            str.append(prefix).append(text).append('\n');
             return this;
         }
 

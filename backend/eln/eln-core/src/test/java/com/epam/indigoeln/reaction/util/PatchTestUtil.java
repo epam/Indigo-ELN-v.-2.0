@@ -6,9 +6,11 @@ import com.epam.indigoeln.reaction.model.patch.handler.ExperimentModelValueHandl
 import com.epam.indigoeln.test.FeignUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Preconditions;
+import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
@@ -16,6 +18,7 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Slf4j
 public class PatchTestUtil {
 
     public static ExperimentModel verifyModelPatch(ExperimentModel initial, ExperimentModelPatch patch, ExperimentModel updated) throws Exception {
@@ -34,90 +37,74 @@ public class PatchTestUtil {
 
         assertThat(reappliedJSON).isEqualTo(updatedJSON);
 
-        JsonNode appliedWithJSON = restoreWithJSON(new ArrayList<>(), initialJSON.deepCopy(), FeignUtil.OBJECT_MAPPER.readTree(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(patch)));
+        JsonNode appliedWithJSON = restoreWithJSON(initialJSON.deepCopy(), FeignUtil.OBJECT_MAPPER.readTree(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(patch)));
         assertThat(minimizeJSON(appliedWithJSON.deepCopy())).isEqualTo(minimizeJSON(updatedJSON.deepCopy()));
 
         return reapplied;
     }
 
-    private static final Map<List<String>, JsonNode> DEFAULT_JSON;
-
-    static {
-        try {
-            DEFAULT_JSON = Map.of(
-                    List.of(), FeignUtil.OBJECT_MAPPER.readTree("""
-                            {"reactions": []}
-                            """),
-                    List.of("reactions", "#"), FeignUtil.OBJECT_MAPPER.readTree("""
-                            {"inputs": [], "outputs": []}
-                            """),
-                    List.of("reactions", "#", "inputs", "#"), FeignUtil.OBJECT_MAPPER.readTree("""
-                            {"samples": []}
-                            """),
-                    List.of("reactions", "#", "outputs", "#"), FeignUtil.OBJECT_MAPPER.readTree("""
-                            {"samples": []}
-                            """)
-            );
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    // !!! instead of minification, use "default object" (with empty arrays and null values) for each model node
-    // !!! implement spread operator to simplify code
-    @Nullable
-    private static JsonNode restoreWithJSON(List<String> path, @Nullable JsonNode baseJSON, JsonNode patchJSON) {
-        if (baseJSON == null && DEFAULT_JSON.containsKey(path)) {
-            baseJSON = DEFAULT_JSON.get(path).deepCopy();
-        }
-        if (baseJSON instanceof ArrayNode array && patchJSON instanceof ObjectNode patch) {
-            JsonNode[] source = StreamEx.of(array.elements()).toArray(JsonNode[]::new);
-            @Nullable JsonNode[] target = Arrays.copyOf(source, source.length + patch.size());
-            for (Map.Entry<String, @Nullable JsonNode> entry : patch.properties()) {
+    private static JsonNode restoreWithJSON(JsonNode baseJSON, JsonNode patchJSON) {
+        log.trace("restoreWithJSON:\n\tbaseJSON: {}\n\tpatchJSON: {}", baseJSON, patchJSON);
+        if (patchJSON instanceof ObjectNode patch && patchJSON.has("$")) {
+            log.trace("performing list merge");
+            JsonNode[] source;
+            if (baseJSON instanceof ArrayNode array) {
+                source = StreamEx.of(array.elements()).toArray(JsonNode[]::new);
+            } else if (baseJSON.isNull()) {
+                source = new JsonNode[0];
+            } else {
+                throw new IllegalArgumentException();
+            }
+            Preconditions.checkArgument(patch.get("$").isInt());
+            JsonNode[] target = Arrays.copyOf(source, patch.get("$").intValue());
+            patch.remove("$");
+            for (Map.Entry<String, JsonNode> entry : patch.properties()) {
                 int targetIndex = Integer.parseInt(entry.getKey());
-                if (entry.getValue().isNull()) {
-                    target[targetIndex] = null;
+                if (entry.getValue().isNull()) { // deleted
+                    target[targetIndex] = FeignUtil.OBJECT_MAPPER.nullNode();
                 } else {
                     Preconditions.checkArgument(entry.getValue() instanceof ObjectNode);
                     JsonNode sourceNode;
-                    JsonNode xfrom = entry.getValue().get("xfrom");
-                    if (xfrom == null) {
+                    JsonNode xfrom = entry.getValue().get("$from");
+                    if (xfrom == null) { // not repositioned
                         sourceNode = source[targetIndex];
-                    } else if (xfrom.isNull()) {
-                        sourceNode = null;
-                    } else {
+                    } else if (xfrom.isNull()) { // new
+                        sourceNode = FeignUtil.OBJECT_MAPPER.nullNode();
+                    } else { // repositioned
                         Preconditions.checkArgument(xfrom instanceof NumericNode);
                         int sourceIndex = xfrom.intValue();
                         sourceNode = source[sourceIndex];
                     }
-                    ((ObjectNode) entry.getValue()).remove("xfrom");
-                    path.add("#");
-                    target[targetIndex] = restoreWithJSON(path, sourceNode, entry.getValue());
-                    path.removeLast();
+                    ((ObjectNode) entry.getValue()).remove("$from");
+                    target[targetIndex] = restoreWithJSON(sourceNode, entry.getValue());
+                    log.trace("updated index {}: {}", targetIndex, target[targetIndex]);
                 }
             }
-            array.removeAll();
-            for (JsonNode jsonNode : target) {
-                if (jsonNode == null) {
-                    break;
-                }
-                array.add(jsonNode);
-            }
-        } else if (baseJSON instanceof ObjectNode object && patchJSON instanceof ObjectNode patch) {
+            ArrayNode targetNode = FeignUtil.OBJECT_MAPPER.createArrayNode();
+            targetNode.addAll(Arrays.asList(target));
+            log.trace("list merge result: {}", targetNode);
+            return targetNode;
+        } else if (patchJSON instanceof ObjectNode patch) {
+            log.trace("performing object merge");
+            ObjectNode target = switch (baseJSON) {
+                case ObjectNode object -> object;
+                case NullNode nullNode -> FeignUtil.OBJECT_MAPPER.createObjectNode();
+                default -> throw new IllegalArgumentException();
+            };
             for (Map.Entry<String, JsonNode> entry : patch.properties()) {
-                path.add(entry.getKey());
-                JsonNode updated = restoreWithJSON(path, baseJSON.get(entry.getKey()), entry.getValue());
-                path.removeLast();
-                if (updated != null) {
-                    object.set(entry.getKey(), updated);
+                JsonNode baseProperty = baseJSON.has(entry.getKey()) ? baseJSON.get(entry.getKey()) : FeignUtil.OBJECT_MAPPER.nullNode();
+                JsonNode updatedProperty = restoreWithJSON(baseProperty, entry.getValue());
+                log.trace("updated property {}: {}", entry.getKey(), updatedProperty);
+                if (!updatedProperty.isNull()) {
+                    target.set(entry.getKey(), updatedProperty);
                 } else {
-                    object.remove(entry.getKey());
+                    target.remove(entry.getKey());
                 }
             }
-        } else {
-            return patchJSON;
+            log.trace("object merge result: {}", target);
+            return target;
         }
-        return baseJSON;
+        return patchJSON;
     }
 
     @Nullable

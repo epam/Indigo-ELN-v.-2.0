@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Map;
 import java.util.Optional;
 
 @Data
@@ -16,5 +15,5 @@ public class ExperimentModelPatch {
     private Optional<Integer> revision;
 
     @Nullable
-    private Optional<Map<Integer, ReactionPatch>> reactions;
+    private Optional<ListPatch<ReactionPatch>> reactions;
 }

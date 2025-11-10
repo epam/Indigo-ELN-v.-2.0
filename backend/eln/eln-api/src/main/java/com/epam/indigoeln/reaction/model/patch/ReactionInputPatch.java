@@ -7,8 +7,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Data
@@ -23,7 +21,7 @@ public class ReactionInputPatch extends AbstractReactionRowPatch<Anchor.Input> {
     private Optional<EnteredValuePatch<MolUnit>> mol;
 
     @Nullable
-    private Optional<Map<Integer, ReactionInputSamplePatch>> samples;
+    private Optional<ListPatch<ReactionInputSamplePatch>> samples;
 
     @Nullable
     private Optional<Boolean> limiting;

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Map;
 import java.util.Optional;
 
 @Data
@@ -20,8 +19,8 @@ public class ReactionPatch extends AbstractListElementPatch<Anchor.Reaction> {
     private Optional<Integer> rxnVersion; // TODO not needed with patch approach, remove when frontend is switched
 
     @Nullable
-    private Optional<Map<Integer, ReactionInputPatch>> inputs;
+    private Optional<ListPatch<ReactionInputPatch>> inputs;
 
     @Nullable
-    private Optional<Map<Integer, ReactionOutputPatch>> outputs;
+    private Optional<ListPatch<ReactionOutputPatch>> outputs;
 }

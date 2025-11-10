@@ -3,6 +3,7 @@ package com.epam.indigoeln.reaction.model.metamodel;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.patch.EnteredValuePatch;
+import com.epam.indigoeln.reaction.model.patch.ListPatch;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import lombok.Getter;
@@ -11,7 +12,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -56,7 +56,7 @@ public class Metamodel<C, P> {
         return this;
     }
 
-    public <I, IP> Metamodel<C, P> listProperty(String name, Function<C, List<I>> getter, BiConsumer<C, List<I>> setter, Function<P, Optional<Map<Integer, IP>>> patchGetter, BiConsumer<P, Optional<Map<Integer, IP>>> patchSetter, Metamodel<I, IP> childModel, ValueHandler<C, List<I>, Map<Integer, IP>> valueHandler) {
+    public <I, IP> Metamodel<C, P> listProperty(String name, Function<C, List<I>> getter, BiConsumer<C, List<I>> setter, Function<P, Optional<ListPatch<IP>>> patchGetter, BiConsumer<P, Optional<ListPatch<IP>>> patchSetter, Metamodel<I, IP> childModel, ValueHandler<C, List<I>, ListPatch<IP>> valueHandler) {
         properties.add(new ListProperty<>(name, getter, setter, patchGetter, patchSetter, childModel, valueHandler));
         return this;
     }
