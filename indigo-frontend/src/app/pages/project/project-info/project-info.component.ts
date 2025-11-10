@@ -15,8 +15,10 @@ import { Attachment } from '@/core/types/entities/attachment.i';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ProjectAddComponent } from '../project-add/project-add.component';
 import { TeamComponentConfig } from '@/core/components/common/team/team.config';
-import { NotebookAddComponent } from '../notebook/notebook-add/notebook-add.component';
-import { ProjectOverviewWidgetDirective } from '../../../../core/components/project/projects-overview-widget/directives/project-overview-widget.directive';
+import { NotebookAddComponent } from '@pages/notebook/notebook-add/notebook-add.component';
+import {
+  ProjectOverviewWidgetDirective
+} from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 
 enum projectInfoModalEnum {
   EDIT = 'edit',
@@ -141,7 +143,7 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
 
   async openModal(mode: projectInfoModalEnum) {
     let ref: MatDialogRef<ProjectAddComponent | NotebookAddComponent>;
-    
+
     if (mode === projectInfoModalEnum.EDIT) {
       ref = this.dialog.open(ProjectAddComponent, {
         data: {
@@ -154,7 +156,7 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
       ref = this.dialog.open(NotebookAddComponent);
       (ref.componentInstance as NotebookAddComponent).projectId = this.project.id;
     }
-    
+
     ref?.afterClosed()
       .pipe(take(1))
       .subscribe((result) => {

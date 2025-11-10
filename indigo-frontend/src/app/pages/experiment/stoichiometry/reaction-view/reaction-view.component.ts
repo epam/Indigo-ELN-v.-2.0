@@ -1,9 +1,11 @@
 import { Component, input, output, inject, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactionSchemeViewComponent } from '@core/components/experiment/reaction-scheme-view/reaction-scheme-view.component';
 import { ReactionInputsTableComponent } from '../reaction-inputs-table/reaction-inputs-table.component';
 import { ReactionProductsTableComponent } from '../reaction-products-table/reaction-products-table.component';
 import { ExperimentModelService } from '@core/services/experiment/experiment-model.service';
+import {
+  ReactionSchemeViewComponent
+} from '@pages/experiment/stoichiometry/reaction-scheme-view/reaction-scheme-view.component';
 
 @Component({
   selector: 'eln-reaction-view',

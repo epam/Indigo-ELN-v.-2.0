@@ -5,11 +5,11 @@ import { ExperimentDetailService } from '@/core/services/experiment/experiment-d
 import { ExperimentImageService } from '@/core/services/experiment/experiment-image.service';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { CdkAccordionModule } from '@angular/cdk/accordion';
-import { ReactionViewComponent } from '@core/components/experiment/reaction-view/reaction-view.component';
 import { SampleSearchComponent } from '@pages/experiment/sample-search/sample-search.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ExperimentModelService } from '@core/services/experiment/experiment-model.service';
 import { ButtonComponent } from '@core/components/common/button/button.component';
+import { ReactionViewComponent } from '@pages/experiment/stoichiometry/reaction-view/reaction-view.component';
 
 @Component({
   selector: 'eln-experiment-info',

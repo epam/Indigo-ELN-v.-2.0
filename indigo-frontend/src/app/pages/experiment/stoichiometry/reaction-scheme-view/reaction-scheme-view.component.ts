@@ -1,12 +1,14 @@
 import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { StructureEditorModalComponent } from '../structure-editor-modal/structure-editor-modal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ButtonComponent } from '@/core/components/common/button/button.component';
 import { ExperimentModelService } from '@/core/services/experiment/experiment-model.service';
 import { MutateModelForm } from '@/core/types/entities/experiments/experiment-mutate-form.i';
 import { Mutation } from '@/core/types/entities/experiments/mutation.i';
 import { Reaction } from '@/core/types/entities/experiments/experiment.i';
+import {
+  StructureEditorModalComponent
+} from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
 
 @Component({
   selector: 'eln-reaction-scheme-view',

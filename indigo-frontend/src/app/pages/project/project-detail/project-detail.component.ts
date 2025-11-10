@@ -1,7 +1,9 @@
-import { ProjectTabButtonComponent } from '@/core/components/project/project-tab-button/project-tab-button.component';
-import { ProjectOverviewWidgetDirective } from '@/core/components/project/projects-overview-widget/directives/project-overview-widget.directive';
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
+import {
+  ProjectOverviewWidgetDirective
+} from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
+import { ProjectTabButtonComponent } from '@pages/project/project-tab-button/project-tab-button.component';
 
 @Component({
   selector: 'eln-project-detail',

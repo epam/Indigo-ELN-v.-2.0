@@ -1,6 +1,6 @@
-import { FormDialogComponent } from '@/core/components/common/form-dialog/form-dialog.component';
-import { ApiService } from '@/core/services/api.service';
-import { Notebook } from '@/core/types/entities/notebook.i';
+import { FormDialogComponent } from '@core/components/common/form-dialog/form-dialog.component';
+import { ApiService } from '@core/services/api.service';
+import { Notebook } from '@core/types/entities/notebook.i';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
