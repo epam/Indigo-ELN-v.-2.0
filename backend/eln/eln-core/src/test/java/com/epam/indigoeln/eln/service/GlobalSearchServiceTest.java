@@ -188,6 +188,35 @@ class GlobalSearchServiceTest extends ELNBaseTest {
         assertResults(results, tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
     }
 
+    @Test
+    void testFindAllEntitiesQuickSearchAndAuthor() {
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("xx").withAuthor(Set.of(getMaggieUserRef())), Paging.DEFAULT);
+        assertResults(results
+                , tuple(EntityType.PROJECT, project1.getName(), project1.getId())
+                , tuple(EntityType.PROJECT, project2.getName(), project2.getId())
+                , tuple(EntityType.NOTEBOOK, notebook1.getName(), notebook1.getId())
+                , tuple(EntityType.NOTEBOOK, notebook2.getName(), notebook2.getId())
+                , tuple(EntityType.EXPERIMENT, experiment1.getName(), experiment1.getId())
+                , tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId())
+        );
+    }
+
+    @Test
+    void testFindByAllAttributes() {
+        String molFile = new String(loadResource(getClass(), "/ring-substructure.mol"));
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest()
+                .withQuery("xx")
+                .withTherapeuticArea(therapeuticArea2)
+                .withProjectCode(projectCode2)
+                .withExperimentStatus(Set.of(ExperimentStatus.OPEN))
+                .withAuthor(Set.of(getMaggieUserRef()))
+                .withBatchYield(new NumericSearch.GreaterThanOrEqual(0.1))
+                .withBatchPurity(new NumericSearch.GreaterThanOrEqual(0.1))
+                .withMoleculeStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile))
+                , Paging.DEFAULT);
+        assertResults(results, tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
+    }
+
     private void assertResults(Page<GlobalSearchResultDTO> results, Tuple... expected) {
         assertThat(results.getItems()).map(GlobalSearchResultDTO::getType, GlobalSearchResultDTO::getName, GlobalSearchResultDTO::getId).containsOnly(expected);
     }

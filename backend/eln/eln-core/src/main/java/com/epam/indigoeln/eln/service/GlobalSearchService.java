@@ -4,18 +4,17 @@ import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.compound.model.NumericSearch;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.util.Conditions;
+import com.epam.indigoeln.eln.util.NamedConditions;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @DataAccess
 @Transactional
@@ -33,26 +32,29 @@ public class GlobalSearchService {
         if (request.isEmpty()) {
             throw new InvalidRequestException("Request is empty");
         }
-        Conditions conditions = new Conditions(SLOT_EXPERIMENTS + 1);
+        NamedConditions projectConditions = new NamedConditions();
+        NamedConditions notebookConditions = new NamedConditions();
+        NamedConditions experimentConditions = new NamedConditions();
         boolean hasProjects = true, hasNotebooks = true, hasExperiments = true;
         List<String> experimentJoins = new ArrayList<>();
         if (request.getTherapeuticArea() != null) {
             hasProjects = hasNotebooks = false;
-            conditions.add(SLOT_EXPERIMENTS, "therapeutic_area_id = ?", request.getTherapeuticArea().getId());
+            experimentConditions.add("therapeutic_area_id = :therapeuticArea", "therapeuticArea", request.getTherapeuticArea().getId());
         }
         if (request.getProjectCode() != null) {
             hasProjects = hasNotebooks = false;
-            conditions.add(SLOT_EXPERIMENTS, "project_code_id = ?", request.getProjectCode().getId());
+            experimentConditions.add("project_code_id = :projectCode", "projectCode", request.getProjectCode().getId());
         }
         if (request.getExperimentStatus() != null) {
             hasProjects = hasNotebooks = false;
-            conditions.add(SLOT_EXPERIMENTS, "status = any(cast(? as Experiment_Status[]))", request.getExperimentStatus().stream().map(Enum::name).toArray(String[]::new));
+            experimentConditions.add("status = any(cast(:experimentStatus as Experiment_Status[]))", "experimentStatus", request.getExperimentStatus().stream().map(Enum::name).toArray(String[]::new));
         }
         if (request.getAuthor() != null) {
-            String condition = "created_by_id in ?";
-            for (int slotNo = SLOT_PROJECTS; slotNo <= SLOT_EXPERIMENTS; slotNo++) {
-                conditions.add(slotNo, condition, request.getAuthor().stream().map(UserRef::getId).toList());
-            }
+            String condition = "created_by_id in :author";
+            List<UUID> ids = request.getAuthor().stream().map(UserRef::getId).toList();
+            projectConditions.add(condition, "author", ids);
+            notebookConditions.add(condition, "author", ids);
+            experimentConditions.add(condition, "author", ids);
         }
         if (request.getMoleculeStructure() != null) {
             hasProjects = hasNotebooks = false;
@@ -60,13 +62,13 @@ public class GlobalSearchService {
             experimentJoins.add("join Compound c on c.id = ce.compound_id");
             switch (request.getMoleculeStructure().type()) {
                 case EXACT -> {
-                    conditions.add(SLOT_EXPERIMENTS, "c.mol_file @ (?, '')::bingo.exact", request.getMoleculeStructure().query());
+                    experimentConditions.add("c.mol_file @ (:molfile, '')::bingo.exact", "molfile", request.getMoleculeStructure().query());
                 }
                 case SUBSTRUCTURE -> {
-                    conditions.add(SLOT_EXPERIMENTS, "c.mol_file @ (?, '')::bingo.sub", request.getMoleculeStructure().query());
+                    experimentConditions.add("c.mol_file @ (:molfile, '')::bingo.sub", "molfile", request.getMoleculeStructure().query());
                 }
                 case SIMILARITY -> {
-                    conditions.add(SLOT_EXPERIMENTS, "c.mol_file @ (0.8, null, ?, 'Tanimoto')::bingo.sim", request.getMoleculeStructure().query());
+                    experimentConditions.add("c.mol_file @ (0.8, null, :molfile, 'Tanimoto')::bingo.sim", "molfile", request.getMoleculeStructure().query());
                 }
             }
         }
@@ -75,10 +77,10 @@ public class GlobalSearchService {
             experimentJoins.add("join Experiment_Rxnfile rxn on rxn.experiment_id = e.id");
             switch (request.getReactionStructure().type()) {
                 case EXACT -> {
-                    conditions.add(SLOT_EXPERIMENTS, "rxn.rxnfile @ (?, '')::bingo.rexact", request.getReactionStructure().query());
+                    experimentConditions.add("rxn.rxnfile @ (:rxnfile, '')::bingo.rexact", "rxnfile", request.getReactionStructure().query());
                 }
                 case SUBSTRUCTURE -> {
-                    conditions.add(SLOT_EXPERIMENTS, "rxn.rxnfile @ (?, '')::bingo.rsub", request.getReactionStructure().query());
+                    experimentConditions.add("rxn.rxnfile @ (:rxnfile, '')::bingo.rsub", "rxnfile", request.getReactionStructure().query());
                 }
                 case SIMILARITY -> {
                     throw new InvalidRequestException("Reaction similarity search is not supported");
@@ -87,28 +89,29 @@ public class GlobalSearchService {
         }
         if (request.getBatchPurity() != null) {
             hasProjects = hasNotebooks = false;
-            conditions.add(SLOT_EXPERIMENTS, "jsonb_path_exists(e.model, '$.reactions[*].outputs[*].samples[*].purity.value ? (@ " + generateNumericCondition(request.getBatchPurity()) + ")')");
+            experimentConditions.add("jsonb_path_exists(e.model, '$.reactions[*].outputs[*].samples[*].purity.value ? (@ " + generateNumericCondition(request.getBatchPurity()) + ")')");
         }
         if (request.getBatchYield() != null) {
             hasProjects = hasNotebooks = false;
-            String condition = generateNumericCondition(request.getBatchYield());
-            conditions.add(SLOT_EXPERIMENTS, "jsonb_path_exists(e.model, '$.reactions[*].outputs[*].samples[*].yield.value ? (@ " + generateNumericCondition(request.getBatchYield()) + ")')");
+            experimentConditions.add("jsonb_path_exists(e.model, '$.reactions[*].outputs[*].samples[*].yield.value ? (@ " + generateNumericCondition(request.getBatchYield()) + ")')");
         }
 
         if (request.getQuery() != null) {
-            String condition = "search_vector @@ websearch_to_tsquery('english', ?)";
-            for (int slotNo = SLOT_PROJECTS; slotNo <= SLOT_EXPERIMENTS; slotNo++) {
-                conditions.add(slotNo, condition, request.getQuery());
-            }
+            String condition = "search_vector @@ websearch_to_tsquery('english', :query)";
+            projectConditions.add(condition, "query", request.getQuery());
+            notebookConditions.add(condition, "query", request.getQuery());
+            experimentConditions.add(condition, "query", request.getQuery());
         }
         StringBuilder sql = new StringBuilder();
         sql.append("with t as (\n");
+        Map<String, @Nullable Object> params = new HashMap<>();
         boolean hasUnionBlocks = false;
         if (hasProjects) {
             String projectsSQL = "SELECT 'PROJECT' AS type, p.name, p.id, p.created_by_id, p.created_at, p.modified_by_id, p.modified_at "
                                  + "FROM project_view p "
-                                 + "WHERE " + conditions.getQuery(SLOT_PROJECTS);
+                                 + "WHERE " + projectConditions.getQuery();
             sql.append(projectsSQL);
+            params.putAll(projectConditions.getValues());
             hasUnionBlocks = true;
         }
         if (hasNotebooks) {
@@ -118,7 +121,8 @@ public class GlobalSearchService {
             hasUnionBlocks = true;
             String notebooksSQL = "SELECT 'NOTEBOOK' AS type, n.name, n.id, n.created_by_id, n.created_at, n.modified_by_id, n.modified_at "
                                   + "FROM notebook_view n "
-                                  + "WHERE " + conditions.getQuery(SLOT_NOTEBOOKS);
+                                  + "WHERE " + notebookConditions.getQuery();
+            params.putAll(notebookConditions.getValues());
             sql.append(notebooksSQL);
         }
         if (hasExperiments) {
@@ -129,7 +133,8 @@ public class GlobalSearchService {
             String experimentsSQL = "SELECT 'EXPERIMENT' AS type, e.name, e.id, e.created_by_id, e.created_at, e.modified_by_id, e.modified_at "
                                     + "FROM experiment_view e "
                                     + String.join(" ", experimentJoins) + " "
-                                    + "WHERE " + conditions.getQuery(SLOT_EXPERIMENTS);
+                                    + "WHERE " + experimentConditions.getQuery();
+            params.putAll(experimentConditions.getValues());
             sql.append(experimentsSQL);
         }
         sql.append(")\n");
@@ -146,10 +151,7 @@ public class GlobalSearchService {
         Query query = em.createNativeQuery(sql.toString())
                 .setFirstResult(paging.getPageNoOrDefault() * paging.getPageSizeOrDefault())
                 .setMaxResults(paging.getPageSizeOrDefault());
-        Object[] values = conditions.getValues();
-        for (int i = 0; i < values.length; i++) {
-            query.setParameter(i + 1, values[i]);
-        }
+        params.forEach(query::setParameter);
         List<GlobalSearchResultDTO> list = query
                 .getResultStream()
                 .map(x -> {
