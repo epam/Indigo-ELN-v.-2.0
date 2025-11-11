@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.compound.model.NumericSearch;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.Conditions;
@@ -45,30 +46,55 @@ public class GlobalSearchService {
         }
         if (request.getExperimentStatus() != null) {
             hasProjects = hasNotebooks = false;
-            conditions.add(SLOT_EXPERIMENTS, "status = cast(? as experiment_status)", request.getExperimentStatus().name());
+            conditions.add(SLOT_EXPERIMENTS, "status = any(cast(? as Experiment_Status[]))", request.getExperimentStatus().stream().map(Enum::name).toArray(String[]::new));
         }
         if (request.getAuthor() != null) {
-            String condition = "created_by_id = ?";
+            String condition = "created_by_id in ?";
             for (int slotNo = SLOT_PROJECTS; slotNo <= SLOT_EXPERIMENTS; slotNo++) {
-                conditions.add(slotNo, condition, request.getAuthor().getId());
+                conditions.add(slotNo, condition, request.getAuthor().stream().map(UserRef::getId).toList());
             }
         }
-        if (request.getStructure() != null) {
+        if (request.getMoleculeStructure() != null) {
             hasProjects = hasNotebooks = false;
             experimentJoins.add("join Experiment_Referenced_Compound ce on ce.experiment_id = e.id");
             experimentJoins.add("join Compound c on c.id = ce.compound_id");
-            switch (request.getStructure().type()) {
+            switch (request.getMoleculeStructure().type()) {
                 case EXACT -> {
-                    conditions.add(SLOT_EXPERIMENTS, "c.mol_file @ (?, '')::bingo.exact", request.getStructure().query());
+                    conditions.add(SLOT_EXPERIMENTS, "c.mol_file @ (?, '')::bingo.exact", request.getMoleculeStructure().query());
                 }
                 case SUBSTRUCTURE -> {
-                    conditions.add(SLOT_EXPERIMENTS, "c.mol_file @ (?, '')::bingo.sub", request.getStructure().query());
+                    conditions.add(SLOT_EXPERIMENTS, "c.mol_file @ (?, '')::bingo.sub", request.getMoleculeStructure().query());
                 }
                 case SIMILARITY -> {
-                    conditions.add(SLOT_EXPERIMENTS, "c.mol_file @ (0.8, null, ?, 'Tanimoto')::bingo.sim", request.getStructure().query());
+                    conditions.add(SLOT_EXPERIMENTS, "c.mol_file @ (0.8, null, ?, 'Tanimoto')::bingo.sim", request.getMoleculeStructure().query());
                 }
             }
         }
+        if (request.getReactionStructure() != null) {
+            hasProjects = hasNotebooks = false;
+            experimentJoins.add("join Experiment_Rxnfile rxn on rxn.experiment_id = e.id");
+            switch (request.getReactionStructure().type()) {
+                case EXACT -> {
+                    conditions.add(SLOT_EXPERIMENTS, "rxn.rxnfile @ (?, '')::bingo.rexact", request.getReactionStructure().query());
+                }
+                case SUBSTRUCTURE -> {
+                    conditions.add(SLOT_EXPERIMENTS, "rxn.rxnfile @ (?, '')::bingo.rsub", request.getReactionStructure().query());
+                }
+                case SIMILARITY -> {
+                    throw new InvalidRequestException("Reaction similarity search is not supported");
+                }
+            }
+        }
+        if (request.getBatchPurity() != null) {
+            hasProjects = hasNotebooks = false;
+            conditions.add(SLOT_EXPERIMENTS, "jsonb_path_exists(e.model, '$.reactions[*].outputs[*].samples[*].purity.value ? (@ " + generateNumericCondition(request.getBatchPurity()) + ")')");
+        }
+        if (request.getBatchYield() != null) {
+            hasProjects = hasNotebooks = false;
+            String condition = generateNumericCondition(request.getBatchYield());
+            conditions.add(SLOT_EXPERIMENTS, "jsonb_path_exists(e.model, '$.reactions[*].outputs[*].samples[*].yield.value ? (@ " + generateNumericCondition(request.getBatchYield()) + ")')");
+        }
+
         if (request.getQuery() != null) {
             String condition = "search_vector @@ websearch_to_tsquery('english', ?)";
             for (int slotNo = SLOT_PROJECTS; slotNo <= SLOT_EXPERIMENTS; slotNo++) {
@@ -77,29 +103,29 @@ public class GlobalSearchService {
         }
         StringBuilder sql = new StringBuilder();
         sql.append("with t as (\n");
-        boolean addedAnySQL = false;
+        boolean hasUnionBlocks = false;
         if (hasProjects) {
             String projectsSQL = "SELECT 'PROJECT' AS type, p.name, p.id, p.created_by_id, p.created_at, p.modified_by_id, p.modified_at "
                                  + "FROM project_view p "
                                  + "WHERE " + conditions.getQuery(SLOT_PROJECTS);
             sql.append(projectsSQL);
-            addedAnySQL = true;
+            hasUnionBlocks = true;
         }
         if (hasNotebooks) {
-            if (addedAnySQL) {
+            if (hasUnionBlocks) {
                 sql.append("\nUNION ALL\n");
             }
-            addedAnySQL = true;
+            hasUnionBlocks = true;
             String notebooksSQL = "SELECT 'NOTEBOOK' AS type, n.name, n.id, n.created_by_id, n.created_at, n.modified_by_id, n.modified_at "
                                   + "FROM notebook_view n "
                                   + "WHERE " + conditions.getQuery(SLOT_NOTEBOOKS);
             sql.append(notebooksSQL);
         }
         if (hasExperiments) {
-            if (addedAnySQL) {
+            if (hasUnionBlocks) {
                 sql.append("\nUNION ALL\n");
             }
-            addedAnySQL = true;
+            hasUnionBlocks = true;
             String experimentsSQL = "SELECT 'EXPERIMENT' AS type, e.name, e.id, e.created_by_id, e.created_at, e.modified_by_id, e.modified_at "
                                     + "FROM experiment_view e "
                                     + String.join(" ", experimentJoins) + " "
@@ -141,5 +167,13 @@ public class GlobalSearchService {
                 })
                 .toList();
         return Page.of(paging, totalCount[0], list);
-    };
+    }
+
+    private static String generateNumericCondition(NumericSearch batchYield) {
+        return switch (batchYield) {
+            case NumericSearch.Equals eq -> "=" + eq.value();
+            case NumericSearch.GreaterThanOrEqual ge -> ">=" + ge.value();
+            case NumericSearch.LessThanOrEqual le -> "<=" + le.value();
+        };
+    }
 }

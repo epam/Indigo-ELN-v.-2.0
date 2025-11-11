@@ -29,8 +29,11 @@ public class Conditions {
     }
 
     public Conditions add(String field) {
-        int p = field.indexOf('?');
-        Preconditions.checkArgument(p == -1, "no-parameter condition must not contain ? character: %s", field);
+        fields.get(slotNo).add(field);
+        return this;
+    }
+
+    public Conditions add(int slotNo, String field) {
         fields.get(slotNo).add(field);
         return this;
     }

@@ -1,10 +1,16 @@
 package com.epam.indigoeln.eln.model;
 
+import com.epam.indigoeln.compound.model.NumericSearch;
 import com.epam.indigoeln.compound.model.StructuralSearch;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.With;
 import org.jspecify.annotations.Nullable;
+
+import java.util.Set;
 
 @Data
 @With
@@ -22,17 +28,22 @@ public class GlobalSearchRequest {
     DictionaryItemRef projectCode;
 
     @Nullable
-    ExperimentStatus experimentStatus;
+    Set<ExperimentStatus> experimentStatus;
 
     @Nullable
-    UserRef author;
-
-    // Batch Yield %
-
-    // Batch Purity %
+    Set<UserRef> author;
 
     @Nullable
-    StructuralSearch structure;
+    NumericSearch batchYield;
+
+    @Nullable
+    NumericSearch batchPurity;
+
+    @Nullable
+    StructuralSearch moleculeStructure;
+
+    @Nullable
+    StructuralSearch reactionStructure;
 
     @JsonIgnore
     public boolean isEmpty() {
@@ -41,6 +52,9 @@ public class GlobalSearchRequest {
                 && projectCode == null
                 && experimentStatus == null
                 && author == null
-                && structure == null;
+                && batchYield == null
+                && batchPurity == null
+                && moleculeStructure == null
+                && reactionStructure == null;
     }
 }

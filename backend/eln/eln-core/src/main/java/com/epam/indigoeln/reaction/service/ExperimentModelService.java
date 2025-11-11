@@ -152,8 +152,10 @@ public class ExperimentModelService {
         model.setRevision(model.getRevision() + 1);
         reactionCalculator.recalculate(model);
 
+        boolean anyRxnfileChanged = false;
         for (Reaction reaction : model.getReactions()) {
             if (!reaction.getRxnfile().equals(previousRxnFiles.get(reaction.getAnchor())) || !handler.getAffectedRoles().isEmpty()) {
+                anyRxnfileChanged = true;
                 IndigoReaction indigoReaction = reaction.getRxnfile().isEmpty() ? indigoAPI.createReaction() : indigoAPI.loadReaction(reaction.getRxnfile());
                 if (!handler.getAffectedRoles().isEmpty()) {
                     experimentModelHelperService.rebuildReactionRxnFile(experiment, reaction, handler.getAffectedRoles(), indigoReaction);
@@ -162,6 +164,14 @@ public class ExperimentModelService {
                 reaction.setRxnVersion(reaction.getRxnVersion() + 1);
             }
         }
+        if (anyRxnfileChanged) {
+            List<String> rxnFiles = StreamEx.of(model.getReactions())
+                    .map(Reaction::getRxnfile)
+                    .remove(String::isEmpty)
+                    .toList();
+            experiment.setRxnfiles(rxnFiles);
+        }
+
         Set<CompoundRef> currentCompoundRefs = model.collectCompoundRefs();
         if (!previousCompoundRefs.equals(currentCompoundRefs)) {
             Set<UUID> ids = StreamEx.of(currentCompoundRefs).map(CompoundRef::getCompoundID).nonNull().toSet();
