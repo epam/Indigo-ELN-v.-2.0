@@ -96,18 +96,20 @@ public class GlobalSearchService {
             experimentConditions.add("jsonb_path_exists(e.model, '$.reactions[*].outputs[*].samples[*].yield.value ? (@ " + generateNumericCondition(request.getBatchYield()) + ")')");
         }
 
+        String fragmentSelector = "left(t.description, 120)";
         if (request.getQuery() != null) {
             String condition = "search_vector @@ websearch_to_tsquery('english', :query)";
             projectConditions.add(condition, "query", request.getQuery());
             notebookConditions.add(condition, "query", request.getQuery());
             experimentConditions.add(condition, "query", request.getQuery());
+            fragmentSelector = "ts_headline('english', t.description, websearch_to_tsquery('english', :query), 'StartSel=<mark>,StopSel=</mark>')";
         }
         StringBuilder sql = new StringBuilder();
         sql.append("with t as (\n");
         Map<String, @Nullable Object> params = new HashMap<>();
         boolean hasUnionBlocks = false;
         if (hasProjects) {
-            String projectsSQL = "SELECT 'PROJECT' AS type, p.name, p.id, p.created_by_id, p.created_at, p.modified_by_id, p.modified_at "
+            String projectsSQL = "SELECT 'PROJECT' AS type, p.name, p.id, p.description, p.created_by_id, p.created_at, p.modified_by_id, p.modified_at "
                                  + "FROM project_view p "
                                  + "WHERE " + projectConditions.getQuery();
             sql.append(projectsSQL);
@@ -119,7 +121,7 @@ public class GlobalSearchService {
                 sql.append("\nUNION ALL\n");
             }
             hasUnionBlocks = true;
-            String notebooksSQL = "SELECT 'NOTEBOOK' AS type, n.name, n.id, n.created_by_id, n.created_at, n.modified_by_id, n.modified_at "
+            String notebooksSQL = "SELECT 'NOTEBOOK' AS type, n.name, n.id, n.description, n.created_by_id, n.created_at, n.modified_by_id, n.modified_at "
                                   + "FROM notebook_view n "
                                   + "WHERE " + notebookConditions.getQuery();
             params.putAll(notebookConditions.getValues());
@@ -130,7 +132,7 @@ public class GlobalSearchService {
                 sql.append("\nUNION ALL\n");
             }
             hasUnionBlocks = true;
-            String experimentsSQL = "SELECT 'EXPERIMENT' AS type, e.name, e.id, e.created_by_id, e.created_at, e.modified_by_id, e.modified_at "
+            String experimentsSQL = "SELECT 'EXPERIMENT' AS type, e.name, e.id, e.description, e.created_by_id, e.created_at, e.modified_by_id, e.modified_at "
                                     + "FROM experiment_view e "
                                     + String.join(" ", experimentJoins) + " "
                                     + "WHERE " + experimentConditions.getQuery();
@@ -138,15 +140,13 @@ public class GlobalSearchService {
             sql.append(experimentsSQL);
         }
         sql.append(")\n");
-        sql.append("""
-            select t.type, t.name, t.id
-                    , t.created_by_id, c.username, c.display_name, t.created_at
-                    , t.modified_by_id, m.username, m.display_name, t.modified_at
-                    , count(*) over (partition by 1)
-            from t
-            join user_account c on c.id = t.created_by_id
-            join user_account m on m.id = t.modified_by_id
-        """);
+        sql.append("select t.type, t.name, t.id, ").append(fragmentSelector).append(" fragment\n");
+        sql.append(", t.created_by_id, c.username, c.display_name, t.created_at\n");
+        sql.append(", t.modified_by_id, m.username, m.display_name, t.modified_at\n");
+        sql.append(", count(*) over (partition by 1)\n");
+        sql.append("from t\n");
+        sql.append("join user_account c on c.id = t.created_by_id\n");
+        sql.append("join user_account m on m.id = t.modified_by_id\n");
         long[] totalCount = new long[] {0};
         Query query = em.createNativeQuery(sql.toString())
                 .setFirstResult(paging.getPageNoOrDefault() * paging.getPageSizeOrDefault())
@@ -160,11 +160,12 @@ public class GlobalSearchService {
                     item.setType(EntityType.valueOf(row[0].toString()));
                     item.setName((String) row[1]);
                     item.setId((UUID) row[2]);
-                    item.setCreatedBy(new UserRef((UUID) row[3], (String) row[4], (String) row[5]));
-                    item.setCreatedAt(((Instant) row[6]).atZone(ZoneId.systemDefault()));
-                    item.setModifiedBy(new UserRef((UUID) row[7], (String) row[8], (String) row[9]));
-                    item.setModifiedAt(((Instant) row[10]).atZone(ZoneId.systemDefault()));
-                    totalCount[0] = (Long) row[11];
+                    item.setFragment((String) row[3]);
+                    item.setCreatedBy(new UserRef((UUID) row[4], (String) row[5], (String) row[6]));
+                    item.setCreatedAt(((Instant) row[7]).atZone(ZoneId.systemDefault()));
+                    item.setModifiedBy(new UserRef((UUID) row[8], (String) row[9], (String) row[10]));
+                    item.setModifiedAt(((Instant) row[11]).atZone(ZoneId.systemDefault()));
+                    totalCount[0] = (Long) row[12];
                     return item;
                 })
                 .toList();

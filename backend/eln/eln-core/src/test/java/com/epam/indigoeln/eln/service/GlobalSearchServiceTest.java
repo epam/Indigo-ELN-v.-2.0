@@ -20,8 +20,10 @@ import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -106,12 +108,12 @@ class GlobalSearchServiceTest extends ELNBaseTest {
     void testFindAll() {
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("xx"), Paging.DEFAULT);
         assertResults(results
-                , tuple(EntityType.PROJECT, project1.getName(), project1.getId())
-                , tuple(EntityType.PROJECT, project2.getName(), project2.getId())
-                , tuple(EntityType.NOTEBOOK, notebook1.getName(), notebook1.getId())
-                , tuple(EntityType.NOTEBOOK, notebook2.getName(), notebook2.getId())
-                , tuple(EntityType.EXPERIMENT, experiment1.getName(), experiment1.getId())
-                , tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId())
+                , tuple(EntityType.PROJECT, project1.getName(), project1.getId(), project1.getDescription())
+                , tuple(EntityType.PROJECT, project2.getName(), project2.getId(), project2.getDescription())
+                , tuple(EntityType.NOTEBOOK, notebook1.getName(), notebook1.getId(), "nd1 <mark>xx</mark>")
+                , tuple(EntityType.NOTEBOOK, notebook2.getName(), notebook2.getId(), "nd2 <mark>xx</mark>")
+                , tuple(EntityType.EXPERIMENT, experiment1.getName(), experiment1.getId(), "ed1 <mark>xx</mark>")
+                , tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId(), "ed2 <mark>xx</mark>")
         );
     }
 
@@ -218,6 +220,12 @@ class GlobalSearchServiceTest extends ELNBaseTest {
     }
 
     private void assertResults(Page<GlobalSearchResultDTO> results, Tuple... expected) {
-        assertThat(results.getItems()).map(GlobalSearchResultDTO::getType, GlobalSearchResultDTO::getName, GlobalSearchResultDTO::getId).containsOnly(expected);
+        int fieldCount = expected[0].toList().size();
+        List<Function<GlobalSearchResultDTO, ?>> extractors = new ArrayList<>(List.of(GlobalSearchResultDTO::getType, GlobalSearchResultDTO::getName, GlobalSearchResultDTO::getId));
+        if (fieldCount >= 4) {
+            extractors.add(GlobalSearchResultDTO::getFragment);
+        }
+        //noinspection unchecked
+        assertThat(results.getItems()).map(extractors.toArray(Function[]::new)).containsOnly(expected);
     }
 }
