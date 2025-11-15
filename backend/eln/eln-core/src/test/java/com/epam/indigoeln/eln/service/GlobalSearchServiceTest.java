@@ -8,6 +8,7 @@ import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputSampleMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
@@ -156,6 +157,28 @@ class GlobalSearchServiceTest extends ELNBaseTest {
                 Paging.DEFAULT
         );
         assertResults(results, tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
+        assertThat(results.getItems().getFirst().getReactionRoles()).isEqualTo(Set.of(ReactionRole.REACTANT, ReactionRole.OUTPUT));
+    }
+
+    @Test
+    void testFindByMoleculeSubstructureAndRole() {
+        String molFile = new String(loadResource(getClass(), "/ring-substructure.mol"));
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(
+                new GlobalSearchRequest().withMoleculeStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile)).withReactionRole(ReactionRole.REACTANT),
+                Paging.DEFAULT
+        );
+        assertResults(results, tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId()));
+        assertThat(results.getItems().getFirst().getReactionRoles()).isEqualTo(Set.of(ReactionRole.REACTANT));
+    }
+
+    @Test
+    void testFindByMoleculeSubstructureAndRoleNotFound() {
+        String molFile = new String(loadResource(getClass(), "/ring-substructure.mol"));
+        Page<GlobalSearchResultDTO> results = globalSearchClient.search(
+                new GlobalSearchRequest().withMoleculeStructure(new StructuralSearch(StructuralSearch.Type.SUBSTRUCTURE, molFile)).withReactionRole(ReactionRole.SOLVENT),
+                Paging.DEFAULT
+        );
+        assertResults(results);
     }
 
     // TODO test for EXACT and SIMILARITY molfile search types
@@ -220,6 +243,10 @@ class GlobalSearchServiceTest extends ELNBaseTest {
     }
 
     private void assertResults(Page<GlobalSearchResultDTO> results, Tuple... expected) {
+        if (expected.length == 0) {
+            assertThat(results.getItems()).isEmpty();
+            return;
+        }
         int fieldCount = expected[0].toList().size();
         List<Function<GlobalSearchResultDTO, ?>> extractors = new ArrayList<>(List.of(GlobalSearchResultDTO::getType, GlobalSearchResultDTO::getName, GlobalSearchResultDTO::getId));
         if (fieldCount >= 4) {

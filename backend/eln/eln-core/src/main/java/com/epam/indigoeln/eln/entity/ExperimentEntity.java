@@ -165,8 +165,7 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @NotNull
     @ElementCollection
     @CollectionTable(name = "Experiment_Referenced_Compound", joinColumns = @JoinColumn(name = "experiment_id"))
-    @Column(name = "compound_id")
-    private Set<UUID> referencedCompounds = new HashSet<>(0);
+    private Set<ExperimentReferencedCompound> referencedCompounds = new HashSet<>(0);
 
     @NotNull
     @ElementCollection

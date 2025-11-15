@@ -2,8 +2,10 @@ package com.epam.indigoeln.eln.model;
 
 import com.epam.indigoeln.compound.model.NumericSearch;
 import com.epam.indigoeln.compound.model.StructuralSearch;
+import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.AssertTrue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -43,6 +45,9 @@ public class GlobalSearchRequest {
     StructuralSearch moleculeStructure;
 
     @Nullable
+    ReactionRole reactionRole;
+
+    @Nullable
     StructuralSearch reactionStructure;
 
     @JsonIgnore
@@ -56,5 +61,11 @@ public class GlobalSearchRequest {
                 && batchPurity == null
                 && moleculeStructure == null
                 && reactionStructure == null;
+    }
+
+    @AssertTrue(message = "reactionRole requires moleculeStructure to be set")
+    @JsonIgnore
+    public boolean isReactionRoleValid() {
+        return reactionRole == null || moleculeStructure != null;
     }
 }

@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.model;
 
+import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.metamodel.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
@@ -122,11 +123,13 @@ public final class ExperimentModel implements ExperimentModelNode {
         return refs;
     }
 
-    public Set<CompoundRef> collectCompoundRefs() {
-        Set<CompoundRef> refs = new HashSet<>();
+    public Set<Pair<ReactionRole, CompoundRef>> collectCompoundRefs() {
+        Set<Pair<ReactionRole, CompoundRef>> refs = new HashSet<>();
         walk(node -> {
-            if (node instanceof ReactionRow row) {
-                refs.add(row.getCompound());
+            switch (node) {
+                case ReactionInput input -> refs.add(Pair.of(input.getRole(), input.getCompound()));
+                case ReactionOutput output -> refs.add(Pair.of(ReactionRole.OUTPUT, output.getCompound()));
+                default -> {}
             }
         });
         return refs;
