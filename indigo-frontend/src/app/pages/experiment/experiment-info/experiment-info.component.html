@@ -88,3 +88,29 @@
     Add Material
   </eln-button>
 </div>
+
+@if (isDrawerOpen()) {
+  <div
+    class="fixed inset-0 z-40 transition-opacity duration-300 bg-black/20"
+    style="top: 4.5rem;"
+    (click)="closeMaterialDrawer()">
+  </div>
+}
+
+<div
+  class="fixed right-0 w-96 bg-white z-50 shadow-2xl overflow-y-auto
+         transition-transform duration-300 ease-in-out"
+  [style.transform]="isDrawerOpen() ? 'translateX(0)' : 'translateX(100%)'"
+  [class.invisible]="!isDrawerOpen() && !isDrawerClosedOnce"
+  style="
+    width: 50%;
+    top: 4.5rem; /* Կապույտ տողից ներքև սկսելու համար (4rem = 64px) */
+    height: calc(100vh - 4rem); /* Էկրանի մնացած բարձրությունը */
+  "
+>
+  <eln-sample-search
+    [experimentId]="experiment()?.id"
+    [reactionAnchor]="model()?.reactions[0]?.anchor"
+    (close)="closeMaterialDrawer()"
+  />
+</div>
