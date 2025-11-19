@@ -3,9 +3,9 @@ import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
 // Shared types for experiment status decoration
 export type BadgeVariant = 'blue' | 'green' | 'yellow' | 'red' | 'grey' | 'violet';
 
-export interface ExperimentStatusDecoration { 
-  variant: BadgeVariant; 
-  dotClass: string; 
+export interface ExperimentStatusDecoration {
+  variant: BadgeVariant;
+  dotClass: string;
 }
 
 /**
@@ -22,7 +22,6 @@ export const EXPERIMENT_STATUS_DECORATION_MAP: Record<ExperimentStatus, Experime
   [ExperimentStatus.SIGNED]: { variant: 'green', dotClass: 'bg-green-200' },
   [ExperimentStatus.ARCHIVED]: { variant: 'grey', dotClass: 'bg-neutral-500' },
   [ExperimentStatus.CANCELLED]: { variant: 'red', dotClass: 'bg-red-200' },
-  [ExperimentStatus.WAITING_FOR_SIGNATURE]: { variant: 'violet', dotClass: 'bg-violet-200' },
 };
 
 /**

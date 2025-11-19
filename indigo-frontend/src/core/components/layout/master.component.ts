@@ -12,6 +12,8 @@ import { Router, RouterOutlet } from '@angular/router';
 import { AuthenticatorService } from '@aws-amplify/ui-angular';
 import { Subject, takeUntil } from 'rxjs';
 import { SidebarComponent } from './partials/sidebar/sidebar.component';
+import { GlobalSearchComponent } from '@pages/search/sample-search/global-search.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'eln-master',
@@ -34,6 +36,7 @@ export class MasterComponent implements OnInit, OnDestroy {
   destroy$ = new Subject<void>();
   authenticatorService = inject(AuthenticatorService);
   userService = inject(UserService);
+  dialog = inject(MatDialog);
   public isCollapsed = false;
   public searchControl = new FormControl('');
   router = inject(Router);
@@ -55,5 +58,9 @@ export class MasterComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  showSearch(): void {
+    this.dialog.open(GlobalSearchComponent, {});
   }
 }

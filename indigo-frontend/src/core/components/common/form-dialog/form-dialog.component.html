@@ -70,7 +70,7 @@
             <eln-button
               [type]="'button'"
               [variant]="'blue'"
-              [disabled]="form.invalid"
+              [disabled]="form.invalid || !submitEnabled"
               (click)="submit()"
               >{{ submitButtonText }}</eln-button
             >

@@ -79,17 +79,11 @@
           <div class="text-xs">Chemical Name</div>
           <div class="text-xs">Compound State</div>
           <eln-text-search formControlName="chemicalName" />
-          <eln-dropdown-value
-            formControlName="compoundState"
-            [options]="compoundStateOptions"
-          />
+          <eln-dictionary-select formControlName="compoundState" [dictionaryId]="BuildInDictionary.COMPONENT_STATE" />
           <div class="text-xs">Batch Comment</div>
           <div class="text-xs">Health Hazards</div>
           <eln-text-search formControlName="batchComment" />
-          <eln-dropdown-value
-            formControlName="healthHazards"
-            [options]="healthHazardsOptions"
-          />
+          <eln-dictionary-select formControlName="healthHazards" [dictionaryId]="BuildInDictionary.HEALTH_HAZARD" />
           <div class="text-xs">CAS Number</div>
           <div class="text-xs"></div>
           <eln-text-search formControlName="casNumber" />

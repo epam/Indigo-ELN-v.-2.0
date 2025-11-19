@@ -1,0 +1,117 @@
+<form [formGroup]="form">
+  <div class="w-full flex flex-col gap-4 p-8 mx-auto">
+    <div class="flex gap-4 border">
+      <label class="w-1/3 font-medium text-gray-700">
+        eln-autocomplete-select:
+      </label>
+      <div class="w-1/3 px-3 py-2 border">
+        <!--      <eln-autocomplete-select />-->
+      </div>
+    </div>
+    <div class="flex gap-4 border">
+      <label class="w-1/3 font-medium text-gray-700">
+        eln-user-select
+      </label>
+      <div class="w-2/3 px-3 py-2 border">
+        <eln-user-select formControlName="user"/>
+      </div>
+      <div class="w-1/3">Value: {{ userValue | json }}</div>
+    </div>
+    <div class="flex gap-4 border">
+      <label class="w-1/3 font-medium text-gray-700">
+        eln-dictionary-select
+      </label>
+      <div class="w-1/3 px-3 py-2 border">
+        <eln-dictionary-select [dictionaryId]="BuiltInDictionary.THERAPEUTIC_AREA" formControlName="therapeuticArea"/>
+      </div>
+      <div class="w-1/3">Value: {{ therapeuticAreaValue | json }}</div>
+    </div>
+    <div class="flex gap-4 border">
+      <label class="w-1/3 font-medium text-gray-700 border">
+        eln-dictionary-select:
+      </label>
+      <div class="w-1/3 px-3 py-2 border">
+        <eln-dictionary-select [dictionaryId]="BuiltInDictionary.PROJECT_CODE" [multiple]="true" formControlName="projectCode"/>
+      </div>
+      <div class="w-1/3">Value: {{ projectCodeValue | json }}</div>
+    </div>
+    <div class="flex gap-4 border">
+      <label class="w-1/3 font-medium text-gray-700 border">
+        eln-dictionary-select:
+      </label>
+      <div class="w-1/3 px-3 py-2 border">
+        <eln-text-search formControlName="molecularFormula" />
+      </div>
+      <div class="w-1/3">Value: {{ molecularFormulaValue | json }}</div>
+    </div>
+    <div class="flex gap-4 border">
+      <label class="w-1/3 font-medium text-gray-700 border">
+        eln-dictionary-select:
+      </label>
+      <div class="w-1/3 px-3 py-2 border">
+        <eln-numeric-search formControlName="molWeight" />
+      </div>
+      <div class="w-1/3">Value: {{ molWeightValue | json }}</div>
+    </div>
+    <div class="flex gap-4 border">
+      <label class="w-1/3 font-medium text-gray-700 border">
+        eln-enum-select:
+      </label>
+      <div class="w-1/3 px-3 py-2 border">
+        <eln-enum-select formControlName="experimentStatus" [enumType]="ExperimentStatus" [displayNames]="ExperimentStatusNames" [allowEmpty]="true"/>
+      </div>
+      <div class="w-1/3">Value: {{ experimentStatusValue | json }}</div>
+    </div>
+    <div class="flex gap-4 border">
+      <label class="w-1/3 font-medium text-gray-700 border">
+        eln-enum-select:
+      </label>
+      <div class="w-1/3 px-3 py-2 border">
+        <eln-enum-select formControlName="reactionRole" [multiple]="true" [enumType]="ReactionRole" [displayNames]="ReactionRoleNames"/>
+      </div>
+      <div class="w-1/3">Value: {{ reactionRoleValue | json }}</div>
+    </div>
+  </div>
+  <div class="flex flex-col gap-8">
+    @for (result of searchResults; track $index) {
+      @switch (result.type) {
+        @case (GlobalSearchEntityType.PROJECT) {
+          <div class="flex flex-col gap-4">
+            <div class="flex gap-4">
+              <div class="flex-2 text-xl">Project <b>{{ result.name }}</b></div>
+              <div class="flex-1"><b>Author: </b>{{ "[[author]]" }}</div>
+            </div>
+            <div [innerHTML]="result.fragment"></div>
+          </div>
+        }
+        @case (GlobalSearchEntityType.NOTEBOOK) {
+          <div class="flex flex-col gap-4">
+            <div class="flex gap-4">
+              <div class="flex-2 text-xl">Notebook <b>{{ result.name }}</b></div>
+              <div class="flex-1"><b>Author: </b>{{ "[[author]]" }}</div>
+            </div>
+            <div [innerHTML]="result.fragment"></div>
+          </div>
+        }
+        @case (GlobalSearchEntityType.EXPERIMENT) {
+          <div class="flex flex-col gap-4">
+            <div class="flex gap-4 justify-items">
+              <img class="flex-1" src="xxx" alt="experiment image"/>
+              <div class="flex-1 flex flex-col gap-4">
+                <div class="text-xl">Notebook <b>{{ result.name }}</b></div>
+                <div><b>Status: </b>{{ "[[status]]" }}</div>
+              </div>
+              <div class="flex-1 flex flex-col gap-4">
+                <div><b>Author: </b>{{ "author" }}</div>
+                @if (result.reactionRoles) {
+                  <div><b>Reaction Roles: </b>{{ result.reactionRoles.join(', ') }}</div>
+                }
+              </div>
+            </div>
+            <div [innerHTML]="result.fragment"></div>
+          </div>
+        }
+      }
+    }
+  </div>
+</form>

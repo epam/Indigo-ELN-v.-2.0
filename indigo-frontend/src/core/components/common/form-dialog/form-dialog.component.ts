@@ -1,14 +1,6 @@
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  ContentChild,
-  EventEmitter,
-  inject,
-  Input,
-  Output,
-  TemplateRef,
-} from '@angular/core';
+import { Component, ContentChild, EventEmitter, inject, Input, Output, TemplateRef } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -46,6 +38,7 @@ export class FormDialogComponent {
   @Input() hideCancelButton = false;
   @Input() submitButtonText = 'Submit';
   @Input() cancelButtonText = 'Cancel';
+  @Input() submitEnabled = true;
   @Input() containerClass = '';
   @Output() formSubmit = new EventEmitter<any>();
   @ContentChild('modalHeader') modalHeader: TemplateRef<unknown> | null = null;

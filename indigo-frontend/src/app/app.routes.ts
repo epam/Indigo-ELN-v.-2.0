@@ -135,6 +135,11 @@ export const routes: Routes = [
             '@pages/template/template-layout/template-layout.component'
           ).then((c) => c.TemplateLayoutComponent),
       },
+      {
+        path: 'test',
+        loadComponent: () =>
+          import('@pages/test/test.component').then((c) => c.TestComponent),
+      },
     ],
   },
 ];

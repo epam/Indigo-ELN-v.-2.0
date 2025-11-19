@@ -38,7 +38,6 @@ import {
   DictionaryItemRef,
 } from '@core/types/entities/dictionary.i';
 import { NumericSearchComponent } from '@core/components/common/numeric-search/numeric-search.component';
-import { DropdownValueComponent } from '@core/components/experiment/dropdown-value/dropdown-value.component';
 import { MatChip } from '@angular/material/chips';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import {
@@ -59,6 +58,8 @@ import { ExperimentModelService } from '@core/services/experiment/experiment-mod
 import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { distinctUntilChanged } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { DictionaryService } from '@core/services/dictionary/dictionary.service';
+import { DictionarySelectComponent } from '@core/components/common/dictionary-select/dictionary-select.component';
 
 export interface SampleSearchDialogData {
   experimentId: UUID;
@@ -83,7 +84,6 @@ export interface SampleSearchDialogData {
     MatExpansionPanelDescription,
     TextSearchComponent,
     NumericSearchComponent,
-    DropdownValueComponent,
     MatChip,
     MatProgressSpinner,
     ExpandableTableComponent,
@@ -92,6 +92,7 @@ export interface SampleSearchDialogData {
     InfiniteLoaderComponent,
     MatTooltip,
     ToggleComponent,
+    DictionarySelectComponent,
   ],
   templateUrl: './sample-search.component.html',
 })
@@ -103,6 +104,7 @@ export class SampleSearchComponent implements OnInit {
   @ViewChild('advancedSearchPanel') advancedSearchPanel: MatExpansionPanel;
 
   service = inject(ApiService);
+  dictionaryService = inject(DictionaryService);
   destroyRef = inject(DestroyRef);
   dialog = inject(MatDialog);
   experimentModelService = inject(ExperimentModelService);
@@ -129,8 +131,6 @@ export class SampleSearchComponent implements OnInit {
   structureImage: string | null = null;
 
   advancedSearchSummary: string[][] | null = null;
-  compoundStateOptions: DictionaryItemRef[];
-  healthHazardsOptions: DictionaryItemRef[];
 
   ngOnInit(): void {
     this.loader = new InfiniteSearchLoader<FindSamplesRequest, Sample>(
@@ -141,20 +141,6 @@ export class SampleSearchComponent implements OnInit {
           searchParams,
         ),
     );
-    this.service
-      .request<
-        DictionaryItemRef[]
-      >('get', `dictionaries/${BuiltInDictionary.COMPONENT_STATE}`)
-      .subscribe((list) => {
-        this.compoundStateOptions = list;
-      });
-    this.service
-      .request<
-        DictionaryItemRef[]
-      >('get', `dictionaries/${BuiltInDictionary.HEALTH_HAZARD}`)
-      .subscribe((list) => {
-        this.healthHazardsOptions = list;
-      });
     // when user (de)selects "Only My Materials" when search was already triggered, reload search results
     this.form.valueChanges
       .pipe(
@@ -329,4 +315,6 @@ export class SampleSearchComponent implements OnInit {
       return [name, value.name];
     }
   }
+
+  BuildInDictionary = BuiltInDictionary;
 }

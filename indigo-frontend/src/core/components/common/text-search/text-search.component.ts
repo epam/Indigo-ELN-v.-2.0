@@ -1,20 +1,21 @@
-import { Component, forwardRef, Input } from '@angular/core';
-import {
-  TextSearch,
-  TextSearchTypeNames,
-} from '@core/types/entities/experiments/search.i';
+import { Component, forwardRef, OnInit } from '@angular/core';
+import { TextSearch, TextSearchTypeNames } from '@core/types/entities/experiments/search.i';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatInput } from '@angular/material/input';
 import {
-  ControlValueAccessor,
+  AbstractControl,
+  FormControl,
+  FormGroup,
   FormsModule,
   NG_VALUE_ACCESSOR,
+  ReactiveFormsModule,
 } from '@angular/forms';
-import { KeyValuePipe } from '@angular/common';
+import { AsyncPipe, KeyValuePipe } from '@angular/common';
+import { DelegatingControlBase } from '@core/components/common/delegating-control/delegating-control-base.component';
 
 @Component({
   selector: 'eln-text-search',
-  imports: [MatSelect, MatOption, MatInput, FormsModule, KeyValuePipe],
+  imports: [MatSelect, MatOption, MatInput, FormsModule, KeyValuePipe, ReactiveFormsModule, AsyncPipe],
   templateUrl: './text-search.component.html',
   providers: [
     {
@@ -24,71 +25,57 @@ import { KeyValuePipe } from '@angular/common';
     },
   ],
 })
-export class TextSearchComponent implements ControlValueAccessor {
-  @Input() value: TextSearch;
-  disabled = false;
-  defaultValue = { type: 'exact', value: '', from: '', to: '' } as TextSearch;
-  onChange: ((arg0: TextSearch) => void) | null = null;
-  onTouched: (() => void) | null = null;
+export class TextSearchComponent extends DelegatingControlBase<TextSearch> implements OnInit {
+  form = new FormGroup({
+    type: new FormControl<keyof typeof TextSearchTypeNames>('exact'),
+    value: new FormControl<string>(''),
+    from: new FormControl<string>(''),
+    to: new FormControl<string>(''),
+  });
 
-  writeValue(obj: TextSearch | null): void {
-    this.value = obj || this.defaultValue;
+  ngOnInit() {
+    this.form.valueChanges.subscribe(formValue => {
+      let result: TextSearch | null = null;
+      switch (formValue.type) {
+        case 'exact':
+          if (formValue.value?.trim()) {
+            result = { type: 'exact', value: formValue.value };
+          }
+          break;
+        case 'startsWith':
+          if (formValue.value?.trim()) {
+            result = { type: 'startsWith', value: formValue.value };
+          }
+          break;
+        case 'endsWith':
+          if (formValue.value?.trim()) {
+            result = { type: 'endsWith', value: formValue.value };
+          }
+          break;
+        case 'contains':
+          if (formValue.value?.trim()) {
+            result = { type: 'contains', value: formValue.value };
+          }
+          break;
+        case 'between':
+          if (formValue.from?.trim() || formValue.to?.trim()) {
+            result = { type: 'between', from: formValue.from, to: formValue.to };
+          }
+          break;
+      }
+      this.triggerChange(result);
+    });
   }
 
-  registerOnChange(fn: (arg0: TextSearch | null) => void): void {
-    this.onChange = fn;
+  setValue(obj: TextSearch | null): void {
+    this.form.get('type').setValue(obj?.type || 'exact');
+    this.form.get('value').setValue(obj?.type != 'between' ? obj?.value : '');
+    this.form.get('from').setValue(obj?.type == 'between' ? obj?.from : '');
+    this.form.get('to').setValue(obj?.type == 'between' ? obj?.to : '');
   }
 
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
-  }
-
-  setType(type: typeof this.value.type) {
-    this.value = { ...this.value, type: type } as TextSearch;
-    this.fireOnChange();
-  }
-
-  setInputValue(event: Event) {
-    this.value = {
-      ...this.value,
-      value: (event.target as HTMLInputElement).value,
-    } as TextSearch;
-    this.fireOnChange();
-  }
-
-  setInputFrom(event: Event) {
-    this.value = {
-      ...this.value,
-      from: (event.target as HTMLInputElement).value,
-    } as TextSearch;
-    this.fireOnChange();
-  }
-
-  setInputTo(event: Event) {
-    this.value = {
-      ...this.value,
-      to: (event.target as HTMLInputElement).value,
-    } as TextSearch;
-    this.fireOnChange();
-  }
-
-  fireOnChange() {
-    let value: TextSearch | null;
-    if (this.value.type !== 'between') {
-      value = this.value.value
-        ? { type: this.value.type, value: this.value.value }
-        : null;
-    } else {
-      value =
-        this.value.from && this.value.to
-          ? { type: this.value.type, from: this.value.from, to: this.value.to }
-          : null;
-    }
-    this.onChange?.(value);
+  protected getControlsToDisable(): AbstractControl[] {
+    return Object.values(this.form.controls);
   }
 
   protected readonly TextSearchTypeNames = TextSearchTypeNames;
