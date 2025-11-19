@@ -63,6 +63,12 @@ export class NotebookEditComponent {
     if (data?.notebook?.id) {
       this.notebookId = data.notebook.id;
     }
+    if (data?.notebook?.name) {
+      this.fields[0].defaultValue = data.notebook.name;
+    }
+    if (data?.notebook?.description) {
+      this.fields[1].defaultValue = data.notebook.description;
+    }
   }
 
   editNotebook(data: Notebook) {
