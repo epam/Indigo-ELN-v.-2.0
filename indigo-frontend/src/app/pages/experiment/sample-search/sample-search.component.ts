@@ -61,8 +61,8 @@ import { ExperimentModelService } from '@core/services/experiment/experiment-mod
 import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { distinctUntilChanged } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { MatButton } from '@angular/material/button';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   standalone: true,
@@ -90,14 +90,13 @@ import { MatTab, MatTabGroup } from '@angular/material/tabs';
     InfiniteLoaderComponent,
     MatTooltip,
     ToggleComponent,
-    MatButton,
     MatTabGroup,
     MatTab,
+    MatIcon,
   ],
   templateUrl: './sample-search.component.html',
 })
 export class SampleSearchComponent implements OnInit {
-
   @Input() experimentId: UUID;
   @Input() reactionAnchor: ReactionAnchor;
 

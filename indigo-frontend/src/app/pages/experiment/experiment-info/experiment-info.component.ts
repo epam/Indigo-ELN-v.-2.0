@@ -32,11 +32,9 @@ export class ExperimentInfoComponent implements OnInit {
 
   isUpdating = signal<boolean>(false);
 
-  // ՆՈՐ. Ազդանշաններ Drawer-ի կառավարման համար
   isDrawerOpen = signal<boolean>(false);
-  isDrawerClosedOnce = signal<boolean>(false); // Լրացուցիչ ազդանշան՝ սկզբնական թաքնումից խուսափելու համար
+  isDrawerClosedOnce = signal<boolean>(false);
 
-  // Computed signals... (մնացած մասը նույնն է)
   experiment = computed(() => this.experimentDetailService.experimentDetail());
   isLoading = computed(() => this.experimentDetailService.isLoading());
   hasError = computed(() => this.experimentDetailService.hasError());
@@ -71,6 +69,6 @@ export class ExperimentInfoComponent implements OnInit {
 
   closeMaterialDrawer(): void {
     this.isDrawerOpen.set(false);
-    this.isDrawerClosedOnce.set(true); // Նշել, որ այն առնվազն մեկ անգամ փակվել է
+    this.isDrawerClosedOnce.set(true);
   }
 }
