@@ -141,6 +141,11 @@ interface SetInputWeight extends ReactionInputSampleMutation {
   unit: WeightUnit | null;
 }
 
+interface SetInputComment extends ReactionInputSampleMutation {
+  type: 'SetInputComment';
+  comment: string | null;
+}
+
 interface ReactionOutputMutation extends BaseMutation {
   anchor: ReactionOutputAnchor;
 }
@@ -321,6 +326,7 @@ export type Mutation =
   | SetInputHealthHazards
   | SetInputMol
   | SetInputWeight
+  | SetInputComment
   // Output mutations
   | AddProductSample
   | SetOutputRowType

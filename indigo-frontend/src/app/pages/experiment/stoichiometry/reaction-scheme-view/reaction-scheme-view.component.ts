@@ -80,16 +80,11 @@ export class ReactionSchemeViewComponent {
       anchor: this.reaction.anchor
     };
 
-    const payload: MutateModelForm = {
-      model: this.experimentModelService.experimentModel(),
-      mutation: firstMutation,
-    };
-
     // Notify parent that update is starting
     this.modelUpdating.emit(true);
 
     this.experimentModelService
-      .updateDataModel(this.experimentId!, payload)
+      .updateDataModel(firstMutation)
       .subscribe({
         next: () => {
           // Notify parent that update completed

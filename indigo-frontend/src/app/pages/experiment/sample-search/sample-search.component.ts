@@ -56,7 +56,6 @@ import { ToggleComponent } from '@core/components/common/toggle/toggle.component
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { StructureEditorModalComponent } from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
 import { UUID } from '@core/types/entities/experiments/experiment-shared.i';
-import { MutateModelForm } from '@core/types/entities/experiments/experiment-mutate-form.i';
 import { ExperimentModelService } from '@core/services/experiment/experiment-model.service';
 import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { distinctUntilChanged } from 'rxjs';
@@ -248,18 +247,14 @@ export class SampleSearchComponent implements OnInit {
       this.experimentModelService,
       this.experimentModelService.experimentModel(),
     );
-    const payload: MutateModelForm = {
-      model: this.experimentModelService.experimentModel(),
-      mutation: {
-        type: 'AddInput',
-
-        anchor: this.reactionAnchor,
-        sampleId: sample.id,
-      },
+    const mutation = {
+      type: 'AddInput' as const,
+      anchor: this.reactionAnchor,
+      sampleId: sample.id,
     };
 
     this.experimentModelService
-      .updateDataModel(this.experimentId, payload)
+      .updateDataModel(mutation)
       .subscribe({
         next: () => {
           console.log('Model updated with new sample');
