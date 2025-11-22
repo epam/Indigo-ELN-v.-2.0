@@ -252,7 +252,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
         if (fieldCount >= 4) {
             extractors.add(GlobalSearchResultDTO::getFragment);
         }
-        //noinspection unchecked
-        assertThat(results.getItems()).map(extractors.toArray(Function[]::new)).containsOnly(expected);
+        //noinspection unchecked,RedundantCast
+        assertThat(results.getItems()).map(extractors.toArray(Function[]::new)).containsOnly((Object[]) expected);
     }
 }

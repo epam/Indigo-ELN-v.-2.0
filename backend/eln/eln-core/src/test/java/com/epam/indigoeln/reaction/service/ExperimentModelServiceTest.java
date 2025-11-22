@@ -70,11 +70,13 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
 
     @AfterAll
     void tearDown() {
-        Stats modelSizeStats = Stats.of(modelSizes);
-        Stats patchSizeStats = Stats.of(patchSizes);
-        System.out.println("Model size stats: " + modelSizeStats);
-        System.out.println("Patch size stats: " + patchSizeStats);
-        System.out.println("Average ratio: " + patchSizeStats.mean() / modelSizeStats.mean());
+        if (!modelSizes.isEmpty()) {
+            Stats modelSizeStats = Stats.of(modelSizes);
+            Stats patchSizeStats = Stats.of(patchSizes);
+            System.out.println("Model size stats: " + modelSizeStats);
+            System.out.println("Patch size stats: " + patchSizeStats);
+            System.out.println("Average ratio: " + patchSizeStats.mean() / modelSizeStats.mean());
+        }
     }
 
     @Nested
@@ -287,6 +289,17 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
         assertThatClientCall(() -> {
             experimentClient.mutateExperimentModel2(experiment.getId(), 100, new ReactionMutation.AddEmptyInput(reactionAnchor));
         }).isConflict("incorrect revision 100 requested; current revision 0");
+    }
+
+    @Test
+    @Order(10_200)
+    void testIncorrectAnchor() {
+        experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        model = experimentClient.getExperimentModel(experiment.getId());
+        reactionAnchor = model.getReactions().getFirst().getAnchor();
+        assertThatClientCall(() -> {
+            experimentClient.mutateExperimentModel2Raw(experiment.getId(), model.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"invalid\"}");
+        }).isBadRequest("Cannot construct instance of `com.epam.indigoeln.reaction.model.Anchor");
     }
 
     @SneakyThrows

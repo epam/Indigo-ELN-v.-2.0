@@ -4,12 +4,14 @@ import com.epam.indigoeln.common.exception.AccessDeniedException;
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.common.exception.IncorrectRevisionException;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ElementKind;
 import jakarta.validation.Path;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -19,6 +21,7 @@ import one.util.streamex.StreamEx;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
+import java.rmi.ServerException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -81,6 +84,13 @@ public class BackendExceptionMapper {
     public RestResponse<List<ErrorDTO>> toResponse(IncorrectRevisionException exception) {
         log.error(exception.getMessage());
         return buildResponse(Response.Status.CONFLICT, new ErrorDTO(exception.getMessage()));
+    }
+
+    @ServerExceptionMapper
+    public RestResponse<List<ErrorDTO>> toResponse(WebApplicationException exception) {
+        log.error("WebApplicationException", exception);
+        Throwable cause = exception.getCause() != null ? exception.getCause() : exception;
+        return buildResponse(exception.getResponse().getStatusInfo().toEnum(), new ErrorDTO(cause.getMessage()));
     }
 
     @SneakyThrows
