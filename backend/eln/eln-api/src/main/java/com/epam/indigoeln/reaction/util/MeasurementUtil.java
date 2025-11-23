@@ -1,88 +1,92 @@
 package com.epam.indigoeln.reaction.util;
 
-import com.epam.indigoeln.reaction.model.units.*;
+import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
+import com.epam.indigoeln.reaction.model.units.NoUnit;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import lombok.extern.slf4j.Slf4j;
 
+import static com.epam.indigoeln.reaction.model.units.DensityUnit.G_ML;
+import static com.epam.indigoeln.reaction.model.units.MolUnit.*;
+import static com.epam.indigoeln.reaction.model.units.MolWeightUnit.G_PER_MOL;
+import static com.epam.indigoeln.reaction.model.units.MolarityUnit.M;
+import static com.epam.indigoeln.reaction.model.units.MolarityUnit.MM;
+import static com.epam.indigoeln.reaction.model.units.NoUnit.NO_UNIT;
+import static com.epam.indigoeln.reaction.model.units.VolumeUnit.L;
+import static com.epam.indigoeln.reaction.model.units.VolumeUnit.ML;
+import static com.epam.indigoeln.reaction.model.units.WeightUnit.*;
+
+@Slf4j
 public class MeasurementUtil {
 
-    private static final Table<MeasurementUnit, MeasurementUnit, MeasurementUnit> MULTIPLY_TABLE = HashBasedTable.create();
+    private static final Table<MeasurementUnit, MeasurementUnit, UnitAndMultiplier> MULTIPLY_TABLE = HashBasedTable.create();
 
-    private static final Table<MeasurementUnit, MeasurementUnit, MeasurementUnit> DIVIDE_TABLE = HashBasedTable.create();
+    private static final Table<MeasurementUnit, MeasurementUnit, UnitAndMultiplier> DIVIDE_TABLE = HashBasedTable.create();
 
     static {
-        MULTIPLY_TABLE.put(MolWeightUnit.G_PER_MOL, MolUnit.MOL, WeightUnit.KG);
-        MULTIPLY_TABLE.put(MolWeightUnit.G_PER_MOL, MolUnit.MMOL, WeightUnit.G);
-        MULTIPLY_TABLE.put(MolWeightUnit.G_PER_MOL, MolUnit.UMOL, WeightUnit.MG);
-        MULTIPLY_TABLE.put(DensityUnit.G_ML, VolumeUnit.ML, WeightUnit.G);
-        MULTIPLY_TABLE.put(DensityUnit.G_ML, VolumeUnit.L, WeightUnit.KG);
-        MULTIPLY_TABLE.put(MolarityUnit.M, VolumeUnit.L, MolUnit.MOL);
-        MULTIPLY_TABLE.put(MolarityUnit.MM, VolumeUnit.L, MolUnit.MMOL);
-        MULTIPLY_TABLE.put(MolarityUnit.M, VolumeUnit.ML, MolUnit.MOL);
-        MULTIPLY_TABLE.put(MolarityUnit.MM, VolumeUnit.ML, MolUnit.MMOL);
+        MULTIPLY_TABLE.put(M, L, new UnitAndMultiplier(MOL, 1));
+        MULTIPLY_TABLE.put(MM, L, new UnitAndMultiplier(MMOL, 1));
+        MULTIPLY_TABLE.put(M, ML, new UnitAndMultiplier(MMOL, 1));
+        MULTIPLY_TABLE.put(MM, ML, new UnitAndMultiplier(UMOL, 1));
+        MULTIPLY_TABLE.put(G_PER_MOL, MOL, new UnitAndMultiplier(G, 1));
+        MULTIPLY_TABLE.put(G_PER_MOL, MMOL, new UnitAndMultiplier(MG, 1));
+        MULTIPLY_TABLE.put(G_PER_MOL, UMOL, new UnitAndMultiplier(MG, 1e-3));
+        MULTIPLY_TABLE.put(G_ML, ML, new UnitAndMultiplier(G, 1));
+        MULTIPLY_TABLE.put(G_ML, L, new UnitAndMultiplier(KG, 1));
 
-        DIVIDE_TABLE.put(WeightUnit.G, MolUnit.MOL, MolWeightUnit.G_PER_MOL);
-        DIVIDE_TABLE.put(WeightUnit.G, MolUnit.MMOL, MolWeightUnit.G_PER_MOL);
-        DIVIDE_TABLE.put(WeightUnit.G, MolUnit.UMOL, MolWeightUnit.G_PER_MOL);
-        DIVIDE_TABLE.put(WeightUnit.MG, MolUnit.MOL, MolWeightUnit.G_PER_MOL);
-        DIVIDE_TABLE.put(WeightUnit.MG, MolUnit.MMOL, MolWeightUnit.G_PER_MOL);
-        DIVIDE_TABLE.put(WeightUnit.MG, MolUnit.UMOL, MolWeightUnit.G_PER_MOL);
-        DIVIDE_TABLE.put(WeightUnit.KG, MolUnit.MOL, MolWeightUnit.G_PER_MOL);
-        DIVIDE_TABLE.put(WeightUnit.KG, MolUnit.MMOL, MolWeightUnit.G_PER_MOL);
-        DIVIDE_TABLE.put(WeightUnit.KG, MolUnit.UMOL, MolWeightUnit.G_PER_MOL);
-        DIVIDE_TABLE.put(WeightUnit.G, MolWeightUnit.G_PER_MOL, MolUnit.MMOL);
-        DIVIDE_TABLE.put(WeightUnit.MG, MolWeightUnit.G_PER_MOL, MolUnit.UMOL);
-        DIVIDE_TABLE.put(WeightUnit.KG, MolWeightUnit.G_PER_MOL, MolUnit.MOL);
-        DIVIDE_TABLE.put(WeightUnit.G, VolumeUnit.ML, DensityUnit.G_ML);
-        DIVIDE_TABLE.put(WeightUnit.G, VolumeUnit.L, DensityUnit.G_ML);
-        DIVIDE_TABLE.put(WeightUnit.MG, VolumeUnit.ML, DensityUnit.G_ML);
-        DIVIDE_TABLE.put(WeightUnit.MG, VolumeUnit.L, DensityUnit.G_ML);
-        DIVIDE_TABLE.put(WeightUnit.KG, VolumeUnit.ML, DensityUnit.G_ML);
-        DIVIDE_TABLE.put(WeightUnit.KG, VolumeUnit.L, DensityUnit.G_ML);
-        DIVIDE_TABLE.put(MolUnit.MOL, VolumeUnit.L, MolarityUnit.M);
-        DIVIDE_TABLE.put(MolUnit.MMOL, VolumeUnit.L, MolarityUnit.MM);
-        DIVIDE_TABLE.put(MolUnit.UMOL, VolumeUnit.L, MolarityUnit.MM);
-        DIVIDE_TABLE.put(MolUnit.MOL, VolumeUnit.ML, MolarityUnit.M);
-        DIVIDE_TABLE.put(MolUnit.MMOL, VolumeUnit.ML, MolarityUnit.MM);
-        DIVIDE_TABLE.put(MolUnit.UMOL, VolumeUnit.ML, MolarityUnit.MM);
+        DIVIDE_TABLE.put(MG, G_PER_MOL, new UnitAndMultiplier(MMOL, 1));
+        DIVIDE_TABLE.put(G, G_PER_MOL, new UnitAndMultiplier(MOL, 1));
+        DIVIDE_TABLE.put(KG, G_PER_MOL, new UnitAndMultiplier(MOL, 1000));
+        DIVIDE_TABLE.put(MG, G_ML, new UnitAndMultiplier(ML, 1e-3));
+        DIVIDE_TABLE.put(G, G_ML, new UnitAndMultiplier(ML, 1));
+        DIVIDE_TABLE.put(KG, G_ML, new UnitAndMultiplier(L, 1));
+        DIVIDE_TABLE.put(UMOL, MM, new UnitAndMultiplier(ML, 1));
+        DIVIDE_TABLE.put(UMOL, M, new UnitAndMultiplier(ML, 1e-3));
+        DIVIDE_TABLE.put(MMOL, MM, new UnitAndMultiplier(ML, 1000));
+        DIVIDE_TABLE.put(MMOL, M, new UnitAndMultiplier(ML, 1));
+        DIVIDE_TABLE.put(MOL, MM, new UnitAndMultiplier(L, 1000));
+        DIVIDE_TABLE.put(MOL, M, new UnitAndMultiplier(L, 1));
     }
 
     public static UnitAndMultiplier2 addOrSubtract(MeasurementUnit left, MeasurementUnit right) {
+        Preconditions.checkArgument(left.getClass().equals(right.getClass()), "Inconvertible units: %s and %s", left, right);
         double multiplierLeft = left.getMultiplier() / right.getMultiplier();
         return new UnitAndMultiplier2(right, multiplierLeft, 1.0);
     }
 
     public static UnitAndMultiplier multiply(MeasurementUnit left, MeasurementUnit right) {
-        MeasurementUnit target = MULTIPLY_TABLE.get(left, right);
+        if (left instanceof NoUnit) {
+            return new UnitAndMultiplier(right, 1.0);
+        }
+        if (right instanceof NoUnit) {
+            return new UnitAndMultiplier(left, 1.0);
+        }
+        UnitAndMultiplier target = MULTIPLY_TABLE.get(left, right);
         if (target == null) {
             target = MULTIPLY_TABLE.get(right, left);
-        }
-        if (target == null && left instanceof NoUnit) {
-            target = right;
-        }
-        if (target == null && right instanceof NoUnit) {
-            target = left;
         }
         if (target == null) {
             throw new IllegalArgumentException("Cannot multiply units: " + left + " and " + right);
         }
-        double multiplier = left.getMultiplier() * right.getMultiplier() / target.getMultiplier();
-        return new UnitAndMultiplier(target, multiplier);
+        return target;
     }
 
     public static UnitAndMultiplier divide(MeasurementUnit left, MeasurementUnit right) {
-        MeasurementUnit target = DIVIDE_TABLE.get(left, right);
-        if (target == null && right instanceof NoUnit) {
-            target = left;
+        if (left == right) {
+            return new UnitAndMultiplier(NO_UNIT, 1.0);
         }
-        if (target == null && left.getClass().equals(right.getClass())) {
-            target = NoUnit.NO_UNIT;
+        if (right instanceof NoUnit) {
+            return new UnitAndMultiplier(left, 1.0);
         }
+        if (left.getClass().equals(right.getClass())) {
+            return new UnitAndMultiplier(NO_UNIT, left.getMultiplier() / right.getMultiplier());
+        }
+        UnitAndMultiplier target = DIVIDE_TABLE.get(left, right);
         if (target == null) {
             throw new IllegalArgumentException("Cannot divide units: " + left + " and " + right);
         }
-        double multiplier = left.getMultiplier() / right.getMultiplier() / target.getMultiplier();
-        return new UnitAndMultiplier(target, multiplier);
+        return target;
     }
 
     public static boolean nearlyEqual(double a, double b, double epsilon) {
