@@ -29,7 +29,7 @@ public class ExperimentModelSerializationTest {
         input1.setCompound(new CompoundRef.Stored(UUID.randomUUID(), EnteredValue.fixed(1.0, MolWeightUnit.G_PER_MOL), 1.1, "C", new STRCodeCompound(1, 0)));
         input1.setEq(EnteredValue.userLastEntered(10.0, NoUnit.NO_UNIT));
         ReactionInput input2 = ReactionInput.create(reaction, ReactionRole.REACTANT);
-        input2.setCompound(new CompoundRef.Virtual(UUID.randomUUID(), "C", 1.0, 1.1));
+        input2.setCompound(new CompoundRef.Virtual(UUID.randomUUID(), "C", null, null, null, EnteredValue.fixed(1.0, MolWeightUnit.G_PER_MOL), 1.1));
         ReactionInput input3 = ReactionInput.create(reaction, ReactionRole.REACTANT);
         input3.setCompound(new CompoundRef.Unknown());
         ReactionInputSample inputSample1 = ReactionInputSample.create(input1);
@@ -37,7 +37,7 @@ public class ExperimentModelSerializationTest {
         reaction.setInputs(List.of(input1, input2, input3));
 
         ReactionOutput output = ReactionOutput.create(reaction, ReactionOutputType.FINAL);
-        output.setCompound(new CompoundRef.Virtual(UUID.randomUUID(), "C", 2.0, 2.2));
+        output.setCompound(new CompoundRef.Virtual(UUID.randomUUID(), "C", null, null, null, EnteredValue.fixed(2.0, MolWeightUnit.G_PER_MOL), 2.2));
         ReactionOutputSample outputSample = ReactionOutputSample.create("00000000-0000", output);
         output.setSamples(List.of(outputSample));
         reaction.setOutputs(List.of(output));

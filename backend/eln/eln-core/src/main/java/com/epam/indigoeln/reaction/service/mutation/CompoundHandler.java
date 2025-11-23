@@ -16,6 +16,8 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import org.jspecify.annotations.Nullable;
 
+import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
+
 @Dependent
 public class CompoundHandler extends AbstractMutationHandler {
 
@@ -32,6 +34,7 @@ public class CompoundHandler extends AbstractMutationHandler {
     }
 
     public void handle(ReactionInput row, ReactionInputMutation.SetInputRowSaltEQ mutation) {
+        validate(row.getCompound().getSaltCode() != null, "Cannot set saltEQ because saltCode is not set");
         row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, row.getCompound().getSaltCode(), mutation.saltEQ(), row.getCompound().getStereoisomerCode()));
     }
 
@@ -41,6 +44,7 @@ public class CompoundHandler extends AbstractMutationHandler {
     }
 
     public void handle(ReactionOutput row, ReactionOutputMutation.SetOutputRowSaltEQ mutation) {
+        validate(row.getCompound().getSaltCode() != null, "Cannot set saltEQ because saltCode is not set");
         row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, row.getCompound().getSaltCode(), mutation.saltEQ(), row.getCompound().getStereoisomerCode()));
     }
 
@@ -72,9 +76,9 @@ public class CompoundHandler extends AbstractMutationHandler {
         switch (row.getCompound()) {
             case CompoundRef.Virtual v -> {
                 // normalize saltEQ
-                if (v.getSaltCode() != null && v.getSaltEQ() == null) {
+                if (saltCode != null && saltEQ == null) {
                     saltEQ = 1.0;
-                } else if (v.getSaltCode() == null) {
+                } else if (saltCode == null) {
                     saltEQ = null;
                 }
                 CompoundEntity compound = compoundService.getCompound(v.getCompoundID());

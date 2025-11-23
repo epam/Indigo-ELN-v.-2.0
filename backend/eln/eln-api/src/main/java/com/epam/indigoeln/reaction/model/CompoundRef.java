@@ -11,10 +11,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.MoreObjects;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
@@ -94,6 +91,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
 
     @Getter
     @EqualsAndHashCode(of = {"compoundID"})
+    @AllArgsConstructor(onConstructor_ = @JsonCreator)
     final class Virtual implements CompoundRef {
 
         public static final String TYPE = "virtual";
@@ -119,20 +117,6 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
 
         @NotNull
         private Double exactMass;
-
-        public Virtual(UUID compoundID, String formula, Double molWeight, Double exactMass) {
-            this(compoundID, formula, EnteredValue.fixed(molWeight, MolWeightUnit.G_PER_MOL), null, null, null);
-        }
-
-        @JsonCreator
-        Virtual(UUID compoundID, String formula, EnteredValue<MolWeightUnit> molWeight, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
-            this.compoundID = compoundID;
-            this.formula = formula;
-            this.molWeight = molWeight;
-            this.stereoisomerCode = stereoisomerCode;
-            this.saltCode = saltCode;
-            this.saltEQ = saltEQ;
-        }
 
         @Override
         @Nullable

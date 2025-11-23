@@ -6,10 +6,7 @@ import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.TextSearch;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.reaction.model.Anchor;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
-import com.epam.indigoeln.reaction.model.ReactionInput;
-import com.epam.indigoeln.reaction.model.ReactionRole;
+import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
@@ -23,6 +20,7 @@ import io.quarkus.test.security.TestSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
+import org.assertj.core.data.Offset;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
@@ -33,6 +31,7 @@ import java.util.*;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
@@ -128,6 +127,20 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
             });
             applyMutation(mutation);
             input1Sample1Anchor = model.getReactions().getFirst().getInputs().get(0).getSamples().get(0).getAnchor();
+        }
+
+        @Test
+        @Order(210)
+        void testSetInputRowSaltCode() {
+            ReactionInputMutation.SetInputRowSaltCode mutation = new ReactionInputMutation.SetInputRowSaltCode(input2Anchor, dictionaryClient.getSaltCodes().getFirst());
+            applyMutation(mutation);
+        }
+
+        @Test
+        @Order(211)
+        void testSetInputRowSaltEQ() {
+            ReactionInputMutation.SetInputRowSaltEQ mutation = new ReactionInputMutation.SetInputRowSaltEQ(input2Anchor, 2.0);
+            applyMutation(mutation);
         }
 
         @Test
@@ -300,6 +313,28 @@ public class ExperimentModelServiceTest extends ELNBaseTest {
         assertThatClientCall(() -> {
             experimentClient.mutateExperimentModel2Raw(experiment.getId(), model.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"invalid\"}");
         }).isBadRequest("Cannot construct instance of `com.epam.indigoeln.reaction.model.Anchor");
+    }
+
+    @Test
+    @Order(10_300)
+    void testSetInputRowSaltCodeAndEQ() {
+        reportBuilder = new CalculationReportBuilder(new File("calculations-testSetInputRowSaltCodeAndEQ.html"));
+        experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        model = experimentClient.getExperimentModel(experiment.getId());
+        reactionAnchor = model.getReactions().getFirst().getAnchor();
+        String molFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
+        applyMutation(new ReactionMutation.SetScheme(reactionAnchor, molFile));
+        Anchor.Input input1Anchor = model.getReactions().getFirst().getInputs().getFirst().getAnchor();
+        DictionaryItemRef saltCode = dictionaryClient.getSaltCodes().getFirst();
+        applyMutation(new ReactionInputMutation.SetInputRowSaltCode(input1Anchor, saltCode));
+        ReactionInput input = model.locate(input1Anchor);
+        assertThat(input.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
+        assertThat(input.getCompound().getSaltCode()).extracting(SaltCodeRef::getId, SaltCodeRef::getName).contains(saltCode.getId(), saltCode.getName());
+        applyMutation(new ReactionInputMutation.SetInputRowSaltEQ(input1Anchor, 2.0));
+        input = model.locate(input1Anchor);
+        assertThat(input.getCompound().getSaltCode()).extracting(SaltCodeRef::getId, SaltCodeRef::getName).contains(saltCode.getId(), saltCode.getName());
+        assertThat(input.getCompound().getSaltEQ()).isCloseTo(2.0, Offset.offset(1e-6));
+        reportBuilder.close();
     }
 
     @SneakyThrows
