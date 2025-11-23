@@ -48,6 +48,9 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     @Nullable
     Double getExactMass();
 
+    @Nullable
+    String getCasNumber();
+
     @Getter
     @RequiredArgsConstructor
     @EqualsAndHashCode(of = {"compoundID"})
@@ -78,6 +81,9 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
 
         @Nullable
         private final STRCodeCompound strCode;
+
+        @Nullable
+        private final String casNumber;
 
         @Override
         public String toString() {
@@ -117,6 +123,9 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
 
         @NotNull
         private Double exactMass;
+
+        @Nullable
+        private final String casNumber;
 
         @Override
         @Nullable
@@ -189,6 +198,13 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Nullable
         @JsonIgnore
         public Double getExactMass() {
+            return null;
+        }
+
+        @Override
+        @Nullable
+        @JsonIgnore
+        public String getCasNumber() {
             return null;
         }
     }
