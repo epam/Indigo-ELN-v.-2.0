@@ -18,6 +18,7 @@ dependencies {
     api("org.jspecify:jspecify:1.0.0")
     api("org.jetbrains:annotations:26.0.2-1")
     api("com.google.guava:guava:33.5.0-jre")
+    api("org.apache.commons:commons-math3:3.6.1")
     api("one.util:streamex:0.8.4")
 
     testImplementation(project(":common:common-test"))
