@@ -11,13 +11,16 @@ phases:
   build:
     commands:
       - cd backend
-      - ./gradlew build :integrationTests:quarkusIntTest --info
+      - ./gradlew build :integrationTests:quarkusIntTest --info --profile
   post_build:
     commands:
       - docker tag indigoeln/eln-lambda:built $ELN_REPO_URI:latest
       - docker tag indigoeln/eln-lambda:built $ELN_REPO_URI:$IMAGE_TAG
       - docker push $ELN_REPO_URI:latest
       - docker push $ELN_REPO_URI:$IMAGE_TAG
+      - tar czf build_profile_$IMAGE_TAG.tgz build/reports/profile
+      - echo "aws s3 cp build_profile_$IMAGE_TAG.tgz s3://$S3_LOGS/build_profile_$IMAGE_TAG.tgz"
+      - aws s3 cp build_profile_$IMAGE_TAG.tgz s3://$S3_LOGS/build_profile_$IMAGE_TAG.tgz
 reports:
   unit_tests:
     files:

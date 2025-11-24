@@ -120,7 +120,7 @@ public class CloudFrontStack extends NestedStack {
                 .build()
         );
 
-        File frontendCode = new File("/home/user/Work/indigoeln-angular19/indigo-frontend/dist/indigo-frontend/browser");
+        File frontendCode = new File("/home/user/Work/indigoeln-frontend/indigo-frontend/dist/indigo-frontend/browser");
         BucketDeployment frontendDeployment = BucketDeployment.Builder.create(this, "eln-frontend-s3-deployment")
                 .sources(List.of(Source.asset(frontendCode.getPath(), AssetOptions.builder().assetHash(Utils.calculateHashCode(frontendCode)).build())))
                 .destinationBucket(frontendCodeS3)
