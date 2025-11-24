@@ -3,7 +3,6 @@ package com.epam.indigoeln.common.config;
 import io.quarkus.runtime.configuration.ConfigUtils;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.annotation.Nullable;
-import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;

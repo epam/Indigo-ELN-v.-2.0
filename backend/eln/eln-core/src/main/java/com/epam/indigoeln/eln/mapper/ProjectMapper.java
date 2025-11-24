@@ -7,14 +7,11 @@ import com.epam.indigoeln.eln.model.ProjectDTO;
 import com.epam.indigoeln.eln.model.ProjectDetailsDTO;
 import com.epam.indigoeln.eln.model.ProjectRequest;
 import com.epam.indigoeln.eln.model.TotalCounts;
-import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.ReportingPolicy;
-
-import java.util.List;
 
 
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR, nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)

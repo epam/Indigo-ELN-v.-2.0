@@ -4,7 +4,6 @@ import com.epam.indigoeln.common.exception.AccessDeniedException;
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.common.exception.IncorrectRevisionException;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.ConstraintViolation;
@@ -21,7 +20,6 @@ import one.util.streamex.StreamEx;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
-import java.rmi.ServerException;
 import java.util.Arrays;
 import java.util.List;
 

@@ -2,8 +2,6 @@ package com.epam.indigoeln.common.exception;
 
 import org.jspecify.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.UUID;
 
 public class AccessDeniedException extends RuntimeException {

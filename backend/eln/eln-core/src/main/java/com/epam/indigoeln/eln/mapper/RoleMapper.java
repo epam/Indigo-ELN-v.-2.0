@@ -1,8 +1,9 @@
 package com.epam.indigoeln.eln.mapper;
 
 import com.epam.indigoeln.eln.entity.RoleEntity;
-import com.epam.indigoeln.eln.entity.UserEntity;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.RoleDTO;
+import com.epam.indigoeln.eln.model.RoleRef;
+import com.epam.indigoeln.eln.model.RoleRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;

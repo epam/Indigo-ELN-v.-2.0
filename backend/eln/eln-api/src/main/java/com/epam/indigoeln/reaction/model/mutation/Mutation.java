@@ -2,7 +2,6 @@ package com.epam.indigoeln.reaction.model.mutation;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.graalvm.webimage.api.JS;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.SIMPLE_NAME, property = "type")
 @JsonSubTypes({

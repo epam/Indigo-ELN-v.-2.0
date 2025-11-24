@@ -7,7 +7,6 @@ import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.Page;
 import com.epam.indigoeln.eln.model.Paging;
-import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.CompoundRef;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.SaltCodeRef;

@@ -18,7 +18,6 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;

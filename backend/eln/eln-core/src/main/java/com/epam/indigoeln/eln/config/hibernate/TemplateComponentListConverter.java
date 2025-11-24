@@ -1,7 +1,6 @@
 package com.epam.indigoeln.eln.config.hibernate;
 
 import com.epam.indigoeln.eln.model.TemplateComponent;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;

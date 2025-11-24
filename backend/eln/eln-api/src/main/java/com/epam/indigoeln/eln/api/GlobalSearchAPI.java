@@ -1,11 +1,11 @@
 package com.epam.indigoeln.eln.api;
 
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.GlobalSearchRequest;
+import com.epam.indigoeln.eln.model.GlobalSearchResultDTO;
+import com.epam.indigoeln.eln.model.Page;
+import com.epam.indigoeln.eln.model.Paging;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-
-import java.util.List;
-import java.util.UUID;
 
 @Path(BaseAPI.BASE_PATH)
 @Consumes(MediaType.APPLICATION_JSON)

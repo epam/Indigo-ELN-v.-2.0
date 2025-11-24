@@ -4,7 +4,6 @@ import com.epam.indigoeln.eln.model.*;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
-import java.util.Dictionary;
 import java.util.List;
 import java.util.UUID;
 

@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotEmpty;

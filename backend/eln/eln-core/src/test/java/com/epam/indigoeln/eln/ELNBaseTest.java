@@ -2,18 +2,16 @@ package com.epam.indigoeln.eln;
 
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.service.GlobalSearchService;
 import com.epam.indigoeln.reports.api.ReportsClient;
 import com.epam.indigoeln.test.BaseTest;
-import com.epam.indigoeln.test.FeignUtil;
 import io.quarkus.test.junit.QuarkusMock;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jspecify.annotations.Nullable;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
 
-import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;

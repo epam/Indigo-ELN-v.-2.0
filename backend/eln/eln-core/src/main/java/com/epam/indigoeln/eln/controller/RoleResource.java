@@ -1,14 +1,13 @@
 package com.epam.indigoeln.eln.controller;
 
 
-import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.api.BaseAPI;
 import com.epam.indigoeln.eln.api.RoleAPI;
-import com.epam.indigoeln.eln.api.UserAPI;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.RoleDTO;
+import com.epam.indigoeln.eln.model.RoleEditRequest;
+import com.epam.indigoeln.eln.model.RoleRef;
+import com.epam.indigoeln.eln.model.RoleRequest;
 import com.epam.indigoeln.eln.service.RoleService;
-import com.epam.indigoeln.eln.service.UserService;
-import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

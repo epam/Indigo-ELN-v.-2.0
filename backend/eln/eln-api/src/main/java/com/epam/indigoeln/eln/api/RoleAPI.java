@@ -1,7 +1,9 @@
 package com.epam.indigoeln.eln.api;
 
-import com.epam.indigoeln.eln.model.*;
-import jakarta.annotation.Nullable;
+import com.epam.indigoeln.eln.model.RoleDTO;
+import com.epam.indigoeln.eln.model.RoleEditRequest;
+import com.epam.indigoeln.eln.model.RoleRef;
+import com.epam.indigoeln.eln.model.RoleRequest;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
