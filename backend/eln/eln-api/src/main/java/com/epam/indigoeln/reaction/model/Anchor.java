@@ -23,7 +23,15 @@ public abstract class Anchor {
 
     protected Anchor(String prefix, String str) {
         this.str = str;
-        this.number = Integer.parseInt(str.substring(prefix.length()));
+        int number = -1;
+        try {
+            number = Integer.parseInt(str.substring(prefix.length()));
+        } catch (Exception ignore) {
+        }
+        if (number < 0 || !str.startsWith(prefix)) {
+            throw new IllegalArgumentException("Invalid anchor: " + str);
+        }
+        this.number = number;
     }
 
     @Override
