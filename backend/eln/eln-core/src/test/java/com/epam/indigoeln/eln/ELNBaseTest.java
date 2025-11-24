@@ -109,6 +109,13 @@ public abstract class ELNBaseTest extends BaseTest {
         cleanupDatabase();
     }
 
+    protected ProjectDetailsDTO getOrCreateProject(String projectName) {
+        Page<ProjectDTO> existingProjects = projectClient.getProjects(projectName, SortOrder.EARLIEST, null, Paging.DEFAULT);
+        return existingProjects.getItems().isEmpty()
+                ? projectClient.createProject(new ProjectRequest(projectName))
+                : projectClient.getProject(existingProjects.getItems().getFirst().getId());
+    }
+
     protected String nextNotebookName() {
         return "%08d".formatted(++lastUsedNotebookNumber);
     }

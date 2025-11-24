@@ -2,6 +2,7 @@ package com.epam.indigoeln.reaction.model.mutation;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.graalvm.webimage.api.JS;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.SIMPLE_NAME, property = "type")
 @JsonSubTypes({
@@ -17,6 +18,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowSaltCode.class),
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowSaltEQ.class),
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowEQ.class),
+        @JsonSubTypes.Type(ReactionInputMutation.SetInputCompoundStereoisomerCode.class),
+        @JsonSubTypes.Type(ReactionInputMutation.SetInputCompoundMolWeight.class),
 
         @JsonSubTypes.Type(ReactionInputSampleMutation.SetInputDensity.class),
         @JsonSubTypes.Type(ReactionInputSampleMutation.SetInputMolarity.class),
@@ -25,12 +28,16 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionInputSampleMutation.SetInputHealthHazards.class),
         @JsonSubTypes.Type(ReactionInputSampleMutation.SetInputMol.class),
         @JsonSubTypes.Type(ReactionInputSampleMutation.SetInputWeight.class),
+        @JsonSubTypes.Type(ReactionInputSampleMutation.SetInputComment.class),
 
         @JsonSubTypes.Type(ReactionOutputMutation.AddProductSample.class),
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowType.class),
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowSaltCode.class),
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowSaltEQ.class),
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowEQ.class),
+        @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowName.class),
+        @JsonSubTypes.Type(ReactionOutputMutation.SetOutputCompoundStereoisomerCode.class),
+        @JsonSubTypes.Type(ReactionOutputMutation.SetOutputCompoundMolWeight.class),
 
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputDensity.class),
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputMolarity.class),
