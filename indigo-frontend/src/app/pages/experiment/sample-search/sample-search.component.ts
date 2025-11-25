@@ -1,4 +1,3 @@
-import { FormDialogComponent } from '@/core/components/common/form-dialog/form-dialog.component';
 import { CommonModule } from '@angular/common';
 import {
   Component,
@@ -6,6 +5,9 @@ import {
   inject,
   OnInit,
   ViewChild,
+  Input,
+  Output,
+  EventEmitter,
 } from '@angular/core';
 import {
   FormControl,
@@ -13,7 +15,7 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { InputComponent } from '@core/components/common/input/input.component';
 import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
@@ -59,21 +61,17 @@ import { ExperimentModelService } from '@core/services/experiment/experiment-mod
 import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { distinctUntilChanged } from 'rxjs';
 import { map } from 'rxjs/operators';
-
-export interface SampleSearchDialogData {
-  experimentId: UUID;
-  reactionAnchor: ReactionAnchor;
-}
+import { MatTab, MatTabGroup } from '@angular/material/tabs';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   standalone: true,
-  selector: 'eln-project-add',
+  selector: 'eln-sample-search',
   imports: [
     MatInputModule,
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
-    FormDialogComponent,
     InputComponent,
     MatRadioGroup,
     MatRadioButton,
@@ -92,11 +90,17 @@ export interface SampleSearchDialogData {
     InfiniteLoaderComponent,
     MatTooltip,
     ToggleComponent,
+    MatTabGroup,
+    MatTab,
+    MatIcon,
   ],
   templateUrl: './sample-search.component.html',
 })
 export class SampleSearchComponent implements OnInit {
-  data: SampleSearchDialogData = inject(MAT_DIALOG_DATA);
+  @Input() experimentId: UUID;
+  @Input() reactionAnchor: ReactionAnchor;
+
+  @Output() close = new EventEmitter<void>();
 
   loader: InfiniteSearchLoader<FindSamplesRequest, Sample>;
 
@@ -155,7 +159,7 @@ export class SampleSearchComponent implements OnInit {
       .subscribe((list) => {
         this.healthHazardsOptions = list;
       });
-    // when user (de)selects "Only My Materials" when search was already triggered, reload search results
+
     this.form.valueChanges
       .pipe(
         map((form) => form.marked),
@@ -248,16 +252,19 @@ export class SampleSearchComponent implements OnInit {
       model: this.experimentModelService.experimentModel(),
       mutation: {
         type: 'AddInput',
-        anchor: this.data.reactionAnchor,
+
+        anchor: this.reactionAnchor,
         sampleId: sample.id,
       },
     };
 
     this.experimentModelService
-      .updateDataModel(this.data.experimentId, payload)
+      .updateDataModel(this.experimentId, payload)
       .subscribe({
         next: () => {
           console.log('Model updated with new sample');
+
+          this.close.emit();
         },
         error: (error) => {
           console.error('Failed to update experiment model:', error);
