@@ -165,14 +165,20 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @NotNull
     @ElementCollection
     @CollectionTable(name = "Experiment_Referenced_Compound", joinColumns = @JoinColumn(name = "experiment_id"))
-    @Column(name = "compound_id")
-    private Set<UUID> referencedCompounds = new HashSet<>(0);
+    private Set<ExperimentReferencedCompound> referencedCompounds = new HashSet<>(0);
 
     @NotNull
     @ElementCollection
     @CollectionTable(name = "Experiment_Referenced_Dictionary_Item", joinColumns = @JoinColumn(name = "experiment_id"))
     @Column(name = "dictionary_item_id")
     private Set<UUID> referencedDictionaryItemIDs = new HashSet<>(0);
+
+    @NotNull
+    @ElementCollection
+    @CollectionTable(name = "Experiment_Rxnfile", joinColumns = @JoinColumn(name = "experiment_id"))
+    @Column(name = "rxnfile")
+    @OrderColumn(name = "ordinal")
+    private List<String> rxnfiles = new ArrayList<>(0);
 
     @Override
     public void insertACL(UserEntity user, AccessLevel access, Boolean inherited) {

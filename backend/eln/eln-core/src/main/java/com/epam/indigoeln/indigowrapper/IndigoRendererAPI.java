@@ -2,7 +2,6 @@ package com.epam.indigoeln.indigowrapper;
 
 import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoRenderer;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

@@ -7,6 +7,7 @@ import com.google.common.base.Preconditions;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.math3.util.Precision;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -121,7 +122,7 @@ public final class EnteredValue<U extends MeasurementUnit> {
         Preconditions.checkArgument(unit.getClass().equals(other.unit.getClass()), "Non-comparable units: %s and %s", unit, other.unit);
         double thisValue = value * unit.getMultiplier();
         double otherValue = other.value * other.unit.getMultiplier();
-        return MeasurementUtil.nearlyEqual(thisValue, otherValue, 0.0001);
+        return Precision.equalsWithRelativeTolerance(thisValue, otherValue, 1e-6);
     }
 
     public <T extends MeasurementUnit> EnteredValue<T> cast() {

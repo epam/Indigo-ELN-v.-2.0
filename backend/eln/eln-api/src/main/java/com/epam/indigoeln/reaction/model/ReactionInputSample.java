@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.model;
 
+import com.epam.indigoeln.eln.model.NbkBatchNumber;
 import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
 import com.epam.indigoeln.reaction.model.patch.ReactionInputSamplePatch;
 import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
@@ -42,6 +43,9 @@ public final class ReactionInputSample extends ReactionSample implements Experim
 
     @Nullable
     private String chemicalName;
+
+    @Nullable
+    private NbkBatchNumber nbkBatchNumber;
 
     @Nullable
     private EnteredValue<MolUnit> mol;

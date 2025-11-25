@@ -23,7 +23,6 @@ import net.sf.jasperreports.repo.ReportResource;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.Instant;

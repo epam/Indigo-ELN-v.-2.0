@@ -44,7 +44,7 @@ public class FeignUtil {
                 .client(new ApacheHttpClient())
                 .options(new Request.Options(Duration.ofSeconds(1), Duration.ofSeconds(29), false))
                 .contract(new JAXRS3Contract())
-                .encoder(new FormEncoder(new JacksonEncoder(OBJECT_MAPPER)))
+                .encoder(new RequestEncoder(new FormEncoder(new JacksonEncoder(OBJECT_MAPPER))))
                 .decoder(new ResponseDecoder(new JacksonDecoder(OBJECT_MAPPER)))
                 .requestInterceptor(request -> {
                     extractParam(request, "pageNo", "pageNo=", ",");

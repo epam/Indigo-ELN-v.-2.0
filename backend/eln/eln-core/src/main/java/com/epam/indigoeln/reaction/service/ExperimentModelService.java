@@ -2,6 +2,7 @@ package com.epam.indigoeln.reaction.service;
 
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.entity.ExperimentReferencedCompound;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
@@ -61,7 +62,7 @@ public class ExperimentModelService {
     @Valid
     public ExperimentModel applyMutation(ExperimentEntity experiment, ExperimentModel model, Mutation mutation) {
         Set<DictionaryItemRef> previousDictionaryRefs = model.collectDictionaryRefs();
-        Set<CompoundRef> previousCompoundRefs = model.collectCompoundRefs();
+        Set<Pair<ReactionRole, CompoundRef>> previousCompoundRefs = model.collectCompoundRefs();
         Map<Anchor.Reaction, String> previousRxnFiles = StreamEx.of(model.getReactions()).toMap(Reaction::getAnchor, Reaction::getRxnfile);
         model.prepareToRecalculate();
 
@@ -152,8 +153,10 @@ public class ExperimentModelService {
         model.setRevision(model.getRevision() + 1);
         reactionCalculator.recalculate(model);
 
+        boolean anyRxnfileChanged = false;
         for (Reaction reaction : model.getReactions()) {
             if (!reaction.getRxnfile().equals(previousRxnFiles.get(reaction.getAnchor())) || !handler.getAffectedRoles().isEmpty()) {
+                anyRxnfileChanged = true;
                 IndigoReaction indigoReaction = reaction.getRxnfile().isEmpty() ? indigoAPI.createReaction() : indigoAPI.loadReaction(reaction.getRxnfile());
                 if (!handler.getAffectedRoles().isEmpty()) {
                     experimentModelHelperService.rebuildReactionRxnFile(experiment, reaction, handler.getAffectedRoles(), indigoReaction);
@@ -162,9 +165,20 @@ public class ExperimentModelService {
                 reaction.setRxnVersion(reaction.getRxnVersion() + 1);
             }
         }
-        Set<CompoundRef> currentCompoundRefs = model.collectCompoundRefs();
+        if (anyRxnfileChanged) {
+            List<String> rxnFiles = StreamEx.of(model.getReactions())
+                    .map(Reaction::getRxnfile)
+                    .remove(String::isEmpty)
+                    .toList();
+            experiment.setRxnfiles(rxnFiles);
+        }
+
+        Set<Pair<ReactionRole, CompoundRef>> currentCompoundRefs = model.collectCompoundRefs();
         if (!previousCompoundRefs.equals(currentCompoundRefs)) {
-            Set<UUID> ids = StreamEx.of(currentCompoundRefs).map(CompoundRef::getCompoundID).nonNull().toSet();
+            Set<ExperimentReferencedCompound> ids = StreamEx.of(currentCompoundRefs)
+                    .filter(p -> p.b().getCompoundID() != null)
+                    .map(p -> new ExperimentReferencedCompound(p.a(), p.b().getCompoundID()))
+                    .toSet();
             experiment.setReferencedCompounds(ids);
         }
         Set<DictionaryItemRef> currentDictionaryRefs = model.collectDictionaryRefs();
@@ -177,6 +191,6 @@ public class ExperimentModelService {
 
     private <H extends AbstractMutationHandler> Pair<AbstractMutationHandler, Runnable> resolve(Provider<H> provider, Consumer<H> operation) {
         H handler = provider.get();
-        return Pair.of(handler, () -> operation.accept((H) handler));
+        return Pair.of(handler, () -> operation.accept(handler));
     }
 }

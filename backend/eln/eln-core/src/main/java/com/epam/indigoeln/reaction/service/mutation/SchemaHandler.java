@@ -92,6 +92,7 @@ public class SchemaHandler extends AbstractMutationHandler {
         reactionInputSample.setHealthHazards(dictionaryMapper.itemToRefList(sample.getHealthHazards()));
         reactionInputSample.setComment(sample.getBatchComment());
         reactionInputSample.setChemicalName(sample.getChemicalName());
+        reactionInputSample.setNbkBatchNumber(sample.getNbkBatchNumber());
         row.setSamples(List.of(reactionInputSample));
 
         affectedRoles.add(row.getRole());

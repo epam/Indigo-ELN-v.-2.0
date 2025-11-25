@@ -1,10 +1,10 @@
 package com.epam.indigoeln.eln.api;
 
-import com.epam.indigoeln.eln.model.TotalCounts;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-
-import java.util.Map;
 
 @Path(BaseAPI.BASE_PATH)
 @Consumes(MediaType.APPLICATION_JSON)

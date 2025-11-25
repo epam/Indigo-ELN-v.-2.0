@@ -10,6 +10,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ElementKind;
 import jakarta.validation.Path;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -81,6 +82,13 @@ public class BackendExceptionMapper {
     public RestResponse<List<ErrorDTO>> toResponse(IncorrectRevisionException exception) {
         log.error(exception.getMessage());
         return buildResponse(Response.Status.CONFLICT, new ErrorDTO(exception.getMessage()));
+    }
+
+    @ServerExceptionMapper
+    public RestResponse<List<ErrorDTO>> toResponse(WebApplicationException exception) {
+        log.error("WebApplicationException", exception);
+        Throwable cause = exception.getCause() != null ? exception.getCause() : exception;
+        return buildResponse(exception.getResponse().getStatusInfo().toEnum(), new ErrorDTO(cause.getMessage()));
     }
 
     @SneakyThrows

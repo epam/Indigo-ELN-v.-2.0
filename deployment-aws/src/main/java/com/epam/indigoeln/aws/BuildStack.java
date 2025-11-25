@@ -76,13 +76,14 @@ public class BuildStack extends NestedStack {
                 , ecrPublicPermissions
                 , Utils.mapOf(
                         "REGISTRY_URI", elnLambdaRepo.getRegistryUri(),
-                        "ELN_REPO_URI", elnLambdaRepo.getRepositoryUri()
+                        "ELN_REPO_URI", elnLambdaRepo.getRepositoryUri(),
+                        "S3_LOGS", buildLogsBucket.getBucketName()
                 )
         );
         elnLambdaRepo.grantPullPush(elnBuild);
     }
 
-    private Project createBuild(String id, String projectName, Repository repository, String buildSpecFile, Bucket buildLogsBucket, PolicyStatement policy, Map<String, Object> environment) {
+    private Project createBuild(String id, String projectName, Repository repository, String buildSpecFile, Bucket buildLogsBucket, PolicyStatement policy, Map<String, String> environment) {
         Project project = Project.Builder.create(this, id)
                 .projectName(projectName)
                 .source(Source.gitHub(GitHubSourceProps.builder()
@@ -97,7 +98,7 @@ public class BuildStack extends NestedStack {
                         .privileged(true) // The 'privileged' flag is required for the CodeBuild project to build Docker images.
                         .build())
                 .environmentVariables(EntryStream.of(environment)
-                                .mapValues(v -> BuildEnvironmentVariable.builder().value(v.toString()).build())
+                                .mapValues(v -> BuildEnvironmentVariable.builder().value(v).build())
                                 .toCustomMap(LinkedHashMap::new)
                 )
                 // The BuildSpec defines the commands to run during the build.

@@ -1,7 +1,6 @@
 package com.epam.indigoeln.eln.util;
 
 import com.google.common.base.Preconditions;
-import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -11,54 +10,21 @@ public class Conditions {
 
     public static Conditions EMPTY = new Conditions();
 
-    private final List<List<String>> fields;
-    private final List<Object> values = new ArrayList<>();
+    private final List<String> fields = new ArrayList<>();
+    private final List<@Nullable Object> values = new ArrayList<>();
     private int paramNo = 0;
-    @Setter
-    private int slotNo = 0;
-
-    public Conditions() {
-        this(1);
-    }
-
-    public Conditions(int slotCount) {
-        fields = new ArrayList<>();
-        for (int i = 0; i < slotCount; i++) {
-            fields.add(new ArrayList<>());
-        }
-    }
 
     public Conditions add(String field) {
-        int p = field.indexOf('?');
-        Preconditions.checkArgument(p == -1, "no-parameter condition must not contain ? character: %s", field);
-        fields.get(slotNo).add(field);
+        fields.add(field);
         return this;
     }
 
     public Conditions add(String field, @Nullable Object value) {
-        return add(slotNo, field, value);
-    }
-
-    public Conditions add(int slotNo, String field, @Nullable Object value) {
         int p = field.indexOf('?');
         Preconditions.checkArgument(p != -1, "condition must contain ? character: %s", field);
         field = field.substring(0, p + 1) + (++paramNo) + field.substring(p + 1);
-        fields.get(slotNo).add(field);
+        fields.add(field);
         values.add(value);
-        return this;
-    }
-
-    public Conditions addIf(boolean condition, String field) {
-        if (condition) {
-            add(field);
-        }
-        return this;
-    }
-
-    public Conditions addIf(boolean condition, String field, Object value) {
-        if (condition) {
-            add(field, value);
-        }
         return this;
     }
 
@@ -70,11 +36,7 @@ public class Conditions {
     }
 
     public String getQuery() {
-        return getQuery(0);
-    }
-
-    public String getQuery(int slotNo) {
-        return fields.get(slotNo).isEmpty() ? "true" : String.join(" and ", fields.get(slotNo));
+        return fields.isEmpty() ? "true" : String.join(" and ", fields);
     }
 
     public Object[] getValues() {

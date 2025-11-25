@@ -1,12 +1,18 @@
 package com.epam.indigoeln.eln.model;
 
-import lombok.AllArgsConstructor;
+import com.epam.indigoeln.reaction.model.ReactionRole;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
+
+import java.util.Set;
 
 @Data
 public class GlobalSearchResultDTO extends BaseDTO {
 
     private EntityType type;
     private String name;
+    @Nullable
+    private String fragment;
+    @Nullable
+    private Set<ReactionRole> reactionRoles;
 }

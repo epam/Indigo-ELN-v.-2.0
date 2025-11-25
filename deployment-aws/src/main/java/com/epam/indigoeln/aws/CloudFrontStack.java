@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import software.amazon.awscdk.Fn;
 import software.amazon.awscdk.NestedStack;
 import software.amazon.awscdk.NestedStackProps;
+import software.amazon.awscdk.Size;
 import software.amazon.awscdk.services.apigatewayv2.IHttpApi;
 import software.amazon.awscdk.services.certificatemanager.Certificate;
 import software.amazon.awscdk.services.certificatemanager.CertificateValidation;
@@ -25,7 +26,6 @@ import software.amazon.awscdk.services.s3.assets.AssetOptions;
 import software.amazon.awscdk.services.s3.deployment.BucketDeployment;
 import software.amazon.awscdk.services.s3.deployment.Source;
 import software.amazon.awscdk.services.ssm.IStringParameter;
-import software.amazon.awscdk.services.ssm.StringParameter;
 import software.amazon.awscdk.services.wafv2.CfnWebACL;
 import software.amazon.awsconstructs.services.wafwebaclcloudfront.WafwebaclToCloudFront;
 import software.amazon.awsconstructs.services.wafwebaclcloudfront.WafwebaclToCloudFrontProps;
@@ -120,7 +120,7 @@ public class CloudFrontStack extends NestedStack {
                 .build()
         );
 
-        File frontendCode = new File("../indigo-frontend/dist/indigo-frontend/browser");
+        File frontendCode = new File("/home/user/Work/indigoeln-frontend/indigo-frontend/dist/indigo-frontend/browser");
         BucketDeployment frontendDeployment = BucketDeployment.Builder.create(this, "eln-frontend-s3-deployment")
                 .sources(List.of(Source.asset(frontendCode.getPath(), AssetOptions.builder().assetHash(Utils.calculateHashCode(frontendCode)).build())))
                 .destinationBucket(frontendCodeS3)
@@ -134,6 +134,8 @@ public class CloudFrontStack extends NestedStack {
                                 ))
                                 .build()
                 )
+                .memoryLimit(1024)
+                .ephemeralStorageSize(Size.mebibytes(2048))
                 .build();
 
         ARecord.Builder.create(this, "domain-record")

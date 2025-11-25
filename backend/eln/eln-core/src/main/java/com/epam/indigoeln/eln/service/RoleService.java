@@ -1,28 +1,16 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.common.config.UserInfo;
-import com.epam.indigoeln.common.exception.AccessDeniedException;
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
-import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.entity.RoleEntity;
-import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.mapper.RoleMapper;
-import com.epam.indigoeln.eln.mapper.UserMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.RoleRepository;
-import com.epam.indigoeln.eln.repository.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Provider;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;

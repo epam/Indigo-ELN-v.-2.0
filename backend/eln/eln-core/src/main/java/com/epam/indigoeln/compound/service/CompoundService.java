@@ -18,6 +18,7 @@ import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.CompoundRef;
 import com.epam.indigoeln.reaction.model.SaltCodeRef;
+import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.epam.indigoeln.reaction.service.calculator.MolWeightCalculator;
 import jakarta.annotation.Nullable;
@@ -114,14 +115,12 @@ public class CompoundService {
     }
 
     public CompoundRef.Stored realCompoundRef(CompoundEntity compound) {
-        return new CompoundRef.Stored(compound.getId(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getFormula(), compound.getStrCode());
+        return new CompoundRef.Stored(compound.getId(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getFormula(), compound.getStrCode(), compound.getCasNumber());
     }
 
     public CompoundRef.Virtual virtualCompoundRef(IndigoMolecule molecule, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
         CompoundEntity compound = findOrCreate(molecule, stereoisomerCode, saltCode, saltEQ);
-        double molWeight = molWeightCalculator.calculateMolWeight(molecule.molfile(), saltCode, saltEQ);
-        double exactMass = molWeightCalculator.calculateExactMass(molecule.molfile());
-        return new CompoundRef.Virtual(compound.getId(), molecule.grossFormula(), molWeight, exactMass);
+        return new CompoundRef.Virtual(compound.getId(), molecule.grossFormula(), stereoisomerCode, saltCode, saltEQ, EnteredValue.fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getCasNumber());
     }
 
     public CompoundRef.Unknown unknownCompoundRef() {

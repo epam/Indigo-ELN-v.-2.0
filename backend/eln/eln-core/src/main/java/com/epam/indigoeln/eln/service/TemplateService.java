@@ -6,7 +6,6 @@ import com.epam.indigoeln.eln.entity.TemplateEntity;
 import com.epam.indigoeln.eln.mapper.TemplateMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
-import com.epam.indigoeln.eln.util.ModelUtil;
 import com.epam.indigoeln.eln.util.TemplateValidationUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
