@@ -26,6 +26,7 @@ import { NOTEBOOK_NAME_LENGTH } from '../notebook.constants';
 export class NotebookEditComponent {
   notebookId: string;
   dialogRef = inject(MatDialogRef);
+  notebook: Partial<Notebook> = {};
   fields: FormlyFieldConfig[] = [
     {
       type: 'input',
@@ -60,7 +61,11 @@ export class NotebookEditComponent {
     protected service: ApiService<Notebook>,
     @Inject(MAT_DIALOG_DATA) private data: { notebook: NotebookDetail }
   ) {
-    if (data?.notebook?.id) {
+    if (data?.notebook) {
+      this.notebook = {
+        name: data.notebook.name,
+        description: data.notebook.description
+      };
       this.notebookId = data.notebook.id;
     }
   }
