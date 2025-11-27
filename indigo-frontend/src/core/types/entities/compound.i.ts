@@ -12,6 +12,8 @@ export interface CompoundRef {
   molFile: string | null;
   formula: string | null;
   name: string | null;
+  casNumber: string | null;
+  type: CompoundType;
   saltCode: SaltCodeRef | null;
   saltEQ: number | null;
   strCode: string | null;

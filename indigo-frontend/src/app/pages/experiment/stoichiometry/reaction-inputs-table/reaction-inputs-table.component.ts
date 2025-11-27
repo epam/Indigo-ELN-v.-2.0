@@ -30,7 +30,7 @@ import {
 } from '@angular/material/table';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSelect, MatOption } from '@angular/material/select';
+import { MatSelect, MatOption, MatSelectTrigger } from '@angular/material/select';
 import { MatInput } from '@angular/material/input';
 import { MatDivider } from '@angular/material/divider';
 import { FormsModule } from '@angular/forms';
@@ -55,7 +55,7 @@ interface InputSampleRow {
 
 interface UnitFieldValue { value: number | string; unit: string; }
 
-type FieldValue = string | null | boolean | UnitFieldValue;
+type FieldValue = string | null | boolean | UnitFieldValue | DictionaryItemRef[];
 
 interface UnitInputChange {
   value?: number | null;
@@ -75,9 +75,6 @@ interface ColumnConfig {
   editable?: (row: InputSampleRow) => boolean;
   onSave?: (row: InputSampleRow, payload?: unknown) => void;
   options?: ColumnOption[] | DictionaryItemRef[]; // For select and multi-select columns
-  style?: {
-    width?: string; // Width applied to the input field
-  };
 }
 
 @Component({
@@ -97,6 +94,7 @@ interface ColumnConfig {
     MatSnackBarModule,
     MatIconModule,
     MatSelect,
+    MatSelectTrigger,
     MatOption,
     MatInput,
     MatDivider,
@@ -132,8 +130,6 @@ export class ReactionInputsTableComponent implements OnInit {
     this.builtInDictionaryService.load(BuiltInDictionary.HEALTH_HAZARD);
   }
 
-  readonly REACTION_ROLES = Object.values(ReactionRole);
-
   readonly columns = computed<ColumnConfig[]>(() => [
     {
       id: 'compoundId',
@@ -146,7 +142,7 @@ export class ReactionInputsTableComponent implements OnInit {
       id: 'casNumber',
       header: 'CAS Number',
       type: ColumnInputType.TEXT,
-      field: () => null, // TODO add it to CompoundRef
+      field: (row: InputSampleRow) => row.input.compound.casNumber,
       editable: () => false,
     },
     {
@@ -161,7 +157,7 @@ export class ReactionInputsTableComponent implements OnInit {
       id: 'nbkBatch',
       header: 'NBK Batch #',
       type: ColumnInputType.TEXT,
-      field: () => null, // TODO add it to CompoundRef
+      field: (row: InputSampleRow) => row.sample.nbkBatchNumber,
       editable: () => false,
     },
     {
@@ -169,7 +165,7 @@ export class ReactionInputsTableComponent implements OnInit {
       header: 'Mol. Weight',
       type: ColumnInputType.NUMBER,
       field: (row: InputSampleRow) => row.input.compound.molWeight?.value?.toString(),
-      editable: (row: InputSampleRow) => 'type' in row.input.compound && row.input.compound.type === CompoundType.UNKNOWN, // TODO CompoundRef has no type property, only children do, what to do here?
+      editable: (row: InputSampleRow) => row.input.compound.type === CompoundType.UNKNOWN,
       onSave: (row: InputSampleRow, event: Event) => {
         const value = +(event.target as HTMLInputElement).value;
         const previousState = structuredClone(this.experimentModelService.experimentModel());
@@ -228,12 +224,12 @@ export class ReactionInputsTableComponent implements OnInit {
       header: 'Mol',
       type: ColumnInputType.UNIT_INPUT,
       field: (row: InputSampleRow) =>
-        row.input.mol?.value ? { value: row.input.mol.value, unit: row.input.mol.unit } : null,
+        row.sample.mol?.value ? { value: row.sample.mol.value, unit: row.sample.mol.unit } : null,
       onSave: (row: InputSampleRow, payload?: unknown) => {
         this.applyUnitInputChange(payload as UnitInputChange, (value, unit) => {
           return this.experimentModelService.updateDataModel({
             type: 'SetInputMol',
-            anchor: row.input.anchor,
+            anchor: row.sample.anchor,
             mol: value,
             unit: unit as MolUnit,
           });
@@ -291,6 +287,10 @@ export class ReactionInputsTableComponent implements OnInit {
           error: (error) => this.handleUpdateError(error, previousState),
         });
       },
+      options: Object.values(ReactionRole).map(role => ({
+        id: role,
+        name: role.toLocaleLowerCase(),
+      })) as ColumnOption[],
     },
     {
       id: 'density',
@@ -362,7 +362,7 @@ export class ReactionInputsTableComponent implements OnInit {
       header: 'Salt Code',
       type: ColumnInputType.SELECT,
       field: (row: InputSampleRow) => row.input.compound.saltCode?.name ?? null,
-      editable: (row: InputSampleRow) => 'type' in row.input.compound && row.input.compound.type === CompoundType.VIRTUAL, // TODO CompoundRef has no type property, only children do, what to do here?
+      editable: (row: InputSampleRow) => row.input.compound.type === CompoundType.VIRTUAL,
       onSave: (row: InputSampleRow, selectedSaltCode: unknown) => {
         const previousState = structuredClone(this.experimentModelService.experimentModel());
 
@@ -398,20 +398,19 @@ export class ReactionInputsTableComponent implements OnInit {
       id: 'hazardComments',
       header: 'Hazard Comments',
       type: ColumnInputType.MULTI_SELECT,
-      field: (row: InputSampleRow) => row.sample.healthHazard?.map((h) => h.name).join(', ') ?? 'None',
+      field: (row: InputSampleRow) => row.sample.healthHazards ?? [],
       onSave: (row: InputSampleRow, selectedHazards: unknown[]) => {
         const previousState = structuredClone(this.experimentModelService.experimentModel());
 
         this.experimentModelService.updateDataModel({
           type: 'SetInputHealthHazards',
-          anchor: row.input.anchor,
+          anchor: row.sample.anchor,
           healthHazards: selectedHazards as DictionaryItemRef[],
         }).subscribe({
           error: (error) => this.handleUpdateError(error, previousState),
         });
       },
       options: this.healthHazards(),
-      style: { width: '10rem' },
     },
     {
       id: 'comments',
@@ -435,23 +434,16 @@ export class ReactionInputsTableComponent implements OnInit {
 
   displayedColumns = computed(() => this.columns().map((col) => col.id));
 
+  compareDictionaryItems = (a?: DictionaryItemRef | null, b?: DictionaryItemRef | null) =>
+    !!a && !!b ? a.id === b.id : a === b;
+
   getInputType(columnId: string): ColumnInputType {
     const column = this.columns().find(c => c.id === columnId);
     return column?.type ?? ColumnInputType.TEXT;
   }
 
-  getReactionRoleDisplayName(role: string): string {
-    const roleMap: Record<string, string> = {
-      [ReactionRole.REACTANT]: 'Reactant',
-      [ReactionRole.CATALYST]: 'Catalyst',
-      [ReactionRole.SOLVENT]: 'Solvent',
-      [ReactionRole.OUTPUT]: 'Output',
-    };
-    return roleMap[role] ?? role;
-  }
-
   toUnitField(fieldValue: FieldValue): UnitFieldValue | null {
-    return fieldValue && typeof fieldValue !== 'string' && typeof fieldValue !== 'boolean' ? fieldValue : null;
+    return fieldValue && typeof fieldValue !== 'string' && typeof fieldValue !== 'boolean' && !Array.isArray(fieldValue) ? fieldValue : null;
   }
 
   private applyUnitInputChange(

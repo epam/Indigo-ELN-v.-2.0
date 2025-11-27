@@ -29,10 +29,10 @@
 
         <!-- Select -->
         <mat-select *ngIf="column.type === ColumnInputType.SELECT" hideSingleSelectionIndicator
-          class="!w-full !h-full !text-xs" [value]="column.field(row)" [disabled]="!(column.editable?.(row) ?? true)"
-          (selectionChange)="column.onSave?.(row, $event.value)">
-          @for (role of REACTION_ROLES; track role) {
-          <mat-option [value]="role" style="font-size: 0.8rem">{{ getReactionRoleDisplayName(role) }}</mat-option>
+          class="!w-full !h-full !text-xs capitalize" [value]="column.field(row)"
+          [disabled]="!(column.editable?.(row) ?? true)" (selectionChange)="column.onSave?.(row, $event.value)">
+          @for (option of column.options; track option.id) {
+          <mat-option [value]="option.id" style="font-size: 0.8rem" class="capitalize">{{ option.name }}</mat-option>
           }
         </mat-select>
 
@@ -58,11 +58,22 @@
         </div>
 
         <!-- Multi-Select -->
-        <mat-select *ngIf="column.type === ColumnInputType.MULTI_SELECT" multiple hideSingleSelectionIndicator
-          class="w-full h-full text-xs" [style.width]="column.style?.width" [value]="column.field(row)"
-          [disabled]="!(column.editable?.(row) ?? true)" (selectionChange)="column.onSave?.(row, $event.value)">
+        <mat-select #multiSelect *ngIf="column.type === ColumnInputType.MULTI_SELECT" multiple
+          hideSingleSelectionIndicator class="!w-full !h-full !text-xs capitalize" [value]="column.field(row)"
+          [compareWith]="compareDictionaryItems" [disabled]="!(column.editable?.(row) ?? true)"
+          (openedChange)="!$event && column.onSave?.(row, multiSelect.value)">
+          <mat-select-trigger>
+            <div class="flex items-center gap-1 min-h-6 overflow-x-auto no-scrollbar pr-4">
+              @for (hazard of multiSelect.value; track hazard.id) {
+              <span
+                class="px-1.5 py-0.5 rounded-full bg-primary-50 text-primary-700 border border-primary-200 text-[0.65rem] whitespace-nowrap">
+                {{ hazard.name }}
+              </span>
+              }
+            </div>
+          </mat-select-trigger>
           @for (option of column.options; track option.id) {
-          <mat-option [value]="option" style="font-size: 0.8rem">{{ option.name }}</mat-option>
+          <mat-option [value]="option" style="font-size: 0.8rem" class="capitalize">{{ option.name }}</mat-option>
           }
         </mat-select>
       </td>

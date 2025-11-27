@@ -92,7 +92,7 @@ export class ReactionProductsTableComponent {
       id: 'hazardComments',
       header: 'Hazard Comments',
       type: 'text',
-      field: (row: ReactionOutput) => row.samples[0]?.healthHazard?.map(h => h.name).join(', ') // Data retrieved from External database
+      field: (row: ReactionOutput) => row.samples[0]?.healthHazards?.map(h => h.name).join(', ') // Data retrieved from External database
     },
     {
       id: 'eq',
