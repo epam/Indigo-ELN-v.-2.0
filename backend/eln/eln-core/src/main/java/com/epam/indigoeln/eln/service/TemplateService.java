@@ -36,11 +36,11 @@ public class TemplateService {
         TemplateValidationUtil.validateTemplateRequest(request, templateRepository);
 
         TemplateEntity template = templateMapper.requestToTemplate(request);
-        updateDates(template, userService.getCurrentUser());
+        updateDates(template, userService.getCurrentUserEntity());
 
         try {
             templateRepository.persist(template);
-            templateRepository.flushAndClear();
+            templateRepository.flushAndClear(template);
         } catch (org.hibernate.exception.ConstraintViolationException e) {
             if ("template_name_uq".equals(e.getConstraintName())) {
                 throw new InvalidRequestException("Template with name '" + request.getName() + "' already exists.");
@@ -66,9 +66,9 @@ public class TemplateService {
 
         editProperty(request.getName(), template::setName);
 
-        updateDates(template, userService.getCurrentUser());
+        updateDates(template, userService.getCurrentUserEntity());
 
-        templateRepository.flushAndClear();
+        templateRepository.flushAndClear(template);
 
         return getTemplate(templateId);
     }

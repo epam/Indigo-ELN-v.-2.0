@@ -68,13 +68,13 @@ public class ACLService {
     }
 
     private boolean isUserRolesAllow(ApplicationPermission operation) {
-        Set<ApplicationPermission> permissions = userService.getCurrentUser().collectPermissions();
+        Set<ApplicationPermission> permissions = userService.getCurrentUser().getPermissions();
         return permissions.contains(operation);
     }
 
     public void initProjectACL(ProjectEntity project) {
         project.setAclEntities(new HashMap<>(1));
-        applyAccess(project, userService.getCurrentUser(), AUTHOR, false);
+        applyAccess(project, userService.getCurrentUserEntity(), AUTHOR, false);
     }
 
     public void initNotebookACL(NotebookEntity notebook) {
@@ -83,9 +83,9 @@ public class ACLService {
                 .mapValues(pa -> new NotebookACLEntity(notebook, pa.getUser(), pa.getLevel() != AUTHOR ? pa.getLevel() : ADMIN, true))
                 .toMap();
         notebook.setAclEntities(acl);
-        applyAccess(notebook, userService.getCurrentUser(), AUTHOR, false);
-        if (!project.getAclEntities().containsKey(userService.getCurrentUser())) {
-            project.getAclEntities().put(userService.getCurrentUser(), new ProjectACLEntity(project, userService.getCurrentUser(), IMPLICIT_VIEW));
+        applyAccess(notebook, userService.getCurrentUserEntity(), AUTHOR, false);
+        if (!project.getAclEntities().containsKey(userService.getCurrentUserEntity())) {
+            project.getAclEntities().put(userService.getCurrentUserEntity(), new ProjectACLEntity(project, userService.getCurrentUserEntity(), IMPLICIT_VIEW));
         }
     }
 
@@ -95,12 +95,12 @@ public class ACLService {
                 .mapValues(pa -> new ExperimentACLEntity(experiment, pa.getUser(), pa.getLevel() != AUTHOR ? pa.getLevel() : ADMIN, true))
                 .toMap();
         experiment.setAclEntities(acl);
-        applyAccess(experiment, userService.getCurrentUser(), AUTHOR, false);
-        if (!notebook.getAclEntities().containsKey(userService.getCurrentUser())) {
-            notebook.getAclEntities().put(userService.getCurrentUser(), new NotebookACLEntity(notebook, userService.getCurrentUser(), IMPLICIT_VIEW, false));
+        applyAccess(experiment, userService.getCurrentUserEntity(), AUTHOR, false);
+        if (!notebook.getAclEntities().containsKey(userService.getCurrentUserEntity())) {
+            notebook.getAclEntities().put(userService.getCurrentUserEntity(), new NotebookACLEntity(notebook, userService.getCurrentUserEntity(), IMPLICIT_VIEW, false));
             ProjectEntity project = notebook.getProject();
-            if (!project.getAclEntities().containsKey(userService.getCurrentUser())) {
-                project.getAclEntities().put(userService.getCurrentUser(), new ProjectACLEntity(project, userService.getCurrentUser(), IMPLICIT_VIEW));
+            if (!project.getAclEntities().containsKey(userService.getCurrentUserEntity())) {
+                project.getAclEntities().put(userService.getCurrentUserEntity(), new ProjectACLEntity(project, userService.getCurrentUserEntity(), IMPLICIT_VIEW));
             }
         }
     }

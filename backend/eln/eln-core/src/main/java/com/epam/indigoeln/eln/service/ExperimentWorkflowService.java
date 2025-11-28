@@ -88,13 +88,13 @@ public class ExperimentWorkflowService {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         boolean found = false;
         for (ExperimentSignatureEntity signature : experiment.getSignatures()) {
-            if (signature.getUser().equals(userService.getCurrentUser())) {
+            if (signature.getUser().equals(userService.getCurrentUserEntity())) {
                 validate(signature.getStatus() == null, "Experiment was already approved or rejected by " + userService.getCurrentUser());
                 signature.setStatus(status);
                 found = true;
             }
         }
-        validate(found, userService.getCurrentUser() + " is not listed as a signer of experiment " + experiment.getName());
+        validate(found, userService.getCurrentUser().getUsername() + " is not listed as a signer of experiment " + experiment.getName());
         doCheckSignatures(experiment);
         return signatureExperimentMapper.entityToDTO(experiment);
     }

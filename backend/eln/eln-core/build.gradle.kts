@@ -2,6 +2,7 @@ plugins {
     `java-library`
     `eln-conventions`
     id("io.quarkus")
+//    id("org.hibernate.orm") version "<version-to-use>"
 }
 
 dependencies {
@@ -13,6 +14,9 @@ dependencies {
     api("io.quarkus:quarkus-hibernate-orm")
     api("io.quarkus:quarkus-hibernate-orm-panache")
     api("io.hypersistence:hypersistence-utils-hibernate-71:3.11.0")
+//    annotationProcessor("org.hibernate:hibernate-jpamodelgen:7.1.10.Final")
+//    annotationProcessor("org.hibernate.orm:hibernate-processor:7.1.10.Final")
+    implementation("io.quarkus:quarkus-cache")
 
     implementation("com.epam.indigo:indigo:1.35.0-rc.2")
     implementation("com.epam.indigo:indigo-renderer:1.35.0-rc.2")
@@ -55,7 +59,7 @@ tasks.named("processResources") { dependsOn(copyNativeLibs) }
 
 tasks.withType<Test> {
     environment("NATIVE_LIB_PATH", "${projectDir}/build/nativelibs")
-//    environment("ENABLE_PROFILER", "true")
+    environment("ENABLE_PROFILER", "true")
 }
 
 tasks.withType<io.quarkus.gradle.tasks.QuarkusDev> {

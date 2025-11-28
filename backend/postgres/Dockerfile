@@ -13,3 +13,9 @@ RUN ./bingo-pg-install.sh -libdir /usr/local/lib/postgresql -y
 FROM public.ecr.aws/docker/library/postgres:15
 COPY --from=builder /build/bingo-postgres/lib/libbingo-postgres.so /usr/local/lib/postgresql/
 COPY --from=builder /build/bingo-postgres/bingo_install.sql /docker-entrypoint-initdb.d/00_bingo_install.sql
+
+RUN echo "shared_preload_libraries = 'pg_stat_statements'" >> /usr/share/postgresql/postgresql.conf.sample && \
+    echo "pg_stat_statements.track = all" >> /usr/share/postgresql/postgresql.conf.sample && \
+    echo "pg_stat_statements.max = 10000" >> /usr/share/postgresql/postgresql.conf.sample
+
+RUN echo "CREATE EXTENSION IF NOT EXISTS pg_stat_statements;" > /docker-entrypoint-initdb.d/01_pg_stat.sql

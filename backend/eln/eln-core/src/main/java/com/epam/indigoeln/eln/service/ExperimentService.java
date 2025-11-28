@@ -9,10 +9,7 @@ import com.epam.indigoeln.compound.model.StructuralSearch;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
-import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.eln.entity.NotebookEntity;
-import com.epam.indigoeln.eln.entity.TemplateEntity;
-import com.epam.indigoeln.eln.entity.UserEntity;
+import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.model.*;
@@ -106,20 +103,15 @@ public class ExperimentService {
         experiment.setNotebook(notebook);
         experiment.setTemplate(template);
         experiment.setModel(experimentModelService.createNewModel());
-        updateDates(experiment, userService.getCurrentUser());
+        updateDates(experiment, userService.getCurrentUserEntity());
         aclService.initExperimentACL(experiment);
         experimentRepository.persist(experiment);
-        experimentRepository.flushAndClear();
+        experimentRepository.flushAndClear(experiment);
         return getExperiment(experiment.getId());
     }
 
     public Page<ExperimentDTO> getExperiments(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable SortOrder sort, @Nullable Boolean createdByMe, Paging paging) {
-        UserEntity currentUser = null;
-
-        if (Boolean.TRUE.equals(createdByMe)) {
-            currentUser = userService.getCurrentUser();
-        }
-
+        UserInfo currentUser = Boolean.TRUE.equals(createdByMe) ? userService.getCurrentUser() : null;
         return experimentRepository.findAll(projectId, notebookId, sort, currentUser, paging);
     }
 
@@ -140,15 +132,15 @@ public class ExperimentService {
         editProperty(request.getProjectCode(), v -> {
             experiment.setProjectCode(dictionaryService.lookup(BuiltInDictionary.PROJECT_CODE.name(), v));
         });
-        updateDates(experiment, userService.getCurrentUser());
-        experimentRepository.flushAndClear();
+        updateDates(experiment, userService.getCurrentUserEntity());
+        experimentRepository.flushAndClear(experiment);
         return getExperiment(experimentId);
     }
 
     public Boolean markExperiment(UUID experimentId, boolean isMarked) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
-        experimentRepository.markExperiment(experimentId, userService.getCurrentUser(), isMarked);
+        experimentRepository.markExperiment(experimentId, userService.getCurrentUserEntity(), isMarked);
         return isMarked;
     }
 

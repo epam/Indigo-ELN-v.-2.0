@@ -1,14 +1,16 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.common.config.UserInfo;
+import com.epam.indigoeln.common.config.UserHolder;
 import com.epam.indigoeln.common.exception.AccessDeniedException;
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.eln.entity.RoleEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
+import com.epam.indigoeln.eln.entity.UserInfo;
 import com.epam.indigoeln.eln.mapper.UserMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.RoleRepository;
 import com.epam.indigoeln.eln.repository.UserRepository;
+import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -39,7 +41,7 @@ public class UserService {
     private static final byte[] DEFAULT_PICTURE_LARGE = loadResource(UserService.class, "/user-default-picture.png");
 
     @Inject
-    UserInfo userInfo;
+    UserHolder userHolder;
     @Inject
     UserRepository userRepository;
     @Inject
@@ -53,22 +55,21 @@ public class UserService {
     @PersistenceContext
     EntityManager em;
 
-    public UserEntity getCurrentUser() {
-        UserEntity user = userContext.get().getCurrentUser();
+    public UserInfo getCurrentUser() {
+        return doGetUser(userHolder.getUserName());
+    }
+
+    public UserEntity getCurrentUserEntity() {
+        return em.getReference(UserEntity.class, getCurrentUser().getId());
+    }
+
+    @CacheResult(cacheName = "user.byUsername")
+    public UserInfo doGetUser(String username) {
+        UserEntity user = userRepository.findByUsername(username);
         if (user == null) {
-            String username = userInfo.getUserName();
-            userInfo.getFirstName();
-            userInfo.getLastName();
-            user = userRepository.findByUsername(username);
-            if (user == null) {
-                throw new AccessDeniedException(username);
-            }
-            userContext.get().setCurrentUser(user);
-        } else if (!em.contains(user)) {
-            user = em.find(UserEntity.class, user.getId());
-            userContext.get().setCurrentUser(user);
+            throw new AccessDeniedException(username);
         }
-        return user;
+        return new UserInfo(user.getId(), user.getUsername(), user.collectPermissions());
     }
 
     public UserDTO getUser(UUID id) {
@@ -88,7 +89,7 @@ public class UserService {
     }
 
     public UserEntity getUserEntity(UUID userID) {
-        return userRepository.get(userID);
+        return em.getReference(UserEntity.class, userID);
     }
 
     public List<UserRef> suggestUsers(@Nullable String search) {
@@ -102,7 +103,7 @@ public class UserService {
                 .map(ref -> roleRepository.get(ref.getId()))
                 .toSet();
         entity.setRoles(roles);
-        updateDates(entity, getCurrentUser());
+        updateDates(entity, getCurrentUserEntity());
         userRepository.persist(entity);
         externalUserService.createUser(request);
         return userMapper.entityToDetailsDTO(entity);
@@ -116,8 +117,5 @@ public class UserService {
     @Setter
     @RequestScoped
     public static class UserContext {
-
-        @Nullable
-        private volatile UserEntity currentUser;
     }
 }

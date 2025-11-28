@@ -1,7 +1,7 @@
 package com.epam.indigoeln.test;
 
 import com.epam.indigoeln.common.config.ErrorDTO;
-import com.epam.indigoeln.common.config.UserInfo;
+import com.epam.indigoeln.common.config.UserHolder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -50,7 +50,7 @@ public class FeignUtil {
                     extractParam(request, "pageNo", "pageNo=", ",");
                     extractParam(request, "pageSize", "pageSize=", ")");
                     // use admin by default; to allow testing without need to specify username, and also to enable calls from setUp/tearDown methods, where @TestSecurity doesn't work
-                    request.header(UserInfo.X_TEST_AUTHORIZATION, MoreObjects.firstNonNull(testUsername.get(), BaseTest.ADMIN_USERNAME));
+                    request.header(UserHolder.X_TEST_AUTHORIZATION, MoreObjects.firstNonNull(testUsername.get(), BaseTest.ADMIN_USERNAME));
                     request.header(HttpHeaders.AUTHORIZATION, authorization.get());
                 })
                 .logLevel(Logger.Level.FULL)
