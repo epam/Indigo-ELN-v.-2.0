@@ -1,6 +1,5 @@
 package com.epam.indigoeln.reaction.model.units;
 
-import one.util.streamex.StreamEx;
 import org.assertj.core.api.AbstractThrowableAssert;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
@@ -8,38 +7,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.userLastEntered;
 import static com.epam.indigoeln.reaction.model.units.EnteredValueOpt.opt;
+import static com.epam.indigoeln.reaction.model.units.MeasurementUnit.getUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class EnteredValueTest {
-
-    private static final List<MeasurementUnit> UNITS = StreamEx.<MeasurementUnit[]>of(
-            MolUnit.values(),
-            MolWeightUnit.values(),
-            VolumeUnit.values(),
-            WeightUnit.values(),
-            MolarityUnit.values(),
-            DensityUnit.values(),
-            NoUnit.values()
-    ).flatMap(Arrays::stream).toList();
-
-    private static final Map<String, MeasurementUnit> UNIT_NAMES = StreamEx.of(UNITS)
-            .toMap(MeasurementUnit::name, Function.identity());
 
     private static final Offset<Double> EPSILON = Offset.offset(0.0001);
 
     @Test
     void testAddUnitsCombinations() {
         assertSoftly(softly -> {
-            for (MeasurementUnit unitA : UNITS) {
-                for (MeasurementUnit unitB : UNITS) {
+            for (MeasurementUnit unitA : MeasurementUnit.UNITS) {
+                for (MeasurementUnit unitB : MeasurementUnit.UNITS) {
                     AbstractThrowableAssert<?, ? extends Throwable> assertion = softly.assertThatCode(() -> {
                         EnteredValueOpt valueA = opt(userLastEntered(1.0, unitA));
                         EnteredValue<?> valueB = userLastEntered(1.0, unitB);
@@ -171,13 +153,5 @@ class EnteredValueTest {
         Assertions.assertThatThrownBy(() -> opt(weight).divide(volume))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Cannot divide units: G and ML");
-    }
-
-    private static MeasurementUnit getUnit(String name) {
-        MeasurementUnit unit = UNIT_NAMES.get(name);
-        if (unit == null) {
-            throw new IllegalArgumentException("Unknown unit: " + name);
-        }
-        return unit;
     }
 }

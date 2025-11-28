@@ -1,0 +1,248 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.epam.indigoeln.reaction.proto";
+option java_outer_classname = "ModelsProto";
+
+package com.epam.indigoeln.reaction.proto;
+
+message ExperimentModelProto {
+  int32 revision = 1;
+  repeated ReactionProto reactions = 2;
+}
+
+message ReactionProto {
+  int32 anchor = 1;
+  string rxnfile = 2;
+  int32 rxnVersion = 3;
+  repeated ReactionInputProto inputs = 4;
+  repeated ReactionOutputProto outputs = 5;
+}
+
+message ReactionInputProto {
+  int32 anchor = 1;
+  CompoundRefProto compound = 2;
+  EnteredValueProto eq = 3;
+  ReactionRoleProto role = 4;
+  optional EnteredValueProto mol = 5;
+  repeated ReactionInputSampleProto samples = 6;
+  bool limiting = 7;
+}
+
+message ReactionInputSampleProto {
+  int32 anchor = 1;
+  optional EnteredValueProto density = 2;
+  optional EnteredValueProto molarity = 3;
+  optional EnteredValueProto volume = 4;
+  EnteredValueProto purity = 5;
+  optional string strCode = 6;
+  repeated DictionaryItemRefProto healthHazards = 7;
+  optional string sampleId = 8;
+  optional string chemicalName = 9;
+  optional string nbkBatchNumber = 10;
+  optional EnteredValueProto mol = 11;
+  optional EnteredValueProto weight = 12;
+  optional string comment = 13;
+}
+
+message ReactionOutputProto {
+  int32 anchor = 1;
+  CompoundRefProto compound = 2;
+  EnteredValueProto eq = 3;
+  string chemicalName = 4;
+  ReactionOutputTypeProto type = 5;
+  optional EnteredValueProto theoMol = 6;
+  optional EnteredValueProto theoWeight = 7;
+  repeated ReactionOutputSampleProto samples = 8;
+}
+
+message ReactionOutputSampleProto {
+  int32 anchor = 1;
+  optional EnteredValueProto density = 2;
+  optional EnteredValueProto molarity = 3;
+  optional EnteredValueProto volume = 4;
+  EnteredValueProto purity = 5;
+  optional string strCode = 6;
+  repeated DictionaryItemRefProto healthHazards = 7;
+  string nbkBatchNumber = 8;
+  optional EnteredValueProto actualMol = 9;
+  optional EnteredValueProto actualWeight = 10;
+  optional EnteredValueProto yield = 11;
+  optional SampleRegistrationStatusProto registrationStatus = 12;
+  optional string registrationStatusMessage = 13;
+  optional string sampleId = 14;
+  repeated DictionaryItemRefProto handlingPrecautions = 15;
+  repeated DictionaryItemRefProto storageInstructions = 16;
+  repeated DictionaryItemRefProto compoundProtection = 17;
+  repeated SolubidityInSolventProto solubilityInSolvents = 18;
+  repeated ResidualSolventProto residualSolvents = 19;
+  optional MeltingPointProto meltingPoint = 20;
+  repeated PurityCalculation purityCalculations = 21;
+  optional ExternalSupplierProto externalSupplier = 22;
+  optional DictionaryItemRefProto source = 23;
+  optional DictionaryItemRefProto sourceDetails = 24;
+  optional DictionaryItemRefProto componentState = 25;
+  optional string batchComment = 26;
+  optional string structureComment = 27;
+}
+
+enum CompoundRefTypeProto {
+  COMPOUND_TYPE_PROTO_UNSPECIFIED = 0;
+  COMPOUND_TYPE_STORED = 1;
+  COMPOUND_TYPE_VIRTUAL = 2;
+  COMPOUND_TYPE_UNKNOWN = 3;
+}
+
+message CompoundRefProto {
+  CompoundRefTypeProto type = 1;
+  optional string compoundID = 2;
+  optional DictionaryItemRefProto stereoisomerCode = 3;
+  optional SaltCodeRefProto saltCode = 4;
+  optional double saltEQ = 5;
+  optional EnteredValueProto molWeight = 6;
+  optional double exactMass = 7;
+  optional string formula = 8;
+  optional string strCode = 9;
+  optional string casNumber = 10;
+}
+
+enum MeasurementUnitProto {
+  MEASUREMENT_UNIT_PROTO_UNSPECIFIED = 0;
+  // MolUnit
+  UMOL = 1;
+  MMOL = 2;
+  MOL = 3;
+  // MolWeightUnit
+  G_PER_MOL = 4;
+  // VolumeUnit
+  ML = 5;
+  L = 6;
+  // WeightUnit
+  MG = 7;
+  G = 8;
+  KG = 9;
+  // MolarityUnit
+  MM = 10;
+  M = 11;
+  // DensityUnit
+  G_ML = 12;
+  // NoUnit
+  NO_UNIT = 13;
+}
+
+enum EnteredValueSourceProto {
+  ENTERED_VALUE_SOURCE_PROTO_UNSPECIFIED = 0;
+  FIXED = 1;
+  USER_LAST_ENTERED = 2;
+  USER_ENTERED = 3;
+  CALCULATED_FROM_LAST_ENTERED = 4;
+  CALCULATED = 5;
+  DEFAULT = 6;
+}
+
+message EnteredValueProto {
+  double value = 1;
+  MeasurementUnitProto unit = 2;
+  EnteredValueSourceProto source = 3;
+  bool conflict = 4;
+}
+
+enum ReactionRoleProto {
+  REACTION_ROLE_PROTO_UNSPECIFIED = 0;
+  REACTANT = 1;
+  CATALYST = 2;
+  SOLVENT = 3;
+  OUTPUT = 4;
+}
+
+message DictionaryItemRefProto {
+  string id = 1;
+  string name = 2;
+}
+
+message SaltCodeRefProto {
+  string id = 1;
+  string code = 2;
+  string name = 3;
+  string formula = 4;
+  int32 charge = 5;
+  double molWeight = 6;
+}
+
+enum ReactionOutputTypeProto {
+    REACTION_OUTPUT_TYPE_PROTO_UNSPECIFIED = 0;
+    FINAL = 1;
+    BY_PRODUCT = 2;
+    INTERMEDIATE = 3;
+}
+
+enum SampleRegistrationStatusProto {
+  SAMPLE_REGISTRATION_STATUS_PROTO_UNSPECIFIED = 0;
+  IN_PROGRESS = 1;
+  FAILED = 2;
+  REGISTERED = 3;
+}
+
+message SolubidityInSolventProto {
+  DictionaryItemRefProto solvent = 1;
+  optional string comment = 2;
+  SolubidityTypeProto solubidityType = 3;
+  optional ComparisonOperatorProto operator = 4;
+  optional double value = 5;
+  optional MeasurementUnitProto unit = 6;
+  optional SolubidityQualitativeTypeProto qualitativeType = 7;
+}
+
+enum SolubidityTypeProto {
+  SOLUBIDITY_TYPE_UNSPECIFIED = 0;
+  QUANTITATIVE = 1;
+  QUALITATIVE = 2;
+}
+
+enum ComparisonOperatorProto {
+  COMPARISON_OPERATOR_UNSPECIFIED = 0;
+  GREATER_THAN = 1;
+  LESS_THAN = 2;
+  EQUALS = 3;
+  APPROXIMATELY = 4;
+}
+
+enum SolubidityQualitativeTypeProto {
+  SOLUBIDITY_QUALITATIVE_TYPE_UNSPECIFIED = 0;
+  SOLUBLE = 1;
+  UNSOLUBLE = 2;
+  PRECIPITATE = 3;
+}
+
+message ResidualSolventProto {
+  DictionaryItemRefProto solvent = 1;
+  double eq = 2;
+  optional string comment = 3;
+}
+
+message MeltingPointProto {
+  optional double lower = 1;
+  optional double upper = 2;
+  optional string comment = 4;
+}
+
+message PurityCalculation {
+  PurityCalculationTypeProto type = 1;
+  ComparisonOperatorProto operator = 2;
+  double purity = 3;
+  optional string comment = 4;
+}
+
+enum PurityCalculationTypeProto {
+  PURITY_CALCULATION_TYPE_PROTO_UNSPECIFIED = 0;
+  NMR = 1;
+  HPLC = 2;
+  LCMS = 3;
+  CHN = 4;
+  MS = 5;
+}
+
+message ExternalSupplierProto {
+  DictionaryItemRefProto supplier = 1;
+  string registryNumber = 2;
+}

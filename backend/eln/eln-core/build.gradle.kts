@@ -7,6 +7,7 @@ plugins {
 dependencies {
     api(project(":eln:eln-api"))
     api(project(":reports:reports-api"))
+    api(project(":eln:eln-protobuf"))
     implementation(project(":database:flyway")) // TODO move flyway to a separate lambda and move dependency to testImplementation
 
     api("io.quarkus:quarkus-jdbc-postgresql")
@@ -18,6 +19,8 @@ dependencies {
     implementation("com.epam.indigo:indigo-renderer:1.35.0-rc.2")
 //    implementation("com.epam.indigo:indigo-inchi:1.30.0")
 //    implementation("com.epam.indigo:bingo-nosql:1.30.1")
+
+//    annotationProcessor("no.entur.mapstruct.spi:protobuf-spi-impl:1.52.0")
 
     implementation("io.quarkiverse.amazonservices:quarkus-amazon-cognito-user-pools")
     implementation("software.amazon.awssdk:url-connection-client")

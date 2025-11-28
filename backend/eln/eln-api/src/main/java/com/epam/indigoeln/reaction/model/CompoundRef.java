@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.MoreObjects;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.*;
 import org.jspecify.annotations.Nullable;
 
@@ -118,7 +117,6 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         private final Double saltEQ;
 
         @NotNull
-        @Positive
         private EnteredValue<MolWeightUnit> molWeight;
 
         @NotNull
@@ -153,6 +151,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         public static final String TYPE = "unknown";
 
         @Nullable
+        @Setter
         private String formula;
 
         @Nullable
