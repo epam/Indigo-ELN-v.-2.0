@@ -30,7 +30,7 @@ public class DataAccessInterceptor {
     public Object intercept(InvocationContext context) throws Exception {
         boolean executed = false;
         if (invoked.get() != Boolean.TRUE) {
-            Set<ApplicationPermission> permissions = userService.getCurrentUser().collectPermissions();
+            Set<ApplicationPermission> permissions = userService.getCurrentUser().getPermissions();
             em.createNativeQuery("SELECT SET_CONFIG('eln.currentUserId', CAST(? AS VARCHAR), TRUE), SET_CONFIG('eln.viewAllProjects', CAST(? AS VARCHAR), TRUE), SET_CONFIG('eln.viewAllNotebooks', CAST(? AS VARCHAR), TRUE), SET_CONFIG('eln.viewAllExperiments', CAST(? AS VARCHAR), TRUE)")
                     .setParameter(1, userService.getCurrentUser().getId())
                     .setParameter(2, permissions.contains(ApplicationPermission.VIEW_PROJECTS))

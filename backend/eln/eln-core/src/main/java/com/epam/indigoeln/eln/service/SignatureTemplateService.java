@@ -38,9 +38,9 @@ public class SignatureTemplateService {
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_TEMPLATES);
         SignatureTemplateEntity template = signatureTemplateMapper.requestToTemplate(request);
         updateBlocks(template, request.getBlocks());
-        updateDates(template, userService.getCurrentUser());
+        updateDates(template, userService.getCurrentUserEntity());
         signatureTemplateRepository.persist(template);
-        signatureTemplateRepository.flushAndClear();
+        signatureTemplateRepository.flushAndRefresh(template);
         return getSignatureTemplate(template.getId());
     }
 
@@ -57,8 +57,8 @@ public class SignatureTemplateService {
         SignatureTemplateEntity template = signatureTemplateRepository.get(templateId);
         editProperty(request.getName(), template::setName);
         editProperty(request.getBlocks(), blocks -> updateBlocks(template, blocks));
-        updateDates(template, userService.getCurrentUser());
-        signatureTemplateRepository.flushAndClear();
+        updateDates(template, userService.getCurrentUserEntity());
+        signatureTemplateRepository.flushAndRefresh(template);
         return getSignatureTemplate(templateId);
     }
 

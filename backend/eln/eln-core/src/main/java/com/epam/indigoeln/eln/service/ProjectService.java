@@ -41,11 +41,11 @@ public class ProjectService {
         if (request.getKeywords() != null && !request.getKeywords().isEmpty()) {
             project.setKeywords(dictionaryService.findOrCreateByNames(BuiltInDictionary.PROJECT_KEYWORD.name(), request.getKeywords()));
         }
-        updateDates(project, userService.getCurrentUser());
+        updateDates(project, userService.getCurrentUserEntity());
         aclService.initProjectACL(project);
         try {
             projectRepository.persist(project);
-            projectRepository.flushAndClear();
+            projectRepository.flushAndRefresh(project);
         } catch (org.hibernate.exception.ConstraintViolationException e) {
             if ("project_name_uq".equals(e.getConstraintName())) {
                 throw new InvalidRequestException("Project with name '" + project.getName() + "' already exists");
@@ -56,12 +56,7 @@ public class ProjectService {
     }
 
     public Page<ProjectDTO> getProjects(@Nullable String search, @Nullable SortOrder sort, @Nullable Boolean createdByMe, Paging paging) {
-        UserEntity currentUser = null;
-
-        if (Boolean.TRUE.equals(createdByMe)) {
-            currentUser = userService.getCurrentUser();
-        }
-
+        UserEntity currentUser = Boolean.TRUE.equals(createdByMe) ? userService.getCurrentUserEntity() : null;
         return projectRepository.findAll(search, sort, currentUser, paging);
     }
 
@@ -78,8 +73,8 @@ public class ProjectService {
         });
         editProperty(request.getLiterature(), project::setLiterature);
         editProperty(request.getDescription(), project::setDescription);
-        updateDates(project, userService.getCurrentUser());
-        projectRepository.flushAndClear();
+        updateDates(project, userService.getCurrentUserEntity());
+        projectRepository.flushAndRefresh(project);
         return getProject(projectId);
     }
 

@@ -17,7 +17,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 
 public abstract class ELNBaseTest extends BaseTest {
 
@@ -99,7 +98,7 @@ public abstract class ELNBaseTest extends BaseTest {
         roleClient = buildClient(RoleClient.class);
         testSupportClient = buildClient(TestSupportClient.class);
         globalSearchClient = buildClient(GlobalSearchClient.class);
-        assertThat(miscClient.getInfo()).contains(entry("application", "Indigo ELN"));
+        assertThat(miscClient.getInfo().getApplication()).isEqualTo("Indigo ELN");
         if (!integrationTest) {
             mockReportsClient = Mockito.mock(ReportsClient.class);
             QuarkusMock.installMockForType(mockReportsClient, ReportsClient.class, RestClient.LITERAL);

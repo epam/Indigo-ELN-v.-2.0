@@ -71,10 +71,9 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
         return entity;
     }
 
-    public void flushAndClear() {
-        // TODO em.refresh???
+    public void flushAndRefresh(E entity) {
         em.flush();
-        em.clear();
+        em.refresh(entity);
     }
 
     private PanacheQuery<E> doCreateQuery(Conditions conditions, Paging paging, Sort sort, @Nullable EntityGraph<?> entityGraph) {

@@ -14,7 +14,7 @@ import java.security.Principal;
 
 @Slf4j
 @RequestScoped
-public class UserInfo {
+public class UserHolder {
 
     public static final String X_TEST_AUTHORIZATION = "X-Test-Authorization";
 
@@ -22,7 +22,7 @@ public class UserInfo {
     private final @Nullable String username;
 
     @Inject
-    UserInfo(SecurityIdentity identity) {
+    UserHolder(SecurityIdentity identity) {
         Principal principal = identity.getPrincipal();
         jwt = principal instanceof JsonWebToken ? (JsonWebToken) principal : null;
         String user = null;

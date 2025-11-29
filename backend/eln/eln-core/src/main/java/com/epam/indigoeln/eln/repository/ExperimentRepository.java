@@ -1,9 +1,6 @@
 package com.epam.indigoeln.eln.repository;
 
-import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.eln.entity.NotebookEntity;
-import com.epam.indigoeln.eln.entity.ProjectEntity;
-import com.epam.indigoeln.eln.entity.UserEntity;
+import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.Conditions;
@@ -27,7 +24,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     @Inject
     ExperimentMapper experimentMapper;
 
-    public Page<ExperimentDTO> findAll(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable SortOrder sort, @Nullable UserEntity createdByUser, Paging paging) {
+    public Page<ExperimentDTO> findAll(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable SortOrder sort, @Nullable UserInfo createdByUser, Paging paging) {
         Sort panacheSort = switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
             case EARLIEST -> Sort.ascending("modifiedAt");
             case LATEST -> Sort.descending("modifiedAt");
@@ -36,7 +33,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
         Conditions conditions = new Conditions()
                 .addIfNotNull("project.id=?", projectId)
                 .addIfNotNull("notebook.id=?", notebookId)
-                .addIfNotNull("createdBy = ?", createdByUser);
+                .addIfNotNull("createdBy.id = ?", createdByUser != null ? createdByUser.getId() : null);
 
         return doFindWithTotals(
                 conditions,

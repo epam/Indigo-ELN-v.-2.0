@@ -104,7 +104,7 @@ public class CompoundService {
                         SampleEntity sample = new SampleEntity();
                         compound.getSamples().add(sample);
                         sample.setCompound(compound);
-                        updateDates(sample, userService.getCurrentUser());
+                        updateDates(sample, userService.getCurrentUserEntity());
                         fillCompoundFromIndigo(molecule, compound);
                         sampleRepository.persist(sample);
                     }
@@ -215,7 +215,7 @@ public class CompoundService {
         sample.setChemicalName(request.getChemicalName());
         sample.setBatchComment(request.getBatchComment());
         compound.getSamples().add(sample);
-        updateDates(sample, userService.getCurrentUser());
+        updateDates(sample, userService.getCurrentUserEntity());
         sampleRepository.persist(sample);
         return sample;
     }
@@ -246,9 +246,9 @@ public class CompoundService {
     public SampleDTO markSample(UUID sampleID, boolean mark) {
         SampleEntity sample = sampleRepository.get(sampleID);
         if (mark) {
-            sample.getMarkedBy().add(userService.getCurrentUser());
+            sample.getMarkedBy().add(userService.getCurrentUserEntity());
         } else {
-            sample.getMarkedBy().remove(userService.getCurrentUser());
+            sample.getMarkedBy().remove(userService.getCurrentUserEntity());
         }
         sample.setMarked(mark);
         return sampleMapper.sampleToDTO(sample);

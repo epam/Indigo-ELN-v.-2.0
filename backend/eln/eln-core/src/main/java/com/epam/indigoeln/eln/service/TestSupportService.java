@@ -1,7 +1,9 @@
 package com.epam.indigoeln.eln.service;
 
+import io.quarkus.cache.CacheManager;
 import io.quarkus.runtime.configuration.ConfigUtils;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -13,6 +15,9 @@ public class TestSupportService {
 
     @PersistenceContext
     EntityManager em;
+
+    @Inject
+    CacheManager cacheManager;
 
     @Transactional
     public void cleanupDatabase() {
@@ -36,5 +41,9 @@ public class TestSupportService {
         em.createNativeQuery("delete from Salt_Code").executeUpdate();
         // users
         em.createNativeQuery("delete from User_Account where username not in ('admin')").executeUpdate();
+
+        for (String cacheName : cacheManager.getCacheNames()) {
+            cacheManager.getCache(cacheName).get().invalidateAll().await().indefinitely();
+        }
     }
 }

@@ -12,6 +12,9 @@ import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
 import com.epam.indigoeln.eln.repository.DictionaryRepository;
 import com.epam.indigoeln.eln.repository.SaltCodeRepository;
 import com.epam.indigoeln.reaction.model.SaltCodeRef;
+import io.quarkus.cache.Cache;
+import io.quarkus.cache.CacheName;
+import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -45,8 +48,13 @@ public class DictionaryService {
 
     @Inject
     ACLService aclService;
+
     @Inject
     UserService userService;
+
+    @Inject
+    @CacheName("dictionary.items")
+    Cache dictionaryItemsCache;
 
     public List<DictionaryDTO> getDictionaries() {
         return dictionaryRepository.list();
@@ -65,22 +73,35 @@ public class DictionaryService {
         if (ref == null) {
             return null;
         }
-        DictionaryItemEntity entity = dictionaryItemRepository.findById(ref.getId());
-        if (entity == null || !entity.getDictionary().getId().equals(refToID(dictionaryRef))) {
+        DictionaryItemRef item = doGetDictionaryItems(refToID(dictionaryRef)).get(ref.getId());
+        if (item == null) {
             throw new EntityNotFoundException(EntityType.DICTIONARY_ITEM, ref.getId() + " in dictionary " + dictionaryRef);
         }
-        return entity;
+        return dictionaryItemRepository.getReference(ref.getId());
     }
 
     public List<DictionaryItemEntity> lookup(String dictionaryRef, Collection<DictionaryItemRef> refs) {
-        List<DictionaryItemEntity> found = dictionaryItemRepository.findByIds(refToID(dictionaryRef), StreamEx.of(refs).map(DictionaryItemRef::getId).toList());
-        if (found.size() != refs.size()) {
-            Set<UUID> requestedIDs = StreamEx.of(refs).map(DictionaryItemRef::getId).toSet();
-            Set<UUID> foundIDs = StreamEx.of(found).map(DictionaryItemEntity::getId).toSet();
-            requestedIDs.removeAll(foundIDs);
-            throw new EntityNotFoundException(EntityType.DICTIONARY_ITEM, requestedIDs + " in dictionary " + dictionaryRef);
+        Map<UUID, DictionaryItemRef> allItems = doGetDictionaryItems(refToID(dictionaryRef));
+        List<DictionaryItemEntity> found = new ArrayList<>(refs.size());
+        List<UUID> notFound = new ArrayList<>(refs.size());
+        for (DictionaryItemRef ref : refs) {
+            if (allItems.containsKey(ref.getId())) {
+                found.add(dictionaryItemRepository.getReference(ref.getId()));
+            } else {
+                notFound.add(ref.getId());
+            }
+        }
+        if (!notFound.isEmpty()) {
+            throw new EntityNotFoundException(EntityType.DICTIONARY_ITEM, notFound + " in dictionary " + dictionaryRef);
         }
         return found;
+    }
+
+    @CacheResult(cacheName = "dictionary.items")
+    protected Map<UUID, DictionaryItemRef> doGetDictionaryItems(UUID dictionaryID) {
+        return StreamEx.of(dictionaryItemRepository.list(dictionaryID, true))
+                .mapToEntry(DictionaryItemEntity::getId, dictionaryMapper::itemToRef)
+                .toCustomMap(LinkedHashMap::new);
     }
 
     public List<DictionaryItemRef> suggestDictionaryItems(String dictionaryRef, String search) {
@@ -117,12 +138,13 @@ public class DictionaryService {
         for (DictionaryItemRequest item : items) {
             DictionaryItemEntity entity = dictionaryMapper.itemToEntity(item);
             entity.setDictionary(dictionary);
-            updateDates(entity, userService.getCurrentUser());
+            updateDates(entity, userService.getCurrentUserEntity());
             inserted.add(entity);
         }
         list.addAll(inserted);
         renumberItems(list);
         dictionaryItemRepository.persist(inserted);
+        dictionaryItemsCache.invalidate(refToID(dictionaryRef)).await().indefinitely();
         return list;
     }
 
@@ -140,6 +162,7 @@ public class DictionaryService {
             list.add(order - 1, entity);
             renumberItems(list);
         });
+        dictionaryItemsCache.invalidate(refToID(dictionaryRef)).await().indefinitely();
         return dictionaryMapper.itemToDTOList(list);
     }
 
@@ -157,6 +180,7 @@ public class DictionaryService {
             throw new InvalidRequestException("This word is selected in other inputs. Please deactivate the word to remove it from available options of the inputs");
         }
         renumberItems(list);
+        dictionaryItemsCache.invalidate(refToID(dictionaryRef)).await().indefinitely();
         return dictionaryMapper.itemToDTOList(list);
     }
 
@@ -173,6 +197,7 @@ public class DictionaryService {
             List<DictionaryItemEntity> newAllItems = addDictionaryItems(dictionaryRef, remainingNames.stream().map(x -> new DictionaryItemRequest(x, null)).toList());
             found = StreamEx.of(newAllItems).toMap(DictionaryItemEntity::getName, x -> x);
         }
+        dictionaryItemsCache.invalidate(refToID(dictionaryRef)).await().indefinitely();
         return StreamEx.of(names).map(found::get).toList();
     }
 

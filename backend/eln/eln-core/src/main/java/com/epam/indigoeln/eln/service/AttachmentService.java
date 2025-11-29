@@ -100,7 +100,7 @@ public class AttachmentService {
 
     private AttachmentEntity doCreateAttachment(String filename, byte[] content) {
         AttachmentEntity attachment = attachmentMapper.requestToAttachment(filename, content);
-        updateDates(attachment, userService.getCurrentUser());
+        updateDates(attachment, userService.getCurrentUserEntity());
         attachmentRepository.persist(attachment);
         return attachment;
     }

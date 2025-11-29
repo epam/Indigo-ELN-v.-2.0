@@ -44,11 +44,11 @@ public class NotebookService {
         NotebookEntity notebook = notebookMapper.requestToNotebook(request);
         project.getNotebooks().add(notebook);
         notebook.setProject(project);
-        updateDates(notebook, userService.getCurrentUser());
+        updateDates(notebook, userService.getCurrentUserEntity());
         aclService.initNotebookACL(notebook);
         try {
             notebookRepository.persist(notebook);
-            notebookRepository.flushAndClear();
+            notebookRepository.flushAndRefresh(notebook);
         } catch (org.hibernate.exception.ConstraintViolationException e) {
             if ("notebook_name_uq".equals(e.getConstraintName())) {
                 throw new InvalidRequestException("Notebook with name '" + notebook.getName() + "' already exists");
@@ -60,12 +60,7 @@ public class NotebookService {
 
     public Page<NotebookDTO> getNotebooks(UUID projectId, @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort,
                                           @QueryParam("createdByMe") @Nullable Boolean createdByMe, Paging paging) {
-        UserEntity currentUser = null;
-
-        if (Boolean.TRUE.equals(createdByMe)) {
-            currentUser = userService.getCurrentUser();
-        }
-
+        UserEntity currentUser = Boolean.TRUE.equals(createdByMe) ? userService.getCurrentUserEntity() : null;
         return notebookRepository.findAll(projectId, search, sort, currentUser, paging);
     }
 
@@ -78,8 +73,8 @@ public class NotebookService {
         aclService.ensureAccess(notebook, ApplicationPermission.EDIT_NOTEBOOKS);
         editProperty(request.getName(), notebook::setName);
         editProperty(request.getDescription(), notebook::setDescription);
-        updateDates(notebook, userService.getCurrentUser());
-        notebookRepository.flushAndClear();
+        updateDates(notebook, userService.getCurrentUserEntity());
+        notebookRepository.flushAndRefresh(notebook);
         return getNotebook(notebookId);
     }
 
