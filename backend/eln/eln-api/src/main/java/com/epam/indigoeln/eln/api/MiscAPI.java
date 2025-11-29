@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.api;
 
+import com.epam.indigoeln.eln.model.MiscInfo;
 import com.epam.indigoeln.eln.model.TotalCounts;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
@@ -15,7 +16,7 @@ public interface MiscAPI extends BaseAPI {
 
     @GET
     @Path("/info")
-    Map<String, String> getInfo();
+    MiscInfo getInfo();
 
     @GET
     @Path("/total-counts")

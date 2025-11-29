@@ -9,7 +9,6 @@ dependencies {
 
     implementation(project(":common:common-lambda"))
     implementation(project(":eln:eln-core"))
-    implementation(project(":eln-quarkus-extension:runtime"))
 }
 
 group = "com.epam.indigoeln"

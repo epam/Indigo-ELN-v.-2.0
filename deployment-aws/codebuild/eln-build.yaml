@@ -11,7 +11,7 @@ phases:
   build:
     commands:
       - cd backend
-      - ./gradlew build :integrationTests:quarkusIntTest --info --profile
+      - ./gradlew :common:common:build :common:common-lambda:build :eln:eln-api:build :eln:eln-core:build :eln:eln-lambda:build --info --profile
   post_build:
     commands:
       - docker tag indigoeln/eln-lambda:built $ELN_REPO_URI:latest

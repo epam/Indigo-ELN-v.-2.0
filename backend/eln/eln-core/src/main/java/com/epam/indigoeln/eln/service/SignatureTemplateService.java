@@ -40,7 +40,7 @@ public class SignatureTemplateService {
         updateBlocks(template, request.getBlocks());
         updateDates(template, userService.getCurrentUserEntity());
         signatureTemplateRepository.persist(template);
-        signatureTemplateRepository.flushAndClear(template);
+        signatureTemplateRepository.flushAndRefresh(template);
         return getSignatureTemplate(template.getId());
     }
 
@@ -58,7 +58,7 @@ public class SignatureTemplateService {
         editProperty(request.getName(), template::setName);
         editProperty(request.getBlocks(), blocks -> updateBlocks(template, blocks));
         updateDates(template, userService.getCurrentUserEntity());
-        signatureTemplateRepository.flushAndClear(template);
+        signatureTemplateRepository.flushAndRefresh(template);
         return getSignatureTemplate(templateId);
     }
 

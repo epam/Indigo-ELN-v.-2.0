@@ -48,7 +48,7 @@ public class NotebookService {
         aclService.initNotebookACL(notebook);
         try {
             notebookRepository.persist(notebook);
-            notebookRepository.flushAndClear(notebook);
+            notebookRepository.flushAndRefresh(notebook);
         } catch (org.hibernate.exception.ConstraintViolationException e) {
             if ("notebook_name_uq".equals(e.getConstraintName())) {
                 throw new InvalidRequestException("Notebook with name '" + notebook.getName() + "' already exists");
@@ -74,7 +74,7 @@ public class NotebookService {
         editProperty(request.getName(), notebook::setName);
         editProperty(request.getDescription(), notebook::setDescription);
         updateDates(notebook, userService.getCurrentUserEntity());
-        notebookRepository.flushAndClear(notebook);
+        notebookRepository.flushAndRefresh(notebook);
         return getNotebook(notebookId);
     }
 

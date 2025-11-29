@@ -19,8 +19,6 @@ include("common:common-service")
 include("common:common-lambda")
 include("common:common-test")
 
-include("eln-quarkus-extension:deployment", "eln-quarkus-extension:runtime")
-
 include("database:flyway")
 
 //include("signature:signature-api")

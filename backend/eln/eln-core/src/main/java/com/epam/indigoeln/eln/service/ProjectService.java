@@ -45,7 +45,7 @@ public class ProjectService {
         aclService.initProjectACL(project);
         try {
             projectRepository.persist(project);
-            projectRepository.flushAndClear(project);
+            projectRepository.flushAndRefresh(project);
         } catch (org.hibernate.exception.ConstraintViolationException e) {
             if ("project_name_uq".equals(e.getConstraintName())) {
                 throw new InvalidRequestException("Project with name '" + project.getName() + "' already exists");
@@ -74,7 +74,7 @@ public class ProjectService {
         editProperty(request.getLiterature(), project::setLiterature);
         editProperty(request.getDescription(), project::setDescription);
         updateDates(project, userService.getCurrentUserEntity());
-        projectRepository.flushAndClear(project);
+        projectRepository.flushAndRefresh(project);
         return getProject(projectId);
     }
 

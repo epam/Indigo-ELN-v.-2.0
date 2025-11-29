@@ -40,7 +40,7 @@ public class TemplateService {
 
         try {
             templateRepository.persist(template);
-            templateRepository.flushAndClear(template);
+            templateRepository.flushAndRefresh(template);
         } catch (org.hibernate.exception.ConstraintViolationException e) {
             if ("template_name_uq".equals(e.getConstraintName())) {
                 throw new InvalidRequestException("Template with name '" + request.getName() + "' already exists.");
@@ -68,7 +68,7 @@ public class TemplateService {
 
         updateDates(template, userService.getCurrentUserEntity());
 
-        templateRepository.flushAndClear(template);
+        templateRepository.flushAndRefresh(template);
 
         return getTemplate(templateId);
     }

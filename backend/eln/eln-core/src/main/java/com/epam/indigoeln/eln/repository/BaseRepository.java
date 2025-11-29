@@ -71,7 +71,7 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
         return entity;
     }
 
-    public void flushAndClear(E entity) {
+    public void flushAndRefresh(E entity) {
         em.flush();
         em.refresh(entity);
     }

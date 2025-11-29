@@ -106,7 +106,7 @@ public class ExperimentService {
         updateDates(experiment, userService.getCurrentUserEntity());
         aclService.initExperimentACL(experiment);
         experimentRepository.persist(experiment);
-        experimentRepository.flushAndClear(experiment);
+        experimentRepository.flushAndRefresh(experiment);
         return getExperiment(experiment.getId());
     }
 
@@ -133,7 +133,7 @@ public class ExperimentService {
             experiment.setProjectCode(dictionaryService.lookup(BuiltInDictionary.PROJECT_CODE.name(), v));
         });
         updateDates(experiment, userService.getCurrentUserEntity());
-        experimentRepository.flushAndClear(experiment);
+        experimentRepository.flushAndRefresh(experiment);
         return getExperiment(experimentId);
     }
 

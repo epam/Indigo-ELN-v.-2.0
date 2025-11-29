@@ -22,9 +22,7 @@ group = "com.epam.indigoeln"
 version = "3.0.0-SNAPSHOT"
 
 tasks.named("compileIntegrationTestJava") {
-    dependsOn(":eln:eln-lambda:assemble")
     dependsOn(":eln:eln-core:testJar")
-    dependsOn(":reports:reports-lambda:assemble")
     dependsOn(":reports:reports-core:testJar")
     dependsOn(":integrationTests:testClasses")
 }
@@ -37,4 +35,6 @@ tasks.named("quarkusIntTest", Test::class) {
     systemProperty("quarkus.http.test-host", "localhost")
     systemProperty("quarkus.http.test-port", "28080")
     outputs.upToDateWhen { false }
+    dependsOn(":eln:eln-lambda:assemble")
+    dependsOn(":reports:reports-lambda:assemble")
 }
