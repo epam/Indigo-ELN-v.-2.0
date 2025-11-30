@@ -1,5 +1,6 @@
-CREATE OR REPLACE VIEW Notebook_View AS
-SELECT n.*,
+CREATE OR REPLACE VIEW Notebook_View_2 AS
+SELECT n.id,
+    n.current_access,
     (
         SELECT coalesce(array_agg(ROW(status, count_)::Experiment_Count), '{}')
         FROM (SELECT e.status, COUNT(*) count_
@@ -27,43 +28,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION insert_Notebook_View()
-    RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION update_Notebook_search_vector()
+RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO Notebook (id, created_by_id, created_at, modified_by_id, modified_at, project_id, name, description, full_acl, acl_short)
-    VALUES (new.id, new.created_by_id, new.created_at, new.modified_by_id, new.modified_at, new.project_id, new.name, new.description, new.full_acl, new.acl_short);
-
     UPDATE Notebook SET search_vector = get_notebook_search_vector(new.id) WHERE id = new.id;
-
     RETURN new;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER insert_Notebook_View
-INSTEAD OF INSERT ON Notebook_View
-FOR EACH ROW
-EXECUTE FUNCTION insert_Notebook_View();
-
-CREATE OR REPLACE FUNCTION update_Notebook_View()
-    RETURNS TRIGGER AS $$
-BEGIN
-    UPDATE Notebook
-    SET modified_by_id = new.modified_by_id,
-        modified_at = new.modified_at,
-        name = new.name,
-        description = new.description,
-        full_acl = new.full_acl,
-        acl_short = new.acl_short
-    WHERE id = new.id;
-
-    UPDATE Notebook SET search_vector = get_notebook_search_vector(new.id) WHERE id = new.id;
-
-    RETURN new;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE TRIGGER update_Notebook_View
-    INSTEAD OF UPDATE ON Notebook_View
-    FOR EACH ROW
-EXECUTE FUNCTION update_Notebook_View();
-
+CREATE OR REPLACE TRIGGER trigger_update_Notebook_search_vector
+AFTER INSERT OR UPDATE OF name, description ON Notebook
+FOR EACH ROW EXECUTE FUNCTION update_Notebook_search_vector();

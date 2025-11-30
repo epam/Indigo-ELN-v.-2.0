@@ -64,11 +64,7 @@ public abstract class BaseRepository<E extends IdentifiableEntity> implements Pa
     }
 
     public E get(UUID id) {
-        E entity = findById(id);
-        if (entity == null) {
-            throw new AccessDeniedException(entityType, id, userService.getCurrentUser().getUsername());
-        }
-        return entity;
+        return findById(id);
     }
 
     public void flushAndRefresh(E entity) {

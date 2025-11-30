@@ -23,8 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static com.epam.indigoeln.eln.model.AccessLevel.AUTHOR;
-import static com.epam.indigoeln.eln.model.AccessLevel.IMPLICIT_VIEW;
+import static com.epam.indigoeln.eln.model.AccessLevel.*;
 
 @Slf4j
 @Transactional
@@ -49,8 +48,9 @@ public class ACLService {
         if (isUserRolesAllow(operation)) {
             return;
         }
-        if (!operation.isAllowedBy(project.getCurrentAccess())) {
-            throw new AccessDeniedException(EntityType.PROJECT, project.getId(), operation, project.getCurrentAccess(), userService.getCurrentUser().getUsername());
+        AccessLevel currentAccess = project.getCalculatedInfo() != null ? project.getCalculatedInfo().getCurrentAccess() : NONE;
+        if (!operation.isAllowedBy(currentAccess)) {
+            throw new AccessDeniedException(EntityType.PROJECT, project.getId(), operation, currentAccess, userService.getCurrentUser().getUsername());
         }
     }
 
@@ -58,8 +58,9 @@ public class ACLService {
         if (isUserRolesAllow(operation)) {
             return;
         }
-        if (!operation.isAllowedBy(notebook.getCurrentAccess())) {
-            throw new AccessDeniedException(EntityType.NOTEBOOK, notebook.getId(), operation, notebook.getCurrentAccess(), userService.getCurrentUser().getUsername());
+        AccessLevel currentAccess = notebook.getCalculatedInfo() != null ? notebook.getCalculatedInfo().getCurrentAccess() : NONE;
+        if (!operation.isAllowedBy(currentAccess)) {
+            throw new AccessDeniedException(EntityType.NOTEBOOK, notebook.getId(), operation, currentAccess, userService.getCurrentUser().getUsername());
         }
     }
 
@@ -67,8 +68,9 @@ public class ACLService {
         if (isUserRolesAllow(operation)) {
             return;
         }
-        if (!operation.isAllowedBy(experiment.getCurrentAccess())) {
-            throw new AccessDeniedException(EntityType.EXPERIMENT, experiment.getId(), operation, experiment.getCurrentAccess(), userService.getCurrentUser().getUsername());
+        AccessLevel currentAccess = experiment.getCalculatedInfo() != null ? experiment.getCalculatedInfo().getCurrentAccess() : NONE;
+        if (!operation.isAllowedBy(currentAccess)) {
+            throw new AccessDeniedException(EntityType.EXPERIMENT, experiment.getId(), operation, currentAccess, userService.getCurrentUser().getUsername());
         }
     }
 
@@ -212,7 +214,7 @@ public class ACLService {
                 .sortedBy(e -> - e.getLevel().ordinal())
                 .toArray(ACLEntry[]::new)
         );
-        child.setAclShort(StreamEx.of(child.getFullACL())
+        child.setShortACL(StreamEx.of(child.getFullACL())
                 .filter(e -> e.getLevel() != IMPLICIT_VIEW)
                 .limit(3)
                 .toArray(ACLEntry[]::new));

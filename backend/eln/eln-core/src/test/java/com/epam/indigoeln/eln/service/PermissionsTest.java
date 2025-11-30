@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.common.exception.AccessDeniedException;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
@@ -34,7 +33,8 @@ import static com.epam.indigoeln.common.util.ModelUtil.loadResourceAsStream;
 import static com.epam.indigoeln.eln.model.AccessLevel.*;
 import static com.epam.indigoeln.eln.test.ACLListAssert.assertThatACL;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 
 @QuarkusTest
@@ -67,12 +67,12 @@ class PermissionsTest extends ELNBaseTest {
                 .map(line -> line.split(","))
                 .map(line -> new TestRow(
                         Integer.parseInt(line[0]),
-                        AccessLevel.valueOf(line[1]),
-                        AccessLevel.valueOf(line[2]),
-                        AccessLevel.valueOf(line[3]),
-                        AccessLevel.valueOf(line[4]),
-                        AccessLevel.valueOf(line[5]),
-                        AccessLevel.valueOf(line[6])
+                        valueOf(line[1]),
+                        valueOf(line[2]),
+                        valueOf(line[3]),
+                        valueOf(line[4]),
+                        valueOf(line[5]),
+                        valueOf(line[6])
                 ))
                 .toList();
     }
@@ -121,29 +121,12 @@ class PermissionsTest extends ELNBaseTest {
     @TestSecurity(user = WILLOW_USERNAME)
     @MethodSource("rowsParameters")
     void testCalculateAccessLevel(TestRow row) {
-        AccessLevel projectLevel = NONE, notebookLevel = NONE, experimentLevel = NONE;
-        if (row.effectiveProject != NONE) {
-            ProjectEntity project = projectRepository.get(row.projectId);
-            projectLevel = project.getCurrentAccess();
-        } else {
-            assertThatThrownBy(() -> projectRepository.get(row.projectId))
-                    .isInstanceOf(AccessDeniedException.class);
-        }
-        if (row.effectiveNotebook != NONE) {
-            NotebookEntity notebook = notebookRepository.get(row.notebookId);
-            notebookLevel = notebook.getCurrentAccess();
-        } else {
-            assertThatThrownBy(() -> notebookRepository.get(row.notebookId))
-                    .isInstanceOf(AccessDeniedException.class);
-        }
-        if (row.effectiveExperiment != NONE) {
-            ExperimentEntity experiment = experimentRepository.get(row.experimentId);
-            experimentLevel = experiment.getCurrentAccess();
-        } else {
-            assertThatThrownBy(() -> experimentRepository.get(row.experimentId))
-                    .as(row.toString())
-                    .isInstanceOf(AccessDeniedException.class);
-        }
+        ProjectEntity project = projectRepository.get(row.projectId);
+        AccessLevel projectLevel = project.getCalculatedInfo() != null ? project.getCalculatedInfo().getCurrentAccess() : NONE;
+        NotebookEntity notebook = notebookRepository.get(row.notebookId);
+        AccessLevel notebookLevel = notebook.getCalculatedInfo() != null ? notebook.getCalculatedInfo().getCurrentAccess() : NONE;
+        ExperimentEntity experiment = experimentRepository.get(row.experimentId);
+        AccessLevel experimentLevel = experiment.getCalculatedInfo() != null ? experiment.getCalculatedInfo().getCurrentAccess() : NONE;
         assertThat(tuple(projectLevel, notebookLevel, experimentLevel))
                 .as(row.toString())
                 .isEqualTo(tuple(row.effectiveProject, row.effectiveNotebook, row.effectiveExperiment));
@@ -190,7 +173,7 @@ class PermissionsTest extends ELNBaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> projectClient.getProject(row.projectId))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveProject.isSufficientFor(IMPLICIT_VIEW), "not found or not accessible");
+                    .isAllowedIf(row.effectiveProject.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
         }
     }
 
@@ -199,7 +182,7 @@ class PermissionsTest extends ELNBaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> projectClient.editProject(row.projectId, new ProjectEditRequest()))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
+                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
         }
     }
 
@@ -208,13 +191,13 @@ class PermissionsTest extends ELNBaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> projectClient.createProjectAttachment(row.projectId, "a", tempDir, new byte[0]))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
+                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
             assertThatClientCall(() -> projectClient.downloadProjectAttachmentClient(row.projectId, row.projectDetails.getAttachments().getFirst().getId()))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveProject.isSufficientFor(IMPLICIT_VIEW), "(Operation not permitted)|(not found or not accessible)");
+                    .isAllowedIf(row.effectiveProject.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
             assertThatClientCall(() -> projectClient.deleteProjectAttachment(row.projectId, row.projectDetails.getAttachments().getFirst().getId()))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
+                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
         }
     }
 
@@ -246,7 +229,7 @@ class PermissionsTest extends ELNBaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> notebookClient.createNotebook(row.projectId, new NotebookRequest(nextNotebookName())))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
+                    .isAllowedIf(row.effectiveProject.isSufficientFor(EDIT), "Operation not permitted");
         }
     }
 
@@ -255,7 +238,7 @@ class PermissionsTest extends ELNBaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> notebookClient.getNotebook(row.notebookId))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(IMPLICIT_VIEW), "not found or not accessible");
+                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
         }
     }
 
@@ -264,7 +247,7 @@ class PermissionsTest extends ELNBaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> notebookClient.editNotebook(row.notebookId, new NotebookEditRequest()))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
+                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
         }
     }
 
@@ -273,13 +256,13 @@ class PermissionsTest extends ELNBaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> notebookClient.createNotebookAttachment(row.notebookId, "a", tempDir, new byte[0]))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
+                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
             assertThatClientCall(() -> notebookClient.downloadNotebookAttachmentClient(row.notebookId, row.notebookDetails.getAttachments().getFirst().getId()))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(IMPLICIT_VIEW), "(Operation not permitted)|(not found or not accessible)");
+                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
             assertThatClientCall(() -> notebookClient.deleteNotebookAttachment(row.notebookId, row.notebookDetails.getAttachments().getFirst().getId()))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
+                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
         }
     }
 
@@ -298,7 +281,7 @@ class PermissionsTest extends ELNBaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> experimentClient.createExperiment(row.notebookId, new ExperimentRequest(emptyTemplateID)))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
+                    .isAllowedIf(row.effectiveNotebook.isSufficientFor(EDIT), "Operation not permitted");
         }
     }
 
@@ -319,7 +302,7 @@ class PermissionsTest extends ELNBaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> experimentClient.getExperiment(row.experimentId))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(IMPLICIT_VIEW), "not found or not accessible");
+                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
         }
     }
 
@@ -328,7 +311,7 @@ class PermissionsTest extends ELNBaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> experimentClient.editExperiment(row.experimentId, new ExperimentEditRequest()))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
+                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
         }
     }
 
@@ -337,13 +320,13 @@ class PermissionsTest extends ELNBaseTest {
         for (TestRow row : rows) {
             assertThatClientCall(() -> experimentClient.createExperimentAttachment(row.experimentId, "a", tempDir, "content".getBytes(StandardCharsets.UTF_8)))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
+                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
             assertThatClientCall(() -> experimentClient.downloadExperimentAttachmentClient(row.experimentId, row.experimentDetails.getAttachments().getFirst().getId()))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(IMPLICIT_VIEW), "(Operation not permitted)|(not found or not accessible)");
+                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(IMPLICIT_VIEW), "Operation not permitted");
             assertThatClientCall(() -> experimentClient.deleteExperimentAttachment(row.experimentId, row.experimentDetails.getAttachments().getFirst().getId()))
                     .as(row.toString())
-                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "(Operation not permitted)|(not found or not accessible)");
+                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
         }
     }
 
@@ -351,7 +334,7 @@ class PermissionsTest extends ELNBaseTest {
     void testMarkExperiment() {
         for (TestRow row : rows) {
             assertThatClientCall(() -> experimentClient.markExperiment(row.experimentId))
-                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(VIEW), "not found or not accessible");
+                    .isAllowedIf(row.effectiveExperiment.isSufficientFor(VIEW), "Operation not permitted");
         }
     }
 

@@ -111,13 +111,14 @@ public class GlobalSearchService {
             fragmentSelector = "ts_headline('english', t.description, websearch_to_tsquery('english', :query), 'StartSel=<mark>,StopSel=</mark>')";
         }
         StringBuilder sql = new StringBuilder();
-        sql.append("with t as (\n");
+        sql.append("WITH t AS (\n");
         Map<String, @Nullable Object> params = new HashMap<>();
         boolean hasUnionBlocks = false;
         if (hasProjects) {
-            String projectsSQL = "SELECT 'PROJECT' AS type, p.name, p.id, p.description, p.created_by_id, p.created_at, p.modified_by_id, p.modified_at, NULL AS reaction_roles"
-                                 + " FROM project_view p"
-                                 + " WHERE " + projectConditions.getQuery();
+            String projectsSQL = "SELECT 'PROJECT' AS type, p.name, p.id, p.description, p.created_by_id, p.created_at, p.modified_by_id, p.modified_at, NULL AS reaction_roles\n"
+                    + "FROM Project p\n"
+                    + "JOIN Project_View_2 pv ON pv.id = p.id\n"
+                    + "WHERE " + projectConditions.getQuery();
             sql.append(projectsSQL);
             params.putAll(projectConditions.getValues());
             hasUnionBlocks = true;
@@ -128,8 +129,9 @@ public class GlobalSearchService {
             }
             hasUnionBlocks = true;
             String notebooksSQL = "SELECT 'NOTEBOOK' AS type, n.name, n.id, n.description, n.created_by_id, n.created_at, n.modified_by_id, n.modified_at, NULL AS reaction_roles"
-                                  + " FROM notebook_view n"
-                                  + " WHERE " + notebookConditions.getQuery();
+                    + "\nFROM Notebook n"
+                    + "\nJOIN Notebook_View_2 nv ON nv.id = n.id"
+                    + "\nWHERE " + notebookConditions.getQuery();
             params.putAll(notebookConditions.getValues());
             sql.append(notebooksSQL);
         }
@@ -139,27 +141,29 @@ public class GlobalSearchService {
             }
             hasUnionBlocks = true;
             String experimentsSQL = "SELECT 'EXPERIMENT' AS type, e.name, e.id, e.description, e.created_by_id, e.created_at, e.modified_by_id, e.modified_at, " + rolesSelector
-                                    + " FROM experiment_view e "
-                                    + String.join(" ", experimentJoins) + " "
-                                    + " WHERE " + experimentConditions.getQuery()
-                                    + (groupBySQL != null ? " GROUP BY " + groupBySQL : "");
+                    + "\nFROM Experiment e"
+                    + "\nJOIN Experiment_View_2 ev ON ev.id = e.id"
+                    + "\n" + String.join("\n", experimentJoins)
+                    + "\nWHERE " + experimentConditions.getQuery()
+                    + (groupBySQL != null ? "\nGROUP BY " + groupBySQL : "");
             params.putAll(experimentConditions.getValues());
             sql.append(experimentsSQL);
         }
         sql.append(")\n");
-        sql.append("select t.type, t.name, t.id, ").append(fragmentSelector).append(" fragment\n");
-        sql.append(", t.created_by_id, c.username, c.display_name, t.created_at\n");
-        sql.append(", t.modified_by_id, m.username, m.display_name, t.modified_at\n");
-        sql.append(", t.reaction_roles\n");
-        sql.append(", count(*) over (partition by 1)\n");
-        sql.append("from t\n");
-        sql.append("join user_account c on c.id = t.created_by_id\n");
-        sql.append("join user_account m on m.id = t.modified_by_id\n");
+        sql.append("SELECT t.type, t.name, t.id, ").append(fragmentSelector).append(" fragment");
+        sql.append(", t.created_by_id, c.username, c.display_name, t.created_at");
+        sql.append(", t.modified_by_id, m.username, m.display_name, t.modified_at");
+        sql.append(", t.reaction_roles");
+        sql.append(", count(*) over (partition by 1)");
+        sql.append("\nFROM t");
+        sql.append("\nJOIN User_Account c on c.id = t.created_by_id");
+        sql.append("\nJOIN User_Account m on m.id = t.modified_by_id");
         long[] totalCount = new long[] {0};
         Query query = em.createNativeQuery(sql.toString())
                 .setFirstResult(paging.getPageNoOrDefault() * paging.getPageSizeOrDefault())
                 .setMaxResults(paging.getPageSizeOrDefault());
         params.forEach(query::setParameter);
+        //noinspection unchecked
         Stream<Object[]> stream = query.getResultStream();
         List<GlobalSearchResultDTO> list = stream
                 .map(row -> {

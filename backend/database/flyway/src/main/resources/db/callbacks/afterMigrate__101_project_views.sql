@@ -1,5 +1,6 @@
-CREATE OR REPLACE VIEW Project_View AS
-SELECT p.*,
+CREATE OR REPLACE VIEW Project_View_2 AS
+SELECT p.id,
+    p.current_access,
     (
         SELECT COUNT(*)
         FROM Notebook_Base_View n
@@ -33,43 +34,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION insert_Project_View()
+CREATE OR REPLACE FUNCTION update_Project_search_vector()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO Project (id, created_by_id, created_at, modified_by_id, modified_at, name, literature, description, full_acl, acl_short)
-    VALUES (new.id, new.created_by_id, new.created_at, new.modified_by_id, new.modified_at, new.name, new.literature, new.description, new.full_acl, new.acl_short);
-
     UPDATE Project SET search_vector = get_project_search_vector(new.id) WHERE id = new.id;
-
     RETURN new;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER insert_Project_View
-INSTEAD OF INSERT ON Project_View
-FOR EACH ROW
-EXECUTE FUNCTION insert_Project_View();
-
-CREATE OR REPLACE FUNCTION update_Project_View()
-RETURNS TRIGGER AS $$
-BEGIN
-    UPDATE Project
-    SET modified_by_id = new.modified_by_id,
-        modified_at = new.modified_at,
-        name = new.name,
-        literature = new.literature,
-        description = new.description,
-        full_acl = new.full_acl,
-        acl_short = new.acl_short
-    WHERE id = new.id;
-
-    UPDATE Project SET search_vector = get_project_search_vector(new.id) WHERE id = new.id;
-
-    RETURN new;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE TRIGGER update_Project_View
-INSTEAD OF UPDATE ON Project_View
-FOR EACH ROW
-EXECUTE FUNCTION update_Project_View();
+CREATE OR REPLACE TRIGGER trigger_update_Project_search_vector
+AFTER INSERT OR UPDATE OF name, description, literature ON Project
+FOR EACH ROW EXECUTE FUNCTION update_Project_search_vector();

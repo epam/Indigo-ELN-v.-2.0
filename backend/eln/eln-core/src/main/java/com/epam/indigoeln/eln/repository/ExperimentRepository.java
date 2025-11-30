@@ -3,6 +3,7 @@ package com.epam.indigoeln.eln.repository;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
 import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.util.Conditions;
 import com.google.common.base.MoreObjects;
 import io.quarkus.panache.common.Sort;
@@ -23,14 +24,17 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
 
     @Inject
     ExperimentMapper experimentMapper;
+    @Inject
+    ACLService aclService;
 
-    public Page<ExperimentDTO> findAll(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable SortOrder sort, @Nullable UserInfo createdByUser, Paging paging) {
+    public Page<ExperimentDTO> findAll(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable SortOrder sort, @Nullable UserInfo createdByUser, Paging paging, boolean showAll) {
         Sort panacheSort = switch (MoreObjects.firstNonNull(sort, SortOrder.LATEST)) {
             case EARLIEST -> Sort.ascending("modifiedAt");
             case LATEST -> Sort.descending("modifiedAt");
         };
 
         Conditions conditions = new Conditions()
+                .addIf(!showAll, "calculatedInfo.currentAccess is not null")
                 .addIfNotNull("project.id=?", projectId)
                 .addIfNotNull("notebook.id=?", notebookId)
                 .addIfNotNull("createdBy.id = ?", createdByUser != null ? createdByUser.getId() : null);
@@ -45,11 +49,13 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     }
 
     public ExperimentDetailsDTO load(UUID id) {
-        return doLoadDetails(
+        ExperimentEntity experiment = doLoadDetails(
                 id,
                 em.getEntityGraph("Experiment.details"),
-                experimentMapper::entityToDetailsDTO
+                Function.identity()
         );
+        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
+        return experimentMapper.entityToDetailsDTO(experiment);
     }
 
     public ExperimentEntity loadForReport(UUID id) {
@@ -69,7 +75,7 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     }
 
     public List<ExperimentDTO> findMarked() {
-        return em.createQuery("from Experiment e where e.marked order by name", ExperimentEntity.class)
+        return em.createQuery("from Experiment e where e.calculatedInfo.marked order by name", ExperimentEntity.class)
                 .getResultList().stream()
                 .map(experimentMapper::entityToDTO)
                 .toList();

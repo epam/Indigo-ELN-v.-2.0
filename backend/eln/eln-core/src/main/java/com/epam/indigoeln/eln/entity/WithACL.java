@@ -16,7 +16,7 @@ public interface WithACL<A extends BaseACLEntity> {
     ACLEntry[] getFullACL();
     void setFullACL(ACLEntry[] fullACL);
 
-    void setAclShort(ACLEntry[] aclShort);
+    void setShortACL(ACLEntry[] shortACL);
 
     @Nullable
     WithACL<?> getACLParent();
