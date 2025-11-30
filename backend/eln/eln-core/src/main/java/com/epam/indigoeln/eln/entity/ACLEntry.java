@@ -23,6 +23,9 @@ public class ACLEntry implements Serializable {
     @NotEmpty
     private String displayName;
 
+    @NotEmpty
+    private String username;
+
     @NotNull
     private AccessLevel level;
 

@@ -210,9 +210,7 @@ public class ACLService {
             });
         }
         child.setFullACL(EntryStream.of(users)
-                .map(e -> new ACLEntry(e.getKey().getId(), e.getKey().getDisplayName(), e.getValue().a(), e.getValue().b()))
-                .sortedBy(e -> - e.getLevel().ordinal())
-                .toArray(ACLEntry[]::new)
+                .map(e -> new ACLEntry(e.getKey().getId(), e.getKey().getDisplayName(), e.getKey().getUsername(),  e.getValue().a(), e.getValue().b())).sortedBy(e -> - e.getLevel().ordinal()).toArray(ACLEntry[]::new)
         );
         child.setShortACL(StreamEx.of(child.getFullACL())
                 .filter(e -> e.getLevel() != IMPLICIT_VIEW)

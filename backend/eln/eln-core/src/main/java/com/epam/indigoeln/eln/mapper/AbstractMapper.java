@@ -5,10 +5,10 @@ import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.model.ACLDetailsEntryDTO;
 import com.epam.indigoeln.eln.model.ACLEntryDTO;
 import com.epam.indigoeln.eln.model.UserRef;
-import org.mapstruct.Mapping;
 
 import java.util.List;
 
+@SuppressWarnings("MapperOrMapperConfigMissing")
 public abstract class AbstractMapper {
 
     public UserRef userRef(UserEntity user) {
@@ -18,7 +18,6 @@ public abstract class AbstractMapper {
     protected abstract ACLEntryDTO convertACL(ACLEntry entry);
     public abstract List<ACLEntryDTO> convertACLList(ACLEntry[] entries);
 
-    @Mapping(target = "username", ignore = true) // !!!
     protected abstract ACLDetailsEntryDTO convertDetailsACL(ACLEntry entry);
     public abstract List<ACLDetailsEntryDTO> convertDetailsACLList(ACLEntry[] entry);
 }

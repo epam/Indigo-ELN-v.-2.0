@@ -15,12 +15,12 @@ public class ACLEntryArrayType extends AbstractArrayOfStructType<ACLEntry[], ACL
 
     @Override
     protected ACLEntry doRead(String[] parts) {
-        return new ACLEntry(UUID.fromString(parts[0]), parts[1], AccessLevel.valueOf(parts[2]), "t".equals(parts[3]));
+        return new ACLEntry(UUID.fromString(parts[0]), parts[1], parts[2], AccessLevel.valueOf(parts[3]), "t".equals(parts[4]));
     }
 
     @Override
     protected ACLEntry[] doAssemble(StreamEx<ACLEntry> stream) {
-        return stream.toArray(ACLEntry[]::new); // TODO make list
+        return stream.toArray(ACLEntry[]::new);
     }
 
     @Override
@@ -30,7 +30,7 @@ public class ACLEntryArrayType extends AbstractArrayOfStructType<ACLEntry[], ACL
 
     @Override
     protected Object[] doWrite(ACLEntry item) {
-        return new Object[]{item.getUserId(), item.getDisplayName(), item.getLevel(), item.getInherited()};
+        return new Object[]{item.getUserId(), item.getDisplayName(), item.getUsername(), item.getLevel(), item.getInherited()};
     }
 
     @Override
