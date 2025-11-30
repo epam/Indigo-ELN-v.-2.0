@@ -37,10 +37,6 @@ public class NotebookACLEntity implements BaseACLEntity {
     @JdbcType(PostgreSQLEnumJdbcType.class)
     private AccessLevel level;
 
-    @Basic
-    @NotNull
-    private Boolean inherited;
-
     public record CompositeID(
             NotebookEntity notebook,
             UserEntity user

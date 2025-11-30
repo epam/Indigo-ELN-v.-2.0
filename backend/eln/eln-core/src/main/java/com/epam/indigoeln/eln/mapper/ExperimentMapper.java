@@ -24,9 +24,10 @@ public abstract class ExperimentMapper extends AbstractMapper {
     @Mapping(target = "searchVector", ignore = true)
     @Mapping(target = "reportForSignature", ignore = true)
     @Mapping(target = "marked", constant = "false")
-    @Mapping(target = "aclShort", expression = "java(new ACLEntry[0])")
     @Mapping(target = "aclCount", constant = "0")
     @Mapping(target = "aclEntities", expression = "java(java.util.Map.of())")
+    @Mapping(target = "aclShort", ignore = true)
+    @Mapping(target = "fullACL", ignore = true)
     @Mapping(target = "attachments", expression = "java(java.util.List.of())")
     @Mapping(target = "signatures", expression = "java(java.util.List.of())")
     @Mapping(target = "referencedCompounds", expression = "java(java.util.Set.of())")
@@ -39,7 +40,7 @@ public abstract class ExperimentMapper extends AbstractMapper {
     @Mapping(target = "acl", source = "aclShort")
     public abstract ExperimentDTO entityToDTO(ExperimentEntity entity);
 
-    @Mapping(target = "acl", source = "aclEntities")
+    @Mapping(target = "acl", source = "fullACL")
     @Mapping(target = "templateId", source = "template.id")
     public abstract ExperimentDetailsDTO entityToDetailsDTO(ExperimentEntity entity);
 }

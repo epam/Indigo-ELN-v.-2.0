@@ -21,6 +21,8 @@ import lombok.ToString;
 import one.util.streamex.StreamEx;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -40,7 +42,9 @@ import static org.assertj.core.api.Assertions.*;
 @TestSecurity(user = ELNBaseTest.WILLOW_USERNAME)
 class PermissionsTest extends ELNBaseTest {
 
-    static Paging PAGING = new Paging(0, 100);
+    static final Paging PAGING = new Paging(0, 100);
+
+    static final List<TestRow> rows;
 
     @Inject
     ProjectRepository projectRepository;
@@ -52,17 +56,12 @@ class PermissionsTest extends ELNBaseTest {
     ACLService aclService;
 
     TemplateDetailsDTO template;
-    List<TestRow> rows;
 
     List<TemplateComponent> components = List.of(new TemplateComponent.Attachments());
     List<TemplateTab> templateTabs = List.of(new TemplateTab("tabName", components));
 
-    @BeforeAll
-    @Transactional
-    void setupAll() {
-        cleanupDatabase();
-
-        rows = new BufferedReader(new InputStreamReader(loadResourceAsStream(getClass(), "/com/epam/indigoeln/eln/service/permissions.csv")))
+    static {
+        rows = new BufferedReader(new InputStreamReader(loadResourceAsStream(PermissionsTest.class, "/com/epam/indigoeln/eln/service/permissions.csv")))
                 .lines()
                 .skip(1)
                 .map(line -> line.split(","))
@@ -76,6 +75,12 @@ class PermissionsTest extends ELNBaseTest {
                         AccessLevel.valueOf(line[6])
                 ))
                 .toList();
+    }
+
+    @BeforeAll
+    @Transactional
+    void setupAll() {
+        cleanupDatabase();
     }
 
     @Test
@@ -105,42 +110,43 @@ class PermissionsTest extends ELNBaseTest {
         }
     }
 
-    @Test
+    TestRow[] rowsParameters() {
+        return rows.toArray(TestRow[]::new);
+    }
+
+    @ParameterizedTest
     @Order(-90)
     @DataAccess
     @Transactional
     @TestSecurity(user = WILLOW_USERNAME)
-    void testCalculateAccessLevel() {
-        for (TestRow row : rows) {
-            AccessLevel projectLevel = NONE, notebookLevel = NONE, experimentLevel = NONE;
-            if (row.effectiveProject != NONE) {
-                ProjectEntity project = projectRepository.get(row.projectId);
-                projectLevel = project.getCurrentAccess();
-            } else {
-                assertThatThrownBy(() -> projectRepository.get(row.projectId))
-                        .as(row.toString())
-                        .isInstanceOf(AccessDeniedException.class);
-            }
-            if (row.effectiveNotebook != NONE) {
-                NotebookEntity notebook = notebookRepository.get(row.notebookId);
-                notebookLevel = notebook.getCurrentAccess();
-            } else {
-                assertThatThrownBy(() -> notebookRepository.get(row.notebookId))
-                        .as(row.toString())
-                        .isInstanceOf(AccessDeniedException.class);
-            }
-            if (row.effectiveExperiment != NONE) {
-                ExperimentEntity experiment = experimentRepository.get(row.experimentId);
-                experimentLevel = experiment.getCurrentAccess();
-            } else {
-                assertThatThrownBy(() -> experimentRepository.get(row.experimentId))
-                        .as(row.toString())
-                        .isInstanceOf(AccessDeniedException.class);
-            }
-            assertThat(tuple(projectLevel, notebookLevel, experimentLevel))
-                    .as(row.toString())
-                    .isEqualTo(tuple(row.effectiveProject, row.effectiveNotebook, row.effectiveExperiment));
+    @MethodSource("rowsParameters")
+    void testCalculateAccessLevel(TestRow row) {
+        AccessLevel projectLevel = NONE, notebookLevel = NONE, experimentLevel = NONE;
+        if (row.effectiveProject != NONE) {
+            ProjectEntity project = projectRepository.get(row.projectId);
+            projectLevel = project.getCurrentAccess();
+        } else {
+            assertThatThrownBy(() -> projectRepository.get(row.projectId))
+                    .isInstanceOf(AccessDeniedException.class);
         }
+        if (row.effectiveNotebook != NONE) {
+            NotebookEntity notebook = notebookRepository.get(row.notebookId);
+            notebookLevel = notebook.getCurrentAccess();
+        } else {
+            assertThatThrownBy(() -> notebookRepository.get(row.notebookId))
+                    .isInstanceOf(AccessDeniedException.class);
+        }
+        if (row.effectiveExperiment != NONE) {
+            ExperimentEntity experiment = experimentRepository.get(row.experimentId);
+            experimentLevel = experiment.getCurrentAccess();
+        } else {
+            assertThatThrownBy(() -> experimentRepository.get(row.experimentId))
+                    .as(row.toString())
+                    .isInstanceOf(AccessDeniedException.class);
+        }
+        assertThat(tuple(projectLevel, notebookLevel, experimentLevel))
+                .as(row.toString())
+                .isEqualTo(tuple(row.effectiveProject, row.effectiveNotebook, row.effectiveExperiment));
     }
 
     @Test
@@ -535,7 +541,7 @@ class PermissionsTest extends ELNBaseTest {
             List<ACLDetailsEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(lisaUserID, EDIT));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false, WILLOW_DISPLAY_NAME, EDIT, false);
             Paging paging = new Paging(0, 1);
-            ProjectDTO projectDTO = projectClient.getProjects(null, null, null, paging).getItems().getFirst();
+            ProjectDTO projectDTO = projectClient.getProjects(project.getName(), null, null, paging).getItems().getFirst();
             assertThat(projectDTO.getId()).isEqualTo(project.getId());
             assertThatACL(projectDTO.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false);
             assertThat(projectDTO.getAclCount()).isEqualTo(4);

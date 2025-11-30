@@ -9,12 +9,16 @@ import com.epam.indigoeln.compound.model.StructuralSearch;
 import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
-import com.epam.indigoeln.eln.entity.*;
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.entity.NotebookEntity;
+import com.epam.indigoeln.eln.entity.TemplateEntity;
+import com.epam.indigoeln.eln.entity.UserInfo;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
+import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
 import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
@@ -87,6 +91,8 @@ public class ExperimentService {
     ObjectMapper objectMapper;
     @Inject
     CompoundService compoundService;
+    @Inject
+    ProjectRepository projectRepository;
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
@@ -147,11 +153,9 @@ public class ExperimentService {
     public List<ACLDetailsEntryDTO> updateExperimentAccess(UUID experimentId, List<AccessForm> form) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.MANAGE_EXPERIMENT_ACCESS);
-        for (AccessForm item : form) {
-            UserEntity user = userService.getUserEntity(item.getUserID());
-            aclService.updateExperimentACL(experiment.getNotebook().getProject(), experiment.getNotebook(), experiment, user, item.getLevel());
-        }
-        return experimentMapper.convertACLMap(experiment.getAclEntities());
+        projectRepository.lockProject(experiment.getProject());
+        aclService.updateExperimentACL(experiment.getNotebook().getProject(), experiment.getNotebook(), experiment, form);
+        return experimentMapper.convertDetailsACLList(experiment.getFullACL());
     }
 
     public ExperimentModel getModel(UUID experimentId) {

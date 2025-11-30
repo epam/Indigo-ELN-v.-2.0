@@ -23,9 +23,10 @@ public abstract class ProjectMapper extends AbstractMapper {
     @Mapping(target = "currentAccess", ignore = true)
     @Mapping(target = "notebookCount", constant = "0")
     @Mapping(target = "experimentCount", expression = "java(java.util.Map.of())")
-    @Mapping(target = "aclShort", expression = "java(new ACLEntry[0])")
     @Mapping(target = "aclCount", constant = "0")
     @Mapping(target = "aclEntities", expression = "java(java.util.Map.of())")
+    @Mapping(target = "aclShort", ignore = true)
+    @Mapping(target = "fullACL", ignore = true)
     @Mapping(target = "attachments", expression = "java(java.util.List.of())")
     @Mapping(target = "experiments", expression = "java(java.util.Set.of())")
     @Mapping(target = "notebooks", expression = "java(java.util.Set.of())")
@@ -34,7 +35,7 @@ public abstract class ProjectMapper extends AbstractMapper {
     @Mapping(target = "acl", source = "aclShort")
     public abstract ProjectDTO entityToDTO(ProjectEntity entity);
 
-    @Mapping(target = "acl", source = "aclEntities")
+    @Mapping(target = "acl", source = "fullACL")
     public abstract ProjectDetailsDTO entityToDetailsDTO(ProjectEntity entity);
 
     @Mapping(target = "experiments", expression = "java(convertTotalCountsSum(struct))")

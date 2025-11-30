@@ -88,7 +88,6 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
-    @Column(insertable = false, updatable = false)
     @Type(ACLEntryArrayType.class)
     private ACLEntry[] aclShort;
 
@@ -96,6 +95,11 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
     @Basic(fetch =  FetchType.LAZY)
     @Column(insertable = false, updatable = false)
     private Integer aclCount;
+
+    @NotNull
+    @Basic(fetch = FetchType.LAZY)
+    @Type(ACLEntryArrayType.class)
+    private ACLEntry[] fullACL;
 
     @NotNull
     @OneToMany(mappedBy = "notebook", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -109,7 +113,13 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
 
     @Override
-    public void insertACL(UserEntity user, AccessLevel access, Boolean inherited) {
-        getAclEntities().put(user, new NotebookACLEntity(this, user, access, inherited));
+    public void insertACL(UserEntity user, AccessLevel access) {
+        getAclEntities().put(user, new NotebookACLEntity(this, user, access));
+    }
+
+    @Override
+    @Transient
+    public WithACL<?> getACLParent() {
+        return project;
     }
 }

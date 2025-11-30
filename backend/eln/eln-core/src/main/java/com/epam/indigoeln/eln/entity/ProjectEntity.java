@@ -83,19 +83,23 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
-    @Column(insertable = false, updatable = false)
     @Type(ACLEntryArrayType.class)
     private ACLEntry[] aclShort;
-
-    @NotNull
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    @MapKeyJoinColumn(name = "user_id")
-    private Map<UserEntity, ProjectACLEntity> aclEntities;
 
     @NotNull
     @Basic(fetch =  FetchType.LAZY)
     @Column(insertable = false, updatable = false)
     private Integer aclCount;
+
+    @NotNull
+    @Basic(fetch = FetchType.LAZY)
+    @Type(ACLEntryArrayType.class)
+    private ACLEntry[] fullACL;
+
+    @NotNull
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @MapKeyJoinColumn(name = "user_id")
+    private Map<UserEntity, ProjectACLEntity> aclEntities;
 
     @NotNull
     @ManyToMany
@@ -118,7 +122,14 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
 
     @Override
-    public void insertACL(UserEntity user, AccessLevel access, Boolean inherited) {
+    public void insertACL(UserEntity user, AccessLevel access) {
         getAclEntities().put(user, new ProjectACLEntity(this, user, access));
+    }
+
+    @Override
+    @Nullable
+    @Transient
+    public WithACL<?> getACLParent() {
+        return null;
     }
 }

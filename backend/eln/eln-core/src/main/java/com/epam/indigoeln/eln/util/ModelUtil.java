@@ -31,13 +31,13 @@ public class ModelUtil {
     }
 
     public static String combinePostgresStruct(@Nullable Object[] parts) {
-        StringBuilder sb = new StringBuilder().append('{');
+        StringBuilder sb = new StringBuilder().append('(');
         for (Object part : parts) {
             sb.append(part != null ? part.toString().replace("\"", "\"\"") : "null");
             sb.append(',');
         }
         sb.deleteCharAt(sb.length() - 1);
-        sb.append('}');
+        sb.append(')');
         return sb.toString();
     }
 }

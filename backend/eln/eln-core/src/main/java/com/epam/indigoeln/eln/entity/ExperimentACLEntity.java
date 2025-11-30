@@ -37,10 +37,6 @@ public class ExperimentACLEntity implements BaseACLEntity {
     @JdbcType(PostgreSQLEnumJdbcType.class)
     private AccessLevel level;
 
-    @Basic
-    @NotNull
-    private Boolean inherited;
-
     public record CompositeID(
             ExperimentEntity experiment,
             UserEntity user

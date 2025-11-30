@@ -84,13 +84,9 @@ public class ProjectService {
 
     public List<ACLDetailsEntryDTO> updateProjectAccess(UUID projectId, List<AccessForm> form) {
         ProjectEntity project = projectRepository.get(projectId);
-        // TODO issue separate select for update
-//        projectRepository.getEntityManager().lock(project, LockModeType.PESSIMISTIC_WRITE);
+        projectRepository.lockProject(project);
         aclService.ensureAccess(project, ApplicationPermission.MANAGE_PROJECT_ACCESS);
-        for (AccessForm item : form) {
-            UserEntity user = userService.getUserEntity(item.getUserID());
-            aclService.updateProjectACL(project, user, item.getLevel());
-        }
-        return projectMapper.convertACLMap(project.getAclEntities());
+        aclService.updateProjectACL(project, form);
+        return projectMapper.convertDetailsACLList(project.getFullACL());
     }
 }

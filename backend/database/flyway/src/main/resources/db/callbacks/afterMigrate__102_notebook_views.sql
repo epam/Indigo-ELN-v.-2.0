@@ -1,8 +1,3 @@
-CREATE OR REPLACE VIEW Notebook_ACL_View AS
-SELECT a.notebook_id, a.user_id, u.display_name, a.level, a.inherited
-FROM Notebook_ACL a
-JOIN User_Account u ON u.id = a.user_id;
-
 CREATE OR REPLACE VIEW Notebook_View AS
 SELECT n.*,
     (
@@ -13,18 +8,7 @@ SELECT n.*,
               GROUP BY e.status
         ) t
     ) experiment_count,
-    ARRAY(
-        SELECT ROW(a.user_id, a.display_name, a.level, a.inherited)::ACL_Entry
-        FROM Notebook_ACL_View a
-        WHERE a.notebook_id = n.id AND a.level != 'IMPLICIT_VIEW'
-        ORDER BY a.inherited, a.level DESC, a.display_name
-        LIMIT 3
-    ) acl_short,
-    (
-        SELECT COUNT(*)
-        FROM Notebook_ACL a
-        WHERE a.notebook_id = n.id AND a.level != 'IMPLICIT_VIEW'
-    ) acl_count
+    array_length(n.full_acl, 1) acl_count
 FROM Notebook_Base_View n;
 
 CREATE OR REPLACE FUNCTION get_notebook_search_vector(
@@ -46,8 +30,8 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION insert_Notebook_View()
     RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO Notebook (id, created_by_id, created_at, modified_by_id, modified_at, project_id, name, description)
-    VALUES (new.id, new.created_by_id, new.created_at, new.modified_by_id, new.modified_at, new.project_id, new.name, new.description);
+    INSERT INTO Notebook (id, created_by_id, created_at, modified_by_id, modified_at, project_id, name, description, full_acl, acl_short)
+    VALUES (new.id, new.created_by_id, new.created_at, new.modified_by_id, new.modified_at, new.project_id, new.name, new.description, new.full_acl, new.acl_short);
 
     UPDATE Notebook SET search_vector = get_notebook_search_vector(new.id) WHERE id = new.id;
 
@@ -67,7 +51,9 @@ BEGIN
     SET modified_by_id = new.modified_by_id,
         modified_at = new.modified_at,
         name = new.name,
-        description = new.description
+        description = new.description,
+        full_acl = new.full_acl,
+        acl_short = new.acl_short
     WHERE id = new.id;
 
     UPDATE Notebook SET search_vector = get_notebook_search_vector(new.id) WHERE id = new.id;

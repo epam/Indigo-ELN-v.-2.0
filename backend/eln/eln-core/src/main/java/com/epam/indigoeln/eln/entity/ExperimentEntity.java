@@ -137,7 +137,6 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
-    @Column(insertable = false, updatable = false)
     @Type(ACLEntryArrayType.class)
     private ACLEntry[] aclShort;
 
@@ -145,6 +144,11 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @Basic(fetch =  FetchType.LAZY)
     @Column(insertable = false, updatable = false)
     private Integer aclCount;
+
+    @NotNull
+    @Basic(fetch = FetchType.LAZY)
+    @Type(ACLEntryArrayType.class)
+    private ACLEntry[] fullACL;
 
     @NotNull
     @OneToMany(mappedBy = "experiment", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -181,7 +185,13 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     private List<String> rxnfiles = new ArrayList<>(0);
 
     @Override
-    public void insertACL(UserEntity user, AccessLevel access, Boolean inherited) {
-        getAclEntities().put(user, new ExperimentACLEntity(this, user, access, inherited));
+    public void insertACL(UserEntity user, AccessLevel access) {
+        getAclEntities().put(user, new ExperimentACLEntity(this, user, access));
+    }
+
+    @Override
+    @Transient
+    public NotebookEntity getACLParent() {
+        return notebook;
     }
 }

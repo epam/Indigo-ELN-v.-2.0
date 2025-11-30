@@ -11,6 +11,7 @@ import io.quarkus.panache.common.Sort;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.LockModeType;
 
 import java.util.UUID;
 
@@ -54,5 +55,9 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
     public TotalCounts getTotalCounts() {
         TotalCountsEntity entity = em.createQuery("from TotalCounts", TotalCountsEntity.class).getSingleResult();
         return projectMapper.convertTotalCounts(entity);
+    }
+
+    public void lockProject(ProjectEntity project) {
+        em.lock(project, LockModeType.PESSIMISTIC_WRITE);
     }
 }
