@@ -59,7 +59,7 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
             }
         }
         addTextSearch(conditions, request.getNbkBatchNumber(), "nbkBatchNumber");;
-        addTextSearch(conditions, request.getStrCode(), "strCode");
+        addTextSearch(conditions, request.getCompoundKey(), "compound.strCode");
         addTextSearch(conditions, request.getMolecularFormula(), "compound.formula");
         addNumericSearch(conditions, request.getMolWeight(), "compound.molWeight");
         addTextSearch(conditions, request.getChemicalName(), "compound.chemicalName");

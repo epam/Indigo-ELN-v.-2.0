@@ -31,6 +31,9 @@ public class CompoundEntity extends IdentifiableEntity {
     private CompoundSource source;
 
     @Nullable
+    private String compoundKey;
+
+    @Nullable
     @Convert(converter = STRCodeCompoundConverter.class)
     private STRCodeCompound strCode; // STR code for compounds registered from Indigo ELN
 

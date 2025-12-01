@@ -25,7 +25,7 @@ public class FindSamplesRequest {
 
     @Valid
     @Nullable
-    TextSearch strCode;
+    TextSearch compoundKey;
 
     @Valid
     @Nullable
