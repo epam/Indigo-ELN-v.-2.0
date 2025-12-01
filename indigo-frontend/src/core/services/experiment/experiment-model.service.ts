@@ -2,7 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { ApiService } from '@/core/services/api.service';
 import { ExperimentModel } from '@/core/types/entities/experiments/experiment.i';
-import { MutateModelForm } from '@/core/types/entities/experiments/experiment-mutate-form.i';
+import { Mutation } from '@/core/types/entities/experiments/mutation.i';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +14,7 @@ export class ExperimentModelService {
   readonly experimentModel = signal<ExperimentModel | null>(null);
   readonly isLoading = signal<boolean>(false);
   readonly hasError = signal<boolean>(false);
-  private readonly currentId = signal<string | null>(null);
+  readonly currentId = signal<string | null>(null);
 
   // Query methods
   load(experimentId: string) {
@@ -43,16 +43,37 @@ export class ExperimentModelService {
   }
 
   updateDataModel(
-    experimentId: string,
-    payload: MutateModelForm,
+    mutation: Mutation,
   ): Observable<ExperimentModel> {
+    const id = this.currentId();
+
+    if (!id) {
+      console.warn('No experiment ID in context');
+      return new Observable((observer) => {
+        observer.error(new Error('No experiment ID available'));
+      });
+    }
+
+    const model = this.experimentModel();
+    if (!model) {
+      console.warn('No experiment model available');
+      return new Observable((observer) => {
+        observer.error(new Error('No experiment model available'));
+      });
+    }
+
+    const payload = {
+      model,
+      mutation,
+    };
+
     this.isLoading.set(true);
     this.hasError.set(false);
 
     return this.service
       .request<ExperimentModel>(
         'post',
-        `experiments/${experimentId}/datamodel`,
+        `experiments/${id}/datamodel`,
         payload,
       )
       .pipe(
