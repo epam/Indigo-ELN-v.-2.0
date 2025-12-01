@@ -26,7 +26,6 @@ public final class ReactionInputSample extends ReactionSample implements Experim
         metamodel.anchorProperty("anchor", ReactionInputSample::getAnchor, ReactionInputSample::setAnchor, ReactionInputSamplePatch::getAnchor, ReactionInputSamplePatch::setAnchor);
         metamodel.accept(ReactionSample::buildMetamodelBase);
         metamodel.<@Nullable UUID>simpleProperty("sampleId", ReactionInputSample::getSampleId, ReactionInputSample::setSampleId, ReactionInputSamplePatch::getSampleId, ReactionInputSamplePatch::setSampleId);
-        metamodel.<@Nullable String>simpleProperty("chemicalName", ReactionInputSample::getChemicalName, ReactionInputSample::setChemicalName, ReactionInputSamplePatch::getChemicalName, ReactionInputSamplePatch::setChemicalName);
         metamodel.enteredValueProperty("mol", ReactionInputSample::getMol, ReactionInputSample::setMol, ReactionInputSamplePatch::getMol, ReactionInputSamplePatch::setMol);
         metamodel.enteredValueProperty("weight", ReactionInputSample::getWeight, ReactionInputSample::setWeight, ReactionInputSamplePatch::getWeight, ReactionInputSamplePatch::setWeight);
         metamodel.<@Nullable String>simpleProperty("comment", ReactionInputSample::getComment, ReactionInputSample::setComment, ReactionInputSamplePatch::getComment, ReactionInputSamplePatch::setComment);
@@ -40,9 +39,6 @@ public final class ReactionInputSample extends ReactionSample implements Experim
 
     @Nullable
     private UUID sampleId;
-
-    @Nullable
-    private String chemicalName;
 
     @Nullable
     private NbkBatchNumber nbkBatchNumber;

@@ -212,7 +212,6 @@ public class CompoundService {
             sample.getHealthHazards().addAll(dictionaryService.lookup(BuiltInDictionary.HEALTH_HAZARD.name(), request.getHealthHazards()));
         }
         sample.setCompoundState(dictionaryService.lookup(BuiltInDictionary.COMPONENT_STATE.name(), request.getCompoundState()));
-        sample.setChemicalName(request.getChemicalName());
         sample.setBatchComment(request.getBatchComment());
         compound.getSamples().add(sample);
         updateDates(sample, userService.getCurrentUserEntity());

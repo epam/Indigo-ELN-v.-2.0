@@ -94,7 +94,6 @@ public class CompoundServiceTest extends ELNBaseTest {
                 .withPurity(0.50)
                 .withHealthHazards(List.of(healthHazard))
                 .withCompoundState(compoundState)
-                .withChemicalName("ChemicalName1")
                 .withBatchComment("batch comment")
         );
         str1 = sample.getStrCode();
@@ -187,7 +186,6 @@ public class CompoundServiceTest extends ELNBaseTest {
                 .withMolecularFormula(new TextSearch.ExactSearch("C9 H8 O4"))
                 .withMolWeight(new NumericSearch.Equals(180.0))
                 .withCompoundState(compoundState)
-                .withChemicalName(new TextSearch.ExactSearch("ChemicalName1"))
                 .withBatchComment(new TextSearch.ExactSearch("batch comment"))
                 .withHealthHazards(healthHazard)
                 , Paging.DEFAULT

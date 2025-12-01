@@ -16,7 +16,7 @@ import java.util.Optional;
 public class ReactionOutputPatch extends AbstractReactionRowPatch<Anchor.Output> {
 
     @Nullable
-    private Optional<String> chemicalName;
+    private Optional<String> outputName;
 
     @Nullable
     private Optional<ReactionOutputType> type;

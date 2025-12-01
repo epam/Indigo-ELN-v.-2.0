@@ -76,9 +76,6 @@ public class SampleEntity extends BaseEntity {
     private DictionaryItemEntity compoundState;
 
     @Nullable
-    private String chemicalName;
-
-    @Nullable
     private String batchComment;
 
     @Nullable

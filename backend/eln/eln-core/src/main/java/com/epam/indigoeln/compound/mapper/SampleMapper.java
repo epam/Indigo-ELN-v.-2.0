@@ -10,7 +10,7 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR)
 public abstract class SampleMapper {
 
-    @Mapping(target = "name", source = "chemicalName")
+    @Mapping(target = "name", source = "compound.chemicalName")
     @Mapping(target = "compoundID", source = "compound.id")
     @Mapping(target = "molWeight", source = "compound.molWeight")
     @Mapping(target = "molecularFormula", source = "compound.formula")

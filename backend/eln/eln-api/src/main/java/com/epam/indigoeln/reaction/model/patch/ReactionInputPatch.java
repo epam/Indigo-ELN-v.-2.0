@@ -21,6 +21,9 @@ public class ReactionInputPatch extends AbstractReactionRowPatch<Anchor.Input> {
     private Optional<EnteredValuePatch<MolUnit>> mol;
 
     @Nullable
+    private Optional<String> chemicalName;
+
+    @Nullable
     private Optional<ListPatch<ReactionInputSamplePatch>> samples;
 
     @Nullable

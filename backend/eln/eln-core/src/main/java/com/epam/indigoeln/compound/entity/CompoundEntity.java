@@ -52,6 +52,9 @@ public class CompoundEntity extends IdentifiableEntity {
     @Column(name = "salt_eq_100")
     private Integer saltEQ100;
 
+    @Nullable
+    private String chemicalName;
+
     @NotEmpty
     private String formula;
 

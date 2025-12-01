@@ -62,7 +62,7 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
         addTextSearch(conditions, request.getStrCode(), "strCode");
         addTextSearch(conditions, request.getMolecularFormula(), "compound.formula");
         addNumericSearch(conditions, request.getMolWeight(), "compound.molWeight");
-        addTextSearch(conditions, request.getChemicalName(), "chemicalName");
+        addTextSearch(conditions, request.getChemicalName(), "compound.chemicalName");
         addTextSearch(conditions, request.getCasNumber(), "compound.casNumber");
         addTextSearch(conditions, request.getExternalNumber(), "externalNumber");
         addTextSearch(conditions, request.getBatchComment(), "batchComment");
