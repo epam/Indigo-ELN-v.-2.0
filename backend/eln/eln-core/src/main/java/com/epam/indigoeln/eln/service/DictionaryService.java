@@ -12,7 +12,6 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
 import com.epam.indigoeln.eln.repository.DictionaryRepository;
 import com.epam.indigoeln.eln.repository.SaltCodeRepository;
-import com.epam.indigoeln.reaction.model.SaltCodeRef;
 import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheName;
 import io.quarkus.cache.CacheResult;
@@ -126,7 +125,7 @@ public class DictionaryService {
         return dictionaryMapper.saltCodeToInfo(getSalt(id));
     }
 
-    public SaltCodeRef getSaltRef(UUID id) {
+    public DictionaryItemRef getSaltRef(UUID id) {
         return getSaltInfo(id).toRef();
     }
 

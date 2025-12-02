@@ -8,7 +8,10 @@ import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
-import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.CompoundRef;
+import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.ReactionOutput;
+import com.epam.indigoeln.reaction.model.ReactionRow;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
@@ -91,12 +94,8 @@ public class CompoundHandler extends AbstractMutationHandler {
         }
     }
 
-    private SaltCodeInfo saltCodeInfo(DictionaryItemRef ref) {
-        return dictionaryService.getSaltInfo(ref.getId());
-    }
-
     @Nullable
-    private SaltCodeInfo saltCodeInfo(@Nullable SaltCodeRef ref) {
+    private SaltCodeInfo saltCodeInfo(@Nullable DictionaryItemRef ref) {
         return ref != null ? dictionaryService.getSaltInfo(ref.getId()) : null;
     }
 }

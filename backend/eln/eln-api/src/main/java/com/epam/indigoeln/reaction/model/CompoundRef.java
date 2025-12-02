@@ -33,7 +33,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     DictionaryItemRef getStereoisomerCode();
 
     @Nullable
-    SaltCodeRef getSaltCode();
+    DictionaryItemRef getSaltCode();
 
     @Nullable
     Double getSaltEQ();
@@ -67,7 +67,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         private DictionaryItemRef stereoisomerCode;
 
         @Nullable
-        private SaltCodeRef saltCode;
+        private DictionaryItemRef saltCode;
 
         @Nullable
         private Double saltEQ;
@@ -120,7 +120,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         private final DictionaryItemRef stereoisomerCode;
 
         @Nullable
-        private final SaltCodeRef saltCode;
+        private final DictionaryItemRef saltCode;
 
         @Nullable
         private final Double saltEQ;
@@ -180,7 +180,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Override
         @Nullable
         @JsonIgnore
-        public SaltCodeRef getSaltCode() {
+        public DictionaryItemRef getSaltCode() {
             return null;
         }
 

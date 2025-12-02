@@ -1,6 +1,6 @@
 package com.epam.indigoeln.eln.entity;
 
-import com.epam.indigoeln.reaction.model.SaltCodeRef;
+import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import lombok.Value;
 
 import java.util.UUID;
@@ -15,7 +15,7 @@ public class SaltCodeInfo {
     int charge;
     double molWeight;
 
-    public SaltCodeRef toRef() {
-        return new SaltCodeRef(id, code, name);
+    public DictionaryItemRef toRef() {
+        return new DictionaryItemRef(id, name);
     }
 }
