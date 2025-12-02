@@ -13,8 +13,8 @@ CREATE TABLE User_Account (
     modified_by_id UUID NOT NULL,
     modified_at TIMESTAMPTZ NOT NULL,
     username VARCHAR(256) NOT NULL,
-    first_name VARCHAR(256),
-    last_name VARCHAR(256),
+    first_name VARCHAR(256) NOT NULL,
+    last_name VARCHAR(256) NOT NULL,
     display_name VARCHAR(256) NOT NULL,
     CONSTRAINT user_account_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT user_account_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
@@ -79,10 +79,10 @@ INSERT INTO Application_Role (id, name, permissions) VALUES
 
 INSERT INTO User_Account (id
     , created_by_id, created_at, modified_by_id, modified_at
-    , username, last_name, display_name)
+    , username, first_name, last_name, display_name)
 VALUES ('00000000-0000-0000-0000-000000000001'
     , '00000000-0000-0000-0000-000000000001', NOW(), '00000000-0000-0000-0000-000000000001', NOW()
-    , 'admin', 'Administrator', 'Administrator'
+    , 'admin', 'Administrator', 'Administrator', 'Administrator'
 );
 
 INSERT INTO User_Account_Application_Role (user_id, role_id)

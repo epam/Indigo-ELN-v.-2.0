@@ -61,7 +61,8 @@ public class NotebookService {
     public Page<NotebookDTO> getNotebooks(UUID projectId, @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort,
                                           @QueryParam("createdByMe") @Nullable Boolean createdByMe, Paging paging) {
         UserEntity currentUser = Boolean.TRUE.equals(createdByMe) ? userService.getCurrentUserEntity() : null;
-        return notebookRepository.findAll(projectId, search, sort, currentUser, paging);
+        boolean showAll = userService.getCurrentUserEntity().collectPermissions().contains(ApplicationPermission.VIEW_NOTEBOOKS);
+        return notebookRepository.findAll(projectId, search, sort, currentUser, paging, showAll);
     }
 
     public NotebookDetailsDTO getNotebook(UUID notebookId) {
@@ -80,12 +81,9 @@ public class NotebookService {
 
     public List<ACLDetailsEntryDTO> updateNotebookAccess(UUID notebookId, List<AccessForm> form) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
-//        notebookRepository.getEntityManager().lock(notebook.getProject(), LockModeType.PESSIMISTIC_WRITE);
+        projectRepository.lockProject(notebook.getProject());
         aclService.ensureAccess(notebook, ApplicationPermission.MANAGE_NOTEBOOK_ACCESS);
-        for (AccessForm item : form) {
-            UserEntity user = userService.getUserEntity(item.getUserID());
-            aclService.updateNotebookACL(notebook.getProject(), notebook, user, item.getLevel());
-        }
-        return notebookMapper.convertACLMap(notebook.getAclEntities());
+        aclService.updateNotebookACL(notebook.getProject(), notebook, form);
+        return notebookMapper.convertDetailsACLList(notebook.getFullACL());
     }
 }

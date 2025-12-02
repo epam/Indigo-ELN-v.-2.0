@@ -15,7 +15,6 @@ public abstract class ExperimentMapper extends AbstractMapper {
 
     @IgnoreBaseFields
     @Mapping(target = "name", ignore = true)
-    @Mapping(target = "currentAccess", ignore = true)
     @Mapping(target = "project", ignore = true)
     @Mapping(target = "notebook", ignore = true)
     @Mapping(target = "template", ignore = true)
@@ -23,10 +22,9 @@ public abstract class ExperimentMapper extends AbstractMapper {
     @Mapping(target = "projectCode", ignore = true)
     @Mapping(target = "searchVector", ignore = true)
     @Mapping(target = "reportForSignature", ignore = true)
-    @Mapping(target = "marked", constant = "false")
-    @Mapping(target = "aclShort", expression = "java(new ACLEntry[0])")
-    @Mapping(target = "aclCount", constant = "0")
     @Mapping(target = "aclEntities", expression = "java(java.util.Map.of())")
+    @Mapping(target = "shortACL", ignore = true)
+    @Mapping(target = "fullACL", ignore = true)
     @Mapping(target = "attachments", expression = "java(java.util.List.of())")
     @Mapping(target = "signatures", expression = "java(java.util.List.of())")
     @Mapping(target = "referencedCompounds", expression = "java(java.util.Set.of())")
@@ -34,12 +32,16 @@ public abstract class ExperimentMapper extends AbstractMapper {
     @Mapping(target = "rxnfiles", expression = "java(java.util.List.of())")
     @Mapping(target = "model", ignore = true)
     @Mapping(target = "picture", ignore = true)
+    @Mapping(target = "calculatedInfo", ignore = true)
     public abstract ExperimentEntity requestToExperiment(ExperimentRequest experiment, ExperimentStatus status);
 
-    @Mapping(target = "acl", source = "aclShort")
+    @Mapping(target = "acl", source = "shortACL")
+    @Mapping(target = "aclCount", source = "calculatedInfo.aclCount")
+    @Mapping(target = "marked", source = "calculatedInfo.marked")
     public abstract ExperimentDTO entityToDTO(ExperimentEntity entity);
 
-    @Mapping(target = "acl", source = "aclEntities")
+    @Mapping(target = "acl", source = "fullACL")
+    @Mapping(target = "marked", source = "calculatedInfo.marked")
     @Mapping(target = "templateId", source = "template.id")
     public abstract ExperimentDetailsDTO entityToDetailsDTO(ExperimentEntity entity);
 }

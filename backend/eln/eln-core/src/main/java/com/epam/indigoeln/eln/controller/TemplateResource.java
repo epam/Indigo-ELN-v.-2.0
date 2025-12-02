@@ -4,7 +4,7 @@ package com.epam.indigoeln.eln.controller;
 import com.epam.indigoeln.eln.api.BaseAPI;
 import com.epam.indigoeln.eln.api.TemplateAPI;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.eln.service.*;
+import com.epam.indigoeln.eln.service.TemplateService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -26,6 +26,11 @@ public class TemplateResource implements TemplateAPI {
     @Override
     public @NotNull @Valid Page<TemplateDTO> getTemplates(@Valid Paging paging) {
         return templateService.getTemplates(paging);
+    }
+
+    @Override
+    public TemplateDetailsDTO getByName(String name) {
+        return templateService.getByName(name);
     }
 
     @Override

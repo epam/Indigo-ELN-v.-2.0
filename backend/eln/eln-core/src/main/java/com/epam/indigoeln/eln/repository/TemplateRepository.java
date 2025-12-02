@@ -6,6 +6,7 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.Conditions;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.NotFoundException;
 
 import java.util.UUID;
 
@@ -35,5 +36,17 @@ public class TemplateRepository extends BaseRepository<TemplateEntity> {
                 em.getEntityGraph("Template.details"),
                 templateMapper::entityToDetailsDTO
         );
+    }
+
+    public TemplateDetailsDTO findByName(String name) {
+        TemplateDetailsDTO template = doFindOne(
+                new Conditions().add("lower(name) = ?", name.toLowerCase()),
+                em.getEntityGraph("Template.details"),
+                templateMapper::entityToDetailsDTO
+        );
+        if (template == null) {
+            throw new NotFoundException("Template not found");
+        }
+        return template;
     }
 }

@@ -9,7 +9,4 @@ public interface BaseACLEntity {
 
     AccessLevel getLevel();
     void setLevel(AccessLevel level);
-
-    Boolean getInherited();
-    void setInherited(Boolean inherited);
 }

@@ -133,7 +133,7 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     public static ReactionOutputSample createWithAnchor(ReactionOutput row, Anchor.OutputSample anchor) {
         ReactionOutputSample sample = new ReactionOutputSample();
         sample.row = row;
-        sample.anchor = new Anchor.OutputSample(row.getReaction().getModel().generateNextAnchor());
+        sample.anchor = anchor;
         return sample;
     }
 

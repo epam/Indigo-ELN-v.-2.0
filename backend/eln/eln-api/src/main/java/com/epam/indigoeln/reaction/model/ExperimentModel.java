@@ -10,7 +10,6 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.util.ExperimentModelUtil;
 import com.epam.indigoeln.reaction.util.ToStringUtil;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -26,12 +25,13 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @Data
-@EqualsAndHashCode(exclude = "lastUsedAnchorCached")
+@EqualsAndHashCode
 public final class ExperimentModel implements ExperimentModelNode {
 
     public static void buildMetamodel(Metamodel<ExperimentModel, ExperimentModelPatch> metamodel) {
         metamodel.setName("ExperimentModel");
         metamodel.simpleProperty("revision", ExperimentModel::getRevision, ExperimentModel::setRevision, ExperimentModelPatch::getRevision, ExperimentModelPatch::setRevision);
+        metamodel.simpleProperty("lastUsedAnchor", ExperimentModel::getLastUsedAnchor, ExperimentModel::setLastUsedAnchor, ExperimentModelPatch::getLastUsedAnchor, ExperimentModelPatch::setLastUsedAnchor);
         metamodel.listProperty("reactions", ExperimentModel::getReactions, ExperimentModel::setReactions, ExperimentModelPatch::getReactions, ExperimentModelPatch::setReactions, Handlers.REACTION_METAMODEL, Handlers.REACTION_LIST);
     }
 
@@ -40,32 +40,13 @@ public final class ExperimentModel implements ExperimentModelNode {
     @JsonManagedReference
     private List<Reaction> reactions = List.of();
 
-    @Nullable
-    @JsonIgnore
-    private Integer lastUsedAnchorCached;
+    private Integer lastUsedAnchor = 0;
 
     @NotNull
     private Integer revision;
 
     public int generateNextAnchor() {
-        if (lastUsedAnchorCached == null) {
-            int[] last = {0};
-            walk(node -> {
-                Anchor anchor = switch (node) {
-                    case Reaction reaction -> reaction.getAnchor();
-                    case ReactionInput input -> input.getAnchor();
-                    case ReactionInputSample sample -> sample.getAnchor();
-                    case ReactionOutput output -> output.getAnchor();
-                    case ReactionOutputSample sample -> sample.getAnchor();
-                    default -> null;
-                };
-                if (anchor != null) {
-                    last[0] = Math.max(last[0], anchor.getNumber());
-                }
-            });
-            lastUsedAnchorCached = last[0];
-        }
-        return ++lastUsedAnchorCached;
+        return ++lastUsedAnchor;
     }
 
     public int generateNextNbkBatchNumber() {

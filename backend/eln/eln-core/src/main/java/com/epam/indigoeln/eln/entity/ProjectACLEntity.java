@@ -37,17 +37,6 @@ public class ProjectACLEntity implements BaseACLEntity {
     @JdbcType(PostgreSQLEnumJdbcType.class)
     private AccessLevel level;
 
-    @Override
-    @Transient
-    public Boolean getInherited() {
-        return Boolean.FALSE;
-    }
-
-    @Override
-    public void setInherited(Boolean inherited) {
-        // nothing
-    }
-
     public record CompositeID(
             ProjectEntity project,
             UserEntity user

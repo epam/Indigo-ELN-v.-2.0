@@ -66,7 +66,7 @@ public sealed interface TemplateComponent permits
     @AllArgsConstructor(onConstructor_ = @JsonCreator)
     class StoichiometryTable implements TemplateComponent {
         boolean reactantsReagentsSolvents;
-        boolean reactionProduct;
+        boolean reactionProducts;
     }
 
     final class ReactionScheme implements TemplateComponent {

@@ -15,5 +15,8 @@ public class ExperimentModelPatch {
     private Optional<Integer> revision;
 
     @Nullable
+    private Optional<Integer> lastUsedAnchor;
+
+    @Nullable
     private Optional<ListPatch<ReactionPatch>> reactions;
 }

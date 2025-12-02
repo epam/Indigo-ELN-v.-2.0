@@ -70,7 +70,10 @@ public class DatabaseInitializationService {
         try (MappingIterator<SaltCodeSpec> it = mapper.readerFor(SaltCodeSpec.class).with(schema).readValues(ModelUtil.loadResource(getClass(), "/db/data/salt_codes.csv"))) {
             saltCodes = it.readAll();
         }
-        int dictionariesInserted, itemsInserted, saltCodeInserted;
+        List<TemplateSpec> templates;
+        try (MappingIterator<TemplateSpec> it = mapper.readerFor(TemplateSpec.class).with(schema).readValues(ModelUtil.loadResource(getClass(), "/db/data/templates.csv"))) {
+            templates = it.readAll();
+        }
         try (Connection conn = dataSource.getConnection()) {
             if (count(conn, "Dictionary") > 0) {
                 log.info("Dictionaries already exist, skipping");
@@ -79,8 +82,10 @@ public class DatabaseInitializationService {
             statistics.put("dictionariesInserted", "" + insertDictionaries(conn, dictionaries));
             statistics.put("itemsInserted", "" + insertDictionaryItems(conn, items, dictionaryMap));
             statistics.put("saltCodesInserted", "" + insertSaltCodes(conn, saltCodes));
+            statistics.put("templatesInserted", "" + insertTemplates(conn, templates));
         }
     }
+
     private int insertDictionaries(Connection conn, List<DictionarySpec> dictionaries) throws SQLException {
         try (PreparedStatement st = conn.prepareStatement("""
                 INSERT INTO Dictionary (id, created_by_id, created_at, modified_by_id, modified_at, code, name, user_editable, description)
@@ -142,6 +147,23 @@ public class DatabaseInitializationService {
         }
     }
 
+    private int insertTemplates(Connection conn, List<TemplateSpec> templates) throws SQLException {
+        try (PreparedStatement st = conn.prepareStatement("""
+                INSERT INTO Template (id, created_by_id, created_at, modified_by_id, modified_at, name, template_tabs)
+                VALUES (?, ?, now(), ?, now(), ?, ?::jsonb)
+                """)) {
+            for (TemplateSpec template : templates) {
+                st.setObject(1, UUID.randomUUID());
+                st.setObject(2, ADMIN);
+                st.setObject(3, ADMIN);
+                st.setString(4, template.name());
+                st.setString(5, template.content());
+                st.addBatch();
+            }
+            return st.executeBatch().length;
+        }
+    }
+
     private long count(Connection conn, String table) throws SQLException {
         try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM " + table)) {
             rs.next();
@@ -175,5 +197,11 @@ public class DatabaseInitializationService {
         String formula,
         int charge,
         double molWeight
+    ) {}
+
+    @RegisterForReflection
+    public record TemplateSpec (
+        String name,
+        String content
     ) {}
 }

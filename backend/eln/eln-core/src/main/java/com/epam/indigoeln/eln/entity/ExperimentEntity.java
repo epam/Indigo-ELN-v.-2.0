@@ -11,6 +11,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
@@ -26,16 +27,21 @@ import java.util.*;
 @AllArgsConstructor
 @ToString(of = {"id", "name"}, includeFieldNames = false)
 @Entity(name = "Experiment")
-@Table(name = "Experiment_View")
 @NamedEntityGraph(
         name = "Experiment.list",
         attributeNodes = {
                 @NamedAttributeNode("createdBy"),
                 @NamedAttributeNode("modifiedBy"),
-                @NamedAttributeNode("marked"),
-                @NamedAttributeNode("aclShort"),
-                @NamedAttributeNode("aclCount"),
-        }
+                @NamedAttributeNode("shortACL"),
+                @NamedAttributeNode(value = "calculatedInfo", subgraph = "Experiment.calculatedInfo.list"),
+        },
+        subgraphs = @NamedSubgraph(
+                name = "Notebook.calculatedInfo.list",
+                attributeNodes = {
+                        @NamedAttributeNode("aclCount"),
+                        @NamedAttributeNode("marked"),
+                }
+        )
 )
 @NamedEntityGraph(
         name = "Experiment.details",
@@ -45,17 +51,24 @@ import java.util.*;
                 @NamedAttributeNode("description"),
                 @NamedAttributeNode("therapeuticArea"),
                 @NamedAttributeNode("projectCode"),
-                @NamedAttributeNode("marked"),
                 @NamedAttributeNode("aclEntities"),
-                @NamedAttributeNode("signatures")
-        }
+                @NamedAttributeNode("signatures"),
+                @NamedAttributeNode(value = "calculatedInfo", subgraph = "Experiment.calculatedInfo.details"),
+        },
+        subgraphs = @NamedSubgraph(
+                name = "Experiment.calculatedInfo.details",
+                attributeNodes = {
+                        @NamedAttributeNode("currentAccess"),
+                        @NamedAttributeNode("marked"),
+                }
+        )
 )
 @NamedEntityGraph(
         name = "Experiment.forSignature",
         attributeNodes = {
                 @NamedAttributeNode("createdBy"),
                 @NamedAttributeNode("modifiedBy"),
-                @NamedAttributeNode("signatures")
+                @NamedAttributeNode("signatures"),
         }
 )
 @NamedEntityGraph(
@@ -65,10 +78,10 @@ import java.util.*;
 @NamedEntityGraph(
         name = "Experiment.withACL",
         attributeNodes = {
-                @NamedAttributeNode("aclEntities")
+                @NamedAttributeNode("aclEntities"),
         }
 )
-//@DynamicUpdate // TODO cannot use until update is done via trigger
+@DynamicUpdate
 public class ExperimentEntity extends BaseEntity implements WithAttachments, WithACL<ExperimentACLEntity> {
 
     @NotNull
@@ -117,34 +130,23 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @OneToOne(fetch = FetchType.LAZY)
     private AttachmentEntity reportForSignature;
 
-    @Basic
-    @Nullable
-    @Column(insertable = false, updatable = false)
-    @JdbcType(PostgreSQLEnumJdbcType.class)
-    private AccessLevel currentAccess;
-
-    @NotNull
-    @Basic(fetch = FetchType.LAZY)
-    private Boolean marked;
-
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
     @Convert(converter = ExperimentModelConverter.class)
     private ExperimentModel model;
 
     @Basic(fetch = FetchType.LAZY)
-    private byte @Nullable[] picture;
+    private byte @Nullable [] picture;
 
     @NotNull
     @Basic(fetch = FetchType.LAZY)
-    @Column(insertable = false, updatable = false)
     @Type(ACLEntryArrayType.class)
-    private ACLEntry[] aclShort;
+    private ACLEntry[] shortACL;
 
     @NotNull
-    @Basic(fetch =  FetchType.LAZY)
-    @Column(insertable = false, updatable = false)
-    private Integer aclCount;
+    @Basic(fetch = FetchType.LAZY)
+    @Type(ACLEntryArrayType.class)
+    private ACLEntry[] fullACL;
 
     @NotNull
     @OneToMany(mappedBy = "experiment", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -156,6 +158,11 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @JoinTable(name = "experiment_attachment", joinColumns = @JoinColumn(name = "experiment_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
+
+    @Nullable
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id", referencedColumnName = "id")
+    private CalculatedInfo calculatedInfo;
 
     @NotNull
     @OrderColumn(name = "ordinal")
@@ -181,7 +188,37 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     private List<String> rxnfiles = new ArrayList<>(0);
 
     @Override
-    public void insertACL(UserEntity user, AccessLevel access, Boolean inherited) {
-        getAclEntities().put(user, new ExperimentACLEntity(this, user, access, inherited));
+    public void insertACL(UserEntity user, AccessLevel access) {
+        getAclEntities().put(user, new ExperimentACLEntity(this, user, access));
+    }
+
+    @Override
+    @Transient
+    public NotebookEntity getACLParent() {
+        return notebook;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Entity(name = "ExperimentCalculatedInfo")
+    @Table(name = "Experiment_View_2")
+    public static class CalculatedInfo extends IdentifiableEntity {
+
+        @Basic
+        @Nullable
+        @Column(insertable = false, updatable = false)
+        @JdbcType(PostgreSQLEnumJdbcType.class)
+        private AccessLevel currentAccess;
+
+        @NotNull
+        @Basic(fetch = FetchType.LAZY)
+        @Column(insertable = false, updatable = false)
+        private Integer aclCount;
+
+        @NotNull
+        @Basic(fetch = FetchType.LAZY)
+        private Boolean marked;
     }
 }

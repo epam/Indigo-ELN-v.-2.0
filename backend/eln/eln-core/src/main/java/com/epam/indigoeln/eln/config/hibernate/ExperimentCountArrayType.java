@@ -1,11 +1,12 @@
 package com.epam.indigoeln.eln.config.hibernate;
 
+import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
 import one.util.streamex.StreamEx;
 
 import java.util.Map;
 
-public class ExperimentCountArrayType extends AbstractReadOnlyArrayType<Map<ExperimentStatus, Integer>> {
+public class ExperimentCountArrayType extends AbstractArrayOfStructType<Map<ExperimentStatus, Integer>, Pair<ExperimentStatus, Integer>> {
 
     @Override
     public Class<Map<ExperimentStatus, Integer>> returnedClass() {
@@ -14,7 +15,17 @@ public class ExperimentCountArrayType extends AbstractReadOnlyArrayType<Map<Expe
     }
 
     @Override
-    protected Map<ExperimentStatus, Integer> doRead(StreamEx<String[]> stream) {
-        return stream.toMap(a -> ExperimentStatus.valueOf(a[0]), a -> Integer.parseInt(a[1]));
+    protected Pair<ExperimentStatus, Integer> doRead(String[] parts) {
+        return Pair.of(ExperimentStatus.valueOf(parts[0]), Integer.valueOf(parts[1]));
+    }
+
+    @Override
+    protected Map<ExperimentStatus, Integer> doAssemble(StreamEx<Pair<ExperimentStatus, Integer>> stream) {
+        return stream.toMap(Pair::a, Pair::b);
+    }
+
+    @Override
+    protected String getSQLElementType() {
+        return "Experiment_Count";
     }
 }

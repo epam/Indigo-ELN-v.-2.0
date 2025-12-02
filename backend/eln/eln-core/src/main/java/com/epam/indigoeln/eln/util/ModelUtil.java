@@ -3,6 +3,7 @@ package com.epam.indigoeln.eln.util;
 import com.epam.indigoeln.eln.entity.BaseEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import one.util.streamex.StreamEx;
+import org.jspecify.annotations.Nullable;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -27,5 +28,16 @@ public class ModelUtil {
                             : s;
                 })
                 .toArray(String[]::new);
+    }
+
+    public static String combinePostgresStruct(@Nullable Object[] parts) {
+        StringBuilder sb = new StringBuilder().append('(');
+        for (Object part : parts) {
+            sb.append(part != null ? part.toString().replace("\"", "\"\"") : "null");
+            sb.append(',');
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        sb.append(')');
+        return sb.toString();
     }
 }

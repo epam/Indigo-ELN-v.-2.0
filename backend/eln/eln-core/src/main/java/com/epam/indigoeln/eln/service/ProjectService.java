@@ -57,7 +57,8 @@ public class ProjectService {
 
     public Page<ProjectDTO> getProjects(@Nullable String search, @Nullable SortOrder sort, @Nullable Boolean createdByMe, Paging paging) {
         UserEntity currentUser = Boolean.TRUE.equals(createdByMe) ? userService.getCurrentUserEntity() : null;
-        return projectRepository.findAll(search, sort, currentUser, paging);
+        boolean showAll = userService.getCurrentUserEntity().collectPermissions().contains(ApplicationPermission.VIEW_PROJECTS);
+        return projectRepository.findAll(search, sort, currentUser, paging, showAll);
     }
 
     public ProjectDetailsDTO getProject(UUID projectId) {
@@ -84,13 +85,9 @@ public class ProjectService {
 
     public List<ACLDetailsEntryDTO> updateProjectAccess(UUID projectId, List<AccessForm> form) {
         ProjectEntity project = projectRepository.get(projectId);
-        // TODO issue separate select for update
-//        projectRepository.getEntityManager().lock(project, LockModeType.PESSIMISTIC_WRITE);
+        projectRepository.lockProject(project);
         aclService.ensureAccess(project, ApplicationPermission.MANAGE_PROJECT_ACCESS);
-        for (AccessForm item : form) {
-            UserEntity user = userService.getUserEntity(item.getUserID());
-            aclService.updateProjectACL(project, user, item.getLevel());
-        }
-        return projectMapper.convertACLMap(project.getAclEntities());
+        aclService.updateProjectACL(project, form);
+        return projectMapper.convertDetailsACLList(project.getFullACL());
     }
 }

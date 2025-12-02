@@ -18,7 +18,7 @@ CREATE TYPE Access_Level AS ENUM (
     'AUTHOR'
 );
 
-CREATE TYPE ACL_Entry AS (user_id UUID, display_name TEXT, level Access_Level, inherited BOOLEAN);
+CREATE TYPE ACL_Entry AS (user_id UUID, display_name TEXT, username TEXT, level Access_Level, inherited BOOLEAN);
 
 CREATE TYPE Experiment_Count AS (status Experiment_Status, count INT);
 
@@ -78,4 +78,11 @@ CREATE TYPE Molarity_Unit AS ENUM (
 );
 CREATE TYPE Density_Unit AS ENUM (
     'G_ML'
+);
+
+CREATE TYPE Reaction_Role AS ENUM (
+    'REACTANT',
+    'CATALYST',
+    'SOLVENT',
+    'OUTPUT'
 );

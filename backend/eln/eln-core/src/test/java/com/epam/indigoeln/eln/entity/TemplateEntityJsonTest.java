@@ -69,7 +69,7 @@ public class TemplateEntityJsonTest {
         assertThat(json).contains("\"type\":\"reactionsDetails\"");
         assertThat(json).contains("\"type\":\"stoichiometryTable\"");
         assertThat(json).contains("\"reactantsReagentsSolvents\":true");
-        assertThat(json).contains("\"reactionProduct\":false");
+        assertThat(json).contains("\"reactionProducts\":false");
         assertThat(json).contains("\"type\":\"reactionScheme\"");
         assertThat(json).contains("\"type\":\"reactants\"");
         assertThat(json).contains("\"type\":\"intendedProducts\"");

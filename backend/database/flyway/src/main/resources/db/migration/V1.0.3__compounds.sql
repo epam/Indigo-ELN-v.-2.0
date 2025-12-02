@@ -7,11 +7,15 @@ CREATE TABLE Compound (
     salt_code_id UUID,
     salt_eq_100 INT,
     source Compound_Source NOT NULL,
+    chemical_name VARCHAR(1000),
+    compound_key VARCHAR(1000),
     str_code VARCHAR(1000),
     formula VARCHAR(1000) NOT NULL,
-    name VARCHAR(1000),
     mol_file TEXT NOT NULL,
     mol_weight DOUBLE PRECISION NOT NULL,
+    exact_mass DOUBLE PRECISION NOT NULL,
+    cas_number VARCHAR(1000),
+    picture BYTEA NOT NULL,
     CONSTRAINT compound_stereoisomer_code_fk FOREIGN KEY (stereoisomer_code_id) REFERENCES dictionary_item (id),
     CONSTRAINT compound_salt_code_fk FOREIGN KEY (salt_code_id) REFERENCES salt_code (id),
     CONSTRAINT compound_uq UNIQUE (can_smiles, stereoisomer_code_id, salt_code_id, salt_eq_100),
@@ -20,19 +24,16 @@ CREATE TABLE Compound (
 
 CREATE INDEX ix_compound_mol_file ON Compound USING bingo_idx (mol_file bingo.molecule) ;
 
-CREATE TABLE Compound_Experiment (
-    compound_id UUID NOT NULL,
-    experiment_id UUID NOT NULL,
-    CONSTRAINT compound_experiment_pk PRIMARY KEY (compound_id, experiment_id),
-    CONSTRAINT compound_experiment_compound_id_fk FOREIGN KEY (compound_id) REFERENCES Compound(id) ON DELETE CASCADE,
-    CONSTRAINT compound_experiment_experiment_id_fk FOREIGN KEY (experiment_id) REFERENCES Experiment(id) ON DELETE CASCADE
-);
-
 CREATE TABLE Sample (
     id UUID PRIMARY KEY,
+    created_by_id UUID NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL,
+    modified_by_id UUID NOT NULL,
+    modified_at TIMESTAMPTZ NOT NULL,
     compound_id UUID NOT NULL,
     str_code VARCHAR(64),
-    notebook_batch_number VARCHAR(64),
+    external_number VARCHAR(1000),
+    nbk_batch_number VARCHAR(64),
     density DOUBLE PRECISION,
     molarity DOUBLE PRECISION,
     molarity_unit Molarity_Unit,
@@ -40,6 +41,8 @@ CREATE TABLE Sample (
     compound_state_id UUID,
     batch_comment TEXT,
     search_vector TSVECTOR,
+    CONSTRAINT sample_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
+    CONSTRAINT sample_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT sample_compound_id_fk FOREIGN KEY (compound_id) REFERENCES Compound(id),
     CONSTRAINT sample_compound_state_id_fk FOREIGN KEY (compound_state_id) REFERENCES dictionary_item(id),
     CONSTRAINT sample_str_code_uq UNIQUE (str_code)
@@ -64,3 +67,11 @@ CREATE TABLE Sample_Health_Hazard (
 -- );
 
 CREATE SEQUENCE compound_str_code_compound_seq START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+
+CREATE TABLE Sample_Mark (
+    sample_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    CONSTRAINT sample_mark_pk PRIMARY KEY (sample_id, user_id),
+    CONSTRAINT sample_mark_sample_id_fk FOREIGN KEY (sample_id) REFERENCES Sample (id) ON DELETE CASCADE,
+    CONSTRAINT sample_mark_user_id_fk FOREIGN KEY (user_id) REFERENCES User_Account (id) ON DELETE CASCADE
+);

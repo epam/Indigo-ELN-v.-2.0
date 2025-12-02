@@ -1,1 +1,0 @@
-ALTER TABLE Compound ADD COLUMN compound_key VARCHAR(1000);

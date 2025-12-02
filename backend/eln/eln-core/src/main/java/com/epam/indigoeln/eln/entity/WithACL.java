@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.entity;
 
 import com.epam.indigoeln.eln.model.AccessLevel;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
@@ -10,5 +11,13 @@ public interface WithACL<A extends BaseACLEntity> {
 
     Map<UserEntity, A> getAclEntities();
 
-    void insertACL(UserEntity user, AccessLevel access, Boolean inherited);
+    void insertACL(UserEntity user, AccessLevel access);
+
+    ACLEntry[] getFullACL();
+    void setFullACL(ACLEntry[] fullACL);
+
+    void setShortACL(ACLEntry[] shortACL);
+
+    @Nullable
+    WithACL<?> getACLParent();
 }

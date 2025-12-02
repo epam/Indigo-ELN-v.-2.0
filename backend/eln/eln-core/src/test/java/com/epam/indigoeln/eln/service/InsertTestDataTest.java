@@ -51,6 +51,7 @@ class InsertTestDataTest {
         String token = System.getenv("TOKEN");
         assertThat(token).describedAs("TOKEN environment variable").isNotNull();
         AtomicReference<String> authorization = new AtomicReference<>(token);
+
         projectClient = FeignUtil.buildFeignClient(baseURI, ProjectClient.class, testUsername, authorization);
         notebookClient = FeignUtil.buildFeignClient(baseURI, NotebookClient.class, testUsername, authorization);
         experimentClient = FeignUtil.buildFeignClient(baseURI, ExperimentClient.class, testUsername, authorization);
@@ -78,27 +79,9 @@ class InsertTestDataTest {
     }
 
     //    @Test
-    @Order(2)
-    void insertTemplate() {
-        TemplateDetailsDTO template = templateClient.createTemplate(new TemplateRequest(
-                "Default Template",
-                List.of(new TemplateTab("Test Tab", List.of(
-                                new TemplateComponent.ExperimentDetails(),
-                                new TemplateComponent.ExperimentDescription(),
-                                new TemplateComponent.Attachments(),
-                                new TemplateComponent.ReactionScheme(),
-                                new TemplateComponent.StoichiometryTable(true, true),
-                                new TemplateComponent.Batches())
-                        )
-                )));
-        System.out.println(template);
-    }
-
-    //    @Test
     @Order(3)
     void insertTestData() {
-        TemplateDTO template = findDefaultTemplate();
-        Map<String, String> result = miscClient.insertTestData(template.getId());
+        Map<String, String> result = miscClient.insertTestData();
         System.out.println(result);
     }
 
@@ -111,7 +94,7 @@ class InsertTestDataTest {
 //    @Test
     @Order(5)
     void fillExperiment(@TempDir Path tempDir) {
-        ExperimentDetailsDTO experiment = createExperiment("ProjectWithData", "88888888", findDefaultTemplate(), "Experiment with data");
+        ExperimentDetailsDTO experiment = createExperiment("ProjectWithData", "88888888", templateClient.getByName("Default"), "Experiment with data");
 
         // add attachment
         experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "This is attachment".getBytes());
@@ -190,7 +173,7 @@ class InsertTestDataTest {
 //    @Test
     @Order(7)
     void submitExperiment() {
-        ExperimentDetailsDTO experiment = createExperiment("ProjectWithData", "88888888", findDefaultTemplate(), "Experiment to submit");
+        ExperimentDetailsDTO experiment = createExperiment("ProjectWithData", "88888888", templateClient.getByName("Default"), "Experiment to submit");
         SignatureTemplateDTO signatureTemplate = signatureClient.getSignatureTemplates(Paging.ALL).getItems().stream()
                 .filter(t -> t.getName().equals("Author and Bob"))
                 .findFirst().orElseThrow();
@@ -215,13 +198,6 @@ class InsertTestDataTest {
                 therapeuticArea,
                 projectCode
         ));
-    }
-
-    private TemplateDTO findDefaultTemplate() {
-        return templateClient.getTemplates(Paging.ALL).getItems().stream()
-                .filter(t -> t.getName().equals("Default Template"))
-                .findAny()
-                .orElseThrow(() -> new IllegalStateException("Default Template not found"));
     }
 
     @SneakyThrows
