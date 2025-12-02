@@ -15,6 +15,7 @@ public class ExperimentModelPatchService {
 
     public ExperimentModelPatch createPatch(ExperimentModel a, ExperimentModel b) {
         Flag updated = new Flag();
+        log.warn("createPatch: a.lastUsedAnchor={}, b.lastUsedAnchor={}", a.getLastUsedAnchor(), b.getLastUsedAnchor());
         //noinspection OptionalAssignedToNull,DataFlowIssue,OptionalGetWithoutIsPresent
         return Handlers.EXPERIMENT_MODEL.compare(updated, a, b, null).get();
     }
