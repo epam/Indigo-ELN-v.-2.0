@@ -79,3 +79,10 @@ CREATE TYPE Molarity_Unit AS ENUM (
 CREATE TYPE Density_Unit AS ENUM (
     'G_ML'
 );
+
+CREATE TYPE Reaction_Role AS ENUM (
+    'REACTANT',
+    'CATALYST',
+    'SOLVENT',
+    'OUTPUT'
+);
