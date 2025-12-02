@@ -37,6 +37,10 @@ public class InputMutationHandler extends AbstractMutationHandler {
         row.setLimiting(true);
     }
 
+    public void handle(ReactionInput row, ReactionInputMutation.SetInputRowChemicalName mutation) {
+        row.setChemicalName(mutation.chemicalName());
+    }
+
     public void handle(ReactionInput row, ReactionInputMutation.SetInputRowLimiting mutation) {
         for (ReactionInput otherRow : row.getReaction().getInputs()) {
             otherRow.setLimiting(false);

@@ -83,6 +83,7 @@ public class ExperimentModelService {
                 yield switch (im) {
                     case ReactionInputMutation.SetInputRowRole m -> resolve(inputMutationHandler, h -> h.handle(input, m));
                     case ReactionInputMutation.SetInputRowMol m -> resolve(inputMutationHandler, h -> h.handle(input, m));
+                    case ReactionInputMutation.SetInputRowChemicalName m -> resolve(inputMutationHandler, h -> h.handle(input, m));
                     case ReactionInputMutation.SetInputRowLimiting m -> resolve(inputMutationHandler, h -> h.handle(input, m));
                     case ReactionInputMutation.SetInputRowSaltCode m -> resolve(compoundHandler, h -> h.handle(input, m));
                     case ReactionInputMutation.SetInputRowSaltEQ m -> resolve(compoundHandler, h -> h.handle(input, m));

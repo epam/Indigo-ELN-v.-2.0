@@ -94,7 +94,6 @@ public class CompoundServiceTest extends ELNBaseTest {
                 .withPurity(0.50)
                 .withHealthHazards(List.of(healthHazard))
                 .withCompoundState(compoundState)
-                .withChemicalName("ChemicalName1")
                 .withBatchComment("batch comment")
         );
         str1 = sample.getStrCode();
@@ -172,7 +171,7 @@ public class CompoundServiceTest extends ELNBaseTest {
     void testSearchRequestValidation() {
         assertThatClientCall(() -> {
             compoundClient.findSamples(new FindSamplesRequest()
-                            .withStrCode(new TextSearch.ExactSearch(null))
+                            .withCompoundKey(new TextSearch.ExactSearch(null))
                     , Paging.DEFAULT
             );
         }).isBadRequest("must not be null");
@@ -183,11 +182,9 @@ public class CompoundServiceTest extends ELNBaseTest {
     void testAdvancedSearch() {
         Page<SampleDTO> found = compoundService.findSamples(new FindSamplesRequest()
                 .withNbkBatchNumber(new TextSearch.ExactSearch("00000000-0000-001"))
-                .withStrCode(new TextSearch.ExactSearch(str1.toString()))
                 .withMolecularFormula(new TextSearch.ExactSearch("C9 H8 O4"))
                 .withMolWeight(new NumericSearch.Equals(180.0))
                 .withCompoundState(compoundState)
-                .withChemicalName(new TextSearch.ExactSearch("ChemicalName1"))
                 .withBatchComment(new TextSearch.ExactSearch("batch comment"))
                 .withHealthHazards(healthHazard)
                 , Paging.DEFAULT

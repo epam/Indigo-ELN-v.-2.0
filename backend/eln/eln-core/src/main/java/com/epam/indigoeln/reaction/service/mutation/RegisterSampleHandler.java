@@ -32,7 +32,6 @@ public class RegisterSampleHandler extends AbstractMutationHandler {
                 .withPurity(sampleRow.getPurity().getValue())
                 .withHealthHazards(sampleRow.getHealthHazards())
                 .withCompoundState(sampleRow.getComponentState())
-                .withChemicalName(sampleRow.getRow().getChemicalName())
                 .withBatchComment(sampleRow.getBatchComment())
         );
         sampleRow.setRegistrationStatus(SampleRegistrationStatus.REGISTERED);

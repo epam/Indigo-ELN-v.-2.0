@@ -19,9 +19,6 @@ public class ReactionInputSamplePatch extends AbstractReactionSamplePatch<Anchor
     private Optional<UUID> sampleId;
 
     @Nullable
-    private Optional<String> chemicalName;
-
-    @Nullable
     private Optional<EnteredValuePatch<MolUnit>> mol;
 
     @Nullable

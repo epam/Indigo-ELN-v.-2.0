@@ -25,7 +25,7 @@ public final class ReactionOutput extends ReactionRow implements ExperimentModel
         metamodel.setName("ReactionOutput");
         metamodel.anchorProperty("anchor", ReactionOutput::getAnchor, ReactionOutput::setAnchor, ReactionOutputPatch::getAnchor, ReactionOutputPatch::setAnchor);
         metamodel.accept(ReactionRow::buildMetamodelBase);
-        metamodel.simpleProperty("chemicalName", ReactionOutput::getChemicalName, ReactionOutput::setChemicalName, ReactionOutputPatch::getChemicalName, ReactionOutputPatch::setChemicalName);
+        metamodel.simpleProperty("outputName", ReactionOutput::getOutputName, ReactionOutput::setOutputName, ReactionOutputPatch::getOutputName, ReactionOutputPatch::setOutputName);
         metamodel.simpleProperty("type", ReactionOutput::getType, ReactionOutput::setType, ReactionOutputPatch::getType, ReactionOutputPatch::setType);
         metamodel.enteredValueProperty("theoMol", ReactionOutput::getTheoMol, ReactionOutput::setTheoMol, ReactionOutputPatch::getTheoMol, ReactionOutputPatch::setTheoMol);
         metamodel.enteredValueProperty("theoWeight", ReactionOutput::getTheoWeight, ReactionOutput::setTheoWeight, ReactionOutputPatch::getTheoWeight, ReactionOutputPatch::setTheoWeight);
@@ -36,7 +36,7 @@ public final class ReactionOutput extends ReactionRow implements ExperimentModel
     private Anchor.Output anchor;
 
     @NotNull
-    private String chemicalName;
+    private String outputName;
 
     @NotNull
     private ReactionOutputType type;
@@ -55,7 +55,7 @@ public final class ReactionOutput extends ReactionRow implements ExperimentModel
     public static ReactionOutput create(Reaction reaction, ReactionOutputType type) {
         ReactionOutput output = createWithAnchor(reaction, new Anchor.Output(reaction.getModel().generateNextAnchor()));
         output.type = type;
-        output.chemicalName = reaction.generateNextProductName();
+        output.outputName = reaction.generateNextProductName();
         return output;
     }
 

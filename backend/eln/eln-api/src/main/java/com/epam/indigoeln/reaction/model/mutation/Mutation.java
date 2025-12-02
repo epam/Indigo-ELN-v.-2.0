@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowRole.class),
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowMol.class),
+        @JsonSubTypes.Type(ReactionInputMutation.SetInputRowChemicalName.class),
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowLimiting.class),
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowSaltCode.class),
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowSaltEQ.class),
