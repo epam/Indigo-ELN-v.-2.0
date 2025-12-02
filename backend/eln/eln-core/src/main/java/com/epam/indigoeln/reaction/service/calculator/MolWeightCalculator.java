@@ -1,10 +1,10 @@
 package com.epam.indigoeln.reaction.service.calculator;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.eln.entity.SaltCodeInfo;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoAtom;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
-import com.epam.indigoeln.reaction.model.SaltCodeRef;
 import com.google.common.math.DoubleMath;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -22,7 +22,7 @@ public class MolWeightCalculator {
     @Inject
     IndigoAPI indigo;
 
-    public double calculateMolWeight(String molFile, @Nullable SaltCodeRef salt, @Nullable Double saltEQ) {
+    public double calculateMolWeight(String molFile, @Nullable SaltCodeInfo salt, @Nullable Double saltEQ) {
         if (salt != null && saltEQ != null) {
             return calculateMolWeightWithSalt(molFile, salt, saltEQ);
         } else {
@@ -40,7 +40,7 @@ public class MolWeightCalculator {
         return molecule.molecularWeight();
     }
 
-    private double calculateMolWeightWithSalt(String molFile, SaltCodeRef salt, double saltEQ) {
+    private double calculateMolWeightWithSalt(String molFile, SaltCodeInfo salt, double saltEQ) {
         // Input data:
         // molWeight - mol weight of user drawn (or selected by "Analyze RXN") main compound
         // moleculeCharge - electric charge of main compound

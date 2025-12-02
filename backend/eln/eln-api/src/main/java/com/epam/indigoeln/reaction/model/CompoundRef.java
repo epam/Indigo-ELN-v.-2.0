@@ -50,6 +50,9 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     @Nullable
     String getCasNumber();
 
+    @Nullable
+    String getCalculatedBatchMF();
+
     @Getter
     @RequiredArgsConstructor
     @EqualsAndHashCode(of = {"compoundID"})
@@ -84,6 +87,9 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Nullable
         private final String casNumber;
 
+        @NotNull
+        private final String calculatedBatchMF;
+
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(this).omitNullValues()
@@ -108,6 +114,9 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         private final String formula;
 
         @Nullable
+        private final String compoundKey;
+
+        @Nullable
         private final DictionaryItemRef stereoisomerCode;
 
         @Nullable
@@ -126,12 +135,8 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Nullable
         private final String casNumber;
 
-        @Override
-        @Nullable
-        @JsonIgnore
-        public String getCompoundKey() {
-            return null;
-        }
+        @NotNull
+        private final String calculatedBatchMF;
 
         @Override
         public String toString() {
@@ -204,6 +209,13 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Nullable
         @JsonIgnore
         public String getCasNumber() {
+            return null;
+        }
+
+        @Override
+        @Nullable
+        @JsonIgnore
+        public String getCalculatedBatchMF() {
             return null;
         }
     }

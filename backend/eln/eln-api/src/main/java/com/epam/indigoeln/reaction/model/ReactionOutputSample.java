@@ -54,7 +54,6 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
         metamodel.<@Nullable String>simpleProperty("batchComment", ReactionOutputSample::getBatchComment, ReactionOutputSample::setBatchComment, ReactionOutputSamplePatch::getBatchComment, ReactionOutputSamplePatch::setBatchComment);
         metamodel.<@Nullable String>simpleProperty("structureComment", ReactionOutputSample::getStructureComment, ReactionOutputSample::setStructureComment, ReactionOutputSamplePatch::getStructureComment, ReactionOutputSamplePatch::setStructureComment);
         metamodel.<@Nullable Double>simpleProperty("calculatedMolWeight", ReactionOutputSample::getCalculatedMolWeight, null, ReactionOutputSamplePatch::getCalculatedMolWeight, ReactionOutputSamplePatch::setCalculatedMolWeight);
-        metamodel.<@Nullable String>simpleProperty("calculatedBatchMF", ReactionOutputSample::getCalculatedBatchMF, null, ReactionOutputSamplePatch::getCalculatedBatchMF, ReactionOutputSamplePatch::setCalculatedBatchMF);
         metamodel.simpleListProperty("precursorReactantIds", ReactionOutputSample::getPrecursorReactantIds, null, ReactionOutputSamplePatch::getPrecursorReactantIds, ReactionOutputSamplePatch::setPrecursorReactantIds);
     }
 
@@ -141,21 +140,6 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public Double getCalculatedMolWeight() {
         return row.getCompound().getMolWeight() != null ? row.getCompound().getMolWeight().getValue() : null;
-    }
-
-    @Nullable
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public String getCalculatedBatchMF() {
-        String parentFormula = row.getCompound().getFormula();
-        if (parentFormula == null) {
-            return null;
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append(parentFormula);
-        if (row.getCompound().getSaltCode() != null) {
-            sb.append(" * ").append(row.getCompound().getSaltEQ()).append(" (").append(row.getCompound().getSaltCode().getFormula()).append(")");
-        }
-        return sb.toString();
     }
 
     @NotNull

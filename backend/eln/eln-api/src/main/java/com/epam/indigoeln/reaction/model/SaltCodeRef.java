@@ -12,9 +12,6 @@ public class SaltCodeRef {
     private final UUID id;
     private final String code;
     private final String name;
-    private final String formula;
-    private final int charge;
-    private final double molWeight;
 
     @Override
     public String toString() {
@@ -22,9 +19,6 @@ public class SaltCodeRef {
                 "id=" + id +
                 ", code='" + code + '\'' +
                 ", name='" + name + '\'' +
-                ", formula='" + formula + '\'' +
-                ", charge=" + charge +
-                ", molWeight=" + molWeight +
                 '}';
     }
 }

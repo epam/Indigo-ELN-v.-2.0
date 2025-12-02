@@ -3,11 +3,11 @@ package com.epam.indigoeln.eln.mapper;
 import com.epam.indigoeln.eln.entity.DictionaryEntity;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.SaltCodeEntity;
+import com.epam.indigoeln.eln.entity.SaltCodeInfo;
 import com.epam.indigoeln.eln.model.DictionaryDTO;
 import com.epam.indigoeln.eln.model.DictionaryItemDTO;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.DictionaryItemRequest;
-import com.epam.indigoeln.reaction.model.SaltCodeRef;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
@@ -33,6 +33,6 @@ public abstract class DictionaryMapper extends AbstractMapper {
     @Mapping(target = "dictionary", ignore = true)
     public abstract DictionaryItemEntity itemToEntity(DictionaryItemRequest request);
 
-    public abstract SaltCodeRef saltCodeToRef(SaltCodeEntity entity);
+    public abstract SaltCodeInfo saltCodeToInfo(SaltCodeEntity entity);
     public abstract List<DictionaryItemRef> saltCodeToRefList(Collection<SaltCodeEntity> entities);
 }

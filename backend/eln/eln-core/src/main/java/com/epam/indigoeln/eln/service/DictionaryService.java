@@ -6,6 +6,7 @@ import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.DictionaryEntity;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.SaltCodeEntity;
+import com.epam.indigoeln.eln.entity.SaltCodeInfo;
 import com.epam.indigoeln.eln.mapper.DictionaryMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
@@ -120,12 +121,13 @@ public class DictionaryService {
         return saltCodeRepository.findById(id);
     }
 
-    public SaltCodeRef getSaltRef(UUID id) {
-        return dictionaryMapper.saltCodeToRef(getSalt(id));
+    @CacheResult(cacheName = "dictionary.saltCodes")
+    public SaltCodeInfo getSaltInfo(UUID id) {
+        return dictionaryMapper.saltCodeToInfo(getSalt(id));
     }
 
-    public SaltCodeRef getSaltRef(SaltCodeEntity entity) {
-        return dictionaryMapper.saltCodeToRef(entity);
+    public SaltCodeRef getSaltRef(UUID id) {
+        return getSaltInfo(id).toRef();
     }
 
     public List<DictionaryItemEntity> addDictionaryItems(String dictionaryRef, List<DictionaryItemRequest> items) {
