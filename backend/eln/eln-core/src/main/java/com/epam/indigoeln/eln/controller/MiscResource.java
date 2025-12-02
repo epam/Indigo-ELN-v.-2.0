@@ -18,7 +18,6 @@ import one.util.streamex.StreamEx;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.Map;
-import java.util.UUID;
 
 @Slf4j
 @Path(BaseAPI.BASE_PATH)
@@ -57,7 +56,7 @@ public class MiscResource implements MiscAPI {
     }
 
     @Override
-    public Map<String, String> insertTestData(UUID templateID) {
-        return supportService.insertTestData(templateID);
+    public Map<String, String> insertTestData() {
+        return supportService.insertTestData();
     }
 }

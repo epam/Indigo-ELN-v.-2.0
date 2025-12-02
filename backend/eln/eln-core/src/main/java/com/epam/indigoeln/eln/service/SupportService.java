@@ -10,7 +10,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.UUID;
 import java.util.stream.IntStream;
 
 // no @Transactional
@@ -38,9 +37,10 @@ public class SupportService {
     private final Random random = new Random();
 
     @Transactional
-    public Map<String, String> insertTestData(UUID templateID) {
+    public Map<String, String> insertTestData() {
         List<DictionaryItemRef> therapeuticAreas = dictionaryService.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA.name());
         List<DictionaryItemRef> projectCodes = dictionaryService.getDictionary(BuiltInDictionary.PROJECT_CODE.name());
+        TemplateDTO template = templateService.getByName("Default");
         int lastUsedNotebookNumber = 0;
         int projectCount = 0, notebookCount = 0, experimentCount = 0, attachmentCount = 0;
         for (int projectNo = 1; projectNo <= random.nextInt(4, 6); projectNo++) {
@@ -64,7 +64,7 @@ public class SupportService {
                 }
                 for (int experimentNo = 1; experimentNo <= random.nextInt(1, 12); experimentNo++) {
                     System.out.println("\t\texperiment " + experimentNo);
-                    ExperimentDetailsDTO experiment = experimentService.createExperiment(notebook.getId(), new ExperimentRequest(templateID
+                    ExperimentDetailsDTO experiment = experimentService.createExperiment(notebook.getId(), new ExperimentRequest(template.getId()
                             , "image"
                             , randomOrNone(therapeuticAreas)
                             , randomOrNone(projectCodes)

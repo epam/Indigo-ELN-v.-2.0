@@ -20,6 +20,10 @@ public interface TemplateAPI extends BaseAPI {
     Page<TemplateDTO> getTemplates(@BeanParam Paging paging);
 
     @GET
+    @Path("/templates/by-name/{name}")
+    TemplateDetailsDTO getByName(@PathParam("name") String name);
+
+    @GET
     @Path("/templates/{templateId}")
     TemplateDetailsDTO getTemplate(@PathParam("templateId") UUID templateId);
 

@@ -6,16 +6,13 @@ import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
 import com.epam.indigoeln.reaction.util.Flag;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Transactional
 @ApplicationScoped
 public class ExperimentModelPatchService {
 
     public ExperimentModelPatch createPatch(ExperimentModel a, ExperimentModel b) {
         Flag updated = new Flag();
-        log.warn("createPatch: a.lastUsedAnchor={}, b.lastUsedAnchor={}", a.getLastUsedAnchor(), b.getLastUsedAnchor());
         //noinspection OptionalAssignedToNull,DataFlowIssue,OptionalGetWithoutIsPresent
         return Handlers.EXPERIMENT_MODEL.compare(updated, a, b, null).get();
     }

@@ -55,6 +55,10 @@ public class TemplateService {
         return templateRepository.findAll(paging);
     }
 
+    public TemplateDetailsDTO getByName(String name) {
+        return templateRepository.findByName(name);
+    }
+
     public TemplateDetailsDTO getTemplate(UUID templateId) {
         return templateRepository.loadDetails(templateId);
     }
