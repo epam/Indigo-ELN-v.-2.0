@@ -85,6 +85,7 @@ public class CompoundService {
             compound.setMolWeight(molWeightCalculator.calculateMolWeight(molecule.molfile(), saltCode, saltEQ));
             compound.setExactMass(molWeightCalculator.calculateExactMass(molecule.molfile()));
             compound.setFormula(molecule.grossFormula());
+            compound.setCompoundKey(compound.getStrCode() != null ? compound.getStrCode().toString() : null);
             indigoRenderer.setRenderOptions("svg", 500, 200);
             byte[] buf = indigoRenderer.renderToBuffer(molecule);
             compound.setPicture(buf);
@@ -115,7 +116,7 @@ public class CompoundService {
     }
 
     public CompoundRef.Stored realCompoundRef(CompoundEntity compound) {
-        return new CompoundRef.Stored(compound.getId(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getFormula(), compound.getStrCode(), compound.getCasNumber());
+        return new CompoundRef.Stored(compound.getId(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getFormula(), compound.getCompoundKey(), compound.getCasNumber());
     }
 
     public CompoundRef.Virtual virtualCompoundRef(IndigoMolecule molecule, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
@@ -212,7 +213,6 @@ public class CompoundService {
             sample.getHealthHazards().addAll(dictionaryService.lookup(BuiltInDictionary.HEALTH_HAZARD.name(), request.getHealthHazards()));
         }
         sample.setCompoundState(dictionaryService.lookup(BuiltInDictionary.COMPONENT_STATE.name(), request.getCompoundState()));
-        sample.setChemicalName(request.getChemicalName());
         sample.setBatchComment(request.getBatchComment());
         compound.getSamples().add(sample);
         updateDates(sample, userService.getCurrentUserEntity());

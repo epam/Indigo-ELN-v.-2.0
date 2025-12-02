@@ -10,6 +10,7 @@ import org.jspecify.annotations.Nullable;
 public sealed interface ReactionInputMutation extends Mutation permits
         ReactionInputMutation.SetInputRowRole,
         ReactionInputMutation.SetInputRowMol,
+        ReactionInputMutation.SetInputRowChemicalName,
         ReactionInputMutation.SetInputRowLimiting,
         ReactionInputMutation.SetInputRowSaltCode,
         ReactionInputMutation.SetInputRowSaltEQ,
@@ -30,6 +31,12 @@ public sealed interface ReactionInputMutation extends Mutation permits
             @NotNull Anchor.Input anchor,
             @Nullable Double mol,
             @Nullable MolUnit molUnit
+    ) implements ReactionInputMutation {
+    }
+
+    record SetInputRowChemicalName(
+            @NotNull Anchor.Input anchor,
+            @Nullable String chemicalName
     ) implements ReactionInputMutation {
     }
 

@@ -28,6 +28,7 @@ public final class ReactionInput extends ReactionRow implements ExperimentModelN
         metamodel.accept(ReactionRow::buildMetamodelBase);
         metamodel.simpleProperty("role", ReactionInput::getRole, ReactionInput::setRole, ReactionInputPatch::getRole, ReactionInputPatch::setRole);
         metamodel.enteredValueProperty("mol", ReactionInput::getMol, ReactionInput::setMol, ReactionInputPatch::getMol, ReactionInputPatch::setMol);
+        metamodel.<@Nullable String>simpleProperty("chemicalName", ReactionInput::getChemicalName, ReactionInput::setChemicalName, ReactionInputPatch::getChemicalName, ReactionInputPatch::setChemicalName);
         metamodel.simpleProperty("limiting", ReactionInput::isLimiting, ReactionInput::setLimiting, ReactionInputPatch::getLimiting, ReactionInputPatch::setLimiting, false);
         metamodel.listProperty("samples", ReactionInput::getSamples, ReactionInput::setSamples, ReactionInputPatch::getSamples, ReactionInputPatch::setSamples, Handlers.INPUT_SAMPLE_METAMODEL, Handlers.REACTION_INPUT_SAMPLE_LIST);
     }
@@ -40,6 +41,9 @@ public final class ReactionInput extends ReactionRow implements ExperimentModelN
 
     @Nullable
     private EnteredValue<MolUnit> mol;
+
+    @Nullable
+    private String chemicalName;
 
     @Valid
     @NotEmpty

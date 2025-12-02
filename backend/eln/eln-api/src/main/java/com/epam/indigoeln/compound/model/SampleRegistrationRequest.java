@@ -42,9 +42,6 @@ public class SampleRegistrationRequest {
     private DictionaryItemRef compoundState;
 
     @Nullable
-    private String chemicalName;
-
-    @Nullable
     private String batchComment;
 
     public SampleRegistrationRequest(CompoundRef compound) {

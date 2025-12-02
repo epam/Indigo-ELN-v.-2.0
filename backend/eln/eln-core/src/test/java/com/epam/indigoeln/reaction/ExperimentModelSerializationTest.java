@@ -1,6 +1,5 @@
 package com.epam.indigoeln.reaction;
 
-import com.epam.indigoeln.eln.model.STRCodeCompound;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
@@ -26,7 +25,7 @@ public class ExperimentModelSerializationTest {
         reaction.setRxnfile("molFile");
 
         ReactionInput input1 = ReactionInput.create(reaction, ReactionRole.REACTANT);
-        input1.setCompound(new CompoundRef.Stored(UUID.randomUUID(), EnteredValue.fixed(1.0, MolWeightUnit.G_PER_MOL), 1.1, "C", new STRCodeCompound(1, 0), null));
+        input1.setCompound(new CompoundRef.Stored(UUID.randomUUID(), EnteredValue.fixed(1.0, MolWeightUnit.G_PER_MOL), 1.1, "C", "compoundKey", null));
         input1.setEq(EnteredValue.userLastEntered(10.0, NoUnit.NO_UNIT));
         ReactionInput input2 = ReactionInput.create(reaction, ReactionRole.REACTANT);
         input2.setCompound(new CompoundRef.Virtual(UUID.randomUUID(), "C", null, null, null, EnteredValue.fixed(1.0, MolWeightUnit.G_PER_MOL), 1.1, null));

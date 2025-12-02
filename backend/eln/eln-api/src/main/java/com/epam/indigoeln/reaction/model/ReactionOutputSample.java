@@ -2,7 +2,7 @@ package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.NbkBatchNumber;
-import com.epam.indigoeln.eln.model.STRCodeCompound;
+import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
 import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.patch.ReactionOutputSamplePatch;
@@ -160,10 +160,11 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
 
     @NotNull
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public List<STRCodeCompound> getPrecursorReactantIds() {
+    public List<STRCodeSample> getPrecursorReactantIds() {
         return StreamEx.of(row.getReaction().getInputs())
                 .filter(r -> r.getRole() == ReactionRole.REACTANT)
-                .map(r -> r.getCompound().getStrCode())
+                .flatMap(r -> r.getSamples().stream())
+                .map(ReactionSample::getStrCode)
                 .filter(Objects::nonNull)
                 .toList();
     }

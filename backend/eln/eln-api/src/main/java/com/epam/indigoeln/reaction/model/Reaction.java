@@ -111,7 +111,7 @@ public final class Reaction implements ExperimentModelNode {
 
     public String generateNextProductName() {
         int maxUsedNumber = outputs.stream()
-                .map(row -> row.getChemicalName().startsWith("P") ? Ints.tryParse(row.getChemicalName().substring(1)) : null)
+                .map(row -> row.getOutputName().startsWith("P") ? Ints.tryParse(row.getOutputName().substring(1)) : null)
                 .filter(Objects::nonNull)
                 .mapToInt(Integer::valueOf)
                 .max().orElse(-1);

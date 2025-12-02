@@ -31,6 +31,9 @@ public class CompoundEntity extends IdentifiableEntity {
     private CompoundSource source;
 
     @Nullable
+    private String compoundKey;
+
+    @Nullable
     @Convert(converter = STRCodeCompoundConverter.class)
     private STRCodeCompound strCode; // STR code for compounds registered from Indigo ELN
 
@@ -51,6 +54,9 @@ public class CompoundEntity extends IdentifiableEntity {
     @Nullable
     @Column(name = "salt_eq_100")
     private Integer saltEQ100;
+
+    @Nullable
+    private String chemicalName;
 
     @NotEmpty
     private String formula;
