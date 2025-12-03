@@ -7,7 +7,7 @@ import com.epam.indigoeln.eln.model.MiscInfo;
 import com.epam.indigoeln.eln.model.TotalCounts;
 import com.epam.indigoeln.eln.service.ProjectService;
 import com.epam.indigoeln.eln.service.SupportService;
-import com.epan.indigoeln.flyway.service.DatabaseInitializationService;
+import com.epam.indigoeln.flyway.service.DatabaseInitializationService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

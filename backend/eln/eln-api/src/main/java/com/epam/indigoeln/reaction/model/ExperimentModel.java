@@ -28,6 +28,8 @@ import java.util.function.Consumer;
 @EqualsAndHashCode
 public final class ExperimentModel implements ExperimentModelNode {
 
+    public static final int SCHEMA_VERSION = 1;
+
     public static void buildMetamodel(Metamodel<ExperimentModel, ExperimentModelPatch> metamodel) {
         metamodel.setName("ExperimentModel");
         metamodel.simpleProperty("revision", ExperimentModel::getRevision, ExperimentModel::setRevision, ExperimentModelPatch::getRevision, ExperimentModelPatch::setRevision);
@@ -41,6 +43,9 @@ public final class ExperimentModel implements ExperimentModelNode {
     private List<Reaction> reactions = List.of();
 
     private Integer lastUsedAnchor = 0;
+
+    @NotNull
+    private Integer schemaVersion;
 
     @NotNull
     private Integer revision;

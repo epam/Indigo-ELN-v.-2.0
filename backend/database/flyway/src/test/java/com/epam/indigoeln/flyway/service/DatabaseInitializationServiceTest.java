@@ -1,4 +1,4 @@
-package com.epan.indigoeln.flyway.service;
+package com.epam.indigoeln.flyway.service;
 
 
 import com.epam.indigoeln.test.BaseTest;

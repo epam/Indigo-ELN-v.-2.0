@@ -56,6 +56,7 @@ public class ExperimentModelService {
         Reaction reaction = Reaction.create(model);
         model.setReactions(List.of(reaction));
         model.setRevision(0);
+        model.setSchemaVersion(ExperimentModel.SCHEMA_VERSION);
         return model;
     }
 
