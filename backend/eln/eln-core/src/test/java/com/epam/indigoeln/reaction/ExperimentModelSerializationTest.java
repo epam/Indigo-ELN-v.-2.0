@@ -8,12 +8,14 @@ import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.test.FeignUtil;
+import com.fasterxml.jackson.core.JacksonException;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ExperimentModelSerializationTest {
 
@@ -55,5 +57,12 @@ public class ExperimentModelSerializationTest {
         System.out.println(json);
         Mutation mutation2 = FeignUtil.OBJECT_MAPPER.readValue(json, Mutation.class);
         assertThat(mutation2).isEqualTo(mutation);
+    }
+
+    @Test
+    void testDeserializeUnknownField() throws Exception {
+        assertThatThrownBy(() -> {
+            FeignUtil.OBJECT_MAPPER.readValue("{\"type\": \"AddEmptyInput\", \"anchor\": \"R1\", \"unknownField\": 123}", Mutation.class);
+        }).isInstanceOf(JacksonException.class);
     }
 }
