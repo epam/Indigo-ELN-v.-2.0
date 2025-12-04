@@ -3,11 +3,15 @@ package com.epam.indigoeln.reaction.service.mutation;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
+import com.epam.indigoeln.eln.entity.SaltCodeInfo;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
-import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.CompoundRef;
+import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.ReactionOutput;
+import com.epam.indigoeln.reaction.model.ReactionRow;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
@@ -29,31 +33,31 @@ public class CompoundHandler extends AbstractMutationHandler {
     IndigoAPI indigoAPI;
 
     public void handle(ReactionInput row, ReactionInputMutation.SetInputRowSaltCode mutation) {
-        SaltCodeRef saltCode = mutation.saltCode() != null ? saltCodeRef(mutation.saltCode()) : null;
+        SaltCodeInfo saltCode = mutation.saltCode() != null ? saltCodeInfo(mutation.saltCode()) : null;
         row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, saltCode, row.getCompound().getSaltEQ(), row.getCompound().getStereoisomerCode()));
     }
 
     public void handle(ReactionInput row, ReactionInputMutation.SetInputRowSaltEQ mutation) {
         validate(row.getCompound().getSaltCode() != null, "Cannot set saltEQ because saltCode is not set");
-        row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, row.getCompound().getSaltCode(), mutation.saltEQ(), row.getCompound().getStereoisomerCode()));
+        row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, saltCodeInfo(row.getCompound().getSaltCode()), mutation.saltEQ(), row.getCompound().getStereoisomerCode()));
     }
 
     public void handle(ReactionOutput row, ReactionOutputMutation.SetOutputRowSaltCode mutation) {
-        SaltCodeRef saltCode = mutation.saltCode() != null ? saltCodeRef(mutation.saltCode()) : null;
+        SaltCodeInfo saltCode = mutation.saltCode() != null ? saltCodeInfo(mutation.saltCode()) : null;
         row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, saltCode, row.getCompound().getSaltEQ(), row.getCompound().getStereoisomerCode()));
     }
 
     public void handle(ReactionOutput row, ReactionOutputMutation.SetOutputRowSaltEQ mutation) {
         validate(row.getCompound().getSaltCode() != null, "Cannot set saltEQ because saltCode is not set");
-        row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, row.getCompound().getSaltCode(), mutation.saltEQ(), row.getCompound().getStereoisomerCode()));
+        row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, saltCodeInfo(row.getCompound().getSaltCode()), mutation.saltEQ(), row.getCompound().getStereoisomerCode()));
     }
 
     public void handle(ReactionInput row, ReactionInputMutation.SetInputCompoundStereoisomerCode mutation) {
-        row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, row.getCompound().getSaltCode(), row.getCompound().getSaltEQ(), mutation.stereoisomerCode()));
+        row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, saltCodeInfo(row.getCompound().getSaltCode()), row.getCompound().getSaltEQ(), mutation.stereoisomerCode()));
     }
 
     public void handle(ReactionOutput row, ReactionOutputMutation.SetOutputCompoundStereoisomerCode mutation) {
-        row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, row.getCompound().getSaltCode(), row.getCompound().getSaltEQ(), mutation.stereoisomerCode()));
+        row.setCompound(doApplySetSaltCodeEQStereoisomerCode(row, saltCodeInfo(row.getCompound().getSaltCode()), row.getCompound().getSaltEQ(), mutation.stereoisomerCode()));
     }
 
     public void handle(ReactionInput row, ReactionInputMutation.SetInputCompoundMolWeight mutation) {
@@ -72,7 +76,7 @@ public class CompoundHandler extends AbstractMutationHandler {
         }
     }
 
-    private CompoundRef doApplySetSaltCodeEQStereoisomerCode(ReactionRow row, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ, @Nullable DictionaryItemRef stereoisomerCode) {
+    private CompoundRef doApplySetSaltCodeEQStereoisomerCode(ReactionRow row, @Nullable SaltCodeInfo saltCode, @Nullable Double saltEQ, @Nullable DictionaryItemRef stereoisomerCode) {
         switch (row.getCompound()) {
             case CompoundRef.Virtual v -> {
                 // normalize saltEQ
@@ -90,7 +94,8 @@ public class CompoundHandler extends AbstractMutationHandler {
         }
     }
 
-    private SaltCodeRef saltCodeRef(DictionaryItemRef ref) {
-        return dictionaryService.getSaltRef(ref.getId());
+    @Nullable
+    private SaltCodeInfo saltCodeInfo(@Nullable DictionaryItemRef ref) {
+        return ref != null ? dictionaryService.getSaltInfo(ref.getId()) : null;
     }
 }

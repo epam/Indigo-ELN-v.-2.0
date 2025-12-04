@@ -33,7 +33,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     DictionaryItemRef getStereoisomerCode();
 
     @Nullable
-    SaltCodeRef getSaltCode();
+    DictionaryItemRef getSaltCode();
 
     @Nullable
     Double getSaltEQ();
@@ -50,6 +50,9 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     @Nullable
     String getCasNumber();
 
+    @Nullable
+    String getCalculatedBatchMF();
+
     @Getter
     @RequiredArgsConstructor
     @EqualsAndHashCode(of = {"compoundID"})
@@ -64,7 +67,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         private DictionaryItemRef stereoisomerCode;
 
         @Nullable
-        private SaltCodeRef saltCode;
+        private DictionaryItemRef saltCode;
 
         @Nullable
         private Double saltEQ;
@@ -83,6 +86,9 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
 
         @Nullable
         private final String casNumber;
+
+        @NotNull
+        private final String calculatedBatchMF;
 
         @Override
         public String toString() {
@@ -108,10 +114,13 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         private final String formula;
 
         @Nullable
+        private final String compoundKey;
+
+        @Nullable
         private final DictionaryItemRef stereoisomerCode;
 
         @Nullable
-        private final SaltCodeRef saltCode;
+        private final DictionaryItemRef saltCode;
 
         @Nullable
         private final Double saltEQ;
@@ -126,12 +135,8 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Nullable
         private final String casNumber;
 
-        @Override
-        @Nullable
-        @JsonIgnore
-        public String getCompoundKey() {
-            return null;
-        }
+        @NotNull
+        private final String calculatedBatchMF;
 
         @Override
         public String toString() {
@@ -175,7 +180,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Override
         @Nullable
         @JsonIgnore
-        public SaltCodeRef getSaltCode() {
+        public DictionaryItemRef getSaltCode() {
             return null;
         }
 
@@ -204,6 +209,13 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
         @Nullable
         @JsonIgnore
         public String getCasNumber() {
+            return null;
+        }
+
+        @Override
+        @Nullable
+        @JsonIgnore
+        public String getCalculatedBatchMF() {
             return null;
         }
     }

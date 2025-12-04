@@ -4,13 +4,13 @@ import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.model.*;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.entity.IdentifiableEntity;
+import com.epam.indigoeln.eln.entity.SaltCodeInfo;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.CompoundRef;
-import com.epam.indigoeln.reaction.model.SaltCodeRef;
 import com.epam.indigoeln.reaction.model.units.DensityUnit;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolarityUnit;
@@ -47,7 +47,7 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Inject
     DictionaryService dictionaryService;
 
-    SaltCodeRef saltCode;
+    SaltCodeInfo saltCode;
     DictionaryItemRef healthHazard;
     DictionaryItemRef compoundState;
     CompoundRef.Virtual compound1;
@@ -65,7 +65,7 @@ public class CompoundServiceTest extends ELNBaseTest {
     @Order(-1000)
     void testInit() {
         List<DictionaryItemRef> saltCodes = dictionaryService.getSaltCodes();
-        saltCode = dictionaryService.getSaltRef(saltCodes.getFirst().getId());
+        saltCode = dictionaryService.getSaltInfo(saltCodes.getFirst().getId());
         healthHazard = dictionaryService.getDictionary(BuiltInDictionary.HEALTH_HAZARD.name()).getFirst();
         compoundState = dictionaryService.getDictionary(BuiltInDictionary.COMPONENT_STATE.name()).getFirst();
         IndigoReaction reaction = indigo.loadReaction(loadResource(getClass(), "/reaction.rxn"));

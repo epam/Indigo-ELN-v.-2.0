@@ -9,7 +9,6 @@ import com.epam.indigoeln.eln.model.Page;
 import com.epam.indigoeln.eln.model.Paging;
 import com.epam.indigoeln.reaction.model.CompoundRef;
 import com.epam.indigoeln.reaction.model.ReactionInput;
-import com.epam.indigoeln.reaction.model.SaltCodeRef;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputSampleMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
@@ -80,10 +79,10 @@ public class MutationsTest extends MutationsTestBase {
         applyMutation(new ReactionInputMutation.SetInputRowSaltCode(input1.getAnchor(), saltCode));
         ReactionInput input = model.locate(input1.getAnchor());
         assertThat(input.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
-        assertThat(input.getCompound().getSaltCode()).extracting(SaltCodeRef::getId, SaltCodeRef::getName).contains(saltCode.getId(), saltCode.getName());
+        assertThat(input.getCompound().getSaltCode()).extracting(DictionaryItemRef::getId, DictionaryItemRef::getName).contains(saltCode.getId(), saltCode.getName());
         applyMutation(new ReactionInputMutation.SetInputRowSaltEQ(input1.getAnchor(), 2.0));
         input = model.locate(input1.getAnchor());
-        assertThat(input.getCompound().getSaltCode()).extracting(SaltCodeRef::getId, SaltCodeRef::getName).contains(saltCode.getId(), saltCode.getName());
+        assertThat(input.getCompound().getSaltCode()).extracting(DictionaryItemRef::getId, DictionaryItemRef::getName).contains(saltCode.getId(), saltCode.getName());
         assertThat(input.getCompound().getSaltEQ()).isCloseTo(2.0, Offset.offset(1e-6));
         reportBuilder.close();
     }

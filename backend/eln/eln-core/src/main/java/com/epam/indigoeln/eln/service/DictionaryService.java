@@ -6,12 +6,12 @@ import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.DictionaryEntity;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.SaltCodeEntity;
+import com.epam.indigoeln.eln.entity.SaltCodeInfo;
 import com.epam.indigoeln.eln.mapper.DictionaryMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
 import com.epam.indigoeln.eln.repository.DictionaryRepository;
 import com.epam.indigoeln.eln.repository.SaltCodeRepository;
-import com.epam.indigoeln.reaction.model.SaltCodeRef;
 import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheName;
 import io.quarkus.cache.CacheResult;
@@ -120,12 +120,13 @@ public class DictionaryService {
         return saltCodeRepository.findById(id);
     }
 
-    public SaltCodeRef getSaltRef(UUID id) {
-        return dictionaryMapper.saltCodeToRef(getSalt(id));
+    @CacheResult(cacheName = "dictionary.saltCodes")
+    public SaltCodeInfo getSaltInfo(UUID id) {
+        return dictionaryMapper.saltCodeToInfo(getSalt(id));
     }
 
-    public SaltCodeRef getSaltRef(SaltCodeEntity entity) {
-        return dictionaryMapper.saltCodeToRef(entity);
+    public DictionaryItemRef getSaltRef(UUID id) {
+        return getSaltInfo(id).toRef();
     }
 
     public List<DictionaryItemEntity> addDictionaryItems(String dictionaryRef, List<DictionaryItemRequest> items) {

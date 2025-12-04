@@ -10,6 +10,7 @@ import com.epam.indigoeln.compound.model.SampleRegistrationRequest;
 import com.epam.indigoeln.compound.repository.CompoundRepository;
 import com.epam.indigoeln.compound.repository.SampleRepository;
 import com.epam.indigoeln.eln.config.DataAccess;
+import com.epam.indigoeln.eln.entity.SaltCodeInfo;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.UserService;
@@ -17,10 +18,10 @@ import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.CompoundRef;
-import com.epam.indigoeln.reaction.model.SaltCodeRef;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import com.epam.indigoeln.reaction.service.calculator.MolWeightCalculator;
+import com.google.common.base.Preconditions;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -69,7 +70,7 @@ public class CompoundService {
     @Inject
     UserService userService;
 
-    public CompoundEntity findOrCreate(IndigoMolecule molecule, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
+    public CompoundEntity findOrCreate(IndigoMolecule molecule, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeInfo saltCode, @Nullable Double saltEQ) {
         String canSmiles = molecule.canonicalSmiles();
         CompoundKey key = new CompoundKey(canSmiles, stereoisomerCode != null ? stereoisomerCode.getId() : null, saltCode != null ? saltCode.getId() : null, saltEQ != null ? (int) (saltEQ * 100) : null);
         CompoundEntity compound = compoundRepository.findByCompoundKey(key);
@@ -116,12 +117,12 @@ public class CompoundService {
     }
 
     public CompoundRef.Stored realCompoundRef(CompoundEntity compound) {
-        return new CompoundRef.Stored(compound.getId(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getFormula(), compound.getCompoundKey(), compound.getCasNumber());
+        return new CompoundRef.Stored(compound.getId(), fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getFormula(), compound.getCompoundKey(), compound.getCasNumber(), calculateBatchMF(compound));
     }
 
-    public CompoundRef.Virtual virtualCompoundRef(IndigoMolecule molecule, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeRef saltCode, @Nullable Double saltEQ) {
+    public CompoundRef.Virtual virtualCompoundRef(IndigoMolecule molecule, @Nullable DictionaryItemRef stereoisomerCode, @Nullable SaltCodeInfo saltCode, @Nullable Double saltEQ) {
         CompoundEntity compound = findOrCreate(molecule, stereoisomerCode, saltCode, saltEQ);
-        return new CompoundRef.Virtual(compound.getId(), molecule.grossFormula(), stereoisomerCode, saltCode, saltEQ, EnteredValue.fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getCasNumber());
+        return new CompoundRef.Virtual(compound.getId(), molecule.grossFormula(), compound.getCompoundKey(), stereoisomerCode, saltCode != null ? saltCode.toRef() : null, saltEQ, EnteredValue.fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL), compound.getExactMass(), compound.getCasNumber(), calculateBatchMF(compound));
     }
 
     public CompoundRef.Unknown unknownCompoundRef() {
@@ -252,6 +253,18 @@ public class CompoundService {
         }
         sample.setMarked(mark);
         return sampleMapper.sampleToDTO(sample);
+    }
+
+    private String calculateBatchMF(CompoundEntity compound) {
+        StringBuilder sb = new StringBuilder();
+        String parentFormula = compound.getFormula();
+        sb.append(parentFormula);
+        if (compound.getSaltCode() != null) {
+            SaltCodeInfo salt = dictionaryService.getSaltInfo(compound.getSaltCode().getId());
+            Preconditions.checkState(compound.getSaltEQ100() != null);
+            sb.append(" * ").append((compound.getSaltEQ100() / 100.0)).append(" (").append(salt.getFormula()).append(")");
+        }
+        return sb.toString();
     }
 
     @Data
