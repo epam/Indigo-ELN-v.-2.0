@@ -17,7 +17,6 @@ import {
 } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
-import { InputComponent } from '@core/components/common/input/input.component';
 import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
 import {
   FindSamplesRequest,
@@ -30,7 +29,6 @@ import {
 } from '@core/types/entities/experiments/search.i';
 import {
   MatExpansionPanel,
-  MatExpansionPanelDescription,
   MatExpansionPanelHeader,
   MatExpansionPanelTitle,
 } from '@angular/material/expansion';
@@ -41,7 +39,6 @@ import {
 } from '@core/types/entities/dictionary.i';
 import { NumericSearchComponent } from '@core/components/common/numeric-search/numeric-search.component';
 import { DropdownValueComponent } from '@core/components/experiment/dropdown-value/dropdown-value.component';
-import { MatChip } from '@angular/material/chips';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import {
   ColumnDefDirective,
@@ -61,27 +58,27 @@ import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { distinctUntilChanged } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
-import { MatIcon } from '@angular/material/icon';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   standalone: true,
   selector: 'eln-sample-search',
+  styleUrls: ['./sample-search.component.scss'],
   imports: [
     MatInputModule,
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
-    InputComponent,
     MatRadioGroup,
     MatRadioButton,
     MatExpansionPanel,
     MatExpansionPanelHeader,
     MatExpansionPanelTitle,
-    MatExpansionPanelDescription,
     TextSearchComponent,
     NumericSearchComponent,
     DropdownValueComponent,
-    MatChip,
     MatProgressSpinner,
     ExpandableTableComponent,
     ColumnDefDirective,
@@ -92,6 +89,9 @@ import { MatIcon } from '@angular/material/icon';
     MatTabGroup,
     MatTab,
     MatIcon,
+    MatFormFieldModule,
+    MatButtonModule,
+    MatIconModule
   ],
   templateUrl: './sample-search.component.html',
 })
@@ -134,6 +134,7 @@ export class SampleSearchComponent implements OnInit {
   advancedSearchSummary: string[][] | null = null;
   compoundStateOptions: DictionaryItemRef[];
   healthHazardsOptions: DictionaryItemRef[];
+
 
   ngOnInit(): void {
     this.loader = new InfiniteSearchLoader<FindSamplesRequest, Sample>(
@@ -330,5 +331,9 @@ export class SampleSearchComponent implements OnInit {
     } else {
       return [name, value.name];
     }
+  }
+
+  clearInput(inputName:string) {
+    this.form.get(inputName)?.setValue(null);
   }
 }

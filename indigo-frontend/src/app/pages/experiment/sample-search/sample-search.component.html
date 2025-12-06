@@ -1,20 +1,56 @@
 <div class="p-4">
   <h2 class="font-semibold text-lg mb-4">{{ title }}</h2>
 
-  <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+  <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" class="border-t border-[#bbb8b8]/80">
     <mat-tab label="Catalog" class="overflow-x-hidden">
       <form [formGroup]="form"
             class="border border-[#cecaca] rounded-[10px] bg-[#f9f9f9] p-2.5 m-2.5"
       >
         <div class="flex flex-col gap-4">
 
-          <mat-radio-group class="flex flex-wrap gap-6 text-sm">
+          <mat-radio-group class="flex flex-wrap gap-4 text-sm">
 
-            <div class="grow-[3]">
-              <eln-input [icon]="'indicon-search text-xl'" [showClearButton]="false" formControlName="quickSearch"
-                         inputClassname="rounded-full bg-primary-alpha-5 border-primary-alpha-10"
-                         [placeholder]="'Type Request'" class="flex-1"></eln-input>
+            <div class="relative w-[50%]">
+              <div class="search-container">
+                <span class="search-icon">
+                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </span>
+
+                <input
+                  formControlName="quickSearch"
+                  type="text"
+                  placeholder="Type Request"
+                  class="search-input"
+                >
+
+                @if (form.get('quickSearch')?.value) {
+                  <button (click)="clearInput('quickSearch')"
+                          class="clear-button visible-btn"
+                          aria-label="Clear Search Input">
+                    <svg  width="20" height="20" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                } @else {
+                  <button class="clear-button hidden-btn"
+                          aria-hidden="true" tabindex="-1">
+                    <svg  width="20" height="20" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                }
+              </div>
             </div>
+
 
             <div class="grow">
               <mat-radio-button value="All" [checked]="true">
@@ -34,8 +70,10 @@
 
 
           <div class="flex items-stretch mt-2">
-            <div class="flex-1">or Draw Structure</div>
-            <mat-radio-group formControlName="structureSearchType" class="flex-3">
+            <div class="flex-1 text-[15px]">or Draw Structure</div>
+            <mat-radio-group
+              formControlName="structureSearchType"
+              class="flex-3">
             </mat-radio-group>
             <div class="flex-1">
               @if (structureMolFile) {
@@ -47,6 +85,8 @@
               }
             </div>
           </div>
+
+
           <div class="w-full h-48 border border-gray-300 border-dashed rounded-md cursor-pointer"
                (click)="editStructure()">
             @if (structureImage) {
@@ -71,59 +111,208 @@
             (afterExpand)="updateAdvancedSearchSummary(false)"
             (afterCollapse)="updateAdvancedSearchSummary(true)"
             class="advanced-search-box"
-            hideToggle="true">
-            <mat-expansion-panel-header>
+            hideToggle="true"
+          >
+            <mat-expansion-panel-header class="header-column">
 
-              <mat-panel-title class="flex items-center">
-                <mat-icon
-                  class="ml-0 mr-1 transition-transform duration-300 ease-in-out"
-                  [ngClass]="{'rotate-180': advancedSearchPanel.expanded}"
-                >
-                  keyboard_arrow_down
-                </mat-icon>
-                Advanced Search
+              <mat-panel-title class="header-column-title">
+
+                <div class="advanced-search-title">
+                  <mat-icon
+                    class="ml-0 mr-1 transition-transform duration-300 ease-in-out"
+                    [ngClass]="{ 'rotate-180': advancedSearchPanel.expanded }"
+                  >
+                    keyboard_arrow_down
+                  </mat-icon>
+                  <span class="advanced-search-label">
+                    Advanced search @if (advancedSearchSummary && advancedSearchSummary.length) {
+                    {{ "(" + advancedSearchSummary.length + ")" }}
+                  }
+                  </span>
+                </div>
+
+                <div class="chips-container">
+                  @if (advancedSearchSummary) {
+                    @for (item of advancedSearchSummary; track item[0]) {
+                      <div class="chip">
+                        <b>{{ item[0] }}</b> &nbsp; {{ item[1] }}
+                        <button >
+                          <mat-icon>clear</mat-icon>
+                        </button>
+                      </div>
+                    }
+                  }
+                </div>
+
               </mat-panel-title>
 
-              <mat-panel-description>
-                @if (advancedSearchSummary) {
-                  @for (item of advancedSearchSummary; track item[0]) {
-                    <mat-chip
-                    ><b>{{ item[0] }}</b> &emsp; {{ item[1] }}
-                    </mat-chip
-                    >
-                  }
-                }
-              </mat-panel-description>
-
             </mat-expansion-panel-header>
-            <div class="grid grid-cols-2 gap-x-8 gap-y-2">
-              <div class="text-xs">Compound ID</div>
-              <div class="text-xs">Nbk Batch #</div>
-              <eln-text-search formControlName="strCode" />
-              <eln-text-search formControlName="nbkBatchNumber" />
-              <div class="text-xs">Molecular Formula</div>
-              <div class="text-xs">Molecular Weight</div>
-              <eln-text-search formControlName="molecularFormula" />
-              <eln-numeric-search formControlName="molWeight" />
-              <div class="text-xs">Chemical Name</div>
-              <div class="text-xs">Compound State</div>
-              <eln-text-search formControlName="chemicalName" />
+
+            <!-- ======================= -->
+            <!--      SEARCH GRID        -->
+            <!-- ======================= -->
+
+            <div class="grid grid-cols-2 gap-x-8 gap-y-3 text-xs" style="margin-top: 10px">
+
+              <div>Compound ID</div>
+              <div>Nbk Batch #</div>
+
+              <div class="relative">
+                <eln-text-search formControlName="strCode" class="w-full" />
+                @if (form.get('strCode')?.value) {
+                  <button
+                    type="button"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                    (click)="clearInput('strCode')"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
+
+              <div class="relative">
+                <eln-text-search formControlName="nbkBatchNumber" class="w-full" />
+                @if (form.get('nbkBatchNumber')?.value) {
+                  <button
+                    type="button"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                    (click)="clearInput('nbkBatchNumber')"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
+
+              <div>Molecular Formula</div>
+              <div>Molecular Weight</div>
+
+              <div class="relative">
+                <eln-text-search formControlName="molecularFormula" class="w-full" />
+                @if (form.get('molecularFormula')?.value) {
+                  <button
+                    type="button"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                    (click)="clearInput('molecularFormula')"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
+
+              <div class="relative">
+                <eln-numeric-search formControlName="molWeight" class="w-full" />
+                @if (form.get('molWeight')?.value) {
+                  <button
+                    type="button"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                    (click)="clearInput('molWeight')"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
+
+              <div>Chemical Name</div>
+              <div>External ID</div>
+
+              <div class="relative">
+                <eln-text-search formControlName="chemicalName" class="w-full" />
+                @if (form.get('chemicalName')?.value) {
+                  <button
+                    type="button"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                    (click)="clearInput('chemicalName')"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
+
+              <div class="relative">
+                <eln-text-search formControlName="chemicalName"  class="w-full" />
+              </div>
+
+              <div>Comment State</div>
+              <div>Batch Comment</div>
+
               <eln-dropdown-value
                 formControlName="compoundState"
                 [options]="compoundStateOptions"
               />
-              <div class="text-xs">Batch Comment</div>
-              <div class="text-xs">Health Hazards</div>
-              <eln-text-search formControlName="batchComment" />
-              <eln-dropdown-value
-                formControlName="healthHazards"
-                [options]="healthHazardsOptions"
-              />
-              <div class="text-xs">CAS Number</div>
-              <div class="text-xs"></div>
-              <eln-text-search formControlName="casNumber" />
+
+              <div class="relative">
+                <eln-text-search formControlName="batchComment" class="w-full" />
+                @if (form.get('batchComment')?.value) {
+                  <button
+                    type="button"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                    (click)="clearInput('batchComment')"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
+
+<!--              <eln-dropdown-value-->
+<!--                formControlName="healthHazards"-->
+<!--                [options]="healthHazardsOptions"-->
+<!--              />-->
+
+              <div>Batch Hazard Comment</div>
+              <div>CAS Number</div>
+
+              <div class="relative">
+                <eln-text-search formControlName="casNumber" class="w-full" />
+                @if (form.get('casNumber')?.value) {
+                  <button
+                    type="button"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                    (click)="clearInput('casNumber')"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
+
+              <div class="relative">
+                <eln-text-search formControlName="casNumber" class="w-full" />
+                @if (form.get('casNumber')?.value) {
+                  <button
+                    type="button"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                    (click)="clearInput('casNumber')"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
+
             </div>
           </mat-expansion-panel>
+
+          <div class="flex justify-end mt-2">
+            <section>
+              <div class="example-button-row">
+                <button
+                  type="button"
+                  class=" ml-2 px-4 py-2 text-blue-600 bg-[#ececec] rounded-[5px] cursor-pointer"
+                  (click)="form.reset();
+                   clearStructure()"
+                >Clear All
+                </button>
+              </div>
+            </section>
+
+            <button
+              type="button"
+              class="ml-2 px-4 py-2 bg-[#4050b5] text-white rounded-[5px] cursor-pointer"
+              (click)="performSearch()"
+            >
+              Search
+            </button>
+          </div>
+
+
 
           @if (loader.started) {
             @if (loader.totalItems !== null) {
@@ -131,11 +320,12 @@
                 <div class="flex-1 self-start">
                   Search Results ({{ loader.totalItems }})
                 </div>
-                <div class="flex-1 self-end">
+                <div class="flex self-end">
                   <eln-toggle label="My Materials" formControlName="marked" />
                 </div>
               </div>
             }
+            <div class="overflow-auto max-h-[400px]">
             <eln-expandable-table [dataSource]="loader.data$ | async">
               <ng-template
                 elnColumnDef="strCode"
@@ -149,7 +339,13 @@
                 displayName="Chemical Name"
                 let-element
               >
-                {{ element.name }}
+                <ng-container *ngIf="element?.name; else noName">
+                  {{ element.name }}
+                </ng-container>
+
+                <ng-template #noName>
+                  <mat-icon>remove</mat-icon>
+                </ng-template>
               </ng-template>
               <ng-template
                 elnColumnDef="molWeight"
@@ -167,25 +363,27 @@
               </ng-template>
               <ng-template elnColumnDef="marked" displayName="" let-element>
                 @if (!element.marked) {
-                  <em
-                    class="indicon-file-plus ml-auto"
-                    (click)="markSample(element, true)"
-                    matTooltip="Add to My Material List"
-                  ></em>
+                  <mat-icon (click)="markSample(element, true)"
+                            matTooltip="Add to My Material List">
+                    bookmark_border
+                  </mat-icon>
                 } @else {
-                  <em
-                    class="indicon-file-minus ml-auto"
-                    (click)="markSample(element, false)"
-                    matTooltip="Remove from My Material List"
-                  ></em>
+                  <mat-icon (click)="markSample(element, false)"
+                            matTooltip="Remove from My Material List"
+                            style="color: #3f50b5">
+                    bookmark
+                  </mat-icon>
                 }
               </ng-template>
               <ng-template elnColumnDef="add" displayName="" let-element>
-                <em
-                  class="indicon-plus ml-auto"
-                  (click)="addToExperiment(element)"
-                  matTooltip="Add to current experiment"
-                ></em>
+                <button
+                  class="ml-2 px-4 py-2 bg-[#f3f3f3] text-white rounded-[5px] cursor-pointer"
+                >
+                  <mat-icon
+                    (click)="addToExperiment(element)"
+                    matTooltip="Add to current experiment"
+                    style="color: #3f50b5" >add</mat-icon>
+                </button>
               </ng-template>
 
               <ng-template #details let-element>
@@ -216,7 +414,10 @@
                   </div>
                 </div>
               </ng-template>
+
             </eln-expandable-table>
+            </div>
+
             <eln-infinite-loader (infiniteLoad)="loader.fetchNextPage()" />
             @if (loader.loading) {
               <mat-spinner />
@@ -225,31 +426,9 @@
               <div>Error loading results</div>
             }
           }
-        </div>
-
-        <div class="flex justify-end mt-2">
-
-          <section>
-            <div class="example-button-row">
-              <button
-                type="button"
-                class=" ml-2 px-4 py-2 text-blue-600 bg-[#ececec] rounded-[5px] cursor-pointer"
-                (click)="form.reset();
-                   clearStructure()"
-              >Clear All
-              </button>
-            </div>
-          </section>
-
-          <button
-            type="button"
-            class="ml-2 px-4 py-2 bg-[#4050b5] text-white rounded-[5px] cursor-pointer"
-            (click)="performSearch()"
-          >
-            Search
-          </button>
 
         </div>
+
 
       </form>
     </mat-tab>
