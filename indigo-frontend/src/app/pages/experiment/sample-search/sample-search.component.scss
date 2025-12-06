@@ -1,0 +1,150 @@
+.main-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f0f2f5;
+  padding: 20px;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  padding: 8px 15px;
+  background-color: #eff0f5;
+  transition: box-shadow 0.2s;
+}
+
+.search-container:focus-within {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.search-icon {
+  margin-right: 10px;
+  color: #888;
+  font-size: 1.2em;
+}
+
+.search-input {
+  width: 80%;
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  padding: 0;
+  font-size: 16px;
+  background-color: transparent;
+  color: #333;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.search-input::placeholder {
+  color: #aaa;
+  opacity: 1;
+}
+
+.clear-button {
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  margin-left: 10px;
+  padding: 0 5px;
+  transition: opacity 0.2s, visibility 0.2s;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clear-button.visible-btn {
+  opacity: 1;
+  visibility: visible;
+}
+
+.clear-button.hidden-btn {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.clear-button:hover {
+  color: #666;
+}
+
+
+.advanced-search-box {
+  ::ng-deep input {
+    border-radius: 2px;
+    height: 40px;
+    width: 30%;
+  }
+  ::ng-deep .mat-mdc-select-trigger {
+    background-color: #eff0f9 !important;
+    border-radius: 2px;
+    height: 40px;
+    padding: 10px;
+    width: 100%;
+  }
+  ::ng-deep .relative .rounded-sm {
+    border: #f3f3f3 solid 1px;
+  }
+
+  .header-column {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    height: max-content;
+    width: 100%;
+
+    .header-column-title{
+      display: flex;
+      flex-direction: column;
+
+      .advanced-search-title{
+        display: flex;
+        width: 100%;
+        padding-top: 10px;
+        border-bottom: solid 1px #e8e8e8;
+        .advanced-search-label{
+          padding-bottom: 10px;
+        }
+      }
+
+      .chips-container{
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        margin-top: 10px;
+
+        .chip{
+          display: flex;
+          padding: 2px 15px;
+          margin: 0 10px 10px 0;
+          background-color: #dee1f3;
+          border-radius: 50px;
+          cursor: context-menu;
+
+          button{
+            cursor: pointer;
+            height: 10px;
+          }
+        }
+      }
+    }
+
+    ::ng-deep .mat-content-hide-toggle{
+      width: 100%;
+    }
+  }
+}
+
+
+
+

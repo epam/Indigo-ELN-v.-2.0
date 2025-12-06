@@ -1,7 +1,7 @@
 <div class="p-4">
   <h2 class="font-semibold text-lg mb-4">{{ title }}</h2>
 
-  <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+  <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" class="border-t border-[#bbb8b8]/80">
     <mat-tab label="Catalog" class="overflow-x-hidden">
       <form
         [formGroup]="form"
@@ -38,7 +38,7 @@
           </mat-radio-group>
 
           <div class="flex items-stretch mt-2">
-            <div class="flex-1">or Draw Structure</div>
+            <div class="flex-1 text-[15px]">or Draw Structure</div>
             <mat-radio-group
               formControlName="structureSearchType"
               class="flex-3"
@@ -88,15 +88,19 @@
             class="advanced-search-box"
             hideToggle="true"
           >
-            <mat-expansion-panel-header>
-              <mat-panel-title class="flex items-center">
+            <mat-expansion-panel-header class="header-column">
+              <mat-panel-title class="header-column-title">
                 <mat-icon
                   class="ml-0 mr-1 transition-transform duration-300 ease-in-out"
                   [ngClass]="{ 'rotate-180': advancedSearchPanel.expanded }"
                 >
                   keyboard_arrow_down
                 </mat-icon>
-                Advanced Search
+                <span class="advanced-search-label">
+                    Advanced search @if (advancedSearchSummary && advancedSearchSummary.length) {
+                  {{ "(" + advancedSearchSummary.length + ")" }}
+                }
+                  </span>
               </mat-panel-title>
 
               <mat-panel-description class="text-xs">
@@ -112,29 +116,108 @@
             <div class="grid grid-cols-2 gap-x-8 gap-y-2">
               <div class="text-xs">Compound ID</div>
               <div class="text-xs">Nbk Batch #</div>
-              <eln-text-search formControlName="compoundKey" />
-              <eln-text-search formControlName="nbkBatchNumber" />
+              <div class="relative">
+                <eln-text-search formControlName="compoundKey" class="w-full" />
+                @if (form.get('compoundKey')?.value) {
+                  <button
+                    type="button"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                    (click)="clearInput('compoundKey')"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
+
+              <div class="relative">
+                <eln-text-search formControlName="nbkBatchNumber" class="w-full" />
+                @if (form.get('nbkBatchNumber')?.value) {
+                  <button
+                    type="button"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                    (click)="clearInput('nbkBatchNumber')"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
               <div class="text-xs">Molecular Formula</div>
               <div class="text-xs">Molecular Weight</div>
-              <eln-text-search formControlName="molecularFormula" />
-              <eln-numeric-search formControlName="molWeight" />
+              <div class="relative">
+                <eln-text-search formControlName="molecularFormula" class="w-full" />
+                @if (form.get('molecularFormula')?.value) {
+                  <button
+                    type="button"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                    (click)="clearInput('molecularFormula')"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
+
+              <div class="relative">
+                <eln-numeric-search formControlName="molWeight" class="w-full" />
+                @if (form.get('molWeight')?.value) {
+                  <button
+                    type="button"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                    (click)="clearInput('molWeight')"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
               <div class="text-xs">Chemical Name</div>
               <div class="text-xs">Compound State</div>
-              <eln-text-search formControlName="chemicalName" />
+              <div class="relative">
+                <eln-text-search formControlName="chemicalName" class="w-full" />
+                @if (form.get('chemicalName')?.value) {
+                  <button
+                    type="button"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                    (click)="clearInput('chemicalName')"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
               <eln-dictionary-select
                 formControlName="compoundState"
                 [dictionaryId]="BuildInDictionary.COMPONENT_STATE"
               />
               <div class="text-xs">Batch Comment</div>
               <div class="text-xs">Health Hazards</div>
-              <eln-text-search formControlName="batchComment" />
+              <div class="relative">
+                <eln-text-search formControlName="batchComment" class="w-full" />
+                @if (form.get('batchComment')?.value) {
+                  <button
+                    type="button"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                    (click)="clearInput('batchComment')"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
               <eln-dictionary-select
                 formControlName="healthHazards"
                 [dictionaryId]="BuildInDictionary.HEALTH_HAZARD"
               />
               <div class="text-xs">CAS Number</div>
               <div class="text-xs"></div>
-              <eln-text-search formControlName="casNumber" />
+              <div class="relative">
+                <eln-text-search formControlName="casNumber" class="w-full" />
+                @if (form.get('casNumber')?.value) {
+                  <button
+                    type="button"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                    (click)="clearInput('casNumber')"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
             </div>
           </mat-expansion-panel>
 
