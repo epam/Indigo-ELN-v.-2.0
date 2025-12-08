@@ -4,14 +4,10 @@ plugins {
     id("io.quarkus")
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation(project(":common:common-lambda"))
     implementation(project(":signature:signature-core"))
-    implementation("org.flywaydb:flyway-core:11.17.0")
+    implementation("io.quarkus:quarkus-flyway")
 
     testImplementation(project(":common:common-test"))
 }
