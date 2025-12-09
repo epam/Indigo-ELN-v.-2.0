@@ -103,18 +103,27 @@ class GlobalSearchServiceTest extends ELNBaseTest {
     void testFindExperiments() {
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("ed1"), Paging.DEFAULT);
         assertResults(results, tuple(EntityType.EXPERIMENT, experiment1.getName(), experiment1.getId()));
+        assertThat(results.getItems().getFirst().getExperimentStatus()).isEqualTo(experiment1.getStatus());
     }
 
     @Test
     void testFindAll() {
         Page<GlobalSearchResultDTO> results = globalSearchClient.search(new GlobalSearchRequest().withQuery("xx"), Paging.DEFAULT);
         assertResults(results
-                , tuple(EntityType.PROJECT, project1.getName(), project1.getId(), project1.getDescription())
-                , tuple(EntityType.PROJECT, project2.getName(), project2.getId(), project2.getDescription())
-                , tuple(EntityType.NOTEBOOK, notebook1.getName(), notebook1.getId(), "nd1 <mark>xx</mark>")
-                , tuple(EntityType.NOTEBOOK, notebook2.getName(), notebook2.getId(), "nd2 <mark>xx</mark>")
-                , tuple(EntityType.EXPERIMENT, experiment1.getName(), experiment1.getId(), "ed1 <mark>xx</mark>")
-                , tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId(), "ed2 <mark>xx</mark>")
+                , tuple(EntityType.PROJECT, project1.getName(), project1.getId())
+                , tuple(EntityType.PROJECT, project2.getName(), project2.getId())
+                , tuple(EntityType.NOTEBOOK, notebook1.getName(), notebook1.getId())
+                , tuple(EntityType.NOTEBOOK, notebook2.getName(), notebook2.getId())
+                , tuple(EntityType.EXPERIMENT, experiment1.getName(), experiment1.getId())
+                , tuple(EntityType.EXPERIMENT, experiment2.getName(), experiment2.getId())
+        );
+        assertThat(results.getItems()).map(GlobalSearchResultDTO::getFragment, GlobalSearchResultDTO::getCreatedBy).containsExactly(
+                tuple(project1.getDescription(), getMaggieUserRef()),
+                tuple(project2.getDescription(), getMaggieUserRef()),
+                tuple("nd1 <mark>xx</mark>", getMaggieUserRef()),
+                tuple("nd2 <mark>xx</mark>", getMaggieUserRef()),
+                tuple("ed1 <mark>xx</mark>", getMaggieUserRef()),
+                tuple("ed2 <mark>xx</mark>", getMaggieUserRef())
         );
     }
 
@@ -249,9 +258,6 @@ class GlobalSearchServiceTest extends ELNBaseTest {
         }
         int fieldCount = expected[0].toList().size();
         List<Function<GlobalSearchResultDTO, ?>> extractors = new ArrayList<>(List.of(GlobalSearchResultDTO::getType, GlobalSearchResultDTO::getName, GlobalSearchResultDTO::getId));
-        if (fieldCount >= 4) {
-            extractors.add(GlobalSearchResultDTO::getFragment);
-        }
         //noinspection unchecked,RedundantCast
         assertThat(results.getItems()).map(extractors.toArray(Function[]::new)).containsOnly((Object[]) expected);
     }
