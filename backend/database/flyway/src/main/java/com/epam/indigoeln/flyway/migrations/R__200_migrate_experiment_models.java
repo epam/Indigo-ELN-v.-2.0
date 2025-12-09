@@ -30,7 +30,7 @@ public class R__200_migrate_experiment_models extends BaseJavaMigration {
                 UUID experimentId = rsList.getObject("id", UUID.class);
                 String modelStr = rsList.getString("model");
                 ObjectNode model = (ObjectNode) OBJECT_MAPPER.readTree(modelStr);
-                updateModel(model);
+                updateModel(experimentId, model);
                 stUpdate.setString(1, OBJECT_MAPPER.writeValueAsString(model));
                 stUpdate.setObject(2, experimentId);
                 stUpdate.addBatch();
@@ -45,16 +45,21 @@ public class R__200_migrate_experiment_models extends BaseJavaMigration {
         return TARGET_SCHEMA_VERSION;
     }
 
-    private void updateModel(ObjectNode model) {
-        int schemaVersion = model.has("schemaVersion") ? model.get("schemaVersion").intValue() : 0;
-        //noinspection SwitchStatementWithTooFewBranches
-        switch (schemaVersion) {
-            case 0 -> {
-                migrateToVersion1(model);
-                // fallthrough
+    private void updateModel(UUID experimentId, ObjectNode model) {
+        try {
+            int schemaVersion = model.has("schemaVersion") ? model.get("schemaVersion").intValue() : 0;
+            //noinspection SwitchStatementWithTooFewBranches
+            switch (schemaVersion) {
+                case 0 -> {
+                    migrateToVersion1(model);
+                    // fallthrough
+                }
             }
+            model.put("schemaVersion", TARGET_SCHEMA_VERSION);
+        } catch (RuntimeException e) {
+            log.error("Failed to migrate model for experiment {}",  experimentId, e);
+            throw new RuntimeException(e);
         }
-        model.put("schemaVersion", TARGET_SCHEMA_VERSION);
     }
 
     private void migrateToVersion1(ObjectNode model) {
@@ -71,11 +76,17 @@ public class R__200_migrate_experiment_models extends BaseJavaMigration {
         for (ObjectNode output : outputs) {
             List<ObjectNode> samples = JsonLocator.findNodes(output, "samples/*", true);
             String calculatedBatchMF = null;
-            for (ObjectNode sample : samples) {
-                calculatedBatchMF = sample.get("calculatedBatchMF").asText();
-                sample.remove("calculatedBatchMF");
+            if (output.has("calculatedBatchMF")) {
+                calculatedBatchMF = output.get("calculatedBatchMF").asText();
+                output.remove("calculatedBatchMF");
             }
-            output.put("calculatedBatchMF", calculatedBatchMF);
+            for (ObjectNode sample : samples) {
+                if (sample.has("calculatedBatchMF")) {
+                    calculatedBatchMF = sample.get("calculatedBatchMF").asText();
+                    sample.remove("calculatedBatchMF");
+                }
+            }
+            output.withObject("compound").put("calculatedBatchMF", calculatedBatchMF);
         }
     }
 }
