@@ -6,10 +6,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Getter
 @Setter
-public class UserDTO extends BaseDTO {
+public class CurrentUserDTO {
+
+    UUID id;
 
     @NotEmpty
     String username;
@@ -18,14 +21,14 @@ public class UserDTO extends BaseDTO {
     String displayName;
 
     @NotNull
-    Set<RoleRef> roles;
+    Set<ApplicationPermission> permissions;
 
     @Override
     public String toString() {
         return "UserDTO{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
-                ", roles="  + roles +
+                ", permissions=" + permissions +
                 '}';
     }
 }

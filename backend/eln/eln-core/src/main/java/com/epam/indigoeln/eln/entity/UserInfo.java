@@ -11,5 +11,6 @@ public class UserInfo {
 
     UUID id;
     String username;
+    String displayName;
     Set<ApplicationPermission> permissions;
 }

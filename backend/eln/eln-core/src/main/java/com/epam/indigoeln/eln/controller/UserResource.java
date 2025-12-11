@@ -1,7 +1,9 @@
 package com.epam.indigoeln.eln.controller;
 
 
-import com.epam.indigoeln.eln.api.*;
+import com.epam.indigoeln.eln.api.AccessForm;
+import com.epam.indigoeln.eln.api.BaseAPI;
+import com.epam.indigoeln.eln.api.UserAPI;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.UserService;
 import jakarta.annotation.Nullable;
@@ -18,6 +20,11 @@ public class UserResource implements UserAPI {
 
     @Inject
     UserService userService;
+
+    @Override
+    public CurrentUserDTO getCurrentUser() {
+        return userService.getCurrentUserDTO();
+    }
 
     @Override
     public @NotNull @Valid UserDTO createUser(UserRequest request) {

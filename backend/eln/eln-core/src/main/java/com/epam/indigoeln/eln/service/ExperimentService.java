@@ -118,7 +118,7 @@ public class ExperimentService {
 
     public Page<ExperimentDTO> getExperiments(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable SortOrder sort, @Nullable Boolean createdByMe, Paging paging) {
         UserInfo currentUser = Boolean.TRUE.equals(createdByMe) ? userService.getCurrentUser() : null;
-        boolean showAll = userService.getCurrentUserEntity().collectPermissions().contains(ApplicationPermission.VIEW_EXPERIMENTS);
+        boolean showAll = userService.getCurrentUser().getPermissions().contains(ApplicationPermission.VIEW_EXPERIMENTS);
         return experimentRepository.findAll(projectId, notebookId, sort, currentUser, paging, showAll);
     }
 
