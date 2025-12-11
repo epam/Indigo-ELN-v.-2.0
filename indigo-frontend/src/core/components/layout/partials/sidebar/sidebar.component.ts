@@ -4,7 +4,10 @@ import { Router, RouterModule } from '@angular/router';
 import { StarredExperimentsComponent } from './starred-experiments/starred-experiments.component';
 import { map, Observable } from 'rxjs';
 import { UserService } from '@/core/services/user.service';
-import { ApplicationPermission, CurrentUser, Role } from '@/core/types/entities/user.i';
+import {
+  ApplicationPermission,
+  CurrentUser,
+} from '@/core/types/entities/user.i';
 import { MatIconModule } from '@angular/material/icon';
 
 interface MenuItem {
@@ -53,7 +56,8 @@ export class SidebarComponent {
     map((user: CurrentUser) => {
       return this.fullMenu.filter(
         (menuItem) =>
-          !menuItem.requiredPermission || user.permissions.includes(menuItem.requiredPermission),
+          !menuItem.requiredPermission ||
+          user.permissions.includes(menuItem.requiredPermission),
       );
     }),
   );

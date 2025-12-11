@@ -1,5 +1,8 @@
 import { Component, forwardRef, OnInit } from '@angular/core';
-import { TextSearch, TextSearchTypeNames } from '@core/types/entities/experiments/search.i';
+import {
+  TextSearch,
+  TextSearchTypeNames,
+} from '@core/types/entities/experiments/search.i';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatInput } from '@angular/material/input';
 import {
@@ -15,7 +18,15 @@ import { DelegatingControlBase } from '@core/components/common/delegating-contro
 
 @Component({
   selector: 'eln-text-search',
-  imports: [MatSelect, MatOption, MatInput, FormsModule, KeyValuePipe, ReactiveFormsModule, AsyncPipe],
+  imports: [
+    MatSelect,
+    MatOption,
+    MatInput,
+    FormsModule,
+    KeyValuePipe,
+    ReactiveFormsModule,
+    AsyncPipe,
+  ],
   templateUrl: './text-search.component.html',
   providers: [
     {
@@ -25,7 +36,10 @@ import { DelegatingControlBase } from '@core/components/common/delegating-contro
     },
   ],
 })
-export class TextSearchComponent extends DelegatingControlBase<TextSearch> implements OnInit {
+export class TextSearchComponent
+  extends DelegatingControlBase<TextSearch>
+  implements OnInit
+{
   form = new FormGroup({
     type: new FormControl<keyof typeof TextSearchTypeNames>('exact'),
     value: new FormControl<string>(''),
@@ -34,7 +48,7 @@ export class TextSearchComponent extends DelegatingControlBase<TextSearch> imple
   });
 
   ngOnInit() {
-    this.form.valueChanges.subscribe(formValue => {
+    this.form.valueChanges.subscribe((formValue) => {
       let result: TextSearch | null = null;
       switch (formValue.type) {
         case 'exact':
@@ -59,7 +73,11 @@ export class TextSearchComponent extends DelegatingControlBase<TextSearch> imple
           break;
         case 'between':
           if (formValue.from?.trim() || formValue.to?.trim()) {
-            result = { type: 'between', from: formValue.from, to: formValue.to };
+            result = {
+              type: 'between',
+              from: formValue.from,
+              to: formValue.to,
+            };
           }
           break;
       }

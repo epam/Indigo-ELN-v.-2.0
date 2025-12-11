@@ -1,4 +1,11 @@
-import { Component, ContentChild, forwardRef, Input, OnInit, TemplateRef } from '@angular/core';
+import {
+  Component,
+  ContentChild,
+  forwardRef,
+  Input,
+  OnInit,
+  TemplateRef,
+} from '@angular/core';
 import { MatOption, MatPrefix } from '@angular/material/select';
 import { MatInput } from '@angular/material/input';
 import {
@@ -11,9 +18,20 @@ import {
 } from '@angular/forms';
 import { MatChipGrid, MatChipInput, MatChipRow } from '@angular/material/chips';
 import { MatIcon } from '@angular/material/icon';
-import { MatAutocomplete, MatAutocompleteTrigger } from '@angular/material/autocomplete';
+import {
+  MatAutocomplete,
+  MatAutocompleteTrigger,
+} from '@angular/material/autocomplete';
 import { combineLatestWith, debounce, map } from 'rxjs/operators';
-import { BehaviorSubject, distinctUntilChanged, filter, interval, Observable, of, switchMap } from 'rxjs';
+import {
+  BehaviorSubject,
+  distinctUntilChanged,
+  filter,
+  interval,
+  Observable,
+  of,
+  switchMap,
+} from 'rxjs';
 import { AsyncPipe, NgIf, NgTemplateOutlet } from '@angular/common';
 import { DelegatingControlBase } from '@core/components/common/delegating-control/delegating-control-base.component';
 
@@ -48,7 +66,10 @@ export interface HasId {
     },
   ],
 })
-export class AutocompleteSelectComponent<T extends HasId> extends DelegatingControlBase<T[]> implements OnInit {
+export class AutocompleteSelectComponent<T extends HasId>
+  extends DelegatingControlBase<T[]>
+  implements OnInit
+{
   @Input({ required: true }) search: (query: string) => Observable<T[]>;
   @Input({ required: true }) display: (item: T) => string;
   @Input() allowEmptySearch = false;
@@ -56,7 +77,7 @@ export class AutocompleteSelectComponent<T extends HasId> extends DelegatingCont
 
   form = new FormGroup({
     query: new FormControl<string | null>(null),
-  })
+  });
   options$: Observable<T[]>;
   defaultOptions: Observable<T[]>;
   selected$ = new BehaviorSubject<T[]>([]);

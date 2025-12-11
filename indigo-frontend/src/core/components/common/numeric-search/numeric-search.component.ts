@@ -1,5 +1,8 @@
 import { Component, forwardRef, OnInit } from '@angular/core';
-import { NumericSearch, NumericSearchTypeNames } from '@core/types/entities/experiments/search.i';
+import {
+  NumericSearch,
+  NumericSearchTypeNames,
+} from '@core/types/entities/experiments/search.i';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatInput } from '@angular/material/input';
 import {
@@ -15,7 +18,14 @@ import { DelegatingControlBase } from '@core/components/common/delegating-contro
 
 @Component({
   selector: 'eln-numeric-search',
-  imports: [MatSelect, MatOption, MatInput, FormsModule, KeyValuePipe, ReactiveFormsModule],
+  imports: [
+    MatSelect,
+    MatOption,
+    MatInput,
+    FormsModule,
+    KeyValuePipe,
+    ReactiveFormsModule,
+  ],
   templateUrl: './numeric-search.component.html',
   providers: [
     {
@@ -25,14 +35,17 @@ import { DelegatingControlBase } from '@core/components/common/delegating-contro
     },
   ],
 })
-export class NumericSearchComponent extends DelegatingControlBase<NumericSearch> implements OnInit {
+export class NumericSearchComponent
+  extends DelegatingControlBase<NumericSearch>
+  implements OnInit
+{
   form = new FormGroup({
     type: new FormControl<keyof typeof NumericSearchTypeNames>('eq'),
     value: new FormControl<number | null>(null),
   });
 
   ngOnInit() {
-    this.form.valueChanges.subscribe(formValue => {
+    this.form.valueChanges.subscribe((formValue) => {
       let result: NumericSearch | null = null;
       if (formValue.value != null) {
         result = { type: formValue.type, value: formValue.value };

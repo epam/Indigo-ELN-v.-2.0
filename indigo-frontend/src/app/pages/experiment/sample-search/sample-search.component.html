@@ -3,17 +3,21 @@
 
   <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
     <mat-tab label="Catalog" class="overflow-x-hidden">
-      <form [formGroup]="form"
-            class="border border-[#cecaca] rounded-[10px] bg-[#f9f9f9] p-2.5 m-2.5"
+      <form
+        [formGroup]="form"
+        class="border border-[#cecaca] rounded-[10px] bg-[#f9f9f9] p-2.5 m-2.5"
       >
         <div class="flex flex-col gap-4">
-
           <mat-radio-group class="flex flex-wrap gap-6 text-sm">
-
             <div class="grow-[3]">
-              <eln-input [icon]="'indicon-search text-xl'" [showClearButton]="false" formControlName="quickSearch"
-                         inputClassname="rounded-full bg-primary-alpha-5 border-primary-alpha-10"
-                         [placeholder]="'Type Request'" class="flex-1"></eln-input>
+              <eln-input
+                [icon]="'indicon-search text-xl'"
+                [showClearButton]="false"
+                formControlName="quickSearch"
+                inputClassname="rounded-full bg-primary-alpha-5 border-primary-alpha-10"
+                [placeholder]="'Type Request'"
+                class="flex-1"
+              ></eln-input>
             </div>
 
             <div class="grow">
@@ -27,15 +31,18 @@
             </div>
 
             <div class="grow">
-              <mat-radio-button value="PubChem" disabled>PubChem</mat-radio-button>
+              <mat-radio-button value="PubChem" disabled
+                >PubChem</mat-radio-button
+              >
             </div>
-
           </mat-radio-group>
-
 
           <div class="flex items-stretch mt-2">
             <div class="flex-1">or Draw Structure</div>
-            <mat-radio-group formControlName="structureSearchType" class="flex-3">
+            <mat-radio-group
+              formControlName="structureSearchType"
+              class="flex-3"
+            >
             </mat-radio-group>
             <div class="flex-1">
               @if (form.get('structure').valueChanges | async) {
@@ -45,8 +52,10 @@
               }
             </div>
           </div>
-          <div class="w-full h-48 border border-gray-300 border-dashed rounded-md cursor-pointer"
-               (click)="editStructure()">
+          <div
+            class="w-full h-48 border border-gray-300 border-dashed rounded-md cursor-pointer"
+            (click)="editStructure()"
+          >
             @if (structureImage) {
               <img
                 class="w-full h-48 object-contain"
@@ -54,11 +63,14 @@
                 alt="structure editor"
               />
             } @else {
-              <div class="flex justify-center items-center h-full text-gray-500">
+              <div
+                class="flex justify-center items-center h-full text-gray-500"
+              >
                 <button
                   type="button"
                   class="ml-2 px-4 py-2 text-blue-600 bg-[#ececec] rounded-[5px] cursor-pointer"
-                >Draw Structure
+                >
+                  Draw Structure
                 </button>
               </div>
             }
@@ -69,13 +81,13 @@
             (afterExpand)="updateAdvancedSearchSummary(false)"
             (afterCollapse)="updateAdvancedSearchSummary(true)"
             class="advanced-search-box"
-            hideToggle="true">
+            hideToggle="true"
+          >
             <mat-expansion-panel-header>
-
               <mat-panel-title class="flex items-center">
                 <mat-icon
                   class="ml-0 mr-1 transition-transform duration-300 ease-in-out"
-                  [ngClass]="{'rotate-180': advancedSearchPanel.expanded}"
+                  [ngClass]="{ 'rotate-180': advancedSearchPanel.expanded }"
                 >
                   keyboard_arrow_down
                 </mat-icon>
@@ -86,12 +98,11 @@
                 @if (advancedSearchSummary) {
                   <mat-chip-set>
                     @for (item of advancedSearchSummary; track $index) {
-                      <mat-chip-row [innerHTML]="item"/>
+                      <mat-chip-row [innerHTML]="item" />
                     }
                   </mat-chip-set>
                 }
               </mat-panel-description>
-
             </mat-expansion-panel-header>
             <div class="grid grid-cols-2 gap-x-8 gap-y-2">
               <div class="text-xs">Compound ID</div>
@@ -105,11 +116,17 @@
               <div class="text-xs">Chemical Name</div>
               <div class="text-xs">Compound State</div>
               <eln-text-search formControlName="chemicalName" />
-              <eln-dictionary-select formControlName="compoundState" [dictionaryId]="BuildInDictionary.COMPONENT_STATE" />
+              <eln-dictionary-select
+                formControlName="compoundState"
+                [dictionaryId]="BuildInDictionary.COMPONENT_STATE"
+              />
               <div class="text-xs">Batch Comment</div>
               <div class="text-xs">Health Hazards</div>
               <eln-text-search formControlName="batchComment" />
-              <eln-dictionary-select formControlName="healthHazards" [dictionaryId]="BuildInDictionary.HEALTH_HAZARD" />
+              <eln-dictionary-select
+                formControlName="healthHazards"
+                [dictionaryId]="BuildInDictionary.HEALTH_HAZARD"
+              />
               <div class="text-xs">CAS Number</div>
               <div class="text-xs"></div>
               <eln-text-search formControlName="casNumber" />
@@ -133,7 +150,9 @@
                 displayName="Compound ID"
                 let-element
               >
-                <span class="font-medium text-gray-900">{{ element.compoundKey }}</span>
+                <span class="font-medium text-gray-900">{{
+                  element.compoundKey
+                }}</span>
               </ng-template>
               <ng-template
                 elnColumnDef="name"
@@ -219,15 +238,14 @@
         </div>
 
         <div class="flex justify-end mt-2">
-
           <section>
             <div class="example-button-row">
               <button
                 type="button"
-                class=" ml-2 px-4 py-2 text-blue-600 bg-[#ececec] rounded-[5px] cursor-pointer"
-                (click)="form.reset();
-                   clearStructure()"
-              >Clear All
+                class="ml-2 px-4 py-2 text-blue-600 bg-[#ececec] rounded-[5px] cursor-pointer"
+                (click)="form.reset(); clearStructure()"
+              >
+                Clear All
               </button>
             </div>
           </section>
@@ -240,16 +258,10 @@
           >
             Search
           </button>
-
         </div>
-
       </form>
     </mat-tab>
 
-    <mat-tab label="My Material List">
-      My Material List Content
-    </mat-tab>
+    <mat-tab label="My Material List"> My Material List Content </mat-tab>
   </mat-tab-group>
-
-
 </div>

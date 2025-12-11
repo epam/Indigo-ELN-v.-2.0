@@ -1,7 +1,12 @@
 import { FormDialogComponent } from '@/core/components/common/form-dialog/form-dialog.component';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { InputComponent } from '@core/components/common/input/input.component';
@@ -19,23 +24,31 @@ import {
   MatExpansionPanelHeader,
   MatExpansionPanelTitle,
 } from '@angular/material/expansion';
-import { BuiltInDictionary, DictionaryItemRef } from '@core/types/entities/dictionary.i';
+import {
+  BuiltInDictionary,
+  DictionaryItemRef,
+} from '@core/types/entities/dictionary.i';
 import { NumericSearchComponent } from '@core/components/common/numeric-search/numeric-search.component';
 import { MatChipRow, MatChipSet } from '@angular/material/chips';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { ApiService } from '@core/services/api.service';
 import { InfiniteLoaderComponent } from '@core/components/util/infinite-loader/infinite-loader.component';
 import { InfiniteSearchLoader } from '@core/components/util/infinite-scroll-search';
+import { StructureEditorModalComponent } from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
 import {
-  StructureEditorModalComponent,
-} from '@core/components/experiment/structure-editor-modal/structure-editor-modal.component';
-import { ReactionRole, ReactionRoleNames, UUID } from '@core/types/entities/experiments/experiment-shared.i';
+  ReactionRole,
+  ReactionRoleNames,
+  UUID,
+} from '@core/types/entities/experiments/experiment-shared.i';
 import { ExperimentModelService } from '@core/services/experiment/experiment-model.service';
 import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { UserMetadata } from '@core/types/entities/user.i';
 import { UserSelectComponent } from '@core/components/common/user-multiselect/user-select.component';
 import { DictionarySelectComponent } from '@core/components/common/dictionary-select/dictionary-select.component';
-import { ExperimentStatus, ExperimentStatusNames } from '@core/enums/experiment-status.enum';
+import {
+  ExperimentStatus,
+  ExperimentStatusNames,
+} from '@core/enums/experiment-status.enum';
 import { MatDivider } from '@angular/material/divider';
 import { ApiImageComponent } from '@core/components/common/image/api-image.component';
 import { EnumSelectComponent } from '@core/components/common/enum-select/enum-select.component';
@@ -44,7 +57,7 @@ import { first } from 'rxjs';
 import {
   enumSearchSummary,
   dictionarySearchSummary,
-  numericSearchSummary,
+  numericSearchSummary, setEnabled,
 } from '@core/utils/search.util';
 
 export interface SampleSearchDialogData {
@@ -127,19 +140,9 @@ export class GlobalSearchComponent implements OnInit {
         searchParams,
       ),
     );
-    this.form.get('isReaction').valueChanges.subscribe((isReaction) => {
-      if (isReaction != null) {
-        this.form.get('structureSearchType').enable();
-      } else {
-        this.form.get('structureSearchType').disable();
-      }
-      if (isReaction === false) {
-        this.form.get('reactionRole').enable();
-      } else {
-        this.form.get('reactionRole').disable();
-      }
-    });
     this.form.valueChanges.subscribe((formValues) => {
+      setEnabled(this.form.get('structureSearchType'), formValues.isReaction != null, false);
+      setEnabled(this.form.get('reactionRole'), formValues.isReaction === false, false);
       this.formNotEmpty =
         (formValues.quickSearch != null &&
           formValues.quickSearch.trim() !== '') ||
@@ -150,22 +153,28 @@ export class GlobalSearchComponent implements OnInit {
         formValues.batchPurity != null ||
         formValues.author != null ||
         formValues.experimentStatus?.length > 0;
-      console.log('formNotEmpty', this.formNotEmpty, formValues);
     });
-    this.form.get('isReaction').setValue(null); // trigger update
   }
 
   updateAdvancedSearchSummary(show: boolean) {
     let formValue = this.form.value;
     if (show) {
       let parts = [
-        dictionarySearchSummary('Therapeutic Area', formValue.therapeuticArea,),
+        dictionarySearchSummary('Therapeutic Area', formValue.therapeuticArea),
         dictionarySearchSummary('Project Code', formValue.projectCode),
         numericSearchSummary('Batch Yield, %', formValue.batchYield),
         numericSearchSummary('Batch Purity, %', formValue.batchPurity),
         dictionarySearchSummary('Author', formValue.author),
-        enumSearchSummary('Experiment Status', formValue.experimentStatus, ExperimentStatusNames,),
-        enumSearchSummary('Reaction Role', formValue.reactionRole, ReactionRoleNames,),
+        enumSearchSummary(
+          'Experiment Status',
+          formValue.experimentStatus,
+          ExperimentStatusNames,
+        ),
+        enumSearchSummary(
+          'Reaction Role',
+          formValue.reactionRole,
+          ReactionRoleNames,
+        ),
       ];
       parts = parts.filter((part) => part != null);
       this.advancedSearchSummary = parts;
@@ -178,16 +187,14 @@ export class GlobalSearchComponent implements OnInit {
     this.userService.user$.pipe(first()).subscribe((user) => {
       let selectedUsers = this.form.get('author').value || [];
       if (!selectedUsers.some((x) => x.id === user.id)) {
-        this.form
-          .get('author')
-          .setValue([
-            ...selectedUsers,
-            {
-              id: user.id,
-              username: user.username,
-              displayName: user.displayName,
-            },
-          ]);
+        this.form.get('author').setValue([
+          ...selectedUsers,
+          {
+            id: user.id,
+            username: user.username,
+            displayName: user.displayName,
+          },
+        ]);
       }
     });
   }

@@ -1,5 +1,6 @@
-import { AbstractControl, ControlValueAccessor, FormControl } from '@angular/forms';
+import { AbstractControl, ControlValueAccessor } from '@angular/forms';
 import { Injectable } from '@angular/core';
+import { setEnabled } from '@core/utils/search.util';
 
 @Injectable()
 export abstract class DelegatingControlBase<T> implements ControlValueAccessor {
@@ -11,7 +12,7 @@ export abstract class DelegatingControlBase<T> implements ControlValueAccessor {
 
   ngAfterViewInit(): void {
     this.viewInitialized = true;
-    this.delayedInitializations.forEach(operation => operation());
+    this.delayedInitializations.forEach((operation) => operation());
   }
 
   abstract setValue(obj: T | null): void;
@@ -30,12 +31,8 @@ export abstract class DelegatingControlBase<T> implements ControlValueAccessor {
 
   setDisabledState(isDisabled: boolean): void {
     this.doAfterInitialization(() => {
-      this.getControlsToDisable().forEach(c => {
-        if (isDisabled) {
-          c.disable();
-        } else {
-          c.enable();
-        }
+      this.getControlsToDisable().forEach((c) => {
+        setEnabled(c, !isDisabled, false);
       });
     });
   }

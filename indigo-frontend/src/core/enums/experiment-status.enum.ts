@@ -20,4 +20,4 @@ export const ExperimentStatusNames: Record<ExperimentStatus, string> = {
   SIGNED: 'Signed',
   ARCHIVED: 'Archived',
   CANCELLED: 'Cancelled',
-}
+};

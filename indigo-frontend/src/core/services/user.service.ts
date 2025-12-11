@@ -1,10 +1,7 @@
 import { Injectable } from '@angular/core';
-import { fetchAuthSession } from 'aws-amplify/auth';
-import { from, map, Observable, switchMap } from 'rxjs';
-import { ElnJwtPayload } from '../types/jwt-payload.i';
+import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { HttpParams } from '@angular/common/http';
-import { CurrentUser, Role, UsersResponse } from '../types/entities/user.i';
+import { CurrentUser } from '../types/entities/user.i';
 
 @Injectable({
   providedIn: 'root',

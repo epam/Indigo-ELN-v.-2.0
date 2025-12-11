@@ -4,7 +4,13 @@ import { AutocompleteSelectComponent } from '@core/components/common/autocomplet
 import { UserMetadata } from '@core/types/entities/user.i';
 import { Observable } from 'rxjs';
 import { ApiService } from '@core/services/api.service';
-import { AbstractControl, FormControl, FormGroup, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  NG_VALUE_ACCESSOR,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { DelegatingControlBase } from '@core/components/common/delegating-control/delegating-control-base.component';
 import { HttpParams } from '@angular/common/http';
 
@@ -21,20 +27,25 @@ import { HttpParams } from '@angular/common/http';
     },
   ],
 })
-export class UserSelectComponent extends DelegatingControlBase<UserMetadata> implements OnInit {
+export class UserSelectComponent
+  extends DelegatingControlBase<UserMetadata>
+  implements OnInit
+{
   form = new FormGroup({
-    search: new FormControl<UserMetadata | null>(null)
+    search: new FormControl<UserMetadata | null>(null),
   });
 
   private api = inject(ApiService);
 
   ngOnInit() {
-    this.form.get('search').valueChanges.subscribe(value => this.triggerChange(value));
+    this.form
+      .get('search')
+      .valueChanges.subscribe((value) => this.triggerChange(value));
   }
 
   search(query: string): Observable<UserMetadata[]> {
     return this.api.request<UserMetadata[]>('get', 'users/suggest', {
-      params: new HttpParams().set('search', query)
+      params: new HttpParams().set('search', query),
     });
   }
 

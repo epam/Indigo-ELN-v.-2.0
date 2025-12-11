@@ -3,7 +3,13 @@ import { CommonModule } from '@angular/common';
 import { AutocompleteSelectComponent } from '@core/components/common/autocomplete-select/autocomplete-select.component';
 import { Observable } from 'rxjs';
 import { ApiService } from '@core/services/api.service';
-import { AbstractControl, FormControl, FormGroup, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  NG_VALUE_ACCESSOR,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { map } from 'rxjs/operators';
 import { DropdownValueComponent } from '@core/components/experiment/dropdown-value/dropdown-value.component';
@@ -12,7 +18,12 @@ import { DelegatingControlBase } from '@core/components/common/delegating-contro
 @Component({
   selector: 'eln-dictionary-select',
   templateUrl: './dictionary-select.component.html',
-  imports: [CommonModule, AutocompleteSelectComponent, DropdownValueComponent, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    AutocompleteSelectComponent,
+    DropdownValueComponent,
+    ReactiveFormsModule,
+  ],
   standalone: true,
   providers: [
     {
@@ -22,22 +33,29 @@ import { DelegatingControlBase } from '@core/components/common/delegating-contro
     },
   ],
 })
-export class DictionarySelectComponent extends DelegatingControlBase<DictionaryItemRef | DictionaryItemRef[]> implements OnInit {
+export class DictionarySelectComponent
+  extends DelegatingControlBase<DictionaryItemRef | DictionaryItemRef[]>
+  implements OnInit
+{
   @Input() multiple = false;
   @Input({ required: true }) dictionaryId: string;
 
   form = new FormGroup({
     single: new FormControl<DictionaryItemRef | null>(null),
-    multiple: new FormControl<DictionaryItemRef[] | null>(null)
-  })
+    multiple: new FormControl<DictionaryItemRef[] | null>(null),
+  });
 
   private api = inject(ApiService);
 
   allItems$: Observable<DictionaryItemRef[]>;
 
   ngOnInit() {
-    this.form.get('single').valueChanges.subscribe(value => this.triggerChange(value));
-    this.form.get('multiple').valueChanges.subscribe(value => this.triggerChange(value));
+    this.form
+      .get('single')
+      .valueChanges.subscribe((value) => this.triggerChange(value));
+    this.form
+      .get('multiple')
+      .valueChanges.subscribe((value) => this.triggerChange(value));
     this.allItems$ = this.api.request<DictionaryItemRef[]>(
       'get',
       `dictionaries/${this.dictionaryId}`,
@@ -71,6 +89,6 @@ export class DictionarySelectComponent extends DelegatingControlBase<DictionaryI
   }
 
   protected getControlsToDisable(): AbstractControl[] {
-      return Object.values(this.form.controls);
+    return Object.values(this.form.controls);
   }
 }

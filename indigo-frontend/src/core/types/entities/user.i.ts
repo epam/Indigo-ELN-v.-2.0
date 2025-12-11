@@ -1,7 +1,6 @@
 import { UUID } from '@core/types/entities/experiments/experiment-shared.i';
 
 export enum ApplicationPermission {
-
   // system
   MANAGE_USERS = 'MANAGE_USERS',
   MANAGE_ROLES = 'MANAGE_ROLES',

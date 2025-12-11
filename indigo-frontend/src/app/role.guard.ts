@@ -9,18 +9,23 @@ import { map } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class RoleGuard implements CanActivate {
-  constructor(private userService: UserService, private router: Router) {}
+  constructor(
+    private userService: UserService,
+    private router: Router,
+  ) {}
 
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
     const requiredPermission = route.data['requiredPermission'];
     return this.userService.user$.pipe(
       map((user: CurrentUser) => {
-        const hasPermission = user.permissions.some((permission) => permission === requiredPermission);
+        const hasPermission = user.permissions.some(
+          (permission) => permission === requiredPermission,
+        );
         if (!hasPermission) {
           this.router.navigate(['/']);
         }
         return hasPermission;
-      })
+      }),
     );
   }
 }

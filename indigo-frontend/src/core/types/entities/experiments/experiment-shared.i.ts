@@ -6,7 +6,6 @@
 // 1. BASE TYPES
 // ================================
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
-import { ExperimentStatus } from '@core/enums/experiment-status.enum';
 
 export type UUID = string;
 
@@ -62,7 +61,7 @@ export const ReactionRoleNames: Record<ReactionRole, string> = {
   CATALYST: 'Catalyst',
   SOLVENT: 'Solvent',
   OUTPUT: 'Output',
-}
+};
 
 export enum ReactionOutputType {
   FINAL = 'FINAL',

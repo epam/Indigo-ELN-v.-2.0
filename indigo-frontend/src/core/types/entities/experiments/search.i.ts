@@ -1,5 +1,8 @@
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
-import { ReactionRole, UUID } from '@core/types/entities/experiments/experiment-shared.i';
+import {
+  ReactionRole,
+  UUID,
+} from '@core/types/entities/experiments/experiment-shared.i';
 import { ExperimentStatus } from '@core/enums/experiment-status.enum';
 import { UserMetadata } from '@core/types/entities/user.i';
 

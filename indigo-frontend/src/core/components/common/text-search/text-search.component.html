@@ -1,10 +1,6 @@
 <form [formGroup]="form">
   <div class="flex gap-4 border rounded-sm">
-    <mat-select
-      formControlName="type"
-      (blur)="triggerTouched()"
-      class="flex-1"
-    >
+    <mat-select formControlName="type" (blur)="triggerTouched()" class="flex-1">
       @for (type of TextSearchTypeNames | keyvalue: null; track type) {
         <mat-option [value]="type.key">{{ type.value }}</mat-option>
       }

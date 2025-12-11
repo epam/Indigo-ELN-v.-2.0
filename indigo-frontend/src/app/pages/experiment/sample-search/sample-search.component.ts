@@ -2,12 +2,12 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   DestroyRef,
-  inject,
-  OnInit,
-  ViewChild,
-  Input,
-  Output,
   EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
 } from '@angular/core';
 import {
   FormControl,
@@ -38,7 +38,7 @@ import {
   DictionaryItemRef,
 } from '@core/types/entities/dictionary.i';
 import { NumericSearchComponent } from '@core/components/common/numeric-search/numeric-search.component';
-import { MatChip, MatChipRow, MatChipSet } from '@angular/material/chips';
+import { MatChipRow, MatChipSet } from '@angular/material/chips';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import {
   ColumnDefDirective,
@@ -63,6 +63,7 @@ import { DictionarySelectComponent } from '@core/components/common/dictionary-se
 import {
   dictionarySearchSummary,
   numericSearchSummary,
+  setEnabled,
   textSearchSummary,
 } from '@core/utils/search.util';
 
@@ -88,7 +89,6 @@ export interface SampleSearchDialogData {
     MatExpansionPanelDescription,
     TextSearchComponent,
     NumericSearchComponent,
-    MatChip,
     MatProgressSpinner,
     ExpandableTableComponent,
     ColumnDefDirective,
@@ -153,14 +153,12 @@ export class SampleSearchComponent implements OnInit {
           searchParams,
         ),
     );
-    this.form.get('structure').valueChanges.subscribe((structure) => {
-      if (structure != null) {
-        this.form.get('structureSearchType').enable();
-      } else {
-        this.form.get('structureSearchType').disable();
-      }
-    });
     this.form.valueChanges.subscribe((formValues) => {
+      setEnabled(
+        this.form.get('structureSearchType'),
+        formValues.structure != null,
+        false,
+      );
       this.formNotEmpty =
         (formValues.quickSearch != null &&
           formValues.quickSearch.trim() !== '') ||
@@ -174,7 +172,6 @@ export class SampleSearchComponent implements OnInit {
         formValues.batchComment != null ||
         formValues.healthHazards != null ||
         formValues.casNumber != null;
-      console.log('formNotEmpty', this.formNotEmpty, formValues);
     });
 
     this.form.valueChanges
@@ -284,18 +281,16 @@ export class SampleSearchComponent implements OnInit {
       sampleId: sample.id,
     };
 
-    this.experimentModelService
-      .updateDataModel(mutation)
-      .subscribe({
-        next: () => {
-          console.log('Model updated with new sample');
+    this.experimentModelService.updateDataModel(mutation).subscribe({
+      next: () => {
+        console.log('Model updated with new sample');
 
-          this.close.emit();
-        },
-        error: (error) => {
-          console.error('Failed to update experiment model:', error);
-        },
-      });
+        this.close.emit();
+      },
+      error: (error) => {
+        console.error('Failed to update experiment model:', error);
+      },
+    });
   }
 
   editStructure() {

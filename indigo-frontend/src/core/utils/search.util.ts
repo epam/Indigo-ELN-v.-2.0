@@ -1,7 +1,12 @@
-import { NumericSearch, NumericSearchTypeNames, TextSearch, TextSearchTypeNames } from '@core/types/entities/experiments/search.i';
+import {
+  NumericSearch,
+  NumericSearchTypeNames,
+  TextSearch,
+  TextSearchTypeNames,
+} from '@core/types/entities/experiments/search.i';
 import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { UserMetadata } from '@core/types/entities/user.i';
-import exp from 'node:constants';
+import { AbstractControl } from '@angular/forms';
 
 export function textSearchSummary(
   name: string,
@@ -27,7 +32,12 @@ export function numericSearchSummary(
 
 export function dictionarySearchSummary(
   name: string,
-  value: DictionaryItemRef | DictionaryItemRef[] | UserMetadata | UserMetadata[] | null,
+  value:
+    | DictionaryItemRef
+    | DictionaryItemRef[]
+    | UserMetadata
+    | UserMetadata[]
+    | null,
 ): string | null {
   if (value != null) {
     const array = Array.isArray(value) ? value : [value];
@@ -41,17 +51,25 @@ export function dictionarySearchSummary(
 export function enumSearchSummary<T extends string>(
   name: string,
   value: T | T[] | null,
-  enumNames: Record<T, string>
+  enumNames: Record<T, string>,
 ): string | null {
   if (value != null) {
     const array = Array.isArray(value) ? value : [value];
     if (array.length) {
-      return `<b>${name}</b>&ensp;is&ensp;${array.map(v => enumNames[v]).join('&ensp;or&ensp;')}`;
+      return `<b>${name}</b>&ensp;is&ensp;${array.map((v) => enumNames[v]).join('&ensp;or&ensp;')}`;
     }
   }
   return null;
 }
 
-function referenceDisplayName(ref: any) {
+export function setEnabled(control: AbstractControl, isEnabled: boolean, emitEvent: boolean): void {
+  if (isEnabled) {
+    control.enable({ emitEvent });
+  } else {
+    control.disable({ emitEvent });
+  }
+}
+
+function referenceDisplayName(ref: any): string {
   return ref.username || ref.name;
 }
