@@ -44,6 +44,8 @@ import { ExperimentStatus, ExperimentStatusNames } from '@core/enums/experiment-
 import { MatDivider } from '@angular/material/divider';
 import { ApiImageComponent } from '@core/components/common/image/api-image.component';
 import { EnumSelectComponent } from '@core/components/common/enum-select/enum-select.component';
+import { UserService } from '@core/services/user.service';
+import { first } from 'rxjs';
 
 export interface SampleSearchDialogData {
   experimentId: UUID;
@@ -90,6 +92,7 @@ export class GlobalSearchComponent implements OnInit {
   service = inject(ApiService);
   dialog = inject(MatDialog);
   experimentModelService = inject(ExperimentModelService);
+  userService = inject(UserService)
 
   title = 'Search';
 
@@ -170,7 +173,14 @@ export class GlobalSearchComponent implements OnInit {
   }
 
   addMeAsAuthor() {
-    window.alert('Not implemented!');
+    this.userService.user$
+      .pipe(first())
+      .subscribe(user => {
+        let selectedUsers = this.form.get('author').value || [];
+        if (!selectedUsers.some(x => x.id === user.id)) {
+          this.form.get('author').setValue([...selectedUsers, {id: user.id, username: user.username, displayName: user.displayName}])
+        }
+      });
   }
 
   performSearch() {

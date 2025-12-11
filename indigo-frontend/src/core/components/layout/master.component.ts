@@ -51,7 +51,7 @@ export class MasterComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.userService.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
-      this.userName = `${user.given_name} ${user.family_name}`;
+      this.userName = `${user.displayName}`;
     });
   }
 

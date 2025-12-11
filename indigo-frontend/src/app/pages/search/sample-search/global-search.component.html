@@ -86,7 +86,7 @@
             <div class="col-span-2 text-xs">Author</div>
             <eln-user-select formControlName="author" class="col-span-2" />
             <div class="col-span-2 text-xs">
-              <a class="underline" href="#" (click)="addMeAsAuthor()">Add Me as an Author</a>
+              <a class="underline" href="#" (click)="addMeAsAuthor(); $event.preventDefault()">Add Me as an Author</a>
             </div>
             <div class="text-xs">Experiment Status</div>
             <div class="text-xs">Reaction Role</div>
