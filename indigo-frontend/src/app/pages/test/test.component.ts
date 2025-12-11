@@ -9,7 +9,7 @@ import { GlobalSearchEntityType, NumericSearch, TextSearch } from '@core/types/e
 import { UserMetadata } from '@core/types/entities/user.i';
 import { NumericSearchComponent } from '@core/components/common/numeric-search/numeric-search.component';
 import { TextSearchComponent } from '@core/components/common/text-search/text-search.component';
-import { GlobalSearchComponent } from '@pages/search/sample-search/global-search.component';
+import { GlobalSearchComponent } from '@pages/search/global-search/global-search.component';
 import { ReactionRole, ReactionRoleNames } from '@core/types/entities/experiments/experiment-shared.i';
 import { ExperimentStatus, ExperimentStatusNames } from '@core/enums/experiment-status.enum';
 import { EnumSelectComponent } from '@core/components/common/enum-select/enum-select.component';

@@ -20,11 +20,9 @@ import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
 import {
   FindSamplesRequest,
   NumericSearch,
-  NumericSearchTypeNames,
   Sample,
   StructuralSearchType,
   TextSearch,
-  TextSearchTypeNames,
 } from '@core/types/entities/experiments/search.i';
 import {
   MatExpansionPanel,
@@ -38,7 +36,7 @@ import {
   DictionaryItemRef,
 } from '@core/types/entities/dictionary.i';
 import { NumericSearchComponent } from '@core/components/common/numeric-search/numeric-search.component';
-import { MatChip } from '@angular/material/chips';
+import { MatChip, MatChipRow, MatChipSet } from '@angular/material/chips';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import {
   ColumnDefDirective,
@@ -58,8 +56,12 @@ import { ExperimentModelService } from '@core/services/experiment/experiment-mod
 import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { distinctUntilChanged } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { DictionaryService } from '@core/services/dictionary/dictionary.service';
 import { DictionarySelectComponent } from '@core/components/common/dictionary-select/dictionary-select.component';
+import {
+  dictionarySearchSummary,
+  numericSearchSummary,
+  textSearchSummary,
+} from '@core/utils/search.util';
 
 export interface SampleSearchDialogData {
   experimentId: UUID;
@@ -93,6 +95,8 @@ export interface SampleSearchDialogData {
     MatTooltip,
     ToggleComponent,
     DictionarySelectComponent,
+    MatChipSet,
+    MatChipRow,
   ],
   templateUrl: './sample-search.component.html',
 })
@@ -104,7 +108,6 @@ export class SampleSearchComponent implements OnInit {
   @ViewChild('advancedSearchPanel') advancedSearchPanel: MatExpansionPanel;
 
   service = inject(ApiService);
-  dictionaryService = inject(DictionaryService);
   destroyRef = inject(DestroyRef);
   dialog = inject(MatDialog);
   experimentModelService = inject(ExperimentModelService);
@@ -116,7 +119,8 @@ export class SampleSearchComponent implements OnInit {
     structureSearchType: new FormControl<StructuralSearchType>(
       StructuralSearchType.EXACT,
     ),
-    strCode: new FormControl<TextSearch | null>(null),
+    structure: new FormControl<string | null>(null),
+    compoundKey: new FormControl<TextSearch | null>(null),
     nbkBatchNumber: new FormControl<TextSearch | null>(null),
     molecularFormula: new FormControl<TextSearch | null>(null),
     molWeight: new FormControl<NumericSearch | null>(null),
@@ -127,10 +131,10 @@ export class SampleSearchComponent implements OnInit {
     casNumber: new FormControl<TextSearch | null>(null),
     marked: new FormControl<boolean>(false),
   });
-  structureMolFile: string | null = null;
   structureImage: string | null = null;
+  formNotEmpty = false;
 
-  advancedSearchSummary: string[][] | null = null;
+  advancedSearchSummary: string[] | null = null;
 
   ngOnInit(): void {
     this.loader = new InfiniteSearchLoader<FindSamplesRequest, Sample>(
@@ -141,6 +145,29 @@ export class SampleSearchComponent implements OnInit {
           searchParams,
         ),
     );
+    this.form.get('structure').valueChanges.subscribe((structure) => {
+      if (structure != null) {
+        this.form.get('structureSearchType').enable();
+      } else {
+        this.form.get('structureSearchType').disable();
+      }
+    });
+    this.form.valueChanges.subscribe((formValues) => {
+      this.formNotEmpty =
+        (formValues.quickSearch != null &&
+          formValues.quickSearch.trim() !== '') ||
+        formValues.structure != null ||
+        formValues.compoundKey != null ||
+        formValues.nbkBatchNumber != null ||
+        formValues.molecularFormula != null ||
+        formValues.molWeight != null ||
+        formValues.chemicalName != null ||
+        formValues.compoundState != null ||
+        formValues.batchComment != null ||
+        formValues.healthHazards != null ||
+        formValues.casNumber != null;
+      console.log('formNotEmpty', this.formNotEmpty, formValues);
+    });
     // when user (de)selects "Only My Materials" when search was already triggered, reload search results
     this.form.valueChanges
       .pipe(
@@ -160,30 +187,24 @@ export class SampleSearchComponent implements OnInit {
   updateAdvancedSearchSummary(show: boolean) {
     if (show) {
       let parts = [
-        this.textSearchSummary('Compound ID', this.form.value.strCode),
-        this.textSearchSummary(
-          'NBK Batch Number',
-          this.form.value.nbkBatchNumber,
-        ),
-        this.textSearchSummary(
+        textSearchSummary('Compound ID', this.form.value.compoundKey),
+        textSearchSummary('NBK Batch Number', this.form.value.nbkBatchNumber),
+        textSearchSummary(
           'Molecular Formula',
           this.form.value.molecularFormula,
         ),
-        this.numericSearchSummary(
-          'Molecular Weight',
-          this.form.value.molWeight,
-        ),
-        this.textSearchSummary('Chemical Name', this.form.value.chemicalName),
-        this.dictionarySearchSummary(
+        numericSearchSummary('Molecular Weight', this.form.value.molWeight),
+        textSearchSummary('Chemical Name', this.form.value.chemicalName),
+        dictionarySearchSummary(
           'Compound State',
           this.form.value.compoundState,
         ),
-        this.textSearchSummary('Batch Comment', this.form.value.batchComment),
-        this.dictionarySearchSummary(
+        textSearchSummary('Batch Comment', this.form.value.batchComment),
+        dictionarySearchSummary(
           'Health Hazards',
           this.form.value.healthHazards,
         ),
-        this.textSearchSummary('CAS Number', this.form.value.casNumber),
+        textSearchSummary('CAS Number', this.form.value.casNumber),
       ];
       parts = parts.filter((part) => part != null);
       this.advancedSearchSummary = parts;
@@ -193,16 +214,35 @@ export class SampleSearchComponent implements OnInit {
   }
 
   performSearch() {
+    const formValue = this.form.value;
+    const {
+      compoundKey,
+      nbkBatchNumber,
+      molecularFormula,
+      molWeight,
+      chemicalName,
+      compoundState,
+      batchComment,
+      healthHazards,
+      casNumber,
+      marked,
+    } = formValue;
     const body: FindSamplesRequest = {
-      ...this.form.value,
-      quickSearch: this.form.value.quickSearch || null,
-      marked: this.form.value.marked ? true : null,
-      structure: this.structureMolFile
-        ? {
-            type: this.form.value.structureSearchType,
-            query: this.structureMolFile,
-          }
-        : null,
+      quickSearch: formValue.quickSearch || null,
+      structure:
+        formValue.structure != null
+          ? { type: formValue.structureSearchType, query: formValue.structure }
+          : null,
+      compoundKey,
+      nbkBatchNumber,
+      molecularFormula,
+      molWeight,
+      chemicalName,
+      compoundState,
+      batchComment,
+      healthHazards,
+      casNumber,
+      marked,
     };
     this.loader.search(body);
     this.advancedSearchPanel.close();
@@ -262,58 +302,20 @@ export class SampleSearchComponent implements OnInit {
         height: '600px',
         width: '100%',
         isReaction: false,
-        molFile: this.structureMolFile,
+        molFile: this.form.get('structure').value,
       },
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.success) {
-        this.structureMolFile = result.molFile;
+        this.form.get('structure').setValue(result.molFile);
         this.structureImage = URL.createObjectURL(result.molFileImage);
       }
     });
   }
 
   clearStructure() {
-    this.structureMolFile = null;
+    this.form.get('structure').setValue(null);
     this.structureImage = null;
-  }
-
-  private textSearchSummary(
-    name: string,
-    search: TextSearch | null,
-  ): string[] | null {
-    if (search == null) {
-      return null;
-    } else if (search.type !== 'between') {
-      return [name, `${TextSearchTypeNames[search.type]}: ${search.value}`];
-    } else {
-      return [
-        name,
-        `${TextSearchTypeNames[search.type]}: ${search.from} and ${search.to}`,
-      ];
-    }
-  }
-
-  private numericSearchSummary(
-    name: string,
-    search: NumericSearch | null,
-  ): string[] | null {
-    if (search == null) {
-      return null;
-    } else {
-      return [name, `${NumericSearchTypeNames[search.type]} ${search.value}`];
-    }
-  }
-
-  private dictionarySearchSummary(
-    name: string,
-    value: DictionaryItemRef | null | any,
-  ): string[] | null {
-    if (value == null) {
-      return null;
-    } else {
-      return [name, value.name];
-    }
   }
 
   BuildInDictionary = BuiltInDictionary;

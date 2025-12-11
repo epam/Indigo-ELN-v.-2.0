@@ -12,7 +12,7 @@ import { Router, RouterOutlet } from '@angular/router';
 import { AuthenticatorService } from '@aws-amplify/ui-angular';
 import { Subject, takeUntil } from 'rxjs';
 import { SidebarComponent } from './partials/sidebar/sidebar.component';
-import { GlobalSearchComponent } from '@pages/search/sample-search/global-search.component';
+import { GlobalSearchComponent } from '@pages/search/global-search/global-search.component';
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({

@@ -70,7 +70,7 @@ export type NumericSearch =
 export interface FindSamplesRequest {
   quickSearch?: string;
   structure?: StructuralSearch;
-  strCode?: TextSearch;
+  compoundKey?: TextSearch;
   nbkBatchNumber?: TextSearch;
   casNumber?: TextSearch;
   externalNumber?: TextSearch;

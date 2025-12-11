@@ -11,10 +11,7 @@ import {
   GlobalSearchRequest,
   GlobalSearchResult,
   NumericSearch,
-  NumericSearchTypeNames,
   StructuralSearchType,
-  TextSearch,
-  TextSearchTypeNames,
 } from '@core/types/entities/experiments/search.i';
 import {
   MatExpansionPanel,
@@ -38,14 +35,17 @@ import { ReactionAnchor } from '@core/types/entities/experiments/mutation.i';
 import { UserMetadata } from '@core/types/entities/user.i';
 import { UserSelectComponent } from '@core/components/common/user-multiselect/user-select.component';
 import { DictionarySelectComponent } from '@core/components/common/dictionary-select/dictionary-select.component';
-import { SelectComponent } from '@core/components/common/select/select.component';
-import { DropdownMenuItem } from '@core/components/common/dropdown-menu/dropdown-menu.i';
 import { ExperimentStatus, ExperimentStatusNames } from '@core/enums/experiment-status.enum';
 import { MatDivider } from '@angular/material/divider';
 import { ApiImageComponent } from '@core/components/common/image/api-image.component';
 import { EnumSelectComponent } from '@core/components/common/enum-select/enum-select.component';
 import { UserService } from '@core/services/user.service';
 import { first } from 'rxjs';
+import {
+  enumSearchSummary,
+  dictionarySearchSummary,
+  numericSearchSummary,
+} from '@core/utils/search.util';
 
 export interface SampleSearchDialogData {
   experimentId: UUID;
@@ -73,7 +73,6 @@ export interface SampleSearchDialogData {
     InfiniteLoaderComponent,
     UserSelectComponent,
     DictionarySelectComponent,
-    SelectComponent,
     MatChipRow,
     MatChipSet,
     MatDivider,
@@ -92,7 +91,7 @@ export class GlobalSearchComponent implements OnInit {
   service = inject(ApiService);
   dialog = inject(MatDialog);
   experimentModelService = inject(ExperimentModelService);
-  userService = inject(UserService)
+  userService = inject(UserService);
 
   title = 'Search';
 
@@ -105,7 +104,6 @@ export class GlobalSearchComponent implements OnInit {
     structure: new FormControl<string | null>(null),
     therapeuticArea: new FormControl<DictionaryItemRef | null>(null),
     projectCode: new FormControl<DictionaryItemRef | null>(null),
-    // ...
     batchYield: new FormControl<NumericSearch | null>(null),
     batchPurity: new FormControl<NumericSearch | null>(null),
     author: new FormControl<UserMetadata[] | null>(null),
@@ -119,15 +117,17 @@ export class GlobalSearchComponent implements OnInit {
   advancedSearchSummary: string[] | null = null;
 
   ngOnInit(): void {
-    this.loader = new InfiniteSearchLoader<GlobalSearchRequest, GlobalSearchResult>(
-      (searchParams, pageNo) =>
-        this.service.request(
-          'post',
-          `search?pageNo=${pageNo}&pageSize=20`,
-          searchParams,
-        ),
+    this.loader = new InfiniteSearchLoader<
+      GlobalSearchRequest,
+      GlobalSearchResult
+    >((searchParams, pageNo) =>
+      this.service.request(
+        'post',
+        `search?pageNo=${pageNo}&pageSize=20`,
+        searchParams,
+      ),
     );
-    this.form.get('isReaction').valueChanges.subscribe(isReaction => {
+    this.form.get('isReaction').valueChanges.subscribe((isReaction) => {
       if (isReaction != null) {
         this.form.get('structureSearchType').enable();
       } else {
@@ -139,15 +139,17 @@ export class GlobalSearchComponent implements OnInit {
         this.form.get('reactionRole').disable();
       }
     });
-    this.form.valueChanges.subscribe(formValues => {
-      this.formNotEmpty = (formValues.quickSearch != null && formValues.quickSearch.trim() !== '')
-          || formValues.structure != null
-          || formValues.therapeuticArea != null
-          || formValues.projectCode != null
-          || formValues.batchYield != null
-          || formValues.batchPurity != null
-          || formValues.author != null
-          || formValues.experimentStatus?.length > 0
+    this.form.valueChanges.subscribe((formValues) => {
+      this.formNotEmpty =
+        (formValues.quickSearch != null &&
+          formValues.quickSearch.trim() !== '') ||
+        formValues.structure != null ||
+        formValues.therapeuticArea != null ||
+        formValues.projectCode != null ||
+        formValues.batchYield != null ||
+        formValues.batchPurity != null ||
+        formValues.author != null ||
+        formValues.experimentStatus?.length > 0;
       console.log('formNotEmpty', this.formNotEmpty, formValues);
     });
     this.form.get('isReaction').setValue(null); // trigger update
@@ -157,13 +159,13 @@ export class GlobalSearchComponent implements OnInit {
     let formValue = this.form.value;
     if (show) {
       let parts = [
-        this.dictionarySearchSummary('Therapeutic Area', formValue.therapeuticArea),
-        this.dictionarySearchSummary('Project Code', formValue.projectCode),
-        this.numericSearchSummary('Batch Yield, %', formValue.batchYield),
-        this.numericSearchSummary('Batch Purity, %', formValue.batchPurity,),
-        this.dictionarySearchSummary('Author', formValue.author),
-        this.enumSearchSummary('Experiment Status', formValue.experimentStatus, ExperimentStatusNames),
-        this.enumSearchSummary('Reaction Role', formValue.reactionRole, ReactionRoleNames),
+        dictionarySearchSummary('Therapeutic Area', formValue.therapeuticArea,),
+        dictionarySearchSummary('Project Code', formValue.projectCode),
+        numericSearchSummary('Batch Yield, %', formValue.batchYield),
+        numericSearchSummary('Batch Purity, %', formValue.batchPurity),
+        dictionarySearchSummary('Author', formValue.author),
+        enumSearchSummary('Experiment Status', formValue.experimentStatus, ExperimentStatusNames,),
+        enumSearchSummary('Reaction Role', formValue.reactionRole, ReactionRoleNames,),
       ];
       parts = parts.filter((part) => part != null);
       this.advancedSearchSummary = parts;
@@ -173,26 +175,52 @@ export class GlobalSearchComponent implements OnInit {
   }
 
   addMeAsAuthor() {
-    this.userService.user$
-      .pipe(first())
-      .subscribe(user => {
-        let selectedUsers = this.form.get('author').value || [];
-        if (!selectedUsers.some(x => x.id === user.id)) {
-          this.form.get('author').setValue([...selectedUsers, {id: user.id, username: user.username, displayName: user.displayName}])
-        }
-      });
+    this.userService.user$.pipe(first()).subscribe((user) => {
+      let selectedUsers = this.form.get('author').value || [];
+      if (!selectedUsers.some((x) => x.id === user.id)) {
+        this.form
+          .get('author')
+          .setValue([
+            ...selectedUsers,
+            {
+              id: user.id,
+              username: user.username,
+              displayName: user.displayName,
+            },
+          ]);
+      }
+    });
   }
 
   performSearch() {
     const formValue = this.form.value;
-    const structureSearch = {type: formValue.structureSearchType, query: formValue.structure};
-    const {therapeuticArea, projectCode, author, batchYield, batchPurity, reactionRole} = formValue;
+    const structureSearch = {
+      type: formValue.structureSearchType,
+      query: formValue.structure,
+    };
+    const {
+      therapeuticArea,
+      projectCode,
+      author,
+      batchYield,
+      batchPurity,
+      reactionRole,
+    } = formValue;
     const body: GlobalSearchRequest = {
       query: formValue.quickSearch || null,
-      moleculeStructure: formValue.isReaction === false ? structureSearch : null,
+      moleculeStructure:
+        formValue.isReaction === false ? structureSearch : null,
       reactionStructure: formValue.isReaction === true ? structureSearch : null,
-      experimentStatus: formValue.experimentStatus != null ? [formValue.experimentStatus] : null,
-      therapeuticArea, projectCode, author, batchYield, batchPurity, reactionRole
+      experimentStatus:
+        formValue.experimentStatus != null
+          ? [formValue.experimentStatus]
+          : null,
+      therapeuticArea,
+      projectCode,
+      author,
+      batchYield,
+      batchPurity,
+      reactionRole,
     };
     this.loader.search(body);
     this.advancedSearchPanel.close();
@@ -216,8 +244,12 @@ export class GlobalSearchComponent implements OnInit {
       if (result?.success) {
         let isReaction = result.rxnFile != null;
         this.form.get('isReaction').setValue(isReaction);
-        this.form.get('structure').setValue(isReaction ? result.rxnFile : result.molFile);
-        this.structureImage = URL.createObjectURL(isReaction ? result.rxnFileImage : result.molFileImage);
+        this.form
+          .get('structure')
+          .setValue(isReaction ? result.rxnFile : result.molFile);
+        this.structureImage = URL.createObjectURL(
+          isReaction ? result.rxnFileImage : result.molFileImage,
+        );
       }
     });
   }
@@ -228,61 +260,8 @@ export class GlobalSearchComponent implements OnInit {
     this.structureImage = null;
   }
 
-  private textSearchSummary(
-    name: string,
-    search: TextSearch | null,
-  ): string | null {
-    if (search?.type === 'between') {
-      return `<b>${name}</b>&ensp;${TextSearchTypeNames[search.type]}&ensp;${search.from}&nbsp;and&nbsp;${search.to}`;
-    } else if (search != null) {
-      return `<b>${name}</b>&ensp;${TextSearchTypeNames[search.type]}&ensp;${search.value}`;
-    }
-    return null;
-  }
-
-  private numericSearchSummary(
-    name: string,
-    search: NumericSearch | null,
-  ): string | null {
-    if (search != null) {
-      return `<b>${name}</b>&ensp;${NumericSearchTypeNames[search.type]}&ensp;${search.value}`;
-    }
-    return null;
-  }
-
-  private dictionarySearchSummary(
-    name: string,
-    value: DictionaryItemRef | DictionaryItemRef[] | UserMetadata | UserMetadata[] | null,
-  ): string | null {
-    if (value != null) {
-      const array = Array.isArray(value) ? value : [value];
-      if (array.length) {
-        return `<b>${name}</b>&ensp;is&ensp;${array.map(this.referenceDisplayName).join('&ensp;or&ensp;')}`;
-      }
-    }
-    return null;
-  }
-
-  private enumSearchSummary<T extends string>(
-    name: string,
-    value: T | T[] | null,
-    enumNames: Record<T, string>
-  ): string | null {
-    if (value != null) {
-      const array = Array.isArray(value) ? value : [value];
-      if (array.length) {
-        return `<b>${name}</b>&ensp;is&ensp;${array.map(v => enumNames[v]).join('&ensp;or&ensp;')}`;
-      }
-    }
-    return null;
-  }
-
-  private referenceDisplayName(ref: any) {
-    return ref.username || ref.name;
-  }
-
   BuildInDictionary = BuiltInDictionary;
-  GlobalSearchEntityType = GlobalSearchEntityType
+  GlobalSearchEntityType = GlobalSearchEntityType;
   ExperimentStatus = ExperimentStatus;
   ExperimentStatusNames = ExperimentStatusNames;
   ReactionRole = ReactionRole;

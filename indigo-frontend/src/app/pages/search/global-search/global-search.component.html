@@ -61,9 +61,9 @@
             <mat-panel-description class="text-xs">
               @if (advancedSearchSummary) {
                 <mat-chip-set>
-                @for (item of advancedSearchSummary; track $index) {
-                  <mat-chip-row [innerHTML]="item"/>
-                }
+                  @for (item of advancedSearchSummary; track $index) {
+                    <mat-chip-row [innerHTML]="item"/>
+                  }
                 </mat-chip-set>
               }
             </mat-panel-description>
