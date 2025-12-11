@@ -48,7 +48,7 @@ export class NotebookEditComponent {
       },
     },
     {
-      type: 'input',
+      type: 'editor',
       key: 'description',
       props: {
         label: 'Description',
@@ -59,12 +59,12 @@ export class NotebookEditComponent {
 
   constructor(
     protected service: ApiService<Notebook>,
-    @Inject(MAT_DIALOG_DATA) private data: { notebook: NotebookDetail }
+    @Inject(MAT_DIALOG_DATA) private data: { notebook: NotebookDetail },
   ) {
     if (data?.notebook) {
       this.notebook = {
         name: data.notebook.name,
-        description: data.notebook.description
+        description: data.notebook.description,
       };
       this.notebookId = data.notebook.id;
     }
@@ -77,7 +77,9 @@ export class NotebookEditComponent {
       })
       .pipe(
         catchError((editError) => {
-          alert(`Error: ${editError?.error[0].message || 'There was an error updating notebook, please try again later.'}`);
+          alert(
+            `Error: ${editError?.error[0].message || 'There was an error updating notebook, please try again later.'}`,
+          );
           return of(null);
         }),
       )
