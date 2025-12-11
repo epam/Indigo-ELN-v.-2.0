@@ -2,10 +2,18 @@ import { SaltCodeRef } from '@core/types/entities/dictionary.i';
 import { EnteredValue } from '@core/types/entities/values.i';
 import { MolWeightUnit } from '@core/types/entities/experiments/experiment-shared.i';
 
+export enum CompoundType {
+  STORED = 'stored',
+  VIRTUAL = 'virtual',
+  UNKNOWN = 'unknown',
+}
+
 export interface CompoundRef {
   molFile: string | null;
   formula: string | null;
   name: string | null;
+  casNumber: string | null;
+  type: CompoundType;
   saltCode: SaltCodeRef | null;
   saltEQ: number | null;
   strCode: string | null;
@@ -14,7 +22,7 @@ export interface CompoundRef {
 }
 
 export interface StoredCompoundRef extends CompoundRef {
-  type: 'stored';
+  type: CompoundType.STORED;
   compoundID: string;
   name: string | null;
   molWeight: EnteredValue<MolWeightUnit>;
@@ -23,7 +31,7 @@ export interface StoredCompoundRef extends CompoundRef {
 }
 
 export interface VirtualCompoundRef extends CompoundRef {
-  type: 'virtual';
+  type: CompoundType.VIRTUAL;
   compoundID: string;
   molFile: string;
   formula: string;
@@ -31,5 +39,5 @@ export interface VirtualCompoundRef extends CompoundRef {
 }
 
 export interface UnknownCompoundRef extends CompoundRef {
-  type: 'unknown';
+  type: CompoundType.UNKNOWN;
 }

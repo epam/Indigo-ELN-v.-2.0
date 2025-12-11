@@ -9,6 +9,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { toHTML } from 'ngx-editor';
 import { catchError, of, tap } from 'rxjs';
 import { Project } from '@core/types/entities/project.i';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   standalone: true,
@@ -68,6 +69,8 @@ export class ProjectAddComponent implements OnInit {
     },
   ];
 
+  private snackBar = inject(MatSnackBar);
+
   constructor(protected service: ApiService<any>) {
   }
 
@@ -96,6 +99,14 @@ export class ProjectAddComponent implements OnInit {
       .pipe(
         tap(() => {
           this.dialogRef.close('refresh');
+
+          this.snackBar.open(
+            `Project '${data.name}' has been successfully created`,
+            'Close',
+            {
+              duration: 5000,
+            },
+          );
         }),
         catchError((createError) => {
           alert(createError.message);
@@ -117,6 +128,14 @@ export class ProjectAddComponent implements OnInit {
       .pipe(
         tap(() => {
           this.dialogRef.close('refresh');
+
+          this.snackBar.open(
+            `Project '${data.name}' has been successfully updated`,
+            'Close',
+            {
+              duration: 5000,
+            },
+          );
         }),
         catchError((updateError) => {
           alert(updateError.message);

@@ -28,7 +28,7 @@ import { ButtonComponent } from '../button/button.component';
 export class FormDialogComponent {
   dialogRef: MatDialogRef<FormDialogComponent> = inject(MatDialogRef);
   form = new FormGroup({});
-  model: any = {};
+  @Input() model: any = {};
 
   @Input() title = '';
   @Input() fields: FormlyFieldConfig[] = [];

@@ -29,13 +29,14 @@ import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 // ================================
 export interface ReactionInputSample {
   anchor: UUID;
+  nbkBatchNumber?: string;
   chemicalName?: string;
   density?: EnteredValueDensityUnit;
   molarity?: EnteredValueMolarityUnit;
   volume?: EnteredValueVolumeUnit;
   purity: EnteredValueNoUnit;
   strCode?: STRCodeSample;
-  healthHazard: DictionaryItemRef[];
+  healthHazards: DictionaryItemRef[];
   row?: ReactionInput;
   sampleId?: UUID;
   mol?: EnteredValueMolUnit;
@@ -50,7 +51,7 @@ export interface ReactionOutputSample {
   molarity?: EnteredValueMolarityUnit;
   volume?: EnteredValueVolumeUnit;
   purity: EnteredValueNoUnit;
-  healthHazard: DictionaryItemRef[];
+  healthHazards: DictionaryItemRef[];
   row?: ReactionOutput;
   actualMol?: EnteredValueMolUnit;
   actualWeight?: EnteredValueWeightUnit;
