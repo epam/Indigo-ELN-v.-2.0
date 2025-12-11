@@ -38,12 +38,10 @@
             <mat-radio-group formControlName="structureSearchType" class="flex-3">
             </mat-radio-group>
             <div class="flex-1">
-              @if (structureMolFile) {
-                <em
-                  class="indicon-close ml-auto"
-                  (click)="clearStructure()"
-                  matTooltip="Clear structure search"
-                ></em>
+              @if (form.get('structure').valueChanges | async) {
+                <span class="cursor-pointer" (click)="clearStructure()">
+                  <em class="indicon-close ml-auto"></em>Clear
+                </span>
               }
             </div>
           </div>
@@ -84,14 +82,13 @@
                 Advanced Search
               </mat-panel-title>
 
-              <mat-panel-description>
+              <mat-panel-description class="text-xs">
                 @if (advancedSearchSummary) {
-                  @for (item of advancedSearchSummary; track item[0]) {
-                    <mat-chip
-                    ><b>{{ item[0] }}</b> &emsp; {{ item[1] }}
-                    </mat-chip
-                    >
-                  }
+                  <mat-chip-set>
+                    @for (item of advancedSearchSummary; track $index) {
+                      <mat-chip-row [innerHTML]="item"/>
+                    }
+                  </mat-chip-set>
                 }
               </mat-panel-description>
 
@@ -99,7 +96,7 @@
             <div class="grid grid-cols-2 gap-x-8 gap-y-2">
               <div class="text-xs">Compound ID</div>
               <div class="text-xs">Nbk Batch #</div>
-              <eln-text-search formControlName="strCode" />
+              <eln-text-search formControlName="compoundKey" />
               <eln-text-search formControlName="nbkBatchNumber" />
               <div class="text-xs">Molecular Formula</div>
               <div class="text-xs">Molecular Weight</div>
@@ -108,17 +105,11 @@
               <div class="text-xs">Chemical Name</div>
               <div class="text-xs">Compound State</div>
               <eln-text-search formControlName="chemicalName" />
-              <eln-dropdown-value
-                formControlName="compoundState"
-                [options]="compoundStateOptions"
-              />
+              <eln-dictionary-select formControlName="compoundState" [dictionaryId]="BuildInDictionary.COMPONENT_STATE" />
               <div class="text-xs">Batch Comment</div>
               <div class="text-xs">Health Hazards</div>
               <eln-text-search formControlName="batchComment" />
-              <eln-dropdown-value
-                formControlName="healthHazards"
-                [options]="healthHazardsOptions"
-              />
+              <eln-dictionary-select formControlName="healthHazards" [dictionaryId]="BuildInDictionary.HEALTH_HAZARD" />
               <div class="text-xs">CAS Number</div>
               <div class="text-xs"></div>
               <eln-text-search formControlName="casNumber" />
@@ -138,11 +129,11 @@
             }
             <eln-expandable-table [dataSource]="loader.data$ | async">
               <ng-template
-                elnColumnDef="strCode"
+                elnColumnDef="compoundKey"
                 displayName="Compound ID"
                 let-element
               >
-                <span class="font-medium text-gray-900">{{ element.strCode }}</span>
+                <span class="font-medium text-gray-900">{{ element.compoundKey }}</span>
               </ng-template>
               <ng-template
                 elnColumnDef="name"
@@ -192,7 +183,7 @@
                 <div class="p-6 flex flex-row">
                   <div class="flex-3">
                     <div class="flex flex-col">
-                      <div><b>Compound ID: </b>{{ element.strCode }}</div>
+                      <div><b>Compound ID: </b>{{ element.compoundKey }}</div>
                       <div>
                         <b>Nbk Batch Number: </b>{{ element.nbkBatchNumber }}
                       </div>
@@ -244,6 +235,7 @@
           <button
             type="button"
             class="ml-2 px-4 py-2 bg-[#4050b5] text-white rounded-[5px] cursor-pointer"
+            [disabled]="!formNotEmpty"
             (click)="performSearch()"
           >
             Search

@@ -125,7 +125,7 @@ export class SampleSearchComponent implements OnInit {
   form = new FormGroup({
     quickSearch: new FormControl<string | null>(null),
     structureSearchType: new FormControl<StructuralSearchType>(
-      StructuralSearchType.EXACT,
+      StructuralSearchType.SUBSTRUCTURE,
     ),
     structure: new FormControl<string | null>(null),
     compoundKey: new FormControl<TextSearch | null>(null),
