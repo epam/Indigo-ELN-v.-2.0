@@ -30,12 +30,12 @@ import java.util.*;
                 @NamedAttributeNode("createdBy"),
                 @NamedAttributeNode("modifiedBy"),
                 @NamedAttributeNode("shortACL"),
+                @NamedAttributeNode("experimentCount"),
                 @NamedAttributeNode(value = "calculatedInfo", subgraph = "Notebook.calculatedInfo.list")
         },
         subgraphs = @NamedSubgraph(
                 name = "Notebook.calculatedInfo.list",
                 attributeNodes = {
-                        @NamedAttributeNode("experimentCount"),
                         @NamedAttributeNode("aclCount")
                 }
         )
@@ -46,13 +46,13 @@ import java.util.*;
                 @NamedAttributeNode("createdBy"),
                 @NamedAttributeNode("modifiedBy"),
                 @NamedAttributeNode("fullACL"),
+                @NamedAttributeNode("experimentCount"),
                 @NamedAttributeNode(value = "calculatedInfo", subgraph = "Notebook.calculatedInfo.details")
         },
         subgraphs = @NamedSubgraph(
                 name = "Notebook.calculatedInfo.details",
                 attributeNodes = {
-                        @NamedAttributeNode("currentAccess"),
-                        @NamedAttributeNode("experimentCount")
+                        @NamedAttributeNode("currentAccess")
                 }
         )
 )
@@ -114,6 +114,11 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
     @JoinColumn(name = "id", referencedColumnName = "id")
     private CalculatedInfo calculatedInfo;
 
+    @Basic(fetch = FetchType.LAZY)
+    @Column(insertable = false, updatable = false)
+    @Type(ExperimentCountArrayType.class)
+    private Map<ExperimentStatus, Integer> experimentCount;
+
     @Override
     public void insertACL(UserEntity user, AccessLevel access) {
         getAclEntities().put(user, new NotebookACLEntity(this, user, access));
@@ -138,12 +143,6 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
         @Column(insertable = false, updatable = false)
         @JdbcType(PostgreSQLEnumJdbcType.class)
         private AccessLevel currentAccess;
-
-        @NotNull
-        @Basic(fetch = FetchType.LAZY)
-        @Column(insertable = false, updatable = false)
-        @Type(ExperimentCountArrayType.class)
-        private Map<ExperimentStatus, Integer> experimentCount;
 
         @NotNull
         @Basic(fetch = FetchType.LAZY)

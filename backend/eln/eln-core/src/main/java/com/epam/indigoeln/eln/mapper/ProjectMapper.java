@@ -27,17 +27,15 @@ public abstract class ProjectMapper extends AbstractMapper {
     @Mapping(target = "experiments", expression = "java(java.util.Set.of())")
     @Mapping(target = "notebooks", expression = "java(java.util.Set.of())")
     @Mapping(target = "calculatedInfo", ignore = true)
+    @Mapping(target = "notebookCount", ignore = true)
+    @Mapping(target = "experimentCount", ignore = true)
     public abstract ProjectEntity requestToProject(ProjectRequest request);
 
     @Mapping(target = "acl", source = "shortACL")
-    @Mapping(target = "notebookCount", source = "calculatedInfo.notebookCount")
-    @Mapping(target = "experimentCount", source = "calculatedInfo.experimentCount")
     @Mapping(target = "aclCount", source = "calculatedInfo.aclCount")
     public abstract ProjectDTO entityToDTO(ProjectEntity entity);
 
     @Mapping(target = "acl", source = "fullACL")
-    @Mapping(target = "notebookCount", source = "calculatedInfo.notebookCount")
-    @Mapping(target = "experimentCount", source = "calculatedInfo.experimentCount")
     public abstract ProjectDetailsDTO entityToDetailsDTO(ProjectEntity entity);
 
     @Mapping(target = "experiments", expression = "java(convertTotalCountsSum(struct))")

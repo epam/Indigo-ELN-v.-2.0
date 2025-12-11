@@ -130,6 +130,12 @@ public class Utils {
         return map;
     }
 
+    public static <K, V> Map<K, V> mapOf(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4) {
+        Map<K, V> map = mapOf(k1, v1, k2, v2, k3, v3);
+        map.put(k4, v4);
+        return map;
+    }
+
     @SafeVarargs
     public static <KV> Map<KV, KV> mapOf(KV... keysAndValues) {
         Map<KV, KV> map = mapOf();

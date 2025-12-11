@@ -20,15 +20,14 @@ public abstract class NotebookMapper extends AbstractMapper {
     @Mapping(target = "shortACL", ignore = true)
     @Mapping(target = "fullACL", ignore = true)
     @Mapping(target = "attachments", expression = "java(java.util.List.of())")
+    @Mapping(target = "experimentCount", ignore = true)
     @Mapping(target = "calculatedInfo", ignore = true)
     public abstract NotebookEntity requestToNotebook(NotebookRequest notebook);
 
     @Mapping(target = "acl", source = "shortACL")
-    @Mapping(target = "experimentCount", source = "calculatedInfo.experimentCount")
     @Mapping(target = "aclCount", source = "calculatedInfo.aclCount")
     public abstract NotebookDTO entityToDTO(NotebookEntity entity);
 
     @Mapping(target = "acl", source = "fullACL")
-    @Mapping(target = "experimentCount", source = "calculatedInfo.experimentCount")
     public abstract NotebookDetailsDTO entityToDetailsDTO(NotebookEntity entity);
 }

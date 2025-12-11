@@ -17,7 +17,7 @@ import java.util.Map;
 @Getter
 @Setter
 @Entity(name = "TotalCounts")
-@Table(name = "Total_Counts_View")
+@Table(name = "Total_Counts")
 public class TotalCountsEntity implements Serializable {
 
     @Id

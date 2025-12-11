@@ -1,19 +1,6 @@
 CREATE OR REPLACE VIEW Project_View_2 AS
 SELECT p.id,
     p.current_access,
-    (
-        SELECT COUNT(*)
-        FROM Notebook_Base_View n
-        WHERE n.project_id = p.id
-    ) notebook_count,
-    (
-        SELECT coalesce(array_agg(ROW(status, count_)::Experiment_Count), '{}')
-        FROM (SELECT e.status, COUNT(*) count_
-              FROM Experiment_Base_View e
-              WHERE e.project_id = p.id
-              GROUP BY e.status
-        ) t
-    ) experiment_count,
     array_length(p.full_acl, 1) acl_count
 FROM Project_Base_View p;
 

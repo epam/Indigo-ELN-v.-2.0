@@ -15,21 +15,3 @@ SELECT e.*, ea.level current_access
 FROM Experiment e
 LEFT JOIN LATERAL unnest(e.full_acl) ea ON ea.user_id = current_setting('eln.currentUserId')::UUID
 WHERE current_setting('eln.viewAllExperiments')::BOOLEAN OR ea.level IS NOT NULL;
-
-CREATE OR REPLACE VIEW Total_Counts_View AS
-SELECT
-    (
-        SELECT COUNT(*)
-        FROM Project_Base_View
-    ) projects,
-    (
-        SELECT COUNT(*)
-        FROM Notebook_Base_View
-    ) notebooks,
-    (
-        SELECT coalesce(array_agg(ROW(status, count_)::Experiment_Count), '{}')
-        FROM (SELECT e.status, COUNT(*) count_
-              FROM Experiment_Base_View e
-              GROUP BY e.status
-        ) t
-    ) experiments_by_status;

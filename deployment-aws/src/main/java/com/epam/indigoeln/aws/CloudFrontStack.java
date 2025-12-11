@@ -4,10 +4,7 @@ import lombok.Getter;
 import lombok.Value;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import software.amazon.awscdk.Fn;
-import software.amazon.awscdk.NestedStack;
-import software.amazon.awscdk.NestedStackProps;
-import software.amazon.awscdk.Size;
+import software.amazon.awscdk.*;
 import software.amazon.awscdk.services.apigatewayv2.IHttpApi;
 import software.amazon.awscdk.services.certificatemanager.Certificate;
 import software.amazon.awscdk.services.certificatemanager.CertificateValidation;
@@ -24,6 +21,7 @@ import software.amazon.awscdk.services.route53.targets.CloudFrontTarget;
 import software.amazon.awscdk.services.s3.Bucket;
 import software.amazon.awscdk.services.s3.assets.AssetOptions;
 import software.amazon.awscdk.services.s3.deployment.BucketDeployment;
+import software.amazon.awscdk.services.s3.deployment.CacheControl;
 import software.amazon.awscdk.services.s3.deployment.Source;
 import software.amazon.awscdk.services.ssm.IStringParameter;
 import software.amazon.awscdk.services.wafv2.CfnWebACL;
@@ -52,6 +50,13 @@ public class CloudFrontStack extends NestedStack {
         Bucket frontendCodeS3 = Bucket.Builder.create(this, "signature-frontend-s3")
                 .build();
 
+        CachePolicy indexHtmlCachePolicy = CachePolicy.Builder.create(this, "index-html-cache-policy")
+                .cachePolicyName("index-html-cache-policy")
+                .defaultTtl(Duration.minutes(5))
+                .minTtl(Duration.minutes(5))
+                .maxTtl(Duration.minutes(5))
+                .build();
+
         BehaviorOptions apiBehavior = BehaviorOptions.builder()
                 .origin(HttpOrigin.Builder.create(Fn.parseDomainName(props.getHttpApi().getApiEndpoint()))
                         .protocolPolicy(OriginProtocolPolicy.HTTPS_ONLY)
@@ -63,6 +68,12 @@ public class CloudFrontStack extends NestedStack {
                 .originRequestPolicy(OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER)
                 .responseHeadersPolicy(ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS)
                 .viewerProtocolPolicy(ViewerProtocolPolicy.HTTPS_ONLY)
+                .build();
+
+        BehaviorOptions indexHtmlBehavior = BehaviorOptions.builder()
+                .origin(S3BucketOrigin.withOriginAccessControl(frontendCodeS3))
+                .viewerProtocolPolicy(ViewerProtocolPolicy.HTTPS_ONLY)
+                .cachePolicy(indexHtmlCachePolicy)
                 .build();
 
         Function rewriteToIndexHtmlFunction = Function.Builder.create(this, "rewrite-index-html-function")
@@ -77,6 +88,7 @@ public class CloudFrontStack extends NestedStack {
                 .defaultBehavior(BehaviorOptions.builder()
                         .origin(S3BucketOrigin.withOriginAccessControl(frontendCodeS3))
                         .viewerProtocolPolicy(ViewerProtocolPolicy.HTTPS_ONLY)
+                        .cachePolicy(CachePolicy.CACHING_OPTIMIZED)
                         .functionAssociations(List.of(
                                 FunctionAssociation.builder()
                                         .eventType(FunctionEventType.VIEWER_REQUEST)
@@ -88,7 +100,8 @@ public class CloudFrontStack extends NestedStack {
                 .additionalBehaviors(mapOf(
                         "/api/*", apiBehavior,
                         "/openapi/*", apiBehavior,
-                        "/swagger/*", apiBehavior
+                        "/swagger/*", apiBehavior,
+                        "/**/index.html", indexHtmlBehavior
                 ))
                 .domainNames(List.of(props.getDomainName()))
                 .certificate(certificate)
@@ -126,6 +139,10 @@ public class CloudFrontStack extends NestedStack {
                 .destinationBucket(frontendCodeS3)
                 .distribution(distribution) // invalidate distribution
                 .distributionPaths(List.of("/*"))
+                .cacheControl(List.of(
+                        CacheControl.immutable(),
+                        CacheControl.maxAge(Duration.days(365))
+                ))
                 .role(Role.Builder.create(this, "frontend-deployment-role")
                                 .assumedBy(ServicePrincipal.fromStaticServicePrincipleName("lambda.amazonaws.com"))
                                 .managedPolicies(List.of(

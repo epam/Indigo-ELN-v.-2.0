@@ -29,13 +29,13 @@ import java.util.*;
                 @NamedAttributeNode("createdBy"),
                 @NamedAttributeNode("modifiedBy"),
                 @NamedAttributeNode("shortACL"),
+                @NamedAttributeNode("notebookCount"),
+                @NamedAttributeNode("experimentCount"),
                 @NamedAttributeNode(value = "calculatedInfo", subgraph = "Project.calculatedInfo.list")
         },
         subgraphs = @NamedSubgraph(
                 name = "Project.calculatedInfo.list",
                 attributeNodes = {
-                        @NamedAttributeNode("notebookCount"),
-                        @NamedAttributeNode("experimentCount"),
                         @NamedAttributeNode("aclCount")
                 }
         )
@@ -47,14 +47,14 @@ import java.util.*;
                 @NamedAttributeNode("modifiedBy"),
                 @NamedAttributeNode("keywords"),
                 @NamedAttributeNode("fullACL"),
+                @NamedAttributeNode("notebookCount"),
+                @NamedAttributeNode("experimentCount"),
                 @NamedAttributeNode(value = "calculatedInfo", subgraph = "Project.calculatedInfo.details")
         },
         subgraphs = @NamedSubgraph(
                 name = "Project.calculatedInfo.details",
                 attributeNodes = {
                         @NamedAttributeNode("currentAccess"),
-                        @NamedAttributeNode("notebookCount"),
-                        @NamedAttributeNode("experimentCount"),
                 }
         )
 )
@@ -113,6 +113,15 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
 
+    @Basic(fetch = FetchType.LAZY)
+    @Column(insertable = false, updatable = false)
+    private Integer notebookCount;
+
+    @Basic(fetch = FetchType.LAZY)
+    @Column(insertable = false, updatable = false)
+    @Type(ExperimentCountArrayType.class)
+    private Map<ExperimentStatus, Integer> experimentCount;
+
     @Nullable
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id", referencedColumnName = "id")
@@ -143,17 +152,6 @@ public class ProjectEntity extends BaseEntity implements WithAttachments, WithAC
         @Column(insertable = false, updatable = false)
         @JdbcType(PostgreSQLEnumJdbcType.class)
         private AccessLevel currentAccess;
-
-        @NotNull
-        @Basic(fetch = FetchType.LAZY)
-        @Column(insertable = false, updatable = false)
-        private Integer notebookCount;
-
-        @NotNull
-        @Basic(fetch = FetchType.LAZY)
-        @Column(insertable = false, updatable = false)
-        @Type(ExperimentCountArrayType.class)
-        private Map<ExperimentStatus, Integer> experimentCount;
 
         @NotNull
         @Basic(fetch =  FetchType.LAZY)
