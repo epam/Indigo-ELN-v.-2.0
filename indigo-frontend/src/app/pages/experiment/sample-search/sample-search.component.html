@@ -3,17 +3,21 @@
 
   <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
     <mat-tab label="Catalog" class="overflow-x-hidden">
-      <form [formGroup]="form"
-            class="border border-[#cecaca] rounded-[10px] bg-[#f9f9f9] p-2.5 m-2.5"
+      <form
+        [formGroup]="form"
+        class="border border-[#cecaca] rounded-[10px] bg-[#f9f9f9] p-2.5 m-2.5"
       >
         <div class="flex flex-col gap-4">
-
           <mat-radio-group class="flex flex-wrap gap-6 text-sm">
-
             <div class="grow-[3]">
-              <eln-input [icon]="'indicon-search text-xl'" [showClearButton]="false" formControlName="quickSearch"
-                         inputClassname="rounded-full bg-primary-alpha-5 border-primary-alpha-10"
-                         [placeholder]="'Type Request'" class="flex-1"></eln-input>
+              <eln-input
+                [icon]="'indicon-search text-xl'"
+                [showClearButton]="false"
+                formControlName="quickSearch"
+                inputClassname="rounded-full bg-primary-alpha-5 border-primary-alpha-10"
+                [placeholder]="'Type Request'"
+                class="flex-1"
+              ></eln-input>
             </div>
 
             <div class="grow">
@@ -27,28 +31,36 @@
             </div>
 
             <div class="grow">
-              <mat-radio-button value="PubChem" disabled>PubChem</mat-radio-button>
+              <mat-radio-button value="PubChem" disabled
+                >PubChem</mat-radio-button
+              >
             </div>
-
           </mat-radio-group>
-
 
           <div class="flex items-stretch mt-2">
             <div class="flex-1">or Draw Structure</div>
-            <mat-radio-group formControlName="structureSearchType" class="flex-3">
+            <mat-radio-group
+              formControlName="structureSearchType"
+              class="flex-3"
+            >
+              <mat-radio-button value="EXACT">Exact</mat-radio-button>
+              <mat-radio-button value="SUBSTRUCTURE"
+                >Substructure</mat-radio-button
+              >
+              <mat-radio-button value="SIMILARITY">Similarity</mat-radio-button>
             </mat-radio-group>
             <div class="flex-1">
-              @if (structureMolFile) {
-                <em
-                  class="indicon-close ml-auto"
-                  (click)="clearStructure()"
-                  matTooltip="Clear structure search"
-                ></em>
+              @if (form.get('structure').value) {
+                <span class="cursor-pointer" (click)="clearStructure()">
+                  <em class="indicon-close ml-auto"></em>Clear
+                </span>
               }
             </div>
           </div>
-          <div class="w-full h-48 border border-gray-300 border-dashed rounded-md cursor-pointer"
-               (click)="editStructure()">
+          <div
+            class="w-full h-48 border border-gray-300 border-dashed rounded-md cursor-pointer"
+            (click)="editStructure()"
+          >
             @if (structureImage) {
               <img
                 class="w-full h-48 object-contain"
@@ -56,11 +68,14 @@
                 alt="structure editor"
               />
             } @else {
-              <div class="flex justify-center items-center h-full text-gray-500">
+              <div
+                class="flex justify-center items-center h-full text-gray-500"
+              >
                 <button
                   type="button"
                   class="ml-2 px-4 py-2 text-blue-600 bg-[#ececec] rounded-[5px] cursor-pointer"
-                >Draw Structure
+                >
+                  Draw Structure
                 </button>
               </div>
             }
@@ -71,35 +86,33 @@
             (afterExpand)="updateAdvancedSearchSummary(false)"
             (afterCollapse)="updateAdvancedSearchSummary(true)"
             class="advanced-search-box"
-            hideToggle="true">
+            hideToggle="true"
+          >
             <mat-expansion-panel-header>
-
               <mat-panel-title class="flex items-center">
                 <mat-icon
                   class="ml-0 mr-1 transition-transform duration-300 ease-in-out"
-                  [ngClass]="{'rotate-180': advancedSearchPanel.expanded}"
+                  [ngClass]="{ 'rotate-180': advancedSearchPanel.expanded }"
                 >
                   keyboard_arrow_down
                 </mat-icon>
                 Advanced Search
               </mat-panel-title>
 
-              <mat-panel-description>
+              <mat-panel-description class="text-xs">
                 @if (advancedSearchSummary) {
-                  @for (item of advancedSearchSummary; track item[0]) {
-                    <mat-chip
-                    ><b>{{ item[0] }}</b> &emsp; {{ item[1] }}
-                    </mat-chip
-                    >
-                  }
+                  <mat-chip-set>
+                    @for (item of advancedSearchSummary; track $index) {
+                      <mat-chip-row [innerHTML]="item" />
+                    }
+                  </mat-chip-set>
                 }
               </mat-panel-description>
-
             </mat-expansion-panel-header>
             <div class="grid grid-cols-2 gap-x-8 gap-y-2">
               <div class="text-xs">Compound ID</div>
               <div class="text-xs">Nbk Batch #</div>
-              <eln-text-search formControlName="strCode" />
+              <eln-text-search formControlName="compoundKey" />
               <eln-text-search formControlName="nbkBatchNumber" />
               <div class="text-xs">Molecular Formula</div>
               <div class="text-xs">Molecular Weight</div>
@@ -108,16 +121,16 @@
               <div class="text-xs">Chemical Name</div>
               <div class="text-xs">Compound State</div>
               <eln-text-search formControlName="chemicalName" />
-              <eln-dropdown-value
+              <eln-dictionary-select
                 formControlName="compoundState"
-                [options]="compoundStateOptions"
+                [dictionaryId]="BuildInDictionary.COMPONENT_STATE"
               />
               <div class="text-xs">Batch Comment</div>
               <div class="text-xs">Health Hazards</div>
               <eln-text-search formControlName="batchComment" />
-              <eln-dropdown-value
+              <eln-dictionary-select
                 formControlName="healthHazards"
-                [options]="healthHazardsOptions"
+                [dictionaryId]="BuildInDictionary.HEALTH_HAZARD"
               />
               <div class="text-xs">CAS Number</div>
               <div class="text-xs"></div>
@@ -138,11 +151,13 @@
             }
             <eln-expandable-table [dataSource]="loader.data$ | async">
               <ng-template
-                elnColumnDef="strCode"
+                elnColumnDef="compoundKey"
                 displayName="Compound ID"
                 let-element
               >
-                <span class="font-medium text-gray-900">{{ element.strCode }}</span>
+                <span class="font-medium text-gray-900">{{
+                  element.compoundKey
+                }}</span>
               </ng-template>
               <ng-template
                 elnColumnDef="name"
@@ -192,7 +207,7 @@
                 <div class="p-6 flex flex-row">
                   <div class="flex-3">
                     <div class="flex flex-col">
-                      <div><b>Compound ID: </b>{{ element.strCode }}</div>
+                      <div><b>Compound ID: </b>{{ element.compoundKey }}</div>
                       <div>
                         <b>Nbk Batch Number: </b>{{ element.nbkBatchNumber }}
                       </div>
@@ -228,36 +243,30 @@
         </div>
 
         <div class="flex justify-end mt-2">
-
           <section>
             <div class="example-button-row">
               <button
                 type="button"
-                class=" ml-2 px-4 py-2 text-blue-600 bg-[#ececec] rounded-[5px] cursor-pointer"
-                (click)="form.reset();
-                   clearStructure()"
-              >Clear All
+                class="ml-2 px-4 py-2 text-blue-600 bg-[#ececec] rounded-[5px] cursor-pointer"
+                (click)="form.reset(); clearStructure()"
+              >
+                Clear All
               </button>
             </div>
           </section>
 
-          <button
+          <eln-button
             type="button"
-            class="ml-2 px-4 py-2 bg-[#4050b5] text-white rounded-[5px] cursor-pointer"
+            variant="blue"
+            [disabled]="!formNotEmpty"
             (click)="performSearch()"
           >
             Search
-          </button>
-
+          </eln-button>
         </div>
-
       </form>
     </mat-tab>
 
-    <mat-tab label="My Material List">
-      My Material List Content
-    </mat-tab>
+    <mat-tab label="My Material List"> My Material List Content </mat-tab>
   </mat-tab-group>
-
-
 </div>

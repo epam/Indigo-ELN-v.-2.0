@@ -84,7 +84,7 @@ export const routes: Routes = [
             '@/app/pages/dictionary/dictionary-layout/dictionary-layout.component'
           ).then((c) => c.DictionaryLayoutComponent),
         canActivate: [RoleGuard],
-        data: { requiredRole: 'Dictionary editor' },
+        data: { requiredPermission: 'MANAGE_DICTIONARIES' },
       },
       {
         path: 'projects/:projectId/notebooks/:notebookId/experiments/:experimentId',

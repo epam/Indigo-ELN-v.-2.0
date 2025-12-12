@@ -64,12 +64,6 @@
                 project.experimentCount.OPEN
               }}</span>
             }
-            @if (project.experimentCount.WAITING_FOR_SIGNATURE) {
-              <i class="text-neutral-500">/</i>
-              <span class="font-semibold text-h4 text-orange-200">{{
-                project.experimentCount.WAITING_FOR_SIGNATURE
-              }}</span>
-            }
             @if (project.experimentCount.COMPLETED) {
               <i class="text-neutral-500">/</i>
               <span class="font-semibold text-green-200 text-h4">{{

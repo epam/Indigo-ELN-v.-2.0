@@ -1,0 +1,48 @@
+<form [formGroup]="form">
+  <div class="w-full flex border">
+    <mat-chip-grid #chipGrid class="w-full">
+      @for (item of selected$ | async; track item.id) {
+        <mat-chip-row (removed)="removeItem(item)" [removable]="true">
+          <ng-container *ngIf="optionTemplate; else defaultOptionTemplate">
+            <ng-container
+              *ngTemplateOutlet="optionTemplate; context: { $implicit: item }"
+            ></ng-container>
+          </ng-container>
+          <em class="indicon-close" (click)="removeItem(item)"></em>
+        </mat-chip-row>
+      }
+      <input
+        type="text"
+        matInput
+        formControlName="query"
+        [matAutocomplete]="auto"
+        [matChipInputFor]="chipGrid"
+        (focus)="inputFocused()"
+        placeholder="Type to search..."
+        (blur)="triggerTouched()"
+        class="flex-1"
+      />
+      <mat-icon matPrefix class="w-16">search</mat-icon>
+    </mat-chip-grid>
+
+    <ng-template #defaultOptionTemplate let-item>
+      defaultOptionTemplate( {{ item.name }} )
+    </ng-template>
+
+    <mat-autocomplete
+      #auto="matAutocomplete"
+      [displayWith]="display"
+      (optionSelected)="onItemSelected($event.option.value)"
+    >
+      @for (item of options$ | async; track item.id) {
+        <mat-option [value]="item">
+          <ng-container *ngIf="optionTemplate; else defaultOptionTemplate">
+            <ng-container
+              *ngTemplateOutlet="optionTemplate; context: { $implicit: item }"
+            ></ng-container>
+          </ng-container>
+        </mat-option>
+      }
+    </mat-autocomplete>
+  </div>
+</form>

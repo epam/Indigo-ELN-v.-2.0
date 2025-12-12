@@ -1,0 +1,207 @@
+<eln-form-dialog
+  [title]="title"
+  size="auto"
+  containerClass="w-[800px]"
+  submitButtonText="Search"
+  [submitEnabled]="formNotEmpty"
+  (formSubmit)="performSearch()"
+  (keydown.enter)="performSearch()"
+>
+  <ng-template #modalContent>
+    <form [formGroup]="form">
+      <div class="flex flex-col gap-4">
+        <div class="flex">
+          <eln-input
+            icon="indicon-search text-xl"
+            [showClearButton]="false"
+            formControlName="quickSearch"
+            inputClassname="rounded-full bg-primary-alpha-5 border-primary-alpha-10"
+            placeholder="Search"
+            class="flex-1"
+          >
+          </eln-input>
+        </div>
+        <div class="flex w-full items-baseline justify-between gap-4">
+          <div>or draw structure</div>
+          <mat-radio-group formControlName="structureSearchType">
+            <mat-radio-button value="EXACT">Exact</mat-radio-button>
+            <mat-radio-button value="SUBSTRUCTURE"
+              >Substructure</mat-radio-button
+            >
+            <mat-radio-button value="SIMILARITY">Similarity</mat-radio-button>
+          </mat-radio-group>
+          <div>
+            @if (form.get('structure').value) {
+              <span class="cursor-pointer" (click)="clearStructure()">
+                <em class="indicon-close ml-auto"></em>
+                Clear
+              </span>
+            }
+          </div>
+        </div>
+        <div class="w-full h-48 flex items-center justify-center">
+          @if (structureImage) {
+            <img
+              [src]="structureImage"
+              alt="structure editor"
+              (click)="editStructure()"
+              class="cursor-pointer"
+            />
+          } @else {
+            <span class="cursor-pointer" (click)="editStructure()">
+              <em class="indicon-plus"></em>Draw Structure
+            </span>
+          }
+        </div>
+        <mat-expansion-panel
+          #advancedSearchPanel
+          (afterExpand)="updateAdvancedSearchSummary(false)"
+          (afterCollapse)="updateAdvancedSearchSummary(true)"
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title>Advanced Search</mat-panel-title>
+            <mat-panel-description class="text-xs">
+              @if (advancedSearchSummary) {
+                <mat-chip-set>
+                  @for (item of advancedSearchSummary; track $index) {
+                    <mat-chip-row [innerHTML]="item" />
+                  }
+                </mat-chip-set>
+              }
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="grid grid-cols-2 gap-x-8 gap-y-2">
+            <div class="text-xs">Therapeutic Area</div>
+            <div class="text-xs">Project Code</div>
+            <eln-dictionary-select
+              formControlName="therapeuticArea"
+              [dictionaryId]="BuildInDictionary.THERAPEUTIC_AREA"
+            />
+            <eln-dictionary-select
+              formControlName="projectCode"
+              [dictionaryId]="BuildInDictionary.PROJECT_CODE"
+            />
+            <div class="text-xs">Batch Yield, %</div>
+            <div class="text-xs">Batch Purity, %</div>
+            <eln-numeric-search formControlName="batchYield" />
+            <eln-numeric-search formControlName="batchPurity" />
+            <div class="col-span-2 text-xs">Author</div>
+            <eln-user-select formControlName="author" class="col-span-2" />
+            <div class="col-span-2 text-xs">
+              <a
+                class="underline"
+                href="#"
+                (click)="addMeAsAuthor(); $event.preventDefault()"
+                >Add Me as an Author</a
+              >
+            </div>
+            <div class="text-xs">Experiment Status</div>
+            <div class="text-xs">Reaction Role</div>
+            <eln-enum-select
+              formControlName="experimentStatus"
+              [allowEmpty]="true"
+              [enumType]="ExperimentStatus"
+              [displayNames]="ExperimentStatusNames"
+            />
+            <eln-enum-select
+              formControlName="reactionRole"
+              [allowEmpty]="true"
+              [enumType]="ReactionRole"
+              [displayNames]="ReactionRoleNames"
+            />
+          </div>
+        </mat-expansion-panel>
+
+        @if (loader.started) {
+          @if (loader.totalItems !== null) {
+            <div class="flex justify-between">
+              <div class="flex-1 self-start">
+                Search Results ({{ loader.totalItems }})
+              </div>
+            </div>
+          }
+          <div class="flex flex-col gap-8 search-results">
+            @for (result of loader.data$ | async; track $index) {
+              @switch (result.type) {
+                @case (GlobalSearchEntityType.PROJECT) {
+                  <div class="flex flex-col gap-4">
+                    <div class="flex gap-4">
+                      <div class="flex-2 text-xl">
+                        Project <b>{{ result.name }}</b>
+                      </div>
+                      <div class="flex-1">
+                        <b>Author: </b>{{ result.createdBy.displayName }}
+                      </div>
+                    </div>
+                    <div
+                      class="result-fragment"
+                      [innerHTML]="result.fragment"
+                    ></div>
+                  </div>
+                }
+                @case (GlobalSearchEntityType.NOTEBOOK) {
+                  <div class="flex flex-col gap-4">
+                    <div class="flex gap-4">
+                      <div class="flex-2 text-xl">
+                        Notebook <b>{{ result.name }}</b>
+                      </div>
+                      <div class="flex-1">
+                        <b>Author: </b>{{ result.createdBy.displayName }}
+                      </div>
+                    </div>
+                    <div
+                      class="result-fragment"
+                      [innerHTML]="result.fragment"
+                    ></div>
+                  </div>
+                }
+                @case (GlobalSearchEntityType.EXPERIMENT) {
+                  <div class="flex flex-col gap-4">
+                    <div class="flex gap-4 justify-items">
+                      <eln-api-image
+                        [url]="'/experiments/' + result.id + '/picture'"
+                        altText="experiment image"
+                        class="flex-1"
+                      />
+                      <div class="flex-1 flex flex-col gap-4">
+                        <div class="text-xl">
+                          Experiment <b>{{ result.name }}</b>
+                        </div>
+                        <div><b>Status: </b>{{ result.experimentStatus }}</div>
+                      </div>
+                      <div class="flex-1 flex flex-col gap-4">
+                        <div>
+                          <b>Author: </b>{{ result.createdBy.displayName }}
+                        </div>
+                        @if (result.reactionRoles) {
+                          <div>
+                            <b>Reaction Roles: </b
+                            >{{ result.reactionRoles.join(', ') }}
+                          </div>
+                        }
+                      </div>
+                    </div>
+                    <div
+                      class="result-fragment"
+                      [innerHTML]="result.fragment"
+                    ></div>
+                  </div>
+                }
+              }
+              @if (!$last) {
+                <mat-divider></mat-divider>
+              }
+            }
+          </div>
+          <eln-infinite-loader (infiniteLoad)="loader.fetchNextPage()" />
+          @if (loader.loading) {
+            <mat-spinner />
+          }
+          @if (loader.error) {
+            <div>Error loading results</div>
+          }
+        }
+      </div>
+    </form>
+  </ng-template>
+</eln-form-dialog>

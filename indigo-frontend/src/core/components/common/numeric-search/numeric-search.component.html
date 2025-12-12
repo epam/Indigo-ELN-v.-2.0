@@ -1,22 +1,16 @@
-<div class="flex gap-4 items-center justify-between border rounded-sm">
-  <mat-select
-    [value]="value.type"
-    (valueChange)="setType($event)"
-    class="basis-64"
-    (blur)="onTouched()"
-    [disabled]="disabled"
-  >
-    @for (type of NumericSearchTypeNames | keyvalue: null; track type) {
-      <mat-option [value]="type.key">{{ type.value }}</mat-option>
-    }
-  </mat-select>
-  <input
-    matInput
-    [value]="value.value"
-    (input)="setInputValue($event)"
-    (blur)="onTouched()"
-    [disabled]="disabled"
-    type="number"
-    class="basis-128"
-  />
-</div>
+<form [formGroup]="form">
+  <div class="flex gap-4 items-center justify-between border rounded-sm">
+    <mat-select formControlName="type" (blur)="triggerTouched()" class="flex-1">
+      @for (type of NumericSearchTypeNames | keyvalue: null; track type) {
+        <mat-option [value]="type.key">{{ type.value }}</mat-option>
+      }
+    </mat-select>
+    <input
+      matInput
+      formControlName="value"
+      (blur)="triggerTouched()"
+      type="number"
+      class="flex-3 border"
+    />
+  </div>
+</form>

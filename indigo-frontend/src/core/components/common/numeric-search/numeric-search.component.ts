@@ -1,4 +1,10 @@
-import { Component, forwardRef, Input } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  forwardRef,
+  inject,
+  OnInit,
+} from '@angular/core';
 import {
   NumericSearch,
   NumericSearchTypeNames,
@@ -6,15 +12,27 @@ import {
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatInput } from '@angular/material/input';
 import {
-  ControlValueAccessor,
+  AbstractControl,
+  FormControl,
+  FormGroup,
   FormsModule,
   NG_VALUE_ACCESSOR,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { KeyValuePipe } from '@angular/common';
+import { DelegatingControlBase } from '@core/components/common/delegating-control/delegating-control-base.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'eln-numeric-search',
-  imports: [MatSelect, MatOption, MatInput, FormsModule, KeyValuePipe],
+  imports: [
+    MatSelect,
+    MatOption,
+    MatInput,
+    FormsModule,
+    KeyValuePipe,
+    ReactiveFormsModule,
+  ],
   templateUrl: './numeric-search.component.html',
   providers: [
     {
@@ -24,47 +42,36 @@ import { KeyValuePipe } from '@angular/common';
     },
   ],
 })
-export class NumericSearchComponent implements ControlValueAccessor {
-  @Input() value: NumericSearch;
-  disabled = false;
-  defaultValue = { type: 'eq', value: NaN } as NumericSearch;
-  onChange: ((arg0: NumericSearch | null) => void) | null = null;
-  onTouched: (() => void) | null = null;
+export class NumericSearchComponent
+  extends DelegatingControlBase<NumericSearch>
+  implements OnInit
+{
+  form = new FormGroup({
+    type: new FormControl<keyof typeof NumericSearchTypeNames>('eq'),
+    value: new FormControl<number | null>(null),
+  });
 
-  writeValue(obj: NumericSearch | null): void {
-    this.value = obj || this.defaultValue;
+  private destroyRef = inject(DestroyRef);
+
+  ngOnInit() {
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((formValue) => {
+        let result: NumericSearch | null = null;
+        if (formValue.value != null) {
+          result = { type: formValue.type, value: formValue.value };
+        }
+        this.triggerChange(result);
+      });
   }
 
-  registerOnChange(fn: (arg0: NumericSearch | null) => void): void {
-    this.onChange = fn;
+  setValue(obj: NumericSearch | null): void {
+    this.form.get('type').setValue(obj?.type || 'eq');
+    this.form.get('value').setValue(obj?.value);
   }
 
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
-  }
-
-  setType(type: typeof this.value.type) {
-    this.value = { ...this.value, type: type } as NumericSearch;
-    this.fireOnChange();
-  }
-
-  setInputValue(event: Event) {
-    this.value = {
-      ...this.value,
-      value: (event.target as HTMLInputElement).valueAsNumber,
-    } as NumericSearch;
-    this.fireOnChange();
-  }
-
-  fireOnChange() {
-    const value = !isNaN(this.value.value)
-      ? { type: this.value.type, value: this.value.value }
-      : null;
-    this.onChange(value);
+  protected getControlsToDisable(): AbstractControl[] {
+    return Object.values(this.form.controls);
   }
 
   protected readonly NumericSearchTypeNames = NumericSearchTypeNames;

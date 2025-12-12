@@ -46,6 +46,7 @@ export class FormDialogComponent {
   @Input() hideCancelButton = false;
   @Input() submitButtonText = 'Submit';
   @Input() cancelButtonText = 'Cancel';
+  @Input() submitEnabled = true;
   @Input() containerClass = '';
   @Output() formSubmit = new EventEmitter<any>();
   @ContentChild('modalHeader') modalHeader: TemplateRef<unknown> | null = null;
