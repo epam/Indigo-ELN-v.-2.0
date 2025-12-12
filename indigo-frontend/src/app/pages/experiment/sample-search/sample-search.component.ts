@@ -62,10 +62,12 @@ import { MatIcon } from '@angular/material/icon';
 import { DictionarySelectComponent } from '@core/components/common/dictionary-select/dictionary-select.component';
 import {
   dictionarySearchSummary,
+  isFormValueNotEmpty,
   numericSearchSummary,
   setEnabled,
   textSearchSummary,
 } from '@core/utils/search.util';
+import { ButtonComponent } from '@core/components/common/button/button.component';
 
 export interface SampleSearchDialogData {
   experimentId: UUID;
@@ -102,6 +104,7 @@ export interface SampleSearchDialogData {
     DictionarySelectComponent,
     MatChipSet,
     MatChipRow,
+    ButtonComponent,
   ],
   templateUrl: './sample-search.component.html',
 })
@@ -115,7 +118,7 @@ export class SampleSearchComponent implements OnInit {
 
   @ViewChild('advancedSearchPanel') advancedSearchPanel: MatExpansionPanel;
 
-  service = inject(ApiService);
+  apiService = inject(ApiService);
   destroyRef = inject(DestroyRef);
   dialog = inject(MatDialog);
   experimentModelService = inject(ExperimentModelService);
@@ -147,32 +150,24 @@ export class SampleSearchComponent implements OnInit {
   ngOnInit(): void {
     this.loader = new InfiniteSearchLoader<FindSamplesRequest, Sample>(
       (searchParams, pageNo) =>
-        this.service.request(
+        this.apiService.request(
           'post',
           `samples/search?pageNo=${pageNo}&pageSize=20`,
           searchParams,
         ),
     );
-    this.form.valueChanges.subscribe((formValues) => {
-      setEnabled(
-        this.form.get('structureSearchType'),
-        formValues.structure != null,
-        false,
-      );
-      this.formNotEmpty =
-        (formValues.quickSearch != null &&
-          formValues.quickSearch.trim() !== '') ||
-        formValues.structure != null ||
-        formValues.compoundKey != null ||
-        formValues.nbkBatchNumber != null ||
-        formValues.molecularFormula != null ||
-        formValues.molWeight != null ||
-        formValues.chemicalName != null ||
-        formValues.compoundState != null ||
-        formValues.batchComment != null ||
-        formValues.healthHazards != null ||
-        formValues.casNumber != null;
-    });
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((formValues) => {
+        setEnabled(
+          this.form.get('structureSearchType'),
+          formValues.structure != null,
+          false,
+        );
+        this.formNotEmpty = Object.entries(formValues)
+          .filter(([k, _]) => k !== 'structureSearchType' && k !== 'marked')
+          .some(([_, v]) => isFormValueNotEmpty(v));
+      });
 
     this.form.valueChanges
       .pipe(
@@ -254,7 +249,7 @@ export class SampleSearchComponent implements OnInit {
   }
 
   markSample(sample: Sample, mark: boolean) {
-    this.service
+    this.apiService
       .request<Sample>(
         'post',
         `samples/${sample.id}/${mark ? 'mark' : 'unmark'}`,

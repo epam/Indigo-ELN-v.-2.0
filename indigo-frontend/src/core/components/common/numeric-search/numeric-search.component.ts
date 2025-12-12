@@ -1,4 +1,10 @@
-import { Component, forwardRef, OnInit } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  forwardRef,
+  inject,
+  OnInit,
+} from '@angular/core';
 import {
   NumericSearch,
   NumericSearchTypeNames,
@@ -15,6 +21,7 @@ import {
 } from '@angular/forms';
 import { KeyValuePipe } from '@angular/common';
 import { DelegatingControlBase } from '@core/components/common/delegating-control/delegating-control-base.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'eln-numeric-search',
@@ -44,14 +51,18 @@ export class NumericSearchComponent
     value: new FormControl<number | null>(null),
   });
 
+  private destroyRef = inject(DestroyRef);
+
   ngOnInit() {
-    this.form.valueChanges.subscribe((formValue) => {
-      let result: NumericSearch | null = null;
-      if (formValue.value != null) {
-        result = { type: formValue.type, value: formValue.value };
-      }
-      this.triggerChange(result);
-    });
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((formValue) => {
+        let result: NumericSearch | null = null;
+        if (formValue.value != null) {
+          result = { type: formValue.type, value: formValue.value };
+        }
+        this.triggerChange(result);
+      });
   }
 
   setValue(obj: NumericSearch | null): void {

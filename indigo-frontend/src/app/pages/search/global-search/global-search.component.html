@@ -31,7 +31,7 @@
             <mat-radio-button value="SIMILARITY">Similarity</mat-radio-button>
           </mat-radio-group>
           <div>
-            @if (form.get('structure').valueChanges | async) {
+            @if (form.get('structure').value) {
               <span class="cursor-pointer" (click)="clearStructure()">
                 <em class="indicon-close ml-auto"></em>
                 Clear

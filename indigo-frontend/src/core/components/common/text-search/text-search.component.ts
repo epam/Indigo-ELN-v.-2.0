@@ -1,4 +1,10 @@
-import { Component, forwardRef, OnInit } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  forwardRef,
+  inject,
+  OnInit,
+} from '@angular/core';
 import {
   TextSearch,
   TextSearchTypeNames,
@@ -13,8 +19,9 @@ import {
   NG_VALUE_ACCESSOR,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { AsyncPipe, KeyValuePipe } from '@angular/common';
+import { KeyValuePipe } from '@angular/common';
 import { DelegatingControlBase } from '@core/components/common/delegating-control/delegating-control-base.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'eln-text-search',
@@ -25,7 +32,6 @@ import { DelegatingControlBase } from '@core/components/common/delegating-contro
     FormsModule,
     KeyValuePipe,
     ReactiveFormsModule,
-    AsyncPipe,
   ],
   templateUrl: './text-search.component.html',
   providers: [
@@ -47,49 +53,53 @@ export class TextSearchComponent
     to: new FormControl<string>(''),
   });
 
+  private destroyRef = inject(DestroyRef);
+
   ngOnInit() {
-    this.form.valueChanges.subscribe((formValue) => {
-      let result: TextSearch | null = null;
-      switch (formValue.type) {
-        case 'exact':
-          if (formValue.value?.trim()) {
-            result = { type: 'exact', value: formValue.value };
-          }
-          break;
-        case 'startsWith':
-          if (formValue.value?.trim()) {
-            result = { type: 'startsWith', value: formValue.value };
-          }
-          break;
-        case 'endsWith':
-          if (formValue.value?.trim()) {
-            result = { type: 'endsWith', value: formValue.value };
-          }
-          break;
-        case 'contains':
-          if (formValue.value?.trim()) {
-            result = { type: 'contains', value: formValue.value };
-          }
-          break;
-        case 'between':
-          if (formValue.from?.trim() || formValue.to?.trim()) {
-            result = {
-              type: 'between',
-              from: formValue.from,
-              to: formValue.to,
-            };
-          }
-          break;
-      }
-      this.triggerChange(result);
-    });
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((formValue) => {
+        let result: TextSearch | null = null;
+        switch (formValue.type) {
+          case 'exact':
+            if (formValue.value?.trim()) {
+              result = { type: 'exact', value: formValue.value };
+            }
+            break;
+          case 'startsWith':
+            if (formValue.value?.trim()) {
+              result = { type: 'startsWith', value: formValue.value };
+            }
+            break;
+          case 'endsWith':
+            if (formValue.value?.trim()) {
+              result = { type: 'endsWith', value: formValue.value };
+            }
+            break;
+          case 'contains':
+            if (formValue.value?.trim()) {
+              result = { type: 'contains', value: formValue.value };
+            }
+            break;
+          case 'between':
+            if (formValue.from?.trim() || formValue.to?.trim()) {
+              result = {
+                type: 'between',
+                from: formValue.from,
+                to: formValue.to,
+              };
+            }
+            break;
+        }
+        this.triggerChange(result);
+      });
   }
 
   setValue(obj: TextSearch | null): void {
     this.form.get('type').setValue(obj?.type || 'exact');
-    this.form.get('value').setValue(obj?.type != 'between' ? obj?.value : '');
-    this.form.get('from').setValue(obj?.type == 'between' ? obj?.from : '');
-    this.form.get('to').setValue(obj?.type == 'between' ? obj?.to : '');
+    this.form.get('value').setValue(obj?.type !== 'between' ? obj?.value : '');
+    this.form.get('from').setValue(obj?.type === 'between' ? obj?.from : '');
+    this.form.get('to').setValue(obj?.type === 'between' ? obj?.to : '');
   }
 
   protected getControlsToDisable(): AbstractControl[] {

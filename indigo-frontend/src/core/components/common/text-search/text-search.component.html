@@ -5,7 +5,7 @@
         <mat-option [value]="type.key">{{ type.value }}</mat-option>
       }
     </mat-select>
-    @if ((form.get('type').valueChanges | async) !== 'between') {
+    @if (form.get('type').value !== 'between') {
       <input
         matInput
         formControlName="value"

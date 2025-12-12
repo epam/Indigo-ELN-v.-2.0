@@ -1,4 +1,11 @@
-import { Component, forwardRef, Input, OnInit } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  forwardRef,
+  inject,
+  Input,
+  OnInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   AutocompleteSelectComponent,
@@ -14,6 +21,7 @@ import {
 } from '@angular/forms';
 import { DropdownValueComponent } from '@core/components/experiment/dropdown-value/dropdown-value.component';
 import { DelegatingControlBase } from '@core/components/common/delegating-control/delegating-control-base.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 interface EnumItem extends HasId {
   name: string;
@@ -53,15 +61,17 @@ export class EnumSelectComponent<T extends string>
 
   allItems: EnumItem[];
 
+  private destroyRef = inject(DestroyRef);
+
   ngOnInit() {
     this.form
       .get('single')
-      .valueChanges.subscribe((value) => this.triggerChange(value?.id as T));
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => this.triggerChange(value?.id as T));
     this.form
       .get('multiple')
-      .valueChanges.subscribe((value) =>
-        this.triggerChange(value?.map((x) => x.id as T)),
-      );
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => this.triggerChange(value?.map((x) => x.id as T)));
     this.allItems = Object.keys(this.enumType).map((x) =>
       this.generateEnumItem(x as T),
     );

@@ -1,4 +1,11 @@
-import { Component, forwardRef, inject, Input, OnInit } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  forwardRef,
+  inject,
+  Input,
+  OnInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AutocompleteSelectComponent } from '@core/components/common/autocomplete-select/autocomplete-select.component';
 import { Observable } from 'rxjs';
@@ -14,6 +21,7 @@ import { DictionaryItemRef } from '@core/types/entities/dictionary.i';
 import { map } from 'rxjs/operators';
 import { DropdownValueComponent } from '@core/components/experiment/dropdown-value/dropdown-value.component';
 import { DelegatingControlBase } from '@core/components/common/delegating-control/delegating-control-base.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'eln-dictionary-select',
@@ -46,16 +54,19 @@ export class DictionarySelectComponent
   });
 
   private api = inject(ApiService);
+  private destroyRef = inject(DestroyRef);
 
   allItems$: Observable<DictionaryItemRef[]>;
 
   ngOnInit() {
     this.form
       .get('single')
-      .valueChanges.subscribe((value) => this.triggerChange(value));
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => this.triggerChange(value));
     this.form
       .get('multiple')
-      .valueChanges.subscribe((value) => this.triggerChange(value));
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => this.triggerChange(value));
     this.allItems$ = this.api.request<DictionaryItemRef[]>(
       'get',
       `dictionaries/${this.dictionaryId}`,

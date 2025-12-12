@@ -1,4 +1,10 @@
-import { Component, forwardRef, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  forwardRef,
+  inject,
+  OnInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AutocompleteSelectComponent } from '@core/components/common/autocomplete-select/autocomplete-select.component';
 import { UserMetadata } from '@core/types/entities/user.i';
@@ -13,6 +19,7 @@ import {
 } from '@angular/forms';
 import { DelegatingControlBase } from '@core/components/common/delegating-control/delegating-control-base.component';
 import { HttpParams } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'eln-user-select',
@@ -36,11 +43,13 @@ export class UserSelectComponent
   });
 
   private api = inject(ApiService);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     this.form
       .get('search')
-      .valueChanges.subscribe((value) => this.triggerChange(value));
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => this.triggerChange(value));
   }
 
   search(query: string): Observable<UserMetadata[]> {

@@ -62,12 +62,29 @@ export function enumSearchSummary<T extends string>(
   return null;
 }
 
-export function setEnabled(control: AbstractControl, isEnabled: boolean, emitEvent: boolean): void {
+export function setEnabled(
+  control: AbstractControl,
+  isEnabled: boolean,
+  emitEvent: boolean,
+): void {
   if (isEnabled) {
     control.enable({ emitEvent });
   } else {
     control.disable({ emitEvent });
   }
+}
+
+export function isFormValueNotEmpty(value: any): boolean {
+  if (value === null || value === undefined) {
+    return false;
+  }
+  if (typeof value === 'string' || value instanceof String) {
+    return value.trim() !== '';
+  }
+  if (Array.isArray(value)) {
+    return value.length > 0;
+  }
+  return true;
 }
 
 function referenceDisplayName(ref: any): string {

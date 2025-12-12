@@ -1,6 +1,12 @@
 import { FormDialogComponent } from '@/core/components/common/form-dialog/form-dialog.component';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -55,10 +61,13 @@ import { EnumSelectComponent } from '@core/components/common/enum-select/enum-se
 import { UserService } from '@core/services/user.service';
 import { first } from 'rxjs';
 import {
-  enumSearchSummary,
   dictionarySearchSummary,
-  numericSearchSummary, setEnabled,
+  enumSearchSummary,
+  isFormValueNotEmpty,
+  numericSearchSummary,
+  setEnabled,
 } from '@core/utils/search.util';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface SampleSearchDialogData {
   experimentId: UUID;
@@ -101,17 +110,18 @@ export class GlobalSearchComponent implements OnInit {
 
   @ViewChild('advancedSearchPanel') advancedSearchPanel: MatExpansionPanel;
 
-  service = inject(ApiService);
+  apiService = inject(ApiService);
   dialog = inject(MatDialog);
   experimentModelService = inject(ExperimentModelService);
   userService = inject(UserService);
+  destroyRef = inject(DestroyRef);
 
   title = 'Search';
 
   form = new FormGroup({
     quickSearch: new FormControl<string | null>(null),
     structureSearchType: new FormControl<StructuralSearchType>(
-      StructuralSearchType.EXACT,
+      StructuralSearchType.SUBSTRUCTURE,
     ),
     isReaction: new FormControl<boolean | null>(null),
     structure: new FormControl<string | null>(null),
@@ -120,7 +130,6 @@ export class GlobalSearchComponent implements OnInit {
     batchYield: new FormControl<NumericSearch | null>(null),
     batchPurity: new FormControl<NumericSearch | null>(null),
     author: new FormControl<UserMetadata[] | null>(null),
-    // ...
     experimentStatus: new FormControl<ExperimentStatus>(null),
     reactionRole: new FormControl<ReactionRole>(null),
   });
@@ -134,26 +143,29 @@ export class GlobalSearchComponent implements OnInit {
       GlobalSearchRequest,
       GlobalSearchResult
     >((searchParams, pageNo) =>
-      this.service.request(
+      this.apiService.request(
         'post',
         `search?pageNo=${pageNo}&pageSize=20`,
         searchParams,
       ),
     );
-    this.form.valueChanges.subscribe((formValues) => {
-      setEnabled(this.form.get('structureSearchType'), formValues.isReaction != null, false);
-      setEnabled(this.form.get('reactionRole'), formValues.isReaction === false, false);
-      this.formNotEmpty =
-        (formValues.quickSearch != null &&
-          formValues.quickSearch.trim() !== '') ||
-        formValues.structure != null ||
-        formValues.therapeuticArea != null ||
-        formValues.projectCode != null ||
-        formValues.batchYield != null ||
-        formValues.batchPurity != null ||
-        formValues.author != null ||
-        formValues.experimentStatus?.length > 0;
-    });
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((formValues) => {
+        setEnabled(
+          this.form.get('structureSearchType'),
+          formValues.isReaction !== null,
+          false,
+        );
+        setEnabled(
+          this.form.get('reactionRole'),
+          formValues.isReaction === false,
+          false,
+        );
+        this.formNotEmpty = Object.entries(formValues)
+          .filter(([k, _]) => k !== 'structureSearchType')
+          .some(([_, v]) => isFormValueNotEmpty(v));
+      });
   }
 
   updateAdvancedSearchSummary(show: boolean) {

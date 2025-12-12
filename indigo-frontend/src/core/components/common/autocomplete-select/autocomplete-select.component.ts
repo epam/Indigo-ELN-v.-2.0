@@ -1,7 +1,9 @@
 import {
   Component,
   ContentChild,
+  DestroyRef,
   forwardRef,
+  inject,
   Input,
   OnInit,
   TemplateRef,
@@ -34,6 +36,7 @@ import {
 } from 'rxjs';
 import { AsyncPipe, NgIf, NgTemplateOutlet } from '@angular/common';
 import { DelegatingControlBase } from '@core/components/common/delegating-control/delegating-control-base.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface HasId {
   id: string;
@@ -81,6 +84,7 @@ export class AutocompleteSelectComponent<T extends HasId>
   options$: Observable<T[]>;
   defaultOptions: Observable<T[]>;
   selected$ = new BehaviorSubject<T[]>([]);
+  destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     this.defaultOptions = this.allowEmptySearch ? this.search('') : of([]); // create observable, but don't subscribe yet
@@ -100,6 +104,7 @@ export class AutocompleteSelectComponent<T extends HasId>
         const selectedIds = new Set(selected.map((item) => item.id));
         return items.filter((item) => !selectedIds.has(item.id));
       }),
+      takeUntilDestroyed(this.destroyRef),
     );
   }
 

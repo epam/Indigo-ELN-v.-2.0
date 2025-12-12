@@ -43,9 +43,14 @@
               formControlName="structureSearchType"
               class="flex-3"
             >
+              <mat-radio-button value="EXACT">Exact</mat-radio-button>
+              <mat-radio-button value="SUBSTRUCTURE"
+                >Substructure</mat-radio-button
+              >
+              <mat-radio-button value="SIMILARITY">Similarity</mat-radio-button>
             </mat-radio-group>
             <div class="flex-1">
-              @if (form.get('structure').valueChanges | async) {
+              @if (form.get('structure').value) {
                 <span class="cursor-pointer" (click)="clearStructure()">
                   <em class="indicon-close ml-auto"></em>Clear
                 </span>
@@ -250,14 +255,14 @@
             </div>
           </section>
 
-          <button
+          <eln-button
             type="button"
-            class="ml-2 px-4 py-2 bg-[#4050b5] text-white rounded-[5px] cursor-pointer"
+            variant="blue"
             [disabled]="!formNotEmpty"
             (click)="performSearch()"
           >
             Search
-          </button>
+          </eln-button>
         </div>
       </form>
     </mat-tab>
