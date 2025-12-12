@@ -59,8 +59,13 @@
     >
       <div
         class="max-w-[140px] w-[140px] overflow-hidden py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral-300"
+        matTooltip="Open Experiments"
+        matTooltipPosition="above"
+        matTooltipClass="tooltip-shadow"
       >
-        <span class="text-xl text-primary-400">{{ totalCounts()?.experimentsByStatus?.OPEN }}</span>
+        <span class="text-xl text-primary-400">{{
+          totalCounts()?.experimentsByStatus?.OPEN
+        }}</span>
         <p class="text-sm overflow-hidden text-ellipsis text-nowrap">
           Open Experiments
         </p>
@@ -68,7 +73,9 @@
       <div
         class="max-w-[140px] w-[140px] overflow-hidden py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral-300"
       >
-        <span class="text-xl text-orange-200">{{ totalCounts()?.experimentsByStatus?.WAITING || 0 }}</span>
+        <span class="text-xl text-orange-200">{{
+          totalCounts()?.experimentsByStatus?.WAITING || 0
+        }}</span>
         <p class="text-sm overflow-hidden text-ellipsis text-nowrap">
           Waiting Signature
         </p>
@@ -76,7 +83,9 @@
       <div
         class="max-w-[140px] w-[140px] overflow-hidden py-2 px-3 text-center sm:text-left sm:border-r sm:border-r-neutral-300"
       >
-        <span class="text-xl text-green-200">{{ totalCounts()?.experimentsByStatus?.COMPLETED || 0 }}</span>
+        <span class="text-xl text-green-200">{{
+          totalCounts()?.experimentsByStatus?.COMPLETED || 0
+        }}</span>
         <p class="text-sm overflow-hidden text-ellipsis text-nowrap">
           Completed
         </p>
@@ -84,7 +93,9 @@
       <div
         class="max-w-[140px] w-[140px] overflow-hidden py-2 px-3 text-center sm:text-left"
       >
-        <span class="text-xl text-red-200">{{ totalCounts()?.experimentsByStatus?.REJECTED || 0 }}</span>
+        <span class="text-xl text-red-200">{{
+          totalCounts()?.experimentsByStatus?.REJECTED || 0
+        }}</span>
         <p class="text-sm overflow-hidden text-ellipsis text-nowrap">
           Rejected
         </p>

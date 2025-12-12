@@ -1,6 +1,7 @@
 import { ClassPickerPipe } from '@/core/pipes/classPicker.pipe';
 import { AsyncPipe, NgIf, NgTemplateOutlet } from '@angular/common';
 import { Component, inject, Signal } from '@angular/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ProjectsOverviewWidgetService } from './services/projects-overview-widget.service';
 import { ApiService } from '@core/services/api.service';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -28,14 +29,29 @@ interface TotalCounts {
 
 @Component({
   standalone: true,
-  imports: [CardComponent, ClassPickerPipe, AsyncPipe, NgTemplateOutlet, NgIf],
+  imports: [
+    CardComponent,
+    ClassPickerPipe,
+    AsyncPipe,
+    NgTemplateOutlet,
+    NgIf,
+    MatTooltipModule,
+  ],
   selector: 'eln-projects-overview-widget',
   templateUrl: './projects-overview-widget.component.html',
+  styleUrls: ['./project-overview-widget.component.scss'],
 })
 export class ProjectsOverviewWidgetComponent {
   public projectsOverviewWidgetService = inject(ProjectsOverviewWidgetService);
 
   apiService = inject(ApiService);
 
-  totalCounts: Signal<TotalCounts> = toSignal(this.apiService.request('get', 'total-counts'));
+  totalCounts: Signal<TotalCounts> = toSignal(
+    this.apiService.request('get', 'total-counts'),
+  );
+
+  isTextOverflowing(element: HTMLElement | null): boolean {
+    if (!element) return false;
+    return element.scrollWidth > element.clientWidth;
+  }
 }
