@@ -28,7 +28,6 @@ import { getExperimentStatusBadgeVariant } from '@/core/utils/experiment-status.
 })
 export class ExperimentItemComponent {
   private router = inject(Router);
-  
   mock_users = [
     'assets/avatar1.png',
     'assets/avatar2.png',
@@ -54,7 +53,6 @@ export class ExperimentItemComponent {
 
   openDetails(): void {
     if (!this.experiment || !this.projectId || !this.notebookId) return;
-    
     const url = `/projects/${this.projectId}/notebooks/${this.notebookId}/experiments/${this.experiment.id}`;
     this.router.navigateByUrl(url);
   }

@@ -6,6 +6,7 @@ import { ProjectsOverviewWidgetService } from './services/projects-overview-widg
 import { ApiService } from '@core/services/api.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CardComponent } from '@core/components/common/card/card.component';
+import { TextOverflowTooltipDirective } from '@core/directives/text-overflow-tooltip.directive';
 
 interface ExperimentStatus {
   OPEN: number;
@@ -36,6 +37,7 @@ interface TotalCounts {
     NgTemplateOutlet,
     NgIf,
     MatTooltipModule,
+    TextOverflowTooltipDirective,
   ],
   selector: 'eln-projects-overview-widget',
   templateUrl: './projects-overview-widget.component.html',
@@ -49,9 +51,4 @@ export class ProjectsOverviewWidgetComponent {
   totalCounts: Signal<TotalCounts> = toSignal(
     this.apiService.request('get', 'total-counts'),
   );
-
-  isTextOverflowing(element: HTMLElement | null): boolean {
-    if (!element) return false;
-    return element.scrollWidth > element.clientWidth;
-  }
 }
