@@ -10,6 +10,7 @@ import { toHTML } from 'ngx-editor';
 import { catchError, of, tap } from 'rxjs';
 import { Project } from '@core/types/entities/project.i';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 
 @Component({
   standalone: true,
@@ -70,6 +71,7 @@ export class ProjectAddComponent implements OnInit {
   ];
 
   private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
 
   constructor(protected service: ApiService<any>) {
   }
@@ -87,7 +89,7 @@ export class ProjectAddComponent implements OnInit {
     }
   }
 
-  createProject(data: Project) {
+  createProject(data: Project): void {
     this.service
       .create('projects', {
         ...data,
@@ -97,9 +99,9 @@ export class ProjectAddComponent implements OnInit {
             : data.description,
       })
       .pipe(
-        tap(() => {
+        tap((newProject: Project) => {
           this.dialogRef.close('refresh');
-
+          this.router.navigate(['/projects', newProject.id]);
           this.snackBar.open(
             `Project '${data.name}' has been successfully created`,
             'Close',
