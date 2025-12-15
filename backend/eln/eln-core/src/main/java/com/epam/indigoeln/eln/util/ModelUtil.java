@@ -1,12 +1,15 @@
 package com.epam.indigoeln.eln.util;
 
+import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.entity.BaseEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import one.util.streamex.StreamEx;
+import org.hibernate.exception.ConstraintViolationException;
 import org.jspecify.annotations.Nullable;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.function.Function;
 
 public class ModelUtil {
 
@@ -39,5 +42,17 @@ public class ModelUtil {
         sb.deleteCharAt(sb.length() - 1);
         sb.append(')');
         return sb.toString();
+    }
+
+    public static void wrapConstraintViolation(Runnable function, Function<ConstraintViolationException, @Nullable String> errorMapper) {
+        try {
+            function.run();
+        } catch (org.hibernate.exception.ConstraintViolationException e) {
+            String error = errorMapper.apply(e);
+            if (error != null) {
+                throw new InvalidRequestException(error);
+            }
+            throw e;
+        }
     }
 }

@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ProjectEntity;
@@ -12,12 +11,14 @@ import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import org.hibernate.exception.ConstraintViolationException;
 
 import java.util.List;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
+import static com.epam.indigoeln.eln.util.ModelUtil.wrapConstraintViolation;
 
 @DataAccess
 @Transactional
@@ -38,20 +39,15 @@ public class ProjectService {
     public ProjectDetailsDTO createProject(ProjectRequest request) {
         aclService.ensureTopLevelAccess(ApplicationPermission.CREATE_PROJECTS);
         ProjectEntity project = projectMapper.requestToProject(request);
-        if (request.getKeywords() != null && !request.getKeywords().isEmpty()) {
-            project.setKeywords(dictionaryService.findOrCreateByNames(BuiltInDictionary.PROJECT_KEYWORD.name(), request.getKeywords()));
-        }
-        updateDates(project, userService.getCurrentUserEntity());
-        aclService.initProjectACL(project);
-        try {
+        wrapConstraintViolation(() -> {
+            if (request.getKeywords() != null && !request.getKeywords().isEmpty()) {
+                project.setKeywords(dictionaryService.findOrCreateByNames(BuiltInDictionary.PROJECT_KEYWORD.name(), request.getKeywords()));
+            }
+            updateDates(project, userService.getCurrentUserEntity());
+            aclService.initProjectACL(project);
             projectRepository.persist(project);
             projectRepository.flushAndRefresh(project);
-        } catch (org.hibernate.exception.ConstraintViolationException e) {
-            if ("project_name_uq".equals(e.getConstraintName())) {
-                throw new InvalidRequestException("Project with name '" + project.getName() + "' already exists");
-            }
-            throw e;
-        }
+        }, e -> mapConstraintToError(e, project));
         return getProject(project.getId());
     }
 
@@ -68,14 +64,16 @@ public class ProjectService {
     public ProjectDetailsDTO editProject(UUID projectId, ProjectEditRequest request) {
         ProjectEntity project = projectRepository.get(projectId);
         aclService.ensureAccess(project, ApplicationPermission.EDIT_PROJECTS);
-        editProperty(request.getName(), project::setName);
-        editProperty(request.getKeywords(), v -> {
-            project.setKeywords(dictionaryService.findOrCreateByNames(BuiltInDictionary.PROJECT_KEYWORD.name(), v));
-        });
-        editProperty(request.getLiterature(), project::setLiterature);
-        editProperty(request.getDescription(), project::setDescription);
-        updateDates(project, userService.getCurrentUserEntity());
-        projectRepository.flushAndRefresh(project);
+        wrapConstraintViolation(() -> {
+            editProperty(request.getName(), project::setName);
+            editProperty(request.getKeywords(), v -> {
+                project.setKeywords(dictionaryService.findOrCreateByNames(BuiltInDictionary.PROJECT_KEYWORD.name(), v));
+            });
+            editProperty(request.getLiterature(), project::setLiterature);
+            editProperty(request.getDescription(), project::setDescription);
+            updateDates(project, userService.getCurrentUserEntity());
+            projectRepository.flushAndRefresh(project);
+        }, e -> mapConstraintToError(e, project));
         return getProject(projectId);
     }
 
@@ -89,5 +87,13 @@ public class ProjectService {
         aclService.ensureAccess(project, ApplicationPermission.MANAGE_PROJECT_ACCESS);
         aclService.updateProjectACL(project, form);
         return projectMapper.convertDetailsACLList(project.getFullACL());
+    }
+
+    @Nullable
+    private static String mapConstraintToError(ConstraintViolationException e, ProjectEntity project) {
+        if ("project_name_uq".equals(e.getConstraintName())) {
+            return "Project with name '" + project.getName() + "' already exists";
+        }
+        return null;
     }
 }

@@ -6,11 +6,13 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.With;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
 @Data
+@With
 @NoArgsConstructor(onConstructor_ = {@JsonCreator})
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
