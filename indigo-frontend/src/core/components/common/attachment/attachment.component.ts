@@ -1,5 +1,5 @@
 import { Attachment } from '@/core/types/entities/attachment.i';
-import { DatePipe } from '@angular/common';
+import { DatePipe, JsonPipe } from '@angular/common';
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -7,10 +7,11 @@ import { CardComponent } from '../card/card.component';
 import { ApiService } from '@/core/services/api.service';
 import { catchError, of, Subject, takeUntil } from 'rxjs';
 import { downloadBlob } from '@/core/utils/download.util';
+import { ConvertBytesToKilobytesPipe } from '@/core/pipes/convertBytesToKilobytes.pipe';
 
 @Component({
   standalone: true,
-  imports: [CardComponent, MatMenuModule, MatIconModule, DatePipe],
+  imports: [CardComponent, MatMenuModule, MatIconModule, DatePipe, ConvertBytesToKilobytesPipe],
   selector: 'eln-attachment',
   templateUrl: './attachment.component.html',
 })

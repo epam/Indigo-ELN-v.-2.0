@@ -5,7 +5,7 @@
       <span>{{ attachment.name }}</span>
     </div>
     <span>by {{ attachment.createdBy?.displayName }}</span>
-    <span>{{ attachment.size }}</span>
+    <span>{{ attachment.size | convertBytesToKilobytes }}KB</span>
     <span class="flex justify-end items-center">{{
       attachment.createdAt | date: 'dd MMM yyyy'
     }}</span>
