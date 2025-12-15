@@ -13,6 +13,10 @@ import java.util.UUID;
 @Produces(MediaType.APPLICATION_JSON)
 public interface UserAPI extends BaseAPI {
 
+    @GET
+    @Path("/currentUser")
+    CurrentUserDTO getCurrentUser();
+
     @POST
     @Path("/users")
     UserDTO createUser(UserRequest request);

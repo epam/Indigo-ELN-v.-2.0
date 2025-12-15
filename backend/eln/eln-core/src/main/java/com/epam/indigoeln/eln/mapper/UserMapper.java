@@ -1,6 +1,8 @@
 package com.epam.indigoeln.eln.mapper;
 
 import com.epam.indigoeln.eln.entity.UserEntity;
+import com.epam.indigoeln.eln.entity.UserInfo;
+import com.epam.indigoeln.eln.model.CurrentUserDTO;
 import com.epam.indigoeln.eln.model.UserDTO;
 import com.epam.indigoeln.eln.model.UserRequest;
 import org.mapstruct.Mapper;
@@ -18,4 +20,9 @@ public abstract class UserMapper extends AbstractMapper {
     public abstract UserDTO entityToDTO(UserEntity entity);
 
     public abstract UserDTO entityToDetailsDTO(UserEntity entity);
+
+    @Mapping(target = "permissions", expression = "java(entity.collectPermissions())")
+    public abstract UserInfo entityToInfo(UserEntity entity);
+
+    public abstract CurrentUserDTO infoToCurrentUserDTO(UserInfo user);
 }

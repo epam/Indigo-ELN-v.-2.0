@@ -1,4 +1,4 @@
-package com.epan.indigoeln.flyway.service;
+package com.epam.indigoeln.flyway.service;
 
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.fasterxml.jackson.databind.MappingIterator;

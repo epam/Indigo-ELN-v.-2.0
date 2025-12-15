@@ -72,6 +72,13 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     @Test
+    void testUnknownField() {
+        assertThatClientCall(() -> {
+            experimentClient.mutateExperimentModel2Raw(experiment.getId(), model.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"R1\", \"unknownField\": 123}");
+        }).isBadRequest("Unrecognized field \"unknownField\"");
+    }
+
+    @Test
     void testSetInputRowSaltCodeAndEQ() {
         String molFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
         applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), molFile));

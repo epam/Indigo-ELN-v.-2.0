@@ -1,6 +1,7 @@
 package com.epam.indigoeln.eln.repository;
 
 import com.epam.indigoeln.eln.entity.UserEntity;
+import com.epam.indigoeln.eln.entity.UserInfo;
 import com.epam.indigoeln.eln.mapper.UserMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.util.Conditions;
@@ -24,8 +25,8 @@ public class UserRepository extends BaseRepository<UserEntity> {
         super(EntityType.USER);
     }
 
-    public @Nullable UserEntity findByUsername(String username) {
-        return find("username", username).firstResult();
+    public @Nullable UserInfo findByUsername(String username) {
+        return doFindOne(new Conditions().add("username=?", username), em.getEntityGraph("User.info"), userMapper::entityToInfo);
     }
 
     public List<UserRef> suggest(@Nullable String search) {

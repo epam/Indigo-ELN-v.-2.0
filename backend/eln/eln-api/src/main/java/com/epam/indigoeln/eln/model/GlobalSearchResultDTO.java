@@ -15,4 +15,6 @@ public class GlobalSearchResultDTO extends BaseDTO {
     private String fragment;
     @Nullable
     private Set<ReactionRole> reactionRoles;
+    @Nullable
+    private ExperimentStatus experimentStatus;
 }

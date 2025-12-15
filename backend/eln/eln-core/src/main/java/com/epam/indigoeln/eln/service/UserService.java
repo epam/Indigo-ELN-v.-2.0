@@ -2,7 +2,6 @@ package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.config.UserHolder;
 import com.epam.indigoeln.common.exception.AccessDeniedException;
-import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.eln.entity.RoleEntity;
 import com.epam.indigoeln.eln.entity.UserEntity;
 import com.epam.indigoeln.eln.entity.UserInfo;
@@ -59,29 +58,25 @@ public class UserService {
         return doGetUser(userHolder.getUserName());
     }
 
+    public CurrentUserDTO getCurrentUserDTO() {
+        return userMapper.infoToCurrentUserDTO(getCurrentUser());
+    }
+
     public UserEntity getCurrentUserEntity() {
         return em.getReference(UserEntity.class, getCurrentUser().getId());
     }
 
     @CacheResult(cacheName = "user.byUsername")
     public UserInfo doGetUser(String username) {
-        UserEntity user = userRepository.findByUsername(username);
+        UserInfo user = userRepository.findByUsername(username);
         if (user == null) {
             throw new AccessDeniedException(username);
         }
-        return new UserInfo(user.getId(), user.getUsername(), user.collectPermissions());
+        return user;
     }
 
     public UserDTO getUser(UUID id) {
         return userRepository.loadDetails(id);
-    }
-
-    public UserDTO getUser(String username) {
-        UserEntity user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new EntityNotFoundException(EntityType.USER, username);
-        }
-        return userMapper.entityToDetailsDTO(user);
     }
 
     public byte[] getUserPicture(UUID userId, @Nullable Boolean large) {

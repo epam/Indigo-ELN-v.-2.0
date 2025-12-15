@@ -57,7 +57,7 @@ public class ProjectService {
 
     public Page<ProjectDTO> getProjects(@Nullable String search, @Nullable SortOrder sort, @Nullable Boolean createdByMe, Paging paging) {
         UserEntity currentUser = Boolean.TRUE.equals(createdByMe) ? userService.getCurrentUserEntity() : null;
-        boolean showAll = userService.getCurrentUserEntity().collectPermissions().contains(ApplicationPermission.VIEW_PROJECTS);
+        boolean showAll = userService.getCurrentUser().getPermissions().contains(ApplicationPermission.VIEW_PROJECTS);
         return projectRepository.findAll(search, sort, currentUser, paging, showAll);
     }
 

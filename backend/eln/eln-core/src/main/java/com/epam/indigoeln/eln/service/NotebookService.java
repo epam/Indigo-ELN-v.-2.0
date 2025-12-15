@@ -61,7 +61,7 @@ public class NotebookService {
     public Page<NotebookDTO> getNotebooks(UUID projectId, @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort,
                                           @QueryParam("createdByMe") @Nullable Boolean createdByMe, Paging paging) {
         UserEntity currentUser = Boolean.TRUE.equals(createdByMe) ? userService.getCurrentUserEntity() : null;
-        boolean showAll = userService.getCurrentUserEntity().collectPermissions().contains(ApplicationPermission.VIEW_NOTEBOOKS);
+        boolean showAll = userService.getCurrentUser().getPermissions().contains(ApplicationPermission.VIEW_NOTEBOOKS);
         return notebookRepository.findAll(projectId, search, sort, currentUser, paging, showAll);
     }
 

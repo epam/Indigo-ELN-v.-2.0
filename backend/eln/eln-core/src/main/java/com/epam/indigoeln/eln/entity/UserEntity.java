@@ -19,6 +19,20 @@ import java.util.Set;
 @Entity(name = "User")
 @Table(name = "User_Account")
 @EqualsAndHashCode(of = {"username"})
+@NamedEntityGraph(
+        name = "User.info",
+        attributeNodes = {
+                @NamedAttributeNode("roles")
+        }
+)
+@NamedEntityGraph(
+        name = "User.details",
+        attributeNodes = {
+                @NamedAttributeNode("createdBy"),
+                @NamedAttributeNode("modifiedBy"),
+                @NamedAttributeNode("roles")
+        }
+)
 public class UserEntity extends BaseEntity {
 
     @NotEmpty
