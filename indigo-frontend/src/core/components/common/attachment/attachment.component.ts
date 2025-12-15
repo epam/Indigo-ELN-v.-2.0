@@ -7,11 +7,11 @@ import { CardComponent } from '../card/card.component';
 import { ApiService } from '@/core/services/api.service';
 import { catchError, of, Subject, takeUntil } from 'rxjs';
 import { downloadBlob } from '@/core/utils/download.util';
-import { ConvertBytesToKilobytesPipe } from '@/core/pipes/convertBytesToKilobytes.pipe';
+import { BytesConvertingPipe } from '@/core/pipes/convertBytesToKilobytes.pipe';
 
 @Component({
   standalone: true,
-  imports: [CardComponent, MatMenuModule, MatIconModule, DatePipe, ConvertBytesToKilobytesPipe],
+  imports: [CardComponent, MatMenuModule, MatIconModule, DatePipe, BytesConvertingPipe],
   selector: 'eln-attachment',
   templateUrl: './attachment.component.html',
 })

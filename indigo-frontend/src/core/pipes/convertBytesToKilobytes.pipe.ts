@@ -1,9 +1,9 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'convertBytesToKilobytes'
+  name: 'bytesConverting'
 })
-export class ConvertBytesToKilobytesPipe implements PipeTransform {
+export class BytesConvertingPipe implements PipeTransform {
 
   transform(value: number): number {
     return Math.round(value / 1024);
