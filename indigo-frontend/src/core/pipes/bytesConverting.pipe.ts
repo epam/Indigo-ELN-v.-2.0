@@ -6,27 +6,17 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class BytesConvertingPipe implements PipeTransform {
 
   transform(value: number): string {
-    let result: number;
-    let unit: string;
-
-    switch (true) {
-      case value >= 1024 ** 3:
-        result = value / 1024 ** 3;
-        unit = 'GB';
-        break;
-      case value >= 1024 ** 2:
-        result = value / 1024 ** 2;
-        unit = 'MB';
-        break;
-      case value >= 1024:
-        result = value / 1024;
-        unit = 'KB';
-        break;
-      default:
-        result = value;
-        unit = 'B';
+    const sizeConfig = { 
+      GB: 1024 ** 3,
+      MB: 1024 ** 2,
+      KB: 1024,
+      B: 1
+    };
+    for (const [unit, threshold] of Object.entries(sizeConfig)) {
+      if (value >= threshold) {
+        return `${(value / threshold).toFixed(1)}${unit}`;
+      }
     }
-
-    return `${Math.round(result)}${unit}`;
+    return `${value}B`; 
   }
 }
