@@ -1,14 +1,6 @@
 CREATE OR REPLACE VIEW Notebook_View_2 AS
 SELECT n.id,
     n.current_access,
-    (
-        SELECT coalesce(array_agg(ROW(status, count_)::Experiment_Count), '{}')
-        FROM (SELECT e.status, COUNT(*) count_
-              FROM Experiment_Base_View e
-              WHERE e.notebook_id = n.id
-              GROUP BY e.status
-        ) t
-    ) experiment_count,
     array_length(n.full_acl, 1) acl_count
 FROM Notebook_Base_View n;
 

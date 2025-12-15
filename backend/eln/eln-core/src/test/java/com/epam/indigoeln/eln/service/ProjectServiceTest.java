@@ -8,11 +8,13 @@ import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,6 +34,37 @@ class ProjectServiceTest extends ELNBaseTest {
         dictionaryClient.getDictionary(BuiltInDictionary.PROJECT_KEYWORD).forEach(item -> {
             dictionaryClient.removeDictionaryItem(BuiltInDictionary.PROJECT_KEYWORD, item.getId());
         });
+    }
+
+    @Test
+    @Order(-100)
+    void testCounters() {
+        TotalCounts expected = new TotalCounts(0, 0, 0, Map.of());
+        assertThat(miscClient.getTotalCounts()).isEqualTo(expected);
+
+        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testCounters"));
+        assertThat(project.getNotebookCount()).isZero();
+        assertThat(project.getExperimentCount()).isEmpty();
+        expected.setProjects(1);
+        assertThat(miscClient.getTotalCounts()).isEqualTo(expected);
+
+        NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+        assertThat(notebook.getExperimentCount()).isEmpty();
+        project = projectClient.getProject(project.getId());
+        assertThat(project.getNotebookCount()).isOne();
+        assertThat(project.getExperimentCount()).isEmpty();
+        expected.setNotebooks(1);
+        assertThat(miscClient.getTotalCounts()).isEqualTo(expected);
+
+        ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+        notebook = notebookClient.getNotebook(notebook.getId());
+        assertThat(notebook.getExperimentCount()).containsExactly(entry(ExperimentStatus.OPEN, 1));
+        project = projectClient.getProject(project.getId());
+        assertThat(project.getNotebookCount()).isOne();
+        assertThat(project.getExperimentCount()).containsExactly(entry(ExperimentStatus.OPEN, 1));
+        expected.setExperiments(1);
+        expected.setExperimentsByStatus(Map.of(ExperimentStatus.OPEN, 1));
+        assertThat(miscClient.getTotalCounts()).isEqualTo(expected);
     }
 
     @Test
