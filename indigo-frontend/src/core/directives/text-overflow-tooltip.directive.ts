@@ -3,12 +3,12 @@ import {
   ElementRef,
   Input,
   OnInit,
-  OnDestroy,
   HostListener,
 } from '@angular/core';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Subject } from 'rxjs';
-import { debounceTime, takeUntil } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { debounceTime } from 'rxjs/operators';
 
 /**
  * Directive that automatically shows a tooltip when text overflows
@@ -20,14 +20,13 @@ import { debounceTime, takeUntil } from 'rxjs/operators';
   standalone: true,
   hostDirectives: [MatTooltip],
 })
-export class TextOverflowTooltipDirective implements OnInit, OnDestroy {
+export class TextOverflowTooltipDirective implements OnInit {
   @Input() set appTextOverflowTooltip(text: string) {
     this.tooltipText = text;
     this.updateTooltip();
   }
 
   private tooltipText = '';
-  private destroy$ = new Subject<void>();
   private resizeSubject$ = new Subject<void>();
 
   constructor(
@@ -39,17 +38,12 @@ export class TextOverflowTooltipDirective implements OnInit, OnDestroy {
 
     // Debounce resize checks
     this.resizeSubject$
-      .pipe(debounceTime(300), takeUntil(this.destroy$))
+      .pipe(debounceTime(300), takeUntilDestroyed())
       .subscribe(() => this.updateTooltip());
   }
 
   ngOnInit(): void {
     this.updateTooltip();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   @HostListener('window:resize')
