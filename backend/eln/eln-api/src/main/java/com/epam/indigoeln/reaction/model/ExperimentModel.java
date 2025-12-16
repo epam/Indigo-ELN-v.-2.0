@@ -1,0 +1,215 @@
+package com.epam.indigoeln.reaction.model;
+
+import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.eln.model.DictionaryItemRef;
+import com.epam.indigoeln.reaction.model.metamodel.*;
+import com.epam.indigoeln.reaction.model.mutation.*;
+import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
+import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
+import com.epam.indigoeln.reaction.model.units.EnteredValue;
+import com.epam.indigoeln.reaction.model.units.NoUnit;
+import com.epam.indigoeln.reaction.util.ExperimentModelUtil;
+import com.epam.indigoeln.reaction.util.ToStringUtil;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.jspecify.annotations.Nullable;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+@Data
+@EqualsAndHashCode
+public final class ExperimentModel implements ExperimentModelNode {
+
+    public static final int SCHEMA_VERSION = 1;
+
+    public static void buildMetamodel(Metamodel<ExperimentModel, ExperimentModelPatch> metamodel) {
+        metamodel.setName("ExperimentModel");
+        metamodel.simpleProperty("revision", ExperimentModel::getRevision, ExperimentModel::setRevision, ExperimentModelPatch::getRevision, ExperimentModelPatch::setRevision);
+        metamodel.simpleProperty("lastUsedAnchor", ExperimentModel::getLastUsedAnchor, ExperimentModel::setLastUsedAnchor, ExperimentModelPatch::getLastUsedAnchor, ExperimentModelPatch::setLastUsedAnchor);
+        metamodel.listProperty("reactions", ExperimentModel::getReactions, ExperimentModel::setReactions, ExperimentModelPatch::getReactions, ExperimentModelPatch::setReactions, Handlers.REACTION_METAMODEL, Handlers.REACTION_LIST);
+    }
+
+    @Valid
+    @NotEmpty
+    @JsonManagedReference
+    private List<Reaction> reactions = List.of();
+
+    private Integer lastUsedAnchor = 0;
+
+    @NotNull
+    private Integer schemaVersion;
+
+    @NotNull
+    private Integer revision;
+
+    public int generateNextAnchor() {
+        return ++lastUsedAnchor;
+    }
+
+    public int generateNextNbkBatchNumber() {
+        int[] last = {0};
+        walk(node -> {
+            if (node instanceof ReactionOutputSample sample) {
+                last[0] = Math.max(last[0], sample.getNbkBatchNumber().getOrdinal());
+            }
+        });
+        return last[0] + 1;
+    }
+
+    public void prepareToRecalculate() {
+        walkProperties((node, property) -> {
+            if (property instanceof EnteredValueProperty<?, ?, ?>) {
+                EnteredValueProperty<ExperimentModelNode, NoUnit, Object> enteredValueProperty = property.cast();
+                EnteredValue.prepareToRecalculate(enteredValueProperty.get(node), v -> enteredValueProperty.set(node, v), enteredValueProperty.defaultValue());
+            }
+        });
+    }
+
+    public Set<DictionaryItemRef> collectDictionaryRefs() {
+        Set<@Nullable DictionaryItemRef> refs = new HashSet<>();
+        walkProperties((node, property) -> {
+            switch (property) {
+                case DictionaryProperty<?, ?> dictionaryProperty -> {
+                    DictionaryProperty<ExperimentModelNode, Object> cast = dictionaryProperty.cast();
+                    refs.add(cast.get(node));
+                }
+                case DictionaryListProperty<?, ?> dictionaryListProperty -> {
+                    DictionaryListProperty<ExperimentModelNode, Object> cast = dictionaryListProperty.cast();
+                    refs.addAll(cast.get(node));
+                }
+                case SimpleListProperty<?, ?, ?> simpleListProperty -> {
+                    SimpleListProperty<ExperimentModelNode, Object, Object> cast = simpleListProperty.cast();
+                    for (Object item : cast.get(node)) {
+                        if (item instanceof HasDictionaryRefs hasDictionaryRefs) {
+                            hasDictionaryRefs.collectDictionaryRefs().forEach(refs::add);
+                        }
+                    }
+                }
+                case SimpleProperty<?, ?, ?> simpleProperty -> {
+                    SimpleProperty<ExperimentModelNode, Object, Object> cast = simpleProperty.cast();
+                    if (cast.get(node) instanceof HasDictionaryRefs hasDictionaryRefs) {
+                        hasDictionaryRefs.collectDictionaryRefs().forEach(refs::add);
+                    }
+                }
+                case AnchorProperty<?, ?, ?> anchorProperty -> {}
+                case EnteredValueProperty<?, ?, ?> enteredValueProperty -> {}
+                case ListProperty<?, ?, ?, ?> listProperty -> {}
+            }
+        });
+        refs.remove(null);
+        //noinspection NullableProblems
+        return refs;
+    }
+
+    public Set<Pair<ReactionRole, CompoundRef>> collectCompoundRefs() {
+        Set<Pair<ReactionRole, CompoundRef>> refs = new HashSet<>();
+        walk(node -> {
+            switch (node) {
+                case ReactionInput input -> refs.add(Pair.of(input.getRole(), input.getCompound()));
+                case ReactionOutput output -> refs.add(Pair.of(ReactionRole.OUTPUT, output.getCompound()));
+                default -> {}
+            }
+        });
+        return refs;
+    }
+
+    public Reaction locate(ReactionMutation mutation) {
+        return locate(mutation.anchor());
+    }
+
+    public Reaction locate(Anchor.Reaction anchor) {
+        for (Reaction reaction : reactions) {
+            if (reaction.getAnchor().equals(anchor)) {
+                return reaction;
+            }
+        }
+        throw new IllegalArgumentException("Experiment doesn't contain reaction with id: " + anchor);
+    }
+
+    public ReactionInput locate(ReactionInputMutation mutation) {
+        return locate(mutation.anchor());
+    }
+
+    public ReactionInput locate(Anchor.Input anchor) {
+        for (Reaction reaction : reactions) {
+            for (ReactionInput row : reaction.getInputs()) {
+                if (row.getAnchor().equals(anchor)) {
+                    return row;
+                }
+            }
+        }
+        throw new IllegalArgumentException("Reaction doesn't contain input with id: " + anchor);
+    }
+
+    public ReactionInputSample locate(ReactionInputSampleMutation mutation) {
+        return locate(mutation.anchor());
+    }
+
+    public ReactionInputSample locate(Anchor.InputSample anchor) {
+        for (Reaction reaction : reactions) {
+            for (ReactionInput row : reaction.getInputs()) {
+                for (ReactionInputSample sample : row.getSamples()) {
+                    if (sample.getAnchor().equals(anchor)) {
+                        return sample;
+                    }
+                }
+            }
+        }
+        throw new IllegalArgumentException("Reaction doesn't contain input sample with id: " + anchor);
+    }
+
+    public ReactionOutput locate(ReactionOutputMutation mutation) {
+        return locate(mutation.anchor());
+    }
+
+    public ReactionOutput locate(Anchor.Output anchor) {
+        for (Reaction reaction : reactions) {
+            for (ReactionOutput row : reaction.getOutputs()) {
+                if (row.getAnchor().equals(anchor)) {
+                    return row;
+                }
+            }
+        }
+        throw new IllegalArgumentException("Reaction doesn't contain output with id: " + anchor);
+    }
+
+    public ReactionOutputSample locate(ReactionOutputSampleMutation mutation) {
+        return locate(mutation.anchor());
+    }
+
+    public ReactionOutputSample locate(Anchor.OutputSample anchor) {
+        for (Reaction reaction : reactions) {
+            for (ReactionOutput row : reaction.getOutputs()) {
+                for (ReactionOutputSample sample : row.getSamples()) {
+                    if (sample.getAnchor().equals(anchor)) {
+                        return sample;
+                    }
+                }
+            }
+        }
+        throw new IllegalArgumentException("Reaction doesn't contain output sample with id: " + anchor);
+    }
+
+    @Override
+    public String toString() {
+        return ToStringUtil.toStringBuild(Handlers.EXPERIMENT_MODEL_METAMODEL, this);
+    }
+
+    private void walk(Consumer<ExperimentModelNode> visitor) {
+        //noinspection rawtypes,unchecked
+        ExperimentModelUtil.walk((Metamodel) Handlers.EXPERIMENT_MODEL_METAMODEL, this, visitor);
+    }
+
+    private void walkProperties(BiConsumer<ExperimentModelNode, ModelProperty<ExperimentModelNode, ?, ?, ?>> visitor) {
+        //noinspection rawtypes,unchecked
+        ExperimentModelUtil.walkProperties((Metamodel) Handlers.EXPERIMENT_MODEL_METAMODEL, this, (BiConsumer) visitor);
+    }
+}

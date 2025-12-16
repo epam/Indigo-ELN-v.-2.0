@@ -1,0 +1,6 @@
+[
+  ["com.sun.jna.Library"],
+  ["com.sun.jna.Callback"],
+  ["com.epam.indigo.IndigoLib"],
+  ["com.epam.indigo.IndigoRendererLib"]
+]

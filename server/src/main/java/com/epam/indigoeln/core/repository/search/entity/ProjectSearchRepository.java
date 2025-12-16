@@ -36,6 +36,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.CriteriaDefinition;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.script.ExecutableMongoScript;
 import org.springframework.stereotype.Component;
 
@@ -135,9 +137,8 @@ public class ProjectSearchRepository implements InitializingBean {
     }
 
     private Set<String> find(Criteria criteria) {
-        return ((List<String>) template.scriptOps().execute(searchScript, criteria.getCriteriaObject()))
-                .stream()
-                .collect(Collectors.toSet());
+        return template.find(Query.query(criteria), Project.class)
+                .stream().map(Project::getId).collect(Collectors.toSet());
     }
 
     private EntitySearchResultDTO convert(ProjectDTO project) {

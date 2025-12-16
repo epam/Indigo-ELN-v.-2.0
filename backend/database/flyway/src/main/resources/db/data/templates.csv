@@ -1,0 +1,3 @@
+name,content
+Default,"[{""name"": ""Main"", ""components"": [{""type"": ""experimentDetails""}, {""type"": ""experimentDescription""}, {""type"": ""attachments""}, {""type"": ""reactionScheme""}, {""type"": ""stoichiometryTable"", ""reactantsReagentsSolvents"":  true, ""reactionProducts"": true}, {""type"": ""batches""}]}]"
+Minimal,"[{""name"": ""Main"", ""components"": [{""type"": ""reactionScheme""}, {""type"": ""stoichiometryTable"", ""reactantsReagentsSolvents"":  true, ""reactionProducts"": true}, {""type"": ""batches""}]}]"

@@ -1,0 +1,15 @@
+id,code,name,userEditable,description
+84f97b23-7125-4847-bca2-399f351df9d7,THERAPEUTIC_AREA,Therapeutic Area,false,Therapeutic area description
+886d9a69-ae2f-4e19-ae0b-0d8f28f27e01,PROJECT_CODE,Project Code,false,Project code description
+1cc9d41e-1e5e-4447-abd5-5067e9ba8210,PROJECT_KEYWORD,Project Keyword,true,Project keyword description
+8c61d750-c4da-431b-b5a1-b5ebb0a98811,STEREOISOMER_CODE,Stereoisomer Code,false,Stereoisomer code description
+f9e02f6e-9408-4d25-a9eb-06cda2f78a4f,HEALTH_HAZARD,Health Hazard,true,Health hazard description
+7f07ee6f-f89d-4d3b-9e5b-14fe4302ae62,HANDLING_PRECAUTIONS,Handling Precautions,true,Handling precautions description
+100c59b4-8c44-4884-943e-e4111357b862,STORAGE_INSTRUCTIONS,Storage Instructions,true,Storage instructions description
+fdd3c5ad-7a70-4591-ae4c-206340547984,COMPOUND_PROTECTION,Compound Protection,true,Compound protection description
+0e862734-b876-41cd-a8ad-0bf6b10af3d3,SOLVENT,Solvent,true,Solvent description
+8b7ad22e-b189-4418-87cd-cd655eec43e9,EXTERNAL_SUPPLIER,External Supplier,true,External supplier description
+97a40780-2ab8-4de5-875a-afb4bc609910,SAMPLE_SOURCE,Sample Source,true,Sample source description
+a7b70b90-dc18-452c-a06b-887869c7c95d,SAMPLE_SOURCE_DETAILS,Sample Source Details,true,Sample source details description
+e7bbdfa7-c495-4f8b-a384-e7f5ffd42dc5,COMPONENT_STATE,Component State,false,Component state description
+19c2ffe7-4ab8-4e4b-ba29-c291d1442b63,TEST,Test,false,Test description
