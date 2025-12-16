@@ -35,7 +35,7 @@ export class ModalComponent implements OnDestroy {
   @Input() title = '';
   @Input() size: ModalSize = 'auto';
   @Input() showCloseButton = true;
-  @Input() closeOnBackdropClick = true;
+  @Input() closeOnBackdropClick = false;
   @Input() closeOnEsc = true;
 
   @Output() closed = new EventEmitter<unknown>();
