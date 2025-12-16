@@ -533,7 +533,7 @@ class PermissionsTest extends ELNBaseTest {
             notebookClient.updateNotebookAccess(notebook2.getId(), AccessForm.of(bartUserID, EDIT));
             acl = notebookClient.updateNotebookAccess(notebook2.getId(), AccessForm.of(lisaUserID, EDIT));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false, WILLOW_DISPLAY_NAME, EDIT, false);
-            NotebookDTO notebookDTO = notebookClient.getProjectNotebooks(project.getId(), null, null, null, PAGING).getItems().getFirst();
+            NotebookDTO notebookDTO = notebookClient.getProjectNotebooks(project.getId(), notebook2.getName(), null, null, PAGING).getItems().getFirst();
             assertThat(notebookDTO.getId()).isEqualTo(notebook2.getId());
             assertThatACL(notebookDTO.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, BART_DISPLAY_NAME, EDIT, false, LISA_DISPLAY_NAME, EDIT, false);
             assertThat(notebookDTO.getAclCount()).isEqualTo(4);

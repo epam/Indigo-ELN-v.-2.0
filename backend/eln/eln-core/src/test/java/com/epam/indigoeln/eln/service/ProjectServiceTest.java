@@ -99,6 +99,14 @@ class ProjectServiceTest extends ELNBaseTest {
     }
 
     @Test
+    void testRenameDuplicateNames() {
+        projectClient.createProject(new ProjectRequest("testRenameDuplicateNames"));
+        ProjectDetailsDTO project2 = projectClient.createProject(new ProjectRequest("testRenameDuplicateNames2"));
+        assertThatClientCall(() -> projectClient.editProject(project2.getId(), new ProjectEditRequest().withName(Optional.of("testRenameDuplicateNames"))))
+                .isBadRequest("Project with name 'testRenameDuplicateNames' already exists");
+    }
+
+    @Test
     void testGetProject() {
         ProjectDetailsDTO createdProject = projectClient.createProject(new ProjectRequest("testGetProject", List.of("keyword1", "keyword2"), "literature", "description"));
         ProjectDetailsDTO loadedProject = projectClient.getProject(createdProject.getId());
