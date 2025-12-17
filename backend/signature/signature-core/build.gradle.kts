@@ -28,7 +28,6 @@ dependencies {
     testImplementation(project(":common:common-test"))
 
     // https://mvnrepository.com/artifact/org.eclipse.microprofile.rest.client/microprofile-rest-client-api
-    implementation("org.eclipse.microprofile.rest.client:microprofile-rest-client-api:4.0")
 }
 
 group = "com.epam.indigoeln"
