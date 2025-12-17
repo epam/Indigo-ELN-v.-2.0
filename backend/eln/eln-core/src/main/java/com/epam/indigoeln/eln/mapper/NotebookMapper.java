@@ -26,8 +26,10 @@ public abstract class NotebookMapper extends AbstractMapper {
 
     @Mapping(target = "acl", source = "shortACL")
     @Mapping(target = "aclCount", source = "calculatedInfo.aclCount")
+    @Mapping(target = "experimentCountByStatus", source = "entity.experimentCount")
     public abstract NotebookDTO entityToDTO(NotebookEntity entity);
 
     @Mapping(target = "acl", source = "fullACL")
+    @Mapping(target = "experimentCountByStatus", source = "entity.experimentCount")
     public abstract NotebookDetailsDTO entityToDetailsDTO(NotebookEntity entity);
 }

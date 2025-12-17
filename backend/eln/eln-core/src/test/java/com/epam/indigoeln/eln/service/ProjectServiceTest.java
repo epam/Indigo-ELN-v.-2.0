@@ -44,24 +44,29 @@ class ProjectServiceTest extends ELNBaseTest {
 
         ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testCounters"));
         assertThat(project.getNotebookCount()).isZero();
-        assertThat(project.getExperimentCount()).isEmpty();
+        assertThat(project.getExperimentCount()).isZero();
+        assertThat(project.getExperimentCountByStatus()).isEmpty();
         expected.setProjects(1);
         assertThat(miscClient.getTotalCounts()).isEqualTo(expected);
 
         NotebookDetailsDTO notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
-        assertThat(notebook.getExperimentCount()).isEmpty();
+        assertThat(notebook.getExperimentCount()).isZero();
+        assertThat(notebook.getExperimentCountByStatus()).isEmpty();
         project = projectClient.getProject(project.getId());
         assertThat(project.getNotebookCount()).isOne();
-        assertThat(project.getExperimentCount()).isEmpty();
+        assertThat(project.getExperimentCount()).isZero();
+        assertThat(project.getExperimentCountByStatus()).isEmpty();
         expected.setNotebooks(1);
         assertThat(miscClient.getTotalCounts()).isEqualTo(expected);
 
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         notebook = notebookClient.getNotebook(notebook.getId());
-        assertThat(notebook.getExperimentCount()).containsExactly(entry(ExperimentStatus.OPEN, 1));
+        assertThat(notebook.getExperimentCount()).isOne();
+        assertThat(notebook.getExperimentCountByStatus()).containsExactly(entry(ExperimentStatus.OPEN, 1));
         project = projectClient.getProject(project.getId());
         assertThat(project.getNotebookCount()).isOne();
-        assertThat(project.getExperimentCount()).containsExactly(entry(ExperimentStatus.OPEN, 1));
+        assertThat(project.getExperimentCount()).isOne();
+        assertThat(project.getExperimentCountByStatus()).containsExactly(entry(ExperimentStatus.OPEN, 1));
         expected.setExperiments(1);
         expected.setExperimentsByStatus(Map.of(ExperimentStatus.OPEN, 1));
         assertThat(miscClient.getTotalCounts()).isEqualTo(expected);
@@ -86,7 +91,8 @@ class ProjectServiceTest extends ELNBaseTest {
         assertThat(project.getLiterature()).isEqualTo("literature");
         assertThat(project.getDescription()).isEqualTo("description");
         assertThat(project.getNotebookCount()).isEqualTo(0);
-        assertThat(project.getExperimentCount()).isEmpty();
+        assertThat(project.getExperimentCount()).isZero();
+        assertThat(project.getExperimentCountByStatus()).isEmpty();
         assertThat(project.getAttachments()).isEmpty();
         assertThatACL(project.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false);
     }
@@ -125,7 +131,8 @@ class ProjectServiceTest extends ELNBaseTest {
             assertThat(project.getModifiedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
             assertThat(project.getModifiedAt()).isNotNull();
             assertThat(project.getNotebookCount()).isEqualTo(0);
-            assertThat(project.getExperimentCount()).isEmpty();
+            assertThat(project.getExperimentCount()).isZero();
+            assertThat(project.getExperimentCountByStatus()).isEmpty();
         });
     }
 
@@ -241,23 +248,29 @@ class ProjectServiceTest extends ELNBaseTest {
         Page<ProjectDTO> projects = projectClient.getProjects(null, null, null, paging);
         assertThat(projects.getItems()).filteredOn(p -> p.getId().equals(projectId)).singleElement().satisfies(p -> {
             assertThat(p.getNotebookCount()).isEqualTo(2);
-            assertThat(p.getExperimentCount()).contains(entry(ExperimentStatus.OPEN, 3));
+            assertThat(p.getExperimentCount()).isEqualTo(3);
+            assertThat(p.getExperimentCountByStatus()).contains(entry(ExperimentStatus.OPEN, 3));
         });
         ProjectDetailsDTO project = projectClient.getProject(projectId);
         assertThat(project.getNotebookCount()).isEqualTo(2);
-        assertThat(project.getExperimentCount()).contains(entry(ExperimentStatus.OPEN, 3));
+        assertThat(project.getExperimentCount()).isEqualTo(3);
+        assertThat(project.getExperimentCountByStatus()).contains(entry(ExperimentStatus.OPEN, 3));
 
         Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(projectId, null, null, null, Paging.DEFAULT);
         assertThat(notebooks.getItems()).filteredOn(n -> n.getId().equals(notebook1Id)).singleElement().satisfies(n -> {
-            assertThat(n.getExperimentCount()).contains(entry(ExperimentStatus.OPEN, 2));
+            assertThat(n.getExperimentCount()).isEqualTo(2);
+            assertThat(n.getExperimentCountByStatus()).contains(entry(ExperimentStatus.OPEN, 2));
         });
         assertThat(notebooks.getItems()).filteredOn(n -> n.getId().equals(notebook2Id)).singleElement().satisfies(n -> {
-            assertThat(n.getExperimentCount()).contains(entry(ExperimentStatus.OPEN, 1));
+            assertThat(n.getExperimentCount()).isOne();
+            assertThat(n.getExperimentCountByStatus()).contains(entry(ExperimentStatus.OPEN, 1));
         });
         NotebookDetailsDTO notebook1 = notebookClient.getNotebook(notebook1Id);
-        assertThat(notebook1.getExperimentCount()).contains(entry(ExperimentStatus.OPEN, 2));
+        assertThat(notebook1.getExperimentCount()).isEqualTo(2);
+        assertThat(notebook1.getExperimentCountByStatus()).contains(entry(ExperimentStatus.OPEN, 2));
         NotebookDetailsDTO notebook2 = notebookClient.getNotebook(notebook2Id);
-        assertThat(notebook2.getExperimentCount()).contains(entry(ExperimentStatus.OPEN, 1));
+        assertThat(notebook2.getExperimentCount()).isOne();
+        assertThat(notebook2.getExperimentCountByStatus()).contains(entry(ExperimentStatus.OPEN, 1));
     }
 
     @Test
