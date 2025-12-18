@@ -15,5 +15,8 @@ public abstract class BaseNotebookDTO extends BaseDTO {
     String name;
 
     @NotNull
-    Map<ExperimentStatus, Integer> experimentCount;
+    Integer experimentCount;
+
+    @NotNull
+    Map<ExperimentStatus, Integer> experimentCountByStatus;
 }

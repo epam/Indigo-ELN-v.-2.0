@@ -18,5 +18,8 @@ public abstract class BaseProjectDTO extends BaseDTO {
     Integer notebookCount;
 
     @NotNull
-    Map<ExperimentStatus, Integer> experimentCount;
+    Integer experimentCount;
+
+    @NotNull
+    Map<ExperimentStatus, Integer> experimentCountByStatus;
 }

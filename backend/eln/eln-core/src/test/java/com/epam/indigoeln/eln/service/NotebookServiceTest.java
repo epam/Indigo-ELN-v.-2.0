@@ -94,7 +94,8 @@ class NotebookServiceTest extends ELNBaseTest {
             assertThat(notebook.getCreatedAt()).isNotNull();
             assertThat(notebook.getModifiedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
             assertThat(notebook.getModifiedAt()).isNotNull();
-            assertThat(notebook.getExperimentCount()).isEmpty();
+            assertThat(notebook.getExperimentCount()).isZero();
+            assertThat(notebook.getExperimentCountByStatus()).isEmpty();
         });
     }
 
