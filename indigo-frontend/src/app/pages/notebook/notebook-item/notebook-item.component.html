@@ -40,35 +40,15 @@
         >
           <div class="text-neutral-1000 text-sm">Experiments</div>
           <div
-            class="flex items-center"
+            class="flex items-center gap-[0.6rem]"
             [ngClass]="{ 'ml-auto': variant === 'grid' }"
           >
-            @if (notebook['experimentCount'].OPEN) {
+            @if (notebook['experimentCountByStatus'].OPEN) {
               <span class="font-semibold text-h4 text-primary-400">{{
-                notebook['experimentCount'].OPEN
+                notebook['experimentCountByStatus'].OPEN
               }}</span>
             }
-            @if (notebook['experimentCount'].WAITING_FOR_SIGNATURE) {
-              <i class="text-neutral-500">/</i>
-              <span class="font-semibold text-h4 text-orange-200">{{
-                notebook['experimentCount'].WAITING_FOR_SIGNATURE
-              }}</span>
-            }
-            @if (notebook['experimentCount'].COMPLETED) {
-              <i class="text-neutral-500">/</i>
-              <span class="font-semibold text-green-200 text-h4">{{
-                notebook['experimentCount'].COMPLETED
-              }}</span>
-            }
-            @if (notebook['experimentCount'].REJECTED) {
-              <i class="text-neutral-500">/</i>
-              <span class="font-semibold text-h4 text-red-200">{{
-                notebook['experimentCount'].REJECTED
-              }}</span>
-            }
-            <span class="mx-3 font-thin text-neutral-500">|</span>
-            <!-- TODO -->
-            <span class="font-semibold text-h4 text-neutral-1000">145</span>
+            <span class="font-semibold text-h4 text-neutral-1000">{{ notebook.experimentCount }}</span>
           </div>
         </div>
 

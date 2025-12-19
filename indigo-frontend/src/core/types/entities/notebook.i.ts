@@ -1,4 +1,5 @@
 import { BaseEntity } from './base-entity.i';
+import { ExperimentStatus } from '@/core/enums/experiment-status.enum';
 
 interface NotebookAcl {
   userId: string;
@@ -6,6 +7,8 @@ interface NotebookAcl {
   level: string;
   avatarUrl: string;
 }
+
+type ExperimentCountByStatus  = Partial<Record<ExperimentStatus, number>>
 
 type NotebookAcls = NotebookAcl[];
 export interface Notebook extends BaseEntity {
@@ -15,6 +18,8 @@ export interface Notebook extends BaseEntity {
 
   aclCount?: number;
   acl?: NotebookAcls;
+  experimentCount: number;
+  experimentCountByStatus: ExperimentCountByStatus;
 
   [key: string]: any;
 }
