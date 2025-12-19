@@ -15,7 +15,8 @@ export interface TeamMember {
 export interface Project extends BaseEntity {
   name: string;
   notebookCount: number;
-  experimentCount: ExperimentCount;
+  experimentCount: number;
+  experimentCountByStatus: ExperimentCountByStatus;
   acl?: ProjectAcl[];
   aclCount?: number;
   keywords?: string[];
@@ -26,4 +27,4 @@ export interface Project extends BaseEntity {
   details?: string;
   references?: string;
 }
-export type ExperimentCount = Record<keyof typeof ExperimentStatus, number>;
+export type ExperimentCountByStatus = Record<keyof typeof ExperimentStatus, number>;
