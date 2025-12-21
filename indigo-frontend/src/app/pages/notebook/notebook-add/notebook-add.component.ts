@@ -58,8 +58,8 @@ export class NotebookAddComponent {
       type: 'editor',
       key: 'description',
       props: {
-        label: 'Description',
-        placeholder: 'Description',
+        label: 'Notebook Description',
+        placeholder: 'Notebook Description',
       },
     },
   ];
