@@ -10,7 +10,7 @@
 
           <mat-radio-group class="flex flex-wrap gap-4 text-sm">
 
-            <div class="relative w-[50%]">
+            <div class="relative">
               <div class="search-container">
                 <span class="search-icon">
                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -87,11 +87,25 @@
           </div>
 
 
-          <div class="w-full h-48 border border-gray-300 border-dashed rounded-md cursor-pointer"
+          <div class="structure-upload-box"
                (click)="editStructure()">
             @if (structureImage) {
+
+              <button class="edit-btn">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="pencil-icon">
+                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+                  <path d="m15 5 4 4"></path>
+                </svg>
+              </button>
+
               <img
-                class="w-full h-48 object-contain"
+                class="w-full h-full object-contain"
                 [src]="structureImage"
                 alt="structure editor"
               />
@@ -99,7 +113,7 @@
               <div class="flex justify-center items-center h-full text-gray-500">
                 <button
                   type="button"
-                  class="ml-2 px-4 py-2 text-blue-600 bg-[#ececec] rounded-[5px] cursor-pointer"
+                  class="structure-draw-btn"
                 >Draw Structure
                 </button>
               </div>
@@ -134,12 +148,16 @@
                 <div class="chips-container">
                   @if (advancedSearchSummary) {
                     @for (item of advancedSearchSummary; track item[0]) {
+
                       <div class="chip">
                         <b>{{ item[0] }}</b> &nbsp; {{ item[1] }}
-                        <button >
+                        <button>
                           <mat-icon>clear</mat-icon>
                         </button>
                       </div>
+                    }
+                    @if (advancedSearchSummary.length) {
+                      <div class="w-full h-[10px]"></div>
                     }
                   }
                 </div>
@@ -147,10 +165,6 @@
               </mat-panel-title>
 
             </mat-expansion-panel-header>
-
-            <!-- ======================= -->
-            <!--      SEARCH GRID        -->
-            <!-- ======================= -->
 
             <div class="grid grid-cols-2 gap-x-8 gap-y-3 text-xs" style="margin-top: 10px">
 
