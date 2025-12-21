@@ -8,7 +8,7 @@
         class="border border-[#cecaca] rounded-[10px] bg-[#f9f9f9] p-2.5 m-2.5"
       >
         <div class="flex flex-col gap-4">
-          <mat-radio-group class="flex flex-wrap gap-6 text-sm">
+          <mat-radio-group class="flex flex-wrap gap-4 text-sm">
             <div class="grow-[3]">
               <eln-input
                 [icon]="'indicon-search text-xl'"
@@ -63,7 +63,7 @@
           >
             @if (structureImage) {
               <img
-                class="w-full h-48 object-contain"
+                class="w-full h-full object-contain"
                 [src]="structureImage"
                 alt="structure editor"
               />
