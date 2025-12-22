@@ -65,8 +65,8 @@ export class ProjectAddComponent implements OnInit {
       key: 'description',
       defaultValue: '',
       props: {
-        label: 'Description',
-        placeholder: 'Description',
+        label: 'Project Description',
+        placeholder: 'Project Description',
       },
     },
   ];
