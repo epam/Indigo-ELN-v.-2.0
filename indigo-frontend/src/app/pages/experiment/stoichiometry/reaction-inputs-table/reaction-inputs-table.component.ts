@@ -1,5 +1,4 @@
 import { Component, computed, inject, input, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 import {
   Reaction,
@@ -16,99 +15,35 @@ import {
   WeightUnit,
 } from '@core/types/entities/experiments/experiment-shared.i';
 import { DictionaryItemRef, BuiltInDictionary } from '@core/types/entities/dictionary.i';
-import {
-  MatCell,
-  MatCellDef,
-  MatColumnDef,
-  MatHeaderCell,
-  MatHeaderCellDef,
-  MatHeaderRow,
-  MatHeaderRowDef,
-  MatRow,
-  MatRowDef,
-  MatTable,
-} from '@angular/material/table';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSelect, MatOption, MatSelectTrigger } from '@angular/material/select';
-import { MatInput } from '@angular/material/input';
-import { MatDivider } from '@angular/material/divider';
-import { FormsModule } from '@angular/forms';
 import { ExperimentModelService } from '@core/services/experiment/experiment-model.service';
 import { BuiltInDictionaryService } from '@core/services/health-hazards/built-in-dictionary.service';
-import { ButtonComponent } from '@core/components/common/button/button.component';
 import { CompoundType } from '@/core/types/entities/compound.i';
-
-enum ColumnInputType {
-  TEXT = 'text',
-  NUMBER = 'number',
-  SELECT = 'select',
-  CHECKBOX = 'checkbox',
-  UNIT_INPUT = 'unit-input',
-  MULTI_SELECT = 'multi-select',
-}
+import { EditableDataTableComponent } from '../editable-data-table/editable-data-table.component';
+import {
+  ColumnInputType,
+  ColumnConfig,
+  UnitInputChange,
+  ColumnOption,
+} from '../shared/editable-table.types';
 
 interface InputSampleRow {
   input: ReactionInput;
   sample: ReactionInputSample;
 }
 
-interface UnitFieldValue { value: number | string; unit: string; }
-
-type FieldValue = string | null | boolean | UnitFieldValue | DictionaryItemRef[];
-
-interface UnitInputChange {
-  value?: number | null;
-  unit?: string | null;
-}
-
-interface ColumnOption {
-  id: string;
-  name: string;
-}
-
-interface ColumnConfig {
-  id: string;
-  header: string;
-  type: ColumnInputType;
-  field: (row: InputSampleRow) => FieldValue;
-  editable?: (row: InputSampleRow) => boolean;
-  onSave?: (row: InputSampleRow, payload?: unknown) => void;
-  options?: ColumnOption[] | DictionaryItemRef[]; // For select and multi-select columns
-}
-
 @Component({
   selector: 'eln-reaction-inputs-table',
   templateUrl: './reaction-inputs-table.component.html',
   imports: [
-    MatTable,
-    MatColumnDef,
-    MatHeaderCell,
-    MatHeaderCellDef,
-    MatCell,
-    MatCellDef,
-    MatHeaderRow,
-    MatHeaderRowDef,
-    MatRow,
-    MatRowDef,
     MatSnackBarModule,
-    MatIconModule,
-    MatSelect,
-    MatSelectTrigger,
-    MatOption,
-    MatInput,
-    MatDivider,
-    FormsModule,
-    CommonModule,
-    ButtonComponent,
+    EditableDataTableComponent,
   ],
 })
 export class ReactionInputsTableComponent implements OnInit {
   private experimentModelService = inject(ExperimentModelService);
   private builtInDictionaryService = inject(BuiltInDictionaryService);
   private snackBar = inject(MatSnackBar);
-
-  readonly ColumnInputType = ColumnInputType;
 
   reaction = input<Reaction | null>(null);
   experimentId = input<string | null>(null);
@@ -130,7 +65,7 @@ export class ReactionInputsTableComponent implements OnInit {
     this.builtInDictionaryService.load(BuiltInDictionary.HEALTH_HAZARD);
   }
 
-  readonly columns = computed<ColumnConfig[]>(() => [
+  readonly columns = computed<ColumnConfig<InputSampleRow>[]>(() => [
     {
       id: 'compoundId',
       header: 'Compound ID',
@@ -436,15 +371,6 @@ export class ReactionInputsTableComponent implements OnInit {
 
   compareDictionaryItems = (a?: DictionaryItemRef | null, b?: DictionaryItemRef | null) =>
     !!a && !!b ? a.id === b.id : a === b;
-
-  getInputType(columnId: string): ColumnInputType {
-    const column = this.columns().find(c => c.id === columnId);
-    return column?.type ?? ColumnInputType.TEXT;
-  }
-
-  toUnitField(fieldValue: FieldValue): UnitFieldValue | null {
-    return fieldValue && typeof fieldValue !== 'string' && typeof fieldValue !== 'boolean' && !Array.isArray(fieldValue) ? fieldValue : null;
-  }
 
   private applyUnitInputChange(
     change: UnitInputChange,
