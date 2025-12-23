@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.epam.indigoeln.eln.test.ACLListAssert.assertThatACL;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -74,6 +75,10 @@ class NotebookServiceTest extends ELNBaseTest {
         assertThat(notebook.getCreatedAt()).isNotNull();
         assertThat(notebook.getModifiedBy().getDisplayName()).isEqualTo(JOHN_DISPLAY_NAME);
         assertThat(notebook.getModifiedAt()).isNotNull();
+        assertThat(notebook.getExperimentCount()).isZero();
+        assertThat(notebook.getExperimentCountByStatus()).isEmpty();
+        assertThat(notebook.getAttachments()).isEmpty();
+        assertThat(notebook.getCurrentPermissions()).containsExactlyInAnyOrder(VIEW_NOTEBOOKS, EDIT_NOTEBOOKS, MANAGE_NOTEBOOK_ACCESS, DELETE_NOTEBOOKS);
     }
 
     @Test

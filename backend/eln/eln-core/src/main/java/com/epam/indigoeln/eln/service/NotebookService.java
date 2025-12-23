@@ -17,10 +17,13 @@ import jakarta.ws.rs.QueryParam;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jspecify.annotations.Nullable;
 
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.epam.indigoeln.eln.util.ModelUtil.wrapConstraintViolation;
 
@@ -63,7 +66,10 @@ public class NotebookService {
     }
 
     public NotebookDetailsDTO getNotebook(UUID notebookId) {
-        return notebookRepository.loadDetails(notebookId);
+        NotebookEntity notebook = notebookRepository.loadDetails(notebookId);
+        Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(notebook.getCalculatedInfo() != null ? notebook.getCalculatedInfo().getCurrentAccess() : null);
+        currentPermissions.retainAll(EnumSet.of(VIEW_NOTEBOOKS, EDIT_NOTEBOOKS, MANAGE_NOTEBOOK_ACCESS, DELETE_NOTEBOOKS));
+        return notebookMapper.entityToDetailsDTO(notebook, currentPermissions);
     }
 
     public NotebookDetailsDTO editNotebook(UUID notebookId, NotebookEditRequest request) {

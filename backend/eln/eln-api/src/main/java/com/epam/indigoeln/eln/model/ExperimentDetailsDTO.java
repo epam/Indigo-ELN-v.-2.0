@@ -33,6 +33,9 @@ public class ExperimentDetailsDTO extends BaseExperimentDTO {
     @NotNull
     List<ExperimentSignature> signatures;
 
+    @NotNull
+    List<ApplicationPermission> currentPermissions;
+
     @Override
     public String toString() {
         return "ExperimentDetailsDTO{" +

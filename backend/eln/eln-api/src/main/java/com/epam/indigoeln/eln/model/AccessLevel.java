@@ -1,10 +1,12 @@
 package com.epam.indigoeln.eln.model;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.EnumSet;
 import java.util.Set;
 
+@Getter
 @RequiredArgsConstructor
 public enum AccessLevel {
     NONE(EnumSet.noneOf(ApplicationPermission.class)),

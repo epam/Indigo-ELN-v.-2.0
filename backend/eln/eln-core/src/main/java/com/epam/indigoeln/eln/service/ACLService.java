@@ -16,11 +16,9 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
 import one.util.streamex.StreamEx;
+import org.jspecify.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static com.epam.indigoeln.eln.model.AccessLevel.*;
@@ -72,6 +70,14 @@ public class ACLService {
         if (!operation.isAllowedBy(currentAccess)) {
             throw new AccessDeniedException(EntityType.EXPERIMENT, experiment.getId(), operation, currentAccess, userService.getCurrentUser().getUsername());
         }
+    }
+
+    public Set<ApplicationPermission> getCurrentPermissions(@Nullable AccessLevel currentAccess) {
+        Set<ApplicationPermission> permissions = EnumSet.copyOf(userService.getCurrentUser().getPermissions());
+        if (currentAccess != null) {
+            permissions.addAll(currentAccess.getGrants());
+        }
+        return permissions;
     }
 
     private boolean isUserRolesAllow(ApplicationPermission operation) {

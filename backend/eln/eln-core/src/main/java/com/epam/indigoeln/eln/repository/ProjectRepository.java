@@ -17,6 +17,8 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import static com.epam.indigoeln.eln.model.ApplicationPermission.VIEW_PROJECTS;
+
 @ApplicationScoped
 public class ProjectRepository extends BaseRepository<ProjectEntity> {
 
@@ -49,14 +51,14 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
         );
     }
 
-    public ProjectDetailsDTO loadDetails(UUID id) {
+    public ProjectEntity loadDetails(UUID id) {
         ProjectEntity project = doLoadDetails(
                 id,
                 em.getEntityGraph("Project.details"),
                 Function.identity()
         );
-        aclService.ensureAccess(project, ApplicationPermission.VIEW_PROJECTS);
-        return projectMapper.entityToDetailsDTO(project);
+        aclService.ensureAccess(project, VIEW_PROJECTS);
+        return project;
     }
 
     public TotalCounts getTotalCounts() {

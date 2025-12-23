@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.epam.indigoeln.eln.test.ACLListAssert.assertThatACL;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -93,6 +94,7 @@ class ProjectServiceTest extends ELNBaseTest {
         assertThat(project.getExperimentCount()).isZero();
         assertThat(project.getExperimentCountByStatus()).isEmpty();
         assertThat(project.getAttachments()).isEmpty();
+        assertThat(project.getCurrentPermissions()).containsExactlyInAnyOrder(VIEW_PROJECTS, EDIT_PROJECTS, MANAGE_PROJECT_ACCESS, DELETE_PROJECTS);
         assertThatACL(project.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false);
     }
 
