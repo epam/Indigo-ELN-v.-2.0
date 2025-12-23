@@ -1,14 +1,14 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.eln.ELNBaseTest;
+import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.epam.indigoeln.eln.test.ACLListAssert.assertThatACL;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -209,5 +210,61 @@ class NotebookServiceTest extends ELNBaseTest {
 
         Page<NotebookDTO> result4 = notebookClient.getProjectNotebooks(project.getId(), "QSNew", null, null, Paging.DEFAULT);
         assertThat(result4.getItems()).map(NotebookDTO::getName).containsExactly(p1);
+    }
+
+    @Nested
+    @JwtSecurity
+    @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    class TestNestedAccess {
+
+        ProjectDetailsDTO project;
+        NotebookDetailsDTO notebook;
+        ExperimentDetailsDTO experiment;
+
+        @BeforeEach
+        void setUp(TestInfo testInfo) {
+            withUser(JOHN_USERNAME, () -> {
+                project = projectClient.createProject(new ProjectRequest(testInfo.getTestMethod().get().getName()));
+                notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+                notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(bartUserID, AccessLevel.ADMIN));
+                experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+                experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(bartUserID, AccessLevel.VIEW));
+                experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(lisaUserID, AccessLevel.VIEW));
+            });
+        }
+
+        @Test
+        void testGetNestedAccess() {
+            assertThat(notebookClient.getNestedNotebookAccess(notebook.getId()))
+                    .containsExactly(
+                            new NestedACLEntryDTO(EntityType.EXPERIMENT, experiment.getId(), experiment.getName(), bartUserID, BART_DISPLAY_NAME, AccessLevel.VIEW),
+                            new NestedACLEntryDTO(EntityType.EXPERIMENT, experiment.getId(), experiment.getName(), lisaUserID, LISA_DISPLAY_NAME, AccessLevel.VIEW)
+                    );
+        }
+
+        @Test
+        void testRemoveAccess() {
+            List<ACLDetailsEntryDTO> notebookAccess = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(bartUserID, AccessLevel.NONE));
+            assertThatACL(notebookAccess).containsOnly(
+                    JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false,
+                    BART_DISPLAY_NAME, AccessLevel.IMPLICIT_VIEW, false,
+                    LISA_DISPLAY_NAME, AccessLevel.IMPLICIT_VIEW, false
+            );
+        }
+
+        @Test
+        void testRemoveAccessIncludeNested() {
+            List<ACLDetailsEntryDTO> projectAccess = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(bartUserID, AccessLevel.NONE, true));
+            assertThatACL(projectAccess).containsOnly(
+                    JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false,
+                    LISA_DISPLAY_NAME, AccessLevel.IMPLICIT_VIEW, false
+            );
+            projectAccess = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(lisaUserID, AccessLevel.NONE, true));
+            assertThatACL(projectAccess).containsOnly(
+                    JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false
+            );
+        }
     }
 }

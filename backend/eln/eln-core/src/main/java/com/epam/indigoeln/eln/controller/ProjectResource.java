@@ -65,4 +65,9 @@ public class ProjectResource implements ProjectAPI {
     public List<ACLDetailsEntryDTO> updateProjectAccess(@NotNull UUID projectId, @NotNull @Valid List<AccessForm> form) {
         return projectService.updateProjectAccess(projectId, form);
     }
+
+    @Override
+    public List<NestedACLEntryDTO> getNestedProjectAccess(UUID projectId) {
+        return projectService.getNestedProjectAccess(projectId);
+    }
 }

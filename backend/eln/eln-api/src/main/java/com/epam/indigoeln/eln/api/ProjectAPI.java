@@ -50,4 +50,8 @@ public interface ProjectAPI extends BaseAPI {
     @POST
     @Path("/projects/{projectId}/access")
     List<ACLDetailsEntryDTO> updateProjectAccess(@PathParam("projectId") UUID projectId, List<AccessForm> form);
+
+    @GET
+    @Path("/projects/{projectId}/nestedAccess")
+    List<NestedACLEntryDTO> getNestedProjectAccess(@PathParam("projectId") UUID projectId);
 }
