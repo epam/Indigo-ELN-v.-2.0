@@ -28,7 +28,7 @@ Amplify.configure({
 });
 
 I18n.putVocabulariesForLanguage('en', {
-  'Sign in': 'Log in'
+  'Sign in': 'Log in',
 });
 
 I18n.setLanguage('en');

@@ -14,6 +14,20 @@
   >
     <router-outlet />
   </ng-template>
+  <ng-template amplifySlot="sign-in-footer">
+    <div class="flex items-center gap-2 px-4 pb-4">
+      <input
+        id="rememberMe"
+        type="checkbox"
+        [checked]="isRemembered"
+        (change)="onRememberMeChange($event)"
+        class="w-4 h-4 text-indigo-600 border-gray-300 rounded cursor-pointer"
+      />
+      <label for="rememberMe" class="text-sm text-neutral-700 cursor-pointer">
+        Remember me
+      </label>
+    </div>
+  </ng-template>
   <ng-template amplifySlot="sign-in-header">
     <h3
       class="amplify-heading m-4! mb-0! pb-4! text-[1.125rem] font-medium! border-b! border-neutral-300!"
