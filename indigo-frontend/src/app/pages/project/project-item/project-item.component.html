@@ -46,7 +46,7 @@
             class="font-semibold text-h4"
             [ngClass]="{ 'ml-auto': variant === 'grid' }"
           >
-            12
+            {{ project.notebookCount }}
           </div>
         </div>
 
@@ -59,26 +59,26 @@
             class="flex items-center"
             [ngClass]="{ 'ml-auto': variant === 'grid' }"
           >
-            @if (project.experimentCount.OPEN) {
+            @if (project.experimentCountByStatus.OPEN) {
               <span class="font-semibold text-h4 text-primary-400">{{
-                project.experimentCount.OPEN
+                project.experimentCountByStatus.OPEN
               }}</span>
             }
-            @if (project.experimentCount.COMPLETED) {
+            @if (project.experimentCountByStatus.COMPLETED) {
               <i class="text-neutral-500">/</i>
               <span class="font-semibold text-green-200 text-h4">{{
-                project.experimentCount.COMPLETED
+                project.experimentCountByStatus.COMPLETED
               }}</span>
             }
-            @if (project.experimentCount.REJECTED) {
+            @if (project.experimentCountByStatus.REJECTED) {
               <i class="text-neutral-500">/</i>
               <span class="font-semibold text-h4 text-red-200">{{
-                project.experimentCount.REJECTED
+                project.experimentCountByStatus.REJECTED
               }}</span>
             }
             <span class="mx-3 font-thin text-neutral-500">|</span>
             <!-- TODO -->
-            <span class="font-semibold text-h4 text-neutral-1000">145</span>
+            <span class="font-semibold text-h4 text-neutral-1000">{{project.experimentCount}}</span>
           </div>
         </div>
 
@@ -90,14 +90,14 @@
           <div class="text-neutral-1000 text-sm">Members</div>
           <div class="flex items-center">
             <div class="flex -space-x-2">
-              @for (user of mock_users.slice(0, 3); track user) {
-                <eln-avatar classList="w-6 h-6" [img]="user" />
+              @for (member of project.acl.slice(0, 3); track member) {
+                <eln-avatar classList="w-6 h-6" [img]="'https://ui-avatars.com/api/?name=' + (member.username ?? member.displayName)" />
               }
-              @if (mock_users.length > 3) {
+              @if (project.aclCount > 3) {
                 <span
                   class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs"
                 >
-                  +{{ mock_users.length - 3 }}
+                  +{{ project.aclCount - 3 }}
                 </span>
               }
             </div>
@@ -133,19 +133,19 @@
         class="flex items-center mt-2 pt-3 border-t border-t-neutral-300 w-full"
       >
         <div class="flex -space-x-2">
-          @for (user of mock_users.slice(0, 3); track user) {
-            <eln-avatar classList="w-6 h-6" [img]="user" />
+          @for (member of project.acl.slice(0, 3); track member) {
+            <eln-avatar classList="w-6 h-6" [img]="'https://ui-avatars.com/api/?name=' + (member.username ?? member.displayName)" />
           }
-          @if (mock_users.length > 3) {
+          @if (project.aclCount > 3) {
             <span
               class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs"
             >
-              +{{ mock_users.length - 3 }}
-            </span>
+              +{{ project.aclCount - 3 }}
+            </span> 
           }
         </div>
         <span class="ml-2 text-b2 text-neutral-1000"
-          >{{ mock_users.length }} Members</span
+          >{{ project.aclCount }} Members</span
         >
       </div>
     }
