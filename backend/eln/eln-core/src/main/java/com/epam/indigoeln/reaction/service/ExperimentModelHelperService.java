@@ -1,0 +1,66 @@
+package com.epam.indigoeln.reaction.service;
+
+import com.epam.indigoeln.compound.entity.CompoundEntity;
+import com.epam.indigoeln.compound.service.CompoundService;
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.repository.DictionaryItemRepository;
+import com.epam.indigoeln.indigowrapper.IndigoAPI;
+import com.epam.indigoeln.indigowrapper.IndigoMolecule;
+import com.epam.indigoeln.indigowrapper.IndigoReaction;
+import com.epam.indigoeln.indigowrapper.IndigoRendererAPI;
+import com.epam.indigoeln.reaction.model.Reaction;
+import com.epam.indigoeln.reaction.model.ReactionRole;
+import com.epam.indigoeln.reaction.model.ReactionRow;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import static com.epam.indigoeln.eln.util.IndigoUtil.addToReaction;
+import static com.epam.indigoeln.eln.util.IndigoUtil.reactionIterable;
+
+@ApplicationScoped
+public class ExperimentModelHelperService {
+
+    private static final ReactionRole[] COMPONENT_ORDER = {ReactionRole.OUTPUT, ReactionRole.CATALYST, ReactionRole.REACTANT};
+
+    @Inject
+    CompoundService compoundService;
+    @Inject
+    IndigoAPI indigo;
+    @Inject
+    IndigoRendererAPI indigoRenderer;
+    @Inject
+    DictionaryItemRepository dictionaryItemRepository;
+
+    public void rebuildReactionPicture(ExperimentEntity experiment, Reaction reaction, IndigoReaction indigoReaction) {
+        indigoRenderer.setRenderOptions("svg", 500, 200);
+        byte[] buf = indigoRenderer.renderToBuffer(indigoReaction);
+        experiment.setPicture(buf);
+    }
+
+    public void rebuildReactionRxnFile(ExperimentEntity experiment, Reaction reaction, Set<ReactionRole> affectedRoles, IndigoReaction indigoReaction) {
+        for (ReactionRole role : COMPONENT_ORDER) {
+            if (!affectedRoles.contains(role)) {
+                continue;
+            }
+
+            List<IndigoMolecule> molecules = new ArrayList<>();
+            // noinspection rawtypes,unchecked
+            Iterable<ReactionRow> rows = role == ReactionRole.OUTPUT ? (Iterable) reaction.getOutputs() : (Iterable) reaction.inputsOfType(role);
+            for (ReactionRow input : rows) {
+                if (input.getCompound().getCompoundID() != null) {
+                    CompoundEntity compound = compoundService.getCompound(input.getCompound().getCompoundID());
+                    molecules.add(indigo.loadMolecule(compound.getMolFile()));
+                }
+            }
+
+            reactionIterable(indigoReaction, role).forEach(IndigoMolecule::remove);
+            // TODO sometimes it adds in reverse order, sometimes not
+            molecules.reversed().forEach(molecule -> addToReaction(indigoReaction, role, molecule));
+        }
+        reaction.setRxnfile(indigoReaction.rxnfile());
+    }
+}

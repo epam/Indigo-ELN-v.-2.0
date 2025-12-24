@@ -76,6 +76,7 @@ $indicon-terminal: '\e938';
     box-shadow: 0px 4px 16px var(--RADIUSradius-6) #00000029;
   }
 
+  --primary-10: #ebedf7;
   --primary-50: #eff0f9;
   --primary-100: #dee1f3;
   --primary-200: #bdc3e8;
@@ -110,6 +111,7 @@ $indicon-terminal: '\e938';
 
   --neutral-alpha-10: #{getAlpha(#3333331a, 0.1)};
 
+  --red-10: #ffebed;
   --red-50: #fdb9bf;
   --red-100: #fb3748;
   --red-200: #fb3748;
@@ -117,6 +119,7 @@ $indicon-terminal: '\e938';
 
   --red-alpha-10: #{getAlpha(#fb37481a, 0.1)};
 
+  --orange-10: #fff2eb;
   --orange-100: #ffa366;
   --orange-200: #ff7c24;
   --orange-300: #cc631d;
@@ -129,6 +132,7 @@ $indicon-terminal: '\e938';
 
   --yellow-alpha-10: #{getAlpha(#ffdb431a, 0.1)};
 
+  --green-10: #ebfaf2;
   --green-100: #84ebb4;
   --green-200: #1fc16b;
   --green-300: #199a56;

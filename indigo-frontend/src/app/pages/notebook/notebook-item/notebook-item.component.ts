@@ -23,23 +23,6 @@ import { MatMenuModule } from '@angular/material/menu';
 })
 export class NotebookItemComponent {
   private router = inject(Router);
-  mock_users = [
-    'assets/avatar1.png',
-    'assets/avatar2.png',
-    'assets/avatar3.png',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-    '-',
-  ];
   @Input() notebook: Notebook;
   @Input() variant: 'grid' | 'list' = 'grid';
   @Input() projectId: string;

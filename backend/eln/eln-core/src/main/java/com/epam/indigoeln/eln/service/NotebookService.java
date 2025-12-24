@@ -1,0 +1,96 @@
+package com.epam.indigoeln.eln.service;
+
+import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.eln.api.AccessForm;
+import com.epam.indigoeln.eln.config.DataAccess;
+import com.epam.indigoeln.eln.entity.NotebookEntity;
+import com.epam.indigoeln.eln.entity.ProjectEntity;
+import com.epam.indigoeln.eln.entity.UserEntity;
+import com.epam.indigoeln.eln.mapper.NotebookMapper;
+import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.repository.NotebookRepository;
+import com.epam.indigoeln.eln.repository.ProjectRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.QueryParam;
+import org.hibernate.exception.ConstraintViolationException;
+import org.jspecify.annotations.Nullable;
+
+import java.util.List;
+import java.util.UUID;
+
+import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
+import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
+import static com.epam.indigoeln.eln.util.ModelUtil.wrapConstraintViolation;
+
+@DataAccess
+@Transactional
+@ApplicationScoped
+public class NotebookService {
+
+    @Inject
+    NotebookRepository notebookRepository;
+    @Inject
+    NotebookMapper notebookMapper;
+    @Inject
+    UserService userService;
+    @Inject
+    ACLService aclService;
+    @Inject
+    ProjectRepository projectRepository;
+
+    public NotebookDetailsDTO createNotebook(UUID projectId, NotebookRequest request) {
+        ProjectEntity project = projectRepository.get(projectId);
+        aclService.ensureAccess(project, ApplicationPermission.CREATE_NOTEBOOKS);
+        NotebookEntity notebook = notebookMapper.requestToNotebook(request);
+        wrapConstraintViolation(() -> {
+            project.getNotebooks().add(notebook);
+            notebook.setProject(project);
+            updateDates(notebook, userService.getCurrentUserEntity());
+            aclService.initNotebookACL(notebook);
+            notebookRepository.persist(notebook);
+            notebookRepository.flushAndRefresh(notebook);
+        }, e -> mapConstraintToError(e, notebook));
+        return getNotebook(notebook.getId());
+    }
+
+    public Page<NotebookDTO> getNotebooks(UUID projectId, @Nullable String search, @QueryParam("sort") @Nullable SortOrder sort,
+                                          @QueryParam("createdByMe") @Nullable Boolean createdByMe, Paging paging) {
+        UserEntity currentUser = Boolean.TRUE.equals(createdByMe) ? userService.getCurrentUserEntity() : null;
+        boolean showAll = userService.getCurrentUser().getPermissions().contains(ApplicationPermission.VIEW_NOTEBOOKS);
+        return notebookRepository.findAll(projectId, search, sort, currentUser, paging, showAll);
+    }
+
+    public NotebookDetailsDTO getNotebook(UUID notebookId) {
+        return notebookRepository.loadDetails(notebookId);
+    }
+
+    public NotebookDetailsDTO editNotebook(UUID notebookId, NotebookEditRequest request) {
+        NotebookEntity notebook = notebookRepository.get(notebookId);
+        aclService.ensureAccess(notebook, ApplicationPermission.EDIT_NOTEBOOKS);
+        wrapConstraintViolation(() -> {
+            editProperty(request.getName(), notebook::setName);
+            editProperty(request.getDescription(), notebook::setDescription);
+            updateDates(notebook, userService.getCurrentUserEntity());
+            notebookRepository.flushAndRefresh(notebook);
+        }, e -> mapConstraintToError(e, notebook));
+        return getNotebook(notebookId);
+    }
+
+    public List<ACLDetailsEntryDTO> updateNotebookAccess(UUID notebookId, List<AccessForm> form) {
+        NotebookEntity notebook = notebookRepository.get(notebookId);
+        projectRepository.lockProject(notebook.getProject());
+        aclService.ensureAccess(notebook, ApplicationPermission.MANAGE_NOTEBOOK_ACCESS);
+        aclService.updateNotebookACL(notebook.getProject(), notebook, form);
+        return notebookMapper.convertDetailsACLList(notebook.getFullACL());
+    }
+
+    @Nullable
+    private static String mapConstraintToError(ConstraintViolationException e, NotebookEntity notebook) {
+        if ("notebook_name_uq".equals(e.getConstraintName())) {
+            throw new InvalidRequestException("Notebook with name '" + notebook.getName() + "' already exists");
+        }
+        return null;
+    }
+}

@@ -1,0 +1,22 @@
+version: 0.2
+phases:
+  pre_build:
+    commands:
+      - env
+#      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REGISTRY_URI
+      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin $REPO_URI_PUBLIC
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+  build:
+    commands:
+      - cd backend/postgres
+      - docker build -t $REPO_URI:latest .
+      - docker tag $REPO_URI:latest $REPO_URI:$IMAGE_TAG
+      - docker tag $REPO_URI:latest $REPO_URI_PUBLIC:latest
+      - docker tag $REPO_URI:latest $REPO_URI_PUBLIC:$IMAGE_TAG
+  post_build:
+    commands:
+      - docker push $REPO_URI:latest
+      - docker push $REPO_URI:$IMAGE_TAG
+      - docker push $REPO_URI_PUBLIC:latest
+      - docker push $REPO_URI_PUBLIC:$IMAGE_TAG

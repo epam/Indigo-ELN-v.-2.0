@@ -1,0 +1,248 @@
+package com.epam.indigoeln.eln.service;
+
+import com.epam.indigoeln.common.exception.AccessDeniedException;
+import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.eln.api.AccessForm;
+import com.epam.indigoeln.eln.entity.*;
+import com.epam.indigoeln.eln.model.AccessLevel;
+import com.epam.indigoeln.eln.model.ApplicationPermission;
+import com.epam.indigoeln.eln.model.EntityType;
+import com.epam.indigoeln.eln.repository.ExperimentRepository;
+import com.epam.indigoeln.eln.repository.NotebookRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.EntryStream;
+import one.util.streamex.StreamEx;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
+
+import static com.epam.indigoeln.eln.model.AccessLevel.*;
+
+@Slf4j
+@Transactional
+@ApplicationScoped
+public class ACLService {
+
+    @Inject
+    UserService userService;
+    @Inject
+    NotebookRepository notebookRepository;
+    @Inject
+    ExperimentRepository experimentRepository;
+
+    public void ensureTopLevelAccess(ApplicationPermission operation) {
+        if (isUserRolesAllow(operation)) {
+            return;
+        }
+        throw new AccessDeniedException(operation, userService.getCurrentUser().getUsername());
+    }
+
+    public void ensureAccess(ProjectEntity project, ApplicationPermission operation) {
+        if (isUserRolesAllow(operation)) {
+            return;
+        }
+        AccessLevel currentAccess = project.getCalculatedInfo() != null ? project.getCalculatedInfo().getCurrentAccess() : NONE;
+        if (!operation.isAllowedBy(currentAccess)) {
+            throw new AccessDeniedException(EntityType.PROJECT, project.getId(), operation, currentAccess, userService.getCurrentUser().getUsername());
+        }
+    }
+
+    public void ensureAccess(NotebookEntity notebook, ApplicationPermission operation) {
+        if (isUserRolesAllow(operation)) {
+            return;
+        }
+        AccessLevel currentAccess = notebook.getCalculatedInfo() != null ? notebook.getCalculatedInfo().getCurrentAccess() : NONE;
+        if (!operation.isAllowedBy(currentAccess)) {
+            throw new AccessDeniedException(EntityType.NOTEBOOK, notebook.getId(), operation, currentAccess, userService.getCurrentUser().getUsername());
+        }
+    }
+
+    public void ensureAccess(ExperimentEntity experiment, ApplicationPermission operation) {
+        if (isUserRolesAllow(operation)) {
+            return;
+        }
+        AccessLevel currentAccess = experiment.getCalculatedInfo() != null ? experiment.getCalculatedInfo().getCurrentAccess() : NONE;
+        if (!operation.isAllowedBy(currentAccess)) {
+            throw new AccessDeniedException(EntityType.EXPERIMENT, experiment.getId(), operation, currentAccess, userService.getCurrentUser().getUsername());
+        }
+    }
+
+    private boolean isUserRolesAllow(ApplicationPermission operation) {
+        Set<ApplicationPermission> permissions = userService.getCurrentUser().getPermissions();
+        return permissions.contains(operation);
+    }
+
+    public void initProjectACL(ProjectEntity project) {
+        recalculateACL(project);
+    }
+
+    public void initNotebookACL(NotebookEntity notebook) {
+        ProjectEntity project = notebook.getProject();
+        recalculateACL(notebook);
+        if (applyImplicitAccess(project, userService.getCurrentUserEntity(), IMPLICIT_VIEW, () -> true)) {
+            recalculateACL(project);
+        }
+    }
+
+    public void initExperimentACL(ExperimentEntity experiment) {
+        ProjectEntity project = experiment.getProject();
+        NotebookEntity notebook = experiment.getNotebook();
+        recalculateACL(experiment);
+        if (applyImplicitAccess(notebook, userService.getCurrentUserEntity(), IMPLICIT_VIEW, () -> true)) {
+            recalculateACL(notebook);
+            if (applyImplicitAccess(project, userService.getCurrentUserEntity(), IMPLICIT_VIEW, () -> true)) {
+                recalculateACL(project);
+            }
+        }
+    }
+
+    public void updateProjectACL(ProjectEntity project, List<AccessForm> updates) {
+        // preload all ACL lists
+        notebookRepository.findByProjectWithACLEntities(project);
+        experimentRepository.findByProjectWithACLEntities(project);
+
+        boolean updated = false;
+        for (AccessForm update : updates) {
+            UserEntity user = userService.getUserEntity(update.getUserID());
+            if (applyAccess(project, user, update.getLevel())) {
+                updated = true;
+            }
+        }
+
+        if (updated) {
+            recalculateACL(project);
+            for (NotebookEntity notebook : project.getNotebooks()) {
+                recalculateACL(notebook);
+                for (ExperimentEntity experiment : notebook.getExperiments()) {
+                    recalculateACL(experiment);
+                }
+            }
+        }
+    }
+
+    public void updateNotebookACL(ProjectEntity project, NotebookEntity notebook, List<AccessForm> updates) {
+        // preload all ACL lists
+        experimentRepository.findByNotebookWithACLEntities(notebook);
+
+        boolean updated = false, updatedImplicitViewProject = false;
+        for (AccessForm update : updates) {
+            UserEntity user = userService.getUserEntity(update.getUserID());
+            if (applyAccess(notebook, user, update.getLevel())) {
+                updated = true;
+                updatedImplicitViewProject |= applyImplicitAccess(project, user, update.getLevel(), () -> notebookRepository.hasAccessibleNotebooks(project));
+            }
+        }
+
+        if (updated) {
+            recalculateACL(notebook);
+            for (ExperimentEntity experiment : notebook.getExperiments()) {
+                recalculateACL(experiment);
+            }
+        }
+        if (updatedImplicitViewProject) {
+            recalculateACL(project);
+        }
+    }
+
+    public void updateExperimentACL(ProjectEntity project, NotebookEntity notebook, ExperimentEntity experiment, List<AccessForm> updates) {
+        boolean updated = false, updatedImplicitViewNotebook = false, updatedImplicitViewProject = false;
+        for (AccessForm update : updates) {
+            UserEntity user = userService.getUserEntity(update.getUserID());
+            if (applyAccess(experiment, user, update.getLevel())) {
+                updated = true;
+                if (applyImplicitAccess(notebook, user, update.getLevel(), () -> experimentRepository.hasAccessibleExperiments(notebook))) {
+                    updatedImplicitViewNotebook = true;
+                    if (applyImplicitAccess(project, user, update.getLevel(), () -> notebookRepository.hasAccessibleNotebooks(project))) {
+                        updatedImplicitViewProject = true;
+                    }
+                }
+            }
+        }
+
+        if (updated) {
+            recalculateACL(experiment);
+        }
+        if (updatedImplicitViewNotebook) {
+            recalculateACL(notebook);
+        }
+        if (updatedImplicitViewProject) {
+            recalculateACL(project);
+        }
+    }
+
+    private boolean applyImplicitAccess(WithACL<?> container, UserEntity user, AccessLevel childLevel, Supplier<Boolean> isAccessible) {
+        WithACL<?> containerOrParent = container;
+        BaseACLEntity entry = null;
+        while (entry == null && containerOrParent != null) {
+            entry = containerOrParent.getAclEntities().get(user);
+            containerOrParent = containerOrParent.getACLParent();
+        }
+        if (childLevel != AccessLevel.NONE && entry == null && !container.getCreatedBy().equals(user)) {
+            return applyAccess(container, user, IMPLICIT_VIEW);
+        } else if (childLevel == AccessLevel.NONE && entry != null && entry.getLevel() == IMPLICIT_VIEW && !isAccessible.get()) {
+            return applyAccess(container, user, AccessLevel.NONE);
+        }
+        return false;
+    }
+
+    private void recalculateACL(WithACL<?> child) {
+        Map<UserEntity, Pair<AccessLevel, Boolean>> users = new HashMap<>();
+        users.put(child.getCreatedBy(), Pair.of(AUTHOR, false));
+        List<Map<UserEntity, ? extends BaseACLEntity>> inheritedACLs = switch (child) {
+            case ProjectEntity p -> List.of();
+            case NotebookEntity n -> List.of(n.getProject().getAclEntities());
+            case ExperimentEntity e -> List.of(e.getNotebook().getAclEntities(), e.getProject().getAclEntities());
+            default -> throw new IllegalStateException("Unexpected: " + child);
+        };
+        child.getAclEntities().forEach((user, level) -> {
+            users.putIfAbsent(user, Pair.of(level.getLevel(), false));
+        });
+        for (Map<UserEntity, ? extends BaseACLEntity> acl : inheritedACLs) {
+            acl.forEach((user, level) -> {
+                users.putIfAbsent(user, Pair.of(level.getLevel(), true));
+            });
+        }
+        child.setFullACL(EntryStream.of(users)
+                .map(e -> new ACLEntry(e.getKey().getId(), e.getKey().getDisplayName(), e.getKey().getUsername(),  e.getValue().a(), e.getValue().b())).sortedBy(e -> - e.getLevel().ordinal()).toArray(ACLEntry[]::new)
+        );
+        child.setShortACL(StreamEx.of(child.getFullACL())
+                .filter(e -> e.getLevel() != IMPLICIT_VIEW)
+                .limit(3)
+                .toArray(ACLEntry[]::new));
+    }
+
+    private boolean applyAccess(WithACL<?> container, UserEntity user, AccessLevel level) {
+        if (user.equals(container.getCreatedBy()) && level != AUTHOR) {
+            throw new InvalidRequestException("AUTHOR permission cannot be removed from " + user.getUsername());
+        }
+        if (level == AUTHOR && !user.equals(container.getCreatedBy())) {
+            throw new InvalidRequestException("Cannot assign AUTHOR permission to anyone else");
+        }
+        if (level == AccessLevel.NONE) {
+            boolean removed = container.getAclEntities().remove(user) != null;
+            if (removed) {
+                log.debug("applyAccess: removed {} from {}", user, container);
+            }
+            return removed;
+        }
+        BaseACLEntity entry = container.getAclEntities().get(user);
+        if (entry == null) {
+            container.insertACL(user, level);
+            log.debug("applyAccess: inserted {} for {} to {}", level, user, container);
+            return true;
+        }
+        if (entry.getLevel() != level) {
+            log.debug("applyAccess: updated {}->{}, for {} in {}", entry.getLevel(), level, user, container);
+            entry.setLevel(level);
+            return true;
+        }
+        return false;
+    }
+}
