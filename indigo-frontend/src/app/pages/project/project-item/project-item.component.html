@@ -59,21 +59,21 @@
             class="flex items-center"
             [ngClass]="{ 'ml-auto': variant === 'grid' }"
           >
-            @if (project.experimentCount.OPEN) {
+            @if (project.experimentCountByStatus.OPEN) {
               <span class="font-semibold text-h4 text-primary-400">{{
-                project.experimentCount.OPEN
+                project.experimentCountByStatus.OPEN
               }}</span>
             }
-            @if (project.experimentCount.COMPLETED) {
+            @if (project.experimentCountByStatus.COMPLETED) {
               <i class="text-neutral-500">/</i>
               <span class="font-semibold text-green-200 text-h4">{{
-                project.experimentCount.COMPLETED
+                project.experimentCountByStatus.COMPLETED
               }}</span>
             }
-            @if (project.experimentCount.REJECTED) {
+            @if (project.experimentCountByStatus.REJECTED) {
               <i class="text-neutral-500">/</i>
               <span class="font-semibold text-h4 text-red-200">{{
-                project.experimentCount.REJECTED
+                project.experimentCountByStatus.REJECTED
               }}</span>
             }
             <span class="mx-3 font-thin text-neutral-500">|</span>

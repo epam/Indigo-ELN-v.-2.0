@@ -1,6 +1,7 @@
 import { Component, inject, Input } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification/notification.service';
+import { NotificationType } from '@core/types/notification.i';
 
 @Component({
   selector: 'eln-copy',
@@ -10,14 +11,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class CopyComponent {
   @Input() text = '';
 
-  private snackBar = inject(MatSnackBar);
+  private notificationService = inject(NotificationService);
 
   copy() {
     navigator.clipboard.writeText(this.text);
-    this.snackBar.open('Copied to clipboard', null,
-      {
-        duration: 5000,
-      }
-    );
+    this.notificationService.notify({
+      message: 'Copied to clipboard',
+      type: NotificationType.Success,
+      isInline: false
+    });
   }
 }
