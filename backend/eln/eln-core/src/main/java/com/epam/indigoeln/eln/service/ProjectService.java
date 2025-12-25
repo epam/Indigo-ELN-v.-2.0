@@ -96,4 +96,8 @@ public class ProjectService {
         }
         return null;
     }
+
+    public List<NestedACLEntryDTO> getNestedProjectAccess(UUID projectId) {
+        return projectRepository.findNestedAccess(projectId);
+    }
 }

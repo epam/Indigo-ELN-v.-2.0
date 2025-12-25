@@ -1,15 +1,14 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.eln.ELNBaseTest;
+import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.*;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
@@ -343,5 +342,61 @@ class ProjectServiceTest extends ELNBaseTest {
 
         Page<ProjectDTO> result7 = projectClient.getProjects("QSNew", null, null, Paging.DEFAULT);
         assertThat(result7.getItems()).map(ProjectDTO::getName).containsExactly(p1);
+    }
+
+    @Nested
+    @JwtSecurity
+    @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    class TestNestedAccess {
+
+        ProjectDetailsDTO project;
+        NotebookDetailsDTO notebook;
+        ExperimentDetailsDTO experiment;
+
+        @BeforeEach
+        void setUp(TestInfo testInfo) {
+            withUser(JOHN_USERNAME, () -> {
+                project = projectClient.createProject(new ProjectRequest(testInfo.getTestMethod().get().getName()));
+                projectClient.updateProjectAccess(project.getId(), AccessForm.of(bartUserID, AccessLevel.EDIT));
+                notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
+                notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(bartUserID, AccessLevel.ADMIN));
+                experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
+                experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(lisaUserID, AccessLevel.VIEW));
+            });
+        }
+
+        @Test
+        void testGetNestedAccess() {
+            assertThat(projectClient.getNestedProjectAccess(project.getId()))
+                    .containsExactly(
+                            new NestedACLEntryDTO(EntityType.NOTEBOOK, notebook.getId(), notebook.getName(), bartUserID, BART_DISPLAY_NAME, AccessLevel.ADMIN),
+                            new NestedACLEntryDTO(EntityType.EXPERIMENT, experiment.getId(), experiment.getName(), lisaUserID, LISA_DISPLAY_NAME, AccessLevel.VIEW)
+                    );
+        }
+
+        @Test
+        void testRemoveAccess() {
+            List<ACLDetailsEntryDTO> projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(bartUserID, AccessLevel.NONE));
+            assertThatACL(projectAccess).containsOnly(
+                    JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false,
+                    BART_DISPLAY_NAME, AccessLevel.IMPLICIT_VIEW, false,
+                    LISA_DISPLAY_NAME, AccessLevel.IMPLICIT_VIEW, false
+            );
+        }
+
+        @Test
+        void testRemoveAccessIncludeNested() {
+            List<ACLDetailsEntryDTO> projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(lisaUserID, AccessLevel.NONE, true));
+            assertThatACL(projectAccess).containsOnly(
+                    JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false,
+                    BART_DISPLAY_NAME, AccessLevel.EDIT, false
+            );
+            projectAccess = projectClient.updateProjectAccess(project.getId(), AccessForm.of(bartUserID, AccessLevel.NONE, true));
+            assertThatACL(projectAccess).containsOnly(
+                    JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false
+            );
+        }
     }
 }

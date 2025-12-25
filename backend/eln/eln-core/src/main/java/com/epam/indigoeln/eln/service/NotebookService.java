@@ -86,6 +86,10 @@ public class NotebookService {
         return notebookMapper.convertDetailsACLList(notebook.getFullACL());
     }
 
+    public List<NestedACLEntryDTO> getNestedNotebookAccess(UUID projectId) {
+        return notebookRepository.findNestedAccess(projectId);
+    }
+
     @Nullable
     private static String mapConstraintToError(ConstraintViolationException e, NotebookEntity notebook) {
         if ("notebook_name_uq".equals(e.getConstraintName())) {
