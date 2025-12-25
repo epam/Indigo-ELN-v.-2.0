@@ -50,14 +50,14 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
         );
     }
 
-    public NotebookDetailsDTO loadDetails(UUID id) {
+    public NotebookEntity loadDetails(UUID id) {
         NotebookEntity notebook = doLoadDetails(
                 id,
                 em.getEntityGraph("Notebook.details"),
                 Function.identity()
         );
         aclService.ensureAccess(notebook, ApplicationPermission.VIEW_NOTEBOOKS);
-        return notebookMapper.entityToDetailsDTO(notebook);
+        return notebook;
     }
 
     public List<NotebookEntity> findByProjectWithACLEntities(ProjectEntity project) {

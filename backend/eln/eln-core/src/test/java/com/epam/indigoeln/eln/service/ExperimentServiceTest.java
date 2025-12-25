@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -79,6 +80,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         assertThat(experiment.getProjectCode()).isEqualTo(projectCodes.getFirst());
         assertThat(experiment.getMarked()).isFalse();
         assertThat(experiment.getTemplateId()).isEqualTo(emptyTemplateID);
+        assertThat(experiment.getCurrentPermissions()).containsExactlyInAnyOrder(VIEW_EXPERIMENTS, EDIT_EXPERIMENTS, MANAGE_EXPERIMENT_ACCESS, DELETE_EXPERIMENTS, SUBMIT_EXPERIMENTS);
     }
 
     @Test

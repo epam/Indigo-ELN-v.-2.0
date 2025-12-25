@@ -13,10 +13,13 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.hibernate.exception.ConstraintViolationException;
 
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 import static com.epam.indigoeln.eln.util.ModelUtil.wrapConstraintViolation;
 
@@ -58,7 +61,10 @@ public class ProjectService {
     }
 
     public ProjectDetailsDTO getProject(UUID projectId) {
-        return projectRepository.loadDetails(projectId);
+        ProjectEntity project = projectRepository.loadDetails(projectId);
+        Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(project.getCalculatedInfo() != null ? project.getCalculatedInfo().getCurrentAccess() : null);
+        currentPermissions.retainAll(EnumSet.of(VIEW_PROJECTS, EDIT_PROJECTS, MANAGE_PROJECT_ACCESS, DELETE_PROJECTS));
+        return projectMapper.entityToDetailsDTO(project, currentPermissions);
     }
 
     public ProjectDetailsDTO editProject(UUID projectId, ProjectEditRequest request) {

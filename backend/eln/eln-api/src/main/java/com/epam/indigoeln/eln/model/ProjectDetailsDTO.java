@@ -26,6 +26,9 @@ public class ProjectDetailsDTO extends BaseProjectDTO {
     @NotNull
     List<ACLDetailsEntryDTO> acl;
 
+    @NotNull
+    List<ApplicationPermission> currentPermissions;
+
     @Override
     public String toString() {
         return "ProjectDetailsDTO{" +
