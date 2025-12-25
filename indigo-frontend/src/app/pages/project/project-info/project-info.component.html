@@ -39,13 +39,12 @@
         <p class="text-neutral-1000">{{ project.literature || '-' }}</p>
       </div>
 
-      @if (project.description || project.details) {
       <div>
         <h3 class="text-neutral-800 mb-2 font-semibold">Project Details</h3>
         <p class="text-neutral-1000" [innerHTML]="project.description"></p>
         <p class="text-neutral-1000 mt-4">{{ project.details }}</p>
       </div>
-      }
+      
       @if (project.attachments.length > 0) {
       <div>
         <h3 class="text-neutral-800 mb-2 font-semibold">Attachments</h3>
