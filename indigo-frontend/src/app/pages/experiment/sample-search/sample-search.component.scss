@@ -1,90 +1,10 @@
-.main-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  min-height: 100vh;
-  background-color: #f0f2f5;
-  padding: 20px;
-}
-
-.search-container {
-  display: flex;
-  align-items: center;
-  height: 40px;
-  width: 469px;
-  border: 1px solid #ccc;
-  border-radius: 25px;
-  padding: 8px 15px;
-  background-color: #eff0f5;
-  transition: box-shadow 0.2s;
-}
-
-.search-container:focus-within {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.search-icon {
-  margin-right: 10px;
-  color: #888;
-  font-size: 1.2em;
-}
-
-.search-input {
-  width: 80%;
-  flex-grow: 1;
-  border: none;
-  outline: none;
-  padding: 0;
-  font-size: 16px;
-  background-color: transparent;
-  color: #333;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-.search-input::placeholder {
-  color: #aaa;
-  opacity: 1;
-}
-
-.clear-button {
-  background: none;
-  border: none;
-  color: #aaa;
-  cursor: pointer;
-  margin-left: 10px;
-  padding: 0 5px;
-  transition: opacity 0.2s, visibility 0.2s;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.clear-button.visible-btn {
-  opacity: 1;
-  visibility: visible;
-}
-
-.clear-button.hidden-btn {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.clear-button:hover {
-  color: #666;
-}
-
-
 .advanced-search-box {
   ::ng-deep input {
     border-radius: 2px;
     height: 36px;
     width: 30%;
   }
+
   ::ng-deep .mat-mdc-select-trigger {
     background-color: #EFF0F9 !important;
     border-radius: 2px;
@@ -92,6 +12,7 @@
     padding: 10px;
     width: 100%;
   }
+
   ::ng-deep .relative .rounded-sm {
     border: #E8E8E8 solid 1px;
   }
@@ -103,26 +24,12 @@
     height: max-content;
     width: 100%;
 
-    .header-column-title{
+    .header-column-title {
       display: flex;
       flex-direction: column;
 
-      .advanced-search-title{
-        display: flex;
-        width: 100%;
-        padding-top: 10px;
-        border-bottom: solid 1px #e8e8e8;
-        .advanced-search-label{
-          padding-bottom: 10px;
-        }
-      }
-
-      .chips-container{
-        display: flex;
-        flex-wrap: wrap;
-        width: 100%;
-
-        .chip{
+      .chips-container {
+        .chip {
           display: flex;
           padding: 2px 15px;
           margin: 10px 10px 0 0;
@@ -130,7 +37,7 @@
           border-radius: 50px;
           cursor: context-menu;
 
-          button{
+          button {
             cursor: pointer;
             height: 10px;
           }
@@ -138,46 +45,8 @@
       }
     }
 
-    ::ng-deep .mat-content-hide-toggle{
+    ::ng-deep .mat-content-hide-toggle {
       width: 100%;
     }
-  }
-}
-
-.structure-upload-box{
-  width: 100%;
-  height: 120px;
-  border: 2px dashed #d1d5db;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  .structure-draw-btn{
-    width: 148px;
-    height: 40px;
-    padding: 0.5rem 1rem;
-    color: #2563eb;
-    background-color: #ececec;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  .edit-btn{
-    position: absolute;
-    margin-top: 10px;
-    margin-left: calc(100% - 100px);
-    width: 40px;
-    height: 40px;
-    background-color: #F3F3F3;
-    border: none;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    outline: none;
-  }
-  .pencil-icon {
-    color: #3b5bdb;
-    width: 20px;
-    height: 20px;
-    stroke-width: 1.5;
   }
 }
