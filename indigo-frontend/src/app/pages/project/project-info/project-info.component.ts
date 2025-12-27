@@ -19,8 +19,6 @@ import { NotebookAddComponent } from '@pages/notebook/notebook-add/notebook-add.
 import {
   ProjectOverviewWidgetDirective
 } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
-import { NotificationService } from '@/core/services/notification/notification.service';
-import { NotificationType } from '@/core/types/notification.i';
 
 enum projectInfoModalEnum {
   EDIT = 'edit',
@@ -55,7 +53,6 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
   isUploadingAttachment = false;
 
   private destroy$ = new Subject<void>();
-  private notificationService = inject(NotificationService);
 
   projectTeamConfig: TeamComponentConfig = {
     title: 'Project Team',
