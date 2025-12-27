@@ -62,10 +62,11 @@ export class FileUploadComponent implements OnInit {
   handleFiles(fileList: FileList) {
     const files = Array.from(fileList).map((file) => {
       if (this.mimeTypes.length && !this.mimeTypes.includes(file.type)) {
-        alert(
-          `Invalid file type: ${file.name}, Please upload files with extensions ${this.allowedTypes.join(', ')}`,
-        );
-        return null;
+        this.notificationService.notify({
+          type: NotificationType.Error,
+          message: `Invalid file type: ${file.name}, Please upload files with extensions ${this.allowedTypes.join(', ')}`,
+          isInline: false
+        })
       }
 
       if (file.size > this.maxSizeMB * 1024 * 1024) {
