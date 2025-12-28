@@ -151,12 +151,12 @@ public class ExperimentResource implements ExperimentAPI {
 
     @Override
     public ExperimentForSignatureDTO approveExperiment(UUID experimentId) {
-        return experimentWorkflowService.approveOrRejectExperiment(experimentId, SignatureStatus.APPROVED);
+        return experimentWorkflowService.approveOrRejectExperiment(experimentId, false);
     }
 
     @Override
     public ExperimentForSignatureDTO rejectExperiment(UUID experimentId) {
-        return experimentWorkflowService.approveOrRejectExperiment(experimentId, SignatureStatus.REJECTED);
+        return experimentWorkflowService.approveOrRejectExperiment(experimentId, true);
     }
 
     @Override
@@ -167,5 +167,10 @@ public class ExperimentResource implements ExperimentAPI {
     @Override
     public Response printReport(UUID experimentId) {
         return experimentService.printReport(experimentId);
+    }
+
+    @Override
+    public List<ExperimentRevisionDTO> getExperimentRevisions(UUID experimentId) {
+        return experimentService.getExperimentRevisions(experimentId);
     }
 }

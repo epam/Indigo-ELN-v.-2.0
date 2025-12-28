@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.common.exception.IncorrectRevisionException;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.common.util.Pair;
@@ -11,7 +12,6 @@ import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.config.DataAccess;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
-import com.epam.indigoeln.eln.entity.TemplateEntity;
 import com.epam.indigoeln.eln.entity.UserInfo;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
@@ -24,6 +24,7 @@ import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
 import com.epam.indigoeln.reaction.service.ExperimentModelPatchService;
@@ -49,9 +50,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
-import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 
 @Slf4j
 @DataAccess
@@ -95,21 +94,16 @@ public class ExperimentService {
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
         aclService.ensureAccess(notebook, ApplicationPermission.CREATE_EXPERIMENTS);
-        ExperimentEntity experiment = experimentMapper.requestToExperiment(request, ExperimentStatus.OPEN);
-        TemplateEntity template = templateRepository.get(request.getTemplateID());
-        experiment.setName(generateExperimentName(notebook));
-        experiment.setTherapeuticArea(dictionaryService.lookup(BuiltInDictionary.THERAPEUTIC_AREA.name(), request.getTherapeuticArea()));
-        experiment.setProjectCode(dictionaryService.lookup(BuiltInDictionary.PROJECT_CODE.name(), request.getProjectCode()));
+        ExperimentEntity experiment = new ExperimentEntity();
+        experiment.setCreatedBy(userService.getCurrentUserEntity());
         notebook.getProject().getExperiments().add(experiment);
         notebook.getExperiments().add(experiment);
-        template.getExperiments().add(experiment);
         experiment.setProject(notebook.getProject());
         experiment.setNotebook(notebook);
-        experiment.setTemplate(template);
         experiment.setModel(experimentModelService.createNewModel());
-        updateDates(experiment, userService.getCurrentUserEntity());
-        aclService.initExperimentACL(experiment);
-        experimentRepository.persist(experiment);
+        experiment.setRevision(0);
+        experiment.setStatus(ExperimentStatus.OPEN);
+        doMutateModel(experiment, experiment.getModel(), new ExperimentMutation.CreateExperiment(request.getTemplateID(), request.getDescription(), request.getTherapeuticArea(), request.getProjectCode()));
         experimentRepository.flushAndRefresh(experiment);
         return getExperimentDetails(experiment);
     }
@@ -138,13 +132,7 @@ public class ExperimentService {
     public ExperimentDetailsDTO editExperiment(UUID experimentId, ExperimentEditRequest request) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
-        editProperty(request.getTherapeuticArea(), v -> {
-            experiment.setTherapeuticArea(dictionaryService.lookup(BuiltInDictionary.THERAPEUTIC_AREA.name(), v));
-        });
-        editProperty(request.getProjectCode(), v -> {
-            experiment.setProjectCode(dictionaryService.lookup(BuiltInDictionary.PROJECT_CODE.name(), v));
-        });
-        updateDates(experiment, userService.getCurrentUserEntity());
+        doMutateModel(experiment, experiment.getModel(), new ExperimentMutation.EditExperimentAttributes(request.getTherapeuticArea(), request.getProjectCode()));
         experimentRepository.flushAndRefresh(experiment);
         return getExperimentDetails(experiment);
     }
@@ -159,8 +147,7 @@ public class ExperimentService {
     public List<ACLDetailsEntryDTO> updateExperimentAccess(UUID experimentId, List<AccessForm> form) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.MANAGE_EXPERIMENT_ACCESS);
-        projectRepository.lockProject(experiment.getProject());
-        aclService.updateExperimentACL(experiment.getNotebook().getProject(), experiment.getNotebook(), experiment, form);
+        doMutateModel(experiment, experiment.getModel(), new ExperimentMutation.EditExperimentAccess(form));
         return experimentMapper.convertDetailsACLList(experiment.getFullACL());
     }
 
@@ -171,32 +158,31 @@ public class ExperimentService {
     }
 
     public ExperimentModel mutateModel(UUID experimentId, ExperimentModel model, Mutation mutation) {
-        return doMutateModel(experimentId, model, mutation).a();
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
+        return doMutateModel(experiment, model, mutation).a();
     }
 
     public ExperimentModelPatch mutateModel2(UUID experimentId, Integer revision, Mutation mutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
+        aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
         ExperimentModel model = experiment.getModel();
         if (!model.getRevision().equals(revision)) {
             throw new IncorrectRevisionException(EntityType.EXPERIMENT, experimentId, revision, model.getRevision());
         }
-        return doMutateModel(experimentId, model, mutation).b();
+        return doMutateModel(experiment, model, mutation).b();
     }
 
-    private Pair<ExperimentModel, ExperimentModelPatch> doMutateModel(UUID experimentId, ExperimentModel model, Mutation mutation) {
+    // !!! rework this:
+    //    - applyMutation should handle exceptions itself
+    //    - don't require model, access from experiment when needed
+    private Pair<ExperimentModel, ExperimentModelPatch> doMutateModel(ExperimentEntity experiment, ExperimentModel model, Mutation mutation) {
         try {
-            // TODO use clone?
-            byte[] initialBytes = objectMapper.writeValueAsBytes(model);
-            ExperimentModel initial = objectMapper.readValue(initialBytes, ExperimentModel.class);
-
-            log.debug("Mutating model for experiment {} with mutation {}", experimentId, mutation);
-            ExperimentEntity experiment = experimentRepository.get(experimentId);
-            model = experimentModelService.applyMutation(experiment, model, mutation);
-            experiment.setModel(model);
-
-            return Pair.of(model, experimentModelPatchService.createPatch(initial, model));
+            return experimentModelService.applyMutation(experiment, model, mutation);
+        } catch (InvalidRequestException | EntityNotFoundException e) {
+            throw e;
         } catch (Throwable e) {
-            log.error("Failed to mutate model for experiment {}: {}", experimentId, e.getMessage(), e);
+            log.error("Failed to mutate model for experiment {}: {}", experiment.getId(), e.getMessage(), e);
             throw new RuntimeException("Failed to mutate model: " + e.getMessage(), e);
         }
     }
@@ -237,7 +223,7 @@ public class ExperimentService {
     }
 
     public Response printReport(UUID experimentId) {
-        ExperimentReportContent content = printReport(experimentRepository.loadForReport(experimentId));
+        ExperimentReportContent content = printReport(experimentRepository.load(experimentId));
         return Response.ok(content.content)
                 .header(HttpHeaders.CONTENT_DISPOSITION, content.contentDisposition)
                 .header(HttpHeaders.CONTENT_TYPE, content.contentType)
@@ -246,7 +232,6 @@ public class ExperimentService {
 
     @SneakyThrows
     public ExperimentReportContent printReport(ExperimentEntity experiment) {
-        experimentRepository.loadForReport(experiment.getId());
         ReportsAPI.ExperimentReportDataDTO data = new ReportsAPI.ExperimentReportDataDTO(
                 projectMapper.entityToDTO(experiment.getProject()),
                 experimentMapper.entityToDetailsDTO(experiment, Set.of()),
@@ -270,10 +255,10 @@ public class ExperimentService {
         }
     }
 
-    private String generateExperimentName(NotebookEntity notebook) {
-        String last = experimentRepository.getLastExperimentName(notebook);
-        int lastNumber = last == null ? 0 : Integer.parseInt(last.substring(last.lastIndexOf('-') + 1));
-        return "%s-%04d".formatted(notebook.getName(), lastNumber + 1);
+    public List<ExperimentRevisionDTO> getExperimentRevisions(UUID experimentId) {
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
+        return experimentMapper.revisionToDTOList(experiment.getRevisions());
     }
 
     public record ExperimentReportContent (

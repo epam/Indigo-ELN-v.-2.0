@@ -6,6 +6,7 @@ CREATE TABLE Attachment (
     modified_at TIMESTAMPTZ NOT NULL,
     name VARCHAR(256) NOT NULL,
     size BIGINT NOT NULL,
+    deleted BOOL NOT NULL,
     content BYTEA NOT NULL,
     CONSTRAINT attachment_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT attachment_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id)

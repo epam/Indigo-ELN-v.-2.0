@@ -61,7 +61,7 @@ public class MutationsTest extends MutationsTestBase {
     void testIncorrectRevision() {
         assertThatClientCall(() -> {
             experimentClient.mutateExperimentModel2(experiment.getId(), 100, new ReactionMutation.AddEmptyInput(reaction.getAnchor()));
-        }).isConflict("incorrect revision 100 requested; current revision 0");
+        }).isConflict("incorrect revision 100 requested; current revision 1");
     }
 
     @Test

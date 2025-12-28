@@ -34,6 +34,7 @@ public class ModelUtil {
     public <T> void editProperty(@Nullable Optional<T> property, Consumer<T> consumer) {
         //noinspection OptionalAssignedToNull
         if (property != null) {
+            //noinspection DataFlowIssue
             consumer.accept(property.orElse(null));
         }
     }

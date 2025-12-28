@@ -133,4 +133,8 @@ public interface ExperimentAPI extends BaseAPI {
     @POST
     @Path("/experiments/{experimentId}/print")
     Response printReport(@PathParam("experimentId") UUID experimentId);
+
+    @GET
+    @Path("/experiments/{experimentId}/revisions")
+    List<ExperimentRevisionDTO> getExperimentRevisions(@PathParam("experimentId") UUID experimentId);
 }

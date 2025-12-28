@@ -56,6 +56,7 @@ class PermissionsTest extends ELNBaseTest {
     ACLService aclService;
 
     TemplateDetailsDTO template;
+    DictionaryItemRef therapeuticArea;
 
     List<TemplateComponent> components = List.of(new TemplateComponent.Attachments());
     List<TemplateTab> templateTabs = List.of(new TemplateTab("tabName", components));
@@ -88,6 +89,7 @@ class PermissionsTest extends ELNBaseTest {
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     void insertTestData(@TempDir Path tempDir) {
         template = templateClient.createTemplate(new TemplateRequest("template", templateTabs));
+        therapeuticArea = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA).getFirst();
         for (TestRow row : rows) {
             row.projectId = projectClient.createProject(new ProjectRequest("project" + row.testId)).getId();
             projectClient.createProjectAttachment(row.projectId, "attachment.txt", tempDir, new byte[0]);
@@ -309,7 +311,7 @@ class PermissionsTest extends ELNBaseTest {
     @Test
     void testEditExperiment() {
         for (TestRow row : rows) {
-            assertThatClientCall(() -> experimentClient.editExperiment(row.experimentId, new ExperimentEditRequest()))
+            assertThatClientCall(() -> experimentClient.editExperiment(row.experimentId, new ExperimentEditRequest(Optional.of(therapeuticArea), null)))
                     .as(row.toString())
                     .isAllowedIf(row.effectiveExperiment.isSufficientFor(EDIT), "Operation not permitted");
         }

@@ -1,5 +1,7 @@
 CREATE TABLE Experiment (
     id UUID PRIMARY KEY,
+    revision INT NOT NULL,
+    deleted BOOL NOT NULL,
     created_by_id UUID NOT NULL,
     created_at TIMESTAMPTZ NOT NULL,
     modified_by_id UUID NOT NULL,
@@ -93,3 +95,17 @@ CREATE TABLE Experiment_Rxnfile (
 );
 
 CREATE INDEX ix_experiment_rxnfile_rxnfile ON Experiment_Rxnfile USING bingo_idx (rxnfile bingo.reaction);
+
+CREATE TABLE Experiment_Revision (
+    experiment_id UUID NOT NULL,
+    revision INT NOT NULL,
+    user_id UUID NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    summary VARCHAR(1000) NOT NULL,
+    mutation JSONB NOT NULL,
+    diff JSONB NOT NULL,
+    CONSTRAINT experiment_revision_pk PRIMARY KEY (experiment_id, revision),
+    CONSTRAINT experiment_revision_experiment_id_fk FOREIGN KEY (experiment_id) REFERENCES Experiment (id)
+);
+
+ALTER TABLE Experiment ADD CONSTRAINT experiment_id_revision_fk FOREIGN KEY (id, revision) REFERENCES Experiment_Revision (experiment_id, revision) DEFERRABLE INITIALLY DEFERRED;

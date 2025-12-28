@@ -60,12 +60,26 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputComponentState.class),
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputBatchComment.class),
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputStructureComment.class),
+
+        @JsonSubTypes.Type(ExperimentMutation.CreateExperiment.class),
+        @JsonSubTypes.Type(ExperimentMutation.EditExperimentAttributes.class),
+        @JsonSubTypes.Type(ExperimentMutation.EditExperimentAccess.class),
+        @JsonSubTypes.Type(ExperimentMutation.CreateExperimentAttachment.class),
+        @JsonSubTypes.Type(ExperimentMutation.DeleteExperimentAttachment.class),
+        @JsonSubTypes.Type(ExperimentMutation.CancelExperiment.class),
+        @JsonSubTypes.Type(ExperimentMutation.ReopenExperiment.class),
+        @JsonSubTypes.Type(ExperimentMutation.CompleteExperiment.class),
+        @JsonSubTypes.Type(ExperimentMutation.SubmitExperiment.class),
+        @JsonSubTypes.Type(ExperimentMutation.ApproveExperiment.class),
+        @JsonSubTypes.Type(ExperimentMutation.RejectExperiment.class),
+        @JsonSubTypes.Type(ExperimentMutation.ResubmitExperiment.class),
 })
 public sealed interface Mutation permits
         ReactionMutation,
         ReactionInputMutation,
         ReactionInputSampleMutation,
         ReactionOutputMutation,
-        ReactionOutputSampleMutation
+        ReactionOutputSampleMutation,
+        ExperimentMutation
 {
 }

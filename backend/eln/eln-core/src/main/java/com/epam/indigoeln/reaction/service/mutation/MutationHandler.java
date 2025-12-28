@@ -7,5 +7,7 @@ public sealed interface MutationHandler<T extends Mutation> permits
         ReactionInputMutationHandler,
         ReactionInputSampleMutationHandler,
         ReactionOutputMutationHandler,
-        ReactionOutputSampleMutationHandler {
+        ReactionOutputSampleMutationHandler,
+        ExperimentMutationHandler
+{
 }

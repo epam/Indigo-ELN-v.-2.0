@@ -11,6 +11,8 @@ import com.epam.indigoeln.eln.repository.AttachmentRepository;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
+import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -45,6 +47,8 @@ public class AttachmentService {
     AttachmentRepository attachmentRepository;
     @Inject
     AttachmentMapper attachmentMapper;
+    @Inject
+    ExperimentModelService experimentModelService;
 
     public List<AttachmentDTO> createProjectAttachment(UUID projectId, FileUpload file) {
         return createProjectAttachment(projectId, file.fileName(), readFile(file));
@@ -85,8 +89,7 @@ public class AttachmentService {
     public AttachmentEntity createExperimentAttachment(ExperimentEntity experiment, String filename, byte[] content) {
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
         AttachmentEntity attachment = doCreateAttachment(filename, content);
-        experiment.getAttachments().add(attachment);
-        attachment.getExperiments().add(experiment);
+        experimentModelService.applyMutation(experiment, experiment.getModel(), new ExperimentMutation.CreateExperimentAttachment(attachment.getId()));
         return attachment;
     }
 
@@ -99,7 +102,12 @@ public class AttachmentService {
     }
 
     private AttachmentEntity doCreateAttachment(String filename, byte[] content) {
-        AttachmentEntity attachment = attachmentMapper.requestToAttachment(filename, content);
+        AttachmentEntity attachment = new AttachmentEntity();
+        attachment.setName(filename);
+        attachment.setSize((long) content.length);
+        attachment.setDeleted(false);
+        attachment.setContent(content);
+
         updateDates(attachment, userService.getCurrentUserEntity());
         attachmentRepository.persist(attachment);
         return attachment;
@@ -153,15 +161,15 @@ public class AttachmentService {
     public void deleteExperimentAttachment(UUID experimentId, UUID attachmentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
-        AttachmentEntity attachment = attachmentRepository.load(attachmentId);
+        AttachmentEntity attachment = attachmentRepository.get(attachmentId);
         ensureCorrectParent(attachment, attachment.getExperiments(), experiment);
-        doDeleteAttachment(experiment, attachment.getExperiments(), attachment);
+        experimentModelService.applyMutation(experiment, experiment.getModel(), new ExperimentMutation.DeleteExperimentAttachment(attachment.getId()));
     }
 
     public <E extends BaseEntity & WithAttachments> void doDeleteAttachment(E parent, Collection<E> parents, AttachmentEntity attachment) {
         parent.getAttachments().remove(attachment);
         parents.remove(parent);
-        attachmentRepository.delete(attachment);
+        attachment.setDeleted(false);
     }
 
     private <E extends BaseEntity> void ensureCorrectParent(AttachmentEntity attachment, Collection<E> parents, E expected) {

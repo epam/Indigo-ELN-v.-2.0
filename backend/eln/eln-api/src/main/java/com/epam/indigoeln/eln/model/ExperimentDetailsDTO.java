@@ -36,6 +36,9 @@ public class ExperimentDetailsDTO extends BaseExperimentDTO {
     @NotNull
     List<ApplicationPermission> currentPermissions;
 
+    @NotNull
+    Integer revision;
+
     @Override
     public String toString() {
         return "ExperimentDetailsDTO{" +

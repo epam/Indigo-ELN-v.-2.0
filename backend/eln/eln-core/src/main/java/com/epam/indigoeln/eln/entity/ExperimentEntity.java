@@ -72,10 +72,6 @@ import java.util.*;
         }
 )
 @NamedEntityGraph(
-        name = "Experiment.forReport",
-        includeAllAttributes = true
-)
-@NamedEntityGraph(
         name = "Experiment.withACL",
         attributeNodes = {
                 @NamedAttributeNode("aclEntities"),
@@ -149,15 +145,26 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     private ACLEntry[] fullACL;
 
     @NotNull
+    private Boolean deleted;
+
+    @NotNull
+    private Integer revision;
+
+    @NotNull
     @OneToMany(mappedBy = "experiment", cascade = CascadeType.ALL, orphanRemoval = true)
     @MapKeyJoinColumn(name = "user_id")
-    private Map<UserEntity, ExperimentACLEntity> aclEntities;
+    private Map<UserEntity, ExperimentACLEntity> aclEntities = new HashMap<>(0);
 
     @NotNull
     @ManyToMany
     @JoinTable(name = "experiment_attachment", joinColumns = @JoinColumn(name = "experiment_id"), inverseJoinColumns = @JoinColumn(name = "attachment_id"))
     @OrderBy("createdAt")
     private List<AttachmentEntity> attachments = new ArrayList<>(0);
+
+    @NotNull
+    @OneToMany(mappedBy = "experiment")
+    @OrderBy("revision")
+    private List<ExperimentRevisionEntity> revisions = new ArrayList<>(0);
 
     @Nullable
     @OneToOne(fetch = FetchType.LAZY)
@@ -167,7 +174,7 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @NotNull
     @OrderColumn(name = "ordinal")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "experiment")
-    private List<ExperimentSignatureEntity> signatures = new ArrayList<>();
+    private List<ExperimentSignatureEntity> signatures = new ArrayList<>(0);
 
     @NotNull
     @ElementCollection

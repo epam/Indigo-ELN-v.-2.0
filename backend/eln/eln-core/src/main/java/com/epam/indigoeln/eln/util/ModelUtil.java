@@ -15,7 +15,8 @@ public class ModelUtil {
 
     public static void updateDates(BaseEntity model, UserEntity currentUser) {
         ZonedDateTime date = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
-        if (model.getCreatedBy() == null) {
+        //noinspection ConstantValue
+        if (model.getCreatedAt() == null) {
             model.setCreatedBy(currentUser);
             model.setCreatedAt(date);
         }
