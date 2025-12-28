@@ -12,7 +12,6 @@ import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Provider;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 @Slf4j
 @Transactional
@@ -32,19 +30,7 @@ public class ExperimentModelService {
     @Inject
     ReactionCalculator reactionCalculator;
     @Inject
-    Provider<SchemaHandler> schemeHandler;
-    @Inject
-    Provider<InputMutationHandler> inputMutationHandler;
-    @Inject
-    Provider<CompoundHandler> compoundHandler;
-    @Inject
-    Provider<InputSampleMutationHandler> inputSampleMutationHandler;
-    @Inject
-    Provider<OutputMutationHandler> outputMutationHandler;
-    @Inject
-    Provider<OutputSampleMutationHandler> outputSampleMutationHandler;
-    @Inject
-    Provider<RegisterSampleHandler> registerSampleHandler;
+    MutationHandlerRegistry mutationHandlerRegistry;
     @Inject
     ExperimentModelHelperService experimentModelHelperService;
     @Inject
@@ -67,101 +53,46 @@ public class ExperimentModelService {
         Map<Anchor.Reaction, String> previousRxnFiles = StreamEx.of(model.getReactions()).toMap(Reaction::getAnchor, Reaction::getRxnfile);
         model.prepareToRecalculate();
 
-        // don't rewrite to dynamic lookup to have compile-time guarantee that all mutations are handled
-        Pair<AbstractMutationHandler, Runnable> pair = switch (mutation) {
-            case ReactionMutation rm -> {
-                Reaction reaction = model.locate(rm);
-                yield switch (rm) {
-                    case ReactionMutation.SetScheme m -> resolve(schemeHandler, h -> h.handle(reaction, m));
-                    case ReactionMutation.ResolveInputs m -> resolve(schemeHandler, h -> h.handle(reaction, m));
-                    case ReactionMutation.AddEmptyInput m -> resolve(schemeHandler, h -> h.handle(reaction, m));
-                    case ReactionMutation.AddInput m -> resolve(schemeHandler, h -> h.handle(reaction, m));
-                    case ReactionMutation.RemoveInput m -> resolve(schemeHandler, h -> h.handle(reaction, m));
-                };
+        MutationHandler<?> handler = mutationHandlerRegistry.findHandler(mutation);
+        MutationContext context = new MutationContext();
+        switch (mutation) {
+            case ReactionMutation m -> {
+                Reaction reaction = model.locate(m.anchor());
+                //noinspection rawtypes,unchecked
+                ((ReactionMutationHandler) handler).handle(experiment, model, reaction, m, context);
             }
-            case ReactionInputMutation im -> {
-                ReactionInput input = model.locate(im);
-                yield switch (im) {
-                    case ReactionInputMutation.SetInputRowRole m -> resolve(inputMutationHandler, h -> h.handle(input, m));
-                    case ReactionInputMutation.SetInputRowMol m -> resolve(inputMutationHandler, h -> h.handle(input, m));
-                    case ReactionInputMutation.SetInputRowChemicalName m -> resolve(inputMutationHandler, h -> h.handle(input, m));
-                    case ReactionInputMutation.SetInputRowLimiting m -> resolve(inputMutationHandler, h -> h.handle(input, m));
-                    case ReactionInputMutation.SetInputRowSaltCode m -> resolve(compoundHandler, h -> h.handle(input, m));
-                    case ReactionInputMutation.SetInputRowSaltEQ m -> resolve(compoundHandler, h -> h.handle(input, m));
-                    case ReactionInputMutation.SetInputRowEQ m -> resolve(inputMutationHandler, h -> h.handle(input, m));
-                    case ReactionInputMutation.SetInputCompoundMolWeight m -> resolve(compoundHandler, h -> h.handle(input, m));
-                    case ReactionInputMutation.SetInputCompoundStereoisomerCode m -> resolve(compoundHandler, h -> h.handle(input, m));
-                };
+            case ReactionInputMutation m -> {
+                ReactionInput row = model.locate(m.anchor());
+                //noinspection rawtypes,unchecked
+                ((ReactionInputMutationHandler) handler).handle(experiment, model, row.getReaction(), row, m, context);
             }
-            case ReactionInputSampleMutation ism -> {
-                ReactionInputSample sample = model.locate(ism);
-                yield switch (ism) {
-                    case ReactionInputSampleMutation.SetInputDensity m -> resolve(inputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionInputSampleMutation.SetInputMolarity m -> resolve(inputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionInputSampleMutation.SetInputVolume m -> resolve(inputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionInputSampleMutation.SetInputPurity m -> resolve(inputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionInputSampleMutation.SetInputMol m -> resolve(inputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionInputSampleMutation.SetInputWeight m -> resolve(inputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionInputSampleMutation.SetInputHealthHazards m -> resolve(inputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionInputSampleMutation.SetInputComment m -> resolve(inputSampleMutationHandler, h -> h.handle(sample, m));
-                };
+            case ReactionInputSampleMutation m -> {
+                ReactionInputSample sample = model.locate(m.anchor());
+                //noinspection rawtypes,unchecked
+                ((ReactionInputSampleMutationHandler) handler).handle(experiment, model, sample.getRow().getReaction(), sample.getRow(), sample, m, context);
             }
-            case ReactionOutputMutation om -> {
-                ReactionOutput output = model.locate(om);
-                yield switch (om) {
-                    case ReactionOutputMutation.AddProductSample m -> resolve(outputMutationHandler, h -> h.handle(output, m));
-                    case ReactionOutputMutation.SetOutputRowType m -> resolve(outputMutationHandler, h -> h.handle(output, m));
-                    case ReactionOutputMutation.SetOutputRowSaltCode m -> resolve(compoundHandler, h -> h.handle(output, m));
-                    case ReactionOutputMutation.SetOutputRowSaltEQ m -> resolve(compoundHandler, h -> h.handle(output, m));
-                    case ReactionOutputMutation.SetOutputRowEQ m -> resolve(outputMutationHandler, h -> h.handle(output, m));
-                    case ReactionOutputMutation.SetOutputRowName m -> resolve(outputMutationHandler, h -> h.handle(output, m));
-                    case ReactionOutputMutation.SetOutputCompoundMolWeight m -> resolve(compoundHandler, h -> h.handle(output, m));
-                    case ReactionOutputMutation.SetOutputCompoundStereoisomerCode m -> resolve(compoundHandler, h -> h.handle(output, m));
-                };
+            case ReactionOutputMutation m -> {
+                ReactionOutput row = model.locate(m.anchor());
+                //noinspection rawtypes,unchecked
+                ((ReactionOutputMutationHandler) handler).handle(experiment, model, row.getReaction(), row, m, context);
             }
-            case ReactionOutputSampleMutation osm -> {
-                ReactionOutputSample sample = model.locate(osm);
-                yield switch (osm) {
-                    case ReactionOutputSampleMutation.SetOutputDensity m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.SetOutputMolarity m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.SetOutputVolume m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.SetOutputPurity m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.SetOutputHealthHazards m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.SetOutputActualMol m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.SetOutputActualWeight m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.RegisterSample m -> resolve(registerSampleHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.SetOutputHandlingPrecautions m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.SetOutputStorageInstructions m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.SetOutputCompoundProtection m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.SetOutputSolubilityInSolvents m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.SetOutputResidualSolvents m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.SetOutputMeltingPoint m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.SetOutputPurityCalculations m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.SetOutputExternalSupplier m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.SetOutputSource m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.SetOutputSourceDetails m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.SetOutputComponentState m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.SetOutputBatchComment m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                    case ReactionOutputSampleMutation.SetOutputStructureComment m -> resolve(outputSampleMutationHandler, h -> h.handle(sample, m));
-                };
+            case ReactionOutputSampleMutation m -> {
+                ReactionOutputSample sample = model.locate(m.anchor());
+                //noinspection rawtypes,unchecked
+                ((ReactionOutputSampleMutationHandler) handler).handle(experiment, model, sample.getRow().getReaction(), sample.getRow(), sample, m, context);
             }
-        };
+        }
 
-        AbstractMutationHandler handler = pair.a();
-        handler.setExperiment(experiment);
-        handler.setModel(model);
-        Runnable handlerRun = pair.b();
-        handlerRun.run();
         model.setRevision(model.getRevision() + 1);
         reactionCalculator.recalculate(model);
 
         boolean anyRxnfileChanged = false;
         for (Reaction reaction : model.getReactions()) {
-            if (!reaction.getRxnfile().equals(previousRxnFiles.get(reaction.getAnchor())) || !handler.getAffectedRoles().isEmpty()) {
+            if (!reaction.getRxnfile().equals(previousRxnFiles.get(reaction.getAnchor())) || !context.getAffectedRoles().isEmpty()) {
                 anyRxnfileChanged = true;
                 IndigoReaction indigoReaction = reaction.getRxnfile().isEmpty() ? indigoAPI.createReaction() : indigoAPI.loadReaction(reaction.getRxnfile());
-                if (!handler.getAffectedRoles().isEmpty()) {
-                    experimentModelHelperService.rebuildReactionRxnFile(experiment, reaction, handler.getAffectedRoles(), indigoReaction);
+                if (!context.getAffectedRoles().isEmpty()) {
+                    experimentModelHelperService.rebuildReactionRxnFile(experiment, reaction, context.getAffectedRoles(), indigoReaction);
                 }
                 experimentModelHelperService.rebuildReactionPicture(experiment, reaction, indigoReaction);
                 reaction.setRxnVersion(reaction.getRxnVersion() + 1);
@@ -189,10 +120,5 @@ public class ExperimentModelService {
             experiment.setReferencedDictionaryItemIDs(ids);
         }
         return model;
-    }
-
-    private <H extends AbstractMutationHandler> Pair<AbstractMutationHandler, Runnable> resolve(Provider<H> provider, Consumer<H> operation) {
-        H handler = provider.get();
-        return Pair.of(handler, () -> operation.accept(handler));
     }
 }

@@ -73,7 +73,8 @@ public class ELNLambdaStack extends NestedStack {
                 , "QUARKUS_REST_CLIENT_LOGGING_SCOPE", "request-response"
                 , "QUARKUS_REST_CLIENT_LOGGING_BODY_LIMIT", "9999"
                 , "QUARKUS_REST_CLIENT_EXTENSIONS_API_SCOPE", "all"
-                , "QUARKUS_LOG_LEVEL", "DEBUG"
+                , "QUARKUS_LOG_LEVEL", "INFO"
+                , "QUARKUS_LOG_CATEGORY__COM_EPAM__LEVEL", "DEBUG"
         );
         elnFunction = Utils.createNativeFunction(
                 this,
