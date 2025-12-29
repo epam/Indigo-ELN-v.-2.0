@@ -1,7 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
-import com.epam.indigoeln.common.exception.IncorrectRevisionException;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
@@ -167,9 +166,6 @@ public class ExperimentService {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
         ExperimentModel model = experiment.getModel();
-        if (!model.getRevision().equals(revision)) {
-            throw new IncorrectRevisionException(EntityType.EXPERIMENT, experimentId, revision, model.getRevision());
-        }
         return doMutateModel(experiment, model, mutation).b();
     }
 

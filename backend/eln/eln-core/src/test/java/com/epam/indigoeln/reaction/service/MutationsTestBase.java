@@ -88,7 +88,7 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         System.out.println("Applying mutation: " + mutation);
         reportBuilder.addMutation(mutation);
 
-        ExperimentModelPatch patch = experimentClient.mutateExperimentModel2(experiment.getId(), model.getRevision(), mutation);
+        ExperimentModelPatch patch = experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), mutation);
         ExperimentModel updatedModel = experimentClient.getExperimentModel(experiment.getId());
 
         reportBuilder.addPatch(FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch));

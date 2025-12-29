@@ -32,7 +32,6 @@ public final class ExperimentModel implements ExperimentModelNode {
 
     public static void buildMetamodel(Metamodel<ExperimentModel, ExperimentModelPatch> metamodel) {
         metamodel.setName("ExperimentModel");
-        metamodel.simpleProperty("revision", ExperimentModel::getRevision, ExperimentModel::setRevision, ExperimentModelPatch::getRevision, ExperimentModelPatch::setRevision);
         metamodel.simpleProperty("lastUsedAnchor", ExperimentModel::getLastUsedAnchor, ExperimentModel::setLastUsedAnchor, ExperimentModelPatch::getLastUsedAnchor, ExperimentModelPatch::setLastUsedAnchor);
         metamodel.listProperty("reactions", ExperimentModel::getReactions, ExperimentModel::setReactions, ExperimentModelPatch::getReactions, ExperimentModelPatch::setReactions, Handlers.REACTION_METAMODEL, Handlers.REACTION_LIST);
     }
@@ -46,9 +45,6 @@ public final class ExperimentModel implements ExperimentModelNode {
 
     @NotNull
     private Integer schemaVersion;
-
-    @NotNull
-    private Integer revision;
 
     public int generateNextAnchor() {
         return ++lastUsedAnchor;

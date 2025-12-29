@@ -58,23 +58,16 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     @Test
-    void testIncorrectRevision() {
-        assertThatClientCall(() -> {
-            experimentClient.mutateExperimentModel2(experiment.getId(), 100, new ReactionMutation.AddEmptyInput(reaction.getAnchor()));
-        }).isConflict("incorrect revision 100 requested; current revision 1");
-    }
-
-    @Test
     void testIncorrectAnchor() {
         assertThatClientCall(() -> {
-            experimentClient.mutateExperimentModel2Raw(experiment.getId(), model.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"invalid\"}");
+            experimentClient.mutateExperimentModel2Raw(experiment.getId(), experiment.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"invalid\"}");
         }).isBadRequest("Cannot construct instance of `com.epam.indigoeln.reaction.model.Anchor");
     }
 
     @Test
     void testUnknownField() {
         assertThatClientCall(() -> {
-            experimentClient.mutateExperimentModel2Raw(experiment.getId(), model.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"R1\", \"unknownField\": 123}");
+            experimentClient.mutateExperimentModel2Raw(experiment.getId(), experiment.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"R1\", \"unknownField\": 123}");
         }).isBadRequest("Unrecognized field \"unknownField\"");
     }
 

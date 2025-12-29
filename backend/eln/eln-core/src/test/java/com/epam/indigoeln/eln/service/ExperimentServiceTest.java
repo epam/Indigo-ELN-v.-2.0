@@ -53,6 +53,7 @@ class ExperimentServiceTest extends ELNBaseTest {
 
     @Test
     void testCreateExperimentValidation() {
+        //noinspection DataFlowIssue
         assertThatClientCall(() -> experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(null)))
                 .isBadRequest("must not be null");
     }

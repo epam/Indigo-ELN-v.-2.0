@@ -57,7 +57,6 @@ public class ExperimentModelService {
         ExperimentModel model = new ExperimentModel();
         Reaction reaction = Reaction.create(model);
         model.setReactions(List.of(reaction));
-        model.setRevision(0);
         model.setSchemaVersion(ExperimentModel.SCHEMA_VERSION);
         return model;
     }
@@ -111,7 +110,6 @@ public class ExperimentModelService {
             }
         };
 
-        model.setRevision(model.getRevision() + 1);
         reactionCalculator.recalculate(model);
 
         boolean anyRxnfileChanged = false;
