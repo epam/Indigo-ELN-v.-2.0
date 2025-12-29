@@ -5,7 +5,6 @@ import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentReferencedCompound;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.mapper.ExperimentSnapshotMapper;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
@@ -27,7 +26,6 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 
@@ -65,10 +63,9 @@ public class ExperimentModelService {
     }
 
     public Pair<ExperimentModel, ExperimentPatch> applyMutation(ExperimentEntity experiment, ExperimentModel model, Mutation mutation) {
-        log.debug("Mutating model for experiment {} with mutation {}", experiment.getId(), mutation);
+        log.debug("Mutating experiment {}: {}", experiment.getId(), mutation);
 
         ExperimentSnapshot initial = createExperimentSnapshot(experiment, true);
-        Set<DictionaryItemRef> previousDictionaryRefs = model.collectDictionaryRefs();
         Set<Pair<ReactionRole, CompoundRef>> previousCompoundRefs = model.collectCompoundRefs();
         Map<Anchor.Reaction, String> previousRxnFiles = StreamEx.of(model.getReactions()).toMap(Reaction::getAnchor, Reaction::getRxnfile);
         model.prepareToRecalculate();
@@ -141,11 +138,6 @@ public class ExperimentModelService {
                     .map(p -> new ExperimentReferencedCompound(p.a(), p.b().getCompoundID()))
                     .toSet();
             experiment.setReferencedCompounds(ids);
-        }
-        Set<DictionaryItemRef> currentDictionaryRefs = model.collectDictionaryRefs();
-        if (!previousDictionaryRefs.equals(currentDictionaryRefs)) {
-            Set<UUID> ids = StreamEx.of(currentDictionaryRefs).map(DictionaryItemRef::getId).toSet();
-            experiment.setReferencedDictionaryItemIDs(ids);
         }
 
         updateDates(experiment, userService.getCurrentUserEntity());

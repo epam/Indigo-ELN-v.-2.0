@@ -1,15 +1,12 @@
 package com.epam.indigoeln.reaction.model.outputsample;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.reaction.model.HasDictionaryRefs;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
-import java.util.stream.Stream;
-
 @Data
-public class ResidualSolvent implements HasDictionaryRefs {
+public class ResidualSolvent {
 
     @NotNull
     private DictionaryItemRef solvent;
@@ -19,9 +16,4 @@ public class ResidualSolvent implements HasDictionaryRefs {
 
     @Nullable
     private String comment;
-
-    @Override
-    public Stream<@Nullable DictionaryItemRef> collectDictionaryRefs() {
-        return Stream.of(solvent);
-    }
 }

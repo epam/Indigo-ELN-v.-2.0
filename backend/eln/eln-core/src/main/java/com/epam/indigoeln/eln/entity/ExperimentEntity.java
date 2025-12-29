@@ -183,12 +183,6 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
 
     @NotNull
     @ElementCollection
-    @CollectionTable(name = "Experiment_Referenced_Dictionary_Item", joinColumns = @JoinColumn(name = "experiment_id"))
-    @Column(name = "dictionary_item_id")
-    private Set<UUID> referencedDictionaryItemIDs = new HashSet<>(0);
-
-    @NotNull
-    @ElementCollection
     @CollectionTable(name = "Experiment_Rxnfile", joinColumns = @JoinColumn(name = "experiment_id"))
     @Column(name = "rxnfile")
     @OrderColumn(name = "ordinal")
