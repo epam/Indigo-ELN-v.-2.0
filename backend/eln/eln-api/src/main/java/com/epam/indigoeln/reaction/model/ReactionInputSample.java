@@ -23,12 +23,12 @@ public final class ReactionInputSample extends ReactionSample implements Experim
 
     public static void buildMetamodel(Metamodel<ReactionInputSample, ReactionInputSamplePatch> metamodel) {
         metamodel.setName("ReactionInputSample");
-        metamodel.anchorProperty("anchor", ReactionInputSample::getAnchor, ReactionInputSample::setAnchor, ReactionInputSamplePatch::getAnchor, ReactionInputSamplePatch::setAnchor);
+        metamodel.property("anchor", ReactionInputSample::getAnchor, ReactionInputSample::setAnchor, ReactionInputSamplePatch::getAnchor, ReactionInputSamplePatch::setAnchor);
         metamodel.accept(ReactionSample::buildMetamodelBase);
-        metamodel.<@Nullable UUID>simpleProperty("sampleId", ReactionInputSample::getSampleId, ReactionInputSample::setSampleId, ReactionInputSamplePatch::getSampleId, ReactionInputSamplePatch::setSampleId);
+        metamodel.<@Nullable UUID>property("sampleId", ReactionInputSample::getSampleId, ReactionInputSample::setSampleId, ReactionInputSamplePatch::getSampleId, ReactionInputSamplePatch::setSampleId);
         metamodel.enteredValueProperty("mol", ReactionInputSample::getMol, ReactionInputSample::setMol, ReactionInputSamplePatch::getMol, ReactionInputSamplePatch::setMol);
         metamodel.enteredValueProperty("weight", ReactionInputSample::getWeight, ReactionInputSample::setWeight, ReactionInputSamplePatch::getWeight, ReactionInputSamplePatch::setWeight);
-        metamodel.<@Nullable String>simpleProperty("comment", ReactionInputSample::getComment, ReactionInputSample::setComment, ReactionInputSamplePatch::getComment, ReactionInputSamplePatch::setComment);
+        metamodel.<@Nullable String>property("comment", ReactionInputSample::getComment, ReactionInputSample::setComment, ReactionInputSamplePatch::getComment, ReactionInputSamplePatch::setComment);
     }
 
     @JsonBackReference

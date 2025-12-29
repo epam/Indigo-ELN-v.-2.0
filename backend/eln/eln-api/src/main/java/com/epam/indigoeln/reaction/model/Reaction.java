@@ -28,11 +28,11 @@ public final class Reaction implements ExperimentModelNode {
 
     public static void buildMetamodel(Metamodel<Reaction, ReactionPatch> metamodel) {
         metamodel.setName("Reaction");
-        metamodel.anchorProperty("anchor", Reaction::getAnchor, Reaction::setAnchor, ReactionPatch::getAnchor, ReactionPatch::setAnchor);
-        metamodel.simpleProperty("rxnfile", Reaction::getRxnfile, Reaction::setRxnfile, ReactionPatch::getRxnfile, ReactionPatch::setRxnfile);
-        metamodel.simpleProperty("rxnVersion", Reaction::getRxnVersion, Reaction::setRxnVersion, ReactionPatch::getRxnVersion, ReactionPatch::setRxnVersion);
-        metamodel.listProperty("inputs", Reaction::getInputs, Reaction::setInputs, ReactionPatch::getInputs, ReactionPatch::setInputs, Handlers.INPUT_METAMODEL, Handlers.REACTION_INPUT_LIST);
-        metamodel.listProperty("outputs", Reaction::getOutputs, Reaction::setOutputs, ReactionPatch::getOutputs, ReactionPatch::setOutputs, Handlers.OUTPUT_METAMODEL, Handlers.REACTION_OUTPUT_LIST);
+        metamodel.property("anchor", Reaction::getAnchor, Reaction::setAnchor, ReactionPatch::getAnchor, ReactionPatch::setAnchor);
+        metamodel.property("rxnfile", Reaction::getRxnfile, Reaction::setRxnfile, ReactionPatch::getRxnfile, ReactionPatch::setRxnfile);
+        metamodel.property("rxnVersion", Reaction::getRxnVersion, Reaction::setRxnVersion, ReactionPatch::getRxnVersion, ReactionPatch::setRxnVersion);
+        metamodel.modelListProperty("inputs", Reaction::getInputs, Reaction::setInputs, ReactionPatch::getInputs, ReactionPatch::setInputs, Handlers.INPUT_METAMODEL, Handlers.REACTION_INPUT_LIST);
+        metamodel.modelListProperty("outputs", Reaction::getOutputs, Reaction::setOutputs, ReactionPatch::getOutputs, ReactionPatch::setOutputs, Handlers.OUTPUT_METAMODEL, Handlers.REACTION_OUTPUT_LIST);
     }
 
     @JsonBackReference

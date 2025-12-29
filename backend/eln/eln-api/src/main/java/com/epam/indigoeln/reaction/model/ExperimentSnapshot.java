@@ -17,14 +17,14 @@ public class ExperimentSnapshot {
 
     public static void buildMetamodel(Metamodel<ExperimentSnapshot, ExperimentPatch> metamodel) {
         metamodel.setName("Experiment");
-        metamodel.simpleProperty("status", ExperimentSnapshot::getStatus, ExperimentSnapshot::setStatus, ExperimentPatch::getStatus, ExperimentPatch::setStatus);
-        metamodel.dictionaryProperty("therapeuticArea", ExperimentSnapshot::getTherapeuticArea, ExperimentSnapshot::setTherapeuticArea, ExperimentPatch::getTherapeuticArea, ExperimentPatch::setTherapeuticArea);
-        metamodel.dictionaryProperty("projectCode", ExperimentSnapshot::getProjectCode, ExperimentSnapshot::setProjectCode, ExperimentPatch::getProjectCode, ExperimentPatch::setProjectCode);
-        metamodel.simpleProperty("description", ExperimentSnapshot::getDescription, ExperimentSnapshot::setDescription, ExperimentPatch::getDescription, ExperimentPatch::setDescription);
-        metamodel.simpleProperty("deleted", ExperimentSnapshot::getDeleted, ExperimentSnapshot::setDeleted, ExperimentPatch::getDeleted, ExperimentPatch::setDeleted);
-        metamodel.setProperty("attachments", ExperimentSnapshot::getAttachments, ExperimentSnapshot::setAttachments, ExperimentPatch::getAttachments, ExperimentPatch::setAttachments, Handlers.ATTACHMENT_METAMODEL, Handlers.ATTACHMENT_SET);
-        metamodel.setProperty("acl", ExperimentSnapshot::getAcl, ExperimentSnapshot::setAcl, ExperimentPatch::getAcl, ExperimentPatch::setAcl, Handlers.ACL_ENTRY_METAMODEL, Handlers.ACL_ENTRY_SET);
-        metamodel.anyProperty("model", ExperimentSnapshot::getModel, ExperimentSnapshot::setModel, ExperimentPatch::getModel, ExperimentPatch::setModel, null, Handlers.EXPERIMENT_MODEL);
+        metamodel.property("status", ExperimentSnapshot::getStatus, ExperimentSnapshot::setStatus, ExperimentPatch::getStatus, ExperimentPatch::setStatus);
+        metamodel.property("therapeuticArea", ExperimentSnapshot::getTherapeuticArea, ExperimentSnapshot::setTherapeuticArea, ExperimentPatch::getTherapeuticArea, ExperimentPatch::setTherapeuticArea, null);
+        metamodel.property("projectCode", ExperimentSnapshot::getProjectCode, ExperimentSnapshot::setProjectCode, ExperimentPatch::getProjectCode, ExperimentPatch::setProjectCode, null);
+        metamodel.property("description", ExperimentSnapshot::getDescription, ExperimentSnapshot::setDescription, ExperimentPatch::getDescription, ExperimentPatch::setDescription);
+        metamodel.property("deleted", ExperimentSnapshot::getDeleted, ExperimentSnapshot::setDeleted, ExperimentPatch::getDeleted, ExperimentPatch::setDeleted);
+        metamodel.listProperty("attachments", ExperimentSnapshot::getAttachments, ExperimentSnapshot::setAttachments, ExperimentPatch::getAttachments, ExperimentPatch::setAttachments, null, Handlers.ATTACHMENT_SET);
+        metamodel.listProperty("acl", ExperimentSnapshot::getAcl, ExperimentSnapshot::setAcl, ExperimentPatch::getAcl, ExperimentPatch::setAcl, null, Handlers.ACL_ENTRY_SET);
+        metamodel.listProperty("model", ExperimentSnapshot::getModel, ExperimentSnapshot::setModel, ExperimentPatch::getModel, ExperimentPatch::setModel, null, Handlers.EXPERIMENT_MODEL);
     }
 
     private ExperimentStatus status;

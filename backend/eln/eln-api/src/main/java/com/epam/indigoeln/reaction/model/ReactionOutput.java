@@ -23,13 +23,13 @@ public final class ReactionOutput extends ReactionRow implements ExperimentModel
 
     public static void buildMetamodel(Metamodel<ReactionOutput, ReactionOutputPatch> metamodel) {
         metamodel.setName("ReactionOutput");
-        metamodel.anchorProperty("anchor", ReactionOutput::getAnchor, ReactionOutput::setAnchor, ReactionOutputPatch::getAnchor, ReactionOutputPatch::setAnchor);
+        metamodel.property("anchor", ReactionOutput::getAnchor, ReactionOutput::setAnchor, ReactionOutputPatch::getAnchor, ReactionOutputPatch::setAnchor);
         metamodel.accept(ReactionRow::buildMetamodelBase);
-        metamodel.simpleProperty("outputName", ReactionOutput::getOutputName, ReactionOutput::setOutputName, ReactionOutputPatch::getOutputName, ReactionOutputPatch::setOutputName);
-        metamodel.simpleProperty("type", ReactionOutput::getType, ReactionOutput::setType, ReactionOutputPatch::getType, ReactionOutputPatch::setType);
+        metamodel.property("outputName", ReactionOutput::getOutputName, ReactionOutput::setOutputName, ReactionOutputPatch::getOutputName, ReactionOutputPatch::setOutputName);
+        metamodel.property("type", ReactionOutput::getType, ReactionOutput::setType, ReactionOutputPatch::getType, ReactionOutputPatch::setType);
         metamodel.enteredValueProperty("theoMol", ReactionOutput::getTheoMol, ReactionOutput::setTheoMol, ReactionOutputPatch::getTheoMol, ReactionOutputPatch::setTheoMol);
         metamodel.enteredValueProperty("theoWeight", ReactionOutput::getTheoWeight, ReactionOutput::setTheoWeight, ReactionOutputPatch::getTheoWeight, ReactionOutputPatch::setTheoWeight);
-        metamodel.listProperty("samples", ReactionOutput::getSamples, ReactionOutput::setSamples, ReactionOutputPatch::getSamples, ReactionOutputPatch::setSamples, Handlers.OUTPUT_SAMPLE_METAMODEL, Handlers.REACTION_OUTPUT_SAMPLE_LIST);
+        metamodel.modelListProperty("samples", ReactionOutput::getSamples, ReactionOutput::setSamples, ReactionOutputPatch::getSamples, ReactionOutputPatch::setSamples, Handlers.OUTPUT_SAMPLE_METAMODEL, Handlers.REACTION_OUTPUT_SAMPLE_LIST);
     }
 
     @NotNull

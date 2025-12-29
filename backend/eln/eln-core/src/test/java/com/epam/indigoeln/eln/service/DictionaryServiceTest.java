@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Optional;
 
-import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -137,23 +136,23 @@ public class DictionaryServiceTest extends ELNBaseTest {
         );
     }
 
-    @Test
-    @Order(9)
-    void testDeleteItem() {
-        items = dictionaryClient.removeDictionaryItem(BuiltInDictionary.TEST, items.getFirst().getId());
-        verify(items).containsExactly(
-                tuple("C", "Cdescription", 1, true),
-                tuple("B", "Bdescription", 2, true)
-        );
-    }
-
-    @Test
-    @Order(9)
-    void testDeleteItemInUse() {
-        assertThatClientCall(() -> {
-            dictionaryClient.removeDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, therapeuticArea.getId());
-        }).isBadRequest("This word is selected in other inputs. Please deactivate the word to remove it from available options of the inputs");
-    }
+//    @Test
+//    @Order(9)
+//    void testDeleteItem() {
+//        items = dictionaryClient.removeDictionaryItem(BuiltInDictionary.TEST, items.getFirst().getId());
+//        verify(items).containsExactly(
+//                tuple("C", "Cdescription", 1, true),
+//                tuple("B", "Bdescription", 2, true)
+//        );
+//    }
+//
+//    @Test
+//    @Order(9)
+//    void testDeleteItemInUse() {
+//        assertThatClientCall(() -> {
+//            dictionaryClient.removeDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, therapeuticArea.getId());
+//        }).isBadRequest("This word is selected in other inputs. Please deactivate the word to remove it from available options of the inputs");
+//    }
 
     private AbstractListAssert<?, List<? extends Tuple>, Tuple, ObjectAssert<Tuple>> verify(List<DictionaryItemDTO> items) {
         return assertThat(items).extracting(DictionaryItemDTO::getName, DictionaryItemDTO::getDescription, DictionaryItemDTO::getOrdinal, DictionaryItemDTO::getActive);

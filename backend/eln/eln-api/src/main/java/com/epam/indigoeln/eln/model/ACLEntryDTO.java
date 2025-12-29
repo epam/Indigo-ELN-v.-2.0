@@ -17,10 +17,10 @@ public class ACLEntryDTO {
 
     public static void buildMetamodel(Metamodel<ACLEntryDTO, ACLEntryPatch> metamodel) {
         metamodel.setName("ACLEntry");
-        metamodel.simpleProperty("userId", ACLEntryDTO::getUserId, ACLEntryDTO::setUserId, ACLEntryPatch::getUserId, ACLEntryPatch::setUserId);
-        metamodel.simpleProperty("displayName", ACLEntryDTO::getDisplayName, ACLEntryDTO::setDisplayName, ACLEntryPatch::getDisplayName, ACLEntryPatch::setDisplayName);
-        metamodel.simpleProperty("level", ACLEntryDTO::getLevel, ACLEntryDTO::setLevel, ACLEntryPatch::getLevel, ACLEntryPatch::setLevel);
-        metamodel.simpleProperty("inherited", ACLEntryDTO::getInherited, ACLEntryDTO::setInherited, ACLEntryPatch::getInherited, ACLEntryPatch::setInherited);
+        metamodel.property("userId", ACLEntryDTO::getUserId, ACLEntryDTO::setUserId, ACLEntryPatch::getUserId, ACLEntryPatch::setUserId);
+        metamodel.property("displayName", ACLEntryDTO::getDisplayName, ACLEntryDTO::setDisplayName, ACLEntryPatch::getDisplayName, ACLEntryPatch::setDisplayName);
+        metamodel.property("level", ACLEntryDTO::getLevel, ACLEntryDTO::setLevel, ACLEntryPatch::getLevel, ACLEntryPatch::setLevel);
+        metamodel.property("inherited", ACLEntryDTO::getInherited, ACLEntryDTO::setInherited, ACLEntryPatch::getInherited, ACLEntryPatch::setInherited);
     }
 
     @NotNull

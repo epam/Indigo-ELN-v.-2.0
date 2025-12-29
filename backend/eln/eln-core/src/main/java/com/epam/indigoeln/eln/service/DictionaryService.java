@@ -169,6 +169,9 @@ public class DictionaryService {
     }
 
     public List<DictionaryItemDTO> removeDictionaryItem(String dictionaryRef, UUID itemID) {
+        if (1 == 1) {
+            throw new UnsupportedOperationException("Removing dictionary items is disabled"); // TODO clarify is it needed to delete items in addition to deactivating them
+        }
         aclService.ensureTopLevelAccess(ApplicationPermission.MANAGE_DICTIONARIES);
         List<DictionaryItemEntity> list = dictionaryItemRepository.list(refToID(dictionaryRef), true);
         DictionaryItemEntity entity = StreamEx.of(list).filterBy(DictionaryItemEntity::getId, itemID).findFirst()

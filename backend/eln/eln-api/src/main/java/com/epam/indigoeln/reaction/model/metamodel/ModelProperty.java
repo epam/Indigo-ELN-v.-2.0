@@ -10,15 +10,9 @@ import java.util.function.Function;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public sealed interface ModelProperty<C, T, P, PT> permits
-        AnchorProperty,
-        SimpleProperty,
-        SimpleListProperty,
         EnteredValueProperty,
         ListProperty,
-        SetProperty,
-        DictionaryProperty,
-        DictionaryListProperty,
-        AnyProperty
+        SimpleProperty
 {
 
     String name();

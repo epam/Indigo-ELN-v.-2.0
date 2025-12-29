@@ -16,7 +16,7 @@ import lombok.Setter;
 public sealed abstract class ReactionRow implements ExperimentModelNode permits ReactionInput, ReactionOutput {
 
     protected static <C extends ReactionRow, A extends Anchor, P extends AbstractReactionRowPatch<A>> void buildMetamodelBase(Metamodel<C, P> metamodel) {
-        metamodel.simpleProperty("compound", ReactionRow::getCompound, ReactionRow::setCompound, AbstractReactionRowPatch::getCompound, AbstractReactionRowPatch::setCompound);
+        metamodel.property("compound", ReactionRow::getCompound, ReactionRow::setCompound, AbstractReactionRowPatch::getCompound, AbstractReactionRowPatch::setCompound);
         metamodel.enteredValueProperty("eq", ReactionRow::getEq, ReactionRow::setEq, AbstractReactionRowPatch::getEq, AbstractReactionRowPatch::setEq);
     }
 

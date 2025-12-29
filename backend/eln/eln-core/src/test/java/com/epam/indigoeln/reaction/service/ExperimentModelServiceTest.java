@@ -29,7 +29,6 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static com.epam.indigoeln.common.util.ModelUtil.loadResource;
-import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 
 @QuarkusTest
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
@@ -196,13 +195,13 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
         applyMutation(new ReactionOutputSampleMutation.RegisterSample(output2Sample2.getAnchor()));
     }
 
-    @Test
-    @Order(1200)
-    void testProtectDictionaryItemsFromDeletion() {
-        applyMutation(new ReactionOutputSampleMutation.SetOutputHealthHazards(output2Sample1.getAnchor(), List.of(healthHazard)));
-        assertThatClientCall(() -> dictionaryClient.removeDictionaryItem(BuiltInDictionary.HEALTH_HAZARD, healthHazard.getId()))
-                .isBadRequest("This word is selected in other inputs. Please deactivate the word to remove it from available options of the inputs");
-    }
+//    @Test
+//    @Order(1200)
+//    void testProtectDictionaryItemsFromDeletion() {
+//        applyMutation(new ReactionOutputSampleMutation.SetOutputHealthHazards(output2Sample1.getAnchor(), List.of(healthHazard)));
+//        assertThatClientCall(() -> dictionaryClient.removeDictionaryItem(BuiltInDictionary.HEALTH_HAZARD, healthHazard.getId()))
+//                .isBadRequest("This word is selected in other inputs. Please deactivate the word to remove it from available options of the inputs");
+//    }
 
     @Test
     @Order(1300)

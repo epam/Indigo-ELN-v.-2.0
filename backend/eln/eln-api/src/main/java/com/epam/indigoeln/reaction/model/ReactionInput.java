@@ -24,13 +24,13 @@ public final class ReactionInput extends ReactionRow implements ExperimentModelN
 
     public static void buildMetamodel(Metamodel<ReactionInput, ReactionInputPatch> metamodel) {
         metamodel.setName("ReactionInput");
-        metamodel.anchorProperty("anchor", ReactionInput::getAnchor, ReactionInput::setAnchor, ReactionInputPatch::getAnchor, ReactionInputPatch::setAnchor);
+        metamodel.property("anchor", ReactionInput::getAnchor, ReactionInput::setAnchor, ReactionInputPatch::getAnchor, ReactionInputPatch::setAnchor);
         metamodel.accept(ReactionRow::buildMetamodelBase);
-        metamodel.simpleProperty("role", ReactionInput::getRole, ReactionInput::setRole, ReactionInputPatch::getRole, ReactionInputPatch::setRole);
+        metamodel.property("role", ReactionInput::getRole, ReactionInput::setRole, ReactionInputPatch::getRole, ReactionInputPatch::setRole);
         metamodel.enteredValueProperty("mol", ReactionInput::getMol, ReactionInput::setMol, ReactionInputPatch::getMol, ReactionInputPatch::setMol);
-        metamodel.<@Nullable String>simpleProperty("chemicalName", ReactionInput::getChemicalName, ReactionInput::setChemicalName, ReactionInputPatch::getChemicalName, ReactionInputPatch::setChemicalName);
-        metamodel.simpleProperty("limiting", ReactionInput::isLimiting, ReactionInput::setLimiting, ReactionInputPatch::getLimiting, ReactionInputPatch::setLimiting, false);
-        metamodel.listProperty("samples", ReactionInput::getSamples, ReactionInput::setSamples, ReactionInputPatch::getSamples, ReactionInputPatch::setSamples, Handlers.INPUT_SAMPLE_METAMODEL, Handlers.REACTION_INPUT_SAMPLE_LIST);
+        metamodel.<@Nullable String>property("chemicalName", ReactionInput::getChemicalName, ReactionInput::setChemicalName, ReactionInputPatch::getChemicalName, ReactionInputPatch::setChemicalName);
+        metamodel.property("limiting", ReactionInput::isLimiting, ReactionInput::setLimiting, ReactionInputPatch::getLimiting, ReactionInputPatch::setLimiting, false);
+        metamodel.modelListProperty("samples", ReactionInput::getSamples, ReactionInput::setSamples, ReactionInputPatch::getSamples, ReactionInputPatch::setSamples, Handlers.INPUT_SAMPLE_METAMODEL, Handlers.REACTION_INPUT_SAMPLE_LIST);
     }
 
     @NotNull
