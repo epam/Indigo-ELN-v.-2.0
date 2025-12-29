@@ -100,7 +100,7 @@ class InsertTestDataTest {
         experimentClient.createExperimentAttachment(experiment.getId(), "attachment.txt", tempDir, "This is attachment".getBytes());
 
         // load initial model
-        ExperimentModel model = experimentClient.getExperimentModel(experiment.getId());
+        ExperimentModel model = experimentClient.getExperiment(experiment.getId()).getModel();
         Anchor.Reaction reactionAnchor = model.getReactions().getFirst().getAnchor();
 
         // load reaction

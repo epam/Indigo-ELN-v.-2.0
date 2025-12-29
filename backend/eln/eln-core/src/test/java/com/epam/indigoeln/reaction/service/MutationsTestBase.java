@@ -67,7 +67,7 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         ProjectDetailsDTO project = getOrCreateProject(projectName);
         notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
         experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        model = experimentClient.getExperimentModel(experiment.getId());
+        model = experimentClient.getExperiment(experiment.getId()).getModel();
         experimentSnapshot = new ExperimentSnapshot();
         modelUpdated();
     }
@@ -92,7 +92,7 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         reportBuilder.addMutation(mutation);
 
         ExperimentPatch patch = experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), mutation);
-        ExperimentModel updatedModel = experimentClient.getExperimentModel(experiment.getId());
+        ExperimentModel updatedModel = experimentClient.getExperiment(experiment.getId()).getModel();
 
         reportBuilder.addPatch(FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch));
         Response pictureResponse = experimentClient.getExperimentPictureClient(experiment.getId());

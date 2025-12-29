@@ -67,7 +67,7 @@ class GlobalSearchServiceTest extends ELNBaseTest {
             experiment1 = experimentClient.createExperiment(notebook1.getId(), new ExperimentRequest(emptyTemplateID, "ed1 xx", therapeuticArea1, projectCode1));
             experiment2 = experimentClient.createExperiment(notebook2.getId(), new ExperimentRequest(emptyTemplateID, "ed2 xx", therapeuticArea2, projectCode2));
             String rxnFile = new String(loadResource(getClass(), "/reaction.rxn"));
-            ExperimentModel experimentModel = experimentClient.getExperimentModel(experiment2.getId());
+            ExperimentModel experimentModel = experiment2.getModel();
             experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionMutation.SetScheme(experimentModel.getReactions().getFirst().getAnchor(), rxnFile)));
             Anchor.InputSample inputSample = experimentModel.getReactions().getFirst().getInputs().getFirst().getSamples().getFirst().getAnchor();
             Anchor.Output output = experimentModel.getReactions().getFirst().getOutputs().getFirst().getAnchor();

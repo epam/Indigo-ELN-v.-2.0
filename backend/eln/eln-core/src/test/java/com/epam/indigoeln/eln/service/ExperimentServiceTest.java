@@ -291,7 +291,7 @@ class ExperimentServiceTest extends ELNBaseTest {
     @SneakyThrows
     void testGetPicture() {
         ExperimentDetailsDTO experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        ExperimentModel model = experimentClient.getExperimentModel(experiment.getId());
+        ExperimentModel model = experiment.getModel();
         Reaction reaction = model.getReactions().getFirst();
         assertThat(reaction.getRxnVersion()).isZero();
         Response response = experimentClient.getExperimentPictureClient(experiment.getId());
@@ -302,7 +302,7 @@ class ExperimentServiceTest extends ELNBaseTest {
         String molFile = new String(loadResource(getClass(), "/reaction.rxn"));
         experimentClient.mutateExperimentModel(experiment.getId(), new MutateModelForm(model, new ReactionMutation.SetScheme(model.getReactions().getFirst().getAnchor(), molFile)));
 
-        model = experimentClient.getExperimentModel(experiment.getId());
+        model = experimentClient.getExperiment(experiment.getId()).getModel();
         reaction = model.getReactions().getFirst();
         assertThat(reaction.getRxnVersion()).isEqualTo(1);
 

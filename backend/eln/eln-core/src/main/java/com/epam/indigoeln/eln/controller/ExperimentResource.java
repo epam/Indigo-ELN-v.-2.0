@@ -100,11 +100,6 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public @Valid ExperimentModel getExperimentModel(@NotNull UUID experimentId) {
-        return experimentService.getModel(experimentId);
-    }
-
-    @Override
     public ExperimentModel mutateExperimentModel(UUID experimentId, MutateModelForm modelAndMutation) {
         return experimentService.mutateModel(experimentId, modelAndMutation.getModel(), modelAndMutation.getMutation());
     }

@@ -1,5 +1,6 @@
 package com.epam.indigoeln.eln.model;
 
+import com.epam.indigoeln.reaction.model.ExperimentModel;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,6 +39,9 @@ public class ExperimentDetailsDTO extends BaseExperimentDTO {
 
     @NotNull
     Integer revision;
+
+    @NotNull
+    ExperimentModel model;
 
     @Override
     public String toString() {
