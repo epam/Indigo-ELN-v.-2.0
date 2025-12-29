@@ -8,7 +8,10 @@ import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
-import com.epam.indigoeln.reaction.service.mutation.*;
+import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
+import com.epam.indigoeln.reaction.service.mutation.MutationHelper;
+import com.epam.indigoeln.reaction.service.mutation.ReactionInputMutationHandler;
+import com.epam.indigoeln.reaction.service.mutation.ReactionOutputMutationHandler;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
@@ -22,7 +25,7 @@ class SetInputRowSaltCodeHandler implements ReactionInputMutationHandler<Reactio
     MutationHelper mutationHelper;
 
     @Override
-    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowSaltCode mutation, MutationContext context) {
+    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowSaltCode mutation, com.epam.indigoeln.reaction.model.mutation.MutationContext context) {
         SaltCodeInfo saltCode = mutation.saltCode() != null ? mutationHelper.saltCodeInfo(mutation.saltCode()) : null;
         row.setCompound(mutationHelper.doApplySetSaltCodeEQStereoisomerCode(row, saltCode, row.getCompound().getSaltEQ(), row.getCompound().getStereoisomerCode()));
     }
@@ -36,7 +39,7 @@ class SetOutputRowSaltCodeHandler implements ReactionOutputMutationHandler<React
     MutationHelper mutationHelper;
 
     @Override
-    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowSaltCode mutation, MutationContext context) {
+    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowSaltCode mutation, com.epam.indigoeln.reaction.model.mutation.MutationContext context) {
         SaltCodeInfo saltCode = mutation.saltCode() != null ? mutationHelper.saltCodeInfo(mutation.saltCode()) : null;
         row.setCompound(mutationHelper.doApplySetSaltCodeEQStereoisomerCode(row, saltCode, row.getCompound().getSaltEQ(), row.getCompound().getStereoisomerCode()));
     }
@@ -50,7 +53,7 @@ class SetInputRowSaltEQHandler implements ReactionInputMutationHandler<ReactionI
     MutationHelper mutationHelper;
 
     @Override
-    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowSaltEQ mutation, MutationContext context) {
+    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowSaltEQ mutation, com.epam.indigoeln.reaction.model.mutation.MutationContext context) {
         validate(row.getCompound().getSaltCode() != null, "Cannot set saltEQ because saltCode is not set");
         row.setCompound(mutationHelper.doApplySetSaltCodeEQStereoisomerCode(row, mutationHelper.saltCodeInfo(row.getCompound().getSaltCode()), mutation.saltEQ(), row.getCompound().getStereoisomerCode()));
     }
@@ -64,7 +67,7 @@ class SetOutputRowSaltEQHandler implements ReactionOutputMutationHandler<Reactio
     MutationHelper mutationHelper;
 
     @Override
-    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowSaltEQ mutation, MutationContext context) {
+    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowSaltEQ mutation, com.epam.indigoeln.reaction.model.mutation.MutationContext context) {
         validate(row.getCompound().getSaltCode() != null, "Cannot set saltEQ because saltCode is not set");
         row.setCompound(mutationHelper.doApplySetSaltCodeEQStereoisomerCode(row, mutationHelper.saltCodeInfo(row.getCompound().getSaltCode()), mutation.saltEQ(), row.getCompound().getStereoisomerCode()));
     }
@@ -78,7 +81,7 @@ class SetInputCompoundStereoisomerCodeHandler implements ReactionInputMutationHa
     MutationHelper mutationHelper;
 
     @Override
-    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputCompoundStereoisomerCode mutation, MutationContext context) {
+    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputCompoundStereoisomerCode mutation, com.epam.indigoeln.reaction.model.mutation.MutationContext context) {
         row.setCompound(mutationHelper.doApplySetSaltCodeEQStereoisomerCode(row, mutationHelper.saltCodeInfo(row.getCompound().getSaltCode()), row.getCompound().getSaltEQ(), mutation.stereoisomerCode()));
     }
 }
@@ -91,7 +94,7 @@ class SetOutputCompoundStereoisomerCodeHandler implements ReactionOutputMutation
     MutationHelper mutationHelper;
 
     @Override
-    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputCompoundStereoisomerCode mutation, MutationContext context) {
+    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputCompoundStereoisomerCode mutation, com.epam.indigoeln.reaction.model.mutation.MutationContext context) {
         row.setCompound(mutationHelper.doApplySetSaltCodeEQStereoisomerCode(row, mutationHelper.saltCodeInfo(row.getCompound().getSaltCode()), row.getCompound().getSaltEQ(), mutation.stereoisomerCode()));
     }
 }
@@ -101,7 +104,7 @@ class SetOutputCompoundStereoisomerCodeHandler implements ReactionOutputMutation
 class SetInputCompoundMolWeightHandler implements ReactionInputMutationHandler<ReactionInputMutation.SetInputCompoundMolWeight> {
 
     @Override
-    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputCompoundMolWeight mutation, MutationContext context) {
+    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputCompoundMolWeight mutation, com.epam.indigoeln.reaction.model.mutation.MutationContext context) {
         if (row.getCompound() instanceof CompoundRef.Unknown c) {
             c.setMolWeight(EnteredValue.userLastEntered(mutation.molWeight(), MolWeightUnit.G_PER_MOL));
         } else {
@@ -115,7 +118,7 @@ class SetInputCompoundMolWeightHandler implements ReactionInputMutationHandler<R
 class SetOutputCompoundMolWeightHandler implements ReactionOutputMutationHandler<ReactionOutputMutation.SetOutputCompoundMolWeight> {
 
     @Override
-    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputCompoundMolWeight mutation, MutationContext context) {
+    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputCompoundMolWeight mutation, com.epam.indigoeln.reaction.model.mutation.MutationContext context) {
         if (row.getCompound() instanceof CompoundRef.Unknown c) {
             c.setMolWeight(EnteredValue.userLastEntered(mutation.molWeight(), MolWeightUnit.G_PER_MOL));
         } else {

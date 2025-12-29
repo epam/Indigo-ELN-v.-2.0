@@ -12,9 +12,12 @@ import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
+import com.epam.indigoeln.reaction.model.patch.handler.ExperimentValueHandler;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.*;
+import com.epam.indigoeln.reaction.util.Flag;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -49,8 +52,6 @@ public class ExperimentModelService {
     @Inject
     ObjectMapper objectMapper;
     @Inject
-    ExperimentModelPatchService experimentModelPatchService;
-    @Inject
     ExperimentSnapshotMapper experimentSnapshotMapper;
 
     @Valid
@@ -62,42 +63,55 @@ public class ExperimentModelService {
         return model;
     }
 
-    public Pair<ExperimentModel, ExperimentPatch> applyMutation(ExperimentEntity experiment, ExperimentModel model, Mutation mutation) {
+    public ExperimentPatch applyMutation(ExperimentEntity experiment, Mutation mutation) {
         log.debug("Mutating experiment {}: {}", experiment.getId(), mutation);
-
-        ExperimentSnapshot initial = createExperimentSnapshot(experiment, true);
-        Set<Pair<ReactionRole, CompoundRef>> previousCompoundRefs = model.collectCompoundRefs();
-        Map<Anchor.Reaction, String> previousRxnFiles = StreamEx.of(model.getReactions()).toMap(Reaction::getAnchor, Reaction::getRxnfile);
-        model.prepareToRecalculate();
 
         MutationHandler<?> handler = mutationHandlerRegistry.findHandler(mutation);
         MutationContext context = new MutationContext();
+        handler.initContext(context);
+
+        ExperimentSnapshot initial = createExperimentSnapshot(experiment, context, true);
+        ExperimentModel model = null;
+        Set<Pair<ReactionRole, CompoundRef>> previousCompoundRefs = null;
+        Map<Anchor.Reaction, String> previousRxnFiles = null;
+        if (context.isAffectsModel()) {
+            model = experiment.getModel();
+            previousCompoundRefs = model.collectCompoundRefs();
+            previousRxnFiles = StreamEx.of(model.getReactions()).toMap(Reaction::getAnchor, Reaction::getRxnfile);
+            model.prepareToRecalculate();
+        }
+
         MutationResult result = switch (mutation) {
             case ReactionMutation m -> {
+                Preconditions.checkState(model != null);
                 Reaction reaction = model.locate(m.anchor());
                 //noinspection rawtypes,unchecked
                 ((ReactionMutationHandler) handler).handle(experiment, model, reaction, m, context);
                 yield null;
             }
             case ReactionInputMutation m -> {
+                Preconditions.checkState(model != null);
                 ReactionInput row = model.locate(m.anchor());
                 //noinspection rawtypes,unchecked
                 ((ReactionInputMutationHandler) handler).handle(experiment, model, row.getReaction(), row, m, context);
                 yield null;
             }
             case ReactionInputSampleMutation m -> {
+                Preconditions.checkState(model != null);
                 ReactionInputSample sample = model.locate(m.anchor());
                 //noinspection rawtypes,unchecked
                 ((ReactionInputSampleMutationHandler) handler).handle(experiment, model, sample.getRow().getReaction(), sample.getRow(), sample, m, context);
                 yield null;
             }
             case ReactionOutputMutation m -> {
+                Preconditions.checkState(model != null);
                 ReactionOutput row = model.locate(m.anchor());
                 //noinspection rawtypes,unchecked
                 ((ReactionOutputMutationHandler) handler).handle(experiment, model, row.getReaction(), row, m, context);
                 yield null;
             }
             case ReactionOutputSampleMutation m -> {
+                Preconditions.checkState(model != null);
                 ReactionOutputSample sample = model.locate(m.anchor());
                 //noinspection rawtypes,unchecked
                 ((ReactionOutputSampleMutationHandler) handler).handle(experiment, model, sample.getRow().getReaction(), sample.getRow(), sample, m, context);
@@ -109,66 +123,73 @@ public class ExperimentModelService {
             }
         };
 
-        reactionCalculator.recalculate(model);
+        if (model != null) {
+            reactionCalculator.recalculate(model);
 
-        boolean anyRxnfileChanged = false;
-        for (Reaction reaction : model.getReactions()) {
-            if (!reaction.getRxnfile().equals(previousRxnFiles.get(reaction.getAnchor())) || !context.getAffectedRoles().isEmpty()) {
-                anyRxnfileChanged = true;
-                IndigoReaction indigoReaction = reaction.getRxnfile().isEmpty() ? indigoAPI.createReaction() : indigoAPI.loadReaction(reaction.getRxnfile());
-                if (!context.getAffectedRoles().isEmpty()) {
-                    experimentModelHelperService.rebuildReactionRxnFile(experiment, reaction, context.getAffectedRoles(), indigoReaction);
+            boolean anyRxnfileChanged = false;
+            for (Reaction reaction : model.getReactions()) {
+                if (!reaction.getRxnfile().equals(previousRxnFiles.get(reaction.getAnchor())) || !context.getAffectedRoles().isEmpty()) {
+                    anyRxnfileChanged = true;
+                    IndigoReaction indigoReaction = reaction.getRxnfile().isEmpty() ? indigoAPI.createReaction() : indigoAPI.loadReaction(reaction.getRxnfile());
+                    if (!context.getAffectedRoles().isEmpty()) {
+                        experimentModelHelperService.rebuildReactionRxnFile(experiment, reaction, context.getAffectedRoles(), indigoReaction);
+                    }
+                    experimentModelHelperService.rebuildReactionPicture(experiment, reaction, indigoReaction);
+                    reaction.setRxnVersion(reaction.getRxnVersion() + 1);
                 }
-                experimentModelHelperService.rebuildReactionPicture(experiment, reaction, indigoReaction);
-                reaction.setRxnVersion(reaction.getRxnVersion() + 1);
             }
-        }
-        if (anyRxnfileChanged) {
-            List<String> rxnFiles = StreamEx.of(model.getReactions())
-                    .map(Reaction::getRxnfile)
-                    .remove(String::isEmpty)
-                    .toList();
-            experiment.setRxnfiles(rxnFiles);
-        }
+            if (anyRxnfileChanged) {
+                List<String> rxnFiles = StreamEx.of(model.getReactions())
+                        .map(Reaction::getRxnfile)
+                        .remove(String::isEmpty)
+                        .toList();
+                experiment.setRxnfiles(rxnFiles);
+            }
 
-        Set<Pair<ReactionRole, CompoundRef>> currentCompoundRefs = model.collectCompoundRefs();
-        if (!previousCompoundRefs.equals(currentCompoundRefs)) {
-            Set<ExperimentReferencedCompound> ids = StreamEx.of(currentCompoundRefs)
-                    .filter(p -> p.b().getCompoundID() != null)
-                    .map(p -> new ExperimentReferencedCompound(p.a(), p.b().getCompoundID()))
-                    .toSet();
-            experiment.setReferencedCompounds(ids);
+            Set<Pair<ReactionRole, CompoundRef>> currentCompoundRefs = model.collectCompoundRefs();
+            if (!previousCompoundRefs.equals(currentCompoundRefs)) {
+                Set<ExperimentReferencedCompound> ids = StreamEx.of(currentCompoundRefs)
+                        .filter(p -> p.b().getCompoundID() != null)
+                        .map(p -> new ExperimentReferencedCompound(p.a(), p.b().getCompoundID()))
+                        .toSet();
+                experiment.setReferencedCompounds(ids);
+            }
+            experiment.setModel(model);
         }
 
         updateDates(experiment, userService.getCurrentUserEntity());
         if (result == null) {
             result = new MutationResult("!!!");
         }
-        experiment.setModel(model);
 
-        ExperimentSnapshot target = createExperimentSnapshot(experiment, false);
-        ExperimentPatch diff = experimentModelPatchService.createPatch(initial, target);
+        ExperimentSnapshot target = createExperimentSnapshot(experiment, context, false);
+        ExperimentPatch diff = createPatch(initial, target, context);
 
         addRevision(experiment, experiment.getModifiedAt(), result.summary(), mutation, diff);
 
-        return Pair.of(model, diff);
+        return diff;
     }
 
-    private ExperimentSnapshot createExperimentSnapshot(ExperimentEntity experiment, boolean snapshotModel) {
+    private ExperimentSnapshot createExperimentSnapshot(ExperimentEntity experiment, MutationContext context, boolean snapshotModel) {
         ExperimentSnapshot snapshot = experimentSnapshotMapper.copyBasicFields(experiment);
-        // !!! detect what parts to copy
-        snapshot.setAttachments(experimentSnapshotMapper.copyAttachments(experiment.getAttachments()));
-        snapshot.setAcl(experimentSnapshotMapper.copyACL(experiment.getFullACL()));
-        if (snapshotModel) {
-            // TODO restore from ProtoBuf?
-            try {
-                byte[] initialBytes = objectMapper.writeValueAsBytes(experiment.getModel());
-                snapshot.setModel(objectMapper.readValue(initialBytes, ExperimentModel.class));
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to clone model: " + e.getMessage(), e);
+        if (context.isAffectsAttachments()) {
+            snapshot.setAttachments(experimentSnapshotMapper.copyAttachments(experiment.getAttachments()));
+        }
+        if (context.isAffectsACL()) {
+            snapshot.setAcl(experimentSnapshotMapper.copyACL(experiment.getFullACL()));
+        }
+        if (context.isAffectsModel()) {
+            if (snapshotModel) {
+                // TODO restore from ProtoBuf?
+                try {
+                    byte[] initialBytes = objectMapper.writeValueAsBytes(experiment.getModel());
+                    snapshot.setModel(objectMapper.readValue(initialBytes, ExperimentModel.class));
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to clone model: " + e.getMessage(), e);
+                }
+            } else {
+                snapshot.setModel(experiment.getModel());
             }
-        } else {
-            snapshot.setModel(experiment.getModel());
         }
         return snapshot;
     }
@@ -187,5 +208,11 @@ public class ExperimentModelService {
         experiment.setRevision(newRevisionNo);
         experiment.getRevisions().add(revision);
         experimentRepository.persistRevision(revision);
+    }
+
+    ExperimentPatch createPatch(ExperimentSnapshot a, ExperimentSnapshot b, MutationContext context) {
+        Flag updated = new Flag();
+        ExperimentValueHandler valueHandler = new ExperimentValueHandler(context);
+        return valueHandler.compare(updated, a, b, null).get();
     }
 }

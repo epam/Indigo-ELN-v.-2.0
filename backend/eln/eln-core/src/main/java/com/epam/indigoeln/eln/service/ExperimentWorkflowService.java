@@ -43,37 +43,37 @@ public class ExperimentWorkflowService {
     public ExperimentDetailsDTO cancelExperiment(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         Mutation mutation = new ExperimentMutation.CancelExperiment();
-        experimentModelService.applyMutation(experiment, experiment.getModel(), mutation);
+        experimentModelService.applyMutation(experiment, mutation);
         return experimentService.getExperimentDetails(experiment);
     }
 
     public ExperimentDetailsDTO reopenExperiment(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         Mutation mutation = new ExperimentMutation.ReopenExperiment();
-        experimentModelService.applyMutation(experiment, experiment.getModel(), mutation);
+        experimentModelService.applyMutation(experiment, mutation);
         return experimentService.getExperimentDetails(experiment);
     }
 
     public ExperimentDetailsDTO completeExperiment(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         Mutation mutation = new ExperimentMutation.CompleteExperiment();
-        experimentModelService.applyMutation(experiment, experiment.getModel(), mutation);
+        experimentModelService.applyMutation(experiment, mutation);
         return experimentService.getExperimentDetails(experiment);
     }
 
     public ExperimentDetailsDTO submitExperiment(UUID experimentId, UUID signatureTemplateId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         Mutation mutation = new ExperimentMutation.SubmitExperiment(signatureTemplateId);
-        experimentModelService.applyMutation(experiment, experiment.getModel(), mutation);
+        experimentModelService.applyMutation(experiment, mutation);
         return experimentService.getExperimentDetails(experiment);
     }
 
     public ExperimentDetailsDTO completeAndSubmitExperiment(UUID experimentId, UUID signatureTemplateId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         Mutation mutation1 = new ExperimentMutation.CompleteExperiment();
-        experimentModelService.applyMutation(experiment, experiment.getModel(), mutation1);
+        experimentModelService.applyMutation(experiment, mutation1);
         Mutation mutation = new ExperimentMutation.SubmitExperiment(signatureTemplateId);
-        experimentModelService.applyMutation(experiment, experiment.getModel(), mutation);
+        experimentModelService.applyMutation(experiment, mutation);
         return experimentService.getExperimentDetails(experiment);
     }
 
@@ -81,10 +81,10 @@ public class ExperimentWorkflowService {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         if (reject) {
             Mutation mutation = new ExperimentMutation.RejectExperiment();
-            experimentModelService.applyMutation(experiment, experiment.getModel(), mutation);
+            experimentModelService.applyMutation(experiment, mutation);
         } else {
             Mutation mutation = new ExperimentMutation.ApproveExperiment();
-            experimentModelService.applyMutation(experiment, experiment.getModel(), mutation);
+            experimentModelService.applyMutation(experiment, mutation);
         }
         return signatureExperimentMapper.entityToDTO(experiment);
     }
@@ -93,7 +93,7 @@ public class ExperimentWorkflowService {
     public ExperimentDetailsDTO resubmitExperiment(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         Mutation mutation = new ExperimentMutation.ResubmitExperiment();
-        experimentModelService.applyMutation(experiment, experiment.getModel(), mutation);
+        experimentModelService.applyMutation(experiment, mutation);
         return experimentService.getExperimentDetails(experiment);
     }
 }

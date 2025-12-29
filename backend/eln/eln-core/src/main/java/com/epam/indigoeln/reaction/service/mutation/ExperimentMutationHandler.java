@@ -5,5 +5,5 @@ import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 
 public non-sealed interface ExperimentMutationHandler<T extends ExperimentMutation> extends MutationHandler<T> {
 
-    MutationResult handle(ExperimentEntity experiment, T mutation, MutationContext context);
+    MutationResult handle(ExperimentEntity experiment, T mutation, com.epam.indigoeln.reaction.model.mutation.MutationContext context);
 }

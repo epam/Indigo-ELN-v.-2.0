@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.service;
 
 import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
@@ -16,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ExperimentModelPatchServiceTest {
 
-    ExperimentModelPatchService service = new ExperimentModelPatchService();
+    ExperimentModelService service = new ExperimentModelService();
 
     ExperimentSnapshot baseExperiment = new ExperimentSnapshot();
     ExperimentModel baseModel = new ExperimentModel();
@@ -125,7 +126,9 @@ class ExperimentModelPatchServiceTest {
     }
 
     private void makeAndVerifyPatch(@Language("JSON") String expectedPatchStr) throws Exception {
-        ExperimentPatch patch = service.createPatch(baseExperiment, experiment);
+        MutationContext context = new MutationContext();
+        context.setAffectsModel(true);
+        ExperimentPatch patch = service.createPatch(baseExperiment, experiment, context);
         String patchStr = FeignUtil.OBJECT_MAPPER.writeValueAsString(patch);
         System.out.println(expectedPatchStr.trim());
         System.out.println(patchStr);

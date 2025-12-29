@@ -35,7 +35,7 @@ public class MutationHelper {
     @Inject
     DictionaryMapper dictionaryMapper;
 
-    public void setInputLineSample(ReactionInput row, SampleEntity sample, MutationContext context) {
+    public void setInputLineSample(ReactionInput row, SampleEntity sample, com.epam.indigoeln.reaction.model.mutation.MutationContext context) {
         row.setCompound(compoundService.realCompoundRef(sample.getCompound()));
 
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row);

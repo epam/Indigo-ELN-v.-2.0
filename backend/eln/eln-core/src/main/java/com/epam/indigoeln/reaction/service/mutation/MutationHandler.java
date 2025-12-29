@@ -10,4 +10,6 @@ public sealed interface MutationHandler<T extends Mutation> permits
         ReactionOutputSampleMutationHandler,
         ExperimentMutationHandler
 {
+
+    void initContext(com.epam.indigoeln.reaction.model.mutation.MutationContext context);
 }

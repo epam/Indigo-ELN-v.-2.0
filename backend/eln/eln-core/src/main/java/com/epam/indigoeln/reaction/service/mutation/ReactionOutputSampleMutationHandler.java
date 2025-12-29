@@ -9,5 +9,10 @@ import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 
 public non-sealed interface ReactionOutputSampleMutationHandler<T extends ReactionOutputSampleMutation> extends MutationHandler<T> {
 
-    void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, T mutation, MutationContext context);
+    void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, T mutation, com.epam.indigoeln.reaction.model.mutation.MutationContext context);
+
+    @Override
+    default void initContext(com.epam.indigoeln.reaction.model.mutation.MutationContext context) {
+        context.setAffectsModel(true);
+    }
 }

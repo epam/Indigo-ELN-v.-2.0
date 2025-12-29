@@ -1,9 +1,10 @@
 package com.epam.indigoeln.reaction.util;
 
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
+import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.model.patch.ListPatch;
-import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
+import com.epam.indigoeln.reaction.model.patch.handler.ExperimentValueHandler;
 import com.epam.indigoeln.test.FeignUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -30,7 +31,12 @@ public class PatchTestUtil {
         byte[] updatedBytes = FeignUtil.OBJECT_MAPPER.writeValueAsBytes(updated);
         JsonNode updatedJSON = FeignUtil.OBJECT_MAPPER.readTree(updatedBytes);
 
-        ExperimentSnapshot reapplied = Handlers.EXPERIMENT.apply(null, initialCopy, Optional.of(patch));
+        MutationContext context = new MutationContext();
+        context.setAffectsAttachments(true);
+        context.setAffectsACL(true);
+        context.setAffectsModel(true);
+        ExperimentValueHandler valueHandler = new ExperimentValueHandler(context);
+        ExperimentSnapshot reapplied = valueHandler.apply(null, initialCopy, Optional.of(patch));
         assertThat(reapplied).isNotNull().isEqualTo(updated);
 
         byte[] reappliedBytes = FeignUtil.OBJECT_MAPPER.writeValueAsBytes(reapplied);

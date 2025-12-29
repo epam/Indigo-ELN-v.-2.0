@@ -121,8 +121,6 @@ public class Handlers {
 
     public static final Metamodel<ExperimentSnapshot, ExperimentPatch> EXPERIMENT_METAMODEL = createMetamodel(ExperimentSnapshot::buildMetamodel);
 
-    public static final ExperimentValueHandler EXPERIMENT = new ExperimentValueHandler(EXPERIMENT_METAMODEL);
-
     public static <C, T, P> ValueHandler<C, T, P> defaultHandler() {
         //noinspection unchecked,rawtypes
         return (ValueHandler) DEFAULT;

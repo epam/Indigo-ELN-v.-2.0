@@ -11,8 +11,8 @@ import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
+import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationHandler;
-import com.epam.indigoeln.reaction.service.mutation.MutationContext;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -39,6 +39,11 @@ class CancelExperimentHandler implements ExperimentMutationHandler<ExperimentMut
         helper.transition(experiment, CANCELLED, SUBMIT_EXPERIMENTS, OPEN, REOPEN);
         return new MutationResult("Experiment cancelled");
     }
+
+    @Override
+    public void initContext(MutationContext context) {
+
+    }
 }
 
 @Dependent
@@ -54,6 +59,11 @@ class ReopenExperimentHandler implements ExperimentMutationHandler<ExperimentMut
         experiment.getSignatures().clear();
         return new MutationResult("Experiment reopened");
     }
+
+    @Override
+    public void initContext(MutationContext context) {
+
+    }
 }
 
 @Dependent
@@ -67,6 +77,11 @@ class CompleteExperimentHandler implements ExperimentMutationHandler<ExperimentM
     public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.CompleteExperiment mutation, MutationContext context) {
         helper.transition(experiment, COMPLETED, SUBMIT_EXPERIMENTS, OPEN, REOPEN);
         return new MutationResult("Experiment completed");
+    }
+
+    @Override
+    public void initContext(MutationContext context) {
+
     }
 }
 
@@ -104,6 +119,11 @@ class SubmitExperimentHandler implements ExperimentMutationHandler<ExperimentMut
         helper.doCheckSignatures(experiment);
         return new MutationResult("Experiment submitted for signature");
     }
+
+    @Override
+    public void initContext(MutationContext context) {
+
+    }
 }
 
 @Dependent
@@ -118,6 +138,11 @@ class ApproveExperimentHandler implements ExperimentMutationHandler<ExperimentMu
         helper.doApproveOrReject(SignatureStatus.APPROVED, experiment);
         return new MutationResult("Experiment approved");
     }
+
+    @Override
+    public void initContext(MutationContext context) {
+
+    }
 }
 
 @Dependent
@@ -131,6 +156,11 @@ class RejectExperimentHandler implements ExperimentMutationHandler<ExperimentMut
     public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.RejectExperiment mutation, MutationContext context) {
         helper.doApproveOrReject(SignatureStatus.REJECTED, experiment);
         return new MutationResult("Experiment rejected");
+    }
+
+    @Override
+    public void initContext(MutationContext context) {
+
     }
 }
 
@@ -148,6 +178,11 @@ class ResubmitExperimentHandler implements ExperimentMutationHandler<ExperimentM
             signature.setStatus(null);
         }
         return new MutationResult("Experiment resubmitted for signature");
+    }
+
+    @Override
+    public void initContext(MutationContext context) {
+
     }
 }
 

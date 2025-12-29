@@ -13,9 +13,9 @@ import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
+import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationHandler;
-import com.epam.indigoeln.reaction.service.mutation.MutationContext;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import jakarta.enterprise.context.Dependent;
@@ -62,6 +62,11 @@ class CreateExperimentHandler implements ExperimentMutationHandler<ExperimentMut
         int lastNumber = last == null ? 0 : Integer.parseInt(last.substring(last.lastIndexOf('-') + 1));
         return "%s-%04d".formatted(notebook.getName(), lastNumber + 1);
     }
+
+    @Override
+    public void initContext(MutationContext context) {
+        // nothing
+    }
 }
 
 @Dependent
@@ -91,6 +96,11 @@ class EditExperimentAttributesHandler implements ExperimentMutationHandler<Exper
             default -> "Edited multiple attributes";
         };
         return new MutationResult(summary);
+    }
+
+    @Override
+    public void initContext(MutationContext context) {
+        // nothing
     }
 }
 
@@ -125,6 +135,11 @@ class EditExperimentAccessHandler implements ExperimentMutationHandler<Experimen
         // !!! create revisions for notebook/project, if they are affected
         return new MutationResult(summary);
     }
+
+    @Override
+    public void initContext(MutationContext context) {
+        context.setAffectsACL(true);
+    }
 }
 
 @Dependent
@@ -140,6 +155,11 @@ class CreateExperimentAttachmentHandler implements ExperimentMutationHandler<Exp
         experiment.getAttachments().add(attachment);
         attachment.getExperiments().add(experiment);
         return new MutationResult("Created attachment: %s, %d bytes".formatted(attachment.getName(), attachment.getSize()));
+    }
+
+    @Override
+    public void initContext(MutationContext context) {
+        context.setAffectsAttachments(true);
     }
 }
 
@@ -157,5 +177,10 @@ class DeleteExperimentAttachmentHandler implements ExperimentMutationHandler<Exp
         attachment.getExperiments().remove(experiment);
         attachment.setDeleted(true);
         return new MutationResult("Deleted attachment: " + attachment.getName());
+    }
+
+    @Override
+    public void initContext(MutationContext context) {
+        context.setAffectsAttachments(true);
     }
 }

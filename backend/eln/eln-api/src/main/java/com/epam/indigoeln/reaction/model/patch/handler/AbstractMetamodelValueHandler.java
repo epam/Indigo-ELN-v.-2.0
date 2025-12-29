@@ -27,9 +27,13 @@ public abstract class AbstractMetamodelValueHandler<C, T, P> extends AbstractVal
     protected void doCompareBase(Flag updated, @Nullable T a, T b, P patch) {
         for (ModelProperty<T, ?, P, ?> property : metamodel.getProperties()) {
             ModelProperty<T, Object, P, Object> simpleProperty = property.cast();
-            Optional<Object> diffValue = PatchUtil.diff(updated, a, b, simpleProperty.defaultValue(), simpleProperty.getter(), simpleProperty.valueHandler());
-            simpleProperty.patchSet(patch, diffValue);
+            doCompareProperty(updated, a, b, patch, simpleProperty);
         }
+    }
+
+    protected <T, P> void doCompareProperty(Flag updated, @Nullable T a, T b, P patch, ModelProperty<T, Object, P, Object> simpleProperty) {
+        Optional<Object> diffValue = PatchUtil.diff(updated, a, b, simpleProperty.defaultValue(), simpleProperty.getter(), simpleProperty.valueHandler());
+        simpleProperty.patchSet(patch, diffValue);
     }
 
     @Override
@@ -46,10 +50,14 @@ public abstract class AbstractMetamodelValueHandler<C, T, P> extends AbstractVal
     protected void doApplyBase(T value, P patch) {
         for (ModelProperty<T, ?, P, ?> property : metamodel.getProperties()) {
             ModelProperty<T, Object, P, Object> simpleProperty = property.cast();
-            BiConsumer<T, Object> setter = simpleProperty.setter();
-            if (setter != null) {
-                PatchUtil.restore(value, simpleProperty.patchGet(patch), simpleProperty.getter(), setter, simpleProperty.valueHandler());
-            }
+            doApplyProperty(value, patch, simpleProperty);
+        }
+    }
+
+    protected <T, P> void doApplyProperty(T value, P patch, ModelProperty<T, Object, P, Object> simpleProperty) {
+        BiConsumer<T, Object> setter = simpleProperty.setter();
+        if (setter != null) {
+            PatchUtil.restore(value, simpleProperty.patchGet(patch), simpleProperty.getter(), setter, simpleProperty.valueHandler());
         }
     }
 }

@@ -89,7 +89,7 @@ public class AttachmentService {
     public AttachmentEntity createExperimentAttachment(ExperimentEntity experiment, String filename, byte[] content) {
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
         AttachmentEntity attachment = doCreateAttachment(filename, content);
-        experimentModelService.applyMutation(experiment, experiment.getModel(), new ExperimentMutation.CreateExperimentAttachment(attachment.getId()));
+        experimentModelService.applyMutation(experiment, new ExperimentMutation.CreateExperimentAttachment(attachment.getId()));
         return attachment;
     }
 
@@ -163,7 +163,7 @@ public class AttachmentService {
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
         AttachmentEntity attachment = attachmentRepository.get(attachmentId);
         ensureCorrectParent(attachment, attachment.getExperiments(), experiment);
-        experimentModelService.applyMutation(experiment, experiment.getModel(), new ExperimentMutation.DeleteExperimentAttachment(attachment.getId()));
+        experimentModelService.applyMutation(experiment, new ExperimentMutation.DeleteExperimentAttachment(attachment.getId()));
     }
 
     public <E extends BaseEntity & WithAttachments> void doDeleteAttachment(E parent, Collection<E> parents, AttachmentEntity attachment) {

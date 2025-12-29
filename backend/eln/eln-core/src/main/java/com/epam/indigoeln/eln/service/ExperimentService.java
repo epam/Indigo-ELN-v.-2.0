@@ -24,7 +24,6 @@ import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
-import com.epam.indigoeln.reaction.service.ExperimentModelPatchService;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reports.api.ReportsAPI;
 import com.epam.indigoeln.reports.api.ReportsClient;
@@ -73,8 +72,6 @@ public class ExperimentService {
     @Inject
     ExperimentModelService experimentModelService;
     @Inject
-    ExperimentModelPatchService experimentModelPatchService;
-    @Inject
     TemplateRepository templateRepository;
     @Inject
     @RestClient
@@ -101,7 +98,7 @@ public class ExperimentService {
         experiment.setRevision(0);
         experiment.setStatus(ExperimentStatus.OPEN);
         Mutation mutation = new ExperimentMutation.CreateExperiment(request.getTemplateID(), request.getDescription(), request.getTherapeuticArea(), request.getProjectCode());
-        experimentModelService.applyMutation(experiment, experiment.getModel(), mutation);
+        experimentModelService.applyMutation(experiment, mutation);
         experimentRepository.flushAndRefresh(experiment);
         return getExperimentDetails(experiment);
     }
@@ -131,7 +128,7 @@ public class ExperimentService {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
         Mutation mutation = new ExperimentMutation.EditExperimentAttributes(request.getTherapeuticArea(), request.getProjectCode());
-        experimentModelService.applyMutation(experiment, experiment.getModel(), mutation);
+        experimentModelService.applyMutation(experiment, mutation);
         experimentRepository.flushAndRefresh(experiment);
         return getExperimentDetails(experiment);
     }
@@ -147,7 +144,7 @@ public class ExperimentService {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.MANAGE_EXPERIMENT_ACCESS);
         Mutation mutation = new ExperimentMutation.EditExperimentAccess(form);
-        experimentModelService.applyMutation(experiment, experiment.getModel(), mutation);
+        experimentModelService.applyMutation(experiment, mutation);
         return experimentMapper.convertDetailsACLList(experiment.getFullACL());
     }
 
@@ -157,17 +154,17 @@ public class ExperimentService {
         return experiment.getModel();
     }
 
-    public ExperimentModel mutateModel(UUID experimentId, ExperimentModel model, Mutation mutation) {
+    public ExperimentModel mutateModel(UUID experimentId, Mutation mutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
-        return experimentModelService.applyMutation(experiment, model, mutation).a();
+        experimentModelService.applyMutation(experiment, mutation);
+        return experiment.getModel();
     }
 
     public ExperimentPatch mutateModel2(UUID experimentId, Integer revision, Mutation mutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
-        ExperimentModel model = experiment.getModel();
-        return experimentModelService.applyMutation(experiment, model, mutation).b();
+        return experimentModelService.applyMutation(experiment, mutation);
     }
 
     public byte[] getExperimentPicture(UUID experimentId) {
