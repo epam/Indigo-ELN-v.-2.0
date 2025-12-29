@@ -18,13 +18,13 @@ import java.util.function.Function;
 // index -> null: item deleted
 @SuppressWarnings("OptionalAssignedToNull")
 @RequiredArgsConstructor
-public class ListValueHandler<C, T, A extends Anchor, P extends AbstractListElementPatch<A>> extends AbstractValueHandler<C, List<T>, ListPatch<P>> {
+public class ListValueHandler<C, T, A extends Anchor, P extends AbstractListElementPatch<A>> extends AbstractValueHandler<C, List<T>, ListPatch<Integer, P>> {
 
     private final Function<T, A> anchorFn;
     private final AbstractValueHandler<C, T, P> itemHandler;
 
     @Override
-    protected ListPatch<P> doCompare(Flag updated, @Nullable List<T> a, List<T> b, @Nullable Optional<Integer> from) {
+    protected ListPatch<Integer, P> doCompare(Flag updated, @Nullable List<T> a, List<T> b, @Nullable Optional<Integer> from) {
         Map<A, Comparison<T>> map = new HashMap<>();
         for (int i = 0; i < b.size(); i++) {
             T item = b.get(i);
@@ -44,7 +44,7 @@ public class ListValueHandler<C, T, A extends Anchor, P extends AbstractListElem
         }
         Flag collectionUpdated = new Flag();
         Set<Integer> removed = new HashSet<>();
-        ListPatch<P> result = new ListPatch<>(b.size());
+        ListPatch<Integer, P> result = new ListPatch<>(b.size());
         map.forEach((anchor, c) -> {
             Optional<Integer> itemFrom;
             if (c.oldItem == null) {
@@ -73,7 +73,7 @@ public class ListValueHandler<C, T, A extends Anchor, P extends AbstractListElem
     }
 
     @Override
-    protected List<T> doApply(C container, @Nullable List<T> value, ListPatch<P> patch) {
+    protected List<T> doApply(C container, @Nullable List<T> value, ListPatch<Integer, P> patch) {
         // noinspection unchecked
         T[] source = (T[]) (value != null ? value.toArray() : new Object[0]);
         T[] target = Arrays.copyOf(source, patch.getSize());

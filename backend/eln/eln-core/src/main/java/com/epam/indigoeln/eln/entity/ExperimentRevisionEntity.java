@@ -3,7 +3,7 @@ package com.epam.indigoeln.eln.entity;
 import com.epam.indigoeln.eln.config.hibernate.ExperimentPatchConverter;
 import com.epam.indigoeln.eln.config.hibernate.MutationConverter;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
+import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -54,7 +54,7 @@ public class ExperimentRevisionEntity {
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
     @Convert(converter = ExperimentPatchConverter.class)
-    private ExperimentModelPatch diff;
+    private ExperimentPatch diff;
 
     @Embeddable
     @Data

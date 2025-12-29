@@ -15,5 +15,5 @@ public class ExperimentModelPatch {
     private Optional<Integer> lastUsedAnchor;
 
     @Nullable
-    private Optional<ListPatch<ReactionPatch>> reactions;
+    private Optional<ListPatch<Integer, ReactionPatch>> reactions;
 }

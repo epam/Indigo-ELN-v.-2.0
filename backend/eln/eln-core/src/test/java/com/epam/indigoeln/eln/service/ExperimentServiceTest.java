@@ -199,7 +199,13 @@ class ExperimentServiceTest extends ELNBaseTest {
                     assertThat(revision.getUser()).isEqualTo(getJohnUserRef());
                     assertThat(revision.getMutation()).isInstanceOf(ExperimentMutation.EditExperimentAttributes.class);
                     assertThat(revision.getSummary()).matches("Edited attributes: set therapeutic area = .+, set project code = .+");
-                    assertThat(revision.getDiff()).isNotNull(); // !!! verify diff old and new values
+                    assertThat(revision.getDiff()).satisfies(diff -> {
+                        assertThat(diff.getAcl()).isNull();
+                        assertThat(diff.getModel()).isNull();
+                        assertThat(diff.getTherapeuticArea()).get().isEqualTo(therapeuticAreas.get(1));
+                        assertThat(diff.getProjectCode()).get().isEqualTo(projectCodes.get(1));
+                        assertThat(diff.getDescription()).isNull();
+                    });
                 });
     }
 

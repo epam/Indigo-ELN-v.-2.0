@@ -1,6 +1,5 @@
 package com.epam.indigoeln.reaction.model.patch;
 
-import com.epam.indigoeln.reaction.model.Anchor;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +10,7 @@ import java.util.Optional;
 @Getter
 @Setter
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-public abstract class AbstractListElementPatch<A extends Anchor> {
+public abstract class AbstractListElementPatch<A> {
 
     // null: not repositioned
     // empty: new item

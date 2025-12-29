@@ -24,7 +24,7 @@ public class ReactionInputPatch extends AbstractReactionRowPatch<Anchor.Input> {
     private Optional<String> chemicalName;
 
     @Nullable
-    private Optional<ListPatch<ReactionInputSamplePatch>> samples;
+    private Optional<ListPatch<Integer, ReactionInputSamplePatch>> samples;
 
     @Nullable
     private Optional<Boolean> limiting;

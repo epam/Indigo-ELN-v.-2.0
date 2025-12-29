@@ -28,5 +28,5 @@ public class ReactionOutputPatch extends AbstractReactionRowPatch<Anchor.Output>
     private Optional<EnteredValuePatch<WeightUnit>> theoWeight;
 
     @Nullable
-    private Optional<ListPatch<ReactionOutputSamplePatch>> samples;
+    private Optional<ListPatch<Integer, ReactionOutputSamplePatch>> samples;
 }

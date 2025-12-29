@@ -108,6 +108,7 @@ public class DictionaryService {
         return dictionaryItemRepository.suggest(refToID(dictionaryRef), search);
     }
 
+    // TODO use cache
     public DictionaryItemEntity get(UUID id) {
         return dictionaryItemRepository.findById(id);
     }

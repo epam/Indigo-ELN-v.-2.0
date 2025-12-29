@@ -19,8 +19,8 @@ public class ReactionPatch extends AbstractListElementPatch<Anchor.Reaction> {
     private Optional<Integer> rxnVersion; // TODO not needed with patch approach, remove when frontend is switched
 
     @Nullable
-    private Optional<ListPatch<ReactionInputPatch>> inputs;
+    private Optional<ListPatch<Integer, ReactionInputPatch>> inputs;
 
     @Nullable
-    private Optional<ListPatch<ReactionOutputPatch>> outputs;
+    private Optional<ListPatch<Integer, ReactionOutputPatch>> outputs;
 }

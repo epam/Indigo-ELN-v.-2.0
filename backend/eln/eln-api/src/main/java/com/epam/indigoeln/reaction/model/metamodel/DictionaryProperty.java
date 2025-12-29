@@ -2,6 +2,7 @@ package com.epam.indigoeln.reaction.model.metamodel;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
+import com.epam.indigoeln.reaction.model.patch.handler.ValueHandler;
 
 import java.util.Optional;
 import java.util.function.BiConsumer;

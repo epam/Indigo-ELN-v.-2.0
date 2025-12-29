@@ -1,8 +1,6 @@
 package com.epam.indigoeln.eln.service;
 
-import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
-import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.StructuralSearch;
@@ -25,7 +23,7 @@ import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
+import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.service.ExperimentModelPatchService;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reports.api.ReportsAPI;
@@ -102,7 +100,8 @@ public class ExperimentService {
         experiment.setModel(experimentModelService.createNewModel());
         experiment.setRevision(0);
         experiment.setStatus(ExperimentStatus.OPEN);
-        doMutateModel(experiment, experiment.getModel(), new ExperimentMutation.CreateExperiment(request.getTemplateID(), request.getDescription(), request.getTherapeuticArea(), request.getProjectCode()));
+        Mutation mutation = new ExperimentMutation.CreateExperiment(request.getTemplateID(), request.getDescription(), request.getTherapeuticArea(), request.getProjectCode());
+        experimentModelService.applyMutation(experiment, experiment.getModel(), mutation);
         experimentRepository.flushAndRefresh(experiment);
         return getExperimentDetails(experiment);
     }
@@ -131,7 +130,8 @@ public class ExperimentService {
     public ExperimentDetailsDTO editExperiment(UUID experimentId, ExperimentEditRequest request) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.EDIT_EXPERIMENTS);
-        doMutateModel(experiment, experiment.getModel(), new ExperimentMutation.EditExperimentAttributes(request.getTherapeuticArea(), request.getProjectCode()));
+        Mutation mutation = new ExperimentMutation.EditExperimentAttributes(request.getTherapeuticArea(), request.getProjectCode());
+        experimentModelService.applyMutation(experiment, experiment.getModel(), mutation);
         experimentRepository.flushAndRefresh(experiment);
         return getExperimentDetails(experiment);
     }
@@ -146,7 +146,8 @@ public class ExperimentService {
     public List<ACLDetailsEntryDTO> updateExperimentAccess(UUID experimentId, List<AccessForm> form) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.MANAGE_EXPERIMENT_ACCESS);
-        doMutateModel(experiment, experiment.getModel(), new ExperimentMutation.EditExperimentAccess(form));
+        Mutation mutation = new ExperimentMutation.EditExperimentAccess(form);
+        experimentModelService.applyMutation(experiment, experiment.getModel(), mutation);
         return experimentMapper.convertDetailsACLList(experiment.getFullACL());
     }
 
@@ -159,28 +160,14 @@ public class ExperimentService {
     public ExperimentModel mutateModel(UUID experimentId, ExperimentModel model, Mutation mutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
-        return doMutateModel(experiment, model, mutation).a();
+        return experimentModelService.applyMutation(experiment, model, mutation).a();
     }
 
-    public ExperimentModelPatch mutateModel2(UUID experimentId, Integer revision, Mutation mutation) {
+    public ExperimentPatch mutateModel2(UUID experimentId, Integer revision, Mutation mutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
         ExperimentModel model = experiment.getModel();
-        return doMutateModel(experiment, model, mutation).b();
-    }
-
-    // !!! rework this:
-    //    - applyMutation should handle exceptions itself
-    //    - don't require model, access from experiment when needed
-    private Pair<ExperimentModel, ExperimentModelPatch> doMutateModel(ExperimentEntity experiment, ExperimentModel model, Mutation mutation) {
-        try {
-            return experimentModelService.applyMutation(experiment, model, mutation);
-        } catch (InvalidRequestException | EntityNotFoundException e) {
-            throw e;
-        } catch (Throwable e) {
-            log.error("Failed to mutate model for experiment {}: {}", experiment.getId(), e.getMessage(), e);
-            throw new RuntimeException("Failed to mutate model: " + e.getMessage(), e);
-        }
+        return experimentModelService.applyMutation(experiment, model, mutation).b();
     }
 
     public byte[] getExperimentPicture(UUID experimentId) {

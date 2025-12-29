@@ -2,52 +2,45 @@ package com.epam.indigoeln.reaction.config;
 
 import com.epam.indigoeln.reaction.model.patch.ListPatch;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
-import com.google.common.base.Preconditions;
 import lombok.AllArgsConstructor;
-import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
 @AllArgsConstructor
-public class ListPatchSerializer extends JsonSerializer<ListPatch<?>> implements ContextualSerializer {
+public class ListPatchSerializer extends JsonSerializer<ListPatch<?, ?>> implements ContextualSerializer {
 
-    @Nullable
-    private final JavaType valueType;
+    private final JsonSerializer<Object> valueSerializer;
 
+    @SuppressWarnings("DataFlowIssue")
     public ListPatchSerializer() {
-        valueType = null;
+        valueSerializer = null;
     }
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) {
+    public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
         JavaType type = property.getType();
         if (type != null && type.getRawClass().equals(Optional.class)) {
             type = type.containedType(0);
         }
-        if (type != null && type.containedTypeCount() > 0) {
-            JavaType containedType = type.containedType(0);
-            return new ListPatchSerializer(containedType);
+        if (type != null) {
+            JavaType valueType = type.containedType(1);
+            return new ListPatchSerializer(prov.findValueSerializer(valueType));
         }
         return this;
     }
 
     @Override
-    public void serialize(ListPatch<?> container, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        Preconditions.checkState(valueType != null);
-        JsonSerializer<Object> valueSerializer = serializers.findValueSerializer(valueType);
+    public void serialize(ListPatch<?, ?> container, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
 
-        gen.writeFieldName("$");
+        gen.writeFieldName(ListPatch.SIZE_FIELD);
         gen.writeNumber(container.getSize());
-        for (Map.Entry<Integer, ?> entry : container.getItems().entrySet()) {
-            gen.writeFieldName(Integer.toString(entry.getKey()));
+        for (Map.Entry<?, ?> entry : container.getItems().entrySet()) {
+            gen.writeFieldName(entry.getKey().toString());
             if (entry.getValue() != null) {
                 valueSerializer.serialize(entry.getValue(), gen, serializers);
             } else {

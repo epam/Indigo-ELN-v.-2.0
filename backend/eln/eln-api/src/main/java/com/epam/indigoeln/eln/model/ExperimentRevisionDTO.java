@@ -1,7 +1,7 @@
 package com.epam.indigoeln.eln.model;
 
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
+import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,5 +30,5 @@ public class ExperimentRevisionDTO {
     private String summary;
 
     @NotNull
-    private ExperimentModelPatch diff;
+    private ExperimentPatch diff;
 }

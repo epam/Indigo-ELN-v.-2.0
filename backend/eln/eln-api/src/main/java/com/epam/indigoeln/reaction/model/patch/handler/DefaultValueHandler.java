@@ -1,6 +1,5 @@
 package com.epam.indigoeln.reaction.model.patch.handler;
 
-import com.epam.indigoeln.reaction.model.metamodel.ValueHandler;
 import com.epam.indigoeln.reaction.util.Flag;
 import org.jspecify.annotations.Nullable;
 
@@ -16,10 +15,10 @@ public class DefaultValueHandler<C, T> implements ValueHandler<C, T, T> {
         if (Objects.equals(a, b)) {
             return null;
         }
+        updated.set();
         if (b == null) {
             return Optional.empty();
         }
-        updated.set();
         return Optional.of(b);
     }
 

@@ -1,7 +1,7 @@
 package com.epam.indigoeln.reaction.util;
 
-import com.epam.indigoeln.reaction.model.metamodel.ValueHandler;
 import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
+import com.epam.indigoeln.reaction.model.patch.handler.ValueHandler;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;

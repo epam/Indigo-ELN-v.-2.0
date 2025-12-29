@@ -1,6 +1,5 @@
 package com.epam.indigoeln.reaction.model.patch.handler;
 
-import com.epam.indigoeln.reaction.model.metamodel.ValueHandler;
 import com.epam.indigoeln.reaction.util.Flag;
 import org.jspecify.annotations.Nullable;
 

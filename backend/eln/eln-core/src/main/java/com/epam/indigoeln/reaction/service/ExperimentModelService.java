@@ -4,6 +4,7 @@ import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentReferencedCompound;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
+import com.epam.indigoeln.eln.mapper.ExperimentSnapshotMapper;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.service.UserService;
@@ -11,7 +12,7 @@ import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
-import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
+import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,6 +52,8 @@ public class ExperimentModelService {
     ObjectMapper objectMapper;
     @Inject
     ExperimentModelPatchService experimentModelPatchService;
+    @Inject
+    ExperimentSnapshotMapper experimentSnapshotMapper;
 
     @Valid
     public ExperimentModel createNewModel() {
@@ -61,11 +64,10 @@ public class ExperimentModelService {
         return model;
     }
 
-    @Valid
-    public Pair<ExperimentModel, ExperimentModelPatch> applyMutation(ExperimentEntity experiment, ExperimentModel model, Mutation mutation) {
+    public Pair<ExperimentModel, ExperimentPatch> applyMutation(ExperimentEntity experiment, ExperimentModel model, Mutation mutation) {
         log.debug("Mutating model for experiment {} with mutation {}", experiment.getId(), mutation);
 
-        ExperimentModel initial = cloneModel(model);
+        ExperimentSnapshot initial = createExperimentSnapshot(experiment, true);
         Set<DictionaryItemRef> previousDictionaryRefs = model.collectDictionaryRefs();
         Set<Pair<ReactionRole, CompoundRef>> previousCompoundRefs = model.collectCompoundRefs();
         Map<Anchor.Reaction, String> previousRxnFiles = StreamEx.of(model.getReactions()).toMap(Reaction::getAnchor, Reaction::getRxnfile);
@@ -152,24 +154,34 @@ public class ExperimentModelService {
         }
         experiment.setModel(model);
 
-        ExperimentModelPatch diff = experimentModelPatchService.createPatch(initial, model);
+        ExperimentSnapshot target = createExperimentSnapshot(experiment, false);
+        ExperimentPatch diff = experimentModelPatchService.createPatch(initial, target);
 
         addRevision(experiment, experiment.getModifiedAt(), result.summary(), mutation, diff);
 
         return Pair.of(model, diff);
     }
 
-    private ExperimentModel cloneModel(ExperimentModel model) {
-        // TODO use clone? or restore from ProtoBuf?
-        try {
-            byte[] initialBytes = objectMapper.writeValueAsBytes(model);
-            return objectMapper.readValue(initialBytes, ExperimentModel.class);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to clone model: " + e.getMessage(), e);
+    private ExperimentSnapshot createExperimentSnapshot(ExperimentEntity experiment, boolean snapshotModel) {
+        ExperimentSnapshot snapshot = experimentSnapshotMapper.copyBasicFields(experiment);
+        // !!! detect what parts to copy
+        snapshot.setAttachments(experimentSnapshotMapper.copyAttachments(experiment.getAttachments()));
+        snapshot.setAcl(experimentSnapshotMapper.copyACL(experiment.getFullACL()));
+        if (snapshotModel) {
+            // TODO restore from ProtoBuf?
+            try {
+                byte[] initialBytes = objectMapper.writeValueAsBytes(experiment.getModel());
+                snapshot.setModel(objectMapper.readValue(initialBytes, ExperimentModel.class));
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to clone model: " + e.getMessage(), e);
+            }
+        } else {
+            snapshot.setModel(experiment.getModel());
         }
+        return snapshot;
     }
 
-    private void addRevision(ExperimentEntity experiment, ZonedDateTime datetime, String summary, Mutation mutation, ExperimentModelPatch diff) {
+    private void addRevision(ExperimentEntity experiment, ZonedDateTime datetime, String summary, Mutation mutation, ExperimentPatch diff) {
         ExperimentRevisionEntity revision = new ExperimentRevisionEntity();
         int newRevisionNo = experiment.getRevision() + 1;
         revision.setId(new ExperimentRevisionEntity.ExperimentRevisionID(experiment.getId(), newRevisionNo));

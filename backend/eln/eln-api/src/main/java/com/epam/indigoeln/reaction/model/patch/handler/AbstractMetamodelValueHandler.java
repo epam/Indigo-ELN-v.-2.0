@@ -12,28 +12,28 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 @RequiredArgsConstructor
-public abstract class AbstractMetamodelValueHandler<O, C, P> extends AbstractValueHandler<O, C, P> {
+public abstract class AbstractMetamodelValueHandler<C, T, P> extends AbstractValueHandler<C, T, P> {
 
-    private final Metamodel<C, P> metamodel;
+    private final Metamodel<T, P> metamodel;
     private final Supplier<P> patchCreator;
 
     @Override
-    protected P doCompare(Flag updated, @Nullable C a, C b, @Nullable Optional<Integer> from) {
+    protected P doCompare(Flag updated, @Nullable T a, T b, @Nullable Optional<Integer> from) {
         P patch = patchCreator.get();
         doCompareBase(updated, a, b, patch);
         return patch;
     }
 
-    protected void doCompareBase(Flag updated, @Nullable C a, C b, P patch) {
-        for (ModelProperty<C, ?, P, ?> property : metamodel.getProperties()) {
-            ModelProperty<C, Object, P, Object> simpleProperty = property.cast();
+    protected void doCompareBase(Flag updated, @Nullable T a, T b, P patch) {
+        for (ModelProperty<T, ?, P, ?> property : metamodel.getProperties()) {
+            ModelProperty<T, Object, P, Object> simpleProperty = property.cast();
             Optional<Object> diffValue = PatchUtil.diff(updated, a, b, simpleProperty.defaultValue(), simpleProperty.getter(), simpleProperty.valueHandler());
             simpleProperty.patchSet(patch, diffValue);
         }
     }
 
     @Override
-    protected C doApply(O container, @Nullable C value, P patch) {
+    protected T doApply(C container, @Nullable T value, P patch) {
         if (value == null) {
             value = createNewValue(container, patch);
         }
@@ -41,12 +41,12 @@ public abstract class AbstractMetamodelValueHandler<O, C, P> extends AbstractVal
         return value;
     }
 
-    protected abstract C createNewValue(O container, P patch);
+    protected abstract T createNewValue(C container, P patch);
 
-    protected void doApplyBase(C value, P patch) {
-        for (ModelProperty<C, ?, P, ?> property : metamodel.getProperties()) {
-            ModelProperty<C, Object, P, Object> simpleProperty = property.cast();
-            BiConsumer<C, Object> setter = simpleProperty.setter();
+    protected void doApplyBase(T value, P patch) {
+        for (ModelProperty<T, ?, P, ?> property : metamodel.getProperties()) {
+            ModelProperty<T, Object, P, Object> simpleProperty = property.cast();
+            BiConsumer<T, Object> setter = simpleProperty.setter();
             if (setter != null) {
                 PatchUtil.restore(value, simpleProperty.patchGet(patch), simpleProperty.getter(), setter, simpleProperty.valueHandler());
             }

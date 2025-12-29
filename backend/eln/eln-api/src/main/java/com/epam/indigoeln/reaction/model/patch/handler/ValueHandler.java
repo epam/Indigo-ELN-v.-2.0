@@ -1,11 +1,11 @@
-package com.epam.indigoeln.reaction.model.metamodel;
+package com.epam.indigoeln.reaction.model.patch.handler;
 
 import com.epam.indigoeln.reaction.util.Flag;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
-// C - item itself (e.g. Reaction)
+// C - parent container (e.g. Reaction)
 // T - value type (e.g. String or EnteredValue)
 // P - patch value type (e.g. String or EnteredValuePatch)
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")

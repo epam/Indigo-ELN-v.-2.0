@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.model.metamodel;
 
+import com.epam.indigoeln.reaction.model.patch.handler.ValueHandler;
 import com.google.common.base.Preconditions;
 import org.jspecify.annotations.Nullable;
 
@@ -8,7 +9,17 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-public sealed interface ModelProperty<C, T, P, PT> permits AnchorProperty, SimpleProperty, SimpleListProperty, EnteredValueProperty, ListProperty, DictionaryProperty, DictionaryListProperty {
+public sealed interface ModelProperty<C, T, P, PT> permits
+        AnchorProperty,
+        SimpleProperty,
+        SimpleListProperty,
+        EnteredValueProperty,
+        ListProperty,
+        SetProperty,
+        DictionaryProperty,
+        DictionaryListProperty,
+        AnyProperty
+{
 
     String name();
 

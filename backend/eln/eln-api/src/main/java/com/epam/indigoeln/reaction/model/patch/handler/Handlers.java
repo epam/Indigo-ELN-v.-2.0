@@ -1,13 +1,15 @@
 package com.epam.indigoeln.reaction.model.patch.handler;
 
+import com.epam.indigoeln.eln.model.ACLEntryDTO;
+import com.epam.indigoeln.eln.model.AttachmentDTO;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
-import com.epam.indigoeln.reaction.model.metamodel.ValueHandler;
 import com.epam.indigoeln.reaction.model.patch.*;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class Handlers {
@@ -83,7 +85,43 @@ public class Handlers {
 
     public static final Metamodel<ExperimentModel, ExperimentModelPatch> EXPERIMENT_MODEL_METAMODEL = createMetamodel(ExperimentModel::buildMetamodel);
 
-    public static final ExperimentModelValueHandler EXPERIMENT_MODEL = new ExperimentModelValueHandler(EXPERIMENT_MODEL_METAMODEL);
+    public static final MetamodelValueHandler<ExperimentSnapshot, ExperimentModel, ExperimentModelPatch> EXPERIMENT_MODEL = new MetamodelValueHandler<>(
+            EXPERIMENT_MODEL_METAMODEL,
+            ExperimentModelPatch::new,
+            (experiment, patch) -> {
+                throw new UnsupportedOperationException("ExperimentModel must always be present");
+            }
+    );
+
+    public static final Metamodel<AttachmentDTO, AttachmentPatch> ATTACHMENT_METAMODEL = createMetamodel(AttachmentDTO::buildMetamodel);
+
+    public static final MetamodelValueHandler<ExperimentSnapshot, AttachmentDTO, AttachmentPatch> ATTACHMENT = new MetamodelValueHandler<>(
+            ATTACHMENT_METAMODEL,
+            AttachmentPatch::new,
+            (experiment, patch) -> new AttachmentDTO()
+    );
+
+    public static final SetValueHandler<ExperimentSnapshot, AttachmentDTO, UUID, AttachmentPatch> ATTACHMENT_SET = new SetValueHandler<>(
+            AttachmentDTO::getId,
+            ATTACHMENT
+    );
+
+    public static final Metamodel<ACLEntryDTO, ACLEntryPatch> ACL_ENTRY_METAMODEL = createMetamodel(ACLEntryDTO::buildMetamodel);
+
+    public static final MetamodelValueHandler<ExperimentSnapshot, ACLEntryDTO, ACLEntryPatch> ACL_ENTRY = new MetamodelValueHandler<>(
+            ACL_ENTRY_METAMODEL,
+            ACLEntryPatch::new,
+            (experiment, patch) -> new ACLEntryDTO()
+    );
+
+    public static final SetValueHandler<ExperimentSnapshot, ACLEntryDTO, UUID, ACLEntryPatch> ACL_ENTRY_SET = new SetValueHandler<>(
+            ACLEntryDTO::getUserId,
+            ACL_ENTRY
+    );
+
+    public static final Metamodel<ExperimentSnapshot, ExperimentPatch> EXPERIMENT_METAMODEL = createMetamodel(ExperimentSnapshot::buildMetamodel);
+
+    public static final ExperimentValueHandler EXPERIMENT = new ExperimentValueHandler(EXPERIMENT_METAMODEL);
 
     public static <C, T, P> ValueHandler<C, T, P> defaultHandler() {
         //noinspection unchecked,rawtypes

@@ -1,7 +1,8 @@
 package com.epam.indigoeln.reaction.util;
 
-import com.epam.indigoeln.reaction.model.ExperimentModel;
-import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
+import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
+import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
+import com.epam.indigoeln.reaction.model.patch.ListPatch;
 import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
 import com.epam.indigoeln.test.FeignUtil;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -21,15 +22,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 public class PatchTestUtil {
 
-    public static ExperimentModel verifyModelPatch(ExperimentModel initial, ExperimentModelPatch patch, ExperimentModel updated) throws Exception {
+    public static ExperimentSnapshot verifyModelPatch(ExperimentSnapshot initial, ExperimentPatch patch, ExperimentSnapshot updated) throws Exception {
         byte[] initialBytes = FeignUtil.OBJECT_MAPPER.writeValueAsBytes(initial);
-        ExperimentModel initialCopy = FeignUtil.OBJECT_MAPPER.readValue(initialBytes, ExperimentModel.class);
+        ExperimentSnapshot initialCopy = FeignUtil.OBJECT_MAPPER.readValue(initialBytes, ExperimentSnapshot.class);
         JsonNode initialJSON = FeignUtil.OBJECT_MAPPER.readTree(initialBytes);
 
         byte[] updatedBytes = FeignUtil.OBJECT_MAPPER.writeValueAsBytes(updated);
         JsonNode updatedJSON = FeignUtil.OBJECT_MAPPER.readTree(updatedBytes);
 
-        ExperimentModel reapplied = Handlers.EXPERIMENT_MODEL.apply(null, initialCopy, Optional.of(patch));
+        ExperimentSnapshot reapplied = Handlers.EXPERIMENT.apply(null, initialCopy, Optional.of(patch));
         assertThat(reapplied).isNotNull().isEqualTo(updated);
 
         byte[] reappliedBytes = FeignUtil.OBJECT_MAPPER.writeValueAsBytes(reapplied);
@@ -45,7 +46,7 @@ public class PatchTestUtil {
 
     private static JsonNode restoreWithJSON(JsonNode baseJSON, JsonNode patchJSON) {
         log.trace("restoreWithJSON:\n\tbaseJSON: {}\n\tpatchJSON: {}", baseJSON, patchJSON);
-        if (patchJSON instanceof ObjectNode patch && patchJSON.has("$")) {
+        if (patchJSON instanceof ObjectNode patch && patchJSON.has(ListPatch.SIZE_FIELD)) {
             log.trace("performing list merge");
             JsonNode[] source;
             if (baseJSON instanceof ArrayNode array) {
@@ -55,9 +56,9 @@ public class PatchTestUtil {
             } else {
                 throw new IllegalArgumentException();
             }
-            Preconditions.checkArgument(patch.get("$").isInt());
-            JsonNode[] target = Arrays.copyOf(source, patch.get("$").intValue());
-            patch.remove("$");
+            Preconditions.checkArgument(patch.get(ListPatch.SIZE_FIELD).isInt());
+            JsonNode[] target = Arrays.copyOf(source, patch.get(ListPatch.SIZE_FIELD).intValue());
+            patch.remove(ListPatch.SIZE_FIELD);
             for (Map.Entry<String, JsonNode> entry : patch.properties()) {
                 int targetIndex = Integer.parseInt(entry.getKey());
                 if (entry.getValue().isNull()) { // deleted

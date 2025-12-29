@@ -10,7 +10,7 @@ import com.epam.indigoeln.eln.service.ExperimentWorkflowService;
 import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
+import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -110,7 +110,7 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public ExperimentModelPatch mutateExperimentModel2(UUID experimentId, Integer revision, Mutation mutation) {
+    public ExperimentPatch mutateExperimentModel2(UUID experimentId, Integer revision, Mutation mutation) {
         return experimentService.mutateModel2(experimentId, revision, mutation);
     }
 

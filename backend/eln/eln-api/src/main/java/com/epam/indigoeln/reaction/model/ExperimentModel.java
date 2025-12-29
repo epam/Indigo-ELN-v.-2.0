@@ -95,9 +95,11 @@ public final class ExperimentModel implements ExperimentModelNode {
                         hasDictionaryRefs.collectDictionaryRefs().forEach(refs::add);
                     }
                 }
+                case AnyProperty<ExperimentModelNode, ?, ?, ?> anyProperty -> {}
                 case AnchorProperty<?, ?, ?> anchorProperty -> {}
                 case EnteredValueProperty<?, ?, ?> enteredValueProperty -> {}
                 case ListProperty<?, ?, ?, ?> listProperty -> {}
+                case SetProperty<?, ?, ?, ?, ?> setProperty -> {}
             }
         });
         refs.remove(null);

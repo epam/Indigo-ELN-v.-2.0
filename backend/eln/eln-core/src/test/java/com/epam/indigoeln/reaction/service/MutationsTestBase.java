@@ -7,7 +7,7 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
-import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
+import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.util.CalculationReportBuilder;
 import com.epam.indigoeln.reaction.util.PatchTestUtil;
 import com.epam.indigoeln.test.FeignUtil;
@@ -26,6 +26,7 @@ public abstract class MutationsTestBase extends ELNBaseTest {
 
     protected NotebookDetailsDTO notebook;
     protected ExperimentDetailsDTO experiment;
+    protected ExperimentSnapshot experimentSnapshot;
     protected ExperimentModel model;
     protected Reaction reaction;
     protected ReactionInput input1;
@@ -67,11 +68,13 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
         experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
         model = experimentClient.getExperimentModel(experiment.getId());
+        experimentSnapshot = new ExperimentSnapshot();
         modelUpdated();
     }
 
     @SuppressWarnings({"SizeReplaceableByIsEmpty", "DataFlowIssue", "SequencedCollectionMethodCanBeUsed"})
     protected void modelUpdated() {
+        experimentSnapshot.setModel(model);
         reaction = model.getReactions().getFirst();
         input1 = reaction.getInputs().size() >= 1 ? reaction.getInputs().get(0) : null;
         input1Sample1 = input1 != null && input1.getSamples().size() >= 1 ? input1.getSamples().get(0) : null;
@@ -88,7 +91,7 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         System.out.println("Applying mutation: " + mutation);
         reportBuilder.addMutation(mutation);
 
-        ExperimentModelPatch patch = experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), mutation);
+        ExperimentPatch patch = experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), mutation);
         ExperimentModel updatedModel = experimentClient.getExperimentModel(experiment.getId());
 
         reportBuilder.addPatch(FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch));
@@ -100,7 +103,11 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         }
         reportBuilder.addModel(updatedModel);
 
-        model = PatchTestUtil.verifyModelPatch(model, patch, updatedModel);
+        ExperimentSnapshot snapshot = new ExperimentSnapshot();
+        snapshot.setModel(model);
+        ExperimentSnapshot updatedSnapshot = new ExperimentSnapshot();
+        updatedSnapshot.setModel(updatedModel);
+        model = PatchTestUtil.verifyModelPatch(snapshot, patch, updatedSnapshot).getModel();
         modelUpdated();
 
         modelSizes.add(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(model).length);

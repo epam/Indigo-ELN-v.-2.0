@@ -1,7 +1,9 @@
 package com.epam.indigoeln.eln.service;
 
+import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.model.ProjectEditRequest;
 import com.epam.indigoeln.eln.model.UserRef;
+import com.epam.indigoeln.reaction.model.patch.ListPatch;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.EnteredValueSource;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
@@ -10,6 +12,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Value;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -87,6 +91,19 @@ public class JSONSerializationTest {
         assertThat(value2.data).isEqualTo(value.data);
     }
 
+    @ParameterizedTest
+    @MethodSource("mappers")
+    void testSerializeListPatch(MapperType serializer, MapperType deserializer) throws Exception {
+        PatchContainer value = new PatchContainer(Optional.of(new ListPatch<>(5)));
+        value.getList().get().getItems().put(3, new Pair<>("name", 1));
+        String serialized = getMapper(serializer).writeValueAsString(value);
+        assertThat(serialized).isEqualToIgnoringWhitespace("""
+            {"list": {"$size":5,"3":{"a":"name","b":1}}}
+            """);
+        PatchContainer value2  = getMapper(deserializer).readValue(serialized, new TypeReference<>() {});
+        assertThat(value2).isEqualTo(value);
+    }
+
     ObjectMapper getMapper(MapperType mapperType) {
         return switch (mapperType) {
             case QUARKUS -> quarkusObjectMapper;
@@ -101,5 +118,12 @@ public class JSONSerializationTest {
     @Value
     static class ByteData {
         byte[] data;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class PatchContainer {
+
+        Optional<ListPatch<Integer, Pair<String, Integer>>> list;
     }
 }

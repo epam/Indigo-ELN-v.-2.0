@@ -16,18 +16,20 @@ import java.util.function.BiConsumer;
 @AllArgsConstructor
 @JsonSerialize(using = ListPatchSerializer.class)
 @JsonDeserialize(using = ListPatchDeserializer.class)
-public class ListPatch<T> {
+public class ListPatch<K extends Comparable<K>, T> {
+
+    public static final String SIZE_FIELD = "$size";
 
     int size;
-    Map<Integer, @Nullable T> items;
+    Map<K, @Nullable T> items;
 
     public ListPatch(int size) {
         this.size = size;
         items = new TreeMap<>();
     }
 
-    public void forEach(BiConsumer<Integer, @Nullable T> action) {
-        for (Map.Entry<Integer, @Nullable T> entry : items.entrySet()) {
+    public void forEach(BiConsumer<K, @Nullable T> action) {
+        for (Map.Entry<K, @Nullable T> entry : items.entrySet()) {
             action.accept(entry.getKey(), entry.getValue());
         }
     }
