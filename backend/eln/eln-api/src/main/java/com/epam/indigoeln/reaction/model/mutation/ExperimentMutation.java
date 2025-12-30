@@ -3,6 +3,7 @@ package com.epam.indigoeln.reaction.model.mutation;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -21,7 +22,9 @@ public sealed interface ExperimentMutation extends Mutation permits
         ExperimentMutation.SubmitExperiment,
         ExperimentMutation.ApproveExperiment,
         ExperimentMutation.RejectExperiment,
-        ExperimentMutation.ResubmitExperiment
+        ExperimentMutation.ResubmitExperiment,
+        ExperimentMutation.Undo,
+        ExperimentMutation.Redo
 {
 
     record CreateExperiment(
@@ -44,17 +47,17 @@ public sealed interface ExperimentMutation extends Mutation permits
     }
 
     record EditExperimentAccess(
-            List<AccessForm> edits
+            @NotNull List<AccessForm> edits
     ) implements ExperimentMutation {
     }
 
     record CreateExperimentAttachment(
-            UUID attachmentID
+            @NotNull UUID attachmentID
     ) implements ExperimentMutation {
     }
 
     record DeleteExperimentAttachment(
-            UUID attachmentID
+            @NotNull UUID attachmentID
     ) implements ExperimentMutation {
     }
 
@@ -71,7 +74,7 @@ public sealed interface ExperimentMutation extends Mutation permits
     }
 
     record SubmitExperiment(
-            UUID signatureTemplateID
+            @NotNull UUID signatureTemplateID
     ) implements ExperimentMutation {
     }
 
@@ -84,6 +87,16 @@ public sealed interface ExperimentMutation extends Mutation permits
     }
 
     record ResubmitExperiment(
+    ) implements ExperimentMutation {
+    }
+
+    record Undo(
+            @NotNull Integer revision
+    ) implements ExperimentMutation {
+    }
+
+    record Redo(
+            @NotNull Integer revision
     ) implements ExperimentMutation {
     }
 }

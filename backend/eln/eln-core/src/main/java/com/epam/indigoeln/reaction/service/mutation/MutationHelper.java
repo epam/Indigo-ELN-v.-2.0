@@ -101,4 +101,11 @@ public class MutationHelper {
     public SaltCodeInfo saltCodeInfo(@Nullable DictionaryItemRef ref) {
         return ref != null ? dictionaryService.getSaltInfo(ref.getId()) : null;
     }
+
+    public Object getSampleIdentifier(SampleEntity sample) {
+        if (sample.getStrCode() != null) {
+            return sample.getStrCode();
+        }
+        return "unknown sample";
+    }
 }

@@ -5,6 +5,7 @@ import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
@@ -94,7 +95,10 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         ExperimentPatch patch = experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), mutation);
         ExperimentModel updatedModel = experimentClient.getExperiment(experiment.getId()).getModel();
 
+        // update report
         reportBuilder.addPatch(FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch));
+
+        // reload picture
         Response pictureResponse = experimentClient.getExperimentPictureClient(experiment.getId());
         byte[] newPicture = (byte[]) pictureResponse.getEntity();
         if (picture == null || newPicture != null && !Arrays.equals(picture, newPicture)) {
@@ -103,12 +107,19 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         }
         reportBuilder.addModel(updatedModel);
 
+        // verify if patch is correct
         ExperimentSnapshot snapshot = new ExperimentSnapshot();
         snapshot.setModel(model);
         ExperimentSnapshot updatedSnapshot = new ExperimentSnapshot();
         updatedSnapshot.setModel(updatedModel);
         model = PatchTestUtil.verifyModelPatch(snapshot, patch, updatedSnapshot).getModel();
         modelUpdated();
+
+        // verify if undo/redo works and produces the same snapshot
+        Integer initialRevision = experiment.getRevision();
+        ExperimentPatch undoPatch = experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), new ExperimentMutation.Undo(initialRevision));
+        experiment = experimentClient.getExperiment(experiment.getId());
+        experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), new ExperimentMutation.Redo(initialRevision));
 
         modelSizes.add(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(model).length);
         patchSizes.add(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(patch).length);

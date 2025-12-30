@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
 import com.epam.indigoeln.reaction.model.Anchor;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.Map;
@@ -30,8 +31,8 @@ public sealed interface ReactionMutation extends Mutation permits
     }
 
     record ResolveInputs (
-        @NotNull Anchor.Reaction anchor,
-        @NotNull Map<Anchor.Input, UUID> inputSamples // anchor -> sampleID
+            @NotNull Anchor.Reaction anchor,
+            @NotEmpty Map<Anchor.Input, UUID> inputSamples // anchor -> sampleID
     ) implements ReactionMutation {
     }
 

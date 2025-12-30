@@ -14,6 +14,7 @@ import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationHelper;
+import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.epam.indigoeln.reaction.service.mutation.ReactionMutationHandler;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -30,7 +31,9 @@ class SetSchemeHandler implements ReactionMutationHandler<ReactionMutation.SetSc
     MutationHelper mutationHelper;
 
     @Override
-    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.SetScheme mutation, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.SetScheme mutation, MutationContext context) {
+        String previousRxnfile = reaction.getRxnfile();
+
         // TODO match into existing inputs/outputs
         reaction.setInputs(new ArrayList<>());
         reaction.setOutputs(new ArrayList<>());
@@ -47,6 +50,8 @@ class SetSchemeHandler implements ReactionMutationHandler<ReactionMutation.SetSc
         }
         mutationHelper.adjustLimitingInput(reaction);
         reaction.setRxnfile(mutation.molFile());
+
+        return new MutationResult("Update reaction scheme", new ReactionMutation.SetScheme(reaction.getAnchor(), previousRxnfile));
     }
 }
 
@@ -58,9 +63,10 @@ class AddEmptyInputHandler implements ReactionMutationHandler<ReactionMutation.A
     MutationHelper mutationHelper;
 
     @Override
-    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddEmptyInput mutation, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddEmptyInput mutation, MutationContext context) {
         reaction.getInputs().add(mutationHelper.createInputLine(reaction, null, ReactionRole.REACTANT));
         mutationHelper.adjustLimitingInput(reaction);
+        return new MutationResult("Add empty input");
     }
 }
 
@@ -74,12 +80,14 @@ class AddInputHandler implements ReactionMutationHandler<ReactionMutation.AddInp
     CompoundService compoundService;
 
     @Override
-    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddInput mutation, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddInput mutation, MutationContext context) {
         ReactionInput row = mutationHelper.createInputLine(reaction, null, ReactionRole.REACTANT);
         reaction.getInputs().add(row);
         SampleEntity sample = compoundService.getSample(mutation.sampleId());
         mutationHelper.setInputLineSample(row, sample, context);
         mutationHelper.adjustLimitingInput(reaction);
+
+        return new MutationResult("Add input sample: " + mutationHelper.getSampleIdentifier(sample));
     }
 }
 
@@ -93,12 +101,13 @@ class ResolveInputsHandler implements ReactionMutationHandler<ReactionMutation.R
     CompoundService compoundService;
 
     @Override
-    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.ResolveInputs mutation, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.ResolveInputs mutation, MutationContext context) {
         mutation.inputSamples().forEach((inputAnchor, sampleId) -> {
             ReactionInput row = model.locate(inputAnchor);
             SampleEntity sample = compoundService.getSample(sampleId);
             mutationHelper.setInputLineSample(row, sample, context);
         });
+        return new MutationResult("Resolve input samples");
     }
 }
 
@@ -110,10 +119,12 @@ class RemoveInputHandler implements ReactionMutationHandler<ReactionMutation.Rem
     MutationHelper mutationHelper;
 
     @Override
-    public void handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.RemoveInput mutation, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.RemoveInput mutation, MutationContext context) {
         ReactionInput input = model.locate(mutation.input());
         reaction.getInputs().remove(input);
         context.getAffectedRoles().add(input.getRole());
         mutationHelper.adjustLimitingInput(reaction);
+
+        return new MutationResult("Remove input");
     }
 }

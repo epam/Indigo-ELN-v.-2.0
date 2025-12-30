@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.util;
 
+import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
@@ -23,9 +24,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 public class PatchTestUtil {
 
-    public static ExperimentSnapshot verifyModelPatch(ExperimentSnapshot initial, ExperimentPatch patch, ExperimentSnapshot updated) throws Exception {
+    public static ExperimentSnapshot verifyModelPatch(ExperimentDetailsDTO initial, ExperimentPatch patch, ExperimentDetailsDTO updated) throws Exception {
         byte[] initialBytes = FeignUtil.OBJECT_MAPPER.writeValueAsBytes(initial);
-        ExperimentSnapshot initialCopy = FeignUtil.OBJECT_MAPPER.readValue(initialBytes, ExperimentSnapshot.class);
+        ExperimentDetailsDTO initialCopy = FeignUtil.OBJECT_MAPPER.readValue(initialBytes, ExperimentDetailsDTO.class);
         JsonNode initialJSON = FeignUtil.OBJECT_MAPPER.readTree(initialBytes);
 
         byte[] updatedBytes = FeignUtil.OBJECT_MAPPER.writeValueAsBytes(updated);
