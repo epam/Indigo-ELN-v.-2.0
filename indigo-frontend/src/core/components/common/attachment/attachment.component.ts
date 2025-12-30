@@ -42,6 +42,8 @@ export class AttachmentComponent implements OnDestroy {
       case 'docx':
         return 'indicon-file-text';
       case 'png':
+      case 'jpg':
+      case 'jpeg':
         return 'indicon-image';
       case 'xls':
       case 'xlsx':
