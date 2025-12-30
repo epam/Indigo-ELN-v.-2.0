@@ -67,10 +67,10 @@ public class ExperimentModelService {
         log.debug("Mutating experiment {}: {}", experiment.getId(), mutation);
 
         MutationHandler<?> handler = mutationHandlerRegistry.findHandler(mutation);
-        MutationContext context = new MutationContext();
+        MutationContext context = new MutationContext(false, false, false);
         handler.initContext(context);
 
-        ExperimentSnapshot initial = createExperimentSnapshot(experiment, context, true);
+        ExperimentSnapshot initial = experimentSnapshotMapper.createSnapshot(experiment, context, true);
         ExperimentModel model = null;
         Set<Pair<ReactionRole, CompoundRef>> previousCompoundRefs = null;
         Map<Anchor.Reaction, String> previousRxnFiles = null;
@@ -162,36 +162,12 @@ public class ExperimentModelService {
             result = new MutationResult("!!!");
         }
 
-        ExperimentSnapshot target = createExperimentSnapshot(experiment, context, false);
+        ExperimentSnapshot target = experimentSnapshotMapper.createSnapshot(experiment, context, false);
         ExperimentPatch diff = createPatch(initial, target, context);
 
         addRevision(experiment, experiment.getModifiedAt(), result.summary(), mutation, diff);
 
         return diff;
-    }
-
-    private ExperimentSnapshot createExperimentSnapshot(ExperimentEntity experiment, MutationContext context, boolean snapshotModel) {
-        ExperimentSnapshot snapshot = experimentSnapshotMapper.copyBasicFields(experiment);
-        if (context.isAffectsAttachments()) {
-            snapshot.setAttachments(experimentSnapshotMapper.copyAttachments(experiment.getAttachments()));
-        }
-        if (context.isAffectsACL()) {
-            snapshot.setAcl(experimentSnapshotMapper.copyACL(experiment.getFullACL()));
-        }
-        if (context.isAffectsModel()) {
-            if (snapshotModel) {
-                // TODO restore from ProtoBuf?
-                try {
-                    byte[] initialBytes = objectMapper.writeValueAsBytes(experiment.getModel());
-                    snapshot.setModel(objectMapper.readValue(initialBytes, ExperimentModel.class));
-                } catch (Exception e) {
-                    throw new RuntimeException("Failed to clone model: " + e.getMessage(), e);
-                }
-            } else {
-                snapshot.setModel(experiment.getModel());
-            }
-        }
-        return snapshot;
     }
 
     private void addRevision(ExperimentEntity experiment, ZonedDateTime datetime, String summary, Mutation mutation, ExperimentPatch diff) {

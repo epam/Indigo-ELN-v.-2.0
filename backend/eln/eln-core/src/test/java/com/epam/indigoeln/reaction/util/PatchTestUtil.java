@@ -2,10 +2,8 @@ package com.epam.indigoeln.reaction.util;
 
 import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
-import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.model.patch.ListPatch;
-import com.epam.indigoeln.reaction.model.patch.handler.ExperimentValueHandler;
 import com.epam.indigoeln.test.FeignUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -14,41 +12,46 @@ import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.EntryStream;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.TreeMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 public class PatchTestUtil {
 
-    public static ExperimentSnapshot verifyModelPatch(ExperimentDetailsDTO initial, ExperimentPatch patch, ExperimentDetailsDTO updated) throws Exception {
+    public static void verifyModelPatch(ExperimentDetailsDTO initial, ExperimentPatch patch, ExperimentDetailsDTO updated, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
+        doVerifyModelPatch(initial, patch, updated, reportBuilder);
+    }
+
+    public static void verifyModelPatch(ExperimentSnapshot initial, ExperimentPatch patch, ExperimentSnapshot updated, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
+        doVerifyModelPatch(initial, patch, updated, reportBuilder);
+    }
+
+    private static void doVerifyModelPatch(Object initial, ExperimentPatch patch, Object updated, @Nullable CalculationReportBuilder reportBuilder) throws Exception {
         byte[] initialBytes = FeignUtil.OBJECT_MAPPER.writeValueAsBytes(initial);
-        ExperimentDetailsDTO initialCopy = FeignUtil.OBJECT_MAPPER.readValue(initialBytes, ExperimentDetailsDTO.class);
-        JsonNode initialJSON = FeignUtil.OBJECT_MAPPER.readTree(initialBytes);
+        JsonNode initialJSON = cleanupJSON(FeignUtil.OBJECT_MAPPER.readTree(initialBytes));
 
         byte[] updatedBytes = FeignUtil.OBJECT_MAPPER.writeValueAsBytes(updated);
-        JsonNode updatedJSON = FeignUtil.OBJECT_MAPPER.readTree(updatedBytes);
-
-        MutationContext context = new MutationContext();
-        context.setAffectsAttachments(true);
-        context.setAffectsACL(true);
-        context.setAffectsModel(true);
-        ExperimentValueHandler valueHandler = new ExperimentValueHandler(context);
-        ExperimentSnapshot reapplied = valueHandler.apply(null, initialCopy, Optional.of(patch));
-        assertThat(reapplied).isNotNull().isEqualTo(updated);
-
-        byte[] reappliedBytes = FeignUtil.OBJECT_MAPPER.writeValueAsBytes(reapplied);
-        JsonNode reappliedJSON = FeignUtil.OBJECT_MAPPER.readTree(reappliedBytes);
-
-        assertThat(reappliedJSON).isEqualTo(updatedJSON);
+        JsonNode updatedJSON = cleanupJSON(FeignUtil.OBJECT_MAPPER.readTree(updatedBytes));
 
         JsonNode appliedWithJSON = restoreWithJSON(initialJSON.deepCopy(), FeignUtil.OBJECT_MAPPER.readTree(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(patch)));
-        assertThat(minimizeJSON(appliedWithJSON.deepCopy())).isEqualTo(minimizeJSON(updatedJSON.deepCopy()));
 
-        return reapplied;
+        String expected = FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(minimizeJSON(updatedJSON.deepCopy()));
+        String applied = FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(minimizeJSON(appliedWithJSON.deepCopy()));
+        try {
+            assertThat(applied).isEqualTo(expected);
+        } catch (AssertionError e) {
+            if (reportBuilder != null) {
+                reportBuilder.addFailedComparison("Model with applied patch not equals to expected", expected, applied);
+            }
+            throw e;
+        }
     }
 
     private static JsonNode restoreWithJSON(JsonNode baseJSON, JsonNode patchJSON) {
@@ -115,30 +118,38 @@ public class PatchTestUtil {
         return patchJSON;
     }
 
+    // make ExperimentDetailsDTO same shape as ExperimentSnapshot
+    private static JsonNode cleanupJSON(JsonNode json) {
+        ((ObjectNode) json).remove("modifiedAt");
+        ((ObjectNode) json).remove("revision");
+        return json;
+    }
+
+    // remove empty objects and arrays; sorts object keys for comparison
     @Nullable
     private static JsonNode minimizeJSON(JsonNode json) {
-        if (json instanceof ObjectNode object) {
-            List<String> deletedKeys = new ArrayList<>();
-            for (Map.Entry<String, JsonNode> entry : object.properties()) {
-                JsonNode minimized = minimizeJSON(entry.getValue());
-                if (isEmpty(entry.getValue())) {
-                    deletedKeys.add(entry.getKey());
-                } else {
-                    entry.setValue(minimized);
+        return switch (json) {
+            case ObjectNode object -> {
+                Map<String, JsonNode> content = EntryStream.of(object.propertyStream())
+                        .mapValues(PatchTestUtil::minimizeJSON)
+                        .nonNullValues()
+                        .toCustomMap(TreeMap::new);
+                object.removeAll();
+                object.setAll(content);
+                yield isEmpty(object) ? null : object;
+            }
+            case ArrayNode array -> {
+                if (array.isEmpty()) {
+                    yield null;
                 }
+                for (int i = 0; i < array.size(); i++) {
+                    array.set(i, minimizeJSON(array.get(i)));
+                }
+                yield array;
             }
-            object.remove(deletedKeys);
-            return isEmpty(object) ? null : object;
-        } else if (json instanceof ArrayNode array) {
-            if (array.isEmpty()) {
-                return null;
-            }
-            for (int i = 0; i < array.size(); i++) {
-                array.set(i, minimizeJSON(array.get(i)));
-            }
-            return array;
-        }
-        return json;
+            case NullNode nullNode -> null;
+            default -> json;
+        };
     }
 
     private static boolean isEmpty(@Nullable JsonNode json) {

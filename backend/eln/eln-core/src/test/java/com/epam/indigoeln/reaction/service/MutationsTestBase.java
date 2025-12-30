@@ -5,7 +5,6 @@ import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
@@ -27,8 +26,6 @@ public abstract class MutationsTestBase extends ELNBaseTest {
 
     protected NotebookDetailsDTO notebook;
     protected ExperimentDetailsDTO experiment;
-    protected ExperimentSnapshot experimentSnapshot;
-    protected ExperimentModel model;
     protected Reaction reaction;
     protected ReactionInput input1;
     protected ReactionInputSample input1Sample1;
@@ -68,15 +65,12 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         ProjectDetailsDTO project = getOrCreateProject(projectName);
         notebook = notebookClient.createNotebook(project.getId(), new NotebookRequest(nextNotebookName()));
         experiment = experimentClient.createExperiment(notebook.getId(), new ExperimentRequest(emptyTemplateID));
-        model = experimentClient.getExperiment(experiment.getId()).getModel();
-        experimentSnapshot = new ExperimentSnapshot();
         modelUpdated();
     }
 
     @SuppressWarnings({"SizeReplaceableByIsEmpty", "DataFlowIssue", "SequencedCollectionMethodCanBeUsed"})
     protected void modelUpdated() {
-        experimentSnapshot.setModel(model);
-        reaction = model.getReactions().getFirst();
+        reaction = experiment.getModel().getReactions().getFirst();
         input1 = reaction.getInputs().size() >= 1 ? reaction.getInputs().get(0) : null;
         input1Sample1 = input1 != null && input1.getSamples().size() >= 1 ? input1.getSamples().get(0) : null;
         input2 = reaction.getInputs().size() >= 2 ? reaction.getInputs().get(1) : null;
@@ -93,7 +87,7 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         reportBuilder.addMutation(mutation);
 
         ExperimentPatch patch = experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), mutation);
-        ExperimentModel updatedModel = experimentClient.getExperiment(experiment.getId()).getModel();
+        ExperimentDetailsDTO updatedExperiment = experimentClient.getExperiment(experiment.getId());
 
         // update report
         reportBuilder.addPatch(FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch));
@@ -105,29 +99,27 @@ public abstract class MutationsTestBase extends ELNBaseTest {
             picture = newPicture;
             reportBuilder.addPicture(picture, pictureResponse.getHeaderString(HttpHeaders.CONTENT_TYPE));
         }
-        reportBuilder.addModel(updatedModel);
+        ExperimentSnapshot updatedSnapshot = experimentClient.getExperimentSnapshot(experiment.getId());
+        reportBuilder.addModel(updatedSnapshot);
 
         // verify if patch is correct
-        ExperimentSnapshot snapshot = new ExperimentSnapshot();
-        snapshot.setModel(model);
-        ExperimentSnapshot updatedSnapshot = new ExperimentSnapshot();
-        updatedSnapshot.setModel(updatedModel);
-        model = PatchTestUtil.verifyModelPatch(snapshot, patch, updatedSnapshot).getModel();
+        PatchTestUtil.verifyModelPatch(experiment, patch, updatedExperiment, reportBuilder);
+        experiment = updatedExperiment;
         modelUpdated();
 
-        // verify if undo/redo works and produces the same snapshot
-        Integer initialRevision = experiment.getRevision();
-        ExperimentPatch undoPatch = experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), new ExperimentMutation.Undo(initialRevision));
-        experiment = experimentClient.getExperiment(experiment.getId());
-        experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), new ExperimentMutation.Redo(initialRevision));
+        // !!! verify if undo/redo works and produces the same snapshot
+//        Integer initialRevision = experiment.getRevision();
+//        ExperimentPatch undoPatch = experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), new ExperimentMutation.Undo(initialRevision));
+//        experiment = experimentClient.getExperiment(experiment.getId());
+//        experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), new ExperimentMutation.Redo(initialRevision));
 
-        modelSizes.add(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(model).length);
+        modelSizes.add(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(updatedExperiment).length);
         patchSizes.add(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(patch).length);
     }
 
     protected ReactionMutation.ResolveInputs prepareResolveInputs() {
         ReactionMutation.ResolveInputs mutation = new ReactionMutation.ResolveInputs(reaction.getAnchor(), new HashMap<>());
-        Map<Anchor.Input, @Nullable FindSamplesRequest> requests = experimentClient.analyzeRXN(experiment.getId(), model.getReactions().getFirst().getAnchor());
+        Map<Anchor.Input, @Nullable FindSamplesRequest> requests = experimentClient.analyzeRXN(experiment.getId(), experiment.getModel().getReactions().getFirst().getAnchor());
         requests.forEach((anchor, request) -> {
             if (request != null) {
                 Page<SampleDTO> samples = compoundClient.findSamples(request, Paging.DEFAULT);

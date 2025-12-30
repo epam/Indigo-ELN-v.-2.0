@@ -77,11 +77,11 @@ public class MutationsTest extends MutationsTestBase {
         applyMutation(new ReactionMutation.SetScheme(reaction.getAnchor(), molFile));
         DictionaryItemRef saltCode = dictionaryClient.getSaltCodes().getFirst();
         applyMutation(new ReactionInputMutation.SetInputRowSaltCode(input1.getAnchor(), saltCode));
-        ReactionInput input = model.locate(input1.getAnchor());
+        ReactionInput input = experiment.getModel().locate(input1.getAnchor());
         assertThat(input.getCompound()).isInstanceOf(CompoundRef.Virtual.class);
         assertThat(input.getCompound().getSaltCode()).extracting(DictionaryItemRef::getId, DictionaryItemRef::getName).contains(saltCode.getId(), saltCode.getName());
         applyMutation(new ReactionInputMutation.SetInputRowSaltEQ(input1.getAnchor(), 2.0));
-        input = model.locate(input1.getAnchor());
+        input = experiment.getModel().locate(input1.getAnchor());
         assertThat(input.getCompound().getSaltCode()).extracting(DictionaryItemRef::getId, DictionaryItemRef::getName).contains(saltCode.getId(), saltCode.getName());
         assertThat(input.getCompound().getSaltEQ()).isCloseTo(2.0, Offset.offset(1e-6));
         reportBuilder.close();

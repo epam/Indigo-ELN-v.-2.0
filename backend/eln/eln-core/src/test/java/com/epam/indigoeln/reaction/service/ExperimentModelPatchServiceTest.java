@@ -126,13 +126,11 @@ class ExperimentModelPatchServiceTest {
     }
 
     private void makeAndVerifyPatch(@Language("JSON") String expectedPatchStr) throws Exception {
-        MutationContext context = new MutationContext();
-        context.setAffectsModel(true);
-        ExperimentPatch patch = service.createPatch(baseExperiment, experiment, context);
+        ExperimentPatch patch = service.createPatch(baseExperiment, experiment, MutationContext.createFull());
         String patchStr = FeignUtil.OBJECT_MAPPER.writeValueAsString(patch);
         System.out.println(expectedPatchStr.trim());
         System.out.println(patchStr);
         assertThat(expectedPatchStr.trim()).isEqualToIgnoringWhitespace(patchStr);
-        PatchTestUtil.verifyModelPatch(baseExperiment, patch, experiment);
+        PatchTestUtil.verifyModelPatch(baseExperiment, patch, experiment, null);
     }
 }

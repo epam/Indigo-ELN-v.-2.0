@@ -4,6 +4,7 @@ import com.epam.indigoeln.compound.model.FindSamplesRequest;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import jakarta.annotation.Nullable;
@@ -27,6 +28,10 @@ public interface ExperimentAPI extends BaseAPI {
     @GET
     @Path("/experiments/{experimentId}")
     ExperimentDetailsDTO getExperiment(@PathParam("experimentId") UUID experimentId);
+
+    @GET
+    @Path("/experiments/{experimentId}/snapshot")
+    ExperimentSnapshot getExperimentSnapshot(@PathParam("experimentId") UUID experimentId);
 
     @GET
     @Path("/projects/{projectId}/experiments")

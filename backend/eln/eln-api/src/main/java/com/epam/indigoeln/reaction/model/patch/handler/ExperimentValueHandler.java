@@ -23,21 +23,9 @@ public class ExperimentValueHandler extends AbstractMetamodelValueHandler<Void, 
     }
 
     @Override
-    protected ExperimentSnapshot createNewValue(Void container, ExperimentPatch patch) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     protected <T, P> void doCompareProperty(Flag updated, @Nullable T a, T b, P patch, ModelProperty<T, Object, P, Object> simpleProperty) {
         if (isPropertyAllowed(simpleProperty)) {
             super.doCompareProperty(updated, a, b, patch, simpleProperty);
-        }
-    }
-
-    @Override
-    protected <T, P> void doApplyProperty(T value, P patch, ModelProperty<T, Object, P, Object> simpleProperty) {
-        if (isPropertyAllowed(simpleProperty)) {
-            super.doApplyProperty(value, patch, simpleProperty);
         }
     }
 

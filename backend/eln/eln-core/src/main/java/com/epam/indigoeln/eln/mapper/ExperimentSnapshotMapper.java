@@ -5,7 +5,11 @@ import com.epam.indigoeln.eln.entity.AttachmentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.model.ACLEntryDTO;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
+import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
+import com.epam.indigoeln.reaction.model.mutation.MutationContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.inject.Inject;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
@@ -17,6 +21,9 @@ import java.util.Set;
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR, nullValueCheckStrategy =  NullValueCheckStrategy.ALWAYS)
 public abstract class ExperimentSnapshotMapper extends AbstractMapper {
 
+    @Inject
+    ObjectMapper objectMapper;
+
     @Mapping(target = "attachments", ignore = true)
     @Mapping(target = "acl", ignore = true)
     @Mapping(target = "model", ignore = true)
@@ -27,4 +34,28 @@ public abstract class ExperimentSnapshotMapper extends AbstractMapper {
     public abstract Set<AttachmentDTO> copyAttachments(List<AttachmentEntity> attachments);
 
     public abstract Set<ACLEntryDTO> copyACL(ACLEntry[] aclEntries);
+
+    public ExperimentSnapshot createSnapshot(ExperimentEntity experiment, MutationContext context, boolean snapshotModel) {
+        ExperimentSnapshot snapshot = copyBasicFields(experiment);
+        if (context.isAffectsAttachments()) {
+            snapshot.setAttachments(copyAttachments(experiment.getAttachments()));
+        }
+        if (context.isAffectsACL()) {
+            snapshot.setAcl(copyACL(experiment.getFullACL()));
+        }
+        if (context.isAffectsModel()) {
+            if (snapshotModel) {
+                // TODO restore from ProtoBuf?
+                try {
+                    byte[] initialBytes = objectMapper.writeValueAsBytes(experiment.getModel());
+                    snapshot.setModel(objectMapper.readValue(initialBytes, ExperimentModel.class));
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to snapshot model: " + e.getMessage(), e);
+                }
+            } else {
+                snapshot.setModel(experiment.getModel());
+            }
+        }
+        return snapshot;
+    }
 }

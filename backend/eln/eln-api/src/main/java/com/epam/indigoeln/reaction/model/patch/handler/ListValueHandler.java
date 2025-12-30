@@ -4,7 +4,6 @@ import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.patch.AbstractListElementPatch;
 import com.epam.indigoeln.reaction.model.patch.ListPatch;
 import com.epam.indigoeln.reaction.util.Flag;
-import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
@@ -70,30 +69,6 @@ public class ListValueHandler<C, T, A extends Anchor, P extends AbstractListElem
             }
         }
         return result;
-    }
-
-    @Override
-    protected List<T> doApply(C container, @Nullable List<T> value, ListPatch<Integer, P> patch) {
-        // noinspection unchecked
-        T[] source = (T[]) (value != null ? value.toArray() : new Object[0]);
-        T[] target = Arrays.copyOf(source, patch.getSize());
-        patch.forEach((position, itemPatch) -> {
-            if (itemPatch == null) {
-                target[position] = null;
-            } else {
-                T item;
-                if (itemPatch.getXfrom() == null) {
-                    item = source[position];
-                } else if (itemPatch.getXfrom().isEmpty()) {
-                    item = null;
-                } else {
-                    item = source[itemPatch.getXfrom().get()];
-                }
-                item = itemHandler.doApply(container, item, itemPatch);
-                target[position] = item;
-            }
-        });
-        return Lists.newArrayList(target);
     }
 
     private static class Comparison<T> {

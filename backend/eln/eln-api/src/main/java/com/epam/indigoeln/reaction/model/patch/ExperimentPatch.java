@@ -14,6 +14,9 @@ import java.util.UUID;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class ExperimentPatch {
 
+    // !!! remove revision when writing to audit log tables, because revision is already a table field
+    private Optional<Integer> revision;
+
     @Nullable
     private Optional<ExperimentStatus> status;
 

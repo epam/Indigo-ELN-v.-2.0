@@ -87,18 +87,14 @@ public class Handlers {
 
     public static final MetamodelValueHandler<ExperimentSnapshot, ExperimentModel, ExperimentModelPatch> EXPERIMENT_MODEL = new MetamodelValueHandler<>(
             EXPERIMENT_MODEL_METAMODEL,
-            ExperimentModelPatch::new,
-            (experiment, patch) -> {
-                throw new UnsupportedOperationException("ExperimentModel must always be present");
-            }
+            ExperimentModelPatch::new
     );
 
     public static final Metamodel<AttachmentDTO, AttachmentPatch> ATTACHMENT_METAMODEL = createMetamodel(AttachmentDTO::buildMetamodel);
 
     public static final MetamodelValueHandler<ExperimentSnapshot, AttachmentDTO, AttachmentPatch> ATTACHMENT = new MetamodelValueHandler<>(
             ATTACHMENT_METAMODEL,
-            AttachmentPatch::new,
-            (experiment, patch) -> new AttachmentDTO()
+            AttachmentPatch::new
     );
 
     public static final SetValueHandler<ExperimentSnapshot, AttachmentDTO, UUID, AttachmentPatch> ATTACHMENT_SET = new SetValueHandler<>(
@@ -110,8 +106,7 @@ public class Handlers {
 
     public static final MetamodelValueHandler<ExperimentSnapshot, ACLEntryDTO, ACLEntryPatch> ACL_ENTRY = new MetamodelValueHandler<>(
             ACL_ENTRY_METAMODEL,
-            ACLEntryPatch::new,
-            (experiment, patch) -> new ACLEntryDTO()
+            ACLEntryPatch::new
     );
 
     public static final SetValueHandler<ExperimentSnapshot, ACLEntryDTO, UUID, ACLEntryPatch> ACL_ENTRY_SET = new SetValueHandler<>(

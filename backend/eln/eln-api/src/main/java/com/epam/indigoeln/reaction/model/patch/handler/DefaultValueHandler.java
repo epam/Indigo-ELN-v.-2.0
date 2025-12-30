@@ -21,17 +21,4 @@ public class DefaultValueHandler<C, T> implements ValueHandler<C, T, T> {
         }
         return Optional.of(b);
     }
-
-    @Nullable
-    @Override
-    public T apply(C container, @Nullable T value, @Nullable Optional<T> patch) {
-        if (patch == null) {
-            return value;
-        }
-        //noinspection OptionalIsPresent
-        if (patch.isEmpty()) {
-            return null;
-        }
-        return patch.get();
-    }
 }

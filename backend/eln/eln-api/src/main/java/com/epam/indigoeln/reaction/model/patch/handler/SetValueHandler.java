@@ -3,10 +3,12 @@ package com.epam.indigoeln.reaction.model.patch.handler;
 import com.epam.indigoeln.reaction.model.patch.ListPatch;
 import com.epam.indigoeln.reaction.util.Flag;
 import lombok.RequiredArgsConstructor;
-import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 // (no entry): doesn't change
@@ -44,22 +46,6 @@ public class SetValueHandler<C, T, A extends Comparable<A>, P> extends AbstractV
             }
         });
         return result;
-    }
-
-    @Override
-    protected Set<T> doApply(C container, @Nullable Set<T> value, ListPatch<A, P> patch) {
-        Map<A, T> map = StreamEx.of(value != null ? value : Set.of())
-                .mapToEntry(anchorFn, Function.identity())
-                .toCustomMap(LinkedHashMap::new);
-        patch.forEach((anchor, itemPatch) -> {
-            if (itemPatch == null) {
-                map.remove(anchor);
-            } else {
-                T newValue = itemHandler.doApply(container, map.get(anchor), itemPatch);
-                map.put(anchor, newValue);
-            }
-        });
-        return new LinkedHashSet<>(map.values());
     }
 
     private static class Comparison<T> {

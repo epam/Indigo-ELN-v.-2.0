@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.util;
 
-import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
@@ -20,7 +21,7 @@ public class CalculationReportBuilder implements AutoCloseable {
     private final File file;
     private final PrintWriter pr;
     @Nullable
-    private List<String> previousModel;
+    private String previousModel;
     private boolean closed;
 
     private final DiffRowGenerator generator = DiffRowGenerator.create()
@@ -47,6 +48,7 @@ public class CalculationReportBuilder implements AutoCloseable {
                             .diff td { white-space: nowrap; padding: 0; text-align: left, vertical-align: top; }
                             pre { margin: 0; }
                             h1 { margin-top: 64pt; }
+                            h1.error { color: darkred; }
                             .old { background-color: #f8d7da; }
                             .new { background-color: #d4edda; }
                         </style>
@@ -71,18 +73,38 @@ public class CalculationReportBuilder implements AutoCloseable {
         pr.printf("<pre>%s</pre>\n", patch);
     }
 
-    public void addModel(ExperimentModel model) {
-        List<String> currentModel = model.toString().lines().toList();
-        List<String> leftContent = new ArrayList<>(), rightContent = new ArrayList<>();
+    public void addModel(ExperimentSnapshot model) {
+        String currentModel = model.toString();
         if (previousModel == null) {
-            rightContent = currentModel;
+            addComparison(List.of(), currentModel.lines().toList());
         } else {
-            List<DiffRow> rows = generator.generateDiffRows(previousModel, currentModel);
-            for (DiffRow row : rows) {
-                leftContent.add(row.getOldLine());
-                rightContent.add(row.getNewLine());
-            }
+            Pair<List<String>, List<String>> result = prepareDiff(previousModel, currentModel);
+            addComparison(result.a(), result.b());
         }
+        previousModel = currentModel;
+    }
+
+    public void addPicture(byte[] content, String contentType) {
+        pr.printf("<img src='data:%s;base64,%s'/>", contentType, Base64.getEncoder().encodeToString(content));
+    }
+
+    public void addFailedComparison(String summary, String expected, String applied) {
+        pr.printf("<h1 class='error'>%s</h1>\n", summary);
+        Pair<List<String>, List<String>> result = prepareDiff(expected, applied);
+        addComparison(result.a(), result.b());
+    }
+
+    private Pair<List<String>, List<String>> prepareDiff(String left, String right) {
+        List<DiffRow> rows = generator.generateDiffRows(left.lines().toList(), right.lines().toList());
+        List<String> leftContent = new ArrayList<>(), rightContent = new ArrayList<>();
+        for (DiffRow row : rows) {
+            leftContent.add(row.getOldLine());
+            rightContent.add(row.getNewLine());
+        }
+        return Pair.of(leftContent, rightContent);
+    }
+
+    private void addComparison(List<String> leftContent, List<String> rightContent) {
         pr.println("""
                 <div class='diff-wrapper'>
                     <div class='diff-pane'>
@@ -105,10 +127,5 @@ public class CalculationReportBuilder implements AutoCloseable {
                     </div>
                 </div>
                 """);
-        previousModel = currentModel;
-    }
-
-    public void addPicture(byte[] content, String contentType) {
-        pr.printf("<img src='data:%s;base64,%s'/>", contentType, Base64.getEncoder().encodeToString(content));
     }
 }

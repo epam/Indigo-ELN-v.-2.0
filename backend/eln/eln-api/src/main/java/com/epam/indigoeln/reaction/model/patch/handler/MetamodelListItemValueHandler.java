@@ -3,7 +3,6 @@ package com.epam.indigoeln.reaction.model.patch.handler;
 import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
 import com.epam.indigoeln.reaction.model.patch.AbstractListElementPatch;
 import com.epam.indigoeln.reaction.util.Flag;
-import com.google.common.base.Preconditions;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
@@ -25,13 +24,6 @@ public class MetamodelListItemValueHandler<C, T, A, P extends AbstractListElemen
         P patch = super.doCompare(updated, a, b, from);
         doSetFrom(updated, from, patch);
         return patch;
-    }
-
-    @Override
-    protected T createNewValue(C container, P patch) {
-        Optional<A> anchor = patch.getAnchor();
-        Preconditions.checkArgument(anchor != null && anchor.isPresent());
-        return valueCreator.apply(container, anchor.get());
     }
 
     protected void doSetFrom(Flag updated, @Nullable Optional<Integer> from, AbstractListElementPatch<?> patch) {

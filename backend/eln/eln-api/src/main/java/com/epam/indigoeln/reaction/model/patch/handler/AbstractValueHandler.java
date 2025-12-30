@@ -27,23 +27,8 @@ abstract class AbstractValueHandler<C, T, P> implements ValueHandler<C, T, P> {
         return null;
     }
 
-    @Nullable
-    @Override
-    public T apply(C container, @Nullable T value, @Nullable Optional<P> patch) {
-        if (patch == null) {
-            return value;
-        }
-        //noinspection OptionalIsPresent
-        if (patch.isEmpty()) {
-            return null;
-        }
-        return doApply(container, value, patch.get());
-    }
-
     // outcome:
     //     updated == false -> ignore result, nothing changed
     //     otherwise -> use returned patch
     protected abstract P doCompare(Flag updated, @Nullable T a, T b, @Nullable Optional<Integer> from);
-
-    protected abstract T doApply(C container, @Nullable T value, P patch);
 }

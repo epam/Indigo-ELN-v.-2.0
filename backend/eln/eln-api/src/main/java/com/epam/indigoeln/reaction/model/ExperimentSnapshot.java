@@ -7,6 +7,7 @@ import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
+import com.epam.indigoeln.reaction.util.ToStringUtil;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
@@ -17,6 +18,7 @@ public class ExperimentSnapshot {
 
     public static void buildMetamodel(Metamodel<ExperimentSnapshot, ExperimentPatch> metamodel) {
         metamodel.setName("Experiment");
+        metamodel.property("revision", ExperimentSnapshot::getRevision, ExperimentSnapshot::setRevision, ExperimentPatch::getRevision, ExperimentPatch::setRevision);
         metamodel.property("status", ExperimentSnapshot::getStatus, ExperimentSnapshot::setStatus, ExperimentPatch::getStatus, ExperimentPatch::setStatus);
         metamodel.property("therapeuticArea", ExperimentSnapshot::getTherapeuticArea, ExperimentSnapshot::setTherapeuticArea, ExperimentPatch::getTherapeuticArea, ExperimentPatch::setTherapeuticArea, null);
         metamodel.property("projectCode", ExperimentSnapshot::getProjectCode, ExperimentSnapshot::setProjectCode, ExperimentPatch::getProjectCode, ExperimentPatch::setProjectCode, null);
@@ -26,6 +28,8 @@ public class ExperimentSnapshot {
         metamodel.listProperty("acl", ExperimentSnapshot::getAcl, ExperimentSnapshot::setAcl, ExperimentPatch::getAcl, ExperimentPatch::setAcl, null, Handlers.ACL_ENTRY_SET);
         metamodel.listProperty("model", ExperimentSnapshot::getModel, ExperimentSnapshot::setModel, ExperimentPatch::getModel, ExperimentPatch::setModel, null, Handlers.EXPERIMENT_MODEL);
     }
+
+    private Integer revision;
 
     private ExperimentStatus status;
 
@@ -48,4 +52,9 @@ public class ExperimentSnapshot {
 
     @Nullable
     private ExperimentModel model;
+
+    @Override
+    public String toString() {
+        return ToStringUtil.toStringBuild(Handlers.EXPERIMENT_METAMODEL, this);
+    }
 }

@@ -11,18 +11,17 @@ import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.NotebookEntity;
 import com.epam.indigoeln.eln.entity.UserInfo;
 import com.epam.indigoeln.eln.mapper.ExperimentMapper;
+import com.epam.indigoeln.eln.mapper.ExperimentSnapshotMapper;
 import com.epam.indigoeln.eln.mapper.ProjectMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.NotebookRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.repository.TemplateRepository;
-import com.epam.indigoeln.reaction.model.Anchor;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
-import com.epam.indigoeln.reaction.model.Reaction;
-import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reports.api.ReportsAPI;
@@ -84,6 +83,8 @@ public class ExperimentService {
     CompoundService compoundService;
     @Inject
     ProjectRepository projectRepository;
+    @Inject
+    ExperimentSnapshotMapper experimentSnapshotMapper;
 
     public ExperimentDetailsDTO createExperiment(UUID notebookId, ExperimentRequest request) {
         NotebookEntity notebook = notebookRepository.get(notebookId);
@@ -116,6 +117,10 @@ public class ExperimentService {
     public ExperimentDetailsDTO getExperiment(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.load(experimentId);
         return getExperimentDetails(experiment);
+    }
+
+    public ExperimentSnapshot getExperimentSnapshot(UUID experimentId) {
+        return experimentSnapshotMapper.createSnapshot(experimentRepository.load(experimentId), MutationContext.createFull(), false);
     }
 
     public ExperimentDetailsDTO getExperimentDetails(ExperimentEntity experiment) {
