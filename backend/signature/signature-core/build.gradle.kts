@@ -4,17 +4,12 @@ plugins {
     id("io.quarkus")
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     api("io.quarkus:quarkus-jdbc-postgresql")
     api("io.quarkus:quarkus-hibernate-orm")
     api("io.quarkus:quarkus-hibernate-orm-panache")
     api("io.hypersistence:hypersistence-utils-hibernate-71:3.11.0")
 
-    //api("io.quarkus:quarkus-hibernate-orm")
     implementation("org.bouncycastle:bcprov-jdk18on")
     implementation("org.bouncycastle:bcpkix-jdk18on")
 
@@ -26,8 +21,6 @@ dependencies {
     implementation("io.quarkiverse.amazonservices:quarkus-amazon-cognito-user-pools")
     implementation("software.amazon.awssdk:url-connection-client")
     testImplementation(project(":common:common-test"))
-
-    // https://mvnrepository.com/artifact/org.eclipse.microprofile.rest.client/microprofile-rest-client-api
 }
 
 group = "com.epam.indigoeln"
