@@ -1,14 +1,13 @@
-package com.epam.indigoeln.reaction.model.metamodel;
+package com.epam.indigoeln.reaction.metamodel.property;
 
-import com.epam.indigoeln.reaction.model.patch.handler.ValueHandler;
+import com.epam.indigoeln.reaction.model.patch.handler2.DiffHandler;
+import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import com.google.common.base.Preconditions;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public sealed interface ModelProperty<C, T, P, PT> permits
         EnteredValueProperty,
         ListProperty,
@@ -22,11 +21,11 @@ public sealed interface ModelProperty<C, T, P, PT> permits
     @Nullable
     BiConsumer<C, T> setter();
 
-    Function<P, Optional<PT>> patchGetter();
+    Function<P, Patched<PT>> patchGetter();
 
-    BiConsumer<P, Optional<PT>> patchSetter();
+    BiConsumer<P, Patched<PT>> patchSetter();
 
-    ValueHandler<C, T, PT> valueHandler();
+    DiffHandler<T, PT> valueHandler();
 
     @Nullable
     default T defaultValue() {
@@ -48,11 +47,11 @@ public sealed interface ModelProperty<C, T, P, PT> permits
         setter.accept(container, value);
     }
 
-    default Optional<PT> patchGet(P patch) {
+    default Patched<PT> patchGet(P patch) {
         return patchGetter().apply(patch);
     }
 
-    default void patchSet(P patch, Optional<PT> value) {
+    default void patchSet(P patch, Patched<PT> value) {
         patchSetter().accept(patch, value);
     }
 }

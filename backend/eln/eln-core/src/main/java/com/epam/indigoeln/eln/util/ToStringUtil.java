@@ -1,8 +1,8 @@
-package com.epam.indigoeln.reaction.util;
+package com.epam.indigoeln.eln.util;
 
-import com.epam.indigoeln.reaction.model.metamodel.ListProperty;
-import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
-import com.epam.indigoeln.reaction.model.metamodel.ModelProperty;
+import com.epam.indigoeln.reaction.metamodel.property.ListProperty;
+import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
+import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;

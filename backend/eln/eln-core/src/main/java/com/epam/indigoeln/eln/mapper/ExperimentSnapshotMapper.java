@@ -3,6 +3,7 @@ package com.epam.indigoeln.eln.mapper;
 import com.epam.indigoeln.eln.entity.ACLEntry;
 import com.epam.indigoeln.eln.entity.AttachmentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.model.ACLDetailsEntryDTO;
 import com.epam.indigoeln.eln.model.ACLEntryDTO;
 import com.epam.indigoeln.eln.model.AttachmentDTO;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
@@ -33,7 +34,7 @@ public abstract class ExperimentSnapshotMapper extends AbstractMapper {
 
     public abstract Set<AttachmentDTO> copyAttachments(List<AttachmentEntity> attachments);
 
-    public abstract Set<ACLEntryDTO> copyACL(ACLEntry[] aclEntries);
+    public abstract Set<ACLDetailsEntryDTO> copyACL(ACLEntry[] aclEntries);
 
     public ExperimentSnapshot createSnapshot(ExperimentEntity experiment, MutationContext context, boolean snapshotModel) {
         ExperimentSnapshot snapshot = copyBasicFields(experiment);

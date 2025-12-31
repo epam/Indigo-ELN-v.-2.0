@@ -1,9 +1,5 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
-import com.epam.indigoeln.reaction.model.patch.ReactionPatch;
-import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
-import com.epam.indigoeln.reaction.util.ToStringUtil;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -25,15 +21,6 @@ import java.util.Objects;
 @EqualsAndHashCode(exclude = "model")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class Reaction implements ExperimentModelNode {
-
-    public static void buildMetamodel(Metamodel<Reaction, ReactionPatch> metamodel) {
-        metamodel.setName("Reaction");
-        metamodel.property("anchor", Reaction::getAnchor, Reaction::setAnchor, ReactionPatch::getAnchor, ReactionPatch::setAnchor);
-        metamodel.property("rxnfile", Reaction::getRxnfile, Reaction::setRxnfile, ReactionPatch::getRxnfile, ReactionPatch::setRxnfile);
-        metamodel.property("rxnVersion", Reaction::getRxnVersion, Reaction::setRxnVersion, ReactionPatch::getRxnVersion, ReactionPatch::setRxnVersion);
-        metamodel.modelListProperty("inputs", Reaction::getInputs, Reaction::setInputs, ReactionPatch::getInputs, ReactionPatch::setInputs, Handlers.INPUT_METAMODEL, Handlers.REACTION_INPUT_LIST);
-        metamodel.modelListProperty("outputs", Reaction::getOutputs, Reaction::setOutputs, ReactionPatch::getOutputs, ReactionPatch::setOutputs, Handlers.OUTPUT_METAMODEL, Handlers.REACTION_OUTPUT_LIST);
-    }
 
     @JsonBackReference
     private ExperimentModel model;
@@ -116,10 +103,5 @@ public final class Reaction implements ExperimentModelNode {
                 .mapToInt(Integer::valueOf)
                 .max().orElse(-1);
         return "P" + (maxUsedNumber + 1);
-    }
-
-    @Override
-    public String toString() {
-        return ToStringUtil.toStringBuild(Handlers.REACTION_METAMODEL, this);
     }
 }

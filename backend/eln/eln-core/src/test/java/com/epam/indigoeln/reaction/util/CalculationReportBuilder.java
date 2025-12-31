@@ -1,8 +1,10 @@
 package com.epam.indigoeln.reaction.util;
 
 import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.reaction.metamodel.ExperimentMetamodel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
 import lombok.SneakyThrows;
@@ -74,6 +76,7 @@ public class CalculationReportBuilder implements AutoCloseable {
     }
 
     public void addModel(ExperimentSnapshot model) {
+        com.epam.indigoeln.eln.util.ToStringUtil.<ExperimentSnapshot, ExperimentPatch>toStringBuild(ExperimentMetamodel.INSTANCE, model);
         String currentModel = model.toString();
         if (previousModel == null) {
             addComparison(List.of(), currentModel.lines().toList());

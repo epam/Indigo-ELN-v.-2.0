@@ -1,37 +1,37 @@
 package com.epam.indigoeln.reaction.model.patch;
 
-import com.epam.indigoeln.reaction.config.ListPatchDeserializer;
-import com.epam.indigoeln.reaction.config.ListPatchSerializer;
+import com.epam.indigoeln.reaction.config.ListPatchSerializers;
+import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.AllArgsConstructor;
+import com.google.common.base.Preconditions;
 import lombok.Value;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.BiConsumer;
+import java.util.List;
 
 @Value
-@AllArgsConstructor
-@JsonSerialize(using = ListPatchSerializer.class)
-@JsonDeserialize(using = ListPatchDeserializer.class)
-public class ListPatch<K extends Comparable<K>, T> {
+@JsonSerialize(using = ListPatchSerializers.Serializer.class)
+@JsonDeserialize(using = ListPatchSerializers.Deserializer.class)
+public class ListPatch<P> {
 
-    public static final String SIZE_FIELD = "$size";
+    public static final String FROM_FIELD = "$from";
 
-    int size;
-    Map<K, @Nullable T> items;
+    List<Item<P>> items;
 
-    public ListPatch(int size) {
-        this.size = size;
-        items = new TreeMap<>();
-    }
+//    public void forEach(BiConsumer<K, @Nullable T> action) {
+//        for (Map.Entry<K, @Nullable T> entry : items.entrySet()) {
+//            action.accept(entry.getKey(), entry.getValue());
+//        }
+//    }
 
-    public void forEach(BiConsumer<K, @Nullable T> action) {
-        for (Map.Entry<K, @Nullable T> entry : items.entrySet()) {
-            action.accept(entry.getKey(), entry.getValue());
+    public record Item<T> (
+            @Nullable Integer oldIndex,
+            @Nullable Integer newIndex,
+            @Nullable Patched<T> value
+    ) {
+        public Item {
+            Preconditions.checkArgument(oldIndex != null || newIndex != null);
         }
     }
-
 }

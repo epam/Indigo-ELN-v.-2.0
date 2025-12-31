@@ -1,26 +1,26 @@
 package com.epam.indigoeln.reaction.model.patch;
 
 import com.epam.indigoeln.reaction.model.Anchor;
+import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Optional;
-
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-public class ReactionPatch extends AbstractListElementPatch<Anchor.Reaction> {
+public class ReactionPatch {
+
+    private Patched<Anchor.Reaction> anchor;
 
     @Nullable
-    private Optional<String> rxnfile;
+    private Patched<String> rxnfile;
 
     @Nullable
-    private Optional<Integer> rxnVersion; // TODO not needed with patch approach, remove when frontend is switched
+    private Patched<Integer> rxnVersion; // !!! not needed with patch approach, remove when frontend is switched
 
     @Nullable
-    private Optional<ListPatch<Integer, ReactionInputPatch>> inputs;
+    private Patched<ListPatch<ReactionInputPatch>> inputs;
 
     @Nullable
-    private Optional<ListPatch<Integer, ReactionOutputPatch>> outputs;
+    private Patched<ListPatch<ReactionOutputPatch>> outputs;
 }

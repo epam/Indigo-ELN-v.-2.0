@@ -1,13 +1,9 @@
 package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.eln.model.NbkBatchNumber;
-import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
-import com.epam.indigoeln.reaction.model.patch.ReactionInputSamplePatch;
-import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
-import com.epam.indigoeln.reaction.util.ToStringUtil;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -20,16 +16,6 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true, exclude = "row")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ReactionInputSample extends ReactionSample implements ExperimentModelNode {
-
-    public static void buildMetamodel(Metamodel<ReactionInputSample, ReactionInputSamplePatch> metamodel) {
-        metamodel.setName("ReactionInputSample");
-        metamodel.property("anchor", ReactionInputSample::getAnchor, ReactionInputSample::setAnchor, ReactionInputSamplePatch::getAnchor, ReactionInputSamplePatch::setAnchor);
-        metamodel.accept(ReactionSample::buildMetamodelBase);
-        metamodel.<@Nullable UUID>property("sampleId", ReactionInputSample::getSampleId, ReactionInputSample::setSampleId, ReactionInputSamplePatch::getSampleId, ReactionInputSamplePatch::setSampleId);
-        metamodel.enteredValueProperty("mol", ReactionInputSample::getMol, ReactionInputSample::setMol, ReactionInputSamplePatch::getMol, ReactionInputSamplePatch::setMol);
-        metamodel.enteredValueProperty("weight", ReactionInputSample::getWeight, ReactionInputSample::setWeight, ReactionInputSamplePatch::getWeight, ReactionInputSamplePatch::setWeight);
-        metamodel.<@Nullable String>property("comment", ReactionInputSample::getComment, ReactionInputSample::setComment, ReactionInputSamplePatch::getComment, ReactionInputSamplePatch::setComment);
-    }
 
     @JsonBackReference
     private ReactionInput row;
@@ -61,10 +47,5 @@ public final class ReactionInputSample extends ReactionSample implements Experim
         sample.row = row;
         sample.anchor = anchor;
         return sample;
-    }
-
-    @Override
-    public String toString() {
-        return ToStringUtil.toStringBuild(Handlers.INPUT_SAMPLE_METAMODEL, this);
     }
 }

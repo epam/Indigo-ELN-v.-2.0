@@ -2,31 +2,31 @@ package com.epam.indigoeln.reaction.model.patch;
 
 import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ReactionOutputType;
+import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Optional;
-
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class ReactionOutputPatch extends AbstractReactionRowPatch<Anchor.Output> {
 
-    @Nullable
-    private Optional<String> outputName;
+    private Patched<Anchor.Output> anchor;
 
     @Nullable
-    private Optional<ReactionOutputType> type;
+    private Patched<String> outputName;
 
     @Nullable
-    private Optional<EnteredValuePatch<MolUnit>> theoMol;
+    private Patched<ReactionOutputType> type;
 
     @Nullable
-    private Optional<EnteredValuePatch<WeightUnit>> theoWeight;
+    private Patched<EnteredValuePatch<MolUnit>> theoMol;
 
     @Nullable
-    private Optional<ListPatch<Integer, ReactionOutputSamplePatch>> samples;
+    private Patched<EnteredValuePatch<WeightUnit>> theoWeight;
+
+    @Nullable
+    private Patched<ListPatch<ReactionOutputSamplePatch>> samples;
 }

@@ -6,6 +6,7 @@ import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.SampleRegistrationStatus;
 import com.epam.indigoeln.reaction.model.outputsample.*;
+import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
@@ -14,80 +15,80 @@ import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class ReactionOutputSamplePatch extends AbstractReactionSamplePatch<Anchor.OutputSample> {
 
-    @Nullable
-    private Optional<NbkBatchNumber> nbkBatchNumber;
+    private Patched<Anchor.OutputSample> anchor;
 
     @Nullable
-    private Optional<EnteredValuePatch<MolUnit>> actualMol;
+    private Patched<NbkBatchNumber> nbkBatchNumber;
 
     @Nullable
-    private Optional<EnteredValuePatch<WeightUnit>> actualWeight;
+    private Patched<EnteredValuePatch<MolUnit>> actualMol;
 
     @Nullable
-    private Optional<EnteredValuePatch<NoUnit>> yield;
+    private Patched<EnteredValuePatch<WeightUnit>> actualWeight;
 
     @Nullable
-    private Optional<SampleRegistrationStatus> registrationStatus;
+    private Patched<EnteredValuePatch<NoUnit>> yield;
 
     @Nullable
-    private Optional<String> registrationStatusMessage;
+    private Patched<SampleRegistrationStatus> registrationStatus;
 
     @Nullable
-    private Optional<UUID> sampleId;
+    private Patched<String> registrationStatusMessage;
 
     @Nullable
-    private Optional<List<DictionaryItemRef>> handlingPrecautions;
+    private Patched<UUID> sampleId;
 
     @Nullable
-    private Optional<List<DictionaryItemRef>> storageInstructions;
+    private Patched<List<DictionaryItemRef>> handlingPrecautions;
 
     @Nullable
-    private Optional<List<DictionaryItemRef>> compoundProtection;
+    private Patched<List<DictionaryItemRef>> storageInstructions;
 
     @Nullable
-    private Optional<List<SolubidityInSolvent>> solubilityInSolvents;
+    private Patched<List<DictionaryItemRef>> compoundProtection;
 
     @Nullable
-    private Optional<List<ResidualSolvent>> residualSolvents;
+    private Patched<List<SolubidityInSolvent>> solubilityInSolvents;
 
     @Nullable
-    private Optional<MeltingPoint> meltingPoint;
+    private Patched<List<ResidualSolvent>> residualSolvents;
 
     @Nullable
-    private Optional<List<PurityCalculation>> purityCalculations;
+    private Patched<MeltingPoint> meltingPoint;
 
     @Nullable
-    private Optional<ExternalSupplier> externalSupplier;
+    private Patched<List<PurityCalculation>> purityCalculations;
 
     @Nullable
-    private Optional<DictionaryItemRef> source;
+    private Patched<ExternalSupplier> externalSupplier;
 
     @Nullable
-    private Optional<DictionaryItemRef> sourceDetails;
+    private Patched<DictionaryItemRef> source;
 
     @Nullable
-    private Optional<DictionaryItemRef> componentState;
+    private Patched<DictionaryItemRef> sourceDetails;
 
     @Nullable
-    private Optional<String> batchComment;
+    private Patched<DictionaryItemRef> componentState;
 
     @Nullable
-    private Optional<String> structureComment;
+    private Patched<String> batchComment;
 
     @Nullable
-    private Optional<Double> calculatedMolWeight;
+    private Patched<String> structureComment;
 
     @Nullable
-    private Optional<String> calculatedBatchMF;
+    private Patched<Double> calculatedMolWeight;
 
     @Nullable
-    private Optional<List<STRCodeSample>> precursorReactantIds;
+    private Patched<String> calculatedBatchMF;
+
+    @Nullable
+    private Patched<List<STRCodeSample>> precursorReactantIds;
 }

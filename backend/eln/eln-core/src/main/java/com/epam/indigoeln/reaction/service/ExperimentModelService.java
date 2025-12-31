@@ -7,12 +7,13 @@ import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.mapper.ExperimentSnapshotMapper;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.service.UserService;
+import com.epam.indigoeln.eln.util.ExperimentModelUtil;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
-import com.epam.indigoeln.reaction.model.patch.handler.ExperimentValueHandler;
+import com.epam.indigoeln.reaction.model.patch.handler2.ExperimentDiffHandler;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.*;
 import com.epam.indigoeln.reaction.util.Flag;
@@ -76,9 +77,9 @@ public class ExperimentModelService {
         Map<Anchor.Reaction, String> previousRxnFiles = null;
         if (context.isAffectsModel()) {
             model = experiment.getModel();
-            previousCompoundRefs = model.collectCompoundRefs();
+            previousCompoundRefs = ExperimentModelUtil.collectCompoundRefs(model);
             previousRxnFiles = StreamEx.of(model.getReactions()).toMap(Reaction::getAnchor, Reaction::getRxnfile);
-            model.prepareToRecalculate();
+            ExperimentModelUtil.prepareToRecalculate(model);
         }
 
         MutationResult result = switch (mutation) {
@@ -146,7 +147,7 @@ public class ExperimentModelService {
                 experiment.setRxnfiles(rxnFiles);
             }
 
-            Set<Pair<ReactionRole, CompoundRef>> currentCompoundRefs = model.collectCompoundRefs();
+            Set<Pair<ReactionRole, CompoundRef>> currentCompoundRefs = ExperimentModelUtil.collectCompoundRefs(model);
             if (!previousCompoundRefs.equals(currentCompoundRefs)) {
                 Set<ExperimentReferencedCompound> ids = StreamEx.of(currentCompoundRefs)
                         .filter(p -> p.b().getCompoundID() != null)
@@ -187,8 +188,8 @@ public class ExperimentModelService {
     }
 
     ExperimentPatch createPatch(ExperimentSnapshot a, ExperimentSnapshot b, MutationContext context) {
-        Flag updated = new Flag();
-        ExperimentValueHandler valueHandler = new ExperimentValueHandler(context);
-        return valueHandler.compare(updated, a, b, null).get();
+        ExperimentDiffHandler valueHandler = new ExperimentDiffHandler(context);
+        //noinspection DataFlowIssue
+        return valueHandler.compare(a, b).value();
     }
 }

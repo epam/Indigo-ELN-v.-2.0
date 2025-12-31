@@ -1,16 +1,6 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.common.util.Pair;
-import com.epam.indigoeln.reaction.model.metamodel.EnteredValueProperty;
-import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
-import com.epam.indigoeln.reaction.model.metamodel.ModelProperty;
 import com.epam.indigoeln.reaction.model.mutation.*;
-import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
-import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.NoUnit;
-import com.epam.indigoeln.reaction.util.ExperimentModelUtil;
-import com.epam.indigoeln.reaction.util.ToStringUtil;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -18,23 +8,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 @Data
 @EqualsAndHashCode
 public final class ExperimentModel implements ExperimentModelNode {
 
     public static final int SCHEMA_VERSION = 1;
-
-    public static void buildMetamodel(Metamodel<ExperimentModel, ExperimentModelPatch> metamodel) {
-        metamodel.setName("ExperimentModel");
-        metamodel.property("lastUsedAnchor", ExperimentModel::getLastUsedAnchor, ExperimentModel::setLastUsedAnchor, ExperimentModelPatch::getLastUsedAnchor, ExperimentModelPatch::setLastUsedAnchor);
-        metamodel.modelListProperty("reactions", ExperimentModel::getReactions, ExperimentModel::setReactions, ExperimentModelPatch::getReactions, ExperimentModelPatch::setReactions, Handlers.REACTION_METAMODEL, Handlers.REACTION_LIST);
-    }
 
     @Valid
     @NotEmpty
@@ -52,33 +32,14 @@ public final class ExperimentModel implements ExperimentModelNode {
 
     public int generateNextNbkBatchNumber() {
         int[] last = {0};
-        walk(node -> {
-            if (node instanceof ReactionOutputSample sample) {
-                last[0] = Math.max(last[0], sample.getNbkBatchNumber().getOrdinal());
+        for (Reaction reaction : reactions) {
+            for (ReactionOutput output : reaction.getOutputs()) {
+                for (ReactionOutputSample sample : output.getSamples()) {
+                    last[0] = Math.max(last[0], sample.getNbkBatchNumber().getOrdinal());
+                }
             }
-        });
+        }
         return last[0] + 1;
-    }
-
-    public void prepareToRecalculate() {
-        walkProperties((node, property) -> {
-            if (property instanceof EnteredValueProperty<?, ?, ?>) {
-                EnteredValueProperty<ExperimentModelNode, NoUnit, Object> enteredValueProperty = property.cast();
-                EnteredValue.prepareToRecalculate(enteredValueProperty.get(node), v -> enteredValueProperty.set(node, v), enteredValueProperty.defaultValue());
-            }
-        });
-    }
-
-    public Set<Pair<ReactionRole, CompoundRef>> collectCompoundRefs() {
-        Set<Pair<ReactionRole, CompoundRef>> refs = new HashSet<>();
-        walk(node -> {
-            switch (node) {
-                case ReactionInput input -> refs.add(Pair.of(input.getRole(), input.getCompound()));
-                case ReactionOutput output -> refs.add(Pair.of(ReactionRole.OUTPUT, output.getCompound()));
-                default -> {}
-            }
-        });
-        return refs;
     }
 
     public Reaction locate(ReactionMutation mutation) {
@@ -156,20 +117,5 @@ public final class ExperimentModel implements ExperimentModelNode {
             }
         }
         throw new IllegalArgumentException("Reaction doesn't contain output sample with id: " + anchor);
-    }
-
-    @Override
-    public String toString() {
-        return ToStringUtil.toStringBuild(Handlers.EXPERIMENT_MODEL_METAMODEL, this);
-    }
-
-    private void walk(Consumer<ExperimentModelNode> visitor) {
-        //noinspection rawtypes,unchecked
-        ExperimentModelUtil.walk((Metamodel) Handlers.EXPERIMENT_MODEL_METAMODEL, this, visitor);
-    }
-
-    private void walkProperties(BiConsumer<ExperimentModelNode, ModelProperty<ExperimentModelNode, ?, ?, ?>> visitor) {
-        //noinspection rawtypes,unchecked
-        ExperimentModelUtil.walkProperties((Metamodel) Handlers.EXPERIMENT_MODEL_METAMODEL, this, (BiConsumer) visitor);
     }
 }

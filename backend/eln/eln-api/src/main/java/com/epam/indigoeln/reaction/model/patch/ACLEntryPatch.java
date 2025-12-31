@@ -1,27 +1,26 @@
 package com.epam.indigoeln.reaction.model.patch;
 
 import com.epam.indigoeln.eln.model.AccessLevel;
+import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.annotation.Nullable;
 import lombok.Data;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class ACLEntryPatch {
 
     @Nullable
-    private Optional<UUID> userId;
+    private Patched<UUID> userId;
 
     @Nullable
-    private Optional<String> displayName;
+    private Patched<String> displayName;
 
     @Nullable
-    private Optional<AccessLevel> level;
+    private Patched<AccessLevel> level;
 
     @Nullable
-    private Optional<Boolean> inherited;
+    private Patched<Boolean> inherited;
 }

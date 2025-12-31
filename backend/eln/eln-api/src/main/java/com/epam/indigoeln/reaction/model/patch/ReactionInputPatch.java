@@ -2,30 +2,30 @@ package com.epam.indigoeln.reaction.model.patch;
 
 import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ReactionRole;
+import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Optional;
-
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class ReactionInputPatch extends AbstractReactionRowPatch<Anchor.Input> {
 
-    @Nullable
-    private Optional<ReactionRole> role;
+    private Patched<Anchor.Input> anchor;
 
     @Nullable
-    private Optional<EnteredValuePatch<MolUnit>> mol;
+    private Patched<ReactionRole> role;
 
     @Nullable
-    private Optional<String> chemicalName;
+    private Patched<EnteredValuePatch<MolUnit>> mol;
 
     @Nullable
-    private Optional<ListPatch<Integer, ReactionInputSamplePatch>> samples;
+    private Patched<String> chemicalName;
 
     @Nullable
-    private Optional<Boolean> limiting;
+    private Patched<ListPatch<ReactionInputSamplePatch>> samples;
+
+    @Nullable
+    private Patched<Boolean> limiting;
 }

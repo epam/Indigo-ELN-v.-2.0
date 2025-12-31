@@ -1,11 +1,7 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.reaction.model.metamodel.Metamodel;
-import com.epam.indigoeln.reaction.model.patch.ReactionInputPatch;
-import com.epam.indigoeln.reaction.model.patch.handler.Handlers;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
-import com.epam.indigoeln.reaction.util.ToStringUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
@@ -21,17 +17,6 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class ReactionInput extends ReactionRow implements ExperimentModelNode {
-
-    public static void buildMetamodel(Metamodel<ReactionInput, ReactionInputPatch> metamodel) {
-        metamodel.setName("ReactionInput");
-        metamodel.property("anchor", ReactionInput::getAnchor, ReactionInput::setAnchor, ReactionInputPatch::getAnchor, ReactionInputPatch::setAnchor);
-        metamodel.accept(ReactionRow::buildMetamodelBase);
-        metamodel.property("role", ReactionInput::getRole, ReactionInput::setRole, ReactionInputPatch::getRole, ReactionInputPatch::setRole);
-        metamodel.enteredValueProperty("mol", ReactionInput::getMol, ReactionInput::setMol, ReactionInputPatch::getMol, ReactionInputPatch::setMol);
-        metamodel.<@Nullable String>property("chemicalName", ReactionInput::getChemicalName, ReactionInput::setChemicalName, ReactionInputPatch::getChemicalName, ReactionInputPatch::setChemicalName);
-        metamodel.property("limiting", ReactionInput::isLimiting, ReactionInput::setLimiting, ReactionInputPatch::getLimiting, ReactionInputPatch::setLimiting, false);
-        metamodel.modelListProperty("samples", ReactionInput::getSamples, ReactionInput::setSamples, ReactionInputPatch::getSamples, ReactionInputPatch::setSamples, Handlers.INPUT_SAMPLE_METAMODEL, Handlers.REACTION_INPUT_SAMPLE_LIST);
-    }
 
     @NotNull
     private Anchor.Input anchor;
@@ -64,10 +49,5 @@ public final class ReactionInput extends ReactionRow implements ExperimentModelN
         input.reaction = reaction;
         input.anchor = anchor;
         return input;
-    }
-
-    @Override
-    public String toString() {
-        return ToStringUtil.toStringBuild(Handlers.INPUT_METAMODEL, this);
     }
 }
