@@ -16,7 +16,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode
-public sealed abstract class ReactionSample implements ExperimentModelNode permits ReactionInputSample, ReactionOutputSample {
+public sealed abstract class ReactionSample implements ExperimentNode permits ReactionInputSample, ReactionOutputSample {
 
     @Nullable
     protected EnteredValue<DensityUnit> density;

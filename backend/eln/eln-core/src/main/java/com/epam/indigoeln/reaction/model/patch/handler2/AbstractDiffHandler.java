@@ -12,10 +12,10 @@ public abstract class AbstractDiffHandler<T, P> implements DiffHandler<T, P> {
             return null;
         }
         if (isEmpty(b)) { // deleted
-            return Patched.deleted(doVerbatim(a));
+            return doDeleted(a);
         }
         if (isEmpty(a)) { // created
-            return Patched.created(doVerbatim(b));
+            return doCreated(b);
         }
         if (doEquals(a, b)) { // no change, advanced check
             return null;
@@ -29,12 +29,20 @@ public abstract class AbstractDiffHandler<T, P> implements DiffHandler<T, P> {
         return patched.value();
     }
 
-    protected boolean isEmpty(T value) {
+    protected boolean isEmpty(@Nullable T value) {
         return value == null;
     }
 
     protected boolean doEquals(T a, T b) {
         return false;
+    }
+
+    protected Patched<P> doDeleted(T a) {
+        return Patched.deleted(doVerbatim(a));
+    }
+
+    protected Patched<P> doCreated(T b) {
+        return Patched.created(doVerbatim(b));
     }
 
     @Nullable

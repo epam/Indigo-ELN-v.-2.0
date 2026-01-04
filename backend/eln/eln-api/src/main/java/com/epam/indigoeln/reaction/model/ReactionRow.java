@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode(exclude = "reaction")
-public sealed abstract class ReactionRow implements ExperimentModelNode permits ReactionInput, ReactionOutput {
+public sealed abstract class ReactionRow implements ExperimentNode permits ReactionInput, ReactionOutput {
 
     @JsonBackReference
     protected Reaction reaction;

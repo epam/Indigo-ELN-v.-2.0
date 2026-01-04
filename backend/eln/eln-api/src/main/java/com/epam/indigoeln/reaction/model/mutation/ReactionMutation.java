@@ -3,6 +3,7 @@ package com.epam.indigoeln.reaction.model.mutation;
 import com.epam.indigoeln.reaction.model.Anchor;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.UUID;
@@ -19,7 +20,7 @@ public sealed interface ReactionMutation extends Mutation permits
 
     record SetScheme (
         @NotNull Anchor.Reaction anchor,
-        @NotNull String molFile
+        @Nullable String molFile
     ) implements ReactionMutation {
 
         @Override

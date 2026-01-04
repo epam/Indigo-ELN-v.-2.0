@@ -45,7 +45,7 @@ class ExperimentModelPatchServiceTest {
     void testAttributeChange() throws Exception {
         model.setLastUsedAnchor(10);
         makeAndVerifyPatch("""
-                {"model": {"lastUsedAnchor": 10}}
+                {"model": {"lastUsedAnchor": {"$old": 1, "$new": 10}}}
         """);
     }
 
@@ -54,7 +54,7 @@ class ExperimentModelPatchServiceTest {
         Reaction reaction2 = Reaction.createWithAnchor(model, new Anchor.Reaction(10));
         model.setReactions(List.of(reaction, reaction2));
         makeAndVerifyPatch("""
-                {"model": {"reactions": {"$size": 2, "1": {"anchor": "R10", "rxnfile": "", "rxnVersion": 0, "$from": null}}}}
+                {"model": {"reactions": {">1": {"anchor": "R10", "rxnVersion": 0}}}}
         """);
     }
 
@@ -62,7 +62,7 @@ class ExperimentModelPatchServiceTest {
     void testReactionUpdated() throws Exception {
         reaction.setRxnfile("new");
         makeAndVerifyPatch("""
-                {"model": {"reactions": {"$size": 1, "0": {"rxnfile": "new"}}}}
+                {"model": {"reactions": {"0": {"rxnfile": "new"}}}}
         """);
     }
 
@@ -70,7 +70,7 @@ class ExperimentModelPatchServiceTest {
     void testReactionDeleted() throws Exception {
         model.setReactions(List.of());
         makeAndVerifyPatch("""
-                {"model": {"reactions": {"$size": 0}}}
+                {"model": {"reactions": {"0>": {"$old": {"anchor": "R1", "rxnVersion": 0}}}}}
         """);
     }
 
@@ -84,7 +84,7 @@ class ExperimentModelPatchServiceTest {
         baseModel.setReactions(List.of(baseReaction, baseReaction2, baseReaction3));
         model.setReactions(List.of(reaction2, reaction, reaction3));
         makeAndVerifyPatch("""
-                {"model": {"reactions": {"$size": 3, "0": {"$from": 1}, "1": {"rxnfile": "new", "$from": 0}}}}
+                {"model": {"reactions": {"1>0": "$unchanged", "0>1": {"rxnfile": "new"}}}}
         """);
     }
 
@@ -96,7 +96,7 @@ class ExperimentModelPatchServiceTest {
         reaction.setInputs(List.of(input));
         input.setMol(EnteredValue.userLastEntered(10.0, MolUnit.MMOL));
         makeAndVerifyPatch("""
-                {"model": {"reactions": {"$size": 1, "0": {"inputs": {"$size": 1, "0": {"mol": {"value": 10.0, "unit": "MMOL", "source": "USER_LAST_ENTERED"}}}}}}}
+                {"model": {"reactions": {"0": {"inputs": {"0": {"mol": {"value": 10.0, "unit": "MMOL", "source": "USER_LAST_ENTERED"}}}}}}}
         """);
     }
 
@@ -109,7 +109,7 @@ class ExperimentModelPatchServiceTest {
         baseInput.setMol(EnteredValue.userLastEntered(15.0, MolUnit.MMOL));
         input.setMol(EnteredValue.userLastEntered(10.0, MolUnit.MMOL));
         makeAndVerifyPatch("""
-                {"model": {"reactions": {"$size": 1, "0": {"inputs": {"$size": 1, "0": {"mol": {"value": 10.0}}}}}}}
+                {"model": {"reactions": {"0": {"inputs": {"0": {"mol": {"value": {"$old": 15.0, "$new": 10.0}}}}}}}}
         """);
     }
 
@@ -121,7 +121,7 @@ class ExperimentModelPatchServiceTest {
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userLastEntered(15.0, MolUnit.MMOL));
         makeAndVerifyPatch("""
-                {"model": {"reactions": {"$size": 1, "0": {"inputs": {"$size": 1, "0": {"mol": null}}}}}}
+                {"model": {"reactions": {"0": {"inputs": {"0": {"mol": {"$old": {"value": 15.0, "unit": "MMOL", "source": "USER_LAST_ENTERED"}}}}}}}}
         """);
     }
 
@@ -130,7 +130,7 @@ class ExperimentModelPatchServiceTest {
         String patchStr = FeignUtil.OBJECT_MAPPER.writeValueAsString(patch);
         System.out.println(expectedPatchStr.trim());
         System.out.println(patchStr);
-        assertThat(expectedPatchStr.trim()).isEqualToIgnoringWhitespace(patchStr);
+        assertThat(patchStr).isEqualToIgnoringWhitespace(expectedPatchStr.trim());
         PatchTestUtil.verifyModelPatch(baseExperiment, patch, experiment, null);
     }
 }

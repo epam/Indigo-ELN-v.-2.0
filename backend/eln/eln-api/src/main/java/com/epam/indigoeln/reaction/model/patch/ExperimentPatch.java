@@ -12,7 +12,6 @@ import java.util.UUID;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@SuppressWarnings("PatchedUsedAsFieldOrParameterType")
 public class ExperimentPatch {
 
     // !!! remove revision when writing to audit log tables, because revision is already a table field

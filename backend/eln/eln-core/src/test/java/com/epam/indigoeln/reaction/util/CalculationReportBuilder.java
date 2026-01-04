@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.util;
 
 import com.epam.indigoeln.common.util.Pair;
+import com.epam.indigoeln.eln.util.ToStringUtil;
 import com.epam.indigoeln.reaction.metamodel.ExperimentMetamodel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
@@ -36,7 +37,7 @@ public class CalculationReportBuilder implements AutoCloseable {
     @SneakyThrows
     public CalculationReportBuilder(File file) {
         this.file = file;
-        System.out.println("Calculation report will be written to " + file.getAbsolutePath());
+        System.err.println("Calculation report will be written to " + file.getAbsolutePath());
         pr = new PrintWriter(new BufferedOutputStream(new FileOutputStream(file)));
         pr.println("""
                 <!DOCTYPE html>
@@ -64,6 +65,7 @@ public class CalculationReportBuilder implements AutoCloseable {
             pr.println("</html>");
             pr.close();
             closed = true;
+            System.err.println("Calculation report is available at " + file.toURI());
         }
     }
 
@@ -76,8 +78,7 @@ public class CalculationReportBuilder implements AutoCloseable {
     }
 
     public void addModel(ExperimentSnapshot model) {
-        com.epam.indigoeln.eln.util.ToStringUtil.<ExperimentSnapshot, ExperimentPatch>toStringBuild(ExperimentMetamodel.INSTANCE, model);
-        String currentModel = model.toString();
+        String currentModel = ToStringUtil.toStringBuild(ExperimentMetamodel.INSTANCE, model);
         if (previousModel == null) {
             addComparison(List.of(), currentModel.lines().toList());
         } else {

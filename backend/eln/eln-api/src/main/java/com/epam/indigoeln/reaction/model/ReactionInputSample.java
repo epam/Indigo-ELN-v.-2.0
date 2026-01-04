@@ -5,6 +5,7 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.jspecify.annotations.Nullable;
@@ -13,9 +14,11 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@ToString(exclude = "row")
 @EqualsAndHashCode(callSuper = true, exclude = "row")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public final class ReactionInputSample extends ReactionSample implements ExperimentModelNode {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public final class ReactionInputSample extends ReactionSample implements ExperimentNode {
 
     @JsonBackReference
     private ReactionInput row;

@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.reaction.model.mutation.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -12,7 +13,8 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode
-public final class ExperimentModel implements ExperimentModelNode {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public final class ExperimentModel implements ExperimentNode {
 
     public static final int SCHEMA_VERSION = 1;
 

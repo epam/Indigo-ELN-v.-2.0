@@ -1,25 +1,17 @@
 package com.epam.indigoeln.reaction.util;
 
-import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
-import com.epam.indigoeln.reaction.config.ListPatchSerializers;
-import com.epam.indigoeln.reaction.config.PatchedSerializers;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
-import com.epam.indigoeln.reaction.model.patch.ListPatch;
 import com.epam.indigoeln.test.FeignUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.*;
-import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.EntryStream;
-import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
-import static com.epam.indigoeln.reaction.config.PatchedSerializers.FIELD_NEW;
-import static com.epam.indigoeln.reaction.config.PatchedSerializers.FIELD_OLD;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
@@ -42,7 +34,7 @@ public class PatchTestUtil {
         byte[] updatedBytes = FeignUtil.OBJECT_MAPPER.writeValueAsBytes(updated);
         JsonNode updatedJSON = cleanupJSON(FeignUtil.OBJECT_MAPPER.readTree(updatedBytes));
 
-        JsonNode appliedWithJSON = JSONPatcher.EXPERIMENT_INSTANCE.restoreWithJSON(initialJSON.deepCopy(), FeignUtil.OBJECT_MAPPER.readTree(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(patch)));
+        JsonNode appliedWithJSON = JSONPatcher.EXPERIMENT_INSTANCE.apply(initialJSON.deepCopy(), FeignUtil.OBJECT_MAPPER.readTree(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(patch)));
 
         String expected = FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(minimizeJSON(updatedJSON.deepCopy()));
         String applied = FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(minimizeJSON(appliedWithJSON.deepCopy()));
@@ -50,7 +42,7 @@ public class PatchTestUtil {
             assertThat(applied).isEqualTo(expected);
         } catch (AssertionError e) {
             if (reportBuilder != null) {
-                reportBuilder.addFailedComparison("Model with applied patch not equals to expected", expected, applied);
+                reportBuilder.addFailedComparison("Model with applied patch (right) not equals to expected (left)", expected, applied);
             }
             throw e;
         }

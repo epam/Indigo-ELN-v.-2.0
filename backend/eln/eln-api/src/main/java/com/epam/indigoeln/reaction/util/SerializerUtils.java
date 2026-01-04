@@ -2,16 +2,39 @@ package com.epam.indigoeln.reaction.util;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
+import lombok.SneakyThrows;
 import org.jspecify.annotations.Nullable;
 
-import java.lang.ScopedValue;
+import java.util.concurrent.Callable;
 
 public class SerializerUtils {
 
+    // !!! switch to ScopedValue when upgraded to Java 25
+
     // only used for testing, where we want to serialize generic value directly;
     // in production code, generic value will typically be a property of some object, and type will be read from that property
-    public static final ThreadLocal<@Nullable JavaType> ROOT_TYPE = new ThreadLocal<>();
+    private static final ThreadLocal<@Nullable JavaType> ROOT_TYPE = new ThreadLocal<>();
+
+    @SneakyThrows
+    public static <R> R withRootTypeForTesting(JavaType type, Callable<R> block) {
+        JavaType oldType = ROOT_TYPE.get();
+        try {
+            ROOT_TYPE.set(type);
+            return block.call();
+        } finally {
+            if (oldType != null) {
+                ROOT_TYPE.set(oldType);
+            } else  {
+                ROOT_TYPE.remove();
+            }
+        }
+    }
+
+    public static void withRootTypeForTesting(JavaType type, ThrowingRunnable block) {
+        withRootTypeForTesting(type, block.asCallable());
+    }
 
     public static JavaType findContextType(@Nullable BeanProperty property) {
         JavaType type = null;
@@ -35,6 +58,11 @@ public class SerializerUtils {
                 null,
                 PropertyMetadata.STD_OPTIONAL
         );
+    }
+
+    @Nullable
+    public static TypeSerializer findTypeSerializer(SerializerProvider prov, ContentType contentTypes) throws JsonMappingException {
+        return prov.findTypeSerializer(contentTypes.type);
     }
 
     public static JsonSerializer<Object> findValueSerializer(SerializerProvider prov, ContentType contentTypes) throws JsonMappingException {

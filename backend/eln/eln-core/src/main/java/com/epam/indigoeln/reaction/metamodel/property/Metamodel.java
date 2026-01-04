@@ -1,9 +1,8 @@
 package com.epam.indigoeln.reaction.metamodel.property;
 
 import com.epam.indigoeln.reaction.model.patch.EnteredValuePatch;
-import com.epam.indigoeln.reaction.model.patch.handler2.DefaultDiffHandler;
-import com.epam.indigoeln.reaction.model.patch.handler2.DiffHandler;
-import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
+import com.epam.indigoeln.reaction.model.patch.ListPatch;
+import com.epam.indigoeln.reaction.model.patch.handler2.*;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import lombok.Getter;
@@ -23,52 +22,42 @@ public class Metamodel<C, P> {
     private final String name;
     private final List<ModelProperty<C, ?, P, ?>> properties = new ArrayList<>();
 
-    public <T> Metamodel<C, P> property(String name
+    public <T> void property(String name
             , Function<C, T> getter, @Nullable BiConsumer<C, T> setter
             , Function<P, Patched<T>> patchGetter, BiConsumer<P, Patched<T>> patchSetter
     ) {
-        return property(name, getter, setter, patchGetter, patchSetter, DefaultDiffHandler.instance(), null);
+        property(name, getter, setter, patchGetter, patchSetter, DefaultDiffHandler.instance());
     }
 
-    public <T, PT> Metamodel<C, P> property(String name
+    public <T, PT> void property(String name
             , Function<C, T> getter, @Nullable BiConsumer<C, T> setter
             , Function<P, Patched<PT>> patchGetter, BiConsumer<P, Patched<PT>> patchSetter
             , DiffHandler<T, PT> handler
     ) {
-        return property(name, getter, setter, patchGetter, patchSetter, handler, null);
+        properties.add(new SimpleProperty<>(name, getter, setter, patchGetter, patchSetter, handler));
     }
 
-    public <T> Metamodel<C, P> property(String name
-            , Function<C, T> getter, @Nullable BiConsumer<C, T> setter
-            , Function<P, Patched<T>> patchGetter, BiConsumer<P, Patched<T>> patchSetter
-            , @Nullable T defaultValue
-    ) {
-        return property(name, getter, setter, patchGetter, patchSetter, DefaultDiffHandler.instance(), defaultValue);
-    }
-
-    private <T, PT> Metamodel<C, P> property(String name
-            , Function<C, T> getter, @Nullable BiConsumer<C, T> setter
-            , Function<P, Patched<PT>> patchGetter, BiConsumer<P, Patched<PT>> patchSetter
-            , DiffHandler<T, PT> handler
-            , @Nullable T defaultValue) {
-        properties.add(new SimpleProperty<>(name, getter, setter, patchGetter, patchSetter, defaultValue, handler));
-        return this;
-    }
-
-    public <U extends MeasurementUnit> Metamodel<C, P> enteredValueProperty(String name
+    public <U extends MeasurementUnit> void enteredValueProperty(String name
             , Function<C, EnteredValue<U>> getter, BiConsumer<C, EnteredValue<U>> setter
             , Function<P, Patched<EnteredValuePatch<U>>> patchGetter, BiConsumer<P, Patched<EnteredValuePatch<U>>> patchSetter
     ) {
-        return enteredValueProperty(name, getter, setter, patchGetter, patchSetter, null);
+        enteredValueProperty(name, getter, setter, patchGetter, patchSetter, EnteredValueDiffHandler.instance());
     }
 
-    public <U extends MeasurementUnit> Metamodel<C, P> enteredValueProperty(String name
+    public <U extends MeasurementUnit> void enteredValueProperty(String name
             , Function<C, EnteredValue<U>> getter, BiConsumer<C, EnteredValue<U>> setter
             , Function<P, Patched<EnteredValuePatch<U>>> patchGetter, BiConsumer<P, Patched<EnteredValuePatch<U>>> patchSetter
-            , @Nullable EnteredValue<U> defaultValue
+            , EnteredValueDiffHandler<U> valueHandler
     ) {
-        properties.add(new EnteredValueProperty<>(name, getter, setter, patchGetter, patchSetter, defaultValue));
-        return this;
+        properties.add(new EnteredValueProperty<>(name, getter, setter, patchGetter, patchSetter, valueHandler));
+    }
+
+    public <I, A, IP> void listProperty(String name
+            , Function<C, List<I>> getter, @Nullable BiConsumer<C, List<I>> setter
+            , Function<P, Patched<ListPatch<IP>>> patchGetter, BiConsumer<P, Patched<ListPatch<IP>>> patchSetter
+            , ListDiffHandler<I, A, IP> handler
+    ) {
+        properties.add(new ListProperty<C, I, A, P, IP>(name, getter, setter, patchGetter, patchSetter, handler));
     }
 
     public void accept(Consumer<Metamodel<C, P>> block) {

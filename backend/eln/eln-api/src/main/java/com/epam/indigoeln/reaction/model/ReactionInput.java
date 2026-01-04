@@ -14,9 +14,11 @@ import java.util.List;
 
 @Getter
 @Setter
+@ToString(exclude = "reaction")
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public final class ReactionInput extends ReactionRow implements ExperimentModelNode {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public final class ReactionInput extends ReactionRow implements ExperimentNode {
 
     @NotNull
     private Anchor.Input anchor;

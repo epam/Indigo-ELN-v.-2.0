@@ -11,26 +11,23 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
+import lombok.*;
 import org.intellij.lang.annotations.Language;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class HandlersTest {
+public class DiffHandlerTest {
 
-    DiffHandler<String, String> stringHandler = new DefaultDiffHandler<>();
+    DiffHandler<String, String> stringHandler = DefaultDiffHandler.instance();
     DiffHandler<TestObject, TestObjectDiff> objectHandler = new TestObjectDiffHandler();
     DiffHandler<List<Anchored>, Map<String, Patched<AnchoredDiff>>> setHandler = new SetDiffHandler<>(Anchored::getAnchor, new AnchoredDiffHandler());
     DiffHandler<List<Anchored>, ListPatch<AnchoredDiffForList>> listHandler = new ListDiffHandler<>(Anchored::getAnchor, new AnchoredDiffForListHandler());
+    DiffHandler<List<InnerList>, ListPatch<InnerListPatch>> listInsideListHandler = new ListDiffHandler<>(InnerList::getKey, new InnerListHandler(new ListDiffHandler<>(Anchored::getAnchor, new AnchoredDiffForListHandler())));
 
     // Simple value
     //
@@ -373,6 +370,35 @@ public class HandlersTest {
         );
     }
 
+    @Test
+    void testListInsideListInserted() {
+        this.doVerify(
+                List.of(),
+                List.of(new InnerList("K1", List.of(new Anchored("A1", "a")))),
+                listInsideListHandler,
+                new TypeReference<>() {},
+                new TypeReference<>() {},
+                new JSONPatcher(Map.of(), Map.of("$", "K1", "$.#.items", "anchor")),
+                Patched.verbatim(new ListPatch<>(List.of(
+                        new ListPatch.Item<>(
+                                null, 0,
+                                Patched.verbatim(new InnerListPatch(
+                                        Patched.created("K1"),
+                                        Patched.verbatim(new ListPatch<>(List.of(
+                                                new ListPatch.Item<>(
+                                                        null, 0,
+                                                        Patched.verbatim(new AnchoredDiffForList(Patched.created("A1"), Patched.created("a")))
+                                                )
+                                        )))
+                                ))
+                        )
+                ))),
+                """
+                        {">0": {"key": "K1", "items": {">0": {"anchor": "A1", "name": "a"}}}}
+                """
+        );
+    }
+
     private void verifySimple(@Nullable String oldValue, @Nullable String newValue, Patched<String> expected, @Language("JSON") String expectedJSON) {
         doVerify(oldValue, newValue, stringHandler, new TypeReference<>() {}, new TypeReference<>() {}, new JSONPatcher(Map.of(), Map.of()), expected, expectedJSON);
     }
@@ -392,23 +418,20 @@ public class HandlersTest {
     @SneakyThrows
     private <T, P, PP extends Patched<P>> void doVerify(T oldValue, T newValue, DiffHandler<T, P> handler, TypeReference<T> typeReference, TypeReference<PP> patchTypeReference, JSONPatcher jsonPatcher, Patched<P> expected, @Language("JSON") String expectedJSON) {
         Patched<P> patch = handler.compare(oldValue, newValue);
-        System.out.println("patch = " + patch);
+        System.out.println("patch    = " + patch);
         System.out.println("expected = " + expected);
         assertThat(patch).isEqualTo(expected);
         JavaType patchType = FeignUtil.OBJECT_MAPPER.getTypeFactory().constructType(patchTypeReference);
-        SerializerUtils.ROOT_TYPE.set(patchType);
-        try {
+        SerializerUtils.withRootTypeForTesting(patchType, () -> {
             ObjectWriter patchWriter = FeignUtil.OBJECT_MAPPER.writerFor(patchType);
             ObjectReader patchReader = FeignUtil.OBJECT_MAPPER.readerFor(patchType);
             JavaType type = FeignUtil.OBJECT_MAPPER.getTypeFactory().constructType(typeReference);
-            SerializerUtils.ROOT_TYPE.set(type);
-            ObjectWriter writer = FeignUtil.OBJECT_MAPPER.writerFor(type);
-            ObjectReader reader = FeignUtil.OBJECT_MAPPER.readerFor(type);
-            doVerifyJSON(patch, expectedJSON, patchWriter, patchReader);
-            doVerifyPatchApplication(oldValue, newValue, patch, writer, patchWriter, jsonPatcher);
-        } finally {
-            SerializerUtils.ROOT_TYPE.remove();
-        }
+            SerializerUtils.withRootTypeForTesting(type, () -> {
+                ObjectWriter writer = FeignUtil.OBJECT_MAPPER.writerFor(type);
+                doVerifyJSON(patch, expectedJSON, patchWriter, patchReader);
+                doVerifyPatchApplication(oldValue, newValue, patch, writer, patchWriter, jsonPatcher);
+            });
+        });
     }
 
     @SneakyThrows
@@ -424,11 +447,11 @@ public class HandlersTest {
         JsonNode oldValueJSON = FeignUtil.OBJECT_MAPPER.readTree(writer.writeValueAsString(oldValue));
         JsonNode newValueJSON = FeignUtil.OBJECT_MAPPER.readTree(writer.writeValueAsString(newValue));
         JsonNode patchJSON = FeignUtil.OBJECT_MAPPER.readTree(patchWriter.writeValueAsString(patch));
-        System.out.println("doVerifyPatchApplication: oldValue = " + oldValueJSON + ", is null = " + (oldValueJSON == null));
-        System.out.println("doVerifyPatchApplication: newValue = " + newValueJSON + ", is null = " + (newValueJSON == null));
-        System.out.println("doVerifyPatchApplication: patch = " + patchJSON + ", is null = " + (patchJSON == null));
-        JsonNode restoredJSON = jsonPatcher.restoreWithJSON(oldValueJSON, patchJSON);
-        System.out.println("doVerifyPatchApplication: restored = " + restoredJSON + ", is null = " + (restoredJSON == null));
+        System.out.println("doVerifyPatchApplication: oldValue = " + oldValueJSON);
+        System.out.println("doVerifyPatchApplication: newValue = " + newValueJSON);
+        System.out.println("doVerifyPatchApplication: patch = " + patchJSON);
+        JsonNode restoredJSON = jsonPatcher.apply(oldValueJSON, patchJSON);
+        System.out.println("doVerifyPatchApplication: restored = " + restoredJSON);
         assertThat(PatchTestUtil.minimizeJSON(restoredJSON)).isEqualTo(PatchTestUtil.minimizeJSON(newValueJSON));
     }
 }
@@ -537,7 +560,8 @@ class AnchoredDiffHandler extends AbstractDiffHandler<Anchored, AnchoredDiff> {
     private static final DefaultDiffHandler<String> STRING_HANDLER = DefaultDiffHandler.instance();
 
     @Override
-    protected @Nullable Patched<AnchoredDiff> doCompare(@Nullable Anchored a, Anchored b) {
+    @Nullable
+    protected Patched<AnchoredDiff> doCompare(@Nullable Anchored a, Anchored b) {
         AnchoredDiff diff = new AnchoredDiff();
         diff.setName(STRING_HANDLER.compare(a != null ? a.getName() : null, b.getName()));
         return diff.getName() != null ? Patched.verbatim(diff) : null;
@@ -549,10 +573,44 @@ class AnchoredDiffForListHandler extends AbstractDiffHandler<Anchored, AnchoredD
     private static final DefaultDiffHandler<String> STRING_HANDLER = DefaultDiffHandler.instance();
 
     @Override
-    protected @Nullable Patched<AnchoredDiffForList> doCompare(@Nullable Anchored a, Anchored b) {
+    @Nullable
+    protected Patched<AnchoredDiffForList> doCompare(@Nullable Anchored a, Anchored b) {
         AnchoredDiffForList diff = new AnchoredDiffForList();
         diff.setAnchor(STRING_HANDLER.compare(a != null ? a.getAnchor() : null, b.getAnchor()));
         diff.setName(STRING_HANDLER.compare(a != null ? a.getName() : null, b.getName()));
         return diff.getName() != null ? Patched.verbatim(diff) : null;
+    }
+}
+
+@Data
+@AllArgsConstructor
+class InnerList {
+
+    private String key;
+    private List<Anchored> items;
+}
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+class InnerListPatch {
+
+    private Patched<String> key;
+    private Patched<ListPatch<AnchoredDiffForList>> items;
+}
+
+@RequiredArgsConstructor
+class InnerListHandler extends AbstractDiffHandler<InnerList, InnerListPatch> {
+
+    private final DiffHandler<List<Anchored>, ListPatch<AnchoredDiffForList>> nestedHandler;
+
+    @Override
+    @Nullable
+    protected Patched<InnerListPatch> doCompare(@Nullable InnerList a, InnerList b) {
+        InnerListPatch diff = new InnerListPatch();
+        diff.setKey(DefaultDiffHandler.<String>instance().compare(a != null ? a.getKey() : null, b.getKey()));
+        diff.setItems(nestedHandler.compare(a != null ? a.getItems() : null, b.getItems()));
+        return diff.getItems() != null ? Patched.verbatim(diff) : null;
     }
 }

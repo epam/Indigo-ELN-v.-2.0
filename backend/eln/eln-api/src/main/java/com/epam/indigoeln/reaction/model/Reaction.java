@@ -2,25 +2,26 @@ package com.epam.indigoeln.reaction.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.google.common.collect.Iterables;
 import com.google.common.primitives.Ints;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.validator.constraints.Length;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
 
 @Data
+@ToString(exclude = "model")
 @EqualsAndHashCode(exclude = "model")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public final class Reaction implements ExperimentModelNode {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public final class Reaction implements ExperimentNode {
 
     @JsonBackReference
     private ExperimentModel model;
@@ -28,8 +29,9 @@ public final class Reaction implements ExperimentModelNode {
     @NotNull
     private Anchor.Reaction anchor;
 
-    @NotNull
-    private String rxnfile = "";
+    @Nullable
+    @Length(min = 1)
+    private String rxnfile;
 
     @NotNull
     private Integer rxnVersion = 0;

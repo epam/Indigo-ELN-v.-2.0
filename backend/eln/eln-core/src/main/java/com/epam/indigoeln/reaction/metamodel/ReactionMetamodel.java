@@ -17,7 +17,7 @@ class ReactionMetamodel {
         m.<Anchor.Reaction>property("anchor", Reaction::getAnchor, Reaction::setAnchor, ReactionPatch::getAnchor, ReactionPatch::setAnchor);
         m.property("rxnfile", Reaction::getRxnfile, Reaction::setRxnfile, ReactionPatch::getRxnfile, ReactionPatch::setRxnfile);
         m.property("rxnVersion", Reaction::getRxnVersion, Reaction::setRxnVersion, ReactionPatch::getRxnVersion, ReactionPatch::setRxnVersion);
-        m.property("inputs", Reaction::getInputs, Reaction::setInputs, ReactionPatch::getInputs, ReactionPatch::setInputs, new ListDiffHandler<>(ReactionInput::getAnchor, new MetamodelDiffHandler<>(ReactionInputMetamodel.INSTANCE, ReactionInputPatch::new)));
-        m.property("outputs", Reaction::getOutputs, Reaction::setOutputs, ReactionPatch::getOutputs, ReactionPatch::setOutputs, new ListDiffHandler<>(ReactionOutput::getAnchor, new MetamodelDiffHandler<>(ReactionOutputMetamodel.INSTANCE, ReactionOutputPatch::new)));
+        m.listProperty("inputs", Reaction::getInputs, Reaction::setInputs, ReactionPatch::getInputs, ReactionPatch::setInputs, new ListDiffHandler<>(ReactionInput::getAnchor, new MetamodelDiffHandler<>(ReactionInputMetamodel.INSTANCE, ReactionInputPatch::new)));
+        m.listProperty("outputs", Reaction::getOutputs, Reaction::setOutputs, ReactionPatch::getOutputs, ReactionPatch::setOutputs, new ListDiffHandler<>(ReactionOutput::getAnchor, new MetamodelDiffHandler<>(ReactionOutputMetamodel.INSTANCE, ReactionOutputPatch::new)));
     });
 }

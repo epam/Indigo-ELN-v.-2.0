@@ -7,9 +7,11 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 import lombok.AllArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 
@@ -37,35 +39,44 @@ public class PatchedSerializers {
     public static class Serializer extends JsonSerializer<Patched<?>> implements ContextualSerializer {
 
         private final JsonSerializer<Object> valueSerializer;
+        @Nullable
+        private final TypeSerializer typeSerializer;
 
         @SuppressWarnings({"DataFlowIssue", "unused"})
         public Serializer() {
+            typeSerializer = null;
             valueSerializer = null;
         }
 
         @Override
         public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
             SerializerUtils.ContentType contentTypes = detectTypeParameter(property);
-
-            return new Serializer(SerializerUtils.findValueSerializer(prov, contentTypes));
+            return new Serializer(SerializerUtils.findValueSerializer(prov, contentTypes), SerializerUtils.findTypeSerializer(prov, contentTypes));
         }
 
         @Override
         public void serialize(Patched<?> container, JsonGenerator gen, SerializerProvider serializers) throws IOException {
             if (container.value() != null && container.oldValue() == null) { // created or verbatim
-                System.out.println(this + " serialize: writing: " + container.value());
-                valueSerializer.serialize(container.value(), gen, serializers);
+                doSerializeValue(container.value(), gen, serializers);
             } else {
                 gen.writeStartObject();
                 if (container.oldValue() != null) {
                     gen.writeFieldName(FIELD_OLD);
-                    valueSerializer.serialize(container.oldValue(), gen, serializers);
+                    doSerializeValue(container.oldValue(), gen, serializers);
                 }
                 if (container.value() != null) {
                     gen.writeFieldName(FIELD_NEW);
-                    valueSerializer.serialize(container.value(), gen, serializers);
+                    doSerializeValue(container.value(), gen, serializers);
                 }
                 gen.writeEndObject();
+            }
+        }
+
+        private void doSerializeValue(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            if (typeSerializer != null) {
+                valueSerializer.serializeWithType(value, gen, serializers, typeSerializer);
+            } else {
+                valueSerializer.serialize(value, gen, serializers);
             }
         }
     }
@@ -73,17 +84,17 @@ public class PatchedSerializers {
     @AllArgsConstructor
     public static class Deserializer extends JsonDeserializer<Patched<?>> implements ContextualDeserializer {
 
-        private final JsonDeserializer<Object> valueDeserializer;
+        private final JavaType valueType;
 
         @SuppressWarnings({"DataFlowIssue", "unused"})
         public Deserializer() {
-            valueDeserializer = null;
+            valueType = null;
         }
 
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
             SerializerUtils.ContentType contentType = detectTypeParameter(property);
-            return new Deserializer(SerializerUtils.findValueDeserializer(ctxt, contentType));
+            return new Deserializer(contentType.type());
         }
 
         @Override
@@ -104,7 +115,7 @@ public class PatchedSerializers {
                     Object oldValue = null, newValue = null;
                     do {
                         p2.nextToken(); // step to field value
-                        Object fieldValue = valueDeserializer.deserialize(p2, ctxt);
+                        Object fieldValue = doDeserializeValue(ctxt, p2);
                         switch (fieldName) {
                             case FIELD_OLD -> oldValue = fieldValue;
                             case FIELD_NEW -> newValue = fieldValue;
@@ -118,13 +129,20 @@ public class PatchedSerializers {
                 // read as regular value object instead
                 JsonParser p3 = buffer.asParser();
                 p3.nextToken(); // step to START_OBJECT
-                Object value = valueDeserializer.deserialize(p3, ctxt);
+                Object value = doDeserializeValue(ctxt, p3);
                 return Patched.created(value);
             }
 
             // if it's not START_OBJECT, read value directly
-            Object value = valueDeserializer.deserialize(p, ctxt);
+            Object value = doDeserializeValue(ctxt, p);
             return Patched.created(value);
+        }
+
+        private Object doDeserializeValue(DeserializationContext ctxt, JsonParser p) {
+            return SerializerUtils.withRootTypeForTesting(
+                    valueType,
+                    () -> ctxt.readValue(p, valueType)
+            );
         }
     }
 }

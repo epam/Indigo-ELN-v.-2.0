@@ -3,10 +3,7 @@ package com.epam.indigoeln.reaction.model.patch.handler2;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
@@ -14,6 +11,23 @@ public class SetDiffHandler<I, C extends Collection<I>, K, P> extends AbstractDi
 
     private final Function<I, K> keyFn;
     private final DiffHandler<I, P> itemHandler;
+
+    @Override
+    protected boolean isEmpty(@Nullable C value) {
+        return value == null || value.isEmpty();
+    }
+
+    @Override
+    protected Patched<Map<K, Patched<P>>> doDeleted(C a) {
+        //noinspection unchecked
+        return doCompare(a, (C) List.of());
+    }
+
+    @Override
+    protected Patched<Map<K, Patched<P>>> doCreated(C b) {
+        //noinspection unchecked
+        return doCompare((C) List.of(), b);
+    }
 
     @Override
     @Nullable

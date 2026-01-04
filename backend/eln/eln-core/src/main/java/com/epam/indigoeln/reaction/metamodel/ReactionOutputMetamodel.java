@@ -17,6 +17,6 @@ class ReactionOutputMetamodel {
         m.property("type", ReactionOutput::getType, ReactionOutput::setType, ReactionOutputPatch::getType, ReactionOutputPatch::setType);
         m.enteredValueProperty("theoMol", ReactionOutput::getTheoMol, ReactionOutput::setTheoMol, ReactionOutputPatch::getTheoMol, ReactionOutputPatch::setTheoMol);
         m.enteredValueProperty("theoWeight", ReactionOutput::getTheoWeight, ReactionOutput::setTheoWeight, ReactionOutputPatch::getTheoWeight, ReactionOutputPatch::setTheoWeight);
-        m.property("samples", ReactionOutput::getSamples, ReactionOutput::setSamples, ReactionOutputPatch::getSamples, ReactionOutputPatch::setSamples, new ListDiffHandler<>(ReactionOutputSample::getAnchor, new MetamodelDiffHandler<>(ReactionOutputSampleMetamodel.INSTANCE, ReactionOutputSamplePatch::new)));
+        m.listProperty("samples", ReactionOutput::getSamples, ReactionOutput::setSamples, ReactionOutputPatch::getSamples, ReactionOutputPatch::setSamples, new ListDiffHandler<>(ReactionOutputSample::getAnchor, new MetamodelDiffHandler<>(ReactionOutputSampleMetamodel.INSTANCE, ReactionOutputSamplePatch::new)));
     });
 }

@@ -4,6 +4,7 @@ import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
 import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
 import com.epam.indigoeln.reaction.util.Flag;
 import com.epam.indigoeln.eln.util.PatchUtil;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
@@ -12,6 +13,7 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor
 public class MetamodelDiffHandler<T, P> extends AbstractDiffHandler<T, P> {
 
+    @Getter
     private final Metamodel<T, P> metamodel;
     private final Supplier<P> patchCreator;
 

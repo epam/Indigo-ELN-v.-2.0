@@ -17,6 +17,7 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 
 @Getter
 @EqualsAndHashCode
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public final class EnteredValue<U extends MeasurementUnit> {
 
     public static final EnteredValue<NoUnit> DEFAULT_ONE = defaultValue(1.0, NoUnit.NO_UNIT);

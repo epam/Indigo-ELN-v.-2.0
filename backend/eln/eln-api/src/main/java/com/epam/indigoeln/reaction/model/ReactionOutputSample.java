@@ -10,6 +10,7 @@ import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.epam.indigoeln.reaction.util.StreamUtil;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -21,9 +22,11 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@ToString(exclude = "row")
 @EqualsAndHashCode(callSuper = true, exclude = "row")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public final class ReactionOutputSample extends ReactionSample implements ExperimentModelNode {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public final class ReactionOutputSample extends ReactionSample implements ExperimentNode {
 
     @JsonBackReference
     private ReactionOutput row;
@@ -113,10 +116,10 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     @NotNull
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public List<STRCodeSample> getPrecursorReactantIds() {
-        return StreamUtil.filterNotNull(StreamEx.of(row.getReaction().getInputs())
+        return StreamEx.of(row.getReaction().getInputs())
                 .filter(r -> r.getRole() == ReactionRole.REACTANT)
                 .flatMap(r -> r.getSamples().stream())
-                .map(ReactionSample::getStrCode))
-                .toList();
+                .map(ReactionSample::getStrCode)
+                .collect(StreamUtil.toListNotNull());
     }
 }

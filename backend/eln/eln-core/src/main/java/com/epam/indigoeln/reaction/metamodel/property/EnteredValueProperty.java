@@ -17,11 +17,6 @@ public record EnteredValueProperty<C, U extends MeasurementUnit, P> (
         BiConsumer<C, EnteredValue<U>> setter,
         Function<P, Patched<EnteredValuePatch<U>>> patchGetter,
         BiConsumer<P, Patched<EnteredValuePatch<U>>> patchSetter,
-        @Nullable EnteredValue<U> defaultValue
+        EnteredValueDiffHandler<U> valueHandler
 ) implements ModelProperty<C, EnteredValue<U>, P, EnteredValuePatch<U>> {
-
-    @Override
-    public DiffHandler<EnteredValue<U>, EnteredValuePatch<U>> valueHandler() {
-        return EnteredValueDiffHandler.instance();
-    }
 }

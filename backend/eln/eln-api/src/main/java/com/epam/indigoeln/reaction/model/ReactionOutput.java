@@ -3,6 +3,7 @@ package com.epam.indigoeln.reaction.model;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -13,9 +14,11 @@ import java.util.List;
 
 @Getter
 @Setter
+@ToString(exclude = "reaction")
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public final class ReactionOutput extends ReactionRow implements ExperimentModelNode {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public final class ReactionOutput extends ReactionRow implements ExperimentNode {
 
     @NotNull
     private Anchor.Output anchor;

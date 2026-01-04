@@ -17,6 +17,7 @@ import com.epam.indigoeln.reaction.model.patch.handler2.ExperimentDiffHandler;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.*;
 import com.epam.indigoeln.reaction.util.Flag;
+import com.epam.indigoeln.reaction.util.StreamUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -25,11 +26,14 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
+import org.jspecify.annotations.Nullable;
 
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 
@@ -74,11 +78,14 @@ public class ExperimentModelService {
         ExperimentSnapshot initial = experimentSnapshotMapper.createSnapshot(experiment, context, true);
         ExperimentModel model = null;
         Set<Pair<ReactionRole, CompoundRef>> previousCompoundRefs = null;
-        Map<Anchor.Reaction, String> previousRxnFiles = null;
+        Map<Anchor.Reaction, @Nullable String> previousRxnFiles = null;
         if (context.isAffectsModel()) {
             model = experiment.getModel();
             previousCompoundRefs = ExperimentModelUtil.collectCompoundRefs(model);
-            previousRxnFiles = StreamEx.of(model.getReactions()).toMap(Reaction::getAnchor, Reaction::getRxnfile);
+            previousRxnFiles = StreamEx.of(model.getReactions())
+                    .mapToEntry(Reaction::getAnchor, Reaction::getRxnfile)
+                    .nonNullValues()
+                    .toMap();
             ExperimentModelUtil.prepareToRecalculate(model);
         }
 
@@ -129,9 +136,9 @@ public class ExperimentModelService {
 
             boolean anyRxnfileChanged = false;
             for (Reaction reaction : model.getReactions()) {
-                if (!reaction.getRxnfile().equals(previousRxnFiles.get(reaction.getAnchor())) || !context.getAffectedRoles().isEmpty()) {
+                if (!Objects.equals(reaction.getRxnfile(), previousRxnFiles.get(reaction.getAnchor())) || !context.getAffectedRoles().isEmpty()) {
                     anyRxnfileChanged = true;
-                    IndigoReaction indigoReaction = reaction.getRxnfile().isEmpty() ? indigoAPI.createReaction() : indigoAPI.loadReaction(reaction.getRxnfile());
+                    IndigoReaction indigoReaction = reaction.getRxnfile() == null ? indigoAPI.createReaction() : indigoAPI.loadReaction(reaction.getRxnfile());
                     if (!context.getAffectedRoles().isEmpty()) {
                         experimentModelHelperService.rebuildReactionRxnFile(experiment, reaction, context.getAffectedRoles(), indigoReaction);
                     }
@@ -142,8 +149,7 @@ public class ExperimentModelService {
             if (anyRxnfileChanged) {
                 List<String> rxnFiles = StreamEx.of(model.getReactions())
                         .map(Reaction::getRxnfile)
-                        .remove(String::isEmpty)
-                        .toList();
+                        .collect(StreamUtil.toListNotNull());
                 experiment.setRxnfiles(rxnFiles);
             }
 

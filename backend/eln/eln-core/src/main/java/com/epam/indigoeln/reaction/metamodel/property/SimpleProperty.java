@@ -13,7 +13,6 @@ public record SimpleProperty<C, T, P, PT>(
         @Nullable BiConsumer<C, T> setter,
         Function<P, Patched<PT>> patchGetter,
         BiConsumer<P, Patched<PT>> patchSetter,
-        @Nullable T defaultValue,
         DiffHandler<T, PT> valueHandler
 ) implements ModelProperty<C, T, P, PT> {
 }

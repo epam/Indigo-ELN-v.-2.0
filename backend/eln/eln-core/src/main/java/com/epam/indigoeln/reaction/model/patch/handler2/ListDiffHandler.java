@@ -1,18 +1,13 @@
 package com.epam.indigoeln.reaction.model.patch.handler2;
 
 import com.epam.indigoeln.reaction.model.patch.ListPatch;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
 
-// (no entry): doesn't change
-// ">index" -> {...}: value inserted
-// "index" -> {...}: value updated
-// "oldIndex->index" -> "$unchanged": item repositioned
-// "oldIndex->index -> {...}: item repositioned and updated
-// "index" -> {"$old": {...}}: item deleted
 @RequiredArgsConstructor
 public class ListDiffHandler<I, K, P> extends AbstractDiffHandler<List<I>, ListPatch<P>> {
 
@@ -23,7 +18,23 @@ public class ListDiffHandler<I, K, P> extends AbstractDiffHandler<List<I>, ListP
             .thenComparing(i -> i.oldIndex() != null ? i.oldIndex() : -1);
 
     private final Function<I, K> keyFn;
+    @Getter
     private final DiffHandler<I, P> itemHandler;
+
+    @Override
+    protected boolean isEmpty(@Nullable List<I> value) {
+        return value == null || value.isEmpty();
+    }
+
+    @Override
+    protected Patched<ListPatch<P>> doDeleted(List<I> a) {
+        return doCompare(a, List.of());
+    }
+
+    @Override
+    protected Patched<ListPatch<P>> doCreated(List<I> b) {
+        return doCompare(List.of(), b);
+    }
 
     @Override
     protected Patched<ListPatch<P>> doCompare(@Nullable List<I> a, List<I> b) {
