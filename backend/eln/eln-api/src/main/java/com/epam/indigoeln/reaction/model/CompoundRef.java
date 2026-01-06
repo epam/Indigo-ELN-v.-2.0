@@ -19,7 +19,6 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = CompoundRef.Unknown.class, name = CompoundRef.Unknown.TYPE)
 })
 @JsonInclude(JsonInclude.Include.NON_NULL)
-// !! serialize non-null properties
 public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virtual, CompoundRef.Unknown {
 
     @Nullable
@@ -57,7 +56,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     @EqualsAndHashCode(of = {"compoundID"})
     final class Stored implements CompoundRef {
 
-        public static final String TYPE = "stored";
+        public static final String TYPE = "STORED";
 
         @NotNull
         private final UUID compoundID;
@@ -104,7 +103,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     @AllArgsConstructor(onConstructor_ = @JsonCreator)
     final class Virtual implements CompoundRef {
 
-        public static final String TYPE = "virtual";
+        public static final String TYPE = "VIRTUAL";
 
         @NotNull
         private final UUID compoundID;
@@ -153,7 +152,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     @EqualsAndHashCode
     final class Unknown implements CompoundRef {
 
-        public static final String TYPE = "unknown";
+        public static final String TYPE = "UNKNOWN";
 
         @Nullable
         private String formula;

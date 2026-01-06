@@ -4,6 +4,7 @@ import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
 import com.epam.indigoeln.reaction.model.patch.*;
+import com.epam.indigoeln.reaction.model.patch.handler2.CompoundRefDiffHandler;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -26,7 +27,7 @@ class Metamodels {
     }
 
     static <C extends ReactionRow, A extends Anchor, P extends AbstractReactionRowPatch<A>> void buildReactionRowMetamodel(Metamodel<C, P> m) {
-        m.property("compound", ReactionRow::getCompound, ReactionRow::setCompound, AbstractReactionRowPatch::getCompound, AbstractReactionRowPatch::setCompound);
+        m.property("compound", ReactionRow::getCompound, ReactionRow::setCompound, AbstractReactionRowPatch::getCompound, AbstractReactionRowPatch::setCompound, CompoundRefDiffHandler.INSTANCE);
         m.enteredValueProperty("eq", ReactionRow::getEq, ReactionRow::setEq, AbstractReactionRowPatch::getEq, AbstractReactionRowPatch::setEq);
     }
 }

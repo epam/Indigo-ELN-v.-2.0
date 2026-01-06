@@ -15,6 +15,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -38,11 +39,12 @@ public class CalculationReportBuilder implements AutoCloseable {
     public CalculationReportBuilder(File file) {
         this.file = file;
         System.err.println("Calculation report will be written to " + file.getAbsolutePath());
-        pr = new PrintWriter(new BufferedOutputStream(new FileOutputStream(file)));
+        pr = new PrintWriter(new BufferedOutputStream(new FileOutputStream(file)), false, StandardCharsets.UTF_8);
         pr.println("""
                 <!DOCTYPE html>
                 <html>
                     <head>
+                        <meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
                         <style>
                             body { font-family: Arial, sans-serif; }
                             .diff-wrapper { display: flex; width: 100%; }

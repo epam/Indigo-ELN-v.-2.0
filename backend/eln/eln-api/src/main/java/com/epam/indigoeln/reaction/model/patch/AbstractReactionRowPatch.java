@@ -13,7 +13,7 @@ import org.jspecify.annotations.Nullable;
 public abstract class AbstractReactionRowPatch<A extends Anchor> {
 
     @Nullable
-    private Patched<CompoundRef> compound;
+    private Patched<CompoundRefPatch> compound;
 
     @Nullable
     private Patched<EnteredValuePatch<NoUnit>> eq;
