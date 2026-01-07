@@ -20,9 +20,14 @@
           <mat-icon>more_horiz</mat-icon>
         </button>
         <mat-menu #menu="matMenu">
-          <button mat-menu-item>
-            <mat-icon>visibility</mat-icon>
-            <span>Action</span>
+          <button mat-menu-item class="choice">
+            <em class="indicon-edit"></em>
+            <span class="menu-label">Rename</span>
+          </button>
+
+          <button mat-menu-item class="choice">
+            <em class="indicon-delete"></em>
+            <span class="menu-label">Delete</span>
           </button>
         </mat-menu>
       </div>
@@ -78,7 +83,9 @@
             }
             <span class="mx-3 font-thin text-neutral-500">|</span>
             <!-- TODO -->
-            <span class="font-semibold text-h4 text-neutral-1000">{{project.experimentCount}}</span>
+            <span class="font-semibold text-h4 text-neutral-1000">{{
+              project.experimentCount
+            }}</span>
           </div>
         </div>
 
@@ -91,7 +98,13 @@
           <div class="flex items-center">
             <div class="flex -space-x-2">
               @for (member of project.acl.slice(0, 3); track member) {
-                <eln-avatar classList="w-6 h-6" [img]="'https://ui-avatars.com/api/?name=' + (member.username ?? member.displayName)" />
+                <eln-avatar
+                  classList="w-6 h-6"
+                  [img]="
+                    'https://ui-avatars.com/api/?name=' +
+                    (member.username ?? member.displayName)
+                  "
+                />
               }
               @if (project.aclCount > 3) {
                 <span
@@ -134,14 +147,20 @@
       >
         <div class="flex -space-x-2">
           @for (member of project.acl.slice(0, 3); track member) {
-            <eln-avatar classList="w-6 h-6" [img]="'https://ui-avatars.com/api/?name=' + (member.username ?? member.displayName)" />
+            <eln-avatar
+              classList="w-6 h-6"
+              [img]="
+                'https://ui-avatars.com/api/?name=' +
+                (member.username ?? member.displayName)
+              "
+            />
           }
           @if (project.aclCount > 3) {
             <span
               class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs"
             >
               +{{ project.aclCount - 3 }}
-            </span> 
+            </span>
           }
         </div>
         <span class="ml-2 text-b2 text-neutral-1000"

@@ -1,0 +1,16 @@
+::ng-deep .mat-mdc-menu-panel {
+  background-color: #fff !important;
+  border-radius: 10px;
+}
+
+.choice {
+  position: relative;
+  em {
+    font-size: 20px !important;
+    margin-right: 8px;
+  }
+  .menu-label {
+    position: absolute;
+    top: 14px;
+  }
+}
