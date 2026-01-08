@@ -54,7 +54,7 @@ public class NotebookService {
             aclService.initNotebookACL(notebook);
             notebookRepository.persist(notebook);
             notebookRepository.flushAndRefresh(notebook);
-        }, e -> mapConstraintToError(e, notebook));
+        }, NotebookService::mapConstraintToError);
         return getNotebook(notebook.getId());
     }
 
@@ -80,7 +80,7 @@ public class NotebookService {
             editProperty(request.getDescription(), notebook::setDescription);
             updateDates(notebook, userService.getCurrentUserEntity());
             notebookRepository.flushAndRefresh(notebook);
-        }, e -> mapConstraintToError(e, notebook));
+        }, NotebookService::mapConstraintToError);
         return getNotebook(notebookId);
     }
 
@@ -97,9 +97,9 @@ public class NotebookService {
     }
 
     @Nullable
-    private static String mapConstraintToError(ConstraintViolationException e, NotebookEntity notebook) {
+    private static String mapConstraintToError(ConstraintViolationException e) {
         if ("notebook_name_uq".equals(e.getConstraintName())) {
-            throw new InvalidRequestException("Notebook with name '" + notebook.getName() + "' already exists");
+            throw new InvalidRequestException("Unique name is required");
         }
         return null;
     }
