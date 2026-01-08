@@ -17,9 +17,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Subscription, take } from 'rxjs';
 import { ProjectAddComponent } from '../project-add/project-add.component';
 import { ProjectItemComponent } from '@pages/project/project-item/project-item.component';
-import {
-  ProjectOverviewWidgetDirective
-} from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
+import { ProjectOverviewWidgetDirective } from '@pages/project/projects-overview-widget/directives/project-overview-widget.directive';
 
 @Component({
   selector: 'eln-project-list',
@@ -60,8 +58,16 @@ export class ProjectListComponent
     this.setup({
       loadUrl: 'projects',
       sortOptions: [
-        { label: 'Sort by: Earliest', value: 'createdAt', defaultOrder: 'asc' },
-        { label: 'Sort by: Latest', value: 'createdAt', defaultOrder: 'desc' },
+        {
+          label: 'Sorting by: Earliest',
+          value: 'createdAt',
+          defaultOrder: 'asc',
+        },
+        {
+          label: 'Sorting by: Latest',
+          value: 'createdAt',
+          defaultOrder: 'desc',
+        },
       ],
       defaultSort: {
         sortBy: 'createdAt',
