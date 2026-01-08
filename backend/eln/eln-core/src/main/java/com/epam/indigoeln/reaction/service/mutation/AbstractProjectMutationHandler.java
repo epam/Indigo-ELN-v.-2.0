@@ -40,7 +40,7 @@ public abstract class AbstractProjectMutationHandler<T extends Mutation> extends
     public Pair<ProjectSnapshot, ProjectPatch> applyMutation(ProjectEntity project, T mutation) {
         return wrapConstraintViolation(
                 () -> super.applyMutation(project, mutation),
-                e -> mapConstraintToError(e, project)
+                this::mapConstraintToError
         );
     }
 
@@ -77,9 +77,9 @@ public abstract class AbstractProjectMutationHandler<T extends Mutation> extends
     }
 
     @Nullable
-    private String mapConstraintToError(ConstraintViolationException e, ProjectEntity project) {
+    private String mapConstraintToError(ConstraintViolationException e) {
         if ("project_name_uq".equals(e.getConstraintName())) {
-            return "Project with name '" + project.getName() + "' already exists";
+            return "Unique name is required";
         }
         return null;
     }

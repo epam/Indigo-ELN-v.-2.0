@@ -38,7 +38,7 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     public Pair<NotebookSnapshot, NotebookPatch> applyMutation(NotebookEntity notebook, T mutation) {
         return wrapConstraintViolation(
                 () -> super.applyMutation(notebook, mutation),
-                e -> mapConstraintToError(e, notebook)
+                this::mapConstraintToError
         );
     }
 
@@ -75,9 +75,9 @@ public abstract class AbstractNotebookMutationHandler<T extends Mutation> extend
     }
 
     @Nullable
-    private String mapConstraintToError(ConstraintViolationException e, NotebookEntity notebook) {
+    private String mapConstraintToError(ConstraintViolationException e) {
         if ("notebook_name_uq".equals(e.getConstraintName())) {
-            return "Notebook with name '" + notebook.getName() + "' already exists";
+            return "Unique name is required";
         }
         return null;
     }

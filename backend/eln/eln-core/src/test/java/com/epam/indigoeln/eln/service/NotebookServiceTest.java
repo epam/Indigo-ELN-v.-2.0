@@ -54,7 +54,7 @@ class NotebookServiceTest extends ELNBaseTest {
         String name = nextNotebookName();
         notebookClient.createNotebook(project.getId(), new NotebookRequest(name));
         assertThatClientCall(() -> notebookClient.createNotebook(project.getId(), new NotebookRequest(name)))
-                .isBadRequest("Notebook with name '.+' already exists");
+                .isBadRequest("Unique name is required");
     }
 
     @Test
@@ -64,7 +64,7 @@ class NotebookServiceTest extends ELNBaseTest {
         String name2 = nextNotebookName();
         NotebookDetailsDTO notebook2 = notebookClient.createNotebook(project.getId(), new NotebookRequest(name2));
         assertThatClientCall(() -> notebookClient.editNotebook(notebook2.getId(), new NotebookEditRequest().withName(Optional.of(name))))
-                .isBadRequest("Notebook with name '" + name + "' already exists");
+                .isBadRequest("Unique name is required");
     }
 
     @Test
