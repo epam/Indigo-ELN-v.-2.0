@@ -24,27 +24,31 @@ public sealed interface ReactionInputSampleMutation extends Mutation permits
     record SetInputDensity (
             @NotNull Anchor.InputSample anchor,
             @Nullable Double density,
-            @Nullable DensityUnit unit
+            @Nullable DensityUnit unit,
+            @Nullable EnteredValueSource source
     ) implements ReactionInputSampleMutation {
     }
 
     record SetInputMolarity (
             @NotNull Anchor.InputSample anchor,
             @Nullable Double molarity,
-            @Nullable MolarityUnit unit
+            @Nullable MolarityUnit unit,
+            @Nullable EnteredValueSource source
     ) implements ReactionInputSampleMutation {
     }
 
     record SetInputVolume (
             @NotNull Anchor.InputSample anchor,
             @Nullable Double volume,
-            @Nullable VolumeUnit unit
+            @Nullable VolumeUnit unit,
+            @Nullable EnteredValueSource source
     ) implements ReactionInputSampleMutation {
     }
 
     record SetInputPurity (
             @NotNull Anchor.InputSample anchor,
-            @Nullable Double purity
+            @Nullable Double purity,
+            @Nullable EnteredValueSource source
     ) implements ReactionInputSampleMutation {
     }
 
@@ -57,14 +61,16 @@ public sealed interface ReactionInputSampleMutation extends Mutation permits
     record SetInputMol (
             @NotNull Anchor.InputSample anchor,
             @Nullable Double mol,
-            @Nullable MolUnit unit
+            @Nullable MolUnit unit,
+            @Nullable EnteredValueSource source
     ) implements ReactionInputSampleMutation {
     }
 
     record SetInputWeight (
             @NotNull Anchor.InputSample anchor,
             @Nullable Double weight,
-            @Nullable WeightUnit unit
+            @Nullable WeightUnit unit,
+            @Nullable EnteredValueSource source
     ) implements ReactionInputSampleMutation {
     }
 

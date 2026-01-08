@@ -52,6 +52,7 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
     String getCalculatedBatchMF();
 
     @Getter
+    @ToString
     @RequiredArgsConstructor
     @EqualsAndHashCode(of = {"compoundID"})
     final class Stored implements CompoundRef {
@@ -87,18 +88,10 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
 
         @NotNull
         private final String calculatedBatchMF;
-
-        @Override
-        public String toString() {
-            return MoreObjects.toStringHelper(this).omitNullValues()
-                    .add("compoundID", compoundID)
-                    .add("molWeight", molWeight)
-                    .add("formula", formula)
-                    .toString();
-        }
     }
 
     @Getter
+    @ToString
     @EqualsAndHashCode(of = {"compoundID"})
     @AllArgsConstructor(onConstructor_ = @JsonCreator)
     final class Virtual implements CompoundRef {
@@ -135,20 +128,10 @@ public sealed interface CompoundRef permits CompoundRef.Stored, CompoundRef.Virt
 
         @NotNull
         private final String calculatedBatchMF;
-
-        @Override
-        public String toString() {
-            return MoreObjects.toStringHelper(this).omitNullValues()
-                    .add("compoundID", compoundID)
-                    .add("formula", formula)
-                    .add("saltCode", saltCode)
-                    .add("saltEQ", saltEQ)
-                    .add("molWeight", molWeight)
-                    .toString();
-        }
     }
 
     @Getter
+    @ToString
     @EqualsAndHashCode
     final class Unknown implements CompoundRef {
 

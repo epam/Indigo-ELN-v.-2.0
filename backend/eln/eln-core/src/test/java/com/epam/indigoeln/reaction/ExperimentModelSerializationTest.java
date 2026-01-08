@@ -26,20 +26,20 @@ public class ExperimentModelSerializationTest {
         model.setReactions(List.of(reaction));
         reaction.setRxnfile("molFile");
 
-        ReactionInput input1 = ReactionInput.create(reaction, ReactionRole.REACTANT);
+        ReactionInput input1 = ReactionInput.create(reaction, ReactionRole.REACTANT, null);
         input1.setCompound(new CompoundRef.Stored(UUID.randomUUID(), EnteredValue.fixed(1.0, MolWeightUnit.G_PER_MOL), 1.1, "C", "compoundKey", null, "batchMF"));
         input1.setEq(EnteredValue.userLastEntered(10.0, NoUnit.NO_UNIT));
-        ReactionInput input2 = ReactionInput.create(reaction, ReactionRole.REACTANT);
+        ReactionInput input2 = ReactionInput.create(reaction, ReactionRole.REACTANT, null);
         input2.setCompound(new CompoundRef.Virtual(UUID.randomUUID(), "C", null, null, null, null, EnteredValue.fixed(1.0, MolWeightUnit.G_PER_MOL), 1.1, null, "batchMF"));
-        ReactionInput input3 = ReactionInput.create(reaction, ReactionRole.REACTANT);
+        ReactionInput input3 = ReactionInput.create(reaction, ReactionRole.REACTANT, null);
         input3.setCompound(new CompoundRef.Unknown());
-        ReactionInputSample inputSample1 = ReactionInputSample.create(input1);
+        ReactionInputSample inputSample1 = ReactionInputSample.create(input1, null);
         input1.setSamples(List.of(inputSample1));
         reaction.setInputs(List.of(input1, input2, input3));
 
-        ReactionOutput output = ReactionOutput.create(reaction, ReactionOutputType.FINAL);
+        ReactionOutput output = ReactionOutput.create(reaction, ReactionOutputType.FINAL, null);
         output.setCompound(new CompoundRef.Virtual(UUID.randomUUID(), "C", null, null, null, null, EnteredValue.fixed(2.0, MolWeightUnit.G_PER_MOL), 2.2, null, "batchMF"));
-        ReactionOutputSample outputSample = ReactionOutputSample.create("00000000-0000", output);
+        ReactionOutputSample outputSample = ReactionOutputSample.create(output, "00000000-0000", null);
         output.setSamples(List.of(outputSample));
         reaction.setOutputs(List.of(output));
 
@@ -52,7 +52,7 @@ public class ExperimentModelSerializationTest {
 
     @Test
     void testSerializeMutation() throws Exception {
-        Mutation mutation = new ReactionInputMutation.SetInputRowMol(new Anchor.Input(3), 2.5, MolUnit.MMOL);
+        Mutation mutation = new ReactionInputMutation.SetInputRowMol(new Anchor.Input(3), 2.5, MolUnit.MMOL, null);
         String json = FeignUtil.OBJECT_MAPPER.writeValueAsString(mutation);
         System.out.println(json);
         Mutation mutation2 = FeignUtil.OBJECT_MAPPER.readValue(json, Mutation.class);

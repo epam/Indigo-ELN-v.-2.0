@@ -19,22 +19,28 @@ public class ToStringUtil {
             builder.text("null");
             return;
         }
-        builder.open(metamodel.getName());
         ExperimentModelUtil.walkProperties(metamodel, container, new ExperimentModelUtil.PropertyVisitor() {
+            @Override
+            public void beforeNode(ExperimentNode node) {
+                builder.open(node.getClass().getSimpleName());
+            }
+            @Override
+            public void afterNode(ExperimentNode node) {
+                builder.close();
+            }
             @Override
             public void simpleProperty(ExperimentNode node, ModelProperty<ExperimentNode, ?, ?, ?> property) {
                 builder.property(property.name(), property.get(node));
             }
             @Override
-            public void beforeList(ExperimentNode node, ListProperty<ExperimentNode, ?, ?, ?, ?> property) {
+            public void beforeChildren(ExperimentNode node, ModelProperty<ExperimentNode, ?, ?, ?> property) {
                 builder.open(property.name());
             }
             @Override
-            public void afterList(ExperimentNode node, ListProperty<ExperimentNode, ?, ?, ?, ?> property) {
+            public void afterChildren(ExperimentNode node, ModelProperty<ExperimentNode, ?, ?, ?> property) {
                 builder.close();
             }
         });
-        builder.close();
     }
 
     public static class Builder {

@@ -11,10 +11,7 @@ import com.github.difflib.text.DiffRowGenerator;
 import lombok.SneakyThrows;
 import org.jspecify.annotations.Nullable;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -23,6 +20,7 @@ import java.util.List;
 public class CalculationReportBuilder implements AutoCloseable {
 
     private final File file;
+    private final ByteArrayOutputStream bytes;
     private final PrintWriter pr;
     @Nullable
     private String previousModel;
@@ -39,7 +37,8 @@ public class CalculationReportBuilder implements AutoCloseable {
     public CalculationReportBuilder(File file) {
         this.file = file;
         System.err.println("Calculation report will be written to " + file.getAbsolutePath());
-        pr = new PrintWriter(new BufferedOutputStream(new FileOutputStream(file)), false, StandardCharsets.UTF_8);
+        bytes = new ByteArrayOutputStream();
+        pr = new PrintWriter(bytes, false, StandardCharsets.UTF_8);
         pr.println("""
                 <!DOCTYPE html>
                 <html>
@@ -48,7 +47,7 @@ public class CalculationReportBuilder implements AutoCloseable {
                         <style>
                             body { font-family: Arial, sans-serif; }
                             .diff-wrapper { display: flex; width: 100%; }
-                            .diff-pane { flex: 0 0 50%; overflow-x: auto; border: 1px solid #ccc; }
+                            .diff-pane { flex: 0 0 33%; overflow-x: auto; border: 1px solid #ccc; }
                             .diff { width: 100%; border-collapse: collapse; }
                             .diff td { white-space: nowrap; padding: 0; text-align: left, vertical-align: top; }
                             pre { margin: 0; }
@@ -62,12 +61,16 @@ public class CalculationReportBuilder implements AutoCloseable {
     }
 
     @Override
+    @SneakyThrows
     public void close() {
         if (!closed) {
             pr.println("</html>");
             pr.close();
+            try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file))) {
+                outputStream.write(bytes.toByteArray());
+            }
             closed = true;
-            System.err.println("Calculation report is available at " + file.toURI());
+            System.err.println("Calculation report is available at file://wsl$/Ubuntu" + file.getAbsolutePath());
         }
     }
 
@@ -75,17 +78,13 @@ public class CalculationReportBuilder implements AutoCloseable {
         pr.printf("<h1>%s</h1>\n", mutation);
     }
 
-    public void addPatch(String patch) {
-        pr.printf("<pre>%s</pre>\n", patch);
-    }
-
-    public void addModel(ExperimentSnapshot model) {
+    public void addModel(String patch, ExperimentSnapshot model) {
         String currentModel = ToStringUtil.toStringBuild(ExperimentMetamodel.INSTANCE, model);
         if (previousModel == null) {
-            addComparison(List.of(), currentModel.lines().toList());
+            addComparison(formatPatch(patch), List.of(), currentModel.lines().toList());
         } else {
             Pair<List<String>, List<String>> result = prepareDiff(previousModel, currentModel);
-            addComparison(result.a(), result.b());
+            addComparison(formatPatch(patch), result.a(), result.b());
         }
         previousModel = currentModel;
     }
@@ -94,10 +93,10 @@ public class CalculationReportBuilder implements AutoCloseable {
         pr.printf("<img src='data:%s;base64,%s'/>", contentType, Base64.getEncoder().encodeToString(content));
     }
 
-    public void addFailedComparison(String summary, String expected, String applied) {
+    public void addFailedComparison(String summary, @Nullable String patch, String expected, String applied) {
         pr.printf("<h1 class='error'>%s</h1>\n", summary);
         Pair<List<String>, List<String>> result = prepareDiff(expected, applied);
-        addComparison(result.a(), result.b());
+        addComparison(patch != null ? formatPatch(patch) : List.of(), result.a(), result.b());
     }
 
     private Pair<List<String>, List<String>> prepareDiff(String left, String right) {
@@ -110,27 +109,34 @@ public class CalculationReportBuilder implements AutoCloseable {
         return Pair.of(leftContent, rightContent);
     }
 
-    private void addComparison(List<String> leftContent, List<String> rightContent) {
+    private List<String> formatPatch(String patch) {
+        return patch
+                .replaceAll("(\"$old\")", "<span class='old'>$1</span>")
+                .replaceAll("(\"$new\")", "<span class='new'>$1</span>")
+                .replaceAll("(\"\\d+>\")", "<span class='old'>$1</span>")
+                .replaceAll("(\">\\d+\")", "<span class='new'>$1</span>")
+                .replaceAll("\"(\\d+)>(\\d+)\"", "\"<span class='old'>$1</span>&gt;<span class='new'>$2</span>\"")
+                .lines().toList();
+    }
+
+    private void addComparison(List<String> leftContent, List<String> middleContent, List<String> rightContent) {
         pr.println("""
                 <div class='diff-wrapper'>
+                """);
+        for (List<String> content : List.of(leftContent, middleContent, rightContent)) {
+            pr.println("""
                     <div class='diff-pane'>
                         <table class='diff-table'>
-                """);
-        for (String line : leftContent) {
-            pr.printf("<tr><td><pre>%s</pre></td></tr>\n", line.isBlank() ? "&nbsp;" : line);
-        }
-        pr.println("""
+                    """);
+            for (String line : content) {
+                pr.printf("<tr><td><pre>%s</pre></td></tr>\n", line.isBlank() ? "&nbsp;" : line);
+            }
+            pr.println("""
                         </table>
                     </div>
-                    <div class='diff-pane'>
-                        <table class='diff-table'>
-                """);
-        for (String line : rightContent) {
-            pr.printf("<tr><td><pre>%s</pre></td></tr>\n", line.isBlank() ? "&nbsp;" : line);
+                    """);
         }
         pr.println("""
-                        </table>
-                    </div>
                 </div>
                 """);
     }

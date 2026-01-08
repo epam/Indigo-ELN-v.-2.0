@@ -18,10 +18,9 @@ public final class ExperimentModel implements ExperimentNode {
 
     public static final int SCHEMA_VERSION = 1;
 
-    @Valid
     @NotEmpty
     @JsonManagedReference
-    private List<Reaction> reactions = List.of();
+    private List<@Valid Reaction> reactions = List.of();
 
     private Integer lastUsedAnchor = 0;
 

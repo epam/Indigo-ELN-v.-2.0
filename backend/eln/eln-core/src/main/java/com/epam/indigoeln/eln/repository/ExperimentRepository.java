@@ -100,4 +100,11 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
     public void persistRevision(ExperimentRevisionEntity revision) {
         em.persist(revision);
     }
+
+    public ExperimentRevisionEntity getRevision(ExperimentEntity experiment, int revision) {
+        return em.createQuery("from ExperimentRevision where experiment = :experiment and revision = :revision", ExperimentRevisionEntity.class)
+                .setParameter("experiment", experiment)
+                .setParameter("revision", revision)
+                .getSingleResult();
+    }
 }

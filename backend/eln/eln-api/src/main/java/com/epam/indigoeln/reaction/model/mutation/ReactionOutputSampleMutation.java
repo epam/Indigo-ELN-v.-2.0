@@ -30,7 +30,8 @@ public sealed interface ReactionOutputSampleMutation extends Mutation permits
         ReactionOutputSampleMutation.SetOutputSourceDetails,
         ReactionOutputSampleMutation.SetOutputComponentState,
         ReactionOutputSampleMutation.SetOutputBatchComment,
-        ReactionOutputSampleMutation.SetOutputStructureComment
+        ReactionOutputSampleMutation.SetOutputStructureComment,
+        ReactionOutputSampleMutation.RemoveProductSample
 {
 
     Anchor.OutputSample anchor();
@@ -38,27 +39,31 @@ public sealed interface ReactionOutputSampleMutation extends Mutation permits
     record SetOutputDensity (
             @NotNull Anchor.OutputSample anchor,
             @Nullable Double density,
-            @Nullable DensityUnit unit
+            @Nullable DensityUnit unit,
+            @Nullable EnteredValueSource source
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputMolarity (
             @NotNull Anchor.OutputSample anchor,
             @Nullable Double molarity,
-            @Nullable MolarityUnit unit
+            @Nullable MolarityUnit unit,
+            @Nullable EnteredValueSource source
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputVolume (
             @NotNull Anchor.OutputSample anchor,
             @Nullable Double volume,
-            @Nullable VolumeUnit unit
+            @Nullable VolumeUnit unit,
+            @Nullable EnteredValueSource source
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputPurity (
             @NotNull Anchor.OutputSample anchor,
-            @Nullable Double purity
+            @Nullable Double purity,
+            @Nullable EnteredValueSource source
     ) implements ReactionOutputSampleMutation {
     }
 
@@ -71,14 +76,16 @@ public sealed interface ReactionOutputSampleMutation extends Mutation permits
     record SetOutputActualMol (
             @NotNull Anchor.OutputSample anchor,
             @Nullable Double actualMol,
-            @Nullable MolUnit unit
+            @Nullable MolUnit unit,
+            @Nullable EnteredValueSource source
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputActualWeight (
             @NotNull Anchor.OutputSample anchor,
             @Nullable Double actualWeight,
-            @Nullable WeightUnit unit
+            @Nullable WeightUnit unit,
+            @Nullable EnteredValueSource source
     ) implements ReactionOutputSampleMutation {
     }
 
@@ -162,6 +169,11 @@ public sealed interface ReactionOutputSampleMutation extends Mutation permits
     record SetOutputStructureComment (
             @NotNull Anchor.OutputSample anchor,
             @Nullable String structureComment
+    ) implements ReactionOutputSampleMutation {
+    }
+
+    record RemoveProductSample (
+            @NotNull Anchor.OutputSample anchor
     ) implements ReactionOutputSampleMutation {
     }
 }

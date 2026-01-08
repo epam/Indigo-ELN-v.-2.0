@@ -7,6 +7,7 @@ import com.epam.indigoeln.reaction.metamodel.property.ListProperty;
 import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
 import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
 import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.patch.handler2.ListDiffHandler;
 import com.epam.indigoeln.reaction.model.patch.handler2.MetamodelDiffHandler;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
@@ -34,30 +35,40 @@ public class ExperimentModelUtil {
 
     @SuppressWarnings("unchecked")
     public static <N extends ExperimentNode> void walkProperties(Metamodel<N, ?> metamodel, N node, PropertyVisitor visitor) {
+        visitor.beforeNode(node);
         for (ModelProperty<N, ?, ?, ?> property : metamodel.getProperties()) {
             Pair<Metamodel<?, ?>, List<ExperimentNode>> children = doGetChildren(node, property);
             if (children != null) {
-                visitor.beforeList(node, (ListProperty<ExperimentNode, ?, ?, ?, ?>) property);
+                visitor.beforeChildren(node, property.cast());
                 for (ExperimentNode child : children.b()) {
                     walkProperties((Metamodel<ExperimentNode, ?>) children.a(), child, visitor);
                 }
-                visitor.afterList(node, (ListProperty<ExperimentNode, ?, ?, ?, ?>) property);
+                visitor.afterChildren(node, property.cast());
             } else {
                 visitor.simpleProperty(node, (ModelProperty<ExperimentNode, ?, ?, ?>) property);
             }
         }
+        visitor.afterNode(node);
     }
 
     @Nullable
     private static Pair<Metamodel<?, ?>, List<ExperimentNode>> doGetChildren(ExperimentNode node, ModelProperty<?, ?, ?, ?> property) {
-        if (property instanceof ListProperty<?, ?, ?, ?, ?>) {
-            ListProperty<ExperimentNode, ExperimentNode, Object, Object, Object> listProperty = property.cast();
-            if (listProperty.valueHandler().getItemHandler() instanceof MetamodelDiffHandler<?, ?> childHandler) {
-                List<ExperimentNode> items = listProperty.getter().apply(node);
-                return Pair.of(childHandler.getMetamodel(), items);
+        return switch (property.valueHandler()) {
+            case ListDiffHandler<?, ?, ?> listHandler -> {
+                ListProperty<ExperimentNode, ExperimentNode, Object, Object, Object> listProperty = property.cast();
+                if (listHandler.getItemHandler() instanceof MetamodelDiffHandler<?, ?> childHandler) {
+                    List<ExperimentNode> items = listProperty.getter().apply(node);
+                    yield Pair.of(childHandler.getMetamodel(), items);
+                }
+                yield null;
             }
-        }
-        return null;
+            case MetamodelDiffHandler<?, ?> metamodelDiffHandler -> {
+                ModelProperty<ExperimentNode, ExperimentNode, Object, Object> metamodelProperty = property.cast();
+                ExperimentNode childNode = metamodelProperty.getter().apply(node);
+                yield Pair.of(metamodelDiffHandler.getMetamodel(), List.of(childNode));
+            }
+            default -> null;
+        };
     }
 
     public static void prepareToRecalculate(ExperimentModel model) {
@@ -83,12 +94,18 @@ public class ExperimentModelUtil {
 
     public interface PropertyVisitor {
 
-        void simpleProperty(ExperimentNode node, ModelProperty<ExperimentNode, ?, ?, ?> property);
-
-        default void beforeList(ExperimentNode node, ListProperty<ExperimentNode, ?, ?, ?, ?> property) {
+        default void beforeNode(ExperimentNode node) {
         }
 
-        default void afterList(ExperimentNode node, ListProperty<ExperimentNode, ?, ?, ?, ?> property) {
+        default void afterNode(ExperimentNode node) {
+        }
+
+        void simpleProperty(ExperimentNode node, ModelProperty<ExperimentNode, ?, ?, ?> property);
+
+        default void beforeChildren(ExperimentNode node, ModelProperty<ExperimentNode, ?, ?, ?> property) {
+        }
+
+        default void afterChildren(ExperimentNode node, ModelProperty<ExperimentNode, ?, ?, ?> property) {
         }
     }
 }

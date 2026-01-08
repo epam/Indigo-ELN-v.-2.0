@@ -46,7 +46,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
         withUser(JOHN_USERNAME, () -> {
             initExperiment("ExperimentModelServiceTest");
         });
-        reportBuilder = new CalculationReportBuilder(new File("calculations.html"));
+        reportBuilder = new CalculationReportBuilder(new File("build/calculations.html"));
     }
 
     @AfterAll
@@ -78,7 +78,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(210)
     void testSetInputRowSaltCode() {
-        ReactionInputMutation.SetInputRowSaltCode mutation = new ReactionInputMutation.SetInputRowSaltCode(input2.getAnchor(), dictionaryClient.getSaltCodes().getFirst());
+        ReactionInputMutation.SetInputRowSaltCode mutation = new ReactionInputMutation.SetInputRowSaltCode(input2.getAnchor(), dictionaryClient.getSaltCodes().get(1));
         applyMutation(mutation);
     }
 
@@ -113,7 +113,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(300)
     void testSelectSaltCode() {
-        applyMutation(new ReactionOutputMutation.SetOutputRowSaltCode(output1.getAnchor(), dictionaryClient.getSaltCodes().getFirst()));
+        applyMutation(new ReactionOutputMutation.SetOutputRowSaltCode(output1.getAnchor(), dictionaryClient.getSaltCodes().get(1)));
     }
 
     @Test
@@ -125,13 +125,13 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(500)
     void testSetInputWeight() {
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), 100.0, WeightUnit.G));
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), 100.0, WeightUnit.G, null));
     }
 
     @Test
     @Order(501)
     void testSetInputWeightInKG() {
-        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), 0.1, WeightUnit.KG));
+        applyMutation(new ReactionInputSampleMutation.SetInputWeight(input1Sample1.getAnchor(), 0.1, WeightUnit.KG, null));
     }
 
     @Test
@@ -150,7 +150,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Order(621)
     void testRemoveEmptyInput() {
         List<ReactionInput> inputs = experiment.getModel().getReactions().getFirst().getInputs();
-        applyMutation(new ReactionMutation.RemoveInput(reaction.getAnchor(), inputs.getLast().getAnchor()));
+        applyMutation(new ReactionInputMutation.RemoveInput(inputs.getLast().getAnchor()));
     }
 
     @Test
@@ -162,19 +162,19 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(800)
     void testSetOutputActualMol() {
-        applyMutation(new ReactionOutputSampleMutation.SetOutputActualMol(output2Sample1.getAnchor(), 200.0, MolUnit.MMOL));
+        applyMutation(new ReactionOutputSampleMutation.SetOutputActualMol(output2Sample1.getAnchor(), 200.0, MolUnit.MMOL, null));
     }
 
     @Test
     @Order(900)
     void testSetOutputPurity() {
-        applyMutation(new ReactionOutputSampleMutation.SetOutputPurity(output2Sample1.getAnchor(), 0.5));
+        applyMutation(new ReactionOutputSampleMutation.SetOutputPurity(output2Sample1.getAnchor(), 0.5, null));
     }
 
     @Test
     @Order(1000)
     void testSetActualWeight() {
-        applyMutation(new ReactionOutputSampleMutation.SetOutputActualWeight(output2Sample1.getAnchor(), 10.0, WeightUnit.G));
+        applyMutation(new ReactionOutputSampleMutation.SetOutputActualWeight(output2Sample1.getAnchor(), 10.0, WeightUnit.G, null));
     }
 
     @Test

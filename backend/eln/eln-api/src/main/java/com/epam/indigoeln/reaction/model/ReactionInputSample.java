@@ -41,14 +41,10 @@ public final class ReactionInputSample extends ReactionSample implements Experim
     @Nullable
     private String comment;
 
-    public static ReactionInputSample create(ReactionInput row) {
-        return createWithAnchor(row, new Anchor.InputSample(row.getReaction().getModel().generateNextAnchor()));
-    }
-
-    public static ReactionInputSample createWithAnchor(ReactionInput row, Anchor.InputSample anchor) {
+    public static ReactionInputSample create(ReactionInput row, Anchor.@Nullable InputSample anchor) {
         ReactionInputSample sample = new ReactionInputSample();
         sample.row = row;
-        sample.anchor = anchor;
+        sample.anchor = anchor != null ? anchor : new Anchor.InputSample(row.getReaction().getModel().generateNextAnchor());
         return sample;
     }
 }

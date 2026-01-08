@@ -36,15 +36,13 @@ public final class Reaction implements ExperimentNode {
     @NotNull
     private Integer rxnVersion = 0;
 
-    @Valid
     @NotNull
     @JsonManagedReference
-    private List<ReactionInput> inputs = List.of();
+    private List<@Valid ReactionInput> inputs = List.of();
 
-    @Valid
     @NotNull
     @JsonManagedReference
-    private List<ReactionOutput> outputs = List.of();
+    private List<@Valid ReactionOutput> outputs = List.of();
 
     public static Reaction create(ExperimentModel model) {
         return createWithAnchor(model, new Anchor.Reaction(model.generateNextAnchor()));

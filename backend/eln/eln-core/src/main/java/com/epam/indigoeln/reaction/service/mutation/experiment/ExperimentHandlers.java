@@ -1,6 +1,7 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
 import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.common.exception.MutationNotUndoableException;
 import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.model.AccessLevel;
@@ -13,11 +14,11 @@ import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
+import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.MutationContext;
+import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import com.epam.indigoeln.reaction.service.ExperimentModelService;
-import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationHandler;
-import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
-import com.epam.indigoeln.reaction.service.mutation.MutationResult;
+import com.epam.indigoeln.reaction.service.mutation.*;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
@@ -42,7 +43,7 @@ class CreateExperimentHandler implements ExperimentMutationHandler<ExperimentMut
     ACLService aclService;
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.CreateExperiment mutation, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.CreateExperiment mutation, MutationRedoInfo redoInfo, MutationContext context) {
         experiment.setTherapeuticArea(dictionaryService.lookup(BuiltInDictionary.THERAPEUTIC_AREA.name(), mutation.therapeuticArea()));
         experiment.setProjectCode(dictionaryService.lookup(BuiltInDictionary.PROJECT_CODE.name(), mutation.projectCode()));
         experiment.setDescription(mutation.description());
@@ -64,7 +65,7 @@ class CreateExperimentHandler implements ExperimentMutationHandler<ExperimentMut
     }
 
     @Override
-    public void initContext(MutationContext context) {
+    public void initContext(ExperimentEntity experiment, ExperimentMutation.CreateExperiment mutation, MutationContext context) {
         // nothing
     }
 }
@@ -77,7 +78,7 @@ class EditExperimentAttributesHandler implements ExperimentMutationHandler<Exper
     DictionaryService dictionaryService;
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.EditExperimentAttributes mutation, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.EditExperimentAttributes mutation, MutationRedoInfo redoInfo, MutationContext context) {
         List<String> attributeSummaries = new ArrayList<>();
         editProperty(mutation.therapeuticArea(), v -> {
             DictionaryItemEntity value = dictionaryService.lookup(BuiltInDictionary.THERAPEUTIC_AREA.name(), v);
@@ -99,7 +100,7 @@ class EditExperimentAttributesHandler implements ExperimentMutationHandler<Exper
     }
 
     @Override
-    public void initContext(MutationContext context) {
+    public void initContext(ExperimentEntity experiment, ExperimentMutation.EditExperimentAttributes mutation, MutationContext context) {
         // nothing
     }
 }
@@ -116,7 +117,7 @@ class EditExperimentAccessHandler implements ExperimentMutationHandler<Experimen
     UserService userService;
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.EditExperimentAccess mutation, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.EditExperimentAccess mutation, MutationRedoInfo redoInfo, MutationContext context) {
         String summary = switch (mutation.edits().size()) {
             case 0 -> throw new InvalidRequestException("No access edits to apply");
             case 1 -> {
@@ -137,7 +138,7 @@ class EditExperimentAccessHandler implements ExperimentMutationHandler<Experimen
     }
 
     @Override
-    public void initContext(MutationContext context) {
+    public void initContext(ExperimentEntity experiment, ExperimentMutation.EditExperimentAccess mutation, MutationContext context) {
         context.setAffectsACL(true);
     }
 }
@@ -150,7 +151,7 @@ class CreateExperimentAttachmentHandler implements ExperimentMutationHandler<Exp
     AttachmentRepository attachmentRepository;
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.CreateExperimentAttachment mutation, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.CreateExperimentAttachment mutation, MutationRedoInfo redoInfo, MutationContext context) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         experiment.getAttachments().add(attachment);
         attachment.getExperiments().add(experiment);
@@ -158,7 +159,7 @@ class CreateExperimentAttachmentHandler implements ExperimentMutationHandler<Exp
     }
 
     @Override
-    public void initContext(MutationContext context) {
+    public void initContext(ExperimentEntity experiment, ExperimentMutation.CreateExperimentAttachment mutation, MutationContext context) {
         context.setAffectsAttachments(true);
     }
 }
@@ -171,7 +172,7 @@ class DeleteExperimentAttachmentHandler implements ExperimentMutationHandler<Exp
     AttachmentRepository attachmentRepository;
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.DeleteExperimentAttachment mutation, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.DeleteExperimentAttachment mutation, MutationRedoInfo redoInfo, MutationContext context) {
         AttachmentEntity attachment = attachmentRepository.getReference(mutation.attachmentID());
         experiment.getAttachments().remove(attachment);
         attachment.getExperiments().remove(experiment);
@@ -180,7 +181,72 @@ class DeleteExperimentAttachmentHandler implements ExperimentMutationHandler<Exp
     }
 
     @Override
-    public void initContext(MutationContext context) {
+    public void initContext(ExperimentEntity experiment, ExperimentMutation.DeleteExperimentAttachment mutation, MutationContext context) {
         context.setAffectsAttachments(true);
+    }
+}
+
+@Dependent
+@MutationHandlerFor(ExperimentMutation.Undo.class)
+class UndoHandler implements ExperimentMutationHandler<ExperimentMutation.Undo> {
+
+    @Inject
+    ExperimentRepository experimentRepository;
+    @Inject
+    MutationHandlerRegistry mutationHandlerRegistry;
+
+    @Override
+    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.Undo mutation, MutationRedoInfo redoInfo, MutationContext context) {
+        ExperimentRevisionEntity initialRevision = getRevision(experiment, mutation);
+        Mutation reverseMutation = initialRevision.getReverseMutation();
+        //noinspection unchecked
+        mutationHandlerRegistry.findHandler(reverseMutation).handle(experiment, reverseMutation, null, context);
+        return new MutationResult("Undo: " + initialRevision.getSummary());
+    }
+
+    @Override
+    public void initContext(ExperimentEntity experiment, ExperimentMutation.Undo mutation, MutationContext context) {
+        ExperimentRevisionEntity initialRevision = getRevision(experiment, mutation);
+        Mutation reverseMutation = initialRevision.getReverseMutation();
+        mutationHandlerRegistry.findHandler(reverseMutation).initContext(experiment, reverseMutation, context);
+    }
+
+    private ExperimentRevisionEntity getRevision(ExperimentEntity experiment, ExperimentMutation.Undo undoMutation) {
+        ExperimentRevisionEntity revision = experimentRepository.getRevision(experiment, undoMutation.revision());
+        if (revision.getReverseMutation() == null) {
+            throw new MutationNotUndoableException("Cannot undo '%s'".formatted(revision.getSummary()));
+        }
+        return revision;
+    }
+}
+
+@Dependent
+@MutationHandlerFor(ExperimentMutation.Redo.class)
+class RedoHandler implements ExperimentMutationHandler<ExperimentMutation.Redo> {
+
+    @Inject
+    ExperimentRepository experimentRepository;
+    @Inject
+    MutationHandlerRegistry mutationHandlerRegistry;
+
+    @Override
+    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.Redo mutation, MutationRedoInfo redoInfo, MutationContext context) {
+        ExperimentRevisionEntity initialRevision = getRevision(experiment, mutation);
+        Mutation initialMutation = initialRevision.getMutation();
+        mutationHandlerRegistry.findHandler(initialMutation).handle(experiment, initialMutation, initialRevision.getRedoInfo(), context);
+        return new MutationResult("Redo: " + initialRevision.getSummary());
+    }
+
+    @Override
+    public void initContext(ExperimentEntity experiment, ExperimentMutation.Redo mutation, MutationContext context) {
+        ExperimentRevisionEntity initialRevision = getRevision(experiment, mutation);
+        Mutation initialMutation = initialRevision.getMutation();
+        mutationHandlerRegistry.findHandler(initialMutation).initContext(experiment, initialMutation, context);
+    }
+
+    private ExperimentRevisionEntity getRevision(ExperimentEntity experiment, ExperimentMutation.Redo redoMutation) {
+        ExperimentRevisionEntity revision = experimentRepository.getRevision(experiment, redoMutation.revision());
+        // !!! verify revision was undone
+        return revision;
     }
 }

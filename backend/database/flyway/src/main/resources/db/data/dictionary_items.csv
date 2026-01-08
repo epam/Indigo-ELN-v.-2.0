@@ -31,15 +31,15 @@ HEALTH_HAZARD,4,Carcinogen,,true
 HEALTH_HAZARD,5,Corrosive - Acid,,true
 HEALTH_HAZARD,6,Mutagen,,true
 HEALTH_HAZARD,7,Flammable,,true
-HANDLING_PRECAUTIONS,1,Electrostatic,true
-HANDLING_PRECAUTIONS,2,Hygroscopic,true
-HANDLING_PRECAUTIONS,3,Oxidiser,true
-HANDLING_PRECAUTIONS,4,Air Sensitive,true
-HANDLING_PRECAUTIONS,5,Moisture Sensitive,true
-STORAGE_INSTRUCTIONS,1,No Special Storage Required,true
-STORAGE_INSTRUCTIONS,2,Store in Refrigerator,true
-STORAGE_INSTRUCTIONS,3,Store Under Argon,true
-STORAGE_INSTRUCTIONS,4,Keep tightly sealed,true
+HANDLING_PRECAUTIONS,1,Electrostatic,,true
+HANDLING_PRECAUTIONS,2,Hygroscopic,,true
+HANDLING_PRECAUTIONS,3,Oxidiser,,true
+HANDLING_PRECAUTIONS,4,Air Sensitive,,true
+HANDLING_PRECAUTIONS,5,Moisture Sensitive,,true
+STORAGE_INSTRUCTIONS,1,No Special Storage Required,,true
+STORAGE_INSTRUCTIONS,2,Store in Refrigerator,,true
+STORAGE_INSTRUCTIONS,3,Store Under Argon,,true
+STORAGE_INSTRUCTIONS,4,Keep tightly sealed,,true
 COMPOUND_PROTECTION,1,Compound Protection 1,,true
 COMPOUND_PROTECTION,2,Compound Protection 2,,true
 SOLVENT,1,Acetic acid,,true

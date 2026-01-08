@@ -73,9 +73,9 @@ class GlobalSearchServiceTest extends ELNBaseTest {
             Anchor.Output output = experimentModel.getReactions().getFirst().getOutputs().getFirst().getAnchor();
             experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputMutation.AddProductSample(output)));
             Anchor.OutputSample outputSample = experimentModel.getReactions().getFirst().getOutputs().getFirst().getSamples().getFirst().getAnchor();
-            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputSampleMutation.SetOutputPurity(outputSample, 0.3)));
-            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionInputSampleMutation.SetInputWeight(inputSample, 10.0, WeightUnit.G)));
-            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputSampleMutation.SetOutputActualWeight(outputSample, 5.0, WeightUnit.G)));
+            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputSampleMutation.SetOutputPurity(outputSample, 0.3, null)));
+            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionInputSampleMutation.SetInputWeight(inputSample, 10.0, WeightUnit.G, null)));
+            experimentModel = experimentClient.mutateExperimentModel(experiment2.getId(), new MutateModelForm(experimentModel, new ReactionOutputSampleMutation.SetOutputActualWeight(outputSample, 5.0, WeightUnit.G, null)));
             System.out.println(experimentModel);
         });
         withUser(BART_USERNAME, () -> {
@@ -256,7 +256,6 @@ class GlobalSearchServiceTest extends ELNBaseTest {
             assertThat(results.getItems()).isEmpty();
             return;
         }
-        int fieldCount = expected[0].toList().size();
         List<Function<GlobalSearchResultDTO, ?>> extractors = new ArrayList<>(List.of(GlobalSearchResultDTO::getType, GlobalSearchResultDTO::getName, GlobalSearchResultDTO::getId));
         //noinspection unchecked,RedundantCast
         assertThat(results.getItems()).map(extractors.toArray(Function[]::new)).containsOnly((Object[]) expected);

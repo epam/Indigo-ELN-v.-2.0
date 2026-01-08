@@ -2,7 +2,9 @@ package com.epam.indigoeln.reaction.model.mutation;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.Anchor;
+import com.epam.indigoeln.reaction.model.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.ReactionOutputType;
+import com.epam.indigoeln.reaction.model.units.EnteredValueSource;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
@@ -14,7 +16,8 @@ public sealed interface ReactionOutputMutation extends Mutation permits
         ReactionOutputMutation.SetOutputRowEQ,
         ReactionOutputMutation.SetOutputRowName,
         ReactionOutputMutation.SetOutputCompoundStereoisomerCode,
-        ReactionOutputMutation.SetOutputCompoundMolWeight
+        ReactionOutputMutation.SetOutputCompoundMolWeight,
+        ReactionOutputMutation.UndoRemoveProductSample
 {
 
     Anchor.Output anchor();
@@ -62,7 +65,14 @@ public sealed interface ReactionOutputMutation extends Mutation permits
 
     record SetOutputCompoundMolWeight(
             @NotNull Anchor.Output anchor,
-            @Nullable Double molWeight
+            @Nullable Double molWeight,
+            @Nullable EnteredValueSource source
+    ) implements ReactionOutputMutation {
+    }
+
+    record UndoRemoveProductSample(
+            @NotNull Anchor.Output anchor,
+            @NotNull ReactionOutputSample sample
     ) implements ReactionOutputMutation {
     }
 }

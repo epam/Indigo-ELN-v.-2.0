@@ -95,6 +95,8 @@ CREATE TABLE Experiment_Revision (
     datetime TIMESTAMPTZ NOT NULL,
     summary VARCHAR(1000) NOT NULL,
     mutation JSONB NOT NULL,
+    redo_info JSONB,
+    reverse_mutation JSONB,
     diff JSONB NOT NULL,
     CONSTRAINT experiment_revision_pk PRIMARY KEY (experiment_id, revision),
     CONSTRAINT experiment_revision_experiment_id_fk FOREIGN KEY (experiment_id) REFERENCES Experiment (id)

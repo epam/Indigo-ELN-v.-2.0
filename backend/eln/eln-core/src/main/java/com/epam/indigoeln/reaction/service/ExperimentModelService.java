@@ -16,24 +16,22 @@ import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.model.patch.handler2.ExperimentDiffHandler;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.*;
-import com.epam.indigoeln.reaction.util.Flag;
 import com.epam.indigoeln.reaction.util.StreamUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.EntryStream;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 
@@ -58,6 +56,8 @@ public class ExperimentModelService {
     ObjectMapper objectMapper;
     @Inject
     ExperimentSnapshotMapper experimentSnapshotMapper;
+    @Inject
+    Validator validator;
 
     @Valid
     public ExperimentModel createNewModel() {
@@ -71,9 +71,9 @@ public class ExperimentModelService {
     public ExperimentPatch applyMutation(ExperimentEntity experiment, Mutation mutation) {
         log.debug("Mutating experiment {}: {}", experiment.getId(), mutation);
 
-        MutationHandler<?> handler = mutationHandlerRegistry.findHandler(mutation);
+        MutationHandler<Mutation, MutationRedoInfo> handler = mutationHandlerRegistry.findHandler(mutation);
         MutationContext context = new MutationContext(false, false, false);
-        handler.initContext(context);
+        handler.initContext(experiment, mutation, context);
 
         ExperimentSnapshot initial = experimentSnapshotMapper.createSnapshot(experiment, context, true);
         ExperimentModel model = null;
@@ -89,49 +89,10 @@ public class ExperimentModelService {
             ExperimentModelUtil.prepareToRecalculate(model);
         }
 
-        MutationResult result = switch (mutation) {
-            case ReactionMutation m -> {
-                Preconditions.checkState(model != null);
-                Reaction reaction = model.locate(m.anchor());
-                //noinspection rawtypes,unchecked
-                ((ReactionMutationHandler) handler).handle(experiment, model, reaction, m, context);
-                yield null;
-            }
-            case ReactionInputMutation m -> {
-                Preconditions.checkState(model != null);
-                ReactionInput row = model.locate(m.anchor());
-                //noinspection rawtypes,unchecked
-                ((ReactionInputMutationHandler) handler).handle(experiment, model, row.getReaction(), row, m, context);
-                yield null;
-            }
-            case ReactionInputSampleMutation m -> {
-                Preconditions.checkState(model != null);
-                ReactionInputSample sample = model.locate(m.anchor());
-                //noinspection rawtypes,unchecked
-                ((ReactionInputSampleMutationHandler) handler).handle(experiment, model, sample.getRow().getReaction(), sample.getRow(), sample, m, context);
-                yield null;
-            }
-            case ReactionOutputMutation m -> {
-                Preconditions.checkState(model != null);
-                ReactionOutput row = model.locate(m.anchor());
-                //noinspection rawtypes,unchecked
-                ((ReactionOutputMutationHandler) handler).handle(experiment, model, row.getReaction(), row, m, context);
-                yield null;
-            }
-            case ReactionOutputSampleMutation m -> {
-                Preconditions.checkState(model != null);
-                ReactionOutputSample sample = model.locate(m.anchor());
-                //noinspection rawtypes,unchecked
-                ((ReactionOutputSampleMutationHandler) handler).handle(experiment, model, sample.getRow().getReaction(), sample.getRow(), sample, m, context);
-                yield null;
-            }
-            case ExperimentMutation m -> {
-                //noinspection rawtypes,unchecked
-                yield ((ExperimentMutationHandler) handler).handle(experiment, m, context);
-            }
-        };
+        MutationResult result = handler.handle(experiment, mutation, null, context);
 
         if (model != null) {
+            validateModel(model);
             reactionCalculator.recalculate(model);
 
             boolean anyRxnfileChanged = false;
@@ -162,22 +123,64 @@ public class ExperimentModelService {
                 experiment.setReferencedCompounds(ids);
             }
             experiment.setModel(model);
+            Set<ConstraintViolation<ExperimentModel>> violations = validator.validate(model);
+            if (!violations.isEmpty()) {
+                log.error("Mutation {} produced invalid model:\n{}", mutation, StreamEx.of(violations).joining("\n"));
+                throw new RuntimeException("Mutation produced invalid model:\n" + StreamEx.of(violations).joining("\n"));
+            }
         }
 
         updateDates(experiment, userService.getCurrentUserEntity());
-        if (result == null) {
-            result = new MutationResult("!!!");
-        }
 
         ExperimentSnapshot target = experimentSnapshotMapper.createSnapshot(experiment, context, false);
         ExperimentPatch diff = createPatch(initial, target, context);
 
-        addRevision(experiment, experiment.getModifiedAt(), result.summary(), mutation, diff);
+        addRevision(experiment, experiment.getModifiedAt(), result.summary(), mutation, result.redoInfo(), result.reverseMutation(), diff);
 
         return diff;
     }
 
-    private void addRevision(ExperimentEntity experiment, ZonedDateTime datetime, String summary, Mutation mutation, ExperimentPatch diff) {
+    private void validateModel(ExperimentModel model) {
+        // check all parent links are correct
+        for (Reaction reaction : model.getReactions()) {
+            Preconditions.checkState(reaction.getModel() == model);
+            for (ReactionInput input : reaction.getInputs()) {
+                Preconditions.checkState(input.getReaction() == reaction);
+                for (ReactionInputSample sample : input.getSamples()) {
+                    Preconditions.checkState(sample.getRow() == input);
+                }
+            }
+            for (ReactionOutput output : reaction.getOutputs()) {
+                Preconditions.checkState(output.getReaction() == reaction);
+                for (ReactionOutputSample sample : output.getSamples()) {
+                    Preconditions.checkState(sample.getRow() == output);
+                }
+            }
+        }
+        // check anchors are unique
+        Map<Integer, Integer> anchors = new HashMap<>();
+        for (Reaction reaction : model.getReactions()) {
+            anchors.merge(reaction.getAnchor().getNumber(), 1, Integer::sum);
+            for (ReactionInput input : reaction.getInputs()) {
+                anchors.merge(input.getAnchor().getNumber(), 1, Integer::sum);
+                for (ReactionInputSample sample : input.getSamples()) {
+                    anchors.merge(sample.getAnchor().getNumber(), 1, Integer::sum);
+                }
+            }
+            for (ReactionOutput output : reaction.getOutputs()) {
+                anchors.merge(output.getAnchor().getNumber(), 1, Integer::sum);
+                for (ReactionOutputSample sample : output.getSamples()) {
+                    anchors.merge(sample.getAnchor().getNumber(), 1, Integer::sum);
+                }
+            }
+        }
+        anchors.forEach((anchor, count) -> {
+            Preconditions.checkState(count <= 1, "Anchor %s used multiple times", anchor);
+            Preconditions.checkState(anchor <= model.getLastUsedAnchor());
+        });
+    }
+
+    private void addRevision(ExperimentEntity experiment, ZonedDateTime datetime, String summary, Mutation mutation, @Nullable MutationRedoInfo redoInfo, @Nullable Mutation reverseMutation, ExperimentPatch diff) {
         ExperimentRevisionEntity revision = new ExperimentRevisionEntity();
         int newRevisionNo = experiment.getRevision() + 1;
         revision.setId(new ExperimentRevisionEntity.ExperimentRevisionID(experiment.getId(), newRevisionNo));
@@ -187,6 +190,8 @@ public class ExperimentModelService {
         revision.setDatetime(datetime);
         revision.setSummary(summary);
         revision.setMutation(mutation);
+        revision.setRedoInfo(redoInfo);
+        revision.setReverseMutation(reverseMutation);
         revision.setDiff(diff);
         experiment.setRevision(newRevisionNo);
         experiment.getRevisions().add(revision);

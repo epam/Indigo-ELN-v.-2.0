@@ -32,24 +32,18 @@ public final class ReactionInput extends ReactionRow implements ExperimentNode {
     @Nullable
     private String chemicalName;
 
-    @Valid
     @NotEmpty
     @JsonManagedReference
-    private List<ReactionInputSample> samples = List.of();
+    private List<@Valid ReactionInputSample> samples = List.of();
 
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private boolean limiting;
 
-    public static ReactionInput create(Reaction reaction, ReactionRole role) {
-        ReactionInput input = createWithAnchor(reaction, new Anchor.Input(reaction.getModel().generateNextAnchor()));
-        input.role = role;
-        return input;
-    }
-
-    public static ReactionInput createWithAnchor(Reaction reaction, Anchor.Input anchor) {
-        ReactionInput input = new ReactionInput();
-        input.reaction = reaction;
-        input.anchor = anchor;
-        return input;
+    public static ReactionInput create(Reaction reaction, ReactionRole role, Anchor.@Nullable Input anchor) {
+        ReactionInput row = new ReactionInput();
+        row.reaction = reaction;
+        row.anchor = anchor != null ? anchor : new Anchor.Input(reaction.getModel().generateNextAnchor());
+        row.role = role;
+        return row;
     }
 }

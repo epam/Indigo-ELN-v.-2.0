@@ -3,6 +3,7 @@ package com.epam.indigoeln.reaction.model.mutation;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.ReactionRole;
+import com.epam.indigoeln.reaction.model.units.EnteredValueSource;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
@@ -16,7 +17,8 @@ public sealed interface ReactionInputMutation extends Mutation permits
         ReactionInputMutation.SetInputRowSaltEQ,
         ReactionInputMutation.SetInputRowEQ,
         ReactionInputMutation.SetInputCompoundStereoisomerCode,
-        ReactionInputMutation.SetInputCompoundMolWeight
+        ReactionInputMutation.SetInputCompoundMolWeight,
+        ReactionInputMutation.RemoveInput
 {
 
     Anchor.Input anchor();
@@ -30,7 +32,8 @@ public sealed interface ReactionInputMutation extends Mutation permits
     record SetInputRowMol(
             @NotNull Anchor.Input anchor,
             @Nullable Double mol,
-            @Nullable MolUnit molUnit
+            @Nullable MolUnit molUnit,
+            @Nullable EnteredValueSource source
     ) implements ReactionInputMutation {
     }
 
@@ -71,7 +74,13 @@ public sealed interface ReactionInputMutation extends Mutation permits
 
     record SetInputCompoundMolWeight(
             @NotNull Anchor.Input anchor,
-            @Nullable Double molWeight
+            @Nullable Double molWeight,
+            @Nullable EnteredValueSource source
+    ) implements ReactionInputMutation {
+    }
+
+    record RemoveInput (
+            @NotNull Anchor.Input anchor
     ) implements ReactionInputMutation {
     }
 }

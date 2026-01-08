@@ -7,6 +7,7 @@ import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -126,6 +127,7 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @OneToOne(fetch = FetchType.LAZY)
     private AttachmentEntity reportForSignature;
 
+//    @Valid
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
     @Convert(converter = ExperimentModelConverter.class)

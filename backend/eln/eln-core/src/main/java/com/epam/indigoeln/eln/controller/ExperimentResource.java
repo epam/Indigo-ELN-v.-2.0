@@ -171,7 +171,7 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public List<ExperimentRevisionDTO> getExperimentRevisions(UUID experimentId) {
+    public List<ExperimentRevisionDetailsDTO> getExperimentRevisions(UUID experimentId) {
         return experimentService.getExperimentRevisions(experimentId);
     }
 }

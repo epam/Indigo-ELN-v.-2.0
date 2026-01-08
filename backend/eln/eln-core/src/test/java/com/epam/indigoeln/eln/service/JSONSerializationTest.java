@@ -105,7 +105,7 @@ public class JSONSerializationTest {
         SerializerUtils.withRootTypeForTesting(type, () -> {
             String serialized = getMapper(serializer).writeValueAsString(value);
             assertThat(serialized).isEqualToIgnoringWhitespace("""
-                    {"type": "unknown", "molWeight": {"value":10.0, "unit":"G_PER_MOL", "source":"USER_LAST_ENTERED"}}
+                    {"type": "UNKNOWN", "molWeight": {"value":10.0, "unit":"G_PER_MOL", "source":"USER_LAST_ENTERED"}}
                     """);
             Patched<CompoundRef> value2 = getMapper(deserializer).readValue(serialized, new TypeReference<>() {});
             assertThat(value2).isEqualTo(value);

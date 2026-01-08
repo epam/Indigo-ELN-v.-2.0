@@ -35,22 +35,15 @@ public final class ReactionOutput extends ReactionRow implements ExperimentNode 
     @Nullable
     private EnteredValue<WeightUnit> theoWeight;
 
-    @Valid
     @NotNull
     @JsonManagedReference
-    private List<ReactionOutputSample> samples = List.of();
+    private List<@Valid ReactionOutputSample> samples = List.of();
 
-    public static ReactionOutput create(Reaction reaction, ReactionOutputType type) {
-        ReactionOutput output = createWithAnchor(reaction, new Anchor.Output(reaction.getModel().generateNextAnchor()));
-        output.type = type;
-        output.outputName = reaction.generateNextProductName();
-        return output;
-    }
-
-    public static ReactionOutput createWithAnchor(Reaction reaction, Anchor.Output anchor) {
-        ReactionOutput output = new ReactionOutput();
-        output.reaction = reaction;
-        output.anchor = anchor;
-        return output;
+    public static ReactionOutput create(Reaction reaction, ReactionOutputType type, Anchor.@Nullable Output anchor) {
+        ReactionOutput row = new ReactionOutput();
+        row.reaction = reaction;
+        row.anchor = anchor != null ? anchor : new Anchor.Output(reaction.getModel().generateNextAnchor());
+        row.type = type;
+        return row;
     }
 }

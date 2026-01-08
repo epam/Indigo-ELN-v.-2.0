@@ -90,9 +90,9 @@ class ExperimentModelPatchServiceTest {
 
     @Test
     void testEnteredValueCreated() throws Exception {
-        ReactionInput baseInput = ReactionInput.createWithAnchor(reaction, new Anchor.Input(10));
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, new Anchor.Input(10));
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.createWithAnchor(reaction, new Anchor.Input(10));
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, new Anchor.Input(10));
         reaction.setInputs(List.of(input));
         input.setMol(EnteredValue.userLastEntered(10.0, MolUnit.MMOL));
         makeAndVerifyPatch("""
@@ -102,9 +102,9 @@ class ExperimentModelPatchServiceTest {
 
     @Test
     void testEnteredValueChanged() throws Exception {
-        ReactionInput baseInput = ReactionInput.createWithAnchor(reaction, new Anchor.Input(10));
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, new Anchor.Input(10));
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.createWithAnchor(reaction, new Anchor.Input(10));
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, new Anchor.Input(10));
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userLastEntered(15.0, MolUnit.MMOL));
         input.setMol(EnteredValue.userLastEntered(10.0, MolUnit.MMOL));
@@ -115,9 +115,9 @@ class ExperimentModelPatchServiceTest {
 
     @Test
     void testEnteredValueDeleted() throws Exception {
-        ReactionInput baseInput = ReactionInput.createWithAnchor(reaction, new Anchor.Input(10));
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, new Anchor.Input(10));
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.createWithAnchor(reaction, new Anchor.Input(10));
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, new Anchor.Input(10));
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userLastEntered(15.0, MolUnit.MMOL));
         makeAndVerifyPatch("""

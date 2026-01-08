@@ -16,6 +16,7 @@ import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hibernate.query.NativeQuery;
+import org.hibernate.query.SynchronizeableQuery;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
@@ -121,6 +122,7 @@ public class SampleRepository extends BaseRepository<SampleEntity> {
     public STRCodeSample getLastSampleStrCode(String compoundStrCode) {
         //noinspection unchecked
         NativeQuery<String> query = (NativeQuery<String>) em.createNativeQuery("select str_code from Sample where str_code like ?1 order by str_code desc", String.class);
+        query.unwrap(SynchronizeableQuery.class).addSynchronizedEntityClass(SampleEntity.class);
         return query
                 .setParameter(1, compoundStrCode + '%')
                 .setMaxResults(1)

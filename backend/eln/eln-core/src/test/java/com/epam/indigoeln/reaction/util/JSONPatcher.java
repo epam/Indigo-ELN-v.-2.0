@@ -142,12 +142,13 @@ public class JSONPatcher {
                 referenceCount[index.b()]++;
             } else if (index.b() == null) { // deleted item
                 referenceCount[index.a()]--;
-            } else { // updated item
+            } else { // updated and/or repositioned item
                 JsonNode oldValue = sourceArray.get(index.a());
                 JsonNode newValue = entry.getValue() instanceof TextNode patchText && ListPatchSerializers.UNCHANGED.equals(patchText.textValue())
                         ? oldValue
                         : apply(oldValue, entry.getValue(), path + ".#");
                 safeSet(targetArray, index.b(), newValue);
+                referenceCount[index.a()]--;
                 referenceCount[index.b()]++;
             }
         }

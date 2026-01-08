@@ -3,6 +3,7 @@ package com.epam.indigoeln.common.config;
 import com.epam.indigoeln.common.exception.AccessDeniedException;
 import com.epam.indigoeln.common.exception.EntityNotFoundException;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
+import com.epam.indigoeln.common.exception.MutationNotUndoableException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.ConstraintViolation;
@@ -73,6 +74,12 @@ public class BackendExceptionMapper {
 
     @ServerExceptionMapper
     public RestResponse<List<ErrorDTO>> toResponse(InvalidRequestException exception) {
+        log.error(exception.getMessage());
+        return buildResponse(Response.Status.BAD_REQUEST, new ErrorDTO(exception.getMessage()));
+    }
+
+    @ServerExceptionMapper
+    public RestResponse<List<ErrorDTO>> toResponse(MutationNotUndoableException exception) {
         log.error(exception.getMessage());
         return buildResponse(Response.Status.BAD_REQUEST, new ErrorDTO(exception.getMessage()));
     }

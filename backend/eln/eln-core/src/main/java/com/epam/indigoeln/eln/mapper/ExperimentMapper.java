@@ -5,7 +5,7 @@ import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.ExperimentDTO;
 import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
-import com.epam.indigoeln.eln.model.ExperimentRevisionDTO;
+import com.epam.indigoeln.eln.model.ExperimentRevisionDetailsDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
@@ -27,6 +27,6 @@ public abstract class ExperimentMapper extends AbstractMapper {
     @Mapping(target = "templateId", source = "entity.template.id")
     public abstract ExperimentDetailsDTO entityToDetailsDTO(ExperimentEntity entity, Set<ApplicationPermission> currentPermissions);
 
-    public abstract ExperimentRevisionDTO revisionToDTO(ExperimentRevisionEntity entity);
-    public abstract List<ExperimentRevisionDTO> revisionToDTOList(List<ExperimentRevisionEntity> entity);
+    public abstract ExperimentRevisionDetailsDTO revisionToDTO(ExperimentRevisionEntity entity);
+    public abstract List<ExperimentRevisionDetailsDTO> revisionToDTOList(List<ExperimentRevisionEntity> entity);
 }

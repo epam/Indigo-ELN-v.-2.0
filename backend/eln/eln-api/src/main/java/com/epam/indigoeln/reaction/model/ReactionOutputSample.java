@@ -12,6 +12,7 @@ import com.epam.indigoeln.reaction.util.StreamUtil;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import one.util.streamex.StreamEx;
@@ -65,17 +66,19 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     private List<DictionaryItemRef> compoundProtection = List.of();
 
     @NotNull
-    private List<SolubidityInSolvent> solubilityInSolvents = List.of();
+    private List<@Valid SolubidityInSolvent> solubilityInSolvents = List.of();
 
     @NotNull
-    private List<ResidualSolvent> residualSolvents = List.of();
+    private List<@Valid ResidualSolvent> residualSolvents = List.of();
 
+    @Valid
     @Nullable
     private MeltingPoint meltingPoint;
 
     @NotNull
-    private List<PurityCalculation> purityCalculations = List.of();
+    private List<@Valid PurityCalculation> purityCalculations = List.of();
 
+    @Valid
     @Nullable
     private ExternalSupplier externalSupplier;
 
@@ -94,28 +97,29 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     @Nullable
     private String structureComment;
 
-    public static ReactionOutputSample create(String experimentName, ReactionOutput row) {
-        ReactionOutputSample sample = createWithAnchor(row, new Anchor.OutputSample(row.getReaction().getModel().generateNextAnchor()));
-        sample.nbkBatchNumber = new NbkBatchNumber(experimentName, row.getReaction().getModel().generateNextNbkBatchNumber());
-        return sample;
-    }
-
-    public static ReactionOutputSample createWithAnchor(ReactionOutput row, Anchor.OutputSample anchor) {
+    public static ReactionOutputSample create(ReactionOutput row, String experimentName, Anchor.@Nullable OutputSample anchor) {
         ReactionOutputSample sample = new ReactionOutputSample();
         sample.row = row;
-        sample.anchor = anchor;
+        sample.anchor = anchor != null ? anchor : new Anchor.OutputSample(row.getReaction().getModel().generateNextAnchor());
+        sample.nbkBatchNumber = new NbkBatchNumber(experimentName, row.getReaction().getModel().generateNextNbkBatchNumber());
         return sample;
     }
 
     @Nullable
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public Double getCalculatedMolWeight() {
+        if (row == null) { // !!!
+            return null;
+        }
         return row.getCompound().getMolWeight() != null ? row.getCompound().getMolWeight().getValue() : null;
     }
 
     @NotNull
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public List<STRCodeSample> getPrecursorReactantIds() {
+        if (row == null) { // !!!
+            return List.of();
+        }
         return StreamEx.of(row.getReaction().getInputs())
                 .filter(r -> r.getRole() == ReactionRole.REACTANT)
                 .flatMap(r -> r.getSamples().stream())

@@ -33,6 +33,26 @@ public class SolubidityInSolvent {
     @Nullable
     private SolubidityQualitativeType qualitativeType;
 
+    public static SolubidityInSolvent quantitative(DictionaryItemRef solvent, @Nullable String comment, ComparisonOperator operator, Double value, DensityUnit unit) {
+        SolubidityInSolvent solubidity = new SolubidityInSolvent();
+        solubidity.setSolvent(solvent);
+        solubidity.setComment(comment);
+        solubidity.setSolubidityType(SolubidityType.QUANTITATIVE);
+        solubidity.setOperator(operator);
+        solubidity.setValue(value);
+        solubidity.setUnit(unit);
+        return solubidity;
+    }
+
+    public static SolubidityInSolvent qualitative(DictionaryItemRef solvent, @Nullable String comment, SolubidityQualitativeType qualitativeType) {
+        SolubidityInSolvent solubidity = new SolubidityInSolvent();
+        solubidity.setSolvent(solvent);
+        solubidity.setComment(comment);
+        solubidity.setSolubidityType(SolubidityType.QUALITATIVE);
+        solubidity.setQualitativeType(qualitativeType);
+        return solubidity;
+    }
+
     @JsonIgnore
     @AssertTrue(message = "operator, value and unit are only allowed for quantitative solubidity")
     public boolean isQuantitativeFieldsValid() {

@@ -137,5 +137,5 @@ public interface ExperimentAPI extends BaseAPI {
 
     @GET
     @Path("/experiments/{experimentId}/revisions")
-    List<ExperimentRevisionDTO> getExperimentRevisions(@PathParam("experimentId") UUID experimentId);
+    List<ExperimentRevisionDetailsDTO> getExperimentRevisions(@PathParam("experimentId") UUID experimentId);
 }

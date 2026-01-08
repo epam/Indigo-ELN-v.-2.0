@@ -12,6 +12,7 @@ import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.eln.service.UserService;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.MutationContext;
+import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
@@ -35,13 +36,13 @@ class CancelExperimentHandler implements ExperimentMutationHandler<ExperimentMut
     ExperimentWorkflowHelper helper;
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.CancelExperiment mutation, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.CancelExperiment mutation, MutationRedoInfo redoInfo, MutationContext context) {
         helper.transition(experiment, CANCELLED, SUBMIT_EXPERIMENTS, OPEN, REOPEN);
         return new MutationResult("Experiment cancelled");
     }
 
     @Override
-    public void initContext(MutationContext context) {
+    public void initContext(ExperimentEntity experiment, ExperimentMutation.CancelExperiment mutation, MutationContext context) {
 
     }
 }
@@ -54,14 +55,14 @@ class ReopenExperimentHandler implements ExperimentMutationHandler<ExperimentMut
     ExperimentWorkflowHelper helper;
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.ReopenExperiment mutation, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.ReopenExperiment mutation, MutationRedoInfo redoInfo, MutationContext context) {
         helper.transition(experiment, REOPEN, SUBMIT_EXPERIMENTS, CANCELLED, ARCHIVED, COMPLETED, SUBMITTED, REJECTED);
         experiment.getSignatures().clear();
         return new MutationResult("Experiment reopened");
     }
 
     @Override
-    public void initContext(MutationContext context) {
+    public void initContext(ExperimentEntity experiment, ExperimentMutation.ReopenExperiment mutation, MutationContext context) {
 
     }
 }
@@ -74,13 +75,13 @@ class CompleteExperimentHandler implements ExperimentMutationHandler<ExperimentM
     ExperimentWorkflowHelper helper;
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.CompleteExperiment mutation, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.CompleteExperiment mutation, MutationRedoInfo redoInfo, MutationContext context) {
         helper.transition(experiment, COMPLETED, SUBMIT_EXPERIMENTS, OPEN, REOPEN);
         return new MutationResult("Experiment completed");
     }
 
     @Override
-    public void initContext(MutationContext context) {
+    public void initContext(ExperimentEntity experiment, ExperimentMutation.CompleteExperiment mutation, MutationContext context) {
 
     }
 }
@@ -99,7 +100,7 @@ class SubmitExperimentHandler implements ExperimentMutationHandler<ExperimentMut
     SignatureTemplateRepository signatureTemplateRepository;
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.SubmitExperiment mutation, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.SubmitExperiment mutation, MutationRedoInfo redoInfo, MutationContext context) {
         SignatureTemplateEntity signatureTemplate = signatureTemplateRepository.get(mutation.signatureTemplateID());
         helper.transition(experiment, SUBMITTED, SUBMIT_EXPERIMENTS, COMPLETED);
         ExperimentService.ExperimentReportContent report = experimentService.printReport(experiment);
@@ -121,7 +122,7 @@ class SubmitExperimentHandler implements ExperimentMutationHandler<ExperimentMut
     }
 
     @Override
-    public void initContext(MutationContext context) {
+    public void initContext(ExperimentEntity experiment, ExperimentMutation.SubmitExperiment mutation, MutationContext context) {
 
     }
 }
@@ -134,13 +135,13 @@ class ApproveExperimentHandler implements ExperimentMutationHandler<ExperimentMu
     ExperimentWorkflowHelper helper;
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.ApproveExperiment mutation, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.ApproveExperiment mutation, MutationRedoInfo redoInfo, MutationContext context) {
         helper.doApproveOrReject(SignatureStatus.APPROVED, experiment);
         return new MutationResult("Experiment approved");
     }
 
     @Override
-    public void initContext(MutationContext context) {
+    public void initContext(ExperimentEntity experiment, ExperimentMutation.ApproveExperiment mutation, MutationContext context) {
 
     }
 }
@@ -153,13 +154,13 @@ class RejectExperimentHandler implements ExperimentMutationHandler<ExperimentMut
     ExperimentWorkflowHelper helper;
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.RejectExperiment mutation, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.RejectExperiment mutation, MutationRedoInfo redoInfo, MutationContext context) {
         helper.doApproveOrReject(SignatureStatus.REJECTED, experiment);
         return new MutationResult("Experiment rejected");
     }
 
     @Override
-    public void initContext(MutationContext context) {
+    public void initContext(ExperimentEntity experiment, ExperimentMutation.RejectExperiment mutation, MutationContext context) {
 
     }
 }
@@ -172,7 +173,7 @@ class ResubmitExperimentHandler implements ExperimentMutationHandler<ExperimentM
     ExperimentWorkflowHelper helper;
 
     @Override
-    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.ResubmitExperiment mutation, MutationContext context) {
+    public MutationResult handle(ExperimentEntity experiment, ExperimentMutation.ResubmitExperiment mutation, MutationRedoInfo redoInfo, MutationContext context) {
         helper.transition(experiment, SUBMITTED, SUBMIT_EXPERIMENTS, REJECTED);
         for (ExperimentSignatureEntity signature : experiment.getSignatures()) {
             signature.setStatus(null);
@@ -181,7 +182,7 @@ class ResubmitExperimentHandler implements ExperimentMutationHandler<ExperimentM
     }
 
     @Override
-    public void initContext(MutationContext context) {
+    public void initContext(ExperimentEntity experiment, ExperimentMutation.ResubmitExperiment mutation, MutationContext context) {
 
     }
 }

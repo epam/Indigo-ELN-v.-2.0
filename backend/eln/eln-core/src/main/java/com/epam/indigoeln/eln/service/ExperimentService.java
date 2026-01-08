@@ -240,7 +240,7 @@ public class ExperimentService {
         }
     }
 
-    public List<ExperimentRevisionDTO> getExperimentRevisions(UUID experimentId) {
+    public List<ExperimentRevisionDetailsDTO> getExperimentRevisions(UUID experimentId) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
         return experimentMapper.revisionToDTOList(experiment.getRevisions());

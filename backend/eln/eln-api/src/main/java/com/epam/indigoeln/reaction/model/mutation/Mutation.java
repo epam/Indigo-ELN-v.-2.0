@@ -7,9 +7,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
         @JsonSubTypes.Type(ReactionMutation.SetScheme.class),
         @JsonSubTypes.Type(ReactionMutation.ResolveInputs.class),
+        @JsonSubTypes.Type(ReactionMutation.UndoResolveInputs.class),
         @JsonSubTypes.Type(ReactionMutation.AddEmptyInput.class),
         @JsonSubTypes.Type(ReactionMutation.AddInput.class),
-        @JsonSubTypes.Type(ReactionMutation.RemoveInput.class),
+        @JsonSubTypes.Type(ReactionMutation.UndoRemoveInput.class),
 
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowRole.class),
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowMol.class),
@@ -20,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionInputMutation.SetInputRowEQ.class),
         @JsonSubTypes.Type(ReactionInputMutation.SetInputCompoundStereoisomerCode.class),
         @JsonSubTypes.Type(ReactionInputMutation.SetInputCompoundMolWeight.class),
+        @JsonSubTypes.Type(ReactionInputMutation.RemoveInput.class),
 
         @JsonSubTypes.Type(ReactionInputSampleMutation.SetInputDensity.class),
         @JsonSubTypes.Type(ReactionInputSampleMutation.SetInputMolarity.class),
@@ -38,6 +40,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputRowName.class),
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputCompoundStereoisomerCode.class),
         @JsonSubTypes.Type(ReactionOutputMutation.SetOutputCompoundMolWeight.class),
+        @JsonSubTypes.Type(ReactionOutputMutation.UndoRemoveProductSample.class),
 
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputDensity.class),
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputMolarity.class),
@@ -60,6 +63,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputComponentState.class),
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputBatchComment.class),
         @JsonSubTypes.Type(ReactionOutputSampleMutation.SetOutputStructureComment.class),
+        @JsonSubTypes.Type(ReactionOutputSampleMutation.RemoveProductSample.class),
 
         @JsonSubTypes.Type(ExperimentMutation.CreateExperiment.class),
         @JsonSubTypes.Type(ExperimentMutation.EditExperimentAttributes.class),
@@ -73,6 +77,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ExperimentMutation.ApproveExperiment.class),
         @JsonSubTypes.Type(ExperimentMutation.RejectExperiment.class),
         @JsonSubTypes.Type(ExperimentMutation.ResubmitExperiment.class),
+        @JsonSubTypes.Type(ExperimentMutation.Undo.class),
+        @JsonSubTypes.Type(ExperimentMutation.Redo.class),
 })
 public sealed interface Mutation permits
         ReactionMutation,

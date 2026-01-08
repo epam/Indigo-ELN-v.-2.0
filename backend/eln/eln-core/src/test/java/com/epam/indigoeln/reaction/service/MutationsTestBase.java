@@ -5,6 +5,7 @@ import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.eln.ELNBaseTest;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
@@ -15,6 +16,7 @@ import com.google.common.math.Stats;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
+import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -81,16 +83,17 @@ public abstract class MutationsTestBase extends ELNBaseTest {
         output2Sample1 = output2 != null && output2.getSamples().size() >= 1 ? output2.getSamples().get(0) : null;
     }
 
-    @SneakyThrows
     protected void applyMutation(Mutation mutation) {
+        applyMutation(mutation, true);
+    }
+
+    @SneakyThrows
+    protected void applyMutation(Mutation mutation, boolean undoRedo) {
         System.out.println("Applying mutation: " + mutation);
         reportBuilder.addMutation(mutation);
 
         ExperimentPatch patch = experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), mutation);
         ExperimentDetailsDTO updatedExperiment = experimentClient.getExperiment(experiment.getId());
-
-        // update report
-        reportBuilder.addPatch(FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch));
 
         // reload picture
         Response pictureResponse = experimentClient.getExperimentPictureClient(experiment.getId());
@@ -100,18 +103,29 @@ public abstract class MutationsTestBase extends ELNBaseTest {
             reportBuilder.addPicture(picture, pictureResponse.getHeaderString(HttpHeaders.CONTENT_TYPE));
         }
         ExperimentSnapshot updatedSnapshot = experimentClient.getExperimentSnapshot(experiment.getId());
-        reportBuilder.addModel(updatedSnapshot);
+        reportBuilder.addModel(FeignUtil.OBJECT_MAPPER_FORMATTED.writeValueAsString(patch), updatedSnapshot);
 
         // verify if patch is correct
         PatchTestUtil.verifyModelPatch(experiment, patch, updatedExperiment, reportBuilder);
         experiment = updatedExperiment;
-        modelUpdated();
 
-        // !!! verify if undo/redo works and produces the same snapshot
-//        Integer initialRevision = experiment.getRevision();
-//        ExperimentPatch undoPatch = experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), new ExperimentMutation.Undo(initialRevision));
-//        experiment = experimentClient.getExperiment(experiment.getId());
-//        experimentClient.mutateExperimentModel2(experiment.getId(), experiment.getRevision(), new ExperimentMutation.Redo(initialRevision));
+        // verify if undo/redo works and produces the same snapshot
+        Integer initialRevision = experiment.getRevision();
+        if (undoRedo) {
+            applyMutation(new ExperimentMutation.Undo(initialRevision), false);
+            applyMutation(new ExperimentMutation.Redo(initialRevision), false);
+        }
+        experiment = experimentClient.getExperiment(experiment.getId());
+        ExperimentSnapshot snapshotAfterRedo = experimentClient.getExperimentSnapshot(experiment.getId());
+        // revision and rxnVersion will be different after redo, restore them
+        snapshotAfterRedo.setRevision(updatedSnapshot.getRevision());
+        Iterator<Reaction> updatedReaction = updatedSnapshot.getModel().getReactions().iterator();
+        for (Reaction value : snapshotAfterRedo.getModel().getReactions()) {
+            value.setRxnVersion(updatedReaction.next().getRxnVersion());
+        }
+        PatchTestUtil.verifyModel(snapshotAfterRedo, updatedSnapshot, reportBuilder);
+
+        modelUpdated();
 
         modelSizes.add(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(updatedExperiment).length);
         patchSizes.add(FeignUtil.OBJECT_MAPPER.writeValueAsBytes(patch).length);

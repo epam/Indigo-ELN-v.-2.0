@@ -2,13 +2,16 @@ package com.epam.indigoeln.eln.entity;
 
 import com.epam.indigoeln.eln.config.hibernate.ExperimentPatchConverter;
 import com.epam.indigoeln.eln.config.hibernate.MutationConverter;
+import com.epam.indigoeln.eln.config.hibernate.MutationRedoInfoConverter;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
@@ -50,6 +53,16 @@ public class ExperimentRevisionEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     @Convert(converter = MutationConverter.class)
     private Mutation mutation;
+
+    @Nullable
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Convert(converter = MutationRedoInfoConverter.class)
+    private MutationRedoInfo redoInfo;
+
+    @Nullable
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Convert(converter = MutationConverter.class)
+    private Mutation reverseMutation;
 
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
