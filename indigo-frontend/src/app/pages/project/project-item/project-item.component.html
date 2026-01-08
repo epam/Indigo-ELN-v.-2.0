@@ -82,7 +82,6 @@
               }}</span>
             }
             <span class="mx-3 font-thin text-neutral-500">|</span>
-            <!-- TODO -->
             <span class="font-semibold text-h4 text-neutral-1000">{{
               project.experimentCount
             }}</span>
@@ -98,20 +97,12 @@
           <div class="flex items-center">
             <div class="flex -space-x-2">
               @for (member of project.acl.slice(0, 3); track member) {
-                <eln-avatar
-                  classList="w-6 h-6"
-                  [img]="
-                    'https://ui-avatars.com/api/?name=' +
-                    (member.username ?? member.displayName)
-                  "
-                />
+                <div class="avatar">
+                  {{ member.username ?? member.displayName | initials }}
+                </div>
               }
               @if (project.aclCount > 3) {
-                <span
-                  class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs"
-                >
-                  +{{ project.aclCount - 3 }}
-                </span>
+                <span class="avatar-count"> +{{ project.aclCount - 3 }} </span>
               }
             </div>
           </div>
@@ -147,22 +138,15 @@
       >
         <div class="flex -space-x-2">
           @for (member of project.acl.slice(0, 3); track member) {
-            <eln-avatar
-              classList="w-6 h-6"
-              [img]="
-                'https://ui-avatars.com/api/?name=' +
-                (member.username ?? member.displayName)
-              "
-            />
+            <div class="avatar">
+              {{ member.username ?? member.displayName | initials }}
+            </div>
           }
           @if (project.aclCount > 3) {
-            <span
-              class="flex justify-center items-center bg-primary-400 rounded-full w-6 h-6 text-white text-xs"
-            >
-              +{{ project.aclCount - 3 }}
-            </span>
+            <span class="avatar-count"> +{{ project.aclCount - 3 }} </span>
           }
         </div>
+
         <span class="ml-2 text-b2 text-neutral-1000"
           >{{ project.aclCount }} Members</span
         >

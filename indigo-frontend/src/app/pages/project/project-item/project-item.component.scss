@@ -14,3 +14,31 @@
     top: 14px;
   }
 }
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  color: white;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  border: 2px solid white;
+}
+
+.avatar-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background-color: var(--primary-400, #6366f1);
+  color: white;
+  font-size: 0.75rem;
+  border: 2px solid white;
+}
