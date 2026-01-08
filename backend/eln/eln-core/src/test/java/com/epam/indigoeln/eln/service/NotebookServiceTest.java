@@ -44,7 +44,7 @@ class NotebookServiceTest extends ELNBaseTest {
     @Test
     void testNameFormatValidation() {
         assertThatClientCall(() -> notebookClient.createNotebook(project.getId(), new NotebookRequest("not digits")))
-                .isBadRequest("Notebook name must be 8 digits");
+                .isBadRequest("Notebook Name is invalid, use 8 digits only");
     }
 
     @Test
