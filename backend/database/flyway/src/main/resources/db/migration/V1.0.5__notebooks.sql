@@ -10,6 +10,7 @@ CREATE TABLE Notebook (
     search_vector TSVECTOR,
     full_acl ACL_Entry[] NOT NULL,
     short_acl ACL_Entry[] NOT NULL,
+    experiment_count Experiment_Count[] DEFAULT '{}',
     CONSTRAINT notebook_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT notebook_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT notebook_project_id_fk FOREIGN KEY (project_id) REFERENCES Project (id),

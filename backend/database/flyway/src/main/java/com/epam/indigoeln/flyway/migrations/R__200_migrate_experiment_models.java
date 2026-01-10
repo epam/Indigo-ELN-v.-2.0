@@ -1,6 +1,5 @@
 package com.epam.indigoeln.flyway.migrations;
 
-import com.epam.indigoeln.flyway.util.JsonLocator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +9,6 @@ import org.flywaydb.core.api.migration.Context;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -23,7 +21,7 @@ public class R__200_migrate_experiment_models extends BaseJavaMigration {
     public void migrate(Context context) throws Exception {
         try (
                 Statement stList = context.getConnection().createStatement();
-                ResultSet rsList = stList.executeQuery("SELECT id, model FROM Experiment WHERE COALESCE((model->'schemaVersion')::INT, 0) < " + TARGET_SCHEMA_VERSION);
+                ResultSet rsList = stList.executeQuery("SELECT id, model FROM Experiment WHERE model->'schemaVersion'::INT < " + TARGET_SCHEMA_VERSION);
                 PreparedStatement stUpdate = context.getConnection().prepareStatement("UPDATE Experiment SET model = ?::JSONB WHERE id = ?")
         ) {
             while (rsList.next()) {
@@ -47,46 +45,14 @@ public class R__200_migrate_experiment_models extends BaseJavaMigration {
 
     private void updateModel(UUID experimentId, ObjectNode model) {
         try {
-            int schemaVersion = model.has("schemaVersion") ? model.get("schemaVersion").intValue() : 0;
-            //noinspection SwitchStatementWithTooFewBranches
+            int schemaVersion = model.get("schemaVersion").intValue();
+            //noinspection StatementWithEmptyBody
             switch (schemaVersion) {
-                case 0 -> {
-                    migrateToVersion1(model);
-                    // fallthrough
-                }
             }
             model.put("schemaVersion", TARGET_SCHEMA_VERSION);
         } catch (RuntimeException e) {
             log.error("Failed to migrate model for experiment {}",  experimentId, e);
             throw new RuntimeException(e);
-        }
-    }
-
-    private void migrateToVersion1(ObjectNode model) {
-        // remove excessive fields from SaltCodeRef
-        List<ObjectNode> saltCodeRefs = JsonLocator.findNodes(model, "**/saltCode", true);
-        for (ObjectNode ref : saltCodeRefs) {
-            ref.remove("code");
-            ref.remove("charge");
-            ref.remove("formula");
-            ref.remove("molWeight");
-        }
-        // move calculatedBatchMF from ReactionOutputSample to ReactionOutput.compound
-        List<ObjectNode> outputs = JsonLocator.findNodes(model, "reactions/*/outputs/*", true);
-        for (ObjectNode output : outputs) {
-            List<ObjectNode> samples = JsonLocator.findNodes(output, "samples/*", true);
-            String calculatedBatchMF = null;
-            if (output.has("calculatedBatchMF")) {
-                calculatedBatchMF = output.get("calculatedBatchMF").asText();
-                output.remove("calculatedBatchMF");
-            }
-            for (ObjectNode sample : samples) {
-                if (sample.has("calculatedBatchMF")) {
-                    calculatedBatchMF = sample.get("calculatedBatchMF").asText();
-                    sample.remove("calculatedBatchMF");
-                }
-            }
-            output.withObject("compound").put("calculatedBatchMF", calculatedBatchMF);
         }
     }
 }

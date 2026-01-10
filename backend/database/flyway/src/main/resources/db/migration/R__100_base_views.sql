@@ -15,3 +15,34 @@ SELECT e.*, ea.level current_access
 FROM Experiment e
 LEFT JOIN LATERAL unnest(e.full_acl) ea ON ea.user_id = current_setting('eln.currentUserId')::UUID
 WHERE current_setting('eln.viewAllExperiments')::BOOLEAN OR ea.level IS NOT NULL;
+
+CREATE MATERIALIZED VIEW Total_Counts_View
+AS
+SELECT
+    (
+        SELECT COUNT(*) FROM Project
+    ) projects,
+    (
+        SELECT COUNT(*) FROM Notebook
+    ) notebooks,
+    (
+        SELECT coalesce(array_agg(ROW(status, count_)::Experiment_Count), '{}')
+        FROM (
+            SELECT e.status, COUNT(*) count_
+            FROM Experiment e
+            GROUP BY e.status
+        ) t
+    ) experiments_by_status
+;
+
+CREATE FUNCTION update_total_counters_trigger()
+    RETURNS TRIGGER AS $$
+BEGIN
+    REFRESH MATERIALIZED VIEW Total_Counts_View;
+RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trigger_update_total_counters
+AFTER INSERT OR DELETE ON Project
+FOR EACH ROW EXECUTE FUNCTION update_total_counters_trigger();

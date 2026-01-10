@@ -24,6 +24,8 @@ CREATE TABLE Project (
     search_vector TSVECTOR,
     full_acl ACL_Entry[] NOT NULL,
     short_acl ACL_Entry[] NOT NULL,
+    notebook_count INT NOT NULL DEFAULT 0,
+    experiment_count Experiment_Count[] NOT NULL DEFAULT '{}',
     CONSTRAINT project_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT project_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT project_name_uq UNIQUE (name)
