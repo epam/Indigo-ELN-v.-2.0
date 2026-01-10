@@ -3,5 +3,5 @@ package com.epam.indigoeln.reaction.service.mutation;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 
-public non-sealed interface ExperimentMutationHandler<T extends ExperimentMutation> extends MutationHandler<T, MutationRedoInfo> {
+public abstract class AbstractExperimentMutationHandler<T extends ExperimentMutation> extends AbstractMutationHandler<T, MutationRedoInfo> {
 }

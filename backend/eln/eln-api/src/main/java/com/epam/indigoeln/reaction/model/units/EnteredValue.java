@@ -67,10 +67,6 @@ public final class EnteredValue<U extends MeasurementUnit> {
         return value != null && unit != null ? new EnteredValue<>(value, unit, DEFAULT) : null;
     }
 
-    public static <U extends MeasurementUnit> void prepareToRecalculate(@Nullable EnteredValue<U> value, Consumer<@Nullable EnteredValue<U>> setter) {
-        doPrepareToRecalculate(value, setter, null);
-    }
-
     public static <U extends MeasurementUnit> void prepareToRecalculate(EnteredValue<U> value, Consumer<EnteredValue<U>> setter, @Nullable EnteredValue<U> defaultValue) {
         doPrepareToRecalculate(value, setter, defaultValue);
     }

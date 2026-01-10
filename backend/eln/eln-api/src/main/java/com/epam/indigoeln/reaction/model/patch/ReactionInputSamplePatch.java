@@ -1,6 +1,6 @@
 package com.epam.indigoeln.reaction.model.patch;
 
-import com.epam.indigoeln.reaction.model.Anchor;
+import com.epam.indigoeln.reaction.model.InputSampleAnchor;
 import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
@@ -13,9 +13,9 @@ import java.util.UUID;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ReactionInputSamplePatch extends AbstractReactionSamplePatch<Anchor.InputSample> {
+public class ReactionInputSamplePatch extends AbstractReactionSamplePatch<InputSampleAnchor> {
 
-    private Patched<Anchor.InputSample, Anchor.InputSample> anchor;
+    private Patched<InputSampleAnchor, InputSampleAnchor> anchor;
 
     @Nullable
     private Patched<UUID, UUID> sampleId;

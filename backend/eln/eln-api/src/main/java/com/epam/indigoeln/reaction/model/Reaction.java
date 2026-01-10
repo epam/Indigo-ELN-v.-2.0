@@ -27,7 +27,7 @@ public final class Reaction implements ExperimentNode {
     private ExperimentModel model;
 
     @NotNull
-    private Anchor.Reaction anchor;
+    private ReactionAnchor anchor;
 
     @Nullable
     @Size(min = 1)
@@ -45,10 +45,10 @@ public final class Reaction implements ExperimentNode {
     private List<@Valid ReactionOutput> outputs = List.of();
 
     public static Reaction create(ExperimentModel model) {
-        return createWithAnchor(model, new Anchor.Reaction(model.generateNextAnchor()));
+        return createWithAnchor(model, model.generateNextAnchor(ReactionAnchor.class));
     }
 
-    public static Reaction createWithAnchor(ExperimentModel model, Anchor.Reaction anchor) {
+    public static Reaction createWithAnchor(ExperimentModel model, ReactionAnchor anchor) {
         Reaction reaction = new Reaction();
         reaction.model = model;
         reaction.anchor = anchor;

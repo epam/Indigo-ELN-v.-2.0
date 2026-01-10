@@ -27,8 +27,22 @@ public final class ExperimentModel implements ExperimentNode {
     @NotNull
     private Integer schemaVersion;
 
-    public int generateNextAnchor() {
-        return ++lastUsedAnchor;
+    @SuppressWarnings("unchecked")
+    public <A extends Anchor> A generateNextAnchor(Class<A> klass) {
+        int number = ++lastUsedAnchor;
+        if (klass.equals(ReactionAnchor.class)) {
+            return (A) new ReactionAnchor(number);
+        } else if (klass.equals(InputAnchor.class)) {
+            return (A) new InputAnchor(number);
+        } else if (klass.equals(InputSampleAnchor.class)) {
+            return (A) new InputSampleAnchor(number);
+        } else if (klass.equals(OutputAnchor.class)) {
+            return (A) new OutputAnchor(number);
+        } else if (klass.equals(OutputSampleAnchor.class)) {
+            return (A) new OutputSampleAnchor(number);
+        } else {
+            throw new IllegalArgumentException(klass.getName());
+        }
     }
 
     public int generateNextNbkBatchNumber() {
@@ -47,7 +61,7 @@ public final class ExperimentModel implements ExperimentNode {
         return locate(mutation.anchor());
     }
 
-    public Reaction locate(Anchor.Reaction anchor) {
+    public Reaction locate(ReactionAnchor anchor) {
         for (Reaction reaction : reactions) {
             if (reaction.getAnchor().equals(anchor)) {
                 return reaction;
@@ -60,7 +74,7 @@ public final class ExperimentModel implements ExperimentNode {
         return locate(mutation.anchor());
     }
 
-    public ReactionInput locate(Anchor.Input anchor) {
+    public ReactionInput locate(InputAnchor anchor) {
         for (Reaction reaction : reactions) {
             for (ReactionInput row : reaction.getInputs()) {
                 if (row.getAnchor().equals(anchor)) {
@@ -75,7 +89,7 @@ public final class ExperimentModel implements ExperimentNode {
         return locate(mutation.anchor());
     }
 
-    public ReactionInputSample locate(Anchor.InputSample anchor) {
+    public ReactionInputSample locate(InputSampleAnchor anchor) {
         for (Reaction reaction : reactions) {
             for (ReactionInput row : reaction.getInputs()) {
                 for (ReactionInputSample sample : row.getSamples()) {
@@ -92,7 +106,7 @@ public final class ExperimentModel implements ExperimentNode {
         return locate(mutation.anchor());
     }
 
-    public ReactionOutput locate(Anchor.Output anchor) {
+    public ReactionOutput locate(OutputAnchor anchor) {
         for (Reaction reaction : reactions) {
             for (ReactionOutput row : reaction.getOutputs()) {
                 if (row.getAnchor().equals(anchor)) {
@@ -107,7 +121,7 @@ public final class ExperimentModel implements ExperimentNode {
         return locate(mutation.anchor());
     }
 
-    public ReactionOutputSample locate(Anchor.OutputSample anchor) {
+    public ReactionOutputSample locate(OutputSampleAnchor anchor) {
         for (Reaction reaction : reactions) {
             for (ReactionOutput row : reaction.getOutputs()) {
                 for (ReactionOutputSample sample : row.getSamples()) {

@@ -16,7 +16,6 @@ import com.google.common.math.Stats;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
-import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -133,7 +132,7 @@ public abstract class MutationsTestBase extends ELNBaseTest {
 
     protected ReactionMutation.ResolveInputs prepareResolveInputs() {
         ReactionMutation.ResolveInputs mutation = new ReactionMutation.ResolveInputs(reaction.getAnchor(), new HashMap<>());
-        Map<Anchor.Input, @Nullable FindSamplesRequest> requests = experimentClient.analyzeRXN(experiment.getId(), experiment.getModel().getReactions().getFirst().getAnchor());
+        Map<InputAnchor, @Nullable FindSamplesRequest> requests = experimentClient.analyzeRXN(experiment.getId(), experiment.getModel().getReactions().getFirst().getAnchor());
         requests.forEach((anchor, request) -> {
             if (request != null) {
                 Page<SampleDTO> samples = compoundClient.findSamples(request, Paging.DEFAULT);

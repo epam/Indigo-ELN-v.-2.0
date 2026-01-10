@@ -7,9 +7,7 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.eln.service.ExperimentWorkflowService;
-import com.epam.indigoeln.reaction.model.Anchor;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
-import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
+import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import jakarta.annotation.Nullable;
@@ -116,12 +114,12 @@ public class ExperimentResource implements ExperimentAPI {
     }
 
     @Override
-    public Response getReactionPicture(UUID experimentId, Anchor.Reaction reactionAnchor, @Nullable Integer version) {
+    public Response getReactionPicture(UUID experimentId, ReactionAnchor reactionAnchor, @Nullable Integer version) {
         return experimentService.getReactionPicture(experimentId, reactionAnchor, version);
     }
 
     @Override
-    public Map<Anchor.Input, @org.jspecify.annotations.Nullable FindSamplesRequest> analyzeRXN(UUID experimentId, Anchor.Reaction reactionAnchor) {
+    public Map<InputAnchor, @org.jspecify.annotations.Nullable FindSamplesRequest> analyzeRXN(UUID experimentId, ReactionAnchor reactionAnchor) {
         return experimentService.analyzeRXN(experimentId, reactionAnchor);
     }
 

@@ -5,8 +5,7 @@ import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.eln.api.MutateModelForm;
 import com.epam.indigoeln.eln.client.*;
 import com.epam.indigoeln.eln.model.*;
-import com.epam.indigoeln.reaction.model.Anchor;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.*;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
@@ -101,15 +100,15 @@ class InsertTestDataTest {
 
         // load initial model
         ExperimentModel model = experimentClient.getExperiment(experiment.getId()).getModel();
-        Anchor.Reaction reactionAnchor = model.getReactions().getFirst().getAnchor();
+        ReactionAnchor reactionAnchor = model.getReactions().getFirst().getAnchor();
 
         // load reaction
         String molFile = new String(ModelUtil.loadResource(getClass(), "/reaction.rxn"));
         model = applyMutation(experiment, model, new ReactionMutation.SetScheme(reactionAnchor, molFile));
-        Anchor.Input input1Anchor = model.getReactions().getFirst().getInputs().get(0).getAnchor();
-        Anchor.Input input2Anchor = model.getReactions().getFirst().getInputs().get(1).getAnchor();
-        Anchor.Output output1Anchor = model.getReactions().getFirst().getOutputs().get(0).getAnchor();
-        Anchor.Output output2Anchor = model.getReactions().getFirst().getOutputs().get(1).getAnchor();
+        InputAnchor input1Anchor = model.getReactions().getFirst().getInputs().get(0).getAnchor();
+        InputAnchor input2Anchor = model.getReactions().getFirst().getInputs().get(1).getAnchor();
+        OutputAnchor output1Anchor = model.getReactions().getFirst().getOutputs().get(0).getAnchor();
+        OutputAnchor output2Anchor = model.getReactions().getFirst().getOutputs().get(1).getAnchor();
 
         // resolve inputs
         ReactionMutation.ResolveInputs mutation = new ReactionMutation.ResolveInputs(reactionAnchor, new HashMap<>());
@@ -122,7 +121,7 @@ class InsertTestDataTest {
             }
         });
         model = applyMutation(experiment, model, mutation);
-        Anchor.InputSample input1Sample1Anchor = model.getReactions().getFirst().getInputs().get(0).getSamples().get(0).getAnchor();
+        InputSampleAnchor input1Sample1Anchor = model.getReactions().getFirst().getInputs().get(0).getSamples().get(0).getAnchor();
 
         // select salt code
         model = applyMutation(experiment, model, new ReactionOutputMutation.SetOutputRowSaltCode(output1Anchor, dictionaryClient.getSaltCodes().get(1)));
@@ -138,7 +137,7 @@ class InsertTestDataTest {
 
         // add product sample
         model = applyMutation(experiment, model, new ReactionOutputMutation.AddProductSample(output2Anchor));
-        Anchor.OutputSample output2Sample1Anchor = model.getReactions().getFirst().getOutputs().get(1).getSamples().get(0).getAnchor();
+        OutputSampleAnchor output2Sample1Anchor = model.getReactions().getFirst().getOutputs().get(1).getSamples().get(0).getAnchor();
 
         // set output actual mol
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.SetOutputActualMol(output2Sample1Anchor, 200.0, MolUnit.MMOL, null));
@@ -154,7 +153,7 @@ class InsertTestDataTest {
 
         // add another output sample
         model = applyMutation(experiment, model, new ReactionOutputMutation.AddProductSample(output2Anchor));
-        Anchor.OutputSample output2Sample2Anchor = model.getReactions().getFirst().getOutputs().get(1).getSamples().get(1).getAnchor();
+        OutputSampleAnchor output2Sample2Anchor = model.getReactions().getFirst().getOutputs().get(1).getSamples().get(1).getAnchor();
 
         // register another sample
         model = applyMutation(experiment, model, new ReactionOutputSampleMutation.RegisterSample(output2Sample2Anchor));

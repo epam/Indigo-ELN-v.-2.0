@@ -2,8 +2,7 @@ package com.epam.indigoeln.reaction.model.patch;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.NbkBatchNumber;
-import com.epam.indigoeln.eln.model.STRCodeSample;
-import com.epam.indigoeln.reaction.model.Anchor;
+import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
 import com.epam.indigoeln.reaction.model.SampleRegistrationStatus;
 import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
@@ -20,9 +19,9 @@ import java.util.UUID;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ReactionOutputSamplePatch extends AbstractReactionSamplePatch<Anchor.OutputSample> {
+public class ReactionOutputSamplePatch extends AbstractReactionSamplePatch<OutputSampleAnchor> {
 
-    private Patched<Anchor.OutputSample, Anchor.OutputSample> anchor;
+    private Patched<OutputSampleAnchor, OutputSampleAnchor> anchor;
 
     @Nullable
     private Patched<NbkBatchNumber, NbkBatchNumber> nbkBatchNumber;

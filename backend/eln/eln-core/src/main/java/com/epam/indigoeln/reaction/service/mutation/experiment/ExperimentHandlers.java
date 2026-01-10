@@ -6,7 +6,6 @@ import com.epam.indigoeln.eln.api.AccessForm;
 import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.model.AccessLevel;
 import com.epam.indigoeln.eln.model.BuiltInDictionary;
-import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.repository.AttachmentRepository;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
 import com.epam.indigoeln.eln.repository.ProjectRepository;
@@ -31,7 +30,7 @@ import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.CreateExperiment.class)
-class CreateExperimentHandler implements ExperimentMutationHandler<ExperimentMutation.CreateExperiment> {
+class CreateExperimentHandler extends AbstractExperimentMutationHandler<ExperimentMutation.CreateExperiment> {
 
     @Inject
     DictionaryService dictionaryService;
@@ -72,7 +71,7 @@ class CreateExperimentHandler implements ExperimentMutationHandler<ExperimentMut
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.EditExperimentAttributes.class)
-class EditExperimentAttributesHandler implements ExperimentMutationHandler<ExperimentMutation.EditExperimentAttributes> {
+class EditExperimentAttributesHandler extends AbstractExperimentMutationHandler<ExperimentMutation.EditExperimentAttributes> {
 
     @Inject
     DictionaryService dictionaryService;
@@ -107,7 +106,7 @@ class EditExperimentAttributesHandler implements ExperimentMutationHandler<Exper
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.EditExperimentAccess.class)
-class EditExperimentAccessHandler implements ExperimentMutationHandler<ExperimentMutation.EditExperimentAccess> {
+class EditExperimentAccessHandler extends AbstractExperimentMutationHandler<ExperimentMutation.EditExperimentAccess> {
 
     @Inject
     ACLService aclService;
@@ -145,7 +144,7 @@ class EditExperimentAccessHandler implements ExperimentMutationHandler<Experimen
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.CreateExperimentAttachment.class)
-class CreateExperimentAttachmentHandler implements ExperimentMutationHandler<ExperimentMutation.CreateExperimentAttachment> {
+class CreateExperimentAttachmentHandler extends AbstractExperimentMutationHandler<ExperimentMutation.CreateExperimentAttachment> {
 
     @Inject
     AttachmentRepository attachmentRepository;
@@ -166,7 +165,7 @@ class CreateExperimentAttachmentHandler implements ExperimentMutationHandler<Exp
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.DeleteExperimentAttachment.class)
-class DeleteExperimentAttachmentHandler implements ExperimentMutationHandler<ExperimentMutation.DeleteExperimentAttachment> {
+class DeleteExperimentAttachmentHandler extends AbstractExperimentMutationHandler<ExperimentMutation.DeleteExperimentAttachment> {
 
     @Inject
     AttachmentRepository attachmentRepository;
@@ -188,7 +187,7 @@ class DeleteExperimentAttachmentHandler implements ExperimentMutationHandler<Exp
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.Undo.class)
-class UndoHandler implements ExperimentMutationHandler<ExperimentMutation.Undo> {
+class UndoHandler extends AbstractExperimentMutationHandler<ExperimentMutation.Undo> {
 
     @Inject
     ExperimentRepository experimentRepository;
@@ -222,7 +221,7 @@ class UndoHandler implements ExperimentMutationHandler<ExperimentMutation.Undo> 
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.Redo.class)
-class RedoHandler implements ExperimentMutationHandler<ExperimentMutation.Redo> {
+class RedoHandler extends AbstractExperimentMutationHandler<ExperimentMutation.Redo> {
 
     @Inject
     ExperimentRepository experimentRepository;

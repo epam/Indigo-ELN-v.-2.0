@@ -1,28 +1,19 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.reaction.model.Anchor;
+import com.epam.indigoeln.reaction.model.InputSampleAnchor;
 import com.epam.indigoeln.reaction.model.units.*;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public sealed interface ReactionInputSampleMutation extends Mutation permits
-        ReactionInputSampleMutation.SetInputDensity,
-        ReactionInputSampleMutation.SetInputMolarity,
-        ReactionInputSampleMutation.SetInputVolume,
-        ReactionInputSampleMutation.SetInputPurity,
-        ReactionInputSampleMutation.SetInputHealthHazards,
-        ReactionInputSampleMutation.SetInputMol,
-        ReactionInputSampleMutation.SetInputWeight,
-        ReactionInputSampleMutation.SetInputComment
-{
+public interface ReactionInputSampleMutation extends Mutation {
 
-    Anchor.InputSample anchor();
+    InputSampleAnchor anchor();
 
     record SetInputDensity (
-            @NotNull Anchor.InputSample anchor,
+            @NotNull InputSampleAnchor anchor,
             @Nullable Double density,
             @Nullable DensityUnit unit,
             @Nullable EnteredValueSource source
@@ -30,7 +21,7 @@ public sealed interface ReactionInputSampleMutation extends Mutation permits
     }
 
     record SetInputMolarity (
-            @NotNull Anchor.InputSample anchor,
+            @NotNull InputSampleAnchor anchor,
             @Nullable Double molarity,
             @Nullable MolarityUnit unit,
             @Nullable EnteredValueSource source
@@ -38,7 +29,7 @@ public sealed interface ReactionInputSampleMutation extends Mutation permits
     }
 
     record SetInputVolume (
-            @NotNull Anchor.InputSample anchor,
+            @NotNull InputSampleAnchor anchor,
             @Nullable Double volume,
             @Nullable VolumeUnit unit,
             @Nullable EnteredValueSource source
@@ -46,20 +37,20 @@ public sealed interface ReactionInputSampleMutation extends Mutation permits
     }
 
     record SetInputPurity (
-            @NotNull Anchor.InputSample anchor,
+            @NotNull InputSampleAnchor anchor,
             @Nullable Double purity,
             @Nullable EnteredValueSource source
     ) implements ReactionInputSampleMutation {
     }
 
     record SetInputHealthHazards (
-            @NotNull Anchor.InputSample anchor,
+            @NotNull InputSampleAnchor anchor,
             @NotNull List<DictionaryItemRef> healthHazards
     ) implements ReactionInputSampleMutation {
     }
 
     record SetInputMol (
-            @NotNull Anchor.InputSample anchor,
+            @NotNull InputSampleAnchor anchor,
             @Nullable Double mol,
             @Nullable MolUnit unit,
             @Nullable EnteredValueSource source
@@ -67,7 +58,7 @@ public sealed interface ReactionInputSampleMutation extends Mutation permits
     }
 
     record SetInputWeight (
-            @NotNull Anchor.InputSample anchor,
+            @NotNull InputSampleAnchor anchor,
             @Nullable Double weight,
             @Nullable WeightUnit unit,
             @Nullable EnteredValueSource source
@@ -75,7 +66,7 @@ public sealed interface ReactionInputSampleMutation extends Mutation permits
     }
 
     record SetInputComment (
-            @NotNull Anchor.InputSample anchor,
+            @NotNull InputSampleAnchor anchor,
             @Nullable String comment
     ) implements ReactionInputSampleMutation {
     }

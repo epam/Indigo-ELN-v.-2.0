@@ -13,11 +13,8 @@ import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
-import com.epam.indigoeln.reaction.service.mutation.MutationHelper;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
-import com.epam.indigoeln.reaction.service.mutation.ReactionOutputSampleMutationHandler;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
+import com.epam.indigoeln.reaction.service.mutation.AbstractReactionOutputSampleMutationHandler;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -27,16 +24,13 @@ import java.util.List;
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.SetOutputComponentState.class)
-class SetOutputComponentStateHandler implements ReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputComponentState, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetOutputComponentStateHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputComponentState, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputComponentState mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         DictionaryItemRef old = sample.getComponentState();
         sample.setComponentState(mutation.componentState());
-        return new MutationResult(mutationHelper.formatSetterSummary("batch component state", mutation.componentState())
+        return new MutationResult(formatSetterSummary("batch component state", mutation.componentState())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputComponentState(mutation.anchor(), old)
         );
@@ -45,16 +39,13 @@ class SetOutputComponentStateHandler implements ReactionOutputSampleMutationHand
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.SetOutputHandlingPrecautions.class)
-class SetOutputHandlingPrecautionsHandler implements ReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputHandlingPrecautions, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetOutputHandlingPrecautionsHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputHandlingPrecautions, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputHandlingPrecautions mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         List<DictionaryItemRef> old = sample.getHandlingPrecautions();
         sample.setHandlingPrecautions(ModelUtil.emptyToNull(mutation.handlingPrecautions()));
-        return new MutationResult(mutationHelper.formatSetterSummary("batch handling precautions", mutation.handlingPrecautions())
+        return new MutationResult(formatSetterSummary("batch handling precautions", mutation.handlingPrecautions())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputHandlingPrecautions(mutation.anchor(), old)
         );
@@ -63,16 +54,13 @@ class SetOutputHandlingPrecautionsHandler implements ReactionOutputSampleMutatio
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.SetOutputStorageInstructions.class)
-class SetOutputStorageInstructionsHandler implements ReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputStorageInstructions, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetOutputStorageInstructionsHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputStorageInstructions, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputStorageInstructions mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         List<DictionaryItemRef> old = sample.getStorageInstructions();
         sample.setStorageInstructions(ModelUtil.emptyToNull(mutation.storageInstructions()));
-        return new MutationResult(mutationHelper.formatSetterSummary("batch storage instructions", mutation.storageInstructions())
+        return new MutationResult(formatSetterSummary("batch storage instructions", mutation.storageInstructions())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputStorageInstructions(mutation.anchor(), old)
         );
@@ -81,16 +69,13 @@ class SetOutputStorageInstructionsHandler implements ReactionOutputSampleMutatio
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.SetOutputCompoundProtection.class)
-class SetOutputCompoundProtectionHandler implements ReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputCompoundProtection, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetOutputCompoundProtectionHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputCompoundProtection, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputCompoundProtection mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         List<DictionaryItemRef> old = sample.getCompoundProtection();
         sample.setCompoundProtection(ModelUtil.emptyToNull(mutation.compoundProtection()));
-        return new MutationResult(mutationHelper.formatSetterSummary("batch compound protection", mutation.compoundProtection())
+        return new MutationResult(formatSetterSummary("batch compound protection", mutation.compoundProtection())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputCompoundProtection(mutation.anchor(), old)
         );
@@ -99,16 +84,13 @@ class SetOutputCompoundProtectionHandler implements ReactionOutputSampleMutation
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.SetOutputSolubilityInSolvents.class)
-class SetOutputSolubilityInSolventsHandler implements ReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputSolubilityInSolvents, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetOutputSolubilityInSolventsHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputSolubilityInSolvents, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputSolubilityInSolvents mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         List<SolubidityInSolvent> old = sample.getSolubilityInSolvents();
         sample.setSolubilityInSolvents(ModelUtil.emptyToNull(mutation.solubilityInSolvents()));
-        return new MutationResult(mutationHelper.formatSetterSummaryNoDetails("batch solubidity in solvents", ModelUtil.isNotEmpty(mutation.solubilityInSolvents()))
+        return new MutationResult(formatSetterSummaryNoDetails("batch solubidity in solvents", ModelUtil.isNotEmpty(mutation.solubilityInSolvents()))
                 , null
                 , new ReactionOutputSampleMutation.SetOutputSolubilityInSolvents(mutation.anchor(), old)
         );
@@ -117,16 +99,13 @@ class SetOutputSolubilityInSolventsHandler implements ReactionOutputSampleMutati
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.SetOutputResidualSolvents.class)
-class SetOutputResidualSolventsHandler implements ReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputResidualSolvents, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetOutputResidualSolventsHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputResidualSolvents, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputResidualSolvents mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         List<@Valid ResidualSolvent> old = sample.getResidualSolvents();
         sample.setResidualSolvents(ModelUtil.emptyToNull(mutation.residualSolvents()));
-        return new MutationResult(mutationHelper.formatSetterSummaryNoDetails("batch residual solvents", ModelUtil.isNotEmpty(mutation.residualSolvents()))
+        return new MutationResult(formatSetterSummaryNoDetails("batch residual solvents", ModelUtil.isNotEmpty(mutation.residualSolvents()))
                 , null
                 , new ReactionOutputSampleMutation.SetOutputResidualSolvents(mutation.anchor(), old)
         );
@@ -135,16 +114,13 @@ class SetOutputResidualSolventsHandler implements ReactionOutputSampleMutationHa
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.SetOutputMeltingPoint.class)
-class SetOutputMeltingPointHandler implements ReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputMeltingPoint, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetOutputMeltingPointHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputMeltingPoint, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputMeltingPoint mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         MeltingPoint old = sample.getMeltingPoint();
         sample.setMeltingPoint(mutation.meltingPoint());
-        return new MutationResult(mutationHelper.formatSetterSummaryNoDetails("batch melting point", mutation.meltingPoint() != null)
+        return new MutationResult(formatSetterSummaryNoDetails("batch melting point", mutation.meltingPoint() != null)
                 , null
                 , new ReactionOutputSampleMutation.SetOutputMeltingPoint(mutation.anchor(), old)
         );
@@ -153,16 +129,13 @@ class SetOutputMeltingPointHandler implements ReactionOutputSampleMutationHandle
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.SetOutputPurityCalculations.class)
-class SetOutputPurityCalculationsHandler implements ReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputPurityCalculations, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetOutputPurityCalculationsHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputPurityCalculations, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputPurityCalculations mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         List<PurityCalculation> old = sample.getPurityCalculations();
         sample.setPurityCalculations(ModelUtil.emptyToNull(mutation.purityCalculations()));
-        return new MutationResult(mutationHelper.formatSetterSummaryNoDetails("batch purity calculations", ModelUtil.isNotEmpty(mutation.purityCalculations()))
+        return new MutationResult(formatSetterSummaryNoDetails("batch purity calculations", ModelUtil.isNotEmpty(mutation.purityCalculations()))
                 , null
                 , new ReactionOutputSampleMutation.SetOutputPurityCalculations(mutation.anchor(), old)
         );
@@ -171,16 +144,13 @@ class SetOutputPurityCalculationsHandler implements ReactionOutputSampleMutation
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.SetOutputExternalSupplier.class)
-class SetOutputExternalSupplierHandler implements ReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputExternalSupplier, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetOutputExternalSupplierHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputExternalSupplier, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputExternalSupplier mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         ExternalSupplier old = sample.getExternalSupplier();
         sample.setExternalSupplier(mutation.externalSupplier());
-        return new MutationResult(mutationHelper.formatSetterSummaryNoDetails("batch external supplier", mutation.externalSupplier() != null)
+        return new MutationResult(formatSetterSummaryNoDetails("batch external supplier", mutation.externalSupplier() != null)
                 , null
                 , new ReactionOutputSampleMutation.SetOutputExternalSupplier(mutation.anchor(), old)
         );
@@ -189,16 +159,13 @@ class SetOutputExternalSupplierHandler implements ReactionOutputSampleMutationHa
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.SetOutputSource.class)
-class SetOutputSourceHandler implements ReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputSource, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetOutputSourceHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputSource, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputSource mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         DictionaryItemRef old = sample.getSource();
         sample.setSource(mutation.source());
-        return new MutationResult(mutationHelper.formatSetterSummary("batch source", mutation.source())
+        return new MutationResult(formatSetterSummary("batch source", mutation.source())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputSource(mutation.anchor(), old)
         );
@@ -207,16 +174,13 @@ class SetOutputSourceHandler implements ReactionOutputSampleMutationHandler<Reac
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.SetOutputSourceDetails.class)
-class SetOutputSourceDetailsHandler implements ReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputSourceDetails, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetOutputSourceDetailsHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputSourceDetails, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputSourceDetails mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         DictionaryItemRef old = sample.getSourceDetails();
         sample.setSourceDetails(mutation.sourceDetails());
-        return new MutationResult(mutationHelper.formatSetterSummary("batch source details", mutation.sourceDetails())
+        return new MutationResult(formatSetterSummary("batch source details", mutation.sourceDetails())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputSourceDetails(mutation.anchor(), old)
         );
@@ -225,16 +189,13 @@ class SetOutputSourceDetailsHandler implements ReactionOutputSampleMutationHandl
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.SetOutputBatchComment.class)
-class SetOutputBatchCommentHandler implements ReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputBatchComment, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetOutputBatchCommentHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputBatchComment, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputBatchComment mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         String old = sample.getBatchComment();
         sample.setBatchComment(mutation.batchComment());
-        return new MutationResult(mutationHelper.formatSetterSummary("batch comment", mutation.batchComment())
+        return new MutationResult(formatSetterSummary("batch comment", mutation.batchComment())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputBatchComment(mutation.anchor(), old)
         );
@@ -243,16 +204,13 @@ class SetOutputBatchCommentHandler implements ReactionOutputSampleMutationHandle
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.SetOutputStructureComment.class)
-class SetOutputStructureCommentHandler implements ReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputStructureComment, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetOutputStructureCommentHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputStructureComment, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputStructureComment mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         String old = sample.getStructureComment();
         sample.setStructureComment(mutation.structureComment());
-        return new MutationResult(mutationHelper.formatSetterSummary("batch structure comment", mutation.structureComment())
+        return new MutationResult(formatSetterSummary("batch structure comment", mutation.structureComment())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputStructureComment(mutation.anchor(), old)
         );
@@ -261,7 +219,7 @@ class SetOutputStructureCommentHandler implements ReactionOutputSampleMutationHa
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.RemoveProductSample.class)
-class RemoveProductSampleHandler implements ReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.RemoveProductSample, MutationRedoInfo> {
+class RemoveProductSampleHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.RemoveProductSample, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.RemoveProductSample mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {

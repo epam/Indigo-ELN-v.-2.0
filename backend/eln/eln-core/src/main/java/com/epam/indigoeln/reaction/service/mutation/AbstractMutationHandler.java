@@ -12,11 +12,12 @@ import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoMolecule;
 import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.MutationContext;
+import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.model.units.*;
 import com.google.common.base.Preconditions;
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -25,13 +26,11 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 
-@ApplicationScoped
-public class MutationHelper {
+public abstract class AbstractMutationHandler<T extends Mutation, R extends MutationRedoInfo> implements MutationHandler<T, R> {
 
     @Inject
     Instance<IndigoAPI> indigoAPI;
@@ -41,84 +40,6 @@ public class MutationHelper {
     DictionaryService dictionaryService;
     @Inject
     DictionaryMapper dictionaryMapper;
-
-    public ReactionMutation.UndoResolveInputs.RowUndo setInputLineSample(ReactionInput row, SampleEntity sample, MutationContext context, Anchor.InputSample anchor) {
-        CompoundRef oldCompound = row.getCompound();
-        row.setCompound(compoundService.realCompoundRef(sample.getCompound()));
-
-        ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchor);
-        reactionInputSample.setSampleId(sample.getId());
-        reactionInputSample.setStrCode(sample.getStrCode());
-        reactionInputSample.setDensity(EnteredValue.defaultValue(sample.getDensity(), DensityUnit.G_ML));
-        reactionInputSample.setMolarity(EnteredValue.defaultValue(sample.getMolarity(), sample.getMolarityUnit()));
-        reactionInputSample.setPurity(sample.getPurity() != null ? EnteredValue.defaultValue(sample.getPurity(), NoUnit.NO_UNIT) : DEFAULT_ONE);
-        reactionInputSample.setHealthHazards(dictionaryMapper.itemToRefList(sample.getHealthHazards()));
-        reactionInputSample.setComment(sample.getBatchComment());
-        reactionInputSample.setNbkBatchNumber(sample.getNbkBatchNumber());
-        List<ReactionInputSample> oldSamples = row.getSamples();
-        row.setSamples(List.of(reactionInputSample));
-        String oldChemicalName = row.getChemicalName();
-        row.setChemicalName(sample.getCompound().getChemicalName());
-
-        context.getAffectedRoles().add(row.getRole());
-
-        return new ReactionMutation.UndoResolveInputs.RowUndo(oldCompound, oldSamples, oldChemicalName);
-    }
-
-    public ReactionInput createInputLine(Reaction reaction, @Nullable IndigoMolecule molecule, ReactionRole role, @Nullable Pair<Anchor.Input, Anchor.InputSample> anchors) {
-        ReactionInput row = ReactionInput.create(reaction, role, anchors != null ? anchors.a() : null);
-        row.setCompound(molecule != null
-                ? compoundService.virtualCompoundRef(molecule, null, null, null)
-                : compoundService.unknownCompoundRef());
-        row.setEq(DEFAULT_ONE);
-        ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchors != null ? anchors.b() : null);
-        reactionInputSample.setPurity(DEFAULT_ONE);
-        row.setSamples(List.of(reactionInputSample));
-        return row;
-    }
-
-    public ReactionOutput createOutputLine(Reaction reaction, IndigoMolecule molecule, Anchor.@Nullable Output anchor) {
-        ReactionOutput row = ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, anchor);
-        row.setOutputName(reaction.generateNextProductName());
-        row.setCompound(compoundService.virtualCompoundRef(molecule, null, null, null));
-        row.setEq(DEFAULT_ONE);
-        row.setSamples(List.of());
-        return row;
-    }
-
-    public void adjustLimitingInput(Reaction reaction) {
-        ReactionInput limiting = null;
-        for (@Valid ReactionInput input : reaction.getInputs()) {
-            if (input.isLimiting()) {
-                if (limiting == null) {
-                    limiting = input;
-                } else {
-                    input.setLimiting(false);
-                }
-            }
-        }
-        if (limiting == null && !reaction.getInputs().isEmpty()) {
-            reaction.getInputs().getFirst().setLimiting(true);
-        }
-    }
-
-    public CompoundRef doApplySetSaltCodeEQStereoisomerCode(ReactionRow row, @Nullable SaltCodeInfo saltCode, @Nullable Double saltEQ, @Nullable DictionaryItemRef stereoisomerCode) {
-        switch (row.getCompound()) {
-            case CompoundRef.Virtual v -> {
-                // normalize saltEQ
-                if (saltCode != null && saltEQ == null) {
-                    saltEQ = 1.0;
-                } else if (saltCode == null) {
-                    saltEQ = null;
-                }
-                CompoundEntity compound = compoundService.getCompound(v.getCompoundID());
-                IndigoMolecule molecule = indigoAPI.get().loadMolecule(compound.getMolFile());
-                return compoundService.virtualCompoundRef(molecule, stereoisomerCode, saltCode, saltEQ);
-            }
-            case CompoundRef.Stored s -> throw new InvalidRequestException("Cannot modify saltCode/saltEQ/stereoisomerCode for registered compound");
-            case CompoundRef.Unknown u -> throw new InvalidRequestException("Cannot set saltCode/saltEQ/stereoisomerCode for unknown compound");
-        }
-    }
 
     // !!! only allow non-null source for undo operations
     public <U extends MeasurementUnit> EnteredValueUndo<U> setEnteredValue(Supplier<@Nullable EnteredValue<U>> getter, Consumer<@Nullable EnteredValue<U>> setter, @Nullable Double value, @Nullable U unit, @Nullable EnteredValueSource source) {
@@ -187,5 +108,83 @@ public class MutationHelper {
             return sample.getStrCode();
         }
         return "unknown sample";
+    }
+
+    public ReactionMutation.UndoResolveInputs.RowUndo setInputLineSample(ReactionInput row, SampleEntity sample, MutationContext context, InputSampleAnchor anchor) {
+        CompoundRef oldCompound = row.getCompound();
+        row.setCompound(compoundService.realCompoundRef(sample.getCompound()));
+
+        ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchor);
+        reactionInputSample.setSampleId(sample.getId());
+        reactionInputSample.setStrCode(sample.getStrCode());
+        reactionInputSample.setDensity(EnteredValue.defaultValue(sample.getDensity(), DensityUnit.G_ML));
+        reactionInputSample.setMolarity(EnteredValue.defaultValue(sample.getMolarity(), sample.getMolarityUnit()));
+        reactionInputSample.setPurity(sample.getPurity() != null ? EnteredValue.defaultValue(sample.getPurity(), NoUnit.NO_UNIT) : DEFAULT_ONE);
+        reactionInputSample.setHealthHazards(dictionaryMapper.itemToRefList(sample.getHealthHazards()));
+        reactionInputSample.setComment(sample.getBatchComment());
+        reactionInputSample.setNbkBatchNumber(sample.getNbkBatchNumber());
+        List<ReactionInputSample> oldSamples = row.getSamples();
+        row.setSamples(List.of(reactionInputSample));
+        String oldChemicalName = row.getChemicalName();
+        row.setChemicalName(sample.getCompound().getChemicalName());
+
+        context.getAffectedRoles().add(row.getRole());
+
+        return new ReactionMutation.UndoResolveInputs.RowUndo(oldCompound, oldSamples, oldChemicalName);
+    }
+
+    public ReactionInput createInputLine(Reaction reaction, @Nullable IndigoMolecule molecule, ReactionRole role, @Nullable Pair<InputAnchor, InputSampleAnchor> anchors) {
+        ReactionInput row = ReactionInput.create(reaction, role, anchors != null ? anchors.a() : null);
+        row.setCompound(molecule != null
+                ? compoundService.virtualCompoundRef(molecule, null, null, null)
+                : compoundService.unknownCompoundRef());
+        row.setEq(DEFAULT_ONE);
+        ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchors != null ? anchors.b() : null);
+        reactionInputSample.setPurity(DEFAULT_ONE);
+        row.setSamples(List.of(reactionInputSample));
+        return row;
+    }
+
+    public ReactionOutput createOutputLine(Reaction reaction, IndigoMolecule molecule, @Nullable OutputAnchor anchor) {
+        ReactionOutput row = ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, anchor);
+        row.setOutputName(reaction.generateNextProductName());
+        row.setCompound(compoundService.virtualCompoundRef(molecule, null, null, null));
+        row.setEq(DEFAULT_ONE);
+        row.setSamples(List.of());
+        return row;
+    }
+
+    public void adjustLimitingInput(Reaction reaction) {
+        ReactionInput limiting = null;
+        for (@Valid ReactionInput input : reaction.getInputs()) {
+            if (input.isLimiting()) {
+                if (limiting == null) {
+                    limiting = input;
+                } else {
+                    input.setLimiting(false);
+                }
+            }
+        }
+        if (limiting == null && !reaction.getInputs().isEmpty()) {
+            reaction.getInputs().getFirst().setLimiting(true);
+        }
+    }
+
+    public CompoundRef doApplySetSaltCodeEQStereoisomerCode(ReactionRow row, @Nullable SaltCodeInfo saltCode, @Nullable Double saltEQ, @Nullable DictionaryItemRef stereoisomerCode) {
+        switch (row.getCompound()) {
+            case CompoundRef.Virtual v -> {
+                // normalize saltEQ
+                if (saltCode != null && saltEQ == null) {
+                    saltEQ = 1.0;
+                } else if (saltCode == null) {
+                    saltEQ = null;
+                }
+                CompoundEntity compound = compoundService.getCompound(v.getCompoundID());
+                IndigoMolecule molecule = indigoAPI.get().loadMolecule(compound.getMolFile());
+                return compoundService.virtualCompoundRef(molecule, stereoisomerCode, saltCode, saltEQ);
+            }
+            case CompoundRef.Stored s -> throw new InvalidRequestException("Cannot modify saltCode/saltEQ/stereoisomerCode for registered compound");
+            case CompoundRef.Unknown u -> throw new InvalidRequestException("Cannot set saltCode/saltEQ/stereoisomerCode for unknown compound");
+        }
     }
 }

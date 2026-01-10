@@ -9,18 +9,17 @@ import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.service.mutation.*;
 import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
 @Dependent
 @MutationHandlerFor(ReactionInputMutation.SetInputRowLimiting.class)
-class SetInputRowLimitingHandler implements ReactionInputMutationHandler<ReactionInputMutation.SetInputRowLimiting, MutationRedoInfo> {
+class SetInputRowLimitingHandler extends AbstractReactionInputMutationHandler<ReactionInputMutation.SetInputRowLimiting, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowLimiting mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         Preconditions.checkState(row.getReaction().getLimitingInput() != null);
-        Anchor.Input oldLimiting = row.getReaction().getLimitingInput().getAnchor();
+        InputAnchor oldLimiting = row.getReaction().getLimitingInput().getAnchor();
         for (ReactionInput otherRow : row.getReaction().getInputs()) {
             otherRow.setLimiting(false);
         }
@@ -34,16 +33,13 @@ class SetInputRowLimitingHandler implements ReactionInputMutationHandler<Reactio
 
 @Dependent
 @MutationHandlerFor(ReactionInputMutation.SetInputRowChemicalName.class)
-class SetInputRowChemicalNameHandler implements ReactionInputMutationHandler<ReactionInputMutation.SetInputRowChemicalName, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetInputRowChemicalNameHandler extends AbstractReactionInputMutationHandler<ReactionInputMutation.SetInputRowChemicalName, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowChemicalName mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         String old = row.getChemicalName();
         row.setChemicalName(mutation.chemicalName());
-        return new MutationResult(mutationHelper.formatSetterSummary("input chemical name", mutation.chemicalName())
+        return new MutationResult(formatSetterSummary("input chemical name", mutation.chemicalName())
                 , null
                 , new ReactionInputMutation.SetInputRowChemicalName(mutation.anchor(), old)
         );
@@ -52,17 +48,14 @@ class SetInputRowChemicalNameHandler implements ReactionInputMutationHandler<Rea
 
 @Dependent
 @MutationHandlerFor(ReactionInputMutation.SetInputRowMol.class)
-class SetInputRowMolHandler implements ReactionInputMutationHandler<ReactionInputMutation.SetInputRowMol, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetInputRowMolHandler extends AbstractReactionInputMutationHandler<ReactionInputMutation.SetInputRowMol, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowMol mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         // TODO update when multi-sample is supported
         ReactionInputSample sample = row.getSamples().getFirst();
-        EnteredValueUndo<MolUnit> undo = mutationHelper.setEnteredValue(sample::getMol, sample::setMol, mutation.mol(), mutation.molUnit(), mutation.source());
-        return new MutationResult(mutationHelper.formatSetterSummary("input mol", mutation.mol(), mutation.molUnit())
+        EnteredValueUndo<MolUnit> undo = setEnteredValue(sample::getMol, sample::setMol, mutation.mol(), mutation.molUnit(), mutation.source());
+        return new MutationResult(formatSetterSummary("input mol", mutation.mol(), mutation.molUnit())
                 , null
                 , new ReactionInputMutation.SetInputRowMol(mutation.anchor(), undo.value(), undo.unit(), undo.source())
         );
@@ -71,10 +64,7 @@ class SetInputRowMolHandler implements ReactionInputMutationHandler<ReactionInpu
 
 @Dependent
 @MutationHandlerFor(ReactionInputMutation.SetInputRowRole.class)
-class SetInputRowRoleHandler implements ReactionInputMutationHandler<ReactionInputMutation.SetInputRowRole, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetInputRowRoleHandler extends AbstractReactionInputMutationHandler<ReactionInputMutation.SetInputRowRole, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowRole mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
@@ -89,7 +79,7 @@ class SetInputRowRoleHandler implements ReactionInputMutationHandler<ReactionInp
         context.getAffectedRoles().add(row.getRole());
         context.getAffectedRoles().add(mutation.role());
         row.setRole(mutation.role());
-        return new MutationResult(mutationHelper.formatSetterSummary("input role", mutation.role())
+        return new MutationResult(formatSetterSummary("input role", mutation.role())
                 , null
                 , new ReactionInputMutation.SetInputRowRole(mutation.anchor(), oldRole)
         );

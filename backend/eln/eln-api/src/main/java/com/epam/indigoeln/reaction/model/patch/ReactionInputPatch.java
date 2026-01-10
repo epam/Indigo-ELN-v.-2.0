@@ -1,6 +1,6 @@
 package com.epam.indigoeln.reaction.model.patch;
 
-import com.epam.indigoeln.reaction.model.Anchor;
+import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.ReactionInputSample;
 import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
@@ -14,9 +14,9 @@ import java.util.List;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ReactionInputPatch extends AbstractReactionRowPatch<Anchor.Input> {
+public class ReactionInputPatch extends AbstractReactionRowPatch<InputAnchor> {
 
-    private Patched<Anchor.Input, Anchor.Input> anchor;
+    private Patched<InputAnchor, InputAnchor> anchor;
 
     @Nullable
     private Patched<ReactionRole, ReactionRole> role;

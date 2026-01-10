@@ -9,18 +9,17 @@ import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.epam.indigoeln.reaction.service.mutation.*;
 import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Inject;
 import org.jspecify.annotations.Nullable;
 
 import static com.epam.indigoeln.reaction.model.units.EnteredValue.DEFAULT_ONE;
 
 @Dependent
 @MutationHandlerFor(ReactionOutputMutation.AddProductSample.class)
-class AddProductSampleHandler implements ReactionOutputMutationHandler<ReactionOutputMutation.AddProductSample, MutationRedoInfo.AddOutputSample> {
+class AddProductSampleHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.AddProductSample, MutationRedoInfo.AddOutputSample> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.AddProductSample mutation, MutationRedoInfo.@Nullable AddOutputSample redoInfo, MutationContext context) {
-        Anchor.OutputSample anchor = redoInfo != null ? redoInfo.anchor() : new Anchor.OutputSample(model.generateNextAnchor());
+        OutputSampleAnchor anchor = redoInfo != null ? redoInfo.anchor() : model.generateNextAnchor(OutputSampleAnchor.class);
         ReactionOutputSample sample = ReactionOutputSample.create(row, experiment.getName(), anchor);
         sample.setPurity(DEFAULT_ONE);
         row.getSamples().add(sample);
@@ -33,17 +32,14 @@ class AddProductSampleHandler implements ReactionOutputMutationHandler<ReactionO
 
 @Dependent
 @MutationHandlerFor(ReactionOutputMutation.SetOutputRowType.class)
-class SetOutputRowTypeHandler implements ReactionOutputMutationHandler<ReactionOutputMutation.SetOutputRowType, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetOutputRowTypeHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.SetOutputRowType, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowType mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         ReactionOutputType oldType = row.getType();
         row.setType(mutation.outputType());
         // TODO add or remove to the next reaction, if changing to or from INTERMEDIATE type
-        return new MutationResult(mutationHelper.formatSetterSummary("output type", mutation.outputType())
+        return new MutationResult(formatSetterSummary("output type", mutation.outputType())
                 , null
                 , new ReactionOutputMutation.SetOutputRowType(mutation.anchor(), oldType)
         );
@@ -52,10 +48,7 @@ class SetOutputRowTypeHandler implements ReactionOutputMutationHandler<ReactionO
 
 @Dependent
 @MutationHandlerFor(ReactionOutputMutation.SetOutputRowName.class)
-class SetOutputRowNameHandler implements ReactionOutputMutationHandler<ReactionOutputMutation.SetOutputRowName, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetOutputRowNameHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.SetOutputRowName, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowName mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
@@ -66,7 +59,7 @@ class SetOutputRowNameHandler implements ReactionOutputMutationHandler<ReactionO
         }
         String oldName = row.getOutputName();
         row.setOutputName(mutation.name());
-        return new MutationResult(mutationHelper.formatSetterSummary("output name", mutation.name())
+        return new MutationResult(formatSetterSummary("output name", mutation.name())
                 , null
                 , new ReactionOutputMutation.SetOutputRowName(mutation.anchor(), oldName)
         );
@@ -75,7 +68,7 @@ class SetOutputRowNameHandler implements ReactionOutputMutationHandler<ReactionO
 
 @Dependent
 @MutationHandlerFor(ReactionOutputMutation.UndoRemoveProductSample.class)
-class UndoRemoveProductSampleHandler implements ReactionOutputMutationHandler<ReactionOutputMutation.UndoRemoveProductSample, MutationRedoInfo> {
+class UndoRemoveProductSampleHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.UndoRemoveProductSample, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.UndoRemoveProductSample mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {

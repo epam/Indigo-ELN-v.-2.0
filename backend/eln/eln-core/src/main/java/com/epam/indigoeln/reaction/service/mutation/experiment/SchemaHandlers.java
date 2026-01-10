@@ -13,29 +13,22 @@ import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
-import com.epam.indigoeln.reaction.service.mutation.MutationHelper;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
-import com.epam.indigoeln.reaction.service.mutation.ReactionMutationHandler;
-import jakarta.enterprise.context.ApplicationScoped;
+import com.epam.indigoeln.reaction.service.mutation.AbstractReactionMutationHandler;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
 import one.util.streamex.EntryStream;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Function;
 
 @Dependent
 @MutationHandlerFor(ReactionMutation.SetScheme.class)
-class SetSchemeHandler implements ReactionMutationHandler<ReactionMutation.SetScheme, MutationRedoInfo.SetScheme> {
+class SetSchemeHandler extends AbstractReactionMutationHandler<ReactionMutation.SetScheme, MutationRedoInfo.SetScheme> {
 
     @Inject
     IndigoAPI indigo;
-    @Inject
-    MutationHelper mutationHelper;
-
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.SetScheme mutation, MutationRedoInfo.@Nullable SetScheme redoInfo, MutationContext context) {
         String previousRxnfile = reaction.getRxnfile();
@@ -44,8 +37,8 @@ class SetSchemeHandler implements ReactionMutationHandler<ReactionMutation.SetSc
         reaction.setInputs(new ArrayList<>());
         reaction.setOutputs(new ArrayList<>());
 
-        List<Pair<Anchor.Input, Anchor.InputSample>> reactantAnchors = List.of(), catalystAnchors = List.of();
-        List<Anchor.Output> productAnchors = List.of();
+        List<Pair<InputAnchor, InputSampleAnchor>> reactantAnchors = List.of(), catalystAnchors = List.of();
+        List<OutputAnchor> productAnchors = List.of();
 
         if (mutation.molFile() != null) {
             IndigoReaction indigoReaction = indigo.loadReaction(mutation.molFile());
@@ -53,7 +46,7 @@ class SetSchemeHandler implements ReactionMutationHandler<ReactionMutation.SetSc
             catalystAnchors = createInputs(redoInfo != null ? redoInfo.catalystAnchors() : null, indigoReaction.catalysts(), reaction, ReactionRole.CATALYST);
             productAnchors = createOutputs(redoInfo != null ? redoInfo.productAnchors() : null, indigoReaction.products(), reaction);
         }
-        mutationHelper.adjustLimitingInput(reaction);
+        adjustLimitingInput(reaction);
         reaction.setRxnfile(mutation.molFile());
 
         return new MutationResult("Update reaction scheme"
@@ -61,28 +54,28 @@ class SetSchemeHandler implements ReactionMutationHandler<ReactionMutation.SetSc
                 , new ReactionMutation.SetScheme(reaction.getAnchor(), previousRxnfile));
     }
 
-    private List<Pair<Anchor.Input, Anchor.InputSample>> createInputs(List<Pair<Anchor.Input, Anchor.InputSample>> redoInfo, Iterable<IndigoMolecule> molecules, Reaction reaction, ReactionRole role) {
-        List<Pair<Anchor.Input, Anchor.InputSample>> anchors = redoInfo != null
+    private List<Pair<InputAnchor, InputSampleAnchor>> createInputs(List<Pair<InputAnchor, InputSampleAnchor>> redoInfo, Iterable<IndigoMolecule> molecules, Reaction reaction, ReactionRole role) {
+        List<Pair<InputAnchor, InputSampleAnchor>> anchors = redoInfo != null
                 ? redoInfo
                 : StreamEx.of(molecules.iterator())
-                        .map(m -> Pair.of(new Anchor.Input(reaction.getModel().generateNextAnchor()), new Anchor.InputSample(reaction.getModel().generateNextAnchor())))
+                        .map(m -> Pair.of(reaction.getModel().generateNextAnchor(InputAnchor.class), reaction.getModel().generateNextAnchor(InputSampleAnchor.class)))
                         .toList();
-        Iterator<Pair<Anchor.Input, Anchor.InputSample>> anchorIterator = anchors.iterator();
+        Iterator<Pair<InputAnchor, InputSampleAnchor>> anchorIterator = anchors.iterator();
         for (IndigoMolecule reactant : molecules) {
-            reaction.getInputs().add(mutationHelper.createInputLine(reaction, reactant, role, anchorIterator.next()));
+            reaction.getInputs().add(createInputLine(reaction, reactant, role, anchorIterator.next()));
         }
         return anchors;
     }
 
-    private List<Anchor.Output> createOutputs(List<Anchor.Output> redoInfo, Iterable<IndigoMolecule> molecules, Reaction reaction) {
-        List<Anchor.Output> anchors = redoInfo != null
+    private List<OutputAnchor> createOutputs(List<OutputAnchor> redoInfo, Iterable<IndigoMolecule> molecules, Reaction reaction) {
+        List<OutputAnchor> anchors = redoInfo != null
                 ? redoInfo
                 : StreamEx.of(molecules.iterator())
-                        .map(m -> new Anchor.Output(reaction.getModel().generateNextAnchor()))
+                        .map(m -> reaction.getModel().generateNextAnchor(OutputAnchor.class))
                         .toList();
-        Iterator<Anchor.Output> anchorIterator = anchors.iterator();
+        Iterator<OutputAnchor> anchorIterator = anchors.iterator();
         for (IndigoMolecule product : molecules) {
-            reaction.getOutputs().add(mutationHelper.createOutputLine(reaction, product, anchorIterator.next()));
+            reaction.getOutputs().add(createOutputLine(reaction, product, anchorIterator.next()));
         }
         return anchors;
     }
@@ -90,17 +83,14 @@ class SetSchemeHandler implements ReactionMutationHandler<ReactionMutation.SetSc
 
 @Dependent
 @MutationHandlerFor(ReactionMutation.AddEmptyInput.class)
-class AddEmptyInputHandler implements ReactionMutationHandler<ReactionMutation.AddEmptyInput, MutationRedoInfo.AddInput> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class AddEmptyInputHandler extends AbstractReactionMutationHandler<ReactionMutation.AddEmptyInput, MutationRedoInfo.AddInput> {
 
     // !!! move common handler logic into services; make handlers just call services
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddEmptyInput mutation, MutationRedoInfo.@Nullable AddInput redoInfo, MutationContext context) {
-        ReactionInput row = mutationHelper.createInputLine(reaction, null, ReactionRole.REACTANT, redoInfo != null ? redoInfo.anchors() : null);
+        ReactionInput row = createInputLine(reaction, null, ReactionRole.REACTANT, redoInfo != null ? redoInfo.anchors() : null);
         reaction.getInputs().add(row);
-        mutationHelper.adjustLimitingInput(reaction);
+        adjustLimitingInput(reaction);
         context.getAffectedRoles().add(row.getRole());
         return new MutationResult("Add empty input"
                 , new MutationRedoInfo.AddInput(Pair.of(row.getAnchor(), row.getSamples().getFirst().getAnchor()))
@@ -111,22 +101,20 @@ class AddEmptyInputHandler implements ReactionMutationHandler<ReactionMutation.A
 
 @Dependent
 @MutationHandlerFor(ReactionMutation.AddInput.class)
-class AddInputHandler implements ReactionMutationHandler<ReactionMutation.AddInput, MutationRedoInfo.AddInput> {
+class AddInputHandler extends AbstractReactionMutationHandler<ReactionMutation.AddInput, MutationRedoInfo.AddInput> {
 
-    @Inject
-    MutationHelper mutationHelper;
     @Inject
     CompoundService compoundService;
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.AddInput mutation, MutationRedoInfo.@Nullable AddInput redoInfo, MutationContext context) {
-        ReactionInput row = mutationHelper.createInputLine(reaction, null, ReactionRole.REACTANT, redoInfo != null ? redoInfo.anchors() : null);
+        ReactionInput row = createInputLine(reaction, null, ReactionRole.REACTANT, redoInfo != null ? redoInfo.anchors() : null);
         reaction.getInputs().add(row);
         SampleEntity sample = compoundService.getSample(mutation.sampleId());
-        mutationHelper.setInputLineSample(row, sample, context, redoInfo != null ? redoInfo.anchors().b() : null);
-        mutationHelper.adjustLimitingInput(reaction);
+        setInputLineSample(row, sample, context, redoInfo != null ? redoInfo.anchors().b() : null);
+        adjustLimitingInput(reaction);
 
-        return new MutationResult("Add input sample: " + mutationHelper.getSampleIdentifier(sample)
+        return new MutationResult("Add input sample: " + getSampleIdentifier(sample)
                 , new MutationRedoInfo.AddInput(Pair.of(row.getAnchor(), row.getSamples().getFirst().getAnchor()))
                 , new ReactionInputMutation.RemoveInput(row.getAnchor())
         );
@@ -135,25 +123,23 @@ class AddInputHandler implements ReactionMutationHandler<ReactionMutation.AddInp
 
 @Dependent
 @MutationHandlerFor(ReactionMutation.ResolveInputs.class)
-class ResolveInputsHandler implements ReactionMutationHandler<ReactionMutation.ResolveInputs, MutationRedoInfo.ResolveInputs> {
+class ResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutation.ResolveInputs, MutationRedoInfo.ResolveInputs> {
 
-    @Inject
-    MutationHelper mutationHelper;
     @Inject
     CompoundService compoundService;
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.ResolveInputs mutation, MutationRedoInfo.@Nullable ResolveInputs redoInfo, MutationContext context) {
-        Map<Anchor.Input, Anchor.InputSample> sampleAnchors = redoInfo != null
+        Map<InputAnchor, InputSampleAnchor> sampleAnchors = redoInfo != null
                 ? redoInfo.sampleAnchors()
                 : EntryStream.of(mutation.inputSamples())
-                        .mapValues(x -> new Anchor.InputSample(model.generateNextAnchor()))
+                        .mapValues(x -> model.generateNextAnchor(InputSampleAnchor.class))
                         .toMap();
-        Map<Anchor.Input, ReactionMutation.UndoResolveInputs.RowUndo> rowUndo = new HashMap<>();
+        Map<InputAnchor, ReactionMutation.UndoResolveInputs.RowUndo> rowUndo = new HashMap<>();
         mutation.inputSamples().forEach((inputAnchor, sampleId) -> {
             ReactionInput row = model.locate(inputAnchor);
             SampleEntity sample = compoundService.getSample(sampleId);
-            var undo = mutationHelper.setInputLineSample(row, sample, context, sampleAnchors.get(inputAnchor));
+            var undo = setInputLineSample(row, sample, context, sampleAnchors.get(inputAnchor));
             rowUndo.put(inputAnchor, undo);
         });
         return new MutationResult("Resolve input samples"
@@ -165,7 +151,7 @@ class ResolveInputsHandler implements ReactionMutationHandler<ReactionMutation.R
 
 @Dependent
 @MutationHandlerFor(ReactionMutation.UndoResolveInputs.class)
-class UndoResolveInputsHandler implements ReactionMutationHandler<ReactionMutation.UndoResolveInputs, MutationRedoInfo> {
+class UndoResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutation.UndoResolveInputs, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.UndoResolveInputs mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
@@ -187,7 +173,7 @@ class UndoResolveInputsHandler implements ReactionMutationHandler<ReactionMutati
 
 @Dependent
 @MutationHandlerFor(ReactionMutation.UndoRemoveInput.class)
-class UndoRemoveInputHandler implements ReactionMutationHandler<ReactionMutation.UndoRemoveInput, MutationRedoInfo> {
+class UndoRemoveInputHandler extends AbstractReactionMutationHandler<ReactionMutation.UndoRemoveInput, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionMutation.UndoRemoveInput mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {

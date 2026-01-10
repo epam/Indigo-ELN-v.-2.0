@@ -21,7 +21,7 @@ import java.util.List;
 public final class ReactionOutput extends ReactionRow implements ExperimentNode {
 
     @NotNull
-    private Anchor.Output anchor;
+    private OutputAnchor anchor;
 
     @NotNull
     private String outputName;
@@ -39,10 +39,10 @@ public final class ReactionOutput extends ReactionRow implements ExperimentNode 
     @JsonManagedReference
     private List<@Valid ReactionOutputSample> samples = List.of();
 
-    public static ReactionOutput create(Reaction reaction, ReactionOutputType type, Anchor.@Nullable Output anchor) {
+    public static ReactionOutput create(Reaction reaction, ReactionOutputType type, @Nullable OutputAnchor anchor) {
         ReactionOutput row = new ReactionOutput();
         row.reaction = reaction;
-        row.anchor = anchor != null ? anchor : new Anchor.Output(reaction.getModel().generateNextAnchor());
+        row.anchor = anchor != null ? anchor : reaction.getModel().generateNextAnchor(OutputAnchor.class);
         row.type = type;
         return row;
     }

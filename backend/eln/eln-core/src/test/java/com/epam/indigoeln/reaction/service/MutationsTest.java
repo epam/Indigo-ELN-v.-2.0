@@ -69,7 +69,7 @@ public class MutationsTest extends MutationsTestBase {
     void testIncorrectAnchor() {
         assertThatClientCall(() -> {
             experimentClient.mutateExperimentModel2Raw(experiment.getId(), experiment.getRevision(), "{\"type\": \"AddEmptyInput\", \"anchor\": \"invalid\"}");
-        }).isBadRequest("Cannot construct instance of `com.epam.indigoeln.reaction.model.Anchor");
+        }).isBadRequest("Cannot construct instance of `com.epam.indigoeln.reaction.model.ReactionAnchor");
     }
 
     @Test
@@ -104,7 +104,7 @@ public class MutationsTest extends MutationsTestBase {
     @Test
     void testRemoveInput() {
         loadScheme();
-        Anchor.Input removedAnchor = input1.getAnchor();
+        InputAnchor removedAnchor = input1.getAnchor();
         applyMutation(new ReactionInputMutation.RemoveInput(removedAnchor));
         assertThat(reaction.getInputs()).hasSize(1);
         assertThat(input1.getAnchor()).isNotEqualTo(removedAnchor);
@@ -377,7 +377,7 @@ public class MutationsTest extends MutationsTestBase {
         loadScheme();
         addOutputSample();
         DictionaryItemRef solvent = dictionaryClient.getDictionary(BuiltInDictionary.SOLVENT).getFirst();
-        SolubidityInSolvent solubidityInSolvent = SolubidityInSolvent.quantitative(solvent, "comment", ComparisonOperator.EQUALS, 10.0, DensityUnit.G_ML);
+        SolubidityInSolvent solubidityInSolvent = new SolubidityInSolvent.Quantitative(solvent, "comment", ComparisonOperator.EQUALS, 10.0, DensityUnit.G_ML);
         applyMutation(new ReactionOutputSampleMutation.SetOutputSolubilityInSolvents(output1Sample1.getAnchor(), List.of(solubidityInSolvent)));
         assertThat(output1Sample1.getSolubilityInSolvents()).containsExactly(solubidityInSolvent);
     }

@@ -24,7 +24,7 @@ public final class ReactionInputSample extends ReactionSample implements Experim
     private ReactionInput row;
 
     @NotNull
-    private Anchor.InputSample anchor;
+    private InputSampleAnchor anchor;
 
     @Nullable
     private UUID sampleId;
@@ -41,10 +41,10 @@ public final class ReactionInputSample extends ReactionSample implements Experim
     @Nullable
     private String comment;
 
-    public static ReactionInputSample create(ReactionInput row, Anchor.@Nullable InputSample anchor) {
+    public static ReactionInputSample create(ReactionInput row, @Nullable InputSampleAnchor anchor) {
         ReactionInputSample sample = new ReactionInputSample();
         sample.row = row;
-        sample.anchor = anchor != null ? anchor : new Anchor.InputSample(row.getReaction().getModel().generateNextAnchor());
+        sample.anchor = anchor != null ? anchor : row.getReaction().getModel().generateNextAnchor(InputSampleAnchor.class);
         return sample;
     }
 }

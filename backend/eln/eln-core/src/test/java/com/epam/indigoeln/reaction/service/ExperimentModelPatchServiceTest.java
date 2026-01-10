@@ -51,7 +51,7 @@ class ExperimentModelPatchServiceTest {
 
     @Test
     void testReactionAdded() throws Exception {
-        Reaction reaction2 = Reaction.createWithAnchor(model, new Anchor.Reaction(10));
+        Reaction reaction2 = Reaction.createWithAnchor(model, new ReactionAnchor(10));
         model.setReactions(List.of(reaction, reaction2));
         makeAndVerifyPatch("""
                 {"model": {"reactions": {">1": {"$new": {"anchor": "R10", "rxnVersion": 0, "inputs": [], "outputs": [], "precursorReactantIds": []}}}}}
@@ -68,7 +68,7 @@ class ExperimentModelPatchServiceTest {
 
     @Test
     void testReactionDeleted() throws Exception {
-        Reaction reaction2 = Reaction.createWithAnchor(model, new Anchor.Reaction(10));
+        Reaction reaction2 = Reaction.createWithAnchor(model, new ReactionAnchor(10));
         baseModel.setReactions(List.of(reaction, reaction2));
         model.setReactions(List.of(reaction));
         makeAndVerifyPatch("""
@@ -78,10 +78,10 @@ class ExperimentModelPatchServiceTest {
 
     @Test
     void testReactionMovedAndChanged() throws Exception {
-        Reaction baseReaction2 = Reaction.createWithAnchor(baseModel, new Anchor.Reaction(2));
-        Reaction baseReaction3 = Reaction.createWithAnchor(baseModel, new Anchor.Reaction(3));
-        Reaction reaction2 = Reaction.createWithAnchor(model, new Anchor.Reaction(2));
-        Reaction reaction3 = Reaction.createWithAnchor(model, new Anchor.Reaction(3));
+        Reaction baseReaction2 = Reaction.createWithAnchor(baseModel, new ReactionAnchor(2));
+        Reaction baseReaction3 = Reaction.createWithAnchor(baseModel, new ReactionAnchor(3));
+        Reaction reaction2 = Reaction.createWithAnchor(model, new ReactionAnchor(2));
+        Reaction reaction3 = Reaction.createWithAnchor(model, new ReactionAnchor(3));
         reaction.setRxnfile("new");
         baseModel.setReactions(List.of(baseReaction, baseReaction2, baseReaction3));
         model.setReactions(List.of(reaction2, reaction, reaction3));
@@ -92,9 +92,9 @@ class ExperimentModelPatchServiceTest {
 
     @Test
     void testEnteredValueCreated() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, new Anchor.Input(10));
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, new InputAnchor(10));
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, new Anchor.Input(10));
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, new InputAnchor(10));
         reaction.setInputs(List.of(input));
         input.setMol(EnteredValue.userLastEntered(10.0, MolUnit.MMOL));
         makeAndVerifyPatch("""
@@ -104,9 +104,9 @@ class ExperimentModelPatchServiceTest {
 
     @Test
     void testEnteredValueChanged() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, new Anchor.Input(10));
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, new InputAnchor(10));
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, new Anchor.Input(10));
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, new InputAnchor(10));
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userLastEntered(15.0, MolUnit.MMOL));
         input.setMol(EnteredValue.userLastEntered(10.0, MolUnit.MMOL));
@@ -117,9 +117,9 @@ class ExperimentModelPatchServiceTest {
 
     @Test
     void testEnteredValueDeleted() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, new Anchor.Input(10));
+        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, new InputAnchor(10));
         baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, new Anchor.Input(10));
+        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, new InputAnchor(10));
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userLastEntered(15.0, MolUnit.MMOL));
         makeAndVerifyPatch("""

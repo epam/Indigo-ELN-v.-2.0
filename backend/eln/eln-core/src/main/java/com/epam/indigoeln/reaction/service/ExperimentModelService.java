@@ -14,7 +14,6 @@ import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.Mutation;
 import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
-import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.model.patch.handler2.ExperimentDiffHandler;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
@@ -22,7 +21,6 @@ import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.epam.indigoeln.reaction.util.StreamUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -98,7 +96,7 @@ public class ExperimentModelService {
         ExperimentSnapshot initial = experimentSnapshotMapper.createSnapshot(experiment, context, () -> getModel(experiment));
         ExperimentModel model = null;
         Set<Pair<ReactionRole, CompoundRef>> previousCompoundRefs = null;
-        Map<Anchor.Reaction, @Nullable String> previousRxnFiles = null;
+        Map<ReactionAnchor, @Nullable String> previousRxnFiles = null;
         if (context.isAffectsModel()) {
             model = getModel(experiment);
             previousCompoundRefs = ExperimentModelUtil.collectCompoundRefs(model);

@@ -19,16 +19,13 @@ import org.jspecify.annotations.Nullable;
 
 @Dependent
 @MutationHandlerFor(ReactionInputMutation.SetInputRowEQ.class)
-class SetInputRowEQHandler implements ReactionInputMutationHandler<ReactionInputMutation.SetInputRowEQ, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetInputRowEQHandler extends AbstractReactionInputMutationHandler<ReactionInputMutation.SetInputRowEQ, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowEQ mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         Double oldValue = row.getEq().getValue();
         row.setEq(EnteredValue.userLastEntered(MoreObjects.firstNonNull(mutation.eq(), 1.0), NoUnit.NO_UNIT));
-        return new MutationResult(mutationHelper.formatSetterSummary("input EQ", mutation.eq())
+        return new MutationResult(formatSetterSummary("input EQ", mutation.eq())
                 , null
                 , new ReactionInputMutation.SetInputRowEQ(mutation.anchor(), oldValue)
         );
@@ -37,16 +34,13 @@ class SetInputRowEQHandler implements ReactionInputMutationHandler<ReactionInput
 
 @Dependent
 @MutationHandlerFor(ReactionOutputMutation.SetOutputRowEQ.class)
-class SetOutputRowEQHandler implements ReactionOutputMutationHandler<ReactionOutputMutation.SetOutputRowEQ, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetOutputRowEQHandler extends AbstractReactionOutputMutationHandler<ReactionOutputMutation.SetOutputRowEQ, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.SetOutputRowEQ mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         Double oldValue = row.getEq().getValue();
         row.setEq(EnteredValue.userLastEntered(MoreObjects.firstNonNull(mutation.eq(), 1.0), NoUnit.NO_UNIT));
-        return new MutationResult(mutationHelper.formatSetterSummary("output EQ", mutation.eq())
+        return new MutationResult(formatSetterSummary("output EQ", mutation.eq())
                 , null
                 , new ReactionOutputMutation.SetOutputRowEQ(mutation.anchor(), oldValue)
         );

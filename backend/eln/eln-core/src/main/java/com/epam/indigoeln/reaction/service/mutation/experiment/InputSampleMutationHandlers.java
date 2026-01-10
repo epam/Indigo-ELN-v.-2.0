@@ -21,15 +21,12 @@ import java.util.List;
 
 @Dependent
 @MutationHandlerFor(ReactionInputSampleMutation.SetInputMol.class)
-class SetInputMolHandler implements ReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputMol, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetInputMolHandler extends ReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputMol, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputMol mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
-        EnteredValueUndo<MolUnit> undo = mutationHelper.setEnteredValue(sample::getMol, sample::setMol, mutation.mol(), mutation.unit(), mutation.source());
-        return new MutationResult(mutationHelper.formatSetterSummary("input sample mol", mutation.mol(), mutation.unit())
+        EnteredValueUndo<MolUnit> undo = setEnteredValue(sample::getMol, sample::setMol, mutation.mol(), mutation.unit(), mutation.source());
+        return new MutationResult(formatSetterSummary("input sample mol", mutation.mol(), mutation.unit())
                 , null
                 , new ReactionInputSampleMutation.SetInputMol(mutation.anchor(), undo.value(), undo.unit(), undo.source()
         ));
@@ -38,15 +35,12 @@ class SetInputMolHandler implements ReactionInputSampleMutationHandler<ReactionI
 
 @Dependent
 @MutationHandlerFor(ReactionInputSampleMutation.SetInputWeight.class)
-class SetInputWeightHandler implements ReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputWeight, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetInputWeightHandler extends ReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputWeight, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputWeight mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
-        EnteredValueUndo<WeightUnit> undo = mutationHelper.setEnteredValue(sample::getWeight, sample::setWeight, mutation.weight(), mutation.unit(), mutation.source());
-        return new MutationResult(mutationHelper.formatSetterSummary("input sample weight", mutation.weight(), mutation.unit())
+        EnteredValueUndo<WeightUnit> undo = setEnteredValue(sample::getWeight, sample::setWeight, mutation.weight(), mutation.unit(), mutation.source());
+        return new MutationResult(formatSetterSummary("input sample weight", mutation.weight(), mutation.unit())
                 , null
                 , new ReactionInputSampleMutation.SetInputWeight(mutation.anchor(), undo.value(), undo.unit(), undo.source())
         );
@@ -55,16 +49,13 @@ class SetInputWeightHandler implements ReactionInputSampleMutationHandler<Reacti
 
 @Dependent
 @MutationHandlerFor(ReactionInputSampleMutation.SetInputHealthHazards.class)
-class SetInputHealthHazardsHandler implements ReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputHealthHazards, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetInputHealthHazardsHandler extends ReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputHealthHazards, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputHealthHazards mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         List<DictionaryItemRef> oldValue = sample.getHealthHazards();
         sample.setHealthHazards(mutation.healthHazards());
-        return new MutationResult(mutationHelper.formatSetterSummary("input sample health hazards", mutation.healthHazards())
+        return new MutationResult(formatSetterSummary("input sample health hazards", mutation.healthHazards())
                 , null
                 , new ReactionInputSampleMutation.SetInputHealthHazards(mutation.anchor(), oldValue)
         );
@@ -73,16 +64,13 @@ class SetInputHealthHazardsHandler implements ReactionInputSampleMutationHandler
 
 @Dependent
 @MutationHandlerFor(ReactionInputSampleMutation.SetInputComment.class)
-class SetInputCommentHandler implements ReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputComment, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetInputCommentHandler extends ReactionInputSampleMutationHandler<ReactionInputSampleMutation.SetInputComment, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputComment mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         String oldValue = sample.getComment();
         sample.setComment(mutation.comment());
-        return new MutationResult(mutationHelper.formatSetterSummary("input sample comment", mutation.comment())
+        return new MutationResult(formatSetterSummary("input sample comment", mutation.comment())
                 , null
                 , new ReactionInputSampleMutation.SetInputComment(mutation.anchor(), oldValue)
         );

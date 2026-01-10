@@ -124,13 +124,10 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments, Wit
     @OneToOne(fetch = FetchType.LAZY)
     private AttachmentEntity reportForSignature;
 
-//    @Valid
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
-//    @Convert(converter = ExperimentModelConverter.class)
     @Basic(fetch = FetchType.LAZY)
     private String model;
-//    private ExperimentModel model;
 
     @Basic(fetch = FetchType.LAZY)
     private byte @Nullable [] picture;

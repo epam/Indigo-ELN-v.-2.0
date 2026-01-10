@@ -10,22 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public sealed interface ExperimentMutation extends Mutation permits
-        ExperimentMutation.CreateExperiment,
-        ExperimentMutation.EditExperimentAttributes,
-        ExperimentMutation.EditExperimentAccess,
-        ExperimentMutation.CreateExperimentAttachment,
-        ExperimentMutation.DeleteExperimentAttachment,
-        ExperimentMutation.CancelExperiment,
-        ExperimentMutation.ReopenExperiment,
-        ExperimentMutation.CompleteExperiment,
-        ExperimentMutation.SubmitExperiment,
-        ExperimentMutation.ApproveExperiment,
-        ExperimentMutation.RejectExperiment,
-        ExperimentMutation.ResubmitExperiment,
-        ExperimentMutation.Undo,
-        ExperimentMutation.Redo
-{
+public interface ExperimentMutation extends Mutation {
 
     record CreateExperiment(
             UUID templateID,

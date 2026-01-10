@@ -80,12 +80,5 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(ExperimentMutation.Undo.class),
         @JsonSubTypes.Type(ExperimentMutation.Redo.class),
 })
-public sealed interface Mutation permits
-        ReactionMutation,
-        ReactionInputMutation,
-        ReactionInputSampleMutation,
-        ReactionOutputMutation,
-        ReactionOutputSampleMutation,
-        ExperimentMutation
-{
+public interface Mutation {
 }

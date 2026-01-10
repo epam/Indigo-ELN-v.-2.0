@@ -7,16 +7,10 @@ import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import org.jspecify.annotations.Nullable;
 
-public sealed interface MutationHandler<T extends Mutation, R extends MutationRedoInfo> permits
-        ReactionMutationHandler,
-        ReactionInputMutationHandler,
-        ReactionInputSampleMutationHandler,
-        ReactionOutputMutationHandler,
-        ReactionOutputSampleMutationHandler,
-        ExperimentMutationHandler
-{
+public interface MutationHandler<T extends Mutation, R extends MutationRedoInfo> {
 
     MutationResult handle(ExperimentEntity experiment, ExperimentModel model, T mutation, @Nullable R redoInfo, MutationContext context);
 
     void initContext(ExperimentEntity experiment, T mutation, MutationContext context);
 }
+

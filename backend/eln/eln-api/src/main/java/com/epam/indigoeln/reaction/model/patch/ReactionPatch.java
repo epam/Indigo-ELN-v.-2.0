@@ -1,7 +1,7 @@
 package com.epam.indigoeln.reaction.model.patch;
 
 import com.epam.indigoeln.eln.model.STRCodeSample;
-import com.epam.indigoeln.reaction.model.Anchor;
+import com.epam.indigoeln.reaction.model.ReactionAnchor;
 import com.epam.indigoeln.reaction.model.ReactionInput;
 import com.epam.indigoeln.reaction.model.ReactionOutput;
 import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
@@ -15,7 +15,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReactionPatch {
 
-    private Patched<Anchor.Reaction, Anchor.Reaction> anchor;
+    private Patched<ReactionAnchor, ReactionAnchor> anchor;
 
     @Nullable
     private Patched<String, String> rxnfile;

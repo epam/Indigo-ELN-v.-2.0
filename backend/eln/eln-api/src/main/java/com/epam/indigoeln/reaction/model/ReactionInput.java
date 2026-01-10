@@ -21,7 +21,7 @@ import java.util.List;
 public final class ReactionInput extends ReactionRow implements ExperimentNode {
 
     @NotNull
-    private Anchor.Input anchor;
+    private InputAnchor anchor;
 
     @NotNull
     private ReactionRole role;
@@ -40,10 +40,10 @@ public final class ReactionInput extends ReactionRow implements ExperimentNode {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private boolean limiting;
 
-    public static ReactionInput create(Reaction reaction, ReactionRole role, Anchor.@Nullable Input anchor) {
+    public static ReactionInput create(Reaction reaction, ReactionRole role, @Nullable InputAnchor anchor) {
         ReactionInput row = new ReactionInput();
         row.reaction = reaction;
-        row.anchor = anchor != null ? anchor : new Anchor.Input(reaction.getModel().generateNextAnchor());
+        row.anchor = anchor != null ? anchor : reaction.getModel().generateNextAnchor(InputAnchor.class);
         row.role = role;
         return row;
     }

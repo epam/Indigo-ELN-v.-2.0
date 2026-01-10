@@ -1,11 +1,9 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
 import com.epam.indigoeln.common.util.Pair;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.reaction.model.Anchor;
+import com.epam.indigoeln.reaction.model.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -20,24 +18,24 @@ import java.util.Map;
 public interface MutationRedoInfo {
 
     record AddInput (
-            Pair<Anchor.Input, Anchor.InputSample> anchors
+            Pair<InputAnchor, InputSampleAnchor> anchors
     ) implements MutationRedoInfo {
     }
 
     record SetScheme (
-            List<Pair<Anchor.Input, Anchor.InputSample>> reactantAnchors,
-            List<Pair<Anchor.Input, Anchor.InputSample>> catalystAnchors,
-            List<Anchor.Output> productAnchors
+            List<Pair<InputAnchor, InputSampleAnchor>> reactantAnchors,
+            List<Pair<InputAnchor, InputSampleAnchor>> catalystAnchors,
+            List<OutputAnchor> productAnchors
     ) implements MutationRedoInfo {
     }
 
     record ResolveInputs (
-            Map<Anchor.Input, Anchor.InputSample> sampleAnchors
+            Map<InputAnchor, InputSampleAnchor> sampleAnchors
     ) implements MutationRedoInfo {
     }
 
     record AddOutputSample (
-            Anchor.OutputSample anchor
+            OutputSampleAnchor anchor
     ) implements MutationRedoInfo {
     }
 }

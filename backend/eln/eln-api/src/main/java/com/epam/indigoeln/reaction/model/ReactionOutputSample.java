@@ -2,21 +2,17 @@ package com.epam.indigoeln.reaction.model;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.model.NbkBatchNumber;
-import com.epam.indigoeln.eln.model.STRCodeSample;
 import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
-import com.epam.indigoeln.reaction.util.StreamUtil;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -34,7 +30,7 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     private ReactionOutput row;
 
     @NotNull
-    private Anchor.OutputSample anchor;
+    private OutputSampleAnchor anchor;
 
     @NotNull
     private NbkBatchNumber nbkBatchNumber;
@@ -104,10 +100,10 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     @Nullable
     private String structureComment;
 
-    public static ReactionOutputSample create(ReactionOutput row, String experimentName, Anchor.@Nullable OutputSample anchor) {
+    public static ReactionOutputSample create(ReactionOutput row, String experimentName, @Nullable OutputSampleAnchor anchor) {
         ReactionOutputSample sample = new ReactionOutputSample();
         sample.row = row;
-        sample.anchor = anchor != null ? anchor : new Anchor.OutputSample(row.getReaction().getModel().generateNextAnchor());
+        sample.anchor = anchor != null ? anchor : row.getReaction().getModel().generateNextAnchor(OutputSampleAnchor.class);
         sample.nbkBatchNumber = new NbkBatchNumber(experimentName, row.getReaction().getModel().generateNextNbkBatchNumber());
         return sample;
     }

@@ -14,7 +14,7 @@ import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
-import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationHandler;
+import com.epam.indigoeln.reaction.service.mutation.AbstractExperimentMutationHandler;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -31,7 +31,7 @@ import static com.epam.indigoeln.eln.model.ExperimentStatus.*;
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.CancelExperiment.class)
-class CancelExperimentHandler implements ExperimentMutationHandler<ExperimentMutation.CancelExperiment> {
+class CancelExperimentHandler extends AbstractExperimentMutationHandler<ExperimentMutation.CancelExperiment> {
 
     @Inject
     ExperimentWorkflowHelper helper;
@@ -50,7 +50,7 @@ class CancelExperimentHandler implements ExperimentMutationHandler<ExperimentMut
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.ReopenExperiment.class)
-class ReopenExperimentHandler implements ExperimentMutationHandler<ExperimentMutation.ReopenExperiment> {
+class ReopenExperimentHandler extends AbstractExperimentMutationHandler<ExperimentMutation.ReopenExperiment> {
 
     @Inject
     ExperimentWorkflowHelper helper;
@@ -70,7 +70,7 @@ class ReopenExperimentHandler implements ExperimentMutationHandler<ExperimentMut
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.CompleteExperiment.class)
-class CompleteExperimentHandler implements ExperimentMutationHandler<ExperimentMutation.CompleteExperiment> {
+class CompleteExperimentHandler extends AbstractExperimentMutationHandler<ExperimentMutation.CompleteExperiment> {
 
     @Inject
     ExperimentWorkflowHelper helper;
@@ -89,7 +89,7 @@ class CompleteExperimentHandler implements ExperimentMutationHandler<ExperimentM
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.SubmitExperiment.class)
-class SubmitExperimentHandler implements ExperimentMutationHandler<ExperimentMutation.SubmitExperiment> {
+class SubmitExperimentHandler extends AbstractExperimentMutationHandler<ExperimentMutation.SubmitExperiment> {
 
     @Inject
     ExperimentWorkflowHelper helper;
@@ -130,7 +130,7 @@ class SubmitExperimentHandler implements ExperimentMutationHandler<ExperimentMut
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.ApproveExperiment.class)
-class ApproveExperimentHandler implements ExperimentMutationHandler<ExperimentMutation.ApproveExperiment> {
+class ApproveExperimentHandler extends AbstractExperimentMutationHandler<ExperimentMutation.ApproveExperiment> {
 
     @Inject
     ExperimentWorkflowHelper helper;
@@ -149,7 +149,7 @@ class ApproveExperimentHandler implements ExperimentMutationHandler<ExperimentMu
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.RejectExperiment.class)
-class RejectExperimentHandler implements ExperimentMutationHandler<ExperimentMutation.RejectExperiment> {
+class RejectExperimentHandler extends AbstractExperimentMutationHandler<ExperimentMutation.RejectExperiment> {
 
     @Inject
     ExperimentWorkflowHelper helper;
@@ -168,7 +168,7 @@ class RejectExperimentHandler implements ExperimentMutationHandler<ExperimentMut
 
 @Dependent
 @MutationHandlerFor(ExperimentMutation.ResubmitExperiment.class)
-class ResubmitExperimentHandler implements ExperimentMutationHandler<ExperimentMutation.ResubmitExperiment> {
+class ResubmitExperimentHandler extends AbstractExperimentMutationHandler<ExperimentMutation.ResubmitExperiment> {
 
     @Inject
     ExperimentWorkflowHelper helper;

@@ -10,7 +10,6 @@ import com.epam.indigoeln.reaction.model.*;
 import com.epam.indigoeln.reaction.model.mutation.MutationContext;
 import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolUnit;
 import com.epam.indigoeln.reaction.model.units.WeightUnit;
 import com.epam.indigoeln.reaction.service.mutation.*;
@@ -24,16 +23,13 @@ import static com.epam.indigoeln.reaction.model.units.EnteredValue.userLastEnter
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.SetOutputHealthHazards.class)
-class SetOutputHealthHazardsHandler implements ReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputHealthHazards, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetOutputHealthHazardsHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputHealthHazards, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputHealthHazards mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         List<DictionaryItemRef> old = sample.getHealthHazards();
         sample.setHealthHazards(mutation.healthHazards());
-        return new MutationResult(mutationHelper.formatSetterSummary("batch health hazards", mutation.healthHazards())
+        return new MutationResult(formatSetterSummary("batch health hazards", mutation.healthHazards())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputHealthHazards(mutation.anchor(), old)
         );
@@ -42,15 +38,12 @@ class SetOutputHealthHazardsHandler implements ReactionOutputSampleMutationHandl
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.SetOutputActualMol.class)
-class SetOutputActualMolHandler implements ReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputActualMol, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetOutputActualMolHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputActualMol, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputActualMol mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
-        EnteredValueUndo<MolUnit> undo = mutationHelper.setEnteredValue(sample::getActualMol, sample::setActualMol, mutation.actualMol(), mutation.unit(), mutation.source());
-        return new MutationResult(mutationHelper.formatSetterSummary("batch actual mol", mutation.actualMol(), mutation.unit())
+        EnteredValueUndo<MolUnit> undo = setEnteredValue(sample::getActualMol, sample::setActualMol, mutation.actualMol(), mutation.unit(), mutation.source());
+        return new MutationResult(formatSetterSummary("batch actual mol", mutation.actualMol(), mutation.unit())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputActualMol(mutation.anchor(), undo.value(), undo.unit(), undo.source())
         );
@@ -59,15 +52,12 @@ class SetOutputActualMolHandler implements ReactionOutputSampleMutationHandler<R
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.SetOutputActualWeight.class)
-class SetOutputActualWeightHandler implements ReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputActualWeight, MutationRedoInfo> {
-
-    @Inject
-    MutationHelper mutationHelper;
+class SetOutputActualWeightHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.SetOutputActualWeight, MutationRedoInfo> {
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputActualWeight mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
-        EnteredValueUndo<WeightUnit> undo = mutationHelper.setEnteredValue(sample::getActualWeight, sample::setActualWeight, mutation.actualWeight(), mutation.unit(), mutation.source());
-        return new MutationResult(mutationHelper.formatSetterSummary("batch actual weight", mutation.actualWeight(), mutation.unit())
+        EnteredValueUndo<WeightUnit> undo = setEnteredValue(sample::getActualWeight, sample::setActualWeight, mutation.actualWeight(), mutation.unit(), mutation.source());
+        return new MutationResult(formatSetterSummary("batch actual weight", mutation.actualWeight(), mutation.unit())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputActualWeight(mutation.anchor(), undo.value(), undo.unit(), undo.source())
         );
@@ -76,7 +66,7 @@ class SetOutputActualWeightHandler implements ReactionOutputSampleMutationHandle
 
 @Dependent
 @MutationHandlerFor(ReactionOutputSampleMutation.RegisterSample.class)
-class RegisterSampleHandler implements ReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.RegisterSample, MutationRedoInfo> {
+class RegisterSampleHandler extends AbstractReactionOutputSampleMutationHandler<ReactionOutputSampleMutation.RegisterSample, MutationRedoInfo> {
 
     @Inject
     CompoundService compoundService;
