@@ -140,7 +140,7 @@ export class ListHeaderComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onMyEntitiesOnlyChanged(newValue: boolean) {
-    this.myEntitiesOnly = newValue
+    this.myEntitiesOnly = newValue;
     this.myEntitiesOnlyChange.emit(this.myEntitiesOnly);
   }
 }
