@@ -39,10 +39,10 @@ public final class ReactionOutput extends ReactionRow implements ExperimentNode 
     @JsonManagedReference
     private List<@Valid ReactionOutputSample> samples = List.of();
 
-    public static ReactionOutput create(Reaction reaction, ReactionOutputType type, @Nullable OutputAnchor anchor) {
+    public static ReactionOutput create(Reaction reaction, ReactionOutputType type, OutputAnchor anchor) {
         ReactionOutput row = new ReactionOutput();
         row.reaction = reaction;
-        row.anchor = anchor != null ? anchor : reaction.getModel().generateNextAnchor(OutputAnchor.class);
+        row.anchor = anchor;
         row.type = type;
         return row;
     }

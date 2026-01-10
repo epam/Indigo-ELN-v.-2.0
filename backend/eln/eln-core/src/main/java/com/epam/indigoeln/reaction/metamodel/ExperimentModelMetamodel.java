@@ -11,7 +11,6 @@ import com.epam.indigoeln.reaction.model.patch.handler2.MetamodelDiffHandler;
 public class ExperimentModelMetamodel {
 
     public static final Metamodel<ExperimentModel, ExperimentModelPatch> INSTANCE = Metamodels.createMetamodel("ACLEntry", m -> {
-        m.property("lastUsedAnchor", ExperimentModel::getLastUsedAnchor, ExperimentModel::setLastUsedAnchor, ExperimentModelPatch::getLastUsedAnchor, ExperimentModelPatch::setLastUsedAnchor);
         m.listProperty("reactions", ExperimentModel::getReactions, ExperimentModel::setReactions, ExperimentModelPatch::getReactions, ExperimentModelPatch::setReactions, new ListDiffHandler<>(Reaction::getAnchor, new MetamodelDiffHandler<>(ReactionMetamodel.INSTANCE, ReactionPatch::new)));
     });
 }

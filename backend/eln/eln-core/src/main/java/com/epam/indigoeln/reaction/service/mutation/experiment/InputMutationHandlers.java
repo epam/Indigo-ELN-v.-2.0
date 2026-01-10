@@ -52,9 +52,7 @@ class SetInputRowMolHandler extends AbstractReactionInputMutationHandler<Reactio
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputMutation.SetInputRowMol mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
-        // TODO update when multi-sample is supported
-        ReactionInputSample sample = row.getSamples().getFirst();
-        EnteredValueUndo<MolUnit> undo = setEnteredValue(sample::getMol, sample::setMol, mutation.mol(), mutation.molUnit(), mutation.source());
+        EnteredValueUndo<MolUnit> undo = setEnteredValue(row::getMol, row::setMol, mutation.mol(), mutation.molUnit(), mutation.source());
         return new MutationResult(formatSetterSummary("input mol", mutation.mol(), mutation.molUnit())
                 , null
                 , new ReactionInputMutation.SetInputRowMol(mutation.anchor(), undo.value(), undo.unit(), undo.source())

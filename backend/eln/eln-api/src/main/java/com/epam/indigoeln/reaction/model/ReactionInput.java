@@ -40,10 +40,10 @@ public final class ReactionInput extends ReactionRow implements ExperimentNode {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private boolean limiting;
 
-    public static ReactionInput create(Reaction reaction, ReactionRole role, @Nullable InputAnchor anchor) {
+    public static ReactionInput create(Reaction reaction, ReactionRole role, InputAnchor anchor) {
         ReactionInput row = new ReactionInput();
         row.reaction = reaction;
-        row.anchor = anchor != null ? anchor : reaction.getModel().generateNextAnchor(InputAnchor.class);
+        row.anchor = anchor;
         row.role = role;
         return row;
     }

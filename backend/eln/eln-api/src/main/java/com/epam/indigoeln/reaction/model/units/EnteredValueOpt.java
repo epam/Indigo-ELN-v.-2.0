@@ -29,11 +29,19 @@ public class EnteredValueOpt {
         return EnteredValueOpt.opt(EnteredValue.add(value.cast(), other));
     }
 
+    public EnteredValueOpt add(EnteredValueOpt other) {
+        return add(other.value);
+    }
+
     public EnteredValueOpt subtract(@Nullable EnteredValue<?> other) {
         if (value == null || other == null) {
             return EMPTY;
         }
         return EnteredValueOpt.opt(EnteredValue.subtract(value.cast(), other));
+    }
+
+    public EnteredValueOpt subtract(EnteredValueOpt other) {
+        return subtract(other.value);
     }
 
     public EnteredValueOpt multiply(@Nullable EnteredValue<?> by) {

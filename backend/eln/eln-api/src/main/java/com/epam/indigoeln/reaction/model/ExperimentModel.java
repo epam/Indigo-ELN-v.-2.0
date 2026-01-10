@@ -22,28 +22,8 @@ public final class ExperimentModel implements ExperimentNode {
     @JsonManagedReference
     private List<@Valid Reaction> reactions = List.of();
 
-    private Integer lastUsedAnchor = 0;
-
     @NotNull
     private Integer schemaVersion;
-
-    @SuppressWarnings("unchecked")
-    public <A extends Anchor> A generateNextAnchor(Class<A> klass) {
-        int number = ++lastUsedAnchor;
-        if (klass.equals(ReactionAnchor.class)) {
-            return (A) new ReactionAnchor(number);
-        } else if (klass.equals(InputAnchor.class)) {
-            return (A) new InputAnchor(number);
-        } else if (klass.equals(InputSampleAnchor.class)) {
-            return (A) new InputSampleAnchor(number);
-        } else if (klass.equals(OutputAnchor.class)) {
-            return (A) new OutputAnchor(number);
-        } else if (klass.equals(OutputSampleAnchor.class)) {
-            return (A) new OutputSampleAnchor(number);
-        } else {
-            throw new IllegalArgumentException(klass.getName());
-        }
-    }
 
     public int generateNextNbkBatchNumber() {
         int[] last = {0};

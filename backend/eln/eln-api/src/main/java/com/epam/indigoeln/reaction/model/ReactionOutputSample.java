@@ -100,10 +100,10 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     @Nullable
     private String structureComment;
 
-    public static ReactionOutputSample create(ReactionOutput row, String experimentName, @Nullable OutputSampleAnchor anchor) {
+    public static ReactionOutputSample create(ReactionOutput row, String experimentName, OutputSampleAnchor anchor) {
         ReactionOutputSample sample = new ReactionOutputSample();
         sample.row = row;
-        sample.anchor = anchor != null ? anchor : row.getReaction().getModel().generateNextAnchor(OutputSampleAnchor.class);
+        sample.anchor = anchor;
         sample.nbkBatchNumber = new NbkBatchNumber(experimentName, row.getReaction().getModel().generateNextNbkBatchNumber());
         return sample;
     }

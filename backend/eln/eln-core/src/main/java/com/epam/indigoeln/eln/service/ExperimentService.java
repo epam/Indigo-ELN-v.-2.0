@@ -95,7 +95,8 @@ public class ExperimentService {
         notebook.getExperiments().add(experiment);
         experiment.setProject(notebook.getProject());
         experiment.setNotebook(notebook);
-        experimentModelService.setModel(experiment, experimentModelService.createNewModel());
+        experiment.setLastUsedAnchor(0);
+        experimentModelService.setModel(experiment, experimentModelService.createNewModel(experiment));
         experiment.setRevision(0);
         experiment.setStatus(ExperimentStatus.OPEN);
         experiment.setDeleted(false);

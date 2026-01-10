@@ -15,6 +15,7 @@ CREATE TABLE Experiment (
     project_code_id UUID,
     description TEXT,
     model JSONB NOT NULL,
+    last_used_anchor INT NOT NULL,
     picture BYTEA,
     search_vector TSVECTOR,
     full_acl ACL_Entry[] NOT NULL,

@@ -77,9 +77,9 @@ public class ExperimentModelService {
     }
 
     @Valid
-    public ExperimentModel createNewModel() {
+    public ExperimentModel createNewModel(ExperimentEntity experiment) {
         ExperimentModel model = new ExperimentModel();
-        Reaction reaction = Reaction.create(model);
+        Reaction reaction = Reaction.create(model, experiment.generateNextAnchor(ReactionAnchor.class));
         model.setReactions(List.of(reaction));
         model.setSchemaVersion(ExperimentModel.SCHEMA_VERSION);
         return model;
@@ -110,7 +110,6 @@ public class ExperimentModelService {
         MutationResult result = handler.handle(experiment, model, mutation, null, context);
 
         if (model != null) {
-            validateModel(model);
             reactionCalculator.recalculate(model);
 
             boolean anyRxnfileChanged = false;
@@ -140,12 +139,9 @@ public class ExperimentModelService {
                         .toSet();
                 experiment.setReferencedCompounds(ids);
             }
+
             setModel(experiment, model);
-            Set<ConstraintViolation<ExperimentModel>> violations = validator.validate(model);
-            if (!violations.isEmpty()) {
-                log.error("Mutation {} produced invalid model:\n{}", mutation, StreamEx.of(violations).joining("\n"));
-                throw new RuntimeException("Mutation produced invalid model:\n" + StreamEx.of(violations).joining("\n"));
-            }
+            validateModel(experiment, model, mutation);
         }
 
         updateDates(experiment, userService.getCurrentUserEntity());
@@ -158,44 +154,54 @@ public class ExperimentModelService {
         return Pair.of(model, diff);
     }
 
-    private void validateModel(ExperimentModel model) {
-        // check all parent links are correct
-        for (Reaction reaction : model.getReactions()) {
-            Preconditions.checkState(reaction.getModel() == model);
-            for (ReactionInput input : reaction.getInputs()) {
-                Preconditions.checkState(input.getReaction() == reaction);
-                for (ReactionInputSample sample : input.getSamples()) {
-                    Preconditions.checkState(sample.getRow() == input);
-                }
-            }
-            for (ReactionOutput output : reaction.getOutputs()) {
-                Preconditions.checkState(output.getReaction() == reaction);
-                for (ReactionOutputSample sample : output.getSamples()) {
-                    Preconditions.checkState(sample.getRow() == output);
-                }
-            }
+    private void validateModel(ExperimentEntity experiment, ExperimentModel model, Mutation mutation) {
+        Set<ConstraintViolation<ExperimentModel>> violations = validator.validate(model);
+        if (!violations.isEmpty()) {
+            log.error("Mutation {} produced invalid model:\n{}", mutation, StreamEx.of(violations).joining("\n"));
+            throw new RuntimeException("Mutation produced invalid model:\n" + StreamEx.of(violations).joining("\n"));
         }
-        // check anchors are unique
-        Map<Integer, Integer> anchors = new HashMap<>();
-        for (Reaction reaction : model.getReactions()) {
-            anchors.merge(reaction.getAnchor().getNumber(), 1, Integer::sum);
-            for (ReactionInput input : reaction.getInputs()) {
-                anchors.merge(input.getAnchor().getNumber(), 1, Integer::sum);
-                for (ReactionInputSample sample : input.getSamples()) {
-                    anchors.merge(sample.getAnchor().getNumber(), 1, Integer::sum);
+
+        try {
+            // check all parent links are correct
+            for (Reaction reaction : model.getReactions()) {
+                Preconditions.checkState(reaction.getModel() == model);
+                for (ReactionInput input : reaction.getInputs()) {
+                    Preconditions.checkState(input.getReaction() == reaction);
+                    for (ReactionInputSample sample : input.getSamples()) {
+                        Preconditions.checkState(sample.getRow() == input);
+                    }
+                }
+                for (ReactionOutput output : reaction.getOutputs()) {
+                    Preconditions.checkState(output.getReaction() == reaction);
+                    for (ReactionOutputSample sample : output.getSamples()) {
+                        Preconditions.checkState(sample.getRow() == output);
+                    }
                 }
             }
-            for (ReactionOutput output : reaction.getOutputs()) {
-                anchors.merge(output.getAnchor().getNumber(), 1, Integer::sum);
-                for (ReactionOutputSample sample : output.getSamples()) {
-                    anchors.merge(sample.getAnchor().getNumber(), 1, Integer::sum);
+            // check anchors are unique
+            Map<Integer, Integer> anchors = new HashMap<>();
+            for (Reaction reaction : model.getReactions()) {
+                anchors.merge(reaction.getAnchor().getNumber(), 1, Integer::sum);
+                for (ReactionInput input : reaction.getInputs()) {
+                    anchors.merge(input.getAnchor().getNumber(), 1, Integer::sum);
+                    for (ReactionInputSample sample : input.getSamples()) {
+                        anchors.merge(sample.getAnchor().getNumber(), 1, Integer::sum);
+                    }
+                }
+                for (ReactionOutput output : reaction.getOutputs()) {
+                    anchors.merge(output.getAnchor().getNumber(), 1, Integer::sum);
+                    for (ReactionOutputSample sample : output.getSamples()) {
+                        anchors.merge(sample.getAnchor().getNumber(), 1, Integer::sum);
+                    }
                 }
             }
+            anchors.forEach((anchor, count) -> {
+                Preconditions.checkState(count <= 1, "Anchor %s used multiple times", anchor);
+                Preconditions.checkState(anchor <= experiment.getLastUsedAnchor());
+            });
+        } catch (Exception e) {
+            throw new RuntimeException("Mutation " + mutation + " produced invalid model: " + e.getMessage(), e);
         }
-        anchors.forEach((anchor, count) -> {
-            Preconditions.checkState(count <= 1, "Anchor %s used multiple times", anchor);
-            Preconditions.checkState(anchor <= model.getLastUsedAnchor());
-        });
     }
 
     private void addRevision(ExperimentEntity experiment, ZonedDateTime datetime, String summary, Mutation mutation, @Nullable MutationRedoInfo redoInfo, @Nullable Mutation reverseMutation, ExperimentPatch diff) {

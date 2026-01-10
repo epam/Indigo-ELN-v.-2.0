@@ -22,24 +22,24 @@ public class ExperimentModelSerializationTest {
     @Test
     void testSerialize() throws Exception {
         ExperimentModel model = new ExperimentModel();
-        Reaction reaction = Reaction.create(model);
+        Reaction reaction = Reaction.create(model, new ReactionAnchor(1));
         model.setReactions(List.of(reaction));
         reaction.setRxnfile("molFile");
 
-        ReactionInput input1 = ReactionInput.create(reaction, ReactionRole.REACTANT, null);
+        ReactionInput input1 = ReactionInput.create(reaction, ReactionRole.REACTANT, new InputAnchor(1));
         input1.setCompound(new CompoundRef.Stored(UUID.randomUUID(), EnteredValue.fixed(1.0, MolWeightUnit.G_PER_MOL), 1.1, "C", "compoundKey", null, "batchMF"));
         input1.setEq(EnteredValue.userLastEntered(10.0, NoUnit.NO_UNIT));
-        ReactionInput input2 = ReactionInput.create(reaction, ReactionRole.REACTANT, null);
+        ReactionInput input2 = ReactionInput.create(reaction, ReactionRole.REACTANT, new InputAnchor(1));
         input2.setCompound(new CompoundRef.Virtual(UUID.randomUUID(), "C", null, null, null, null, EnteredValue.fixed(1.0, MolWeightUnit.G_PER_MOL), 1.1, null, "batchMF"));
-        ReactionInput input3 = ReactionInput.create(reaction, ReactionRole.REACTANT, null);
+        ReactionInput input3 = ReactionInput.create(reaction, ReactionRole.REACTANT, new InputAnchor(1));
         input3.setCompound(new CompoundRef.Unknown());
-        ReactionInputSample inputSample1 = ReactionInputSample.create(input1, null);
+        ReactionInputSample inputSample1 = ReactionInputSample.create(input1, new InputSampleAnchor(1));
         input1.setSamples(List.of(inputSample1));
         reaction.setInputs(List.of(input1, input2, input3));
 
-        ReactionOutput output = ReactionOutput.create(reaction, ReactionOutputType.FINAL, null);
+        ReactionOutput output = ReactionOutput.create(reaction, ReactionOutputType.FINAL, new OutputAnchor(1));
         output.setCompound(new CompoundRef.Virtual(UUID.randomUUID(), "C", null, null, null, null, EnteredValue.fixed(2.0, MolWeightUnit.G_PER_MOL), 2.2, null, "batchMF"));
-        ReactionOutputSample outputSample = ReactionOutputSample.create(output, "00000000-0000", null);
+        ReactionOutputSample outputSample = ReactionOutputSample.create(output, "00000000-0000", new OutputSampleAnchor(1));
         output.setSamples(List.of(outputSample));
         reaction.setOutputs(List.of(output));
 

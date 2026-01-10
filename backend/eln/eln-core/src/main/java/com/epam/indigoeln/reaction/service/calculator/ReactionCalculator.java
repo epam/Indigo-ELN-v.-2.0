@@ -7,6 +7,7 @@ import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
+import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.BooleanSupplier;
@@ -80,16 +81,15 @@ public class ReactionCalculator {
     private boolean recalculateInputSample(ReactionInputSample sample, @Nullable EnteredValue<MolWeightUnit> molWeight) {
         return updateCycle("input sample " + sample.getAnchor(), () -> {
             boolean updated = false;
-            EnteredValueOpt mol = opt(sample.getRow().getMol());
-            for (ReactionInputSample otherSample : sample.getRow().getSamples()) {
-                if (otherSample != sample) {
-                    mol = mol.subtract(otherSample.getMol());
-                }
-            }
+            EnteredValueOpt rowMol = opt(sample.getRow().getMol());
+            EnteredValueOpt otherSamplesMol = StreamEx.of(sample.getRow().getSamples())
+                    .filter(s -> s != sample)
+                    .map(s -> EnteredValueOpt.opt(s.getMol()))
+                    .reduce(EnteredValueOpt.opt(ZERO_MOL), EnteredValueOpt::add);
             updated |= tryUpdate(
                     "inputSample.mol", sample.getMol(), sample::setMol,
                     // mol = molCompound - sum(molOtherSamples)
-                    mol,
+                    rowMol.subtract(otherSamplesMol),
                     // mol = weight * purity / molWeight
                     opt(sample.getWeight()).multiply(sample.getPurity()).divide(molWeight),
                     // mol = molarity * volume

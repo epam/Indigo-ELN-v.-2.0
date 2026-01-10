@@ -5,6 +5,7 @@ import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.entity.SampleEntity;
 import com.epam.indigoeln.compound.service.CompoundService;
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.SaltCodeInfo;
 import com.epam.indigoeln.eln.mapper.DictionaryMapper;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
@@ -133,19 +134,19 @@ public abstract class AbstractMutationHandler<T extends Mutation, R extends Muta
         return new ReactionMutation.UndoResolveInputs.RowUndo(oldCompound, oldSamples, oldChemicalName);
     }
 
-    public ReactionInput createInputLine(Reaction reaction, @Nullable IndigoMolecule molecule, ReactionRole role, @Nullable Pair<InputAnchor, InputSampleAnchor> anchors) {
-        ReactionInput row = ReactionInput.create(reaction, role, anchors != null ? anchors.a() : null);
+    public ReactionInput createInputLine(ExperimentEntity experiment, Reaction reaction, @Nullable IndigoMolecule molecule, ReactionRole role, @Nullable Pair<InputAnchor, InputSampleAnchor> anchors) {
+        ReactionInput row = ReactionInput.create(reaction, role, anchors != null ? anchors.a() : experiment.generateNextAnchor(InputAnchor.class));
         row.setCompound(molecule != null
                 ? compoundService.virtualCompoundRef(molecule, null, null, null)
                 : compoundService.unknownCompoundRef());
         row.setEq(DEFAULT_ONE);
-        ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchors != null ? anchors.b() : null);
+        ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchors != null ? anchors.b() : experiment.generateNextAnchor(InputSampleAnchor.class));
         reactionInputSample.setPurity(DEFAULT_ONE);
         row.setSamples(List.of(reactionInputSample));
         return row;
     }
 
-    public ReactionOutput createOutputLine(Reaction reaction, IndigoMolecule molecule, @Nullable OutputAnchor anchor) {
+    public ReactionOutput createOutputLine(Reaction reaction, IndigoMolecule molecule, OutputAnchor anchor) {
         ReactionOutput row = ReactionOutput.create(reaction, reaction.getFinalOutput() != null ? ReactionOutputType.BY_PRODUCT : ReactionOutputType.FINAL, anchor);
         row.setOutputName(reaction.generateNextProductName());
         row.setCompound(compoundService.virtualCompoundRef(molecule, null, null, null));

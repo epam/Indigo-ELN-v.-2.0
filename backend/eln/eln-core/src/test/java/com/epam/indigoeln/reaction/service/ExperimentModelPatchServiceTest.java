@@ -21,10 +21,10 @@ class ExperimentModelPatchServiceTest {
 
     ExperimentSnapshot baseExperiment = new ExperimentSnapshot();
     ExperimentModel baseModel = new ExperimentModel();
-    Reaction baseReaction = Reaction.create(baseModel);
+    Reaction baseReaction = Reaction.create(baseModel, new ReactionAnchor(1));
     ExperimentSnapshot experiment = new ExperimentSnapshot();
     ExperimentModel model = new ExperimentModel();
-    Reaction reaction = Reaction.create(model);
+    Reaction reaction = Reaction.create(model, new ReactionAnchor(1));
 
     @BeforeEach
     void setUp() {
@@ -42,16 +42,8 @@ class ExperimentModelPatchServiceTest {
     }
 
     @Test
-    void testAttributeChange() throws Exception {
-        model.setLastUsedAnchor(10);
-        makeAndVerifyPatch("""
-                {"model": {"lastUsedAnchor": {"$old": 1, "$new": 10}}}
-        """);
-    }
-
-    @Test
     void testReactionAdded() throws Exception {
-        Reaction reaction2 = Reaction.createWithAnchor(model, new ReactionAnchor(10));
+        Reaction reaction2 = Reaction.create(model, new ReactionAnchor(10));
         model.setReactions(List.of(reaction, reaction2));
         makeAndVerifyPatch("""
                 {"model": {"reactions": {">1": {"$new": {"anchor": "R10", "rxnVersion": 0, "inputs": [], "outputs": [], "precursorReactantIds": []}}}}}
@@ -68,7 +60,7 @@ class ExperimentModelPatchServiceTest {
 
     @Test
     void testReactionDeleted() throws Exception {
-        Reaction reaction2 = Reaction.createWithAnchor(model, new ReactionAnchor(10));
+        Reaction reaction2 = Reaction.create(model, new ReactionAnchor(10));
         baseModel.setReactions(List.of(reaction, reaction2));
         model.setReactions(List.of(reaction));
         makeAndVerifyPatch("""
@@ -78,10 +70,10 @@ class ExperimentModelPatchServiceTest {
 
     @Test
     void testReactionMovedAndChanged() throws Exception {
-        Reaction baseReaction2 = Reaction.createWithAnchor(baseModel, new ReactionAnchor(2));
-        Reaction baseReaction3 = Reaction.createWithAnchor(baseModel, new ReactionAnchor(3));
-        Reaction reaction2 = Reaction.createWithAnchor(model, new ReactionAnchor(2));
-        Reaction reaction3 = Reaction.createWithAnchor(model, new ReactionAnchor(3));
+        Reaction baseReaction2 = Reaction.create(baseModel, new ReactionAnchor(2));
+        Reaction baseReaction3 = Reaction.create(baseModel, new ReactionAnchor(3));
+        Reaction reaction2 = Reaction.create(model, new ReactionAnchor(2));
+        Reaction reaction3 = Reaction.create(model, new ReactionAnchor(3));
         reaction.setRxnfile("new");
         baseModel.setReactions(List.of(baseReaction, baseReaction2, baseReaction3));
         model.setReactions(List.of(reaction2, reaction, reaction3));

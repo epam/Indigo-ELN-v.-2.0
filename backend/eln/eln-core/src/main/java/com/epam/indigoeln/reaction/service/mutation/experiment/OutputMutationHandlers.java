@@ -19,7 +19,7 @@ class AddProductSampleHandler extends AbstractReactionOutputMutationHandler<Reac
 
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputMutation.AddProductSample mutation, MutationRedoInfo.@Nullable AddOutputSample redoInfo, MutationContext context) {
-        OutputSampleAnchor anchor = redoInfo != null ? redoInfo.anchor() : model.generateNextAnchor(OutputSampleAnchor.class);
+        OutputSampleAnchor anchor = redoInfo != null ? redoInfo.anchor() : experiment.generateNextAnchor(OutputSampleAnchor.class);
         ReactionOutputSample sample = ReactionOutputSample.create(row, experiment.getName(), anchor);
         sample.setPurity(DEFAULT_ONE);
         row.getSamples().add(sample);

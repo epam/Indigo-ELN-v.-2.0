@@ -13,8 +13,5 @@ import java.util.List;
 public class ExperimentModelPatch {
 
     @Nullable
-    private Patched<Integer, Integer> lastUsedAnchor;
-
-    @Nullable
     private Patched<List<Reaction>, ListPatch<Reaction, ReactionPatch>> reactions;
 }
