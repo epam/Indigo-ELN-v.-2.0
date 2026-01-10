@@ -24,17 +24,18 @@ public class ListPatchSerializers {
     private static final char INDEX_SEPARATOR = '>';
 
     private static SerializerUtils.ContentType detectTypeParameter(@Nullable BeanProperty property, TypeFactory typeFactory) {
-        JavaType type = SerializerUtils.findContextType(property); // type is ListPatch<P>
+        JavaType type = SerializerUtils.findContextType(property); // type is ListPatch<T, P>
         if (!type.getRawClass().equals(ListPatch.class)) {
             throw new IllegalStateException("Cannot determine value type for ListPatchSerializers");
         }
-        JavaType valueType = type.containedType(0); // valueType is P
-        valueType = typeFactory.constructParametricType(Patched.class, valueType); // valueType is Patched<P>
-        BeanProperty valueProperty = SerializerUtils.createSyntheticProperty(valueType);
-        return new SerializerUtils.ContentType(valueType, valueProperty);
+        JavaType valueType = type.containedType(0); // T
+        JavaType patchType = type.containedType(1); // P
+        JavaType resultType = typeFactory.constructParametricType(Patched.class, valueType, patchType); // Patched<T, P>
+        BeanProperty resultProperty = SerializerUtils.createSyntheticProperty(resultType);
+        return new SerializerUtils.ContentType(resultType, resultProperty);
     }
 
-    public static String keyToString(ListPatch.Item<?> item) {
+    public static String keyToString(ListPatch.Item<?, ?> item) {
         if (item.newIndex() != null && item.newIndex().equals(item.oldIndex())) {
             return item.newIndex().toString();
         }
@@ -61,7 +62,7 @@ public class ListPatchSerializers {
     }
 
     @AllArgsConstructor
-    public static class Serializer extends JsonSerializer<ListPatch<?>> implements ContextualSerializer {
+    public static class Serializer extends JsonSerializer<ListPatch<?, ?>> implements ContextualSerializer {
 
         private final JsonSerializer<Object> valueSerializer;
 
@@ -77,10 +78,10 @@ public class ListPatchSerializers {
         }
 
         @Override
-        public void serialize(ListPatch<?> container, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        public void serialize(ListPatch<?, ?> container, JsonGenerator gen, SerializerProvider serializers) throws IOException {
             gen.writeStartObject();
 
-            for (ListPatch.Item<?> item : container.getItems()) {
+            for (ListPatch.Item<?, ?> item : container.getItems()) {
                 gen.writeFieldName(keyToString(item));
                 if (item.value() != null) {
                     valueSerializer.serialize(item.value(), gen, serializers);
@@ -94,7 +95,7 @@ public class ListPatchSerializers {
     }
 
     @AllArgsConstructor
-    public static class Deserializer extends JsonDeserializer<ListPatch<?>> implements ContextualDeserializer {
+    public static class Deserializer extends JsonDeserializer<ListPatch<?, ?>> implements ContextualDeserializer {
 
         private final JsonDeserializer<Object> valueDeserializer;
 
@@ -111,12 +112,12 @@ public class ListPatchSerializers {
         }
 
         @Override
-        public ListPatch<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public ListPatch<?, ?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             if (p.currentToken() != JsonToken.START_OBJECT) {
                 ctxt.reportWrongTokenException(this, JsonToken.START_OBJECT, "Object expected");
             }
 
-            List<ListPatch.Item<?>> items = new ArrayList<>();
+            List<ListPatch.Item<?, ?>> items = new ArrayList<>();
             while (p.nextToken() != JsonToken.END_OBJECT) { // step to field key or end object
                 Pair<@Nullable Integer, @Nullable Integer> index = parseKey(p.currentName());
                 p.nextToken(); // step to field value
@@ -126,7 +127,7 @@ public class ListPatchSerializers {
                         : valueDeserializer.deserialize(p, ctxt);
 
                 //noinspection rawtypes,unchecked
-                items.add(new ListPatch.Item<Object>(index.a(), index.b(), (Patched) value));
+                items.add(new ListPatch.Item<Object, Object>(index.a(), index.b(), (Patched) value));
             }
 
             //noinspection rawtypes,unchecked

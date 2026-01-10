@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.util;
 
-import com.epam.indigoeln.reaction.metamodel.property.ListProperty;
 import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
 import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
 import com.epam.indigoeln.reaction.model.ExperimentNode;

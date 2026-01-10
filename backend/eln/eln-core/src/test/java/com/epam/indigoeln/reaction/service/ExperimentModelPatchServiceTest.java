@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ExperimentModelPatchServiceTest {
 
-    ExperimentModelService service = new ExperimentModelService();
+    ExperimentModelService service = new ExperimentModelService(FeignUtil.OBJECT_MAPPER);
 
     ExperimentSnapshot baseExperiment = new ExperimentSnapshot();
     ExperimentModel baseModel = new ExperimentModel();
@@ -54,7 +54,7 @@ class ExperimentModelPatchServiceTest {
         Reaction reaction2 = Reaction.createWithAnchor(model, new Anchor.Reaction(10));
         model.setReactions(List.of(reaction, reaction2));
         makeAndVerifyPatch("""
-                {"model": {"reactions": {">1": {"anchor": "R10", "rxnVersion": 0}}}}
+                {"model": {"reactions": {">1": {"$new": {"anchor": "R10", "rxnVersion": 0, "inputs": [], "outputs": [], "precursorReactantIds": []}}}}}
         """);
     }
 
@@ -62,15 +62,17 @@ class ExperimentModelPatchServiceTest {
     void testReactionUpdated() throws Exception {
         reaction.setRxnfile("new");
         makeAndVerifyPatch("""
-                {"model": {"reactions": {"0": {"rxnfile": "new"}}}}
+                {"model": {"reactions": {"0": {"rxnfile": {"$new": "new"}}}}}
         """);
     }
 
     @Test
     void testReactionDeleted() throws Exception {
-        model.setReactions(List.of());
+        Reaction reaction2 = Reaction.createWithAnchor(model, new Anchor.Reaction(10));
+        baseModel.setReactions(List.of(reaction, reaction2));
+        model.setReactions(List.of(reaction));
         makeAndVerifyPatch("""
-                {"model": {"reactions": {"0>": {"$old": {"anchor": "R1", "rxnVersion": 0}}}}}
+                {"model": {"reactions": {"1>": {"$old": {"anchor": "R10", "rxnVersion": 0, "inputs": [], "outputs": [], "precursorReactantIds": []}}}}}
         """);
     }
 
@@ -84,7 +86,7 @@ class ExperimentModelPatchServiceTest {
         baseModel.setReactions(List.of(baseReaction, baseReaction2, baseReaction3));
         model.setReactions(List.of(reaction2, reaction, reaction3));
         makeAndVerifyPatch("""
-                {"model": {"reactions": {"1>0": "$unchanged", "0>1": {"rxnfile": "new"}}}}
+                {"model": {"reactions": {"1>0": "$unchanged", "0>1": {"rxnfile": {"$new": "new"}}}}}
         """);
     }
 
@@ -96,7 +98,7 @@ class ExperimentModelPatchServiceTest {
         reaction.setInputs(List.of(input));
         input.setMol(EnteredValue.userLastEntered(10.0, MolUnit.MMOL));
         makeAndVerifyPatch("""
-                {"model": {"reactions": {"0": {"inputs": {"0": {"mol": {"value": 10.0, "unit": "MMOL", "source": "USER_LAST_ENTERED"}}}}}}}
+                {"model": {"reactions": {"0": {"inputs": {"0": {"mol": {"$new": {"value": 10.0, "unit": "MMOL", "source": "USER_LAST_ENTERED"}}}}}}}}
         """);
     }
 

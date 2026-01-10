@@ -95,9 +95,10 @@ public class ExperimentService {
         notebook.getExperiments().add(experiment);
         experiment.setProject(notebook.getProject());
         experiment.setNotebook(notebook);
-        experiment.setModel(experimentModelService.createNewModel());
+        experimentModelService.setModel(experiment, experimentModelService.createNewModel());
         experiment.setRevision(0);
         experiment.setStatus(ExperimentStatus.OPEN);
+        experiment.setDeleted(false);
         Mutation mutation = new ExperimentMutation.CreateExperiment(request.getTemplateID(), request.getDescription(), request.getTherapeuticArea(), request.getProjectCode());
         experimentModelService.applyMutation(experiment, mutation);
         experimentRepository.flushAndRefresh(experiment);
@@ -120,13 +121,14 @@ public class ExperimentService {
     }
 
     public ExperimentSnapshot getExperimentSnapshot(UUID experimentId) {
-        return experimentSnapshotMapper.createSnapshot(experimentRepository.load(experimentId), MutationContext.createFull(), false);
+        ExperimentEntity experiment = experimentRepository.load(experimentId);
+        return experimentSnapshotMapper.createSnapshot(experiment, MutationContext.createFull(), () -> experimentModelService.getModel(experiment));
     }
 
     public ExperimentDetailsDTO getExperimentDetails(ExperimentEntity experiment) {
         Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(experiment.getCalculatedInfo() != null ? experiment.getCalculatedInfo().getCurrentAccess() : null);
         currentPermissions.retainAll(EnumSet.of(VIEW_EXPERIMENTS, EDIT_EXPERIMENTS, MANAGE_EXPERIMENT_ACCESS, DELETE_EXPERIMENTS, SUBMIT_EXPERIMENTS));
-        return experimentMapper.entityToDetailsDTO(experiment, currentPermissions);
+        return experimentMapper.entityToDetailsDTO(experiment, experimentModelService.getModel(experiment), currentPermissions);
     }
 
     public ExperimentDetailsDTO editExperiment(UUID experimentId, ExperimentEditRequest request) {
@@ -153,23 +155,16 @@ public class ExperimentService {
         return experimentMapper.convertDetailsACLList(experiment.getFullACL());
     }
 
-    public ExperimentModel getModel(UUID experimentId) {
-        ExperimentEntity experiment = experimentRepository.get(experimentId);
-        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
-        return experiment.getModel();
-    }
-
     public ExperimentModel mutateModel(UUID experimentId, Mutation mutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
-        experimentModelService.applyMutation(experiment, mutation);
-        return experiment.getModel();
+        return experimentModelService.applyMutation(experiment, mutation).a();
     }
 
     public ExperimentPatch mutateModel2(UUID experimentId, Integer revision, Mutation mutation) {
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, EDIT_EXPERIMENTS);
-        return experimentModelService.applyMutation(experiment, mutation);
+        return experimentModelService.applyMutation(experiment, mutation).b();
     }
 
     public byte[] getExperimentPicture(UUID experimentId) {
@@ -179,9 +174,10 @@ public class ExperimentService {
     }
 
     public Response getReactionPicture(UUID experimentId, Anchor.Reaction reactionAnchor, @Nullable Integer version) {
+        // TODO generate on the fly from reaction rxnfile; shouldn't be heavyweight, because it will only be used when editing experiment, and most of the calls should be cached
         ExperimentEntity experiment = experimentRepository.get(experimentId);
         aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
-        Reaction reaction = getModel(experimentId).locate(reactionAnchor);
+        Reaction reaction = experimentModelService.getModel(experiment).locate(reactionAnchor);
         CacheControl cacheControl = new CacheControl();
         if (version != null) {
             InvalidRequestException.validate(reaction.getRxnVersion() >= version, "Picture version " + version + " doesn't exist for reaction " + reactionAnchor);
@@ -193,7 +189,9 @@ public class ExperimentService {
     }
 
     public Map<Anchor.Input, @Nullable FindSamplesRequest> analyzeRXN(UUID experimentId, Anchor.Reaction reactionAnchor) {
-        ExperimentModel model = getModel(experimentId);
+        ExperimentEntity experiment = experimentRepository.get(experimentId);
+        aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
+        ExperimentModel model = experimentModelService.getModel(experiment);
         Reaction reaction = model.locate(reactionAnchor);
         return StreamEx.of(reaction.getInputs())
                 .mapToEntry(ReactionInput::getAnchor, input -> {
@@ -219,9 +217,8 @@ public class ExperimentService {
     public ExperimentReportContent printReport(ExperimentEntity experiment) {
         ReportsAPI.ExperimentReportDataDTO data = new ReportsAPI.ExperimentReportDataDTO(
                 projectMapper.entityToDTO(experiment.getProject()),
-                experimentMapper.entityToDetailsDTO(experiment, Set.of()),
-                experiment.getPicture() != null ? new String(experiment.getPicture(), StandardCharsets.UTF_8) : null,
-                experiment.getModel()
+                experimentMapper.entityToDetailsDTO(experiment, experimentModelService.getModel(experiment), Set.of()),
+                experiment.getPicture() != null ? new String(experiment.getPicture(), StandardCharsets.UTF_8) : null
         );
         try (Response response = reportsClient.generateExperimentReport(data)) {
             String contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);

@@ -6,6 +6,8 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.InputStream;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -53,5 +55,14 @@ public class ModelUtil {
             throw new IllegalArgumentException("Resource not found: " + resourceName);
         }
         return is;
+    }
+
+    @Nullable
+    public <T> List<T> emptyToNull(@Nullable List<T> list) {
+        return list == null || list.isEmpty() ? null : list;
+    }
+
+    public boolean isNotEmpty(@Nullable Collection<?> list) {
+        return list != null && !list.isEmpty();
     }
 }

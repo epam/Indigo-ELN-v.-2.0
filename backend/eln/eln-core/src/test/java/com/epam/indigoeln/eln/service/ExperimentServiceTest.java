@@ -202,8 +202,8 @@ class ExperimentServiceTest extends ELNBaseTest {
                     assertThat(revision.getDiff()).satisfies(diff -> {
                         assertThat(diff.getAcl()).isNull();
                         assertThat(diff.getModel()).isNull();
-                        assertThat(diff.getTherapeuticArea().value()).isEqualTo(therapeuticAreas.get(1));
-                        assertThat(diff.getProjectCode().value()).isEqualTo(projectCodes.get(1));
+                        assertThat(diff.getTherapeuticArea().newValue()).isEqualTo(therapeuticAreas.get(1));
+                        assertThat(diff.getProjectCode().newValue()).isEqualTo(projectCodes.get(1));
                         assertThat(diff.getDescription()).isNull();
                     });
                 });

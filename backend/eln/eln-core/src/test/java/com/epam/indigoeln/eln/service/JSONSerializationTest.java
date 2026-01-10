@@ -3,6 +3,7 @@ package com.epam.indigoeln.eln.service;
 import com.epam.indigoeln.eln.model.ProjectEditRequest;
 import com.epam.indigoeln.eln.model.UserRef;
 import com.epam.indigoeln.reaction.model.CompoundRef;
+import com.epam.indigoeln.reaction.model.patch.CompoundRefPatch;
 import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.EnteredValueSource;
@@ -94,20 +95,17 @@ public class JSONSerializationTest {
 
     @ParameterizedTest
     @MethodSource("mappers")
-    void testSerializeCompoundRef(MapperType serializer, MapperType deserializer) throws Exception {
-        class Holder {
-
-        }
+    void testSerializeCompoundRefPatch(MapperType serializer, MapperType deserializer) {
         CompoundRef.Unknown compoundRef = new CompoundRef.Unknown();
         compoundRef.setMolWeight(EnteredValue.userLastEntered(10.0, MolWeightUnit.G_PER_MOL));
-        Patched<CompoundRef> value = Patched.verbatim(compoundRef);
-        JavaType type = getMapper(serializer).constructType(new TypeReference<Patched<CompoundRef>>() {});
-        SerializerUtils.withRootTypeForTesting(type, () -> {
+        Patched<CompoundRef, CompoundRefPatch> value = Patched.created(compoundRef);
+        JavaType type = getMapper(serializer).constructType(new TypeReference<Patched<CompoundRef, CompoundRefPatch>>() {});
+        SerializerUtils.withRootType(type, () -> {
             String serialized = getMapper(serializer).writeValueAsString(value);
             assertThat(serialized).isEqualToIgnoringWhitespace("""
-                    {"type": "UNKNOWN", "molWeight": {"value":10.0, "unit":"G_PER_MOL", "source":"USER_LAST_ENTERED"}}
+                    {"$new": {"type": "UNKNOWN", "molWeight": {"value":10.0, "unit":"G_PER_MOL", "source":"USER_LAST_ENTERED"}}}
                     """);
-            Patched<CompoundRef> value2 = getMapper(deserializer).readValue(serialized, new TypeReference<>() {});
+            Patched<CompoundRef, CompoundRefPatch> value2 = getMapper(deserializer).readValue(serialized, new TypeReference<>() {});
             assertThat(value2).isEqualTo(value);
         });
     }

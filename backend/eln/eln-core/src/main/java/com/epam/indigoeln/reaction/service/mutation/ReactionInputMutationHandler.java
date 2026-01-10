@@ -12,9 +12,9 @@ import org.jspecify.annotations.Nullable;
 public non-sealed interface ReactionInputMutationHandler<T extends ReactionInputMutation, R extends MutationRedoInfo> extends MutationHandler<T, R> {
 
     @Override
-    default MutationResult handle(ExperimentEntity experiment, T mutation, @Nullable R redoInfo, MutationContext context) {
-        ReactionInput row = experiment.getModel().locate(mutation.anchor());
-        return handle(experiment, experiment.getModel(), row.getReaction(), row, mutation, redoInfo, context);
+    default MutationResult handle(ExperimentEntity experiment, ExperimentModel model, T mutation, @Nullable R redoInfo, MutationContext context) {
+        ReactionInput row = model.locate(mutation.anchor());
+        return handle(experiment, model, row.getReaction(), row, mutation, redoInfo, context);
     }
 
     MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, T mutation, @Nullable R redoInfo, MutationContext context);

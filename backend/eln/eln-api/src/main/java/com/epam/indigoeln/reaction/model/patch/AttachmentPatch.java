@@ -13,20 +13,20 @@ import java.time.ZonedDateTime;
 public class AttachmentPatch {
 
     @Nullable
-    private Patched<UserRef> createdBy;
+    private Patched<UserRef, UserRef> createdBy;
 
     @Nullable
-    private Patched<ZonedDateTime> createdAt;
+    private Patched<ZonedDateTime, ZonedDateTime> createdAt;
 
     @Nullable
-    private Patched<UserRef> modifiedBy;
+    private Patched<UserRef, UserRef> modifiedBy;
 
     @Nullable
-    private Patched<ZonedDateTime> modifiedAt;
+    private Patched<ZonedDateTime, ZonedDateTime> modifiedAt;
 
     @Nullable
-    private Patched<String> name;
+    private Patched<String, String> name;
 
     @Nullable
-    private Patched<Long> size;
+    private Patched<Long, Long> size;
 }

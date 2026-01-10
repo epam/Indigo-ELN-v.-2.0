@@ -8,50 +8,35 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public sealed interface ModelProperty<C, T, P, PT> permits
-        EnteredValueProperty,
-        ListProperty,
-        SimpleProperty
-{
+public record ModelProperty<C, I, P, IP>(
+        String name,
+        Function<C, I> getter,
+        @Nullable BiConsumer<C, I> setter,
+        Function<P, Patched<I, IP>> patchGetter,
+        BiConsumer<P, Patched<I, IP>> patchSetter,
+        DiffHandler<I, IP> valueHandler
+) {
 
-    String name();
-
-    Function<C, T> getter();
-
-    @Nullable
-    BiConsumer<C, T> setter();
-
-    Function<P, Patched<PT>> patchGetter();
-
-    BiConsumer<P, Patched<PT>> patchSetter();
-
-    DiffHandler<T, PT> valueHandler();
-
-    @Nullable
-    default T defaultValue() {
-        return null;
-    }
-
-    default <C1, T1, P1, PT1, SELF extends ModelProperty<C1, T1, P1, PT1>> SELF cast() {
+    public <C1, T1, P1, PT1> ModelProperty<C1, T1, P1, PT1> cast() {
         //noinspection unchecked
-        return (SELF) this;
+        return (ModelProperty<C1, T1, P1, PT1>) this;
     }
 
-    default T get(C container) {
+    public I get(C container) {
         return getter().apply(container);
     }
 
-    default void set(C container, T value) {
-        BiConsumer<C, T> setter = setter();
+    public void set(C container, I value) {
+        BiConsumer<C, I> setter = setter();
         Preconditions.checkState(setter != null);
         setter.accept(container, value);
     }
 
-    default Patched<PT> patchGet(P patch) {
+    public Patched<I, IP> patchGet(P patch) {
         return patchGetter().apply(patch);
     }
 
-    default void patchSet(P patch, Patched<PT> value) {
+    public void patchSet(P patch, Patched<I, IP> value) {
         patchSetter().accept(patch, value);
     }
 }

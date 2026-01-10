@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
-public class SetDiffHandler<I, C extends Collection<I>, K, P> extends AbstractDiffHandler<C, Map<K, Patched<P>>> {
+public class SetDiffHandler<I, C extends Collection<I>, K, P> extends AbstractDiffHandler<C, Map<K, Patched<I, P>>> {
 
     private final Function<I, K> keyFn;
     private final DiffHandler<I, P> itemHandler;
@@ -18,20 +18,8 @@ public class SetDiffHandler<I, C extends Collection<I>, K, P> extends AbstractDi
     }
 
     @Override
-    protected Patched<Map<K, Patched<P>>> doDeleted(C a) {
-        //noinspection unchecked
-        return doCompare(a, (C) List.of());
-    }
-
-    @Override
-    protected Patched<Map<K, Patched<P>>> doCreated(C b) {
-        //noinspection unchecked
-        return doCompare((C) List.of(), b);
-    }
-
-    @Override
     @Nullable
-    protected Patched<Map<K, Patched<P>>> doCompare(@Nullable C a, C b) {
+    protected Patched<C, Map<K, Patched<I, P>>> doCompare(@Nullable C a, C b) {
         Map<K, Comparison<I>> map = new HashMap<>();
         for (I item : b) {
             K anchor = keyFn.apply(item);
@@ -45,14 +33,14 @@ public class SetDiffHandler<I, C extends Collection<I>, K, P> extends AbstractDi
                 c.oldItem = item;
             }
         }
-        Map<K, Patched<P>> result = new LinkedHashMap<>();
+        Map<K, Patched<I, P>> result = new LinkedHashMap<>();
         map.forEach((anchor, c) -> {
-            Patched<P> patch = itemHandler.compare(c.oldItem, c.newItem);
+            Patched<I, P> patch = itemHandler.compare(c.oldItem, c.newItem);
             if (patch != null) {
                 result.put(anchor, patch);
             }
         });
-        return !result.isEmpty() ? Patched.verbatim(result) : null;
+        return !result.isEmpty() ? Patched.updated(result) : null;
     }
 
     private static class Comparison<T> {

@@ -14,11 +14,11 @@ import java.util.Optional;
 public class EnteredValuePatch<U extends MeasurementUnit> {
 
     @Nullable
-    private Patched<Double> value;
+    private Patched<Double, Double> value;
     @Nullable
-    private Patched<U> unit;
+    private Patched<U, U> unit;
     @Nullable
-    private Patched<EnteredValueSource> source;
+    private Patched<EnteredValueSource, EnteredValueSource> source;
     @Nullable
-    private Patched<Boolean> conflict;
+    private Patched<Boolean, Boolean> conflict;
 }

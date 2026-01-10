@@ -18,6 +18,7 @@ import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR, nullValueCheckStrategy =  NullValueCheckStrategy.ALWAYS)
 public abstract class ExperimentSnapshotMapper extends AbstractMapper {
@@ -36,7 +37,7 @@ public abstract class ExperimentSnapshotMapper extends AbstractMapper {
 
     public abstract Set<ACLDetailsEntryDTO> copyACL(ACLEntry[] aclEntries);
 
-    public ExperimentSnapshot createSnapshot(ExperimentEntity experiment, MutationContext context, boolean snapshotModel) {
+    public ExperimentSnapshot createSnapshot(ExperimentEntity experiment, MutationContext context, Supplier<ExperimentModel> modelFn) {
         ExperimentSnapshot snapshot = copyBasicFields(experiment);
         if (context.isAffectsAttachments()) {
             snapshot.setAttachments(copyAttachments(experiment.getAttachments()));
@@ -45,17 +46,7 @@ public abstract class ExperimentSnapshotMapper extends AbstractMapper {
             snapshot.setAcl(copyACL(experiment.getFullACL()));
         }
         if (context.isAffectsModel()) {
-            if (snapshotModel) {
-                // TODO restore from ProtoBuf?
-                try {
-                    byte[] initialBytes = objectMapper.writeValueAsBytes(experiment.getModel());
-                    snapshot.setModel(objectMapper.readValue(initialBytes, ExperimentModel.class));
-                } catch (Exception e) {
-                    throw new RuntimeException("Failed to snapshot model: " + e.getMessage(), e);
-                }
-            } else {
-                snapshot.setModel(experiment.getModel());
-            }
+            snapshot.setModel(modelFn.get());
         }
         return snapshot;
     }

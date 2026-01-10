@@ -66,8 +66,10 @@ public class ExperimentRevisionEntity {
 
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
-    @Convert(converter = ExperimentPatchConverter.class)
-    private ExperimentPatch diff;
+//    @Convert(converter = ExperimentPatchConverter.class)
+    @Basic(fetch = FetchType.LAZY)
+//    private ExperimentPatch diff;
+    private String diff;
 
     @Embeddable
     @Data

@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
@@ -56,27 +57,33 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
     @Nullable
     private UUID sampleId;
 
-    @NotNull
-    private List<DictionaryItemRef> handlingPrecautions = List.of();
+    @Nullable
+    @Size(min = 1)
+    private List<DictionaryItemRef> handlingPrecautions;
 
-    @NotNull
-    private List<DictionaryItemRef> storageInstructions = List.of();
+    @Nullable
+    @Size(min = 1)
+    private List<DictionaryItemRef> storageInstructions;
 
-    @NotNull
-    private List<DictionaryItemRef> compoundProtection = List.of();
+    @Nullable
+    @Size(min = 1)
+    private List<DictionaryItemRef> compoundProtection;
 
-    @NotNull
-    private List<@Valid SolubidityInSolvent> solubilityInSolvents = List.of();
+    @Nullable
+    @Size(min = 1)
+    private List<@Valid SolubidityInSolvent> solubilityInSolvents;
 
-    @NotNull
-    private List<@Valid ResidualSolvent> residualSolvents = List.of();
+    @Nullable
+    @Size(min = 1)
+    private List<@Valid ResidualSolvent> residualSolvents;
 
     @Valid
     @Nullable
     private MeltingPoint meltingPoint;
 
-    @NotNull
-    private List<@Valid PurityCalculation> purityCalculations = List.of();
+    @Nullable
+    @Size(min = 1)
+    private List<@Valid PurityCalculation> purityCalculations;
 
     @Valid
     @Nullable
@@ -103,27 +110,5 @@ public final class ReactionOutputSample extends ReactionSample implements Experi
         sample.anchor = anchor != null ? anchor : new Anchor.OutputSample(row.getReaction().getModel().generateNextAnchor());
         sample.nbkBatchNumber = new NbkBatchNumber(experimentName, row.getReaction().getModel().generateNextNbkBatchNumber());
         return sample;
-    }
-
-    @Nullable
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public Double getCalculatedMolWeight() {
-        if (row == null) { // !!!
-            return null;
-        }
-        return row.getCompound().getMolWeight() != null ? row.getCompound().getMolWeight().getValue() : null;
-    }
-
-    @NotNull
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public List<STRCodeSample> getPrecursorReactantIds() {
-        if (row == null) { // !!!
-            return List.of();
-        }
-        return StreamEx.of(row.getReaction().getInputs())
-                .filter(r -> r.getRole() == ReactionRole.REACTANT)
-                .flatMap(r -> r.getSamples().stream())
-                .map(ReactionSample::getStrCode)
-                .collect(StreamUtil.toListNotNull());
     }
 }

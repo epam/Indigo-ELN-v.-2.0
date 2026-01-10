@@ -5,6 +5,7 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import com.epam.indigoeln.reaction.model.units.NoUnit;
 import com.epam.indigoeln.reaction.util.Flag;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
@@ -15,6 +16,7 @@ public class EnteredValueDiffHandler<U extends MeasurementUnit> extends Abstract
 
     private static final EnteredValueDiffHandler<NoUnit> INSTANCE = new EnteredValueDiffHandler<>(null);
 
+    @Getter
     private final EnteredValue<U> defaultValue;
 
     public static <U extends MeasurementUnit> EnteredValueDiffHandler<U> instance() {
@@ -29,13 +31,13 @@ public class EnteredValueDiffHandler<U extends MeasurementUnit> extends Abstract
 
     @Override
     @Nullable
-    protected Patched<EnteredValuePatch<U>> doCompare(@Nullable EnteredValue<U> a, EnteredValue<U> b) {
+    protected Patched<EnteredValue<U>, EnteredValuePatch<U>> doCompare(@Nullable EnteredValue<U> a, EnteredValue<U> b) {
         EnteredValuePatch<U> patch = new EnteredValuePatch<>();
         Flag updated = new Flag();
         patch.setValue(diff(updated, a, b, EnteredValue::getValue)); // !!! precision???
         patch.setUnit(diff(updated, a, b, EnteredValue::getUnit));
         patch.setSource(diff(updated, a, b, EnteredValue::getSource));
-        patch.setConflict(diff(updated, a, b, EnteredValue::isConflict, false));
-        return updated.isSet() ? Patched.verbatim(patch) : null;
+        patch.setConflict(diff(updated, a, b, EnteredValue::isConflict, DefaultDiffHandler.DEFAULT_FALSE_INSTANCE));
+        return updated.isSet() ? Patched.updated(patch) : null;
     }
 }

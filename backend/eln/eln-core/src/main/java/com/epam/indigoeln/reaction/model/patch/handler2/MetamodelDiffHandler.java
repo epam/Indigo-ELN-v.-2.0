@@ -19,11 +19,11 @@ public class MetamodelDiffHandler<T, P> extends AbstractDiffHandler<T, P> {
 
     @Override
     @Nullable
-    protected Patched<P> doCompare(@Nullable T a, T b) {
+    protected Patched<T, P> doCompare(@Nullable T a, T b) {
         P patch = patchCreator.get();
         Flag updated = new Flag();
         doCompareBase(updated, a, b, patch);
-        return updated.isSet() ? Patched.verbatim(patch) : null;
+        return updated.isSet() ? Patched.updated(patch) : null;
     }
 
     protected void doCompareBase(Flag updated, @Nullable T a, T b, P patch) {
@@ -34,7 +34,7 @@ public class MetamodelDiffHandler<T, P> extends AbstractDiffHandler<T, P> {
     }
 
     protected void doCompareProperty(Flag updated, @Nullable T a, T b, P patch, ModelProperty<T, Object, P, Object> simpleProperty) {
-        Patched<Object> diffValue = PatchUtil.diff(updated, a, b, simpleProperty.getter(), simpleProperty.defaultValue(), simpleProperty.valueHandler());
+        Patched<Object, Object> diffValue = PatchUtil.diff(updated, a, b, simpleProperty.getter(), simpleProperty.valueHandler());
         simpleProperty.patchSet(patch, diffValue);
     }
 }

@@ -1,17 +1,20 @@
 package com.epam.indigoeln.reaction.model.patch;
 
+import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
+
+import java.util.List;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ExperimentModelPatch {
 
     @Nullable
-    private Patched<Integer> lastUsedAnchor;
+    private Patched<Integer, Integer> lastUsedAnchor;
 
     @Nullable
-    private Patched<ListPatch<ReactionPatch>> reactions;
+    private Patched<List<Reaction>, ListPatch<Reaction, ReactionPatch>> reactions;
 }

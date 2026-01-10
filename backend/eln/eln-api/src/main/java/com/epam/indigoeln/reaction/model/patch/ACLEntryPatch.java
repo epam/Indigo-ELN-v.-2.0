@@ -13,14 +13,14 @@ import java.util.UUID;
 public class ACLEntryPatch {
 
     @Nullable
-    private Patched<UUID> userId;
+    private Patched<UUID, UUID> userId;
 
     @Nullable
-    private Patched<String> displayName;
+    private Patched<String, String> displayName;
 
     @Nullable
-    private Patched<AccessLevel> level;
+    private Patched<AccessLevel, AccessLevel> level;
 
     @Nullable
-    private Patched<Boolean> inherited;
+    private Patched<Boolean, Boolean> inherited;
 }

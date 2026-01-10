@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
+import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
@@ -15,6 +16,8 @@ import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
 import com.epam.indigoeln.reaction.service.mutation.MutationHelper;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.epam.indigoeln.reaction.service.mutation.ReactionOutputSampleMutationHandler;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -50,7 +53,7 @@ class SetOutputHandlingPrecautionsHandler implements ReactionOutputSampleMutatio
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputHandlingPrecautions mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         List<DictionaryItemRef> old = sample.getHandlingPrecautions();
-        sample.setHandlingPrecautions(mutation.handlingPrecautions());
+        sample.setHandlingPrecautions(ModelUtil.emptyToNull(mutation.handlingPrecautions()));
         return new MutationResult(mutationHelper.formatSetterSummary("batch handling precautions", mutation.handlingPrecautions())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputHandlingPrecautions(mutation.anchor(), old)
@@ -68,7 +71,7 @@ class SetOutputStorageInstructionsHandler implements ReactionOutputSampleMutatio
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputStorageInstructions mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         List<DictionaryItemRef> old = sample.getStorageInstructions();
-        sample.setStorageInstructions(mutation.storageInstructions());
+        sample.setStorageInstructions(ModelUtil.emptyToNull(mutation.storageInstructions()));
         return new MutationResult(mutationHelper.formatSetterSummary("batch storage instructions", mutation.storageInstructions())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputStorageInstructions(mutation.anchor(), old)
@@ -86,7 +89,7 @@ class SetOutputCompoundProtectionHandler implements ReactionOutputSampleMutation
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputCompoundProtection mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         List<DictionaryItemRef> old = sample.getCompoundProtection();
-        sample.setCompoundProtection(mutation.compoundProtection());
+        sample.setCompoundProtection(ModelUtil.emptyToNull(mutation.compoundProtection()));
         return new MutationResult(mutationHelper.formatSetterSummary("batch compound protection", mutation.compoundProtection())
                 , null
                 , new ReactionOutputSampleMutation.SetOutputCompoundProtection(mutation.anchor(), old)
@@ -104,8 +107,8 @@ class SetOutputSolubilityInSolventsHandler implements ReactionOutputSampleMutati
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputSolubilityInSolvents mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         List<SolubidityInSolvent> old = sample.getSolubilityInSolvents();
-        sample.setSolubilityInSolvents(mutation.solubilityInSolvents());
-        return new MutationResult(mutationHelper.formatSetterSummaryNoDetails("batch solubidity in solvents", !mutation.solubilityInSolvents().isEmpty())
+        sample.setSolubilityInSolvents(ModelUtil.emptyToNull(mutation.solubilityInSolvents()));
+        return new MutationResult(mutationHelper.formatSetterSummaryNoDetails("batch solubidity in solvents", ModelUtil.isNotEmpty(mutation.solubilityInSolvents()))
                 , null
                 , new ReactionOutputSampleMutation.SetOutputSolubilityInSolvents(mutation.anchor(), old)
         );
@@ -122,8 +125,8 @@ class SetOutputResidualSolventsHandler implements ReactionOutputSampleMutationHa
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputResidualSolvents mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         List<@Valid ResidualSolvent> old = sample.getResidualSolvents();
-        sample.setResidualSolvents(mutation.residualSolvents());
-        return new MutationResult(mutationHelper.formatSetterSummaryNoDetails("batch residual solvents", !mutation.residualSolvents().isEmpty())
+        sample.setResidualSolvents(ModelUtil.emptyToNull(mutation.residualSolvents()));
+        return new MutationResult(mutationHelper.formatSetterSummaryNoDetails("batch residual solvents", ModelUtil.isNotEmpty(mutation.residualSolvents()))
                 , null
                 , new ReactionOutputSampleMutation.SetOutputResidualSolvents(mutation.anchor(), old)
         );
@@ -158,8 +161,8 @@ class SetOutputPurityCalculationsHandler implements ReactionOutputSampleMutation
     @Override
     public MutationResult handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputPurityCalculations mutation, @Nullable MutationRedoInfo redoInfo, MutationContext context) {
         List<PurityCalculation> old = sample.getPurityCalculations();
-        sample.setPurityCalculations(mutation.purityCalculations());
-        return new MutationResult(mutationHelper.formatSetterSummaryNoDetails("batch purity calculations", mutation.purityCalculations().isEmpty())
+        sample.setPurityCalculations(ModelUtil.emptyToNull(mutation.purityCalculations()));
+        return new MutationResult(mutationHelper.formatSetterSummaryNoDetails("batch purity calculations", ModelUtil.isNotEmpty(mutation.purityCalculations()))
                 , null
                 , new ReactionOutputSampleMutation.SetOutputPurityCalculations(mutation.anchor(), old)
         );

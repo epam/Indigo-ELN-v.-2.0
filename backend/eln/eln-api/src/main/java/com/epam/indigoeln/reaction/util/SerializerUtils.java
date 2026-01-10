@@ -11,14 +11,15 @@ import java.util.concurrent.Callable;
 
 public class SerializerUtils {
 
-    // !!! switch to ScopedValue when upgraded to Java 25
+    // TODO switch to ScopedValue when upgraded to Java 25
 
-    // only used for testing, where we want to serialize generic value directly;
-    // in production code, generic value will typically be a property of some object, and type will be read from that property
+    // to pass the type being deserialized to deserializer in the absence of property where the type can be obtained from;
+    // used for nested generic type deserialization;
+    // also for testing, to deserialize value of generic type directly without creating holder object with generic property;
     private static final ThreadLocal<@Nullable JavaType> ROOT_TYPE = new ThreadLocal<>();
 
     @SneakyThrows
-    public static <R> R withRootTypeForTesting(JavaType type, Callable<R> block) {
+    public static <R> R withRootType(JavaType type, Callable<R> block) {
         JavaType oldType = ROOT_TYPE.get();
         try {
             ROOT_TYPE.set(type);
@@ -32,8 +33,8 @@ public class SerializerUtils {
         }
     }
 
-    public static void withRootTypeForTesting(JavaType type, ThrowingRunnable block) {
-        withRootTypeForTesting(type, block.asCallable());
+    public static void withRootType(JavaType type, ThrowingRunnable block) {
+        withRootType(type, block.asCallable());
     }
 
     public static JavaType findContextType(@Nullable BeanProperty property) {
@@ -84,6 +85,12 @@ public class SerializerUtils {
     public record ContentType (
             JavaType type,
             BeanProperty property
+    ) {
+    }
+
+    public record ValueAndPatchContentType (
+            ContentType value,
+            ContentType patch
     ) {
     }
 }

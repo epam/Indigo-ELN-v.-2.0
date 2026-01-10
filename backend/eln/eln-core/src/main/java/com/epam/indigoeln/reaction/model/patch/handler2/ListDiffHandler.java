@@ -9,11 +9,11 @@ import java.util.*;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
-public class ListDiffHandler<I, K, P> extends AbstractDiffHandler<List<I>, ListPatch<P>> {
+public class ListDiffHandler<I, K, P> extends AbstractDiffHandler<List<I>, ListPatch<I, P>> {
 
-    private static final Comparator<ListPatch.Item<?>> ITEM_COMPARATOR = Comparator
+    private static final Comparator<ListPatch.Item<?, ?>> ITEM_COMPARATOR = Comparator
             // first, deleted items (-1); second, order by newIndex
-            .comparing((ListPatch.Item<?> i) -> i.newIndex() != null ? i.newIndex() : -1)
+            .comparing((ListPatch.Item<?, ?> i) -> i.newIndex() != null ? i.newIndex() : -1)
             // for deleted items, sort by old index
             .thenComparing(i -> i.oldIndex() != null ? i.oldIndex() : -1);
 
@@ -27,17 +27,7 @@ public class ListDiffHandler<I, K, P> extends AbstractDiffHandler<List<I>, ListP
     }
 
     @Override
-    protected Patched<ListPatch<P>> doDeleted(List<I> a) {
-        return doCompare(a, List.of());
-    }
-
-    @Override
-    protected Patched<ListPatch<P>> doCreated(List<I> b) {
-        return doCompare(List.of(), b);
-    }
-
-    @Override
-    protected Patched<ListPatch<P>> doCompare(@Nullable List<I> a, List<I> b) {
+    protected Patched<List<I>, ListPatch<I, P>> doCompare(@Nullable List<I> a, List<I> b) {
         Map<K, Comparison<I>> map = new HashMap<>();
         for (int i = 0; i < b.size(); i++) {
             I item = b.get(i);
@@ -55,9 +45,9 @@ public class ListDiffHandler<I, K, P> extends AbstractDiffHandler<List<I>, ListP
                 c.oldItem = item;
             }
         }
-        List<ListPatch.Item<P>> result = new ArrayList<>(map.size() * 2);
+        List<ListPatch.Item<I, P>> result = new ArrayList<>(map.size() * 2);
         map.forEach((anchor, c) -> {
-            Patched<P> patch = itemHandler.compare(c.oldItem, c.newItem);
+            Patched<I, P> patch = itemHandler.compare(c.oldItem, c.newItem);
             if (c.newIndex != c.oldIndex || patch != null) {
                 result.add(new ListPatch.Item<>(c.oldIndex != -1 ? c.oldIndex : null, c.newIndex != -1 ? c.newIndex : null, patch));
             }
@@ -66,7 +56,7 @@ public class ListDiffHandler<I, K, P> extends AbstractDiffHandler<List<I>, ListP
             return null;
         }
         result.sort(ITEM_COMPARATOR);
-        return Patched.verbatim(new ListPatch<>(result));
+        return Patched.updated(new ListPatch<>(result));
     }
 
     private static class Comparison<I> {

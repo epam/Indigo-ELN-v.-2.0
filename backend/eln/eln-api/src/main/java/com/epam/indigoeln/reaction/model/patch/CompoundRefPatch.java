@@ -2,6 +2,7 @@ package com.epam.indigoeln.reaction.model.patch;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.reaction.model.patch.handler2.Patched;
+import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.EnteredValueSource;
 import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
 import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
@@ -20,27 +21,37 @@ import java.util.UUID;
 public class CompoundRefPatch {
 
     @Nullable
-    private Patched<Type> type;
+    private Patched<Type, Type> type;
+
     @Nullable
-    private Patched<UUID> compoundID;
+    private Patched<UUID, UUID> compoundID;
+
     @Nullable
-    private Patched<String> formula;
+    private Patched<String, String> formula;
+
     @Nullable
-    private Patched<DictionaryItemRef> stereoisomerCode;
+    private Patched<DictionaryItemRef, DictionaryItemRef> stereoisomerCode;
+
     @Nullable
-    private Patched<DictionaryItemRef> saltCode;
+    private Patched<DictionaryItemRef, DictionaryItemRef> saltCode;
+
     @Nullable
-    private Patched<Double> saltEQ;
+    private Patched<Double, Double> saltEQ;
+
     @Nullable
-    private Patched<String> compoundKey;
+    private Patched<String, String> compoundKey;
+
     @Nullable
-    private Patched<EnteredValuePatch<MolWeightUnit>> molWeight;
+    private Patched<EnteredValue<MolWeightUnit>, EnteredValuePatch<MolWeightUnit>> molWeight;
+
     @Nullable
-    private Patched<Double> exactMass;
+    private Patched<Double, Double> exactMass;
+
     @Nullable
-    private Patched<String> casNumber;
+    private Patched<String, String> casNumber;
+
     @Nullable
-    private Patched<String> calculatedBatchMF;
+    private Patched<String, String> calculatedBatchMF;
 
     public enum Type {
 

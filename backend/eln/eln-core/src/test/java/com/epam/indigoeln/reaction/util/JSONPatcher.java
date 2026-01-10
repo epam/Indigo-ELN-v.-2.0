@@ -54,27 +54,23 @@ public class JSONPatcher {
             return base;
         }
 
-        if (setPaths.containsKey(path)) { // set
-            return doRestoreSet(base, (ObjectNode) patch, path);
+        switch (patch) {
+            case ObjectNode patchObject when (patchObject.has(FIELD_OLD) || patchObject.has(FIELD_NEW)) -> { // created or deleted value
+                return patchObject.has(FIELD_NEW) ? patchObject.get(FIELD_NEW) : nodeFactory.nullNode();
+            }
+            case ObjectNode patchObject when setPaths.containsKey(path) -> { // set diff
+                return doRestoreSet(base, patchObject, path);
+            }
+            case ObjectNode patchObject when listPaths.containsKey(path) -> { // list diff
+                return doRestoreList(base, patchObject, path);
+            }
+            case ObjectNode patchObject -> { // updated object
+                return doRestoreObject(path, base, patchObject);
+            }
+            default -> {
+                throw new IllegalStateException("Unexpected patch state: base is " + base.getNodeType() + ", patch is " + patch.getNodeType());
+            }
         }
-
-        if (listPaths.containsKey(path)) { // list
-            return doRestoreList(base, (ObjectNode) patch, path);
-        }
-
-        if (patch instanceof ObjectNode patchObject && (patchObject.has(FIELD_OLD) || patchObject.has(FIELD_NEW))) { // updated or deleted simple value
-            return patchObject.has(FIELD_NEW) ? patchObject.get(FIELD_NEW) : nodeFactory.nullNode();
-        }
-
-        if (patch instanceof ObjectNode patchObject) {
-            return doRestoreObject(path, base, patchObject);
-        }
-
-        if (base.isNull() && !patch.isNull()) { // new value
-            return patch;
-        }
-
-        throw new IllegalStateException("Unexpected patch state: base is " + base.getNodeType() + ", patch is " + patch.getNodeType());
     }
 
     private ObjectNode doRestoreObject(String path, JsonNode base, ObjectNode patchObject) {
@@ -109,17 +105,11 @@ public class JSONPatcher {
         for (Map.Entry<String, JsonNode> entry : patch.properties()) {
             Integer index = keyIndices.get(entry.getKey());
             ObjectNode itemPatch = (ObjectNode) entry.getValue();
-            if (index == null) { // item inserted
-                ObjectNode newValue = nodeFactory.objectNode();
-                newValue.setAll(itemPatch);
-                newValue.set(keyProperty, nodeFactory.textNode(entry.getKey()));
-                targetArray.add(newValue);
-            } else if (itemPatch.has(FIELD_OLD)) { // item deleted
-                Preconditions.checkState(!itemPatch.has(FIELD_NEW));
-                targetArray.set(index, nodeFactory.nullNode());
-            } else {
-                JsonNode newValue = apply(targetArray.get(index), itemPatch, path + ".#");
+            JsonNode newValue = apply(index != null ? targetArray.get(index) : nodeFactory.nullNode(), itemPatch, path + ".#");
+            if (index != null) {
                 targetArray.set(index, newValue);
+            } else {
+                targetArray.add(newValue);
             }
         }
         targetArray.removeIf(JsonNode::isNull);

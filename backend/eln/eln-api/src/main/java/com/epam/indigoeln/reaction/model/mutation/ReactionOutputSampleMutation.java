@@ -5,6 +5,7 @@ import com.epam.indigoeln.reaction.model.Anchor;
 import com.epam.indigoeln.reaction.model.outputsample.*;
 import com.epam.indigoeln.reaction.model.units.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -96,31 +97,31 @@ public sealed interface ReactionOutputSampleMutation extends Mutation permits
 
     record SetOutputHandlingPrecautions (
             @NotNull Anchor.OutputSample anchor,
-            @NotNull List<DictionaryItemRef> handlingPrecautions
+            @Nullable @Size(min = 1) List<DictionaryItemRef> handlingPrecautions
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputStorageInstructions (
             @NotNull Anchor.OutputSample anchor,
-            @NotNull List<DictionaryItemRef> storageInstructions
+            @Nullable List<DictionaryItemRef> storageInstructions
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputCompoundProtection (
             @NotNull Anchor.OutputSample anchor,
-            @NotNull List<DictionaryItemRef> compoundProtection
+            @Nullable List<DictionaryItemRef> compoundProtection
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputSolubilityInSolvents (
             @NotNull Anchor.OutputSample anchor,
-            @NotNull List<SolubidityInSolvent> solubilityInSolvents
+            @Nullable List<SolubidityInSolvent> solubilityInSolvents
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputResidualSolvents (
             @NotNull Anchor.OutputSample anchor,
-            @NotNull List<ResidualSolvent> residualSolvents
+            @Nullable List<ResidualSolvent> residualSolvents
     ) implements ReactionOutputSampleMutation {
     }
 
@@ -132,7 +133,7 @@ public sealed interface ReactionOutputSampleMutation extends Mutation permits
 
     record SetOutputPurityCalculations (
             @NotNull Anchor.OutputSample anchor,
-            @NotNull List<PurityCalculation> purityCalculations
+            @Nullable List<PurityCalculation> purityCalculations
     ) implements ReactionOutputSampleMutation {
     }
 

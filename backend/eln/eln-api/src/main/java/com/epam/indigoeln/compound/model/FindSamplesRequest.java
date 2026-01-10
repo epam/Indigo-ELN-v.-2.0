@@ -2,11 +2,11 @@ package com.epam.indigoeln.compound.model;
 
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.With;
-import org.hibernate.validator.constraints.Length;
 import org.jspecify.annotations.Nullable;
 
 @Data
@@ -16,7 +16,7 @@ import org.jspecify.annotations.Nullable;
 public class FindSamplesRequest {
 
     @Nullable
-    @Length(min = 1)
+    @Size(min = 1)
     String quickSearch;
 
     @Valid

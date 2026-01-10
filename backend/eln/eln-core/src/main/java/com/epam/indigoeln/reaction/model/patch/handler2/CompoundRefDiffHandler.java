@@ -15,7 +15,7 @@ public class CompoundRefDiffHandler extends AbstractDiffHandler<CompoundRef, Com
 
     @Override
     @Nullable
-    protected Patched<CompoundRefPatch> doCompare(@Nullable CompoundRef a, CompoundRef b) {
+    protected Patched<CompoundRef, CompoundRefPatch> doCompare(@Nullable CompoundRef a, CompoundRef b) {
         CompoundRefPatch patch = new CompoundRefPatch();
         Flag updated = new Flag();
         patch.setType(diff(updated, a, b, r -> switch (r) {
@@ -29,10 +29,10 @@ public class CompoundRefDiffHandler extends AbstractDiffHandler<CompoundRef, Com
         patch.setSaltCode(diff(updated, a, b, CompoundRef::getSaltCode));
         patch.setSaltEQ(diff(updated, a, b, CompoundRef::getSaltEQ));
         patch.setCompoundKey(diff(updated, a, b, CompoundRef::getCompoundKey));
-        patch.setMolWeight(diff(updated, a, b, CompoundRef::getMolWeight, null, EnteredValueDiffHandler.instance()));
+        patch.setMolWeight(diff(updated, a, b, CompoundRef::getMolWeight, EnteredValueDiffHandler.instance()));
         patch.setExactMass(diff(updated, a, b, CompoundRef::getExactMass));
         patch.setCasNumber(diff(updated, a, b, CompoundRef::getCasNumber));
         patch.setCalculatedBatchMF(diff(updated, a, b, CompoundRef::getCalculatedBatchMF));
-        return updated.isSet() ? Patched.verbatim(patch) : null;
+        return updated.isSet() ? Patched.updated(patch) : null;
     }
 }

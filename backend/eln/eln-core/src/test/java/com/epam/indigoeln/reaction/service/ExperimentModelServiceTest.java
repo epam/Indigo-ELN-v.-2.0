@@ -180,7 +180,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(1100)
     void testRegisterSample() {
-        applyMutation(new ReactionOutputSampleMutation.RegisterSample(output2Sample1.getAnchor()));
+        applyMutation(new ReactionOutputSampleMutation.RegisterSample(output2Sample1.getAnchor()), false);
     }
 
     @Test
@@ -192,7 +192,7 @@ public class ExperimentModelServiceTest extends MutationsTestBase {
     @Test
     @Order(1102)
     void testRegisterAnotherSample() {
-        applyMutation(new ReactionOutputSampleMutation.RegisterSample(output2Sample2.getAnchor()));
+        applyMutation(new ReactionOutputSampleMutation.RegisterSample(output2Sample2.getAnchor()), false);
     }
 
 //    @Test

@@ -1,16 +1,16 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.epam.indigoeln.eln.model.STRCodeSample;
+import com.epam.indigoeln.reaction.util.StreamUtil;
+import com.fasterxml.jackson.annotation.*;
 import com.google.common.collect.Iterables;
 import com.google.common.primitives.Ints;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.hibernate.validator.constraints.Length;
+import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public final class Reaction implements ExperimentNode {
     private Anchor.Reaction anchor;
 
     @Nullable
-    @Length(min = 1)
+    @Size(min = 1)
     private String rxnfile;
 
     @NotNull
@@ -103,5 +103,15 @@ public final class Reaction implements ExperimentNode {
                 .mapToInt(Integer::valueOf)
                 .max().orElse(-1);
         return "P" + (maxUsedNumber + 1);
+    }
+
+    @NotNull
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public List<STRCodeSample> getPrecursorReactantIds() {
+        return StreamEx.of(inputs)
+                .filter(r -> r.getRole() == ReactionRole.REACTANT)
+                .flatMap(r -> r.getSamples().stream())
+                .map(ReactionSample::getStrCode)
+                .collect(StreamUtil.toListNotNull());
     }
 }

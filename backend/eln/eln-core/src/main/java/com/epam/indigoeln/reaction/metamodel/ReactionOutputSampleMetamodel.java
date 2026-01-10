@@ -35,7 +35,5 @@ class ReactionOutputSampleMetamodel {
         m.property("componentState", ReactionOutputSample::getComponentState, ReactionOutputSample::setComponentState, ReactionOutputSamplePatch::getComponentState, ReactionOutputSamplePatch::setComponentState);
         m.<@Nullable String>property("batchComment", ReactionOutputSample::getBatchComment, ReactionOutputSample::setBatchComment, ReactionOutputSamplePatch::getBatchComment, ReactionOutputSamplePatch::setBatchComment);
         m.<@Nullable String>property("structureComment", ReactionOutputSample::getStructureComment, ReactionOutputSample::setStructureComment, ReactionOutputSamplePatch::getStructureComment, ReactionOutputSamplePatch::setStructureComment);
-        m.<@Nullable Double>property("calculatedMolWeight", ReactionOutputSample::getCalculatedMolWeight, null, ReactionOutputSamplePatch::getCalculatedMolWeight, ReactionOutputSamplePatch::setCalculatedMolWeight);
-        m.property("precursorReactantIds", ReactionOutputSample::getPrecursorReactantIds, null, ReactionOutputSamplePatch::getPrecursorReactantIds, ReactionOutputSamplePatch::setPrecursorReactantIds);
     });
 }

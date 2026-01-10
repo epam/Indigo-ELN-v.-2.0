@@ -34,6 +34,7 @@ public final class ReactionInput extends ReactionRow implements ExperimentNode {
 
     @NotEmpty
     @JsonManagedReference
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<@Valid ReactionInputSample> samples = List.of();
 
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)

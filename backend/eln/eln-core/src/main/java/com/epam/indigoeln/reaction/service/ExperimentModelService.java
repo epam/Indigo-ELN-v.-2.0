@@ -11,13 +11,21 @@ import com.epam.indigoeln.eln.util.ExperimentModelUtil;
 import com.epam.indigoeln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.mutation.*;
+import com.epam.indigoeln.reaction.model.mutation.Mutation;
+import com.epam.indigoeln.reaction.model.mutation.MutationContext;
+import com.epam.indigoeln.reaction.model.mutation.MutationRedoInfo;
+import com.epam.indigoeln.reaction.model.patch.ExperimentModelPatch;
 import com.epam.indigoeln.reaction.model.patch.ExperimentPatch;
 import com.epam.indigoeln.reaction.model.patch.handler2.ExperimentDiffHandler;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
-import com.epam.indigoeln.reaction.service.mutation.*;
+import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
+import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
+import com.epam.indigoeln.reaction.service.mutation.MutationResult;
 import com.epam.indigoeln.reaction.util.StreamUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.base.Preconditions;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -25,8 +33,8 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import one.util.streamex.EntryStream;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
@@ -58,6 +66,17 @@ public class ExperimentModelService {
     ExperimentSnapshotMapper experimentSnapshotMapper;
     @Inject
     Validator validator;
+    ObjectReader modelReader;
+    ObjectWriter modelWriter;
+    ObjectReader patchReader;
+    ObjectWriter patchWriter;
+
+    ExperimentModelService(ObjectMapper objectMapper) {
+        modelReader = objectMapper.readerFor(ExperimentModel.class);
+        modelWriter = objectMapper.writerFor(ExperimentModel.class);
+        patchReader = objectMapper.readerFor(ExperimentPatch.class);
+        patchWriter = objectMapper.writerFor(ExperimentPatch.class);
+    }
 
     @Valid
     public ExperimentModel createNewModel() {
@@ -68,19 +87,20 @@ public class ExperimentModelService {
         return model;
     }
 
-    public ExperimentPatch applyMutation(ExperimentEntity experiment, Mutation mutation) {
+    @SneakyThrows // !!!
+    public Pair<ExperimentModel, ExperimentPatch> applyMutation(ExperimentEntity experiment, Mutation mutation) {
         log.debug("Mutating experiment {}: {}", experiment.getId(), mutation);
 
         MutationHandler<Mutation, MutationRedoInfo> handler = mutationHandlerRegistry.findHandler(mutation);
         MutationContext context = new MutationContext(false, false, false);
         handler.initContext(experiment, mutation, context);
 
-        ExperimentSnapshot initial = experimentSnapshotMapper.createSnapshot(experiment, context, true);
+        ExperimentSnapshot initial = experimentSnapshotMapper.createSnapshot(experiment, context, () -> getModel(experiment));
         ExperimentModel model = null;
         Set<Pair<ReactionRole, CompoundRef>> previousCompoundRefs = null;
         Map<Anchor.Reaction, @Nullable String> previousRxnFiles = null;
         if (context.isAffectsModel()) {
-            model = experiment.getModel();
+            model = getModel(experiment);
             previousCompoundRefs = ExperimentModelUtil.collectCompoundRefs(model);
             previousRxnFiles = StreamEx.of(model.getReactions())
                     .mapToEntry(Reaction::getAnchor, Reaction::getRxnfile)
@@ -89,7 +109,7 @@ public class ExperimentModelService {
             ExperimentModelUtil.prepareToRecalculate(model);
         }
 
-        MutationResult result = handler.handle(experiment, mutation, null, context);
+        MutationResult result = handler.handle(experiment, model, mutation, null, context);
 
         if (model != null) {
             validateModel(model);
@@ -122,7 +142,7 @@ public class ExperimentModelService {
                         .toSet();
                 experiment.setReferencedCompounds(ids);
             }
-            experiment.setModel(model);
+            setModel(experiment, model);
             Set<ConstraintViolation<ExperimentModel>> violations = validator.validate(model);
             if (!violations.isEmpty()) {
                 log.error("Mutation {} produced invalid model:\n{}", mutation, StreamEx.of(violations).joining("\n"));
@@ -132,12 +152,12 @@ public class ExperimentModelService {
 
         updateDates(experiment, userService.getCurrentUserEntity());
 
-        ExperimentSnapshot target = experimentSnapshotMapper.createSnapshot(experiment, context, false);
+        ExperimentSnapshot target = experimentSnapshotMapper.createSnapshot(experiment, context, () -> getModel(experiment));
         ExperimentPatch diff = createPatch(initial, target, context);
 
         addRevision(experiment, experiment.getModifiedAt(), result.summary(), mutation, result.redoInfo(), result.reverseMutation(), diff);
 
-        return diff;
+        return Pair.of(model, diff);
     }
 
     private void validateModel(ExperimentModel model) {
@@ -192,7 +212,7 @@ public class ExperimentModelService {
         revision.setMutation(mutation);
         revision.setRedoInfo(redoInfo);
         revision.setReverseMutation(reverseMutation);
-        revision.setDiff(diff);
+        setPatch(revision, diff);
         experiment.setRevision(newRevisionNo);
         experiment.getRevisions().add(revision);
         experimentRepository.persistRevision(revision);
@@ -201,6 +221,38 @@ public class ExperimentModelService {
     ExperimentPatch createPatch(ExperimentSnapshot a, ExperimentSnapshot b, MutationContext context) {
         ExperimentDiffHandler valueHandler = new ExperimentDiffHandler(context);
         //noinspection DataFlowIssue
-        return valueHandler.compare(a, b).value();
+        return valueHandler.compare(a, b).updatedValue();
+    }
+
+    public ExperimentModel getModel(ExperimentEntity experiment) {
+        try {
+            return modelReader.readValue(experiment.getModel());
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot read experiment model: " + e.getMessage(), e);
+        }
+    }
+
+    public void setModel(ExperimentEntity experiment, ExperimentModel model) {
+        try {
+            experiment.setModel(modelWriter.writeValueAsString(model));
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot write experiment model: " + e.getMessage(), e);
+        }
+    }
+
+    public ExperimentPatch getPatch(ExperimentRevisionEntity revision) {
+        try {
+            return patchReader.readValue(revision.getDiff());
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot read experiment patch: " + e.getMessage(), e);
+        }
+    }
+
+    public void setPatch(ExperimentRevisionEntity revision, ExperimentPatch patch) {
+        try {
+            revision.setDiff(patchWriter.writeValueAsString(patch));
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot write experiment patch: " + e.getMessage(), e);
+        }
     }
 }

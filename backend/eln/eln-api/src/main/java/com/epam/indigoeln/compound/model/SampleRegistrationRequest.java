@@ -8,6 +8,7 @@ import com.epam.indigoeln.reaction.model.units.EnteredValue;
 import com.epam.indigoeln.reaction.model.units.MolarityUnit;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.With;
@@ -36,6 +37,7 @@ public class SampleRegistrationRequest {
     private Double purity;
 
     @Nullable
+    @Size(min = 1)
     private List<DictionaryItemRef> healthHazards;
 
     @Nullable

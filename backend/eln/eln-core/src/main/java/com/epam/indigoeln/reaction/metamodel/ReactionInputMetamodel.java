@@ -18,7 +18,7 @@ class ReactionInputMetamodel {
         m.property("role", ReactionInput::getRole, ReactionInput::setRole, ReactionInputPatch::getRole, ReactionInputPatch::setRole);
         m.enteredValueProperty("mol", ReactionInput::getMol, ReactionInput::setMol, ReactionInputPatch::getMol, ReactionInputPatch::setMol);
         m.<@Nullable String>property("chemicalName", ReactionInput::getChemicalName, ReactionInput::setChemicalName, ReactionInputPatch::getChemicalName, ReactionInputPatch::setChemicalName);
-        m.property("limiting", ReactionInput::isLimiting, ReactionInput::setLimiting, ReactionInputPatch::getLimiting, ReactionInputPatch::setLimiting, new DefaultDiffHandler<>(false));
+        m.property("limiting", ReactionInput::isLimiting, ReactionInput::setLimiting, ReactionInputPatch::getLimiting, ReactionInputPatch::setLimiting, DefaultDiffHandler.DEFAULT_FALSE_INSTANCE);
         m.listProperty("samples", ReactionInput::getSamples, ReactionInput::setSamples, ReactionInputPatch::getSamples, ReactionInputPatch::setSamples, new ListDiffHandler<>(ReactionInputSample::getAnchor, new MetamodelDiffHandler<>(ReactionInputSampleMetamodel.INSTANCE, ReactionInputSamplePatch::new)));
     });
 }

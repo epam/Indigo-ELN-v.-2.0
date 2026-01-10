@@ -8,6 +8,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class DefaultDiffHandler<T> extends AbstractDiffHandler<T, T> {
 
+    public static final DefaultDiffHandler<Boolean> DEFAULT_FALSE_INSTANCE = new DefaultDiffHandler<>(false);
+
     private static final DefaultDiffHandler<Object> INSTANCE = new DefaultDiffHandler<>(null);
 
     @Nullable
@@ -29,13 +31,8 @@ public class DefaultDiffHandler<T> extends AbstractDiffHandler<T, T> {
     }
 
     @Override
-    protected T doVerbatim(T value) {
-        return value;
-    }
-
-    @Override
     @Nullable
-    protected Patched<T> doCompare(T a, T b) {
-        return Patched.updated(a, b);
+    protected Patched<T, T> doCompare(T a, T b) {
+        return Patched.replaced(a, b);
     }
 }

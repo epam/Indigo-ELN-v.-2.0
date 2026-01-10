@@ -29,6 +29,5 @@ public interface ReportsAPI {
         ProjectDTO project;
         ExperimentDetailsDTO experiment;
         String picture; // because it's SVG really, we can use String
-        ExperimentModel model;
     }
 }

@@ -2,11 +2,11 @@ package com.epam.indigoeln.eln.util;
 
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.reaction.metamodel.ExperimentModelMetamodel;
-import com.epam.indigoeln.reaction.metamodel.property.EnteredValueProperty;
-import com.epam.indigoeln.reaction.metamodel.property.ListProperty;
 import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
 import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
 import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.patch.EnteredValuePatch;
+import com.epam.indigoeln.reaction.model.patch.handler2.EnteredValueDiffHandler;
 import com.epam.indigoeln.reaction.model.patch.handler2.ListDiffHandler;
 import com.epam.indigoeln.reaction.model.patch.handler2.MetamodelDiffHandler;
 import com.epam.indigoeln.reaction.model.units.EnteredValue;
@@ -55,7 +55,7 @@ public class ExperimentModelUtil {
     private static Pair<Metamodel<?, ?>, List<ExperimentNode>> doGetChildren(ExperimentNode node, ModelProperty<?, ?, ?, ?> property) {
         return switch (property.valueHandler()) {
             case ListDiffHandler<?, ?, ?> listHandler -> {
-                ListProperty<ExperimentNode, ExperimentNode, Object, Object, Object> listProperty = property.cast();
+                ModelProperty<ExperimentNode, List<ExperimentNode>, Object, Object> listProperty = property.cast();
                 if (listHandler.getItemHandler() instanceof MetamodelDiffHandler<?, ?> childHandler) {
                     List<ExperimentNode> items = listProperty.getter().apply(node);
                     yield Pair.of(childHandler.getMetamodel(), items);
@@ -73,9 +73,10 @@ public class ExperimentModelUtil {
 
     public static void prepareToRecalculate(ExperimentModel model) {
         walkProperties(ExperimentModelMetamodel.INSTANCE, model, (node, property) -> {
-            if (property instanceof EnteredValueProperty<?, ?, ?>) {
-                EnteredValueProperty<ExperimentNode, MeasurementUnit, Object> enteredValueProperty = property.cast();
-                EnteredValue.prepareToRecalculate(enteredValueProperty.get(node), v -> enteredValueProperty.set(node, v), enteredValueProperty.defaultValue());
+            if (property.valueHandler() instanceof EnteredValueDiffHandler<?> handler) {
+                ModelProperty<ExperimentNode, EnteredValue<MeasurementUnit>, Object, EnteredValuePatch<MeasurementUnit>> enteredValueProperty = property.cast();
+                //noinspection unchecked
+                EnteredValue.prepareToRecalculate(enteredValueProperty.get(node), v -> enteredValueProperty.set(node, v), (EnteredValue<MeasurementUnit>) handler.getDefaultValue());
             }
         });
     }
