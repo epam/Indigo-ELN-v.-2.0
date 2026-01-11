@@ -358,6 +358,14 @@ class ProjectServiceTest extends ELNBaseTest {
         assertThat(result7.getItems()).map(ProjectDTO::getName).containsExactly(p1);
     }
 
+    @Test
+    void testAdminCanUpdateAccessForUserCreatedProject() {
+        ProjectDetailsDTO project = projectClient.createProject(new ProjectRequest("testAdminCanUpdateAccessForUserCreatedProject"));
+        withUser(ADMIN_USERNAME, () -> {
+            projectClient.updateProjectAccess(project.getId(), AccessForm.of(bartUserID, AccessLevel.EDIT));
+        });
+    }
+
     @Nested
     @JwtSecurity
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)

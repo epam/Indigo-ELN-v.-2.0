@@ -1,59 +1,59 @@
-dictionary,ordinal,name,description,active
-THERAPEUTIC_AREA,1,Obesity,,true
-THERAPEUTIC_AREA,2,Diabetes,,true
-THERAPEUTIC_AREA,3,Pulmonology,,true
-THERAPEUTIC_AREA,4,Cancer,,true
-PROJECT_CODE,1,Code 1,,true
-PROJECT_CODE,2,Code 2,,true
-PROJECT_CODE,3,Code 3,,true
-STEREOISOMER_CODE,1,NOSTC,Achiral - No Stereo Centers,true
-STEREOISOMER_CODE,2,AMESO,Achiral - Meso Stereomers,true
-STEREOISOMER_CODE,3,CISTR,Achiral - Cis/Trans Stereomers,true
-STEREOISOMER_CODE,4,SNENK,Single Enantiomer (chirality known),true
-STEREOISOMER_CODE,5,RMCMX,Racemic (stereochemistry known),true
-STEREOISOMER_CODE,6,ENENK,Enantio-Enriched (chirality known),true
-STEREOISOMER_CODE,7,DSTRK,Diastereomers (stereochemistry known),true
-STEREOISOMER_CODE,8,SNENU,Other - Single Enantiomer (chirality unknown),true
-STEREOISOMER_CODE,9,LRCMX,Other - Racemic (relative stereochemistry unknown),true
-STEREOISOMER_CODE,10,ENENU,Other - Enantio-Enriched (chirality unknown),true
-STEREOISOMER_CODE,11,DSTRU,Other - Diastereomers (relative stereochemistry unknown),true
-STEREOISOMER_CODE,12,UNKWN,Other - Unknown Stereomer/Mixture,true
-STEREOISOMER_CODE,13,HSREG,Flag for automatic stereoisomer code assignment for multi-registration,true
-STEREOISOMER_CODE,14,ACHIR,ACHIRAL,true
-STEREOISOMER_CODE,15,HOMO,HOMO-CHIRAL,true
-STEREOISOMER_CODE,16,MESO,MESO,true
-STEREOISOMER_CODE,17,RACEM,RACEMIC,true
-STEREOISOMER_CODE,18,SCALE,SCALEMIC,true
-HEALTH_HAZARD,1,Very Toxic,,true
-HEALTH_HAZARD,2,Explosive,,true
-HEALTH_HAZARD,3,Potential,,true
-HEALTH_HAZARD,4,Carcinogen,,true
-HEALTH_HAZARD,5,Corrosive - Acid,,true
-HEALTH_HAZARD,6,Mutagen,,true
-HEALTH_HAZARD,7,Flammable,,true
-HANDLING_PRECAUTIONS,1,Electrostatic,,true
-HANDLING_PRECAUTIONS,2,Hygroscopic,,true
-HANDLING_PRECAUTIONS,3,Oxidiser,,true
-HANDLING_PRECAUTIONS,4,Air Sensitive,,true
-HANDLING_PRECAUTIONS,5,Moisture Sensitive,,true
-STORAGE_INSTRUCTIONS,1,No Special Storage Required,,true
-STORAGE_INSTRUCTIONS,2,Store in Refrigerator,,true
-STORAGE_INSTRUCTIONS,3,Store Under Argon,,true
-STORAGE_INSTRUCTIONS,4,Keep tightly sealed,,true
-COMPOUND_PROTECTION,1,Compound Protection 1,,true
-COMPOUND_PROTECTION,2,Compound Protection 2,,true
-SOLVENT,1,Acetic acid,,true
-SOLVENT,2,Hydrochloric acid,,true
-SOLVENT,3,Fumaric acid,,true
-SOLVENT,4,Formaldehyde,,true
-SOLVENT,5,Sulfuric acid,,true
-EXTERNAL_SUPPLIER,1,External Supplier 1,,true
-EXTERNAL_SUPPLIER,2,External Supplier 2,,true
-SAMPLE_SOURCE,1,Sample Source 1,,true
-SAMPLE_SOURCE,2,Sample Source 2,,true
-SAMPLE_SOURCE_DETAILS,1,Sample Source Details 1,,true
-SAMPLE_SOURCE_DETAILS,2,Sample Source Details 2,,true
-COMPONENT_STATE,1,Oil,,true
-COMPONENT_STATE,2,Gas,,true
-COMPONENT_STATE,3,Solid,,true
-COMPONENT_STATE,4,Liquid,,true
+id,dictionary,ordinal,name,description,active
+956f9dc9-12af-4660-af9d-c912af366024,THERAPEUTIC_AREA,1,Obesity,,true
+19fba994-cea0-48de-bba9-94cea048de1a,THERAPEUTIC_AREA,2,Diabetes,,true
+2a408184-9803-4873-8081-849803c87369,THERAPEUTIC_AREA,3,Pulmonology,,true
+af10d9ba-31c0-457d-90d9-ba31c0357d28,THERAPEUTIC_AREA,4,Cancer,,true
+6a315dfb-830c-4ce1-b15d-fb830c9ce1cd,PROJECT_CODE,1,Code 1,,true
+b1ed07fb-cf39-448d-ad07-fbcf39848dec,PROJECT_CODE,2,Code 2,,true
+eeafb8f1-2d82-4e6d-afb8-f12d826e6d7c,PROJECT_CODE,3,Code 3,,true
+39ed9ac6-c1b5-43f7-ad9a-c6c1b503f7e2,STEREOISOMER_CODE,1,NOSTC,Achiral - No Stereo Centers,true
+a9ac9912-82de-4052-ac99-1282de705246,STEREOISOMER_CODE,2,AMESO,Achiral - Meso Stereomers,true
+e9f319c4-31cd-4a38-b319-c431cd7a3807,STEREOISOMER_CODE,3,CISTR,Achiral - Cis/Trans Stereomers,true
+9e1f0536-3712-42cd-9f05-36371292cddd,STEREOISOMER_CODE,4,SNENK,Single Enantiomer (chirality known),true
+11574422-0010-420d-9744-220010220d18,STEREOISOMER_CODE,5,RMCMX,Racemic (stereochemistry known),true
+0025baff-792e-4e0d-a5ba-ff792e4e0d37,STEREOISOMER_CODE,6,ENENK,Enantio-Enriched (chirality known),true
+67a97f31-8f7b-4db0-a97f-318f7badb09d,STEREOISOMER_CODE,7,DSTRK,Diastereomers (stereochemistry known),true
+a293b619-a511-4df7-93b6-19a511edf75a,STEREOISOMER_CODE,8,SNENU,Other - Single Enantiomer (chirality unknown),true
+d2ee1eed-f02b-4931-ae1e-edf02b793104,STEREOISOMER_CODE,9,LRCMX,Other - Racemic (relative stereochemistry unknown),true
+d99e6768-2a23-4870-9e67-682a236870ec,STEREOISOMER_CODE,10,ENENU,Other - Enantio-Enriched (chirality unknown),true
+fb0ea20a-192c-4fae-8ea2-0a192c5faed8,STEREOISOMER_CODE,11,DSTRU,Other - Diastereomers (relative stereochemistry unknown),true
+24188eb6-3f4d-404e-988e-b63f4d904e0b,STEREOISOMER_CODE,12,UNKWN,Other - Unknown Stereomer/Mixture,true
+d22cd428-2879-45f9-acd4-28287985f99f,STEREOISOMER_CODE,13,HSREG,Flag for automatic stereoisomer code assignment for multi-registration,true
+6114103f-0559-44ca-9410-3f055924ca70,STEREOISOMER_CODE,14,ACHIR,ACHIRAL,true
+0663781e-4829-4965-a378-1e48299965a0,STEREOISOMER_CODE,15,HOMO,HOMO-CHIRAL,true
+bc31a79a-4938-4957-b1a7-9a4938a957c9,STEREOISOMER_CODE,16,MESO,MESO,true
+eac61b9c-d9ad-41ab-861b-9cd9ade1ab83,STEREOISOMER_CODE,17,RACEM,RACEMIC,true
+20cdfaa5-a17b-4f16-8dfa-a5a17bdf165c,STEREOISOMER_CODE,18,SCALE,SCALEMIC,true
+e8f0be1d-85c4-4ff4-b0be-1d85c42ff498,HEALTH_HAZARD,1,Very Toxic,,true
+f106518c-183d-4dae-8651-8c183dfdae16,HEALTH_HAZARD,2,Explosive,,true
+7fac1616-3355-4051-ac16-1633559051c3,HEALTH_HAZARD,3,Potential,,true
+67da7174-dc9f-45ad-9a71-74dc9f95adb9,HEALTH_HAZARD,4,Carcinogen,,true
+e2f83539-d573-4384-b835-39d573f38437,HEALTH_HAZARD,5,Corrosive - Acid,,true
+3f6479a1-f41a-4896-a479-a1f41ac896bc,HEALTH_HAZARD,6,Mutagen,,true
+5f5c1646-2f01-4754-9c16-462f01b7540c,HEALTH_HAZARD,7,Flammable,,true
+c3bf2d1e-5af4-4e1f-bf2d-1e5af4ce1f5d,HANDLING_PRECAUTIONS,1,Electrostatic,,true
+2f3485c3-23ef-432b-b485-c323eff32baf,HANDLING_PRECAUTIONS,2,Hygroscopic,,true
+7462c394-66d3-4bb6-a2c3-9466d38bb6f4,HANDLING_PRECAUTIONS,3,Oxidiser,,true
+c1e054d8-aaaa-4bf7-a054-d8aaaa0bf752,HANDLING_PRECAUTIONS,4,Air Sensitive,,true
+17e33ab8-890a-4afe-a33a-b8890aeafe17,HANDLING_PRECAUTIONS,5,Moisture Sensitive,,true
+b2cb9b9c-88a5-41b3-8b9b-9c88a5f1b32b,STORAGE_INSTRUCTIONS,1,No Special Storage Required,,true
+593c3e0d-7923-4c14-bc3e-0d79239c14f8,STORAGE_INSTRUCTIONS,2,Store in Refrigerator,,true
+8324acb0-29f7-4579-a4ac-b029f78579f2,STORAGE_INSTRUCTIONS,3,Store Under Argon,,true
+95b9a0b2-e32a-4de1-b9a0-b2e32a0de1ad,STORAGE_INSTRUCTIONS,4,Keep tightly sealed,,true
+4eb8a431-b05a-4aa3-b8a4-31b05a9aa3ca,COMPOUND_PROTECTION,1,Compound Protection 1,,true
+55b09bc9-2442-4c5f-b09b-c924426c5f78,COMPOUND_PROTECTION,2,Compound Protection 2,,true
+8041e6ed-c302-40e2-81e6-edc30220e2ea,SOLVENT,1,Acetic acid,,true
+ceaeb0a3-db23-4daf-aeb0-a3db23fdaf8e,SOLVENT,2,Hydrochloric acid,,true
+e419f8e2-23fb-4a69-99f8-e223fb4a69ca,SOLVENT,3,Fumaric acid,,true
+9e18436a-36ec-46ea-9843-6a36ec36eac7,SOLVENT,4,Formaldehyde,,true
+b48bcd85-52fb-42c3-8bcd-8552fbd2c3b0,SOLVENT,5,Sulfuric acid,,true
+7094c7f0-74ae-4d3b-94c7-f074ae7d3bca,EXTERNAL_SUPPLIER,1,External Supplier 1,,true
+021ed744-97e9-46d3-9ed7-4497e976d3a0,EXTERNAL_SUPPLIER,2,External Supplier 2,,true
+66f1276f-a820-49af-b127-6fa82039af86,SAMPLE_SOURCE,1,Sample Source 1,,true
+8dd933f9-f0ea-4024-9933-f9f0ea40243c,SAMPLE_SOURCE,2,Sample Source 2,,true
+d4017baa-bc9f-492a-817b-aabc9f892a95,SAMPLE_SOURCE_DETAILS,1,Sample Source Details 1,,true
+81de8b5d-7d7e-4627-9e8b-5d7d7e8627e1,SAMPLE_SOURCE_DETAILS,2,Sample Source Details 2,,true
+ad5db380-f6b5-4690-9db3-80f6b5169016,COMPONENT_STATE,1,Oil,,true
+838f90ad-0515-44e3-8f90-ad051554e3ae,COMPONENT_STATE,2,Gas,,true
+7f6921c7-d1fb-4645-a921-c7d1fbc64524,COMPONENT_STATE,3,Solid,,true
+309e51e5-cdd1-4f07-9e51-e5cdd15f074a,COMPONENT_STATE,4,Liquid,,true

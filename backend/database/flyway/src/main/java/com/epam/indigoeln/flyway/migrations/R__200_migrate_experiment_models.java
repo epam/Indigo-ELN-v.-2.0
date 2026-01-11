@@ -21,7 +21,7 @@ public class R__200_migrate_experiment_models extends BaseJavaMigration {
     public void migrate(Context context) throws Exception {
         try (
                 Statement stList = context.getConnection().createStatement();
-                ResultSet rsList = stList.executeQuery("SELECT id, model FROM Experiment WHERE model->'schemaVersion'::INT < " + TARGET_SCHEMA_VERSION);
+                ResultSet rsList = stList.executeQuery("SELECT id, model FROM Experiment WHERE (model->'schemaVersion')::INT < " + TARGET_SCHEMA_VERSION);
                 PreparedStatement stUpdate = context.getConnection().prepareStatement("UPDATE Experiment SET model = ?::JSONB WHERE id = ?")
         ) {
             while (rsList.next()) {
