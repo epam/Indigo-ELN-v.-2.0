@@ -5,6 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.output.MigrateResult;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -35,6 +36,14 @@ public class SupportService {
     AttachmentService attachmentService;
 
     private final Random random = new Random();
+
+    public Map<String, String> migrate() {
+        MigrateResult result = flyway.migrate();
+        return Map.of(
+                "migrations executed", Integer.toString(result.migrationsExecuted),
+                "total time", Long.toString(result.getTotalMigrationTime())
+        );
+    }
 
     @Transactional
     public Map<String, String> insertTestData() {

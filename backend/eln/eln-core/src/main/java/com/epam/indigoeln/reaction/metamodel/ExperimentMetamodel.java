@@ -14,7 +14,6 @@ import com.epam.indigoeln.reaction.model.patch.handler2.SetDiffHandler;
 public class ExperimentMetamodel {
 
     public static final Metamodel<ExperimentSnapshot, ExperimentPatch> INSTANCE = Metamodels.createMetamodel("Experiment", m -> {
-        m.property("revision", ExperimentSnapshot::getRevision, ExperimentSnapshot::setRevision, ExperimentPatch::getRevision, ExperimentPatch::setRevision);
         m.property("status", ExperimentSnapshot::getStatus, ExperimentSnapshot::setStatus, ExperimentPatch::getStatus, ExperimentPatch::setStatus);
         m.property("therapeuticArea", ExperimentSnapshot::getTherapeuticArea, ExperimentSnapshot::setTherapeuticArea, ExperimentPatch::getTherapeuticArea, ExperimentPatch::setTherapeuticArea);
         m.property("projectCode", ExperimentSnapshot::getProjectCode, ExperimentSnapshot::setProjectCode, ExperimentPatch::getProjectCode, ExperimentPatch::setProjectCode);

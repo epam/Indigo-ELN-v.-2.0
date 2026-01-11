@@ -85,7 +85,7 @@ public abstract class ELNBaseTest extends BaseTest {
 
     @BeforeAll
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
-    void setupAllBase() throws Exception {
+    void setupAllBase() {
         projectClient = buildClient(ProjectClient.class);
         notebookClient = buildClient(NotebookClient.class);
         experimentClient = buildClient(ExperimentClient.class);
@@ -103,6 +103,8 @@ public abstract class ELNBaseTest extends BaseTest {
             mockReportsClient = Mockito.mock(ReportsClient.class);
             QuarkusMock.installMockForType(mockReportsClient, ReportsClient.class, RestClient.LITERAL);
         }
+        miscClient.migrate();
+        createBasicTestData();
         cleanupDatabase();
     }
 
@@ -119,8 +121,6 @@ public abstract class ELNBaseTest extends BaseTest {
 
     protected void cleanupDatabase() {
         testSupportClient.cleanupDatabase();
-        miscClient.migrate();
-        createBasicTestData();
     }
 
     private void createBasicTestData() {

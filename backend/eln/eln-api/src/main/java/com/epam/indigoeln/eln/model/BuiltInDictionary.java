@@ -24,8 +24,6 @@ public enum BuiltInDictionary {
     SAMPLE_SOURCE(UUID.fromString("97a40780-2ab8-4de5-875a-afb4bc609910"), true),
     SAMPLE_SOURCE_DETAILS(UUID.fromString("a7b70b90-dc18-452c-a06b-887869c7c95d"), true),
     COMPONENT_STATE(UUID.fromString("e7bbdfa7-c495-4f8b-a384-e7f5ffd42dc5"), false),
-
-    TEST(UUID.fromString("19c2ffe7-4ab8-4e4b-ba29-c291d1442b63"), false), // only for tests, not used in the application
     ;
 
     private final UUID id;

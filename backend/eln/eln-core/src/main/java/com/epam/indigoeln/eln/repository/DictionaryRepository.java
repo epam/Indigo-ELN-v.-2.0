@@ -25,6 +25,6 @@ public class DictionaryRepository extends BaseRepository<DictionaryEntity> {
     }
 
     public List<DictionaryDTO> list() {
-        return doFind(new Conditions(), Paging.ALL, SORT_NAME, null, dictionaryMapper::dictionaryToDTO);
+        return doFind(new Conditions().add("not deleted"), Paging.ALL, SORT_NAME, null, dictionaryMapper::dictionaryToDTO);
     }
 }

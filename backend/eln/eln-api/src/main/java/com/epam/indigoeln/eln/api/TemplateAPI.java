@@ -30,4 +30,8 @@ public interface TemplateAPI extends BaseAPI {
     @PATCH
     @Path("/templates/{templateId}")
     TemplateDetailsDTO editTemplate(@PathParam("templateId") UUID templateId, TemplateEditRequest request);
+
+    @DELETE
+    @Path("/templates/{templateId}")
+    void deleteTemplate(@PathParam("templateId") UUID templateId);
 }

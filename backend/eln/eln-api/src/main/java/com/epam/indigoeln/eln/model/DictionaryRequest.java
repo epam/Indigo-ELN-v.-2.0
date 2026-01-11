@@ -1,15 +1,15 @@
 package com.epam.indigoeln.eln.model;
 
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DictionaryDTO extends BaseDTO {
+public class DictionaryRequest {
 
     @NotEmpty
     private String code;
@@ -17,14 +17,9 @@ public class DictionaryDTO extends BaseDTO {
     @NotEmpty
     private String name;
 
-    @NotNull
+    @NotEmpty
     private Boolean userEditable;
 
-    @NotEmpty
+    @Nullable
     private String description;
-
-    @Override
-    public String toString() {
-        return name;
-    }
 }

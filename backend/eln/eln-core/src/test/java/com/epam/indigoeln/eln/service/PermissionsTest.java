@@ -79,16 +79,23 @@ class PermissionsTest extends ELNBaseTest {
     }
 
     @BeforeAll
-    @Transactional
     void setupAll() {
         cleanupDatabase();
+    }
+
+    @AfterAll
+    void tearDownAll() {
+        //noinspection ConstantValue
+        if (template != null) {
+            templateClient.deleteTemplate(template.getId());
+        }
     }
 
     @Test
     @Order(-100)
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     void insertTestData(@TempDir Path tempDir) {
-        template = templateClient.createTemplate(new TemplateRequest("template", templateTabs));
+        template = templateClient.createTemplate(new TemplateRequest("PermissionsTest", templateTabs));
         therapeuticArea = dictionaryClient.getDictionary(BuiltInDictionary.THERAPEUTIC_AREA).getFirst();
         for (TestRow row : rows) {
             row.projectId = projectClient.createProject(new ProjectRequest("project" + row.testId)).getId();
@@ -394,14 +401,19 @@ class PermissionsTest extends ELNBaseTest {
     @Transactional
     @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
     void testAdminCanManageDictionaries() {
-        List<DictionaryItemDTO> items = dictionaryClient.addDictionaryItem(BuiltInDictionary.TEST, new DictionaryItemRequest("A", "Adescription"));
-        dictionaryClient.updateDictionaryItem(BuiltInDictionary.TEST, items.getFirst().getId(), new DictionaryItemEditRequest(
-                Optional.of("Anew"),
-                Optional.of("AdescriptionNew"),
-                Optional.of(1),
-                Optional.of(false)
-        ));
-//        dictionaryClient.removeDictionaryItem(BuiltInDictionary.TEST, items.getFirst().getId()); // TODO
+        DictionaryDTO dictionary = dictionaryClient.createDictionary(new DictionaryRequest("TEST", "Test", false, null));
+        try {
+            List<DictionaryItemDTO> items = dictionaryClient.addDictionaryItem(dictionary.getId().toString(), new DictionaryItemRequest("A", "Adescription"));
+            dictionaryClient.updateDictionaryItem(dictionary.getId().toString(), items.getFirst().getId(), new DictionaryItemEditRequest(
+                    Optional.of("Anew"),
+                    Optional.of("AdescriptionNew"),
+                    Optional.of(1),
+                    Optional.of(false)
+            ));
+            dictionaryClient.removeDictionaryItem(dictionary.getId().toString(), items.getFirst().getId());
+        } finally {
+            dictionaryClient.removeDictionary(dictionary.getId().toString());
+        }
     }
 
     @Test
@@ -409,12 +421,19 @@ class PermissionsTest extends ELNBaseTest {
     @Transactional
     @TestSecurity(user = BART_USERNAME)
     void testNotAdminCannotManageDictionaries() {
-        assertThatClientCall(() -> dictionaryClient.addDictionaryItem(BuiltInDictionary.TEST, new DictionaryItemRequest("A", "Adescription")))
+        assertThatClientCall(() -> dictionaryClient.createDictionary(new DictionaryRequest("TEST", "Test", false, null)))
                 .isForbidden("Operation not permitted");
-        assertThatClientCall(() -> dictionaryClient.updateDictionaryItem(BuiltInDictionary.TEST, UUID.randomUUID(), new DictionaryItemEditRequest(null, null, null, null)))
+        assertThatClientCall(() -> dictionaryClient.updateDictionary(BuiltInDictionary.SAMPLE_SOURCE.name(), new DictionaryEditRequest(Optional.of("TEST1"), null, null, null)))
                 .isForbidden("Operation not permitted");
-//        assertThatClientCall(() -> dictionaryClient.removeDictionaryItem(BuiltInDictionary.TEST, UUID.randomUUID()))
-//                .isForbidden("Operation not permitted"); // TODO
+        assertThatClientCall(() -> dictionaryClient.removeDictionary(BuiltInDictionary.SAMPLE_SOURCE.name()))
+                .isForbidden("Operation not permitted");
+
+        assertThatClientCall(() -> dictionaryClient.addDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, new DictionaryItemRequest("A", "Adescription")))
+                .isForbidden("Operation not permitted");
+        assertThatClientCall(() -> dictionaryClient.updateDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, UUID.randomUUID(), new DictionaryItemEditRequest(null, null, null, null)))
+                .isForbidden("Operation not permitted");
+        assertThatClientCall(() -> dictionaryClient.removeDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, UUID.randomUUID()))
+                .isForbidden("Operation not permitted"); // TODO
     }
 
     @Nested

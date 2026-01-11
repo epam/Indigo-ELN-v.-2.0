@@ -18,9 +18,6 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ExperimentPatch {
 
-    // !!! remove revision when writing to audit log tables, because revision is already a table field
-    private Patched<Integer, Integer> revision;
-
     @Nullable
     private Patched<ExperimentStatus, ExperimentStatus> status;
 

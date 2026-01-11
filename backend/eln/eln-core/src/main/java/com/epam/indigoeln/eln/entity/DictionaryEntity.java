@@ -9,6 +9,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.jspecify.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -30,6 +31,9 @@ public class DictionaryEntity extends BaseEntity {
     private Boolean userEditable;
 
     @NotNull
+    private Boolean deleted;
+
+    @NotNull
     @OneToMany(mappedBy = "dictionary")
-    private Set<DictionaryItemEntity> items;
+    private Set<DictionaryItemEntity> items = new HashSet<>(0);
 }

@@ -5,8 +5,10 @@ import com.epam.indigoeln.eln.model.*;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.JwtSecurity;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,10 +25,19 @@ class TemplateServiceTest extends ELNBaseTest {
     List<TemplateComponent> components_2 = List.of(new TemplateComponent.Batches(), new TemplateComponent.PreferredCompoundsDetails());
 
     List<TemplateTab> templateTabs = List.of(new TemplateTab("tabName", components_1), new TemplateTab("tabName2", components_2));
+    List<TemplateDetailsDTO> templatesToRemove = new ArrayList<>();
+
+    @AfterAll
+    void tearDownClass() {
+        for (TemplateDetailsDTO template : templatesToRemove) {
+            templateClient.deleteTemplate(template.getId());
+        }
+    }
 
     @Test
     void testCreateTemplateWithNullRequestValidation() {
-        assertThatClientCall(() -> templateClient.createTemplate(new TemplateRequest(null, List.of())))
+        //noinspection DataFlowIssue
+        assertThatClientCall(() -> createTemplate(new TemplateRequest(null, List.of())))
                 .isBadRequest("must not be empty");
     }
 
@@ -35,7 +46,7 @@ class TemplateServiceTest extends ELNBaseTest {
         List<TemplateTab> validTabs = List.of(new TemplateTab("ValidTab", components_1));
         TemplateRequest invalidRequest = new TemplateRequest("", validTabs);
 
-        assertThatClientCall(() -> templateClient.createTemplate(invalidRequest))
+        assertThatClientCall(() -> createTemplate(invalidRequest))
                 .isBadRequest("must not be empty");
     }
 
@@ -43,7 +54,7 @@ class TemplateServiceTest extends ELNBaseTest {
     void testCreateTemplateWithEmptyTabListValidation() {
         TemplateRequest invalidRequest = new TemplateRequest("EmptyTabsTemplate", List.of());
 
-        assertThatClientCall(() -> templateClient.createTemplate(invalidRequest))
+        assertThatClientCall(() -> createTemplate(invalidRequest))
                 .isBadRequest("must not be empty");
     }
 
@@ -52,7 +63,7 @@ class TemplateServiceTest extends ELNBaseTest {
         List<TemplateTab> invalidTabs = List.of(new TemplateTab("EmptyTab", List.of()));
         TemplateRequest invalidRequest = new TemplateRequest("NoComponentsTemplate", invalidTabs);
 
-        assertThatClientCall(() -> templateClient.createTemplate(invalidRequest))
+        assertThatClientCall(() -> createTemplate(invalidRequest))
                 .isBadRequest("must not be empty");
     }
 
@@ -61,15 +72,15 @@ class TemplateServiceTest extends ELNBaseTest {
         List<TemplateTab> invalidTabs = List.of(new TemplateTab("", components_1));
         TemplateRequest invalidRequest = new TemplateRequest("InvalidTabNameTemplate", invalidTabs);
 
-        assertThatClientCall(() -> templateClient.createTemplate(invalidRequest))
+        assertThatClientCall(() -> createTemplate(invalidRequest))
                 .isBadRequest("must not be empty");
     }
 
     @Test
     void testCreateTemplateWithDuplicateNameValidation() {
-        templateClient.createTemplate(new TemplateRequest("DuplicateTemplateName", templateTabs));
+        createTemplate(new TemplateRequest("DuplicateTemplateName", templateTabs));
 
-        assertThatClientCall(() -> templateClient.createTemplate(new TemplateRequest("DuplicateTemplateName", templateTabs)))
+        assertThatClientCall(() -> createTemplate(new TemplateRequest("DuplicateTemplateName", templateTabs)))
                 .isBadRequest("Template with name 'DuplicateTemplateName' already exists.");
     }
 
@@ -79,13 +90,13 @@ class TemplateServiceTest extends ELNBaseTest {
         List<TemplateTab> invalidTabs = List.of(new TemplateTab("TabWithDuplicates", List.of(duplicateComponent, duplicateComponent)));
         TemplateRequest invalidRequest = new TemplateRequest("DuplicateComponentsTemplate", invalidTabs);
 
-        assertThatClientCall(() -> templateClient.createTemplate(invalidRequest))
+        assertThatClientCall(() -> createTemplate(invalidRequest))
                 .isBadRequest("This component has already been added to the tab.");
     }
 
     @Test
     void testCreateTemplate() {
-        TemplateDetailsDTO template = templateClient.createTemplate(new TemplateRequest("testCreateTemplate", templateTabs));
+        TemplateDetailsDTO template = createTemplate(new TemplateRequest("testCreateTemplate", templateTabs));
         assertThat(template.getId()).isNotNull();
         assertThat(template.getName()).isEqualTo("testCreateTemplate");
         assertThat(template.getCreatedBy().getDisplayName()).isEqualTo(LISA_DISPLAY_NAME);
@@ -96,14 +107,14 @@ class TemplateServiceTest extends ELNBaseTest {
 
     @Test
     void testGetTemplate() {
-        TemplateDetailsDTO createdTemplate = templateClient.createTemplate(new TemplateRequest("testGetTemplate", templateTabs));
+        TemplateDetailsDTO createdTemplate = createTemplate(new TemplateRequest("testGetTemplate", templateTabs));
         TemplateDetailsDTO loadedTemplate = templateClient.getTemplate(createdTemplate.getId());
         assertThat(loadedTemplate).usingRecursiveComparison().isEqualTo(createdTemplate);
     }
 
     @Test
     void testGetTemplates() {
-        templateClient.createTemplate(new TemplateRequest("testGetTemplates", templateTabs));
+        createTemplate(new TemplateRequest("testGetTemplates", templateTabs));
         Page<TemplateDTO> templates = templateClient.getTemplates(Paging.DEFAULT);
         assertThat(templates.getItems()).first().satisfies(template -> {
             assertThat(template.getId()).isNotNull();
@@ -117,7 +128,7 @@ class TemplateServiceTest extends ELNBaseTest {
 
     @Test
     void testEditTemplate() {
-        TemplateDetailsDTO template = templateClient.createTemplate(new TemplateRequest("testEditTemplate", templateTabs));
+        TemplateDetailsDTO template = createTemplate(new TemplateRequest("testEditTemplate", templateTabs));
         TemplateDetailsDTO notModified = templateClient.editTemplate(template.getId(), new TemplateEditRequest(null));
         assertThat(notModified).usingRecursiveComparison(COMPARE_WITHOUT_MODIFIED_AT).isEqualTo(template);
         TemplateDetailsDTO modified = templateClient.editTemplate(template.getId(), new TemplateEditRequest(Optional.of("testEditTemplate_new")));
@@ -126,5 +137,9 @@ class TemplateServiceTest extends ELNBaseTest {
         assertThat(saved).usingRecursiveComparison().isEqualTo(modified);
     }
 
-
+    private TemplateDetailsDTO createTemplate(TemplateRequest request) {
+        TemplateDetailsDTO template = templateClient.createTemplate(request);
+        templatesToRemove.add(template);
+        return template;
+    }
 }

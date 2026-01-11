@@ -1,2 +1,2 @@
-id,username,firstName,lastName,displayName
-00000000-0000-0000-0000-000000000001,admin,Administrator,Administrator,Administrator
+id,username,firstName,lastName,displayName,roles
+00000000-0000-0000-0000-000000000001,admin,Administrator,Administrator,Administrator,"Administrators"

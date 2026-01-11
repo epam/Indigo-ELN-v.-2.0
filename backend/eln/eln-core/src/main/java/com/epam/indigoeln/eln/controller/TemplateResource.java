@@ -42,4 +42,9 @@ public class TemplateResource implements TemplateAPI {
     public @NotNull @Valid TemplateDetailsDTO editTemplate(@NotNull UUID templateId, @NotNull @Valid TemplateEditRequest request) {
         return templateService.editTemplate(templateId, request);
     }
+
+    @Override
+    public void deleteTemplate(UUID templateId) {
+        templateService.deleteTemplate(templateId);
+    }
 }

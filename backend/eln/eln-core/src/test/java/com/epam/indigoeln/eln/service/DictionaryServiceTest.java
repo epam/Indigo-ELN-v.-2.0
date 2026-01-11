@@ -10,6 +10,7 @@ import one.util.streamex.StreamEx;
 import org.assertj.core.api.AbstractListAssert;
 import org.assertj.core.api.ObjectAssert;
 import org.assertj.core.groups.Tuple;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,11 @@ import static org.assertj.core.api.Assertions.tuple;
 @TestSecurity(user = ELNBaseTest.JOHN_USERNAME)
 public class DictionaryServiceTest extends ELNBaseTest {
 
+    static String DICTIONARY_CODE = "TEST";
+    
+    DictionaryDTO dictionary;
+    String dictionaryID;
+    boolean dictionaryDeleted;
     List<DictionaryItemDTO> items;
     DictionaryItemRef therapeuticArea;
     ExperimentDetailsDTO experiment;
@@ -41,12 +47,33 @@ public class DictionaryServiceTest extends ELNBaseTest {
         });
     }
 
+    @AfterAll
+    void tearDownClass() {
+        withUser(JOHN_USERNAME, () -> {
+            if (!dictionaryDeleted) {
+                dictionaryClient.removeDictionary(DICTIONARY_CODE);
+            }
+        });
+    }
+
+    @Test
+    @Order(0)
+    void testCreateDictionary() {
+        dictionary = dictionaryClient.createDictionary(new DictionaryRequest(DICTIONARY_CODE, "Test", false, "description"));
+        assertThat(dictionary.getCode()).isEqualTo(DICTIONARY_CODE);
+        assertThat(dictionary.getName()).isEqualTo("Test");
+        assertThat(dictionary.getUserEditable()).isFalse();
+        assertThat(dictionary.getDescription()).isEqualTo("description");
+        dictionaryID = dictionary.getId().toString();
+    }
+
     @Test
     @Order(1)
     void testGetDictionaries() {
         List<String> expected = StreamEx.of(BuiltInDictionary.values())
                 .map(Enum::name)
-                .toList();
+                .toMutableList();
+        expected.add(DICTIONARY_CODE);
         assertThat(dictionaryClient.getDictionaries()).map(DictionaryDTO::getCode).containsExactlyInAnyOrderElementsOf(expected);
     }
 
@@ -60,7 +87,7 @@ public class DictionaryServiceTest extends ELNBaseTest {
     @Test
     @Order(3)
     void testAddFirstItem() {
-        items = dictionaryClient.addDictionaryItem(BuiltInDictionary.TEST, new DictionaryItemRequest("A", "Adescription"));
+        items = dictionaryClient.addDictionaryItem(dictionaryID, new DictionaryItemRequest("A", "Adescription"));
         verify(items).containsExactly(
                 tuple("A", "Adescription", 1, true)
         );
@@ -69,7 +96,7 @@ public class DictionaryServiceTest extends ELNBaseTest {
     @Test
     @Order(4)
     void testAddSecondItem() {
-        items = dictionaryClient.addDictionaryItem(BuiltInDictionary.TEST, new DictionaryItemRequest("B", "Bdescription"));
+        items = dictionaryClient.addDictionaryItem(dictionaryID, new DictionaryItemRequest("B", "Bdescription"));
         verify(items).containsExactly(
                 tuple("A", "Adescription", 1, true),
                 tuple("B", "Bdescription", 2, true)
@@ -79,7 +106,7 @@ public class DictionaryServiceTest extends ELNBaseTest {
     @Test
     @Order(5)
     void testUpdateItem() {
-        items = dictionaryClient.updateDictionaryItem(BuiltInDictionary.TEST, items.getFirst().getId(), new DictionaryItemEditRequest(
+        items = dictionaryClient.updateDictionaryItem(dictionaryID, items.getFirst().getId(), new DictionaryItemEditRequest(
                 Optional.of("Anew"),
                 Optional.of("AdescriptionNew"),
                 null,
@@ -94,7 +121,7 @@ public class DictionaryServiceTest extends ELNBaseTest {
     @Test
     @Order(6)
     void testDeactivateItem() {
-        items = dictionaryClient.updateDictionaryItem(BuiltInDictionary.TEST, items.getFirst().getId(), new DictionaryItemEditRequest(
+        items = dictionaryClient.updateDictionaryItem(dictionaryID, items.getFirst().getId(), new DictionaryItemEditRequest(
                 null,
                 null,
                 null,
@@ -104,7 +131,7 @@ public class DictionaryServiceTest extends ELNBaseTest {
                 tuple("Anew", "AdescriptionNew", 1, false),
                 tuple("B", "Bdescription", 2, true)
         );
-        assertThat(dictionaryClient.getDictionary(BuiltInDictionary.TEST))
+        assertThat(dictionaryClient.getDictionary(dictionaryID))
                 .extracting(DictionaryItemRef::getName)
                 .containsExactly("B");
     }
@@ -112,7 +139,7 @@ public class DictionaryServiceTest extends ELNBaseTest {
     @Test
     @Order(7)
     void testAddThirdItem() {
-        items = dictionaryClient.addDictionaryItem(BuiltInDictionary.TEST, new DictionaryItemRequest("C", "Cdescription"));
+        items = dictionaryClient.addDictionaryItem(dictionaryID, new DictionaryItemRequest("C", "Cdescription"));
         verify(items).containsExactly(
                 tuple("Anew", "AdescriptionNew", 1, false),
                 tuple("B", "Bdescription", 2, true),
@@ -123,7 +150,7 @@ public class DictionaryServiceTest extends ELNBaseTest {
     @Test
     @Order(8)
     void testReorderItems() {
-        items = dictionaryClient.updateDictionaryItem(BuiltInDictionary.TEST, items.get(2).getId(), new DictionaryItemEditRequest(
+        items = dictionaryClient.updateDictionaryItem(dictionaryID, items.get(2).getId(), new DictionaryItemEditRequest(
                 null,
                 null,
                 Optional.of(2), // move C to position 2
@@ -136,23 +163,31 @@ public class DictionaryServiceTest extends ELNBaseTest {
         );
     }
 
+    @Test
+    @Order(9)
+    void testDeleteItem() {
+        items = dictionaryClient.removeDictionaryItem(dictionaryID, items.getFirst().getId());
+        verify(items).containsExactly(
+                tuple("C", "Cdescription", 1, true),
+                tuple("B", "Bdescription", 2, true)
+        );
+    }
+
 //    @Test
-//    @Order(9)
-//    void testDeleteItem() {
-//        items = dictionaryClient.removeDictionaryItem(BuiltInDictionary.TEST, items.getFirst().getId());
-//        verify(items).containsExactly(
-//                tuple("C", "Cdescription", 1, true),
-//                tuple("B", "Bdescription", 2, true)
-//        );
-//    }
-//
-//    @Test
-//    @Order(9)
+//    @Order(10)
 //    void testDeleteItemInUse() {
 //        assertThatClientCall(() -> {
 //            dictionaryClient.removeDictionaryItem(BuiltInDictionary.THERAPEUTIC_AREA, therapeuticArea.getId());
 //        }).isBadRequest("This word is selected in other inputs. Please deactivate the word to remove it from available options of the inputs");
 //    }
+
+    @Test
+    @Order(10)
+    void testDeleteDictionary() {
+        dictionaryClient.removeDictionary(dictionaryID);
+        assertThat(dictionaryClient.getDictionaries()).extracting(DictionaryDTO::getCode).doesNotContain(DICTIONARY_CODE);
+        dictionaryDeleted = true;
+    }
 
     private AbstractListAssert<?, List<? extends Tuple>, Tuple, ObjectAssert<Tuple>> verify(List<DictionaryItemDTO> items) {
         return assertThat(items).extracting(DictionaryItemDTO::getName, DictionaryItemDTO::getDescription, DictionaryItemDTO::getOrdinal, DictionaryItemDTO::getActive);

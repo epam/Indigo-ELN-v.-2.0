@@ -1,4 +1,4 @@
-package com.epam.indigoeln.flyway.service;
+package com.epam.indigoeln.flyway.migrations;
 
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
@@ -10,76 +10,75 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.vertx.core.json.jackson.VertxModule;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
-import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.output.MigrateResult;
+import org.flywaydb.core.api.migration.BaseJavaMigration;
+import org.flywaydb.core.api.migration.Context;
 
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 @Slf4j
-@ApplicationScoped
-public class DatabaseInitializationService {
+public class R__200_init_data extends BaseJavaMigration {
 
-    @Inject
-    Flyway flyway;
-    @Inject
-    DataSource dataSource;
+    private final Supplier<byte[]> ROLES_CSV = () -> ModelUtil.loadResource(getClass(), "/db/data/roles.csv");
+    private final Supplier<byte[]> USERS_CSV = () -> ModelUtil.loadResource(getClass(), "/db/data/users.csv");
+    private final Supplier<byte[]> DICTIONARIES_CSV = () -> ModelUtil.loadResource(getClass(), "/db/data/dictionaries.csv");
+    private final Supplier<byte[]> DICTIONARY_ITEMS_CSV = () -> ModelUtil.loadResource(getClass(), "/db/data/dictionary_items.csv");
+    private final Supplier<byte[]> SALT_CODES_CSV = () -> ModelUtil.loadResource(getClass(), "/db/data/salt_codes.csv");
+    private final Supplier<byte[]> TEMPLATES_CSV = () -> ModelUtil.loadResource(getClass(), "/db/data/templates.csv");
 
     private final CsvMapper mapper = new CsvMapper();
     private final CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
     private final AtomicReference<UUID> adminID = new AtomicReference<>();
 
-    DatabaseInitializationService() {
+    {
         mapper.registerModule(new VertxModule());
         mapper.registerModule(new JavaTimeModule());
         mapper.registerModule(new Jdk8Module());
         mapper.registerModule(new ParameterNamesModule());
     }
 
-    @SneakyThrows
-    public Map<String, String> migrate() {
-        MigrateResult flywayResult = flyway.migrate();
-        Map<String, String> statistics = new LinkedHashMap<>();
-        statistics.put("migrationsExecuted", "" + flywayResult.migrationsExecuted);
-        initDictionaries(statistics);
-        log.info("Database migration completed: {}", statistics);
-        return statistics;
+    @Override
+    public void migrate(Context context) throws Exception {
+        // roles and users
+        List<RoleSpec> roles = readCSV(RoleSpec.class, ROLES_CSV);
+        Map<String, RoleSpec> rolesMap = StreamEx.of(roles)
+                .toMap(RoleSpec::name, Function.identity());
+        log.info("roles: {}", insertRoles(context.getConnection(), roles));
+        List<UserSpec> users = readCSV(UserSpec.class, USERS_CSV);
+        adminID.set(users.getFirst().id());
+        log.info("users: {}", insertUsers(context.getConnection(), users, rolesMap));
+        // dictionaries and items
+        List<DictionarySpec> dictionaries = readCSV(DictionarySpec.class, DICTIONARIES_CSV);
+        log.info("dictionaries: {}", insertDictionaries(context.getConnection(), dictionaries));
+        Map<String, DictionarySpec> dictionaryMap = StreamEx.of(dictionaries)
+                .toMap(DictionarySpec::code, Function.identity());
+        log.info("items: {}", insertDictionaryItems(context.getConnection(), readCSV(DictionaryItemSpec.class, DICTIONARY_ITEMS_CSV), dictionaryMap));
+        log.info("salt codes: {}", insertSaltCodes(context.getConnection(), readCSV(SaltCodeSpec.class, SALT_CODES_CSV)));
+        // templates
+        log.info("templates: {}", insertTemplates(context.getConnection(), readCSV(TemplateSpec.class, TEMPLATES_CSV)));
     }
 
-    @Transactional
-    @SneakyThrows
-    void initDictionaries(Map<String, String> statistics) {
-        try (Connection conn = dataSource.getConnection()) {
-            // roles and users
-            statistics.put("rolesInserted", "" + insertRoles(conn, readCSV(RoleSpec.class, "/db/data/roles.csv")));
-            List<UserSpec> users = readCSV(UserSpec.class, "/db/data/users.csv");
-            adminID.set(users.getFirst().id());
-            statistics.put("usersInserted", "" + insertUsers(conn, users));
-            // dictionaries and items
-            List<DictionarySpec> dictionaries = readCSV(DictionarySpec.class, "/db/data/dictionaries.csv");
-            statistics.put("dictionariesInserted", "" + insertDictionaries(conn, dictionaries));
-            Map<String, DictionarySpec> dictionaryMap = StreamEx.of(dictionaries)
-                    .toMap(DictionarySpec::code, Function.identity());
-            statistics.put("itemsInserted", "" + insertDictionaryItems(conn, readCSV(DictionaryItemSpec.class, "/db/data/dictionary_items.csv"), dictionaryMap));
-            statistics.put("saltCodesInserted", "" + insertSaltCodes(conn, readCSV(SaltCodeSpec.class, "/db/data/salt_codes.csv")));
-            // templates
-            statistics.put("templatesInserted", "" + insertTemplates(conn, readCSV(TemplateSpec.class, "/db/data/templates.csv")));
-        }
+    @Override
+    public Integer getChecksum() {
+        int checksum = 0;
+        checksum |= Arrays.hashCode(ROLES_CSV.get());
+        checksum |= Arrays.hashCode(USERS_CSV.get());
+        checksum |= Arrays.hashCode(DICTIONARIES_CSV.get());
+        checksum |= Arrays.hashCode(DICTIONARY_ITEMS_CSV.get());
+        checksum |= Arrays.hashCode(SALT_CODES_CSV.get());
+        checksum |= Arrays.hashCode(TEMPLATES_CSV.get());
+        return checksum;
     }
 
-    private <T> List<T> readCSV(Class<T> klass, String resourceName) throws IOException {
-        try (MappingIterator<T> it = mapper.readerFor(klass).with(schema).readValues(ModelUtil.loadResource(getClass(), resourceName))) {
+    private <T> List<T> readCSV(Class<T> klass, Supplier<byte[]> bytes) throws IOException {
+        try (MappingIterator<T> it = mapper.readerFor(klass).with(schema).readValues(bytes.get())) {
             return it.readAll();
         }
     }
@@ -111,12 +110,17 @@ public class DatabaseInitializationService {
         }
     }
 
-    private int insertUsers(Connection conn, List<UserSpec> users) throws SQLException {
+    private int insertUsers(Connection conn, List<UserSpec> users, Map<String, RoleSpec> rolesMap) throws SQLException {
         try (PreparedStatement st = conn.prepareStatement("""
                 INSERT INTO User_Account (id, created_by_id, created_at, modified_by_id, modified_at, username, first_name, last_name, display_name)
                 VALUES (?, ?, now(), ?, now(), ?, ?, ?, ?)
                 ON CONFLICT (id) DO UPDATE
                 SET username=?, first_name=?, last_name=?, display_name=?, modified_by_id=?, modified_at=now()
+                """);
+             PreparedStatement stRoles = conn.prepareStatement("""
+                INSERT INTO User_Account_Application_Role (user_id, role_id)
+                VALUES (?, ?)
+                ON CONFLICT (user_id, role_id) DO NOTHING
                 """)) {
             for (UserSpec user : users) {
                 int parameterNo = 0;
@@ -131,15 +135,26 @@ public class DatabaseInitializationService {
                 }
                 st.setObject(++parameterNo, adminID.get());
                 st.addBatch();
+                for (String role : user.roles) {
+                    stRoles.setObject(1, user.id);
+                    RoleSpec roleSpec = rolesMap.get(role);
+                    if (roleSpec == null) {
+                        throw new IllegalStateException("Role " + role + " not found");
+                    }
+                    stRoles.setObject(2, roleSpec.id);
+                    stRoles.addBatch();
+                }
             }
-            return st.executeBatch().length;
+            int count = st.executeBatch().length;
+            stRoles.executeBatch();
+            return count;
         }
     }
 
     private int insertDictionaries(Connection conn, List<DictionarySpec> dictionaries) throws SQLException {
         try (PreparedStatement st = conn.prepareStatement("""
-                INSERT INTO Dictionary (id, created_by_id, created_at, modified_by_id, modified_at, code, name, user_editable, description)
-                VALUES (?, ?, now(), ?, now(), ?, ?, ?, ?)
+                INSERT INTO Dictionary (id, created_by_id, created_at, modified_by_id, modified_at, code, name, user_editable, description, deleted)
+                VALUES (?, ?, now(), ?, now(), ?, ?, ?, ?, false)
                 ON CONFLICT (id) DO UPDATE
                 SET code=?, name=?, user_editable=?, description=?, modified_by_id=?, modified_at=now()
                 """)) {
@@ -163,8 +178,8 @@ public class DatabaseInitializationService {
 
     private int insertDictionaryItems(Connection conn, List<DictionaryItemSpec> items, Map<String, DictionarySpec> dictionaryMap) throws SQLException {
         try (PreparedStatement st = conn.prepareStatement("""
-                INSERT INTO Dictionary_Item (id, created_by_id, created_at, modified_by_id, modified_at, dictionary_id, ordinal, name, description, active)
-                VALUES (?, ?, now(), ?, now(), ?, ?, ?, ?, ?)
+                INSERT INTO Dictionary_Item (id, created_by_id, created_at, modified_by_id, modified_at, dictionary_id, ordinal, name, description, active, deleted)
+                VALUES (?, ?, now(), ?, now(), ?, ?, ?, ?, ?, false)
                 ON CONFLICT (id) DO UPDATE 
                 SET ordinal=?, name=?, description=?, active=?, modified_by_id=?, modified_at=now()
                 """)) {
@@ -257,42 +272,43 @@ public class DatabaseInitializationService {
             String username,
             String firstName,
             String lastName,
-            String displayName
+            String displayName,
+            List<String> roles
     ) {}
 
     @RegisterForReflection
     public record DictionarySpec (
-        UUID id,
-        String code,
-        String name,
-        boolean userEditable,
-        String description
+            UUID id,
+            String code,
+            String name,
+            boolean userEditable,
+            String description
     ) {}
 
     @RegisterForReflection
     public record DictionaryItemSpec (
-        UUID id,
-        String dictionary,
-        int ordinal,
-        String name,
-        String description,
-        boolean active
+            UUID id,
+            String dictionary,
+            int ordinal,
+            String name,
+            String description,
+            boolean active
     ) {}
 
     @RegisterForReflection
     public record SaltCodeSpec (
-        UUID id,
-        String code,
-        String name,
-        String formula,
-        int charge,
-        double molWeight
+            UUID id,
+            String code,
+            String name,
+            String formula,
+            int charge,
+            double molWeight
     ) {}
 
     @RegisterForReflection
     public record TemplateSpec (
-        UUID id,
-        String name,
-        String content
+            UUID id,
+            String name,
+            String content
     ) {}
 }

@@ -12,7 +12,7 @@ import java.sql.Statement;
 import java.util.UUID;
 
 @Slf4j
-public class R__200_migrate_experiment_models extends BaseJavaMigration {
+public class R__300_migrate_experiment_models extends BaseJavaMigration {
 
     private static final int TARGET_SCHEMA_VERSION = 1; // TODO use constant in ExperimentModel
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

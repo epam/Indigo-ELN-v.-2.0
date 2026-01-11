@@ -33,4 +33,7 @@ public class DictionaryItemEntity extends BaseEntity {
 
     @NotNull
     private Boolean active;
+
+    @NotNull
+    private Boolean deleted;
 }

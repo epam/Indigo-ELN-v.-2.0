@@ -4,10 +4,7 @@ import com.epam.indigoeln.eln.entity.DictionaryEntity;
 import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
 import com.epam.indigoeln.eln.entity.SaltCodeEntity;
 import com.epam.indigoeln.eln.entity.SaltCodeInfo;
-import com.epam.indigoeln.eln.model.DictionaryDTO;
-import com.epam.indigoeln.eln.model.DictionaryItemDTO;
-import com.epam.indigoeln.eln.model.DictionaryItemRef;
-import com.epam.indigoeln.eln.model.DictionaryItemRequest;
+import com.epam.indigoeln.eln.model.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
@@ -20,6 +17,11 @@ import java.util.List;
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR, nullValueCheckStrategy =  NullValueCheckStrategy.ALWAYS)
 public abstract class DictionaryMapper extends AbstractMapper {
 
+    @IgnoreBaseFields
+    @Mapping(target = "items", ignore = true)
+    @Mapping(target = "deleted", constant = "false")
+    public abstract DictionaryEntity requestToEntity(DictionaryRequest request);
+
     public abstract DictionaryDTO dictionaryToDTO(DictionaryEntity entity);
 
     public abstract List<DictionaryItemDTO> itemToDTOList(Collection<DictionaryItemEntity> entities);
@@ -28,9 +30,10 @@ public abstract class DictionaryMapper extends AbstractMapper {
     public abstract List<DictionaryItemRef> itemToRefList(Collection<DictionaryItemEntity> entities);
 
     @IgnoreBaseFields
-    @Mapping(target = "active", constant = "true")
     @Mapping(target = "ordinal", ignore = true)
     @Mapping(target = "dictionary", ignore = true)
+    @Mapping(target = "active", constant = "true")
+    @Mapping(target = "deleted", constant = "false")
     public abstract DictionaryItemEntity itemToEntity(DictionaryItemRequest request);
 
     public abstract SaltCodeInfo saltCodeToInfo(SaltCodeEntity entity);
