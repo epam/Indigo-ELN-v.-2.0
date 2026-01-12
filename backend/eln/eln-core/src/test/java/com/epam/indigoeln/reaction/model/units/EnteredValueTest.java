@@ -41,8 +41,8 @@ class EnteredValueTest {
             for (MeasurementUnit unitA : UNITS) {
                 for (MeasurementUnit unitB : UNITS) {
                     AbstractThrowableAssert<?, ? extends Throwable> assertion = softly.assertThatCode(() -> {
-                        EnteredValueOpt valueA = opt(userLastEntered(1.0, unitA));
-                        EnteredValue<?> valueB = userLastEntered(1.0, unitB);
+                        EnteredValueOpt<MeasurementUnit> valueA = opt(userLastEntered(1.0, unitA));
+                        EnteredValue<MeasurementUnit> valueB = userLastEntered(1.0, unitB);
                         valueA.add(valueB);
                     }).describedAs("units: %s + %s", unitA, unitB);
                     boolean shouldSucceed = unitA.getClass() == unitB.getClass();
@@ -67,8 +67,8 @@ class EnteredValueTest {
 
     @Test
     void testAddInconvertibleUnitsThrows() {
-        EnteredValue<WeightUnit> weight = userLastEntered(1.0, WeightUnit.G);
-        EnteredValue<VolumeUnit> volume = userLastEntered(1.0, VolumeUnit.ML);
+        EnteredValue<MeasurementUnit> weight = userLastEntered(1.0, WeightUnit.G);
+        EnteredValue<MeasurementUnit> volume = userLastEntered(1.0, VolumeUnit.ML);
         Assertions.assertThatThrownBy(() -> opt(weight).add(volume))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Inconvertible units: G and ML");
@@ -85,8 +85,8 @@ class EnteredValueTest {
 
     @Test
     void testSubtractInconvertibleUnitsThrows() {
-        EnteredValue<WeightUnit> weight = userLastEntered(1.0, WeightUnit.G);
-        EnteredValue<VolumeUnit> volume = userLastEntered(1.0, VolumeUnit.ML);
+        EnteredValue<MeasurementUnit> weight = userLastEntered(1.0, WeightUnit.G);
+        EnteredValue<MeasurementUnit> volume = userLastEntered(1.0, VolumeUnit.ML);
         Assertions.assertThatThrownBy(() -> opt(weight).subtract(volume))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Inconvertible units: G and ML");
@@ -114,9 +114,9 @@ class EnteredValueTest {
             "L,G_ML,KG,1",
     })
     void testMultiplySuccess(String unitA, String unitB, String expectedUnit, double expectedValue) {
-        EnteredValueOpt valueA = opt(userLastEntered(1.0, getUnit(unitA)));
-        EnteredValue<?> valueB = userLastEntered(1.0, getUnit(unitB));
-        EnteredValue<?> result = valueA.multiply(valueB).getValue();
+        EnteredValueOpt<MeasurementUnit> valueA = opt(userLastEntered(1.0, getUnit(unitA)));
+        EnteredValue<MeasurementUnit> valueB = userLastEntered(1.0, getUnit(unitB));
+        EnteredValue<MeasurementUnit> result = valueA.multiply(valueB).getValue();
         assertThat(result.getUnit()).isEqualTo(getUnit(expectedUnit));
         assertThat(result.getValue()).isCloseTo(expectedValue, EPSILON);
     }
@@ -157,9 +157,9 @@ class EnteredValueTest {
             "MOL,M,L,1",
     })
     void testDivideSuccess(String unitA, String unitB, String expectedUnit, double expectedValue) {
-        EnteredValueOpt valueA = opt(userLastEntered(1.0, getUnit(unitA)));
-        EnteredValue<?> valueB = userLastEntered(1.0, getUnit(unitB));
-        EnteredValue<?> result = valueA.divide(valueB).getValue();
+        EnteredValueOpt<MeasurementUnit> valueA = opt(userLastEntered(1.0, getUnit(unitA)));
+        EnteredValue<MeasurementUnit> valueB = userLastEntered(1.0, getUnit(unitB));
+        EnteredValue<MeasurementUnit> result = valueA.divide(valueB).getValue();
         assertThat(result.getUnit()).isEqualTo(getUnit(expectedUnit));
         assertThat(result.getValue()).isCloseTo(expectedValue, EPSILON);
     }

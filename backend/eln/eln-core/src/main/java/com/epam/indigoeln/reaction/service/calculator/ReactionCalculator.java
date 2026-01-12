@@ -1,10 +1,7 @@
 package com.epam.indigoeln.reaction.service.calculator;
 
 import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.units.EnteredValue;
-import com.epam.indigoeln.reaction.model.units.EnteredValueOpt;
-import com.epam.indigoeln.reaction.model.units.MeasurementUnit;
-import com.epam.indigoeln.reaction.model.units.MolWeightUnit;
+import com.epam.indigoeln.reaction.model.units.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
@@ -47,12 +44,12 @@ public class ReactionCalculator {
         EnteredValue<MolWeightUnit> molWeight = input.getCompound().getMolWeight();
         return updateCycle("input " + input.getAnchor(), () -> {
             boolean updated = false;
-            EnteredValueOpt mol = opt(ZERO_MOL);
+            EnteredValueOpt<MolUnit> mol = opt(ZERO_MOL);
             for (ReactionInputSample sample : input.getSamples()) {
                 mol = mol.add(sample.getMol());
             }
-            EnteredValueOpt mol2 = opt(null);
-            EnteredValueOpt eq = opt(null);
+            EnteredValueOpt<MolUnit> mol2 = opt(null);
+            EnteredValueOpt<NoUnit> eq = opt(null);
             if (!input.isLimiting()) {
                 ReactionInput limitingInput = input.getReaction().getLimitingInput();
                 if (limitingInput != null) {
@@ -81,8 +78,8 @@ public class ReactionCalculator {
     private boolean recalculateInputSample(ReactionInputSample sample, @Nullable EnteredValue<MolWeightUnit> molWeight) {
         return updateCycle("input sample " + sample.getAnchor(), () -> {
             boolean updated = false;
-            EnteredValueOpt rowMol = opt(sample.getRow().getMol());
-            EnteredValueOpt otherSamplesMol = StreamEx.of(sample.getRow().getSamples())
+            EnteredValueOpt<MolUnit> rowMol = opt(sample.getRow().getMol());
+            EnteredValueOpt<MolUnit> otherSamplesMol = StreamEx.of(sample.getRow().getSamples())
                     .filter(s -> s != sample)
                     .map(s -> EnteredValueOpt.opt(s.getMol()))
                     .reduce(EnteredValueOpt.opt(ZERO_MOL), EnteredValueOpt::add);
@@ -117,8 +114,8 @@ public class ReactionCalculator {
         EnteredValue<MolWeightUnit> molWeight = output.getCompound().getMolWeight();
         return updateCycle("output " + output.getAnchor(), () -> {
             boolean updated = false;
-            EnteredValueOpt theoMol = opt(null);
-            EnteredValueOpt eq = opt(null);
+            EnteredValueOpt<MolUnit> theoMol = opt(null);
+            EnteredValueOpt<NoUnit> eq = opt(null);
             ReactionInput limitingInput = output.getReaction().getLimitingInput();
             if (limitingInput != null) {
                 theoMol = opt(limitingInput.getMol()).divide(limitingInput.getEq()).multiply(output.getEq());
@@ -179,11 +176,12 @@ public class ReactionCalculator {
         });
     }
 
-    private <R extends MeasurementUnit> boolean tryUpdate(String displayName, @Nullable EnteredValue<R> targetCurrent, Consumer<EnteredValue<R>> targetSetter, EnteredValueOpt... results) {
+    @SafeVarargs
+    private <R extends MeasurementUnit> boolean tryUpdate(String displayName, @Nullable EnteredValue<R> targetCurrent, Consumer<EnteredValue<R>> targetSetter, EnteredValueOpt<R>... results) {
         boolean updated = false;
         EnteredValue<R> original = targetCurrent;
 //        boolean checkConflicts = false;
-        for (EnteredValueOpt result : results) {
+        for (EnteredValueOpt<R> result : results) {
             if (result.getValue() != null) {
                 if (targetCurrent == null) {
                     log.debug("tryUpdate: {}: no previous value, set to {}", displayName, result.getValue());
