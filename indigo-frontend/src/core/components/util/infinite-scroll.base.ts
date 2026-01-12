@@ -20,7 +20,7 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
         : [...currValue, ...data.items];
 
       this.dataBh.next(ensureDistinct(result, 'id'));
-      this.isLoading = false; // Reset loading flag when data arrives
+      this.isLoading = false;
     });
 
     this.data$ = this.dataBh.asObservable();
@@ -35,13 +35,13 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
     const totalPages = Math.ceil(this.total / this.pager.pageSize);
 
     if (nextBackendPage < totalPages) {
-      this.isLoading = true; // Set loading flag
+      this.isLoading = true;
       this.pager.pageNo = nextBackendPage;
       this.fetchDataAndUpdateQueryParams(true);
     }
   }
   private resetListState() {
-    this.isLoading = true; // Set loading true BEFORE clearing list to prevent scroll trigger
+    this.isLoading = true;
     this.appendToTop = false; // Reset the reverse order bug
     this.pager.pageNo = 0;
     this.dataBh.next([]);
@@ -56,11 +56,11 @@ export abstract class InfiniteScrollBase<T> extends PaginatedBase<T> {
     super.sort(sortBy, sortOrder);
   }
 
-  // override clearSort() {
-  //   this.pager.pageNo = 0;
-  //   this.dataBh.next([]);
-  //   super.clearSort();
-  // }
+  override clearSort() {
+    this.pager.pageNo = 0;
+    this.dataBh.next([]);
+    super.clearSort();
+  }
 
   reload() {
     this.resetListState();
