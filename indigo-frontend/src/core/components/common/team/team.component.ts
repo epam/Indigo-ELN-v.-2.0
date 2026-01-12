@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject, signal, computed, WritableSignal } from '@angular/core';
+import { Component, Input, OnInit, inject, signal, computed, WritableSignal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardComponent } from '../card/card.component';
 import { CopyComponent } from '../copy/copy.component';
@@ -10,7 +10,7 @@ import { ApiService } from '@/core/services/api.service';
 import { finalize } from 'rxjs';
 import { NormalizeLabelPipe } from '@/core/pipes/normalizeLabe.pipe';
 import { ButtonComponent } from '../button/button.component';
-import { NgSelectModule } from '@ng-select/ng-select';
+import { NgSelectComponent, NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';
 import { TeamComponentConfig } from './team.config';
 
@@ -73,6 +73,8 @@ export class TeamComponent implements OnInit {
 
     private api = inject(ApiService);
 
+    @ViewChild(NgSelectComponent) ngSelectComponent!: NgSelectComponent;
+
     get addMemberLabelMap(): Record<string, string> {
         return {
             '=0': 'Add member',
@@ -95,6 +97,8 @@ export class TeamComponent implements OnInit {
 
     onUsersSelectedIds(ids: string[]): void {
         this.selectedUserIds = ids.filter(id => !this.isUserInTeam(id));
+
+        this.ngSelectComponent.searchTerm = '';
     }
 
     addSelectedUsers(): void {

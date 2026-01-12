@@ -34,16 +34,16 @@ export class NotebookEditComponent {
       key: 'name',
       props: {
         label: 'Notebook Name',
-        placeholder: 'Notebook Name',
+        placeholder: '00000000',
         required: true,
         minLength: NOTEBOOK_NAME_LENGTH,
         maxLength: NOTEBOOK_NAME_LENGTH,
-        description: `Must be exactly ${NOTEBOOK_NAME_LENGTH} characters`,
+        description: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
       },
       validation: {
         messages: {
-          minlength: `Must be exactly ${NOTEBOOK_NAME_LENGTH} characters`,
-          maxlength: `Must be exactly ${NOTEBOOK_NAME_LENGTH} characters`,
+          minlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
+          maxlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
           required: 'Name is required',
         },
       },

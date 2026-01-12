@@ -1,14 +1,13 @@
 package com.epam.indigoeln.eln.mapper;
 
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
-import com.epam.indigoeln.eln.model.ExperimentDTO;
-import com.epam.indigoeln.eln.model.ExperimentDetailsDTO;
-import com.epam.indigoeln.eln.model.ExperimentRequest;
-import com.epam.indigoeln.eln.model.ExperimentStatus;
+import com.epam.indigoeln.eln.model.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.ReportingPolicy;
+
+import java.util.Set;
 
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR, nullValueCheckStrategy =  NullValueCheckStrategy.ALWAYS)
 public abstract class ExperimentMapper extends AbstractMapper {
@@ -40,8 +39,8 @@ public abstract class ExperimentMapper extends AbstractMapper {
     @Mapping(target = "marked", source = "calculatedInfo.marked")
     public abstract ExperimentDTO entityToDTO(ExperimentEntity entity);
 
-    @Mapping(target = "acl", source = "fullACL")
-    @Mapping(target = "marked", source = "calculatedInfo.marked")
-    @Mapping(target = "templateId", source = "template.id")
-    public abstract ExperimentDetailsDTO entityToDetailsDTO(ExperimentEntity entity);
+    @Mapping(target = "acl", source = "entity.fullACL")
+    @Mapping(target = "marked", source = "entity.calculatedInfo.marked")
+    @Mapping(target = "templateId", source = "entity.template.id")
+    public abstract ExperimentDetailsDTO entityToDetailsDTO(ExperimentEntity entity, Set<ApplicationPermission> currentPermissions);
 }

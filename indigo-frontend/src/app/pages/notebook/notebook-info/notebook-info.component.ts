@@ -33,7 +33,6 @@ export class NotebookInfoComponent {
     }
 
     notebookTeamConfig: TeamComponentConfig = {
-      title: 'Notebook Team',
       buildAccessEndpoint: (id: string) => `notebooks/${id}/access`,
     };
 

@@ -475,9 +475,15 @@ class PermissionsTest extends ELNBaseTest {
         @Order(201)
         void testRemoveUser() {
             List<ACLDetailsEntryDTO> acl = projectClient.updateProjectAccess(project.getId(), AccessForm.of(willowUserID, NONE));
-            assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
+            assertThatACL(acl).containsOnly(
+                    JOHN_DISPLAY_NAME, AUTHOR, false,
+                    WILLOW_DISPLAY_NAME, IMPLICIT_VIEW, false
+            );
             acl = notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(willowUserID, NONE));
-            assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
+            assertThatACL(acl).containsOnly(
+                    JOHN_DISPLAY_NAME, AUTHOR, false,
+                    WILLOW_DISPLAY_NAME, IMPLICIT_VIEW, false
+            );
             acl = experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(willowUserID, NONE));
             assertThatACL(acl).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
         }

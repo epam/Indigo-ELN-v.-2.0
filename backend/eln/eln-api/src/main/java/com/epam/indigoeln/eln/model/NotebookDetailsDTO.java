@@ -20,6 +20,9 @@ public class NotebookDetailsDTO extends BaseNotebookDTO {
     @NotNull
     List<ACLDetailsEntryDTO> acl;
 
+    @NotNull
+    List<ApplicationPermission> currentPermissions;
+
     @Override
     public String toString() {
         return "NotebookDetailsDTO{" +

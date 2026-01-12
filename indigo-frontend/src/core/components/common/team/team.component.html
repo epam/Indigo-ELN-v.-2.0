@@ -3,7 +3,7 @@
     class="flex items-center justify-between border-b border-b-neutral-200 pb-3"
   >
     <div class="flex items-center gap-2">
-      <h2 class="font-semibold text-base">{{ config.title }}</h2>
+      <h2 class="font-semibold text-base">Team</h2>
       <eln-counter [count]="teamVm().length" variant="grey" size="large" />
     </div>
   </div>
@@ -18,7 +18,7 @@
         [multiple]="true"
         [closeOnSelect]="false"
         [searchable]="true"
-        placeholder="Add users..."
+        placeholder="Emails, comma separated"
         [(ngModel)]="selectedUserIds"
         (change)="onUsersSelectedIds(selectedUserIds)"
         [clearable]="true"

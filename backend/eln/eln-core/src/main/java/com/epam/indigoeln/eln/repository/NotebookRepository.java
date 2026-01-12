@@ -1,8 +1,6 @@
 package com.epam.indigoeln.eln.repository;
 
-import com.epam.indigoeln.eln.entity.NotebookEntity;
-import com.epam.indigoeln.eln.entity.ProjectEntity;
-import com.epam.indigoeln.eln.entity.UserEntity;
+import com.epam.indigoeln.eln.entity.*;
 import com.epam.indigoeln.eln.mapper.NotebookMapper;
 import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.ACLService;
@@ -17,6 +15,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 @ApplicationScoped
 public class NotebookRepository extends BaseRepository<NotebookEntity> {
@@ -51,14 +50,14 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
         );
     }
 
-    public NotebookDetailsDTO loadDetails(UUID id) {
+    public NotebookEntity loadDetails(UUID id) {
         NotebookEntity notebook = doLoadDetails(
                 id,
                 em.getEntityGraph("Notebook.details"),
                 Function.identity()
         );
         aclService.ensureAccess(notebook, ApplicationPermission.VIEW_NOTEBOOKS);
-        return notebookMapper.entityToDetailsDTO(notebook);
+        return notebook;
     }
 
     public List<NotebookEntity> findByProjectWithACLEntities(ProjectEntity project) {
@@ -69,5 +68,25 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
 
     public boolean hasAccessibleNotebooks(ProjectEntity project) {
         return find("project", project).firstResult() != null;
+    }
+
+    public List<NestedACLEntryDTO> findNestedAccess(UUID notebookId) {
+        @SuppressWarnings("unchecked")
+        Stream<Object[]> stream = em.createQuery("select e, a from Experiment e " +
+                        "join e.aclEntities a " +
+                        "join fetch a.user " +
+                        "where e.notebook.id = :notebookId " +
+                        "and a.level != :implicitView"
+                )
+                .setParameter("notebookId", notebookId)
+                .setParameter("implicitView", AccessLevel.IMPLICIT_VIEW)
+                .getResultStream();
+        return stream
+                .map(arr -> {
+                    ExperimentEntity entity = (ExperimentEntity) arr[0];
+                    ExperimentACLEntity entry = (ExperimentACLEntity) arr[1];
+                    return new NestedACLEntryDTO(EntityType.EXPERIMENT, entity.getId(), entity.getName(), entry.getUser().getId(), entry.getUser().getDisplayName(), entry.getLevel());
+                })
+                .toList();
     }
 }

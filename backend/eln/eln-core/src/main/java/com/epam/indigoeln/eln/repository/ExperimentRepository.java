@@ -48,14 +48,14 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
         );
     }
 
-    public ExperimentDetailsDTO load(UUID id) {
+    public ExperimentEntity load(UUID id) {
         ExperimentEntity experiment = doLoadDetails(
                 id,
                 em.getEntityGraph("Experiment.details"),
                 Function.identity()
         );
         aclService.ensureAccess(experiment, ApplicationPermission.VIEW_EXPERIMENTS);
-        return experimentMapper.entityToDetailsDTO(experiment);
+        return experiment;
     }
 
     public ExperimentEntity loadForReport(UUID id) {

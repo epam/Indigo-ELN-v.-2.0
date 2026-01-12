@@ -45,14 +45,12 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.epam.indigoeln.common.util.ModelUtil.editProperty;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.*;
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
 
 @Slf4j
@@ -113,7 +111,7 @@ public class ExperimentService {
         aclService.initExperimentACL(experiment);
         experimentRepository.persist(experiment);
         experimentRepository.flushAndRefresh(experiment);
-        return getExperiment(experiment.getId());
+        return getExperimentDetails(experiment);
     }
 
     public Page<ExperimentDTO> getExperiments(@Nullable UUID projectId, @Nullable UUID notebookId, @Nullable SortOrder sort, @Nullable Boolean createdByMe, Paging paging) {
@@ -127,7 +125,14 @@ public class ExperimentService {
     }
 
     public ExperimentDetailsDTO getExperiment(UUID experimentId) {
-        return experimentRepository.load(experimentId);
+        ExperimentEntity experiment = experimentRepository.load(experimentId);
+        return getExperimentDetails(experiment);
+    }
+
+    public ExperimentDetailsDTO getExperimentDetails(ExperimentEntity experiment) {
+        Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(experiment.getCalculatedInfo() != null ? experiment.getCalculatedInfo().getCurrentAccess() : null);
+        currentPermissions.retainAll(EnumSet.of(VIEW_EXPERIMENTS, EDIT_EXPERIMENTS, MANAGE_EXPERIMENT_ACCESS, DELETE_EXPERIMENTS, SUBMIT_EXPERIMENTS));
+        return experimentMapper.entityToDetailsDTO(experiment, currentPermissions);
     }
 
     public ExperimentDetailsDTO editExperiment(UUID experimentId, ExperimentEditRequest request) {
@@ -141,7 +146,7 @@ public class ExperimentService {
         });
         updateDates(experiment, userService.getCurrentUserEntity());
         experimentRepository.flushAndRefresh(experiment);
-        return getExperiment(experimentId);
+        return getExperimentDetails(experiment);
     }
 
     public Boolean markExperiment(UUID experimentId, boolean isMarked) {
@@ -244,7 +249,7 @@ public class ExperimentService {
         experimentRepository.loadForReport(experiment.getId());
         ReportsAPI.ExperimentReportDataDTO data = new ReportsAPI.ExperimentReportDataDTO(
                 projectMapper.entityToDTO(experiment.getProject()),
-                experimentMapper.entityToDetailsDTO(experiment),
+                experimentMapper.entityToDetailsDTO(experiment, Set.of()),
                 experiment.getPicture() != null ? new String(experiment.getPicture(), StandardCharsets.UTF_8) : null,
                 experiment.getModel()
         );

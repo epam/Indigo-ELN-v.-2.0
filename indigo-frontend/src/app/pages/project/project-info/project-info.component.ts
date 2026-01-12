@@ -55,7 +55,6 @@ export class ProjectInfoComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   projectTeamConfig: TeamComponentConfig = {
-    title: 'Project Team',
     buildAccessEndpoint: (id: string) => `projects/${id}/access`,
   };
 

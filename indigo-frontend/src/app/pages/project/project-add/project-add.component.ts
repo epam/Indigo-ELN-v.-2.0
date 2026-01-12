@@ -52,7 +52,7 @@ export class ProjectAddComponent implements OnInit {
       },
     },
     {
-      type: 'input',
+      type: 'editor',
       key: 'literature',
       defaultValue: '',
       props: {
@@ -74,8 +74,7 @@ export class ProjectAddComponent implements OnInit {
   private router = inject(Router);
   private notificationService = inject(NotificationService);
 
-  constructor(protected service: ApiService<any>) {
-  }
+  constructor(protected service: ApiService<any>) {}
 
   ngOnInit(): void {
     this.project = this.data?.project || null;
