@@ -71,7 +71,7 @@ public class NotebookEntity extends BaseEntity implements WithAttachments, WithA
     private ProjectEntity project;
 
     @NotEmpty
-    @Pattern(regexp = "^\\d{8}$", message = "Notebook name must be 8 digits")
+    @Pattern(regexp = "^\\d{8}$", message = "Notebook Name is invalid, use 8 digits only")
     private String name;
 
     @Nullable

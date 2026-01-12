@@ -48,8 +48,8 @@ export class NotebookAddComponent {
       },
       validation: {
         messages: {
-          minlength: `Must be exactly ${NOTEBOOK_NAME_LENGTH} characters`,
-          maxlength: `Must be exactly ${NOTEBOOK_NAME_LENGTH} characters`,
+          minlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
+          maxlength: `Notebook Name is invalid, use ${NOTEBOOK_NAME_LENGTH} digits only`,
           required: 'Name is required',
         },
       },
