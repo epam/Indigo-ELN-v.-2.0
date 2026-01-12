@@ -34,7 +34,7 @@ export class NotebookEditComponent {
       key: 'name',
       props: {
         label: 'Notebook Name',
-        placeholder: 'Notebook Name',
+        placeholder: '00000000',
         required: true,
         minLength: NOTEBOOK_NAME_LENGTH,
         maxLength: NOTEBOOK_NAME_LENGTH,
