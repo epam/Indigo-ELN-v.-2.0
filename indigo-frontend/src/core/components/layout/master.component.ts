@@ -1,6 +1,6 @@
 import { UserService } from '@/core/services/user.service';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
@@ -8,9 +8,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { AuthenticatorService } from '@aws-amplify/ui-angular';
-import { Subject, takeUntil } from 'rxjs';
+import { Observable, Subject, takeUntil } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { SidebarComponent } from './partials/sidebar/sidebar.component';
 import { GlobalSearchComponent } from '@pages/search/global-search/global-search.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -44,6 +45,8 @@ export class MasterComponent implements OnInit, OnDestroy {
   userName = 'John D.';
   userAvatar = 'assets/avatar-placeholder.png';
 
+  @ViewChild('content', {static: true}) content!: ElementRef<HTMLElement>;
+
   logout() {
     this.authenticatorService.signOut();
     this.router.navigateByUrl('/');
@@ -53,6 +56,11 @@ export class MasterComponent implements OnInit, OnDestroy {
     this.userService.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
       this.userName = `${user.displayName}`;
     });
+
+    (this.router.events as Observable<NavigationEnd>).pipe(filter((e) => e instanceof NavigationEnd))
+    .subscribe(() => {
+      this.content.nativeElement.scrollTop = 0;
+    })
   }
 
   ngOnDestroy(): void {
